@@ -14,6 +14,11 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once('client.inc.php');
+if($cfg && !$cfg->isHelpDeskOffline()) { 
+    @header('Location: index.php'); //Redirect if the system is online.
+    include('index.php');
+    exit;
+}
 $nav=null;
 require(CLIENTINC_DIR.'header.inc.php');
 ?>
