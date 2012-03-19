@@ -39,7 +39,7 @@ if($_POST && $_POST['s']) {
             break;
         case 'config':
             if(!$installer->config_exists())
-                $errors['err']='Configuratin file does NOT exist. Follow steps below'.$installer->getConfigFile();
+                $errors['err']='Configuration file does NOT exist. Follow steps below to add one.';
             elseif(!$installer->config_writable())
                 $errors['err']='Write access required to continue';
             else
