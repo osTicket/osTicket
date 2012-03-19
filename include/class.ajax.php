@@ -1,0 +1,53 @@
+<?php
+/*********************************************************************
+    class.ajax.php
+
+    AjaxController class that is an extension of the ApiController class. It
+    will be used to provide functionality common to all Ajax API calls
+
+    Jared Hancock 
+    Copyright (c)  2006-2012 osTicket
+    http://www.osticket.com
+
+    Released under the GNU General Public License WITHOUT ANY WARRANTY.
+    See LICENSE.TXT for details.
+
+    vim: expandtab sw=4 ts=4 sts=4:
+**********************************************************************/
+
+require_once (INCLUDE_DIR.'class.api.php');
+
+/**
+ * AjaxController Class
+ * A simple extension of the ApiController class that will assist in
+ * providing functionality common to all Ajax call controllers. Any Ajax
+ * call controller should inherit from this class in order to maintain
+ * consistency.
+ */
+class AjaxController extends ApiController {
+    function AjaxController() {
+        # Security checks first
+        # --> It is assumed that all AJAX calls will require a login. And
+        #     for now, since client logins are not yet supported, a staff
+        #     login will be required for AJAX calls.
+        $this->staffOnly();
+    }
+    function staffOnly() {
+        global $thisstaff;
+        if(!$thisstaff || !$thisstaff->isValid()) {
+            Http::response(401,'Access Denied. IP '.$_SERVER['REMOTE_ADDR']);
+        }
+    }
+    /**
+     * Convert a PHP array into a JSON-encoded string
+     */
+    function json_encode($what) {
+        require_once (INCLUDE_DIR.'class.json.php');
+        $encoder = new JsonDataEncoder();
+        return $encoder->encode($what);
+    }
+
+    function encode($what) {
+        return $this->json_encode($what);
+    }
+}

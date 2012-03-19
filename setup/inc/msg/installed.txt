@@ -1,0 +1,13 @@
+Thank you for choosing osTicket.
+
+Please make sure you join the osTicket forums at http://osticket.com/forums to stay up to date on the latest news, security alerts and updates. The osTicket forums are also a great place to get assistance, guidance, tips, and help from other osTicket users. In addition to the forums, the osTicket wiki provides a useful collection of educational materials, documentation, and notes from the community. We welcome your contributions to the osTicket community.
+
+If you are looking for a greater level of support, we provide professional services and commercial support with guaranteed response times, and access to the core development team. We can also help customize osTicket or even add new features to the system to meet your unique needs.
+
+Cheers,
+
+-
+osTicket Team
+http://osticket.com/
+
+PS. Don't just make customers happy, make happy customers!

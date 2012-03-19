@@ -1,0 +1,88 @@
+body {
+	background:url(/images/bg.gif) #fff;
+	font-family:arial, helvetica, sans-serif;
+	font-size:10pt;
+	color:#000;
+}
+body#loginBody {
+	text-align: center;
+	margin: 100px;
+}
+h1#logo {
+    float: none;
+    width: 190px;
+    height: 60px;
+    padding:10px 0 20px 0;
+    background: url(../images/logo-support.gif) center center no-repeat #fff;
+    margin: 0 auto 0 auto;
+}
+h1#logo a, h1#logo a:link, h1#logo a:visited, h1#logo a:hover {
+    display: block;
+    width: 190px;
+    height: 60px;
+    text-indent: -999em;
+    text-decoration: none;
+    background: none;
+    margin:0 auto 0 auto;
+}
+
+input:focus, textarea:focus {
+    color: #F70;
+    background: #FEA;
+    -moz-outline-style: none;
+}
+
+input[type="hidden"] { border: 0; }
+
+.submit {
+    font-family: Arial, Helvetica, sans-serif;
+ 		margin:10px auto 10px auto;
+    text-shadow: #333 -1px -1px 0px;
+    background-color: #DB8606;
+    color: #FFF;
+    border:1px solid #666;
+    font-weight:bold;
+    width:auto;
+}
+
+input[type="submit"]:focus {
+    border: 1px solid #E50;
+    border-right-color: #FBA;
+    border-bottom-color: #FBA;
+    background: #F70;
+    color: #FEA;
+}
+
+h1 { font-size: 0.9em; color: #F70; margin: 0; text-align: center;}
+
+
+div#loginBox {
+	width: 300px;
+	padding: 10px 20px 5px 20px;
+	margin: 0 auto 0 auto;
+	background: #fff;
+	text-align: center;
+	border:5px solid #ddd;
+}
+div#copyRights {
+	font-size: 0.8em;
+	text-align: center;
+    color:#666;
+}
+
+#copyRights a, #copyRights a:link, #copyRights a:visited, #copyRights a:hover {
+
+    text-decoration: none;
+    background: none;
+    color:#666;
+}
+
+
+input { 
+	width: 175px;
+    margin-left: 5px
+}
+input[type="submit"] { width: auto; margin:10px auto 10px auto; }
+
+
+table,form { margin-top:2px; padding: 0; }
