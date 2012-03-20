@@ -40,21 +40,16 @@ jQuery(function($) {
     }).live('mouseout', function() {
         clearTimeout(tip_timer);
     });
+
     $('body').delegate('.tip_close', 'click', function(e) {
         e.preventDefault();
         $(this).parent().parent().remove();
-    }).delegate('.tip_menu .assign', 'click', function(e) {
-        e.preventDefault();
-        elem = $(this).parent().parent().parent().parent();
-        $('.tip_body', elem).slideToggle(function() {
-            $('.assign_panel', elem).slideToggle();
-        });
-    }).delegate('.assign_panel .cancel', 'click', function(e) {
-        e.preventDefault();
-        elem = $(this).parent().parent().parent();
-        $('.assign_panel', elem).slideToggle(function() {
-            $('.tip_body', elem).slideToggle();
-        });
     });
 
+    $('form#install input[type="text"], input[type="password"]').focus(function() { 
+        $('.tip_box').fadeOut();
+        $(this).next('a').trigger('click');
+     }).blur(function() {
+         $('.tip_box').fadeOut().remove();
+     });
 });
