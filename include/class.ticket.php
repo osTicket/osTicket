@@ -1627,12 +1627,21 @@ class Ticket{
     function create($vars,&$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $cfg,$thisclient,$_FILES;
 
-        //Make sure the email is not banned
+        //Make sure the email address is not banned
         if ($vars['email'] && EmailFilter::isBanned($vars['email'])) {
             $errors['err']='Ticket denied. Error #403';
             Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
             return 0;
-         }
+        }
+        // Make sure email contents should not be rejected
+        if (($email_filter=new EmailFilter($vars))
+                && ($filter=$email_filter->shouldReject())) {
+            $errors['err']='Ticket denied. Error #403';
+            Sys::log(LOG_WARNING,'Ticket denied',
+                sprintf('Banned email - %s by filter "%s"', $vars['email'],
+                    $filter->getName()));
+            return 0;
+        }
 
         $id=0;
         $fields=array();
@@ -1692,7 +1701,7 @@ class Ticket{
         }
 
         # Perform email filter actions on the new ticket arguments XXX: Move filter to the top and check for reject...
-        if (!$errors && $ef = new EmailFilter($vars)) $ef->apply($vars);
+        if (!$errors && $email_filter) $email_filter->apply($vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
