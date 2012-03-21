@@ -1424,15 +1424,10 @@ class Ticket{
         global $cfg;
 
         $deleted=0;
-        if(($attachments = $this->getAttachments())) {
-            //Clear reference table - XXX: some attachments might be orphaned
-            db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            //Delete file from DB IF NOT inuse.
-            foreach($attachments as $attachment) {
-                if(($file=AttachmentFile::lookup($attachment['file_id'])) && !$file->isInuse() && $file->delete())
-                    $deleted++;
-            }
-        }
+        // Clear reference table
+        $res=db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        if ($res && db_affected_rows())
+            $deleted = AttachmentFile::deleteOrphans();
 
         return $deleted;
     }

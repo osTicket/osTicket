@@ -193,6 +193,24 @@ class AttachmentFile {
         
         return ($id && ($file = new AttachmentFile($id)) && $file->getId()==$id)?$file:null;
     }
+    /**
+     * Removes files and associated meta-data for files which no ticket,
+     * canned-response, or faq point to any more.
+     */
+    /* static */ function deleteOrphans() {
+        $res=db_query(
+            'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
+                # DISTINCT implies sort and may not be necessary
+                .'SELECT DISTINCT(file_id) FROM ('
+                    .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
+                    .' UNION ALL '
+                    .'SELECT file_id FROM '.CANNED_ATTACHMENT_TABLE
+                    .' UNION ALL '
+                    .'SELECT file_id FROM '.FAQ_ATTACHMENT_TABLE
+                .') still_loved'
+            .')');
+        return db_affected_rows();
+    }
 }
 
 class AttachmentList {
