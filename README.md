@@ -18,10 +18,21 @@ easy to setup and use. The best part is, it's completely free.
 
 Installation
 ------------
-Download the
-[source](./zipball/master) from
-the GitHub page. Follow the instructions for installation on the osTicket
-[wiki](http://osticket.com/wiki/Installation).
+osTicket now supports bleeding-edge installations. The easiest way to
+install the software and track updates is to clone the public repository.
+Create a folder on you web server (using whatever method makes sense for
+you) and cd into it. Then clone the repository (the folder must be empty!):
+
+    git clone https://github.com/osTicket/osTicket-1.7 .
+
+osTicket uses the git flow development model, so you’ll need to switch to
+the develop branch in order to see the bleeding-edge feature additions.
+
+    git checkout develop 
+
+Follow the usual install instructions (beginning from Manual Installation
+above), except, don't delete the setup/ folder. For this reason, such an
+installation is not recommended for a public-facing support system.
 
 Help
 ----

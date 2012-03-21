@@ -1424,15 +1424,10 @@ class Ticket{
         global $cfg;
 
         $deleted=0;
-        if(($attachments = $this->getAttachments())) {
-            //Clear reference table - XXX: some attachments might be orphaned
-            db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            //Delete file from DB IF NOT inuse.
-            foreach($attachments as $attachment) {
-                if(($file=AttachmentFile::lookup($attachment['file_id'])) && !$file->isInuse() && $file->delete())
-                    $deleted++;
-            }
-        }
+        // Clear reference table
+        $res=db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        if ($res && db_affected_rows())
+            $deleted = AttachmentFile::deleteOrphans();
 
         return $deleted;
     }
@@ -1627,12 +1622,21 @@ class Ticket{
     function create($vars,&$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $cfg,$thisclient,$_FILES;
 
-        //Make sure the email is not banned
+        //Make sure the email address is not banned
         if ($vars['email'] && EmailFilter::isBanned($vars['email'])) {
             $errors['err']='Ticket denied. Error #403';
             Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
             return 0;
-         }
+        }
+        // Make sure email contents should not be rejected
+        if (($email_filter=new EmailFilter($vars))
+                && ($filter=$email_filter->shouldReject())) {
+            $errors['err']='Ticket denied. Error #403';
+            Sys::log(LOG_WARNING,'Ticket denied',
+                sprintf('Banned email - %s by filter "%s"', $vars['email'],
+                    $filter->getName()));
+            return 0;
+        }
 
         $id=0;
         $fields=array();
@@ -1692,7 +1696,7 @@ class Ticket{
         }
 
         # Perform email filter actions on the new ticket arguments XXX: Move filter to the top and check for reject...
-        if (!$errors && $ef = new EmailFilter($vars)) $ef->apply($vars);
+        if (!$errors && $email_filter) $email_filter->apply($vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
