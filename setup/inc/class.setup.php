@@ -253,7 +253,7 @@ class Installer extends SetupWizard {
 
 
         //Staff's email can't be same as system emails.
-        if($vars['admin_email'] && $vars['email'] && !strcasecmp($vars['sysemail'],$vars['email']))
+        if($vars['admin_email'] && $vars['email'] && !strcasecmp($vars['admin_email'],$vars['email']))
             $this->errors['admin_email']='Conflicts with system email above';
         //Admin's pass confirmation. 
         if(!$this->errors && strcasecmp($vars['passwd'],$vars['passwd2']))
@@ -303,8 +303,8 @@ class Installer extends SetupWizard {
         if(!$this->errors) {
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
-                .', isactive=1, isadmin=1, group_id=1, dept_id=1, timezone_id=1 '
-                .', email='.db_input($_POST['email'])
+                .', isactive=1, isadmin=1, group_id=1, dept_id=1, timezone_id=8 '
+                .', email='.db_input($_POST['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])
                 .', username='.db_input($vars['username'])
@@ -318,7 +318,7 @@ class Installer extends SetupWizard {
             //XXX: rename ostversion  helpdesk_* ??
             $sql='INSERT INTO '.PREFIX.'config SET updated=NOW(), isonline=0 '
                 .', default_email_id=1, alert_email_id=2, default_dept_id=1 '
-                .', default_sla_id=1, default_timezone_id=1, default_template_id=1 '
+                .', default_sla_id=1, default_timezone_id=8, default_template_id=1 '
                 .', admin_email='.db_input($vars['admin_email'])
                 .', schema_signature='.db_input(md5_file($schemaFile))
                 .', helpdesk_url='.db_input(URL)
@@ -356,7 +356,8 @@ class Installer extends SetupWizard {
         @mysql_query($sql);
                    
         //Create a ticket to make the system warm and happy.
-        $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web", priority_id=2, dept_id=1 '
+        $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web" '
+            .' ,priority_id=2, dept_id=1, topic_id=1 '
             .' ,ticketID='.db_input(Misc::randNumber(6))
             .' ,email="support@osticket.com" '
             .' ,name="osTicket Support" '
