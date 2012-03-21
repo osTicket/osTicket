@@ -34,10 +34,16 @@ class Cron {
         Sys::purgeLogs();
     }
 
+    function CleanOrphanedFiles() {
+        require_once(INCLUDE_DIR.'class.file.php');
+        AttachmentFile::deleteOrphans();
+    }
+
     function run(){ //called by outside cron NOT autocron
-        Cron::MailFetcher();
-        Cron::TicketMonitor();
-        cron::PurgeLogs();
+        self::MailFetcher();
+        self::TicketMonitor();
+        self::PurgeLogs();
+        self::CleanOrphanedFiles();
     }
 }
 ?>
