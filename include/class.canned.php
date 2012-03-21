@@ -143,30 +143,13 @@ class Canned {
         return $i;
     }
 
-    function deleteAttachment($fileId) {
-        
-        $sql='DELETE FROM '.CANNED_ATTACHMENT_TABLE
-             .' WHERE canned_id='.db_input($this->getId())
-             .' AND file_id='.db_input($fileId)
-             .' LIMIT 1';
-       
-        if(!db_query($sql) || !db_affected_rows())
-            return false;
-
-
-        if(($file=AttachmentFile::lookup($fileId)) && !$file->isInuse())
-            $file->delete();
-
-        return true;
-    }
-
     function deleteAttachments(){
 
         $deleted=0;
-        if(($attachments = $this->getAttachments())) {
-            foreach($attachments as $attachment)
-                if($attachment['id'] && $this->deleteAttachment($attachment['id']))
-                    $deleted++;
+        $sql='DELETE FROM '.CANNED_ATTACHMENT_TABLE
+            .' WHERE canned_id='.db_input($this->getId());
+        if(db_query($sql) && db_affected_rows()) {
+            $deleted = AttachmentFile::deleteOrphans();
         }
 
         return $deleted;
