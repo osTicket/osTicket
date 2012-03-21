@@ -40,16 +40,8 @@ jQuery(function($) {
     }).live('mouseout', function() {
         clearTimeout(tip_timer);
     });
-
     $('body').delegate('.tip_close', 'click', function(e) {
         e.preventDefault();
         $(this).parent().parent().remove();
     });
-
-    $('form#install input[type="text"], input[type="password"]').focus(function() { 
-        $('.tip_box').fadeOut();
-        $(this).next('a').trigger('click');
-     }).blur(function() {
-         $('.tip_box').fadeOut().remove();
-     });
 });
