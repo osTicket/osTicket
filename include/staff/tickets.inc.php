@@ -200,6 +200,7 @@ $qselect ='SELECT DISTINCT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,tick
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id ';
 
+$sjoin='';
 if($search && $deep_search) {
     $sjoin=' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id )'
           .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id )'
@@ -210,7 +211,7 @@ $qgroup=' GROUP BY ticket.ticket_id';
 //get ticket count based on the query so far..
 $total=db_count("SELECT count(DISTINCT ticket.ticket_id) $qfrom $sjoin $qwhere");
 //pagenate
-$pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:$thisstaff->getPageLimit();
+$pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:PAGE_LIMIT;
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,$pagelimit);
 $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));

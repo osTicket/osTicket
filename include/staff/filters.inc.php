@@ -29,10 +29,8 @@ $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
 $total=db_count('SELECT count(*) FROM '.EMAIL_FILTER_TABLE.' filter ');
-$pagelimit=$thisstaff->getPageLimit();
-$pagelimit=$pagelimit?$pagelimit:PAGE_LIMIT; //true default...if all fails.
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($total,$page,$pagelimit);
+$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('filters.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 //Ok..lets roll...create the actual query
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
