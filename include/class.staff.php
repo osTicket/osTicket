@@ -37,15 +37,18 @@ class Staff {
         if(!$var && !($var=$this->getId()))
             return false;
 
-        $sql='SELECT staff.*,grp.*,tz.offset as tz_offset,TIME_TO_SEC(TIMEDIFF(NOW(),IFNULL(staff.passwdreset,staff.created))) as passwd_change_sec '.
-             'FROM '.STAFF_TABLE.' staff '.
-             'LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id) '.
-             'LEFT JOIN '.TIMEZONE_TABLE.' tz ON(tz.id=staff.timezone_id) ';
+        $sql='SELECT staff.*, grp.*, tz.offset as tz_offset '
+            .' ,TIME_TO_SEC(TIMEDIFF(NOW(),IFNULL(staff.passwdreset,staff.created))) as passwd_change_sec '
+            .' FROM '.STAFF_TABLE.' staff '
+            .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id) '
+            .' LEFT JOIN '.TIMEZONE_TABLE.' tz ON(tz.id=staff.timezone_id) ';
+
         $sql.=sprintf('WHERE %s=%s',is_numeric($var)?'staff_id':'username',db_input($var));
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
 
+        
         $this->ht=db_fetch_array($res);
         $this->id  = $this->ht['staff_id'];
         $this->teams =$this->ht['teams']=$this->getTeams();

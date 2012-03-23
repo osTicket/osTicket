@@ -175,6 +175,18 @@ class Ticket{
                  || $staff->getId()==$this->getStaffId());
     }
 
+    function checkClientAccess($client) {
+        global $cfg;
+
+        if(!is_object($client) && !($client=Client::lookup($client)))
+            return false;
+
+        if(!strcasecmp($client->getEmail(),$this->getEmail()))
+            return true;
+
+        return ($cfg && $cfg->showRelatedTickets() && $client->getTicketId()==$ticket->getExtId());
+    }
+
     //Getters
     function getId(){
         return  $this->id;
@@ -437,8 +449,10 @@ class Ticket{
 
     function getRelatedTicketsCount(){
 
-        $sql='SELECT count(*)  FROM '.TICKET_TABLE.' WHERE email='.db_input($this->getEmail());
-        return db_count($sql);
+        $sql='SELECT count(*)  FROM '.TICKET_TABLE
+            .' WHERE email='.db_input($this->getEmail());
+
+        return db_result(db_query($sql));
     }
 
     function getThreadCount() {
@@ -488,7 +502,7 @@ class Ticket{
                 ON (msg.ticket_id=attach.ticket_id AND msg.msg_id=attach.ref_id AND ref_type="M") '
             .' WHERE  msg.ticket_id='.db_input($this->getId())
             .' GROUP BY msg.msg_id '
-            .' ORDER BY msg.created DESC ';
+            .' ORDER BY msg.created ASC ';
 
         $messages=array();
         if(($res=db_query($sql)) && db_num_rows($res))
@@ -1193,7 +1207,9 @@ class Ticket{
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
 
-        if(!($tpl = $dept->getTemplate()))
+        $dept = $this->getDept();
+
+        if(!$dept || !($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
 
         if(!($email=$cfg->getAlertEmail()))
@@ -1458,8 +1474,12 @@ class Ticket{
 
 
    
-    function lookup($id){ //Assuming local ID is the only lookup used!
+    function lookup($id) { //Assuming local ID is the only lookup used!
         return ($id && is_numeric($id) && ($ticket= new Ticket($id)) && $ticket->getId()==$id)?$ticket:null;    
+    }
+
+    function lookupByExtId($id) {
+        return self::lookup(self:: getIdByExtId($id));
     }
 
     function genExtRandID() {
@@ -1537,6 +1557,27 @@ class Ticket{
         return db_fetch_array(db_query($sql));
     }
 
+
+    /* Quick client's tickets stats 
+       @email - valid email. 
+     */
+    function getClientStats($email) {
+
+        if(!$email || !Validator::is_email($email))
+            return null;
+
+        $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
+            .' FROM '.TICKET_TABLE.' ticket '
+            .' LEFT JOIN '.TICKET_TABLE.' open
+                ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\') '
+            .' LEFT JOIN '.TICKET_TABLE.' closed
+                ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\')'
+            .' WHERE ticket.email='.db_input($email);
+
+        return db_fetch_array(db_query($sql));
+    }
+
+    //FIXME: Refactor the code for version 1.7
     function update($var,&$errors) {
          global $cfg,$thisstaff;
 
@@ -1650,7 +1691,7 @@ class Ticket{
                 break;
             case 'staff':
                 $fields['deptId']   = array('type'=>'int',  'required'=>1, 'error'=>'Dept. required');
-                $fields['topicId']   = array('type'=>'int',  'required'=>1, 'error'=>'Topic required');
+                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Topic required');
                 $fields['duedate']  = array('type'=>'date', 'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
             case 'api':
                 $fields['source']   = array('type'=>'string', 'required'=>1, 'error'=>'Indicate source');
@@ -1660,10 +1701,10 @@ class Ticket{
                 break;
             default:
                 # TODO: Return error message
-                $errors['origin'] = 'Invalid origin given';
+                $errors['err']=$errors['origin'] = 'Invalid origin given';
         }
-        $fields['pri']      = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
-        $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
+        $fields['priorityId']   = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
+        $fields['phone']        = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
         
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] ='Missing or invalid data - check the errors and try again';
@@ -1703,7 +1744,8 @@ class Ticket{
         if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
 
         //check ticket limits..if limit set is >0 
-        //TODO: Base ticket limits on SLA... XXX: move it elsewhere??
+        //TODO:  XXX: move it elsewhere?? Client::checkMaxOpenTickets($email,$vars)
+
         if($vars['email'] && !$errors && $cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff')){
             $openTickets=Ticket::getOpenTicketsByEmail($vars['email']);
             if($openTickets>=$cfg->getMaxOpenTickets()) {
@@ -1804,14 +1846,6 @@ class Ticket{
 
         //post the message.
         $msgid=$ticket->postMessage($vars['message'],$source,$vars['mid'],$vars['header'],true);
-        //TODO: recover from postMessage error??
-
-        //Upload attachments...web based. - XXX: Assumes user uploaded attachments!! XXX: move it to client interface.
-        if($_FILES['attachment']['name'] && $cfg->allowOnlineAttachments() && $msgid) {    
-            if(!$cfg->allowAttachmentsOnlogin() || ($cfg->allowAttachmentsOnlogin() && ($thisuser && $thisuser->isValid()))) {
-                $ticket->uploadAttachment($_FILES['attachment'],$msgid,'M');
-            }
-        }
 
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);

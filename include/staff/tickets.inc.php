@@ -180,8 +180,8 @@ if(!$order_by && $showanswered) {
 }elseif(!$order_by && !strcasecmp($status,'closed')){
     $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
 }
-$order_by =$order_by?$order_by:'priority_urgency,effective_date,ticket.created';
-$order=$order?$order:'DESC';
+$order_by =$order_by?$order_by:'priority_urgency, effective_date, ticket.created';
+$order=$order?$order:'ASC';
 
 if($order_by && strpos($order_by,','))
     $order_by=str_replace(','," $order,",$order_by);
@@ -200,6 +200,7 @@ $qselect ='SELECT DISTINCT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,tick
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id ';
 
+$sjoin='';
 if($search && $deep_search) {
     $sjoin=' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id )'
           .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id )'
@@ -210,7 +211,7 @@ $qgroup=' GROUP BY ticket.ticket_id';
 //get ticket count based on the query so far..
 $total=db_count("SELECT count(DISTINCT ticket.ticket_id) $qfrom $sjoin $qwhere");
 //pagenate
-$pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:$thisstaff->getPageLimit();
+$pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:PAGE_LIMIT;
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,$pagelimit);
 $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
@@ -350,7 +351,7 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
 <div class="clear"></div>
 <div style="margin-bottom:20px">
 <form action="tickets.php" method="POST" name='tickets' onSubmit="return checkbox_checker(this,1,0);">
- <a class="refresh" href="">Refresh</a>
+ <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="status" value="<?php echo $status; ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">

@@ -4,8 +4,8 @@
 
     Handles everything about client
 
-    The class will undergo major changes one client's accounts are used. 
-    At the moment we will play off the email + ticket ID authentication.
+    NOTE: Please note that osTicket uses email address and ticket ID to authenticate the user*!
+          Client is modeled on the info of the ticket used to login .
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2012 osTicket
@@ -19,75 +19,104 @@
 
 class Client {
 
-
     var $id;
     var $fullname;
     var $username;
-    var $passwd;
     var $email;
 
-    
-    var $udata;
     var $ticket_id;
     var $ticketID;
 
-    function Client($email,$id){
+    var $ht;
+
+
+    function Client($email,$id) {
         $this->id =0;
         $this->load($id,$email);
     }
 
-    function isClient(){
-        return TRUE;
-    }
+    function load($id=0, $email='') {
 
-    function load($id,$email=''){
+        if(!$id && !($id=$this->getId()))
+            return false;
 
-        $sql='SELECT ticket_id,ticketID,name,email FROM '.TICKET_TABLE.' WHERE ticketID='.db_input($id);
-        if($email){ //don't validate...using whatever is entered.
+        $sql='SELECT ticket_id, ticketID, name, email, phone, phone_ext '
+            .' FROM '.TICKET_TABLE
+            .' WHERE ticketID='.db_input($id);
+        if($email)
             $sql.=' AND email='.db_input($email);
-        }
-        $res=db_query($sql);
-        if(!$res || !db_num_rows($res))
+
+        if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
 
-        $row=db_fetch_array($res);
-        $this->udata=$row;
-        $this->id         = $row['ticketID']; //placeholder
-        $this->ticket_id  = $row['ticket_id'];
-        $this->ticketID   = $row['ticketID'];
-        $this->fullname   = ucfirst($row['name']);
-        $this->username   = $row['email'];
-        $this->email      = $row['email'];
+        $this->ht = db_fetch_array($res);
+        $this->id         = $this->ht['ticketID']; //placeholder
+        $this->ticket_id  = $this->ht['ticket_id'];
+        $this->ticketID   = $this->ht['ticketID'];
+        $this->fullname   = ucfirst($this->ht['name']);
+        $this->username   = $this->ht['email'];
+        $this->email      = $this->ht['email'];
+
+        $this->stats = array();
       
         return($this->id);
     }
 
+    function reload() {
+        return $this->load();
+    }
 
-    function getId(){
+    function isClient() {
+        return TRUE;
+    }
+
+    function getId() {
         return $this->id;
     }
 
-    function getEmail(){
+    function getEmail() {
         return $this->email;
     }
 
-    function getUserName(){
+    function getUserName() {
         return $this->username;
     }
 
-    function getName(){
+    function getName() {
         return $this->fullname;
+    }
+
+    function getPhone() {
+        return $this->ht['phone'];
+    }
+
+    function getPhoneExt() {
+        return $this->ht['phone_ext'];
     }
     
     function getTicketID() {
         return $this->ticketID;
     }
 
+    function getTicketStats() {
+
+        if(!$this->stats['tickets'])
+            $this->stats['tickets'] = Ticket::getClientStats($this->getEmail());
+
+        return $this->stats['tickets'];
+    }
+
+    function getNumTickets() {
+        return ($stats=$this->getTicketStats())?($stats['open']+$stats['closed']):0;
+    }
+
+    function getNumOpenTickets() {
+        return ($stats=$this->getTicketStats())?$stats['open']:0;
+    }
+
     /* ------------- Static ---------------*/
     function lookup($id, $email) {
         return ($id && is_numeric($id) && ($c=new Client($id,$email)) && $c->getId()==$id)?$c:null;
     }
-
 }
-
 ?>

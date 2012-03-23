@@ -32,17 +32,20 @@ class Config {
         $this->load($id);
     }
 
-    function load($id) {
+    function load($id=0) {
+        if(!$id && !($id=$this->getId()))
+            return false;
 
-        $sql='SELECT * FROM '.CONFIG_TABLE.' WHERE id='.db_input($id);
-        if($id && ($res=db_query($sql)) && db_num_rows($res)) {
-            $this->config=db_fetch_array($res);
-            $this->id=$this->config['id'];
+        $sql='SELECT * FROM '.CONFIG_TABLE
+            .' WHERE id='.db_input($id);
+        if(!($res=db_query($sql)) || !db_num_rows($res))
+            return false;
 
-            return true;
-        }
+            
+        $this->config=db_fetch_array($res);
+        $this->id=$this->config['id'];
 
-        return false;
+        return true;
     }
 
     //Initialize some default values.
@@ -52,10 +55,13 @@ class Config {
     }
     
     function reload() {
-        if($this->load($this->id))
-            $this->init();
-    }
+        if(!$this->load($this->getId()))
+            return false;
 
+        $this->init();
+
+        return true;
+    }
 
     function isHelpDeskOffline() {
         return !$this->isSystemOnline();
@@ -75,7 +81,7 @@ class Config {
         return '1.7 DPR';
     }
 
-    function getSchemaVersion() {
+    function getSchemaSignature() {
         return $this->config['schema_signature'];
     }
 
@@ -111,7 +117,7 @@ class Config {
     }
 
     function getId() {
-        return $this->config['id'];
+        return $this->id;
     }
    
     function getTitle() {
@@ -144,6 +150,10 @@ class Config {
 
     function getPasswdResetPeriod() {
         return $this->config['passwd_reset_period'];
+    }
+
+    function showRelatedTickets() {
+        return $this->config['show_related_tickets'];
     }
         
     function getClientTimeout() {

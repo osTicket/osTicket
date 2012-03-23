@@ -192,7 +192,7 @@ class FAQ {
             /* The h key must match validation in file.php */
             $hash=$attachment['hash'].md5($attachment['id'].session_id().$attachment['hash']);
             if($attachment['size'])
-                $size=sprintf('(<i>%s</i>)',Format::file_size($attachment['size']));
+                $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
 
             $str.=sprintf('<a class="Icon file" href="file.php?h=%s" target="%s">%s</a>%s&nbsp;%s',
                     $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
