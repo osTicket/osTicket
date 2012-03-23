@@ -1,6 +1,6 @@
 <?php
 /*********************************************************************
-    index.php
+    login.php
 
     Client Login 
 
@@ -41,9 +41,8 @@ if($_POST && (!empty($_POST['lemail']) && !empty($_POST['lticket']))):
         }
     }
     //See if we can fetch local ticket id associated with the ID given
-    if(!$errors && is_numeric($ticketID) && Validator::is_email($email) && ($tid=Ticket::getIdByExtId($ticketID))) {
+    if(!$errors && is_numeric($ticketID) && Validator::is_email($email) && ($ticket=Ticket::lookupByExtId($ticketID))) {
         //At this point we know the ticket is valid.
-        $ticket= new Ticket($tid);
         //TODO: 1) Check how old the ticket is...3 months max?? 2) Must be the latest 5 tickets?? 
         //Check the email given.
         if($ticket->getId() && strcasecmp($ticket->getEMail(),$email)==0){
@@ -61,7 +60,7 @@ if($_POST && (!empty($_POST['lemail']) && !empty($_POST['lticket']))):
             //Redirect tickets.php
             session_write_close();
             session_regenerate_id();
-            @header("Location: tickets.php");
+            @header("Location: tickets.php?id=".$ticket->getExtId());
             require_once('tickets.php'); //Just incase. of header already sent error.
             exit;
         }

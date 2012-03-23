@@ -26,7 +26,7 @@ require(CLIENTINC_DIR.'header.inc.php');
 
     <div id="new_ticket">
         <h3>Open A New Ticket</h3>
-        <form method="link" action="open.php">  
+        <form method="get" action="open.php">  
             <div>Please provide as much detail as possible so we can best assist you. To update a previously submitted ticket, please login.</div>
             <input type="submit" value="Open a New Ticket">
         </form>
@@ -34,7 +34,7 @@ require(CLIENTINC_DIR.'header.inc.php');
 
     <div id="check_status">
         <h3>Check Ticket Status</h3>
-        <form class="status_form" action="login.php" method="get">
+        <form class="status_form" action="view.php" method="get">
             <div>We provide archives and history of all your current and past support requests complete with responses.</div>
             <input type="submit" value="Check Ticket Status">
         </form>
@@ -44,9 +44,8 @@ require(CLIENTINC_DIR.'header.inc.php');
 <?php
 if($cfg && $cfg->isKnowledgebaseEnabled()){ 
     //FIXME: provide ability to feature or select random FAQs ??
-    ?>
-<br>
-Be pure to browse our <a href="kb/index.php">Frequently Asked Questions (FAQs)</a>, before opening a ticket.
+?>
+<p>Be sure to browse our <a href="kb/index.php">Frequently Asked Questions (FAQs)</a>, before opening a ticket.</p>
 </div>
 <?php
 } ?>

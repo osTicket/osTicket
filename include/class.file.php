@@ -138,6 +138,7 @@ class AttachmentFile {
         exit();
     }
 
+    /* Function assumes the files types have been validated */
     function upload($file) {
         
         if(!$file['name'] || !is_uploaded_file($file['tmp_name']))

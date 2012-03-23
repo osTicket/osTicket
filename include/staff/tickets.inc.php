@@ -180,8 +180,8 @@ if(!$order_by && $showanswered) {
 }elseif(!$order_by && !strcasecmp($status,'closed')){
     $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
 }
-$order_by =$order_by?$order_by:'priority_urgency,effective_date,ticket.created';
-$order=$order?$order:'DESC';
+$order_by =$order_by?$order_by:'priority_urgency, effective_date, ticket.created';
+$order=$order?$order:'ASC';
 
 if($order_by && strpos($order_by,','))
     $order_by=str_replace(','," $order,",$order_by);
@@ -351,7 +351,7 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
 <div class="clear"></div>
 <div style="margin-bottom:20px">
 <form action="tickets.php" method="POST" name='tickets' onSubmit="return checkbox_checker(this,1,0);">
- <a class="refresh" href="">Refresh</a>
+ <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="status" value="<?php echo $status; ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">

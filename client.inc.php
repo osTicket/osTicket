@@ -51,7 +51,7 @@ require_once(INCLUDE_DIR.'class.dept.php');
 //clear some vars
 $errors=array();
 $msg='';
-$thisclient=null;
+$thisclient=$nav=null;
 //Make sure the user is valid..before doing anything else.
 if($_SESSION['_client']['userID'] && $_SESSION['_client']['key'])
     $thisclient = new ClientSession($_SESSION['_client']['userID'],$_SESSION['_client']['key']);
@@ -60,6 +60,8 @@ if($_SESSION['_client']['userID'] && $_SESSION['_client']['key'])
 if($thisclient && $thisclient->getId() && $thisclient->isValid()){
      $thisclient->refreshSession();
 }
+/* Client specific defaults */
+define('PAGE_LIMIT',DEFAULT_PAGE_LIMIT);
 
 $nav = new UserNav($thisclient, 'home');
 ?>
