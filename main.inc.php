@@ -102,9 +102,6 @@
     #CURRENT EXECUTING SCRIPT.
     define('THISPAGE',Misc::currentURL());
 
-    #pagenation default
-    define('PAGE_LIMIT',20);
-
     # This is to support old installations. with no secret salt.
     if(!defined('SECRET_SALT')) define('SECRET_SALT',md5(TABLE_PREFIX.ADMIN_EMAIL));
 
@@ -164,10 +161,7 @@
         $ferror='Unable to connect to the database';
     }elseif(!($cfg=Sys::getConfig())){
         $ferror='Unable to load config info from DB. Get tech support.';
-    }elseif(!ini_get('short_open_tag')) {
-        $ferror='Short open tag disabled! - osTicket requires it turned ON.';
     }
-
     if($ferror){ //Fatal error
         Sys::alertAdmin('osTicket Fatal Error',$ferror); //try alerting admin.
         die("<b>Fatal Error:</b> Contact system administrator."); //Generic error.
@@ -175,6 +169,11 @@
     }
     //Init
     $cfg->init();
+
+    //System defaults we might want to make global//
+    #pagenation default - user can overwrite it!
+    define('DEFAULT_PAGE_LIMIT',$cfg->getPageSize()?$cfg->getPageSize():25);
+
     //Start session handler!
     $session=osTicketSession::start(SESSION_TTL); // start_session 
     //Set default timezone...staff will overwrite it.

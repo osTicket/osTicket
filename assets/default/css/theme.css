@@ -495,7 +495,7 @@ body {
 #ticketForm div.error label, #clientLogin div.error label {
   color: #a00;
 }
-#ticketForm p, #clientLogin p {
+#clientLogin p {
   clear: both;
   text-align: center;
 }
@@ -646,7 +646,7 @@ a.refresh {
 #ticketThread table th {
   text-align: left;
   border-bottom: 1px solid #aaa;
-  font-size: 11pt;
+  font-size: 12px;
   padding: 5px;
 }
 #ticketThread table td {
@@ -659,7 +659,7 @@ a.refresh {
   background: #ddd;
 }
 #ticketThread .info {
-  padding: 5px;
+  padding: 2px;
   background: #f9f9f9;
   border-top: 1px solid #ddd;
   height: 16px;
@@ -667,15 +667,12 @@ a.refresh {
 }
 #ticketThread .info a {
   display: inline-block;
-  margin: 5px 20px 5px 0;
+  margin: 5px 10px 5px 0;
   padding-left: 24px;
   height: 16px;
   line-height: 16px;
   background-position: 0 50%;
   background-repeat: no-repeat;
-}
-#ticketThread .info .pdf {
-  background-image: url('../images/filetypes/pdf.png?1319636863');
 }
 
 #reply {

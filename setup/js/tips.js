@@ -45,4 +45,3 @@ jQuery(function($) {
         $(this).parent().parent().remove();
     });
 });
-

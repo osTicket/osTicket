@@ -38,7 +38,7 @@ class Filter {
             return false;
         
         $this->ht=db_fetch_array($res);
-        $this->id=$info['id'];
+        $this->id=$this->ht['id'];
         
         return true;
     }
@@ -260,7 +260,7 @@ class Filter {
         #       Set owning department (?)
         if ($this->getDeptId())     $ticket['deptId']=$this->getDeptId();
         #       Set ticket priority (?)
-        if ($this->getPriorityId()) $ticket['pri']=$this->getPriorityId();
+        if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
         #       Set SLA plan (?)
         if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
         #       Auto-assign to (?)
@@ -590,15 +590,45 @@ class EmailFilter {
         return $this->filters;
     }
     /**
+     * Fetches the short list of filters that match the email received in the
+     * constructor. This function is memoized so subsequent calls will
+     * return immediately.
+     */
+    function getMatchingFilterList() {
+        if (!isset($this->short_list)) {
+            $this->short_list = array();
+            foreach ($this->filters as $filter)
+                if ($filter->matches($this->email))
+                    $this->short_list[] = $filter;
+        }
+        return $this->short_list;
+    }
+    /**
+     * Determine if the filters that match the received email indicate that
+     * the email should be rejected
+     *
+     * Returns FALSE if the email should be acceptable. If the email should
+     * be rejected, the first filter that matches and has rejectEmail set is
+     * returned.
+     */
+    function shouldReject() {
+        foreach ($this->getMatchingFilterList() as $filter) {
+            # Set reject if this filter indicates that the email should
+            # be blocked; however, don't unset $reject, because if it
+            # was set by another rule that did not set stopOnMatch(), we
+            # should still honor its configuration
+            if ($filter->rejectEmail()) return $filter;
+        }
+        return false;
+    }
+    /**
      * Determine if any filters match the received email, and if so, apply
      * actions defined in those filters to the ticket-to-be-created.
      */
     function apply(&$ticket) {
-        foreach ($this->filters as $filter) {
-            if ($filter->matches($this->email)) {
-                $filter->apply($ticket, $this->email);
-                if ($filter->stopOnMatch()) break;
-            }
+        foreach ($this->getMatchingFilterList() as $filter) {
+            $filter->apply($ticket, $this->email);
+            if ($filter->stopOnMatch()) break;
         }
     }
     

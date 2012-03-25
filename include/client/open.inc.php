@@ -1,21 +1,40 @@
 <?php
-if(!defined('OSTCLIENTINC')) die('Access Denied'); //Say bye to our friend..
+if(!defined('OSTCLIENTINC')) die('Access Denied!');
+$info=array();
+if($thisclient && $thisclient->isValid()) {
+    $info=array('name'=>$thisclient->getName(),
+                'email'=>$thisclient->getEmail(),
+                'phone'=>$thisclient->getPhone(),
+                'phone_ext'=>$thisclient->getPhoneExt());
+}
 
-$info=($_POST && $errors)?Format::htmlchars($_POST):array();
+$info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 ?>
-
 <h1>Open a New Ticket</h1>
 <p>Please fill in the form below to open a new ticket.</p>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
+    <input type="hidden" name="a" value="open">
     <div>
         <label for="name" class="required">Full Name:</label>
+        <?php
+        if($thisclient && $thisclient->isValid()) {
+            echo $thisclient->getName();
+        } else { ?>
         <input id="name" type="text" name="name" size="30" value="<?php echo $info['name']; ?>">
         <font class="error">*&nbsp;<?php echo $errors['name']; ?></font>
+        <?php
+        } ?>
     </div>
     <div>
-        <label for="email" class="required">E-Mail Address:</label>
+        <label for="email" class="required">Email Address:</label>
+        <?php
+        if($thisclient && $thisclient->isValid()) { 
+            echo $thisclient->getEmail();
+        } else { ?>
         <input id="email" type="text" name="email" size="30" value="<?php echo $info['email']; ?>">
         <font class="error">*&nbsp;<?php echo $errors['email']; ?></font>
+        <?php
+        } ?>
     </div>
     <div>
         <label for="phone">Telephone:</label>
@@ -30,16 +49,14 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array();
         <select id="topicId" name="topicId">
             <option value="" selected="selected">&mdash; Select a Help Topics &mdash;</option>
             <?php
-                $sql='SELECT topic_id,topic FROM '.TOPIC_TABLE.' WHERE isactive=1 ORDER BY topic';
-                 if(($res=db_query($sql)) && db_num_rows($res)) {
-                     while (list($topicId,$topic) = db_fetch_row($res)){
-                        $selected = ($info['topicId']==$topicId)?'selected="selected"':''; ?>
-                        <option value="<?php echo $topicId; ?>"<?php echo $selected; ?>><?php echo $topic; ?></option>
-                        <?php
-                     }
-                 }else{ ?>
-                    <option value="0" >General Inquiry</option>
-                <?php } ?>
+            if($topics=Topic::getPublicHelpTopics()) {
+                foreach($topics as $id =>$name) {
+                    echo sprintf('<option value="%d" %s>%s</option>',
+                            $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
+                }
+            } else { ?>
+                <option value="0" >General Inquiry</option>
+            <?php } ?>
         </select>
         <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
     </div>
@@ -58,35 +75,41 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array();
         <textarea id="message" cols="60" rows="8" name="message"><?php echo $info['message']; ?></textarea>
     </div>
     <?php if(($cfg->allowOnlineAttachments() && !$cfg->allowAttachmentsOnlogin())
-            || ($cfg->allowAttachmentsOnlogin() && ($thisuser && $thisuser->isValid()))) { ?>
+            || ($cfg->allowAttachmentsOnlogin() && ($thisclient && $thisclient->isValid()))) { ?>
      <div>
-        <label for="attachment">Attachments:</label>
-        <input id="attachment" type="file" name="attachment"><font class="error">&nbsp;<?php echo $errors['attachment']; ?></font>
+        <label for="attachments">Attachments:</label>
+        <span id="uploads"></span>
+        <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />
+        <font class="error">&nbsp;<?php echo $errors['attachments']; ?></font>
     </div>                                                                
     <?php } ?>
     <?php
-    if($cfg && $cfg->allowPriorityChange()) {
-      $sql='SELECT priority_id,priority_desc FROM '.TICKET_PRIORITY_TABLE.' WHERE ispublic=1 ORDER BY priority_urgency DESC';
-      if(($res=db_query($sql)) && db_num_rows($res)) {?>
-      <div>
+    if($cfg->allowPriorityChange() && ($priorities=Priority::getPriorities())) { ?>
+    <div>
         <label for="priority">Ticket Priority:</label>
         <select id="priority" name="priorityId">
-              <?php
+            <?php
                 if(!$info['priorityId'])
-                    $info['priorityId']=$cfg->getDefaultPriorityId(); //use system's default priority.
-                while($row=db_fetch_array($res)){ 
-                    $selected=$info['priorityId']==$row['priority_id']?'selected="selected"':'';
-                    ?>
-                    <option value="<?php echo $row['priority_id']; ?>" <?php echo $selected; ?> ><?php echo $row['priority_desc']; ?></option>
-              <?php } ?>
+                    $info['priorityId'] = $cfg->getDefaultPriorityId(); //System default.
+                foreach($priorities as $id =>$name) {
+                    echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, ($info['priorityId']==$id)?'selected="selected"':'', $name);
+                        
+                }
+            ?>
+
+                
+                
         </select>
+        
         <font class="error">&nbsp;<?php echo $errors['priorityId']; ?></font>
-     </div>
+        
+    </div>
     <?php
-      }
-    } ?>
+    }
+    ?>
     <?php
-    if($cfg && $cfg->enableCaptcha() && (!$thisuser || !$thisuser->isValid())) {
+    if($cfg && $cfg->enableCaptcha() && (!$thisclient || !$thisclient->isValid())) {
         if($_POST && $errors && !$errors['captcha'])
             $errors['captcha']='Please re-enter the text again';
         ?>
@@ -101,7 +124,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array();
     <?php
     } ?>
     <br>
-    <p>
+    <p style="padding-left:150px;">
         <input type="submit" value="Create Ticket">
         <input type="reset" value="Reset">
         <input type="button" value="Cancel" onClick='window.location.href="index.php"'>

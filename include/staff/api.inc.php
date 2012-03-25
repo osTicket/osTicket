@@ -21,7 +21,7 @@ $order=$order?$order:'ASC';
 $order_by=" ORDER BY $order_column $order ";
 
 $total=db_count('SELECT count(*) '.$from.' '.$where);
-$pagelimit=1000;//No limit.
+$pagelimit=1000;//No limit. TODO: Add limit.
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,$pagelimit);
 $pageNav->setURL('admin.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
@@ -144,3 +144,4 @@ $deletable=0;
     <br/><br/>
     <div><i>Please note that changing the passprase does NOT invalidate existing keys. To regerate a key you need to delete and readd it.</i></div>
  </div>
+

@@ -71,9 +71,7 @@ $qfrom=' FROM '.SYSLOG_TABLE.' log ';
 $total=db_count("SELECT count(*) $qfrom $qwhere");
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 //pagenate
-$pagelimit=$thisstaff->getPageLimit();
-$pagelimit=$pagelimit?$pagelimit:PAGE_LIMIT; //true default...if all fails.
-$pageNav=new Pagenate($total,$page,$pagelimit);
+$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('syslogs.php',$qstr);
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$qselect $qfrom $qwhere ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();

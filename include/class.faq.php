@@ -192,7 +192,7 @@ class FAQ {
             /* The h key must match validation in file.php */
             $hash=$attachment['hash'].md5($attachment['id'].session_id().$attachment['hash']);
             if($attachment['size'])
-                $size=sprintf('(<i>%s</i>)',Format::file_size($attachment['size']));
+                $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
 
             $str.=sprintf('<a class="Icon file" href="file.php?h=%s" target="%s">%s</a>%s&nbsp;%s',
                     $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
@@ -217,29 +217,13 @@ class FAQ {
         return $i;
     }
 
-    function deleteAttachment($fileId) {
-
-        $sql='DELETE FROM '.FAQ_ATTACHMENT_TABLE
-             .' WHERE faq_id='.db_input($this->getId())
-             .' AND file_id='.db_input($fileId)
-             .' LIMIT 1';
-
-        if(!db_query($sql) || !db_affected_rows())
-            return false;
-
-        if(($file=AttachmentFile::lookup($fileId)) && !$file->isInuse())
-            $file->delete();
-
-        return true;
-    }
-
     function deleteAttachments(){
 
         $deleted=0;
-        if(($attachments = $this->getAttachments())) {
-            foreach($attachments as $attachment)
-                if($attachment['id'] && $this->deleteAttachment($attachment['id']))
-                    $deleted++;
+        $sql='DELETE FROM '.FAQ_ATTACHMENT_TABLE
+            .' WHERE faq_id='.db_input($this->getId());
+        if(db_query($sql) && db_affected_rows()) {
+            $deleted = AttachmentFile::deleteOrphans();
         }
 
         return $deleted;
