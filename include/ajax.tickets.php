@@ -29,7 +29,7 @@ class TicketsAjaxAPI extends AjaxController {
             $WHERE=' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
             $ticketid=true;
         } elseif(isset($_REQUEST['q'])) {
-            $WHERE=' WHERE email LIKE \''.db_input(strtolower($_REQUEST['q']), false).'%\'';
+            $WHERE=' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\'';
         } else {
             Http::response(400, 'Query argument is required');
         }
