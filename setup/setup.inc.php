@@ -15,12 +15,20 @@
 **********************************************************************/
 
 #inits
-error_reporting(E_ALL ^ E_NOTICE); //turn on errors
+error_reporting(E_ALL ^ E_NOTICE); //turn on errors??
 ini_set('magic_quotes_gpc', 0);
 ini_set('session.use_trans_sid', 0);
 ini_set('session.cache_limiter', 'nocache');
 ini_set('display_errors',1); //We want the user to see errors during install process.
 ini_set('display_startup_errors',1);
+
+#Disable Globals if enabled
+if(ini_get('register_globals')) {
+    ini_set('register_globals',0);
+    foreach($_REQUEST as $key=>$val)
+        if(isset($$key))
+            unset($$key);
+}
 
 #start session
 session_start();
