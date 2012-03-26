@@ -1,88 +1,138 @@
+* {
+    box-sizing: border-box;
+    position: relative;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+*:focus {
+    outline-color: rgb(207,16,118);
+    outline-style: auto;
+    outline-width: 5px;
+    z-index:1000;
+}
+
+:-webkit-input-placeholder {
+    color:#888;
+    font-style:italic;
+}
+
+:-moz-placeholder {
+    color:#888;
+    font-style:italic;
+}
+
+html {
+    height:100%;
+    font-size: 100%;
+    overflow-y: scroll;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
 body {
-	background:url(/images/bg.gif) #fff;
-	font-family:arial, helvetica, sans-serif;
-	font-size:10pt;
-	color:#000;
-}
-body#loginBody {
-	text-align: center;
-	margin: 100px;
-}
-h1#logo {
-    float: none;
-    width: 190px;
-    height: 60px;
-    padding:10px 0 20px 0;
-    background: url(../images/logo-support.gif) center center no-repeat #fff;
-    margin: 0 auto 0 auto;
-}
-h1#logo a, h1#logo a:link, h1#logo a:visited, h1#logo a:hover {
-    display: block;
-    width: 190px;
-    height: 60px;
-    text-indent: -999em;
-    text-decoration: none;
-    background: none;
-    margin:0 auto 0 auto;
+    -webkit-font-smoothing:antialiased;
+    background:url(../images/login-background.jpg) top left repeat-x #fff;
+    font-size: 16px;
+    font-smoothing:antialiased;
+    height:100%;
+    line-height: 1.5em;
+    margin: 0;
+    text-align: center;
 }
 
-input:focus, textarea:focus {
-    color: #F70;
-    background: #FEA;
-    -moz-outline-style: none;
+body, input {
+    font-family: helvetica, arial, sans-serif;
+    font-size: 100%/1.5;
+    color: #000;
 }
 
-input[type="hidden"] { border: 0; }
+input[type=reset], input[type=submit], input[type=button] {
+    display: inline-block;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -moz-tap-highlight-color: rgba(0, 0, 0, 0);
+    -o-tap-highlight-color: rgba(0, 0, 0, 0);
+    tap-highlight-color: rgba(0, 0, 0, 0);
+}
 
-.submit {
-    font-family: Arial, Helvetica, sans-serif;
- 		margin:10px auto 10px auto;
-    text-shadow: #333 -1px -1px 0px;
-    background-color: #DB8606;
-    color: #FFF;
-    border:1px solid #666;
+#loginBox {
+    border:1px solid #2a67ac;
+    border-right:2px solid #2a67ac;
+    border-bottom:3px solid #2a67ac;
+    background:#fff;
+    width:400px;
+    margin:10% auto 0 auto;
+    padding:1em;
+    text-align:center;
+}
+
+h1 {
+    margin:0;
+}
+
+#logo a {
+    display:block;
+    width:180px;
+    height:72px;
+    text-decoration:none;
+    text-indent:-9999px;
+    background:url(../images/login-logo.png);
+    margin:0 auto 1em auto;
+}
+
+h3 {
+    margin:1em 0;
+    text-align:center;
+    font-size:0.8em;
+    font-weight:normal;
+    color:#d00;
+}
+
+form {
+    width:220px;
+    margin:0 auto;
+    overflow:hidden;
+}
+
+fieldset {
+    border:none;
+    margin:0;
+    padding:0;
+}
+
+fieldset input {
+    display:block;
+    width:100%;
+    margin-bottom:1em;
+    border:1px solid #ccc;
+    background:#fff;
+    padding:2px;
+}
+
+input.submit {
+    display:inline-block;
+    float:right;
+    margin:0;
+    height:24px;
+    line-height:24px;
     font-weight:bold;
-    width:auto;
+    border:1px solid #666666;
+    padding:0 10px;
+    background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x;
+    color: #333;
 }
 
-input[type="submit"]:focus {
-    border: 1px solid #E50;
-    border-right-color: #FBA;
-    border-bottom-color: #FBA;
-    background: #F70;
-    color: #FEA;
+input.submit:hover, input.submit:active {
+    background-position:bottom left;
 }
 
-h1 { font-size: 0.9em; color: #F70; margin: 0; text-align: center;}
-
-
-div#loginBox {
-	width: 300px;
-	padding: 10px 20px 5px 20px;
-	margin: 0 auto 0 auto;
-	background: #fff;
-	text-align: center;
-	border:5px solid #ddd;
-}
-div#copyRights {
-	font-size: 0.8em;
-	text-align: center;
-    color:#666;
+#copyRights {
+    font-size:0.7em;
+    color:#888;
+    padding:1em;
+    text-align:center;
 }
 
-#copyRights a, #copyRights a:link, #copyRights a:visited, #copyRights a:hover {
-
-    text-decoration: none;
-    background: none;
-    color:#666;
+#copyRights a {
+    color:#888;
 }
-
-
-input { 
-	width: 175px;
-    margin-left: 5px
-}
-input[type="submit"] { width: auto; margin:10px auto 10px auto; }
-
-
-table,form { margin-top:2px; padding: 0; }

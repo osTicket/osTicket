@@ -29,11 +29,11 @@ $wizard['menu']=array('Installation Guide'=>'http://osticket.com/wiki/Installati
 
 if($_POST && $_POST['s']) {
     $errors = array();
-    $_SESSION['installer']['s']=$_POST['s'];
+    $_SESSION['ost_installer']['s']=$_POST['s'];
     switch(strtolower($_POST['s'])) {
         case 'prereq':
             if($installer->check_prereq())
-                $_SESSION['installer']['s']='config';
+                $_SESSION['ost_installer']['s']='config';
             else
                 $errors['prereq']='Minimum requirements not met!';
             break;
@@ -43,7 +43,7 @@ if($_POST && $_POST['s']) {
             elseif(!$installer->config_writable())
                 $errors['err']='Write access required to continue';
             else
-                $_SESSION['installer']['s']='install';
+                $_SESSION['ost_installer']['s']='install';
             break;
         case 'install':
             if($installer->install($_POST)) {
@@ -51,7 +51,7 @@ if($_POST && $_POST['s']) {
                                         'email' =>$_POST['admin_email'],
                                         'URL'=>URL);
                 //TODO: Go to subscribe step.
-                $_SESSION['installer']['s']='done';
+                $_SESSION['ost_installer']['s']='done';
             } elseif(!($errors=$installer->getErrors()) || !$errors['err']) {
                 $errors['err']='Error installing osTicket - correct the errors below and try again.';
             }
@@ -69,16 +69,16 @@ if($_POST && $_POST['s']) {
                 $errors['notify'] = 'Check one or more';
 
             if(!$errors)
-                $_SESSION['installer']['s'] = 'done';
+                $_SESSION['ost_installer']['s'] = 'done';
             break;
     }
 
-}elseif($_GET['s'] && $_GET['s']=='ns' && $_SESSION['installer']['s']=='subscribe') {
-    $_SESSION['installer']['s']='done';
+}elseif($_GET['s'] && $_GET['s']=='ns' && $_SESSION['ost_installer']['s']=='subscribe') {
+    $_SESSION['ost_installer']['s']='done';
 }
 
 
-switch(strtolower($_SESSION['installer']['s'])) {
+switch(strtolower($_SESSION['ost_installer']['s'])) {
     case 'config':
     case 'install':
         if(!$installer->config_exists()) {

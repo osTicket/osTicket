@@ -1,12 +1,6 @@
 <?php 
 if(!defined('SETUPINC')) die('Kwaheri!');
 $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbhost'=>'localhost');
-
-//XXX: Remove b4 release.
-if($_SESSION['installer']['info'] && !$_POST)
-    $info=$_SESSION['installer']['info'];
-
-
 ?>
 <div id="main" class="step2">        
     <h1>osTicket Basic Installation</h1>
