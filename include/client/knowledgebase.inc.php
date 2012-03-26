@@ -1,5 +1,6 @@
 <?php
 if(!defined('OSTCLIENTINC')) die('Access Denied');
+
 ?>
 <h1>Frequently Asked Questions</h1>
 <form action="index.php" method="get" style="padding-top:15px;">
@@ -14,6 +15,7 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
                     $sql='SELECT category_id, name, count(faq.category_id) as faqs '
                         .' FROM '.FAQ_CATEGORY_TABLE.' cat '
                         .' LEFT JOIN '.FAQ_TABLE.' faq USING(category_id) '
+                        .' WHERE cat.ispublic=1 AND faq.ispublished=1 '
                         .' GROUP BY cat.category_id '
                         .' HAVING faqs>0 '
                         .' ORDER BY cat.name DESC ';
@@ -40,6 +42,7 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
                     $sql='SELECT ht.topic_id, ht.topic, count(faq.topic_id) as faqs '
                         .' FROM '.TOPIC_TABLE.' ht '
                         .' LEFT JOIN '.FAQ_TOPIC_TABLE.' faq USING(topic_id) '
+                        .' WHERE ht.ispublic=1 '
                         .' GROUP BY ht.topic_id '
                         .' HAVING faqs>0 '
                         .' ORDER BY ht.topic DESC ';
@@ -88,7 +91,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
 } else { //Category Listing.
     $sql='SELECT cat.category_id, cat.name, cat.description, cat.ispublic, count(faq.faq_id) as faqs '
         .' FROM '.FAQ_CATEGORY_TABLE.' cat '
-        .' LEFT JOIN '.FAQ_TABLE.' faq ON(faq.category_id=cat.category_id) '
+        .' LEFT JOIN '.FAQ_TABLE.' faq ON(faq.category_id=cat.category_id AND faq.ispublished=1) '
         .' WHERE cat.ispublic=1 '
         .' GROUP BY cat.category_id '
         .' HAVING faqs>0 '

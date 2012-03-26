@@ -79,11 +79,14 @@ if(!$thisstaff->isadmin()){
 
 //Keep the session activity alive
 $thisstaff->refreshSession();
+
+/******* SET STAFF DEFAULTS **********/
 //Set staff's timezone offset.
 $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
 $_SESSION['daylight']=$thisstaff->observeDaylight();
 
 define('AUTO_REFRESH_RATE',$thisstaff->getRefreshRate()*60);
+define('PAGE_LIMIT',$thisstaff->getPageLimit()?$thisstaff->getPageLimit():DEFAULT_PAGE_LIMIT);
 
 //Clear some vars. we use in all pages.
 $errors=array();
