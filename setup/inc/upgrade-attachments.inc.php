@@ -1,6 +1,6 @@
 <?php
 if(!defined('SETUPINC')) die('Kwaheri!');
-$msg = $_SESSION['upgrader']['msg'];
+$msg = $_SESSION['_upgrader']['msg'];
 ?>    
 <div id="main">
     <h1>Attachments Migration</h1>
