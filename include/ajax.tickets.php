@@ -126,14 +126,98 @@ class TicketsAjaxAPI extends AjaxController {
 
         global $thisstaff;
 
+        if(!$thisstaff || !($ticket=Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
 
-        $ticket = new Ticket($tid);
+        $staff=$ticket->getStaff();
+        $lock=$ticket->getLock();
+        $error=$msg=$warn=null;
 
-        $resp = sprintf(
-                '<div style="width:500px;">
-                 <strong>Ticket #%d Preview</strong><br>INFO HERE!!',
-                 $ticket->getExtId());
+        if($lock && $lock->getStaffId()==$thisstaff->getId())
+            $warn.='&nbsp;<span class="Icon lockedTicket">Ticket is locked by '.$lock->getStaffName().'</span>';
+        elseif($ticket->isOverdue())
+            $warn.='&nbsp;<span class="Icon overdueTicket">Marked overdue!</span>';
+       
+        ob_start();
+        echo sprintf(
+                '<div style="width:500px; padding: 2px 2px 0 5px;">
+                 <h2>%s</h2><br>',Format::htmlchars($ticket->getSubject()));
 
+        if($error)
+            echo sprintf('<div id="msg_error">%s</div>',$error);
+        elseif($msg)
+            echo sprintf('<div id="msg_notice">%s</div>',$msg);
+        elseif($warn)
+            echo sprintf('<div id="msg_warning">%s</div>',$warn);
+
+        echo '<table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
+
+        $ticket_state=sprintf('<span>%s</span>',ucfirst($ticket->getStatus()));
+        if($ticket->isOpen()) {
+            if($ticket->isOverdue())
+                $ticket_state.=' &mdash; <span>Overdue</span>';
+            else
+                $ticket_state.=sprintf(' &mdash; <span>%s</span>',$ticket->getPriority());
+        }
+
+        echo sprintf('
+                <tr>
+                    <th width="100">Ticket State:</th>
+                    <td>%s</td>
+                </tr>
+                <tr>
+                    <th>Create Date:</th>
+                    <td>%s</td>
+                </tr>',$ticket_state,
+                Format::db_datetime($ticket->getCreateDate()));
+        if($ticket->isClosed()) {
+            echo sprintf('
+                    <tr>
+                        <th>Close Date:</th>
+                        <td>%s   <span class="faded">by %s</span></td>
+                    </tr>',
+                    Format::db_datetime($ticket->getCloseDate()),
+                    ($staff?$staff->getName():'staff')
+                    );
+        } elseif($ticket->getDueDate()) {
+            echo sprintf('
+                    <tr>
+                        <th>Due Date:</th>
+                        <td>%s</td>
+                    </tr>',
+                    Format::db_datetime($ticket->getDueDate()));
+        }
+        echo '</table>';
+
+
+        echo '<hr>
+            <table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
+        if($ticket->isOpen()) {
+            echo sprintf('
+                    <tr>
+                        <th width="100">Assigned To:</th>
+                        <td>%s</td>
+                    </tr>',$ticket->isAssigned()?$ticket->getAssignee():' <span class="faded">&mdash; Unassigned &mdash;</span>');
+        }
+        echo sprintf(
+            '   <tr>
+                    <th width="100">Department:</th>
+                    <td>%s</td>
+                </tr>
+                <tr>
+                    <th>Help Topic:</th>
+                    <td>%s</td>
+                </tr>
+                <tr>
+                    <th>From:</th>
+                    <td>%s <span class="faded">%s</span></td>
+                </tr>',
+            Format::htmlchars($ticket->getDeptName()),
+            Format::htmlchars($ticket->getHelpTopic()),
+            Format::htmlchars($ticket->getName()),
+            $ticket->getEmail());
+        echo '
+            </table>';
         $options[]=array('action'=>'Thread ('.$ticket->getThreadCount().')','url'=>"tickets.php?id=$tid");
         if($ticket->getNumNotes())
             $options[]=array('action'=>'Notes ('.$ticket->getNumNotes().')','url'=>"tickets.php?id=$tid#notes");
@@ -150,15 +234,15 @@ class TicketsAjaxAPI extends AjaxController {
         $options[]=array('action'=>'Post Note','url'=>"tickets.php?id=$tid#note");
 
         if($options) {
-            $resp.='<ul class="tip_menu">';
-            foreach($options as $option) {
-                $resp.=sprintf('<li><a href="%s">%s</a></li>',
-                        $option['url'],$option['action']);
-            }
-            $resp.='</ul>';
+            echo '<ul class="tip_menu">';
+            foreach($options as $option)
+                echo sprintf('<li><a href="%s">%s</a></li>',$option['url'],$option['action']);
+            echo '</ul>';
         }
 
-        $resp.='</div>';
+        echo '</div>';
+        $resp = ob_get_contents();
+        ob_end_clean();
 
         return $resp;
     }
