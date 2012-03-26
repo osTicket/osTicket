@@ -254,7 +254,7 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
     <input type="hidden" name="a" value="search">
     <table>
         <tr>
-            <td><input type="text" id="query" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"></td>
+            <td><input type="text" id="ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"></td>
             <td><input type="submit" name="basic_search" class="button" value="Search"></td>
         </tr>
     </table>

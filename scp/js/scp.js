@@ -185,4 +185,21 @@ $(document).ready(function(){
         }
     }
 
+    /* Typeahead init */
+    $('#ticket-search').typeahead({
+        source: function (typeahead, query) {
+            $.ajax({
+                url: "ajax.php/tickets?q="+query,
+                dataType: 'json',
+                success: function (data) {
+                    typeahead.process(data);
+                }
+            });
+        },
+        onselect: function (obj) {
+            $('#ticket-search').closest('form').submit();
+        },
+        property: "value"
+    });
+
 });
