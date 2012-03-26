@@ -30,7 +30,7 @@ class Dispatcher {
         if ($this->file) { $this->lazy_load(); }
         # Support HTTP method emulation with the _method GET argument
         if (isset($_GET['_method'])) { 
-            $_SERVER['REQUEST_METHOD'] = strtoupper($_GET['method']);
+            $_SERVER['REQUEST_METHOD'] = strtoupper($_GET['_method']);
             unset($_GET['_method']);
         }
         foreach ($this->urls as $matcher) {
