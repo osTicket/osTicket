@@ -45,7 +45,7 @@ $dispatcher = patterns("",
     url("^/config/", patterns("ajax.config.php:ConfigAjaxAPI",
         url_get("^ui",'ui')
     )),
-    url_get("^/ticket$", array("ajax.tickets.php:TicketsAjaxAPI", "search")),
+    url_get("^/tickets$", array("ajax.tickets.php:TicketsAjaxAPI", "search")),
     url("^/ticket/", patterns("ajax.tickets.php:TicketsAjaxAPI",
         url_get("^(?P<tid>\d+)/preview", "previewTicket"),
         url_get("^(?P<tid>\d+)/lock", "acquireLock"),

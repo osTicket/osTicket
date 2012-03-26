@@ -22,30 +22,32 @@ class TicketsAjaxAPI extends AjaxController {
    
     function search() {
 
-        $limit = isset($_GET['limit']) ? (int) $_GET['limit']:25;
+        $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $items=array();
         $ticketid=false;
-        if(isset($_GET['id'])){
-            $WHERE=' WHERE ticketID LIKE \''.db_input($_GET['id'], false).'%\'';
+        if(is_numeric($_REQUEST['q'])) {
+            $WHERE=' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
             $ticketid=true;
-        }elseif(isset($_GET['email'])){
-            $WHERE=' WHERE email LIKE \''.db_input(strtolower($_GET['email']), false).'%\'';
-        }else{
-            Http::response(400, "id or email argument is required");
+        } elseif(isset($_REQUEST['q'])) {
+            $WHERE=' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\'';
+        } else {
+            Http::response(400, 'Query argument is required');
         }
-        $sql='SELECT DISTINCT ticketID,email,name FROM '.TICKET_TABLE.' '.$WHERE.' ORDER BY created LIMIT '.$limit;
-        $res=db_query($sql);
-        if($res && db_num_rows($res)){
+        $sql='SELECT DISTINCT ticketID, email, name '
+            .' FROM '.TICKET_TABLE.' '.$WHERE
+            .' ORDER BY created '
+            .' LIMIT '.$limit;
+
+        if(($res=db_query($sql)) && db_num_rows($res)){
             while(list($id,$email,$name)=db_fetch_row($res)) {
                 $info=($ticketid)?$email:$id;
                 $id=($ticketid)?$id:$email;
-                # TODO: Return 'name' from email address if 'email' argument
-                #       specified?
                 $items[] = array('id'=>$id, 'value'=>$id, 'info'=>$info,
                                  'name'=>$name);
             }
         }
-        return $this->encode(array('results'=>$items));
+
+        return $this->encode($items);
     }
 
     function acquireLock($tid) {
