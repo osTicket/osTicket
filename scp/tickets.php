@@ -460,6 +460,16 @@ if($ticket) {
     $inc = 'tickets.inc.php';
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
         $inc = 'ticket-open.inc.php';
+    elseif($_REQUEST['a'] == 'export') {
+        require_once(INCLUDE_DIR.'class.export.php');
+        $ts = strftime('%Y%m%d');
+        if (!($token=$_REQUEST['h']))
+            $errors['err'] = 'Query token required';
+        elseif (!($query=$_SESSION['search_'.$token]))
+            $errors['err'] = 'Query token not found';
+        elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
+            $errors['err'] = 'Internal error: Unable to dump query results';
+    }
     elseif(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
         define('AUTO_REFRESH',1); //set refresh rate if the user has it configured
 }
