@@ -723,6 +723,7 @@ class Ticket{
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
+        $this->track('closed');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -736,6 +737,7 @@ class Ticket{
 
         //TODO: log reopen event here 
 
+        $this->track('reopened');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -1044,6 +1046,7 @@ class Ticket{
 
         $this->onOverdue($whine);
 
+        $this->track('overdue');
         return true;
     }
 
@@ -1109,6 +1112,7 @@ class Ticket{
             }
          }
 
+         $this->track('transferred');
          return true;
     }
 
@@ -1122,6 +1126,7 @@ class Ticket{
 
         $this->onAssign($note, $alert);
 
+        $this->track('assigned');
         return true;
     }
 
@@ -1140,6 +1145,7 @@ class Ticket{
 
         $this->onAssign($note, $alert);
 
+        $this->track('assigned');
         return true;
     }
 
@@ -1341,6 +1347,22 @@ class Ticket{
             return 0;
 
         return $this->postNote($title,$note,false,'system');
+    }
+
+    // History log -- used for statistics generation (pretty reports)
+    function track($state, $staff=null) {
+        global $thisstaff;
+
+        if ($staff === null) {
+            if ($thisstaff) $staff=$thisstaff->getUserName();
+            else $staff='SYSTEM';               # XXX: Security Violation ?
+        }
+
+        return db_query('INSERT INTO '.TICKET_HISTORY_TABLE
+            .' SET ticket_id='.db_input($this->getId())
+            .', timestamp=NOW(), state='.db_input($state)
+            .', staff='.db_input($staff))
+            && db_affected_rows() == 1;
     }
 
     //Insert Internal Notes 
