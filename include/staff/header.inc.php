@@ -8,12 +8,14 @@
         .tip_shadow { display:block !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="./js/calendar.js"></script>
     <script type="text/javascript" src="./js/tips.js"></script>
     <script type="text/javascript" src="./js/nicEdit.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="./js/scp.js"></script>
     <link rel="stylesheet" href="./css/scp.css" media="screen">
+    <link rel="stylesheet" href="./css/typeahead.css" media="screen">
 </head>
 <body>
 <div id="container">
