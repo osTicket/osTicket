@@ -50,5 +50,27 @@ class Http {
         }
         exit;
     }
+
+    function download($filename, $type, $data=null) {
+        header('Pragma: public');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Cache-Control: public');
+        header('Content-Type: '.$type);
+        $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
+        if (strpos($user_agent,'msie') !== false
+                && strpos($user_agent,'win') !== false) {
+            header('Content-Disposition: filename="'.basename($filename).'";');
+        } else {
+            header('Content-Disposition: attachment; filename="'
+                .basename($filename).'"');
+        }
+        header('Content-Transfer-Encoding: binary');
+        if ($data !== null) {
+            header('Content-Length: '.strlen($data));
+            print $data;
+            exit;
+        }
+    }
 }
 ?>
