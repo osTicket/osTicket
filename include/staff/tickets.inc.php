@@ -237,6 +237,8 @@ $qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.pri
 
 $query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
+$hash = md5($query);
+$_SESSION['search_'.$hash] = $query;
 $res = db_query($query);
 $showing=db_num_rows($res)?$pageNav->showing():"";
 if(!$results_type) {
@@ -486,7 +488,9 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
     </table>
     <?php
     if($num>0){ //if we actually had any tickets returned.
-        echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+        echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;';
+        echo '<a class="export-csv" href="?a=export&h='
+            .$hash.'&status='.$_REQUEST['status'] .'">Export</a></div>';
     ?>
         <?php
          if($thisstaff->canManageTickets()) { ?>
