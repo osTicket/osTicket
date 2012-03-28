@@ -933,6 +933,7 @@ h2 .reload {
     height: 1px;  
     border: 0;
     padding: 0;
+    margin: 0.2em 0;
     width: 100%;    
 }
 
@@ -960,7 +961,7 @@ h2 .reload {
 .tip_menu {
     margin:10px 0 0 0;
     padding:5px 0;
-    border-top:1px solid #666;
+    border-top:1px solid #aaa;
     height:16px;
     font-size:9pt;
 }
