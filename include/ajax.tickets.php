@@ -233,6 +233,9 @@ class TicketsAjaxAPI extends AjaxController {
 
         $options[]=array('action'=>'Post Note','url'=>"tickets.php?id=$tid#note");
 
+        if($thisstaff->canEditTickets())
+            $options[]=array('action'=>'Edit Ticket','url'=>"tickets.php?id=$tid&a=edit");
+
         if($options) {
             echo '<ul class="tip_menu">';
             foreach($options as $option)

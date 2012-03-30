@@ -157,15 +157,15 @@ if($_POST && !$errors):
                 $errors['note']='Error(s) occurred. Unable to post the note.';
             }
             break;
+        case 'edit':
         case 'update':
-            $page='editticket.inc.php';
             if(!$ticket || !$thisstaff->canEditTickets())
                 $errors['err']='Perm. Denied. You are not allowed to edit tickets';
-            elseif($ticket->update($_POST,$errors)){
+            elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
-                $page='ticket.inc.php';
-            }elseif(!$errors['err']) {
-                $errors['err']='Error(s) occured! Try again.';
+                $_REQUEST['a'] = null;
+            } elseif(!$errors['err']) {
+                $errors['err']='Unable to update the ticket. Correct the errors below and try again!';
             }
             break;
         case 'process':
@@ -454,8 +454,8 @@ $inc = 'tickets.inc.php';
 if($ticket) {
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
-    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets())
-        $errors['err'] ='Work in progress... ';
+    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
+        $inc = 'ticket-edit.inc.php';
 }else {
     $inc = 'tickets.inc.php';
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
