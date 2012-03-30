@@ -30,27 +30,28 @@ ini_set('display_startup_errors','0');
 //TODO: disable direct access via the browser? i,e All request must have REFER? 
 if(!defined('INCLUDE_DIR'))	Http::response(500,'config error');
 
-require_once INCLUDE_DIR."/class.dispatcher.php";
-require_once INCLUDE_DIR."/class.ajax.php";
-$dispatcher = patterns("",
-    url("^/kb/", patterns("ajax.kbase.php:KbaseAjaxAPI",
+require_once INCLUDE_DIR.'/class.dispatcher.php';
+require_once INCLUDE_DIR.'/class.ajax.php';
+$dispatcher = patterns('',
+    url('^/kb/', patterns('ajax.kbase.php:KbaseAjaxAPI',
         # Send ticket-id as a query arg => canned-response/33?ticket=83
-        url_get("^canned-response/(?P<id>\d+).(?P<format>json|txt)", "cannedResp"),
-        url_get("^faq/(?P<id>\d+)","faq")
+        url_get('^canned-response/(?P<id>\d+).(?P<format>json|txt)', 'cannedResp'),
+        url_get('^faq/(?P<id>\d+)', 'faq')
     )),
-    url("^/content/", patterns("ajax.content.php:ContentAjaxAPI",
-        url_get("^log/(?P<id>\d+)", 'log'),
-        url_get("^ticket_variables",'ticket_variables')
+    url('^/content/', patterns('ajax.content.php:ContentAjaxAPI',
+        url_get('^log/(?P<id>\d+)', 'log'),
+        url_get('^ticket_variables', 'ticket_variables')
     )),
-    url("^/config/", patterns("ajax.config.php:ConfigAjaxAPI",
-        url_get("^ui",'ui')
+    url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
+        url_get('^ui', 'ui')
     )),
-    url_get("^/tickets$", array("ajax.tickets.php:TicketsAjaxAPI", "search")),
-    url("^/ticket/", patterns("ajax.tickets.php:TicketsAjaxAPI",
-        url_get("^(?P<tid>\d+)/preview", "previewTicket"),
-        url_get("^(?P<tid>\d+)/lock", "acquireLock"),
-        url_post("^(?P<tid>\d+)/lock/(?P<id>\d+)/renew", "renewLock"),
-        url_post("^(?P<tid>\d+)/lock/(?P<id>\d+)/release", "releaseLock")
+    url_get('^/users$', array('ajax.users.php:UsersAjaxAPI', 'search')),
+    url_get('^/tickets$', array('ajax.tickets.php:TicketsAjaxAPI', 'search')),
+    url('^/ticket/', patterns('ajax.tickets.php:TicketsAjaxAPI',
+        url_get('^(?P<tid>\d+)/preview', 'previewTicket'),
+        url_get('^(?P<tid>\d+)/lock', 'acquireLock'),
+        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/renew', 'renewLock'),
+        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/release', 'releaseLock')
     ))
 );
 
