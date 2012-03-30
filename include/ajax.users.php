@@ -43,7 +43,7 @@ class UsersAjaxAPI extends AjaxController {
             }                    
         }  
         
-        return $this->encode($users);
+        return $this->json_encode($users);
 
     }
 }
