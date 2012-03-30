@@ -24,6 +24,7 @@ include_once(INCLUDE_DIR.'class.attachment.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
 include_once(INCLUDE_DIR.'class.priority.php');
+include_once(INCLUDE_DIR.'class.sla.php');
 
 class Ticket{
 
@@ -285,6 +286,28 @@ class Ticket{
         return $this->ht['ip_address'];
     }
 
+    function getHashtable() {
+        return $this->ht;
+    }
+
+    function getUpdateInfo() {
+
+        $info=array('name'  =>  $this->getName(),
+                    'email' =>  $this->getEmail(),
+                    'phone' =>  $this->getPhone(),
+                    'phone_ext' =>  $this->getPhoneExt(),
+                    'subject'   =>  $this->getSubject(),
+                    'source'    =>  $this->getSource(),
+                    'topicId'   =>  $this->getTopicId(),
+                    'priorityId'    =>  $this->getPriorityId(),
+                    'slaId' =>  $this->getSLAId(),
+                    'duedate'   =>  $this->getDueDate()?(Format::userdate('m/d/Y', Misc::db2gmtime($this->getDueDate()))):'',
+                    'time'  =>  $this->getDueDate()?(Format::userdate('G:i', Misc::db2gmtime($this->getDueDate()))):'',
+                    );
+                  
+        return $info;
+    }
+
     function getLockId() {
         return $this->lock_id;
     }
@@ -362,6 +385,17 @@ class Ticket{
         return '';
     }
 
+    function getAssignees() {
+     
+        $assignees='';
+        if($staff=$this->getStaff())
+            $assignees.=$staff->getName();
+                       
+        if($team=$this->getTeam())
+            $assignees.=$team->getName();
+
+        return $assignees;
+    }
 
     function getTopicId(){
         return $this->topic_id;
@@ -1459,8 +1493,7 @@ class Ticket{
 
 
     function deleteAttachments(){
-        global $cfg;
-
+        
         $deleted=0;
         // Clear reference table
         $res=db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
@@ -1473,17 +1506,90 @@ class Ticket{
 
     function delete(){
         
+        $sql='DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1';
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        db_query('DELETE FROM '.TICKET_MESSAGE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        db_query('DELETE FROM '.TICKET_RESPONSE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        db_query('DELETE FROM '.TICKET_NOTE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        $this->deleteAttachments();
         
-        if(db_query('DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1') && db_affected_rows()):
-            db_query('DELETE FROM '.TICKET_MESSAGE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            db_query('DELETE FROM '.TICKET_RESPONSE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            db_query('DELETE FROM '.TICKET_NOTE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            $this->deleteAttachments();
-            return TRUE;
-        endif;
-  
-        return FALSE;
+        return true;
     }
+
+    function update($vars, &$errors) {
+
+        global $cfg, $thisstaff;
+        
+        if(!$cfg || !$thisstaff || !$thisstaff->canEditTickets())
+            return false;
+         
+        $fields=array();
+        $fields['name']     = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
+        $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
+        $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
+        $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>'Help topic required');
+        $fields['slaId']    = array('type'=>'int',      'required'=>1, 'error'=>'SLA required');
+        $fields['priorityId'] = array('type'=>'int',    'required'=>1, 'error'=>'Priority required');
+        $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
+        $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
+
+        $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
+
+        if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
+            $errors['err'] ='Missing or invalid data - check the errors and try again';
+
+        if($vars['duedate']) {     
+            if($this->isClosed())
+                $errors['duedate']='Duedate can NOT be set on a closed ticket';
+            elseif(!$vars['time'] || strpos($vars['time'],':')===false)
+                $errors['time']='Select time';
+            elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
+                $errors['duedate']='Invalid duedate';
+            elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
+                $errors['duedate']='Due date must be in the future';
+        }
+        
+        //Make sure phone extension is valid
+        if($vars['phone_ext'] ) {
+            if(!is_numeric($vars['phone_ext']) && !$errors['phone'])
+                $errors['phone']='Invalid phone ext.';
+            elseif(!$vars['phone']) //make sure they just didn't enter ext without phone #
+                $errors['phone']='Phone number required';
+        }
+
+        if($errors) return false;
+
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
+            .' ,email='.db_input($vars['email'])
+            .' ,name='.db_input(Format::striptags($vars['name']))
+            .' ,subject='.db_input(Format::striptags($vars['subject']))
+            .' ,phone="'.db_input($vars['phone'],false).'"'
+            .' ,phone_ext='.db_input($vars['phone_ext']?$vars['phone_ext']:NULL)
+            .' ,priority_id='.db_input($vars['priorityId'])
+            .' ,topic_id='.db_input($vars['topicId'])
+            .' ,sla_id='.db_input($vars['slaId'])
+            .' ,duedate='.($vars['duedate']?db_input(date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))):'NULL');
+             
+        if($vars['duedate']) { //We are setting new duedate...
+            $sql.=' ,isoverdue=0';
+        }
+             
+        $sql.=' WHERE ticket_id='.db_input($this->getId());
+
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        if(!$vars['note'])
+            $vars['note']=sprintf('Ticket Updated by %s', $thisstaff->getName());
+
+        $this->postNote('Ticket Updated', $vars['note']);
+        $this->reload();
+        
+        return true;
+    }
+
    
    /*============== Static functions. Use Ticket::function(params); ==================*/
     function getIdByExtId($extid) {
@@ -1598,84 +1704,6 @@ class Ticket{
 
         return db_fetch_array(db_query($sql));
     }
-
-    //FIXME: Refactor the code for version 1.7
-    function update($var,&$errors) {
-         global $cfg,$thisstaff;
-
-         $fields=array();
-         $fields['name']     = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
-         $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Email is required');
-         $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
-         $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
-         $fields['topicId']  = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Selection');
-         $fields['pri']      = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
-         $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
-         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
-
-         
-         $params = new Validator($fields);
-         if(!$params->validate($var)){
-             $errors=array_merge($errors,$params->errors());
-         }
-
-         if($var['duedate']){
-             if($this->isClosed())
-                 $errors['duedate']='Duedate can NOT be set on a closed ticket';
-             elseif(!$var['time'] || strpos($var['time'],':')===false)
-                 $errors['time']='Select time';
-             elseif(strtotime($var['duedate'].' '.$var['time'])===false)
-                 $errors['duedate']='Invalid duedate';
-             elseif(strtotime($var['duedate'].' '.$var['time'])<=time())
-                 $errors['duedate']='Due date must be in the future';
-         }
-
-        //Make sure phone extension is valid
-        if($var['phone_ext'] ) {
-            if(!is_numeric($var['phone_ext']) && !$errors['phone'])
-                $errors['phone']='Invalid phone ext.';
-            elseif(!$var['phone']) //make sure they just didn't enter ext without phone #
-                $errors['phone']='Phone number required';
-        }
-
-        $cleartopic=false;
-        $topicDesc='';
-        if($var['topicId'] && ($topic= new Topic($var['topicId'])) && $topic->getId()) {
-            $topicDesc=$topic->getName();
-        }elseif(!$var['topicId'] && $this->getTopicId()){
-            $topicDesc='';
-            $cleartopic=true;
-        }
-
- 
-         if(!$errors){
-             $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
-                  ',email='.db_input($var['email']).
-                  ',name='.db_input(Format::striptags($var['name'])).
-                  ',subject='.db_input(Format::striptags($var['subject'])).
-                  ',phone="'.db_input($var['phone'],false).'"'.
-                  ',phone_ext='.db_input($var['phone_ext']?$var['phone_ext']:NULL).
-                  ',priority_id='.db_input($var['pri']).
-                  ',topic_id='.db_input($var['topicId']).
-                  ',duedate='.($var['duedate']?db_input(date('Y-m-d G:i',Misc::dbtime($var['duedate'].' '.$var['time']))):'NULL');
-             if($var['duedate']) { //We are setting new duedate...
-                 $sql.=',isoverdue=0';
-             }
-             if($topicDesc || $cleartopic) { //we're overwriting previous topic.
-                 $sql.=',helptopic='.db_input($topicDesc);
-             }
-             $sql.=' WHERE ticket_id='.db_input($this->getId());
-             //echo $sql;
-             if(db_query($sql)){
-                 $this->postNote('Ticket Updated',$var['note']);
-                 $this->reload();
-                 return true;
-             }
-         }
-
-         return false;
-    }
-
 
     /*
      * The mother of all functions...You break it you fix it!
@@ -1805,7 +1833,7 @@ class Ticket{
         
         // OK...just do it.
         $deptId=$vars['deptId']; //pre-selected Dept if any.
-        $priorityId=$vars['pri'];
+        $priorityId=$vars['priorityId'];
         $source=ucfirst($vars['source']);
         $topic=NULL;
         // Intenal mapping magic...see if we need to overwrite anything

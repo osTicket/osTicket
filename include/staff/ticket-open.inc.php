@@ -116,7 +116,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Subject:
             </td>
             <td>
-                 <input type="text" name="subject" size="35" value="<?=$info['subject']?>">
+                 <input type="text" name="subject" size="55" value="<?=$info['subject']?>">
                  &nbsp;<font class="error">*&nbsp;<?=$errors['subject']?></font>
             </td>
         </tr>
@@ -305,6 +305,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <p style="padding-left:250px;">
     <input type="submit" name="submit" value="Open">
     <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="departments.php"'>
+    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="tickets.php"'>
 </p>
 </form>
