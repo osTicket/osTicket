@@ -82,7 +82,6 @@
         , value
 
       this.query = this.$element.val();
-
       /*Check if we have a match on the current source?? */
       if (typeof this.source == "function") {
         value = this.source(this, this.query)
@@ -157,8 +156,12 @@
 
       items = $(items).map(function (i, item) {
         i = $(that.options.item).attr('data-value', JSON.stringify(item))
-        if (!that.strings)
-            item = item[that.options.property]
+        if (!that.strings) {
+            if(item[that.options.render])
+                item = item[that.options.render];
+            else
+                item = item[that.options.property];
+        }
         i.find('a').html(that.highlighter(item))
         return i[0]
       })
@@ -294,6 +297,7 @@
   , item: '<li><a href="#"></a></li>'
   , onselect: null
   , property: 'value'
+  , render: 'info'
   }
 
   $.fn.typeahead.Constructor = Typeahead

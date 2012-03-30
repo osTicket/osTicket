@@ -24,30 +24,35 @@ class TicketsAjaxAPI extends AjaxController {
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $items=array();
-        $ticketid=false;
-        if(is_numeric($_REQUEST['q'])) {
-            $WHERE=' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
-            $ticketid=true;
-        } elseif(isset($_REQUEST['q'])) {
-            $WHERE=' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\'';
-        } else {
-            Http::response(400, 'Query argument is required');
-        }
-        $sql='SELECT DISTINCT ticketID, email, name '
-            .' FROM '.TICKET_TABLE.' '.$WHERE
-            .' ORDER BY created '
-            .' LIMIT '.$limit;
 
-        if(($res=db_query($sql)) && db_num_rows($res)){
+        $sql='SELECT DISTINCT ticketID, email'
+            .' FROM '.TICKET_TABLE;
+
+        $emailSearch=false;
+        if(is_numeric($_REQUEST['q']))
+            $sql.=' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
+        else {
+            $emailSearch=true;
+            $sql.=' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
+        }
+
+        $sql.=' ORDER BY created  LIMIT '.$limit;
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id,$email,$name)=db_fetch_row($res)) {
-                $info=($ticketid)?$email:$id;
-                $id=($ticketid)?$id:$email;
-                $items[] = array('id'=>$id, 'value'=>$id, 'info'=>$info,
-                                 'name'=>$name);
+                if($emailSearch) {
+                    $info = "$email - $id";
+                    $value = $email;
+                } else {
+                    $info = "$id -$email";
+                    $value = $id;
+                }
+
+                $items[] = array('id'=>$id, 'email'=>$email, 'value'=>$value, 'info'=>$info);
             }
         }
 
-        return $this->encode($items);
+        return $this->json_encode($items);
     }
 
     function acquireLock($tid) {

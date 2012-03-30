@@ -199,7 +199,7 @@ $(document).ready(function(){
     }
 
     /* Typeahead init */
-    $('#ticket-search').typeahead({
+    $('#basic-ticket-search').typeahead({
         source: function (typeahead, query) {
             $.ajax({
                 url: "ajax.php/tickets?q="+query,
@@ -210,9 +210,31 @@ $(document).ready(function(){
             });
         },
         onselect: function (obj) {
-            $('#ticket-search').closest('form').submit();
+            $('#basic-ticket-search').val(obj.id); /*overwriting email*/
+            $('#basic-ticket-search').closest('form').submit();
         },
         property: "value"
     });
+
+    $('#email.typeahead').typeahead({
+        source: function (typeahead, query) {
+            if(query.length > 2) {
+                $.ajax({
+                    url: "ajax.php/users?q="+query,
+                    dataType: 'json',
+                    success: function (data) {
+                        typeahead.process(data);
+                    }
+                });
+            }
+        },
+        onselect: function (obj) {
+            var fObj=$('#email.typeahead').closest('form');
+            if(obj.name)
+                $('#name', fObj).val(obj.name);
+        },
+        property: "email"
+    });
+
 
 });

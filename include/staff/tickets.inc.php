@@ -256,98 +256,12 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
     <input type="hidden" name="a" value="search">
     <table>
         <tr>
-            <td><input type="text" id="ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"></td>
+            <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+                autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" name="basic_search" class="button" value="Search"></td>
         </tr>
     </table>
     </form>
-</div>
-<div id='advance' style="display:<?php echo $basic_display?'none':'block'; ?>">
- <form action="tickets.php" method="get">
- <input type="hidden" name="a" value="search">
-  <table>
-    <tr>
-        <td>Query: </td><td><input type="text" id="query" name="query" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"></td>
-        <td>Dept:</td>
-        <td><select name="dept"><option value=0>All Departments</option>
-            <?php
-                //Showing only departments the user has access to...
-                $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE;
-                if(!$thisstaff->isadmin())
-                    $sql.=' WHERE dept_id IN ('.implode(',',$thisstaff->getDepts()).')';
-                
-                $depts= db_query($sql);
-                while (list($deptId,$deptName) = db_fetch_row($depts)){
-                $selected = ($_GET['dept']==$deptId)?'selected':''; ?>
-                <option value="<?php echo $deptId; ?>"<?php echo $selected; ?>><?php echo $deptName; ?></option>
-            <?php
-            } ?>
-            </select>
-        </td>
-        <td>Status is:</td><td>
-    
-        <select name="status">
-            <option value='any' selected >Any status</option>
-            <option value="open" <?php echo !strcasecmp($_REQUEST['status'],'Open')?'selected':''; ?>>Open</option>
-            <option value="overdue" <?php echo !strcasecmp($_REQUEST['status'],'overdue')?'selected':''; ?>>Overdue</option>
-            <option value="closed" <?php echo !strcasecmp($_REQUEST['status'],'Closed')?'selected':''; ?>>Closed</option>
-        </select>
-        </td>
-     </tr>
-    </table>
-    <div>
-        Date Span:
-        &nbsp;From&nbsp;<input id="sd" name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" 
-                onclick="event.cancelBubble=true;calendar(this);" autocomplete=OFF>
-            <a href="#" onclick="event.cancelBubble=true;calendar(getObj('sd')); return false;"><img src='images/cal.png'border=0 alt=""></a>
-            &nbsp;&nbsp; to &nbsp;&nbsp;
-            <input id="ed" name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" 
-                onclick="event.cancelBubble=true;calendar(this);" autocomplete=OFF >
-                <a href="#" onclick="event.cancelBubble=true;calendar(getObj('ed')); return false;"><img src='images/cal.png'border=0 alt=""></a>
-            &nbsp;&nbsp;
-    </div>
-    <table>
-    <tr>
-       <td>Type:</td>
-       <td>       
-        <select name="stype">
-            <option value="LIKE" <?php echo (!$_REQUEST['stype'] || $_REQUEST['stype'] == 'LIKE') ?'selected':''; ?>>Scan (%)</option>
-            <option value="FT"<?php echo  $_REQUEST['stype'] == 'FT'?'selected':''; ?>>Fulltext</option>
-        </select>
- 
-
-       </td>
-       <td>Sort by:</td><td>
-        <?php
-         $sort=$_GET['sort']?$_GET['sort']:'date';
-        ?>
-        <select name="sort">
-    	    <option value="ID" <?php echo  $sort== 'ID' ?'selected':''; ?>>Ticket #</option>
-            <option value="pri" <?php echo  $sort == 'pri' ?'selected':''; ?>>Priority</option>
-            <option value="date" <?php echo  $sort == 'date' ?'selected':''; ?>>Date</option>
-            <option value="dept" <?php echo  $sort == 'dept' ?'selected':''; ?>>Dept.</option>
-        </select>
-        <select name="order">
-            <option value="DESC"<?php echo  $_REQUEST['order'] == 'DESC' ?'selected':''; ?>>Descending</option>
-            <option value="ASC"<?php echo  $_REQUEST['order'] == 'ASC'?'selected':''; ?>>Ascending</option>
-        </select>
-       </td>
-        <td>Results Per Page:</td><td>
-        <select name="limit">
-        <?php
-         $sel=$_REQUEST['limit']?$_REQUEST['limit']:15;
-         for ($x = 5; $x <= 25; $x += 5) { ?>
-            <option  value="<?php echo $x; ?>" <?php echo ($sel==$x )?'selected':''; ?>><?php echo $x; ?></option>
-        <?php } ?>
-        </select>
-     </td>
-     <td>
-     <input type="submit" name="advance_search" class="button" value="Search">
-       &nbsp;[ <a href="#" onClick="showHide('advance','basic'); return false;" >Basic</a> ]
-    </td>
-  </tr>
- </table>
- </form>
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
