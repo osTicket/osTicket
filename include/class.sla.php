@@ -19,91 +19,113 @@ class SLA {
 
     var $info;
 
-    function SLA($id){
+    function SLA($id) {
         $this->id=0;
         $this->load($id);
     }
 
-    function load($id) {
+    function load($id=0) {
+
+        if(!$id && !($id=$this->getId()))
+            return false;
 
         $sql='SELECT * FROM '.SLA_TABLE.' WHERE id='.db_input($id);
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            $info=db_fetch_array($res);
-            $this->id=$info['id'];
-            $this->info=$info;
-            return true;
-        }
-        return false;
+        if(!($res=db_query($sql)) || !db_num_rows($res))
+            return false;
+
+        $this->ht=db_fetch_array($res);
+        $this->id=$this->ht['id'];
+        return true;
     }
 
     function reload() {
-        return $this->load($this->getId());
+        return $this->load();
     }
 
-    function getId(){
+    function getId() {
         return $this->id;
     }
 
-    function getName(){
-        return $this->info['name'];
+    function getName() {
+        return $this->ht['name'];
     }
 
-    function getGracePeriod(){
-        return $this->info['grace_period'];
+    function getGracePeriod() {
+        return $this->ht['grace_period'];
     }
         
-    function getNotes(){
-        return $this->info['notes'];
+    function getNotes() {
+        return $this->ht['notes'];
     }
 
-    function getInfo(){
-        return  $this->info;
+    function getHashtable() {
+        return  $this->ht;
     }
 
-    function isActive(){
-        return ($this->info['isactive']);
+    function getInfo() {
+        return $this->getHashtable();
     }
 
-    function sendAlerts(){
-        return (!$this->info['disable_overdue_alerts']);
+    function isActive() {
+        return ($this->ht['isactive']);
     }
 
-    function priorityEscalation(){
-        return ($this->info['enable_priority_escalation']);
+    function sendAlerts() {
+        return (!$this->ht['disable_overdue_alerts']);
     }
 
-    function update($vars,&$errors){
-        if(SLA::save($this->getId(),$vars,$errors)){
-            $this->reload();
-            return true;
-        }
+    function priorityEscalation() {
+        return ($this->ht['enable_priority_escalation']);
+    }
+
+    function update($vars,&$errors) {
         
-        return false;
+        if(!SLA::save($this->getId(),$vars,$errors))
+            return false;
+
+        $this->reload();
+
+        return true;
     }
 
-    function delete(){
+    function delete() {
         global $cfg;
 
-        if($cfg && $cfg->getDefaultSLAId()==$this->getId())
+        if(!$cfg || $cfg->getDefaultSLAId()==$this->getId())
             return false;
 
         $id=$this->getId();
         $sql='DELETE FROM '.SLA_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())){
+        if(db_query($sql) && ($num=db_affected_rows())) {
             db_query('UPDATE '.DEPT_TABLE.' SET sla_id=0 WHERE sla_id='.db_input($id));
             db_query('UPDATE '.TOPIC_TABLE.' SET sla_id=0 WHERE sla_id='.db_input($id));
-            db_query('UPDATE '.TICKET_TABLE.' SET sla_id=0 WHERE sla_id='.db_input($id));
+            db_query('UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($cfg->getDefaultSLAId()).' WHERE sla_id='.db_input($id));
         }
 
         return $num;
     }
 
     /** static functions **/
-    function create($vars,&$errors){
+    function create($vars,&$errors) {
         return SLA::save(0,$vars,$errors);
     }
 
-    function getIdByName($name){
+    function getSLAs() {
+
+        $slas=array();
+
+        $sql='SELECT id, name FROM '.SLA_TABLE;
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id, $name)=db_fetch_row($res))
+                $slas[$id]=$name;
+
+        }
+
+        return $slas;
+    }
+
+
+    function getIdByName($name) {
 
         $sql='SELECT id FROM '.SLA_TABLE.' WHERE name='.db_input($name);
         if(($res=db_query($sql)) && db_num_rows($res))
@@ -112,11 +134,11 @@ class SLA {
         return $id;
     }
 
-    function lookup($id){
+    function lookup($id) {
         return ($id && is_numeric($id) && ($sla= new SLA($id)) && $sla->getId()==$id)?$sla:null;
     }
 
-    function save($id,$vars,&$errors){
+    function save($id,$vars,&$errors) {
 
 
         if(!$vars['grace_period'])
