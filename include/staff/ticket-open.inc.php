@@ -22,7 +22,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Email Address:
             </td>
             <td>
-                <input type="text" size="30" name="email" id="email" class="typeahead" value="<?php echo $info['email']; ?>" 
+
+                <input type="text" size="45" name="email" id="email" class="typeahead" value="<?php echo $info['email']; ?>"
                     autocomplete="off" autocorrect="off" autocapitalize="off">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             <?php 
@@ -38,7 +39,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Full Name:
             </td>
             <td>
-                <input type="text" size="30" name="name" id="name" value="<?php echo $info['name']; ?>">
+                <input type="text" size="45" name="name" id="name" value="<?php echo $info['name']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>
