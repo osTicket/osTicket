@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS `%TICKET_PREFIX%sla` (
  
 -- Create a default SLA
 INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
-        `disable_overdue_alerts`, `grace_period`, `name`, `notes`)
-    VALUES (1, 1, 0, 48, 'Default SLA', NULL);
+        `disable_overdue_alerts`, `grace_period`, `name`, `notes`, `created`, `updated`)
+    VALUES (1, 1, 0, 48, 'Default SLA', NULL, NOW(), NOW());
 
 -- Create a TEAM table
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team` (

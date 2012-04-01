@@ -447,8 +447,8 @@ CREATE TABLE `%TABLE_PREFIX%sla` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
-        `disable_overdue_alerts`, `grace_period`, `name`, `notes`)
-    VALUES (1, 1, 0, 48, 'Default SLA', NULL);
+        `disable_overdue_alerts`, `grace_period`, `name`, `notes`, `created`, `updated`)
+    VALUES (1, 1, 0, 48, 'Default SLA', NULL, NOW(), NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%staff`;
 CREATE TABLE `%TABLE_PREFIX%staff` (
