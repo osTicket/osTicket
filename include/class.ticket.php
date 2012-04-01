@@ -1019,12 +1019,12 @@ class Ticket{
     function onOverdue($whine=true) {
         global $cfg;
 
-        // TODO: log overdue events here
+        if($whine && ($sla=$this->getSLA()) && !$sla->alertOnOverdue())
+            $whine = false;
 
         //check if we need to send alerts.
         if(!$whine || !$cfg->alertONOverdueTicket())
             return true;
-
 
         //Get template.
         if(!($tpl = $dept->getTemplate()))
@@ -1120,15 +1120,15 @@ class Ticket{
         if($this->isOverdue())
             return true;
 
-        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=1,updated=NOW() '
+        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=1, updated=NOW() '
             .' WHERE ticket_id='.db_input($this->getId());
 
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
         $this->onOverdue($whine);
-
         $this->track('overdue');
+
         return true;
     }
 
@@ -2043,23 +2043,24 @@ class Ticket{
     
     }
    
-    function checkOverdue(){
+    function checkOverdue() {
        
-        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 JOIN '.
-             SLA_TABLE.' T2 ON T1.sla_id=T2.id '.
-             'WHERE status=\'open\' AND isoverdue=0 '.
-             ' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=grace_period*3600)'.
-             ' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=grace_period*3600)'.
-             ' OR (duedate is NOT NULL AND duedate<NOW()) '.
-             ') ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id) '
+            .' WHERE status=\'open\' AND isoverdue=0 '
+            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
+            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
+            .' OR (duedate is NOT NULL AND duedate<NOW()) '
+            .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
         //echo $sql;
-        if(($stale=db_query($sql)) && db_num_rows($stale)){
-            while(list($id)=db_fetch_row($stale)){
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
                 if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())
-                    $ticket->logActivity('Ticket Marked Overdue','Ticket flagged as overdue by the system.');
-                    # TODO: Send out notifications about the now-overdue
-                    # ticket XXX: markOverdue sends out notifications.
+                    $ticket->logActivity('Ticket Marked Overdue', 'Ticket flagged as overdue by the system.');
             }
+        } else {
+            //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.
+
         }
    }
     
