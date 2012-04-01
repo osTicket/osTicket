@@ -435,12 +435,20 @@ if($stats['overdue']) {
         $sysnotice=$stats['overdue'] .' overdue tickets!';
 }
 
-$nav->addSubMenu(array('desc'=>'Closed Tickets',
-                       'title'=>'Closed Tickets',
-                       'href'=>'tickets.php?status=closed',
-                       'iconclass'=>'closedTickets'),
-                    ($_REQUEST['status']=='closed'));
+if($thisstaff->showAssignedOnly() && $stats['closed']) {
+    $nav->addSubMenu(array('desc'=>'My Closed Tickets ('.$stats['closed'].')',
+                           'title'=>'My Closed Tickets',
+                           'href'=>'tickets.php?status=closed',
+                           'iconclass'=>'closedTickets'),
+                        ($_REQUEST['status']=='closed'));
+} else {
 
+    $nav->addSubMenu(array('desc'=>'Closed Tickets',
+                           'title'=>'Closed Tickets',
+                           'href'=>'tickets.php?status=closed',
+                           'iconclass'=>'closedTickets'),
+                        ($_REQUEST['status']=='closed'));
+}
 
 if($thisstaff->canCreateTickets()) {
     $nav->addSubMenu(array('desc'=>'New Ticket',

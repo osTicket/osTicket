@@ -174,7 +174,7 @@ class Ticket{
         if(!is_object($staff) && !($staff=Staff::lookup($staff)))
             return false;
 
-        return ($staff->canAccessDept($this->getDeptId())
+        return ((!$staff->showAssignedOnly() && $staff->canAccessDept($this->getDeptId()))
                  || ($this->getTeamId() && $staff->isTeamMember($this->getTeamId()))
                  || $staff->getId()==$this->getStaffId());
     }
@@ -1716,13 +1716,14 @@ class Ticket{
                 ON (assigned.ticket_id=ticket.ticket_id AND assigned.status=\'open\' AND assigned.staff_id='.db_input($staff->getId()).')'
             .' LEFT JOIN '.TICKET_TABLE.' closed
                 ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\' AND closed.staff_id='.db_input($staff->getId()).')'
-            .' WHERE (ticket.dept_id IN('.implode(',',$staff->getDepts()).') OR ticket.staff_id='.db_input($staff->getId());
-    
-        
+            .' WHERE (ticket.staff_id='.db_input($staff->getId());
+
         if(($teams=$staff->getTeams()))
             $sql.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
 
-    
+        if(!$staff->showAssignedOnly()) //Staff with limited access just see Assigned tickets.
+            $sql.=' OR ticket.dept_id IN('.implode(',',$staff->getDepts()).') ';
+
         $sql.=')';
 
 

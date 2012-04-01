@@ -61,9 +61,13 @@ $qwhere ='';
 
 $depts=$thisstaff->getDepts();    
 $qwhere =' WHERE ( '
-        .'  ticket.dept_id IN ('.($depts?implode(',',$depts):0).') OR ticket.staff_id='.$thisstaff->getId();
+        .'  ticket.staff_id='.db_input($thisstaff->getId());
+if(!$thisstaff->showAssignedOnly())
+    $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',',$depts):0).')';
+
 if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
     $qwhere.=' OR ticket.team_id IN('.implode(',',array_filter($teams)).') ';
+
 $qwhere .= ' )';
 
 //STATUS
