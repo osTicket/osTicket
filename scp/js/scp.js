@@ -210,7 +210,6 @@ $(document).ready(function(){
             });
         },
         onselect: function (obj) {
-            $('#basic-ticket-search').val(obj.id); /*overwriting email*/
             $('#basic-ticket-search').closest('form').submit();
         },
         property: "value"

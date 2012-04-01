@@ -22,37 +22,43 @@ class TicketsAjaxAPI extends AjaxController {
    
     function search() {
 
+        if(!is_numeric($_REQUEST['q']))
+            return self::searchByEmail();
+
+
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
-        $items=array();
+        $tickets=array();
 
         $sql='SELECT DISTINCT ticketID, email'
-            .' FROM '.TICKET_TABLE;
-
-        $emailSearch=false;
-        if(is_numeric($_REQUEST['q']))
-            $sql.=' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
-        else {
-            $emailSearch=true;
-            $sql.=' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
-        }
-
-        $sql.=' ORDER BY created  LIMIT '.$limit;
+            .' FROM '.TICKET_TABLE
+            .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\''
+            .' ORDER BY created  LIMIT '.$limit;
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id,$email,$name)=db_fetch_row($res)) {
-                if($emailSearch) {
-                    $info = "$email - $id";
-                    $value = $email;
-                } else {
-                    $info = "$id -$email";
-                    $value = $id;
-                }
-
-                $items[] = array('id'=>$id, 'email'=>$email, 'value'=>$value, 'info'=>$info);
-            }
+            while(list($id, $email)=db_fetch_row($res))
+                $tickets[] = array('id'=>$id, 'email'=>$email, 'value'=>$id, 'info'=>"$id - $email");
         }
 
-        return $this->json_encode($items);
+        return $this->json_encode($tickets);
+    }
+
+    function searchByEmail() {
+
+        $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
+        $tickets=array();
+
+        $sql='SELECT email, count(ticket_id) as tickets '
+            .' FROM '.TICKET_TABLE
+            .' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' '
+            .' GROUP BY email '
+            .' ORDER BY created  LIMIT '.$limit;
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($email, $count)=db_fetch_row($res))
+                $tickets[] = array('email'=>$email, 'value'=>$email, 'info'=>"$email ($count)");
+        }
+
+        return $this->json_encode($tickets);
     }
 
     function acquireLock($tid) {
