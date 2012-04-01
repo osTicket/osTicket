@@ -30,12 +30,12 @@ class Client {
     var $ht;
 
 
-    function Client($email,$id) {
+    function Client($id, $email=null) {
         $this->id =0;
         $this->load($id,$email);
     }
 
-    function load($id=0, $email='') {
+    function load($id=0, $email=null) {
 
         if(!$id && !($id=$this->getId()))
             return false;
@@ -115,8 +115,23 @@ class Client {
     }
 
     /* ------------- Static ---------------*/
-    function lookup($id, $email) {
+    function getLastTicketIdByEmail($email) {
+        $sql='SELECT ticketID FROM '.TICKET_TABLE
+            .' WHERE email='.db_input($email)
+            .' ORDER BY created '
+            .' LIMIT 1';
+        if(($res=db_query($sql)) && db_num_rows($res))
+            list($tid) = db_fetch_row($res);
+
+        return $tid;
+    }
+
+    function lookup($id, $email=null) {
         return ($id && is_numeric($id) && ($c=new Client($id,$email)) && $c->getId()==$id)?$c:null;
+    }
+
+    function lookupByEmail($email) {
+        return (($id=self::getLastTicketIdByEmail($email)))?self::lookup($id, $email):null;
     }
 }
 ?>

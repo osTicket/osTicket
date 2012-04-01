@@ -107,8 +107,8 @@ class ClientSession extends Client {
     
     var $session;
 
-    function ClientSession($email,$id){
-        parent::Client($email,$id);
+    function ClientSession($email, $id){
+        parent::Client($id, $email);
         $this->session= new UserSession($email);
     }
 
