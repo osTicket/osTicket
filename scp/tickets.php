@@ -435,12 +435,20 @@ if($stats['overdue']) {
         $sysnotice=$stats['overdue'] .' overdue tickets!';
 }
 
-$nav->addSubMenu(array('desc'=>'Closed Tickets',
-                       'title'=>'Closed Tickets',
-                       'href'=>'tickets.php?status=closed',
-                       'iconclass'=>'closedTickets'),
-                    ($_REQUEST['status']=='closed'));
+if($thisstaff->showAssignedOnly() && $stats['closed']) {
+    $nav->addSubMenu(array('desc'=>'My Closed Tickets ('.$stats['closed'].')',
+                           'title'=>'My Closed Tickets',
+                           'href'=>'tickets.php?status=closed',
+                           'iconclass'=>'closedTickets'),
+                        ($_REQUEST['status']=='closed'));
+} else {
 
+    $nav->addSubMenu(array('desc'=>'Closed Tickets',
+                           'title'=>'Closed Tickets',
+                           'href'=>'tickets.php?status=closed',
+                           'iconclass'=>'closedTickets'),
+                        ($_REQUEST['status']=='closed'));
+}
 
 if($thisstaff->canCreateTickets()) {
     $nav->addSubMenu(array('desc'=>'New Ticket',
@@ -456,7 +464,7 @@ if($ticket) {
     $inc = 'ticket-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
         $inc = 'ticket-edit.inc.php';
-}else {
+} else {
     $inc = 'tickets.inc.php';
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
         $inc = 'ticket-open.inc.php';
@@ -470,8 +478,14 @@ if($ticket) {
         elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
             $errors['err'] = 'Internal error: Unable to dump query results';
     }
-    elseif(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
-        define('AUTO_REFRESH',1); //set refresh rate if the user has it configured
+
+    //Clear active submenu on search with no status
+    if($_REQUEST['a']=='search' && !$_REQUEST['status'])
+        $nav->setActiveSubMenu(-1);
+
+    //set refresh rate if the user has it configured
+    if(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
+        define('AUTO_REFRESH', $min*60); 
 }
 
 require_once(STAFFINC_DIR.'header.inc.php');

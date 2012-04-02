@@ -74,6 +74,10 @@ class SLA {
         return (!$this->ht['disable_overdue_alerts']);
     }
 
+    function alertOnOverdue() {
+        return $this->sendAlerts();
+    }
+
     function priorityEscalation() {
         return ($this->ht['enable_priority_escalation']);
     }

@@ -14,6 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.staff.php');
+include_once(INCLUDE_DIR.'class.client.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.email.php');
 include_once(INCLUDE_DIR.'class.dept.php');
@@ -55,6 +56,7 @@ class Ticket{
     var $dept;  //Dept obj
     var $sla;   // SLA obj
     var $staff; //Staff obj
+    var $client; //Client Obj
     var $team;  //Team obj
     var $topic; //Topic obj
     var $tlock; //TicketLock obj
@@ -124,6 +126,7 @@ class Ticket{
         
         //Reset the sub classes (initiated ondemand)...good for reloads.
         $this->staff = null;
+        $this->client = null;
         $this->team  = null;
         $this->dept = null;
         $this->sla = null;
@@ -171,7 +174,7 @@ class Ticket{
         if(!is_object($staff) && !($staff=Staff::lookup($staff)))
             return false;
 
-        return ($staff->canAccessDept($this->getDeptId())
+        return ((!$staff->showAssignedOnly() && $staff->canAccessDept($this->getDeptId()))
                  || ($this->getTeamId() && $staff->isTeamMember($this->getTeamId()))
                  || $staff->getId()==$this->getStaffId());
     }
@@ -348,6 +351,14 @@ class Ticket{
             $this->dept= Dept::lookup($this->getDeptId());
 
         return $this->dept;
+    }
+
+    function getClient() {
+
+        if(!$this->client)
+            $this->client = Client::lookup($this->getExtId(), $this->getEmail());
+
+        return $this->client;
     }
     
     function getStaffId(){
@@ -854,6 +865,43 @@ class Ticket{
         return true;
     }
 
+    function onOpenLimit($sendNotice=true) {
+        global $cfg;
+
+        //Log the limit notice as a warning for admin.
+        $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
+        sys::log(LOG_WARNING, 'Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
+
+        if(!$sendNotice || !$cfg->sendOverlimitNotice()) return true;
+
+        //Send notice to user.
+        $dept = $this->getDept();
+                    
+        if(!$dept || !($tpl=$dept->getTemplate()))
+            $tpl=$cfg->getDefaultTemplate();
+            
+        if(!$dept || !($email=$dept->getAutoRespEmail()))
+            $email=$cfg->getDefaultEmail();
+
+        if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
+            $body=$this->replaceTemplateVars($msg['body']);
+            $subj=$this->replaceTemplateVars($msg['subj']);
+            $body = str_replace('%signature',($dept && $dept->isPublic())?$dept->getSignature():'',$body);
+            $email->send($this->getEmail(), $subj, $body);
+        }
+
+        $client= $this->getClient();
+        
+        //Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
+        $msg='Max. open tickets reached for '.$this->getEmail()."\n"
+            .'Open ticket: '.$client->getNumOpenTickets()."\n"
+            .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
+            
+        Sys::alertAdmin('Overlimit Notice',$msg);
+       
+        return true;
+    }
+
     function onResponse(){
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1,lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
     }
@@ -971,12 +1019,12 @@ class Ticket{
     function onOverdue($whine=true) {
         global $cfg;
 
-        // TODO: log overdue events here
+        if($whine && ($sla=$this->getSLA()) && !$sla->alertOnOverdue())
+            $whine = false;
 
         //check if we need to send alerts.
         if(!$whine || !$cfg->alertONOverdueTicket())
             return true;
-
 
         //Get template.
         if(!($tpl = $dept->getTemplate()))
@@ -1072,15 +1120,15 @@ class Ticket{
         if($this->isOverdue())
             return true;
 
-        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=1,updated=NOW() '
+        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=1, updated=NOW() '
             .' WHERE ticket_id='.db_input($this->getId());
 
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
         $this->onOverdue($whine);
-
         $this->track('overdue');
+
         return true;
     }
 
@@ -1668,13 +1716,14 @@ class Ticket{
                 ON (assigned.ticket_id=ticket.ticket_id AND assigned.status=\'open\' AND assigned.staff_id='.db_input($staff->getId()).')'
             .' LEFT JOIN '.TICKET_TABLE.' closed
                 ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\' AND closed.staff_id='.db_input($staff->getId()).')'
-            .' WHERE (ticket.dept_id IN('.implode(',',$staff->getDepts()).') OR ticket.staff_id='.db_input($staff->getId());
-    
-        
+            .' WHERE (ticket.staff_id='.db_input($staff->getId());
+
         if(($teams=$staff->getTeams()))
             $sql.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
 
-    
+        if(!$staff->showAssignedOnly()) //Staff with limited access just see Assigned tickets.
+            $sql.=' OR ticket.dept_id IN('.implode(',',$staff->getDepts()).') ';
+
         $sql.=')';
 
 
@@ -1708,16 +1757,33 @@ class Ticket{
     /*
      * The mother of all functions...You break it you fix it!
      *
-     *  $autorespond and $alertstaff overwrites config info...
+     *  $autorespond and $alertstaff overwrites config settings...
      */      
-    function create($vars,&$errors, $origin, $autorespond=true, $alertstaff=true) {
+    function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $cfg,$thisclient,$_FILES;
 
-        //Make sure the email address is not banned
-        if ($vars['email'] && EmailFilter::isBanned($vars['email'])) {
-            $errors['err']='Ticket denied. Error #403';
-            Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
-            return 0;
+        //Check for 403
+        if ($vars['email']  && Validator::is_email($vars['email'])) {
+
+            //Make sure the email address is not banned
+            if(EmailFilter::isBanned($vars['email'])) {
+                $errors['err']='Ticket denied. Error #403';
+                Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
+                return 0;
+            }
+
+            //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
+            if($cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff') 
+                    && ($client=Client::lookupByEmail($vars['email']))
+                    && ($openTickets=$client->getNumOpenTickets())
+                    && ($opentickets>=$cfg->getMaxOpenTickets()) ) {
+
+                $errors['err']="You've reached the maximum open tickets allowed.";
+                Sys::log(LOG_WARNING, 'Ticket denied -'.$vars['email'], 
+                        sprintf('Max open tickets (%d) reached for %s ', $cfg->getMaxOpenTickets(), $vars['email']));
+
+                return 0;
+            }
         }
         // Make sure email contents should not be rejected
         if (($email_filter=new EmailFilter($vars))
@@ -1777,56 +1843,12 @@ class Ticket{
                 $errors['duedate']='Due date must be in the future';
         }
 
-        //check attachment..if any is set ...only set on webbased tickets..
-        //XXX:?? Create ticket anyway and simply drop the attachments?? We're already doing so with emails.
-        if($_FILES['attachment']['name'] && $cfg->allowOnlineAttachments()) {
-            if(!$cfg->canUploadFileType($_FILES['attachment']['name']))
-                $errors['attachment']='Invalid file type [ '.Format::htmlchars($_FILES['attachment']['name']).' ]';
-            elseif($_FILES['attachment']['size']>$cfg->getMaxFileSize())
-                $errors['attachment']='File is too big. Max '.$cfg->getMaxFileSize().' bytes allowed';
-        }
-
         # Perform email filter actions on the new ticket arguments XXX: Move filter to the top and check for reject...
         if (!$errors && $email_filter) $email_filter->apply($vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
         if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
-
-        //check ticket limits..if limit set is >0 
-        //TODO:  XXX: move it elsewhere?? Client::checkMaxOpenTickets($email,$vars)
-
-        if($vars['email'] && !$errors && $cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff')){
-            $openTickets=Ticket::getOpenTicketsByEmail($vars['email']);
-            if($openTickets>=$cfg->getMaxOpenTickets()) {
-                $errors['err']="You've reached the maximum open tickets allowed.";
-                //Send the notice only once (when the limit is reached) incase of autoresponders at client end.
-                if($cfg->getMaxOpenTickets()==$openTickets && $cfg->sendOverlimitNotice()) {
-                    if($vars['deptId'])
-                        $dept =Dept::lookup($vars['deptId']);
-                    
-                    if(!$dept || !($tpl=$dept->getTemplate()))
-                        $tpl=$cfg->getDefaultTemplate();
-
-                    if(!$dept || !($email=$dept->getAutoRespEmail()))
-                        $email=$cfg->getDefaultEmail();
-
-                    if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
-                        $body = str_replace('%name', $vars['name'],$msg['body']);
-                        $body = str_replace('%email',$vars['email'],$msg['body']);
-                        $body = str_replace('%url', $cfg->getBaseUrl(),$body);
-                        $body = str_replace('%signature',($dept && $dept->isPublic())?$dept->getSignature():'',$body);
-                        $email->send($vars['email'],$msg['subj'],$body);
-                    }
-                    
-                    //Log + Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
-                    $msg='Support ticket request denied for '.$vars['email']."\n".
-                         'Open ticket:'.$openTickets."\n".
-                         'Max Allowed:'.$cfg->getMaxOpenTickets()."\n\nNotice only sent once";
-                    Sys::log(LOG_CRIT,'Overlimit Notice',$msg);
-                }
-            }
-        }
 
         //Any error above is fatal.
         if($errors)  return 0;
@@ -1932,6 +1954,15 @@ class Ticket{
 
         $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
 
+        /************ check if the user JUST reached the max. open tickets limit **********/
+        if($cfg->getMaxOpenTickets()>0
+                    && ($client=$ticket->getClient())
+                    && ($client->getNumOpenTickets()==$cfg->getMaxOpenTickets())) {
+            $ticket->onOpenLimit(($autorespond && strcasecmp($origin, 'staff')));
+        }
+
+        /* Phew! ... time for tea (KETEPA) */
+
         return $ticket;
     }
 
@@ -2013,23 +2044,24 @@ class Ticket{
     
     }
    
-    function checkOverdue(){
+    function checkOverdue() {
        
-        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 JOIN '.
-             SLA_TABLE.' T2 ON T1.sla_id=T2.id '.
-             'WHERE status=\'open\' AND isoverdue=0 '.
-             ' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=grace_period*3600)'.
-             ' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=grace_period*3600)'.
-             ' OR (duedate is NOT NULL AND duedate<NOW()) '.
-             ') ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id) '
+            .' WHERE status=\'open\' AND isoverdue=0 '
+            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
+            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
+            .' OR (duedate is NOT NULL AND duedate<NOW()) '
+            .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
         //echo $sql;
-        if(($stale=db_query($sql)) && db_num_rows($stale)){
-            while(list($id)=db_fetch_row($stale)){
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
                 if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())
-                    $ticket->logActivity('Ticket Marked Overdue','Ticket flagged as overdue by the system.');
-                    # TODO: Send out notifications about the now-overdue
-                    # ticket XXX: markOverdue sends out notifications.
+                    $ticket->logActivity('Ticket Marked Overdue', 'Ticket flagged as overdue by the system.');
             }
+        } else {
+            //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.
+
         }
    }
     
