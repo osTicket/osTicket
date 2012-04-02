@@ -78,7 +78,7 @@ class Config {
     }
 
     function getVersion() {
-        return '1.7 DPR';
+        return '1.7-DPR2';
     }
 
     function getSchemaSignature() {
