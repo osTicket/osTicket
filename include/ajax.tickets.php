@@ -21,6 +21,7 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 class TicketsAjaxAPI extends AjaxController {
    
     function search() {
+        global $thisstaff;
 
         if(!is_numeric($_REQUEST['q']))
             return self::searchByEmail();
@@ -31,7 +32,17 @@ class TicketsAjaxAPI extends AjaxController {
 
         $sql='SELECT DISTINCT ticketID, email'
             .' FROM '.TICKET_TABLE
-            .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\''
+            .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
+              
+        $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
+            
+        if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
+            $sql.=' OR team_id IN('.implode(',', array_filter($teams)).')';
+            
+        if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+            $sql.=' OR dept_id IN ('.implode(',', $depts).')';
+
+        $sql.=' )  '
             .' ORDER BY created  LIMIT '.$limit;
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -43,16 +54,28 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function searchByEmail() {
+        global $thisstaff;
+
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
         $sql='SELECT email, count(ticket_id) as tickets '
             .' FROM '.TICKET_TABLE
-            .' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' '
+            .' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
+                
+        $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
+
+        if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
+            $sql.=' OR team_id IN('.implode(',', array_filter($teams)).')';
+
+        if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+            $sql.=' OR dept_id IN ('.implode(',', $depts).')';
+        
+        $sql.=' ) '
             .' GROUP BY email '
             .' ORDER BY created  LIMIT '.$limit;
-
+            
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($email, $count)=db_fetch_row($res))
                 $tickets[] = array('email'=>$email, 'value'=>$email, 'info'=>"$email ($count)");

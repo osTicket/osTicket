@@ -89,7 +89,7 @@ if($staffId && ($staffId==$thisstaff->getId())) { //Staff's assigned tickets.
 }
 
 //******* Showing assigned tickets? (don't confuse it with show assigned To column). F'it it's confusing - just trust me! ***/
-if(!($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets()) && strcasecmp($status,'closed'))
+if(!($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets()) && strcasecmp($status,'closed') && !$search)
     $sql.=' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($thisstaff->getId()).') ';
 
 //Search?? Somebody...get me some coffee 
