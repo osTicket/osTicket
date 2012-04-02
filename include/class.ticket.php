@@ -398,12 +398,12 @@ class Ticket{
 
     function getAssignees() {
      
-        $assignees='';
+        $assignees=array();
         if($staff=$this->getStaff())
-            $assignees.=$staff->getName();
+            $assignees[] = $staff->getName();
                        
         if($team=$this->getTeam())
-            $assignees.=$team->getName();
+            $assignees[] = $team->getName();
 
         return $assignees;
     }

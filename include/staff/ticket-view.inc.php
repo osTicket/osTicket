@@ -21,7 +21,7 @@ $id    = $ticket->getId();    //Ticket ID.
 
 //Useful warnings and errors the user might want to know!
 if($ticket->isAssigned() && $staff->getId()!=$thisstaff->getId())
-    $warn.='&nbsp;&nbsp;<span class="Icon assignedTicket">Ticket is assigned to '.$ticket->getAssignee().'</span>';
+    $warn.='&nbsp;&nbsp;<span class="Icon assignedTicket">Ticket is assigned to '.implode('/', $ticket->getAssignees()).'</span>';
 if(!$errors['err'] && ($lock && $lock->getStaffId()!=$thisstaff->getId()))
     $errors['err']='This ticket is currently locked by '.$lock->getStaffName();
 if(!$errors['err'] && ($emailBanned=EmailFilter::isBanned($ticket->getEmail())))
@@ -103,10 +103,34 @@ if($ticket->isOverdue())
     <tr>
         <td width="50%">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
+                <?php
+                if($ticket->isOpen()) { ?>
                 <tr>
                     <th width="100">Assigned To:</th>
-                    <td><?php echo Format::htmlchars($ticket->getAssignee()); ?></td>
+                    <td>
+                        <?php
+                        if($ticket->isAssigned())
+                            echo Format::htmlchars(implode('/', $ticket->getAssignees()));
+                        else
+                            echo '<span class="faded">&mdash; Unassigned &mdash;</span>';
+                        ?>
+                    </td>
                 </tr>
+                <?php
+                } else { ?>
+                <tr>
+                    <th width="100">Closed By:</th>
+                    <td>
+                        <?php
+                        if(($staff = $ticket->getStaff()))
+                            echo Format::htmlchars($staff->getName());
+                        else
+                            echo '<span class="faded">&mdash; Unknown &mdash;</span>';
+                        ?>
+                    </td>
+                </tr>
+                <?php
+                } ?>
                 <tr>
                     <th nowrap>Last Response:</th>
                     <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>

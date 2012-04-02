@@ -231,7 +231,7 @@ class TicketsAjaxAPI extends AjaxController {
                     <tr>
                         <th width="100">Assigned To:</th>
                         <td>%s</td>
-                    </tr>',$ticket->isAssigned()?$ticket->getAssignee():' <span class="faded">&mdash; Unassigned &mdash;</span>');
+                    </tr>',$ticket->isAssigned()?implode('/', $ticket->getAssignees()):' <span class="faded">&mdash; Unassigned &mdash;</span>');
         }
         echo sprintf(
             '   <tr>
