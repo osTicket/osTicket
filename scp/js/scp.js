@@ -87,6 +87,9 @@ $(document).ready(function(){
         if(!fObj.data('changed')){
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
+            $(window).bind('beforeunload', function(e) {
+                return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
+             });
         }
     });
 
@@ -97,9 +100,19 @@ $(document).ready(function(){
             $('label', fObj).removeAttr('style');
             $('label', fObj).removeClass('strike');
             fObj.data('changed', false);
+            $(window).unbind('beforeunload');
         }
     });
 
+    $('form#save').submit(function() {
+        $(window).unbind('beforeunload');
+
+        return true;
+     });
+
+    $('select#setting_options').change(function() {
+        $(this).closest('form').submit();
+     });
 
     $(".clearrule").live('click',function() {
         $(this).closest("tr").find(":input").val('');
@@ -184,5 +197,43 @@ $(document).ready(function(){
             nicEditors.findEditor('rte-'+i).setContent('');
         }
     }
+
+    /* Typeahead init */
+    $('#basic-ticket-search').typeahead({
+        source: function (typeahead, query) {
+            $.ajax({
+                url: "ajax.php/tickets?q="+query,
+                dataType: 'json',
+                success: function (data) {
+                    typeahead.process(data);
+                }
+            });
+        },
+        onselect: function (obj) {
+            $('#basic-ticket-search').closest('form').submit();
+        },
+        property: "value"
+    });
+
+    $('#email.typeahead').typeahead({
+        source: function (typeahead, query) {
+            if(query.length > 2) {
+                $.ajax({
+                    url: "ajax.php/users?q="+query,
+                    dataType: 'json',
+                    success: function (data) {
+                        typeahead.process(data);
+                    }
+                });
+            }
+        },
+        onselect: function (obj) {
+            var fObj=$('#email.typeahead').closest('form');
+            if(obj.name)
+                $('#name', fObj).val(obj.name);
+        },
+        property: "email"
+    });
+
 
 });

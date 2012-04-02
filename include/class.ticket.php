@@ -14,6 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.staff.php');
+include_once(INCLUDE_DIR.'class.client.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.email.php');
 include_once(INCLUDE_DIR.'class.dept.php');
@@ -24,6 +25,7 @@ include_once(INCLUDE_DIR.'class.attachment.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
 include_once(INCLUDE_DIR.'class.priority.php');
+include_once(INCLUDE_DIR.'class.sla.php');
 
 class Ticket{
 
@@ -54,6 +56,7 @@ class Ticket{
     var $dept;  //Dept obj
     var $sla;   // SLA obj
     var $staff; //Staff obj
+    var $client; //Client Obj
     var $team;  //Team obj
     var $topic; //Topic obj
     var $tlock; //TicketLock obj
@@ -123,6 +126,7 @@ class Ticket{
         
         //Reset the sub classes (initiated ondemand)...good for reloads.
         $this->staff = null;
+        $this->client = null;
         $this->team  = null;
         $this->dept = null;
         $this->sla = null;
@@ -170,9 +174,21 @@ class Ticket{
         if(!is_object($staff) && !($staff=Staff::lookup($staff)))
             return false;
 
-        return ($staff->canAccessDept($this->getDeptId())
+        return ((!$staff->showAssignedOnly() && $staff->canAccessDept($this->getDeptId()))
                  || ($this->getTeamId() && $staff->isTeamMember($this->getTeamId()))
                  || $staff->getId()==$this->getStaffId());
+    }
+
+    function checkClientAccess($client) {
+        global $cfg;
+
+        if(!is_object($client) && !($client=Client::lookup($client)))
+            return false;
+
+        if(!strcasecmp($client->getEmail(),$this->getEmail()))
+            return true;
+
+        return ($cfg && $cfg->showRelatedTickets() && $client->getTicketId()==$ticket->getExtId());
     }
 
     //Getters
@@ -273,6 +289,28 @@ class Ticket{
         return $this->ht['ip_address'];
     }
 
+    function getHashtable() {
+        return $this->ht;
+    }
+
+    function getUpdateInfo() {
+
+        $info=array('name'  =>  $this->getName(),
+                    'email' =>  $this->getEmail(),
+                    'phone' =>  $this->getPhone(),
+                    'phone_ext' =>  $this->getPhoneExt(),
+                    'subject'   =>  $this->getSubject(),
+                    'source'    =>  $this->getSource(),
+                    'topicId'   =>  $this->getTopicId(),
+                    'priorityId'    =>  $this->getPriorityId(),
+                    'slaId' =>  $this->getSLAId(),
+                    'duedate'   =>  $this->getDueDate()?(Format::userdate('m/d/Y', Misc::db2gmtime($this->getDueDate()))):'',
+                    'time'  =>  $this->getDueDate()?(Format::userdate('G:i', Misc::db2gmtime($this->getDueDate()))):'',
+                    );
+                  
+        return $info;
+    }
+
     function getLockId() {
         return $this->lock_id;
     }
@@ -314,6 +352,14 @@ class Ticket{
 
         return $this->dept;
     }
+
+    function getClient() {
+
+        if(!$this->client)
+            $this->client = Client::lookup($this->getExtId(), $this->getEmail());
+
+        return $this->client;
+    }
     
     function getStaffId(){
         return $this->staff_id;
@@ -350,6 +396,17 @@ class Ticket{
         return '';
     }
 
+    function getAssignees() {
+     
+        $assignees=array();
+        if($staff=$this->getStaff())
+            $assignees[] = $staff->getName();
+                       
+        if($team=$this->getTeam())
+            $assignees[] = $team->getName();
+
+        return $assignees;
+    }
 
     function getTopicId(){
         return $this->topic_id;
@@ -437,8 +494,10 @@ class Ticket{
 
     function getRelatedTicketsCount(){
 
-        $sql='SELECT count(*)  FROM '.TICKET_TABLE.' WHERE email='.db_input($this->getEmail());
-        return db_count($sql);
+        $sql='SELECT count(*)  FROM '.TICKET_TABLE
+            .' WHERE email='.db_input($this->getEmail());
+
+        return db_result(db_query($sql));
     }
 
     function getThreadCount() {
@@ -488,7 +547,7 @@ class Ticket{
                 ON (msg.ticket_id=attach.ticket_id AND msg.msg_id=attach.ref_id AND ref_type="M") '
             .' WHERE  msg.ticket_id='.db_input($this->getId())
             .' GROUP BY msg.msg_id '
-            .' ORDER BY msg.created DESC ';
+            .' ORDER BY msg.created ASC ';
 
         $messages=array();
         if(($res=db_query($sql)) && db_num_rows($res))
@@ -709,6 +768,7 @@ class Ticket{
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
+        $this->track('closed');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -722,6 +782,7 @@ class Ticket{
 
         //TODO: log reopen event here 
 
+        $this->track('reopened');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -801,6 +862,43 @@ class Ticket{
            
         }
         
+        return true;
+    }
+
+    function onOpenLimit($sendNotice=true) {
+        global $cfg;
+
+        //Log the limit notice as a warning for admin.
+        $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
+        sys::log(LOG_WARNING, 'Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
+
+        if(!$sendNotice || !$cfg->sendOverlimitNotice()) return true;
+
+        //Send notice to user.
+        $dept = $this->getDept();
+                    
+        if(!$dept || !($tpl=$dept->getTemplate()))
+            $tpl=$cfg->getDefaultTemplate();
+            
+        if(!$dept || !($email=$dept->getAutoRespEmail()))
+            $email=$cfg->getDefaultEmail();
+
+        if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
+            $body=$this->replaceTemplateVars($msg['body']);
+            $subj=$this->replaceTemplateVars($msg['subj']);
+            $body = str_replace('%signature',($dept && $dept->isPublic())?$dept->getSignature():'',$body);
+            $email->send($this->getEmail(), $subj, $body);
+        }
+
+        $client= $this->getClient();
+        
+        //Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
+        $msg='Max. open tickets reached for '.$this->getEmail()."\n"
+            .'Open ticket: '.$client->getNumOpenTickets()."\n"
+            .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
+            
+        Sys::alertAdmin('Overlimit Notice',$msg);
+       
         return true;
     }
 
@@ -921,12 +1019,12 @@ class Ticket{
     function onOverdue($whine=true) {
         global $cfg;
 
-        // TODO: log overdue events here
+        if($whine && ($sla=$this->getSLA()) && !$sla->alertOnOverdue())
+            $whine = false;
 
         //check if we need to send alerts.
         if(!$whine || !$cfg->alertONOverdueTicket())
             return true;
-
 
         //Get template.
         if(!($tpl = $dept->getTemplate()))
@@ -1022,13 +1120,14 @@ class Ticket{
         if($this->isOverdue())
             return true;
 
-        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=1,updated=NOW() '
+        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=1, updated=NOW() '
             .' WHERE ticket_id='.db_input($this->getId());
 
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
         $this->onOverdue($whine);
+        $this->track('overdue');
 
         return true;
     }
@@ -1095,6 +1194,7 @@ class Ticket{
             }
          }
 
+         $this->track('transferred');
          return true;
     }
 
@@ -1108,6 +1208,7 @@ class Ticket{
 
         $this->onAssign($note, $alert);
 
+        $this->track('assigned');
         return true;
     }
 
@@ -1126,6 +1227,7 @@ class Ticket{
 
         $this->onAssign($note, $alert);
 
+        $this->track('assigned');
         return true;
     }
 
@@ -1193,7 +1295,9 @@ class Ticket{
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
 
-        if(!($tpl = $dept->getTemplate()))
+        $dept = $this->getDept();
+
+        if(!$dept || !($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
 
         if(!($email=$cfg->getAlertEmail()))
@@ -1327,6 +1431,22 @@ class Ticket{
         return $this->postNote($title,$note,false,'system');
     }
 
+    // History log -- used for statistics generation (pretty reports)
+    function track($state, $staff=null) {
+        global $thisstaff;
+
+        if ($staff === null) {
+            if ($thisstaff) $staff=$thisstaff->getUserName();
+            else $staff='SYSTEM';               # XXX: Security Violation ?
+        }
+
+        return db_query('INSERT INTO '.TICKET_HISTORY_TABLE
+            .' SET ticket_id='.db_input($this->getId())
+            .', timestamp=NOW(), state='.db_input($state)
+            .', staff='.db_input($staff))
+            && db_affected_rows() == 1;
+    }
+
     //Insert Internal Notes 
     function postNote($title,$note,$alert=true,$poster='') {        
         global $thisstaff,$cfg;
@@ -1421,18 +1541,12 @@ class Ticket{
 
 
     function deleteAttachments(){
-        global $cfg;
-
+        
         $deleted=0;
-        if(($attachments = $this->getAttachments())) {
-            //Clear reference table - XXX: some attachments might be orphaned
-            db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            //Delete file from DB IF NOT inuse.
-            foreach($attachments as $attachment) {
-                if(($file=AttachmentFile::lookup($attachment['file_id'])) && !$file->isInuse() && $file->delete())
-                    $deleted++;
-            }
-        }
+        // Clear reference table
+        $res=db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        if ($res && db_affected_rows())
+            $deleted = AttachmentFile::deleteOrphans();
 
         return $deleted;
     }
@@ -1440,17 +1554,90 @@ class Ticket{
 
     function delete(){
         
+        $sql='DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1';
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        db_query('DELETE FROM '.TICKET_MESSAGE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        db_query('DELETE FROM '.TICKET_RESPONSE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        db_query('DELETE FROM '.TICKET_NOTE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        $this->deleteAttachments();
         
-        if(db_query('DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1') && db_affected_rows()):
-            db_query('DELETE FROM '.TICKET_MESSAGE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            db_query('DELETE FROM '.TICKET_RESPONSE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            db_query('DELETE FROM '.TICKET_NOTE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-            $this->deleteAttachments();
-            return TRUE;
-        endif;
-  
-        return FALSE;
+        return true;
     }
+
+    function update($vars, &$errors) {
+
+        global $cfg, $thisstaff;
+        
+        if(!$cfg || !$thisstaff || !$thisstaff->canEditTickets())
+            return false;
+         
+        $fields=array();
+        $fields['name']     = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
+        $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
+        $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
+        $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>'Help topic required');
+        $fields['slaId']    = array('type'=>'int',      'required'=>1, 'error'=>'SLA required');
+        $fields['priorityId'] = array('type'=>'int',    'required'=>1, 'error'=>'Priority required');
+        $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
+        $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
+
+        $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
+
+        if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
+            $errors['err'] ='Missing or invalid data - check the errors and try again';
+
+        if($vars['duedate']) {     
+            if($this->isClosed())
+                $errors['duedate']='Duedate can NOT be set on a closed ticket';
+            elseif(!$vars['time'] || strpos($vars['time'],':')===false)
+                $errors['time']='Select time';
+            elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
+                $errors['duedate']='Invalid duedate';
+            elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
+                $errors['duedate']='Due date must be in the future';
+        }
+        
+        //Make sure phone extension is valid
+        if($vars['phone_ext'] ) {
+            if(!is_numeric($vars['phone_ext']) && !$errors['phone'])
+                $errors['phone']='Invalid phone ext.';
+            elseif(!$vars['phone']) //make sure they just didn't enter ext without phone #
+                $errors['phone']='Phone number required';
+        }
+
+        if($errors) return false;
+
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
+            .' ,email='.db_input($vars['email'])
+            .' ,name='.db_input(Format::striptags($vars['name']))
+            .' ,subject='.db_input(Format::striptags($vars['subject']))
+            .' ,phone="'.db_input($vars['phone'],false).'"'
+            .' ,phone_ext='.db_input($vars['phone_ext']?$vars['phone_ext']:NULL)
+            .' ,priority_id='.db_input($vars['priorityId'])
+            .' ,topic_id='.db_input($vars['topicId'])
+            .' ,sla_id='.db_input($vars['slaId'])
+            .' ,duedate='.($vars['duedate']?db_input(date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))):'NULL');
+             
+        if($vars['duedate']) { //We are setting new duedate...
+            $sql.=' ,isoverdue=0';
+        }
+             
+        $sql.=' WHERE ticket_id='.db_input($this->getId());
+
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        if(!$vars['note'])
+            $vars['note']=sprintf('Ticket Updated by %s', $thisstaff->getName());
+
+        $this->postNote('Ticket Updated', $vars['note']);
+        $this->reload();
+        
+        return true;
+    }
+
    
    /*============== Static functions. Use Ticket::function(params); ==================*/
     function getIdByExtId($extid) {
@@ -1463,8 +1650,12 @@ class Ticket{
 
 
    
-    function lookup($id){ //Assuming local ID is the only lookup used!
+    function lookup($id) { //Assuming local ID is the only lookup used!
         return ($id && is_numeric($id) && ($ticket= new Ticket($id)) && $ticket->getId()==$id)?$ticket:null;    
+    }
+
+    function lookupByExtId($id) {
+        return self::lookup(self:: getIdByExtId($id));
     }
 
     function genExtRandID() {
@@ -1525,13 +1716,14 @@ class Ticket{
                 ON (assigned.ticket_id=ticket.ticket_id AND assigned.status=\'open\' AND assigned.staff_id='.db_input($staff->getId()).')'
             .' LEFT JOIN '.TICKET_TABLE.' closed
                 ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\' AND closed.staff_id='.db_input($staff->getId()).')'
-            .' WHERE (ticket.dept_id IN('.implode(',',$staff->getDepts()).') OR ticket.staff_id='.db_input($staff->getId());
-    
-        
+            .' WHERE (ticket.staff_id='.db_input($staff->getId());
+
         if(($teams=$staff->getTeams()))
             $sql.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
 
-    
+        if(!$staff->showAssignedOnly()) //Staff with limited access just see Assigned tickets.
+            $sql.=' OR ticket.dept_id IN('.implode(',',$staff->getDepts()).') ';
+
         $sql.=')';
 
 
@@ -1542,97 +1734,66 @@ class Ticket{
         return db_fetch_array(db_query($sql));
     }
 
-    function update($var,&$errors) {
-         global $cfg,$thisstaff;
 
-         $fields=array();
-         $fields['name']     = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
-         $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Email is required');
-         $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
-         $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
-         $fields['topicId']  = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Selection');
-         $fields['pri']      = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
-         $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
-         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
+    /* Quick client's tickets stats 
+       @email - valid email. 
+     */
+    function getClientStats($email) {
 
-         
-         $params = new Validator($fields);
-         if(!$params->validate($var)){
-             $errors=array_merge($errors,$params->errors());
-         }
+        if(!$email || !Validator::is_email($email))
+            return null;
 
-         if($var['duedate']){
-             if($this->isClosed())
-                 $errors['duedate']='Duedate can NOT be set on a closed ticket';
-             elseif(!$var['time'] || strpos($var['time'],':')===false)
-                 $errors['time']='Select time';
-             elseif(strtotime($var['duedate'].' '.$var['time'])===false)
-                 $errors['duedate']='Invalid duedate';
-             elseif(strtotime($var['duedate'].' '.$var['time'])<=time())
-                 $errors['duedate']='Due date must be in the future';
-         }
+        $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
+            .' FROM '.TICKET_TABLE.' ticket '
+            .' LEFT JOIN '.TICKET_TABLE.' open
+                ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\') '
+            .' LEFT JOIN '.TICKET_TABLE.' closed
+                ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\')'
+            .' WHERE ticket.email='.db_input($email);
 
-        //Make sure phone extension is valid
-        if($var['phone_ext'] ) {
-            if(!is_numeric($var['phone_ext']) && !$errors['phone'])
-                $errors['phone']='Invalid phone ext.';
-            elseif(!$var['phone']) //make sure they just didn't enter ext without phone #
-                $errors['phone']='Phone number required';
-        }
-
-        $cleartopic=false;
-        $topicDesc='';
-        if($var['topicId'] && ($topic= new Topic($var['topicId'])) && $topic->getId()) {
-            $topicDesc=$topic->getName();
-        }elseif(!$var['topicId'] && $this->getTopicId()){
-            $topicDesc='';
-            $cleartopic=true;
-        }
-
- 
-         if(!$errors){
-             $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
-                  ',email='.db_input($var['email']).
-                  ',name='.db_input(Format::striptags($var['name'])).
-                  ',subject='.db_input(Format::striptags($var['subject'])).
-                  ',phone="'.db_input($var['phone'],false).'"'.
-                  ',phone_ext='.db_input($var['phone_ext']?$var['phone_ext']:NULL).
-                  ',priority_id='.db_input($var['pri']).
-                  ',topic_id='.db_input($var['topicId']).
-                  ',duedate='.($var['duedate']?db_input(date('Y-m-d G:i',Misc::dbtime($var['duedate'].' '.$var['time']))):'NULL');
-             if($var['duedate']) { //We are setting new duedate...
-                 $sql.=',isoverdue=0';
-             }
-             if($topicDesc || $cleartopic) { //we're overwriting previous topic.
-                 $sql.=',helptopic='.db_input($topicDesc);
-             }
-             $sql.=' WHERE ticket_id='.db_input($this->getId());
-             //echo $sql;
-             if(db_query($sql)){
-                 $this->postNote('Ticket Updated',$var['note']);
-                 $this->reload();
-                 return true;
-             }
-         }
-
-         return false;
+        return db_fetch_array(db_query($sql));
     }
-
 
     /*
      * The mother of all functions...You break it you fix it!
      *
-     *  $autorespond and $alertstaff overwrites config info...
+     *  $autorespond and $alertstaff overwrites config settings...
      */      
-    function create($vars,&$errors, $origin, $autorespond=true, $alertstaff=true) {
+    function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $cfg,$thisclient,$_FILES;
 
-        //Make sure the email is not banned
-        if ($vars['email'] && EmailFilter::isBanned($vars['email'])) {
+        //Check for 403
+        if ($vars['email']  && Validator::is_email($vars['email'])) {
+
+            //Make sure the email address is not banned
+            if(EmailFilter::isBanned($vars['email'])) {
+                $errors['err']='Ticket denied. Error #403';
+                Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
+                return 0;
+            }
+
+            //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
+            if($cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff') 
+                    && ($client=Client::lookupByEmail($vars['email']))
+                    && ($openTickets=$client->getNumOpenTickets())
+                    && ($opentickets>=$cfg->getMaxOpenTickets()) ) {
+
+                $errors['err']="You've reached the maximum open tickets allowed.";
+                Sys::log(LOG_WARNING, 'Ticket denied -'.$vars['email'], 
+                        sprintf('Max open tickets (%d) reached for %s ', $cfg->getMaxOpenTickets(), $vars['email']));
+
+                return 0;
+            }
+        }
+        // Make sure email contents should not be rejected
+        if (($email_filter=new EmailFilter($vars))
+                && ($filter=$email_filter->shouldReject())) {
             $errors['err']='Ticket denied. Error #403';
-            Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
+            Sys::log(LOG_WARNING,'Ticket denied',
+                sprintf('Banned email - %s by filter "%s"', $vars['email'],
+                    $filter->getName()));
             return 0;
-         }
+        }
 
         $id=0;
         $fields=array();
@@ -1646,7 +1807,7 @@ class Ticket{
                 break;
             case 'staff':
                 $fields['deptId']   = array('type'=>'int',  'required'=>1, 'error'=>'Dept. required');
-                $fields['topicId']   = array('type'=>'int',  'required'=>1, 'error'=>'Topic required');
+                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Topic required');
                 $fields['duedate']  = array('type'=>'date', 'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
             case 'api':
                 $fields['source']   = array('type'=>'string', 'required'=>1, 'error'=>'Indicate source');
@@ -1656,10 +1817,10 @@ class Ticket{
                 break;
             default:
                 # TODO: Return error message
-                $errors['origin'] = 'Invalid origin given';
+                $errors['err']=$errors['origin'] = 'Invalid origin given';
         }
-        $fields['pri']      = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
-        $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
+        $fields['priorityId']   = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
+        $fields['phone']        = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
         
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] ='Missing or invalid data - check the errors and try again';
@@ -1682,62 +1843,19 @@ class Ticket{
                 $errors['duedate']='Due date must be in the future';
         }
 
-        //check attachment..if any is set ...only set on webbased tickets..
-        //XXX:?? Create ticket anyway and simply drop the attachments?? We're already doing so with emails.
-        if($_FILES['attachment']['name'] && $cfg->allowOnlineAttachments()) {
-            if(!$cfg->canUploadFileType($_FILES['attachment']['name']))
-                $errors['attachment']='Invalid file type [ '.Format::htmlchars($_FILES['attachment']['name']).' ]';
-            elseif($_FILES['attachment']['size']>$cfg->getMaxFileSize())
-                $errors['attachment']='File is too big. Max '.$cfg->getMaxFileSize().' bytes allowed';
-        }
-
         # Perform email filter actions on the new ticket arguments XXX: Move filter to the top and check for reject...
-        if (!$errors && $ef = new EmailFilter($vars)) $ef->apply($vars);
+        if (!$errors && $email_filter) $email_filter->apply($vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
         if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
-
-        //check ticket limits..if limit set is >0 
-        //TODO: Base ticket limits on SLA... XXX: move it elsewhere??
-        if($vars['email'] && !$errors && $cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff')){
-            $openTickets=Ticket::getOpenTicketsByEmail($vars['email']);
-            if($openTickets>=$cfg->getMaxOpenTickets()) {
-                $errors['err']="You've reached the maximum open tickets allowed.";
-                //Send the notice only once (when the limit is reached) incase of autoresponders at client end.
-                if($cfg->getMaxOpenTickets()==$openTickets && $cfg->sendOverlimitNotice()) {
-                    if($vars['deptId'])
-                        $dept =Dept::lookup($vars['deptId']);
-                    
-                    if(!$dept || !($tpl=$dept->getTemplate()))
-                        $tpl=$cfg->getDefaultTemplate();
-
-                    if(!$dept || !($email=$dept->getAutoRespEmail()))
-                        $email=$cfg->getDefaultEmail();
-
-                    if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
-                        $body = str_replace('%name', $vars['name'],$msg['body']);
-                        $body = str_replace('%email',$vars['email'],$msg['body']);
-                        $body = str_replace('%url', $cfg->getBaseUrl(),$body);
-                        $body = str_replace('%signature',($dept && $dept->isPublic())?$dept->getSignature():'',$body);
-                        $email->send($vars['email'],$msg['subj'],$body);
-                    }
-                    
-                    //Log + Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
-                    $msg='Support ticket request denied for '.$vars['email']."\n".
-                         'Open ticket:'.$openTickets."\n".
-                         'Max Allowed:'.$cfg->getMaxOpenTickets()."\n\nNotice only sent once";
-                    Sys::log(LOG_CRIT,'Overlimit Notice',$msg);
-                }
-            }
-        }
 
         //Any error above is fatal.
         if($errors)  return 0;
         
         // OK...just do it.
         $deptId=$vars['deptId']; //pre-selected Dept if any.
-        $priorityId=$vars['pri'];
+        $priorityId=$vars['priorityId'];
         $source=ucfirst($vars['source']);
         $topic=NULL;
         // Intenal mapping magic...see if we need to overwrite anything
@@ -1800,14 +1918,6 @@ class Ticket{
 
         //post the message.
         $msgid=$ticket->postMessage($vars['message'],$source,$vars['mid'],$vars['header'],true);
-        //TODO: recover from postMessage error??
-
-        //Upload attachments...web based. - XXX: Assumes user uploaded attachments!! XXX: move it to client interface.
-        if($_FILES['attachment']['name'] && $cfg->allowOnlineAttachments() && $msgid) {    
-            if(!$cfg->allowAttachmentsOnlogin() || ($cfg->allowAttachmentsOnlogin() && ($thisuser && $thisuser->isValid()))) {
-                $ticket->uploadAttachment($_FILES['attachment'],$msgid,'M');
-            }
-        }
 
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
@@ -1843,6 +1953,15 @@ class Ticket{
         /***** See if we need to send some alerts ****/
 
         $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
+
+        /************ check if the user JUST reached the max. open tickets limit **********/
+        if($cfg->getMaxOpenTickets()>0
+                    && ($client=$ticket->getClient())
+                    && ($client->getNumOpenTickets()==$cfg->getMaxOpenTickets())) {
+            $ticket->onOpenLimit(($autorespond && strcasecmp($origin, 'staff')));
+        }
+
+        /* Phew! ... time for tea (KETEPA) */
 
         return $ticket;
     }
@@ -1925,23 +2044,24 @@ class Ticket{
     
     }
    
-    function checkOverdue(){
+    function checkOverdue() {
        
-        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 JOIN '.
-             SLA_TABLE.' T2 ON T1.sla_id=T2.id '.
-             'WHERE status=\'open\' AND isoverdue=0 '.
-             ' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=grace_period*3600)'.
-             ' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=grace_period*3600)'.
-             ' OR (duedate is NOT NULL AND duedate<NOW()) '.
-             ') ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id) '
+            .' WHERE status=\'open\' AND isoverdue=0 '
+            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
+            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
+            .' OR (duedate is NOT NULL AND duedate<NOW()) '
+            .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
         //echo $sql;
-        if(($stale=db_query($sql)) && db_num_rows($stale)){
-            while(list($id)=db_fetch_row($stale)){
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
                 if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())
-                    $ticket->logActivity('Ticket Marked Overdue','Ticket flagged as overdue by the system.');
-                    # TODO: Send out notifications about the now-overdue
-                    # ticket XXX: markOverdue sends out notifications.
+                    $ticket->logActivity('Ticket Marked Overdue', 'Ticket flagged as overdue by the system.');
             }
+        } else {
+            //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.
+
         }
    }
     

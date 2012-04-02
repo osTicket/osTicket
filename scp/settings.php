@@ -44,7 +44,7 @@ require(STAFFINC_DIR.'header.inc.php');
 <div style="padding-top:10px;padding-bottom:5px;">
     <form method="get" action="settings.php">
     Setting Option: 
-    <select name="t" style="width:300px;">
+    <select id="setting_options" name="t" style="width:300px;">
         <option value="">&mdash; Select Setting Group &mdash;</option>
         <?php
         foreach($SettingOptions as $k=>$v) {

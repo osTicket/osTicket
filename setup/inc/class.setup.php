@@ -303,7 +303,7 @@ class Installer extends SetupWizard {
         if(!$this->errors) {
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
-                .', isactive=1, isadmin=1, group_id=1, dept_id=1, timezone_id=8 '
+                .', isactive=1, isadmin=1, group_id=1, dept_id=1, timezone_id=8, max_page_size=25 '
                 .', email='.db_input($_POST['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])

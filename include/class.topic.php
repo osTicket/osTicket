@@ -135,6 +135,10 @@ class Topic {
         return $topics;
     }
 
+    function getPublicHelpTopics() {
+        return self::getHelpTopics(true);
+    }
+
 
     function getIdByName($topic){
         $sql='SELECT topic_id FROM '.TOPIC_TABLE.' WHERE topic='.db_input($topic);

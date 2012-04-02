@@ -157,15 +157,15 @@ if($_POST && !$errors):
                 $errors['note']='Error(s) occurred. Unable to post the note.';
             }
             break;
+        case 'edit':
         case 'update':
-            $page='editticket.inc.php';
             if(!$ticket || !$thisstaff->canEditTickets())
                 $errors['err']='Perm. Denied. You are not allowed to edit tickets';
-            elseif($ticket->update($_POST,$errors)){
+            elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
-                $page='ticket.inc.php';
-            }elseif(!$errors['err']) {
-                $errors['err']='Error(s) occured! Try again.';
+                $_REQUEST['a'] = null;
+            } elseif(!$errors['err']) {
+                $errors['err']='Unable to update the ticket. Correct the errors below and try again!';
             }
             break;
         case 'process':
@@ -435,12 +435,20 @@ if($stats['overdue']) {
         $sysnotice=$stats['overdue'] .' overdue tickets!';
 }
 
-$nav->addSubMenu(array('desc'=>'Closed Tickets',
-                       'title'=>'Closed Tickets',
-                       'href'=>'tickets.php?status=closed',
-                       'iconclass'=>'closedTickets'),
-                    ($_REQUEST['status']=='closed'));
+if($thisstaff->showAssignedOnly() && $stats['closed']) {
+    $nav->addSubMenu(array('desc'=>'My Closed Tickets ('.$stats['closed'].')',
+                           'title'=>'My Closed Tickets',
+                           'href'=>'tickets.php?status=closed',
+                           'iconclass'=>'closedTickets'),
+                        ($_REQUEST['status']=='closed'));
+} else {
 
+    $nav->addSubMenu(array('desc'=>'Closed Tickets',
+                           'title'=>'Closed Tickets',
+                           'href'=>'tickets.php?status=closed',
+                           'iconclass'=>'closedTickets'),
+                        ($_REQUEST['status']=='closed'));
+}
 
 if($thisstaff->canCreateTickets()) {
     $nav->addSubMenu(array('desc'=>'New Ticket',
@@ -454,14 +462,30 @@ $inc = 'tickets.inc.php';
 if($ticket) {
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
-    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets())
-        $errors['err'] ='Work in progress... ';
-}else {
+    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
+        $inc = 'ticket-edit.inc.php';
+} else {
     $inc = 'tickets.inc.php';
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
         $inc = 'ticket-open.inc.php';
-    elseif(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
-        define('AUTO_REFRESH',1); //set refresh rate if the user has it configured
+    elseif($_REQUEST['a'] == 'export') {
+        require_once(INCLUDE_DIR.'class.export.php');
+        $ts = strftime('%Y%m%d');
+        if (!($token=$_REQUEST['h']))
+            $errors['err'] = 'Query token required';
+        elseif (!($query=$_SESSION['search_'.$token]))
+            $errors['err'] = 'Query token not found';
+        elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
+            $errors['err'] = 'Internal error: Unable to dump query results';
+    }
+
+    //Clear active submenu on search with no status
+    if($_REQUEST['a']=='search' && !$_REQUEST['status'])
+        $nav->setActiveSubMenu(-1);
+
+    //set refresh rate if the user has it configured
+    if(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
+        define('AUTO_REFRESH', $min*60); 
 }
 
 require_once(STAFFINC_DIR.'header.inc.php');
