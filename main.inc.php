@@ -54,7 +54,7 @@
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
-    define('THIS_VERSION','1.7 DPR'); //Shown on admin panel
+    define('THIS_VERSION','1.7-DPR2'); //Shown on admin panel
     define('SCHEMA_SIGNATURE','ssddsdsd'); //MD5 signature of the db schema. (used to trigger upgrades)
 
     #load config info
