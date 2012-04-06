@@ -188,7 +188,8 @@ class Ticket{
         if(!strcasecmp($client->getEmail(),$this->getEmail()))
             return true;
 
-        return ($cfg && $cfg->showRelatedTickets() && $client->getTicketId()==$ticket->getExtId());
+        return ($cfg && $cfg->showRelatedTickets() 
+            && $client->getTicketId()==$this->getExtId());
     }
 
     //Getters
@@ -633,7 +634,7 @@ class Ticket{
             .', priority_id='.db_input($priorityId)
             .' WHERE ticket_id='.db_input($this->getId());
 
-        return (db_query($sql) && db_affected_rows($res));
+        return (($res=db_query($sql)) && db_affected_rows($res));
     }
 
     //DeptId can NOT be 0. No orphans please!
@@ -959,7 +960,7 @@ class Ticket{
     }
 
     function onAssign($note, $alert=true) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         if($this->isClosed()) $this->reopen(); //Assigned tickets must be open - otherwise why assign?
 
@@ -1016,7 +1017,7 @@ class Ticket{
         return true;
     }
 
-    function onOverdue($whine=true) {
+   function onOverdue($whine=true, $comments="") {
         global $cfg;
 
         if($whine && ($sla=$this->getSLA()) && !$sla->alertOnOverdue())
@@ -1026,8 +1027,9 @@ class Ticket{
         if(!$whine || !$cfg->alertONOverdueTicket())
             return true;
 
-        //Get template.
-        if(!($tpl = $dept->getTemplate()))
+        $dept = $this->getDept();
+        //Get department-defined or default template.
+        if(!$dept || !($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
 
         //Email to use!
@@ -1776,7 +1778,7 @@ class Ticket{
             if($cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff') 
                     && ($client=Client::lookupByEmail($vars['email']))
                     && ($openTickets=$client->getNumOpenTickets())
-                    && ($opentickets>=$cfg->getMaxOpenTickets()) ) {
+                    && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
 
                 $errors['err']="You've reached the maximum open tickets allowed.";
                 Sys::log(LOG_WARNING, 'Ticket denied -'.$vars['email'], 
@@ -1976,8 +1978,8 @@ class Ticket{
         else
             $vars['message']=$vars['issue'];
 
-        if($var['source'] && !in_array(strtolower($var['source']),array('email','phone','other')))
-            $errors['source']='Invalid source - '.Format::htmlchars($var['source']);
+        if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
+            $errors['source']='Invalid source - '.Format::htmlchars($vars['source']);
 
         if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
             return false;
@@ -1995,7 +1997,7 @@ class Ticket{
             }
         }
         //Post Internal note
-        if($var['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
+        if($vars['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
             $ticket->assign($vars['assignId'],$vars['note']);
         } elseif($vars['note']) { //Not assigned...save optional note if any
             $ticket->postNote('New Ticket',$vars['note'],false);

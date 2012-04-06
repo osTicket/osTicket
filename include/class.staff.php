@@ -495,7 +495,7 @@ class Staff {
     }
 
     function login($username, $passwd, &$errors, $strike=true) {
-        global $cfg;
+        global $cfg, $session;
 
 
         if($_SESSION['_staff']['laststrike']) {
@@ -552,7 +552,7 @@ class Staff {
     }
 
     function create($vars, &$errors) {
-        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($self=Staff::lookup($id)))
+        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($staff=Staff::lookup($id)))
             $staff->updateTeams($vars['teams']);
 
         return $id;

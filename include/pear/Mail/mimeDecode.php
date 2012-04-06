@@ -721,6 +721,7 @@ class Mail_mimeDecode extends PEAR
         $this->_decode_headers = FALSE;
         $headerlist =$this->_parseHeaders($this->_header);
         $to = "";
+        $header = array();
         if (!$headerlist) {
             return $this->raiseError("Message did not contain headers");
         }
