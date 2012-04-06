@@ -127,7 +127,7 @@ class FAQ {
     /* Same as update - but mainly called after one or more setters are changed. */
     function apply() {
         //XXX: set errors and add ->getErrors() & ->getError()
-        return $this->update($this->ht, $errors);
+        return $this->update($this->ht, $errors);               # nolint
     }
 
     function updateTopics($ids){

@@ -47,8 +47,9 @@
 
         $version=0;
         if(preg_match('/(\d{1,2}\.\d{1,2}\.\d{1,2})/', 
-                mysql_result(db_query('SELECT VERSION()'),0,0),$matches))
-            $version=$matches[1];
+                mysql_result(db_query('SELECT VERSION()'),0,0),
+                $matches))                                      # nolint
+            $version=$matches[1];                               # nolint
 
         return $version;
     }
