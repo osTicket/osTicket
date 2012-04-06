@@ -419,6 +419,7 @@ class Filter {
         if($errors || !$id) return false;
 
         //Success with update/create...save the rules. We can't recover from any errors at this point.
+        # Don't care about errors stashed in $xerrors
         self::save_rules($id,$vars,$xerrors);
       
         return true;

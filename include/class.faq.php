@@ -204,6 +204,7 @@ class FAQ {
     
     function uploadAttachments($files) {
 
+        $i=0;
         foreach($files as $file) {
             if(($fileId=is_numeric($file)?$file:AttachmentFile::upload($file)) && is_numeric($fileId)) {
                 $sql ='INSERT INTO '.FAQ_ATTACHMENT_TABLE
