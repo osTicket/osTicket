@@ -97,9 +97,6 @@ $deep_search=false;
 if($search):
     $qstr.='&a='.urlencode($_REQUEST['a']);
     $qstr.='&t='.urlencode($_REQUEST['t']);
-    if(isset($_REQUEST['advance_search'])){ //advance search box!
-        $qstr.='&advance_search=Search';
-    }
 
     //query
     if($searchTerm){
@@ -250,12 +247,10 @@ if(!$results_type) {
 }
 $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 
-$basic_display=!isset($_REQUEST['advance_search'])?true:false;
-
 //YOU BREAK IT YOU FIX IT.
 ?>
 <!-- SEARCH FORM START -->
-<div id='basic' style="display:<?php echo $basic_display?'block':'none'; ?>">
+<div id='basic_search'>
     <form action="tickets.php" method="get">
     <input type="hidden" name="a" value="search">
     <table>
@@ -263,6 +258,7 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
             <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" name="basic_search" class="button" value="Search"></td>
+            <td>&nbsp;&nbsp;<a href="" id="go-advanced">[advanced]</a></td>
         </tr>
     </table>
     </form>
@@ -448,4 +444,108 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
        }
     } ?>
     </form>
+</div>
+<div id="overlay"></div>
+<div style="display:none;" id="advanced-search">
+    <h3>Advanced Ticket Search</h3>
+    <a class="close" href="">&times;</a>
+    <form action="tickets.php" method="post" id="search" name="search">
+        <input type="hidden" name="a" value="search">
+        <fieldset class="query">
+            <label for="query">Keyword:</label>
+            <input type="input" id="query" name="query" size="20"> <em>Optional</em>
+        </fieldset>
+        <fieldset>
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="">&mdash; Any Status &mdash;</option>
+                <option value="open">Open</option>
+                <option value="overdue">Overdue</option>
+                <option value="closed">Closed</option>
+            </select>
+            <label for="deptId">Dept:</label>
+            <select id="deptId" name="deptId">
+                <option value="">&mdash; All Departments &mdash;</option>
+                <?php
+                if(($mydepts = $thisstaff->getDepts()) && ($depts=Dept::getDepartments())) {
+                    foreach($depts as $id =>$name) {
+                        if(!in_array($id, $mydepts)) continue; 
+                        echo sprintf('<option value="%d">%s</option>', $id, $name);
+                    }
+                }
+                ?>
+            </select>
+        </fieldset>
+        <fieldset class="owner">
+            <label for="assigneeId">Assigned To:</label>
+            <select id="assigneeId" name="assigneeId">
+                <option value="0">&mdash; Anyone &mdash;</option>
+                <?php
+                if(($users=Staff::getStaffMembers())) {
+                    echo '<OPTGROUP label="Staff Members ('.count($users).')">';
+                    foreach($users as $id => $name) {
+                        $k="s$id";
+                        echo sprintf('<option value="%s">%s</option>', $k, $name);
+                    }
+                    echo '</OPTGROUP>';
+                }
+                
+                if(($teams=Team::getTeams())) {
+                    echo '<OPTGROUP label="Teams ('.count($teams).')">';
+                    foreach($teams as $id => $name) {
+                        $k="t$id";
+                        echo sprintf('<option value="%s">%s</option>', $k, $name);
+                    }
+                    echo '</OPTGROUP>';
+                }
+                ?>
+            </select>
+            <label for="staffId">Closed By:</label>
+            <select id="staffId" name="staffId">
+                <option value="0">&mdash; Anyone &mdash;</option>
+                <?php
+                if(($users=Staff::getStaffMembers())) {
+                    foreach($users as $id => $name) {
+                        $k="s$id";
+                        echo sprintf('<option value="%s">%s</option>', $k, $name);
+                    }
+                }
+                ?>
+            </select>
+        </fieldset>
+        <fieldset class="date_range">
+            <label>Date Range:</label>
+            <input class="dp" type="input" size="20" name="startDate"><i></i>
+            <span>TO</span>
+            <input class="dp" type="input" size="20" name="endDate"><i></i>
+        </fieldset>
+        <fieldset class="sorting">
+            <label>Sorting:</label>
+            <select name="sort">
+                <option value="date">Create Date</option>
+            </select>
+            <select name="order">
+                <option value="desc">Descending</option>
+                <option value="asc">Ascending</option>
+            </select>
+            <select name="limit">
+                <option value="25">25 records/page</option>
+                <option value="50" selected="selected">50 records/page</option>
+                <option value="75">75 records/page</option>
+                <option value="100">100 records/page</option>
+            </select>
+        </fieldset>
+        <p>
+            <span class="buttons">
+                <input type="submit" value="Search">
+                <input type="reset" value="Reset">
+                <input type="button" value="Cancel" class="close">
+            </span>
+            <span class="spinner">
+                <img src="./images/ajax-loader.gif" width="16" height="16">
+            </span>
+        </p>
+    </form>
+    <div id="result-count">
+    </div>
 </div>

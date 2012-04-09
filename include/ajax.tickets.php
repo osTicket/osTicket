@@ -20,11 +20,11 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 
 class TicketsAjaxAPI extends AjaxController {
    
-    function search() {
+    function lookup() {
         global $thisstaff;
 
         if(!is_numeric($_REQUEST['q']))
-            return self::searchByEmail();
+            return self::lookupByEmail();
 
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
@@ -53,7 +53,7 @@ class TicketsAjaxAPI extends AjaxController {
         return $this->json_encode($tickets);
     }
 
-    function searchByEmail() {
+    function lookupByEmail() {
         global $thisstaff;
 
 
@@ -82,6 +82,51 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         return $this->json_encode($tickets);
+    }
+
+    function search() {
+        global $thisstaff;
+          
+        $result=array();
+        $sql='SELECT count(ticket_id) as tickets '
+            .' FROM '.TICKET_TABLE
+            .' WHERE 1 ';
+
+        //Access control.
+        $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
+
+        if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
+            $sql.=' OR team_id IN('.implode(',', array_filter($teams)).')';
+
+        if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+            $sql.=' OR dept_id IN ('.implode(',', $depts).')';
+
+        $sql.=' ) ';
+
+        //Department
+        if($_REQUEST['deptId'])
+            $sql.=' AND dept_id='.db_input($_REQUEST['deptId']);
+
+        //Status
+        switch(strtolower($_REQUEST['status'])) {
+            case 'open';
+                $sql.=' AND status="open" ';
+                break;
+            case 'overdue':
+                $sql.=' AND status="open" and isoverdue=1 ';
+                break;
+            case 'closed':
+                $sql.=' AND status="closed" ';
+                break;
+        }
+        
+        if(($tickets=db_result(db_query($sql)))) {
+            $result['success'] ="Search criteria matched  $tickets tickets - view";
+        } else {
+            $result['fail']='No tickets found matching your search criteria.'.$tickets;
+        }
+            
+        return $this->json_encode($result);
     }
 
     function acquireLock($tid) {
