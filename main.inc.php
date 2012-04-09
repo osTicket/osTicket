@@ -135,9 +135,7 @@
     define('CANNED_ATTACHMENT_TABLE',TABLE_PREFIX.'canned_attachment');
 
     define('TICKET_TABLE',TABLE_PREFIX.'ticket');
-    define('TICKET_NOTE_TABLE',TABLE_PREFIX.'ticket_note');
-    define('TICKET_MESSAGE_TABLE',TABLE_PREFIX.'ticket_message');
-    define('TICKET_RESPONSE_TABLE',TABLE_PREFIX.'ticket_response');
+    define('TICKET_THREAD_TABLE',TABLE_PREFIX.'ticket_thread');
     define('TICKET_ATTACHMENT_TABLE',TABLE_PREFIX.'ticket_attachment');
     define('TICKET_PRIORITY_TABLE',TABLE_PREFIX.'ticket_priority');
     define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
