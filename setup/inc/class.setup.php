@@ -366,9 +366,10 @@ class Installer extends SetupWizard {
             if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
                 $msg='Congratulations and Thank you for choosing osTicket!';
                         
-            $sql='INSERT INTO '.PREFIX.'ticket_message SET created=NOW(),source="Web" '
+            $sql='INSERT INTO '.PREFIX.'ticket_thread SET created=NOW(),source="Web" '
+                .', poster="System"'
                 .', ticket_id='.db_input($tid)
-                .', message='.db_input($msg);
+                .', body='.db_input($msg);
             @mysql_query($sql);
         }
         //TODO: create another personalized ticket and assign to admin??
