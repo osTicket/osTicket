@@ -63,19 +63,19 @@ if(!$thisstaff || !is_object($thisstaff) || !$thisstaff->getId() || !$thisstaff-
     exit;
 }
 //2) if not super admin..check system status and group status
-if(!$thisstaff->isadmin()){
-    //Staff are not allowed to login in offline mode!!
-    if($cfg->isHelpDeskOffline()){
-        staffLoginPage('System Offline');
-        exit;
-    }
+if(!$thisstaff->isadmin()) {
     //Check for disabled staff or group!
     if(!$thisstaff->isactive() || !$thisstaff->isGroupActive()) {
         staffLoginPage('Access Denied. Contact Admin');
         exit;
     }
-}
 
+    //Staff are not allowed to login in offline mode!!
+    if($cfg->isHelpDeskOffline() || $cfg->isUpgradePending()) {
+        staffLoginPage('System Offline');
+        exit;
+    }
+}
 
 //Keep the session activity alive
 $thisstaff->refreshSession();
@@ -93,10 +93,9 @@ $errors=array();
 $msg=$warn=$sysnotice='';
 $tabs=array();
 $submenu=array();
-
-if(defined('THIS_VERSION') && strcasecmp($cfg->getVersion(),THIS_VERSION)) {
-    $errors['err']=$sysnotice=sprintf('The script is version %s while the database is version %s',THIS_VERSION,$cfg->getVersion());
-}elseif($cfg->isHelpDeskOffline()){
+if($cfg->isUpgradePending()) {
+    $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
+} elseif($cfg->isHelpDeskOffline()) {
     $sysnotice='<strong>System is set to offline mode</strong> - Client interface is disabled and ONLY admins can access staff control panel.';
     $sysnotice.=' <a href="settings.php">Enable</a>.';
 }

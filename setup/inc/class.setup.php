@@ -21,8 +21,8 @@ Class SetupWizard {
                         'mysql' => '4.4');
 
     //Version info - same as the latest version.
-    var $version ='1.7-rc1';
-    var $version_verbose='1.7 RC 1';
+    var $version ='1.7-dpr2';
+    var $version_verbose='1.7 DPR 2';
 
     //Errors
     var $errors=array();
@@ -31,18 +31,18 @@ Class SetupWizard {
         $this->errors=array();
     }
 
-    function load_sql_file($file, $prefix, $debug=false) {
+    function load_sql_file($file, $prefix, $abort=true, $debug=false) {
         
         if(!file_exists($file) || !($schema=file_get_contents($file)))
-            return $this->abort('Error accessing SQL file');
+            return $this->abort('Error accessing SQL file '.basename($file));
 
-        return $this->load_sql($schema, $prefix, $debug);
+        return $this->load_sql($schema, $prefix, $abort, $debug);
     }
 
     /*
         load SQL schema - assumes MySQL && existing connection
         */
-    function load_sql($schema, $prefix, $debug=false) {
+    function load_sql($schema, $prefix, $abort=true, $debug=false) {
 
         # Strip comments and remarks
         $schema=preg_replace('%^\s*(#|--).*$%m','',$schema);
@@ -57,7 +57,8 @@ Class SetupWizard {
         foreach($statements as $k=>$sql) {
             if(!mysql_query($sql)) {
                 if($debug) echo "[$sql]=>".mysql_error();
-                return $this->abort("[$sql] - ".mysql_error());
+                if($abort)
+                    return $this->abort("[$sql] - ".mysql_error());
             }
         }
 
@@ -96,15 +97,18 @@ Class SetupWizard {
         @error is a mixed var.
     */
     function abort($error) {
-        
+       
+        $this->onError($error);
 
+        return false; // Always false... It's an abort.
+    }
+
+    function setError($error) {
+    
         if($error && is_array($error))
             $this->errors = array_merge($this->errors,$error);
         elseif($error)
             $this->errors[] = $error;
-
-        //Always returns FALSE.
-        return false;
     }
 
     function getErrors(){
@@ -112,91 +116,271 @@ Class SetupWizard {
         return $this->errors;
     }
 
-    /* Access and user validation*/
-
-    function getThisUser() {
-
-
+    function onError($error) {
+       return $this->setError($error);
     }
 }
 
 class Upgrader extends SetupWizard {
 
     var $prefix;
+    var $sqldir;
+    var $signature;
 
-    function Upgrader($prefix) {
+    function Upgrader($signature, $prefix, $sqldir) {
+
+        $this->signature = $signature;
+        $this->shash = substr($signature, 0, 8);
         $this->prefix = $prefix;
+        $this->sqldir = $sqldir;
         $this->errors = array();
+
+        //Init persistent state of upgrade.
+        $this->state = &$_SESSION['ost_upgrader'][$this->getShash()]['state'];
+
+        //Init the task Manager.
+        if(!isset($_SESSION['ost_upgrader'][$this->getShash()]))
+            $_SESSION['ost_upgrader'][$this->getShash()]['tasks']=array();
+
+        //Tasks to perform - saved on the session.
+        $this->tasks = &$_SESSION['ost_upgrader'][$this->getShash()]['tasks'];
+    }
+
+    function onError($error) {
+        $this->setError($error);
+        $this->setState('aborted');
+    }
+
+    function isUpgradable() {
+        return (!$this->isAborted() && $this->getNextPatch());
+    }
+
+    function isAborted() {
+        return !strcasecmp($this->getState(), 'aborted');
+    }
+
+    function getSchemaSignature() {
+        return $this->signature;
+    }
+
+    function getShash() {
+        return $this->shash;
     }
 
     function getTablePrefix() {
         return $this->prefix;
     }
 
-    /* upgrade magic related to the given version */
-    function upgradeTo($version) {
-
-        $errors = array();
-        switch($version) {
-            case '1.7-RC1':
-                //TODO: latest upgrade logic.
-                break;
-            case '1.6 ST':
-                //TODO: refactor code from 1.6 ST.
-                break;
-            case '1.6 RC5':
-                //TODO: refactor code from 1.6 ST.
-                break;
-            default:
-                //XXX: escape version 
-                return $this->abort('Trying to upgrade unknown version '.$version);
-        }
-
-        if($errors)
-            return $this->abort($errors);
-
-        return true;
+    function getSQLDir() {
+        return $this->sqldir;
     }
 
-    /*
-       Do base upgrade
-       Does fall-through upgrade until we reach the current version.
-       We're assumming the user - is upgrading upgradable version of osTicket!
-        @version - version number to upgrade from!
-       */
-    function upgradeFrom($version) {
+    function getState() {
+        return $this->state;
+    }
 
-        if(!$version || $this->getErrors())
-            return false;
+    function setState($state) {
+        $this->state = $state;
+    }
+
+    function getNextPatch() {
+
+        if(!($patch=glob($this->getSQLDir().$this->getShash().'-*.patch.sql')))
+            return null;
+
+        return $patch[0];
+    }
+
+    function getThisPatch() {
+                
+        if(!($patch=glob($this->getSQLDir().'*-'.$this->getShash().'.patch.sql')))
+            return null;
+
+        return $patch[0];
+
+    }
+
+    function getNextVersion() {
+        if(!$patch=$this->getNextPatch())
+            return '(Latest)';
+
+        if(preg_match('/\*(.*)\*/', file_get_contents($patch), $matches))
+            $info=$matches[0];
+        else
+            $info=substr(basename($patch), 9, 8);
+
+        return $info;
+    }
+
+    function getNextAction() {
+
+        $action='Upgrade osTicket to '.$this->getVersion();
+        if($this->getNumPendingTasks() && ($task=$this->getNextTask())) {
+            $action = $task['desc'];
+            if($task['status']) //Progress report... 
+                $action.=' ('.$task['status'].')';
+        } elseif($this->isUpgradable() && ($nextversion = $this->getNextVersion())) {
+            $action = "Upgrade to $nextversion";
+        }
+
+        return $action;
+    }
+
+    function getNextStepInfo() {
+
+        if(($patches=$this->getPatches()))
+            return $patches[0];
         
-        if(!strcasecmp($version,$this->getVersion()))
-            return true;
+        if(($hooks=$this->getScriptedHooks()))
+            return $hooks[0]['desc'];
 
-        //XXX: Note FALLTHROUGH (we only break on error) and uppercase cases.
-        switch(strtoupper($version)) {
-            case 'OLD': //Upgrade old versions to 1.6 ST.
-                if(!$this->upgradeTo('1.6 RC5')) break;
-                /* FALLTHROUGH */
-            case '1.6 RC5': //Upgrade 1.6 RC5 to 1.6 ST
-                if(!$this->upgradeTo('1.6 ST')) break;
-                /* FALLTHROUGH */
-            case '1.6 ST': //Upgrade 1.6 ST to to 1.7 RC1
-                if(!$this->upgradeTo('1.7-RC1')) break;
-                /* LAST CASE IS NOT FALLTHROUGH */
-                break;
-            default: //Catch all - Upgrading older versions 1.3+ 
-                return $this->upgradeFrom('OLD');
-        }
-        //XXX: Set errors???
-       
-        return (!$this->getErrors());
+        return null;
     }
 
-    function cleanup() {
-        //FIXME: cleanup logic here.
-        sleep(2);
+    function getPatches($ToSignature) {
+     
+        $signature = $this->getSignature();
+        $patches = array();
+        while(($patch=glob($this->getSQLDir().substr($signature,0,8).'-*.patch.sql')) && $i++) {
+            $patches = array_merge($patches, $patch);
+            if(!($signature=substr(basename($patch[0]), 10, 8)) || !strncasecmp($signature, $ToSignature, 8))
+                break;
+        }
+
+        return $patches;
+    }
+
+    function getNumPendingTasks() {
+
+        return count($this->getPendingTasks());
+    }
+
+    function getPendingTasks() {
+
+        $pending=array();
+        if(($tasks=$this->getTasks())) {
+            foreach($tasks as $k => $task) {
+                if(!$task['done'])
+                    $pending[$k] = $task;
+            }  
+        }
+        
+        return $pending;
+    }
+
+    function getTasks() {
+       return $this->tasks;
+    }
+
+    function getNextTask() {
+
+        if(!($tasks=$this->getPendingTasks()))
+            return null;
+
+        return current($tasks);
+    }
+
+    function removeTask($tId) {
+
+        if(isset($this->tasks[$tId]))
+            unset($this->tasks[$tId]);
+
+        return (!$this->tasks[$tId]);
+    }
+
+    function setTaskStatus($tId, $status) {
+        if(isset($this->tasks[$tId]))
+            $this->tasks[$tId]['status'] = $status;
+    }
+
+    function doTasks() {
+
+        if(!($tasks=$this->getPendingTasks()))
+            return true; //Nothing to do.
+
+        foreach($tasks as $k => $task) {
+            if(call_user_func(array($this, $task['func']), $k)===0) {
+                $this->tasks[$k]['done'] = true;
+            } else { //Task has pending items to process.
+                break;
+            }
+        }
+
+        return (!$this->getPendingTasks());
+    }
+    
+    function upgrade() {
+
+        if($this->getPendingTasks() || !($patch=$this->getNextPatch()))
+            return false;
+
+        if(!$this->load_sql_file($patch, $this->getTablePrefix()))
+            return false;
+
+        //TODO: Log the upgrade
+
+        //Load up post install tasks.
+        $shash = substr(basename($patch), 9, 8); 
+        $phash = substr(basename($patch), 0, 17); 
+        
+        $tasks=array();
+        $tasks[] = array('func' => 'sometask',
+                         'desc' => 'Some Task.... blah');
+        switch($phash) { //Add  patch specific scripted tasks.
+            case 'xxxx': //V1.6 ST- 1.7 *
+                $tasks[] = array('func' => 'migrateAttachments2DB',
+                                 'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
+                break;
+        }
+        
+        $tasks[] = array('func' => 'cleanup',
+                         'desc' => 'Post-upgrade cleanup!');
+        
+        
+        
+        //Load up tasks - NOTE: writing directly to the session - back to the future majic.
+        $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
+        $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
+
+        //clear previous patch info - 
+        unset($_SESSION['ost_upgrader'][$this->getSHash()]);
 
         return true;
+    }
+
+    /************* TASKS **********************/
+    function sometask($tId) {
+        
+        $this->setTaskStatus($tId, 'Doing... '.time(). ' #'.$_SESSION['sometask']);
+
+        sleep(2);
+        $_SESSION['sometask']+=1;
+        if($_SESSION['sometask']<4)
+            return 22;
+
+        $_SESSION['sometask']=0;
+
+        return 0;  //Change to 1 for testing...
+    }
+
+    function cleanup($tId=0) {
+
+        $file=$this->getSQLDir().$this->getSchemaSignature().'-cleanup.sql';
+        if(!file_exists($file)) //No cleanup script.
+            return 0;
+
+        //We have a cleanup script  ::XXX: Don't abort on error? 
+        if($this->load_sql_file($file, $this->getTablePrefix(), false, true))
+            return 0;
+
+        //XXX: ???
+        return false;
+    }
+    
+
+    function migrateAttachments2DB($tId=0) {
+        echo "Process attachments here - $tId";
+        return 0;
     }
 }
 
@@ -297,7 +481,7 @@ class Installer extends SetupWizard {
             $this->errors['err']='Unable to read config file. Permission denied! (#2)';
         elseif(!($fp = @fopen($this->getConfigFile(),'r+')))
             $this->errors['err']='Unable to open config file for writing. Permission denied! (#3)';
-        elseif(!$this->load_sql_file($schemaFile,$vars['prefix'],$debug))
+        elseif(!$this->load_sql_file($schemaFile,$vars['prefix'], true, $debug))
             $this->errors['err']='Error parsing SQL schema! Get help from developers (#4)';
               
         if(!$this->errors) {

@@ -28,20 +28,11 @@ define('OSTCLIENTINC',TRUE);
 
 define('ASSETS_PATH',ROOT_PATH.'assets/default/');
 
-
 //Check the status of the HelpDesk.
-if(!is_object($cfg) || !$cfg->getId() || $cfg->isHelpDeskOffline()) {
+if(!is_object($cfg) || !$cfg->getId() || $cfg->isHelpDeskOffline() || $cfg->isUpgradePending()) {
     include('./offline.php');
     exit;
 }
-
-//Forced upgrade? Version mismatch.
-if(defined('THIS_VERSION') && strcasecmp($cfg->getVersion(),THIS_VERSION)) {
-    die('System is offline for an upgrade.');
-    exit;
-}
-
-
 
 /* include what is needed on client stuff */
 require_once(INCLUDE_DIR.'class.client.php');
