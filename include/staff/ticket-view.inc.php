@@ -196,11 +196,11 @@ if($ticket->isOverdue())
             </tr>
             <tr>
                 <td colspan="2">
-                    <?php echo Format::htmlchars($note['note']); ?>
+                    <?php echo Format::htmlchars($note['body']); ?>
                 </td>
             </tr>
             <?php
-            if($note['attachments'] && ($links=$ticket->getAttachmentsLinks($note['note_id'],'N'))) {?>
+            if($note['attachments'] && ($links=$ticket->getAttachmentsLinks($note['id'],'N'))) {?>
             <tr>
                 <td class="info" colspan="2"><?php echo $links; ?></td>
             </tr>
@@ -220,9 +220,9 @@ if($ticket->isOverdue())
        foreach($messages as $message) {?>
         <table class="message" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr><th><?php echo Format::db_datetime($message['created']); ?></th></tr>
-            <tr><td><?php echo Format::display($message['message']); ?></td></tr>
+            <tr><td><?php echo Format::display($message['body']); ?></td></tr>
             <?php
-            if($message['attachments'] && ($links=$ticket->getAttachmentsLinks($message['msg_id'],'M'))) {?>
+            if($message['attachments'] && ($links=$ticket->getAttachmentsLinks($message['id'],'M'))) {?>
             <tr>
                 <td class="info"><?php echo $links; ?></td>
             </tr>
@@ -231,17 +231,17 @@ if($ticket->isOverdue())
         </table>
         <?php
         /* --------- Responses ------------ */
-        if($message['responses'] && ($responses=$ticket->getResponses($message['msg_id']))) {
+        if($message['responses'] && ($responses=$ticket->getResponses($message['id']))) {
            foreach($responses as $resp) {?>
             <table class="response" cellspacing="0" cellpadding="1" width="100%" border="0">
                 <tr>
                     <th><?php echo Format::db_datetime($resp['created']); ?>&nbsp;-&nbsp;<?php echo Format::htmlchars($resp['staff_name']); ?></th>
                 </tr>
                 <tr>
-                    <td><?php echo Format::display($resp['response']); ?></td>
+                    <td><?php echo Format::display($resp['body']); ?></td>
                 </tr>
                 <?php
-                if($resp['attachments'] && ($links=$ticket->getAttachmentsLinks($resp['response_id'],'R'))) {?>
+                if($resp['attachments'] && ($links=$ticket->getAttachmentsLinks($resp['id'],'R'))) {?>
                 <tr>
                     <td class="info"><?php echo $links; ?></td>
                 </tr>
@@ -251,7 +251,7 @@ if($ticket->isOverdue())
             <?php
            }
         }
-        $msgId=$message['msg_id'];
+        $msgId=$message['id'];
        }
     } else {
         echo '<p>Error fetching ticket thread - get technical help.</p>';
