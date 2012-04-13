@@ -314,7 +314,7 @@ class Upgrader extends SetupWizard {
         if($this->getPendingTasks() || !($patch=$this->getNextPatch()))
             return false;
 
-        if(!$this->load_sql_file($patch, $this->getTablePrefix()))
+        if(!$this->load_sql_file($patch, $this->getTablePrefix(), true, true))
             return false;
 
         //TODO: Log the upgrade
