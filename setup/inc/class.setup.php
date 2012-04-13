@@ -144,6 +144,12 @@ class Upgrader extends SetupWizard {
 
         //Tasks to perform - saved on the session.
         $this->tasks = &$_SESSION['ost_upgrader'][$this->getShash()]['tasks'];
+
+        $this->migrater = DatabaseMigrater($this->sqldir);
+    }
+
+    function getStops() {
+        return array('7be60a84' => 'migrateAttachments2DB');
     }
 
     function onError($error) {
@@ -183,32 +189,32 @@ class Upgrader extends SetupWizard {
         $this->state = $state;
     }
 
-    function getNextPatch() {
-
-        if(!($patch=glob($this->getSQLDir().$this->getShash().'-*.patch.sql')))
-            return null;
-
-        return $patch[0];
+    function getPatches() {
+        return $this->migrater->getRollup($this->getStops());
     }
 
-    function getThisPatch() {
-                
-        if(!($patch=glob($this->getSQLDir().'*-'.$this->getShash().'.patch.sql')))
-            return null;
-
-        return $patch[0];
-
+    function getNextPatch() {
+        $p = $this->getPatches();
+        return (count($p)) ? $p[0] : false;
     }
 
     function getNextVersion() {
         if(!$patch=$this->getNextPatch())
             return '(Latest)';
 
-        if(preg_match('/\*(.*)\*/', file_get_contents($patch), $matches))
-            $info=$matches[0];
-        else
-            $info=substr(basename($patch), 9, 8);
+        $info = $this->readPatchInfo($patch);
+        return $info['version'];
+    }
 
+    function readPatchInfo($patch) {
+        $info = array();
+        if (preg_match('/\*(.*)\*/', file_get_contents($patch), $matches)) {
+            if (preg_match('/@([\w\d_-]+)\s+(.*)$/', $matches[0], $matches2))
+                foreach ($matches2 as $match)
+                    $info[$match[0]] = $match[1];
+        }
+        if (!isset($info['version']))
+            $info['version'] = substr(basename($patch), 9, 8);
         return $info;
     }
 
@@ -235,19 +241,6 @@ class Upgrader extends SetupWizard {
             return $hooks[0]['desc'];
 
         return null;
-    }
-
-    function getPatches($ToSignature) {
-     
-        $signature = $this->getSignature();
-        $patches = array();
-        while(($patch=glob($this->getSQLDir().substr($signature,0,8).'-*.patch.sql')) && $i++) {
-            $patches = array_merge($patches, $patch);
-            if(!($signature=substr(basename($patch[0]), 10, 8)) || !strncasecmp($signature, $ToSignature, 8))
-                break;
-        }
-
-        return $patches;
     }
 
     function getNumPendingTasks() {
@@ -311,11 +304,12 @@ class Upgrader extends SetupWizard {
     
     function upgrade() {
 
-        if($this->getPendingTasks() || !($patch=$this->getNextPatch()))
+        if($this->getPendingTasks() || !($patches=$this->getPatches()))
             return false;
 
-        if(!$this->load_sql_file($patch, $this->getTablePrefix()))
-            return false;
+        foreach ($patches as $patch)
+            if (!$this->load_sql_file($patch, $this->getTablePrefix()))
+                return false;
 
         //TODO: Log the upgrade
 
@@ -380,6 +374,10 @@ class Upgrader extends SetupWizard {
 
     function migrateAttachments2DB($tId=0) {
         echo "Process attachments here - $tId";
+        $att_migrater = new AttachmentMigrater();
+        $att_migrater->start_migration();
+        # XXX: Loop here (with help of task manager)
+        $att_migrater->do_batch();
         return 0;
     }
 }
