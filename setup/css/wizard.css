@@ -70,7 +70,7 @@ form .row span { width: 600px; color: #666666; }
 
 #overlay { display: none; position: fixed; background: #000; z-index: 2000; }
 
-#loading { padding: 10px 10px 10px 60px; width: 300px; height: 100px; background: url('../images/ajax-loader.gif?1312925608') 10px 50% no-repeat white; position: fixed; display: none; z-index: 3000; }
+#loading { padding: 10px 10px 10px 60px; width: 400px; height: 150px; background: url('../images/ajax-loader.gif?1312925608') 10px 50% no-repeat white; position: fixed; display: none; z-index: 3000; }
 #loading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
 
 .tip { display: inline-block; width: 16px; height: 16px; outline: none; text-decoration: none; color: #d80; }
