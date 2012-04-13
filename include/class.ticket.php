@@ -653,10 +653,14 @@ class Ticket{
     //Set staff ID...assign/unassign/release (id can be 0)
     function setStaffId($staffId){
        
-      $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
-          .' WHERE ticket_id='.db_input($this->getId());
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
+            .' WHERE ticket_id='.db_input($this->getId());
 
-      return (db_query($sql)  && db_affected_rows());
+        if (db_query($sql)  && db_affected_rows()) {
+            $this->staff_id = $staffId;
+            return true;
+        }
+        return false;
     }
 
     function setSLAId($slaId) {
@@ -768,7 +772,7 @@ class Ticket{
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
-        $this->track('closed');
+        $this->logEvent('closed');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -782,7 +786,7 @@ class Ticket{
 
         //TODO: log reopen event here 
 
-        $this->track('reopened');
+        $this->logEvent('reopened');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -1126,8 +1130,8 @@ class Ticket{
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
+        $this->logEvent('overdue');
         $this->onOverdue($whine);
-        $this->track('overdue');
 
         return true;
     }
@@ -1148,6 +1152,7 @@ class Ticket{
              $this->reopen();
         
          $this->reload(); //reload - new dept!!
+         $this->logEvent('transferred');
 
          //Send out alerts if enabled AND requested
          if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept())) return true; //no alerts!!
@@ -1194,7 +1199,6 @@ class Ticket{
             }
          }
 
-         $this->track('transferred');
          return true;
     }
 
@@ -1207,8 +1211,8 @@ class Ticket{
             return false;
 
         $this->onAssign($note, $alert);
+        $this->logEvent('assigned');
 
-        $this->track('assigned');
         return true;
     }
 
@@ -1226,8 +1230,8 @@ class Ticket{
             $this->setStaffId(0);
 
         $this->onAssign($note, $alert);
+        $this->logEvent('assigned');
 
-        $this->track('assigned');
         return true;
     }
 
@@ -1432,7 +1436,7 @@ class Ticket{
     }
 
     // History log -- used for statistics generation (pretty reports)
-    function track($state, $staff=null) {
+    function logEvent($state, $staff=null) {
         global $thisstaff;
 
         if ($staff === null) {
@@ -1440,8 +1444,12 @@ class Ticket{
             else $staff='SYSTEM';               # XXX: Security Violation ?
         }
 
-        return db_query('INSERT INTO '.TICKET_HISTORY_TABLE
+        return db_query('INSERT INTO '.TICKET_EVENT_TABLE
             .' SET ticket_id='.db_input($this->getId())
+            .', staff_id='.db_input($this->getStaffId())
+            .', team_id='.db_input($this->getTeamId())
+            .', dept_id='.db_input($this->getDeptId())
+            .', topic_id='.db_input($this->getTopicId())
             .', timestamp=NOW(), state='.db_input($state)
             .', staff='.db_input($staff))
             && db_affected_rows() == 1;
@@ -1960,6 +1968,9 @@ class Ticket{
                     && ($client->getNumOpenTickets()==$cfg->getMaxOpenTickets())) {
             $ticket->onOpenLimit(($autorespond && strcasecmp($origin, 'staff')));
         }
+        
+        /* Start tracking ticket lifecycle events */
+        $ticket->logEvent('created');
 
         /* Phew! ... time for tea (KETEPA) */
 
