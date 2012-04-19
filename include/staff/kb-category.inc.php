@@ -19,9 +19,9 @@ if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 </p>
 <?php
 if($thisstaff->canManageFAQ()) {
-    echo sprintf('<a href="categories.php?id=%d" class="Icon newHelpTopic">Edit Category</a>
-            | <a href="categories.php" class="Icon newHelpTopic">Delete Category</a>
-            | <a href="faq.php?cid=%d&a=add" class="Icon newHelpTopic">Add New FAQ</a>',
+    echo sprintf('<a href="categories.php?id=%d" class="Icon editCategory">Edit Category</a>
+            | <a href="categories.php" class="Icon deleteCategory">Delete Category</a>
+            | <a href="faq.php?cid=%d&a=add" class="Icon newFAQ">Add New FAQ</a>',
             $category->getId(),
             $category->getId());
 }
