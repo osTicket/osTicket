@@ -130,6 +130,7 @@ class Canned {
     */
     function uploadAttachments($files) {
 
+        $i=0;
         foreach($files as $file) {
             if(($fileId=is_numeric($file)?$file:AttachmentFile::upload($file)) && is_numeric($fileId)) {
                 $sql ='INSERT INTO '.CANNED_ATTACHMENT_TABLE
@@ -174,7 +175,7 @@ class Canned {
         return self::save(0,$vars,$errors);
     }
 
-    function getIdByTitle($titke) {
+    function getIdByTitle($title) {
         $sql='SELECT canned_id FROM '.CANNED_TABLE.' WHERE title='.db_input($title);
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);

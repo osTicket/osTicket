@@ -104,7 +104,11 @@ class Format {
             $text=Format::clickableurls($text);
 
         //Wrap long words...
-        $text=preg_replace_callback('/\w{75,}/',create_function('$matches','return wordwrap($matches[0],70,"\n",true);'),$text);
+        $text=preg_replace_callback('/\w{75,}/',
+            create_function(
+                '$matches',                                     # nolint
+                'return wordwrap($matches[0],70,"\n",true);'),  # nolint
+            $text);
 
         return nl2br($text);
     }
