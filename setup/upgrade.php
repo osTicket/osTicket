@@ -30,7 +30,8 @@ if(!$thisstaff or !$thisstaff->isadmin()) {
 define('SETUPINC', true);
 define('INC_DIR', './inc/');
 define('SQL_DIR', INC_DIR.'sql/');
-require_once INC_DIR.'class.setup.php';
+
+require_once INC_DIR.'class.upgrader.php';
 
 //$_SESSION['ost_upgrader']=null;
 $upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, SQL_DIR);
