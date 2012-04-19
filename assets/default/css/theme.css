@@ -254,6 +254,9 @@ body {
   height: 20px;
   background: url('../images/nav_bg.png') top left repeat-x;
   border-top: 1px solid #aaa;
+  box-shadow:0 3px 2px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow:0 3px 2px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow:0 3px 2px rgba(0, 0, 0, 0.4);
 }
 #nav li {
   margin: 0;
@@ -304,18 +307,10 @@ body {
 #content {
   padding: 20px 0;
   margin: 0 20px;
-  background: url('../images/content_bg.png') top left repeat-x;
-}
-
-#cnbg {
-  padding: 5px 0;
-  margin: 0 20px;
   height: auto !important;
   height: 350px;
   min-height: 350px;
-  background: none;
 }
-
 
 #footer {
   text-align: center;
@@ -425,7 +420,7 @@ body {
 
 #kb > li h4 a {
   font-size: 14px;
-  padding-left: 24px; 
+  padding-left: 24px;
   background: url('../images/icons/page.png?1319579499') 0 50% no-repeat;
 }
 
@@ -707,3 +702,35 @@ a.refresh {
   margin-right: 20px;
   background: url('../images/icons/file.gif') 0 50% no-repeat;
 }
+
+.button, .button:visited {
+    background: #222;
+    display: inline-block;
+    font-size: 16px;
+    padding: 8px 16px 6px 16px;
+    width:160px;
+    text-align:center;
+    color: #fff;
+    font-weight:bold;
+    text-decoration: none;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+    position: relative;
+    cursor: pointer;
+    font-family:helvetica, arial, sans-serif;
+}
+
+.button:hover                          { background-color: #111; color: #fff; }
+.button:active                         { top: 1px; box-shadow:none; -moz-box-shadow:none; -webkit-box-shadow:none; }
+.button, .button:visited,
+.green.button, .green.button:visited      { background-color: #91bd09; }
+.green.button:hover                        { background-color: #749a02; }
+.blue.button, .blue.button:visited        { background-color: #00AEEF; }
+.blue.button:hover                         { background-color: #0299d2; }
+

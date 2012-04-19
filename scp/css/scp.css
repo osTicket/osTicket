@@ -26,7 +26,7 @@ a {
 
 .strike { text-decoration:line-through; color:red; }
 
-#canned_attachments label { padding:3px; padding-right:10px; } 
+#canned_attachments label { padding:3px; padding-right:10px; }
 
 
 #breadcrumbs {
@@ -228,6 +228,10 @@ a.newTicket { background:url(../images/icons/new_ticket.gif) }
 a.premade { background:url(../images/icons/premade_reply.gif) }
 a.newPremade { background:url(../images/icons/new_premade_reply.gif) }
 
+a.kb { background:url(../images/icons/kb.gif) }
+a.kb-categories { background:url(../images/icons/kb-categories.gif) }
+a.canned { background:url(../images/icons/canned.gif) }
+
 a.staff { background:url(../images/icons/list_groups.gif) }
 a.user { background:url(../images/icons/list_users.gif) }
 a.userPref { background:url(../images/icons/user_preferences.gif) }
@@ -268,28 +272,28 @@ a.newHelpTopic { background:url(../images/icons/new_help_topic.png) }
 a.departments { background:url(../images/icons/list_departments.gif) }
 a.newDepartment { background:url(../images/icons/new_department.gif) }
 
-    
+
 /* Generic CSS based Icons. use=> <tag class="Icon iconname">text</tag> */
-    
+
 .Icon {
     width: auto;
     padding-left:20px;
     background-position: left center;
-    background-repeat: no-repeat;    
+    background-repeat: no-repeat;
 }
 
-    
+
 a.Icon {  background-repeat: no-repeat;}
 
-    
-a.Icon:hover {        
+
+a.Icon:hover {
     text-decoration: underline;
 }
 
 
 .Icon.newstaff { background:url(../images/icons/new_user.gif) 0 0 no-repeat; }
 .Icon.newteam { background:url(../images/icons/new_team.gif) 0 0 no-repeat; }
-    
+
 .Icon.Ticket { background:url(../images/icons/ticket.gif) 0 2px no-repeat; }
 .Icon.webTicket { background:url(../images/icons/ticket_source_web.gif) 0 0 no-repeat; }
 .Icon.emailTicket { background:url(../images/icons/ticket_source_email.gif) 0 0 no-repeat; }
@@ -299,7 +303,13 @@ a.Icon:hover {
 .Icon.assignedTicket { background:url(../images/icons/assigned_ticket.gif) 0 0 no-repeat; }
 .Icon.lockedTicket { background:url(../images/icons/locked_ticket.gif) 0 0 no-repeat; }
 .Icon.editTicket { background-image: url(../images/icons/edit_ticket.png); }
-    
+
+.Icon.newCategory { background-image: url(../images/icons/new_category.png); }
+.Icon.editCategory { background-image: url(../images/icons/edit_category.png); }
+.Icon.deleteCategory { background-image: url(../images/icons/delete_category.png); }
+.Icon.newFAQ { background-image: url(../images/icons/new_faq.png); }
+.Icon.newReply { background-image: url(../images/icons/new_reply.png); }
+
 .Icon.file { background-image: url(../images/icons/file.gif); }
 .Icon.refresh { background-image: url(../images/icons/refresh.gif); }
 .Icon.note {
@@ -307,14 +317,14 @@ a.Icon:hover {
     font-size: 1em;
     background-image: url(../images/icons/note.gif);
 }
-    
+
 .Icon.thread {
     font-weight: bold;
     font-size: 1em;
     background-image: url(../images/icons/thread.gif);
 }
 
-    
+
 .Icon.debugLog { background:url(../images/icons/log_debug.gif) 0 2px no-repeat; }
 .Icon.alertLog { background:url(../images/icons/log_alert.gif) 0 2px no-repeat; }
 .Icon.errorLog { background:url(../images/icons/log_error.gif) 0 2px no-repeat; }
@@ -368,7 +378,7 @@ table.list thead th {
 }
 
 table.list th a {
-    
+
     text-decoration:none;
     color:#000;
 }
@@ -927,14 +937,14 @@ h2 .reload {
 }
 
 .tip_content hr {
-        
+
     color: #ddd;
     background-color: #ddd;
-    height: 1px;  
+    height: 1px;
     border: 0;
     padding: 0;
     margin: 0.2em 0;
-    width: 100%;    
+    width: 100%;
 }
 
 .tip_close {
