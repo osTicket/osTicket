@@ -1021,31 +1021,81 @@ h2 .reload {
 }
 
 /* Knowledgebase */
+/* Knowledgebase */
 #kb {
   margin: 2px 0;
-  padding: 0;
+  padding: 5px;
   overflow: hidden;
 }
 
-#kb > li {
-  margin: 0 0 5px 0;
-  padding: 0 10px;
-  width: auto;
-  float: left;
-  clear: both;
+#kb li {
+  padding:10px 10px 10px 46px;
+  height:auto !important;
+  overflow:hidden;
+  margin:0;
+  background-image:url(../images/kb_large_folder.png), url(../images/kb_category_bg.png);
+  background-position:0 50%, bottom left;
+  background-repeat:no-repeat, repeat-x;
+  border-bottom:1px solid #ddd;
 }
 
-#kb > li h4 {
+
+#kb li h4 {
     padding-bottom:3px;
-    margin-bottom:3px;
+    margin:0 0 3px 0;
 }
 
-#kb > li h4 span {
+#kb li h4 span {
     color:#666;
+    font-weight:normal;
 }
 
-#kb > li h4 a {
+#kb li h4 a {
   font-size: 14px;
+}
+
+#kbSearch {
+    padding:10px 0;
+    overflow:hidden;
+}
+
+#kbSearch div {
+    clear:both;
+    overflow:hidden;
+    padding-top:5px;
+}
+
+#kbSearch #query {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:200px;
+    margin-right:5px;
+}
+
+#kbSearch #cid {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:200px;
+    margin-right:5px;
+    position:relative;
+    top:2px;
+}
+
+#kbSearch #topic-id {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:410px;
+}
+
+#kbSearch #searchSubmit {
+    margin:0;
+    display:inline-block;
+    float:left;
+    position:relative;
+    top:2px;
 }
 
 #faq {
@@ -1060,13 +1110,48 @@ h2 .reload {
 }
 #faq ol li {
   list-style: none;
-  margin: 0 0 10px 0;
+  margin: 0;
+  padding:5px 0;
   color: #999;
+  border-bottom:1px solid #ddd;
 }
+
 #faq ol li a {
   display: inline;
   height: 16px;
+  font-size:13px;
   line-height: 16px;
   padding-left: 24px;
   background: url('../images/icons/page.png') 0 50% no-repeat;
+}
+
+#faq ol li a span {
+    font-weight:normal;
+    color:#777;
+}
+
+#faq ol li:hover {
+  background-color:#e9f5ff;
+}
+
+time {
+    display:inline-block;
+    float:right;
+    color:#777;
+}
+
+.cat-desc {
+    padding-top:5px;
+    padding-bottom:25px;
+}
+
+.cat-manage-bar {
+    background:#e3f5ff;
+    padding:5px;
+    border-bottom:1px solid #777;
+}
+
+.cat-manage-bar a {
+    display:inline-block;
+    margin-right:20px;
 }

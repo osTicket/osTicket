@@ -11,23 +11,23 @@ if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 <div>
     <strong><?php echo $category->getName() ?></strong>
     <span>(<?php echo $category->isPublic()?'Public':'Internal'; ?>)</span>
-    <br>
-    <div class="faded">&nbsp;Last updated <?php echo Format::db_daydatetime($category->getUpdateDate()); ?></div>
+    <time>Last updated <?php echo Format::db_daydatetime($category->getUpdateDate()); ?></time>
 </div>
-<p>
+<div class="cat-desc">
 <?php echo Format::safe_html($category->getDescription()); ?>
-</p>
+</div>
 <?php
 if($thisstaff->canManageFAQ()) {
-    echo sprintf('<a href="categories.php?id=%d" class="Icon editCategory">Edit Category</a>
-            | <a href="categories.php" class="Icon deleteCategory">Delete Category</a>
-            | <a href="faq.php?cid=%d&a=add" class="Icon newFAQ">Add New FAQ</a>',
+    echo sprintf('<div class="cat-manage-bar"><a href="categories.php?id=%d" class="Icon editCategory">Edit Category</a>
+             <a href="categories.php" class="Icon deleteCategory">Delete Category</a>
+             <a href="faq.php?cid=%d&a=add" class="Icon newFAQ">Add New FAQ</a></div>',
             $category->getId(),
             $category->getId());
-}
+} else {
 ?>
 <hr>
 <?php
+}
 
 $sql='SELECT faq.faq_id, question, ispublished, count(attach.file_id) as attachments '
     .' FROM '.FAQ_TABLE.' faq '
@@ -39,7 +39,7 @@ if(($res=db_query($sql)) && db_num_rows($res)) {
             <ol>';
     while($row=db_fetch_array($res)) {
         echo sprintf('
-            <li><a href="faq.php?id=%d" class="previewfaq">%s</a> - <span>%s</span></li>',
+            <li><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a></li>',
             $row['faq_id'],$row['question'],$row['ispublished']?'Published':'Internal');
     }
     echo '  </ol>
