@@ -141,7 +141,7 @@ if($search):
         $qstr.='&dept='.urlencode($_REQUEST['dept']);
     }
     //Teams
-    if($_REQUEST['team'] && ($thisuser->isadmin() || in_array($_REQUEST['team'],$thisuser->getTeams()))) {
+    if($_REQUEST['team'] && ($thisuser->isAdmin() || in_array($_REQUEST['team'],$thisuser->getTeams()))) {
         $qwhere.=' AND ticket.team_id='.db_input($_REQUEST['team']);
         $qstr.='&team='.urlencode($_REQUEST['team']);
     }

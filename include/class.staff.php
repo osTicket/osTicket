@@ -220,7 +220,7 @@ class Staff {
         return $this->showAssignedOnly();
     }
   
-    function isadmin() {
+    function isAdmin() {
         return ($this->ht['isadmin']);
     }
 
@@ -261,7 +261,7 @@ class Staff {
     }
   
     function canManageTickets() {
-        return ($this->isadmin() 
+        return ($this->isAdmin() 
                  || $this->canDeleteTickets() 
                     || $this->canCloseTickets());
     }

@@ -242,7 +242,7 @@ class MailFetcher {
     function getBody($mid) {
         
         $body ='';
-        if(!($body = $this->getpart($mid,'TEXT/PLAIN',$this->charset))) {
+        if(!($body = $this->getPart($mid,'TEXT/PLAIN',$this->charset))) {
             if(($body = $this->getPart($mid,'TEXT/HTML',$this->charset))) {
                 //Convert tags of interest before we striptags
                 $body=str_replace("</DIV><DIV>", "\n", $body);

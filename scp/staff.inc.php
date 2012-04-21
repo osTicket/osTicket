@@ -63,7 +63,7 @@ if(!$thisstaff || !is_object($thisstaff) || !$thisstaff->getId() || !$thisstaff-
     exit;
 }
 //2) if not super admin..check system status and group status
-if(!$thisstaff->isadmin()){
+if(!$thisstaff->isAdmin()){
     //Staff are not allowed to login in offline mode!!
     if($cfg->isHelpDeskOffline()){
         staffLoginPage('System Offline');
