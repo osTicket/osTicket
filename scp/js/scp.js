@@ -264,19 +264,19 @@ $(document).ready(function(){
     }).delegate('#status', 'change', function() {
         switch($(this).val()) {
             case 'closed':
-                $('select#assigneeId').find('option:first').attr('selected', 'selected').parent('select');
-                $('select#assigneeId').attr('disabled','disabled');
+                $('select#assignee').find('option:first').attr('selected', 'selected').parent('select');
+                $('select#assignee').attr('disabled','disabled');
                 $('select#staffId').removeAttr('disabled');
                 break;
             case 'open':
             case 'overdue':
                 $('select#staffId').find('option:first').attr('selected', 'selected').parent('select');
                 $('select#staffId').attr('disabled','disabled');
-                $('select#assigneeId').removeAttr('disabled');
+                $('select#assignee').removeAttr('disabled');
                 break;
             default:
                 $('select#staffId').removeAttr('disabled');
-                $('select#assigneeId').removeAttr('disabled');
+                $('select#assignee').removeAttr('disabled');
         }
     });
 
