@@ -108,6 +108,8 @@ if($search):
         if(is_numeric($searchTerm)){
             $qwhere.=" AND ticket.ticketID LIKE '$queryterm%'";
         }elseif(strpos($searchTerm,'@') && Validator::is_email($searchTerm)){ //pulling all tricks!
+            # XXX: What about searching for email addresses in the body of
+            #      the thread message
             $qwhere.=" AND ticket.email='$queryterm'";
         }else{//Deep search!
             //This sucks..mass scan! search anything that moves! 
@@ -117,19 +119,15 @@ if($search):
                 $qwhere.=" AND ( ticket.email LIKE '%$queryterm%'".
                             " OR ticket.name LIKE '%$queryterm%'".
                             " OR ticket.subject LIKE '%$queryterm%'".
-                            " OR note.title LIKE '%$queryterm%'".
-                            " OR MATCH(message.message)   AGAINST('$queryterm')".
-                            " OR MATCH(response.response) AGAINST('$queryterm')".
-                            " OR MATCH(note.note) AGAINST('$queryterm')".
+                            " OR thread.title LIKE '%$queryterm%'".
+                            " OR MATCH(thread.body)   AGAINST('$queryterm')".
                             ' ) ';
             }else{
                 $qwhere.=" AND ( ticket.email LIKE '%$queryterm%'".
                             " OR ticket.name LIKE '%$queryterm%'".
                             " OR ticket.subject LIKE '%$queryterm%'".
-                            " OR message.message LIKE '%$queryterm%'".
-                            " OR response.response LIKE '%$queryterm%'".
-                            " OR note.note LIKE '%$queryterm%'".
-                            " OR note.title LIKE '%$queryterm%'".
+                            " OR thread.body LIKE '%$queryterm%'".
+                            " OR thread.title LIKE '%$queryterm%'".
                             ' ) ';
             }
         }
@@ -206,9 +204,7 @@ $qfrom=' FROM '.TICKET_TABLE.' ticket '.
 
 $sjoin='';
 if($search && $deep_search) {
-    $sjoin=' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id )'
-          .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id )'
-          .' LEFT JOIN '.TICKET_NOTE_TABLE.' note ON (ticket.ticket_id=note.ticket_id ) ';
+    $sjoin=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
 }
 
 $qgroup=' GROUP BY ticket.ticket_id';
@@ -222,9 +218,9 @@ $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&ord
 
 //ADD attachment,priorities, lock and other crap
 $qselect.=' ,count(attach.attach_id) as attachments '
-         .' ,count(DISTINCT message.msg_id) as messages '
-         .' ,count(DISTINCT response.response_id) as responses '
-         .' ,count(DISTINCT note.note_id) as notes '
+         .' ,count(DISTINCT message.id) as messages '
+         .' ,count(DISTINCT response.id) as responses '
+         .' ,count(DISTINCT note.id) as notes '
          .' ,IF(ticket.reopened is NULL,IF(ticket.lastmessage is NULL,ticket.created,ticket.lastmessage),ticket.reopened) as effective_date '
          .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned ';
@@ -233,9 +229,12 @@ $qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.pri
        .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW() 
                AND tlock.staff_id!='.db_input($thisstaff->getId()).') '
        .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
-       .' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id) '
-       .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id) '
-       .' LEFT JOIN '.TICKET_NOTE_TABLE.' note ON (ticket.ticket_id=note.ticket_id ) '
+       .' LEFT JOIN '.TICKET_THREAD_TABLE.' message ON ('
+            .'ticket.ticket_id=message.ticket_id AND message.thread_type="M") '
+       .' LEFT JOIN '.TICKET_THREAD_TABLE.' response ON ('
+            .'ticket.ticket_id=response.ticket_id AND response.thread_type="R") '
+       .' LEFT JOIN '.TICKET_THREAD_TABLE.' note ON ('
+            .'ticket.ticket_id=note.ticket_id AND note.thread_type="N") '
        .' LEFT JOIN '.STAFF_TABLE.' staff ON (ticket.staff_id=staff.staff_id) '
        .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) ';
 
