@@ -379,18 +379,32 @@ body {
   font-size: 15px;
   margin-left: 0;
   padding-left: 0;
+  border-top:1px solid #ddd;
 }
 #faq ol li {
   list-style: none;
-  margin: 0 0 10px 0;
+  margin: 0;
+  padding:0;
   color: #999;
 }
 #faq ol li a {
-  display: block;
-  height: 16px;
+  display:block;
+  padding:5px 0;
+  height:auto !important;
+  overflow:hidden;
+  margin:0;
+  border-bottom:1px solid #ddd;
   line-height: 16px;
   padding-left: 24px;
   background: url('../images/icons/page.png?1319579499') 0 50% no-repeat;
+}
+#faq ol li a:hover {
+  background-color:#e9f5ff;
+}
+
+.article-meta {
+  padding:5px;
+  background:#fafafa;
 }
 
 /* Knowledgebase */
@@ -401,12 +415,21 @@ body {
 }
 
 #kb > li {
-  margin: 0 0 5px 0;
-  padding: 10px;
-  width: auto;
-  float: left;
-  clear: both;
-  list-style: none;
+  padding:10px;
+  height:auto !important;
+  overflow:hidden;
+  margin:0;
+  background:url(../images/kb_category_bg.png) bottom left repeat-x;
+  border-bottom:1px solid #ddd;
+}
+
+#kb li i {
+  display:block;
+  width:32px;
+  height:32px;
+  float:left;
+  margin-right:6px;
+  background:url(../images/kb_large_folder.png) top left no-repeat;
 }
 
 #kb > li h4 {
@@ -420,10 +443,51 @@ body {
 
 #kb > li h4 a {
   font-size: 14px;
-  padding-left: 24px;
-  background: url('../images/icons/page.png?1319579499') 0 50% no-repeat;
 }
 
+#kb-search {
+    padding:10px 0;
+    overflow:hidden;
+}
+
+#kb-search div {
+    clear:both;
+    overflow:hidden;
+    padding-top:5px;
+}
+
+#kb-search #query {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:200px;
+    margin-right:5px;
+}
+
+#kb-search #cid {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:200px;
+    margin-right:5px;
+    position:relative;
+    top:2px;
+}
+
+#kb-search #topic-id {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:410px;
+}
+
+#kb-search #searchSubmit {
+    margin:0;
+    display:inline-block;
+    float:left;
+    position:relative;
+    top:2px;
+}
 
 #breadcrumbs {
   color: #333;
