@@ -198,11 +198,11 @@ $(document).ready(function(){
         }
     }
 
-    /* Typeahead init */
+    /* Typeahead tickets lookup */
     $('#basic-ticket-search').typeahead({
         source: function (typeahead, query) {
             $.ajax({
-                url: "ajax.php/tickets?q="+query,
+                url: "ajax.php/tickets/lookup?q="+query,
                 dataType: 'json',
                 success: function (data) {
                     typeahead.process(data);
@@ -215,6 +215,7 @@ $(document).ready(function(){
         property: "value"
     });
 
+    /* Typeahead user lookup */
     $('#email.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
@@ -235,5 +236,84 @@ $(document).ready(function(){
         property: "email"
     });
 
+    /* advanced search */
+    $("#overlay").css({
+        opacity : 0.3,
+        top     : 0,
+        left    : 0,
+        width   : $(window).width(),
+        height  : $(window).height()
+    });
+
+    $("#advanced-search").css({
+        top  : ($(window).height() / 6),
+        left : ($(window).width() / 2 - 300)
+    });
+
+    $('#go-advanced').click(function(e) {
+        e.preventDefault();
+        $('#result-count').html('');
+        $('#overlay').show();
+        $('#advanced-search').show();
+    });
+
+    $('#advanced-search').delegate('a.close, input.close', 'click', function(e) {
+        e.preventDefault();
+        $('#advanced-search').hide()
+        $('#overlay').hide();
+    }).delegate('#status', 'change', function() {
+        switch($(this).val()) {
+            case 'closed':
+                $('select#assignee').find('option:first').attr('selected', 'selected').parent('select');
+                $('select#assignee').attr('disabled','disabled');
+                $('select#staffId').removeAttr('disabled');
+                break;
+            case 'open':
+            case 'overdue':
+                $('select#staffId').find('option:first').attr('selected', 'selected').parent('select');
+                $('select#staffId').attr('disabled','disabled');
+                $('select#assignee').removeAttr('disabled');
+                break;
+            default:
+                $('select#staffId').removeAttr('disabled');
+                $('select#assignee').removeAttr('disabled');
+        }
+    });
+
+    $('#advanced-search form#search').submit(function(e) { 
+        e.preventDefault();
+        var fObj = $(this);
+        var elem = $('#advanced-search');
+        $('#result-count').html('');
+        $.ajax({
+                url: "ajax.php/tickets",
+                data: fObj.serialize(),
+                dataType: 'json',
+                beforeSend: function ( xhr ) {
+                   $('.buttons', elem).hide();
+                   $('.spinner', elem).show();
+                   return true;
+                },
+                success: function (resp) {
+                        
+                    if(resp.success) {
+                        $('#result-count').html('<div class="success">' + resp.success +'</div>');
+                    } else if (resp.fail) {
+                        $('#result-count').html('<div class="fail">' + resp.fail +'</div>');
+                    } else {
+                        $('#result-count').html('<div class="fail">Unknown error</div>');
+                    }
+                }
+            })
+            .done( function () {
+             })
+            .fail( function () {
+                $('#result-count').html('<div class="fail">Advanced search failed - try again!</div>');
+            })
+            .always( function () {
+                $('.spinner', elem).hide();
+                $('.buttons', elem).show();
+             });
+    });
 
 });

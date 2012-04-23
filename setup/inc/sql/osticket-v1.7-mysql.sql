@@ -598,46 +598,26 @@ CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
   KEY `staff_id` (`staff_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_history`;
-CREATE TABLE `%TABLE_PREFIX%ticket_history` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
+CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
+  `message_id` int(11) unsigned NOT NULL,
+  `email_mid` varchar(255) NOT NULL,
+  `headers` text,
+  KEY `message_id` (`email_mid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
+CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `ticket_id` int(11) unsigned NOT NULL default '0',
-  `state` enum('opened','closed','assigned','transferred','overdue') NOT NULL,
+  `staff_id` int(11) unsigned NOT NULL,
+  `team_id` int(11) unsigned NOT NULL,
+  `dept_id` int(11) unsigned NOT NULL,
+  `topic_id` int(11) unsigned NOT NULL,
+  `state` enum('created','closed','reopened','assigned','transferred','overdue') NOT NULL,
   `staff` varchar(255) NOT NULL default 'SYSTEM',
   `timestamp` datetime NOT NULL,
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_message`;
-CREATE TABLE `%TABLE_PREFIX%ticket_message` (
-  `msg_id` int(11) unsigned NOT NULL auto_increment,
-  `ticket_id` int(11) unsigned NOT NULL default '0',
-  `messageId` varchar(255) default NULL,
-  `message` text NOT NULL,
-  `headers` text,
-  `source` varchar(16) default NULL,
-  `ip_address` varchar(16) default NULL,
-  `created` datetime NOT NULL,
-  `updated` datetime default NULL,
-  PRIMARY KEY  (`msg_id`),
-  KEY `ticket_id` (`ticket_id`),
-  KEY `msgId` (`messageId`),
-  FULLTEXT KEY `message` (`message`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_note`;
-CREATE TABLE `%TABLE_PREFIX%ticket_note` (
-  `note_id` int(11) unsigned NOT NULL auto_increment,
-  `ticket_id` int(11) unsigned NOT NULL default '0',
-  `staff_id` int(10) unsigned NOT NULL default '0',
-  `source` varchar(32) NOT NULL default '',
-  `title` varchar(255) NOT NULL default 'Generic Intermal Notes',
-  `note` text NOT NULL,
-  `created` datetime NOT NULL,
-  PRIMARY KEY  (`note_id`),
-  KEY `ticket_id` (`ticket_id`),
-  KEY `staff_id` (`staff_id`),
-  FULLTEXT KEY `note` (`note`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_priority`;
@@ -660,22 +640,24 @@ INSERT INTO `%TABLE_PREFIX%ticket_priority` (`priority_id`, `priority`, `priorit
     (3, 'high', 'High', '#FEE7E7', 2, 1),
     (4, 'emergency', 'Emergency', '#FEE7E7', 1, 0);
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_response`;
-CREATE TABLE `%TABLE_PREFIX%ticket_response` (
-  `response_id` int(11) unsigned NOT NULL auto_increment,
-  `msg_id` int(11) unsigned NOT NULL default '0',
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_thread`;
+CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `pid` int(11) unsigned NOT NULL default '0',
   `ticket_id` int(11) unsigned NOT NULL default '0',
   `staff_id` int(11) unsigned NOT NULL default '0',
-  `staff_name` varchar(32) NOT NULL default '',
-  `response` text NOT NULL,
-  `ip_address` varchar(16) NOT NULL default '',
+  `thread_type` enum('M','R','N') NOT NULL,
+  `poster` varchar(128) NOT NULL default '',
+  `source` varchar(32) NOT NULL default '',
+  `title` varchar(255),
+  `body` text NOT NULL,
+  `ip_address` varchar(64) NOT NULL default '',
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  PRIMARY KEY  (`response_id`),
+  PRIMARY KEY  (`id`),
   KEY `ticket_id` (`ticket_id`),
-  KEY `msg_id` (`msg_id`),
   KEY `staff_id` (`staff_id`),
-  FULLTEXT KEY `response` (`response`)
+  FULLTEXT KEY `body` (`body`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%timezone`;

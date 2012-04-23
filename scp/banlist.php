@@ -68,7 +68,7 @@ if($_POST && !$errors && $filter){
             }else{
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
-                    $sql='UPDATE '.EMAIL_FILTER_RULE_TABLE.' SET isactive=1 WHERE filter_id='.db_input($filter->getID()).
+                    $sql='UPDATE '.EMAIL_FILTER_RULE_TABLE.' SET isactive=1 WHERE filter_id='.db_input($filter->getId()).
                          ' AND id IN ('.implode(',',$_POST['ids']).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
@@ -79,7 +79,7 @@ if($_POST && !$errors && $filter){
                         $errors['err']='Unable to enable selected emails';
                     }
                 }elseif($_POST['disable']){
-                    $sql='UPDATE '.EMAIL_FILTER_RULE_TABLE.' SET isactive=0  WHERE filter_id='.db_input($filter->getID()).
+                    $sql='UPDATE '.EMAIL_FILTER_RULE_TABLE.' SET isactive=0  WHERE filter_id='.db_input($filter->getId()).
                          ' AND id IN ('.implode(',',$_POST['ids']).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)

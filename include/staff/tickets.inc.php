@@ -42,6 +42,7 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
     case 'assigned':
         $status='open';
         $staffId=$thisstaff->getId();
+        $results_type='My Tickets';
         break;
     case 'answered':
         $status='open';
@@ -97,9 +98,6 @@ $deep_search=false;
 if($search):
     $qstr.='&a='.urlencode($_REQUEST['a']);
     $qstr.='&t='.urlencode($_REQUEST['t']);
-    if(isset($_REQUEST['advance_search'])){ //advance search box!
-        $qstr.='&advance_search=Search';
-    }
 
     //query
     if($searchTerm){
@@ -108,6 +106,8 @@ if($search):
         if(is_numeric($searchTerm)){
             $qwhere.=" AND ticket.ticketID LIKE '$queryterm%'";
         }elseif(strpos($searchTerm,'@') && Validator::is_email($searchTerm)){ //pulling all tricks!
+            # XXX: What about searching for email addresses in the body of
+            #      the thread message
             $qwhere.=" AND ticket.email='$queryterm'";
         }else{//Deep search!
             //This sucks..mass scan! search anything that moves! 
@@ -117,33 +117,50 @@ if($search):
                 $qwhere.=" AND ( ticket.email LIKE '%$queryterm%'".
                             " OR ticket.name LIKE '%$queryterm%'".
                             " OR ticket.subject LIKE '%$queryterm%'".
-                            " OR note.title LIKE '%$queryterm%'".
-                            " OR MATCH(message.message)   AGAINST('$queryterm')".
-                            " OR MATCH(response.response) AGAINST('$queryterm')".
-                            " OR MATCH(note.note) AGAINST('$queryterm')".
+                            " OR thread.title LIKE '%$queryterm%'".
+                            " OR MATCH(thread.body)   AGAINST('$queryterm')".
                             ' ) ';
             }else{
                 $qwhere.=" AND ( ticket.email LIKE '%$queryterm%'".
                             " OR ticket.name LIKE '%$queryterm%'".
                             " OR ticket.subject LIKE '%$queryterm%'".
-                            " OR message.message LIKE '%$queryterm%'".
-                            " OR response.response LIKE '%$queryterm%'".
-                            " OR note.note LIKE '%$queryterm%'".
-                            " OR note.title LIKE '%$queryterm%'".
+                            " OR thread.body LIKE '%$queryterm%'".
+                            " OR thread.title LIKE '%$queryterm%'".
                             ' ) ';
             }
         }
     }
     //department
-    if($_REQUEST['dept'] && in_array($_REQUEST['dept'],$thisstaff->getDepts())) {
+    if($_REQUEST['deptId'] && in_array($_REQUEST['deptId'],$thisstaff->getDepts())) {
         //This is dept based search..perm taken care above..put the sucker in.
-        $qwhere.=' AND ticket.dept_id='.db_input($_REQUEST['dept']);
-        $qstr.='&dept='.urlencode($_REQUEST['dept']);
+        $qwhere.=' AND ticket.dept_id='.db_input($_REQUEST['deptId']);
+        $qstr.='&deptId='.urlencode($_REQUEST['deptId']);
     }
-    //Teams
-    if($_REQUEST['team'] && ($thisuser->isadmin() || in_array($_REQUEST['team'],$thisuser->getTeams()))) {
-        $qwhere.=' AND ticket.team_id='.db_input($_REQUEST['team']);
-        $qstr.='&team='.urlencode($_REQUEST['team']);
+        
+    //Assignee 
+    if($_REQUEST['assignee'] && strcasecmp($_REQUEST['status'], 'closed'))  {
+        $id=preg_replace("/[^0-9]/", "", $_REQUEST['assignee']);
+        $assignee = $_REQUEST['assignee'];
+        $qstr.='&assignee='.urlencode($_REQUEST['assignee']);
+        $qwhere.= ' AND ( ';
+                  
+        if($assignee[0]=='t')
+            $qwhere.='  (ticket.team_id='.db_input($id). ' AND ticket.status="open") ';
+        elseif($assignee[0]=='s')
+            $qwhere.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
+        else
+            $qwhere.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
+        
+                   
+        if($_REQUEST['staffId'] && !$_REQUEST['status']) { //Assigned TO + Closed By
+            $qwhere.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';
+            $qstr.='&staffId='.urlencode($_REQUEST['staffId']);
+        }
+            
+        $qwhere.= ' ) ';
+    } elseif($_REQUEST['staffId']) {
+        $qwhere.=' AND (ticket.staff_id='.db_input($_REQUEST['staffId']).' AND ticket.status="closed") ';
+        $qstr.='&staffId='.urlencode($_REQUEST['staffId']);
     }
 
     //dates
@@ -163,7 +180,7 @@ if($search):
             $qwhere.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
             $qstr.='&endDate='.urlencode($_REQUEST['endDate']);
         }
-}
+   }
 
 endif;
 
@@ -206,9 +223,7 @@ $qfrom=' FROM '.TICKET_TABLE.' ticket '.
 
 $sjoin='';
 if($search && $deep_search) {
-    $sjoin=' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id )'
-          .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id )'
-          .' LEFT JOIN '.TICKET_NOTE_TABLE.' note ON (ticket.ticket_id=note.ticket_id ) ';
+    $sjoin=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
 }
 
 $qgroup=' GROUP BY ticket.ticket_id';
@@ -222,9 +237,7 @@ $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&ord
 
 //ADD attachment,priorities, lock and other crap
 $qselect.=' ,count(attach.attach_id) as attachments '
-         .' ,count(DISTINCT message.msg_id) as messages '
-         .' ,count(DISTINCT response.response_id) as responses '
-         .' ,count(DISTINCT note.note_id) as notes '
+         .' ,count(DISTINCT thread.id) as thread_count '
          .' ,IF(ticket.reopened is NULL,IF(ticket.lastmessage is NULL,ticket.created,ticket.lastmessage),ticket.reopened) as effective_date '
          .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned ';
@@ -233,9 +246,7 @@ $qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.pri
        .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW() 
                AND tlock.staff_id!='.db_input($thisstaff->getId()).') '
        .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
-       .' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id) '
-       .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id) '
-       .' LEFT JOIN '.TICKET_NOTE_TABLE.' note ON (ticket.ticket_id=note.ticket_id ) '
+       .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
        .' LEFT JOIN '.STAFF_TABLE.' staff ON (ticket.staff_id=staff.staff_id) '
        .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) ';
 
@@ -245,17 +256,18 @@ $hash = md5($query);
 $_SESSION['search_'.$hash] = $query;
 $res = db_query($query);
 $showing=db_num_rows($res)?$pageNav->showing():"";
-if(!$results_type) {
-    $results_type=($search)?'Search Results':ucfirst($status).' Tickets';
-}
-$negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
+if(!$results_type)
+    $results_type = ucfirst($status).' Tickets';
 
-$basic_display=!isset($_REQUEST['advance_search'])?true:false;
+if($search)
+    $results_type.= ' (Search Results)';
+
+$negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 
 //YOU BREAK IT YOU FIX IT.
 ?>
 <!-- SEARCH FORM START -->
-<div id='basic' style="display:<?php echo $basic_display?'block':'none'; ?>">
+<div id='basic_search'>
     <form action="tickets.php" method="get">
     <input type="hidden" name="a" value="search">
     <table>
@@ -263,6 +275,7 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
             <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" name="basic_search" class="button" value="Search"></td>
+            <td>&nbsp;&nbsp;<a href="" id="go-advanced">[advanced]</a></td>
         </tr>
     </table>
     </form>
@@ -300,7 +313,7 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
                         title="Sort By Status <?php echo $negorder; ?>">Status</a></th>
             <?php
             } else { ?>
-                <th width="60" <?=$pri_sort?>>
+                <th width="60" <?php echo $pri_sort;?>>
                     <a <?php echo $pri_sort; ?> href="tickets.php?sort=pri&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
                         title="Sort By Priority <?php echo $negorder; ?>">Priority</a></th>
             <?php
@@ -310,15 +323,18 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
             <th width="150">
                 <a <?php echo $assignee_sort; ?> href="tickets.php?sort=assignee&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
                     title="Sort By Assignee <?php echo $negorder;?>">Assigned To</a></th>
-            <?}elseif(!strcasecmp($status,'closed')){?>
+            <?php 
+            } elseif(!strcasecmp($status,'closed')) { ?>
             <th width="150">
                 <a <?php echo $staff_sort; ?> href="tickets.php?sort=staff&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
                     title="Sort By Closing Staff Name <?php echo $negorder; ?>">Closed By</a></th>
-            <?}else{?>
+            <?php 
+            } else { ?>
             <th width="150">
-                <a <?=$dept_sort?> href="tickets.php?sort=dept&order=<?=$negorder?><?=$qstr?>" 
-                    title="Sort By Department <?=$negorder?>">Department</a></th>
-            <?}?>
+                <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>" 
+                    title="Sort By Department <?php echo $negorder; ?>">Department</a></th>
+            <?php
+            } ?>
         </tr>
      </thead>
      <tbody>
@@ -347,7 +363,7 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
                 }
                 $tid=$row['ticketID'];
                 $subject = Format::truncate($row['subject'],40);
-                $threadcount=$row['messages']+$row['responses'];
+                $threadcount=$row['thread_count'];
                 if(!strcasecmp($row['status'],'open') && !$row['isanswered'] && !$row['lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
                 }
@@ -448,4 +464,90 @@ $basic_display=!isset($_REQUEST['advance_search'])?true:false;
        }
     } ?>
     </form>
+</div>
+<div id="overlay"></div>
+<div style="display:none;" id="advanced-search">
+    <h3>Advanced Ticket Search</h3>
+    <a class="close" href="">&times;</a>
+    <form action="tickets.php" method="post" id="search" name="search">
+        <input type="hidden" name="a" value="search">
+        <fieldset class="query">
+            <label for="query">Keyword:</label>
+            <input type="input" id="query" name="query" size="20"> <em>Optional</em>
+        </fieldset>
+        <fieldset>
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="">&mdash; Any Status &mdash;</option>
+                <option value="open">Open</option>
+                <option value="overdue">Overdue</option>
+                <option value="closed">Closed</option>
+            </select>
+            <label for="deptId">Dept:</label>
+            <select id="deptId" name="deptId">
+                <option value="">&mdash; All Departments &mdash;</option>
+                <?php
+                if(($mydepts = $thisstaff->getDepts()) && ($depts=Dept::getDepartments())) {
+                    foreach($depts as $id =>$name) {
+                        if(!in_array($id, $mydepts)) continue; 
+                        echo sprintf('<option value="%d">%s</option>', $id, $name);
+                    }
+                }
+                ?>
+            </select>
+        </fieldset>
+        <fieldset class="owner">
+            <label for="assignee">Assigned To:</label>
+            <select id="assignee" name="assignee">
+                <option value="0">&mdash; Anyone &mdash;</option>
+                <?php
+                if(($users=Staff::getStaffMembers())) {
+                    echo '<OPTGROUP label="Staff Members ('.count($users).')">';
+                    foreach($users as $id => $name) {
+                        $k="s$id";
+                        echo sprintf('<option value="%s">%s</option>', $k, $name);
+                    }
+                    echo '</OPTGROUP>';
+                }
+                
+                if(($teams=Team::getTeams())) {
+                    echo '<OPTGROUP label="Teams ('.count($teams).')">';
+                    foreach($teams as $id => $name) {
+                        $k="t$id";
+                        echo sprintf('<option value="%s">%s</option>', $k, $name);
+                    }
+                    echo '</OPTGROUP>';
+                }
+                ?>
+            </select>
+            <label for="staffId">Closed By:</label>
+            <select id="staffId" name="staffId">
+                <option value="0">&mdash; Anyone &mdash;</option>
+                <?php
+                if(($users=Staff::getStaffMembers())) {
+                    foreach($users as $id => $name)
+                        echo sprintf('<option value="%d">%s</option>', $id, $name);
+                }
+                ?>
+            </select>
+        </fieldset>
+        <fieldset class="date_range">
+            <label>Date Range:</label>
+            <input class="dp" type="input" size="20" name="startDate"><i></i>
+            <span>TO</span>
+            <input class="dp" type="input" size="20" name="endDate"><i></i>
+        </fieldset>
+        <p>
+            <span class="buttons">
+                <input type="submit" value="Search">
+                <input type="reset" value="Reset">
+                <input type="button" value="Cancel" class="close">
+            </span>
+            <span class="spinner">
+                <img src="./images/ajax-loader.gif" width="16" height="16">
+            </span>
+        </p>
+    </form>
+    <div id="result-count">
+    </div>
 </div>

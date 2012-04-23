@@ -67,11 +67,11 @@ if($ticket->getThreadCount() && ($messages = $ticket->getMessages())) {
         
             <tr><th><?php echo Format::db_datetime($message['created']); ?></th></tr>
             
-            <tr><td><?php echo Format::display($message['message']); ?></td></tr>
+            <tr><td><?php echo Format::display($message['body']); ?></td></tr>
             
             <?php
             
-            if($message['attachments'] && ($links=$ticket->getAttachmentsLinks($message['msg_id'],'M'))) { ?>
+            if($message['attachments'] && ($links=$ticket->getAttachmentsLinks($message['id'],'M'))) { ?>
             
                 <tr><td class="info"><?php echo $links; ?></td></tr>
                 
@@ -81,7 +81,7 @@ if($ticket->getThreadCount() && ($messages = $ticket->getMessages())) {
             
         </table>
         <?php
-        if($message['responses'] && ($responses=$ticket->getResponses($message['msg_id']))) {
+        if($message['responses'] && ($responses=$ticket->getResponses($message['id']))) {
            foreach($responses as $resp) {
                $staff=$cfg->hideStaffName()?'staff':Format::htmlchars($resp['staff_name']);
                ?>
@@ -89,9 +89,9 @@ if($ticket->getThreadCount() && ($messages = $ticket->getMessages())) {
                 <tr>
                     <th><?php echo Format::db_datetime($resp['created']);?>&nbsp;-&nbsp;<?php echo $staff; ?></th>
                 </tr>
-                <tr><td><?php echo Format::display($resp['response']); ?></td></tr>
+                <tr><td><?php echo Format::display($resp['body']); ?></td></tr>
                 <?php
-                if($resp['attachments'] && ($links=$ticket->getAttachmentsLinks($resp['response_id'],'R'))) {?>
+                if($resp['attachments'] && ($links=$ticket->getAttachmentsLinks($resp['id'],'R'))) {?>
                  <tr><td class="info"><?php echo $links; ?></td></tr>
                 <?php
                  }?>

@@ -55,7 +55,7 @@
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7-DPR2'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','ssddsdsd'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('SCHEMA_SIGNATURE','abe9c0cb845be52c10fcd7b3e626a589'); //MD5 signature of the db schema. (used to trigger upgrades)
 
     #load config info
     $configfile='';
@@ -135,14 +135,12 @@
     define('CANNED_ATTACHMENT_TABLE',TABLE_PREFIX.'canned_attachment');
 
     define('TICKET_TABLE',TABLE_PREFIX.'ticket');
-    define('TICKET_NOTE_TABLE',TABLE_PREFIX.'ticket_note');
-    define('TICKET_MESSAGE_TABLE',TABLE_PREFIX.'ticket_message');
-    define('TICKET_RESPONSE_TABLE',TABLE_PREFIX.'ticket_response');
+    define('TICKET_THREAD_TABLE',TABLE_PREFIX.'ticket_thread');
     define('TICKET_ATTACHMENT_TABLE',TABLE_PREFIX.'ticket_attachment');
     define('TICKET_PRIORITY_TABLE',TABLE_PREFIX.'ticket_priority');
     define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
     define('TICKET_LOCK_TABLE',TABLE_PREFIX.'ticket_lock');
-    define('TICKET_HISTORY_TABLE',TABLE_PREFIX.'ticket_history');
+    define('TICKET_EVENT_TABLE',TABLE_PREFIX.'ticket_event');
   
     define('EMAIL_TABLE',TABLE_PREFIX.'email');
     define('EMAIL_TEMPLATE_TABLE',TABLE_PREFIX.'email_template');
