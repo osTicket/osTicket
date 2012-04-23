@@ -52,7 +52,6 @@ ini_set('include_path', './'.PATH_SEPARATOR.INC_DIR.PATH_SEPARATOR.INCLUDE_DIR.P
 endif;
 
 #required files
-require_once(INC_DIR.'class.setup.php');
 require_once(INCLUDE_DIR.'class.validator.php');
 require_once(INCLUDE_DIR.'class.format.php');
 require_once(INCLUDE_DIR.'class.misc.php');
