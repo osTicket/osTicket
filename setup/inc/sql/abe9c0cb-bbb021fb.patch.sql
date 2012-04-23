@@ -7,8 +7,8 @@
  */
 
 ALTER TABLE `%TABLE_PREFIX%ticket_event`
-    ADD `annulled` tinyint(1) NOT NULL DEFAULT '0' AFTER `timestamp`;
+    ADD `annulled` tinyint(1) NOT NULL DEFAULT '0' AFTER `staff`;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `schema_signature`='3c2e0f54d9e08bad38028cd42767c7c9';
+    SET `schema_signature`='bbb021fbeb377ca66b6997b77e0167cc';
