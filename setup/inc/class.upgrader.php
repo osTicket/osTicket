@@ -201,7 +201,7 @@ class Upgrader extends SetupWizard {
         
             
             //clear previous patch info - 
-            unset($_SESSION['ost_upgrader'][$this->getSHash()]);
+            unset($_SESSION['ost_upgrader'][$this->getShash()]);
 
             //Load up post-upgrade tasks.... if any.
             $phash = substr(basename($patch), 0, 17);
@@ -241,7 +241,7 @@ class Upgrader extends SetupWizard {
     /************* TASKS **********************/
     function cleanup($tId=0) {
 
-        $file=$this->getSQLDir().$this->getSHash().'-cleanup.sql';
+        $file=$this->getSQLDir().$this->getShash().'-cleanup.sql';
         if(!file_exists($file)) //No cleanup script.
             return 0;
 

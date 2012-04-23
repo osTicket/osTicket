@@ -22,7 +22,7 @@ function staffLoginPage($msg) {
 }
 
 require '../scp/staff.inc.php';
-if(!$thisstaff or !$thisstaff->isadmin()) {
+if(!$thisstaff or !$thisstaff->isAdmin()) {
     staffLoginPage('Admin Access Required!');
     exit;
 }
