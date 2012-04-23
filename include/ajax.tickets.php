@@ -146,12 +146,11 @@ class TicketsAjaxAPI extends AjaxController {
         if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0))
             $startTime=$endTime=0;
         
-        //Have fun with dates.
         if($startTime)
-            $qwhere.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
+            $where.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
 
         if($endTime)
-            $qwhere.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
+            $where.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
 
         //Query
         if($_REQUEST['query']) {
