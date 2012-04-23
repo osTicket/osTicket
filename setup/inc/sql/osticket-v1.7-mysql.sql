@@ -615,6 +615,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `topic_id` int(11) unsigned NOT NULL,
   `state` enum('created','closed','reopened','assigned','transferred','overdue') NOT NULL,
   `staff` varchar(255) NOT NULL default 'SYSTEM',
+  `annulled` tinyint(1) unsigned NOT NULL defalt '0',
   `timestamp` datetime NOT NULL,
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
