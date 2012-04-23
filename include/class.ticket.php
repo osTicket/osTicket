@@ -1387,7 +1387,7 @@ class Ticket{
             .' ,pid='.db_input($vars['msgId'])
             .' ,body='.db_input(Format::striptags($vars['response']))
             .' ,staff_id='.db_input($thisstaff->getId())
-            .' ,staff_name='.db_input($thisstaff->getName())
+            .' ,poster='.db_input($thisstaff->getName())
             .' ,ip_address='.db_input($thisstaff->getIP());
 
         if(!db_query($sql) || !($respId=db_insert_id()))
