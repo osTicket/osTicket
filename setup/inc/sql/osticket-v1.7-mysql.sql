@@ -616,6 +616,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `state` enum('created','closed','reopened','assigned','transferred','overdue') NOT NULL,
   `staff` varchar(255) NOT NULL default 'SYSTEM',
   `timestamp` datetime NOT NULL,
+  `annulled` tinyint(1) unsigned NOT NULL defalt '0',
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;

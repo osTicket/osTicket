@@ -802,7 +802,7 @@ class Ticket{
 
         //TODO: log reopen event here 
 
-        $this->logEvent('reopened');
+        $this->logEvent('reopened', 'closed');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -1463,12 +1463,20 @@ class Ticket{
     }
 
     // History log -- used for statistics generation (pretty reports)
-    function logEvent($state, $staff=null) {
+    function logEvent($state, $annul=null, $staff=null) {
         global $thisstaff;
 
         if ($staff === null) {
             if ($thisstaff) $staff=$thisstaff->getUserName();
             else $staff='SYSTEM';               # XXX: Security Violation ?
+        }
+        # Annul previous entries if requested (for instance, reopening a
+        # ticket will annul an 'closed' entry). This will be useful to
+        # easily prevent repeated statistics.
+        if ($annul) {
+            db_query('UPDATE '.TICKET_EVENT_TABLE.' SET annulled=1'
+                .' WHERE ticket_id='.db_input($this->getId())
+                  .' AND state='.db_input($annul));
         }
 
         return db_query('INSERT INTO '.TICKET_EVENT_TABLE
