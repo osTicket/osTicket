@@ -44,7 +44,7 @@ else
  <h2>FAQ Categories</h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="categories.php?a=add" class="Icon newHelpTopic">Add New Category</a></b></div>
+    <b><a href="categories.php?a=add" class="Icon newCategory">Add New Category</a></b></div>
 <div class="clear"></div>
 <form action="categories.php" method="POST" name="cat" onSubmit="return checkbox_checker(this,1,0);">
  <input type="hidden" name="do" value="mass_process" >
@@ -52,7 +52,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
+            <th width="7">&nbsp;</th>
             <th width="500"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
             <th width="150"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type">Type</a></th>
             <th width="80"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs">FAQs</a></th>
@@ -78,7 +78,7 @@ else
                 ?>
             <tr id="<?php echo $row['category_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['category_id']; ?>" 
+                  <input type="checkbox" name="ids[]" value="<?php echo $row['category_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
                                 onClick="highLight(this.value,this.checked);"> </td>
                 <td><a href="categories.php?id=<?php echo $row['category_id']; ?>"><?php echo Format::truncate($row['name'],200); ?></a>&nbsp;</td>

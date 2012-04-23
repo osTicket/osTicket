@@ -177,7 +177,7 @@ class Staff {
 
     function getDept() {
 
-        if(!$this->dept && $this->getDeptIf())
+        if(!$this->dept && $this->getDeptId())
             $this->dept= Dept::lookup($this->getDeptId());
 
         return $this->dept;

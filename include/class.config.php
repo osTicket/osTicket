@@ -67,22 +67,35 @@ class Config {
         return !$this->isSystemOnline();
     }
 
+    function isHelpDeskOnline() {
+        return $this->isSystemOnline();
+    }
+
     function isSystemOnline() {
-        return ($this->config['isonline']);
+        return ($this->config['isonline'] && !$this->isUpgradePending());
+    }
+
+    function isUpgradePending() {
+        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getSchemaSignature(), SCHEMA_SIGNATURE));
     }
 
     function isKnowledgebaseEnabled() {
-
         require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->config['enable_kb'] && FAQ::countPublishedFAQs());
     }
 
     function getVersion() {
-        return '1.7-DPR2';
+        return THIS_VERSION;
     }
 
     function getSchemaSignature() {
-        return $this->config['schema_signature'];
+
+        if($this->config['schema_signature'])
+            return $this->config['schema_signature'];
+        elseif($this->config['ostversion']) //old version 1.6 st.
+            return md5(strtoupper($this->config['ostversion']));
+
+        return null;
     }
 
     function setMysqlTZ($tz) {

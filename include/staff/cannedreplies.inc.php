@@ -50,7 +50,7 @@ else
  <h2>Canned Replies</h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="canned.php?a=add" class="Icon newHelpTopic">Add New Reply</a></b></div>
+    <b><a href="canned.php?a=add" class="Icon newReply">Add New Reply</a></b></div>
 <div class="clear"></div>
 <form action="canned.php" method="POST" name="canned" onSubmit="return checkbox_checker(this,1,0);">
  <input type="hidden" name="do" value="mass_process" >
@@ -58,7 +58,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
+            <th width="7">&nbsp;</th>
             <th width="500"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title">Title</a></th>
             <th width="80"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="200"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept">Department</a></th>
@@ -81,7 +81,7 @@ else
                 ?>
             <tr id="<?php echo $row['canned_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>" 
+                  <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
                                 onClick="highLight(this.value,this.checked);"> </td>
                 <td>
