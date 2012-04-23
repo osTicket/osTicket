@@ -21,22 +21,31 @@
 
 class DatabaseMigrater {
 
-    function DatabaseMigrater($sqldir) {
+    var $start;
+    var $end;
+    var $sqldir;
+
+    function DatabaseMigrater($start, $end, $sqldir) {
+       
+        $this->start = $start;
+        $this->end = $end;
         $this->sqldir = $sqldir;
+       
     }
 
-    function getRollup($stops) {
-        $cfg->reload();
-        $start = $cfg->getSchemaSignature();
+    function getPatches($stop=null) {
+
+        $start= $this->start;
+        $stop = $stop?$stop:$this->end;
 
         $patches = array();
         while (true) {
-            $next = glob($this->sqldir . $substr($start,0,8)
+            $next = glob($this->sqldir . substr($start, 0, 8)
                          . '-*.patch.sql');
             if (count($next) == 1) {
                 $patches[] = $next[0];
-                $start = substr($next[0], 0, 8);
-            } elseif ($count($next) == 0) {
+                $start = substr(basename($next[0]), 9, 8);
+            } elseif (count($next) == 0) {
                 # There are no patches leaving the current signature. We
                 # have to assume that we've applied all the available
                 # patches.
@@ -47,9 +56,12 @@ class DatabaseMigrater {
                 break;
             }
 
-            if (array_key_exists($next[0], $stops))
+            # Break if we've reached our target stop.
+            if(!$start || !strncasecmp($start, $stop, 8))
                 break;
         }
+
         return $patches;
     }
 }
+?>

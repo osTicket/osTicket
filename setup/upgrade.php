@@ -49,7 +49,9 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
         case 'prereq':
             //XXX: check if it's upgradable version??
             if(!$cfg->isUpgradePending())
-                $errors['err']=' Nothing to do! System already upgraded to the current version'; 
+                $errors['err']=' Nothing to do! System already upgraded to the current version';
+            elseif(!$upgrader->isUpgradable())
+                $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
             elseif($upgrader->check_prereq())
                 $upgrader->setState('upgrade');
             else
@@ -89,6 +91,8 @@ switch(strtolower($upgrader->getState())) {
             $inc='upgrade-aborted.inc.php';
         elseif(!$cfg->isUpgradePending())
             $errors['err']='Nothing to do! System already upgraded to the latest version';
+        elseif(!$upgrader->isUpgradable())
+            $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
 }
 
 require(INC_DIR.'header.inc.php');

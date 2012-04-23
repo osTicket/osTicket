@@ -93,7 +93,7 @@ class Config {
         if($this->config['schema_signature'])
             return $this->config['schema_signature'];
         elseif($this->config['ostversion']) //old version 1.6 st.
-            return md5($this->config['ostversion']);
+            return md5(strtoupper($this->config['ostversion']));
 
         return null;
     }

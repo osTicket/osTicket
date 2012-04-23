@@ -15,6 +15,7 @@
 **********************************************************************/
 
 require_once INC_DIR.'class.setup.php';
+require_once INC_DIR.'class.migrater.php';
 
 class Upgrader extends SetupWizard {
 
@@ -40,7 +41,8 @@ class Upgrader extends SetupWizard {
         //Tasks to perform - saved on the session.
         $this->tasks = &$_SESSION['ost_upgrader'][$this->getShash()]['tasks'];
 
-        $this->migrater = DatabaseMigrater($this->sqldir);
+        //Database migrater 
+        $this->migrater = new DatabaseMigrater($this->signature, SCHEMA_SIGNATURE, $this->sqldir);
     }
 
     function getStops() {
@@ -85,7 +87,7 @@ class Upgrader extends SetupWizard {
     }
 
     function getPatches() {
-        return $this->migrater->getRollup($this->getStops());
+        return $this->migrater->getPatches();
     }
 
     function getNextPatch() {
@@ -202,59 +204,55 @@ class Upgrader extends SetupWizard {
         if($this->getPendingTasks() || !($patches=$this->getPatches()))
             return false;
 
-        foreach ($patches as $patch)
+        foreach ($patches as $patch) {
             if (!$this->load_sql_file($patch, $this->getTablePrefix()))
                 return false;
 
-        //TODO: Log the upgrade
-
-        //Load up post install tasks.
-        $shash = substr(basename($patch), 9, 8); 
-        $phash = substr(basename($patch), 0, 17); 
+            //TODO: Log the upgrade
         
+            
+            //clear previous patch info - 
+            unset($_SESSION['ost_upgrader'][$this->getSHash()]);
+
+            //Load up post-upgrade tasks.... if any.
+            $phash = substr(basename($patch), 0, 17);
+            if(!($tasks=$this->getTasksForPatch($phash)))
+                continue;
+
+            //We have tasks to perform - set the tasks and break.
+            $shash = substr($phash, 9, 8);
+            $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
+            $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
+            break;
+        }
+
+        return true;
+
+    }
+
+    function getTasksForPatch($phash) {
+
         $tasks=array();
-        $tasks[] = array('func' => 'sometask',
-                         'desc' => 'Some Task.... blah');
         switch($phash) { //Add  patch specific scripted tasks.
-            case 'xxxx': //V1.6 ST- 1.7 *
+            case 'd4fe13b1-7be60a84': //V1.6 ST- 1.7 *
                 $tasks[] = array('func' => 'migrateAttachments2DB',
                                  'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
                 break;
         }
-        
-        $tasks[] = array('func' => 'cleanup',
-                         'desc' => 'Post-upgrade cleanup!');
-        
-        
-        
-        //Load up tasks - NOTE: writing directly to the session - back to the future majic.
-        $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
-        $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
 
-        //clear previous patch info - 
-        unset($_SESSION['ost_upgrader'][$this->getSHash()]);
+        //Check if cleanup p 
+        $file=$this->getSQLDir().$phash.'.cleanup.sql';
+        if(file_exists($file)) 
+            $tasks[] = array('func' => 'cleanup', 'desc' => 'Post-upgrade cleanup!');
 
-        return true;
+
+        return $tasks;
     }
 
     /************* TASKS **********************/
-    function sometask($tId) {
-        
-        $this->setTaskStatus($tId, 'Doing... '.time(). ' #'.$_SESSION['sometask']);
-
-        sleep(2);
-        $_SESSION['sometask']+=1;
-        if($_SESSION['sometask']<4)
-            return 22;
-
-        $_SESSION['sometask']=0;
-
-        return 0;  //Change to 1 for testing...
-    }
-
     function cleanup($tId=0) {
 
-        $file=$this->getSQLDir().$this->getSchemaSignature().'-cleanup.sql';
+        $file=$this->getSQLDir().$this->getSHash().'-cleanup.sql';
         if(!file_exists($file)) //No cleanup script.
             return 0;
 
