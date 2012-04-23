@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isadmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
 $matches=array('name'=>"Sender's Name",'email'=>"Sender's Email",'subject'=>'Email Subject','body'=>'Email Body/Text','header'=>'Email Header');
 $match_types=array('equal'=>'Equal','not_equal'=>'Not Equal','contains'=>'Contains','dn_contain'=>'Does Not Contain');

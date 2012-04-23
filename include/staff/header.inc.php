@@ -26,7 +26,7 @@
 <div id="container">
     <div id="header">
         <a href="index.php" id="logo">osTicket - Customer Support System</a>
-        <p id="info">Welcome back, <strong><?php echo $thisstaff->getUsername(); ?></strong>
+        <p id="info">Welcome back, <strong><?php echo $thisstaff->getUserName(); ?></strong>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
             | <a href="admin.php">Admin Panel</a>

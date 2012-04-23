@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isadmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 //Get the config info.
 $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfig();
 ?>

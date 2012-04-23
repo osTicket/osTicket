@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isadmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
 $sql='SELECT * FROM '.API_KEY_TABLE.' WHERE 1';

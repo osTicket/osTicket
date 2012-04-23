@@ -15,7 +15,7 @@
 **********************************************************************/
 require('staff.inc.php');
 //Make sure config is loaded and the staff is set and of admin type
-if(!$cfg or !$thisstaff or !$thisstaff->isadmin()) {
+if(!$cfg or !$thisstaff or !$thisstaff->isAdmin()){
     header('Location: index.php');
     require('index.php'); // just in case!
     exit;

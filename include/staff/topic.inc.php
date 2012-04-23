@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isadmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $info=($_POST && $errors)?Format::input($_POST):array(); //Re-use the post info on error...savekeyboards.org
 if($topic && $_REQUEST['a']!='new'){

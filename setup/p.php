@@ -19,7 +19,7 @@ function staffLoginPage($msg) {
 }
 
 require '../scp/staff.inc.php';
-if(!$thisstaff or !$thisstaff->isadmin()) {
+if(!$thisstaff or !$thisstaff->isAdmin()) {
     staffLoginPage('Admin Access Required!');
     exit;
 }
@@ -34,8 +34,8 @@ require_once INC_DIR.'class.upgrader.php';
 $upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, SQL_DIR);
 
 //Just report the next action on the first call.
-if(!$_SESSION['ost_upgrader'][$upgrader->getSHash()]['progress']) {
-    $_SESSION['ost_upgrader'][$upgrader->getSHash()]['progress'] = $upgrader->getNextAction();
+if(!$_SESSION['ost_upgrader'][$upgrader->getShash()]['progress']) {
+    $_SESSION['ost_upgrader'][$upgrader->getShash()]['progress'] = $upgrader->getNextAction();
     Http::response(200, $upgrader->getNextAction());
     exit;
 }

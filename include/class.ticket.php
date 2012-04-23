@@ -892,7 +892,7 @@ class Ticket{
         $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
         sys::log(LOG_WARNING, 'Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
 
-        if(!$sendNotice || !$cfg->sendOverlimitNotice()) return true;
+        if(!$sendNotice || !$cfg->sendOverLimitNotice()) return true;
 
         //Send notice to user.
         $dept = $this->getDept();
@@ -972,7 +972,7 @@ class Ticket{
                 $email=$cfg->getDefaultEmail();
             
             if($email) {
-                $email->send($this->getEMail(),$subj,$body);
+                $email->send($this->getEmail(),$subj,$body);
             }
         }
 
@@ -1015,12 +1015,12 @@ class Ticket{
             $recipients=array();
             //Assigned staff or team... if any
             // Assigning a ticket to a team when already assigned to staff disables alerts to the team (!))
-            if($cfg->alertStaffONAssign() && $this->getStaffId())
+            if($cfg->alertStaffONAssignment() && $this->getStaffId())
                 $recipients[]=$this->getStaff();
             elseif($this->getTeamId() && ($team=$this->getTeam())) {
-                if($cfg->alertTeamMembersOnAssignment() && ($members=$team->getMembers()))
+                if($cfg->alertTeamMembersONAssignment() && ($members=$team->getMembers()))
                     $recipients+=$members;
-                elseif($cfg->alertTeamLeadOnAssignment() && ($lead=$team->getTeamLead()))
+                elseif($cfg->alertTeamLeadONAssignment() && ($lead=$team->getTeamLead()))
                     $recipients[]=$lead;
             }
             //Send the alerts.
