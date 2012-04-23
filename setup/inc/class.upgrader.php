@@ -129,17 +129,6 @@ class Upgrader extends SetupWizard {
         return $action;
     }
 
-    function getNextStepInfo() {
-
-        if(($patches=$this->getPatches()))
-            return $patches[0];
-        
-        if(($hooks=$this->getScriptedHooks()))
-            return $hooks[0]['desc'];
-
-        return null;
-    }
-
     function getNumPendingTasks() {
 
         return count($this->getPendingTasks());
