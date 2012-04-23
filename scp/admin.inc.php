@@ -15,34 +15,29 @@
 **********************************************************************/
 require('staff.inc.php');
 //Make sure config is loaded and the staff is set and of admin type
-if(!$cfg or !$thisstaff or !$thisstaff->isadmin()){
+if(!$cfg or !$thisstaff or !$thisstaff->isadmin()) {
     header('Location: index.php');
     require('index.php'); // just in case!
     exit;
 }
 
 //Some security related warnings - bitch until fixed!!! :)
-if(defined('THIS_VERSION') && strcasecmp($cfg->getVersion(),THIS_VERSION)) {
-    $sysnotice=sprintf('The script is version %s while the database is version %s.',THIS_VERSION,$cfg->getVersion());
-    if(file_exists('../setup/'))
-        $sysnotice.=' Possibly caused by incomplete <a href="../setup/upgrade.php">upgrade</a>.';
-    $errors['err']=$sysnotice; 
-}elseif(!$cfg->isHelpDeskOffline()) {
-    if(file_exists('../setup/')){
-        $sysnotice='Please take a minute to delete <strong>setup/install</strong> directory for security reasons.';
-    }else{
-
-        if(CONFIG_FILE && file_exists(CONFIG_FILE) && is_writable(CONFIG_FILE)) {
+if($cfg->isUpgradePending()) {
+    $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
+} elseif(!$cfg->isHelpDeskOffline()) {
+    
+    if(file_exists('../setup/')) {
+        $sysnotice='Please take a minute to delete <strong>setup/install</strong> directory (../setup/) for security reasons.';
+    } elseif(CONFIG_FILE && file_exists(CONFIG_FILE) && is_writable(CONFIG_FILE)) {
             //Confirm for real that the file is writable by group or world.
             clearstatcache(); //clear the cache!
             $perms = @fileperms(CONFIG_FILE);
             if(($perms & 0x0002) || ($perms & 0x0010)) { 
                 $sysnotice=sprintf('Please change permission of config file (%s) to remove write access. e.g <i>chmod 644 %s</i>',
-                                basename(CONFIG_FILE),basename(CONFIG_FILE));
+                                basename(CONFIG_FILE), basename(CONFIG_FILE));
             }
-        }
-
     }
+
     if(!$sysnotice && ini_get('register_globals'))
         $sysnotice='Please consider turning off register globals if possible';
 }

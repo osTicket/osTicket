@@ -1070,3 +1070,156 @@ h2 .reload {
   padding-left: 24px;
   background: url('../images/icons/page.png') 0 50% no-repeat;
 }
+
+
+/* Advanced Ticket Search */
+
+#overlay {
+    background:#000;
+    position:absolute;
+    display:none;
+    z-index:1000;
+}
+
+#advanced-search, #advanced-search * {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+#advanced-search {
+    position:absolute;
+    padding:1em;
+    width:640px;
+    height:360px;
+    background:#fff;
+    border:1px solid #2a67ac;
+    display:none;
+    z-index:1200;
+}
+
+#advanced-search h3 {
+    color:#2a67ac;
+    font-size:20px;
+    margin:0;
+    padding:0;
+    display:inline-block;
+}
+
+#advanced-search a.close {
+    display:inline-block;
+    float:right;
+    font-size:16px;
+    color:#777;
+}
+
+#advanced-search form {
+    clear:both;
+    padding:2em 0 1em 0;
+    width:100%;
+}
+
+#advanced-search div.closed_by, #advanced-search span.spinner {
+    display:none;
+}
+
+#advanced-search fieldset {
+    margin:0;
+    padding:0.25em 0;
+    border:none;
+    overflow:hidden;
+}
+
+#advanced-search label {
+    width:100px;
+    display:inline-block;
+    text-align:right;
+    padding:10px;
+}
+
+#advanced-search fieldset input {
+    border:1px solid #ccc;
+    background:#fff;
+}
+
+#advanced-search fieldset select {
+    width:170px;
+    display:inline-block;
+}
+
+#advanced-search fieldset span {
+    width:50px;
+    display:inline-block;
+    text-align:center;
+    color:#777;
+    font-size:0.75em;
+}
+
+#advanced-search .query input {
+    width:350px;
+}
+
+#advanced-search .date_range input {
+    width:175px;
+}
+
+#advanced-search .date_range i {
+    display:inline-block;
+    margin-left:3px;
+    position:relative;
+    top:5px;
+    width:16px;
+    height:16px;
+    background:url(../images/cal.png) bottom left no-repeat;
+}
+
+#advanced-search fieldset.sorting select {
+    width:130px;
+}
+
+#advanced-search p {
+    text-align:center;
+}
+
+#advanced-search input[type="submit"],
+#advanced-search input[type="reset"],
+#advanced-search input[type="button"]
+{
+    display:inline-block;
+    margin:0;
+    height:24px;
+    line-height:24px;
+    font-weight:bold;
+    border:1px solid #666666;
+    padding:0 10px;
+    background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x;
+    color: #333;
+}
+
+#advanced-search input[type="reset"], #advanced-search input[type="button"] {
+    opacity:0.7;
+}
+
+#advanced-search input[type=submit]:hover, #advanced-search input[type=submit]:active,
+#advanced-search input[type=reset]:hover, #advanced-search input[type=reset]:active {
+    background-position:bottom left;
+}
+
+#result-count div {
+    padding:5px 10px;
+    text-align:left;
+    font-weight:bold;
+    width:100%;
+    margin:0 auto;
+}
+
+#result-count .success {
+    background:#e3ffd8;
+    border:1px solid #0a0;
+}
+
+#result-count .fail {
+    background:#ffd8d8;
+    border:1px solid #a00;
+}
+
