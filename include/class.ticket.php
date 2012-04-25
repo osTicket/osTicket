@@ -1415,16 +1415,17 @@ class Ticket{
 
         $this->onResponse(); //do house cleaning..
         $this->reload();
-        $dept = $this->getDept();
 
         /* email the user??  - if disabled - the bail out */
         if(!$alert) return $respId;
 
+        $dept = $this->getDept();
+
         if(!($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
 
-        if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
+        if(!$dept || !($email=$dept->getEmail()))
+            $email = $cfg->getDefaultEmail();
 
         if($tpl && ($msg=$tpl->getReplyMsgTemplate()) && $email) {
             $body=$this->replaceTemplateVars($msg['body']);
