@@ -45,9 +45,10 @@ if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0)){
         $qstr.='&endDate='.urlencode($_REQUEST['endDate']);
     }
 }
-$sortOptions=array('title'=>'log.title','type'=>'log_type','ip'=>'log.ip_address','date'=>'log.created','created'=>'log.created','updated'=>'log.updated');
+$sortOptions=array('id'=>'log.log_id', 'title'=>'log.title','type'=>'log_type','ip'=>'log.ip_address'
+                    ,'date'=>'log.created','created'=>'log.created','updated'=>'log.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
-$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'date';
+$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'id';
 //Sorting options...
 if($sort && $sortOptions[$sort]) {
     $order_column =$sortOptions[$sort];
