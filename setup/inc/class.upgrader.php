@@ -50,6 +50,8 @@ class Upgrader extends SetupWizard {
     }
 
     function onError($error) {
+
+        Sys::log(LOG_ERR, 'Upgrader Error', $error);
         $this->setError($error);
         $this->setState('aborted');
     }
@@ -197,18 +199,23 @@ class Upgrader extends SetupWizard {
             if (!$this->load_sql_file($patch, $this->getTablePrefix()))
                 return false;
 
-            //TODO: Log the upgrade
-        
-            
             //clear previous patch info - 
             unset($_SESSION['ost_upgrader'][$this->getShash()]);
 
-            //Load up post-upgrade tasks.... if any.
             $phash = substr(basename($patch), 0, 17);
+
+            //Log the patch info
+            $logMsg = "Patch $phash applied ";
+            if(($info = $this->readPatchInfo($patch)) && $info['version'])
+                $logMsg.= ' ('.$info['version'].') ';
+
+            Sys::log(LOG_DEBUG, 'Upgrader - Patch applied', $logMsg);
+            
+            //Check if the said patch has scripted tasks
             if(!($tasks=$this->getTasksForPatch($phash)))
                 continue;
 
-            //We have tasks to perform - set the tasks and break.
+            //We have work to do... set the tasks and break.
             $shash = substr($phash, 9, 8);
             $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
             $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
