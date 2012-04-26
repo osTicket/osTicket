@@ -354,10 +354,8 @@ class MailFetcher {
         for($i=$nummsgs; $i>0; $i--){ //process messages in reverse. Latest first. FILO.
             if($this->createTicket($i,$emailid)){
                 imap_setflag_full($this->mbox, imap_uid($this->mbox,$i), "\\Seen", ST_UID); //IMAP only??
-                if($deletemsgs)
+                if((!$archivefolder || !imap_mail_move($this->mbox,$i,$archivefolder)) && $deletemsgs)
                     imap_delete($this->mbox,$i);
-                if(!is_null($archivefolder))
-                    imap_mail_move($this->mbox,$i,$archivefolder);  //May need some error checking for bad folder names
                 $msgs++;
                 $errors=0; //We are only interested in consecutive errors.
             }else{
