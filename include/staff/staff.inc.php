@@ -210,7 +210,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                User Default Time Zone:
+                Staff's Time Zone:
             </td>
             <td>
                 <select name="timezone_id" id="timezone_id">
@@ -226,6 +226,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+               Daylight Saving:
+            </td>
+            <td>
+                <input type="checkbox" name="daylight_saving" value="1" <?php echo $info['daylight_saving']?'checked="checked"':''; ?>>
+                Observe daylight saving
+                <em>(Current Time: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['daylight_saving']); ?></strong>)</em>
             </td>
         </tr>
         <tr>

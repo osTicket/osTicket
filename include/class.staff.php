@@ -623,6 +623,7 @@ class Staff {
             .' ,dept_id='.db_input($vars['dept_id'])
             .' ,group_id='.db_input($vars['group_id'])
             .' ,timezone_id='.db_input($vars['timezone_id'])
+            .' ,daylight_saving='.db_input(isset($vars['daylight_saving'])?1:0)
             .' ,username='.db_input($vars['username'])
             .' ,firstname='.db_input($vars['firstname'])
             .' ,lastname='.db_input($vars['lastname'])
