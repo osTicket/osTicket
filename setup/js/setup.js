@@ -13,30 +13,30 @@ jQuery(function($) {
         left : ($(window).width() / 2 - 160)
         });
         
-    $('form#install, form#upgrade, form#attachments').submit(function(e) {
+    $('form#install').submit(function(e) {
         $('input[type=submit]', this).attr('disabled', 'disabled');
         $('#overlay, #loading').show();
         return true;
         });
 
-    $('form#cleanup').submit(function(e) {
+    $('form#upgrade').submit(function(e) {
         e.preventDefault();
         var form = $(this);
         $('input[type=submit]', this).attr('disabled', 'disabled');
         $('#overlay, #loading').show();
-        doCleanup('upgrade',form.attr('action'));
+        doTasks('upgrade.php',form.serialize());
+
         return false;
         });
 
-
-    function doCleanup(type,url) {
+    function doTasks(url, data) {
         function _lp(count) {
             $.ajax({
                 type: 'GET',
-                url: 'cleanup.php',
+                url: 'p.php',
                 async: true,
                 cache: false,
-                data: {c:count,type:type},
+                data: data,
                 dataType: 'text',
                 success: function(res) {
                     if (res) { 
@@ -45,16 +45,17 @@ jQuery(function($) {
                 },
                 statusCode: {
                     200: function() {
-                        setTimeout(function() { _lp(count+1); },2);
+                        setTimeout(function() { _lp(count+1); }, 2);
                     },
 
                     304: function() {
-                        $('#loading #msg').html("We're done... ");
-                        setTimeout(function() { location.href =url;},1000);
+                        $('#loading #msg').html("We're done... cleaning up!");
+                        setTimeout(function() { location.href =url;}, 3000);
                     }
                 },
-                error: function(){
-                    alert("Something went wrong");
+                error: function() {
+                    $('#loading #msg').html("Something went wrong");
+                    setTimeout(function() { location.href =url;}, 1000);
                 }
             });
         };

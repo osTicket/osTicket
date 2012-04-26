@@ -50,8 +50,10 @@ class Mail_Parse {
 
     function splitBodyHeader() {
 
-        if (preg_match("/^(.*?)\r?\n\r?\n(.*)/s",$this->mime_message, $match)) {
-            $this->header=$match[1];
+        if (preg_match("/^(.*?)\r?\n\r?\n(.*)/s",
+                $this->mime_message,
+                $match)) {                                  # nolint
+            $this->header=$match[1];                        # nolint
         }
     }
     /**

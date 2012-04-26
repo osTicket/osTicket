@@ -47,3 +47,20 @@ Create your own fork of the project and use
 [git-flow](https://github.com/nvie/gitflow) to create a new feature. Once
 the feature is published in your fork, send a pull request to begin the
 conversation of integrating your new feature into osTicket.
+
+License
+-------
+osTicket is released under the GPL2 license. See the included LICENSE.txt
+file for the gory details of the General Public License.
+
+osTicket is supported by several magical open source projects including:
+
+  * [HTMLawed](http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
+  * [PasswordHash](http://www.openwall.com/phpass/)
+  * [PEAR](http://pear.php.net/package/PEAR)
+  * [PEAR/Auth_SASL](http://pear.php.net/package/Auth_SASL)
+  * [PEAR/Mail](http://pear.php.net/package/mail)
+  * [PEAR/Net_SMTP](http://pear.php.net/package/Net_SMTP)
+  * [PEAR/Net_Socket](http://pear.php.net/package/Net_Socket)
+  * [PEAR/Serivces_JSON](http://pear.php.net/package/Services_JSON)
+  * [phplint](http://antirez.com/page/phplint.html) 

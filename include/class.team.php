@@ -200,7 +200,6 @@ class Team {
 
         $sql='SET updated=NOW(),isenabled='.db_input($vars['isenabled']).
              ',name='.db_input($vars['name']).
-             ',isenabled='.db_input($vars['isenabled']).
              ',noalerts='.db_input(isset($vars['noalerts'])?$vars['noalerts']:0).
              ',notes='.db_input($vars['notes']);
 

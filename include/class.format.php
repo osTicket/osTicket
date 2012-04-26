@@ -104,7 +104,11 @@ class Format {
             $text=Format::clickableurls($text);
 
         //Wrap long words...
-        $text=preg_replace_callback('/\w{75,}/',create_function('$matches','return wordwrap($matches[0],70,"\n",true);'),$text);
+        $text=preg_replace_callback('/\w{75,}/',
+            create_function(
+                '$matches',                                     # nolint
+                'return wordwrap($matches[0],70,"\n",true);'),  # nolint
+            $text);
 
         return nl2br($text);
     }
@@ -122,7 +126,7 @@ class Format {
         $text=preg_replace("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
             '\\1<a href="l.php?url=http://\\2" target="_blank">\\2</a>', $text);
         $text=preg_replace("/(^|[ \\n\\r\\t])([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})/",
-            '\\1<a href="l.php?url=mailto:\\2" target="_blank">\\2</a>', $text);
+            '\\1<a href="mailto:\\2" target="_blank">\\2</a>', $text);
 
         return $text;
     }

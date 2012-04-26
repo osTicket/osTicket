@@ -43,10 +43,13 @@ $dispatcher = patterns('',
         url_get('^ticket_variables', 'ticket_variables')
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
-        url_get('^ui', 'ui')
+        url_get('^ui', 'scp_ui')
     )),
     url_get('^/users$', array('ajax.users.php:UsersAjaxAPI', 'search')),
-    url_get('^/tickets$', array('ajax.tickets.php:TicketsAjaxAPI', 'search')),
+    url('^/tickets', patterns('ajax.tickets.php:TicketsAjaxAPI',
+        url_get('^/lookup', 'lookup'),
+        url_get('^$', 'search')
+    )),
     url('^/ticket/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/preview', 'previewTicket'),
         url_get('^(?P<tid>\d+)/lock', 'acquireLock'),

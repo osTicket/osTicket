@@ -127,7 +127,7 @@ class FAQ {
     /* Same as update - but mainly called after one or more setters are changed. */
     function apply() {
         //XXX: set errors and add ->getErrors() & ->getError()
-        return $this->update($this->ht, $errors);
+        return $this->update($this->ht, $errors);               # nolint
     }
 
     function updateTopics($ids){
@@ -204,6 +204,7 @@ class FAQ {
     
     function uploadAttachments($files) {
 
+        $i=0;
         foreach($files as $file) {
             if(($fileId=is_numeric($file)?$file:AttachmentFile::upload($file)) && is_numeric($fileId)) {
                 $sql ='INSERT INTO '.FAQ_ATTACHMENT_TABLE

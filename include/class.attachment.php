@@ -93,10 +93,12 @@ class Attachment {
         return db_result(db_query($sql));
     }
 
-    function lookup($id,$tid=0) {
-        $id=is_numeric($id)?$id:self::getIdByFileHash($hash,$tid);
+    function lookup($var,$tid=0) {
+        $id=is_numeric($var)?$var:self::getIdByFileHash($var,$tid);
 
-        return ($id && is_numeric($id) && ($attach = new Attachment($id,$tid)) && $attach->getId()==$id)?$attach:null;
+        return ($id && is_numeric($id)
+            && ($attach = new Attachment($id,$tid))
+            && $attach->getId()==$id)?$attach:null;
     }
 
 }

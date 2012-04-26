@@ -96,7 +96,7 @@ class Sys {
     function purgeLogs(){
         global $cfg;
 
-        if($cfg && ($gp=$cfg->getLogGraceperiod()) && is_numeric($gp)) {
+        if($cfg && ($gp=$cfg->getLogGracePeriod()) && is_numeric($gp)) {
             $sql='DELETE  FROM '.SYSLOG_TABLE.' WHERE DATE_ADD(created, INTERVAL '.$gp.' MONTH)<=NOW()';
             db_query($sql);
         }

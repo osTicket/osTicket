@@ -42,16 +42,16 @@ class StaffNav {
     function isStaffPanel() {
         return (!$this->isAdminPanel());
     }
-   
+
     function setTabActive($tab){
-            
+
         if($this->tabs[$tab]){
             $this->tabs[$tab]['active']=true;
             if($this->activetab && $this->activetab!=$tab && $this->tabs[$this->activetab])
                  $this->tabs[$this->activetab]['active']=false;
 
             $this->activetab=$tab;
-            
+
             return true;
         }
 
@@ -73,9 +73,9 @@ class StaffNav {
     function getActiveMenu() {
         return $this->activeMenu;
     }
-    
+
     function addSubMenu($item,$active=false){
-        
+
         $this->submenus[$this->getPanel().'.'.$this->activetab][]=$item;
         if($active)
             $this->activeMenu=sizeof($this->submenus[$this->getPanel().'.'.$this->activetab]);
@@ -105,7 +105,7 @@ class StaffNav {
                     $subnav[]=array('desc'=>'Tickets','href'=>'tickets.php','iconclass'=>'Ticket', 'droponly'=>true);
                     if($staff) {
                         if(($assigned=$staff->getNumAssignedTickets()))
-                            $subnav[]=array('desc'=>"My&nbsp;Tickets ($assigned)", 
+                            $subnav[]=array('desc'=>"My&nbsp;Tickets ($assigned)",
                                             'href'=>'tickets.php?status=assigned',
                                             'iconclass'=>'assignedTickets',
                                             'droponly'=>true);
@@ -123,19 +123,19 @@ class StaffNav {
                     $subnav[]=array('desc'=>'My&nbsp;Profile','href'=>'profile.php','iconclass'=>'users');
                     break;
                 case 'kbase':
-                    $subnav[]=array('desc'=>'Knowledgebase','href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'premade');
+                    $subnav[]=array('desc'=>'Knowledgebase','href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
                     if($staff) {
                         if($staff->canManageFAQ())
-                            $subnav[]=array('desc'=>'Categories','href'=>'categories.php','iconclass'=>'premade');
+                            $subnav[]=array('desc'=>'Categories','href'=>'categories.php','iconclass'=>'kb-categories');
                         if($staff->canManageCannedResponses())
-                            $subnav[]=array('desc'=>'Canned&nbsp;Replies','href'=>'canned.php','iconclass'=>'premade');
+                            $subnav[]=array('desc'=>'Canned&nbsp;Replies','href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
             }
             if($subnav)
                 $submenus[$this->getPanel().'.'.strtolower($k)]=$subnav;
         }
-        
+
         return $submenus;
     }
 
@@ -170,7 +170,7 @@ class AdminNav extends StaffNav{
             $tabs['depts']=array('desc'=>'Departments','href'=>'departments.php','title'=>'Departments');
             $this->tabs=$tabs;
         }
-        
+
         return $this->tabs;
     }
 
@@ -226,12 +226,12 @@ class AdminNav extends StaffNav{
 }
 
 class UserNav {
-        
+
     var $navs=array();
     var $activenav;
 
     var $user;
-    
+
     function UserNav($user=null, $active=''){
 
         $this->user=$user;
@@ -257,7 +257,7 @@ class UserNav {
 
     function getNavLinks(){
         global $cfg;
-      
+
         //Paths are based on the root dir.
         if(!$this->navs){
 
