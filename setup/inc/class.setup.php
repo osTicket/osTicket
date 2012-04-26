@@ -21,8 +21,8 @@ Class SetupWizard {
                         'mysql' => '4.4');
 
     //Version info - same as the latest version.
-    var $version ='1.7-dpr2';
-    var $version_verbose='1.7 DPR 2';
+    var $version ='1.7-dpr3';
+    var $version_verbose='1.7 DPR 3';
 
     //Errors
     var $errors=array();
