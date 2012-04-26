@@ -313,7 +313,7 @@ class Config {
     }
         
     function canFetchMail() {
-        return ($this->config['enable_mail_fetch']);
+        return ($this->config['enable_mail_polling']);
     }
 
     function enableStaffIPBinding() {

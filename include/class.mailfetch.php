@@ -346,7 +346,7 @@ class MailFetcher {
 
     }
 
-    function fetchTickets($emailid,$max=20,$deletemsgs=false){
+    function fetchTickets($emailid,$max=20,$deletemsgs=false,$archivefolder){
 
         $nummsgs=imap_num_msg($this->mbox);
         //echo "New Emails:  $nummsgs\n";
@@ -354,7 +354,7 @@ class MailFetcher {
         for($i=$nummsgs; $i>0; $i--){ //process messages in reverse. Latest first. FILO.
             if($this->createTicket($i,$emailid)){
                 imap_setflag_full($this->mbox, imap_uid($this->mbox,$i), "\\Seen", ST_UID); //IMAP only??
-                if($deletemsgs)
+                if((!$archivefolder || !imap_mail_move($this->mbox,$i,$archivefolder)) && $deletemsgs)
                     imap_delete($this->mbox,$i);
                 $msgs++;
                 $errors=0; //We are only interested in consecutive errors.
@@ -384,7 +384,7 @@ class MailFetcher {
 
         $MAX_ERRORS=5; //Max errors before we start delayed fetch attempts - hardcoded for now.
 
-        $sql=' SELECT email_id,mail_host,mail_port,mail_protocol,mail_encryption,mail_delete,mail_errors,userid,userpass FROM '.EMAIL_TABLE.
+        $sql=' SELECT email_id,mail_host,mail_port,mail_protocol,mail_encryption,mail_delete,mail_archivefolder,mail_errors,userid,userpass FROM '.EMAIL_TABLE.
              ' WHERE mail_active=1 AND (mail_errors<='.$MAX_ERRORS.' OR (TIME_TO_SEC(TIMEDIFF(NOW(),mail_lasterror))>5*60) )'.
              ' AND (mail_lastfetch IS NULL OR TIME_TO_SEC(TIMEDIFF(NOW(),mail_lastfetch))>mail_fetchfreq*60) ';
         //echo $sql;
@@ -396,7 +396,7 @@ class MailFetcher {
             $fetcher = new MailFetcher($row['userid'],Misc::decrypt($row['userpass'],SECRET_SALT),
                                        $row['mail_host'],$row['mail_port'],$row['mail_protocol'],$row['mail_encryption']);
             if($fetcher->connect()){   
-                $fetcher->fetchTickets($row['email_id'],$row['mail_fetchmax'],$row['mail_delete']?true:false);
+                $fetcher->fetchTickets($row['email_id'],$row['mail_fetchmax'],$row['mail_delete']?true:false,$row['mail_archivefolder']);
                 $fetcher->close();
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=0, mail_lastfetch=NOW() WHERE email_id='.db_input($row['email_id']));
             }else{
