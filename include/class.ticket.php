@@ -1310,7 +1310,7 @@ class Ticket{
 
         if ($emsgid !== null) {
             $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
-                .' SET msg_id='.db_input($msgid)
+                .' SET message_id='.db_input($msgid)
                 .', email_mid='.db_input($emsgid)
                 .', headers='.db_input($headers);
 
@@ -1719,7 +1719,7 @@ class Ticket{
             return 0;
 
         $sql='SELECT ticket.ticket_id FROM '.TICKET_TABLE. ' ticket '.
-             ' LEFT JOIN '.TICKE_THREAD_TABLE.' msg USING(ticket_id) '.
+             ' LEFT JOIN '.TICKET_THREAD_TABLE.' msg USING(ticket_id) '.
              ' INNER JOIN '.TICKET_EMAIL_INFO_TABLE.' emsg ON (msg.id = emsg.message_id) '.
              ' WHERE email_mid='.db_input($mid).' AND email='.db_input($email);
         $id=0;
