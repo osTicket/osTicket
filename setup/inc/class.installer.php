@@ -105,6 +105,8 @@ class Installer extends SetupWizard {
         //Last minute checks.
         if(!file_exists($schemaFile))
             $this->errors['err']='Internal Error - please make sure your download is the latest (#1)';
+        elseif(!($signature=trim(file_get_contents("$schemaFile.md5"))) || strcasecmp($signature, md5_file($schemaFile)))
+            $this->errors['err']='Unknown or invalid schema signature ('.$signature.' .. '.md5_file($schemaFile).')';
         elseif(!file_exists($this->getConfigFile()) || !($configFile=file_get_contents($this->getConfigFile())))
             $this->errors['err']='Unable to read config file. Permission denied! (#2)';
         elseif(!($fp = @fopen($this->getConfigFile(),'r+')))
@@ -132,7 +134,7 @@ class Installer extends SetupWizard {
                 .', default_email_id=1, alert_email_id=2, default_dept_id=1 '
                 .', default_sla_id=1, default_timezone_id=8, default_template_id=1 '
                 .', admin_email='.db_input($vars['admin_email'])
-                .', schema_signature='.db_input(md5_file($schemaFile))
+                .', schema_signature='.db_input($signature)
                 .', helpdesk_url='.db_input(URL)
                 .', helpdesk_title='.db_input($vars['name']);
             if(!mysql_query($sql) || !($cid=mysql_insert_id()))
