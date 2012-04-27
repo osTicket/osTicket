@@ -286,7 +286,7 @@ $(document).ready(function(){
         var elem = $('#advanced-search');
         $('#result-count').html('');
         $.ajax({
-                url: "ajax.php/tickets",
+                url: "ajax.php/tickets/search",
                 data: fObj.serialize(),
                 dataType: 'json',
                 beforeSend: function ( xhr ) {
