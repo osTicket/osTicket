@@ -46,15 +46,13 @@ $dispatcher = patterns('',
         url_get('^ui', 'scp_ui')
     )),
     url_get('^/users$', array('ajax.users.php:UsersAjaxAPI', 'search')),
-    url('^/tickets', patterns('ajax.tickets.php:TicketsAjaxAPI',
-        url_get('^/lookup', 'lookup'),
-        url_get('^$', 'search')
-    )),
-    url('^/ticket/', patterns('ajax.tickets.php:TicketsAjaxAPI',
+    url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/preview', 'previewTicket'),
         url_get('^(?P<tid>\d+)/lock', 'acquireLock'),
         url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/renew', 'renewLock'),
-        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/release', 'releaseLock')
+        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/release', 'releaseLock'),
+        url_get('^lookup', 'lookup'),
+        url_get('^search', 'search')
     ))
 );
 

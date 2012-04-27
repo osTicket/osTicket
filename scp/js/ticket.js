@@ -153,7 +153,7 @@ var autoLock = {
         } else {
             $.ajax({
                 type: "GET",
-                url: 'ajax.php/ticket/'+autoLock.tid+'/lock',
+                url: 'ajax.php/tickets/'+autoLock.tid+'/lock',
                 dataType: 'json',
                 cache: false,
                 success: function(lock){
@@ -176,7 +176,7 @@ var autoLock = {
         if(!autoLock.lastcheckTime || (now-autoLock.lastcheckTime)>=(autoLock.renewFreq*1000)){
             $.ajax({
                 type: 'POST',
-                url: 'ajax.php/ticket/'+autoLock.tid+'/lock/'+autoLock.lockId+'/renew',
+                url: 'ajax.php/tickets/'+autoLock.tid+'/lock/'+autoLock.lockId+'/renew',
                 dataType: 'json',
                 cache: false,
                 success: function(lock){
@@ -193,7 +193,7 @@ var autoLock = {
 
         $.ajax({
             type: 'POST',
-            url: 'ajax.php/ticket/'+autoLock.tid+'/lock/'+autoLock.lockId+'/release',
+            url: 'ajax.php/tickets/'+autoLock.tid+'/lock/'+autoLock.lockId+'/release',
             data: 'delete',
             cache: false,
             success: function(){
