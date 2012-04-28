@@ -168,6 +168,10 @@ class Config {
     function showRelatedTickets() {
         return $this->config['show_related_tickets'];
     }
+
+    function showNotesInline(){
+        return $this->config['show_notes_inline'];
+    }
         
     function getClientTimeout() {
         return $this->getClientSessionTimeout();
@@ -675,6 +679,7 @@ class Config {
              ',show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0).
              ',show_answered_tickets='.db_input(isset($vars['show_answered_tickets'])?1:0).
              ',show_related_tickets='.db_input(isset($vars['show_related_tickets'])?1:0).
+             ',show_notes_inline='.db_input(isset($vars['show_notes_inline'])?1:0).
              ',hide_staff_name='.db_input(isset($vars['hide_staff_name'])?1:0);
 
         return (db_query($sql));
