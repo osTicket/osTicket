@@ -28,11 +28,12 @@ class Template {
 
         if(!$id && !($id=$this->getId()))
             return false;
-
+           
         $sql='SELECT tpl.*,count(dept.tpl_id) as depts '
             .' FROM '.EMAIL_TEMPLATE_TABLE.' tpl '
             .' LEFT JOIN '.DEPT_TABLE.' dept USING(tpl_id) '
-            .' WHERE tpl_id='.db_input($id);
+            .' WHERE tpl.tpl_id='.db_input($id)
+            .' GROUP BY tpl.tpl_id';
 
         if(!($res=db_query($sql))|| !db_num_rows($res))
             return false;
