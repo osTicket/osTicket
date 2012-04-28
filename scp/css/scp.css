@@ -730,7 +730,7 @@ h2 .reload {
 }
 
 #ticket_thread table th.tmeta {
-    font-weight:normal;
+    font-weight:bold;
     font-size:10pt;
     color:#888;
     text-align:right;
@@ -741,7 +741,7 @@ h2 .reload {
     font-weight:normal;
     font-size:10pt;
     color:#888;
-    padding-left:15px;
+    padding-left:5px;
 }
 
 #ticket_thread .message th {
