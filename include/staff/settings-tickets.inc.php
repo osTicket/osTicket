@@ -73,7 +73,14 @@
                 <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >
                 <em>(Show all related tickets on user login - otherwise access is restricted to one ticket view per login)</em>
             </td>
-        </tr>
+        </tr>        
+        <tr>
+            <td width="180">Show Notes Inline</td>
+            <td>
+                <input type="checkbox" name="show_notes_inline" value="1" <?php echo $config['show_notes_inline'] ?'checked="checked"':''; ?> >
+                <em>(Show internal notes  inline)</em>
+              </td>
+        </tr>  
         <tr>
             <td>Human Verification:</td>
             <td>
@@ -138,3 +145,4 @@
     <input class="button" type="reset" name="reset" value="Reset Changes">
 </p>
 </form>
+

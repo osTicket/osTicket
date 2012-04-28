@@ -708,6 +708,13 @@ a.refresh {
   font-size: 12px;
   padding: 5px;
 }
+
+#ticketThread table th span {
+    font-weight:normal;
+    color:#888;
+    padding-left:20px;
+}
+
 #ticketThread table td {
   padding: 5px;
 }

@@ -59,46 +59,25 @@ if(!$dept || !$dept->isPublic())
 <span class="Icon thread">Ticket Thread</span>
 <div id="ticketThread">
 <?php    
-if($ticket->getThreadCount() && ($messages = $ticket->getMessages())) {
-     
-    foreach($messages as $message) {?>
-    
-        <table class="message" cellspacing="0" cellpadding="1" width="800" border="0">
-        
-            <tr><th><?php echo Format::db_datetime($message['created']); ?></th></tr>
-            
-            <tr><td><?php echo Format::display($message['body']); ?></td></tr>
-            
+if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
+    $threadType=array('M' => 'message', 'R' => 'response');
+    foreach($thread as $entry) {
+        //Making sure internal notes are not displayed due to backend MISTAKES!
+        if(!$threadType[$entry['thread_type']]) continue;
+        $poster = $entry['poster'];
+        if($entry['thread_type']=='R' && $cfg->hideStaffName())
+            $poster = ' ';
+        ?>
+        <table class="<?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
+            <tr><th><?php echo Format::db_datetime($entry['created']); ?> &nbsp;&nbsp;<span><?php echo $poster; ?></span></th></tr>
+            <tr><td><?php echo Format::display($entry['body']); ?></td></tr>
             <?php
-            
-            if($message['attachments'] && ($links=$ticket->getAttachmentsLinks($message['id'],'M'))) { ?>
-            
+            if($entry['attachments'] && ($links=$ticket->getAttachmentsLinks($entry['id'], $entry['thread_type']))) { ?>
                 <tr><td class="info"><?php echo $links; ?></td></tr>
-                
             <?php
-            
             } ?>
-            
         </table>
-        <?php
-        if($message['responses'] && ($responses=$ticket->getResponses($message['id']))) {
-           foreach($responses as $resp) {
-               $staff=$cfg->hideStaffName()?'staff':Format::htmlchars($resp['staff_name']);
-               ?>
-               <table class="response" cellspacing="0" cellpadding="1" width="100%" border="0">
-                <tr>
-                    <th><?php echo Format::db_datetime($resp['created']);?>&nbsp;-&nbsp;<?php echo $staff; ?></th>
-                </tr>
-                <tr><td><?php echo Format::display($resp['body']); ?></td></tr>
-                <?php
-                if($resp['attachments'] && ($links=$ticket->getAttachmentsLinks($resp['id'],'R'))) {?>
-                 <tr><td class="info"><?php echo $links; ?></td></tr>
-                <?php
-                 }?>
-                </table>
-            <?
-           }
-       }
+    <?php
     }
 }
 ?>
