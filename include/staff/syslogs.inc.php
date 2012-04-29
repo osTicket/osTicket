@@ -88,13 +88,9 @@ else
  <form action="syslogs.php" method="get">
     <div style="padding-left:2px;">
         <b>Date Span</b>:
-        &nbsp;From&nbsp;<input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>"
-                onclick="event.cancelBubble=true;calendar(this);" autocomplete=OFF>
-            <a href="#" onclick="event.cancelBubble=true;calendar(getObj('sd')); return false;"><img src='images/cal.png'border=0 alt=""></a>
+        &nbsp;From&nbsp;<input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp; to &nbsp;&nbsp;
-            <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>"
-                onclick="event.cancelBubble=true;calendar(this);" autocomplete=OFF >
-                <a href="#" onclick="event.cancelBubble=true;calendar(getObj('ed')); return false;"><img src='images/cal.png'border=0 alt=""></a>
+            <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp;
             &nbsp;Type:
             <select name='type'>

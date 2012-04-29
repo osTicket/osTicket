@@ -14,19 +14,20 @@
     </style>
     <![endif]-->
     <script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" src="./js/calendar.js"></script>
+    <script type="text/javascript" src="../js/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="./js/tips.js"></script>
     <script type="text/javascript" src="./js/nicEdit.js"></script>
     <script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="./js/scp.js"></script>
     <link rel="stylesheet" href="./css/scp.css" media="screen">
     <link rel="stylesheet" href="./css/typeahead.css" media="screen">
+    <link type="text/css" href="../css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="stylesheet" />   
 </head>
 <body>
 <div id="container">
     <div id="header">
         <a href="index.php" id="logo">osTicket - Customer Support System</a>
-        <p id="info">Welcome back, <strong><?php echo $thisstaff->getUserName(); ?></strong>
+        <p id="info">Howdy, <strong><?php echo $thisstaff->getUserName(); ?></strong>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
             | <a href="admin.php">Admin Panel</a>
