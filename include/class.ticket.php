@@ -1550,6 +1550,11 @@ class Ticket{
         return $id;
     }
 
+    //Print ticket... export the ticket thread as PDF.
+    function exportPDF() {
+        return false;
+    }
+
     //online based attached files.
     function uploadAttachments($files, $refid, $type) {
 

@@ -464,6 +464,8 @@ if($ticket) {
     $inc = 'ticket-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
         $inc = 'ticket-edit.inc.php';
+    elseif($_REQUEST['a'] == 'print' && !$ticket->exportPDF())
+        $errors['err'] = 'Internal error: Unable to export the ticket to PDF.';
 } else {
     $inc = 'tickets.inc.php';
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
