@@ -185,6 +185,14 @@ $(document).ready(function(){
         },
         'json')
         .error( function() {});
+    /* Datepicker */
+
+    $('.dp').datepicker({
+        numberOfMonths: 2,
+        showButtonPanel: true,
+        buttonImage: './images/cal.png',
+        showOn:'both'
+     });
 
     /* NicEdit richtext init */
     var rtes = $('.richtext');
