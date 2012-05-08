@@ -264,7 +264,7 @@ jQuery(function($) {
     if(location.hash != "" && $('#response_options '+location.hash).length) {
         $('#response_options '+location.hash+'_tab').addClass('active');
         $('#response_options '+location.hash).show();
-    } else if(location.hash == "#notes") {
+    } else if(location.hash == "#notes" && $('#ticket_notes').length) {
         $('#response_options #note_tab').addClass('active');
         $('#response_options form').hide();
         $('#response_options #note').show();

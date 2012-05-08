@@ -527,68 +527,67 @@ class Ticket{
         return $this->ht['notes'];
     }
 
-    function getNotes($order='') {
+    function getMessages() {
+        return $this->getThreadByType('M');
+    }
+
+    function getResponses($msgId=0) {
+        return $this->getThreadByType('R', $msgID);
+    }
+
+    function getNotes() {
+        return $this->getThreadByType('N');
+    }
+
+    function getClientThread() {
+        return $this->getThreadwithoutNotes();
+    }
+
+    function getThreadWithNotes() {
+        return $this->getThread(true);
+    }
+    
+    function getThreadWithoutNotes() {
+        return $this->getThread(false);
+    }
+
+    function getThread($includeNotes=false, $order='') {
+
+        $treadtypes=array('M', 'R'); // messages and responses.
+        if($includeNotes) //Include notes??
+            $treadtypes[] = 'N';
+
+        return $this->getThreadbyType($treadtypes, $order);
+    }
+        
+    function getThreadByType($type, $order='ASC') {
 
         if(!$order || !in_array($order, array('DESC','ASC')))
-            $order='DESC';
+            $order='ASC';
 
-        $sql ='SELECT note.*, count(DISTINCT attach.attach_id) as attachments '
-            .' FROM '.TICKET_THREAD_TABLE.' note '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
-                ON (note.ticket_id=attach.ticket_id AND note.id=attach.ref_id AND ref_type="N") '
-            .' WHERE note.ticket_id='.db_input($this->getId())
-            .'   AND note.thread_type="N"'
-            .' GROUP BY note.id '
-            .' ORDER BY note.created '.$order;
-
-        $notes=array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec=db_fetch_array($res))
-                $notes[]=$rec;
-
-        return $notes;
-    }
-
-    function getMessages() {
-
-        $sql='SELECT msg.id, msg.created, msg.body '
+        $sql='SELECT thread.* '
             .' ,count(DISTINCT attach.attach_id) as attachments '
-            .' ,count( DISTINCT resp.id) as responses '
-            .' FROM '.TICKET_THREAD_TABLE.' msg '
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' resp ON ('
-                .'resp.pid=msg.id AND resp.thread_type = "R") '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach '
-                .'ON (msg.ticket_id=attach.ticket_id AND msg.id=attach.ref_id AND ref_type="M") '
-            .' WHERE  msg.ticket_id='.db_input($this->getId())
-               .' AND msg.thread_type="M"'
-            .' GROUP BY msg.id '
-            .' ORDER BY msg.created ASC ';
+            .' FROM '.TICKET_THREAD_TABLE.' thread '
+            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
+                ON (thread.ticket_id=attach.ticket_id 
+                        AND thread.id=attach.ref_id 
+                        AND thread.thread_type=attach.ref_type) '
+            .' WHERE  thread.ticket_id='.db_input($this->getId());
 
-        $messages=array();
+        if($type && is_array($type))
+            $sql.=" AND thread.thread_type IN('".implode("','", $type)."')";
+        else
+            $sql.=' AND thread.thread_type='.db_input($type);
+
+        $sql.=' GROUP BY thread.id '
+             .' ORDER BY thread.created '.$order;
+
+        $thread=array();
         if(($res=db_query($sql)) && db_num_rows($res))
             while($rec=db_fetch_array($res))
-                $messages[] = $rec;
-                
-        return $messages;
-    }
+                $thread[] = $rec;
 
-    function getResponses($msgId) {
-
-        $sql='SELECT resp.*, count(DISTINCT attach.attach_id) as attachments '
-            .' FROM '.TICKET_THREAD_TABLE. ' resp '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
-                ON (resp.ticket_id=attach.ticket_id AND resp.id=attach.ref_id AND ref_type="R") '
-            .' WHERE  resp.ticket_id='.db_input($this->getId())
-            .'   AND  resp.thread_type="R"'
-            .' GROUP BY resp.id '
-            .' ORDER BY resp.created';
-
-        $responses=array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec= db_fetch_array($res))
-                $responses[] = $rec;
-                
-        return $responses;
+        return $thread;
     }
 
     function getAttachments($refId=0, $type=null) {
