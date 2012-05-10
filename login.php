@@ -53,7 +53,7 @@ if($_POST && (!empty($_POST['lemail']) && !empty($_POST['lticket']))):
             $_SESSION['_client']['key']      =$ticket->getExtId(); //Ticket ID --acts as password when used with email. See above.
             $_SESSION['_client']['token']    =$user->getSessionToken();
             $_SESSION['TZ_OFFSET']=$cfg->getTZoffset();
-            $_SESSION['daylight']=$cfg->observeDaylightSaving();
+            $_SESSION['TZ_DST']=$cfg->observeDaylightSaving();
             //Log login info...
             $msg=sprintf("%s/%s logged in [%s]",$ticket->getEmail(),$ticket->getExtId(),$_SERVER['REMOTE_ADDR']);
             Sys::log(LOG_DEBUG,'User login',$msg);

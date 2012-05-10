@@ -520,7 +520,7 @@ class Staff {
             $_SESSION['_staff']['userID']=$username;
             $user->refreshSession(); //set the hash.
             $_SESSION['TZ_OFFSET']=$user->getTZoffset();
-            $_SESSION['daylight']=$user->observeDaylight();
+            $_SESSION['TZ_DST']=$user->observeDaylight();
             Sys::log(LOG_DEBUG,'Staff login',sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
             $sid=session_id(); //Current ID
             session_regenerate_id(TRUE);

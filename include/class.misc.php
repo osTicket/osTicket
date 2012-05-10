@@ -67,7 +67,7 @@ class Misc {
             $time=Misc::gmtime(); //gm time.
         else{ //user time to GM.
             $time=is_int($var)?$var:strtotime($var);
-            $offset=$_SESSION['TZ_OFFSET']+($_SESSION['daylight']?date('I',$time):0);
+            $offset=$_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$time):0);
             $time=$time-($offset*3600);
         }
         //gm to db time
