@@ -53,7 +53,11 @@
 
         return $version;
     }
-    
+
+    function db_timezone() {
+        return db_get_variable('time_zone');
+    }
+
     function db_get_variable($variable, $type='session') {
         $sql =sprintf('SELECT @@%s.%s',$type,$variable);
         return db_result(db_query($sql));
