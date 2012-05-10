@@ -2,11 +2,6 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <?php
-    if(defined('AUTO_REFRESH') && is_numeric(AUTO_REFRESH_RATE) && AUTO_REFRESH_RATE>0){ //Refresh rate
-    echo '<meta http-equiv="refresh" content="'.AUTO_REFRESH_RATE.'" />';
-    }
-    ?>
     <title>osTicket Staff Control Panel</title>
     <!--[if IE]>
     <style type="text/css">
@@ -21,6 +16,11 @@
     <script type="text/javascript" src="./js/scp.js"></script>
     <link rel="stylesheet" href="./css/scp.css" media="screen">
     <link rel="stylesheet" href="./css/typeahead.css" media="screen">
+    <?php
+    if($ost && ($headers=$ost->getExtraHeaders())) {
+        echo "\n\t".implode("\n\t", $headers)."\n";
+    }
+    ?>
 </head>
 <body>
 <div id="container">
