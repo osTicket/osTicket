@@ -90,7 +90,6 @@
     require(INCLUDE_DIR.'class.ostsession.php');
     require(INCLUDE_DIR.'class.usersession.php');
     require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
-    require(INCLUDE_DIR.'class.sys.php'); //system loader & config & logger.    
     require(INCLUDE_DIR.'class.log.php');
     require(INCLUDE_DIR.'class.mcrypt.php');
     require(INCLUDE_DIR.'class.misc.php');

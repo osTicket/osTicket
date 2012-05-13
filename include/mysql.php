@@ -16,8 +16,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-    require_once(INCLUDE_DIR.'class.sys.php');
-
     function db_connect($host, $user, $passwd, $db = "") {
         
         //Assert
