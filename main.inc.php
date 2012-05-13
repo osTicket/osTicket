@@ -159,7 +159,7 @@
     $ferror=null;
     if (!db_connect(DBHOST,DBUSER,DBPASS) || !db_select_database(DBNAME)) {
         $ferror='Unable to connect to the database';
-    } elseif(!($ost=osTicket::start(1))) {
+    } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
         $ferror='Unable to load config info from DB. Get tech support.';
     }
 
@@ -173,12 +173,11 @@
     }
     
     //Init
-    $cfg = $ost;
     $session = $ost->getSession();
 
     //System defaults we might want to make global//
     #pagenation default - user can overwrite it!
-    define('DEFAULT_PAGE_LIMIT', $ost->getPageSize()?$ost->getPageSize():25);
+    define('DEFAULT_PAGE_LIMIT', $cfg->getPageSize()?$cfg->getPageSize():25);
 
     #Cleanup magic quotes crap.
     if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {

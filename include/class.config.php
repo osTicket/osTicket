@@ -57,19 +57,15 @@ class Config {
     }
 
     function isHelpDeskOffline() {
-        return !$this->isSystemOnline();
+        return !$this->isOnline();
     }
 
     function isHelpDeskOnline() {
-        return $this->isSystemOnline();
+        return $this->isOnline();
     }
 
-    function isSystemOnline() {
-        return ($this->config['isonline'] && !$this->isUpgradePending());
-    }
-
-    function isUpgradePending() {
-        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getSchemaSignature(), SCHEMA_SIGNATURE));
+    function isOnline() {
+        return ($this->config['isonline']);
     }
 
     function isKnowledgebaseEnabled() {
@@ -125,6 +121,14 @@ class Config {
     function getId() {
         return $this->id;
     }
+
+    function getConfigId() {
+        return $this->getId();
+    }
+
+    function getConfigInfo() {
+        return $this->config;
+    }
    
     function getTitle() {
         return $this->config['helpdesk_title'];
@@ -136,10 +140,6 @@ class Config {
     
     function getBaseUrl() { //Same as above with no trailing slash.
         return rtrim($this->getUrl(),'/');
-    }
-
-    function getConfig() {
-        return $this->config;
     }
 
     function getTZOffset() {

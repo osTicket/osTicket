@@ -53,9 +53,11 @@ class osTicketSession {
         return (true);
     }
  
-    function read($session_id){
+    function read($id){
         $data="";
-        $sql='SELECT session_data FROM '.SESSION_TABLE.' WHERE session_id='.db_input($session_id).' AND session_expire>NOW()';
+        $sql='SELECT session_data FROM '.SESSION_TABLE
+            .' WHERE session_id='.db_input($id)
+            .'  AND session_expire>NOW()';
         if(($res=db_query($sql)) && db_num_rows($res))
             list($data)=db_fetch_row($res);
 
@@ -63,7 +65,7 @@ class osTicketSession {
     }
 
     function write($id, $data){
-        global $cfg,$thisstaff;
+        global $thisstaff;
 
         $sql='REPLACE INTO '.SESSION_TABLE.' SET session_updated=NOW() '.
              ',session_id='.db_input($id).
@@ -98,8 +100,9 @@ class osTicketSession {
             $sql.=" AND TIME_TO_SEC(TIMEDIFF(NOW(),session_updated))<$sec";
 
         $users=array();
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            list($users[])=db_fetch_row($res);
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($uid)=db_fetch_row($res))
+                $users[] = $uid;
         }
 
         return $users;

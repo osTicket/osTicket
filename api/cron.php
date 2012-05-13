@@ -17,5 +17,5 @@
 require('api.inc.php');
 require_once(INCLUDE_DIR.'class.cron.php');
 Cron::run();
-Sys::log(LOG_DEBUG,'Cron Job','External cron job executed ['.$_SERVER['REMOTE_ADDR'].']');
+$ost->logDebug('Cron Job','External cron job executed ['.$_SERVER['REMOTE_ADDR'].']');
 ?>

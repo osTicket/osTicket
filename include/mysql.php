@@ -78,18 +78,18 @@
     }
    
 	// execute sql query
-	function db_query($query, $database="",$conn=""){
-        global $cfg;
+	function db_query($query, $database="", $conn=""){
+        global $ost;
        
 		if($conn) { /* connection is provided*/
-            $result = ($database)?mysql_db_query($database,$query,$conn):mysql_query($query,$conn);
+            $result = ($database)?mysql_db_query($database, $query, $conn):mysql_query($query, $conn);
    	    } else {
-            $result = ($database)?mysql_db_query($database,$query):mysql_query($query);
+            $result = ($database)?mysql_db_query($database, $query):mysql_query($query);
    	    }
                 
-        if(!$result) { //error reporting
+        if(!$result && $ost) { //error reporting
             $alert='['.$query.']'."\n\n".db_error();
-            Sys::log(LOG_ALERT,'DB Error #'.db_errno(),$alert,($cfg && $cfg->alertONSQLError()));
+            $ost->logError('DB Error #'.db_errno(), $alert, ($ost->alertONSQLError()));
             //echo $alert; #uncomment during debuging or dev.
         }
 

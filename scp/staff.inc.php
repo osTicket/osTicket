@@ -71,7 +71,7 @@ if(!$thisstaff->isAdmin()) {
     }
 
     //Staff are not allowed to login in offline mode!!
-    if($ost->isHelpDeskOffline() || $ost->isUpgradePending()) {
+    if(!$ost->isSystemOffline() || $ost->isUpgradePending()) {
         staffLoginPage('System Offline');
         exit;
     }
@@ -94,7 +94,7 @@ $tabs=array();
 $submenu=array();
 if($ost->isUpgradePending()) {
     $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
-} elseif($ost->isHelpDeskOffline()) {
+} elseif($cfg->isHelpDeskOffline()) {
     $sysnotice='<strong>System is set to offline mode</strong> - Client interface is disabled and ONLY admins can access staff control panel.';
     $sysnotice.=' <a href="settings.php">Enable</a>.';
 }

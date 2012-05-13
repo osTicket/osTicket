@@ -255,7 +255,7 @@ class MailFetcher {
     }
 
     function createTicket($mid,$emailid=0){
-        global $cfg;
+        global $cfg, $ost;
 
         $mailinfo=$this->getHeaderInfo($mid);
 
@@ -265,11 +265,11 @@ class MailFetcher {
             return true;
         }
 
-	//Is the email address banned?
+	    //Is the email address banned?
         if($mailinfo['from']['email'] && EmailFilter::isBanned($mailinfo['from']['email'])) {
-	    //We need to let admin know...
-            Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$mailinfo['from']['email']);
-	    return true;
+	        //We need to let admin know...
+            $ost->logWarning('Ticket denied', 'Banned email - '.$mailinfo['from']['email']);
+	        return true;
         }
 	
 
@@ -370,15 +370,15 @@ class MailFetcher {
     }
 
     function fetchMail(){
-        global $cfg;
+        global $ost, $cfg;
       
         if(!$cfg->canFetchMail())
             return;
 
         //We require imap ext to fetch emails via IMAP/POP3
         if(!function_exists('imap_open')) {
-            $msg='PHP must be compiled with IMAP extension enabled for IMAP/POP3 fetch to work!';
-            Sys::log(LOG_WARN,'Mail Fetch Error',$msg);
+            $msg='osTicket requires PHP IMAP extension enabled for IMAP/POP3 fetch to work!';
+            $ost->logWarning('Mail Fetch Error', $msg);
             return;
         }
 
@@ -393,7 +393,7 @@ class MailFetcher {
 
         //TODO: Lock the table here??
         while($row=db_fetch_array($accounts)) {
-            $fetcher = new MailFetcher($row['userid'],Misc::decrypt($row['userpass'],SECRET_SALT),
+            $fetcher = new MailFetcher($row['userid'], Mcrypt::decrypt($row['userpass'],SECRET_SALT),
                                        $row['mail_host'],$row['mail_port'],$row['mail_protocol'],$row['mail_encryption']);
             if($fetcher->connect()){   
                 $fetcher->fetchTickets($row['email_id'],$row['mail_fetchmax'],$row['mail_delete']?true:false,$row['mail_archivefolder']);
@@ -410,7 +410,7 @@ class MailFetcher {
                         "\nError: ".$fetcher->getLastError().
                         "\n\n ".$errors.' consecutive errors. Maximum of '.$MAX_ERRORS. ' allowed'.
                         "\n\n This could be connection issues related to the host. Next delayed login attempt in aprox. 10 minutes";
-                    Sys::alertAdmin('Mail Fetch Failure Alert',$msg,true);
+                    $ost->alertAdmin('Mail Fetch Failure Alert', $msg, true);
                 }
             }
         }
