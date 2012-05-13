@@ -4,7 +4,7 @@
 
     osTicket (sys) -> Config.
 
-    Core osTicket object: extends congfig and provides loggging facility.
+    Core osTicket object: loads congfig and provides loggging facility.
 
     Use osTicket::start(configId)
 
@@ -21,7 +21,7 @@
 require_once(INCLUDE_DIR.'class.config.php'); //Config helper
 define('LOG_WARN',LOG_WARNING);
 
-class osTicket extends Config {
+class osTicket {
 
     var $loglevel=array(1=>'Error','Warning','Debug');
     var $errors;
@@ -30,15 +30,33 @@ class osTicket extends Config {
 
     var $headers;
 
+    var $config;
     var $session;
 
-    function osTicket($id) {
-        parent::Config($id);
-        $this->session=osTicketSession::start(SESSION_TTL); // start_session 
+    function osTicket($cfgId) {
+        $this->config = Config::lookup($cfgId);
+        $this->session = osTicketSession::start(SESSION_TTL); // start_session 
+    }
+
+    function isSystemOnline() {
+        return ($this->getConfig() && $this->getConfig()->isHelpdeskOnline() && !$this->isUpgradePending());
+    }
+
+    function isUpgradePending() {
+        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getConfig()->getSchemaSignature(), SCHEMA_SIGNATURE));
     }
 
     function getSession() {
         return $this->session;
+    }
+
+    function getConfig() {
+        return $this->config;
+    }
+
+    function getConfigId() {
+
+        return $this->getConfig()?$this->getConfig()->getId():0;
     }
 
     function addExtraHeader($header) {
@@ -101,13 +119,13 @@ class osTicket extends Config {
     function alertAdmin($subject, $message, $log=false) {
                 
         //Set admin's email address
-        if(!($to=$this->getAdminEmail()))
+        if(!($to=$this->getConfig()->getAdminEmail()))
             $to=ADMIN_EMAIL;
 
         //Try getting the alert email.
         $email=null;
-        if(!($email=$this->getAlertEmail())) 
-            $email=$this->getDefaultEmail(); //will take the default email.
+        if(!($email=$this->getConfig()->getAlertEmail())) 
+            $email=$this->getConfig()->getDefaultEmail(); //will take the default email.
 
         if($email) {
             $email->send($to, $subject, $message);
@@ -163,7 +181,7 @@ class osTicket extends Config {
             $this->alertAdmin($title, $message);
 
 
-        if($this->getLogLevel()<$level)
+        if($this->getConfig()->getLogLevel()<$level)
             return false;
 
         //Save log based on system log level settings.
@@ -181,7 +199,7 @@ class osTicket extends Config {
 
     function purgeLogs() {
 
-        if(!($gp=$this->getLogGracePeriod()) || !is_numeric($gp))
+        if(!($gp=$this->getConfig()->getLogGracePeriod()) || !is_numeric($gp))
             return false;
 
         //System logs
@@ -196,12 +214,12 @@ class osTicket extends Config {
     /**** static functions ****/
     function start($configId) {
 
-        if(!$configId || !($ost = new osTicket($configId)) || $ost->getId()!=$configId)
+        if(!$configId || !($ost = new osTicket($configId)) || $ost->getConfigId()!=$configId)
             return null;
 
         //Set default time zone... user/staff settting will overwrite it (on login).
-        $_SESSION['TZ_OFFSET'] = $ost->getTZoffset();
-        $_SESSION['TZ_DST'] = $ost->observeDaylightSaving();
+        $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
+        $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 
         return $ost;
     }
