@@ -2,7 +2,7 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 //Get the config info.
-$config=($errors && $_POST)?Format::input($_POST):Format::htmlchars($cfg->getConfig());
+$config=($errors && $_POST)?Format::input($_POST):Format::htmlchars($cfg->getConfigInfo());
 //Basic checks for warnings...
 $warn=array();
 if($config['allow_attachments'] && !$config['upload_dir']) {

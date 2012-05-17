@@ -53,10 +53,10 @@ if($_POST && (!empty($_POST['lemail']) && !empty($_POST['lticket']))):
             $_SESSION['_client']['key']      =$ticket->getExtId(); //Ticket ID --acts as password when used with email. See above.
             $_SESSION['_client']['token']    =$user->getSessionToken();
             $_SESSION['TZ_OFFSET']=$cfg->getTZoffset();
-            $_SESSION['daylight']=$cfg->observeDaylightSaving();
+            $_SESSION['TZ_DST']=$cfg->observeDaylightSaving();
             //Log login info...
             $msg=sprintf("%s/%s logged in [%s]",$ticket->getEmail(),$ticket->getExtId(),$_SERVER['REMOTE_ADDR']);
-            Sys::log(LOG_DEBUG,'User login',$msg);
+            $ost->logDebug('User login', $msg);
             //Redirect tickets.php
             session_write_close();
             session_regenerate_id();
@@ -75,11 +75,11 @@ if($_POST && (!empty($_POST['lemail']) && !empty($_POST['lticket']))):
                 'Email: '.$_POST['lemail']."\n".'Ticket#: '.$_POST['lticket']."\n".
                 'IP: '.$_SERVER['REMOTE_ADDR']."\n".'Time:'.date('M j, Y, g:i a T')."\n\n".
                 'Attempts #'.$_SESSION['_client']['strikes'];
-        Sys::log(LOG_ALERT,'Excessive login attempts (client)',$alert,($cfg->alertONLoginError()));
+        $ost->logError('Excessive login attempts (client)', $alert, ($cfg->alertONLoginError()));
     }elseif($_SESSION['_client']['strikes']%2==0){ //Log every other failed login attempt as a warning.
         $alert='Email: '.$_POST['lemail']."\n".'Ticket #: '.$_POST['lticket']."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
                "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_client']['strikes'];
-        Sys::log(LOG_WARNING,'Failed login attempt (client)',$alert);
+        $ost->logWarning('Failed login attempt (client)', $alert);
     }
 endif;
 

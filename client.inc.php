@@ -29,7 +29,7 @@ define('OSTCLIENTINC',TRUE);
 define('ASSETS_PATH',ROOT_PATH.'assets/default/');
 
 //Check the status of the HelpDesk.
-if(!is_object($cfg) || !$cfg->getId() || $cfg->isHelpDeskOffline() || $cfg->isUpgradePending()) {
+if(!is_object($ost) || !$ost->isSystemOnline()) {
     include('./offline.php');
     exit;
 }

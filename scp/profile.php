@@ -29,7 +29,7 @@ if(!$errors && $_POST) { //Handle post
         $thisstaff->reload();
         $staff->reload();
         $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
-        $_SESSION['daylight']=$thisstaff->observeDaylight();
+        $_SESSION['TZ_DST']=$thisstaff->observeDaylight();
     }elseif(!$errors['err'])
         $errors['err']='Profile update error. Try correcting the errors below and try again!';
 }

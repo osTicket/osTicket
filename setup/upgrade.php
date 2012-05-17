@@ -48,7 +48,7 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
     switch(strtolower($_POST['s'])) {
         case 'prereq':
             //XXX: check if it's upgradable version??
-            if(!$cfg->isUpgradePending())
+            if(!$ost->isUpgradePending())
                 $errors['err']=' Nothing to do! System already upgraded to the current version';
             elseif(!$upgrader->isUpgradable())
                 $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
@@ -60,9 +60,9 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
         case 'upgrade': //Manual upgrade.... when JS (ajax) is not supported.
             if($upgrader->getNumPendingTasks()) {
                 $upgrader->doTasks();
-            } elseif($cfg->isUpgradePending() && $upgrader->isUpgradable()) {
+            } elseif($ost->isUpgradePending() && $upgrader->isUpgradable()) {
                 $upgrader->upgrade();
-            } elseif(!$cfg->isUpgradePending()) {
+            } elseif(!$ost->isUpgradePending()) {
                 $upgrader->setState('done');
             }
 
@@ -89,7 +89,7 @@ switch(strtolower($upgrader->getState())) {
         $inc='upgrade-prereq.inc.php';
         if($upgrader->isAborted())
             $inc='upgrade-aborted.inc.php';
-        elseif(!$cfg->isUpgradePending())
+        elseif(!$ost->isUpgradePending())
             $errors['err']='Nothing to do! System already upgraded to the latest version';
         elseif(!$upgrader->isUpgradable())
             $errors['err']='The upgrader does NOT support upgrading from the current vesion!';

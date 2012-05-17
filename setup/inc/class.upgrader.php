@@ -50,8 +50,9 @@ class Upgrader extends SetupWizard {
     }
 
     function onError($error) {
+        global $ost;
 
-        Sys::log(LOG_ERR, 'Upgrader Error', $error);
+        $ost->logError('Upgrader Error', $error);
         $this->setError($error);
         $this->setState('aborted');
     }
@@ -191,6 +192,7 @@ class Upgrader extends SetupWizard {
     }
     
     function upgrade() {
+        global $ost;
 
         if($this->getPendingTasks() || !($patches=$this->getPatches()))
             return false;
@@ -209,7 +211,7 @@ class Upgrader extends SetupWizard {
             if(($info = $this->readPatchInfo($patch)) && $info['version'])
                 $logMsg.= ' ('.$info['version'].') ';
 
-            Sys::log(LOG_DEBUG, 'Upgrader - Patch applied', $logMsg);
+            $ost->logDebug('Upgrader - Patch applied', $logMsg);
             
             //Check if the said patch has scripted tasks
             if(!($tasks=$this->getTasksForPatch($phash)))

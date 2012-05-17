@@ -15,16 +15,16 @@
 **********************************************************************/
 require('staff.inc.php');
 //Make sure config is loaded and the staff is set and of admin type
-if(!$cfg or !$thisstaff or !$thisstaff->isAdmin()){
+if(!$ost or !$thisstaff or !$thisstaff->isAdmin()){
     header('Location: index.php');
     require('index.php'); // just in case!
     exit;
 }
 
 //Some security related warnings - bitch until fixed!!! :)
-if($cfg->isUpgradePending()) {
+if($ost->isUpgradePending()) {
     $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
-} elseif(!$cfg->isHelpDeskOffline()) {
+} else {
     
     if(file_exists('../setup/')) {
         $sysnotice='Please take a minute to delete <strong>setup/install</strong> directory (../setup/) for security reasons.';
