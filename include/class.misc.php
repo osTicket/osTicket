@@ -29,27 +29,6 @@ class Misc {
         return mt_rand($start,$end);
     }
 
-    function encrypt($text, $salt) {
-
-        //if mcrypt extension is not installed--simply return unencryted text and log a warning.
-        if(!function_exists('mcrypt_encrypt') || !function_exists('mcrypt_decrypt')) {
-            $msg='Cryptography extension mcrypt is not enabled or installed. IMAP/POP passwords are being stored as plain text in database.';
-            Sys::log(LOG_WARN,'mcrypt missing',$msg);
-            return $text;
-        }
-
-        return trim(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256,$salt, $text, MCRYPT_MODE_ECB,
-                         mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))));
-    }
-
-    function decrypt($text, $salt) {
-        if(!function_exists('mcrypt_encrypt') || !function_exists('mcrypt_decrypt'))
-            return $text;
-
-        return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $salt, base64_decode($text), MCRYPT_MODE_ECB,
-                        mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND)));
-    }
-
     /* misc date helpers...this will go away once we move to php 5 */ 
     function db2gmtime($var){
         global $cfg;
@@ -67,7 +46,7 @@ class Misc {
             $time=Misc::gmtime(); //gm time.
         else{ //user time to GM.
             $time=is_int($var)?$var:strtotime($var);
-            $offset=$_SESSION['TZ_OFFSET']+($_SESSION['daylight']?date('I',$time):0);
+            $offset=$_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$time):0);
             $time=$time-($offset*3600);
         }
         //gm to db time

@@ -122,7 +122,7 @@ class Email {
     }
 
     function send($to, $subject, $message, $attachments=null, $options=null) {
-        global $cfg;
+        global $cfg, $ost;
 
         //Get SMTP info IF enabled!
         $smtp=array();
@@ -149,11 +149,12 @@ class Email {
         $headers = array ('From' => $from,
                           'To' => $to,
                           'Subject' => $subject,
-                          'Date'=>date('D,d M Y H:i:s O'),
+                          'Date'=>date('D, d M Y H:i:s O'),
                           'Message-ID' =>'<'.Misc::randCode(6).''.time().'-'.$this->getEmail().'>',
                           'X-Mailer' =>'osTicket v1.7',
                           'Content-Type' => 'text/html; charset="UTF-8"'
                           );
+
         $mime = new Mail_mime();
         $mime->setTXTBody($body);
         //XXX: Attachments
@@ -189,8 +190,9 @@ class Email {
             if(!PEAR::isError($result))
                 return true;
 
+            //SMTP failed - log error.
             $alert=sprintf("Unable to email via %s:%d [%s]\n\n%s\n",$smtp['host'],$smtp['port'],$smtp['username'],$result->getMessage());
-            Sys::log(LOG_ALERT,'SMTP Error',$alert,false);
+            $ost->logError('SMTP Error', $alert, false); //NOTE: email alert overwrite - don't email when having email trouble.
             //print_r($result);
         }
 
@@ -292,6 +294,7 @@ class Email {
         //very basic checks
 
         $vars['name']=Format::striptags(trim($vars['name']));
+        $vars['email']=trim($vars['email']);
 
         if($id && $id!=$vars['id'])
             $errors['err']='Internal error. Get technical help.';
@@ -300,7 +303,7 @@ class Email {
             $errors['email']='Valid email required';
         }elseif(($eid=Email::getIdByEmail($vars['email'])) && $eid!=$id) {
             $errors['email']='Email already exits';
-        }elseif($cfg && !strcasecmp($cfg->getAdminEmail(),$vars['email'])) {
+        }elseif($cfg && !strcasecmp($cfg->getAdminEmail(), $vars['email'])) {
             $errors['email']='Email already used as admin email!';
         }elseif(Staff::getIdByEmail($vars['email'])) { //make sure the email doesn't belong to any of the staff 
             $errors['email']='Email in-use by a staff member';

@@ -533,9 +533,9 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
         </fieldset>
         <fieldset class="date_range">
             <label>Date Range:</label>
-            <input class="dp" type="input" size="20" name="startDate"><i></i>
+            <input class="dp" type="input" size="20" name="startDate">
             <span>TO</span>
-            <input class="dp" type="input" size="20" name="endDate"><i></i>
+            <input class="dp" type="input" size="20" name="endDate">
         </fieldset>
         <p>
             <span class="buttons">

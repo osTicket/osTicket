@@ -71,7 +71,7 @@ if(!$thisstaff->isAdmin()) {
     }
 
     //Staff are not allowed to login in offline mode!!
-    if($cfg->isHelpDeskOffline() || $cfg->isUpgradePending()) {
+    if(!$ost->isSystemOffline() || $ost->isUpgradePending()) {
         staffLoginPage('System Offline');
         exit;
     }
@@ -83,17 +83,16 @@ $thisstaff->refreshSession();
 /******* SET STAFF DEFAULTS **********/
 //Set staff's timezone offset.
 $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
-$_SESSION['daylight']=$thisstaff->observeDaylight();
+$_SESSION['TZ_DST']=$thisstaff->observeDaylight();
 
-define('AUTO_REFRESH_RATE',$thisstaff->getRefreshRate()*60);
-define('PAGE_LIMIT',$thisstaff->getPageLimit()?$thisstaff->getPageLimit():DEFAULT_PAGE_LIMIT);
+define('PAGE_LIMIT', $thisstaff->getPageLimit()?$thisstaff->getPageLimit():DEFAULT_PAGE_LIMIT);
 
 //Clear some vars. we use in all pages.
 $errors=array();
 $msg=$warn=$sysnotice='';
 $tabs=array();
 $submenu=array();
-if($cfg->isUpgradePending()) {
+if($ost->isUpgradePending()) {
     $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
 } elseif($cfg->isHelpDeskOffline()) {
     $sysnotice='<strong>System is set to offline mode</strong> - Client interface is disabled and ONLY admins can access staff control panel.';

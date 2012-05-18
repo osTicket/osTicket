@@ -57,7 +57,7 @@ require(STAFFINC_DIR.'header.inc.php');
     </form>
 </div>
 <?php
-$config=($errors && $_POST)?Format::input($_POST):Format::htmlchars($cfg->getConfig());
+$config=($errors && $_POST)?Format::input($_POST):Format::htmlchars($cfg->getConfigInfo());
 include_once(STAFFINC_DIR."settings-$target.inc.php");
 include_once(STAFFINC_DIR.'footer.inc.php');
 ?>

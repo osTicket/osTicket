@@ -95,7 +95,8 @@ class Staff {
     /* check if passwd reset is due. */
     function isPasswdResetDue() {
         global $cfg;
-        return ($cfg && $cfg->getPasswdResetPeriod() && $this->ht['passwd_change_sec']>($cfg->getPasswdResetPeriod()*30*24*60*60));
+        return ($cfg && $cfg->getPasswdResetPeriod() 
+                    && $this->ht['passwd_change_sec']>($cfg->getPasswdResetPeriod()*30*24*60*60));
     }
 
     function isPasswdChangeDue() {
@@ -495,7 +496,7 @@ class Staff {
     }
 
     function login($username, $passwd, &$errors, $strike=true) {
-        global $cfg, $session;
+        global $ost, $cfg;
 
 
         if($_SESSION['_staff']['laststrike']) {
@@ -520,13 +521,16 @@ class Staff {
             $_SESSION['_staff']['userID']=$username;
             $user->refreshSession(); //set the hash.
             $_SESSION['TZ_OFFSET']=$user->getTZoffset();
-            $_SESSION['daylight']=$user->observeDaylight();
-            Sys::log(LOG_DEBUG,'Staff login',sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
+            $_SESSION['TZ_DST']=$user->observeDaylight();
+
+            $ost->logDebug('Staff login', 
+                    sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
             $sid=session_id(); //Current ID
             session_regenerate_id(TRUE);
             //Destroy old session ID - needed for PHP version < 5.1.0 TODO: remove when we move to php 5.3 as min. requirement.
-            if($session && is_object($session) && $sid)
+            if(($session=$ost->getSession()) && is_object($session) && $sid)
                 $session->destroy($sid);
+
             session_write_close();
         
             return $user;
@@ -540,12 +544,12 @@ class Staff {
             $alert='Excessive login attempts by a staff member?'."\n".
                    'Username: '.$_POST['username']."\n".'IP: '.$_SERVER['REMOTE_ADDR']."\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".
                    'Attempts #'.$_SESSION['_staff']['strikes']."\n".'Timeout: '.($cfg->getStaffLoginTimeout()/60)." minutes \n\n";
-            Sys::log(LOG_ALERT,'Excessive login attempts ('.$_POST['username'].')', $alert,($cfg->alertONLoginError()));
+            $ost->logWarning('Excessive login attempts ('.$_POST['username'].')', $alert, ($cfg->alertONLoginError()));
     
         } elseif($_SESSION['_staff']['strikes']%2==0) { //Log every other failed login attempt as a warning.
             $alert='Username: '.$_POST['username']."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
                    "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_staff']['strikes'];
-            Sys::log(LOG_WARNING,'Failed staff login attempt ('.$_POST['username'].')', $alert);
+            $ost->logWarning('Failed staff login attempt ('.$_POST['username'].')', $alert, false);
         }
 
         return false;

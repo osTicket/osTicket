@@ -1290,3 +1290,16 @@ time {
     background:#ffd8d8;
     border:1px solid #a00;
 }
+
+/* Custom css for datepicker */
+.ui-datepicker-trigger {
+    display:inline-block;
+    border:0;
+    padding:0;
+    margin-left:2px;
+    position:relative;
+    top:5px;
+    width:16px;
+    height:16px;
+    background:inherit;
+}

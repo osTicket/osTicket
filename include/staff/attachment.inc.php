@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 //Get the config info.
-$config=($errors && $_POST)?Format::input($_POST):$cfg->getConfig();
+$config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
 ?>
 <table width="100%" border="0" cellspacing=0 cellpadding=0>
     <form action="admin.php?t=attach" method="post">
