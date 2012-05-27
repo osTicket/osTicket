@@ -22,6 +22,7 @@ include_once(INCLUDE_DIR.'class.topic.php');
 include_once(INCLUDE_DIR.'class.lock.php');
 include_once(INCLUDE_DIR.'class.file.php');
 include_once(INCLUDE_DIR.'class.attachment.php');
+include_once(INCLUDE_DIR.'class.pdf.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
 include_once(INCLUDE_DIR.'class.priority.php');
@@ -1551,8 +1552,11 @@ class Ticket{
     }
 
     //Print ticket... export the ticket thread as PDF.
-    function exportPDF() {
-        return false;
+    function pdfExport() {
+        $pdf = new Ticket2PDF($this, true);
+        $name='Ticket-'.$this->getExtId().'.pdf';
+        $pdf->output($name, 'I');
+        exit;
     }
 
     //online based attached files.
