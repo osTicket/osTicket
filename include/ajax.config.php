@@ -19,7 +19,7 @@ if(!defined('INCLUDE_DIR')) die('!');
 class ConfigAjaxAPI extends AjaxController {
 
     //config info UI might need.
-    function ui() {
+    function scp_ui() {
         global $thisstaff, $cfg;
 
         $config=array('ticket_lock_time'=>($cfg->getLockTime()*3600),

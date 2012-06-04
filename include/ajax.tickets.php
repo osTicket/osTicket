@@ -20,11 +20,11 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 
 class TicketsAjaxAPI extends AjaxController {
    
-    function search() {
+    function lookup() {
         global $thisstaff;
 
         if(!is_numeric($_REQUEST['q']))
-            return self::searchByEmail();
+            return self::lookupByEmail();
 
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
@@ -53,7 +53,7 @@ class TicketsAjaxAPI extends AjaxController {
         return $this->json_encode($tickets);
     }
 
-    function searchByEmail() {
+    function lookupByEmail() {
         global $thisstaff;
 
 
@@ -82,6 +82,100 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         return $this->json_encode($tickets);
+    }
+
+    function search() {
+        global $thisstaff;
+          
+        $result=array();
+        $select = 'SELECT count(ticket.ticket_id) as tickets ';
+        $from = ' FROM '.TICKET_TABLE.' ticket ';
+        $where = ' WHERE 1 ';
+
+        //Access control.
+        $where.=' AND ( ticket.staff_id='.db_input($thisstaff->getId());
+
+        if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
+            $where.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
+
+        if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+            $where.=' OR ticket.dept_id IN ('.implode(',', $depts).')';
+
+        $where.=' ) ';
+
+        //Department
+        if($_REQUEST['deptId'])
+            $where.=' AND ticket.dept_id='.db_input($_REQUEST['deptId']);
+
+        //Status
+        switch(strtolower($_REQUEST['status'])) {
+            case 'open';
+                $where.=' AND ticket.status="open" ';
+                break;
+            case 'overdue':
+                $where.=' AND ticket.status="open" AND ticket.isoverdue=1 ';
+                break;
+            case 'closed':
+                $where.=' AND ticket.status="closed" ';
+                break;
+        }
+
+        //Assignee 
+        if($_REQUEST['assignee'] && strcasecmp($_REQUEST['status'], 'closed'))  {
+            $id=preg_replace("/[^0-9]/", "", $_REQUEST['assignee']);
+            $assignee = $_REQUEST['assignee'];
+            $where.= ' AND ( ';
+            if($assignee[0]=='t')
+                $where.='  (ticket.team_id='.db_input($id). ' AND ticket.status="open") ';
+            elseif($assignee[0]=='s')
+                $where.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
+            else 
+                $where.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
+
+            if($_REQUEST['staffId'] && !$_REQUEST['status']) //Assigned TO + Closed By
+                $where.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';    
+
+            $where.= ' ) ';
+        } elseif($_REQUEST['staffId']) { 
+            $where.=' AND (ticket.staff_id='.db_input($_REQUEST['staffId']).' AND ticket.status="closed") ';
+        }
+            
+        //dates
+        $startTime  =($_REQUEST['startDate'] && (strlen($_REQUEST['startDate'])>=8))?strtotime($_REQUEST['startDate']):0;
+        $endTime    =($_REQUEST['endDate'] && (strlen($_REQUEST['endDate'])>=8))?strtotime($_REQUEST['endDate']):0;
+        if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0))
+            $startTime=$endTime=0;
+        
+        if($startTime)
+            $where.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
+
+        if($endTime)
+            $where.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
+
+        //Query
+        if($_REQUEST['query']) {
+            $queryterm=db_real_escape($_REQUEST['query'], false);
+               
+            $from.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
+            $where.=" AND (  ticket.email LIKE '%$queryterm%'"
+                       ." OR ticket.name LIKE '%$queryterm%'"
+                       ." OR ticket.subject LIKE '%$queryterm%'"
+                       ." OR thread.title LIKE '%$queryterm%'"
+                       ." OR thread.body LIKE '%$queryterm%'"               
+                       .' )';
+            $groupby = 'GROUP BY ticket.ticket_id ';
+        }
+        
+        $sql="$select $from $where $groupby";
+        if(($tickets=db_result(db_query($sql)))) {
+            $result['success'] =sprintf("Search criteria matched %s - <a href='tickets.php?%s'>view</a>",
+                                        ($tickets>1?"$tickets tickets":"$tickets ticket"),
+                                        str_replace(array('&amp;', '&'), array('&', '&amp;'), $_SERVER['QUERY_STRING']));
+        } else {
+            $result['fail']='No tickets found matching your search criteria.';
+        }
+            
+        return $this->json_encode($result);
     }
 
     function acquireLock($tid) {

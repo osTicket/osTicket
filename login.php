@@ -45,7 +45,7 @@ if($_POST && (!empty($_POST['lemail']) && !empty($_POST['lticket']))):
         //At this point we know the ticket is valid.
         //TODO: 1) Check how old the ticket is...3 months max?? 2) Must be the latest 5 tickets?? 
         //Check the email given.
-        if($ticket->getId() && strcasecmp($ticket->getEMail(),$email)==0){
+        if($ticket->getId() && strcasecmp($ticket->getEmail(),$email)==0){
             //valid match...create session goodies for the client.
             $user = new ClientSession($email,$ticket->getId());
             $_SESSION['_client']=array(); //clear.

@@ -1,3 +1,6 @@
+/**
+ * @version v1.7-DPR2-P2 
+ */
 UPDATE `%TABLE_PREFIX%sla`
     SET `created` = NOW(),
         `updated` = NOW()

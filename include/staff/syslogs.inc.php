@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isadmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
 if($_REQUEST['type']) {
@@ -45,9 +45,10 @@ if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0)){
         $qstr.='&endDate='.urlencode($_REQUEST['endDate']);
     }
 }
-$sortOptions=array('title'=>'log.title','type'=>'log_type','ip'=>'log.ip_address','date'=>'log.created','created'=>'log.created','updated'=>'log.updated');
+$sortOptions=array('id'=>'log.log_id', 'title'=>'log.title','type'=>'log_type','ip'=>'log.ip_address'
+                    ,'date'=>'log.created','created'=>'log.created','updated'=>'log.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
-$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'date';
+$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'id';
 //Sorting options...
 if($sort && $sortOptions[$sort]) {
     $order_column =$sortOptions[$sort];
@@ -87,13 +88,9 @@ else
  <form action="syslogs.php" method="get">
     <div style="padding-left:2px;">
         <b>Date Span</b>:
-        &nbsp;From&nbsp;<input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>"
-                onclick="event.cancelBubble=true;calendar(this);" autocomplete=OFF>
-            <a href="#" onclick="event.cancelBubble=true;calendar(getObj('sd')); return false;"><img src='images/cal.png'border=0 alt=""></a>
+        &nbsp;From&nbsp;<input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp; to &nbsp;&nbsp;
-            <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>"
-                onclick="event.cancelBubble=true;calendar(this);" autocomplete=OFF >
-                <a href="#" onclick="event.cancelBubble=true;calendar(getObj('ed')); return false;"><img src='images/cal.png'border=0 alt=""></a>
+            <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp;
             &nbsp;Type:
             <select name='type'>

@@ -147,20 +147,21 @@ class Validator {
 
         $urlregex = "^(https?)\:\/\/";
         // USER AND PASS (optional) 
-        $urlregex .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; 
+        $urlregex .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; # nolint
         // HOSTNAME OR IP 
-        $urlregex .= "[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)*";  // http://x = allowed (ex. http://localhost, http://routerlogin) 
+        // http://x = allowed (ex. http://localhost, http://routerlogin) 
+        $urlregex .= "[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)*";       # nolint
         //$urlregex .= "[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)+";  // http://x.x = minimum 
         //$urlregex .= "([a-z0-9+\$_-]+\.)*[a-z0-9+\$_-]{2,3}";  // http://x.xx(x) = minimum 
         //use only one of the above 
         // PORT (optional) 
         $urlregex .= "(\:[0-9]{2,5})?"; 
         // PATH  (optional) 
-        $urlregex .= "(\/([a-z0-9+\$_-]\.?)+)*\/?"; 
+        $urlregex .= "(\/([a-z0-9+\$_-]\.?)+)*\/?";             # nolint
         // GET Query (optional) 
-        $urlregex .= "(\?[a-z+&\$_.-][a-z0-9;:@/&%=+\$_.-]*)?"; 
+        $urlregex .= "(\?[a-z+&\$_.-][a-z0-9;:@/&%=+\$_.-]*)?"; # nolint
         // ANCHOR (optional) 
-        $urlregex .= "(#[a-z_.-][a-z0-9+\$_.-]*)?\$"; 
+        $urlregex .= "(#[a-z_.-][a-z0-9+\$_.-]*)?\$";           # nolint 
         
         return eregi($urlregex, $url)?true:false; 
     }

@@ -177,7 +177,7 @@ class Staff {
 
     function getDept() {
 
-        if(!$this->dept && $this->getDeptIf())
+        if(!$this->dept && $this->getDeptId())
             $this->dept= Dept::lookup($this->getDeptId());
 
         return $this->dept;
@@ -220,7 +220,7 @@ class Staff {
         return $this->showAssignedOnly();
     }
   
-    function isadmin() {
+    function isAdmin() {
         return ($this->ht['isadmin']);
     }
 
@@ -261,7 +261,7 @@ class Staff {
     }
   
     function canManageTickets() {
-        return ($this->isadmin() 
+        return ($this->isAdmin() 
                  || $this->canDeleteTickets() 
                     || $this->canCloseTickets());
     }
@@ -495,7 +495,7 @@ class Staff {
     }
 
     function login($username, $passwd, &$errors, $strike=true) {
-        global $cfg;
+        global $cfg, $session;
 
 
         if($_SESSION['_staff']['laststrike']) {
@@ -552,7 +552,7 @@ class Staff {
     }
 
     function create($vars, &$errors) {
-        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($self=Staff::lookup($id)))
+        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($staff=Staff::lookup($id)))
             $staff->updateTeams($vars['teams']);
 
         return $id;
@@ -623,6 +623,7 @@ class Staff {
             .' ,dept_id='.db_input($vars['dept_id'])
             .' ,group_id='.db_input($vars['group_id'])
             .' ,timezone_id='.db_input($vars['timezone_id'])
+            .' ,daylight_saving='.db_input(isset($vars['daylight_saving'])?1:0)
             .' ,username='.db_input($vars['username'])
             .' ,firstname='.db_input($vars['firstname'])
             .' ,lastname='.db_input($vars['lastname'])
