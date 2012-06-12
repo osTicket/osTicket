@@ -49,6 +49,7 @@ $dispatcher = patterns('',
         # Send
         url_get('^graph$', 'getPlotData'),
         url_get('^table/groups$', 'enumTabularGroups'),
+        url_get('^table/export$', 'downloadTabularData'),
         url_get('^table$', 'getTabularData')
     )),
     url_get('^/users$', array('ajax.users.php:UsersAjaxAPI', 'search')),
