@@ -47,6 +47,7 @@ class Dept {
         $this->id=$this->ht['dept_id'];
         $this->email=$this->sla=$this->manager=null;
         $this->getEmail(); //Auto load email struct.
+        $this->members=array();
 
         return true;
     }
@@ -88,6 +89,21 @@ class Dept {
         return $this->getNumStaff();
     }
 
+    function getAvailableMembers(){
+
+        if(!$this->members && $this->getNumStaff()){
+            $sql='SELECT m.staff_id FROM '.STAFF_TABLE.' m '
+                .'WHERE m.dept_id='.db_input($this->getId())
+                .' AND s.staff_id IS NOT NULL '
+                .'ORDER BY s.lastname, s.firstname';
+            if(($res=db_query($sql)) && db_num_rows($res)){
+                while(list($id)=db_fetch_row($res))
+                    if($staff= Staff::lookup($id) && $staff->isAvailable())
+                        $this->members[]= $staff;
+            }
+        }
+        return $this->members;
+    }
 
     function getSLAId(){
         return $this->ht['sla_id'];

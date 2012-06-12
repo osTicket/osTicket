@@ -689,41 +689,6 @@ h2 .reload {
     background:url(../images/icons/note.gif) 10px 50% no-repeat;
 }
 
-#latest_notes {
-    margin:10px 0;
-    padding:10px;
-    background:#ffe;
-    border:1px solid #e7e765;
-}
-
-#latest_notes h3 {
-    margin:0 0 10px 0;
-    padding:0;
-    font-size:11pt;
-}
-
-#latest_notes h3 span, #latest_notes h3 a {
-    color:#777;
-    font-weight:normal;
-    text-decoration:none;
-    font-size:10pt;
-}
-
-#latest_notes ul {
-    margin:0 20px;
-    padding:0;
-}
-
-#latest_notes ul li {
-    margin:0;
-    padding:0 0 10px 0;
-    list-style:none;
-}
-
-#latest_notes em {
-    color:#777;
-}
-
 #ticket_thread table {
     margin-top:10px;
     border:1px solid #aaa;
@@ -757,10 +722,6 @@ h2 .reload {
     color:#666;
 }
 
-#ticket_thread .message th {
-    background:#C3D9FF;
-}
-
 #ticket_notes .date {
     font-weight:normal;
     font-size:10pt;
@@ -768,8 +729,31 @@ h2 .reload {
     text-align:right;
 }
 
+#ticket_thread table th.tmeta {
+    font-weight:bold;
+    font-size:10pt;
+    color:#888;
+    text-align:right;
+    padding-right:15px;
+}
+
+#ticket_thread table th span {
+    font-weight:normal;
+    font-size:10pt;
+    color:#888;
+    padding-left:5px;
+}
+
+#ticket_thread .message th {
+    background:#C3D9FF;
+}
+
 #ticket_thread .response th {
     background:#FFE0B3;
+}
+
+#ticket_thread .note th {
+    background:#FFE;
 }
 
 #ticket_thread table td, #ticket_notes table td {
@@ -1021,31 +1005,81 @@ h2 .reload {
 }
 
 /* Knowledgebase */
+/* Knowledgebase */
 #kb {
   margin: 2px 0;
-  padding: 0;
+  padding: 5px;
   overflow: hidden;
 }
 
-#kb > li {
-  margin: 0 0 5px 0;
-  padding: 0 10px;
-  width: auto;
-  float: left;
-  clear: both;
+#kb li {
+  padding:10px 10px 10px 46px;
+  height:auto !important;
+  overflow:hidden;
+  margin:0;
+  background-image:url(../images/kb_large_folder.png), url(../images/kb_category_bg.png);
+  background-position:0 50%, bottom left;
+  background-repeat:no-repeat, repeat-x;
+  border-bottom:1px solid #ddd;
 }
 
-#kb > li h4 {
+
+#kb li h4 {
     padding-bottom:3px;
-    margin-bottom:3px;
+    margin:0 0 3px 0;
 }
 
-#kb > li h4 span {
+#kb li h4 span {
     color:#666;
+    font-weight:normal;
 }
 
-#kb > li h4 a {
+#kb li h4 a {
   font-size: 14px;
+}
+
+#kbSearch {
+    padding:10px 0;
+    overflow:hidden;
+}
+
+#kbSearch div {
+    clear:both;
+    overflow:hidden;
+    padding-top:5px;
+}
+
+#kbSearch #query {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:200px;
+    margin-right:5px;
+}
+
+#kbSearch #cid {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:200px;
+    margin-right:5px;
+    position:relative;
+    top:2px;
+}
+
+#kbSearch #topic-id {
+    margin:0;
+    display:inline-block;
+    float:left;
+    width:410px;
+}
+
+#kbSearch #searchSubmit {
+    margin:0;
+    display:inline-block;
+    float:left;
+    position:relative;
+    top:2px;
 }
 
 #faq {
@@ -1060,13 +1094,212 @@ h2 .reload {
 }
 #faq ol li {
   list-style: none;
-  margin: 0 0 10px 0;
+  margin: 0;
+  padding:5px 0;
   color: #999;
+  border-bottom:1px solid #ddd;
 }
+
 #faq ol li a {
   display: inline;
   height: 16px;
+  font-size:13px;
   line-height: 16px;
   padding-left: 24px;
   background: url('../images/icons/page.png') 0 50% no-repeat;
+}
+
+#faq ol li a span {
+    font-weight:normal;
+    color:#777;
+}
+
+#faq ol li:hover {
+  background-color:#e9f5ff;
+}
+
+time {
+    display:inline-block;
+    float:right;
+    color:#777;
+}
+
+.cat-desc {
+    padding-top:5px;
+    padding-bottom:25px;
+}
+
+.cat-manage-bar {
+    background:#e3f5ff;
+    padding:5px;
+    border-bottom:1px solid #777;
+}
+
+.cat-manage-bar a {
+    display:inline-block;
+    margin-right:20px;
+}
+
+/* Advanced Ticket Search */
+
+#overlay {
+    background:#000;
+    position:absolute;
+    display:none;
+    z-index:1000;
+}
+
+#advanced-search, #advanced-search * {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+#advanced-search {
+    position:absolute;
+    padding:1em;
+    width:640px;
+    height:360px;
+    background:#fff;
+    border:1px solid #2a67ac;
+    display:none;
+    z-index:1200;
+}
+
+#advanced-search h3 {
+    color:#2a67ac;
+    font-size:20px;
+    margin:0;
+    padding:0;
+    display:inline-block;
+}
+
+#advanced-search a.close {
+    display:inline-block;
+    float:right;
+    font-size:16px;
+    color:#777;
+}
+
+#advanced-search form {
+    clear:both;
+    padding:2em 0 1em 0;
+    width:100%;
+}
+
+#advanced-search div.closed_by, #advanced-search span.spinner {
+    display:none;
+}
+
+#advanced-search fieldset {
+    margin:0;
+    padding:0.25em 0;
+    border:none;
+    overflow:hidden;
+}
+
+#advanced-search label {
+    width:100px;
+    display:inline-block;
+    text-align:right;
+    padding:10px;
+}
+
+#advanced-search fieldset input {
+    border:1px solid #ccc;
+    background:#fff;
+}
+
+#advanced-search fieldset select {
+    width:170px;
+    display:inline-block;
+}
+
+#advanced-search fieldset span {
+    width:50px;
+    display:inline-block;
+    text-align:center;
+    color:#777;
+    font-size:0.75em;
+}
+
+#advanced-search .query input {
+    width:350px;
+}
+
+#advanced-search .date_range input {
+    width:175px;
+}
+
+#advanced-search .date_range i {
+    display:inline-block;
+    margin-left:3px;
+    position:relative;
+    top:5px;
+    width:16px;
+    height:16px;
+    background:url(../images/cal.png) bottom left no-repeat;
+}
+
+#advanced-search fieldset.sorting select {
+    width:130px;
+}
+
+#advanced-search p {
+    text-align:center;
+}
+
+#advanced-search input[type="submit"],
+#advanced-search input[type="reset"],
+#advanced-search input[type="button"]
+{
+    display:inline-block;
+    margin:0;
+    height:24px;
+    line-height:24px;
+    font-weight:bold;
+    border:1px solid #666666;
+    padding:0 10px;
+    background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x;
+    color: #333;
+}
+
+#advanced-search input[type="reset"], #advanced-search input[type="button"] {
+    opacity:0.7;
+}
+
+#advanced-search input[type=submit]:hover, #advanced-search input[type=submit]:active,
+#advanced-search input[type=reset]:hover, #advanced-search input[type=reset]:active {
+    background-position:bottom left;
+}
+
+#result-count div {
+    padding:5px 10px;
+    text-align:left;
+    font-weight:bold;
+    width:100%;
+    margin:0 auto;
+}
+
+#result-count .success {
+    background:#e3ffd8;
+    border:1px solid #0a0;
+}
+
+#result-count .fail {
+    background:#ffd8d8;
+    border:1px solid #a00;
+}
+
+/* Custom css for datepicker */
+.ui-datepicker-trigger {
+    display:inline-block;
+    border:0;
+    padding:0;
+    margin-left:2px;
+    position:relative;
+    top:5px;
+    width:16px;
+    height:16px;
+    background:inherit;
 }

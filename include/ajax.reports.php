@@ -29,7 +29,9 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 class OverviewReportAjaxAPI extends AjaxController {
     function enumTabularGroups() {
         return $this->encode(array("dept"=>"Department", "topic"=>"Topics",
-        "staff"=>"Staff"));
+            # XXX: This will be relative to permissions based on the
+            # logged-in-staff. For basic staff, this will be 'My Stats'
+            "staff"=>"Staff"));
     }
 
     function getData() {
@@ -51,6 +53,8 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "fields" => "T1.topic",
                 "headers" => array('Help Topic')
             ),
+            # XXX: This will be relative to permissions based on the
+            # logged-in-staff
             "staff" => array(
                 "table" => STAFF_TABLE,
                 "pk" => 'staff_id',
@@ -65,27 +69,43 @@ class OverviewReportAjaxAPI extends AjaxController {
 
         $res = db_query(
             'SELECT ' . $info['fields'] . ','
-                .' COUNT(A1.ticket_id) AS Opened,'
-                .' COUNT(A2.ticket_id) AS Closed,'
-                .' COUNT(A3.ticket_id) AS Reopened'
+                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND A1.status=\'open\') AS Open,'
+                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND (A1.staff_id > 0 OR A1.team_id > 0)'
+                    .'   AND A1.status=\'open\') AS Assigned,'
+                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND (A1.staff_id = 0 AND A1.team_id = 0)'
+                    .'   AND A1.status=\'open\') AS Unassigned,'
+                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND A1.isanswered = 0'
+                    .'   AND A1.status=\'open\') AS Unanswered,'
+                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND A1.isoverdue = 1'
+                    .'   AND A1.status=\'open\') AS Overdue,'
+                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND A1.status=\'closed\') AS Closed,'
+                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND A1.reopened is not null) AS Reopened,'
+                .'(SELECT FORMAT(AVG(DATEDIFF(A1.closed, A1.created)),1) FROM '.TICKET_TABLE
+                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
+                    .'   AND A1.status=\'closed\') AS ServiceTime'
             .' FROM ' . $info['table'] . ' T1'
-            .' LEFT JOIN ' . TICKET_EVENT_TABLE 
-                . ' A1 ON (T1.' . $info['pk'] . ' = A1.' . $info['pk']
-                    .' AND A1.state=\'opened\' AND NOT A1.annulled)'
-            .' LEFT JOIN ' . TICKET_EVENT_TABLE
-                . ' A2 ON (T1.' . $info['pk'] . ' = A2.' . $info['pk']
-                    .' AND A2.state=\'closed\' AND NOT A2.annulled)'
-            .' LEFT JOIN ' . TICKET_EVENT_TABLE
-                . ' A3 ON (T1.' . $info['pk'] . ' = A3.' . $info['pk']
-                    .' AND A3.state=\'reopened\' AND NOT A3.annulled)'
-            .' GROUP BY '.$info['fields']
         );
         $rows = array();
         while ($row = db_fetch_row($res)) {
             $rows[] = $row;
         }
         return array("columns" => array_merge($info['headers'],
-                        array('Opened','Closed','Reopened')),
+                        array('Open','Assigned','Unassigned','Unanswered',
+                              'Overdue','Closed','Reopened','Service Time')),
                      "data" => $rows);
     }
 
@@ -95,21 +115,23 @@ class OverviewReportAjaxAPI extends AjaxController {
 
     function downloadTabularData() {
         $data = $this->getData();
-        $csv = array($data['columns']);
-        $csv = array_merge($csv, $data['data']);
+        $csv = '"' . implode('","',$data['columns']) . '"';
+        foreach ($data['data'] as $row)
+            $csv .= "\n" . '"' . implode('","', $row) . '"';
         Http::download(
             sprintf('%s-report.csv', $this->get('group', 'Department')),
-            Format::implode_array(',', "\n", $csv));
+            'text/csv', $csv);
     }
 
     function getPlotData() {
-        $start = $this->get('start', strtotime('last month'));
-        $stop = $this->get('stop', time());
+        $start = strtotime($this->get('start', 'last month'));
+        $stop = strtotime($this->get('stop', 'now'));
 
         # Fetch all types of events over the timeframe
         $res = db_query('SELECT DISTINCT(state) FROM '.TICKET_EVENT_TABLE
             .' WHERE timestamp BETWEEN FROM_UNIXTIME('.db_input($start)
-                .') AND FROM_UNIXTIME('.db_input($stop).')');
+                .') AND FROM_UNIXTIME('.db_input($stop)
+                .') ORDER BY 1');
         $events = array();
         while ($row = db_fetch_row($res)) $events[] = $row[0];
 
@@ -120,7 +142,9 @@ class OverviewReportAjaxAPI extends AjaxController {
             .' FROM '.TICKET_EVENT_TABLE
             .' WHERE timestamp BETWEEN FROM_UNIXTIME('.db_input($start)
                 .') AND FROM_UNIXTIME('.db_input($stop)
-            .') GROUP BY state, DATE_FORMAT(timestamp, \'%Y-%m-%d\')');
+            .') AND NOT annulled'
+            .' GROUP BY state, DATE_FORMAT(timestamp, \'%Y-%m-%d\')'
+            .' ORDER BY 2, 1');
         # Initialize array of plot values
         $plots = array();
         foreach ($events as $e) { $plots[$e] = array(); }
@@ -133,18 +157,21 @@ class OverviewReportAjaxAPI extends AjaxController {
                 # New time (and not the first), figure out which events did
                 # not have any tickets associated for this time slot
                 if ($time !== null) {
-                    # Not the first record
-                    foreach (array_diff($events, $slots) as $slot) {
+                    # Not the first record -- add zeros all the arrays that
+                    # did not have at least one entry for the timeframe
+                    foreach (array_diff($events, $slots) as $slot)
                         $plots[$slot][] = 0;
-                    }
                 }
                 $slots = array();
                 $times[] = $time = $row_time;
             }
             # Keep track of states for this timeframe
-            if (!in_array($row[0], $slots)) $slots[] = $row[0];
+            $slots[] = $row[0];
             $plots[$row[0]][] = (int)$row[2];
         }
-        return $this->encode(array("times" => $times, "plots" => $plots));
+        foreach (array_diff($events, $slots) as $slot)
+            $plots[$slot][] = 0;
+        return $this->encode(array("times" => $times, "plots" => $plots,
+            "events"=>$events));
     }
 }

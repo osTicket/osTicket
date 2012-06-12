@@ -26,10 +26,14 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
         'Web', 'Email', 'Phone', 'API', 'Other') NOT NULL DEFAULT 'Other';
 
 -- Add table for ticket history (statistics) tracking
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_history`;
-CREATE TABLE `%TABLE_PREFIX%ticket_history` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
+CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `ticket_id` int(11) unsigned NOT NULL default '0',
-  `state` enum('opened','closed','assigned','transferred','overdue') NOT NULL,
+  `staff_id` int(11) unsigned NOT NULL,
+  `team_id` int(11) unsigned NOT NULL,
+  `dept_id` int(11) unsigned NOT NULL,
+  `topic_id` int(11) unsigned NOT NULL,
+  `state` enum('created','closed','reopened','assigned','transferred','overdue') NOT NULL,
   `staff` varchar(255) NOT NULL default 'SYSTEM',
   `timestamp` datetime NOT NULL,
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),

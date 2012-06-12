@@ -59,13 +59,12 @@ if($search) {
         $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
                 ." ticket.subject LIKE '%$queryterm%'"
-                ." OR message.message LIKE '%$queryterm%'"
-                ." OR response.response LIKE '%$queryterm%'"
+                ." OR thread.body LIKE '%$queryterm%'"
                 .' ) ';
         $deep_search=true;
         //Joins needed for search
-        $qfrom.=' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id )'
-               .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id )';
+        $qfrom.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ('
+               .'ticket.ticket_id=thread.ticket_id AND thread.thread_type IN ("M","R"))';
     }
 }
 

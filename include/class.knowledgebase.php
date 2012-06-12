@@ -55,9 +55,11 @@ class Knowledgebase {
     function publish() { $this->published = true; }
     function unpublish() { $this->published = false; }
     function setPublished($val) { $this->published = !!$val; }
+    function setEnabled($val) { $this->enabled = !!$val; }
     function setTitle($title) { $this->title = $title; }
     function setKeywords($words) { $this->keywords = $words; }
     function setAnswer($text) { $this->answer = $text; }
+    function setDepartment($id) { $this->department = $id; }
 
     /* -------------> Validation and Clean methods <------------ */
     function validate(&$errors, $what=null) {

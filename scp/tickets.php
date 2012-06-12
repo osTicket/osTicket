@@ -55,7 +55,7 @@ if($_POST && !$errors):
             if(!$errors['err'] && EmailFilter::isBanned($ticket->getEmail()))
                 $errors['err']='Email is in banlist. Must be removed to reply.';
 
-            $wasOpen =($ticket->isopen());
+            $wasOpen =($ticket->isOpen());
             //If no error...do the do.
             if(!$errors && ($respId=$ticket->postReply($_POST,$_FILES['attachments'],$errors))) {
                 $msg='Reply posted successfully';
@@ -189,7 +189,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'close':
-                    if(!$thisstaff->isadmin() && !$thisstaff->canCloseTickets()){
+                    if(!$thisstaff->isAdmin() && !$thisstaff->canCloseTickets()){
                         $errors['err']='Perm. Denied. You are not allowed to close tickets.';
                     }else{
                         if($ticket->close()){
@@ -204,7 +204,7 @@ if($_POST && !$errors):
                     break;
                 case 'reopen':
                     //if they can close...then assume they can reopen.
-                    if(!$thisstaff->isadmin() && !$thisstaff->canCloseTickets()){
+                    if(!$thisstaff->isAdmin() && !$thisstaff->canCloseTickets()){
                         $errors['err']='Perm. Denied. You are not allowed to reopen tickets.';
                     }else{
                         if($ticket->reopen()){
@@ -233,7 +233,7 @@ if($_POST && !$errors):
                     break;
                 case 'overdue':
                     //Mark the ticket as overdue
-                    if(!$thisstaff->isadmin() && !$thisstaff->isManager()){
+                    if(!$thisstaff->isAdmin() && !$thisstaff->isManager()){
                         $errors['err']='Perm. Denied. You are not allowed to flag tickets overdue';
                     }else{
                         if($ticket->markOverdue()){
@@ -252,7 +252,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'banemail':
-                    if(!$thisstaff->isadmin() && !$thisstaff->canManageBanList()){
+                    if(!$thisstaff->isAdmin() && !$thisstaff->canBanEmails()){
                         $errors['err']='Perm. Denied. You are not allowed to ban emails';
                     }elseif(Banlist::add($ticket->getEmail(),$thisstaff->getName())){
                         $msg='Email ('.$ticket->getEmail().') added to banlist';
@@ -266,7 +266,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'unbanemail':
-                    if(!$thisstaff->isadmin() && !$thisstaff->canManageBanList()){
+                    if(!$thisstaff->isAdmin() && !$thisstaff->canBanEmails()){
                         $errors['err']='Perm. Denied. You are not allowed to remove emails from banlist.';
                     }elseif(Banlist::remove($ticket->getEmail())){
                         $msg='Email removed from banlist';
@@ -275,7 +275,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'delete': // Dude what are you trying to hide? bad customer support??
-                    if(!$thisstaff->isadmin() && !$thisstaff->canDeleteTickets()){
+                    if(!$thisstaff->isAdmin() && !$thisstaff->canDeleteTickets()){
                         $errors['err']='Perm. Denied. You are not allowed to DELETE tickets!!';
                     }else{
                         if($ticket->delete()){
@@ -339,7 +339,7 @@ if($_POST && !$errors):
                         $note='Ticket flagged as overdue by '.$thisstaff->getName();
                         foreach($_POST['tids'] as $k=>$v) {
                             $t = new Ticket($v);
-                            if($t && !$t->isoverdue())
+                            if($t && !$t->isOverdue())
                                 if($t->markOverdue()) { 
                                     $i++;
                                     $t->logActivity('Ticket Marked Overdue',$note,false,'System');

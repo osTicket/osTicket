@@ -6,17 +6,18 @@ if(!defined('SETUPINC')) die('Kwaheri!');
     <div id="intro">
         <p>Upgrade aborted due to errors. Any errors at this stage are fatal. Please note the error(s), if any, when contacting us.<p>
         <?php
-        if($_SESSION['upgrader']['errors']) {
-            $errors=$_SESSION['upgrader']['errors'];
+        if($upgrader && ($errors=$upgrader->getErrors())) {
             if($errors['err'])
                 echo sprintf('<b><font color="red">%s</font></b>',$errors['err']);
-                
             echo '<ul class="error">';
             unset($errors['err']);
-            foreach($errors as $k=>$error)
+            foreach($errors as $k => $error)
                 echo sprintf('<li>%s</li>',$error);
             echo '</ul>';
-        } ?>
+        } else {
+            echo '<b><font color="red">Internal error occurred - get technical help.</font></b>';
+        }
+        ?>
         <p>Please, refer to the <a target="_blank" href="http://osticket.com/wiki/Upgrade_and_Migration">Upgrade Guide</a> on the wiki for more information.</p>
     </div>
     <p><strong>Need Help?</strong> We provide <a target="_blank" href="http://osticket.com/support/professional_services.php"><u>professional upgrade services</u></a> and commercial support. <a target="_blank" href="http://osticket.com/support/">Contact us</a> today for expedited help.</p>

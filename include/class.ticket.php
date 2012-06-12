@@ -75,18 +75,25 @@ class Ticket{
        
         $sql='SELECT  ticket.*, topic.topic as helptopic, lock_id, dept_name, priority_desc '
             .' ,count(attach.attach_id) as attachments '
-            .' ,count(DISTINCT message.msg_id) as messages '
-            .' ,count(DISTINCT response.response_id) as responses '
-            .' ,count(DISTINCT note.note_id) as notes '
+            .' ,count(DISTINCT message.id) as messages '
+            .' ,count(DISTINCT response.id) as responses '
+            .' ,count(DISTINCT note.id) as notes '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
-            .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.priority_id) '
-            .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
-            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
-            .' LEFT JOIN '.TICKET_MESSAGE_TABLE.' message ON (ticket.ticket_id=message.ticket_id) '
-            .' LEFT JOIN '.TICKET_RESPONSE_TABLE.' response ON (ticket.ticket_id=response.ticket_id) '
-            .' LEFT JOIN '.TICKET_NOTE_TABLE.' note ON (ticket.ticket_id=note.ticket_id ) '
+            .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON ('
+                .'ticket.priority_id=pri.priority_id) '
+            .' LEFT JOIN '.TOPIC_TABLE.' topic ON ('
+                .'ticket.topic_id=topic.topic_id) '
+            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON ('
+                .'ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
+            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
+                .'ticket.ticket_id=attach.ticket_id) '
+            .' LEFT JOIN '.TICKET_THREAD_TABLE.' message ON ('
+                ."ticket.ticket_id=message.ticket_id AND message.thread_type = 'M') "
+            .' LEFT JOIN '.TICKET_THREAD_TABLE.' response ON ('
+                ."ticket.ticket_id=response.ticket_id AND response.thread_type = 'R') "
+            .' LEFT JOIN '.TICKET_THREAD_TABLE.' note ON ( '
+                ."ticket.ticket_id=note.ticket_id AND note.thread_type = 'N') "
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 
@@ -437,9 +444,10 @@ class Ticket{
     function getLastRespondent() {
 
         $sql ='SELECT  resp.staff_id '
-             .' FROM '.TICKET_RESPONSE_TABLE.' resp '
+             .' FROM '.TICKET_THREAD_TABLE.' resp '
              .' LEFT JOIN '.STAFF_TABLE. ' USING(staff_id) '
              .' WHERE  resp.ticket_id='.db_input($this->getId()).' AND resp.staff_id>0 '
+             .'   AND  resp.thread_type="R"'
              .' ORDER BY resp.created DESC LIMIT 1';
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -457,8 +465,9 @@ class Ticket{
             return $this->lastmsgdate;
 
         //for old versions...XXX: still needed????
-        $sql='SELECT created FROM '.TICKET_MESSAGE_TABLE
+        $sql='SELECT created FROM '.TICKET_THREAD_TABLE
             .' WHERE ticket_id='.db_input($this->getId())
+            ."   AND thread_type = 'M'"
             .' ORDER BY created DESC LIMIT 1';
         if(($res=db_query($sql)) && db_num_rows($res))
             list($this->lastmsgdate)=db_fetch_row($res);
@@ -475,8 +484,9 @@ class Ticket{
         if($this->lastrespdate)
             return $this->lastrespdate;
 
-        $sql='SELECT created FROM '.TICKET_RESPONSE_TABLE
+        $sql='SELECT created FROM '.TICKET_THREAD_TABLE
             .' WHERE ticket_id='.db_input($this->getId())
+            .'   AND thread_type="R"'
             .' ORDER BY created DESC LIMIT 1';
         if(($res=db_query($sql)) && db_num_rows($res))
             list($this->lastrespdate)=db_fetch_row($res);
@@ -517,63 +527,67 @@ class Ticket{
         return $this->ht['notes'];
     }
 
-    function getNotes($order='') {
+    function getMessages() {
+        return $this->getThreadByType('M');
+    }
+
+    function getResponses($msgId=0) {
+        return $this->getThreadByType('R', $msgID);
+    }
+
+    function getNotes() {
+        return $this->getThreadByType('N');
+    }
+
+    function getClientThread() {
+        return $this->getThreadwithoutNotes();
+    }
+
+    function getThreadWithNotes() {
+        return $this->getThread(true);
+    }
+    
+    function getThreadWithoutNotes() {
+        return $this->getThread(false);
+    }
+
+    function getThread($includeNotes=false, $order='') {
+
+        $treadtypes=array('M', 'R'); // messages and responses.
+        if($includeNotes) //Include notes??
+            $treadtypes[] = 'N';
+
+        return $this->getThreadbyType($treadtypes, $order);
+    }
+        
+    function getThreadByType($type, $order='ASC') {
 
         if(!$order || !in_array($order, array('DESC','ASC')))
-            $order='DESC';
+            $order='ASC';
 
-        $sql ='SELECT note.*, count(DISTINCT attach.attach_id) as attachments '
-            .' FROM '.TICKET_NOTE_TABLE.' note '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
-                ON (note.ticket_id=attach.ticket_id AND note.note_id=attach.ref_id AND ref_type="N") '
-            .' WHERE note.ticket_id='.db_input($this->getId())
-            .' GROUP BY note.note_id '
-            .' ORDER BY note.created '.$order;
+        $sql='SELECT thread.* '
+            .' ,count(DISTINCT attach.attach_id) as attachments '
+            .' FROM '.TICKET_THREAD_TABLE.' thread '
+            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
+                ON (thread.ticket_id=attach.ticket_id 
+                        AND thread.id=attach.ref_id 
+                        AND thread.thread_type=attach.ref_type) '
+            .' WHERE  thread.ticket_id='.db_input($this->getId());
 
-        $notes=array();
+        if($type && is_array($type))
+            $sql.=" AND thread.thread_type IN('".implode("','", $type)."')";
+        else
+            $sql.=' AND thread.thread_type='.db_input($type);
+
+        $sql.=' GROUP BY thread.id '
+             .' ORDER BY thread.created '.$order;
+
+        $thread=array();
         if(($res=db_query($sql)) && db_num_rows($res))
             while($rec=db_fetch_array($res))
-                $notes[]=$rec;
+                $thread[] = $rec;
 
-        return $notes;
-    }
-
-    function getMessages() {
-
-        $sql='SELECT msg.msg_id, msg.created, msg.message '
-            .' ,count(DISTINCT attach.attach_id) as attachments, count( DISTINCT resp.response_id) as responses '
-            .' FROM '.TICKET_MESSAGE_TABLE.' msg '
-            .' LEFT JOIN '.TICKET_RESPONSE_TABLE. ' resp ON(resp.msg_id=msg.msg_id) '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
-                ON (msg.ticket_id=attach.ticket_id AND msg.msg_id=attach.ref_id AND ref_type="M") '
-            .' WHERE  msg.ticket_id='.db_input($this->getId())
-            .' GROUP BY msg.msg_id '
-            .' ORDER BY msg.created ASC ';
-
-        $messages=array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec=db_fetch_array($res))
-                $messages[] = $rec;
-                
-        return $messages;
-    }
-
-    function getResponses($msgId) {
-
-        $sql='SELECT resp.*, count(DISTINCT attach.attach_id) as attachments '
-            .' FROM '.TICKET_RESPONSE_TABLE. ' resp '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
-                ON (resp.ticket_id=attach.ticket_id AND resp.response_id=attach.ref_id AND ref_type="R") '
-            .' WHERE  resp.ticket_id='.db_input($this->getId())
-            .' GROUP BY resp.response_id '
-            .' ORDER BY resp.created';
-
-        $responses=array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec= db_fetch_array($res))
-                $responses[] = $rec;
-                
-        return $responses;
+        return $thread;
     }
 
     function getAttachments($refId=0, $type=null) {
@@ -654,10 +668,14 @@ class Ticket{
     //Set staff ID...assign/unassign/release (id can be 0)
     function setStaffId($staffId){
        
-      $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
-          .' WHERE ticket_id='.db_input($this->getId());
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
+            .' WHERE ticket_id='.db_input($this->getId());
 
-      return (db_query($sql)  && db_affected_rows());
+        if (db_query($sql)  && db_affected_rows()) {
+            $this->staff_id = $staffId;
+            return true;
+        }
+        return false;
     }
 
     function setSLAId($slaId) {
@@ -769,7 +787,7 @@ class Ticket{
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
-        $this->track('closed');
+        $this->logEvent('closed');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -783,7 +801,7 @@ class Ticket{
 
         //TODO: log reopen event here 
 
-        $this->track('reopened');
+        $this->logEvent('reopened', 'closed');
         return (db_query($sql) && db_affected_rows());
     }
 
@@ -873,7 +891,7 @@ class Ticket{
         $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
         sys::log(LOG_WARNING, 'Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
 
-        if(!$sendNotice || !$cfg->sendOverlimitNotice()) return true;
+        if(!$sendNotice || !$cfg->sendOverLimitNotice()) return true;
 
         //Send notice to user.
         $dept = $this->getDept();
@@ -953,7 +971,7 @@ class Ticket{
                 $email=$cfg->getDefaultEmail();
             
             if($email) {
-                $email->send($this->getEMail(),$subj,$body);
+                $email->send($this->getEmail(),$subj,$body);
             }
         }
 
@@ -996,12 +1014,12 @@ class Ticket{
             $recipients=array();
             //Assigned staff or team... if any
             // Assigning a ticket to a team when already assigned to staff disables alerts to the team (!))
-            if($cfg->alertStaffONAssign() && $this->getStaffId())
+            if($cfg->alertStaffONAssignment() && $this->getStaffId())
                 $recipients[]=$this->getStaff();
             elseif($this->getTeamId() && ($team=$this->getTeam())) {
-                if($cfg->alertTeamMembersOnAssignment() && ($members=$team->getMembers()))
+                if($cfg->alertTeamMembersONAssignment() && ($members=$team->getMembers()))
                     $recipients+=$members;
-                elseif($cfg->alertTeamLeadOnAssignment() && ($lead=$team->getTeamLead()))
+                elseif($cfg->alertTeamLeadONAssignment() && ($lead=$team->getTeamLead()))
                     $recipients[]=$lead;
             }
             //Send the alerts.
@@ -1128,8 +1146,8 @@ class Ticket{
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
+        $this->logEvent('overdue');
         $this->onOverdue($whine);
-        $this->track('overdue');
 
         return true;
     }
@@ -1150,6 +1168,7 @@ class Ticket{
              $this->reopen();
         
          $this->reload(); //reload - new dept!!
+         $this->logEvent('transferred');
 
          //Send out alerts if enabled AND requested
          if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept())) return true; //no alerts!!
@@ -1196,7 +1215,6 @@ class Ticket{
             }
          }
 
-         $this->track('transferred');
          return true;
     }
 
@@ -1209,8 +1227,8 @@ class Ticket{
             return false;
 
         $this->onAssign($note, $alert);
+        $this->logEvent('assigned');
 
-        $this->track('assigned');
         return true;
     }
 
@@ -1228,8 +1246,8 @@ class Ticket{
             $this->setStaffId(0);
 
         $this->onAssign($note, $alert);
+        $this->logEvent('assigned');
 
-        $this->track('assigned');
         return true;
     }
 
@@ -1270,24 +1288,33 @@ class Ticket{
     }
 
     //Insert message from client
-    function postMessage($msg,$source='',$msgid=NULL,$headers='',$newticket=false){
+    function postMessage($msg,$source='',$emsgid=null,$headers='',$newticket=false){
         global $cfg;
        
         if(!$this->getId()) return 0;
         
         # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
 
-        $sql='INSERT INTO '.TICKET_MESSAGE_TABLE.' SET created=NOW() '
+        $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW()'
+            .' ,thread_type="M" '
             .' ,ticket_id='.db_input($this->getId())
-            .' ,messageId='.db_input($msgid)
-            .' ,message='.db_input(Format::striptags($msg)) //Tags/code stripped...meaning client can not send in code..etc
-            .' ,headers='.db_input($headers) //Raw header.
+            # XXX: Put Subject header into the 'title' field
+            .' ,body='.db_input(Format::striptags($msg)) //Tags/code stripped...meaning client can not send in code..etc
             .' ,source='.db_input($source?$source:$_SERVER['REMOTE_ADDR'])
             .' ,ip_address='.db_input($_SERVER['REMOTE_ADDR']);
     
         if(!db_query($sql) || !($msgid=db_insert_id())) return 0; //bail out....
 
         $this->setLastMsgId($msgid);
+
+        if ($emsgid !== null) {
+            $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
+                .' SET message_id='.db_input($msgid)
+                .', email_mid='.db_input($emsgid)
+                .', headers='.db_input($headers);
+
+            if (!db_query($sql)) return 0;
+        }
 
         if($newticket) return $msgid; //Our work is done...
 
@@ -1353,12 +1380,13 @@ class Ticket{
 
         if($errors) return 0;
 
-        $sql='INSERT INTO '.TICKET_RESPONSE_TABLE.' SET created=NOW() '
+        $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
+            .' ,thread_type="R"'
             .' ,ticket_id='.db_input($this->getId())
-            .' ,msg_id='.db_input($vars['msgId'])
-            .' ,response='.db_input(Format::striptags($vars['response']))
+            .' ,pid='.db_input($vars['msgId'])
+            .' ,body='.db_input(Format::striptags($vars['response']))
             .' ,staff_id='.db_input($thisstaff->getId())
-            .' ,staff_name='.db_input($thisstaff->getName())
+            .' ,poster='.db_input($thisstaff->getName())
             .' ,ip_address='.db_input($thisstaff->getIP());
 
         if(!db_query($sql) || !($respId=db_insert_id()))
@@ -1386,16 +1414,17 @@ class Ticket{
 
         $this->onResponse(); //do house cleaning..
         $this->reload();
-        $dept = $this->getDept();
 
         /* email the user??  - if disabled - the bail out */
         if(!$alert) return $respId;
 
+        $dept = $this->getDept();
+
         if(!($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
 
-        if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
+        if(!$dept || !($email=$dept->getEmail()))
+            $email = $cfg->getDefaultEmail();
 
         if($tpl && ($msg=$tpl->getReplyMsgTemplate()) && $email) {
             $body=$this->replaceTemplateVars($msg['body']);
@@ -1430,20 +1459,32 @@ class Ticket{
         if(!$cfg || !$cfg->logTicketActivity())
             return 0;
 
-        return $this->postNote($title,$note,false,'system');
+        return $this->postNote($title,$note,false,'System');
     }
 
     // History log -- used for statistics generation (pretty reports)
-    function track($state, $staff=null) {
+    function logEvent($state, $annul=null, $staff=null) {
         global $thisstaff;
 
         if ($staff === null) {
             if ($thisstaff) $staff=$thisstaff->getUserName();
             else $staff='SYSTEM';               # XXX: Security Violation ?
         }
+        # Annul previous entries if requested (for instance, reopening a
+        # ticket will annul an 'closed' entry). This will be useful to
+        # easily prevent repeated statistics.
+        if ($annul) {
+            db_query('UPDATE '.TICKET_EVENT_TABLE.' SET annulled=1'
+                .' WHERE ticket_id='.db_input($this->getId())
+                  .' AND state='.db_input($annul));
+        }
 
-        return db_query('INSERT INTO '.TICKET_HISTORY_TABLE
+        return db_query('INSERT INTO '.TICKET_EVENT_TABLE
             .' SET ticket_id='.db_input($this->getId())
+            .', staff_id='.db_input($this->getStaffId())
+            .', team_id='.db_input($this->getTeamId())
+            .', dept_id='.db_input($this->getDeptId())
+            .', topic_id='.db_input($this->getTopicId())
             .', timestamp=NOW(), state='.db_input($state)
             .', staff='.db_input($staff))
             && db_affected_rows() == 1;
@@ -1453,12 +1494,13 @@ class Ticket{
     function postNote($title,$note,$alert=true,$poster='') {        
         global $thisstaff,$cfg;
 
-        $sql= 'INSERT INTO '.TICKET_NOTE_TABLE.' SET created=NOW() '.
+        $sql= 'INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '.
+                ',thread_type="N"'.
                 ',ticket_id='.db_input($this->getId()).
                 ',title='.db_input(Format::striptags($title)).
-                ',note='.db_input(Format::striptags($note)).
+                ',body='.db_input(Format::striptags($note)).
                 ',staff_id='.db_input($thisstaff?$thisstaff->getId():0).
-                ',source='.db_input(($poster || !$thisstaff)?$poster:$thisstaff->getName());
+                ',poster='.db_input(($poster || !$thisstaff)?$poster:$thisstaff->getName());
         //echo $sql;
         if(!db_query($sql) || !($id=db_insert_id()))
             return false;
@@ -1560,9 +1602,7 @@ class Ticket{
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        db_query('DELETE FROM '.TICKET_MESSAGE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-        db_query('DELETE FROM '.TICKET_RESPONSE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-        db_query('DELETE FROM '.TICKET_NOTE_TABLE.' WHERE ticket_id='.db_input($this->getId()));
+        db_query('DELETE FROM '.TICKET_THREAD_TABLE.' WHERE ticket_id='.db_input($this->getId()));
         $this->deleteAttachments();
         
         return true;
@@ -1678,8 +1718,9 @@ class Ticket{
             return 0;
 
         $sql='SELECT ticket.ticket_id FROM '.TICKET_TABLE. ' ticket '.
-             ' LEFT JOIN '.TICKET_MESSAGE_TABLE.' msg USING(ticket_id) '.
-             ' WHERE messageId='.db_input($mid).' AND email='.db_input($email);
+             ' LEFT JOIN '.TICKET_THREAD_TABLE.' msg USING(ticket_id) '.
+             ' INNER JOIN '.TICKET_EMAIL_INFO_TABLE.' emsg ON (msg.id = emsg.message_id) '.
+             ' WHERE email_mid='.db_input($mid).' AND email='.db_input($email);
         $id=0;
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
@@ -1962,6 +2003,9 @@ class Ticket{
                     && ($client->getNumOpenTickets()==$cfg->getMaxOpenTickets())) {
             $ticket->onOpenLimit(($autorespond && strcasecmp($origin, 'staff')));
         }
+        
+        /* Start tracking ticket lifecycle events */
+        $ticket->logEvent('created');
 
         /* Phew! ... time for tea (KETEPA) */
 
