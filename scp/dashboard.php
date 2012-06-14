@@ -74,9 +74,12 @@ span.label {
     text-align: right;
     padding-right: 2.3em;
     width: 10%;
-    position: relative;
 }
 #table-here tr :not(:first-child) div {
+    position: relative;
+    margin-right: -1em;
+}
+#table-here tr :not(:first-child) div div {
     position: absolute;
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
@@ -309,14 +312,15 @@ span.label {
                                 size = 16 * scale;
                             }
                             tr.append($('<td>')
-                                .append($('<div>').css(val && range[j] ? {
+                                .append($('<div>').append(
+                                    $('<div>').css(val && range[j] ? {
                                         'background-color': color,
                                         'width': size,
                                         'height': size,
-                                        'top': 13 - (size / 2),
-                                        'right': 13 - (size / 2)
+                                        'top': 9 - (size / 2),
+                                        'right': 10 - (size / 2)
                                     } : {})
-                                    .append("&nbsp;"))
+                                    .append("&nbsp;")))
                                 .append(row[j]));
                         }
                     }
