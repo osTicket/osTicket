@@ -301,15 +301,15 @@ span.label {
                             tr.append($('<th>').append(row[j]));
                         else {
                             val = parseFloat(row[j])||0;
-                            if (val && json.data.length > 1) {
-                                scale = val / range[j]||1;
+                            if (val && range[j] && json.data.length > 1) {
+                                scale = val / range[j];
                                 color = Raphael.hsb(
                                     Math.min((1 - val / range[j]) * .4, 1),
                                     .75, .75);
                                 size = 16 * scale;
                             }
                             tr.append($('<td>')
-                                .append($('<div>').css(val ? {
+                                .append($('<div>').css(val && range[j] ? {
                                         'background-color': color,
                                         'width': size,
                                         'height': size,
