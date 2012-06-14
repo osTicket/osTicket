@@ -124,8 +124,12 @@ class OverviewReportAjaxAPI extends AjaxController {
     }
 
     function getPlotData() {
-        $start = strtotime($this->get('start', 'last month'));
-        $stop = strtotime($this->get('stop', 'now'));
+        $start = $this->get('start', 'last month');
+        $stop = $this->get('stop', 'now');
+        if (substr($stop, 0, 1) == '+')
+            $stop = $start . $stop;
+        $start = strtotime($start);
+        $stop = strtotime($stop);
 
         # Fetch all types of events over the timeframe
         $res = db_query('SELECT DISTINCT(state) FROM '.TICKET_EVENT_TABLE

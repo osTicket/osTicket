@@ -56,7 +56,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9',
 endColorstr='#f5f7f9',GradientType=0 ); /* IE6-9 */
 }
 #line-chart-here tspan {
-    font-family: Monaco;
+    font-family: Monaco, Calibri, Sans Serif;
     font-size: 8pt;
 }
 #line-chart-legend {
@@ -70,19 +70,43 @@ span.label.disabled {
 span.label {
     cursor: pointer;
 }
+#table-here tr :not(:first-child) {
+    text-align: right;
+    padding-right: 2.3em;
+    width: 10%;
+    position: relative;
+}
+#table-here tr :not(:first-child) div {
+    position: absolute;
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    border-radius: 1em;
+}
+
 </style>
 
+<h1>Ticket Activity</h1>
+<p>Select the starting time and period for the system activity graph</p>
 <form class="well form-inline" id="timeframe-form">
     <label>
         Report timeframe:
         <input type="text" class="dp input-medium search-query"
             name="start" placeholder="Last month"/>
     </label>
+    <label>
+        period:
+        <select name="period">
+            <option value="now" selected="selected">Up to today</option>
+            <option value="+7 days">One Week</option>
+            <option value="+14 days">Two Weeks</option>
+            <option value="+1 month">One Month</option>
+            <option value="+3 months">One Quarter</option>
+        </select>
+    </label>
     <button class="btn" type="submit">Refresh</button>
 </form>
 
 <!-- Create a graph and fetch some data to create pretty dashboard -->
-
 <div style="position:relative">
     <div id="line-chart-here" style="height:300px"></div>
     <div style="position:absolute;right:0;top:0" id="line-chart-legend"></div>
@@ -94,13 +118,15 @@ span.label {
     function refresh() {
         $('#line-chart-here').empty();
         $('#line-chart-legend').empty();
-        var r = new Raphael('line-chart-here');
-        var width = $('#line-chart-here').width()
-        var height = $('#line-chart-here').height()
+        var r = new Raphael('line-chart-here'),
+            width = $('#line-chart-here').width(),
+            height = $('#line-chart-here').height();
         $.ajax({
             method:     'GET',
             url:        'ajax.php/report/overview/graph',
-            data:       ((this.start && this.start.value) ? {'start': this.start.value} : {}),
+            data:       ((this.start && this.start.value) ? {
+                'start': this.start.value,
+                'stop': this.period.value} : {}),
             dataType:   'json',
             success:    function(json) {
                 var previous_data = json,
@@ -138,7 +164,6 @@ span.label {
                     plots.push(json.plots[e]);
                     max = Math.max(max, Math.max.apply(Math, json.plots[e]));
                 }
-                console.log(json.times, smtimes, steps, max);
                 m = r.linechart(10, 10, width - 80, height - 20,
                     times, plots, { 
                     gutter: 10,
@@ -207,59 +232,16 @@ span.label {
     }
     $(refresh);
     $('#timeframe-form').submit(refresh);
-
-    function refresh_dots() {
-        var width = $('#line-chart-here').width()
-        $.ajax({
-            method:     'GET',
-            url:        'ajax.php/report/overview/graph',
-            data:       {'start': "May-01-2012"},
-            dataType:   'json',
-            success:    function(json) {
-                var xs = [], ys = [], data = [], axisx = [], axisy = [], y = 0;
-                for (var key in json.plots) {
-                    y++;
-                    axisy.push(key);
-                    for (var x in json.plots[key]) {
-                        xs.push(parseInt(x));
-                        ys.push(y);
-                        data.push(json.plots[key][x]);
-                    }
-                }
-                width = Math.min(json.times.length * 75 + 50, width - 50);
-                r.dotchart(10, 10 , width, 200, xs, ys, data, {
-                    symbol: "o", max: 10, heat: true, axis: "0 0 1 1",
-                    axisxstep: json.times.length-1,
-                    axisystep: axisy.length-1,
-                    axisxlabels: json.times, axisxtype: " ",
-                    axisytype: " ", axisylabels: axisy
-                }).hover(
-                    function () {
-                        this.marker = this.marker 
-                                || r.tag(this.x, this.y, this.value, 0, this.r + 2)
-                            .insertBefore(this);
-                        this.marker.show();
-                    },
-                    function () {
-                        this.marker && this.marker.hide();
-                });
-            }
-        });
-    }
-    //$(refresh_dots);
-
 </script>
 
-<ul class="nav nav-tabs" id="tabular-navigation">
-</ul>
+<h1>Current statistics</h1>
+<ul class="nav nav-tabs" id="tabular-navigation"></ul>
 
 <div id="table-here"></div>
 
 <script type="text/javascript">
 
-    $(function() {
-        $('tabular-navigation').tab();
-    });
+    $(function() { $('tabular-navigation').tab(); });
 
     // Add tabs for the tabular display
     $(function() {
@@ -295,15 +277,49 @@ span.label {
                 var q = $('<table>').attr({class:'table table-condensed table-striped'});
                 var h = $('<tr>').appendTo($('<thead>').appendTo(q));
                 var pagesize = 25;
-                for (var c in json.columns)
+                var min = [], max = [], range = [];
+                for (var c in json.columns) {
                     h.append($('<th>').append(json.columns[c]));
+                    min.push(1e8); max.push(0);
+                }
+                for (y in json.data) {
+                    row = json.data[y];
+                    for (x in row) {
+                        min[x] = Math.min(min[x], parseFloat(row[x]||0));
+                        max[x] = Math.max(max[x], parseFloat(row[x]||0));
+                    }
+                }
+                for (i=1; i<min.length; i++)
+                    range[i] = max[i] - min[i]   
                 for (var i in json.data) {
                     if (i % pagesize === 0)
                         b = $('<tbody>').attr({'page':i/pagesize+1}).appendTo(q);
                     row = json.data[i];
                     tr = $('<tr>').appendTo(b);
-                    for (var j in row)
-                        tr.append($('<td>').append(row[j]));
+                    for (var j in row) {
+                        if (j == 0) 
+                            tr.append($('<th>').append(row[j]));
+                        else {
+                            val = parseFloat(row[j])||0;
+                            if (val && json.data.length > 1) {
+                                scale = val / range[j]||1;
+                                color = Raphael.hsb(
+                                    Math.min((1 - val / range[j]) * .4, 1),
+                                    .75, .75);
+                                size = 16 * scale;
+                            }
+                            tr.append($('<td>')
+                                .append($('<div>').css(val ? {
+                                        'background-color': color,
+                                        'width': size,
+                                        'height': size,
+                                        'top': 13 - (size / 2),
+                                        'right': 13 - (size / 2)
+                                    } : {})
+                                    .append("&nbsp;"))
+                                .append(row[j]));
+                        }
+                    }
                 }
                 $('#table-here').append(q);
 
