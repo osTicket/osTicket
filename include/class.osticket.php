@@ -1,5 +1,5 @@
 <?php
-/*************************************************************************
+/*******************************************************************
     class.osticket.php
 
     osTicket (sys) -> Config.
@@ -39,7 +39,7 @@ class osTicket {
     }
 
     function isSystemOnline() {
-        return ($this->getConfig() && $this->getConfig()->isHelpdeskOnline() && !$this->isUpgradePending());
+        return ($this->getConfig() && $this->getConfig()->isHelpDeskOnline() && !$this->isUpgradePending());
     }
 
     function isUpgradePending() {
