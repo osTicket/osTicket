@@ -55,6 +55,7 @@ file for the gory details of the General Public License.
 
 osTicket is supported by several magical open source projects including:
 
+  * [FPDF] (http://www.fpdf.org/)
   * [HTMLawed](http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
   * [PasswordHash](http://www.openwall.com/phpass/)
   * [PEAR](http://pear.php.net/package/PEAR)

@@ -94,11 +94,11 @@ class Dept {
         if(!$this->members && $this->getNumStaff()){
             $sql='SELECT m.staff_id FROM '.STAFF_TABLE.' m '
                 .'WHERE m.dept_id='.db_input($this->getId())
-                .' AND s.staff_id IS NOT NULL '
-                .'ORDER BY s.lastname, s.firstname';
+                .' AND m.staff_id IS NOT NULL '
+                .'ORDER BY m.lastname, m.firstname';
             if(($res=db_query($sql)) && db_num_rows($res)){
                 while(list($id)=db_fetch_row($res))
-                    if($staff= Staff::lookup($id) && $staff->isAvailable())
+                    if(($staff=Staff::lookup($id)) && $staff->isAvailable())
                         $this->members[]= $staff;
             }
         }

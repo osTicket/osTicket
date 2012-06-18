@@ -15,20 +15,25 @@
 **********************************************************************/
 class Mcrypt {
     
-    function encrypt($text, $salt){
+    function encrypt($text, $salt) {
+        global $ost;
+        
+        //if mcrypt extension is not installed--simply return unencryted text and log a warning (if enabled).
+        if(!function_exists('mcrypt_encrypt') || !function_exists('mcrypt_decrypt')) {
+            if($ost) {
+                $msg='Cryptography extension mcrypt is not enabled or installed. Important text/data is being stored as plain text in database.';
+                $ost->logWarning('mcrypt module missing', $msg);
+            }
 
-        //if mcrypt extension is not installed--simply return unencryted text and log a warning.
-        if(!function_exists('mcrypt_encrypt') || !function_exists('mcrypt_decrypt')){
-            $msg='Cryptography extension mcrypt is not enabled or installed. Important text/data is being stored as plain text in database.';
-            Sys::log(LOG_WARN,'mcrypt module missing',$msg);
             return $text;
         }
 
-        return trim(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256,$salt, $text, MCRYPT_MODE_ECB,
+        return trim(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $salt, $text, MCRYPT_MODE_ECB,
                          mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND))));
     }
 
-    function decrypt($text, $salt){
+    function decrypt($text, $salt) {
+
         if(!function_exists('mcrypt_encrypt') || !function_exists('mcrypt_decrypt'))
             return $text;
 

@@ -41,19 +41,19 @@ if(!$_SESSION['ost_upgrader'][$upgrader->getShash()]['progress']) {
 }
 
 if($upgrader->getNumPendingTasks()) {
-    if($upgrader->doTasks() && !$upgrader->getNumPendingTasks() && $cfg->isUpgradePending()) {
+    if($upgrader->doTasks() && !$upgrader->getNumPendingTasks() && $ost->isUpgradePending()) {
         //Just reporting done...with tasks - break in between patches!
         header("HTTP/1.1 304 Not Modified");
         exit;
     }
-} elseif($cfg->isUpgradePending() && $upgrader->isUpgradable()) {
+} elseif($ost->isUpgradePending() && $upgrader->isUpgradable()) {
     $version = $upgrader->getNextVersion();
     if($upgrader->upgrade()) {
         //We're simply reporting progress here - call back will report next action'
         Http::response(200, "Upgraded to $version ... post-upgrade checks!");
         exit;
     }
-} elseif(!$cfg->isUpgradePending()) {
+} elseif(!$ost->isUpgradePending()) {
     $upgrader->setState('done');
     session_write_close();
     header("HTTP/1.1 304 Not Modified");

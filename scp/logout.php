@@ -15,7 +15,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
-Sys::log(LOG_DEBUG,'Staff logout',sprintf("%s logged out [%s]",$thisstaff->getUserName(),$_SERVER['REMOTE_ADDR'])); //Debug.
+$ost->logDebug('Staff logout',
+        sprintf("%s logged out [%s]", 
+            $thisstaff->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
 $_SESSION['_staff']=array();
 session_unset();
 session_destroy();
