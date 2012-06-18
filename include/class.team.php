@@ -142,15 +142,22 @@ class Team {
         if(!$thisstaff || !($id=$this->getId()))
             return false;
 
-        # Remove members of this team
-        db_query('DELETE FROM '.TEAM_MEMBER_TABLE
-               .' WHERE team_id='.db_input($id));
-
         # Remove the team
         $res = db_query(
             'DELETE FROM '.TEAM_TABLE.' WHERE team_id='.db_input($id)
           .' LIMIT 1');
-        return (db_affected_rows($res) == 1);
+        if (db_affected_rows($res) != 1)
+            return false;
+
+        # Remove members of this team
+        db_query('DELETE FROM '.TEAM_MEMBER_TABLE
+               .' WHERE team_id='.db_input($id));
+
+        # Reset ticket ownership for tickets owned by this team
+        db_query('UPDATE '.TICKET_TABLE.' SET team_id=0 WHERE team_id='
+            .db_input($id));
+
+        return true;
     }
 
     /* ----------- Static function ------------------*/
