@@ -137,7 +137,6 @@ span.label {
                     smtimes = Array.prototype.concat.apply([], json.times),
                     plots = [],
                     max = 0,
-                    steps = 0,
                     primes = [2,3,5,7,9];
 
                 // Convert the timestamp to number of whole days after the
@@ -146,15 +145,6 @@ span.label {
                 // the number of dates to place across the bottom.
                 for (key in smtimes) {
                     smtimes[key] = Math.floor(smtimes[key] / 86400);
-                }
-                steps = smtimes[smtimes.length-1] - smtimes[0] + 1;
-                while (steps > 12) {
-                    for (var i in primes) {
-                        if (steps % primes[i] === 0) {
-                            steps /= primes[i];
-                            break;
-                        }
-                    }
                 }
                 for (key in json.events) {
                     e = json.events[key];
@@ -174,7 +164,7 @@ span.label {
                     nostroke: false, 
                     shade: false,
                     axis: "0 0 1 1",
-                    axisxstep: steps,
+                    axisxstep: 8,
                     axisystep: max,
                     symbol: "circle",
                     smooth: false
