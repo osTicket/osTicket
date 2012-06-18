@@ -33,6 +33,8 @@
         @mysql_query('SET NAMES "UTF8"');
         @mysql_query('SET COLLATION_CONNECTION=utf8_general_ci');
 
+        @db_set_variable('sql_mode', '');
+
         return $dblink;	
     }
 
