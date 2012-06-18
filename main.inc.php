@@ -38,7 +38,12 @@
     //ini_set('session.cookie_path','/osticket/');
 
     #Error reporting...Good idea to ENABLE error reporting to a file. i.e display_errors should be set to false
-    error_reporting(E_ALL ^ E_NOTICE); //Respect whatever is set in php.ini (sysadmin knows better??)
+    $error_reporting = E_ALL & ~E_NOTICE;
+    if (defined('E_STRICT')) # 5.4.0
+        $error_reporting &= ~E_STRICT;
+    if (defined('E_DEPRECATED')) # 5.3.0
+        $error_reporting &= ~(E_DEPRECATED | E_USER_DEPRECATED);
+    error_reporting($error_reporting); //Respect whatever is set in php.ini (sysadmin knows better??)
     #Don't display errors
     ini_set('display_errors',1);
     ini_set('display_startup_errors',1);
@@ -54,8 +59,8 @@
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
-    define('THIS_VERSION','1.7-DPR3'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','49478749dc680eef08b7954bd568cfd1'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('THIS_VERSION','1.7-DPR4'); //Shown on admin panel
+    define('SCHEMA_SIGNATURE','aa4664afc3b43d4068eb2e82684fc28e'); //MD5 signature of the db schema. (used to trigger upgrades)
 
     #load config info
     $configfile='';
@@ -65,7 +70,7 @@
         $configfile=INCLUDE_DIR.'settings.php';
     elseif(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
         $configfile=INCLUDE_DIR.'ost-config.php';
-    elseif(file_exists(ROOT_DIR.'include/'))
+    elseif(file_exists(ROOT_DIR.'setup/'))
         header('Location: '.ROOT_PATH.'setup/');
 
     if(!$configfile || !file_exists($configfile)) die('<b>Error loading settings. Contact admin.</b>');
@@ -86,10 +91,10 @@
    
 
     #include required files
+    require(INCLUDE_DIR.'class.osticket.php');
     require(INCLUDE_DIR.'class.ostsession.php');
     require(INCLUDE_DIR.'class.usersession.php');
     require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
-    require(INCLUDE_DIR.'class.sys.php'); //system loader & config & logger.    
     require(INCLUDE_DIR.'class.log.php');
     require(INCLUDE_DIR.'class.mcrypt.php');
     require(INCLUDE_DIR.'class.misc.php');
@@ -141,6 +146,7 @@
     define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
     define('TICKET_LOCK_TABLE',TABLE_PREFIX.'ticket_lock');
     define('TICKET_EVENT_TABLE',TABLE_PREFIX.'ticket_event');
+    define('TICKET_EMAIL_INFO_TABLE',TABLE_PREFIX.'ticket_email_info');
   
     define('EMAIL_TABLE',TABLE_PREFIX.'email');
     define('EMAIL_TEMPLATE_TABLE',TABLE_PREFIX.'email_template');
@@ -157,26 +163,25 @@
     $ferror=null;
     if (!db_connect(DBHOST,DBUSER,DBPASS) || !db_select_database(DBNAME)) {
         $ferror='Unable to connect to the database';
-    }elseif(!($cfg=Sys::getConfig())){
+    } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
         $ferror='Unable to load config info from DB. Get tech support.';
     }
-    if($ferror){ //Fatal error
-        Sys::alertAdmin('osTicket Fatal Error',$ferror); //try alerting admin.
-        die("<b>Fatal Error:</b> Contact system administrator."); //Generic error.
+
+    if($ferror) { //Fatal error
+        //try alerting admin using email in config file
+        $msg=$ferror."\n\n".THISPAGE;
+        Email::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg, sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
+        //Display generic error to the user
+        die("<b>Fatal Error:</b> Contact system administrator.");
         exit;
     }
+    
     //Init
-    $cfg->init();
+    $session = $ost->getSession();
 
     //System defaults we might want to make global//
     #pagenation default - user can overwrite it!
-    define('DEFAULT_PAGE_LIMIT',$cfg->getPageSize()?$cfg->getPageSize():25);
-
-    //Start session handler!
-    $session=osTicketSession::start(SESSION_TTL); // start_session 
-    //Set default timezone...staff will overwrite it.
-    $_SESSION['TZ_OFFSET']=$cfg->getTZoffset();
-    $_SESSION['daylight']=$cfg->observeDaylightSaving();
+    define('DEFAULT_PAGE_LIMIT', $cfg->getPageSize()?$cfg->getPageSize():25);
 
     #Cleanup magic quotes crap.
     if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {

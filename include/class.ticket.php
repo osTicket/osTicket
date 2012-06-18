@@ -22,6 +22,7 @@ include_once(INCLUDE_DIR.'class.topic.php');
 include_once(INCLUDE_DIR.'class.lock.php');
 include_once(INCLUDE_DIR.'class.file.php');
 include_once(INCLUDE_DIR.'class.attachment.php');
+include_once(INCLUDE_DIR.'class.pdf.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
 include_once(INCLUDE_DIR.'class.priority.php');
@@ -527,68 +528,67 @@ class Ticket{
         return $this->ht['notes'];
     }
 
-    function getNotes($order='') {
+    function getMessages() {
+        return $this->getThreadByType('M');
+    }
+
+    function getResponses($msgId=0) {
+        return $this->getThreadByType('R', $msgID);
+    }
+
+    function getNotes() {
+        return $this->getThreadByType('N');
+    }
+
+    function getClientThread() {
+        return $this->getThreadWithoutNotes();
+    }
+
+    function getThreadWithNotes() {
+        return $this->getThread(true);
+    }
+    
+    function getThreadWithoutNotes() {
+        return $this->getThread(false);
+    }
+
+    function getThread($includeNotes=false, $order='') {
+
+        $treadtypes=array('M', 'R'); // messages and responses.
+        if($includeNotes) //Include notes??
+            $treadtypes[] = 'N';
+
+        return $this->getThreadByType($treadtypes, $order);
+    }
+        
+    function getThreadByType($type, $order='ASC') {
 
         if(!$order || !in_array($order, array('DESC','ASC')))
-            $order='DESC';
+            $order='ASC';
 
-        $sql ='SELECT note.*, count(DISTINCT attach.attach_id) as attachments '
-            .' FROM '.TICKET_THREAD_TABLE.' note '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
-                ON (note.ticket_id=attach.ticket_id AND note.id=attach.ref_id AND ref_type="N") '
-            .' WHERE note.ticket_id='.db_input($this->getId())
-            .'   AND note.thread_type="N"'
-            .' GROUP BY note.id '
-            .' ORDER BY note.created '.$order;
-
-        $notes=array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec=db_fetch_array($res))
-                $notes[]=$rec;
-
-        return $notes;
-    }
-
-    function getMessages() {
-
-        $sql='SELECT msg.id, msg.created, msg.body '
+        $sql='SELECT thread.* '
             .' ,count(DISTINCT attach.attach_id) as attachments '
-            .' ,count( DISTINCT resp.id) as responses '
-            .' FROM '.TICKET_THREAD_TABLE.' msg '
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' resp ON ('
-                .'resp.pid=msg.id AND resp.thread_type = "R") '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach '
-                .'ON (msg.ticket_id=attach.ticket_id AND msg.id=attach.ref_id AND ref_type="M") '
-            .' WHERE  msg.ticket_id='.db_input($this->getId())
-               .' AND msg.thread_type="M"'
-            .' GROUP BY msg.id '
-            .' ORDER BY msg.created ASC ';
+            .' FROM '.TICKET_THREAD_TABLE.' thread '
+            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
+                ON (thread.ticket_id=attach.ticket_id 
+                        AND thread.id=attach.ref_id 
+                        AND thread.thread_type=attach.ref_type) '
+            .' WHERE  thread.ticket_id='.db_input($this->getId());
 
-        $messages=array();
+        if($type && is_array($type))
+            $sql.=" AND thread.thread_type IN('".implode("','", $type)."')";
+        elseif($type)
+            $sql.=' AND thread.thread_type='.db_input($type);
+
+        $sql.=' GROUP BY thread.id '
+             .' ORDER BY thread.created '.$order;
+
+        $thread=array();
         if(($res=db_query($sql)) && db_num_rows($res))
             while($rec=db_fetch_array($res))
-                $messages[] = $rec;
-                
-        return $messages;
-    }
+                $thread[] = $rec;
 
-    function getResponses($msgId) {
-
-        $sql='SELECT resp.*, count(DISTINCT attach.attach_id) as attachments '
-            .' FROM '.TICKET_THREAD_TABLE. ' resp '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
-                ON (resp.ticket_id=attach.ticket_id AND resp.id=attach.ref_id AND ref_type="R") '
-            .' WHERE  resp.ticket_id='.db_input($this->getId())
-            .'   AND  resp.thread_type="R"'
-            .' GROUP BY resp.id '
-            .' ORDER BY resp.created';
-
-        $responses=array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec= db_fetch_array($res))
-                $responses[] = $rec;
-                
-        return $responses;
+        return $thread;
     }
 
     function getAttachments($refId=0, $type=null) {
@@ -886,11 +886,11 @@ class Ticket{
     }
 
     function onOpenLimit($sendNotice=true) {
-        global $cfg;
+        global $ost, $cfg;
 
         //Log the limit notice as a warning for admin.
         $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
-        sys::log(LOG_WARNING, 'Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
+        $ost->logWarning('Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
 
         if(!$sendNotice || !$cfg->sendOverLimitNotice()) return true;
 
@@ -917,7 +917,7 @@ class Ticket{
             .'Open ticket: '.$client->getNumOpenTickets()."\n"
             .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
             
-        Sys::alertAdmin('Overlimit Notice',$msg);
+        $ost->alertAdmin('Overlimit Notice', $msg);
        
         return true;
     }
@@ -1310,7 +1310,7 @@ class Ticket{
 
         if ($emsgid !== null) {
             $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
-                .' SET msg_id='.db_input($msgid)
+                .' SET message_id='.db_input($msgid)
                 .', email_mid='.db_input($emsgid)
                 .', headers='.db_input($headers);
 
@@ -1551,6 +1551,14 @@ class Ticket{
         return $id;
     }
 
+    //Print ticket... export the ticket thread as PDF.
+    function pdfExport() {
+        $pdf = new Ticket2PDF($this, true);
+        $name='Ticket-'.$this->getExtId().'.pdf';
+        $pdf->Output($name, 'I');
+        exit;
+    }
+
     //online based attached files.
     function uploadAttachments($files, $refid, $type) {
 
@@ -1719,7 +1727,7 @@ class Ticket{
             return 0;
 
         $sql='SELECT ticket.ticket_id FROM '.TICKET_TABLE. ' ticket '.
-             ' LEFT JOIN '.TICKE_THREAD_TABLE.' msg USING(ticket_id) '.
+             ' LEFT JOIN '.TICKET_THREAD_TABLE.' msg USING(ticket_id) '.
              ' INNER JOIN '.TICKET_EMAIL_INFO_TABLE.' emsg ON (msg.id = emsg.message_id) '.
              ' WHERE email_mid='.db_input($mid).' AND email='.db_input($email);
         $id=0;
@@ -1804,7 +1812,7 @@ class Ticket{
      *  $autorespond and $alertstaff overwrites config settings...
      */      
     function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
-        global $cfg,$thisclient,$_FILES;
+        global $ost, $cfg, $thisclient, $_FILES;
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
@@ -1812,7 +1820,7 @@ class Ticket{
             //Make sure the email address is not banned
             if(EmailFilter::isBanned($vars['email'])) {
                 $errors['err']='Ticket denied. Error #403';
-                Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
+                $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
                 return 0;
             }
 
@@ -1823,8 +1831,9 @@ class Ticket{
                     && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
 
                 $errors['err']="You've reached the maximum open tickets allowed.";
-                Sys::log(LOG_WARNING, 'Ticket denied -'.$vars['email'], 
-                        sprintf('Max open tickets (%d) reached for %s ', $cfg->getMaxOpenTickets(), $vars['email']));
+                $ost->logWarning('Ticket denied -'.$vars['email'], 
+                        sprintf('Max open tickets (%d) reached for %s ', 
+                            $cfg->getMaxOpenTickets(), $vars['email']));
 
                 return 0;
             }
@@ -1833,9 +1842,10 @@ class Ticket{
         if (($email_filter=new EmailFilter($vars))
                 && ($filter=$email_filter->shouldReject())) {
             $errors['err']='Ticket denied. Error #403';
-            Sys::log(LOG_WARNING,'Ticket denied',
-                sprintf('Banned email - %s by filter "%s"', $vars['email'],
-                    $filter->getName()));
+            $ost->logWarning('Ticket denied', 
+                    sprintf('Banned email - %s by filter "%s"', 
+                        $vars['email'], $filter->getName()));
+
             return 0;
         }
 

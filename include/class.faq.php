@@ -218,6 +218,17 @@ class FAQ {
         return $i;
     }
 
+    function deleteAttachment($file_id) {
+        $deleted = 0;
+        $sql='DELETE FROM '.FAQ_ATTACHMENT_TABLE
+            .' WHERE faq_id='.db_input($this->getId())
+            .'   AND file_id='.db_input($file_id);
+        if(db_query($sql) && db_affected_rows()) {
+            $deleted = AttachmentFile::deleteOrphans();
+        }
+        return ($deleted > 0);
+    }
+
     function deleteAttachments(){
 
         $deleted=0;

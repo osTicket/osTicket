@@ -31,7 +31,8 @@ class Cron {
     }
 
     function PurgeLogs() {
-        Sys::purgeLogs();
+        global $ost;
+        if($ost) $ost->purgeLogs();
     }
 
     function CleanOrphanedFiles() {

@@ -378,14 +378,6 @@ endif;
 /*... Quick stats ...*/
 $stats= $thisstaff->getTicketsStats();
 
-// Switch queues on the fly! depending on stats
-if(!$stats['open'] && $_REQUEST['a']!='search' && (!$_REQUEST['status'] || $_REQUEST['status']=='open')) {
-    if(!$cfg->showAnsweredTickets() && $stats['answered'])
-        $_REQUEST['status']= 'answered';
-    else
-        $_REQUEST['status']= 'closed';
-}
-
 //Navigation
 $nav->setTabActive('tickets');
 if($cfg->showAnsweredTickets()) {
@@ -396,7 +388,7 @@ if($cfg->showAnsweredTickets()) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
 } else {
 
-    if(!$stats || $stats['open']) {
+    if($stats) {
         $nav->addSubMenu(array('desc'=>'Open ('.$stats['open'].')',
                                'title'=>'Open Tickets',
                                'href'=>'tickets.php',
@@ -464,6 +456,8 @@ if($ticket) {
     $inc = 'ticket-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
         $inc = 'ticket-edit.inc.php';
+    elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport())
+        $errors['err'] = 'Internal error: Unable to export the ticket to PDF for print.';
 } else {
     $inc = 'tickets.inc.php';
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
@@ -485,7 +479,7 @@ if($ticket) {
 
     //set refresh rate if the user has it configured
     if(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
-        define('AUTO_REFRESH', $min*60); 
+        $ost->addExtraHeader('<meta http-equiv="refresh" content="'.($min*60).'" />');
 }
 
 require_once(STAFFINC_DIR.'header.inc.php');

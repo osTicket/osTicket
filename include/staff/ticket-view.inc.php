@@ -40,7 +40,7 @@ if($ticket->isOverdue())
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload" class="reload">Reload</a></h2>
         </td>
         <td width="50%" class="right_align">
-            <a href="#" title="Print Ticket" class="print">Print Ticket</a>
+            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print" title="Print Ticket" class="print">Print Ticket</a>
             <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" title="Edit Ticket" class="edit">Edit Ticket</a>
         </td>
     </tr>
@@ -171,11 +171,21 @@ if($ticket->isOverdue())
     </tr>
 </table>
 <div class="clear" style="padding-bottom:10px;"></div>
+<?php
+$tcount = $ticket->getThreadCount();
+if($cfg->showNotesInline())
+    $tcount+= $ticket->getNumNotes();
+?>
 <ul id="threads">
-    <li><a class="active" id="toggle_ticket_thread" href="#">Ticket Thread (<?php echo $ticket->getThreadCount(); ?>)</a></li>
+    <li><a class="active" id="toggle_ticket_thread" href="#">Ticket Thread (<?php echo $tcount; ?>)</a></li>
+    <?php
+    if(!$cfg->showNotesInline()) {?>
     <li><a id="toggle_notes" href="#">Internal Notes (<?php echo $ticket->getNumNotes(); ?>)</a></li>
+    <?php
+    }?>
 </ul>
-
+<?php    
+if(!$cfg->showNotesInline()) { ?>
 <div id="ticket_notes">
     <?php
     /* Internal Notes */
@@ -189,14 +199,14 @@ if($ticket->isOverdue())
                     <?php
                     echo sprintf('%s <em>posted by <b>%s</b></em>',
                             Format::htmlchars($note['title']),
-                            Format::htmlchars($note['source']));
+                            Format::htmlchars($note['poster']));
                     ?>
                 </th>
                 <th class="date" width="300"><?php echo Format::db_datetime($note['created']); ?></th>
             </tr>
             <tr>
                 <td colspan="2">
-                    <?php echo Format::htmlchars($note['body']); ?>
+                    <?php echo Format::display($note['body']); ?>
                 </td>
             </tr>
             <?php
@@ -213,45 +223,32 @@ if($ticket->isOverdue())
         echo "<p>No internal notes found.</p>";
     }?>
 </div>
+<?php
+} ?>
 <div id="ticket_thread">
     <?php
-    /* -------- Messages & Responses -------------*/
-    if($ticket->getThreadCount() && ($messages = $ticket->getMessages())) {
-       foreach($messages as $message) {?>
-        <table class="message" cellspacing="0" cellpadding="1" width="940" border="0">
-            <tr><th><?php echo Format::db_datetime($message['created']); ?></th></tr>
-            <tr><td><?php echo Format::display($message['body']); ?></td></tr>
-            <?php
-            if($message['attachments'] && ($links=$ticket->getAttachmentsLinks($message['id'],'M'))) {?>
+    $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
+    /* -------- Messages & Responses & Notes (if inline)-------------*/
+    if(($thread=$ticket->getThread($cfg->showNotesInline()))) {
+       foreach($thread as $entry) {
+           ?>
+        <table class="<?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
-                <td class="info"><?php echo $links; ?></td>
+                <th width="200"><?php echo Format::db_datetime($entry['created']);?></th>
+                <th width="440"><span><?php echo Format::htmlchars($entry['title']); ?></span></th>
+                <th width="300" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th></tr>
+            <tr><td colspan=2><?php echo Format::display($entry['body']); ?></td></tr>
+            <?php
+            if($entry['attachments'] && ($links=$ticket->getAttachmentsLinks($entry['id'], $entry['thread_type']))) {?>
+            <tr>
+                <td class="info" colspan=2><?php echo $links; ?></td>
             </tr>
             <?php
             }?>
         </table>
         <?php
-        /* --------- Responses ------------ */
-        if($message['responses'] && ($responses=$ticket->getResponses($message['id']))) {
-           foreach($responses as $resp) {?>
-            <table class="response" cellspacing="0" cellpadding="1" width="100%" border="0">
-                <tr>
-                    <th><?php echo Format::db_datetime($resp['created']); ?>&nbsp;-&nbsp;<?php echo Format::htmlchars($resp['staff_name']); ?></th>
-                </tr>
-                <tr>
-                    <td><?php echo Format::display($resp['body']); ?></td>
-                </tr>
-                <?php
-                if($resp['attachments'] && ($links=$ticket->getAttachmentsLinks($resp['id'],'R'))) {?>
-                <tr>
-                    <td class="info"><?php echo $links; ?></td>
-                </tr>
-                <?php
-                }?>
-            </table>
-            <?php
-           }
-        }
-        $msgId=$message['id'];
+        if($entry['thread_type']=='M')
+            $msgId=$entry['id'];
        }
     } else {
         echo '<p>Error fetching ticket thread - get technical help.</p>';

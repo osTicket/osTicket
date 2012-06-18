@@ -402,7 +402,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
             <?php
             } //end of while.
         else: //not tickets found!! set fetch error.
-            $ferror='Query returned 0 results.';  
+            $ferror='There are no tickets here. (Leave a little early today).';  
         endif; ?>
     </tbody>
     <tfoot>
@@ -414,7 +414,9 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
             <a href="#" onclick="return reset_all(document.forms['tickets'])">None</a>&nbsp;&nbsp;
             <a href="#" onclick="return toogle_all(document.forms['tickets'],true)">Toggle</a>&nbsp;&nbsp;
             <?php }else{
+                echo '<i>';
                 echo $ferror?Format::htmlchars($ferror):'Query returned 0 results.';
+                echo '</i>';
             } ?>
         </td>
      </tr>
@@ -533,9 +535,9 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
         </fieldset>
         <fieldset class="date_range">
             <label>Date Range:</label>
-            <input class="dp" type="input" size="20" name="startDate"><i></i>
+            <input class="dp" type="input" size="20" name="startDate">
             <span>TO</span>
-            <input class="dp" type="input" size="20" name="endDate"><i></i>
+            <input class="dp" type="input" size="20" name="endDate">
         </fieldset>
         <p>
             <span class="buttons">

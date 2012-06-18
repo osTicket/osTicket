@@ -50,4 +50,8 @@ class AjaxController extends ApiController {
     function encode($what) {
         return $this->json_encode($what);
     }
+
+    function get($var, $default=null) {
+        return (isset($_GET[$var])) ? $_GET[$var] : $default;
+    }
 }

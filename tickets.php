@@ -52,7 +52,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
             }
         }
                     
-        if(!$errors){
+        if(!$errors) {
             //Everything checked out...do the magic.
             if(($msgid=$ticket->postMessage($_POST['message'],'Web'))) {
                 if($files && $cfg->allowOnlineAttachments())
@@ -64,9 +64,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
             }
 
         } elseif(!$errors['err']) {
-            print_r($errors);
             $errors['err']='Error(s) occurred. Please try again';
-           
         }
         break;
     default:

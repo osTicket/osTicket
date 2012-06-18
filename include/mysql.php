@@ -16,8 +16,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-    require_once(INCLUDE_DIR.'class.sys.php');
-
     function db_connect($host, $user, $passwd, $db = "") {
         
         //Assert
@@ -34,6 +32,8 @@
         //set desired encoding just in case mysql charset is not UTF-8 - Thanks to FreshMedia
         @mysql_query('SET NAMES "UTF8"');
         @mysql_query('SET COLLATION_CONNECTION=utf8_general_ci');
+
+        @db_set_variable('sql_mode', '');
 
         return $dblink;	
     }
@@ -53,7 +53,11 @@
 
         return $version;
     }
-    
+
+    function db_timezone() {
+        return db_get_variable('time_zone');
+    }
+
     function db_get_variable($variable, $type='session') {
         $sql =sprintf('SELECT @@%s.%s',$type,$variable);
         return db_result(db_query($sql));
@@ -74,18 +78,18 @@
     }
    
 	// execute sql query
-	function db_query($query, $database="",$conn=""){
-        global $cfg;
+	function db_query($query, $database="", $conn=""){
+        global $ost;
        
 		if($conn) { /* connection is provided*/
-            $result = ($database)?mysql_db_query($database,$query,$conn):mysql_query($query,$conn);
+            $result = ($database)?mysql_db_query($database, $query, $conn):mysql_query($query, $conn);
    	    } else {
-            $result = ($database)?mysql_db_query($database,$query):mysql_query($query);
+            $result = ($database)?mysql_db_query($database, $query):mysql_query($query);
    	    }
                 
-        if(!$result) { //error reporting
+        if(!$result && $ost) { //error reporting
             $alert='['.$query.']'."\n\n".db_error();
-            Sys::log(LOG_ALERT,'DB Error #'.db_errno(),$alert,($cfg && $cfg->alertONSQLError()));
+            $ost->logError('DB Error #'.db_errno(), $alert, ($ost->alertONSQLError()));
             //echo $alert; #uncomment during debuging or dev.
         }
 

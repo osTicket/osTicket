@@ -689,41 +689,6 @@ h2 .reload {
     background:url(../images/icons/note.gif) 10px 50% no-repeat;
 }
 
-#latest_notes {
-    margin:10px 0;
-    padding:10px;
-    background:#ffe;
-    border:1px solid #e7e765;
-}
-
-#latest_notes h3 {
-    margin:0 0 10px 0;
-    padding:0;
-    font-size:11pt;
-}
-
-#latest_notes h3 span, #latest_notes h3 a {
-    color:#777;
-    font-weight:normal;
-    text-decoration:none;
-    font-size:10pt;
-}
-
-#latest_notes ul {
-    margin:0 20px;
-    padding:0;
-}
-
-#latest_notes ul li {
-    margin:0;
-    padding:0 0 10px 0;
-    list-style:none;
-}
-
-#latest_notes em {
-    color:#777;
-}
-
 #ticket_thread table {
     margin-top:10px;
     border:1px solid #aaa;
@@ -757,10 +722,6 @@ h2 .reload {
     color:#666;
 }
 
-#ticket_thread .message th {
-    background:#C3D9FF;
-}
-
 #ticket_notes .date {
     font-weight:normal;
     font-size:10pt;
@@ -768,8 +729,31 @@ h2 .reload {
     text-align:right;
 }
 
+#ticket_thread table th.tmeta {
+    font-weight:bold;
+    font-size:10pt;
+    color:#888;
+    text-align:right;
+    padding-right:15px;
+}
+
+#ticket_thread table th span {
+    font-weight:normal;
+    font-size:10pt;
+    color:#888;
+    padding-left:5px;
+}
+
+#ticket_thread .message th {
+    background:#C3D9FF;
+}
+
 #ticket_thread .response th {
     background:#FFE0B3;
+}
+
+#ticket_thread .note th {
+    background:#FFE;
 }
 
 #ticket_thread table td, #ticket_notes table td {
@@ -1305,4 +1289,17 @@ time {
 #result-count .fail {
     background:#ffd8d8;
     border:1px solid #a00;
+}
+
+/* Custom css for datepicker */
+.ui-datepicker-trigger {
+    display:inline-block;
+    border:0;
+    padding:0;
+    margin-left:2px;
+    position:relative;
+    top:5px;
+    width:16px;
+    height:16px;
+    background:inherit;
 }

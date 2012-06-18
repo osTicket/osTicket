@@ -1,6 +1,19 @@
-New stuff in 1.7-dpr3
+New stuff in 1.7-dpr4
 ======================
 
+Features
+--------
+  * Dashboard reports for ticket system activity and statistics
+  * PDF print / export for tickets (staff pages only)
+
+New stuff in 1.7-dpr3
+======================
+  * Advanced search on tickets page
+  * Ticket thread -- revised ticket message storage model for greater 
+    flexability
+  * New database upgrade system allowing for continuous updates to the
+    database model. This will greatly simplify the process of making
+    modifications to the osTicket database.
 
 New stuff in 1.7-dpr2
 ======================
@@ -67,6 +80,16 @@ for a ticket.
 Client-side Knowledgebase
 -------------------------
 Manage a searchable help document portal for your users
+
+Dashboard Reports
+-----------------
+Flashy reports of ticket system activiy as well as exportable ticket system
+statistics, allowing for easy report generation from office spreadsheet
+applications.
+
+Ticket Export
+-------------
+Convert the ticket thread to a printed format for long term storage.
 
 API
 ---
