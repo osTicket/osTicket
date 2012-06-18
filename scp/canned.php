@@ -54,7 +54,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
             }
             break;
         case 'create':
-            if(($id=Canned::create($_POST, $_FILES['attachments'], $errors))) {
+            if(($id=Canned::create($_POST, $errors))) {
                 $msg='Canned response added successfully';
                 $_REQUEST['a']=null;
                 //Upload attachments
