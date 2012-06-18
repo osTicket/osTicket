@@ -136,6 +136,23 @@ class Team {
         return true;
     }
 
+    function delete() {
+        global $thisstaff;
+
+        if(!$thisstaff || !($id=$this->getId()))
+            return false;
+
+        # Remove members of this team
+        db_query('DELETE FROM '.TEAM_MEMBER_TABLE
+               .' WHERE team_id='.db_input($id));
+
+        # Remove the team
+        $res = db_query(
+            'DELETE FROM '.TEAM_TABLE.' WHERE team_id='.db_input($id)
+          .' LIMIT 1');
+        return (db_affected_rows($res) == 1);
+    }
+
     /* ----------- Static function ------------------*/
     function lookup($id){
         return ($id && is_numeric($id) && ($team= new Team($id)) && $team->getId()==$id)?$team:null;
