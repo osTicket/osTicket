@@ -478,6 +478,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `max_page_size` int(11) unsigned NOT NULL default '0',
   `auto_refresh_rate` int(10) unsigned NOT NULL default '0',
   `default_signature_type` ENUM( 'none', 'mine', 'dept' ) NOT NULL DEFAULT 'none',
+  `default_paper_size` ENUM( 'Letter', 'Legal', 'Ledger', 'A4', 'A3' ) NOT NULL DEFAULT 'Letter',
   `created` datetime NOT NULL,
   `lastlogin` datetime default NULL,
   `passwdreset` datetime default NULL,

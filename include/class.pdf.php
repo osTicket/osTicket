@@ -30,8 +30,9 @@ class Ticket2PDF extends FPDF
     var $ticket = null;
 
 	function Ticket2PDF($ticket, $notes=false) {
+        global $thisstaff;
 
-        parent::FPDF();
+        parent::FPDF('P', 'mm', $thisstaff->getDefaultPaperSize());
 
         $this->ticket = $ticket;
 

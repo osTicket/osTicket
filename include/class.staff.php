@@ -159,6 +159,10 @@ class Staff {
         return $this->ht['default_signature_type'];
     }
 
+    function getDefaultPaperSize() {
+        return $this->ht['default_paper_size'];
+    }
+
     function forcePasswdChange() {
         return ($this->ht['change_passwd']);
     }
@@ -388,7 +392,8 @@ class Staff {
             .' ,show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0)
             .' ,max_page_size='.db_input($vars['max_page_size'])
             .' ,auto_refresh_rate='.db_input($vars['auto_refresh_rate'])
-            .' ,default_signature_type='.db_input($vars['default_signature_type']);
+            .' ,default_signature_type='.db_input($vars['default_signature_type'])
+            .' ,default_paper_size='.db_input($vars['default_paper_size']);
 
 
         if($vars['passwd1'])
