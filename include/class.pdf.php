@@ -77,7 +77,7 @@ class Ticket2PDF extends FPDF
 		$this->SetY(-15);
         $this->Cell(0, 2, '', "T", 2, 'L');
 		$this->SetFont('Arial', 'I', 9);
-		$this->Cell(0, 7, 'Ticket printed by '.$thisstaff->getUsername().' on '.date('r'), 0, 0, 'L');
+		$this->Cell(0, 7, 'Ticket printed by '.$thisstaff->getUserName().' on '.date('r'), 0, 0, 'L');
 		//$this->Cell(0,10,'Page '.($this->PageNo()-$this->pageOffset).' of {nb} '.$this->pageOffset.' '.$this->PageNo(),0,0,'R');
 		$this->Cell(0, 7, 'Page ' . ($this->PageNo() - $this->pageOffset), 0, 0, 'R');
 	}
@@ -97,9 +97,9 @@ class Ticket2PDF extends FPDF
         $w =(($this->w/2)-$this->lMargin);
         $l = 40;
         $c = $w-$l;
-        $this->setDrawColor(220, 220, 220);
-        $this->setFillColor(244, 250, 255);
-        $this->setX($this->lMargin);
+        $this->SetDrawColor(220, 220, 220);
+        $this->SetFillColor(244, 250, 255);
+        $this->SetX($this->lMargin);
         $this->SetFont('Arial', 'B', 11);
         $this->Cell($l, 7, 'Status', 1, 0, 'L', true);
         $this->SetFont('');
@@ -189,7 +189,7 @@ class Ticket2PDF extends FPDF
 
                 $color = $colors[$entry['thread_type']];
 
-                $this->setFillColor($color[0], $color[1], $color[2]);
+                $this->SetFillColor($color[0], $color[1], $color[2]);
                 $this->SetFont('Arial', 'B', 11);
                 $this->Cell($w/2, 7, Format::db_datetime($entry['created']), 'LTB', 0, 'L', true);
                 $this->SetFont('Arial', '', 10);

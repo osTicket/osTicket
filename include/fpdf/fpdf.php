@@ -468,15 +468,15 @@ function AddFont($family, $style='', $file='')
 	if(!isset($name))
 		$this->Error('Could not include font definition file');
 	$i=count($this->fonts)+1;
-	$this->fonts[$fontkey]=array('i'=>$i, 'type'=>$type, 'name'=>$name, 'desc'=>$desc, 'up'=>$up, 'ut'=>$ut, 'cw'=>$cw, 'enc'=>$enc, 'file'=>$file);
-	if($diff)
+	$this->fonts[$fontkey]=array('i'=>$i, 'type'=>$type, 'name'=>$name, 'desc'=>$desc, 'up'=>$up, 'ut'=>$ut, 'cw'=>$cw, 'enc'=>$enc, 'file'=>$file); # nolint
+	if($diff) # nolint
 	{
 		//Search existing encodings
 		$d=0;
 		$nb=count($this->diffs);
 		for($i=1;$i<=$nb;$i++)
 		{
-			if($this->diffs[$i]==$diff)
+			if($this->diffs[$i]==$diff) # nolint
 			{
 				$d=$i;
 				break;
@@ -485,16 +485,16 @@ function AddFont($family, $style='', $file='')
 		if($d==0)
 		{
 			$d=$nb+1;
-			$this->diffs[$d]=$diff;
+			$this->diffs[$d]=$diff; # nolint
 		}
 		$this->fonts[$fontkey]['diff']=$d;
 	}
 	if($file)
 	{
 		if($type=='TrueType')
-			$this->FontFiles[$file]=array('length1'=>$originalsize);
+			$this->FontFiles[$file]=array('length1'=>$originalsize); # nolint
 		else
-			$this->FontFiles[$file]=array('length1'=>$size1, 'length2'=>$size2);
+			$this->FontFiles[$file]=array('length1'=>$size1, 'length2'=>$size2); # nolint
 	}
 }
 

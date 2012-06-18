@@ -541,7 +541,7 @@ class Ticket{
     }
 
     function getClientThread() {
-        return $this->getThreadwithoutNotes();
+        return $this->getThreadWithoutNotes();
     }
 
     function getThreadWithNotes() {
@@ -558,7 +558,7 @@ class Ticket{
         if($includeNotes) //Include notes??
             $treadtypes[] = 'N';
 
-        return $this->getThreadbyType($treadtypes, $order);
+        return $this->getThreadByType($treadtypes, $order);
     }
         
     function getThreadByType($type, $order='ASC') {
@@ -1555,7 +1555,7 @@ class Ticket{
     function pdfExport() {
         $pdf = new Ticket2PDF($this, true);
         $name='Ticket-'.$this->getExtId().'.pdf';
-        $pdf->output($name, 'I');
+        $pdf->Output($name, 'I');
         exit;
     }
 
