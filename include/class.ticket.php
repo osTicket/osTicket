@@ -540,7 +540,7 @@ class Ticket{
     }
 
     function getClientThread() {
-        return $this->getThreadwithoutNotes();
+        return $this->getThreadWithoutNotes();
     }
 
     function getThreadWithNotes() {
@@ -557,7 +557,7 @@ class Ticket{
         if($includeNotes) //Include notes??
             $treadtypes[] = 'N';
 
-        return $this->getThreadbyType($treadtypes, $order);
+        return $this->getThreadByType($treadtypes, $order);
     }
         
     function getThreadByType($type, $order='ASC') {
