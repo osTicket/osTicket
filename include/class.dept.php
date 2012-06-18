@@ -98,7 +98,7 @@ class Dept {
                 .'ORDER BY s.lastname, s.firstname';
             if(($res=db_query($sql)) && db_num_rows($res)){
                 while(list($id)=db_fetch_row($res))
-                    if($staff= Staff::lookup($id) && $staff->isAvailable())
+                    if(($staff=Staff::lookup($id)) && $staff->isAvailable())
                         $this->members[]= $staff;
             }
         }
