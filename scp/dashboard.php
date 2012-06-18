@@ -304,10 +304,10 @@ span.label {
                             tr.append($('<th>').append(row[j]));
                         else {
                             val = parseFloat(row[j])||0;
-                            if (val && range[j] && json.data.length > 1) {
-                                scale = val / range[j];
+                            if (val && max[j] && json.data.length > 1) {
+                                scale = val / max[j];
                                 color = Raphael.hsb(
-                                    Math.min((1 - val / range[j]) * .4, 1),
+                                    Math.min((1 - scale) * .4, 1),
                                     .75, .75);
                                 size = 16 * scale;
                             }
