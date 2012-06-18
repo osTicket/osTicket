@@ -36,7 +36,7 @@ class Ticket2PDF extends FPDF
         $this->ticket = $ticket;
 
         $this->includenotes = $notes;
-        $this->setMargins(5, 2, 2);
+        $this->SetMargins(10,10,10);
 		$this->AliasNbPages();
 		$this->AddPage();
 		$this->cMargin = 3;
@@ -54,11 +54,11 @@ class Ticket2PDF extends FPDF
 		//Common header
         $this->Ln(2);
 		$this->SetFont('Times', 'B', 16);
-		$this->Image(FPDF_DIR . 'print-logo.png', null, 5, 0, 20);
-		$this->SetX(200, 10);
-		$this->Cell(0, 10, "Support Ticket System", 0, 1, 'R', 0);
+		$this->Image(FPDF_DIR . 'print-logo.png', null, 10, 0, 20);
+		$this->SetX(200, 15);
+		$this->Cell(0, 15, "Support Ticket System", 0, 1, 'R', 0);
 		//$this->SetY(40);
-        $this->SetXY(60, 20);
+        $this->SetXY(60, 25);
 		$this->SetFont('Arial', 'B', 16);
 		$this->Cell(0, 3, 'Ticket #'.$this->getTicket()->getExtId(), 0, 2, 'L');
         $this->SetX($this->lMargin);
@@ -73,7 +73,7 @@ class Ticket2PDF extends FPDF
 	function Footer() {
         global $thisstaff;
 
-		$this->SetY(-10);
+		$this->SetY(-15);
         $this->Cell(0, 2, '', "T", 2, 'L');
 		$this->SetFont('Arial', 'I', 9);
 		$this->Cell(0, 7, 'Ticket printed by '.$thisstaff->getUsername().' on '.date('r'), 0, 0, 'L');
