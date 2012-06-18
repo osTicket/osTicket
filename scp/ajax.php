@@ -45,6 +45,19 @@ $dispatcher = patterns('',
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
         url_get('^ui', 'scp_ui')
     )),
+    url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
+        # Send
+        url_get('^graph$', 'getPlotData'),
+        url_get('^table/groups$', 'enumTabularGroups'),
+        url_get('^table/export$', 'downloadTabularData'),
+        url_get('^table$', 'getTabularData')
+    )),
+    url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
+        # Send
+        url_get('^graph$', 'getPlotData'),
+        url_get('^table/groups$', 'enumTabularGroups'),
+        url_get('^table$', 'getTabularData')
+    )),
     url_get('^/users$', array('ajax.users.php:UsersAjaxAPI', 'search')),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/preview', 'previewTicket'),
