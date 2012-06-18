@@ -77,7 +77,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 if($canned && ($files=$canned->getAttachments())) {
                     echo '<div id="canned_attachments"><span class="faded">Uncheck to delete the attachment on submit</span><br>';
                     foreach($files as $file) {
-                        $hash=$file['hash'].md5($file['id'].session_id());
+                        $hash=$file['hash'].md5($file['id'].session_id().$file['hash']);
                         echo sprintf('<label><input type="checkbox" name="files[]" id="f%d" value="%d" checked="checked">
                                       <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',
                                       $file['id'], $file['id'], $hash, $file['name']);
