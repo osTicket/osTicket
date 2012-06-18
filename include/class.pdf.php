@@ -202,7 +202,7 @@ class Ticket2PDF extends FPDF
                     foreach($attachments as $attachment)
                         $files[]= $attachment['name'];
                     
-                    $text="\n\n[".implode(', ',$files)."]\n";
+                    $text.="\nFiles Attached: [".implode(', ',$files)."]\n";
                 }
                 $this->WriteText($w*2, $text, 1);
                 $this->Ln(5);

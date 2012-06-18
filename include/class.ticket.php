@@ -577,7 +577,7 @@ class Ticket{
 
         if($type && is_array($type))
             $sql.=" AND thread.thread_type IN('".implode("','", $type)."')";
-        else
+        elseif($type)
             $sql.=' AND thread.thread_type='.db_input($type);
 
         $sql.=' GROUP BY thread.id '
