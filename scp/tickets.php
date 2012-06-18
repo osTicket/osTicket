@@ -378,14 +378,6 @@ endif;
 /*... Quick stats ...*/
 $stats= $thisstaff->getTicketsStats();
 
-// Switch queues on the fly! depending on stats
-if(!$stats['open'] && $_REQUEST['a']!='search' && (!$_REQUEST['status'] || $_REQUEST['status']=='open')) {
-    if(!$cfg->showAnsweredTickets() && $stats['answered'])
-        $_REQUEST['status']= 'answered';
-    else
-        $_REQUEST['status']= 'closed';
-}
-
 //Navigation
 $nav->setTabActive('tickets');
 if($cfg->showAnsweredTickets()) {
@@ -396,7 +388,7 @@ if($cfg->showAnsweredTickets()) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
 } else {
 
-    if(!$stats || $stats['open']) {
+    if($stats) {
         $nav->addSubMenu(array('desc'=>'Open ('.$stats['open'].')',
                                'title'=>'Open Tickets',
                                'href'=>'tickets.php',
