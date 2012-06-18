@@ -200,7 +200,7 @@ class Format {
     }
 
     function userdate($format,$gmtime) {
-        return Format::date($format,$gmtime,$_SESSION['TZ_OFFSET'],$_SESSION['daylight']);
+        return Format::date($format,$gmtime,$_SESSION['TZ_OFFSET'],$_SESSION['TZ_DST']);
     }
     
     function date($format,$gmtimestamp,$offset=0,$daylight=false){

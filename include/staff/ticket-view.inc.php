@@ -40,7 +40,7 @@ if($ticket->isOverdue())
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload" class="reload">Reload</a></h2>
         </td>
         <td width="50%" class="right_align">
-            <a href="#" title="Print Ticket" class="print">Print Ticket</a>
+            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print" title="Print Ticket" class="print">Print Ticket</a>
             <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" title="Edit Ticket" class="edit">Edit Ticket</a>
         </td>
     </tr>

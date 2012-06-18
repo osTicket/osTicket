@@ -35,8 +35,9 @@ require_once(INCLUDE_DIR.'class.cron.php');
 Cron::TicketMonitor(); //Age tickets: We're going to age tickets ever regardless of cron settings. 
 if($cfg && $cfg->enableAutoCron()){ //ONLY fetch tickets if autocron is enabled!
     Cron::MailFetcher();  //Fetch mail.
-    Sys::log(LOG_DEBUG,'Autocron','cron job executed ['.$thisstaff->getUserName().']');
-}    
+    $ost->logDebug('Autocron', 'Cron job executed ['.$thisstaff->getUserName().']');
+} 
+
 $_SESSION['lastcroncall']=time();
 endif;
 $output = ob_get_contents();

@@ -36,13 +36,13 @@ define('OSTAPIINC',TRUE); // Define tag that included files can check
 $remotehost=(isset($_SERVER['HTTP_HOST']) || isset($_SERVER['REMOTE_ADDR']))?TRUE:FALSE;
 /* API exit helper */
 function api_exit($code,$msg='') {
-    global $remotehost,$cfg;
+    global $remotehost, $ost;
     
     if($code!=EX_SUCCESS) {
         //Error occured...
         $_SESSION['api']['errors']+=1;
         $_SESSION['api']['time']=time();
-        Sys::log(LOG_WARNING,"API error - code #$code",$msg);
+        $ost->logWarning("API error - code #$code",$msg);
         //echo "API Error:.$msg";
     }
     if($remotehost){

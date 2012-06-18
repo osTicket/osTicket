@@ -22,6 +22,7 @@ include_once(INCLUDE_DIR.'class.topic.php');
 include_once(INCLUDE_DIR.'class.lock.php');
 include_once(INCLUDE_DIR.'class.file.php');
 include_once(INCLUDE_DIR.'class.attachment.php');
+include_once(INCLUDE_DIR.'class.pdf.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
 include_once(INCLUDE_DIR.'class.priority.php');
@@ -540,7 +541,7 @@ class Ticket{
     }
 
     function getClientThread() {
-        return $this->getThreadwithoutNotes();
+        return $this->getThreadWithoutNotes();
     }
 
     function getThreadWithNotes() {
@@ -557,7 +558,7 @@ class Ticket{
         if($includeNotes) //Include notes??
             $treadtypes[] = 'N';
 
-        return $this->getThreadbyType($treadtypes, $order);
+        return $this->getThreadByType($treadtypes, $order);
     }
         
     function getThreadByType($type, $order='ASC') {
@@ -576,7 +577,7 @@ class Ticket{
 
         if($type && is_array($type))
             $sql.=" AND thread.thread_type IN('".implode("','", $type)."')";
-        else
+        elseif($type)
             $sql.=' AND thread.thread_type='.db_input($type);
 
         $sql.=' GROUP BY thread.id '
@@ -885,11 +886,11 @@ class Ticket{
     }
 
     function onOpenLimit($sendNotice=true) {
-        global $cfg;
+        global $ost, $cfg;
 
         //Log the limit notice as a warning for admin.
         $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
-        sys::log(LOG_WARNING, 'Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
+        $ost->logWarning('Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
 
         if(!$sendNotice || !$cfg->sendOverLimitNotice()) return true;
 
@@ -916,7 +917,7 @@ class Ticket{
             .'Open ticket: '.$client->getNumOpenTickets()."\n"
             .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
             
-        Sys::alertAdmin('Overlimit Notice',$msg);
+        $ost->alertAdmin('Overlimit Notice', $msg);
        
         return true;
     }
@@ -1550,6 +1551,14 @@ class Ticket{
         return $id;
     }
 
+    //Print ticket... export the ticket thread as PDF.
+    function pdfExport() {
+        $pdf = new Ticket2PDF($this, true);
+        $name='Ticket-'.$this->getExtId().'.pdf';
+        $pdf->Output($name, 'I');
+        exit;
+    }
+
     //online based attached files.
     function uploadAttachments($files, $refid, $type) {
 
@@ -1803,7 +1812,7 @@ class Ticket{
      *  $autorespond and $alertstaff overwrites config settings...
      */      
     function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
-        global $cfg,$thisclient,$_FILES;
+        global $ost, $cfg, $thisclient, $_FILES;
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
@@ -1811,7 +1820,7 @@ class Ticket{
             //Make sure the email address is not banned
             if(EmailFilter::isBanned($vars['email'])) {
                 $errors['err']='Ticket denied. Error #403';
-                Sys::log(LOG_WARNING,'Ticket denied','Banned email - '.$vars['email']);
+                $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
                 return 0;
             }
 
@@ -1822,8 +1831,9 @@ class Ticket{
                     && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
 
                 $errors['err']="You've reached the maximum open tickets allowed.";
-                Sys::log(LOG_WARNING, 'Ticket denied -'.$vars['email'], 
-                        sprintf('Max open tickets (%d) reached for %s ', $cfg->getMaxOpenTickets(), $vars['email']));
+                $ost->logWarning('Ticket denied -'.$vars['email'], 
+                        sprintf('Max open tickets (%d) reached for %s ', 
+                            $cfg->getMaxOpenTickets(), $vars['email']));
 
                 return 0;
             }
@@ -1832,9 +1842,10 @@ class Ticket{
         if (($email_filter=new EmailFilter($vars))
                 && ($filter=$email_filter->shouldReject())) {
             $errors['err']='Ticket denied. Error #403';
-            Sys::log(LOG_WARNING,'Ticket denied',
-                sprintf('Banned email - %s by filter "%s"', $vars['email'],
-                    $filter->getName()));
+            $ost->logWarning('Ticket denied', 
+                    sprintf('Banned email - %s by filter "%s"', 
+                        $vars['email'], $filter->getName()));
+
             return 0;
         }
 

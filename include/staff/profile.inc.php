@@ -156,6 +156,23 @@ $info['id']=$staff->getId();
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['default_signature_type']; ?></span>
             </td>
         </tr>
+        <tr>
+            <td width="180">Default Paper Size:</td>
+            <td>
+                <select name="default_paper_size">
+                  <option value="none" selected="selected">&mdash; None &mdash;</option>
+                  <?php
+                  $options=array('Letter', 'Legal', 'A4', 'A3');
+                  foreach($options as $v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $v,($info['default_paper_size']==$v)?'selected="selected"':'',$v);
+                  }
+                  ?>
+                </select>
+                <em>Paper size used when printing tickets to PDF</em>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['default_paper_size']; ?></span>
+            </td>
+        </tr>
         <?php
         //Show an option to show assigned tickets to admins & managers.
         if($staff->isAdmin() || $staff->isManager()){ ?>

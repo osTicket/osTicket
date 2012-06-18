@@ -464,6 +464,8 @@ if($ticket) {
     $inc = 'ticket-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
         $inc = 'ticket-edit.inc.php';
+    elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport())
+        $errors['err'] = 'Internal error: Unable to export the ticket to PDF for print.';
 } else {
     $inc = 'tickets.inc.php';
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
@@ -485,7 +487,7 @@ if($ticket) {
 
     //set refresh rate if the user has it configured
     if(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
-        define('AUTO_REFRESH', $min*60); 
+        $ost->addExtraHeader('<meta http-equiv="refresh" content="'.($min*60).'" />');
 }
 
 require_once(STAFFINC_DIR.'header.inc.php');

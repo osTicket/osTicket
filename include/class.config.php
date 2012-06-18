@@ -44,39 +44,28 @@ class Config {
             
         $this->config=db_fetch_array($res);
         $this->id=$this->config['id'];
+        $this->setMysqlTZ(db_timezone());
 
         return true;
     }
 
-    //Initialize some default values.
-    function init() {
-        list($mysqltz)=db_fetch_row(db_query('SELECT @@session.time_zone '));
-        $this->setMysqlTZ($mysqltz);
-    }
-    
     function reload() {
         if(!$this->load($this->getId()))
             return false;
-
-        $this->init();
 
         return true;
     }
 
     function isHelpDeskOffline() {
-        return !$this->isSystemOnline();
+        return !$this->isOnline();
     }
 
     function isHelpDeskOnline() {
-        return $this->isSystemOnline();
+        return $this->isOnline();
     }
 
-    function isSystemOnline() {
-        return ($this->config['isonline'] && !$this->isUpgradePending());
-    }
-
-    function isUpgradePending() {
-        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getSchemaSignature(), SCHEMA_SIGNATURE));
+    function isOnline() {
+        return ($this->config['isonline']);
     }
 
     function isKnowledgebaseEnabled() {
@@ -132,6 +121,14 @@ class Config {
     function getId() {
         return $this->id;
     }
+
+    function getConfigId() {
+        return $this->getId();
+    }
+
+    function getConfigInfo() {
+        return $this->config;
+    }
    
     function getTitle() {
         return $this->config['helpdesk_title'];
@@ -143,10 +140,6 @@ class Config {
     
     function getBaseUrl() { //Same as above with no trailing slash.
         return rtrim($this->getUrl(),'/');
-    }
-
-    function getConfig() {
-        return $this->config;
     }
 
     function getTZOffset() {
@@ -584,7 +577,7 @@ class Config {
         return false;
     }
 
-    function updateGeneralSetting($vars,&$errors) {
+    function updateGeneralSetting($vars, &$errors) {
 
         $f=array();
         $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk URl required');
@@ -594,29 +587,29 @@ class Config {
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
 
-        if(!Validator::process($f,$vars,$errors) || $errors)
+        if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-             ',isonline='.db_input($vars['isonline']).
-             ',helpdesk_title='.db_input($vars['helpdesk_title']).
-             ',helpdesk_url='.db_input($vars['helpdesk_url']).
-             ',default_dept_id='.db_input($vars['default_dept_id']).
-             ',default_template_id='.db_input($vars['default_template_id']).
-             ',max_page_size='.db_input($vars['max_page_size']).
-             ',log_level='.db_input($vars['log_level']).
-             ',log_graceperiod='.db_input($vars['log_graceperiod']).
-             ',passwd_reset_period='.db_input($vars['passwd_reset_period']).
-             ',staff_max_logins='.db_input($vars['staff_max_logins']).
-             ',staff_login_timeout='.db_input($vars['staff_login_timeout']).
-             ',staff_session_timeout='.db_input($vars['staff_session_timeout']).
-             ',staff_ip_binding='.db_input(isset($vars['staff_ip_binding'])?1:0).
-             ',client_max_logins='.db_input($vars['client_max_logins']).
-             ',client_login_timeout='.db_input($vars['client_login_timeout']).
-             ',client_session_timeout='.db_input($vars['client_session_timeout']).
-             ',clickable_urls='.db_input(isset($vars['clickable_urls'])?1:0).
-             ',enable_auto_cron='.db_input(isset($vars['enable_auto_cron'])?1:0).
-             ' WHERE id='.$this->getId();
+        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+            .',isonline='.db_input($vars['isonline'])
+            .',helpdesk_title='.db_input($vars['helpdesk_title'])
+            .',helpdesk_url='.db_input($vars['helpdesk_url'])
+            .',default_dept_id='.db_input($vars['default_dept_id'])
+            .',default_template_id='.db_input($vars['default_template_id'])
+            .',max_page_size='.db_input($vars['max_page_size'])
+            .',log_level='.db_input($vars['log_level'])
+            .',log_graceperiod='.db_input($vars['log_graceperiod'])
+            .',passwd_reset_period='.db_input($vars['passwd_reset_period'])
+            .',staff_max_logins='.db_input($vars['staff_max_logins'])
+            .',staff_login_timeout='.db_input($vars['staff_login_timeout'])
+            .',staff_session_timeout='.db_input($vars['staff_session_timeout'])
+            .',staff_ip_binding='.db_input(isset($vars['staff_ip_binding'])?1:0)
+            .',client_max_logins='.db_input($vars['client_max_logins'])
+            .',client_login_timeout='.db_input($vars['client_login_timeout'])
+            .',client_session_timeout='.db_input($vars['client_session_timeout'])
+            .',clickable_urls='.db_input(isset($vars['clickable_urls'])?1:0)
+            .',enable_auto_cron='.db_input(isset($vars['enable_auto_cron'])?1:0)
+            .' WHERE id='.db_input($this->getId());
         
         return (db_query($sql));
     }
@@ -633,14 +626,14 @@ class Config {
         if(!Validator::process($f,$vars,$errors) || $errors)
             return false;
 
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-             ',time_format='.db_input($vars['time_format']).
-             ',date_format='.db_input($vars['date_format']).
-             ',datetime_format='.db_input($vars['datetime_format']).
-             ',daydatetime_format='.db_input($vars['daydatetime_format']).
-             ',default_timezone_id='.db_input($vars['default_timezone_id']).
-             ',enable_daylight_saving='.db_input(isset($vars['enable_daylight_saving'])?1:0).
-             ' WHERE id='.$this->getId();
+        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+            .',time_format='.db_input($vars['time_format'])
+            .',date_format='.db_input($vars['date_format'])
+            .',datetime_format='.db_input($vars['datetime_format'])
+            .',daydatetime_format='.db_input($vars['daydatetime_format'])
+            .',default_timezone_id='.db_input($vars['default_timezone_id'])
+            .',enable_daylight_saving='.db_input(isset($vars['enable_daylight_saving'])?1:0)
+            .' WHERE id='.db_input($this->getId());
 
         return (db_query($sql));
     }
@@ -665,22 +658,23 @@ class Config {
         if(!Validator::process($f,$vars,$errors) || $errors)
             return false;
 
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-             ',random_ticket_ids='.db_input($vars['random_ticket_ids']).
-             ',default_priority_id='.db_input($vars['default_priority_id']).
-             ',default_sla_id='.db_input($vars['default_sla_id']).
-             ',max_open_tickets='.db_input($vars['max_open_tickets']).
-             ',autolock_minutes='.db_input($vars['autolock_minutes']).
-             ',allow_priority_change='.db_input(isset($vars['allow_priority_change'])?1:0).
-             ',use_email_priority='.db_input(isset($vars['use_email_priority'])?1:0).
-             ',enable_captcha='.db_input(isset($vars['enable_captcha'])?1:0).
-             ',log_ticket_activity='.db_input(isset($vars['log_ticket_activity'])?1:0).
-             ',auto_assign_reopened_tickets='.db_input(isset($vars['auto_assign_reopened_tickets'])?1:0).
-             ',show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0).
-             ',show_answered_tickets='.db_input(isset($vars['show_answered_tickets'])?1:0).
-             ',show_related_tickets='.db_input(isset($vars['show_related_tickets'])?1:0).
-             ',show_notes_inline='.db_input(isset($vars['show_notes_inline'])?1:0).
-             ',hide_staff_name='.db_input(isset($vars['hide_staff_name'])?1:0);
+        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+            .',random_ticket_ids='.db_input($vars['random_ticket_ids'])
+            .',default_priority_id='.db_input($vars['default_priority_id'])
+            .',default_sla_id='.db_input($vars['default_sla_id'])
+            .',max_open_tickets='.db_input($vars['max_open_tickets'])
+            .',autolock_minutes='.db_input($vars['autolock_minutes'])
+            .',allow_priority_change='.db_input(isset($vars['allow_priority_change'])?1:0)
+            .',use_email_priority='.db_input(isset($vars['use_email_priority'])?1:0)
+            .',enable_captcha='.db_input(isset($vars['enable_captcha'])?1:0)
+            .',log_ticket_activity='.db_input(isset($vars['log_ticket_activity'])?1:0)
+            .',auto_assign_reopened_tickets='.db_input(isset($vars['auto_assign_reopened_tickets'])?1:0)
+            .',show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0)
+            .',show_answered_tickets='.db_input(isset($vars['show_answered_tickets'])?1:0)
+            .',show_related_tickets='.db_input(isset($vars['show_related_tickets'])?1:0)
+            .',show_notes_inline='.db_input(isset($vars['show_notes_inline'])?1:0)
+            .',hide_staff_name='.db_input(isset($vars['hide_staff_name'])?1:0)
+            .' WHERE id='.db_input($this->getId());
 
         return (db_query($sql));
     }
@@ -702,15 +696,18 @@ class Config {
         if(!Validator::process($f,$vars,$errors) || $errors)
             return false;
 
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-             ',default_email_id='.db_input($vars['default_email_id']).
-             ',alert_email_id='.db_input($vars['alert_email_id']).
-             ',default_smtp_id='.db_input($vars['default_smtp_id']).
-             ',admin_email='.db_input($vars['admin_email']).
-             ',enable_mail_polling='.db_input(isset($vars['enable_mail_polling'])?1:0).
-             ',enable_email_piping='.db_input(isset($vars['enable_email_piping'])?1:0).
-             ',strip_quoted_reply='.db_input(isset($vars['strip_quoted_reply'])?1:0).
-             ',reply_separator='.db_input($vars['reply_separator']);
+        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+            .',default_email_id='.db_input($vars['default_email_id'])
+            .',alert_email_id='.db_input($vars['alert_email_id'])
+            .',default_smtp_id='.db_input($vars['default_smtp_id'])
+            .',admin_email='.db_input($vars['admin_email'])
+            .',enable_mail_polling='.db_input(isset($vars['enable_mail_polling'])?1:0)
+            .',enable_email_piping='.db_input(isset($vars['enable_email_piping'])?1:0)
+            .',strip_quoted_reply='.db_input(isset($vars['strip_quoted_reply'])?1:0)
+            .',reply_separator='.db_input($vars['reply_separator'])
+            .' WHERE id='.db_input($this->getId());
+
+
         
         return (db_query($sql));
     }
@@ -741,36 +738,33 @@ class Config {
 
         if($errors) return false;
 
-        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-              ',allow_attachments='.db_input(isset($vars['allow_attachments'])?1:0).
-              ',allowed_filetypes='.db_input(strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes'])))).
-              ',max_file_size='.db_input($vars['max_file_size']).
-              ',max_user_file_uploads='.db_input($vars['max_user_file_uploads']).
-              ',max_staff_file_uploads='.db_input($vars['max_staff_file_uploads']).
-              ',email_attachments='.db_input(isset($vars['email_attachments'])?1:0).
-              ',allow_email_attachments='.db_input(isset($vars['allow_email_attachments'])?1:0).
-              ',allow_online_attachments='.db_input(isset($vars['allow_online_attachments'])?1:0).
-              ',allow_online_attachments_onlogin='.db_input(isset($vars['allow_online_attachments_onlogin'])?1:0).
-              ' WHERE id='.db_input($this->getId());
-        
+        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+             .',allow_attachments='.db_input(isset($vars['allow_attachments'])?1:0)
+             .',allowed_filetypes='.db_input(strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))))
+             .',max_file_size='.db_input($vars['max_file_size'])
+             .',max_user_file_uploads='.db_input($vars['max_user_file_uploads'])
+             .',max_staff_file_uploads='.db_input($vars['max_staff_file_uploads'])
+             .',email_attachments='.db_input(isset($vars['email_attachments'])?1:0)
+             .',allow_email_attachments='.db_input(isset($vars['allow_email_attachments'])?1:0)
+             .',allow_online_attachments='.db_input(isset($vars['allow_online_attachments'])?1:0)
+             .',allow_online_attachments_onlogin='.db_input(isset($vars['allow_online_attachments_onlogin'])?1:0)
+             .' WHERE id='.db_input($this->getId());
 
         return (db_query($sql));
-
     }
-
 
     function updateAutoresponderSetting($vars,&$errors) {
 
         if($errors) return false;
 
-        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-              ',ticket_autoresponder='.db_input($vars['ticket_autoresponder']).
-              ',message_autoresponder='.db_input($vars['message_autoresponder']).
-              ',ticket_notice_active='.db_input($vars['ticket_notice_active']).
-              ',overlimit_notice_active='.db_input($vars['overlimit_notice_active']);
+        $sql ='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+             .',ticket_autoresponder='.db_input($vars['ticket_autoresponder'])
+             .',message_autoresponder='.db_input($vars['message_autoresponder'])
+             .',ticket_notice_active='.db_input($vars['ticket_notice_active'])
+             .',overlimit_notice_active='.db_input($vars['overlimit_notice_active'])
+             .' WHERE id='.db_input($this->getId());
 
         return (db_query($sql));
-
     }
 
 
@@ -778,10 +772,11 @@ class Config {
 
         if($errors) return false;
 
-        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-              ',enable_kb='.db_input(isset($vars['enable_kb'])?1:0).
-              ',enable_premade='.db_input(isset($vars['enable_premade'])?1:0);
-    
+        $sql = 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+              .',enable_kb='.db_input(isset($vars['enable_kb'])?1:0)
+              .',enable_premade='.db_input(isset($vars['enable_premade'])?1:0)
+              .' WHERE id='.db_input($this->getId());
+
         return (db_query($sql));
     }
 
@@ -832,38 +827,44 @@ class Config {
 
         if($errors) return false;
         
-        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '.
-              ',ticket_notice_active='.db_input($vars['ticket_notice_active']).
-              ',ticket_alert_active='.db_input($vars['ticket_alert_active']).
-              ',ticket_alert_admin='.db_input(isset($vars['ticket_alert_admin'])?1:0).
-              ',ticket_alert_dept_manager='.db_input(isset($vars['ticket_alert_dept_manager'])?1:0).
-              ',ticket_alert_dept_members='.db_input(isset($vars['ticket_alert_dept_members'])?1:0).
-              ',message_alert_active='.db_input($vars['message_alert_active']).
-              ',message_alert_laststaff='.db_input(isset($vars['message_alert_laststaff'])?1:0).
-              ',message_alert_assigned='.db_input(isset($vars['message_alert_assigned'])?1:0).
-              ',message_alert_dept_manager='.db_input(isset($vars['message_alert_dept_manager'])?1:0).
-              ',note_alert_active='.db_input($vars['note_alert_active']).
-              ',note_alert_laststaff='.db_input(isset($vars['note_alert_laststaff'])?1:0).
-              ',note_alert_assigned='.db_input(isset($vars['note_alert_assigned'])?1:0).
-              ',note_alert_dept_manager='.db_input(isset($vars['note_alert_dept_manager'])?1:0).
-              ',assigned_alert_active='.db_input($vars['assigned_alert_active']).
-              ',assigned_alert_staff='.db_input(isset($vars['assigned_alert_staff'])?1:0).
-              ',assigned_alert_team_lead='.db_input(isset($vars['assigned_alert_team_lead'])?1:0).
-              ',assigned_alert_team_members='.db_input(isset($vars['assigned_alert_team_members'])?1:0).
-              ',transfer_alert_active='.db_input($vars['transfer_alert_active']).
-              ',transfer_alert_assigned='.db_input(isset($vars['transfer_alert_assigned'])?1:0).
-              ',transfer_alert_dept_manager='.db_input(isset($vars['transfer_alert_dept_manager'])?1:0).
-              ',transfer_alert_dept_members='.db_input(isset($var['transfer_alert_dept_members'])?1:0).
-              ',overdue_alert_active='.db_input($vars['overdue_alert_active']).
-              ',overdue_alert_assigned='.db_input(isset($vars['overdue_alert_assigned'])?1:0).
-              ',overdue_alert_dept_manager='.db_input(isset($vars['overdue_alert_dept_manager'])?1:0).
-              ',overdue_alert_dept_members='.db_input(isset($var['overdue_alert_dept_members'])?1:0).
-              ',send_sys_errors='.db_input(isset($vars['send_sys_errors'])?1:0).
-              ',send_sql_errors='.db_input(isset($vars['send_sql_errors'])?1:0).
-              ',send_login_errors='.db_input(isset($vars['send_login_errors'])?1:0);
+        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
+             .',ticket_notice_active='.db_input($vars['ticket_notice_active'])
+             .',ticket_alert_active='.db_input($vars['ticket_alert_active'])
+             .',ticket_alert_admin='.db_input(isset($vars['ticket_alert_admin'])?1:0)
+             .',ticket_alert_dept_manager='.db_input(isset($vars['ticket_alert_dept_manager'])?1:0)
+             .',ticket_alert_dept_members='.db_input(isset($vars['ticket_alert_dept_members'])?1:0)
+             .',message_alert_active='.db_input($vars['message_alert_active'])
+             .',message_alert_laststaff='.db_input(isset($vars['message_alert_laststaff'])?1:0)
+             .',message_alert_assigned='.db_input(isset($vars['message_alert_assigned'])?1:0)
+             .',message_alert_dept_manager='.db_input(isset($vars['message_alert_dept_manager'])?1:0)
+             .',note_alert_active='.db_input($vars['note_alert_active'])
+             .',note_alert_laststaff='.db_input(isset($vars['note_alert_laststaff'])?1:0)
+             .',note_alert_assigned='.db_input(isset($vars['note_alert_assigned'])?1:0)
+             .',note_alert_dept_manager='.db_input(isset($vars['note_alert_dept_manager'])?1:0)
+             .',assigned_alert_active='.db_input($vars['assigned_alert_active'])
+             .',assigned_alert_staff='.db_input(isset($vars['assigned_alert_staff'])?1:0)
+             .',assigned_alert_team_lead='.db_input(isset($vars['assigned_alert_team_lead'])?1:0)
+             .',assigned_alert_team_members='.db_input(isset($vars['assigned_alert_team_members'])?1:0)
+             .',transfer_alert_active='.db_input($vars['transfer_alert_active'])
+             .',transfer_alert_assigned='.db_input(isset($vars['transfer_alert_assigned'])?1:0)
+             .',transfer_alert_dept_manager='.db_input(isset($vars['transfer_alert_dept_manager'])?1:0)
+             .',transfer_alert_dept_members='.db_input(isset($var['transfer_alert_dept_members'])?1:0)
+             .',overdue_alert_active='.db_input($vars['overdue_alert_active'])
+             .',overdue_alert_assigned='.db_input(isset($vars['overdue_alert_assigned'])?1:0)
+             .',overdue_alert_dept_manager='.db_input(isset($vars['overdue_alert_dept_manager'])?1:0)
+             .',overdue_alert_dept_members='.db_input(isset($var['overdue_alert_dept_members'])?1:0)
+             .',send_sys_errors='.db_input(isset($vars['send_sys_errors'])?1:0)
+             .',send_sql_errors='.db_input(isset($vars['send_sql_errors'])?1:0)
+             .',send_login_errors='.db_input(isset($vars['send_login_errors'])?1:0)
+             .' WHERE id='.db_input($this->getId());
 
         return (db_query($sql));
 
+    }
+
+    /** static **/
+    function lookup($id) {
+        return ($id && ($cfg = new Config($id)) && $cfg->getId()==$id)?$cfg:null;
     }
 }
 ?>

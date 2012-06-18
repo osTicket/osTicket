@@ -91,11 +91,12 @@ class Template {
         return (db_query($sql) && db_affected_rows());
     }
 
-    function getMsgTemplate($name){
+    function getMsgTemplate($name) {
+        global $ost;
 
         //TODO: Don't preload - do ondemand fetch!
         $tpl=array();
-        switch(strtolower($name)){
+        switch(strtolower($name)) {
             case 'ticket_autoresp':
                  $tpl=array('subj'=>$this->ht['ticket_autoresp_subj'],'body'=>$this->ht['ticket_autoresp_body']);
                  break;
@@ -130,7 +131,7 @@ class Template {
                  $tpl=array('subj'=>$this->ht['ticket_overdue_subj'],'body'=>$this->ht['ticket_overdue_body']);
                  break;
             default:
-                 Sys::log(LOG_WARNING,'Template Fetch Error',"Unable to fetch '$name' template - id #".$this->getId());
+                 $ost->logWarning('Template Fetch Error', "Unable to fetch '$name' template - id #".$this->getId());
                  $tpl=array();
         }
 
@@ -197,7 +198,7 @@ class Template {
         if($errors) return false;
 
         $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() ';
-        switch(strtolower($vars['tpl'])){
+        switch(strtolower($vars['tpl'])) {
             case 'ticket_autoresp':
                 $sql.=',ticket_autoresp_subj='.db_input($vars['subj']).',ticket_autoresp_body='.db_input($vars['body']);
                 break;
@@ -326,8 +327,8 @@ class Template {
         return ($id && is_numeric($id) && ($t= new Template($id)) && $t->getId()==$id)?$t:null;
     }
 
-    function save($id,$vars,&$errors) {
-        global $cfg;
+    function save($id, $vars, &$errors) {
+        global $ost;
 
         $tpl=null;
         $vars['name']=Format::striptags(trim($vars['name']));
@@ -354,12 +355,14 @@ class Template {
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET '.$sql.' WHERE tpl_id='.db_input($id);
             if(db_query($sql))
                 return true;
+
             $errors['err']='Unable to update the template. Internal error occurred';
-        }elseif($tpl && ($info=$tpl->getInfo())){
+        
+        } elseif($tpl && ($info=$tpl->getInfo())) {
 
             $sql='INSERT INTO '.EMAIL_TEMPLATE_TABLE.' SET '.$sql
                 .' ,created=NOW() '
-                .' ,cfg_id='.db_input($cfg->getId())
+                .' ,cfg_id='.db_input($ost->getConfigId())
                 .' ,ticket_autoresp_subj='.db_input($info['ticket_autoresp_subj'])
                 .' ,ticket_autoresp_body='.db_input($info['ticket_autoresp_body'])
                 .' ,ticket_notice_subj='.db_input($info['ticket_notice_subj'])
