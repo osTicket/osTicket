@@ -21,6 +21,7 @@
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
+    csrf_enable_ajax();
     ?>
 </head>
 <body>

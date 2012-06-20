@@ -152,7 +152,7 @@ var autoLock = {
             autoLock.renewLock(e);
         } else {
             $.ajax({
-                type: "GET",
+                type: "POST",
                 url: 'ajax.php/tickets/'+autoLock.tid+'/lock',
                 dataType: 'json',
                 cache: false,

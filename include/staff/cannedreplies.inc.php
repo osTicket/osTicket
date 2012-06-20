@@ -53,6 +53,7 @@ else
     <b><a href="canned.php?a=add" class="Icon newReply">Add New Reply</a></b></div>
 <div class="clear"></div>
 <form action="canned.php" method="POST" name="canned" onSubmit="return checkbox_checker(this,1,0);">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>

@@ -4,6 +4,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canEditTickets() || !$ti
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
 ?>
 <form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" id="save"  enctype="multipart/form-data">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="a" value="edit">
  <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">

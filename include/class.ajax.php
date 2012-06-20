@@ -51,6 +51,10 @@ class AjaxController extends ApiController {
         return $this->json_encode($what);
     }
 
+    function csrf_protect() {
+        csrf_ensure_cookie();
+    }
+
     function get($var, $default=null) {
         return (isset($_GET[$var])) ? $_GET[$var] : $default;
     }

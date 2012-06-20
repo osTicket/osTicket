@@ -323,5 +323,4 @@ $(document).ready(function(){
                 $('.buttons', elem).show();
              });
     });
-
 });

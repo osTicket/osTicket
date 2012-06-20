@@ -39,6 +39,7 @@ define('KB_PREMADE_TABLE',TABLE_PREFIX.'kb_premade');
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.group.php');
 require_once(INCLUDE_DIR.'class.nav.php');
+require_once(INCLUDE_DIR.'class.csrf.php');
 
 /* First order of the day is see if the user is logged in and with a valid session.
     * User must be valid staff beyond this point 
@@ -79,6 +80,9 @@ if(!$thisstaff->isAdmin()) {
 
 //Keep the session activity alive
 $thisstaff->refreshSession();
+
+// Enforce CSRF protection for POSTS
+if ($_POST) csrf_ensure_cookie();
 
 /******* SET STAFF DEFAULTS **********/
 //Set staff's timezone offset.
