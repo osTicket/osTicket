@@ -15,6 +15,7 @@
 **********************************************************************/
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.email.php');
+include_once(INCLUDE_DIR.'class.csrf.php');
 $info=array();
 $info['subj']='osTicket test email';
 
@@ -47,6 +48,7 @@ $nav->setTabActive('emails');
 require(STAFFINC_DIR.'header.inc.php');
 ?>
 <form action="emailtest.php" method="post" id="emailtest">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <h2>Test Outgoing Email</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">

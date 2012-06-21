@@ -40,6 +40,10 @@ function csrf_get_token($length=32) {
 }
 
 function csrf_ensure_cookie() {
+    global $csrf_unprotected;
+    if ($csrf_unprotected)
+        return true;
+
     $token = csrf_get_token();
     if (isset($_POST['__CSRFToken__'])) {
         if ($token == $_POST['__CSRFToken__'])
@@ -50,6 +54,11 @@ function csrf_ensure_cookie() {
             return true;
     }
     Http::response(400, 'CSRF Token Required');
+}
+
+function csrf_unprotect() {
+    global $csrf_unprotected;
+    $csrf_unprotected = true;
 }
 
 # Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/
