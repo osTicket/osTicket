@@ -283,7 +283,7 @@ class MailFetcher {
         $var['mid']=$mailinfo['mid'];
 
         if($cfg->useEmailPriority())
-            $var['pri']=$this->getPriority($mid);
+            $var['priorityId']=$this->getPriority($mid);
        
         $ticket=null;
         $newticket=true;

@@ -87,7 +87,7 @@ $var['emailId']=$emailId?$emailId:$cfg->getDefaultEmailId();
 $var['subject']=$subj?$subj:'[No Subject]';
 $var['message']=utf8_encode(Format::stripEmptyLines($body));
 $var['header']=$parser->getHeader();
-$var['pri']=$cfg->useEmailPriority()?$parser->getPriority():0;
+$var['priorityId']=$cfg->useEmailPriority()?$parser->getPriority():0;
 
 $ticket=null;
 if(preg_match ("[[#][0-9]{1,10}]",$var['subject'],$regs)) {
