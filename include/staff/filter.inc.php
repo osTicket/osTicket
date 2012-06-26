@@ -183,6 +183,27 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
+                Canned Response:
+            </td>
+                <td>
+                <select name="canned_response">
+                    <option value="">&mdash; None &mdash;</option>
+                    <?php
+                    if($canneds=Canned::responsesByDeptId($thisstaff->getDeptId())) {
+                        foreach ($canneds as $id => $title) {
+                            $selected=($info['canned_response'] &&
+                                    $id==$info['canned_response'])
+                                ? 'selected="selected"' : '';
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                $id, $selected, $title);
+                        }
+                    }
+                    ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                 Department:
             </td>
             <td>
