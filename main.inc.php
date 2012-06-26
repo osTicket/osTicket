@@ -55,7 +55,10 @@
     define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
     define('PEAR_DIR',INCLUDE_DIR.'pear/');
     define('SETUP_DIR',INCLUDE_DIR.'setup/');
-  
+
+    define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
+    define('PATCH_DIR', UPGRADE_DIR.'patches/');
+
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
