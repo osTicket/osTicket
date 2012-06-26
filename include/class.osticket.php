@@ -43,7 +43,7 @@ class osTicket {
     }
 
     function isUpgradePending() {
-        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getConfig()->getSchemaSignature(), SCHEMA_SIGNATURE));
+        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getDBSignature(), SCHEMA_SIGNATURE));
     }
 
     function getSession() {
@@ -57,6 +57,14 @@ class osTicket {
     function getConfigId() {
 
         return $this->getConfig()?$this->getConfig()->getId():0;
+    }
+
+    function getDBSignature() {
+        return $this->getConfig()->getSchemaSignature();
+    }
+
+    function getVersion() {
+        return THIS_VERSION;
     }
 
     function addExtraHeader($header) {

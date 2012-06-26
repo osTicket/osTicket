@@ -23,7 +23,9 @@ if(!$ost or !$thisstaff or !$thisstaff->isAdmin()){
 
 //Some security related warnings - bitch until fixed!!! :)
 if($ost->isUpgradePending()) {
-    $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
+    $errors['err']=$sysnotice='System upgrade is pending <a href="upgrade.php">Upgrade Now</a>';
+    require('upgrade.php');
+    exit;
 } else {
     
     if(file_exists('../setup/')) {

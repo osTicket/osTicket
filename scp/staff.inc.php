@@ -93,7 +93,9 @@ $msg=$warn=$sysnotice='';
 $tabs=array();
 $submenu=array();
 if($ost->isUpgradePending()) {
-    $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
+    $errors['err']=$sysnotice='System upgrade is pending <a href="upgrade.php">Upgrade Now</a>';
+    require('upgrade.php');
+    exit;
 } elseif($cfg->isHelpDeskOffline()) {
     $sysnotice='<strong>System is set to offline mode</strong> - Client interface is disabled and ONLY admins can access staff control panel.';
     $sysnotice.=' <a href="settings.php">Enable</a>.';

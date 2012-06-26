@@ -13,31 +13,12 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-function staffLoginPage($msg) {
-        
-    $_SESSION['_staff']['auth']['dest']=THISPAGE;
-    $_SESSION['_staff']['auth']['msg']=$msg;
-    header('Location: ../scp/login.php');
-    exit;
-}
-
-require '../scp/staff.inc.php';
-if(!$thisstaff or !$thisstaff->isAdmin()) {
-    staffLoginPage('Admin Access Required!');
-    exit;
-}
-
-define('SETUPINC', true);
-define('INC_DIR', './inc/');
-define('SQL_DIR', INC_DIR.'sql/');
-
-require_once INC_DIR.'class.upgrader.php';
+require_once 'admin.inc.php';
+require_once INCLUDE_DIR.'class.upgrader.php';
 
 //$_SESSION['ost_upgrader']=null;
-$upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, SQL_DIR);
+$upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, PATCH_DIR);
 
-
-$wizard=array();
 $wizard['title']='osTicket Upgrade Wizard';
 $wizard['tagline']='Upgrading osTicket to v'.$upgrader->getVersionVerbose();
 $wizard['logo']='logo-upgrade.png';
@@ -77,25 +58,32 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
 
 switch(strtolower($upgrader->getState())) {
     case 'aborted':
-        $inc='upgrade-aborted.inc.php';
+        $inc='aborted.inc.php';
         break;
     case 'upgrade':
         $inc='upgrade.inc.php';
         break;
     case 'done':
-        $inc='upgrade-done.inc.php';
+        $inc='done.inc.php';
         break;
     default:
-        $inc='upgrade-prereq.inc.php';
+        $inc='upgrade.inc.php';
         if($upgrader->isAborted())
-            $inc='upgrade-aborted.inc.php';
+            $inc='aborted.inc.php';
         elseif(!$ost->isUpgradePending())
-            $errors['err']='Nothing to do! System already upgraded to the latest version';
+            $errors['err']='Nothing to do! System already upgraded to <b>'.$ost->getVersion().'</b> with no pending patches to apply.';
         elseif(!$upgrader->isUpgradable())
             $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
 }
 
-require(INC_DIR.'header.inc.php');
-require(INC_DIR.$inc);
-require(INC_DIR.'footer.inc.php');
+$nav->setTabActive('dashboard');
+$nav->addSubMenu(array('desc'=>'Upgrader',
+                           'title'=>'Upgrader',
+                           'href'=>'upgrade.php',
+                           'iconclass'=>'preferences'),
+                        true);
+$ost->addExtraHeader('<script type="text/javascript" src="./js/upgrader.js"></script>');
+require(STAFFINC_DIR.'header.inc.php');
+require(UPGRADE_DIR.$inc);
+require(STAFFINC_DIR.'footer.inc.php');
 ?>

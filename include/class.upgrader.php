@@ -14,8 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once INC_DIR.'class.setup.php';
-require_once INC_DIR.'class.migrater.php';
+require_once INCLUDE_DIR.'class.setup.php';
+require_once INCLUDE_DIR.'class.migrater.php';
 
 class Upgrader extends SetupWizard {
 
@@ -181,6 +181,7 @@ class Upgrader extends SetupWizard {
             return true; //Nothing to do.
 
         foreach($tasks as $k => $task) {
+            //TODO: check time used vs. max execution - break if need be
             if(call_user_func(array($this, $task['func']), $k)===0) {
                 $this->tasks[$k]['done'] = true;
             } else { //Task has pending items to process.
@@ -198,6 +199,7 @@ class Upgrader extends SetupWizard {
             return false;
 
         foreach ($patches as $patch) {
+            //TODO: check time used vs. max execution - break if need be
             if (!$this->load_sql_file($patch, $this->getTablePrefix()))
                 return false;
 
@@ -232,13 +234,13 @@ class Upgrader extends SetupWizard {
 
         $tasks=array();
         switch($phash) { //Add  patch specific scripted tasks.
-            case 'd4fe13b1-7be60a84': //V1.6 ST- 1.7 *
+            case 'c00511c7-7be60a84': //V1.6 ST- 1.7 * {{MD5('1.6 ST') -> c00511c7c1db65c0cfad04b4842afc57}}
                 $tasks[] = array('func' => 'migrateAttachments2DB',
                                  'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
                 break;
         }
 
-        //Check if cleanup p 
+        //Check IF SQL cleanup is exists. 
         $file=$this->getSQLDir().$phash.'.cleanup.sql';
         if(file_exists($file)) 
             $tasks[] = array('func' => 'cleanup', 'desc' => 'Post-upgrade cleanup!');
@@ -261,10 +263,9 @@ class Upgrader extends SetupWizard {
         //XXX: ???
         return false;
     }
-    
 
     function migrateAttachments2DB($tId=0) {
-        echo "Process attachments here - $tId";
+        
         $att_migrater = new AttachmentMigrater();
         $att_migrater->start_migration();
         # XXX: Loop here (with help of task manager)

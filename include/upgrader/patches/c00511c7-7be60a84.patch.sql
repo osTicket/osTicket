@@ -1,3 +1,8 @@
+/**
+ * @version v1.7-*
+ * @schema c00511c7c1db65c0cfad04b4842afc57
+ */
+
 -- Add a table to contain the attachment file contents
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file`;
 CREATE TABLE `%TABLE_PREFIX%file` (
@@ -287,3 +292,6 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   `topic_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`topic_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+UPDATE `%TABLE_PREFIX%config`
+    SET `schema_signature`='7be60a8432e44989e782d5914ef784d2'; 
