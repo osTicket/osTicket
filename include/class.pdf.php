@@ -17,7 +17,7 @@
 define('THIS_DIR', str_replace('\\\\', '/', realpath(dirname(__FILE__))) . '/'); //Include path..
 define('FPDF_DIR', THIS_DIR . 'fpdf/');
 define('FPDF_FONTPATH', FPDF_DIR . 'font/'); //fonts directory.
-session_cache_limiter('private');
+//session_cache_limiter('private');
 require (FPDF_DIR . 'fpdf.php');
 
 class Ticket2PDF extends FPDF
