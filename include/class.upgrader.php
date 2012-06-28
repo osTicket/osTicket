@@ -31,6 +31,10 @@ class Upgrader extends SetupWizard {
         $this->sqldir = $sqldir;
         $this->errors = array();
 
+        //Disable time limit if - safe mode is set.
+        if(!ini_get('safe_mode'))
+            set_time_limit(0);
+
         //Init persistent state of upgrade.
         $this->state = &$_SESSION['ost_upgrader'][$this->getShash()]['state'];
 
@@ -180,6 +184,7 @@ class Upgrader extends SetupWizard {
         if(!($tasks=$this->getPendingTasks()))
             return true; //Nothing to do.
 
+        $start_time = Misc::micro_time();
         foreach($tasks as $k => $task) {
             //TODO: check time used vs. max execution - break if need be
             if(call_user_func(array($this, $task['func']), $k)===0) {
@@ -197,6 +202,10 @@ class Upgrader extends SetupWizard {
 
         if($this->getPendingTasks() || !($patches=$this->getPatches()))
             return false;
+
+        $start_time = Misc::micro_time();
+        if(!($max_time = ini_get('max_execution_time')))
+            $max_time = 300; //Apache/IIS defaults.
 
         foreach ($patches as $patch) {
             //TODO: check time used vs. max execution - break if need be
@@ -216,14 +225,21 @@ class Upgrader extends SetupWizard {
             $ost->logDebug('Upgrader - Patch applied', $logMsg);
             
             //Check if the said patch has scripted tasks
-            if(!($tasks=$this->getTasksForPatch($phash)))
+            if(!($tasks=$this->getTasksForPatch($phash))) {
+                //Break IF elapsed time is greater than 80% max time allowed.
+                if(($elapsedtime=(Misc::micro_time()-$start_time)) && $max_time && $elapsedtime>($max_time*0.80))
+                    break;
+
                 continue;
+
+            }
 
             //We have work to do... set the tasks and break.
             $shash = substr($phash, 9, 8);
             $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
             $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
             break;
+
         }
 
         return true;
@@ -250,7 +266,7 @@ class Upgrader extends SetupWizard {
     }
 
     /************* TASKS **********************/
-    function cleanup($tId=0) {
+    function cleanup($taskId) {
 
         $file=$this->getSQLDir().$this->getShash().'-cleanup.sql';
         if(!file_exists($file)) //No cleanup script.
@@ -264,13 +280,16 @@ class Upgrader extends SetupWizard {
         return false;
     }
 
-    function migrateAttachments2DB($tId=0) {
+    function migrateAttachments2DB($taskId) {
         
+        if(!($max_time = ini_get('max_execution_time')))
+            $max_time = 30; //Default to 30 sec batches.
+
         $att_migrater = new AttachmentMigrater();
-        $att_migrater->start_migration();
-        # XXX: Loop here (with help of task manager)
-        $att_migrater->do_batch();
-        return 0;
+        if($att_migrater->do_batch(($max_time*0.9), 100)===0)
+            return 0;
+
+        return $att_migrater->getQueueLength();
     }
 }
 ?>
