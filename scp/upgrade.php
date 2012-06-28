@@ -18,12 +18,6 @@ require_once INCLUDE_DIR.'class.upgrader.php';
 
 //$_SESSION['ost_upgrader']=null;
 $upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, PATCH_DIR);
-
-$wizard['title']='osTicket Upgrade Wizard';
-$wizard['tagline']='Upgrading osTicket to v'.$upgrader->getVersionVerbose();
-$wizard['logo']='logo-upgrade.png';
-$wizard['menu']=array('Upgrade Guide'=>'http://osticket.com/wiki/Upgrade_and_Migration',
-                      'Get Professional Help'=>'http://osticket.com/support');
 $errors=array();
 if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
     switch(strtolower($_POST['s'])) {
@@ -76,6 +70,7 @@ switch(strtolower($upgrader->getState())) {
             $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
 }
 
+$nav = new AdminNav($thisstaff);
 $nav->setTabActive('dashboard');
 $nav->addSubMenu(array('desc'=>'Upgrader',
                            'title'=>'Upgrader',

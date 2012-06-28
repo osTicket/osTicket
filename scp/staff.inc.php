@@ -13,7 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Kwaheri rafiki!'); //Say hi to our friend..
+if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Access denied'); //Say hi to our friend..
 
 if(!file_exists('../main.inc.php')) die('Fatal error... get technical support');
 
@@ -92,7 +92,9 @@ $errors=array();
 $msg=$warn=$sysnotice='';
 $tabs=array();
 $submenu=array();
-if($ost->isUpgradePending()) {
+$exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php','ajax.php'));
+
+if($ost->isUpgradePending() && !$exempt) {
     $errors['err']=$sysnotice='System upgrade is pending <a href="upgrade.php">Upgrade Now</a>';
     require('upgrade.php');
     exit;
@@ -103,7 +105,7 @@ if($ost->isUpgradePending()) {
 
 $nav = new StaffNav($thisstaff);
 //Check for forced password change.
-if($thisstaff->forcePasswdChange()){
+if($thisstaff->forcePasswdChange() && !$exempt) {
     # XXX: Call staffLoginPage() for AJAX and API requests _not_ to honor
     #      the request
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
