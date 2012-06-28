@@ -42,14 +42,14 @@ jQuery(function($) {
                         setTimeout(function() { _lp(count+1); }, 2);
                     },
 
-                    304: function() {
+                    201: function() {
                         $('#loading #msg').html("We're done... cleaning up!");
-                        setTimeout(function() { location.href =url;}, 3000);
+                        setTimeout(function() { location.href =url+'?c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 3000);
                     }
                 },
                 error: function() {
                     $('#loading #msg').html("Something went wrong");
-                    setTimeout(function() { location.href =url;}, 1000);
+                    setTimeout(function() { location.href =url+'?c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 1000);
                 }
             });
         };

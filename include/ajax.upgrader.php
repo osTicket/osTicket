@@ -34,10 +34,15 @@ class UpgraderAjaxAPI extends AjaxController {
             exit;
         }
 
+        if($upgrader->isAborted()) {
+            Http::response(416, "We have a problem ... wait a sec.");
+            exit;
+        }
+
         if($upgrader->getNumPendingTasks()) {
             if($upgrader->doTasks() && !$upgrader->getNumPendingTasks() && $ost->isUpgradePending()) {
-                //Just reporting done...with tasks - break in between patches!
-                header("HTTP/1.1 304 Not Modified");
+                //Just reporting done...with tasks - break in between patches with scripted tasks!
+                Http::response(201, "TASKS DONE!");
                 exit;
             }
         } elseif($ost->isUpgradePending() && $upgrader->isUpgradable()) {
@@ -50,7 +55,7 @@ class UpgraderAjaxAPI extends AjaxController {
         } elseif(!$ost->isUpgradePending()) {
             $upgrader->setState('done');
             session_write_close();
-            header("HTTP/1.1 304 Not Modified");
+            Http::response(201, "DONE!");
             exit;
         }
 
