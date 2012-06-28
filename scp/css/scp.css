@@ -1142,7 +1142,7 @@ time {
 
 /* Advanced Ticket Search */
 
-#overlay {
+#search_overlay {
     background:#000;
     position:absolute;
     display:none;
