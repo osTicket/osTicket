@@ -28,6 +28,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   PRIMARY KEY  (`id`),
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
+  KEY `old_pk` (`old_pk`),
   FULLTEXT KEY `body` (`body`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
@@ -57,7 +58,9 @@ INSERT INTO `%TABLE_PREFIX%ticket_thread`
 
 -- Connect responses to (new) messages
 CREATE TABLE `%TABLE_PREFIX%T_resp_links`
-    SELECT `id`, `old_pk`, `old_pid` FROM `%TABLE_PREFIX%ticket_thread`;
+    SELECT `id`, `old_pk`, `old_pid`, `thread_type`
+      FROM `%TABLE_PREFIX%ticket_thread`
+     WHERE `thread_type` = 'M';
 
 UPDATE `%TABLE_PREFIX%ticket_thread`
     SET `pid` = ( SELECT T2.`id` FROM `%TABLE_PREFIX%T_resp_links` T2
