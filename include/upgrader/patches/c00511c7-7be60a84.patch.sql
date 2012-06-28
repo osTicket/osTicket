@@ -1,5 +1,6 @@
 /**
- * @version v1.7-*
+ * @version v1.7
+ *
  * @schema c00511c7c1db65c0cfad04b4842afc57
  */
 
@@ -70,8 +71,8 @@ ALTER TABLE `%TABLE_PREFIX%config`
 ALTER TABLE `%TABLE_PREFIX%staff` 
     ADD `passwdreset` DATETIME NULL DEFAULT NULL AFTER `lastlogin`;
 
-DROP TABLE IF EXISTS `%TICKET_PREFIX%sla`;
-CREATE TABLE IF NOT EXISTS `%TICKET_PREFIX%sla` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%sla` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `isactive` tinyint(1) unsigned NOT NULL default '1',
     `enable_priority_escalation` tinyint(1) unsigned NOT NULL default '1',
@@ -107,8 +108,16 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team` (
 ) ENGINE=MyISAM;
 
 -- Create a default TEAM
-INSERT INTO `%TABLE_PREFIX%team` (`lead_id`, `isenabled`, `noalerts`, `name`, `notes`)
-    VALUES (0, 1, 0, 'Level I Support', '');
+INSERT INTO `%TABLE_PREFIX%team` (`lead_id`, `isenabled`, `noalerts`, `name`, `notes`, `created`, `updated`)
+    VALUES (0, 1, 0, 'Level I Support', '', NOW(), NOW());
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%team_member`;
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team_member` (
+  `team_id` int(10) unsigned NOT NULL default '0',
+  `staff_id` int(10) unsigned NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY  (`team_id`,`staff_id`)
+) ENGINE=MyISAM;
 
 ALTER TABLE `%TABLE_PREFIX%department`
     ADD sla_id INT UNSIGNED NOT NULL DEFAULT '0' AFTER tpl_id;
@@ -125,10 +134,10 @@ UPDATE `%TABLE_PREFIX%staff` SET timezone_id =
     (SELECT id FROM `%TABLE_PREFIX%timezone` WHERE offset = `%TABLE_PREFIX%staff`.timezone_offset);
 
 ALTER TABLE `%TABLE_PREFIX%groups`
-    ADD notes TEXT NULL AFTER can_manage_kb,
     CHANGE `can_manage_kb` `can_manage_premade` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
     ADD `can_manage_faq` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `can_manage_premade`,
-    ADD `can_assign_tickets` TINYINT( 1 ) UNSIGNED NOT NULL default '1' AFTER `can_close_tickets`;
+    ADD `can_assign_tickets` TINYINT( 1 ) UNSIGNED NOT NULL default '1' AFTER `can_close_tickets`,
+    ADD notes TEXT NULL AFTER can_manage_faq;
 
 -- Add new columns to the templates table
 ALTER TABLE `%TABLE_PREFIX%email_template`
@@ -200,7 +209,7 @@ CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
   `what` enum('name','email','subject','body','header') NOT NULL,
   `how` enum('equal','not_equal','contains','dn_contain') NOT NULL,
   `val` varchar(255) NOT NULL,
-  `isactive` tinytext( 1 ) UNSIGNED NOT NULL DEFAULT '1',
+  `isactive` tinyint( 1 ) UNSIGNED NOT NULL DEFAULT '1',
   `notes` tinytext NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
@@ -210,8 +219,8 @@ CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- SYSTEM BAN LIST was the first filter created, with ID of '1'
-INSERT INTO `%TABLE_PREFIX%email_filter_rule` (`filter_id`, `what`, `how`, `val`) VALUES
-SELECT 1, 'email', 'equals', email FROM `%TABLE_PREFIX%email_banlist`;
+INSERT INTO `%TABLE_PREFIX%email_filter_rule` (`filter_id`, `what`, `how`, `val`) 
+    SELECT 1, 'email', 'equals', email FROM `%TABLE_PREFIX%email_banlist`;
 
 -- Create table session
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
@@ -264,12 +273,12 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%canned_attachment` (
 
 -- Rename kb_premade to canned_response
 ALTER TABLE `%TABLE_PREFIX%kb_premade`
-  ADD `notes` TEXT NOT NULL AFTER `answer`,
   CHANGE `premade_id` `canned_id` int(10) unsigned NOT NULL auto_increment,
   CHANGE `title` `title` VARCHAR( 255 ) NOT NULL DEFAULT '',
-  CHANGE `answer` `response` TEXT NOT NULL.
-  DROP INDEX `title` ,
-  ADD FULLTEXT `resp` (`title` ,`answer`);
+  CHANGE `answer` `response` TEXT NOT NULL,
+  ADD `notes` TEXT NOT NULL AFTER `response`,
+  DROP INDEX `title`,
+  ADD FULLTEXT `resp` (`title` ,`response`);
   
 ALTER TABLE `%TABLE_PREFIX%kb_premade` RENAME TO `%TABLE_PREFIX%canned_response`;
 
@@ -292,6 +301,13 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   `topic_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`topic_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Drop columns we nolonger need - (must be at the very bottom or after session table is created)
+ALTER TABLE `%TABLE_PREFIX%config`
+    DROP COLUMN `ostversion`,
+    DROP COLUMN `timezone_offset`,
+    DROP COLUMN `api_passphrase`;
+
 
 UPDATE `%TABLE_PREFIX%config`
     SET `schema_signature`='7be60a8432e44989e782d5914ef784d2'; 

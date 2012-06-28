@@ -23,7 +23,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   `ip_address` varchar(64) NOT NULL default '',
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  -- Temporary columns for conversion
   `old_pk` int(11) unsigned NOT NULL,
   `old_pid` int(11) unsigned,
   PRIMARY KEY  (`id`),
@@ -70,14 +69,13 @@ DROP TABLE `%TABLE_PREFIX%T_resp_links`;
 
 -- Transfer notes
 INSERT INTO `%TABLE_PREFIX%ticket_thread`
-  (`ticket_id`, `staff_id`, `thread_type`, `body`, `title`,
-    `source`, `poster`, `created`, `updated`, `old_pk`)
-  SELECT `ticket_id`, `staff_id`, 'N', `note`, `title`,
-    `source`, ( SELECT CONCAT_WS(' ', T2.`firstname`, T2.`lastname`)
-                FROM `%TABLE_PREFIX%staff` T2
-                WHERE T2.`staff_id` = `staff_id` ),
-    `created`, NOW(), `note_id`
-    FROM `%TABLE_PREFIX%ticket_note`;
+ (`ticket_id`, `staff_id`, `thread_type`, `body`, `title`,
+   `source`, `poster`, `created`, `updated`, `old_pk`)
+ SELECT `ticket_id`, N.staff_id, 'N', `note`, `title`,
+   `source`, CONCAT_WS(' ', S.`firstname`, S.`lastname`),
+   N.created, NOW(), `note_id`
+   FROM `%TABLE_PREFIX%ticket_note` N
+   LEFT JOIN `%TABLE_PREFIX%staff` S ON(S.staff_id=N.staff_id);
 
 -- Transfer email information from messages
 INSERT INTO `%TABLE_PREFIX%ticket_email_info`
