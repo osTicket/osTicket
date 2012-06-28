@@ -35,7 +35,14 @@ class osTicket {
 
     function osTicket($cfgId) {
         $this->config = Config::lookup($cfgId);
-        $this->session = osTicketSession::start(SESSION_TTL); // start_session 
+
+        //DB based session storage was added starting with v1.7
+        // which does NOT have DB Version
+        if($this->config && !$this->getConfig()->getDBversion())
+            $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
+        else
+            session_start();
+
     }
 
     function isSystemOnline() {
@@ -163,6 +170,14 @@ class osTicket {
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
 
+    function logDBError($title, $error, $alert=true) {
+
+        if($alert && !$this->getConfig()->alertONSQLError())
+            $alert =false;
+
+        return $this->log(LOG_ERR, $title, $error, $alert);
+    }
+
     function log($priority, $title, $message, $alert=false) {
 
         //We are providing only 3 levels of logs. Windows style.
@@ -188,8 +203,8 @@ class osTicket {
         if($alert)
             $this->alertAdmin($title, $message);
 
-
-        if($this->getConfig()->getLogLevel()<$level)
+        //Logging everything during upgrade.
+        if($this->getConfig()->getLogLevel()<$level && !$this->isUpgradePending())
             return false;
 
         //Save log based on system log level settings.
