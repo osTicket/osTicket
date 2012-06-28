@@ -26,7 +26,7 @@ $action=$upgrader->getNextAction();
     </div>
     <div id="sidebar">
             <h3>Upgrade Tips</h3>
-            <p>1. Be patient the process will take a couple of seconds.</p>
+            <p>1. Be patient the process will take a couple of minutes.</p>
             <p>2. If you experience any problems, you can always restore your files/database backup.</p>
             <p>3. We can help, feel free to <a href="http://osticket.com/support/" target="_blank">contact us </a> for professional help.</p>
     </div>

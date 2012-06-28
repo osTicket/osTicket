@@ -61,7 +61,7 @@ switch(strtolower($upgrader->getState())) {
         $inc='done.inc.php';
         break;
     default:
-        $inc='upgrade.inc.php';
+        $inc='prereq.inc.php';
         if($upgrader->isAborted())
             $inc='aborted.inc.php';
         elseif(!$ost->isUpgradePending())

@@ -12,7 +12,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             <h2>Getting ready!</h2>
             <p>Before we begin, we'll check your server configuration to make sure you meet the minimum requirements to run the latest version of osTicket.</p>
             <h3>Prerequisites: <font color="red"><?php echo $errors['prereq']; ?></font></h3>
-            These items are necessary in order to use osTicket the latest version of osTicket.
+            These items are necessary in order to run the latest version of osTicket.
             <ul class="progress">
                 <li class="<? echo $upgrader->check_php()?'yes':'no'; ?>">
                 PHP v4.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
