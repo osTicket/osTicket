@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="pragma" content="no-cache" />
     <title>osTicket Staff Control Panel</title>
     <!--[if IE]>
     <style type="text/css">
@@ -23,7 +25,7 @@
     }
     ?>
 </head>
-<body>
+<body onunload="">
 <div id="container">
     <div id="header">
         <a href="index.php" id="logo">osTicket - Customer Support System</a>

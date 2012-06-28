@@ -34,6 +34,7 @@
     ini_set('session.use_trans_sid', 0);
     #No cache
     ini_set('session.cache_limiter', 'nocache');
+    session_cache_limiter('nocache');
     #Cookies
     //ini_set('session.cookie_path','/osticket/');
 
