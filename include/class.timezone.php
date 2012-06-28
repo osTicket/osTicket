@@ -29,12 +29,12 @@ class Timezone {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT * FROM '.TIMEZONE_TABLE.' WHERE timezone_id='.db_input($id);
+        $sql='SELECT * FROM '.TIMEZONE_TABLE.' WHERE id='.db_input($id);
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
         $this->ht=db_fetch_array($res);
-        $this->id=$this->ht['timezone_id'];
+        $this->id=$this->ht['id'];
         
         return $this->id;
     }
