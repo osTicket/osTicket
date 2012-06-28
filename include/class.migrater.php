@@ -114,7 +114,7 @@ class AttachmentMigrater {
      */
     function do_batch($time=30, $max=0) {
 
-        if(!$this->queueAttachments() || !$this->getQueueLength())
+        if(!$this->queueAttachments($max) || !$this->getQueueLength())
             return 0;
 
         $count = 0;
@@ -123,7 +123,7 @@ class AttachmentMigrater {
             if($this->next() && $max && ++$count>=$max)
                 break;
 
-        return $this->queueAttachments();
+        return $this->queueAttachments($max);
 
     }
 
@@ -131,7 +131,7 @@ class AttachmentMigrater {
         return $this->skipList;
     }
 
-    function queue($fileinfo) {
+    function enqueue($fileinfo) {
         $this->queue[] = $fileinfo;
     }
 
@@ -159,8 +159,14 @@ class AttachmentMigrater {
         }
         # Get the mime/type of each file
         # XXX: Use finfo_buffer for PHP 5.3+
-        if(function_exists('mime_content_type')) //XXX: function depreciated in newer versions of PHP!!!!!
+        if(function_exists('mime_content_type')) { 
+            //XXX: function depreciated in newer versions of PHP!!!!!
             $info['type'] = mime_content_type($info['path']);
+        } elseif (function_exists('finfo_file')) { // PHP 5.3.0+
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $info['type'] = finfo_file($finfo, $info['path']);
+        }
+        # TODO: Add extension-based mime-type lookup
 
         if (!($fileId = AttachmentFile::save($info))) {
             return $this->skip($info['attachId'],
@@ -194,8 +200,8 @@ class AttachmentMigrater {
 
         $sql='SELECT attach_id, file_name, file_key, Ti.created'
             .' FROM '.TICKET_ATTACHMENT_TABLE.' TA'
-            .' JOIN '.TICKET_TABLE.' Ti ON Ti.ticket_id=TA.ticket_id'
-            .' WHERE NOT file_id '; //XXX: ignore orphaned attachments?
+            .' INNER JOIN '.TICKET_TABLE.' Ti ON (Ti.ticket_id=TA.ticket_id)'
+            .' WHERE NOT file_id ';
 
         if(($skipList=$this->getSkipList()))
             $sql.= ' AND attach_id NOT IN('.implode(',', db_input($skipList)).')';
@@ -253,10 +259,10 @@ class AttachmentMigrater {
             # anyway.
             $info['size'] = @filesize($info['path']);
             # Coroutines would be nice ..
-            $this->queue($info);
+            $this->enqueue($info);
         }
 
-        return $this->getQueueLength();
+        return $this->queueAttachments($limit);
     }
 
     function skip($attachId, $error) {
