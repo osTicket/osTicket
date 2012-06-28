@@ -25,6 +25,7 @@ class Staff {
 
     var $dept;
     var $teams;
+    var $timezone;
     var $stats;
     
     function Staff($var) {
@@ -56,12 +57,10 @@ class Staff {
         if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
             $this->ht['passwd_change'] = time()-$time; //XXX: check timezone issues.
 
-        /* TODO: Add timezone class
         if($this->ht['timezone_id'])
             $this->ht['tz_offset'] = Timezone::getOffsetById($this->ht['timezone_id']);
         elseif($this->ht['timezone_offset'])
             $this->ht['tz_offset'] = $this->ht['timezone_offset'];
-        */
 
         return ($this->id);
     }

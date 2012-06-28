@@ -102,6 +102,7 @@
     require(INCLUDE_DIR.'class.log.php');
     require(INCLUDE_DIR.'class.mcrypt.php');
     require(INCLUDE_DIR.'class.misc.php');
+    require(INCLUDE_DIR.'class.timezone.php');
     require(INCLUDE_DIR.'class.http.php');
     require(INCLUDE_DIR.'class.nav.php');
     require(INCLUDE_DIR.'class.format.php'); //format helpers
