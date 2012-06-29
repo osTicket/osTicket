@@ -181,9 +181,11 @@ class Upgrader extends SetupWizard {
 
     function doTasks() {
 
+        global $ost;
         if(!($tasks=$this->getPendingTasks()))
             return true; //Nothing to do.
 
+        $ost->logDebug('Upgrader', sprintf('There are %d pending upgrade tasks', count($tasks)));
         $start_time = Misc::micro_time();
         foreach($tasks as $k => $task) {
             //TODO: check time used vs. max execution - break if need be
@@ -238,6 +240,9 @@ class Upgrader extends SetupWizard {
             $shash = substr($phash, 9, 8);
             $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
             $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
+            
+            $ost->logDebug('Upgrader', sprintf('Found %d tasks to be executed for %s',
+                            count($tasks), $shash));
             break;
 
         }
@@ -253,13 +258,16 @@ class Upgrader extends SetupWizard {
             case 'c00511c7-7be60a84': //V1.6 ST- 1.7 * {{MD5('1.6 ST') -> c00511c7c1db65c0cfad04b4842afc57}}
                 $tasks[] = array('func' => 'migrateAttachments2DB',
                                  'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
+                $tasks[] = array('func' => 'migrateSessionFile2DB',
+                                 'desc' => 'Transitioning to db-backed sessions');
                 break;
         }
 
         //Check IF SQL cleanup is exists. 
         $file=$this->getSQLDir().$phash.'.cleanup.sql';
         if(file_exists($file)) 
-            $tasks[] = array('func' => 'cleanup', 'desc' => 'Post-upgrade cleanup!');
+            $tasks[] = array('func' => 'cleanup', 'desc' => 'Post-upgrade cleanup!',
+                        'phash' => $phash);
 
 
         return $tasks;
@@ -267,8 +275,11 @@ class Upgrader extends SetupWizard {
 
     /************* TASKS **********************/
     function cleanup($taskId) {
+        global $ost;
 
-        $file=$this->getSQLDir().$this->getShash().'-cleanup.sql';
+        $phash = $this->tasks[$taskId]['phash'];
+        $file=$this->getSQLDir().$phash.'.cleanup.sql';
+
         if(!file_exists($file)) //No cleanup script.
             return 0;
 
@@ -276,11 +287,13 @@ class Upgrader extends SetupWizard {
         if($this->load_sql_file($file, $this->getTablePrefix(), false, true))
             return 0;
 
-        //XXX: ???
-        return false;
+        $ost->logDebug('Upgrader', sprintf("%s: Unable to process cleanup file",
+                        $phash));
+        return 0;
     }
 
     function migrateAttachments2DB($taskId) {
+        global $ost;
         
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 30; //Default to 30 sec batches.
@@ -290,6 +303,12 @@ class Upgrader extends SetupWizard {
             return 0;
 
         return $att_migrater->getQueueLength();
+    }
+
+    function migrateSessionFile2DB($taskId) {
+        # How about 'dis for a hack?
+        osTicketSession::write(session_id(), session_encode()); 
+        return 0;
     }
 }
 ?>

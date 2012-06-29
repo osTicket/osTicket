@@ -302,12 +302,6 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   PRIMARY KEY  (`faq_id`,`topic_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Drop columns we nolonger need - (must be at the very bottom or after session table is created)
-ALTER TABLE `%TABLE_PREFIX%config`
-    DROP COLUMN `ostversion`,
-    DROP COLUMN `timezone_offset`,
-    DROP COLUMN `api_passphrase`;
-
 
 UPDATE `%TABLE_PREFIX%config`
     SET `schema_signature`='7be60a8432e44989e782d5914ef784d2'; 
