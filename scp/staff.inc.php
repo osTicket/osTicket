@@ -92,7 +92,7 @@ $errors=array();
 $msg=$warn=$sysnotice='';
 $tabs=array();
 $submenu=array();
-$exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php','ajax.php'));
+$exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.php', 'logs.php'));
 
 if($ost->isUpgradePending() && !$exempt) {
     $errors['err']=$sysnotice='System upgrade is pending <a href="upgrade.php">Upgrade Now</a>';

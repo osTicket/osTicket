@@ -27,11 +27,11 @@ define('ADMINPAGE',TRUE);   //Used by the header to swap menus.
 //Some security related warnings - bitch until fixed!!! :)
 if($ost->isUpgradePending()) {
     $errors['err']=$sysnotice='System upgrade is pending <a href="upgrade.php">Upgrade Now</a>';
-    if(basename($_SERVER['SCRIPT_NAME'])!='upgrade.php')
+    if(!in_array(basename($_SERVER['SCRIPT_NAME']), array('upgrade.php', 'logs.php'))) {
         header('Location: upgrade.php');
-    
-    require('upgrade.php');
-    exit;
+        require('upgrade.php');
+        exit;
+    }
 } else {
     
     if(file_exists('../setup/')) {
