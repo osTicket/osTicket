@@ -279,7 +279,7 @@ class Filter {
                 $ticket['name'] = $email['reply-to-name'];
         }
         if ($this->getCannedResponse())
-            $ticket['canned_response'] = $this->getCannedResponse();
+            $ticket['cannedResponseId'] = $this->getCannedResponse();
     }
 
     function update($vars,&$errors){

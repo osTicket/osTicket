@@ -2006,15 +2006,15 @@ class Ticket{
 
         // If a canned-response is immediately queued for this ticket,
         // disable the autoresponse
-        if ($vars['canned_response'])
+        if ($vars['cannedResponseId'])
             $autorespond=false;
 
         /***** See if we need to send some alerts ****/
 
         $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
 
-        if ($vars['canned_response']
-                && ($canned = Canned::lookup($vars['canned_response']))) {
+        if ($vars['cannedResponseId']
+                && ($canned = Canned::lookup($vars['cannedResponseId']))) {
             $files = array();
             foreach ($canned->getAttachments() as $file)
                 $files[] = $file['id'];
