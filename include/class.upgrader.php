@@ -196,7 +196,7 @@ class Upgrader extends SetupWizard {
             }
         }
 
-        return (!$this->getPendingTasks());
+        return $this->getPendingTasks();
     }
     
     function upgrade() {
@@ -261,6 +261,10 @@ class Upgrader extends SetupWizard {
                 $tasks[] = array('func' => 'migrateSessionFile2DB',
                                  'desc' => 'Transitioning to db-backed sessions');
                 break;
+            case '98ae1ed2-e342f869': //v1.6 RC1-4 -> v1.6 RC5
+                $task[] = array('func' => 'migrateAPIKeys',
+                                'desc' => 'Migrating API keys to a new table');
+                break;
         }
 
         //Check IF SQL cleanup is exists. 
@@ -308,6 +312,25 @@ class Upgrader extends SetupWizard {
     function migrateSessionFile2DB($taskId) {
         # How about 'dis for a hack?
         osTicketSession::write(session_id(), session_encode()); 
+        return 0;
+    }
+
+    function migrateAPIKeys($taskId) {
+
+        $res = db_query('SELECT api_whitelist, api_key FROM '.CONFIG_TABLE.' WHERE id=1');
+        if(!$res || !db_num_rows($res))
+            return 0;  //Reporting success.
+
+        list($whitelist, $key) = db_fetch_row($res);
+
+        $ips=array_filter(explode(',', ereg_replace(' ', '', $whitelist)));
+        foreach($ips as $ip) {
+            $sql='INSERT INTO '.API_KEY_TABLE.' SET created=NOW(), updated=NOW(), isactive=1 '
+                .',ipaddr='.db_input($ip)
+                .',apikey='.db_input(strtoupper(md5($ip.md5($key))));
+            db_query($sql);
+        }
+
         return 0;
     }
 }
