@@ -36,7 +36,7 @@ class Upgrader extends SetupWizard {
             set_time_limit(0);
 
         //Init persistent state of upgrade.
-        $this->state = &$_SESSION['ost_upgrader'][$this->getShash()]['state'];
+        $this->state = &$_SESSION['ost_upgrader']['state'];
 
         //Init the task Manager.
         if(!isset($_SESSION['ost_upgrader'][$this->getShash()]))

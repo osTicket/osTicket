@@ -29,7 +29,6 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
                 $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
             elseif($upgrader->check_prereq()) {
                 $upgrader->setState('upgrade');
-                $_SESSION['ost_upgrader'] = null;
             } else
                 $errors['prereq']='Minimum requirements not met!';
             break;
