@@ -25,6 +25,35 @@ ALTER TABLE `%TABLE_PREFIX%email`
     ADD `smtp_port` INT( 6 ) NULL AFTER `smtp_host` ,
     ADD `smtp_auth` TINYINT( 1 ) NOT NULL DEFAULT '1' AFTER `smtp_port` ;
 
+-- Transfer old POP3 settings to "new" email table
+REPLACE INTO `%TABLE_PREFIX%email` T1 (`updated`, `mail_protocol`,
+    `mail_encryption`, `mail_port`, `mail_active`, `mail_host`,
+    `mail_fetchfreq`, `mail_delete`, `userid`, `userpass`)
+    SELECT NOW(), 'POP', 'NONE', 110, 0, `pophost`, `fetchfreq`,
+        `delete_msgs`, `popuser`, `poppasswd`
+    FROM `%TABLE_PREFIX%email_pop3` T2
+    WHERE T1.`email_id` = T2.`email_id`;
+
+-- Transfer alert email configuration
+INSERT INTO `%TABLE_PREFIX%email` (`created`, `updated`, `priority_id`,
+    `dept_id`, `name`, `email`)
+    SELECT NOW(), NOW(), 2, COALESCE(`default_dept`, 1), 'osTicket Alerts',
+        `alert_email`
+    FROM `%TABLE_PREFIX%config` WHERE `id`=1;
+
+UPDATE `%TABLE_PREFIX%config` SET `alert_email_id` = last_insert_id()
+    WHERE id=1;
+
+-- Transfer no-reply email configuration
+INSERT INTO `%TABLE_PREFIX%email` (`created`, `updated`, `priority_id`,
+    `dept_id`, `name`, `email`)
+    SELECT NOW(), NOW(), 2, COALESCE(`default_dept`, 1), 'No Reply',
+        `noreply_email`
+    FROM `%TABLE_PREFIX%config` WHERE `id`=1;
+
+UPDATE `%TABLE_PREFIX%config` SET `autoresp_email_id` = last_insert_id()
+    WHERE id=1;
+
 ALTER TABLE `%TABLE_PREFIX%groups` ADD `can_edit_tickets` TINYINT UNSIGNED NOT NULL DEFAULT '0' AFTER `dept_access` ;
 
 UPDATE `%TABLE_PREFIX%groups`  SET `can_edit_tickets`=1 WHERE `can_delete_tickets`=1;
@@ -43,6 +72,15 @@ ALTER TABLE `%TABLE_PREFIX%email_template`
 
 UPDATE `%TABLE_PREFIX%email_template`  SET  `note_alert_subj` = 'New Internal Note Alert',
        `note_alert_body` = '%staff,\r\n\r\nInternal note appended to ticket #%ticket\r\n\r\n----------------------\r\nName: %name\r\n\r\n%note\r\n-------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\nYour friendly,\r\n\r\nCustomer Support System - powered by osTicket.';
+
+-- Update path and variables on email templates
+UPDATE `%TABLE_PREFIX%email_template`
+    SET `ticket_autoresp_body` = REPLACE(`ticket_autoresp_body`, 'view.php', 'ticket.php'),
+        `message_autoresp_body` = REPLACE(`message_autoresp_body`, 'view.php', 'ticket.php'),
+        `ticket_overlimit_body` = REPLACE(`ticket_overlimit_body`, 'view.php', 'ticket.php'),
+        `ticket_reply_body` = REPLACE(
+                REPLACE(`ticket_reply_body`, 'view.php', 'ticket.php'),
+            '%message', '%response');
 
 ALTER TABLE `%TABLE_PREFIX%ticket_message` 
     ADD `messageId` VARCHAR( 255 ) NULL AFTER `ticket_id`,

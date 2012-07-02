@@ -32,6 +32,14 @@ ALTER TABLE `%TABLE_PREFIX%email_template`
     ADD `ticket_notice_subj` VARCHAR( 255 ) NOT NULL AFTER `ticket_autoresp_body` ,
     ADD `ticket_notice_body` TEXT NOT NULL AFTER `ticket_notice_subj`;
 
+UPDATE `%TABLE_PREFIX%email_template` SET updated=NOW(),
+    `ticket_notice_subj` = '[#%ticket] %subject',
+    `ticket_notice_body` = '%name,\r\n\r\nOur customer care team personnel has created a ticket #%ticket on your behalf, with the following message;\r\n\r\n%message\r\n\r\nIf you wish to provide additional comments or information regarding this issue, please don''t open a new ticket. You can update or view this ticket''s progress online here: %url/view.php?e=%email&t=%ticket.\r\n\r\n%signature';
+
+UPDATE `%TABLE_PREFIX%email_template`
+    SET `ticket_overlimit_subj` = REPLACE(`ticket_overlimit_subj`, '%id', '%ticket'),
+        `ticket_overlimit_body` = REPLACE(`ticket_overlimit_body`, '%id', '%ticket');
+
 INSERT INTO `%TABLE_PREFIX%kb_premade` (`premade_id`, `dept_id`, `isenabled`, `title`, `answer`, `created`, `updated`) 
     VALUES ('', 0, 1, 'Sample (with variables)', '\r\n%name,\r\n\r\nYour ticket #%ticket created on %createdate is in %dept department.\r\n\r\n', NOW(), NOW());
 
