@@ -189,8 +189,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="canned_response">
                     <option value="">&mdash; None &mdash;</option>
                     <?php
-                    if($canneds=Canned::responsesByDeptId($thisstaff->getDeptId())) {
-                        foreach ($canneds as $id => $title) {
+                    $sql='SELECT canned_id,title FROM '.CANNED_TABLE.' ORDER by title';
+                    if ($res=db_query($sql)) {
+                        while (list($id,$title)=db_fetch_row($res)) {
                             $selected=($info['canned_response'] &&
                                     $id==$info['canned_response'])
                                 ? 'selected="selected"' : '';
@@ -200,6 +201,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
+                <em>(Automatically respond with this canned attachment)</em>
             </td>
         </tr>
         <tr>
