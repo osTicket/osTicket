@@ -72,22 +72,32 @@ class OverviewReportAjaxAPI extends AjaxController {
         # XXX: Die if $group not in $groups
 
         $queries=array(
-            array(7, 'SELECT '.$info['fields'].',
+            array(5, 'SELECT '.$info['fields'].',
                 COUNT(*)-COUNT(NULLIF(A1.state, "created")) AS Opened,
                 COUNT(*)-COUNT(NULLIF(A1.state, "assigned")) AS Assigned,
                 COUNT(*)-COUNT(NULLIF(A1.state, "overdue")) AS Overdue,
                 COUNT(*)-COUNT(NULLIF(A1.state, "closed")) AS Closed,
-                COUNT(*)-COUNT(NULLIF(A1.state, "reopened")) AS Reopened,
-                FORMAT(AVG(DATEDIFF(T2.closed, T2.created)),1) AS ServiceTime,
-                FORMAT(AVG(DATEDIFF(B2.created, B1.created)),1) AS ResponseTime
+                COUNT(*)-COUNT(NULLIF(A1.state, "reopened")) AS Reopened
             FROM '.$info['table'].' T1 LEFT JOIN '.TICKET_TABLE.' T2 USING ('.$info['pk'].')
                 LEFT JOIN '.TICKET_EVENT_TABLE.' A1 USING (ticket_id)
-                LEFT JOIN '.TICKET_THREAD_TABLE.' B1 ON (B1.ticket_id = T2.ticket_id
-                    AND B1.thread_type="M")
-                LEFT JOIN '.TICKET_THREAD_TABLE.' B2 ON (B2.pid = B1.id)
             WHERE A1.timestamp BETWEEN '.$start.' AND '.$stop.'
-                OR B1.created BETWEEN '.$start.' AND '.$stop.'
-                OR T1.created BETWEEN '.$start.' AND '.$stop.'
+            GROUP BY '.$info['fields'].'
+            ORDER BY '.$info['fields']),
+
+            array(1, 'SELECT '.$info['fields'].',
+                FORMAT(AVG(DATEDIFF(T2.closed, T2.created)),1) AS ServiceTime
+            FROM '.$info['table'].' T1 LEFT JOIN '.TICKET_TABLE.' T2 USING ('.$info['pk'].')
+            WHERE T2.closed BETWEEN '.$start.' AND '.$stop.'
+            GROUP BY '.$info['fields'].'
+            ORDER BY '.$info['fields']),
+
+            array(1, 'SELECT '.$info['fields'].',
+                FORMAT(AVG(DATEDIFF(B2.created, B1.created)),1) AS ResponseTime
+            FROM '.$info['table'].' T1 LEFT JOIN '.TICKET_TABLE.' T2 USING ('.$info['pk'].')
+                LEFT JOIN '.TICKET_THREAD_TABLE.' B2 ON (B2.ticket_id = T2.ticket_id
+                    AND B2.thread_type="R")
+                LEFT JOIN '.TICKET_THREAD_TABLE.' B1 ON (B2.pid = B1.id)
+            WHERE B1.created BETWEEN '.$start.' AND '.$stop.'
             GROUP BY '.$info['fields'].'
             ORDER BY '.$info['fields'])
         );

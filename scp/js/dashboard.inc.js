@@ -167,6 +167,8 @@
                             tr.append($('<th>').append(row[j]));
                         else {
                             val = parseFloat(row[j])||0;
+                            color = 'black';
+                            size = 0;
                             if (val && max[j] && json.data.length > 1) {
                                 scale = val / max[j];
                                 color = Raphael.hsb(
