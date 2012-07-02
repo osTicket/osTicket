@@ -1,3 +1,11 @@
+/**
+ * @version v1.6 RC5
+ * @signature e342f869c7a537ab3ee937fb6e21cdd4
+ *
+ *  Upgrade from 1.6 RC1-4 to 1.6 RC5
+ *  
+ */
+
 ALTER TABLE `%TABLE_PREFIX%email` 
 ADD `userid` VARCHAR( 125 ) NOT NULL AFTER `name` ,
 ADD `userpass` VARCHAR( 125 ) NOT NULL AFTER `userid`,
@@ -126,3 +134,5 @@ CREATE TABLE `%TABLE_PREFIX%syslog` (
   KEY `log_type` (`log_type`)
 ) ENGINE=MyISAM;
 
+UPDATE `%TABLE_PREFIX%config`
+    SET `ostversion`='1.6 RC5';

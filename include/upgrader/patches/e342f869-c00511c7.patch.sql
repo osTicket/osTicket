@@ -1,3 +1,11 @@
+/**
+ * @version v1.6 ST
+ * @signature c00511c7c1db65c0cfad04b4842afc57
+ *
+ *  Upgrade from 1.6 RC5 to 1.6 ST
+ *  
+ */
+
 ALTER TABLE `%TABLE_PREFIX%ticket` ADD `topic_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `priority_id`;
 
 ALTER TABLE `%TABLE_PREFIX%ticket` ADD INDEX ( `topic_id` );
@@ -26,3 +34,6 @@ ADD `ticket_notice_body` TEXT NOT NULL AFTER `ticket_notice_subj`;
 
 INSERT INTO `%TABLE_PREFIX%kb_premade` (`premade_id`, `dept_id`, `isenabled`, `title`, `answer`, `created`, `updated`) VALUES
     ('', 0, 1, 'Sample (with variables)', '\r\n%name,\r\n\r\nYour ticket #%ticket created on %createdate is in %dept department.\r\n\r\n', NOW(), NOW());
+
+UPDATE `%TABLE_PREFIX%config`
+    SET `ostversion`='1.6 ST';
