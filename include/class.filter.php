@@ -100,7 +100,7 @@ class Filter {
     }
 
     function getCannedResponse() {
-        return $this->ht['canned_response'];
+        return $this->ht['canned_response_id'];
     }
 
     function stopOnMatch(){
@@ -401,7 +401,7 @@ class Filter {
              ',reject_email='.db_input(isset($vars['reject_email'])?1:0).
              ',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0).
              ',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0).
-             ',canned_response='.db_input($vars['canned_response']).
+             ',canned_response_id='.db_input($vars['canned_response']).
              ',notes='.db_input($vars['notes']);
        
 

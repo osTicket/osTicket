@@ -5,7 +5,7 @@
  */
 
 ALTER TABLE `%TABLE_PREFIX%email_filter`
-    ADD `canned_response` int(11) unsigned NOT NULL default '0'
+    ADD `canned_response_id` int(11) unsigned NOT NULL default '0'
         AFTER `disable_autoresponder`;
 
 -- Finished with patch
