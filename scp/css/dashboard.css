@@ -30,7 +30,7 @@ span.label {
 #table-here tr :not(:first-child) {
     text-align: right;
     padding-right: 2.3em;
-    width: 10%;
+    width: 12%;
 }
 #table-here tr :not(:first-child) div {
     position: relative;

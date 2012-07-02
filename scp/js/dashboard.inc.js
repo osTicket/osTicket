@@ -1,5 +1,6 @@
 (function ($) {
-    function refresh() {
+    var current_tab;
+    function refresh(e) {
         $('#line-chart-here').empty();
         $('#line-chart-legend').empty();
         var r = new Raphael('line-chart-here'),
@@ -100,6 +101,7 @@
                 });
             }
         });
+        if (this.start) build_table.apply(this);
         return false;
     }
     $(function() { $('tabular-navigation').tab(); });
@@ -120,38 +122,41 @@
                             .append(json[key])));
                     first=false;
                 }
-                build_table.apply($('#tabular-navigation li:first-child a'))
+                build_table.apply($('#tabular-navigation li:first-child a')[0])
             }
         });
     });
 
-    function build_table(e) {
-        $('#table-here').empty();
-        $(this).tab('show');
-        var group = $(this).attr('table-group')
+    var start, stop;
+    function build_table() {
+        if (this.tagName == 'A') {
+            current_tab = $(this).tab('show');
+        }
+        else if (this.start) {
+            start = this.start.value || 'last month';
+            stop = this.period.value || 'now';
+        }
+        var group = current_tab.attr('table-group');
         $.ajax({
             method:     'GET',
             dataType:   'json',
             url:        'ajax.php/report/overview/table',
-            data:       {group: group},
+            data:       {group: group, start: start, stop: stop},
             success:    function(json) {
-                var q = $('<table>').attr({class:'table table-condensed table-striped'});
-                var h = $('<tr>').appendTo($('<thead>').appendTo(q));
-                var pagesize = 25;
-                var min = [], max = [], range = [];
+                var q = $('<table>').attr({'class':'table table-condensed table-striped'}),
+                    h = $('<tr>').appendTo($('<thead>').appendTo(q)),
+                    pagesize = 25,
+                    max = [];
                 for (var c in json.columns) {
                     h.append($('<th>').append(json.columns[c]));
-                    min.push(1e8); max.push(0);
+                    max.push(0);
                 }
                 for (y in json.data) {
                     row = json.data[y];
                     for (x in row) {
-                        min[x] = Math.min(min[x], parseFloat(row[x]||0));
                         max[x] = Math.max(max[x], parseFloat(row[x]||0));
                     }
                 }
-                for (i=1; i<min.length; i++)
-                    range[i] = max[i] - min[i]   
                 for (var i in json.data) {
                     if (i % pagesize === 0)
                         b = $('<tbody>').attr({'page':i/pagesize+1}).appendTo(q);
@@ -171,7 +176,7 @@
                             }
                             tr.append($('<td>')
                                 .append($('<div>').append(
-                                    $('<div>').css(val && range[j] ? {
+                                    $('<div>').css(val ? {
                                         'background-color': color,
                                         'width': size,
                                         'height': size,
@@ -183,7 +188,12 @@
                         }
                     }
                 }
-                $('#table-here').append(q);
+                if (json.data.length == 0) {
+                    $('<tbody>').attr('page','1').append($('<tr>').append(
+                        $('<td>').attr('colspan','8').append(
+                            'No data for this timeframe found'))).appendTo(q);
+                }
+                $('#table-here').empty().append(q);
 
                 // ----------------------> Pagination <---------------------
                 function goabs(e) {
@@ -248,5 +258,5 @@
         return false;
     }
     $(refresh);
-    $('#timeframe-form').submit(refresh);
+    $(function() { $('#timeframe-form').submit(refresh); });
 })(window.jQuery);

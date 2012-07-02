@@ -55,7 +55,10 @@ require(STAFFINC_DIR.'header.inc.php');
     <div style="position:absolute;right:0;top:0" id="line-chart-legend"></div>
 </div>
 
-<h2>Current statistics</h2>
+<hr/>
+<h2>Statistics</h2>
+<p>Statistics of tickets organized by department, help topic, and staff
+member.</p>
 <ul class="nav nav-tabs" id="tabular-navigation"></ul>
 
 <div id="table-here"></div>
