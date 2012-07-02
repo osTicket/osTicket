@@ -28,7 +28,7 @@ require(STAFFINC_DIR.'header.inc.php');
 <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 <link rel="stylesheet" type="text/css" href="css/dashboard.css"/>
 
-<h1>Ticket Activity</h1>
+<h2>Ticket Activity</h2>
 <p>Select the starting time and period for the system activity graph</p>
 <form class="well form-inline" id="timeframe-form">
     <label>
@@ -55,7 +55,7 @@ require(STAFFINC_DIR.'header.inc.php');
     <div style="position:absolute;right:0;top:0" id="line-chart-legend"></div>
 </div>
 
-<h1>Current statistics</h1>
+<h2>Current statistics</h2>
 <ul class="nav nav-tabs" id="tabular-navigation"></ul>
 
 <div id="table-here"></div>

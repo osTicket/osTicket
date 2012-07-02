@@ -1,6 +1,4 @@
 (function ($) {
-    var r, previous_data;
-
     function refresh() {
         $('#line-chart-here').empty();
         $('#line-chart-legend').empty();
@@ -15,16 +13,13 @@
                 'stop': this.period.value} : {}),
             dataType:   'json',
             success:    function(json) {
-                var previous_data = json,
-                    times = [],
+                var times = [],
                     smtimes = Array.prototype.concat.apply([], json.times),
                     plots = [],
                     max = 0;
 
                 // Convert the timestamp to number of whole days after the
-                // unix epoch, and try and find an exact multiple of the
-                // number of days across the query that is less than 13 for
-                // the number of dates to place across the bottom.
+                // unix epoch.
                 for (key in smtimes) {
                     smtimes[key] = Math.floor(smtimes[key] / 86400);
                 }
@@ -32,11 +27,12 @@
                     e = json.events[key];
                     if (json.plots[e] === undefined) continue;
                     $('<span>').append(e)
-                        .attr({class:'label','style':'margin-left:0.5em'})
+                        .attr({'class':'label','style':'margin-left:0.5em'})
                         .appendTo($('#line-chart-legend'));
                     $('<br>').appendTo('#line-chart-legend');
                     times.push(smtimes);
                     plots.push(json.plots[e]);
+                    // Keep track of max value from any plot
                     max = Math.max(max, Math.max.apply(Math, json.plots[e]));
                 }
                 m = r.linechart(10, 10, width - 80, height - 20,
@@ -47,7 +43,7 @@
                     shade: false,
                     axis: "0 0 1 1",
                     axisxstep: 8,
-                    axisystep: max,
+                    axisystep: Math.min(12, max),
                     symbol: "circle",
                     smooth: false
                 }).hoverColumn(function () {
@@ -59,7 +55,8 @@
                         if (this.symbols[i].node.style.display == "none") continue;
                         var angle = 160;
                         for (var j = 0, jj = slots.length; j < jj; j++) {
-                            if (slots[j][0] == this.x && slots[j][1] == this.y[i]) {
+                            if (slots[j][0] == this.x
+                                    && Math.abs(slots[j][1] - this.y[i]) < 20) {
                                 angle = 20;
                                 break;
                             }
