@@ -29,6 +29,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
   KEY `old_pk` (`old_pk`),
+  KEY `created` (`created`),
   FULLTEXT KEY `body` (`body`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 

@@ -6,6 +6,31 @@
  *  
  */
 
+ALTER TABLE `%TABLE_PREFIX%config`
+    CHANGE `default_priority` `default_priority_id` TINYINT( 2 ) UNSIGNED NOT NULL DEFAULT '2',
+    CHANGE `default_template` `default_template_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '1',
+    CHANGE `default_email` `default_email_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '0',
+    CHANGE `default_dept` `default_dept_id` TINYINT( 3 ) UNSIGNED NOT NULL DEFAULT '0',
+    CHANGE `enable_pop3_fetch` `enable_mail_fetch` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0',
+    CHANGE `api_key` `api_passphrase` VARCHAR( 125 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
+
+ALTER TABLE `%TABLE_PREFIX%config`
+    ADD `note_alert_active` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `message_alert_dept_manager`,
+    ADD `note_alert_laststaff` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' AFTER `note_alert_active`,
+    ADD `note_alert_assigned` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' AFTER `note_alert_laststaff`,
+    ADD `note_alert_dept_manager` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `note_alert_assigned`,
+    ADD `alert_email_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `overdue_grace_period`,
+    ADD `default_smtp_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `default_template_id`,
+    ADD `spoof_default_smtp` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `default_smtp_id`,
+    ADD `log_level` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '2' AFTER `random_ticket_ids`,
+    ADD `staff_max_logins` TINYINT UNSIGNED NOT NULL DEFAULT '4' AFTER `enable_daylight_saving`,
+    ADD `staff_login_timeout` INT UNSIGNED NOT NULL DEFAULT '2' AFTER `staff_max_logins`,
+    ADD `client_max_logins` TINYINT UNSIGNED NOT NULL DEFAULT '4' AFTER `staff_session_timeout`,
+    ADD `client_login_timeout` INT UNSIGNED NOT NULL DEFAULT '2' AFTER `client_max_logins`,
+    ADD `show_answered_tickets` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `show_assigned_tickets`,
+    ADD `hide_staff_name` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `show_answered_tickets`,
+    ADD `log_graceperiod` INT UNSIGNED NOT NULL DEFAULT '12' AFTER `log_level`;
+
 ALTER TABLE `%TABLE_PREFIX%email` 
     ADD `userid` VARCHAR( 125 ) NOT NULL AFTER `name` ,
     ADD `userpass` VARCHAR( 125 ) NOT NULL AFTER `userid`,
@@ -26,40 +51,56 @@ ALTER TABLE `%TABLE_PREFIX%email`
     ADD `smtp_auth` TINYINT( 1 ) NOT NULL DEFAULT '1' AFTER `smtp_port` ;
 
 -- Transfer old POP3 settings to "new" email table
-REPLACE INTO `%TABLE_PREFIX%email` T1 (`updated`, `mail_protocol`,
-    `mail_encryption`, `mail_port`, `mail_active`, `mail_host`,
-    `mail_fetchfreq`, `mail_delete`, `userid`, `userpass`)
-    SELECT NOW(), 'POP', 'NONE', 110, 0, `pophost`, `fetchfreq`,
-        `delete_msgs`, `popuser`, `poppasswd`
-    FROM `%TABLE_PREFIX%email_pop3` T2
-    WHERE T1.`email_id` = T2.`email_id`;
+UPDATE `%TABLE_PREFIX%email` as T1 JOIN `%TABLE_PREFIX%email_pop3` as T2 ON(T1.email_id = T2.`email_id`)
+    SET 
+     `updated`=NOW(),
+     `mail_protocol`='POP',
+     `mail_encryption`='NONE',
+     `mail_port`=110,
+     `mail_active`=0,
+     `mail_delete`=T2.`delete_msgs`,
+     `mail_host`=T2.`pophost`,
+     `mail_fetchfreq`=T2.`fetchfreq`,
+     `userid`=T2.`popuser`,
+     `userpass`=T2.`poppasswd`;
 
 -- Transfer alert email configuration
 INSERT INTO `%TABLE_PREFIX%email` (`created`, `updated`, `priority_id`,
     `dept_id`, `name`, `email`)
-    SELECT NOW(), NOW(), 2, COALESCE(`default_dept`, 1), 'osTicket Alerts',
+    SELECT NOW(), NOW(), 2, COALESCE(`default_dept_id`, 1), 'osTicket Alerts',
         `alert_email`
     FROM `%TABLE_PREFIX%config` WHERE `id`=1;
 
 UPDATE `%TABLE_PREFIX%config` SET `alert_email_id` = last_insert_id()
     WHERE id=1;
 
+ALTER TABLE `%TABLE_PREFIX%department`
+    ADD `autoresp_email_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `email_id`,
+    ADD `tpl_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `dept_id`,
+    ADD INDEX ( `tpl_id` ),
+    ADD INDEX ( `autoresp_email_id` ) ;
+
 -- Transfer no-reply email configuration
 INSERT INTO `%TABLE_PREFIX%email` (`created`, `updated`, `priority_id`,
     `dept_id`, `name`, `email`)
-    SELECT NOW(), NOW(), 2, COALESCE(`default_dept`, 1), 'No Reply',
+    SELECT NOW(), NOW(), 2, COALESCE(`default_dept_id`, 1), 'No Reply',
         `noreply_email`
     FROM `%TABLE_PREFIX%config` WHERE `id`=1;
 
-UPDATE `%TABLE_PREFIX%config` SET `autoresp_email_id` = last_insert_id()
-    WHERE id=1;
+UPDATE `%TABLE_PREFIX%department` SET `autoresp_email_id` = last_insert_id()
+    WHERE noreply_autoresp=1;
 
 ALTER TABLE `%TABLE_PREFIX%groups` ADD `can_edit_tickets` TINYINT UNSIGNED NOT NULL DEFAULT '0' AFTER `dept_access` ;
 
 UPDATE `%TABLE_PREFIX%groups`  SET `can_edit_tickets`=1 WHERE `can_delete_tickets`=1;
 
 ALTER TABLE `%TABLE_PREFIX%ticket`
+    ADD `phone_ext` VARCHAR( 8 ) NULL DEFAULT NULL AFTER `phone`,
+    ADD `topic`  VARCHAR(64) NULL DEFAULT NULL AFTER `subject`,
     ADD `duedate` DATETIME NULL AFTER `isoverdue`,
+    ADD `isanswered` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `isoverdue`,
+    ADD `lastmessage` DATETIME NULL AFTER `closed`,
+    ADD `lastresponse` DATETIME NULL AFTER `lastmessage`,
     ADD INDEX ( `duedate` ) ;
 
 ALTER TABLE `%TABLE_PREFIX%ticket` 
@@ -86,54 +127,12 @@ ALTER TABLE `%TABLE_PREFIX%ticket_message`
     ADD `messageId` VARCHAR( 255 ) NULL AFTER `ticket_id`,
     ADD INDEX ( `messageId` ) ;
 
-ALTER TABLE `%TABLE_PREFIX%department`
-    ADD `autoresp_email_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `email_id`,
-    ADD INDEX ( `autoresp_email_id` ) ;
-
-ALTER TABLE `%TABLE_PREFIX%config` 
-    ADD `note_alert_active` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `message_alert_dept_manager`,
-    ADD `note_alert_laststaff` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' AFTER `note_alert_active`,
-    ADD `note_alert_assigned` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' AFTER `note_alert_laststaff`,
-    ADD `note_alert_dept_manager` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `note_alert_assigned`;
-
-
-ALTER TABLE `%TABLE_PREFIX%config`
-    CHANGE `default_priority` `default_priority_id` TINYINT( 2 ) UNSIGNED NOT NULL DEFAULT '2',
-    CHANGE `default_template` `default_template_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '1',
-    CHANGE `default_email` `default_email_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '0',
-    CHANGE `default_dept` `default_dept_id` TINYINT( 3 ) UNSIGNED NOT NULL DEFAULT '0',
-    CHANGE `enable_pop3_fetch` `enable_mail_fetch` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0',
-    CHANGE `api_key` `api_passphrase` VARCHAR( 125 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
-
-ALTER TABLE `%TABLE_PREFIX%config`
-    ADD `alert_email_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `overdue_grace_period`,
-    ADD `default_smtp_id` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `default_template_id`,
-    ADD `spoof_default_smtp` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `default_smtp_id`,
-    ADD `log_level` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '2' AFTER `random_ticket_ids`,
-    ADD `staff_max_logins` TINYINT UNSIGNED NOT NULL DEFAULT '4' AFTER `enable_daylight_saving`,
-    ADD `staff_login_timeout` INT UNSIGNED NOT NULL DEFAULT '2' AFTER `staff_max_logins`,
-    ADD `client_max_logins` TINYINT UNSIGNED NOT NULL DEFAULT '4' AFTER `staff_session_timeout`,
-    ADD `client_login_timeout` INT UNSIGNED NOT NULL DEFAULT '2' AFTER `client_max_logins`,
-    ADD `show_answered_tickets` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `show_assigned_tickets`,
-    ADD `isanswered` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `isoverdue`,
-    ADD `lastmessage` DATETIME NULL AFTER `closed` , ADD `lastresponse` DATETIME NULL AFTER `lastmessage`,
-    ADD `hide_staff_name` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `show_answered_tickets`,
-    ADD `log_graceperiod` INT UNSIGNED NOT NULL DEFAULT '12' AFTER `log_level`,
-    ADD `phone_ext` VARCHAR( 8 ) NULL DEFAULT NULL AFTER `phone`,
-    ADD `topic`  VARCHAR(64) NULL DEFAULT NULL AFTER `subject` ;
-
-
 ALTER TABLE `%TABLE_PREFIX%ticket_message` ADD FULLTEXT (`message`);
 
 ALTER TABLE `%TABLE_PREFIX%ticket_response` ADD FULLTEXT (`response`);
 
 ALTER TABLE `%TABLE_PREFIX%ticket_note` ADD FULLTEXT (`note`);
   
-ALTER TABLE `%TABLE_PREFIX%department` 
-    ADD `tpl_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `dept_id`,
-    ADD INDEX ( `tpl_id` ) ;
-
-
 DROP TABLE IF EXISTS `%TABLE_PREFIX%api_key`;
 CREATE TABLE `%TABLE_PREFIX%api_key` (
   `id` int(10) unsigned NOT NULL auto_increment,

@@ -34,7 +34,7 @@ ALTER TABLE `%TABLE_PREFIX%email_template`
 
 UPDATE `%TABLE_PREFIX%email_template` SET updated=NOW(),
     `ticket_notice_subj` = '[#%ticket] %subject',
-    `ticket_notice_body` = '%name,\r\n\r\nOur customer care team personnel has created a ticket #%ticket on your behalf, with the following message;\r\n\r\n%message\r\n\r\nIf you wish to provide additional comments or information regarding this issue, please don''t open a new ticket. You can update or view this ticket''s progress online here: %url/view.php?e=%email&t=%ticket.\r\n\r\n%signature';
+    `ticket_notice_body` = '%name,\r\n\r\nOur customer care team personnel has created a ticket #%ticket on your behalf, with the following message:\r\n\r\n%message\r\n\r\nIf you wish to provide additional comments or information regarding this issue, please don''t open a new ticket. You can update or view this ticket''s progress online here: %url/view.php?e=%email&t=%ticket.\r\n\r\n%signature';
 
 UPDATE `%TABLE_PREFIX%email_template`
     SET `ticket_overlimit_subj` = REPLACE(`ticket_overlimit_subj`, '%id', '%ticket'),
