@@ -70,9 +70,12 @@
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
         $configfile=ROOT_DIR.'ostconfig.php';
-    elseif(file_exists(INCLUDE_DIR.'settings.php')) //OLD config file.. v 1.6 RC5
+    elseif(file_exists(INCLUDE_DIR.'settings.php')) { //OLD config file.. v 1.6 RC5
         $configfile=INCLUDE_DIR.'settings.php';
-    elseif(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
+        //Die gracefully on upgraded v1.6 RC5 installation - otherwise script dies with confusing message. 
+        if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
+            die('Please rename config file include/settings.php to include/ost-config.php to continue!');
+    } elseif(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
         $configfile=INCLUDE_DIR.'ost-config.php';
     elseif(file_exists(ROOT_DIR.'setup/'))
         header('Location: '.ROOT_PATH.'setup/');
