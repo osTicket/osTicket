@@ -49,16 +49,29 @@ class Upgrader extends SetupWizard {
         $this->migrater = new DatabaseMigrater($this->signature, SCHEMA_SIGNATURE, $this->sqldir);
     }
 
-    function getStops() {
-        return array('7be60a84' => 'migrateAttachments2DB');
-    }
-
     function onError($error) {
-        global $ost;
+        global $ost, $thisstaff;
 
         $ost->logError('Upgrader Error', $error);
         $this->setError($error);
         $this->setState('aborted');
+
+        //Alert staff upgrading the system - if the email is not same as admin's
+        // admin gets alerted on error log (above)
+        if(!$thisstaff || !strcasecmp($thisstaff->getEmail(), $ost->getConfig()->getAdminEmail()))
+            return;
+
+        $email=null;
+        if(!($email=$ost->getConfig()->getAlertEmail()))
+            $email=$ost->getConfig()->getDefaultEmail(); //will take the default email.
+
+        $subject = 'Upgrader Error';
+        if($email) {
+            $email->send($thistaff->getEmail(), $subject, $error);
+        } else {//no luck - try the system mail.
+            Email::sendmail($thistaff->getEmail(), $subject, $error, sprintf('"osTicket Alerts"<%s>', $thistaff->getEmail()));
+        }
+
     }
 
     function isUpgradable() {

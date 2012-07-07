@@ -38,7 +38,7 @@ class osTicket {
 
         //DB based session storage was added starting with v1.7
         // which does NOT have DB Version
-        if($this->config && !$this->getConfig()->getDBversion())
+        if($this->config && !$this->getConfig()->getDBVersion())
             $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
         else
             session_start();
@@ -136,6 +136,10 @@ class osTicket {
         //Set admin's email address
         if(!($to=$this->getConfig()->getAdminEmail()))
             $to=ADMIN_EMAIL;
+
+
+        //append URL to the message
+        $message.="\n\n".THISPAGE;
 
         //Try getting the alert email.
         $email=null;

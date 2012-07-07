@@ -58,6 +58,7 @@ Class SetupWizard {
 
         @mysql_query('SET SESSION SQL_MODE =""');
         foreach($statements as $k=>$sql) {
+            //Note that we're not using db_query - because we want to control how errors are reported.
             if(mysql_query($sql)) continue;
             $error = "[$sql] ".mysql_error();
             if($abort)
