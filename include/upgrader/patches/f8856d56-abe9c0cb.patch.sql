@@ -59,9 +59,12 @@ INSERT INTO `%TABLE_PREFIX%ticket_thread`
 
 -- Connect responses to (new) messages
 CREATE TABLE `%TABLE_PREFIX%T_resp_links`
-    SELECT `id`, `old_pk`, `old_pid`, `thread_type`
+    SELECT `id`, `old_pk`
       FROM `%TABLE_PREFIX%ticket_thread`
      WHERE `thread_type` = 'M';
+
+-- Add an index to speed up the linking process
+ALTER TABLE `%TABLE_PREFIX%T_resp_links` ADD KEY `old_pk` (`old_pk`, `id`);
 
 UPDATE `%TABLE_PREFIX%ticket_thread`
     SET `pid` = ( SELECT T2.`id` FROM `%TABLE_PREFIX%T_resp_links` T2
