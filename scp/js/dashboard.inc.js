@@ -36,9 +36,9 @@
                     // Keep track of max value from any plot
                     max = Math.max(max, Math.max.apply(Math, json.plots[e]));
                 }
-                m = r.linechart(10, 10, width - 80, height - 20,
+                m = r.linechart(20, 0, width - 70, height,
                     times, plots, { 
-                    gutter: 10,
+                    gutter: 20,
                     width: 1.6,
                     nostroke: false, 
                     shade: false,
