@@ -23,49 +23,45 @@ if [[ ! -f "$root/main.inc.php" ]]; then
 fi
 
 while read file; do
-    if [[ -n "$file" && -f "$root/$file" ]]; then
+    if [[ -n "$file" && "${file[0]}" != "\x23" && -f "$root/$file" ]]; then
         echo "Cleaning $file";
         rm "$root/$file";
     fi
 done <<< "
-api/api-sample.zip
-api/do.php
-api/email.txt
-api/email.xml
-api/pipe2.php
-api/post.php
-api/test.txt
-api/xml.php
-images/bg.gif
+# Removed in 1.6-rc5
+ostconfig.php
+
+# Removed in 1.6.0
 images/button.jpg
+images/logo.jpg
+images/new_ticket_title.jpg
+images/ticket_status_title.jpg
+include/settings.php
+
+# Removed in 1.7.0
+images/bg.gif
 images/fibres.png
 images/home.gif
 images/icons
 images/lipsum.png
 images/logo2.jpg
-images/logo.jpg
-images/logo.png
 images/logout.gif
 images/my_tickets.gif
 images/new_ticket.gif
 images/new_ticket_icon.jpg
-images/new_ticket_title.jpg
 images/poweredby.jpg
 images/rainbow.png
 images/refresh_btn.gif
 images/ticket_status.gif
 images/ticket_status_icon.jpg
-images/ticket_status_title.jpg
 images/verticalbar.jpg
 images/view_closed_btn.gif
 images/view_open_btn.gif
-include/class.bkmailfetch.php
 include/class.msgtpl.php
 include/class.sys.php
 include/client/index.php
 include/client/viewticket.inc.php
 include/ost-config.sameple.php
-include/settings.php
 include/staff/api.inc.php
 include/staff/changepasswd.inc.php
 include/staff/dept.inc.php
