@@ -19,8 +19,7 @@ $msg='';
 $staff=Staff::lookup($thisstaff->getId());
 if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the form.
  $errors['err']='Internal Error. Action Denied';
-}
-if(!$errors && $_POST) { //Handle post
+} elseif(!$errors && $_POST) { //Handle post
 
     if(!$staff)
         $errors['err']='Unknown or invalid staff';

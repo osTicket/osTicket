@@ -13,7 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once INC_DIR.'class.setup.php';
+require_once INCLUDE_DIR.'class.setup.php';
 
 class Installer extends SetupWizard {
 

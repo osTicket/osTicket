@@ -67,10 +67,13 @@ class osTicketSession {
     function write($id, $data){
         global $thisstaff;
 
+        $ttl = ($this && get_class($this) == 'osTicketSession') 
+            ? $this->getTTL() : SESSION_TTL;
+
         $sql='REPLACE INTO '.SESSION_TABLE.' SET session_updated=NOW() '.
              ',session_id='.db_input($id).
              ',session_data='.db_input($data).
-             ',session_expire=(NOW() + INTERVAL '.$this->getTTL().' SECOND)'.
+             ',session_expire=(NOW() + INTERVAL '.$ttl.' SECOND)'.
              ',user_id='.db_input($thisstaff?$thisstaff->getId():0).
              ',user_ip='.db_input($_SERVER['REMOTE_ADDR']).
              ',user_agent='.db_input($_SERVER['HTTP_USER_AGENT']);

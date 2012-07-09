@@ -1,0 +1,90 @@
+Welcome to osTicket 1.7
+=======================
+Some tasks are better left to a system administrator rather than a mindless
+upgrade script. These are those remaining things that we'd rather you take
+care of:
+
+  * Verify that your attachments have been successfully migrated to the
+    database and removed from your server's filesystem. Once you're
+    comfortable that they're all migrated, and that the remaining files are
+    all failed uploads or orphans from deleted tickets, remove the folder
+    where attachments were uploaded to.
+
+  * Remove codebase files no longer utilized in osTicket 1.7. If you have
+    console access to your server, a codebase-cleanup.sh script is provided
+    for you in the setup/ folder to help you automatically take care of this.
+    Otherwise, you may safely remove the following files from your codebase if
+    they exist:
+
+    * Removed in osTicket-1.6-rc5
+      ostconfig.php
+
+    * Removed in osTicket-1.6.0
+      images/button.jpg
+      images/logo.jpg
+      images/new_ticket_title.jpg
+      images/ticket_status_title.jpg
+      include/settings.php
+
+    * Removed in osTicket-1.7.0
+      images/bg.gif
+      images/fibres.png
+      images/home.gif
+      images/icons
+      images/lipsum.png
+      images/logo2.jpg
+      images/logout.gif
+      images/my_tickets.gif
+      images/new_ticket.gif
+      images/new_ticket_icon.jpg
+      images/poweredby.jpg
+      images/rainbow.png
+      images/refresh_btn.gif
+      images/ticket_status.gif
+      images/ticket_status_icon.jpg
+      images/verticalbar.jpg
+      images/view_closed_btn.gif
+      images/view_open_btn.gif
+      include/class.msgtpl.php
+      include/class.sys.php
+      include/client/index.php
+      include/client/viewticket.inc.php
+      include/ost-config.sameple.php
+      include/staff/api.inc.php
+      include/staff/changepasswd.inc.php
+      include/staff/dept.inc.php
+      include/staff/depts.inc.php
+      include/staff/editticket.inc.php
+      include/staff/mypref.inc.php
+      include/staff/myprofile.inc.php
+      include/staff/newticket.inc.php
+      include/staff/premade.inc.php
+      include/staff/reply.inc.php
+      include/staff/smtp.inc.php
+      include/staff/viewticket.inc.php
+      scp/css/autosuggest_inquisitor.css
+      scp/css/datepicker.css
+      scp/css/main.css
+      scp/css/style.css
+      scp/css/tabs.css
+      scp/images/alert.png
+      scp/images/bg-login-box.gif
+      scp/images/icons/email_settings.gif
+      scp/images/logo-support.gif
+      scp/images/minus.gif
+      scp/images/ostlogo.jpg
+      scp/images/pagebg.jpg
+      scp/images/plus.gif
+      scp/images/refresh.gif
+      scp/images/tab.jpg
+      scp/images/view_closed.gif
+      scp/images/view_open.gif
+      scp/js/ajax.js
+      scp/js/autolock.js
+      scp/js/bsn.AutoSuggest_2.1.3.js
+      scp/js/calendar.js
+      scp/js/datepicker.js
+      scp/js/tabber.js
+
+  * Remove the setup/ folder. This contains code you won't need for a live
+    ticketing system.

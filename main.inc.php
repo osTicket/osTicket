@@ -33,7 +33,7 @@
     #Disable session ids on url.
     ini_set('session.use_trans_sid', 0);
     #No cache
-    ini_set('session.cache_limiter', 'nocache');
+    session_cache_limiter('nocache');
     #Cookies
     //ini_set('session.cookie_path','/osticket/');
 
@@ -55,7 +55,10 @@
     define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
     define('PEAR_DIR',INCLUDE_DIR.'pear/');
     define('SETUP_DIR',INCLUDE_DIR.'setup/');
-  
+
+    define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
+    define('PATCH_DIR', UPGRADE_DIR.'patches/');
+
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
@@ -66,9 +69,12 @@
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
         $configfile=ROOT_DIR.'ostconfig.php';
-    elseif(file_exists(INCLUDE_DIR.'settings.php')) //OLD config file.. v 1.6 RC5
+    elseif(file_exists(INCLUDE_DIR.'settings.php')) { //OLD config file.. v 1.6 RC5
         $configfile=INCLUDE_DIR.'settings.php';
-    elseif(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
+        //Die gracefully on upgraded v1.6 RC5 installation - otherwise script dies with confusing message. 
+        if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
+            die('Please rename config file include/settings.php to include/ost-config.php to continue!');
+    } elseif(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
         $configfile=INCLUDE_DIR.'ost-config.php';
     elseif(file_exists(ROOT_DIR.'setup/'))
         header('Location: '.ROOT_PATH.'setup/');
@@ -98,6 +104,7 @@
     require(INCLUDE_DIR.'class.log.php');
     require(INCLUDE_DIR.'class.mcrypt.php');
     require(INCLUDE_DIR.'class.misc.php');
+    require(INCLUDE_DIR.'class.timezone.php');
     require(INCLUDE_DIR.'class.http.php');
     require(INCLUDE_DIR.'class.nav.php');
     require(INCLUDE_DIR.'class.format.php'); //format helpers

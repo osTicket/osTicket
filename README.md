@@ -34,6 +34,25 @@ Follow the usual install instructions (beginning from Manual Installation
 above), except, don't delete the setup/ folder. For this reason, such an
 installation is not recommended for a public-facing support system.
 
+Upgrading
+---------
+osTicket supports upgrading from 1.6-rc1 and later versions. As with any
+upgrade, strongly consider a backup of your attachment files, database, and
+osTicket codebase before embarking on an upgrade.
+
+To trigger the update process, fetch the osTicket-1.7 tarball from either
+the osTicket [github](http://github.com/osTicket/osTicket-1.7) page or from
+the osTicket website. Extract the tarball into the folder of you osTicket
+codebase. This can also be accomplished with the zip file, and a FTP client
+can of course be used to upload the new source code to your server. 
+
+Any way you choose your adventure, when you have your codebase upgraded to
+osTicket-1.7, visit the /scp page of you ticketing system. The upgrader will
+be presented and will walk you through the rest of the process. (The couple
+clicks needed to go through the process are pretty boring to describe).
+
+View the UPGRADING.txt file for other todo items to complete your upgrade.
+
 Help
 ----
 Visit the [wiki](http://osticket.com/wiki/Home) or the
