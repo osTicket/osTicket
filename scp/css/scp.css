@@ -1142,7 +1142,7 @@ time {
 
 /* Advanced Ticket Search */
 
-#overlay {
+#search_overlay {
     background:#000;
     position:absolute;
     display:none;
@@ -1303,3 +1303,37 @@ time {
     height:16px;
     background:inherit;
 }
+
+/* Upgrader */
+#upgrader { width: 100%; height: auto; clear: both;}
+#upgrader #sidebar { width: 220px; padding: 10px; border: 1px solid #C8DDFA; float: right; background: #F7FBFE; }
+#upgrader #sidebar h3 { font-size: 10pt; margin: 0 0 5px 0; padding: 0; text-indent: 32px; background: url('../images/cog.png?1312913866') top left no-repeat; line-height: 24px; color: #2a67ac; }
+
+#upgrader #main { width: 680px; float: left;}
+#upgrader #main h1 { margin: 0; padding: 0; font-size: 21pt; font-weight: normal; }
+#upgrader #main h2 { font-size: 12pt; margin: 0; padding: 0; color:#E65524; }
+#upgrader #main h3 { font-size: 10pt; margin: 0; padding: 0; }
+#upgrader #main div#intro { padding-bottom: 5px; margin-bottom:10px; border-bottom: 1px solid #aaaaaa; }
+#upgrader #main  { padding-bottom: 20px; }
+
+ul.progress { margin: 10px 0 20px 20px; padding: 0; }
+ul.progress li { list-style: none; margin: 0; padding: 0 0 2px 24px; background: url('../images/incomplete.png?1312910844'); background-repeat: no-repeat; background-position: 0 50%; }
+ul.progress li.yes { background-image: url('../images/yes.png?1312906296'); }
+ul.progress li.no { background-image: url('../images/no.png?1312906277'); }
+
+ul.progress li.yes small {color:green; }
+ul.progress li.no small {color:red;}
+
+#bar { clear: both; padding-top: 10px; height: 24px; line-height: 24px; text-align: center; border-top: 1px solid #aaaaaa; }
+#bar a, #bar .btn { display: inline-block; margin: 0; height: 24px; line-height: 24px; font-weight: bold; border: 1px solid #666666; text-decoration: none; padding: 0 10px; background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x; color: #333; }
+#bar a:hover, #bar .btn:hover, #bar .btnover { background-position: bottom left; }
+#bar a.unstyled, #bar a.unstyled:hover { font-weight: normal; background: none; border: none; text-decoration: underline; color: #2a67ac; }
+
+#bar.error { background: #ffd; text-align: center; color: #a00; font-weight: bold; }
+
+/* Overlay */
+#overlay { display: none; position: fixed; background: #000; z-index: 2000; }
+
+#loading { padding: 10px 10px 10px 60px; width: 300px; height: 100px; background: url('../images/ajax-loader.gif?1312925608') 10px 50% no-repeat white; position: fixed; display: none; z-index: 3000; }
+#loading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
+

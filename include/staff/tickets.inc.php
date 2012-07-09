@@ -467,7 +467,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
     } ?>
     </form>
 </div>
-<div id="overlay"></div>
+<div id="search_overlay"></div>
 <div style="display:none;" id="advanced-search">
     <h3>Advanced Ticket Search</h3>
     <a class="close" href="">&times;</a>

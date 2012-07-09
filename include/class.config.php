@@ -77,12 +77,18 @@ class Config {
         return THIS_VERSION;
     }
 
+    //Used to detect version prior to 1.7 (useful during upgrade)
+    function getDBVersion() {
+        return $this->config['ostversion'];
+    }
+
     function getSchemaSignature() {
 
         if($this->config['schema_signature'])
             return $this->config['schema_signature'];
-        elseif($this->config['ostversion']) //old version 1.6 st.
-            return md5(strtoupper($this->config['ostversion']));
+
+        if($this->config['ostversion']) //old version 1.6 RC[1-5]-ST
+            return md5(strtoupper(trim($this->config['ostversion'])));
 
         return null;
     }

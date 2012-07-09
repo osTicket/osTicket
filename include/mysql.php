@@ -88,9 +88,9 @@
    	    }
                 
         if(!$result && $ost) { //error reporting
-            $alert='['.$query.']'."\n\n".db_error();
-            $ost->logError('DB Error #'.db_errno(), $alert, ($ost->alertONSQLError()));
-            //echo $alert; #uncomment during debuging or dev.
+            $msg='['.$query.']'."\n\n".db_error();
+            $ost->logDBError('DB Error #'.db_errno(), $msg);
+            //echo $msg; #uncomment during debuging or dev.
         }
 
         return $result;

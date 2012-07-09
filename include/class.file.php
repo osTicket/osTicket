@@ -172,10 +172,18 @@ class AttachmentFile {
             .',type='.db_input($file['type'])
             .',size='.db_input($file['size'])
             .',name='.db_input($file['name'])
-            .',hash='.db_input($file['hash'])
-            .',filedata='.db_input($file['data']);
+            .',hash='.db_input($file['hash']);
 
-        return db_query($sql)?db_insert_id():0;
+        if (!(db_query($sql) && ($id=db_insert_id())))
+            return false;
+
+        foreach (str_split($file['data'], 1024*100) as $chunk) {
+            if (!db_query('UPDATE '.FILE_TABLE.' SET filedata = CONCAT(filedata,'
+                    .db_input($chunk).') WHERE id='.db_input($id)))
+                # Remove partially uploaded file contents
+                return false;
+        }
+        return $id;
     }
 
     /* Static functions */

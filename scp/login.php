@@ -24,7 +24,7 @@ if($_POST && (!empty($_POST['username']) && !empty($_POST['passwd']))){
     //$_SESSION['_staff']=array(); #Uncomment to disable login strikes.
     $msg='Invalid login';
     if(($user=Staff::login($_POST['username'],$_POST['passwd'],$errors))){
-        $dest=$_SESSION['_user']['auth']['dest'];
+        $dest=$_SESSION['_staff']['auth']['dest'];
         $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
         @header("Location: $dest");
         require_once('index.php'); //Just incase header is messed up.
