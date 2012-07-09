@@ -660,6 +660,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   PRIMARY KEY  (`id`),
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
+  KEY `pid` (`pid`),
   FULLTEXT KEY `body` (`body`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
