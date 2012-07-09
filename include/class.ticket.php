@@ -2003,9 +2003,27 @@ class Ticket{
             $autorespond=false;
         }
 
+        // If a canned-response is immediately queued for this ticket,
+        // disable the autoresponse
+        if ($vars['cannedResponseId'])
+            $autorespond=false;
+
         /***** See if we need to send some alerts ****/
 
         $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
+
+        if ($vars['cannedResponseId']
+                && ($canned = Canned::lookup($vars['cannedResponseId']))) {
+            $files = array();
+            foreach ($canned->getAttachments() as $file)
+                $files[] = $file['id'];
+            $ticket->postReply(array(
+                    'msgId'     => $msgid,
+                    'response'  =>
+                        $ticket->replaceTemplateVars($canned->getResponse()),
+                    'cannedattachments' => $files
+                ), null, $errors, true);
+        }
 
         /************ check if the user JUST reached the max. open tickets limit **********/
         if($cfg->getMaxOpenTickets()>0

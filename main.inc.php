@@ -63,7 +63,7 @@
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7-DPR4'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','b19dc97d19f7a30f59663c812d1f3ddc'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('SCHEMA_SIGNATURE','435c62c3b23795529bcfae7e7371d82e'); //MD5 signature of the db schema. (used to trigger upgrades)
 
     #load config info
     $configfile='';

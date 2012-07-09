@@ -237,6 +237,7 @@ CREATE TABLE `%TABLE_PREFIX%email_filter` (
   `reject_email` tinyint(1) unsigned NOT NULL default '0',
   `use_replyto_email` tinyint(1) unsigned NOT NULL default '0',
   `disable_autoresponder` tinyint(1) unsigned NOT NULL default '0',
+  `canned_response_id` int(11) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
   `priority_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
@@ -659,6 +660,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   PRIMARY KEY  (`id`),
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
+  KEY `pid` (`pid`),
   FULLTEXT KEY `body` (`body`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
