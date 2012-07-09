@@ -245,7 +245,7 @@ $(document).ready(function(){
     });
 
     /* advanced search */
-    $("#overlay").css({
+    $("#overlay, #search_overlay").css({
         opacity : 0.3,
         top     : 0,
         left    : 0,
@@ -261,14 +261,14 @@ $(document).ready(function(){
     $('#go-advanced').click(function(e) {
         e.preventDefault();
         $('#result-count').html('');
-        $('#overlay').show();
+        $('#search_overlay').show();
         $('#advanced-search').show();
     });
 
     $('#advanced-search').delegate('a.close, input.close', 'click', function(e) {
         e.preventDefault();
         $('#advanced-search').hide()
-        $('#overlay').hide();
+        $('#search_overlay').hide();
     }).delegate('#status', 'change', function() {
         switch($(this).val()) {
             case 'closed':

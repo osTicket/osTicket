@@ -1140,7 +1140,7 @@ time {
     margin-right:20px;
 }
 
-/* Advanced Ticket Search */
+/* Advanced Search & Ticket print options */
 
 #search_overlay {
     background:#000;
@@ -1149,13 +1149,13 @@ time {
     z-index:1000;
 }
 
-#advanced-search, #advanced-search * {
+#advanced-search, #advanced-search *, #print-options, #print-options * {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
 
-#advanced-search {
+#advanced-search, #print-options {
     position:absolute;
     padding:1em;
     width:640px;
@@ -1166,7 +1166,12 @@ time {
     z-index:1200;
 }
 
-#advanced-search h3 {
+#print-options {
+    width:500px;
+    height:250px;
+}
+
+#advanced-search h3, #print-options h3 {
     color:#2a67ac;
     font-size:20px;
     margin:0;
@@ -1174,14 +1179,14 @@ time {
     display:inline-block;
 }
 
-#advanced-search a.close {
+#advanced-search a.close, #print-options a.close {
     display:inline-block;
     float:right;
     font-size:16px;
     color:#777;
 }
 
-#advanced-search form {
+#advanced-search form, #print-options form {
     clear:both;
     padding:2em 0 1em 0;
     width:100%;
@@ -1191,31 +1196,31 @@ time {
     display:none;
 }
 
-#advanced-search fieldset {
+#advanced-search fieldset, #print-options fieldset {
     margin:0;
     padding:0.25em 0;
     border:none;
     overflow:hidden;
 }
 
-#advanced-search label {
+#advanced-search label, #print-options label {
     width:100px;
     display:inline-block;
     text-align:right;
     padding:10px;
 }
 
-#advanced-search fieldset input {
+#advanced-search fieldset input, #print-options fieldset input {
     border:1px solid #ccc;
     background:#fff;
 }
 
-#advanced-search fieldset select {
+#advanced-search fieldset select, #print-options fieldset select {
     width:170px;
     display:inline-block;
 }
 
-#advanced-search fieldset span {
+#advanced-search fieldset span, #print-options fieldset span {
     width:50px;
     display:inline-block;
     text-align:center;
@@ -1251,7 +1256,10 @@ time {
 
 #advanced-search input[type="submit"],
 #advanced-search input[type="reset"],
-#advanced-search input[type="button"]
+#advanced-search input[type="button"],
+#print-options input[type="submit"],
+#print-options input[type="reset"],
+#print-options input[type="button"]
 {
     display:inline-block;
     margin:0;
@@ -1264,7 +1272,10 @@ time {
     color: #333;
 }
 
-#advanced-search input[type="reset"], #advanced-search input[type="button"] {
+#advanced-search input[type="reset"],
+#advanced-search input[type="button"],
+#print-options input[type="reset"],
+#print-options input[type="button"] { 
     opacity:0.7;
 }
 
@@ -1332,7 +1343,7 @@ ul.progress li.no small {color:red;}
 #bar.error { background: #ffd; text-align: center; color: #a00; font-weight: bold; }
 
 /* Overlay */
-#overlay { display: none; position: fixed; background: #000; z-index: 2000; }
+#overlay { display: none; position: fixed; background: #000; z-index: 1000; }
 
 #loading { padding: 10px 10px 10px 60px; width: 300px; height: 100px; background: url('../images/ajax-loader.gif?1312925608') 10px 50% no-repeat white; position: fixed; display: none; z-index: 3000; }
 #loading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
