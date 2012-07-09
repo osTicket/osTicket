@@ -1,4 +1,4 @@
 <?php
-header('Location: syslogs.php');
-require('syslogs.php');
+header('Location: settings.php');
+require('./settings.php');
 ?>

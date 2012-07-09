@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.group.php');
@@ -25,6 +26,7 @@ class Staff {
 
     var $dept;
     var $teams;
+    var $timezone;
     var $stats;
     
     function Staff($var) {
@@ -37,13 +39,11 @@ class Staff {
         if(!$var && !($var=$this->getId()))
             return false;
 
-        $sql='SELECT staff.*, grp.*, tz.offset as tz_offset '
-            .' ,TIME_TO_SEC(TIMEDIFF(NOW(),IFNULL(staff.passwdreset,staff.created))) as passwd_change_sec '
+        $sql='SELECT staff.*, staff.created as added, grp.* '
             .' FROM '.STAFF_TABLE.' staff '
-            .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id) '
-            .' LEFT JOIN '.TIMEZONE_TABLE.' tz ON(tz.id=staff.timezone_id) ';
+            .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id) ';
 
-        $sql.=sprintf('WHERE %s=%s',is_numeric($var)?'staff_id':'username',db_input($var));
+        $sql.=sprintf(' WHERE %s=%s',is_numeric($var)?'staff_id':'username',db_input($var));
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
@@ -51,10 +51,17 @@ class Staff {
         
         $this->ht=db_fetch_array($res);
         $this->id  = $this->ht['staff_id'];
-        $this->teams =$this->ht['teams']=$this->getTeams();
-
-        $this->teams=array();
+        $this->teams = $this->ht['teams']= array();
         $this->stats=array();
+
+        //WE have to patch info here to support upgrading from old versions.
+        if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
+            $this->ht['passwd_change'] = time()-$time; //XXX: check timezone issues.
+
+        if($this->ht['timezone_id'])
+            $this->ht['tz_offset'] = Timezone::getOffsetById($this->ht['timezone_id']);
+        elseif($this->ht['timezone_offset'])
+            $this->ht['tz_offset'] = $this->ht['timezone_offset'];
 
         return ($this->id);
     }
@@ -96,7 +103,7 @@ class Staff {
     function isPasswdResetDue() {
         global $cfg;
         return ($cfg && $cfg->getPasswdResetPeriod() 
-                    && $this->ht['passwd_change_sec']>($cfg->getPasswdResetPeriod()*30*24*60*60));
+                    && $this->ht['passwd_change']>($cfg->getPasswdResetPeriod()*30*24*60*60));
     }
 
     function isPasswdChangeDue() {
@@ -169,7 +176,7 @@ class Staff {
 
     function getDepts() {
         //Departments the user is allowed to access...based on the group they belong to + user's dept.
-        return array_filter(array_unique(array_merge(explode(',', $this->ht['dept_access']), array($this->dept_id)))); //Neptune help us
+        return array_filter(array_unique(array_merge(explode(',', $this->ht['dept_access']), array($this->getDeptId())))); //Neptune help us
     }
 
     function getDepartments() {

@@ -66,7 +66,8 @@ $dispatcher = patterns('',
         url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/release', 'releaseLock'),
         url_get('^lookup', 'lookup'),
         url_get('^search', 'search')
-    ))
+    )),
+    url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade'))
 );
 
 # Call the respective function

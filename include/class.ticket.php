@@ -1751,7 +1751,7 @@ class Ticket{
         global $cfg;
         
         /* Unknown or invalid staff */
-        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
+        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff() || $cfg->getDBVersion())
             return null;
 
 
@@ -1773,11 +1773,10 @@ class Ticket{
         if(($teams=$staff->getTeams()))
             $sql.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
 
-        if(!$staff->showAssignedOnly()) //Staff with limited access just see Assigned tickets.
-            $sql.=' OR ticket.dept_id IN('.implode(',',$staff->getDepts()).') ';
+        if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
+            $sql.=' OR ticket.dept_id IN('.implode(',', $depts).') ';
 
         $sql.=')';
-
 
         if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
             $sql.=' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($staff->getId()).') ';

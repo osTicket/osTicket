@@ -1,6 +1,6 @@
 <?php
 /*********************************************************************
-    syslogs.php
+    logs.php
 
     System Logs
 
@@ -42,8 +42,6 @@ if($_POST){
     }
 }
 
-
-  
 $page='syslogs.inc.php';
 $nav->setTabActive('dashboard');
 require(STAFFINC_DIR.'header.inc.php');

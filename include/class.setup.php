@@ -21,14 +21,17 @@ Class SetupWizard {
                         'mysql' => '4.4');
 
     //Version info - same as the latest version.
-    var $version ='1.7-dpr3';
-    var $version_verbose='1.7 DPR 3';
+    
+    var $version =THIS_VERSION;
+    var $version_verbose = THIS_VERSION;
 
     //Errors
     var $errors=array();
 
     function SetupWizard(){
         $this->errors=array();
+        $this->version_verbose = ('osTicket v'. strtoupper(THIS_VERSION));
+
     }
 
     function load_sql_file($file, $prefix, $abort=true, $debug=false) {
@@ -55,6 +58,7 @@ Class SetupWizard {
 
         @mysql_query('SET SESSION SQL_MODE =""');
         foreach($statements as $k=>$sql) {
+            //Note that we're not using db_query - because we want to control how errors are reported.
             if(mysql_query($sql)) continue;
             $error = "[$sql] ".mysql_error();
             if($abort)
