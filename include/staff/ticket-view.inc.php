@@ -20,7 +20,10 @@ $lock  = $ticket->getLock();  //Ticket lock obj
 $id    = $ticket->getId();    //Ticket ID.
 
 //Useful warnings and errors the user might want to know!
-if($ticket->isAssigned() && $staff->getId()!=$thisstaff->getId())
+if($ticket->isAssigned() && (
+            ($staff && $staff->getId()!=$thisstaff->getId())
+         || ($team && !$team->hasMember($thisstaff))
+        ))
     $warn.='&nbsp;&nbsp;<span class="Icon assignedTicket">Ticket is assigned to '.implode('/', $ticket->getAssignees()).'</span>';
 if(!$errors['err'] && ($lock && $lock->getStaffId()!=$thisstaff->getId()))
     $errors['err']='This ticket is currently locked by '.$lock->getStaffName();
