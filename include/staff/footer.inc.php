@@ -12,5 +12,6 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <?php
 } ?>
 </div>
+<div id="overlay"></div>
 </body>
 </html>

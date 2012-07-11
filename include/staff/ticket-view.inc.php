@@ -43,8 +43,12 @@ if($ticket->isOverdue())
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload" class="reload">Reload</a></h2>
         </td>
         <td width="50%" class="right_align">
-            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print" title="Print Ticket" class="print">Print Ticket</a>
-            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" title="Edit Ticket" class="edit">Edit Ticket</a>
+            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print" title="Print Ticket" class="print" id="ticket-print">Print Ticket</a>
+            <?php
+            if($thisstaff->canEditTickets()) { ?>
+             <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" title="Edit Ticket" class="edit">Edit Ticket</a>
+            <?php
+            } ?>
         </td>
     </tr>
 </table>
@@ -600,5 +604,42 @@ if(!$cfg->showNotesInline()) { ?>
     </form>
     <?php
     } ?>
+</div>
+<div style="display:none;" id="print-options">
+    <h3>Ticket Print Options</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="print-form" name="print-form">
+        <input type="hidden" name="a" value="print">
+        <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
+        <fieldset class="notes">
+            <label for="notes">Print Notes:</label>
+            <input type="checkbox" id="notes" name="notes" value="1"> Print <b>Internal</b> Notes/Comments
+        </fieldset>
+        <fieldset>
+            <label for="psize">Paper Size:</label>
+            <select id="psize" name="psize">
+                <option value="">&mdash; Select Print Paper Size &mdash;</option>
+                <?php
+                  $options=array('Letter', 'Legal', 'A4', 'A3');
+                  $psize =$_SESSION['PAPER_SIZE']?$_SESSION['PAPER_SIZE']:$thisstaff->getDefaultPaperSize();
+                  foreach($options as $v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $v,($psize==$v)?'selected="selected"':'', $v);
+                  }
+                ?>
+            </select>
+        </fieldset>
+        <hr style="margin-top:3em"/>
+        <p class="full-width">
+            <span class="buttons" style="float:left">
+                <input type="reset" value="Reset">
+                <input type="button" value="Cancel" class="close">
+            </span>
+            <span class="buttons" style="float:right">
+                <input type="submit" value="Print">
+            </span>
+         </p>
+    </form>
 </div>
 <script type="text/javascript" src="js/ticket.js"></script>

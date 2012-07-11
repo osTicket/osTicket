@@ -1552,10 +1552,12 @@ class Ticket{
     }
 
     //Print ticket... export the ticket thread as PDF.
-    function pdfExport() {
-        $pdf = new Ticket2PDF($this, true);
+    function pdfExport($psize='Letter', $notes=false) {
+        $pdf = new Ticket2PDF($this, $psize, $notes);
         $name='Ticket-'.$this->getExtId().'.pdf';
         $pdf->Output($name, 'I');
+        //Remember what the user selected - for autoselect on the next print.
+        $_SESSION['PAPER_SIZE'] = $psize;
         exit;
     }
 

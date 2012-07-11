@@ -28,10 +28,11 @@ class Ticket2PDF extends FPDF
 	
     var $ticket = null;
 
-	function Ticket2PDF($ticket, $notes=false) {
+	function Ticket2PDF($ticket, $psize='Letter', $notes=false) {
         global $thisstaff;
 
-        parent::FPDF('P', 'mm', $thisstaff->getDefaultPaperSize());
+
+        parent::FPDF('P', 'mm', $psize);
 
         $this->ticket = $ticket;
 
@@ -183,7 +184,7 @@ class Ticket2PDF extends FPDF
                         'R'=>array(255, 224, 179),
                         'N'=>array(250, 250, 210));
         //Get ticket thread
-        if(($entries = $ticket->getThreadWithNotes())) { 
+        if(($entries = $ticket->getThread(($this->includenotes)))) { 
             foreach($entries as $entry) {
 
                 $color = $colors[$entry['thread_type']];
