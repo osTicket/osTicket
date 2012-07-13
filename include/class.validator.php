@@ -109,8 +109,8 @@ class Validator {
                     $this->errors[$k]=$field['error'].' (5 chars min)';
                 break;
             case 'username':
-                if(strlen($this->input[$k])<3)
-                    $this->errors[$k]=$field['error'].' (3 chars min)';
+                if(strlen($this->input[$k])<2)
+                    $this->errors[$k]=$field['error'].' (2 chars min)';
                 break;
             case 'zipcode':
                 if(!is_numeric($this->input[$k]) || (strlen($this->input[$k])!=5))

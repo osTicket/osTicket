@@ -589,7 +589,7 @@ class Staff {
         if(!$vars['lastname'])
             $errors['lastname']='Last name required';
             
-        if(!$vars['username'] || strlen($vars['username'])<3)
+        if(!$vars['username'] || strlen($vars['username'])<2)
             $errors['username']='Username required';
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
             $errors['username']='Username already in-use';
