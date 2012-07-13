@@ -123,7 +123,7 @@ if($cfg->allowEmailAttachments()) {
         //print_r($attachments);
         foreach($attachments as $k=>$attachment){
             if($attachment['filename'] && $cfg->canUploadFileType($attachment['filename'])) {
-                $ticket->saveAttachment($attachment['filename'],$attachment['body'],$msgid,'M');
+                $ticket->saveAttachment(array('name' => $attachment['filename'], 'data' => $attachment['body']),$msgid,'M');
             }
         }
     }

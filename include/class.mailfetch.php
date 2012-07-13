@@ -330,7 +330,7 @@ class MailFetcher {
             if($ticket && $cfg->canUploadFileType($filename) && $cfg->getMaxFileSize()>=$part->bytes) {
                 //extract the attachments...and do the magic.
                 $data=$this->decode($part->encoding, imap_fetchbody($this->mbox,$mid,$index));
-                $ticket->saveAttachment($filename,$data,$ticket->getLastMsgId(),'M');
+                $ticket->saveAttachment(array('name'=>$filename, 'data'=>$data),$ticket->getLastMsgId(),'M');
                 return;
             }
             //TODO: Log failure??
