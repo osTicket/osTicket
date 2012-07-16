@@ -15,13 +15,15 @@ CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
 ALTER TABLE `%TABLE_PREFIX%department`
     ADD `group_membership` tinyint( 1 ) unsigned NOT NULL DEFAULT '0' AFTER `ispublic`;
 
--- Fix teams create date 
+-- Fix teams dates...
 UPDATE `%TABLE_PREFIX%team` 
-    SET `created`=IFNULL(`created`, IFNULL(`updated`, NOW())), `updated`=IFNULL(`updated`, NOW());
+    SET `created`=IF(TO_DAYS(`created`), `created`, IF(TO_DAYS(`updated`), `updated`, NOW())),
+        `updated`=IF(TO_DAYS(`updated`), `updated`, NOW());
 
 -- Fix groups dates... 
 UPDATE `%TABLE_PREFIX%groups` 
-    SET `created`=IFNULL(`created`, IFNULL(`updated`, NOW())), `updated`=IFNULL(`updated`, NOW());
+    SET `created`=IF(TO_DAYS(`created`), `created`, IF(TO_DAYS(`updated`), `updated`, NOW())),
+        `updated`=IF(TO_DAYS(`updated`), `updated`, NOW());
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
