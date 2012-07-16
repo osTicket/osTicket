@@ -38,12 +38,12 @@
         return $dblink;	
     }
 
-    function db_close(){
+    function db_close() {
         global $dblink;
         return @mysql_close($dblink);
     }
 
-    function db_version(){
+    function db_version() {
 
         $version=0;
         if(preg_match('/(\d{1,2}\.\d{1,2}\.\d{1,2})/', 
@@ -59,7 +59,7 @@
     }
 
     function db_get_variable($variable, $type='session') {
-        $sql =sprintf('SELECT @@%s.%s',$type,$variable);
+        $sql =sprintf('SELECT @@%s.%s', $type, $variable);
         return db_result(db_query($sql));
     }
 
@@ -74,112 +74,105 @@
     }
 
     function db_create_database($database, $charset='utf8', $collate='utf8_unicode_ci') {
-        return @mysql_query(sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s',$database,$charset,$collate));
+        return @mysql_query(sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s', $database, $charset, $collate));
     }
    
 	// execute sql query
-	function db_query($query, $database="", $conn=""){
+	function db_query($query, $database="", $conn="") {
         global $ost;
        
 		if($conn) { /* connection is provided*/
-            $result = ($database)?mysql_db_query($database, $query, $conn):mysql_query($query, $conn);
+            $res = ($database)?mysql_db_query($database, $query, $conn):mysql_query($query, $conn);
    	    } else {
-            $result = ($database)?mysql_db_query($database, $query):mysql_query($query);
+            $res = ($database)?mysql_db_query($database, $query):mysql_query($query);
    	    }
                 
-        if(!$result && $ost) { //error reporting
+        if(!$res && $ost) { //error reporting
             $msg='['.$query.']'."\n\n".db_error();
             $ost->logDBError('DB Error #'.db_errno(), $msg);
             //echo $msg; #uncomment during debuging or dev.
         }
 
-        return $result;
+        return $res;
 	}
 
-	function db_squery($query){ //smart db query...utilizing args and sprintf
+	function db_squery($query) { //smart db query...utilizing args and sprintf
 	
 		$args  = func_get_args();
   		$query = array_shift($args);
   		$query = str_replace("?", "%s", $query);
   		$args  = array_map('db_real_escape', $args);
-  		array_unshift($args,$query);
-  		$query = call_user_func_array('sprintf',$args);
+  		array_unshift($args, $query);
+  		$query = call_user_func_array('sprintf', $args);
 		return db_query($query);
 	}
 
-	function db_count($query){		
+	function db_count($query) {		
         return db_result(db_query($query));
 	}
 
-    function db_result($result,$row=0) {
-        return ($result)?mysql_result($result,$row):NULL;
+    function db_result($res, $row=0) {
+        return ($res)?mysql_result($res, $row):NULL;
     }
 
-	function db_fetch_array($result,$mode=false) {
-   	    return ($result)?db_output(mysql_fetch_array($result,($mode)?$mode:MYSQL_ASSOC)):NULL;
+	function db_fetch_array($res, $mode=false) {
+   	    return ($res)?db_output(mysql_fetch_array($res, ($mode)?$mode:MYSQL_ASSOC)):NULL;
   	}
 
-    function db_fetch_row($result) {
-        return ($result)?db_output(mysql_fetch_row($result)):NULL;
+    function db_fetch_row($res) {
+        return ($res)?db_output(mysql_fetch_row($res)):NULL;
     }
 
-    function db_fetch_field($result) {
-        return ($result)?mysql_fetch_field($result):NULL;
+    function db_fetch_field($res) {
+        return ($res)?mysql_fetch_field($res):NULL;
     }   
 
-    function db_assoc_array($result,$mode=false) {
-	    if($result && db_num_rows($result)) {
-      	    while ($row=db_fetch_array($result,$mode))
-         	    $results[]=$row;
+    function db_assoc_array($res, $mode=false) {
+	    if($res && db_num_rows($res)) {
+      	    while ($row=db_fetch_array($res, $mode))
+         	    $result[]=$row;
         }
-        return $results;
+        return $result;
     }
 
-    function db_num_rows($result) {
-   	    return ($result)?mysql_num_rows($result):0;
+    function db_num_rows($res) {
+   	    return ($res)?mysql_num_rows($res):0;
     }
 
 	function db_affected_rows() {
       return mysql_affected_rows();
     }
 
-  	function db_data_seek($result, $row_number) {
-   	    return mysql_data_seek($result, $row_number);
+  	function db_data_seek($res, $row_number) {
+   	    return mysql_data_seek($res, $row_number);
   	}
 
-  	function db_data_reset($result) {
-   	    return mysql_data_seek($result,0);
+  	function db_data_reset($res) {
+   	    return mysql_data_seek($res,0);
   	}
 
   	function db_insert_id() {
    	    return mysql_insert_id();
   	}
 
-	function db_free_result($result) {
-   	    return mysql_free_result($result);
+	function db_free_result($res) {
+   	    return mysql_free_result($res);
   	}
   
-	function db_output($param) {
+	function db_output($var) {
 
         if(!function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime()) //Sucker is NOT on - thanks.
-            return $param;
+            return $var;
 
-        if (is_array($param)) {
-      	    reset($param);
-      	    while(list($key, $value) = each($param))
-        	    $param[$key] = db_output($value);
+        if (is_array($var)) 
+            return array_map('db_output', $var);
 
-      	    return $param;
+        return (!is_numeric($var))?stripslashes($var):$var;
 
-    	}elseif(!is_numeric($param)) {
-            $param=trim(stripslashes($param));
-        }
-
-        return $param;
-  	}
+    }
 
     //Do not call this function directly...use db_input
-    function db_real_escape($val,$quote=false){
+    function db_real_escape($val, $quote=false) {
 
         //Magic quotes crap is taken care of in main.inc.php
         $val=mysql_real_escape_string($val);
@@ -187,29 +180,21 @@
         return ($quote)?"'$val'":$val;
     }
 
-    function db_input($param,$quote=true) {
+    function db_input($var, $quote=true) {
 
-        //is_numeric doesn't work all the time...9e8 is considered numeric..which is correct...but not expected.
-        if($param && preg_match("/^\d+(\.\d+)?$/",$param))
-            return $param;
+        if(is_array($var))
+            return array_map('db_input', $var, array_fill(0, count($var), $quote));
+        elseif($var && preg_match("/^\d+(\.\d+)?$/", $var))
+            return $var;
 
-        if($param && is_array($param)) {
-            reset($param);
-            while (list($key, $value) = each($param)) {
-                $param[$key] = db_input($value,$quote);
-            }
-
-            return $param;
-        }
-
-        return db_real_escape($param,$quote);
+        return db_real_escape($var, $quote);
     }
 
-	function db_error(){
+	function db_error() {
    	    return mysql_error();   
 	}
    
-    function db_errno(){
+    function db_errno() {
         return mysql_errno();
     }
 ?>
