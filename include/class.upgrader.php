@@ -278,7 +278,7 @@ class Upgrader extends SetupWizard {
                 $tasks[] = array('func' => 'migrateAPIKeys',
                                  'desc' => 'Migrating API keys to a new table');
                 break;
-            case '435c62c3-5499e513':
+            case '435c62c3-6007d45b':
                 $tasks[] = array('func' => 'migrateGroupDeptAccess',
                                  'desc' => 'Migrating group\'s department access to a new table');
                 break;
