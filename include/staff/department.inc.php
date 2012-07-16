@@ -9,6 +9,8 @@ if($dept && $_REQUEST['a']!='add') {
     $submit_text='Save Changes';
     $info=$dept->getInfo();
     $info['id']=$dept->getId();
+    $info['groups'] = $dept->getAllowedGroups();
+
     $qstr.='&id='.$dept->getId();
 } else {
     $title='Add New Department';
@@ -201,6 +203,29 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['autoresp_email_id']; ?></span>
             </td>
         </tr>
+        <tr>
+            <th colspan="2">
+                <em><strong>Department Access</strong>: Check all groups allowed to access department.</em>
+            </th>
+        </tr>
+        <tr><td colspan=2><em>Primary department members and manager will always have access regarless of group selection or assignment.</em></td></tr>
+        <?php
+         $sql='SELECT group_id, group_name, count(staff.staff_id) as members '
+             .' FROM '.GROUP_TABLE.' grp '
+             .' LEFT JOIN '.STAFF_TABLE. ' staff USING(group_id) '
+             .' GROUP by grp.group_id '
+             .' ORDER BY group_name';
+         if(($res=db_query($sql)) && db_num_rows($res)){
+            while(list($id, $name, $members) = db_fetch_row($res)) {
+                if($members>0) 
+                    $members=sprintf('<a href="staff.php?a=filter&gid=%d">%d</a>', $id, $members);
+
+                $ck=($info['groups'] && in_array($id,$info['groups']))?'checked="checked"':'';
+                echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<label><input type="checkbox" name="groups[]" value="%d" %s>&nbsp;%s</label> (%s)</td></tr>',
+                        $id, $ck, $name, $members);
+            }
+         }
+        ?>
         <tr>
             <th colspan="2">
                 <em><strong>Department Signature</strong>: Optional signature used on outgoing emails. &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>

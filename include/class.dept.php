@@ -19,6 +19,9 @@ class Dept {
     var $email;
     var $sla;
     var $manager; 
+    var $members;
+    var $groups;
+
     var $ht;
   
     function Dept($id){
@@ -47,7 +50,7 @@ class Dept {
         $this->id=$this->ht['dept_id'];
         $this->email=$this->sla=$this->manager=null;
         $this->getEmail(); //Auto load email struct.
-        $this->members=array();
+        $this->members=$this->groups=array();
 
         return true;
     }
@@ -111,7 +114,6 @@ class Dept {
 
         return $this->members;
     }
-
 
 
     function getSLAId(){
@@ -202,14 +204,53 @@ class Dept {
         return $this->getHashtable();
     }
 
-    function update($vars,&$errors){
 
-        if($this->save($this->getId(),$vars,$errors)) {
-            $this->reload();
-            return true;
+      
+    function getAllowedGroups() {
+
+        if($this->groups) return $this->groups;
+
+        $sql='SELECT group_id FROM '.GROUP_DEPT_TABLE
+            .' WHERE dept_id='.db_input($this->getId());
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res))
+                $this->groups[] = $id;
         }
 
-        return false;
+        return $this->groups;
+    }
+
+    function updateAllowedGroups($groups) {
+
+        if($groups) {
+            foreach($groups as $k=>$id) {
+                $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
+                    .' SET dept_id='.db_input($this->getId()).', group_id='.db_input($id);
+                db_query($sql);
+            }
+        }
+
+            
+        $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($this->getId());
+        if($groups) 
+            $sql.=' AND group_id NOT IN('.implode(',', db_input($groups)).')';
+
+        db_query($sql);
+
+        return true;
+
+    }
+
+    function update($vars,&$errors){
+
+        if(!$this->save($this->getId(),$vars,$errors))
+            return false;
+
+        $this->updateAllowedGroups($vars['groups']);
+        $this->reload();
+        
+        return true;
     }
 
     function delete() {
@@ -282,7 +323,10 @@ class Dept {
     }
 
     function create($vars,&$errors) {
-        return Dept::save(0,$vars,$errors);
+        if(($id=self::save(0, $vars, $errors)) && ($dept=self::lookup($id)))
+            $dept->updateAllowedGroups($vars['groups']);
+
+        return $id;
     }
 
     function save($id,$vars,&$errors) {
