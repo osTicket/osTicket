@@ -2,7 +2,7 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info=array();
 $qstr='';
-if($dept && $_REQUEST['a']!='add'){
+if($dept && $_REQUEST['a']!='add') {
     //Editing Department.
     $title='Update Department';
     $action='update';
@@ -10,7 +10,7 @@ if($dept && $_REQUEST['a']!='add'){
     $info=$dept->getInfo();
     $info['id']=$dept->getId();
     $qstr.='&id='.$dept->getId();
-}else {
+} else {
     $title='Add New Department';
     $action='create';
     $submit_text='Create Dept';
@@ -128,8 +128,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <option value="0">&mdash; None &mdash;</option>
                     <option value="0" disabled="disabled">Select Department Manager (Optional)</option>
                     <?php
-                    $sql='SELECT staff_id,CONCAT_WS(" ",firstname,lastname) as name FROM '.STAFF_TABLE.' staff '.
-                         'WHERE dept_id='.db_input($dept->getId()).' ORDER by name';
+                    $sql='SELECT staff_id,CONCAT_WS(", ",lastname, firstname) as name '
+                        .' FROM '.STAFF_TABLE.' staff '
+                        .' ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while(list($id,$name)=db_fetch_row($res)){
                             $selected=($info['manager_id'] && $id==$info['manager_id'])?'selected="selected"':'';
@@ -141,7 +142,18 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['manager_id']; ?></span>
             </td>
         </tr>
-        <?php } ?>
+        <?php 
+        } ?>
+
+        <tr>
+            <td width="180">
+                Group Membership:
+            </td>
+            <td>
+                <input type="checkbox" name="group_membership" value="0" <?php echo $info['group_membership']?'checked="checked"':''; ?> >
+                Extend membership to groups with access. <i>(Alerts and  notices will include groups)</i>
+            </td>
+        </tr>
         <tr>
             <th colspan="2">
                 <em><strong>Auto Response Settings</strong>: Overwrite global auto-response settings for tickets routed to the Dept.</em>
@@ -197,7 +209,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td colspan=2>
                 <textarea name="signature" cols="21" rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
-                <br><em>Signature is made available as a choice, on ticket reply, for public departments.</em>
+                <br><em>Signature is made available as a choice, for public departments, on ticket reply.</em>
             </td>
         </tr>
     </tbody>

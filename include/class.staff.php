@@ -25,6 +25,8 @@ class Staff {
     var $id;
 
     var $dept;
+    var $departments;
+    var $group;
     var $teams;
     var $timezone;
     var $stats;
@@ -51,8 +53,9 @@ class Staff {
         
         $this->ht=db_fetch_array($res);
         $this->id  = $this->ht['staff_id'];
-        $this->teams = $this->ht['teams']= array();
-        $this->stats=array();
+        $this->teams = $this->ht['teams'] = array();
+        $this->group = $this->dept = null;
+        $this->departments = $this->stats = array();
 
         //WE have to patch info here to support upgrading from old versions.
         if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
@@ -154,10 +157,6 @@ class Staff {
         return $this->ht['lastname'];
     }
     
-    function getGroupId() {
-        return $this->ht['group_id'];
-    }
-
     function getSignature() {
         return $this->ht['signature'];
     }
@@ -174,13 +173,46 @@ class Staff {
         return ($this->ht['change_passwd']);
     }
 
-    function getDepts() {
-        //Departments the user is allowed to access...based on the group they belong to + user's dept.
-        return array_filter(array_unique(array_merge(explode(',', $this->ht['dept_access']), array($this->getDeptId())))); //Neptune help us
+    function getDepartments() {
+
+        if($this->departments)
+            return $this->departments;
+
+        //Departments the staff is "allowed" to access...
+        // based on the group they belong to + user's primary dept + user's managed depts.
+        $sql='SELECT DISTINCT d.dept_id FROM '.STAFF_TABLE.' s '
+            .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON(s.group_id=g.group_id) '
+            .' INNER JOIN '.DEPT_TABLE.' d ON(d.dept_id=s.dept_id OR d.manager_id=s.staff_id OR d.dept_id=g.dept_id) '
+            .' WHERE s.staff_id='.db_input($this->getId());
+
+        $depts = array();
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res))
+                $depts[] = $id;
+        } else { //Neptune help us! (fallback)
+            $depts = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
+        }
+
+        $this->departments = array_filter(array_unique($depts));
+
+
+        return $this->departments;
     }
 
-    function getDepartments() {
-        return $this->getDepts();
+    function getDepts() {
+        return $this->getDepartments();
+    }
+     
+    function getGroupId() {
+        return $this->ht['group_id'];
+    }
+
+    function getGroup() {
+     
+        if(!$this->group && $this->getGroupId())
+            $this->group = Group::lookup($this->getGroupId());
+
+        return $this->group;
     }
 
     function getDeptId() {
