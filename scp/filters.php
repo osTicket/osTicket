@@ -15,6 +15,7 @@
 **********************************************************************/
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.filter.php');
+require_once(INCLUDE_DIR.'class.canned.php');
 $filter=null;
 if($_REQUEST['id'] && !($filter=Filter::lookup($_REQUEST['id'])))
     $errors['err']='Unknown or invalid filter.';

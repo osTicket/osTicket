@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%api_key`;
 CREATE TABLE `%TABLE_PREFIX%api_key` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `isactive` tinyint(1) NOT NULL default '1',
-  `ipaddr` varchar(16) NOT NULL,
+  `ipaddr` varchar(64) NOT NULL,
   `apikey` varchar(255) NOT NULL,
   `notes` text,
   `updated` datetime NOT NULL,
@@ -237,6 +237,7 @@ CREATE TABLE `%TABLE_PREFIX%email_filter` (
   `reject_email` tinyint(1) unsigned NOT NULL default '0',
   `use_replyto_email` tinyint(1) unsigned NOT NULL default '0',
   `disable_autoresponder` tinyint(1) unsigned NOT NULL default '0',
+  `canned_response_id` int(11) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
   `priority_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
@@ -423,9 +424,8 @@ CREATE TABLE `%TABLE_PREFIX%session` (
   `session_data` longtext collate utf8_unicode_ci,
   `session_expire` datetime default NULL,
   `session_updated` datetime default NULL,
-  `user_id` int(10) unsigned NOT NULL default '0' COMMENT 'osTicket staff
-ID',
-  `user_ip` varchar(32) collate utf8_unicode_ci NOT NULL,
+  `user_id` int(10) unsigned NOT NULL default '0' COMMENT 'osTicket staff ID',
+  `user_ip` varchar(64) NOT NULL,
   `user_agent` varchar(255) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`session_id`),
   KEY `updated` (`session_updated`),
@@ -497,7 +497,7 @@ CREATE TABLE `%TABLE_PREFIX%syslog` (
   `title` varchar(255) NOT NULL,
   `log` text NOT NULL,
   `logger` varchar(64) NOT NULL,
-  `ip_address` varchar(16) NOT NULL,
+  `ip_address` varchar(64) NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`log_id`),
@@ -546,7 +546,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `subject` varchar(64) NOT NULL default '[no subject]',
   `phone` varchar(16) default NULL,
   `phone_ext` varchar(8) default NULL,
-  `ip_address` varchar(16) NOT NULL default '',
+  `ip_address` varchar(64) NOT NULL default '',
   `status` enum('open','closed') NOT NULL default 'open',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default
 'Other',
@@ -660,6 +660,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   PRIMARY KEY  (`id`),
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
+  KEY `pid` (`pid`),
   FULLTEXT KEY `body` (`body`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 

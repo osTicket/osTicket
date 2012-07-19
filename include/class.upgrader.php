@@ -14,8 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once INC_DIR.'class.setup.php';
-require_once INC_DIR.'class.migrater.php';
+require_once INCLUDE_DIR.'class.setup.php';
+require_once INCLUDE_DIR.'class.migrater.php';
 
 class Upgrader extends SetupWizard {
 
@@ -31,8 +31,12 @@ class Upgrader extends SetupWizard {
         $this->sqldir = $sqldir;
         $this->errors = array();
 
+        //Disable time limit if - safe mode is set.
+        if(!ini_get('safe_mode'))
+            set_time_limit(0);
+
         //Init persistent state of upgrade.
-        $this->state = &$_SESSION['ost_upgrader'][$this->getShash()]['state'];
+        $this->state = &$_SESSION['ost_upgrader']['state'];
 
         //Init the task Manager.
         if(!isset($_SESSION['ost_upgrader'][$this->getShash()]))
@@ -45,16 +49,29 @@ class Upgrader extends SetupWizard {
         $this->migrater = new DatabaseMigrater($this->signature, SCHEMA_SIGNATURE, $this->sqldir);
     }
 
-    function getStops() {
-        return array('7be60a84' => 'migrateAttachments2DB');
-    }
-
     function onError($error) {
-        global $ost;
+        global $ost, $thisstaff;
 
         $ost->logError('Upgrader Error', $error);
         $this->setError($error);
         $this->setState('aborted');
+
+        //Alert staff upgrading the system - if the email is not same as admin's
+        // admin gets alerted on error log (above)
+        if(!$thisstaff || !strcasecmp($thisstaff->getEmail(), $ost->getConfig()->getAdminEmail()))
+            return;
+
+        $email=null;
+        if(!($email=$ost->getConfig()->getAlertEmail()))
+            $email=$ost->getConfig()->getDefaultEmail(); //will take the default email.
+
+        $subject = 'Upgrader Error';
+        if($email) {
+            $email->send($thistaff->getEmail(), $subject, $error);
+        } else {//no luck - try the system mail.
+            Email::sendmail($thistaff->getEmail(), $subject, $error, sprintf('"osTicket Alerts"<%s>', $thistaff->getEmail()));
+        }
+
     }
 
     function isUpgradable() {
@@ -177,10 +194,14 @@ class Upgrader extends SetupWizard {
 
     function doTasks() {
 
+        global $ost;
         if(!($tasks=$this->getPendingTasks()))
             return true; //Nothing to do.
 
+        $ost->logDebug('Upgrader', sprintf('There are %d pending upgrade tasks', count($tasks)));
+        $start_time = Misc::micro_time();
         foreach($tasks as $k => $task) {
+            //TODO: check time used vs. max execution - break if need be
             if(call_user_func(array($this, $task['func']), $k)===0) {
                 $this->tasks[$k]['done'] = true;
             } else { //Task has pending items to process.
@@ -188,7 +209,7 @@ class Upgrader extends SetupWizard {
             }
         }
 
-        return (!$this->getPendingTasks());
+        return $this->getPendingTasks();
     }
     
     function upgrade() {
@@ -197,7 +218,12 @@ class Upgrader extends SetupWizard {
         if($this->getPendingTasks() || !($patches=$this->getPatches()))
             return false;
 
+        $start_time = Misc::micro_time();
+        if(!($max_time = ini_get('max_execution_time')))
+            $max_time = 300; //Apache/IIS defaults.
+
         foreach ($patches as $patch) {
+            //TODO: check time used vs. max execution - break if need be
             if (!$this->load_sql_file($patch, $this->getTablePrefix()))
                 return false;
 
@@ -214,14 +240,24 @@ class Upgrader extends SetupWizard {
             $ost->logDebug('Upgrader - Patch applied', $logMsg);
             
             //Check if the said patch has scripted tasks
-            if(!($tasks=$this->getTasksForPatch($phash)))
+            if(!($tasks=$this->getTasksForPatch($phash))) {
+                //Break IF elapsed time is greater than 80% max time allowed.
+                if(($elapsedtime=(Misc::micro_time()-$start_time)) && $max_time && $elapsedtime>($max_time*0.80))
+                    break;
+
                 continue;
+
+            }
 
             //We have work to do... set the tasks and break.
             $shash = substr($phash, 9, 8);
             $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
             $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
+            
+            $ost->logDebug('Upgrader', sprintf('Found %d tasks to be executed for %s',
+                            count($tasks), $shash));
             break;
+
         }
 
         return true;
@@ -232,25 +268,35 @@ class Upgrader extends SetupWizard {
 
         $tasks=array();
         switch($phash) { //Add  patch specific scripted tasks.
-            case 'd4fe13b1-7be60a84': //V1.6 ST- 1.7 *
+            case 'c00511c7-7be60a84': //V1.6 ST- 1.7 * {{MD5('1.6 ST') -> c00511c7c1db65c0cfad04b4842afc57}}
                 $tasks[] = array('func' => 'migrateAttachments2DB',
                                  'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
+                $tasks[] = array('func' => 'migrateSessionFile2DB',
+                                 'desc' => 'Transitioning to db-backed sessions');
+                break;
+            case '98ae1ed2-e342f869': //v1.6 RC1-4 -> v1.6 RC5
+                $task[] = array('func' => 'migrateAPIKeys',
+                                'desc' => 'Migrating API keys to a new table');
                 break;
         }
 
-        //Check if cleanup p 
+        //Check IF SQL cleanup is exists. 
         $file=$this->getSQLDir().$phash.'.cleanup.sql';
         if(file_exists($file)) 
-            $tasks[] = array('func' => 'cleanup', 'desc' => 'Post-upgrade cleanup!');
+            $tasks[] = array('func' => 'cleanup', 'desc' => 'Post-upgrade cleanup!',
+                        'phash' => $phash);
 
 
         return $tasks;
     }
 
     /************* TASKS **********************/
-    function cleanup($tId=0) {
+    function cleanup($taskId) {
+        global $ost;
 
-        $file=$this->getSQLDir().$this->getShash().'-cleanup.sql';
+        $phash = $this->tasks[$taskId]['phash'];
+        $file=$this->getSQLDir().$phash.'.cleanup.sql';
+
         if(!file_exists($file)) //No cleanup script.
             return 0;
 
@@ -258,17 +304,46 @@ class Upgrader extends SetupWizard {
         if($this->load_sql_file($file, $this->getTablePrefix(), false, true))
             return 0;
 
-        //XXX: ???
-        return false;
+        $ost->logDebug('Upgrader', sprintf("%s: Unable to process cleanup file",
+                        $phash));
+        return 0;
     }
-    
 
-    function migrateAttachments2DB($tId=0) {
-        echo "Process attachments here - $tId";
+    function migrateAttachments2DB($taskId) {
+        global $ost;
+        
+        if(!($max_time = ini_get('max_execution_time')))
+            $max_time = 30; //Default to 30 sec batches.
+
         $att_migrater = new AttachmentMigrater();
-        $att_migrater->start_migration();
-        # XXX: Loop here (with help of task manager)
-        $att_migrater->do_batch();
+        if($att_migrater->do_batch(($max_time*0.9), 100)===0)
+            return 0;
+
+        return $att_migrater->getQueueLength();
+    }
+
+    function migrateSessionFile2DB($taskId) {
+        # How about 'dis for a hack?
+        osTicketSession::write(session_id(), session_encode()); 
+        return 0;
+    }
+
+    function migrateAPIKeys($taskId) {
+
+        $res = db_query('SELECT api_whitelist, api_key FROM '.CONFIG_TABLE.' WHERE id=1');
+        if(!$res || !db_num_rows($res))
+            return 0;  //Reporting success.
+
+        list($whitelist, $key) = db_fetch_row($res);
+
+        $ips=array_filter(explode(',', ereg_replace(' ', '', $whitelist)));
+        foreach($ips as $ip) {
+            $sql='INSERT INTO '.API_KEY_TABLE.' SET created=NOW(), updated=NOW(), isactive=1 '
+                .',ipaddr='.db_input($ip)
+                .',apikey='.db_input(strtoupper(md5($ip.md5($key))));
+            db_query($sql);
+        }
+
         return 0;
     }
 }

@@ -99,6 +99,10 @@ class Filter {
         return $this->ht['team_id'];
     }
 
+    function getCannedResponse() {
+        return $this->ht['canned_response_id'];
+    }
+
     function stopOnMatch(){
         return ($this->ht['stop_on_match']);
     }
@@ -274,6 +278,8 @@ class Filter {
             if ($email['reply-to-name']) 
                 $ticket['name'] = $email['reply-to-name'];
         }
+        if ($this->getCannedResponse())
+            $ticket['cannedResponseId'] = $this->getCannedResponse();
     }
 
     function update($vars,&$errors){
@@ -395,6 +401,7 @@ class Filter {
              ',reject_email='.db_input(isset($vars['reject_email'])?1:0).
              ',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0).
              ',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0).
+             ',canned_response_id='.db_input($vars['canned_response']).
              ',notes='.db_input($vars['notes']);
        
 

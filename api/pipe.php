@@ -87,7 +87,7 @@ $var['emailId']=$emailId?$emailId:$cfg->getDefaultEmailId();
 $var['subject']=$subj?$subj:'[No Subject]';
 $var['message']=utf8_encode(Format::stripEmptyLines($body));
 $var['header']=$parser->getHeader();
-$var['pri']=$cfg->useEmailPriority()?$parser->getPriority():0;
+$var['priorityId']=$cfg->useEmailPriority()?$parser->getPriority():0;
 
 $ticket=null;
 if(preg_match ("[[#][0-9]{1,10}]",$var['subject'],$regs)) {
@@ -123,7 +123,7 @@ if($cfg->allowEmailAttachments()) {
         //print_r($attachments);
         foreach($attachments as $k=>$attachment){
             if($attachment['filename'] && $cfg->canUploadFileType($attachment['filename'])) {
-                $ticket->saveAttachment($attachment['filename'],$attachment['body'],$msgid,'M');
+                $ticket->saveAttachment(array('name' => $attachment['filename'], 'data' => $attachment['body']),$msgid,'M');
             }
         }
     }
