@@ -63,7 +63,7 @@
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7-DPR4'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','435c62c3b23795529bcfae7e7371d82e'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('SCHEMA_SIGNATURE','6007d45b580c6ac0206514dbed0f28a6'); //MD5 signature of the db schema. (used to trigger upgrades)
 
     #load config info
     $configfile='';
@@ -136,6 +136,7 @@
     define('DEPT_TABLE',TABLE_PREFIX.'department');
     define('TOPIC_TABLE',TABLE_PREFIX.'help_topic');
     define('GROUP_TABLE',TABLE_PREFIX.'groups');
+    define('GROUP_DEPT_TABLE', TABLE_PREFIX.'group_dept_access');
     define('TEAM_TABLE',TABLE_PREFIX.'team');
     define('TEAM_MEMBER_TABLE',TABLE_PREFIX.'team_member');
 

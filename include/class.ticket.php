@@ -866,7 +866,7 @@ class Ticket{
               
             //Only alerts dept members if the ticket is NOT assigned.
             if($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
-                if(($members=$dept->getAvailableMembers()))
+                if(($members=$dept->getMembers()))
                     $recipients=array_merge($recipients, $members);
             }
             
@@ -877,6 +877,7 @@ class Ticket{
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace("%staff",$staff->getFirstName(),$body);
                 $email->send($staff->getEmail(),$subj,$alert);
+                $sentlist[] = $staff->getEmail();
             }
            
            
@@ -1029,8 +1030,8 @@ class Ticket{
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace('%staff', $staff->getFirstName(), $body);
                 $email->send($staff->getEmail(), $subj, $alert);
+                $sentlist[] = $staff->getEmail();
             }
-            print_r($sentlist);
         }
 
         return true;
@@ -1072,7 +1073,7 @@ class Ticket{
                     $recipients=array_merge($recipients, $members);
             } elseif($cfg->alertDeptMembersONOverdueTicket() && !$this->isAssigned()) {
                 //Only alerts dept members if the ticket is NOT assigned.
-                if(($members=$dept->getAvailableMembers()))
+                if(($members=$dept->getMembers()))
                     $recipients=array_merge($recipients, $members);
             }
             //Always alert dept manager??
@@ -1084,6 +1085,7 @@ class Ticket{
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace("%staff",$staff->getFirstName(),$body);
                 $email->send($staff->getEmail(),$subj,$alert);
+                $sentlist[] = $staff->getEmail();
             }
 
         }
@@ -1200,7 +1202,7 @@ class Ticket{
                     $recipients+=$members;
             } elseif($cfg->alertDeptMembersONTransfer() && !$this->isAssigned()) {
                 //Only alerts dept members if the ticket is NOT assigned.
-                if(($members=$dept->getAvailableMembers()))
+                if(($members=$dept->getMembers()))
                     $recipients+=$members;
             }
 
@@ -1213,6 +1215,7 @@ class Ticket{
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace("%staff",$staff->getFirstName(),$body);
                 $email->send($staff->getEmail(),$subj,$alert);
+                $sentlist[] = $staff->getEmail();
             }
          }
 
@@ -1361,7 +1364,7 @@ class Ticket{
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() && in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace("%staff",$staff->getFirstName(),$body);
                 $email->send($staff->getEmail(),$subj,$alert);
-                $sentlist[]=$staff->getEmail();
+                $sentlist[] = $staff->getEmail();
             }
         }
         
@@ -1544,7 +1547,7 @@ class Ticket{
                 if(in_array($staff->getEmail(),$sentlist) || ($thisstaff && $thisstaff->getId()==$staff->getId())) continue; 
                 $alert = str_replace('%staff',$staff->getFirstName(),$body);
                 $email->send($staff->getEmail(),$subj,$alert);
-                $sentlist[]=$staff->getEmail();
+                $sentlist[] = $staff->getEmail();
             }
         }
         

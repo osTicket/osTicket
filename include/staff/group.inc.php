@@ -8,7 +8,7 @@ if($group && $_REQUEST['a']!='add'){
     $submit_text='Save Changes';
     $info=$group->getInfo();
     $info['id']=$group->getId();
-    $info['depts']=$info['dept_access']?explode(',',$info['dept_access']):array();
+    $info['depts']=$group->getDepartments();
     $qstr.='&id='.$group->getId();
 }else {
     $title='Add New Group';
