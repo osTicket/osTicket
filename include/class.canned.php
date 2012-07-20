@@ -31,9 +31,11 @@ class Canned {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT canned.*, count(attach.file_id) as attachments '
+        $sql='SELECT canned.*, count(attach.file_id) as attachments, '
+            .' (count(filter.id) > 0) as in_use '
             .' FROM '.CANNED_TABLE.' canned '
             .' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' attach ON (attach.canned_id=canned.canned_id) ' 
+            .' LEFT JOIN '.EMAIL_FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) '
             .' WHERE canned.canned_id='.db_input($id);
         if(!($res=db_query($sql)) ||  !db_num_rows($res))
             return false;
@@ -62,6 +64,9 @@ class Canned {
         return $this->isEnabled();
     }
 
+    function isInUse() {
+        return $this->ht['in_use'];
+    }
     
     function getTitle() {
         return $this->ht['title'];
@@ -168,6 +173,7 @@ class Canned {
     }
 
     function delete(){
+        if ($this->isInUse()) return false;
 
         $sql='DELETE FROM '.CANNED_TABLE.' WHERE canned_id='.db_input($this->getId()).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {

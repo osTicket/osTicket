@@ -2,12 +2,10 @@
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
-$sql='SELECT canned.*, count(attach.file_id) as files, dept.dept_name as department, '.
-     ' (filter.id is not null) as in_use '.
+$sql='SELECT canned.*, count(attach.file_id) as files, dept.dept_name as department '.
      ' FROM '.CANNED_TABLE.' canned '.
      ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=canned.dept_id) '.
-     ' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' attach ON (attach.canned_id=canned.canned_id) '.
-     ' LEFT JOIN '.EMAIL_FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) ';
+     ' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' attach ON (attach.canned_id=canned.canned_id) ';
 $sql.=' WHERE 1';
 
 $sortOptions=array('title'=>'canned.title','status'=>'canned.isenabled','dept'=>'department','updated'=>'canned.updated');
@@ -83,11 +81,9 @@ else
                 ?>
             <tr id="<?php echo $row['canned_id']; ?>">
                 <td width=7px>
-                <?php if (!$row['in_use']) { ?>
                   <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
                                 onClick="highLight(this.value,this.checked);"/>
-                <?php } ?>
                 </td>
                 <td>
                     <a href="canned.php?id=<?php echo $row['canned_id']; ?>"><?php echo Format::truncate($row['title'],200); echo "&nbsp;$files"; ?></a>&nbsp;
