@@ -27,6 +27,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             </ul>
             <div id="bar">
                 <form method="post" action="upgrade.php" id="prereq">
+                    <?php csrf_token(); ?>
                     <input type="hidden" name="s" value="prereq">
                     <input class="btn"  type="submit" name="submit" value="Start Upgrade Now &raquo;">
                 </form>

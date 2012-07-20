@@ -18,6 +18,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             <p>Please refer to the <a target="_blank" href="http://osticket.com/wiki/Upgrade_and_Migration">Upgrade Guide</a> for more information.</p>
             <div id="bar">
                 <form method="post" action="upgrade.php">
+                    <?php csrf_token(); ?>
                     <input type="hidden" name="s" value="prereq">
                     <input class="btn" type="submit" name="submit" value="Continue &raquo;">
                 </form>
