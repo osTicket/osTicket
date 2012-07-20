@@ -51,8 +51,17 @@ if($_SESSION['_client']['userID'] && $_SESSION['_client']['key'])
 if($thisclient && $thisclient->getId() && $thisclient->isValid()){
      $thisclient->refreshSession();
 }
+
+/******* CSRF Protectin *************/
+// Enforce CSRF protection for POSTS
+if ($_POST  && !$ost->checkCSRFToken()) {
+    @header('Location: index.php');
+    //just incase redirect fails
+    die('Action denied (400)!');
+}
+
 /* Client specific defaults */
-define('PAGE_LIMIT',DEFAULT_PAGE_LIMIT);
+define('PAGE_LIMIT', DEFAULT_PAGE_LIMIT);
 
 $nav = new UserNav($thisclient, 'home');
 ?>
