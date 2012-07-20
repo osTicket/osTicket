@@ -58,6 +58,7 @@ Class CSRF {
         if(!$this->csrf['token'] || $this->isExpired()) {
 
             $len = $len>8?$len:32;
+            $r = '';
             for ($i = 0; $i <= $len; $i++)
                 $r .= chr(mt_rand(0, 255));
         
