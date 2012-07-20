@@ -81,8 +81,15 @@ if(!$thisstaff->isAdmin()) {
 //Keep the session activity alive
 $thisstaff->refreshSession();
 
+/******* CSRF Protectin *************/
 // Enforce CSRF protection for POSTS
-if ($_POST) csrf_ensure_cookie();
+if ($_POST  && !$ost->checkCSRFToken()) {
+    Http::response(400, 'Valid CSRF Token Required');
+    exit;
+}
+
+//Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME] 
+$ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'" />');
 
 /******* SET STAFF DEFAULTS **********/
 //Set staff's timezone offset.
