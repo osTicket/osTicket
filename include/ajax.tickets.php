@@ -181,8 +181,6 @@ class TicketsAjaxAPI extends AjaxController {
     function acquireLock($tid) {
         global $cfg,$thisstaff;
 
-        $this->csrf_protect();
-        
         if(!$tid or !is_numeric($tid) or !$thisstaff or !$cfg) 
             return 0;
        
@@ -216,8 +214,6 @@ class TicketsAjaxAPI extends AjaxController {
     function renewLock($tid, $id) {
         global $thisstaff;
 
-        $this->csrf_protect();
-
         if(!$id or !is_numeric($id) or !$thisstaff)
             return $this->json_encode(array('id'=>0, 'retry'=>true));
        
@@ -236,8 +232,6 @@ class TicketsAjaxAPI extends AjaxController {
 
     function releaseLock($tid, $id=0) {
         global $thisstaff;
-
-        $this->csrf_protect();
 
         if($id && is_numeric($id)){ //Lock Id provided!
         
