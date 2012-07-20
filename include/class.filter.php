@@ -216,7 +216,7 @@ class Filter {
      */
     function matches($email) {
         $what = array(
-            "email"     => $email['from'],
+            "email"     => $email['email'],
             "subject"   => $email['subject'],
             # XXX: Support reply-to too ?
             "name"      => $email['name'],
@@ -567,7 +567,7 @@ class EmailFilter {
      * calls, etc).
      *
      * $email is an ARRAY, which has valid keys
-     *  *from - email address of sender
+     *  *email - email address of sender
      *   name - name of sender
      *   subject - subject line of the email
      *   email-id - id of osTicket email recipient address
@@ -586,7 +586,7 @@ class EmailFilter {
             $this->build($this->getAllActive());
         } else {
             $this->build(
-                $this->quickList($email['from'], $email['name'],
+                $this->quickList($email['email'], $email['name'],
                     $email['subject']));
         }
     }
