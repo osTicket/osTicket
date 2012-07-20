@@ -55,7 +55,7 @@ if($_POST){
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
                     $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET isactive=1 WHERE tpl_id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected templates enabled';

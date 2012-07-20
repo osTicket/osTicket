@@ -46,7 +46,7 @@ if($_POST){
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
                     $sql='UPDATE '.API_KEY_TABLE.' SET isactive=1 WHERE id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected API keys enabled';
@@ -57,7 +57,7 @@ if($_POST){
                     }
                 }elseif($_POST['disable']){
                     $sql='UPDATE '.API_KEY_TABLE.' SET isactive=0  WHERE id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected API keys disabled';

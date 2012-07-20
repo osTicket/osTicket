@@ -50,7 +50,7 @@ if($_POST){
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
                     $sql='UPDATE '.EMAIL_FILTER_TABLE.' SET isactive=1 WHERE id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected filters enabled';
@@ -61,7 +61,7 @@ if($_POST){
                     }
                 }elseif($_POST['disable']){
                     $sql='UPDATE '.EMAIL_FILTER_TABLE.' SET isactive=0  WHERE id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected filters disabled';

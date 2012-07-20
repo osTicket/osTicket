@@ -72,7 +72,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 $count=count($_POST['ids']);
                 if($_POST['enable']) {
                     $sql='UPDATE '.CANNED_TABLE.' SET isenabled=1 WHERE canned_id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected canned replies enabled';
@@ -83,7 +83,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                     }
                 } elseif($_POST['disable']) {
                     $sql='UPDATE '.CANNED_TABLE.' SET isenabled=0 WHERE canned_id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected canned replies disabled';

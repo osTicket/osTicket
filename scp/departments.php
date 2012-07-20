@@ -46,7 +46,7 @@ if($_POST){
                 $count=count($_POST['ids']);
                 if($_POST['public']){
                     $sql='UPDATE '.DEPT_TABLE.' SET ispublic=1 WHERE dept_id IN ('
-                        .implode(',', array_map('db_input', $_POST['ids'])).')';
+                        .implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected departments made public';
@@ -58,7 +58,7 @@ if($_POST){
                 }elseif($_POST['private']){
                     $sql='UPDATE '.DEPT_TABLE.' SET ispublic=0  '.
                          'WHERE dept_id IN ('
-                            .implode(',', array_map('db_input', $_POST['ids']))
+                            .implode(',', db_input($_POST['ids']))
                         .') AND dept_id!='.db_input($cfg->getDefaultDeptId());
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
@@ -72,7 +72,7 @@ if($_POST){
                 }elseif($_POST['delete']){
                     //Deny all deletes if one of the selections has members in it.
                     $sql='SELECT count(staff_id) FROM '.STAFF_TABLE.' WHERE dept_id IN ('
-                        .implode(',', array_map('db_input', $_POST['ids'])).')';
+                        .implode(',', db_input($_POST['ids'])).')';
                     list($members)=db_fetch_row(db_query($sql));
                     if($members)
                         $errors['err']='Dept. with users can not be deleted. Move staff first.';

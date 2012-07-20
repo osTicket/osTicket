@@ -44,7 +44,7 @@ if($_POST){
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
                     $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=1, updated=NOW() WHERE group_id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected groups activated';
@@ -55,7 +55,7 @@ if($_POST){
                     }
                 }elseif($_POST['disable']){
                     $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=0, updated=NOW() WHERE group_id IN ('.
-                        implode(',', array_map('db_input', $_POST['ids'])).')';
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected groups disabled';

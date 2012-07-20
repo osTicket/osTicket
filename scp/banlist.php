@@ -71,7 +71,7 @@ if($_POST && !$errors && $filter){
                     $sql='UPDATE '.EMAIL_FILTER_RULE_TABLE.' SET isactive=1 WHERE filter_id='.
                             db_input($filter->getId()).
                          ' AND id IN ('.
-                            implode(',', array_map('db_input', $_POST['ids'])).')';
+                            implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected emails ban status set to enabled';
@@ -84,7 +84,7 @@ if($_POST && !$errors && $filter){
                     $sql='UPDATE '.EMAIL_FILTER_RULE_TABLE.' SET isactive=0 WHERE filter_id='.
                             db_input($filter->getId()).
                          ' AND id IN ('.
-                            implode(',', array_map('db_input', $_POST['ids'])).')';
+                            implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected emails ban status set to disabled';
