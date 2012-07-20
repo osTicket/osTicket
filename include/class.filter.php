@@ -220,7 +220,7 @@ class Filter {
             "subject"   => $email['subject'],
             # XXX: Support reply-to too ?
             "name"      => $email['name'],
-            "body"      => $email['body']
+            "body"      => $email['message']
             # XXX: Support headers
         );
         $how = array(
