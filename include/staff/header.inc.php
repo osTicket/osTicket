@@ -23,7 +23,6 @@
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
-    csrf_enable_ajax();
     ?>
 </head>
 <body onunload="">
@@ -37,7 +36,8 @@
             <?php }else{ ?>
             | <a href="index.php">Staff Panel</a>
             <?php } ?>
-            | <a href="profile.php">My Preferences</a> | <a href="logout.php">Log Out</a>
+            | <a href="profile.php">My Preferences</a> 
+            | <a href="logout.php?auth=<?php echo md5($ost->getCSRFToken().SECRET_SALT.session_id()); ?>">Log Out</a>
         </p>
     </div>
     <ul id="nav">
