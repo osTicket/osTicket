@@ -18,47 +18,4 @@ jQuery(function($) {
         $('#overlay, #loading').show();
         return true;
         });
-
-    $('form#upgrade').submit(function(e) {
-        e.preventDefault();
-        var form = $(this);
-        $('input[type=submit]', this).attr('disabled', 'disabled');
-        $('#overlay, #loading').show();
-        doTasks('upgrade.php',form.serialize());
-
-        return false;
-        });
-
-    function doTasks(url, data) {
-        function _lp(count) {
-            $.ajax({
-                type: 'GET',
-                url: 'p.php',
-                async: true,
-                cache: false,
-                data: data,
-                dataType: 'text',
-                success: function(res) {
-                    if (res) { 
-                        $('#loading #msg').html(res);
-                    }
-                },
-                statusCode: {
-                    200: function() {
-                        setTimeout(function() { _lp(count+1); }, 2);
-                    },
-
-                    304: function() {
-                        $('#loading #msg').html("We're done... cleaning up!");
-                        setTimeout(function() { location.href =url;}, 3000);
-                    }
-                },
-                error: function() {
-                    $('#loading #msg').html("Something went wrong");
-                    setTimeout(function() { location.href =url;}, 1000);
-                }
-            });
-        };
-        _lp(0);
-    }
 });
