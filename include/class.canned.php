@@ -96,6 +96,20 @@ class Canned {
         return $this->getHashtable();
     }
 
+    function getFilters() {
+        if (!$this->_filters) {
+            $this->_filters = array();
+            $res = db_query(
+                  'SELECT DISTINCT name'
+                .' FROM '.EMAIL_FILTER_TABLE
+                .' WHERE canned_response_id = '.db_input($this->getId())
+                .' ORDER BY name');
+            while ($row = db_fetch_row($res))
+                $this->_filters[] = $row[0];
+        }
+        return $this->_filters;
+    }
+
     function update($vars, &$errors) {
 
         if(!$this->save($this->getId(),$vars,$errors))

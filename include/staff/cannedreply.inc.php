@@ -9,11 +9,6 @@ if($canned && $_REQUEST['a']!='add'){
     $info=$canned->getInfo();
     $info['id']=$canned->getId();
     $qstr.='&id='.$canned->getId();
-    $res = db_query(
-          'SELECT GROUP_CONCAT(DISTINCT name ORDER BY name SEPARATOR ", ")'
-        .' FROM '.EMAIL_FILTER_TABLE
-        .' WHERE canned_response_id = '.db_input($canned->getId()));
-    $info['filter'] = ($res && ($row = db_fetch_row($res))) ? $row[0] : null;
 }else {
     $title='Add New Canned Reply';
     $action='create';
@@ -112,10 +107,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
- <?php if ($info['filter']) { ?>
+ <?php if ($canned->getFilters()) { ?>
     <br/>
     <div id="msg_warning">Canned reply is in use by email filter(s): <?php
-    echo $info['filter']; ?></div>
+    echo implode(', ', $canned->getFilters()); ?></div>
  <?php } ?>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
