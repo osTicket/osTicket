@@ -281,6 +281,22 @@ class Filter {
         if ($this->getCannedResponse())
             $ticket['cannedResponseId'] = $this->getCannedResponse();
     }
+    /* static */ function getSupportedMatches() {
+        return array(
+            'name'=>    "Sender's Name",
+            'email'=>   "Sender's Email",
+            'subject'=> 'Email Subject',
+            'body'=>    'Email Body/Text'
+        );
+    }
+    /* static */ function getSupportedMatchTypes() {
+        return array(
+            'equal'=>       'Equal',
+            'not_equal'=>   'Not Equal',
+            'contains'=>    'Contains',
+            'dn_contain'=>  'Does Not Contain'
+        );
+    }
 
     function update($vars,&$errors){
 
