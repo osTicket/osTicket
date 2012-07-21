@@ -17,7 +17,7 @@ require_once 'admin.inc.php';
 require_once INCLUDE_DIR.'class.upgrader.php';
 
 //$_SESSION['ost_upgrader']=null;
-$upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, PATCH_DIR);
+$upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, SQL_DIR);
 $errors=array();
 if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
     switch(strtolower($_POST['s'])) {

@@ -57,7 +57,7 @@
     define('SETUP_DIR',INCLUDE_DIR.'setup/');
 
     define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
-    define('PATCH_DIR', UPGRADE_DIR.'patches/');
+    define('SQL_DIR', UPGRADE_DIR.'sql/');
 
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
