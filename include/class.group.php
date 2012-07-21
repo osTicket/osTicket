@@ -86,7 +86,7 @@ class Group {
 
         if(!$this->members && $this->getNumUsers()) {
             $sql='SELECT staff_id FROM '.STAFF_TABLE
-                .' WHERE group_id='.db_input($this->getId()).' AND staff_id IS NOT NULL '
+                .' WHERE group_id='.db_input($this->getId())
                 .' ORDER BY lastname, firstname';
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res))
@@ -116,7 +116,8 @@ class Group {
         
     function updateDeptAccess($depts) {
 
-        if($depts) {
+
+        if($depts && is_array($depts)) {
             foreach($depts as $k=>$id) {
                 $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
                     .' SET group_id='.db_input($this->getId())
@@ -126,7 +127,7 @@ class Group {
         }
 
         $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE group_id='.db_input($this->getId());
-        if($depts) // just inserted departments IF any.
+        if($depts && is_array($depts)) // just inserted departments IF any.
             $sql.=' AND dept_id NOT IN('.implode(',', db_input($depts)).')';
 
         db_query($sql);

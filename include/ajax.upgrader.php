@@ -25,7 +25,7 @@ class UpgraderAjaxAPI extends AjaxController {
         if(!$thisstaff or !$thisstaff->isAdmin() or !$ost)
             Http::response(403, 'Access Denied');
 
-        $upgrader = new Upgrader($ost->getDBSignature(), TABLE_PREFIX, PATCH_DIR);
+        $upgrader = new Upgrader($ost->getDBSignature(), TABLE_PREFIX, SQL_DIR);
 
         //Just report the next action on the first call.
         if(!$_SESSION['ost_upgrader'] || !$_SESSION['ost_upgrader'][$upgrader->getShash()]['progress']) {

@@ -57,13 +57,13 @@
     define('SETUP_DIR',INCLUDE_DIR.'setup/');
 
     define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
-    define('PATCH_DIR', UPGRADE_DIR.'patches/');
+    define('SQL_DIR', UPGRADE_DIR.'sql/');
 
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7-DPR4'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','6007d45b580c6ac0206514dbed0f28a6'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('SCHEMA_SIGNATURE','2e7531a201b5b8650dcd43681a832ebd'); //MD5 signature of the db schema. (used to trigger upgrades)
 
     #load config info
     $configfile='';

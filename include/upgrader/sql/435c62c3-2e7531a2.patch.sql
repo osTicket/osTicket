@@ -8,7 +8,8 @@
 CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`group_id`,`dept_id`)
+  UNIQUE KEY `group_dept`  (`group_id`,`dept_id`),
+  KEY `dept_id` (`dept_id`)
 ) ENGINE=MyISAM;
 
 -- Extend membership to groups
