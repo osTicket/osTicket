@@ -84,31 +84,32 @@ class Dept {
         return $this->ht['users'];
     }
 
-    function getNumMembers(){
-        return $this->getNumStaff();
-    }
-
+     
     function getNumUsers(){
         return $this->getNumStaff();
     }
 
+    function getNumMembers(){
+        return count($this->getMembers());
+    }
+
     function getMembers() {
 
-        if(!$this->members && $this->getNumStaff()) {
-            $sql='SELECT DISTINCT s.staff_id, s.dept_id FROM '.STAFF_TABLE.' s '
+        if(!$this->members) {
+            $this->members = array();
+            $sql='SELECT DISTINCT s.staff_id FROM '.STAFF_TABLE.' s '
                 .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON(s.group_id=g.group_id) '
-                .' INNER JOIN '.DEPT_TABLE.' d ON(d.dept_id=s.dept_id OR d.manager_id=s.staff_id OR d.dept_id=g.dept_id) '
+                .' INNER JOIN '.DEPT_TABLE.' d 
+                       ON(d.dept_id=s.dept_id 
+                            OR d.manager_id=s.staff_id 
+                            OR (d.dept_id=g.dept_id AND d.group_membership=1)
+                        ) '
                 .' WHERE d.dept_id='.db_input($this->getId())
                 .' ORDER BY s.lastname, s.firstname';
            
             if(($res=db_query($sql)) && db_num_rows($res)) {
-                while(list($staffId, $deptId)=db_fetch_row($res)) {
-                    if(!$this->enableGroupMembership() 
-                            && $deptId!=$this->getId() 
-                            && $staffId!=$this->getManagerId()) continue;
-
-                    $this->members[] = Staff::lookup($staffId);
-                }
+                while(list($id)=db_fetch_row($res))
+                    $this->members[] = Staff::lookup($id);
             }
         }
 
@@ -192,7 +193,7 @@ class Dept {
     }
 
 
-    function enableGroupMembership() {
+    function isGroupMembershipEnabled() {
         return ($this->ht['group_membership']);
     }
    
@@ -223,7 +224,7 @@ class Dept {
 
     function updateAllowedGroups($groups) {
 
-        if($groups) {
+        if($groups && is_array($groups)) {
             foreach($groups as $k=>$id) {
                 $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
                     .' SET dept_id='.db_input($this->getId()).', group_id='.db_input($id);
@@ -233,7 +234,7 @@ class Dept {
 
             
         $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($this->getId());
-        if($groups) 
+        if($groups && is_array($groups))  
             $sql.=' AND group_id NOT IN('.implode(',', db_input($groups)).')';
 
         db_query($sql);
