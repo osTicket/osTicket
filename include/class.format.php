@@ -88,7 +88,12 @@ class Format {
     }
 
     function htmlchars($var) {
-        return is_array($var)?array_map(array('Format','htmlchars'),$var):htmlspecialchars($var,ENT_QUOTES);
+        $flags = ENT_COMPAT | ENT_QUOTES;
+        if (phpversion() >= '5.4.0')
+            $flags |= ENT_HTML401;
+        return is_array($var)
+            ? array_map(array('Format','htmlchars'),$var)
+            : htmlentities($var, $flags, 'UTF-8');
     }
 
     function input($var) {
@@ -114,7 +119,13 @@ class Format {
     }
 
     function striptags($var) {
-        return is_array($var)?array_map(array('Format','striptags'),$var):strip_tags(html_entity_decode($var)); //strip all tags ...no mercy!
+        $flags = ENT_COMPAT;
+        if (phpversion() >= '5.4.0')
+            $flags |= ENT_HTML401;
+        return is_array($var)
+            ? array_map(array('Format','striptags'),$var)
+              //strip all tags ...no mercy!
+            : strip_tags(html_entity_decode($var, $flags, 'UTF-8'));
     }
 
     //make urls clickable. Mainly for display 
