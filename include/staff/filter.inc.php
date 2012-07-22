@@ -1,9 +1,8 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$matches=array('name'=>"Sender's Name",'email'=>"Sender's Email",'subject'=>'Email Subject','body'=>'Email Body/Text','header'=>'Email Header');
-$match_types=array('equal'=>'Equal','not_equal'=>'Not Equal','contains'=>'Contains','dn_contain'=>'Does Not Contain');
-
+$matches=Filter::getSupportedMatches();
+$match_types=Filter::getSupportedMatchTypes();
 
 $info=array();
 $qstr='';
@@ -187,14 +186,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Canned Response:
             </td>
                 <td>
-                <select name="canned_response">
+                <select name="canned_response_id">
                     <option value="">&mdash; None &mdash;</option>
                     <?php
-                    $sql='SELECT canned_id,title FROM '.CANNED_TABLE.' ORDER by title';
+                    $sql='SELECT canned_id,title FROM '.CANNED_TABLE
+                        .' WHERE isenabled ORDER by title';
                     if ($res=db_query($sql)) {
                         while (list($id,$title)=db_fetch_row($res)) {
-                            $selected=($info['canned_response'] &&
-                                    $id==$info['canned_response'])
+                            $selected=($info['canned_response_id'] &&
+                                    $id==$info['canned_response_id'])
                                 ? 'selected="selected"' : '';
                             echo sprintf('<option value="%d" %s>%s</option>',
                                 $id, $selected, $title);
@@ -202,7 +202,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                <em>(Automatically respond with this canned attachment)</em>
+                <em>(Automatically respond with this canned response)</em>
             </td>
         </tr>
         <tr>
