@@ -99,7 +99,7 @@ class Installer extends SetupWizard {
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('PREFIX',$vars['prefix']); //Table prefix
 
-        $schemaFile =INC_DIR.'sql/osticket-v1.7-mysql.sql'; //DB dump.
+        $schemaFile =INC_DIR.'sql/osTicket-mysql.sql'; //DB dump.
         $debug = true; //XXX:Change it to true to show SQL errors.
 
         //Last minute checks.

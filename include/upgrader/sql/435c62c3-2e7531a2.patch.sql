@@ -28,4 +28,4 @@ UPDATE `%TABLE_PREFIX%groups`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `schema_signature`='6007d45b580c6ac0206514dbed0f28a6';
+    SET `schema_signature`='2e7531a201b5b8650dcd43681a832ebd';

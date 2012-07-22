@@ -43,12 +43,17 @@ class UpgraderAjaxAPI extends AjaxController {
             //More pending tasks - doTasks returns the number of pending tasks
             Http::response(200, $upgrader->getNextAction());
             exit;
-        } elseif($ost->isUpgradePending() && $upgrader->isUpgradable()) {
-            $version = $upgrader->getNextVersion();
-            if($upgrader->upgrade()) {
-                //We're simply reporting progress here - call back will report next action'
-                Http::response(200, "Upgraded to $version ... post-upgrade checks!");
-                exit;
+        } elseif($ost->isUpgradePending()) {
+            if($upgrader->isUpgradable()) {
+                $version = $upgrader->getNextVersion();
+                if($upgrader->upgrade()) {
+                    //We're simply reporting progress here - call back will report next action'
+                    Http::response(200, "Upgraded to $version ... post-upgrade checks!");
+                    exit;
+                }
+            } else { 
+                //Abort: Upgrade pending but NOT upgradable - invalid or wrong hash.
+                $upgrader->abort(sprintf('Upgrade Failed: Invalid or wrong hash [%s]',$ost->getDBSignature()));
             }
         } elseif(!$ost->isUpgradePending()) {
             $upgrader->setState('done');
