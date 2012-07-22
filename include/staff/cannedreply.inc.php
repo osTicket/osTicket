@@ -107,7 +107,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
- <?php if ($canned->getFilters()) { ?>
+ <?php if ($canned && $canned->getFilters()) { ?>
     <br/>
     <div id="msg_warning">Canned reply is in use by email filter(s): <?php
     echo implode(', ', $canned->getFilters()); ?></div>
