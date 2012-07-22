@@ -64,7 +64,7 @@ if($_POST){
                     }
                 }elseif($_POST['delete']){
                     foreach($_POST['ids'] as $k=>$v) {
-                        if(($t=Group::lookup($v)) && $t->delete())
+                        if(($g=Group::lookup($v)) && $g->delete())
                             $i++;
                     }
 

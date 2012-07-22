@@ -175,6 +175,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   `dept_name` varchar(32) NOT NULL default '',
   `dept_signature` tinytext NOT NULL,
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
+  `group_membership` tinyint(1) NOT NULL default '0',
   `ticket_auto_response` tinyint(1) NOT NULL default '1',
   `message_auto_response` tinyint(1) NOT NULL default '0',
   `updated` datetime NOT NULL,
@@ -339,7 +340,6 @@ CREATE TABLE `%TABLE_PREFIX%groups` (
   `group_id` int(10) unsigned NOT NULL auto_increment,
   `group_enabled` tinyint(1) unsigned NOT NULL default '1',
   `group_name` varchar(50) NOT NULL default '',
-  `dept_access` varchar(255) NOT NULL default '',
   `can_create_tickets` tinyint(1) unsigned NOT NULL default '1',
   `can_edit_tickets` tinyint(1) unsigned NOT NULL default '1',
   `can_delete_tickets` tinyint(1) unsigned NOT NULL default '0',
@@ -356,10 +356,21 @@ CREATE TABLE `%TABLE_PREFIX%groups` (
   KEY `group_active` (`group_enabled`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%groups` (`group_id`, `group_enabled`, `group_name`, `dept_access`, `can_create_tickets`, `can_edit_tickets`, `can_delete_tickets`, `can_close_tickets`, `can_assign_tickets`, `can_transfer_tickets`, `can_ban_emails`, `can_manage_premade`, `can_manage_faq`, `notes`) VALUES
-    (1, 1, 'Admins', '2,1', 1, 1, 1, 1, 1, 1, 1, 1, 1, 'overlords'),
-    (2, 1, 'Managers', '2,1', 1, 1, 1, 1, 1, 1, 1, 1, 1, ''),
-    (3, 1, 'Staff', '2,1', 1, 1, 0, 1, 1, 1, 0, 0, 0, '');
+INSERT INTO `%TABLE_PREFIX%groups` (`group_id`, `group_enabled`, `group_name`, `can_create_tickets`, `can_edit_tickets`, `can_delete_tickets`, `can_close_tickets`, `can_assign_tickets`, `can_transfer_tickets`, `can_ban_emails`, `can_manage_premade`, `can_manage_faq`, `notes`, `created`, `updated`) VALUES
+    (1, 1, 'Admins', 1, 1, 1, 1, 1, 1, 1, 1, 1, 'overlords', NOW(), NOW()),
+    (2, 1, 'Managers', 1, 1, 1, 1, 1, 1, 1, 1, 1, '', NOW(), NOW()),
+    (3, 1, 'Staff', 1, 1, 0, 1, 1, 1, 0, 0, 0, '', NOW(), NOW());
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
+CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
+  `group_id` int(10) unsigned NOT NULL default '0',
+  `dept_id` int(10) unsigned NOT NULL default '0',
+  UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
+  KEY `dept_id`  (`dept_id`)
+) ENGINE=MyISAM;
+
+INSERT INTO `%TABLE_PREFIX%group_dept_access` (`group_id`, `dept_id`) VALUES
+    (1, 1), (1, 2), (2, 1), (2, 2), (3, 1), (3, 2);
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;
 CREATE TABLE `%TABLE_PREFIX%help_topic` (
@@ -520,8 +531,8 @@ CREATE TABLE `%TABLE_PREFIX%team` (
   KEY `lead_id` (`lead_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%team` (`lead_id`, `isenabled`, `noalerts`, `name`, `notes`)
-    VALUES (0, 1, 0, 'Level I Support', '');
+INSERT INTO `%TABLE_PREFIX%team` (`lead_id`, `isenabled`, `noalerts`, `name`, `notes`, `created`, `updated`)
+    VALUES (0, 1, 0, 'Level I Support', '', NOW(), NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%team_member`;
 CREATE TABLE `%TABLE_PREFIX%team_member` (

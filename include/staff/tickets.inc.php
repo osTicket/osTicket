@@ -63,6 +63,7 @@ $qwhere ='';
 $depts=$thisstaff->getDepts();    
 $qwhere =' WHERE ( '
         .'  ticket.staff_id='.db_input($thisstaff->getId());
+
 if(!$thisstaff->showAssignedOnly())
     $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',',$depts):0).')';
 

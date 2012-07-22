@@ -17,7 +17,7 @@ require_once 'admin.inc.php';
 require_once INCLUDE_DIR.'class.upgrader.php';
 
 //$_SESSION['ost_upgrader']=null;
-$upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, PATCH_DIR);
+$upgrader = new Upgrader($cfg->getSchemaSignature(), TABLE_PREFIX, SQL_DIR);
 $errors=array();
 if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
     switch(strtolower($_POST['s'])) {
@@ -71,7 +71,8 @@ switch(strtolower($upgrader->getState())) {
         elseif(!$ost->isUpgradePending())
             $errors['err']='Nothing to do! System already upgraded to <b>'.$ost->getVersion().'</b> with no pending patches to apply.';
         elseif(!$upgrader->isUpgradable())
-            $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
+            $errors['err']=sprintf('The upgrader does NOT support upgrading from the current patch [%s]!', $cfg->getSchemaSignature());
+
 }
 
 $nav = new AdminNav($thisstaff);

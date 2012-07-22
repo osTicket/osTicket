@@ -275,17 +275,21 @@ class Upgrader extends SetupWizard {
                                  'desc' => 'Transitioning to db-backed sessions');
                 break;
             case '98ae1ed2-e342f869': //v1.6 RC1-4 -> v1.6 RC5
-                $task[] = array('func' => 'migrateAPIKeys',
-                                'desc' => 'Migrating API keys to a new table');
+                $tasks[] = array('func' => 'migrateAPIKeys',
+                                 'desc' => 'Migrating API keys to a new table');
+                break;
+            case '435c62c3-2e7531a2':
+                $tasks[] = array('func' => 'migrateGroupDeptAccess',
+                                 'desc' => 'Migrating group\'s department access to a new table');
                 break;
         }
 
-        //Check IF SQL cleanup is exists. 
+        //Check IF SQL cleanup exists. 
         $file=$this->getSQLDir().$phash.'.cleanup.sql';
         if(file_exists($file)) 
-            $tasks[] = array('func' => 'cleanup', 'desc' => 'Post-upgrade cleanup!',
-                        'phash' => $phash);
-
+            $tasks[] = array('func' => 'cleanup',
+                             'desc' => 'Post-upgrade cleanup!',
+                             'phash' => $phash);
 
         return $tasks;
     }
@@ -336,7 +340,7 @@ class Upgrader extends SetupWizard {
 
         list($whitelist, $key) = db_fetch_row($res);
 
-        $ips=array_filter(explode(',', ereg_replace(' ', '', $whitelist)));
+        $ips=array_filter(array_map('trim', explode(',', $whitelist)));
         foreach($ips as $ip) {
             $sql='INSERT INTO '.API_KEY_TABLE.' SET created=NOW(), updated=NOW(), isactive=1 '
                 .',ipaddr='.db_input($ip)
@@ -345,6 +349,27 @@ class Upgrader extends SetupWizard {
         }
 
         return 0;
+    }
+
+    function migrateGroupDeptAccess($taskId) {
+
+        $res = db_query('SELECT group_id, dept_access FROM '.GROUP_TABLE);
+        if(!$res || !db_num_rows($res))
+            return 0;  //No groups??
+
+        while(list($groupId, $access) = db_fetch_row($res)) {
+            $depts=array_filter(array_map('trim', explode(',', $access)));
+            foreach($depts as $deptId) {
+                $sql='INSERT INTO '.GROUP_DEPT_TABLE
+                    .' SET dept_id='.db_input($deptId).', group_id='.db_input($groupId);
+                db_query($sql);
+            }
+        }
+
+        return 0;
+
+
+
     }
 }
 ?>
