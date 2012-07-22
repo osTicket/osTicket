@@ -71,6 +71,10 @@ class Filter {
         return $this->ht['execorder'];
     }
 
+    function getEmailId() {
+        return $this->ht['email_id'];
+    }
+
     function isActive(){
         return ($this->ht['isactive']);
     }
@@ -231,6 +235,10 @@ class Filter {
             "dn_contain"=> array("strpos", false)
         );
         $match = false;
+        # Respect configured filter email-id
+        if ($email['emailId'] && $this->getEmailId()
+                && $this->getEmailId() != $email['emailId'])
+            return false;
         foreach ($this->getRules() as $rule) {
             list($func, $pos, $neg) = $how[$rule['h']];
             # TODO: convert $what and $rule['v'] to mb_strtoupper and do
@@ -603,7 +611,7 @@ class EmailFilter {
         } else {
             $this->build(
                 $this->quickList($email['email'], $email['name'],
-                    $email['subject']));
+                    $email['subject'], $email['emailId']));
         }
     }
     
