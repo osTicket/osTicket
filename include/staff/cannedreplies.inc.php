@@ -83,7 +83,8 @@ else
                 <td width=7px>
                   <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
-                                onClick="highLight(this.value,this.checked);"> </td>
+                                onClick="highLight(this.value,this.checked);"/>
+                </td>
                 <td>
                     <a href="canned.php?id=<?php echo $row['canned_id']; ?>"><?php echo Format::truncate($row['title'],200); echo "&nbsp;$files"; ?></a>&nbsp;
                 </td>

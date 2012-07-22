@@ -107,6 +107,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
+ <?php if ($canned && $canned->getFilters()) { ?>
+    <br/>
+    <div id="msg_warning">Canned reply is in use by email filter(s): <?php
+    echo implode(', ', $canned->getFilters()); ?></div>
+ <?php } ?>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">

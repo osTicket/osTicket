@@ -2018,7 +2018,8 @@ class Ticket{
         $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
 
         if ($vars['cannedResponseId']
-                && ($canned = Canned::lookup($vars['cannedResponseId']))) {
+                && ($canned = Canned::lookup($vars['cannedResponseId']))
+                && $canned->isEnabled()) {
             $files = array();
             foreach ($canned->getAttachments() as $file)
                 $files[] = $file['id'];

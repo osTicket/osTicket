@@ -186,14 +186,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Canned Response:
             </td>
                 <td>
-                <select name="canned_response">
+                <select name="canned_response_id">
                     <option value="">&mdash; None &mdash;</option>
                     <?php
-                    $sql='SELECT canned_id,title FROM '.CANNED_TABLE.' ORDER by title';
+                    $sql='SELECT canned_id,title FROM '.CANNED_TABLE
+                        .' WHERE isenabled ORDER by title';
                     if ($res=db_query($sql)) {
                         while (list($id,$title)=db_fetch_row($res)) {
-                            $selected=($info['canned_response'] &&
-                                    $id==$info['canned_response'])
+                            $selected=($info['canned_response_id'] &&
+                                    $id==$info['canned_response_id'])
                                 ? 'selected="selected"' : '';
                             echo sprintf('<option value="%d" %s>%s</option>',
                                 $id, $selected, $title);
@@ -201,7 +202,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                <em>(Automatically respond with this canned attachment)</em>
+                <em>(Automatically respond with this canned response)</em>
             </td>
         </tr>
         <tr>
