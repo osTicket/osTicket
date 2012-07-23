@@ -334,9 +334,9 @@ if(!$cfg->showNotesInline()) { ?>
                     <label for="attachment">Attachments:</label>
                 </td>
                 <td width="765" id="reply_form_attachments" class="attachments">
-                    <div id="canned_attachments">
+                    <div class="canned_attachments">
                     </div>
-                    <div id="uploads">
+                    <div class="uploads">
                     </div>
                     <div class="file_input">
                         <input type="file" class="multifile" name="attachments[]" size="30" value="" />
