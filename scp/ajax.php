@@ -43,7 +43,7 @@ $dispatcher = patterns('',
         url_get('^ticket_variables', 'ticket_variables')
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
-        url_get('^ui', 'scp_ui')
+        url_get('^scp', 'scp')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
