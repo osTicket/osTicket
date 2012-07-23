@@ -133,7 +133,9 @@ class Team {
         if($vars['remove']) {
             $sql='DELETE FROM '.TEAM_MEMBER_TABLE
                 .' WHERE team_id='.db_input($this->getId())
-                .' AND staff_id IN('.implode(',',$_POST['remove']).')';
+                .' AND staff_id IN ('
+                    .implode(',', array_map('db_input', $_POST['remove']))
+                .')';
             db_query($sql);
         }
 

@@ -19,6 +19,8 @@
 **********************************************************************/
 
 require_once(INCLUDE_DIR.'class.config.php'); //Config helper
+require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
+
 define('LOG_WARN',LOG_WARNING);
 
 class osTicket {
@@ -32,17 +34,19 @@ class osTicket {
 
     var $config;
     var $session;
+    var $csrf;
 
     function osTicket($cfgId) {
+        
         $this->config = Config::lookup($cfgId);
 
         //DB based session storage was added starting with v1.7
-        // which does NOT have DB Version
         if($this->config && !$this->getConfig()->getDBVersion())
             $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
         else
             session_start();
 
+        $this->csrf = new CSRF('__CSRFToken__');
     }
 
     function isSystemOnline() {
@@ -72,6 +76,38 @@ class osTicket {
 
     function getVersion() {
         return THIS_VERSION;
+    }
+
+    function getCSRF(){
+        return $this->csrf;
+    }
+
+    function getCSRFToken() {
+        return $this->getCSRF()->getToken();
+    }
+
+    function getCSRFFormInput() {
+        return $this->getCSRF()->getFormInput();
+    }
+
+    function validateCSRFToken($token) {
+        return ($token && $this->getCSRF()->validateToken($token));
+    }
+
+    function checkCSRFToken($name='') {
+
+        $name = $name?$name:$this->getCSRF()->getTokenName();
+        if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
+            return true;
+       
+        if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
+            return true;
+
+        $msg=sprintf('Invalid CSRF token [%s] on %s',
+                ($_POST[$name].''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
+        $this->logWarning('Invalid CSRF Token '.$name, $msg);
+
+        return false;
     }
 
     function addExtraHeader($header) {

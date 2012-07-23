@@ -180,7 +180,7 @@ class TicketsAjaxAPI extends AjaxController {
 
     function acquireLock($tid) {
         global $cfg,$thisstaff;
-        
+
         if(!$tid or !is_numeric($tid) or !$thisstaff or !$cfg) 
             return 0;
        

@@ -17,6 +17,7 @@ require_once('../main.inc.php');
 if(!defined('INCLUDE_DIR')) die('Fatal Error. Kwaheri!');
 
 require_once(INCLUDE_DIR.'class.staff.php');
+require_once(INCLUDE_DIR.'class.csrf.php');
 
 $msg=$_SESSION['_staff']['auth']['msg'];
 $msg=$msg?$msg:'Authentication Required';

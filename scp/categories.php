@@ -52,7 +52,8 @@ if($_POST){
             } else {
                 $count=count($_POST['ids']);
                 if($_POST['public']) {
-                    $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=1 WHERE category_id IN ('.implode(',',$_POST['ids']).')';
+                    $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=1 WHERE category_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected categories made PUBLIC';
@@ -62,7 +63,8 @@ if($_POST){
                         $errors['err']='Unable to enable selected categories public.';
                     }
                 } elseif($_POST['private']) {
-                    $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=0  WHERE category_id IN ('.implode(',',$_POST['ids']).')';
+                    $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=0 WHERE category_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected categories made PRIVATE';

@@ -46,6 +46,7 @@ else
     <b><a href="groups.php?a=add" class="Icon newgroup">Add New Group</a></b></div>
 <div class="clear"></div>
 <form action="groups.php" method="POST" name="groups" onSubmit="return checkbox_checker(this,1,0);">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>

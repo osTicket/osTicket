@@ -45,7 +45,8 @@ if($_POST){
             }else{
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
-                    $sql='UPDATE '.STAFF_TABLE.' SET isactive=1 WHERE staff_id IN ('.implode(',',$_POST['ids']).')';
+                    $sql='UPDATE '.STAFF_TABLE.' SET isactive=1 WHERE staff_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected staff activated';

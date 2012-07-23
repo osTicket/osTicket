@@ -13,6 +13,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 <h1>Open a New Ticket</h1>
 <p>Please fill in the form below to open a new ticket.</p>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
+    <?php csrf_token(); ?>
     <input type="hidden" name="a" value="open">
     <div>
         <label for="name" class="required">Full Name:</label>

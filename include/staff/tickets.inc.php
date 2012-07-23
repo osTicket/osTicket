@@ -270,6 +270,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
     <form action="tickets.php" method="get">
+    <?php csrf_token(); ?>
     <input type="hidden" name="a" value="search">
     <table>
         <tr>
@@ -285,6 +286,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 <div class="clear"></div>
 <div style="margin-bottom:20px">
 <form action="tickets.php" method="POST" name='tickets' onSubmit="return checkbox_checker(this,1,0);">
+<?php csrf_token(); ?>
  <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="status" value="<?php echo $status; ?>" >

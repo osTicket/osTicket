@@ -1,4 +1,5 @@
 <form action="settings.php?t=tickets" method="post" id="save">
+<?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>

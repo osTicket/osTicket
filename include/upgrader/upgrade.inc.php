@@ -18,6 +18,7 @@ $action=$upgrader->getNextAction();
             </ul>
             <div id="bar">
                 <form method="post" action="upgrade.php" id="upgrade">
+                    <?php csrf_token(); ?>
                     <input type="hidden" name="s" value="upgrade">
                     <input type="hidden" name="sh" value="<?php echo $upgrader->getSchemaSignature(); ?>">
                     <input class="btn"  type="submit" name="submit" value="Do It Now!">

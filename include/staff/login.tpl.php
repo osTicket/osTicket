@@ -15,6 +15,7 @@
     <h1 id="logo"><a href="index.php">osTicket Staff Control Panel</a></h1>
     <h3><?php echo Format::htmlchars($msg); ?></h3>
     <form action="login.php" method="post">
+        <?php csrf_token(); ?>
         <input type="hidden" name="d"o value="scplogin">
         <fieldset>
             <input type="text" name="username" id="name" value="" placeholder="username" autocorrect="off" autocapitalize="off">

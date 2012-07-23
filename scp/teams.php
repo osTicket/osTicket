@@ -43,7 +43,8 @@ if($_POST){
             }else{
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
-                    $sql='UPDATE '.TEAM_TABLE.' SET isenabled=1 WHERE team_id IN ('.implode(',',$_POST['ids']).')';
+                    $sql='UPDATE '.TEAM_TABLE.' SET isenabled=1 WHERE team_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected teams activated';
@@ -53,7 +54,8 @@ if($_POST){
                         $errors['err']='Unable to activate selected teams';
                     }
                 }elseif($_POST['disable']){
-                    $sql='UPDATE '.TEAM_TABLE.' SET isenabled=0 WHERE team_id IN ('.implode(',',$_POST['ids']).')';
+                    $sql='UPDATE '.TEAM_TABLE.' SET isenabled=0 WHERE team_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected teams disabled';

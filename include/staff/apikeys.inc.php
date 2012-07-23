@@ -46,6 +46,7 @@ else
  <b><a href="apikeys.php?a=add" class="Icon newapi">Add New API Key</a></b></div>
 <div class="clear"></div>
 <form action="apikeys.php" method="POST" name="keys" onSubmit="return checkbox_checker(this,1,0);">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
