@@ -295,8 +295,13 @@ class Config {
         return $this->config['max_file_size'];
     }
 
-    function getMaxFileUploads() {
+    function getStaffMaxFileUploads() {
         return $this->config['max_staff_file_uploads'];
+    }
+
+    function getClientMaxFileUploads() {
+        //TODO: change max_user_file_uploads to max_client_file_uploads
+        return $this->config['max_user_file_uploads'];
     }
 
     function getLogLevel() {
@@ -509,6 +514,9 @@ class Config {
     
 
     /* Attachments */
+    function getAllowedFileTypes() {
+        return trim($this->config['allowed_filetypes']);
+    }
 
     function emailAttachments() {
         return ($this->config['email_attachments']);
@@ -736,10 +744,10 @@ class Config {
                 $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
 
             if(!$vars['max_user_file_uploads'] || $vars['max_user_file_uploads']>$maxfileuploads)
-                $errors['max_user_file_uploads']='Invalid selection';
+                $errors['max_user_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
 
             if(!$vars['max_staff_file_uploads'] || $vars['max_staff_file_uploads']>$maxfileuploads)
-                $errors['max_staff_file_uploads']='Invalid selection';
+                $errors['max_staff_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
         }
 
         if($errors) return false;
