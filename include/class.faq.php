@@ -19,11 +19,11 @@ class FAQ {
 
     var $id;
     var $ht;
+
     var $category;
+    var $attachments;
 
     function FAQ($id) {
-
-
         $this->id=0;
         $this->ht = array();
         $this->load($id);
@@ -44,6 +44,7 @@ class FAQ {
         $this->ht = db_fetch_array($res);
         $this->ht['id'] = $this->id = $this->ht['faq_id'];
         $this->category = null;
+        $this->attachments = array();
 
         return true;
     }
@@ -158,6 +159,20 @@ class FAQ {
             return false;
 
         $this->updateTopics($vars['topics']);
+                    
+        //Delete removed attachments.
+        $keepers = $vars['files']?$vars['files']:array();
+        if(($attachments = $this->getAttachments())) {
+            foreach($attachments as $k=>$file) {
+                if($file['id'] && !in_array($file['id'], $keepers))
+                    $this->deleteAttachment($file['id']);
+            }
+        }
+
+        //Upload new attachments IF any.
+        if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+            $this->uploadAttachments($files);
+
         $this->reload();
 
         return true;
@@ -261,10 +276,19 @@ class FAQ {
     /* ------------------> Static methods <--------------------- */
    
     function add($vars, &$errors) {
-        if(($id=self::create($vars, $errors)) && ($faq=self::lookup($id)))
-            $faq->updateTopics($vars['topics']);
+        if(!($id=self::create($vars, $errors)))
+            return false;
 
-        return$faq;
+        if(($faq=self::lookup($id))) {
+            $faq->updateTopics($vars['topics']);
+               
+            if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+                $faq->uploadAttachments($files);
+
+            $faq->reload();
+        }
+            
+        return $faq;
     }
 
     function create($vars, &$errors) {   

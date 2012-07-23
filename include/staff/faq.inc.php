@@ -23,6 +23,7 @@ if($faq){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <form action="faq.php?<?php echo $qstr; ?>" method="post" id="save" enctype="multipart/form-data">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
@@ -90,7 +91,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <div><b>Attachments</b> (optional) <font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
                 <?php
                 if($faq && ($files=$faq->getAttachments())) {
-                    echo '<div id="faq_attachments"><span class="faded">Uncheck to delete the attachment on submit</span><br>';
+                    echo '<div class="faq_attachments"><span class="faded">Uncheck to delete the attachment on submit</span><br>';
                     foreach($files as $file) {
                         $hash=$file['hash'].md5($file['id'].session_id().$file['hash']);
                         echo sprintf('<label><input type="checkbox" name="files[]" id="f%d" value="%d" checked="checked">
@@ -99,14 +100,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     echo '</div><br>';
                 }
-                //TODO: add a setting on admin panel
-                if(count($files)<5) {
                 ?>
-                <div>
-                    <input type="file" name="attachments[]" value=""/>
+                <div class="faded">Select files to upload.</div>
+                <div class="uploads"></div>
+                <div class="file_input">
+                    <input type="file" class="multifile" name="attachments[]" size="30" value="" />
                 </div>
-                <?}?>
-                <div class="faded">You can upload up to 5 attachments.</div>
             </td>
         </tr>
         <?php

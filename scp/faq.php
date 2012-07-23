@@ -40,19 +40,7 @@ if($_POST):
             elseif($faq->update($_POST,$errors)) {
                 $msg='FAQ updated successfully';
                 $_REQUEST['a']=null; //Go back to view
-                //Delete removed attachments.
-                $keepers = $_POST['files']?$_POST['files']:array();
-                if(($attachments = $faq->getAttachments())) {
-                    foreach($attachments as $k=>$file) {
-                        if($file['id'] && !in_array($file['id'], $keepers)) {
-                            $faq->deleteAttachment($file['id']);
-                        }
-                    }
-                }
-                //Upload NEW attachments IF ANY - TODO: validate attachment types??
-                if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
-                    $faq->uploadAttachments($files);
-
+                $faq->reload();
             } elseif(!$errors['err'])
                 $errors['err'] = 'Unable to update FAQ. Try again!';     
             break;
