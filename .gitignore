@@ -2,3 +2,4 @@
 php53.cgi
 include/ost-config.php
 *.sw[a-z]
+.DS_Store
