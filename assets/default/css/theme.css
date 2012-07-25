@@ -106,9 +106,11 @@ table {
   border-spacing: 0;
 }
 
-td {
+th, td {
   vertical-align: top;
 }
+
+th { text-align: left; font-weight: normal; }
 
 h1, h2, h3, h4, h5, h6, form, fieldset {
   margin: 0;
@@ -516,17 +518,23 @@ body {
   display: block;
   float: left;
 }
+
+#ticketForm div input[type=file] {
+  border: 0;
+}
+
 #ticketForm div select, #clientLogin div select {
   display: block;
   float: left;
 }
-#ticketForm div textarea, #clientLogin div textarea {
+#ticketForm td textarea, #clientLogin div textarea {
   width: 600px;
 }
-#ticketForm div em, #clientLogin div em {
+
+#ticketForm td em, #clientLogin div em {
   color: #777;
 }
-#ticketForm div .captcha, #clientLogin div .captcha {
+#ticketForm td .captcha, #clientLogin div .captcha {
   width: 88px;
   height: 31px;
   background: #000;
@@ -534,20 +542,33 @@ body {
   float: left;
   margin-right: 20px;
 }
-#ticketForm div label.inline, #clientLogin div label.inline {
+#ticketForm td label.inline, #clientLogin div label.inline {
   width: auto;
   padding: 0 10px;
 }
-#ticketForm div label.required, #clientLogin div label.required {
-  font-weight: bold;
+
+#ticketTable table tr th { 
+  width: 160px;
+  font-weight: normal;
+  text-align: left;
 }
-#ticketForm div.captchaRow, #clientLogin div.captchaRow {
+
+#ticketForm table th.required, #ticketForm table td.required, #clientLogin div label.required {
+  font-weight: bold;
+  text-align: left;
+}
+
+
+
+#ticketForm tr.captchaRow, #clientLogin div.captchaRow {
   line-height: 31px;
 }
-#ticketForm div.captchaRow input, #clientLogin div.captchaRow input {
+
+.captchaRow td input, #clientLogin div.captchaRow input {
   position: relative;
   top: 6px;
 }
+
 #ticketForm div.error input, #clientLogin div.error input {
   border: 1px solid #a00;
 }
@@ -796,6 +817,14 @@ a.refresh {
     cursor: pointer;
     font-family:helvetica, arial, sans-serif;
 }
+
+
+.uploads {
+    display:inline-block;
+    padding-right:20px;
+}
+
+.uploads label { padding:3px; padding-right:10px; width: auto !important }
 
 .button:hover                          { background-color: #111; color: #fff; }
 .button:active                         { top: 1px; box-shadow:none; -moz-box-shadow:none; -webkit-box-shadow:none; }

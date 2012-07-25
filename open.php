@@ -32,6 +32,14 @@ if($_POST):
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($_POST,$errors,SOURCE))){
         $msg='Support ticket request created';
+        //Upload attachments...         
+        if($cfg->allowOnlineAttachments()
+                && $_FILES['attachments']
+                && ($files=Format::files($_FILES['attachments']))) {
+            $ost->validateFileUploads($files); //Validator sets errors - if any.
+            $ticket->uploadAttachments($files, $ticket->getLastMsgId(), 'M');
+        }
+
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             if(!$cfg->showRelatedTickets())

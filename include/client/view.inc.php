@@ -122,7 +122,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                 <div class="uploads">
                 </div>
                 <div class="file_input">
-                    <input type="file" name="attachments[]" size="30" value="" />
+                    <input class="multifile" type="file" name="attachments[]" size="30" value="" />
                 </div>
             </td>
         </tr>
