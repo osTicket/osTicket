@@ -206,10 +206,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Department Access</strong>: Check all groups allowed to access department.</em>
+                <em><strong>Department Access</strong>: Check all groups allowed to access this department.</em>
             </th>
         </tr>
-        <tr><td colspan=2><em>Primary department members and manager will always have access regarless of group selection or assignment.</em></td></tr>
+        <tr><td colspan=2><em>Department manager and primary members will always have access independent of group selection or assignment.</em></td></tr>
         <?php
          $sql='SELECT group_id, group_name, count(staff.staff_id) as members '
              .' FROM '.GROUP_TABLE.' grp '
