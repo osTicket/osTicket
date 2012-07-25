@@ -538,22 +538,11 @@ class Config {
         return ($this->allowAttachments() && $this->config['allow_email_attachments']);
     }
 
+    /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
     function getUploadDir() {
         return $this->config['upload_dir'];
     }
     
-    //simply checking if destination dir is usable..nothing to do with permission to upload!
-    function canUploadFiles() {   
-        $dir=$this->config['upload_dir'];
-        return ($dir && is_writable($dir))?TRUE:FALSE;
-    }
-
-    function canUploadFileType($filename) {       
-        $ext = strtolower(preg_replace("/.*\.(.{3,4})$/", "$1", $filename));
-        $allowed=$this->config['allowed_filetypes']?array_map('trim',explode(',',strtolower($this->config['allowed_filetypes']))):null;
-        return ($ext && is_array($allowed) && (in_array(".$ext",$allowed) || in_array(".*",$allowed)))?TRUE:FALSE;
-    }
-
     function updateSettings($vars,&$errors) {
 
         if(!$vars || $errors)
