@@ -21,7 +21,7 @@ require_once(INCLUDE_DIR.'class.mailparse.php');
 require_once(INCLUDE_DIR.'class.email.php');
 
 //Make sure piping is enabled!
-if(!$cfg->enableEmailPiping())
+if(!$cfg->isEmailPipingEnabled())
     api_exit(EX_UNAVAILABLE,'Email piping not enabled - check MTA settings.');
 //Get the input
 $data=isset($_SERVER['HTTP_HOST'])?file_get_contents('php://input'):file_get_contents('php://stdin');

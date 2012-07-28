@@ -22,7 +22,7 @@ if($_POST):
     if($thisclient) {
         $_POST['name']=$thisclient->getName();
         $_POST['email']=$thisclient->getEmail();
-    } elseif($cfg->enableCaptcha()) {
+    } elseif($cfg->isCaptchaEnabled()) {
         if(!$_POST['captcha'])
             $errors['captcha']='Enter text shown on the image';
         elseif(strcmp($_SESSION['captcha'],md5($_POST['captcha'])))

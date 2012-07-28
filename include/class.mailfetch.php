@@ -389,7 +389,7 @@ class MailFetcher {
         $var['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
         $var['message']=Format::stripEmptyLines($this->getBody($mid));
         $var['header']=$this->getHeader($mid);
-        $var['emailId']=$emailid?$emailid:$ost->getConfig()->getDefaultEmailId(); //ok to default?
+        $var['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
         $var['name']=$var['name']?$var['name']:$var['email']; //No name? use email
         $var['mid']=$mailinfo['mid'];
 
@@ -403,9 +403,9 @@ class MailFetcher {
         $newticket=true;
         //Check the subject line for possible ID.
         if($var['subject'] && preg_match ("[[#][0-9]{1,10}]", $var['subject'], $regs)) {
-            $extid=trim(preg_replace("/[^0-9]/", "", $regs[0]));
+            $tid=trim(preg_replace("/[^0-9]/", "", $regs[0]));
             //Allow mismatched emails?? For now NO.
-            if(!($ticket=Ticket::lookupByExtId($extId)) || strcasecmp($ticket->getEmail(), $var['email']))
+            if(!($ticket=Ticket::lookupByExtId($tid)) || strcasecmp($ticket->getEmail(), $var['email']))
                 $ticket=null;
         }
         
@@ -496,7 +496,7 @@ class MailFetcher {
     function run() {
         global $ost;
       
-        if(!$ost->getConfig()->canFetchMail())
+        if(!$ost->getConfig()->isEmailPollingEnabled())
             return;
 
         //We require imap ext to fetch emails via IMAP/POP3

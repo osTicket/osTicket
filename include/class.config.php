@@ -320,23 +320,23 @@ class Config {
         return ($this->config['clickable_urls']);
     }
         
-    function canFetchMail() {
-        return ($this->config['enable_mail_polling']);
-    }
-
     function enableStaffIPBinding() {
         return ($this->config['staff_ip_binding']);
     }
 
-    function enableCaptcha() {
+    function isCaptchaEnabled() {
         return (extension_loaded('gd') && function_exists('gd_info') && $this->config['enable_captcha']);
     }
 
-    function enableAutoCron() {
+    function isAutoCronEnabled() {
         return ($this->config['enable_auto_cron']);
     }
+
+    function isEmailPollingEnabled() {
+        return ($this->config['enable_mail_polling']);
+    }
         
-    function enableEmailPiping() {
+    function isEmailPipingEnabled() {
         return ($this->config['enable_email_piping']);
     }
 

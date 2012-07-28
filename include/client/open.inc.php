@@ -122,7 +122,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
     }
     ?>
     <?php
-    if($cfg && $cfg->enableCaptcha() && (!$thisclient || !$thisclient->isValid())) {
+    if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
         if($_POST && $errors && !$errors['captcha'])
             $errors['captcha']='Please re-enter the text again';
         ?>
