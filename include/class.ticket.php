@@ -1296,7 +1296,16 @@ class Ticket{
         global $cfg;
        
         if(!$this->getId()) return 0;
-        
+
+
+            
+        //Strip quoted reply...on emailed replies
+        if(!strcasecmp($source, 'Email') 
+                && $cfg->stripQuotedReply() 
+                && ($tag=$cfg->getReplySeparator()) && strpos($msg, $tag))
+            list($msg)=split($tag, $msg);
+
+
         # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
 
         $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW()'
@@ -1316,8 +1325,7 @@ class Ticket{
                 .' SET message_id='.db_input($msgid)
                 .', email_mid='.db_input($emsgid)
                 .', headers='.db_input($headers);
-
-            if (!db_query($sql)) return 0;
+            db_query($sql);
         }
 
         if($newticket) return $msgid; //Our work is done...
