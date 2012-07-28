@@ -1494,7 +1494,7 @@ class Ticket{
     function postNote($title,$note,$alert=true,$poster='') {        
         global $thisstaff,$cfg;
 		
-		$poster=($poster || !$thisstaff)?$poster:$thisstaff->getName();
+        $poster=($poster || !$thisstaff)?$poster:$thisstaff->getName();
 		
         $sql= 'INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '.
                 ',thread_type="N"'.

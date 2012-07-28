@@ -10,7 +10,7 @@ class TicketController extends ApiController {
     # so that all supported input formats should be supported
     function getRequestStructure($format) {
         $supported = array(
-            "alert", "autorespond", "source",
+            "alert", "autorespond", "source", "topicId",
             "name", "email", "subject", "phone", "phone_ext",
             "attachments" => array("*" => 
                 array("name", "type", "data", "encoding")
@@ -33,8 +33,10 @@ class TicketController extends ApiController {
         $autorespond = $data['autorespond'] ? $data['autorespond'] : true;
         $source = $data['source'] ? $data['source'] : 'API';
 
-        # TODO: Handle attachment encoding (base64)
-        foreach ($data["attachments"] as $filename=>&$info) {
+        $attachments = $data['attachments'] ? $data['attachments'] : array();
+
+		# TODO: Handle attachment encoding (base64)
+        foreach ($attachments as $filename=>&$info) {
             if ($info["encoding"] == "base64") {
                 # XXX: May fail on large inputs. See
                 #      http://us.php.net/manual/en/function.base64-decode.php#105512
@@ -60,7 +62,7 @@ class TicketController extends ApiController {
         }
 
         # Save attachment(s)
-        foreach ($data["attachments"] as &$info)
+        foreach ($attachments as &$info)
             $ticket->saveAttachment($info, $ticket->getLastMsgId(), "M");
 
         # All done. Return HTTP/201 --> Created
