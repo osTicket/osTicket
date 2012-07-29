@@ -117,7 +117,7 @@ if(!$ticket){ //New tickets...
 }
 //Ticket created...save attachments if enabled.
 if($cfg->allowEmailAttachments() && ($attachments=$parser->getAttachments())) {
-    foreach($attachments as $k=>$attachment) {
+    foreach($attachments as $attachment) {
         if($attachment['filename'] && $ost->isFileTypeAllowed($attachment['filename']))
             $ticket->saveAttachment(array('name' => $attachment['filename'], 'data' => $attachment['body']), $msgid, 'M');
     }

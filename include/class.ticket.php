@@ -1408,7 +1408,7 @@ class Ticket{
 
         //Canned attachments...
         if($vars['cannedattachments'] && is_array($vars['cannedattachments'])) {
-            foreach($vars['cannedattachments'] as $k =>$fileId)
+            foreach($vars['cannedattachments'] as $fileId)
                 if($fileId && $this->saveAttachment($fileId, $respId, 'R'))
                     $attachments[] = $fileId;
         }
