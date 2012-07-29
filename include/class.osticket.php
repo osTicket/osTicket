@@ -138,8 +138,8 @@ class osTicket {
             if(!$this->isFileTypeAllowed($file))
                 $file['error']='Invalid file type for '.$file['name'];
             elseif($file['size']>$this->getConfig()->getMaxFileSize())
-                $file['error']=sprintf('File (%s) is too big. Maximum of %s bytes allowed',
-                        $file['name'], $this->getConfig()->getMaxFileSize());
+                $file['error']=sprintf('File (%s) is too big. Maximum of %s allowed',
+                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
             elseif(!$file['error'] && !is_uploaded_file($file['tmp_name']))
                 $file['error']='Invalid or bad upload POST';
 

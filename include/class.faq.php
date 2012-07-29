@@ -135,7 +135,7 @@ class FAQ {
 
         if($ids) {
             $topics = $this->getHelpTopicsIds();
-            foreach($ids as $k=>$id) {
+            foreach($ids as $id) {
                 if($topics && in_array($id,$topics)) continue;
                 $sql='INSERT IGNORE INTO '.FAQ_TOPIC_TABLE
                     .' SET faq_id='.db_input($this->getId())
@@ -163,7 +163,7 @@ class FAQ {
         //Delete removed attachments.
         $keepers = $vars['files']?$vars['files']:array();
         if(($attachments = $this->getAttachments())) {
-            foreach($attachments as $k=>$file) {
+            foreach($attachments as $file) {
                 if($file['id'] && !in_array($file['id'], $keepers))
                     $this->deleteAttachment($file['id']);
             }
