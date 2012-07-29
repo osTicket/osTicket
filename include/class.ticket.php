@@ -1404,7 +1404,7 @@ class Ticket{
         $attachments = array();
         //Web based upload.. note that we're not "validating" attachments on response.
         if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
-            $attachments=array_merge($attachments, $this->uploadAttachments($files, $respId,'R'));
+            $attachments=$this->uploadAttachments($files, $respId, 'R');
 
         //Canned attachments...
         if($vars['cannedattachments'] && is_array($vars['cannedattachments'])) {
