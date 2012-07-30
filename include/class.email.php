@@ -132,7 +132,7 @@ class Email {
         $info = array (
                 'host' => $this->ht['smtp_host'],
                 'port' => $this->ht['smtp_port'],
-                'auth' => $this->ht['smtp_auth'],
+                'auth' => (bool) $this->ht['smtp_auth'],
                 'username' => $this->ht['userid'],
                 'password' => Mcrypt::decrypt($this->ht['userpass'], SECRET_SALT)
                 );
@@ -141,86 +141,14 @@ class Email {
     }
 
     function send($to, $subject, $message, $attachments=null, $options=null) {
-        global $cfg, $ost;
 
-        //Get SMTP info IF enabled!
-        $smtp=array();
-        if($this->isSMTPEnabled() && ($info=$this->getSMTPInfo())) { //is SMTP enabled for the current email?
-            $smtp=$info;
-        }elseif($cfg && ($email=$cfg->getDefaultSMTPEmail()) && $email->isSMTPEnabled()) { //What about global SMTP setting?
-            if($email->allowSpoofing() && ($info=$email->getSMTPInfo())) //If spoofing is allowed..then continue.
-                $smtp=$info;
-            elseif($email->getId()!=$this->getId()) //No spoofing allowed. Send it via the default SMTP email.
-                return $email->send($to,$subject,$message,$attachments,$options);
-        }
 
-        //Get the goodies
-        require_once ('Mail.php'); // PEAR Mail package
-        require_once ('Mail/mime.php'); // PEAR Mail_Mime packge
+        $mailer = new Mailer($this);
+        if($attachments)
+            $mailer->addAttachments($attachments);
 
-        //do some cleanup
-        $eol="\n";
-        $to=preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
-        $subject=stripslashes(preg_replace("/(\r\n|\r|\n)/s",'', trim($subject)));
-        $body = stripslashes(preg_replace("/(\r\n|\r)/s", "\n", trim($message)));
-        $fromname=$this->getName();
-        $from =sprintf('"%s"<%s>',($fromname?$fromname:$this->getEmail()),$this->getEmail());
-        $headers = array ('From' => $from,
-                          'To' => $to,
-                          'Subject' => $subject,
-                          'Date'=>date('D, d M Y H:i:s O'),
-                          'Message-ID' =>'<'.Misc::randCode(6).''.time().'-'.$this->getEmail().'>',
-                          'X-Mailer' =>'osTicket v1.7',
-                          'Content-Type' => 'text/html; charset="UTF-8"'
-                          );
-
-        $mime = new Mail_mime();
-        $mime->setTXTBody($body);
-        //XXX: Attachments
-        if($attachments){
-            foreach($attachments as $attachment) {
-                if($attachment['file_id'] && ($file=AttachmentFile::lookup($attachment['file_id'])))
-                    $mime->addAttachment($file->getData(),$file->getType(), $file->getName(),false);
-                elseif($attachment['file'] &&  file_exists($attachment['file']) && is_readable($attachment['file']))
-                    $mime->addAttachment($attachment['file'],$attachment['type'],$attachment['name']);
-            }
-        }
-        
-        $options=array('head_encoding' => 'quoted-printable',
-                       'text_encoding' => 'quoted-printable',
-                       'html_encoding' => 'base64',
-                       'html_charset'  => 'utf-8',
-                       'text_charset'  => 'utf-8');
-        //encode the body
-        $body = $mime->get($options);
-        //encode the headers.
-        $headers = $mime->headers($headers);
-        if($smtp) { //Send via SMTP
-            $mail = mail::factory('smtp',
-                    array ('host' => $smtp['host'],
-                           'port' => $smtp['port'],
-                           'auth' => $smtp['auth']?true:false,
-                           'username' => $smtp['username'],
-                           'password' => $smtp['password'],
-                           'timeout'  =>20,
-                           'debug' => false,
-                           ));
-            $result = $mail->send($to, $headers, $body);
-            if(!PEAR::isError($result))
-                return true;
-
-            //SMTP failed - log error.
-            $alert=sprintf("Unable to email via %s:%d [%s]\n\n%s\n",$smtp['host'],$smtp['port'],$smtp['username'],$result->getMessage());
-            $ost->logError('SMTP Error', $alert, false); //NOTE: email alert overwrite - don't email when having email trouble.
-            //print_r($result);
-        }
-
-        //No SMTP or it failed....use php's native mail function.
-        $mail = mail::factory('mail');
-        return PEAR::isError($mail->send($to, $headers, $body))?false:true;
-
+        return $mailer->send($to, $subject, $message, $options);
     }
-
 
     function update($vars,&$errors) {
         $vars=$vars;
@@ -254,42 +182,8 @@ class Email {
 
 
     /******* Static functions ************/
-
-    //sends emails using native php mail function Email::sendmail( ......);
-    //Don't use this function if you can help it.
-    function sendmail($to,$subject,$message,$from) {
-        
-        require_once ('Mail.php'); // PEAR Mail package
-        require_once ('Mail/mime.php'); // PEAR Mail_Mime packge
-        
-        $eol="\n";
-        $to=preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
-        $subject=stripslashes(preg_replace("/(\r\n|\r|\n)/s",'', trim($subject)));
-        $body = stripslashes(preg_replace("/(\r\n|\r)/s", "\n", trim($message)));
-        $headers = array ('From' =>$from,
-                          'To' => $to,
-                          'Subject' => $subject,
-                          'Message-ID' =>'<'.Misc::randCode(10).''.time().'@osTicket>',
-                          'X-Mailer' =>'osTicket v 1.6',
-                          'Content-Type' => 'text/html; charset="UTF-8"'
-                          );
-        $mime = new Mail_mime();
-        $mime->setTXTBody($body);
-        $options=array('head_encoding' => 'quoted-printable',
-                       'text_encoding' => 'quoted-printable',
-                       'html_encoding' => 'base64',
-                       'html_charset'  => 'utf-8',
-                       'text_charset'  => 'utf-8');
-        //encode the body
-        $body = $mime->get($options);
-        //headers
-        $headers = $mime->headers($headers);
-        $mail = mail::factory('mail');
-        return PEAR::isError($mail->send($to, $headers, $body))?false:true;
-    }
-
-
-    function getIdByEmail($email) {
+    
+   function getIdByEmail($email) {
         
         $sql='SELECT email_id FROM '.EMAIL_TABLE.' WHERE email='.db_input($email);
         if(($res=db_query($sql)) && db_num_rows($res))   
@@ -411,7 +305,7 @@ class Email {
             $smtp = mail::factory('smtp',
                     array ('host' => $vars['smtp_host'],
                            'port' => $vars['smtp_port'],
-                           'auth' => $vars['smtp_auth']?true:false,
+                           'auth' => (bool) $vars['smtp_auth'],
                            'username' =>$vars['userid'],
                            'password' =>$passwd,
                            'timeout'  =>20,

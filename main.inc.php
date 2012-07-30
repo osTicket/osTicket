@@ -109,6 +109,7 @@
     require(INCLUDE_DIR.'class.nav.php');
     require(INCLUDE_DIR.'class.format.php'); //format helpers
     require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
+    require(INCLUDE_DIR.'class.mailer.php');
     require(INCLUDE_DIR.'mysql.php');
 
     #CURRENT EXECUTING SCRIPT.
@@ -178,7 +179,7 @@
     if($ferror) { //Fatal error
         //try alerting admin using email in config file
         $msg=$ferror."\n\n".THISPAGE;
-        Email::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg, sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
+        Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg, sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
         die("<b>Fatal Error:</b> Contact system administrator.");
         exit;
