@@ -1523,6 +1523,8 @@ class Ticket{
             $body=$this->replaceTemplateVars($msg['body']);
             $subj=$this->replaceTemplateVars($msg['subj']);
             $body = str_replace('%note',"$title\n\n$note",$body);
+            # TODO: Support a variable replacement of the staff writing the
+            #       note
 
             // Alert recipients    
             $recipients=array();
