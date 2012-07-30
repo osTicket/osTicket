@@ -35,8 +35,12 @@ class OverviewReportAjaxAPI extends AjaxController {
     }
 
     function getData() {
-        $start = $this->get('start', strtotime('last month'));
-        $stop = $this->get('stop', time());
+        $start = $this->get('start', 'last month');
+        $stop = $this->get('stop', 'now');
+        if (substr($stop, 0, 1) == '+')
+            $stop = $start . $stop;
+        $start = 'FROM_UNIXTIME('.strtotime($start).')';
+        $stop = 'FROM_UNIXTIME('.strtotime($stop).')';
 
         $groups = array(
             "dept" => array(
@@ -67,45 +71,51 @@ class OverviewReportAjaxAPI extends AjaxController {
         $info = $groups[$group];
         # XXX: Die if $group not in $groups
 
-        $res = db_query(
-            'SELECT ' . $info['fields'] . ','
-                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND A1.status=\'open\') AS Open,'
-                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND (A1.staff_id > 0 OR A1.team_id > 0)'
-                    .'   AND A1.status=\'open\') AS Assigned,'
-                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND (A1.staff_id = 0 AND A1.team_id = 0)'
-                    .'   AND A1.status=\'open\') AS Unassigned,'
-                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND A1.isanswered = 0'
-                    .'   AND A1.status=\'open\') AS Unanswered,'
-                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND A1.isoverdue = 1'
-                    .'   AND A1.status=\'open\') AS Overdue,'
-                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND A1.status=\'closed\') AS Closed,'
-                .'(SELECT COUNT(A1.ticket_id) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND A1.reopened is not null) AS Reopened,'
-                .'(SELECT FORMAT(AVG(DATEDIFF(A1.closed, A1.created)),1) FROM '.TICKET_TABLE
-                    .' A1 WHERE A1.'.$info['pk'].' = T1.'.$info['pk']
-                    .'   AND A1.status=\'closed\') AS ServiceTime'
-            .' FROM ' . $info['table'] . ' T1'
+        $queries=array(
+            array(5, 'SELECT '.$info['fields'].',
+                COUNT(*)-COUNT(NULLIF(A1.state, "created")) AS Opened,
+                COUNT(*)-COUNT(NULLIF(A1.state, "assigned")) AS Assigned,
+                COUNT(*)-COUNT(NULLIF(A1.state, "overdue")) AS Overdue,
+                COUNT(*)-COUNT(NULLIF(A1.state, "closed")) AS Closed,
+                COUNT(*)-COUNT(NULLIF(A1.state, "reopened")) AS Reopened
+            FROM '.$info['table'].' T1 LEFT JOIN '.TICKET_TABLE.' T2 USING ('.$info['pk'].')
+                LEFT JOIN '.TICKET_EVENT_TABLE.' A1 USING (ticket_id)
+            WHERE A1.timestamp BETWEEN '.$start.' AND '.$stop.'
+            GROUP BY '.$info['fields'].'
+            ORDER BY '.$info['fields']),
+
+            array(1, 'SELECT '.$info['fields'].',
+                FORMAT(AVG(DATEDIFF(T2.closed, T2.created)),1) AS ServiceTime
+            FROM '.$info['table'].' T1 LEFT JOIN '.TICKET_TABLE.' T2 USING ('.$info['pk'].')
+            WHERE T2.closed BETWEEN '.$start.' AND '.$stop.'
+            GROUP BY '.$info['fields'].'
+            ORDER BY '.$info['fields']),
+
+            array(1, 'SELECT '.$info['fields'].',
+                FORMAT(AVG(DATEDIFF(B2.created, B1.created)),1) AS ResponseTime
+            FROM '.$info['table'].' T1 LEFT JOIN '.TICKET_TABLE.' T2 USING ('.$info['pk'].')
+                LEFT JOIN '.TICKET_THREAD_TABLE.' B2 ON (B2.ticket_id = T2.ticket_id
+                    AND B2.thread_type="R")
+                LEFT JOIN '.TICKET_THREAD_TABLE.' B1 ON (B2.pid = B1.id)
+            WHERE B1.created BETWEEN '.$start.' AND '.$stop.'
+            GROUP BY '.$info['fields'].'
+            ORDER BY '.$info['fields'])
         );
         $rows = array();
-        while ($row = db_fetch_row($res)) {
-            $rows[] = $row;
+        foreach ($queries as $q) {
+            list($c, $sql) = $q;
+            $res = db_query($sql);
+            $i = 0;
+            while ($row = db_fetch_row($res)) {
+                if (count($rows) <= $i)
+                    $rows[] = array_slice($row, 0, count($row) - $c);
+                $rows[$i] = array_merge($rows[$i], array_slice($row, -$c));
+                $i++;
+            }
         }
         return array("columns" => array_merge($info['headers'],
-                        array('Open','Assigned','Unassigned','Unanswered',
-                              'Overdue','Closed','Reopened','Service Time')),
+                        array('Open','Assigned','Overdue','Closed','Reopened',
+                              'Service Time','Response Time')),
                      "data" => $rows);
     }
 

@@ -3,10 +3,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 
 $qstr='';
 
-$sql='SELECT grp.*,count(staff.staff_id) as users '
-     .' FROM '.GROUP_TABLE.' grp LEFT JOIN '.STAFF_TABLE.' staff USING(group_id) ';
-$sql.=' WHERE 1';
-$sortOptions=array('name'=>'grp.group_name','status'=>'grp.group_enabled','users'=>'users','created'=>'grp.created','updated'=>'grp.updated');
+$sql='SELECT grp.*,count(staff.staff_id) as users, count(dept.dept_id) as depts '
+     .' FROM '.GROUP_TABLE.' grp '
+     .' LEFT JOIN '.STAFF_TABLE.' staff ON(staff.group_id=grp.group_id) '
+     .' LEFT JOIN '.GROUP_DEPT_TABLE.' dept ON(dept.group_id=grp.group_id) '
+     .' WHERE 1';
+$sortOptions=array('name'=>'grp.group_name','status'=>'grp.group_enabled', 
+                   'users'=>'users', 'depts'=>'depts', 'created'=>'grp.created','updated'=>'grp.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
@@ -43,15 +46,17 @@ else
     <b><a href="groups.php?a=add" class="Icon newgroup">Add New Group</a></b></div>
 <div class="clear"></div>
 <form action="groups.php" method="POST" name="groups" onSubmit="return checkbox_checker(this,1,0);">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>        
-            <th width="250"><a <?php echo $name_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=name">Group Name</a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=status">Group Status</a></th>
+            <th width="200"><a <?php echo $name_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=name">Group Name</a></th>
+            <th width="80"><a  <?php echo $status_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="80" style="text-align:center;"><a  <?php echo $users_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=users">Members</a></th>
+            <th width="80" style="text-align:center;"><a  <?php echo $depts_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=depts">Departments</a></th>
             <th width="100"><a  <?php echo $created_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=created">Created On</a></th>
             <th width="120"><a  <?php echo $updated_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
         </tr>
@@ -80,6 +85,9 @@ else
                     <?php }else{ ?> 0
                     <?php } ?>
                     &nbsp;
+                </td>
+                <td style="text-align:right;padding-right:30px">&nbsp;&nbsp;
+                    <?php echo $row['depts']; ?>
                 </td>
                 <td><?php echo Format::db_date($row['created']); ?>&nbsp;</td>
                 <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>

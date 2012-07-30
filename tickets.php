@@ -38,26 +38,15 @@ if($_POST && is_object($ticket) && $ticket->getId()):
         if(!$_POST['message'])
             $errors['message']='Message required';
 
-        //check attachment..if any is set
-        $files=($cfg->allowOnlineAttachments() && $_FILES['attachments'])?Format::files($_FILES['attachments']):array();
-        if($files) {
-
-            foreach($files as $file) {
-                if(!$file['name']) continue;
-
-                if(!$cfg->canUploadFileType($file['name']))
-                    $errors['attachment']='Invalid file type [ '.$file['name'].' ]';
-                elseif($file['size']>$cfg->getMaxFileSize())
-                    $errors['attachment']='File '.$file['name'].'is too big. Max '.$cfg->getMaxFileSize().' bytes allowed';
-            }
-        }
-                    
         if(!$errors) {
             //Everything checked out...do the magic.
             if(($msgid=$ticket->postMessage($_POST['message'],'Web'))) {
-                if($files && $cfg->allowOnlineAttachments())
-                    $ticket->uploadAttachments($files,$msgid,'M');
-
+                if($cfg->allowOnlineAttachments() 
+                        && $_FILES['attachments']
+                        && ($files=Format::files($_FILES['attachments']))) {
+                    $ost->validateFileUploads($files); //Validator sets errors - if any.
+                    $ticket->uploadAttachments($files, $msgid, 'M');
+                }
                 $msg='Message Posted Successfully';
             } else {
                 $errors['err']='Unable to post the message. Try again';
@@ -68,7 +57,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
         }
         break;
     default:
-        $errors['err']='Uknown action';
+        $errors['err']='Unknown action';
     }
     $ticket->reload();
 endif;

@@ -1,9 +1,8 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$matches=array('name'=>"Sender's Name",'email'=>"Sender's Email",'subject'=>'Email Subject','body'=>'Email Body/Text','header'=>'Email Header');
-$match_types=array('equal'=>'Equal','not_equal'=>'Not Equal','contains'=>'Contains','dn_contain'=>'Does Not Contain');
-
+$matches=Filter::getSupportedMatches();
+$match_types=Filter::getSupportedMatchTypes();
 
 $info=array();
 $qstr='';
@@ -24,6 +23,7 @@ if($filter && $_REQUEST['a']!='add'){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <form action="filters.php?<?php echo $qstr; ?>" method="post" id="save">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
@@ -179,6 +179,30 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="checkbox" name="disable_autoresponder" value="1" <?php echo $info['disable_autoresponder']?'checked="checked"':''; ?> >
                     <strong>Disable</strong> auto-response. <em>(Overwrites Dept. settings)</em>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                Canned Response:
+            </td>
+                <td>
+                <select name="canned_response_id">
+                    <option value="">&mdash; None &mdash;</option>
+                    <?php
+                    $sql='SELECT canned_id,title FROM '.CANNED_TABLE
+                        .' WHERE isenabled ORDER by title';
+                    if ($res=db_query($sql)) {
+                        while (list($id,$title)=db_fetch_row($res)) {
+                            $selected=($info['canned_response_id'] &&
+                                    $id==$info['canned_response_id'])
+                                ? 'selected="selected"' : '';
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                $id, $selected, $title);
+                        }
+                    }
+                    ?>
+                </select>
+                <em>(Automatically respond with this canned response)</em>
             </td>
         </tr>
         <tr>

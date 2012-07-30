@@ -140,7 +140,7 @@ class Mail_Parse {
                 //Cleanup the html.
                 $body=str_replace("</DIV><DIV>", "\n", $body);                        
                 $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
-                $body=Format::striptags($body);
+                $body=Format::striptags(Format::html($body));
             }
         }
         return $body;

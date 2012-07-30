@@ -63,6 +63,7 @@ $qwhere ='';
 $depts=$thisstaff->getDepts();    
 $qwhere =' WHERE ( '
         .'  ticket.staff_id='.db_input($thisstaff->getId());
+
 if(!$thisstaff->showAssignedOnly())
     $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',',$depts):0).')';
 
@@ -269,6 +270,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
     <form action="tickets.php" method="get">
+    <?php csrf_token(); ?>
     <input type="hidden" name="a" value="search">
     <table>
         <tr>
@@ -284,6 +286,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 <div class="clear"></div>
 <div style="margin-bottom:20px">
 <form action="tickets.php" method="POST" name='tickets' onSubmit="return checkbox_checker(this,1,0);">
+<?php csrf_token(); ?>
  <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="status" value="<?php echo $status; ?>" >
@@ -467,7 +470,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
     } ?>
     </form>
 </div>
-<div id="overlay"></div>
+<div id="search_overlay"></div>
 <div style="display:none;" id="advanced-search">
     <h3>Advanced Ticket Search</h3>
     <a class="close" href="">&times;</a>

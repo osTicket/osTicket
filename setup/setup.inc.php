@@ -14,6 +14,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+#This  version - changed on every release
+define('THIS_VERSION', '1.7-RC1');
+
 #inits
 error_reporting(E_ALL ^ E_NOTICE); //turn on errors??
 ini_set('magic_quotes_gpc', 0);
@@ -52,6 +55,7 @@ ini_set('include_path', './'.PATH_SEPARATOR.INC_DIR.PATH_SEPARATOR.INCLUDE_DIR.P
 endif;
 
 #required files
+require_once(INCLUDE_DIR.'class.setup.php');
 require_once(INCLUDE_DIR.'class.validator.php');
 require_once(INCLUDE_DIR.'class.passwd.php');
 require_once(INCLUDE_DIR.'class.format.php');

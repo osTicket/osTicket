@@ -141,7 +141,7 @@ class AttachmentFile {
     /* Function assumes the files types have been validated */
     function upload($file) {
         
-        if(!$file['name'] || !is_uploaded_file($file['tmp_name']))
+        if(!$file['name'] || $file['error'] || !is_uploaded_file($file['tmp_name']))
             return false;
 
         $info=array('type'=>$file['type'],
@@ -160,22 +160,27 @@ class AttachmentFile {
             $file['hash']=MD5(MD5($file['data']).time());
         if(!$file['size'])
             $file['size']=strlen($file['data']);
-
-
-        
-        //TODO: Do chunked INSERTs - 
-        if(($mps=db_get_variable('max_allowed_packet')) && $file['size']>($mps*0.7)) {
-            @db_set_variable('max_allowed_packet',$file['size']+$mps);
-        }
         
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input($file['type'])
             .',size='.db_input($file['size'])
             .',name='.db_input($file['name'])
-            .',hash='.db_input($file['hash'])
-            .',filedata='.db_input($file['data']);
+            .',hash='.db_input($file['hash']);
 
-        return db_query($sql)?db_insert_id():0;
+        if (!(db_query($sql) && ($id=db_insert_id())))
+            return false;
+
+        foreach (str_split($file['data'], 1024*100) as $chunk) {
+            $sql='UPDATE '.FILE_TABLE
+                .' SET filedata = CONCAT(filedata,'.db_input($chunk).')'
+                .' WHERE id='.db_input($id);
+            if(!db_query($sql)) {
+                db_query('DELETE FROM '.FILE_TABLE.' WHERE id='.db_input($id).' LIMIT 1');
+                return false;
+            }
+        }
+
+        return $id;
     }
 
     /* Static functions */

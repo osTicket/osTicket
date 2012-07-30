@@ -71,6 +71,10 @@ class Filter {
         return $this->ht['execorder'];
     }
 
+    function getEmailId() {
+        return $this->ht['email_id'];
+    }
+
     function isActive(){
         return ($this->ht['isactive']);
     }
@@ -97,6 +101,10 @@ class Filter {
 
     function getTeamId(){
         return $this->ht['team_id'];
+    }
+
+    function getCannedResponse() {
+        return $this->ht['canned_response_id'];
     }
 
     function stopOnMatch(){
@@ -212,11 +220,11 @@ class Filter {
      */
     function matches($email) {
         $what = array(
-            "email"     => $email['from'],
+            "email"     => $email['email'],
             "subject"   => $email['subject'],
             # XXX: Support reply-to too ?
             "name"      => $email['name'],
-            "body"      => $email['body']
+            "body"      => $email['message']
             # XXX: Support headers
         );
         $how = array(
@@ -227,6 +235,10 @@ class Filter {
             "dn_contain"=> array("strpos", false)
         );
         $match = false;
+        # Respect configured filter email-id
+        if ($email['emailId'] && $this->getEmailId()
+                && $this->getEmailId() != $email['emailId'])
+            return false;
         foreach ($this->getRules() as $rule) {
             list($func, $pos, $neg) = $how[$rule['h']];
             # TODO: convert $what and $rule['v'] to mb_strtoupper and do
@@ -274,6 +286,24 @@ class Filter {
             if ($email['reply-to-name']) 
                 $ticket['name'] = $email['reply-to-name'];
         }
+        if ($this->getCannedResponse())
+            $ticket['cannedResponseId'] = $this->getCannedResponse();
+    }
+    /* static */ function getSupportedMatches() {
+        return array(
+            'name'=>    "Sender's Name",
+            'email'=>   "Sender's Email",
+            'subject'=> 'Email Subject',
+            'body'=>    'Email Body/Text'
+        );
+    }
+    /* static */ function getSupportedMatchTypes() {
+        return array(
+            'equal'=>       'Equal',
+            'not_equal'=>   'Not Equal',
+            'contains'=>    'Contains',
+            'dn_contain'=>  'Does Not Contain'
+        );
     }
 
     function update($vars,&$errors){
@@ -395,6 +425,7 @@ class Filter {
              ',reject_email='.db_input(isset($vars['reject_email'])?1:0).
              ',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0).
              ',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0).
+             ',canned_response_id='.db_input($vars['canned_response_id']).
              ',notes='.db_input($vars['notes']);
        
 
@@ -560,7 +591,7 @@ class EmailFilter {
      * calls, etc).
      *
      * $email is an ARRAY, which has valid keys
-     *  *from - email address of sender
+     *  *email - email address of sender
      *   name - name of sender
      *   subject - subject line of the email
      *   email-id - id of osTicket email recipient address
@@ -579,8 +610,8 @@ class EmailFilter {
             $this->build($this->getAllActive());
         } else {
             $this->build(
-                $this->quickList($email['from'], $email['name'],
-                    $email['subject']));
+                $this->quickList($email['email'], $email['name'],
+                    $email['subject'], $email['emailId']));
         }
     }
     

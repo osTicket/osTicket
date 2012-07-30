@@ -21,7 +21,7 @@ require_once(INCLUDE_DIR.'class.mailparse.php');
 require_once(INCLUDE_DIR.'class.email.php');
 
 //Make sure piping is enabled!
-if(!$cfg->enableEmailPiping())
+if(!$cfg->isEmailPipingEnabled())
     api_exit(EX_UNAVAILABLE,'Email piping not enabled - check MTA settings.');
 //Get the input
 $data=isset($_SERVER['HTTP_HOST'])?file_get_contents('php://input'):file_get_contents('php://stdin');
@@ -87,7 +87,7 @@ $var['emailId']=$emailId?$emailId:$cfg->getDefaultEmailId();
 $var['subject']=$subj?$subj:'[No Subject]';
 $var['message']=utf8_encode(Format::stripEmptyLines($body));
 $var['header']=$parser->getHeader();
-$var['pri']=$cfg->useEmailPriority()?$parser->getPriority():0;
+$var['priorityId']=$cfg->useEmailPriority()?$parser->getPriority():0;
 
 $ticket=null;
 if(preg_match ("[[#][0-9]{1,10}]",$var['subject'],$regs)) {
@@ -99,33 +99,25 @@ if(preg_match ("[[#][0-9]{1,10}]",$var['subject'],$regs)) {
 }        
 $errors=array();
 $msgid=0;
-if(!$ticket){ //New tickets...
-    # Apply filters against the new ticket
-    $ef = new EmailFilter($var); $ef->apply($var);
+if(!$ticket) { //New tickets...
     $ticket=Ticket::create($var,$errors,'email');
-    if(!is_object($ticket) || $errors){
+    if(!is_object($ticket) || $errors) {
         api_exit(EX_DATAERR,'Ticket create Failed '.implode("\n",$errors)."\n\n");
     }
+
     $msgid=$ticket->getLastMsgId();
-}else{
-    $message=$var['message'];
-    //Strip quoted reply...TODO: figure out how mail clients do it without special tag..
-    if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()) && strpos($var['message'],$tag))
-        list($message)=split($tag,$var['message']);
+
+} else {
     //post message....postMessage does the cleanup.
-    if(!($msgid=$ticket->postMessage($message,'Email',$var['mid'],$var['header']))) {
-        api_exit(EX_DATAERR,"Unable to post message \n\n $message\n");
+    if(!($msgid=$ticket->postMessage($var['message'], 'Email',$var['mid'],$var['header']))) {
+        api_exit(EX_DATAERR, 'Unable to post message');
     }
 }
 //Ticket created...save attachments if enabled.
-if($cfg->allowEmailAttachments()) {                   
-    if($attachments=$parser->getAttachments()){
-        //print_r($attachments);
-        foreach($attachments as $k=>$attachment){
-            if($attachment['filename'] && $cfg->canUploadFileType($attachment['filename'])) {
-                $ticket->saveAttachment($attachment['filename'],$attachment['body'],$msgid,'M');
-            }
-        }
+if($cfg->allowEmailAttachments() && ($attachments=$parser->getAttachments())) {
+    foreach($attachments as $attachment) {
+        if($attachment['filename'] && $ost->isFileTypeAllowed($attachment['filename']))
+            $ticket->saveAttachment(array('name' => $attachment['filename'], 'data' => $attachment['body']), $msgid, 'M');
     }
 }
 api_exit(EX_SUCCESS);

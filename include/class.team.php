@@ -80,6 +80,13 @@ class Team {
         return $this->members;
     }
 
+    function hasMember($staff) {
+        return db_count(
+             'SELECT COUNT(*) FROM '.TEAM_MEMBER_TABLE
+            .' WHERE team_id='.db_input($this->getId())
+            .'   AND staff_id='.db_input($staff->getId())) !== 0;
+    }
+
     function getLeadId(){
         return $this->ht['lead_id'];
     }
@@ -126,7 +133,9 @@ class Team {
         if($vars['remove']) {
             $sql='DELETE FROM '.TEAM_MEMBER_TABLE
                 .' WHERE team_id='.db_input($this->getId())
-                .' AND staff_id IN('.implode(',',$_POST['remove']).')';
+                .' AND staff_id IN ('
+                    .implode(',', array_map('db_input', $_POST['remove']))
+                .')';
             db_query($sql);
         }
 

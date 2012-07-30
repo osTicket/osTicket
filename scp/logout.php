@@ -15,13 +15,16 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+//CSRF Check: Make sure the user actually clicked on the link to logout.
+if(!$_GET['auth'] || $_GET['auth']!=md5($ost->getCSRFToken().SECRET_SALT.session_id()))
+   @header('Location: index.php');
+
 $ost->logDebug('Staff logout',
         sprintf("%s logged out [%s]", 
             $thisstaff->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
 $_SESSION['_staff']=array();
 session_unset();
 session_destroy();
-session_write_close();
 @header('Location: login.php');
 require('login.php');
 ?>

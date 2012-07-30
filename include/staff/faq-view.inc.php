@@ -40,6 +40,7 @@ if($thisstaff->canManageFAQ()) {
     ?>
    <div>
     <form action="faq.php?id=<?php echo  $faq->getId(); ?>" method="post">
+	 <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo  $faq->getId(); ?>">
         <input type="hidden" name="do" value="manage-faq">
         <div>

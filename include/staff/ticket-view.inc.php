@@ -20,7 +20,10 @@ $lock  = $ticket->getLock();  //Ticket lock obj
 $id    = $ticket->getId();    //Ticket ID.
 
 //Useful warnings and errors the user might want to know!
-if($ticket->isAssigned() && $staff->getId()!=$thisstaff->getId())
+if($ticket->isAssigned() && (
+            ($staff && $staff->getId()!=$thisstaff->getId())
+         || ($team && !$team->hasMember($thisstaff))
+        ))
     $warn.='&nbsp;&nbsp;<span class="Icon assignedTicket">Ticket is assigned to '.implode('/', $ticket->getAssignees()).'</span>';
 if(!$errors['err'] && ($lock && $lock->getStaffId()!=$thisstaff->getId()))
     $errors['err']='This ticket is currently locked by '.$lock->getStaffName();
@@ -40,8 +43,12 @@ if($ticket->isOverdue())
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload" class="reload">Reload</a></h2>
         </td>
         <td width="50%" class="right_align">
-            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print" title="Print Ticket" class="print">Print Ticket</a>
-            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" title="Edit Ticket" class="edit">Edit Ticket</a>
+            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print" title="Print Ticket" class="print" id="ticket-print">Print Ticket</a>
+            <?php
+            if($thisstaff->canEditTickets()) { ?>
+             <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" title="Edit Ticket" class="edit">Edit Ticket</a>
+            <?php
+            } ?>
         </td>
     </tr>
 </table>
@@ -236,12 +243,13 @@ if(!$cfg->showNotesInline()) { ?>
             <tr>
                 <th width="200"><?php echo Format::db_datetime($entry['created']);?></th>
                 <th width="440"><span><?php echo Format::htmlchars($entry['title']); ?></span></th>
-                <th width="300" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th></tr>
-            <tr><td colspan=2><?php echo Format::display($entry['body']); ?></td></tr>
+                <th width="300" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th>
+            </tr>
+            <tr><td colspan=3><?php echo Format::display($entry['body']); ?></td></tr>
             <?php
             if($entry['attachments'] && ($links=$ticket->getAttachmentsLinks($entry['id'], $entry['thread_type']))) {?>
             <tr>
-                <td class="info" colspan=2><?php echo $links; ?></td>
+                <td class="info" colspan=3><?php echo $links; ?></td>
             </tr>
             <?php
             }?>
@@ -280,6 +288,7 @@ if(!$cfg->showNotesInline()) { ?>
     </ul>
 
     <form id="reply" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
+        <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
@@ -325,9 +334,9 @@ if(!$cfg->showNotesInline()) { ?>
                     <label for="attachment">Attachments:</label>
                 </td>
                 <td width="765" id="reply_form_attachments" class="attachments">
-                    <div id="canned_attachments">
+                    <div class="canned_attachments">
                     </div>
-                    <div id="uploads">
+                    <div class="uploads">
                     </div>
                     <div class="file_input">
                         <input type="file" class="multifile" name="attachments[]" size="30" value="" />
@@ -390,6 +399,7 @@ if(!$cfg->showNotesInline()) { ?>
         </p>
     </form>
     <form id="note" action="tickets.php?id=<?php echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
+        <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="postnote">
         <table border="0" cellspacing="0" cellpadding="3">
@@ -478,6 +488,7 @@ if(!$cfg->showNotesInline()) { ?>
     <?php
     if($thisstaff->canTransferTickets()) { ?>
     <form id="transfer" action="tickets.php?id=<?php echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
+        <?php csrf_token(); ?>
         <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="transfer">
         <table border="0" cellspacing="0" cellpadding="3">
@@ -526,6 +537,7 @@ if(!$cfg->showNotesInline()) { ?>
     <?php
     if($thisstaff->canAssignTickets()) { ?>
     <form id="assign" action="tickets.php?id=<?php echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
+        <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="assign">
         <table border="0" cellspacing="0" cellpadding="3">
@@ -596,5 +608,43 @@ if(!$cfg->showNotesInline()) { ?>
     </form>
     <?php
     } ?>
+</div>
+<div style="display:none;" id="print-options">
+    <h3>Ticket Print Options</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="print-form" name="print-form">
+        <?php csrf_token(); ?>
+        <input type="hidden" name="a" value="print">
+        <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
+        <fieldset class="notes">
+            <label for="notes">Print Notes:</label>
+            <input type="checkbox" id="notes" name="notes" value="1"> Print <b>Internal</b> Notes/Comments
+        </fieldset>
+        <fieldset>
+            <label for="psize">Paper Size:</label>
+            <select id="psize" name="psize">
+                <option value="">&mdash; Select Print Paper Size &mdash;</option>
+                <?php
+                  $options=array('Letter', 'Legal', 'A4', 'A3');
+                  $psize =$_SESSION['PAPER_SIZE']?$_SESSION['PAPER_SIZE']:$thisstaff->getDefaultPaperSize();
+                  foreach($options as $v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $v,($psize==$v)?'selected="selected"':'', $v);
+                  }
+                ?>
+            </select>
+        </fieldset>
+        <hr style="margin-top:3em"/>
+        <p class="full-width">
+            <span class="buttons" style="float:left">
+                <input type="reset" value="Reset">
+                <input type="button" value="Cancel" class="close">
+            </span>
+            <span class="buttons" style="float:right">
+                <input type="submit" value="Print">
+            </span>
+         </p>
+    </form>
 </div>
 <script type="text/javascript" src="js/ticket.js"></script>

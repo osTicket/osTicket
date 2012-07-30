@@ -31,6 +31,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <h2>Email Address</h2>
 <form action="emails.php?<?php echo $qstr; ?>" method="post" id="save">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
@@ -76,7 +77,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Login Password
             </td>
             <td>
-                <input type="text" size="35" name="passwd" value="<?php echo $info['passwd']; ?>">
+                <input type="password" size="35" name="passwd" value="<?php echo $info['passwd']; ?>">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd']; ?>&nbsp;</span>
                 <br><em><?php echo $passwdtxt; ?></em>
             </td>
@@ -117,10 +118,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
         <tr><td>Encryption</td>
             <td>
-                 <label><input type="radio" name="mail_encryption"  value="NONE"
-                    <?php echo ($info['mail_encryption']!='SSL')?'checked="checked"':''; ?> />None</label>
-                 <label><input type="radio" name="mail_encryption"  value="SSL"
-                    <?php echo ($info['mail_encryption']=='SSL')?'checked="checked"':''; ?> />SSL</label>
+                <select name="mail_encryption">
+                    <option value='NONE'>None</option>
+                    <option value='SSL' <?php echo ($info['mail_encryption']=='SSL')?'selected="selected"':''; ?> >SSL</option>
+                </select>
                 <font class="error">&nbsp;<?php echo $errors['mail_encryption']; ?></font>
             </td>
         </tr>

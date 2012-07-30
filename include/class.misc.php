@@ -58,6 +58,13 @@ class Misc {
         return time()-date('Z');
     }
 
+    /* Needed because of PHP 4 support */
+    function micro_time() {
+        list($usec, $sec) = explode(" ", microtime());
+
+        return ((float)$usec + (float)$sec);
+    }
+
     //Current page
     function currentURL() {
         

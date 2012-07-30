@@ -46,7 +46,10 @@ if($_POST){
                 $count=count($_POST['ids']);
 
                 $sql='SELECT count(dept_id) FROM '.DEPT_TABLE.' dept '.
-                     'WHERE email_id IN ('.implode(',',$_POST['ids']).') OR autoresp_email_id IN ('.implode(',',$_POST['ids']).')';
+                     'WHERE email_id IN ('.
+                        implode(',', db_input($_POST['ids'])).
+                     ') OR autoresp_email_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                 list($depts)=db_fetch_row(db_query($sql));
                 if($depts>0){
                     $errors['err']='One or more of the selected emails is being used by a department. Remove association first!';

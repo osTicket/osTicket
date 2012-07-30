@@ -19,13 +19,19 @@ class Group {
     var $id;
     var $ht;
 
+    var $members;
+    var $departments;
+
     function Group($id){
 
         $this->id=0;
         return $this->load($id);
     }
 
-    function load($id){
+    function load($id=0) {
+
+        if(!$id && !($id=$this->getId()))
+            return false;
 
         $sql='SELECT grp.*,grp.group_name as name, grp.group_enabled as isactive, count(staff.staff_id) as users '
             .'FROM '.GROUP_TABLE.' grp '
@@ -37,12 +43,13 @@ class Group {
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['group_id'];
         $this->members=array();
+        $this->departments = array();
 
         return $this->id;
     }
 
     function reload(){
-        return $this->load($this->getId());
+        return $this->load();
     }
 
     function getHashtable() {
@@ -73,17 +80,86 @@ class Group {
     function isActive(){
         return $this->isEnabled();
     }
+ 
+    //Get members of the group.
+    function getMembers() {
+
+        if(!$this->members && $this->getNumUsers()) {
+            $sql='SELECT staff_id FROM '.STAFF_TABLE
+                .' WHERE group_id='.db_input($this->getId())
+                .' ORDER BY lastname, firstname';
+            if(($res=db_query($sql)) && db_num_rows($res)) {
+                while(list($id)=db_fetch_row($res))
+                    if(($staff=Staff::lookup($id)))
+                        $this->members[]= $staff;
+            }
+        }
+
+        return $this->members;
+    }
+
+    //Get departments the group is allowed to access.
+    function getDepartments() {
+
+        if(!$this->departments) {
+            $sql='SELECT dept_id FROM '.GROUP_DEPT_TABLE
+                .' WHERE group_id='.db_input($this->getId());
+            if(($res=db_query($sql)) && db_num_rows($res)) {
+                while(list($id)=db_fetch_row($res))
+                    $this->departments[]= $id;
+            }
+        }
+
+        return $this->departments;
+    }
+
+        
+    function updateDeptAccess($depts) {
 
 
+        if($depts && is_array($depts)) {
+            foreach($depts as $k=>$id) {
+                $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
+                    .' SET group_id='.db_input($this->getId())
+                    .', dept_id='.db_input($id);
+                db_query($sql);
+            }
+        }
+
+        $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE group_id='.db_input($this->getId());
+        if($depts && is_array($depts)) // just inserted departments IF any.
+            $sql.=' AND dept_id NOT IN('.implode(',', db_input($depts)).')';
+
+        db_query($sql);
+
+        return true;
+    }
 
     function update($vars,&$errors) {
 
-        if(Group::save($this->getId(),$vars,$errors)){
-            $this->reload();
-            return true;
-        }
+        if(!Group::save($this->getId(),$vars,$errors))
+            return false;
 
-        return false;
+        $this->updateDeptAccess($vars['depts']);
+        $this->reload();
+        
+        return true;
+    }
+
+    function delete() {
+
+        //Can't delete with members
+        if($this->getNumUsers())
+            return false;
+
+        $res = db_query('DELETE FROM '.GROUP_TABLE.' WHERE group_id='.db_input($this->getId()).' LIMIT 1');
+        if(!$res || !db_affected_rows($res))
+            return false;
+
+        //Remove dept access entry.
+        db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE group_id='.db_input($this->getId()));
+
+        return true;
     }
 
     /*** Static functions ***/
@@ -99,9 +175,11 @@ class Group {
         return ($id && is_numeric($id) && ($g= new Group($id)) && $g->getId()==$id)?$g:null;
     }
 
+    function create($vars, &$errors) { 
+        if(($id=self::save(0,$vars,$errors)) && ($group=self::lookup($id)))
+            $group->updateDeptAccess($vars['depts']);
 
-    function create($vars,&$errors) { 
-        return self::save(0,$vars,$errors);
+        return $id;
     }
 
     function save($id,$vars,&$errors) {
@@ -119,19 +197,19 @@ class Group {
         
         if($errors) return false;
             
-        $sql=' SET updated=NOW(), group_name='.db_input(Format::striptags($vars['name'])).
-             ', group_enabled='.db_input($vars['isactive']).
-             ', dept_access='.db_input($vars['depts']?implode(',',$vars['depts']):'').
-             ', can_create_tickets='.db_input($vars['can_create_tickets']).
-             ', can_delete_tickets='.db_input($vars['can_delete_tickets']).
-             ', can_edit_tickets='.db_input($vars['can_edit_tickets']).
-             ', can_assign_tickets='.db_input($vars['can_assign_tickets']).
-             ', can_transfer_tickets='.db_input($vars['can_transfer_tickets']).
-             ', can_close_tickets='.db_input($vars['can_close_tickets']).
-             ', can_ban_emails='.db_input($vars['can_ban_emails']).
-             ', can_manage_premade='.db_input($vars['can_manage_premade']).
-             ', can_manage_faq='.db_input($vars['can_manage_faq']).
-             ', notes='.db_input($vars['notes']);
+        $sql=' SET updated=NOW() '
+            .', group_name='.db_input(Format::striptags($vars['name']))
+            .', group_enabled='.db_input($vars['isactive'])
+            .', can_create_tickets='.db_input($vars['can_create_tickets'])
+            .', can_delete_tickets='.db_input($vars['can_delete_tickets'])
+            .', can_edit_tickets='.db_input($vars['can_edit_tickets'])
+            .', can_assign_tickets='.db_input($vars['can_assign_tickets'])
+            .', can_transfer_tickets='.db_input($vars['can_transfer_tickets'])
+            .', can_close_tickets='.db_input($vars['can_close_tickets'])
+            .', can_ban_emails='.db_input($vars['can_ban_emails'])
+            .', can_manage_premade='.db_input($vars['can_manage_premade'])
+            .', can_manage_faq='.db_input($vars['can_manage_faq'])
+            .', notes='.db_input($vars['notes']);
             
         if($id) {
             

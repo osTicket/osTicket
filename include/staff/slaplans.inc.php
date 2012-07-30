@@ -46,6 +46,7 @@ else
  <b><a href="slas.php?a=add" class="Icon newsla">Add New SLA Plan</a></b></div>
 <div class="clear"></div>
 <form action="slas.php" method="POST" name="slas" onSubmit="return checkbox_checker(this,1,0);">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>

@@ -26,11 +26,7 @@ require_once (INCLUDE_DIR.'class.api.php');
  */
 class AjaxController extends ApiController {
     function AjaxController() {
-        # Security checks first
-        # --> It is assumed that all AJAX calls will require a login. And
-        #     for now, since client logins are not yet supported, a staff
-        #     login will be required for AJAX calls.
-        $this->staffOnly();
+    
     }
     function staffOnly() {
         global $thisstaff;

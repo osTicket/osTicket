@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.group.php');
@@ -24,7 +25,10 @@ class Staff {
     var $id;
 
     var $dept;
+    var $departments;
+    var $group;
     var $teams;
+    var $timezone;
     var $stats;
     
     function Staff($var) {
@@ -37,13 +41,11 @@ class Staff {
         if(!$var && !($var=$this->getId()))
             return false;
 
-        $sql='SELECT staff.*, grp.*, tz.offset as tz_offset '
-            .' ,TIME_TO_SEC(TIMEDIFF(NOW(),IFNULL(staff.passwdreset,staff.created))) as passwd_change_sec '
+        $sql='SELECT staff.*, staff.created as added, grp.* '
             .' FROM '.STAFF_TABLE.' staff '
-            .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id) '
-            .' LEFT JOIN '.TIMEZONE_TABLE.' tz ON(tz.id=staff.timezone_id) ';
+            .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id) ';
 
-        $sql.=sprintf('WHERE %s=%s',is_numeric($var)?'staff_id':'username',db_input($var));
+        $sql.=sprintf(' WHERE %s=%s',is_numeric($var)?'staff_id':'username',db_input($var));
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
@@ -51,10 +53,18 @@ class Staff {
         
         $this->ht=db_fetch_array($res);
         $this->id  = $this->ht['staff_id'];
-        $this->teams =$this->ht['teams']=$this->getTeams();
+        $this->teams = $this->ht['teams'] = array();
+        $this->group = $this->dept = null;
+        $this->departments = $this->stats = array();
 
-        $this->teams=array();
-        $this->stats=array();
+        //WE have to patch info here to support upgrading from old versions.
+        if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
+            $this->ht['passwd_change'] = time()-$time; //XXX: check timezone issues.
+
+        if($this->ht['timezone_id'])
+            $this->ht['tz_offset'] = Timezone::getOffsetById($this->ht['timezone_id']);
+        elseif($this->ht['timezone_offset'])
+            $this->ht['tz_offset'] = $this->ht['timezone_offset'];
 
         return ($this->id);
     }
@@ -96,7 +106,7 @@ class Staff {
     function isPasswdResetDue() {
         global $cfg;
         return ($cfg && $cfg->getPasswdResetPeriod() 
-                    && $this->ht['passwd_change_sec']>($cfg->getPasswdResetPeriod()*30*24*60*60));
+                    && $this->ht['passwd_change']>($cfg->getPasswdResetPeriod()*30*24*60*60));
     }
 
     function isPasswdChangeDue() {
@@ -147,10 +157,6 @@ class Staff {
         return $this->ht['lastname'];
     }
     
-    function getGroupId() {
-        return $this->ht['group_id'];
-    }
-
     function getSignature() {
         return $this->ht['signature'];
     }
@@ -167,13 +173,46 @@ class Staff {
         return ($this->ht['change_passwd']);
     }
 
-    function getDepts() {
-        //Departments the user is allowed to access...based on the group they belong to + user's dept.
-        return array_filter(array_unique(array_merge(explode(',', $this->ht['dept_access']), array($this->dept_id)))); //Neptune help us
+    function getDepartments() {
+
+        if($this->departments)
+            return $this->departments;
+
+        //Departments the staff is "allowed" to access...
+        // based on the group they belong to + user's primary dept + user's managed depts.
+        $sql='SELECT DISTINCT d.dept_id FROM '.STAFF_TABLE.' s '
+            .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON(s.group_id=g.group_id) '
+            .' INNER JOIN '.DEPT_TABLE.' d ON(d.dept_id=s.dept_id OR d.manager_id=s.staff_id OR d.dept_id=g.dept_id) '
+            .' WHERE s.staff_id='.db_input($this->getId());
+
+        $depts = array();
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res))
+                $depts[] = $id;
+        } else { //Neptune help us! (fallback)
+            $depts = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
+        }
+
+        $this->departments = array_filter(array_unique($depts));
+
+
+        return $this->departments;
     }
 
-    function getDepartments() {
-        return $this->getDepts();
+    function getDepts() {
+        return $this->getDepartments();
+    }
+     
+    function getGroupId() {
+        return $this->ht['group_id'];
+    }
+
+    function getGroup() {
+     
+        if(!$this->group && $this->getGroupId())
+            $this->group = Group::lookup($this->getGroupId());
+
+        return $this->group;
     }
 
     function getDeptId() {
@@ -582,7 +621,7 @@ class Staff {
         if(!$vars['lastname'])
             $errors['lastname']='Last name required';
             
-        if(!$vars['username'] || strlen($vars['username'])<3)
+        if(!$vars['username'] || strlen($vars['username'])<2)
             $errors['username']='Username required';
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
             $errors['username']='Username already in-use';

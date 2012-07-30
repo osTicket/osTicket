@@ -20,7 +20,7 @@ class Cron {
 
     function MailFetcher() {
         require_once(INCLUDE_DIR.'class.mailfetch.php');
-        MailFetcher::fetchMail(); //Fetch mail..frequency is limited by email account setting.
+        MailFetcher::run(); //Fetch mail..frequency is limited by email account setting.
     }
 
     function TicketMonitor() {

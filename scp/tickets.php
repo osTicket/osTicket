@@ -57,7 +57,7 @@ if($_POST && !$errors):
 
             $wasOpen =($ticket->isOpen());
             //If no error...do the do.
-            if(!$errors && ($respId=$ticket->postReply($_POST,$_FILES['attachments'],$errors))) {
+            if(!$errors && ($respId=$ticket->postReply($_POST, $errors))) {
                 $msg='Reply posted successfully';
                 $ticket->reload();
                 if($ticket->isClosed() && $wasOpen)
@@ -360,7 +360,7 @@ if($_POST && !$errors):
                 $ticket=null;
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
-                }elseif(($ticket=Ticket::open($_POST, $_FILES['attachments'], $errors))) {
+                }elseif(($ticket=Ticket::open($_POST, $errors))) {
                     $msg='Ticket created successfully';
                     $_REQUEST['a']=null;
                     if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
@@ -456,7 +456,7 @@ if($ticket) {
     $inc = 'ticket-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
         $inc = 'ticket-edit.inc.php';
-    elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport())
+    elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
         $errors['err'] = 'Internal error: Unable to export the ticket to PDF for print.';
 } else {
     $inc = 'tickets.inc.php';

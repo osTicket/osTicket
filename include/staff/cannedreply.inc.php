@@ -20,6 +20,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
 <form action="canned.php?<?php echo $qstr; ?>" method="post" id="save" enctype="multipart/form-data">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
@@ -107,6 +108,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
+ <?php if ($canned && $canned->getFilters()) { ?>
+    <br/>
+    <div id="msg_warning">Canned reply is in use by email filter(s): <?php
+    echo implode(', ', $canned->getFilters()); ?></div>
+ <?php } ?>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">

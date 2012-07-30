@@ -43,7 +43,8 @@ if($_POST){
             }else{
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
-                    $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=1, updated=NOW() WHERE group_id IN ('.implode(',',$_POST['ids']).')';
+                    $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=1, updated=NOW() WHERE group_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
                             $msg='Selected groups activated';
@@ -53,7 +54,8 @@ if($_POST){
                         $errors['err']='Unable to activate selected groups';
                     }
                 }elseif($_POST['disable']){
-                    $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=0, updated=NOW() WHERE group_id IN ('.implode(',',$_POST['ids']).')';
+                    $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=0, updated=NOW() WHERE group_id IN ('.
+                        implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
                             $msg='Selected groups disabled';
@@ -64,7 +66,7 @@ if($_POST){
                     }
                 }elseif($_POST['delete']){
                     foreach($_POST['ids'] as $k=>$v) {
-                        if(($t=Group::lookup($v)) && $t->delete())
+                        if(($g=Group::lookup($v)) && $g->delete())
                             $i++;
                     }
 

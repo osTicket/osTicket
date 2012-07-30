@@ -16,18 +16,18 @@
 
 class Export {
     
-    /* static */ function dumpQuery($sql, $headers, $how='csv') {
+    /* static */ function dumpQuery($sql, $headers, $how='csv', $filter=false) {
         $exporters = array(
             'csv' => CsvResultsExporter,
             'json' => JsonResultsExporter
         );
-        $exp = new $exporters[$how]($sql, $headers);
+        $exp = new $exporters[$how]($sql, $headers, $filter);
         return $exp->dump();
     }
 
     # XXX: Think about facilitated exporting. For instance, we might have a
     #      TicketExporter, which will know how to formulate or lookup a
-    #      formatl query (SQL), and cooperate with the output process to add
+    #      format query (SQL), and cooperate with the output process to add
     #      extra (recursive) information. In this funciton, the top-level
     #      SQL is exported, but for something like tickets, we will need to
     #      export attached messages, reponses, and notes, as well as
@@ -60,8 +60,11 @@ class Export {
 }
 
 class ResultSetExporter {
-    function ResultSetExporter($sql, $headers) {
+    function ResultSetExporter($sql, $headers, $filter=false) {
         $this->headers = array_values($headers);
+        if ($s = strpos(strtoupper($sql), ' LIMIT '))
+            $sql = substr($sql, 0, $s);
+        # TODO: If $filter, add different LIMIT clause to query
         $this->_res = db_query($sql);
         if ($row = db_fetch_array($this->_res)) {
             $query_fields = array_keys($row);

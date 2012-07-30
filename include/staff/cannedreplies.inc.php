@@ -53,6 +53,7 @@ else
     <b><a href="canned.php?a=add" class="Icon newReply">Add New Reply</a></b></div>
 <div class="clear"></div>
 <form action="canned.php" method="POST" name="canned" onSubmit="return checkbox_checker(this,1,0);">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
@@ -83,7 +84,8 @@ else
                 <td width=7px>
                   <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
-                                onClick="highLight(this.value,this.checked);"> </td>
+                                onClick="highLight(this.value,this.checked);"/>
+                </td>
                 <td>
                     <a href="canned.php?id=<?php echo $row['canned_id']; ?>"><?php echo Format::truncate($row['title'],200); echo "&nbsp;$files"; ?></a>&nbsp;
                 </td>

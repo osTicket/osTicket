@@ -13,7 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Kwaheri rafiki!'); //Say hi to our friend..
+if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Access denied'); //Say hi to our friend..
 
 if(!file_exists('../main.inc.php')) die('Fatal error... get technical support');
 
@@ -39,6 +39,7 @@ define('KB_PREMADE_TABLE',TABLE_PREFIX.'kb_premade');
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.group.php');
 require_once(INCLUDE_DIR.'class.nav.php');
+require_once(INCLUDE_DIR.'class.csrf.php');
 
 /* First order of the day is see if the user is logged in and with a valid session.
     * User must be valid staff beyond this point 
@@ -80,6 +81,16 @@ if(!$thisstaff->isAdmin()) {
 //Keep the session activity alive
 $thisstaff->refreshSession();
 
+/******* CSRF Protectin *************/
+// Enforce CSRF protection for POSTS
+if ($_POST  && !$ost->checkCSRFToken()) {
+    Http::response(400, 'Valid CSRF Token Required');
+    exit;
+}
+
+//Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME] 
+$ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'" />');
+
 /******* SET STAFF DEFAULTS **********/
 //Set staff's timezone offset.
 $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
@@ -92,8 +103,12 @@ $errors=array();
 $msg=$warn=$sysnotice='';
 $tabs=array();
 $submenu=array();
-if($ost->isUpgradePending()) {
-    $errors['err']=$sysnotice='System upgrade is pending <a href="../setup/upgrade.php">Upgrade Now</a>';
+$exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.php', 'logs.php', 'upgrade.php'));
+
+if($ost->isUpgradePending() && !$exempt) {
+    $errors['err']=$sysnotice='System upgrade is pending <a href="upgrade.php">Upgrade Now</a>';
+    require('upgrade.php');
+    exit;
 } elseif($cfg->isHelpDeskOffline()) {
     $sysnotice='<strong>System is set to offline mode</strong> - Client interface is disabled and ONLY admins can access staff control panel.';
     $sysnotice.=' <a href="settings.php">Enable</a>.';
@@ -101,7 +116,7 @@ if($ost->isUpgradePending()) {
 
 $nav = new StaffNav($thisstaff);
 //Check for forced password change.
-if($thisstaff->forcePasswdChange()){
+if($thisstaff->forcePasswdChange() && !$exempt) {
     # XXX: Call staffLoginPage() for AJAX and API requests _not_ to honor
     #      the request
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.

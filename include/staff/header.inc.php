@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="pragma" content="no-cache" />
     <title>osTicket Staff Control Panel</title>
     <!--[if IE]>
     <style type="text/css">
@@ -10,6 +12,7 @@
     <![endif]-->
     <script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="../js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.multifile.js"></script>
     <script type="text/javascript" src="./js/tips.js"></script>
     <script type="text/javascript" src="./js/nicEdit.js"></script>
     <script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
@@ -23,7 +26,7 @@
     }
     ?>
 </head>
-<body>
+<body onunload="">
 <div id="container">
     <div id="header">
         <a href="index.php" id="logo">osTicket - Customer Support System</a>
@@ -34,7 +37,8 @@
             <?php }else{ ?>
             | <a href="index.php">Staff Panel</a>
             <?php } ?>
-            | <a href="profile.php">My Preferences</a> | <a href="logout.php">Log Out</a>
+            | <a href="profile.php">My Preferences</a> 
+            | <a href="logout.php?auth=<?php echo md5($ost->getCSRFToken().SECRET_SALT.session_id()); ?>">Log Out</a>
         </p>
     </div>
     <ul id="nav">

@@ -73,7 +73,7 @@ $total=db_count("SELECT count(*) $qfrom $qwhere");
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 //pagenate
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('syslogs.php',$qstr);
+$pageNav->setURL('logs.php',$qstr);
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$qselect $qfrom $qwhere ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
@@ -85,7 +85,7 @@ else
 
 <h2>System Logs</h2>
 <div id='filter' >
- <form action="syslogs.php" method="get">
+ <form action="logs.php" method="get">
     <div style="padding-left:2px;">
         <b>Date Span</b>:
         &nbsp;From&nbsp;<input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
@@ -104,17 +104,18 @@ else
     </div>
  </form>
 </div>
-<form action="syslogs.php" method="POST" name="logs" onSubmit="return checkbox_checker(this,1,0);">
+<form action="logs.php" method="POST" name="logs" onSubmit="return checkbox_checker(this,1,0);">
+<?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7">&nbsp;</th>        
-            <th width="320"><a <?php echo $title_sort; ?> href="syslogs.php?<?php echo $qstr; ?>&sort=title">Log Title</a></th>
-            <th width="100"><a  <?php echo $type_sort; ?> href="syslogs.php?<?php echo $qstr; ?>&sort=type">Log Type</a></th>
-            <th width="200" nowrap><a  <?php echo $date_sort; ?>href="syslogs.php?<?php echo $qstr; ?>&sort=date">Log Date</a></th>
-            <th width="120"><a  <?php echo $ip_sort; ?> href="syslogs.php?<?php echo $qstr; ?>&sort=ip">IP Address</a></th>
+            <th width="320"><a <?php echo $title_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=title">Log Title</a></th>
+            <th width="100"><a  <?php echo $type_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=type">Log Type</a></th>
+            <th width="200" nowrap><a  <?php echo $date_sort; ?>href="logs.php?<?php echo $qstr; ?>&sort=date">Log Date</a></th>
+            <th width="120"><a  <?php echo $ip_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=ip">IP Address</a></th>
         </tr>
     </thead>
     <tbody>

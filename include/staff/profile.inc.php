@@ -6,6 +6,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $info['id']=$staff->getId();
 ?>
 <form action="profile.php" method="post" id="save" autocomplete="off">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2>My Account Profile</h2>

@@ -49,6 +49,7 @@ else
     <b><a href="emails.php?a=add" class="Icon newEmail">Add New Email</a></b></div>
 <div class="clear"></div>
 <form action="emails.php" method="POST" name="emails" onSubmit="return checkbox_checker(this,1,0);">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>

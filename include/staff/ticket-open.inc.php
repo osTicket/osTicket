@@ -4,6 +4,7 @@ $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
+ <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
  <h2>Open New Ticket</h2>
@@ -161,7 +162,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <?php
             if($cfg->allowAttachments()) { ?>
                 <br><em><b>Attachments:</b> Response required when files are attached.</em>
-                <div id="canned_attachments">
+                <div class="canned_attachments">
                     <?php
                     if($info['cannedattachments']) {
                         foreach($info['cannedattachments'] as $k=>$id) {
@@ -174,7 +175,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </div>
-                <div id="uploads"></div>
+                <div class="uploads"></div>
                 <div class="file_input">
                     <input type="file" class="multifile" name="attachments[]" size="30" value="" />
                 </div>
