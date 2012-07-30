@@ -1,8 +1,19 @@
+New stuff in 1.7-rc1
+====================
+  * Upgrade support for osTicket 1.6-rc1 and later
+  * Multi-file upload support -- more than one file (configurable) can be
+    uploaded with new messages, replies, and internal notes via the web
+    interface
+  * Department/Group access feature allowing members of a group access to a
+    department. Staff members are members of a (primary) group, and that
+    group can be granted access to one or more departments, granting the
+    associated staff access to departments other than their primary
+    department.
+  * Email filters can specify a canned auto-response
+  * Support inline attachments for fetched email
+
 New stuff in 1.7-dpr4
 ======================
-
-Features
---------
   * Dashboard reports for ticket system activity and statistics
   * PDF print / export for tickets (staff pages only)
 
@@ -17,9 +28,6 @@ New stuff in 1.7-dpr3
 
 New stuff in 1.7-dpr2
 ======================
-
-Features
---------
   * Autocomplete for ticket search box (emails and ticket numbers typeahead)
   * Redesigned staff login page
   * Warning when leaving unsaved changes in admin and staff settings pages
@@ -28,25 +36,6 @@ Features
   * Create a ticket in one click from the staff panel
   * Preview ticket from the search results
   * Export tickets to CSV file
-
-Issues
-------
-  * (#1) Automatically cleanup orphaned attachments
-  * (#2) Reject ticket creation when a matching email filter has
-         'Reject email' set
-  * (#3) Ticket search results are properly paginated
-  * (#4) Make email filters editable
-  * (#5) Add .htaccess for API URLs rewrites
-  * (#6) Add utf-8 content type declaration for installer HTML output
-  * (#8) Fix installer for PHP settings with 'register_globals' enabled
-
-Outstanding
------------
-  * Implement the dashboard reports
-  * Advanced search form for ticket searches
-  * Multi-file upload for responses, notes, and new tickets
-  * PDF export for ticket thread
-  * Misc. improvements
 
 New Features in 1.7
 ===================
@@ -62,6 +51,7 @@ tickets:
   * To a specific department, staff member, and/or team
   * Automatically assign ticket priority and/or service-level-agreement
   * Disable ticket auto-responses
+  * Send automatic canned responses
 
 Canned Attachments
 ------------------
