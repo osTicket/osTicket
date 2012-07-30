@@ -147,7 +147,7 @@ class MailFetcher {
             return null;
 
         $list = array();
-        foreach($folders as $k => $folder)
+        foreach($folders as $folder)
             $list[]= str_replace($this->srvstr, '', imap_utf7_decode(trim($folder)));
 
         return $list;
@@ -211,7 +211,7 @@ class MailFetcher {
         
         $str = '';
         $parts = imap_mime_header_decode($text);
-        foreach ($parts as $k => $part)
+        foreach ($parts as $part)
             $str.= $part->text;
         
         return $str?$str:imap_utf8($text);
