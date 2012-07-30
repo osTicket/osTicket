@@ -147,7 +147,7 @@ class MailFetcher {
             return null;
 
         $list = array();
-        foreach($folders as $k => $folder)
+        foreach($folders as $folder)
             $list[]= str_replace($this->srvstr, '', imap_utf7_decode(trim($folder)));
 
         return $list;
@@ -211,7 +211,7 @@ class MailFetcher {
         
         $str = '';
         $parts = imap_mime_header_decode($text);
-        foreach ($parts as $k => $part)
+        foreach ($parts as $part)
             $str.= $part->text;
         
         return $str?$str:imap_utf8($text);
@@ -478,8 +478,15 @@ class MailFetcher {
                 $errors++;
             }
 
-            if(($max && $msgs>=$max) || $errors>100)
+            if($max && ($msgs>=$max || $errors>($max*0.8)))
                 break;
+        }
+
+        //Warn on excessive errors
+        if($errors>$msgs) {
+            $warn=sprintf('Excessive errors processing emails for %s/%s. Please manually check the inbox.',
+                    $this->getHost(), $this->getUsername());
+            $this->log($warn);
         }
 
         @imap_expunge($this->mbox);
@@ -487,6 +494,10 @@ class MailFetcher {
         return $msgs;
     }
 
+    function log($error) {
+        global $ost;
+        $ost->logWarning('Mail Fetcher', $error);
+    }
 
     /*
        MailFetcher::run()
