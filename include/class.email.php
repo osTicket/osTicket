@@ -98,6 +98,27 @@ class Email {
         return $this->getHashtable();
     }
 
+    function getMailAccountInfo() {
+
+        /*NOTE: Do not change any of the tags - otherwise mail fetching will fail */
+        $info = array(
+                //Mail server info
+                'host'  => $this->ht['mail_host'],
+                'port'  => $this->ht['mail_port'],
+                'protocol'  => $this->ht['mail_protocol'],
+                'encryption' => $this->ht['mail_encryption'],
+                'username'  => $this->ht['userid'],
+                'password' => Mcrypt::decrypt($this->ht['userpass'], SECRET_SALT),
+                //osTicket specific                
+                'email_id'  => $this->getId(), //Required for email routing to work.
+                'max_fetch' => $this->ht['mail_fetchmax'],
+                'delete_mail' => $this->ht['mail_delete'],
+                'archive_folder' => $this->ht['mail_archivefolder']
+                );
+
+        return $info;
+    }
+
     function isSMTPEnabled() {
         return $this->ht['smtp_active'];
     }
@@ -106,17 +127,15 @@ class Email {
         return ($this->ht['smtp_spoofing']);
     }
 
-    function getSMTPInfo($active=true) {
-        $info=array();
-        if(!$active || ($active && $this->isSMTPEnabled())) {
-
-            $info = array ('host' => $this->ht['smtp_host'],
-                           'port' => $this->ht['smtp_port'],
-                           'auth' => $this->ht['smtp_auth'],
-                           'username' => $this->ht['userid'],
-                           'password' =>Mcrypt::decrypt($this->ht['userpass'],SECRET_SALT)
-                           );
-        }
+    function getSMTPInfo() {
+            
+        $info = array (
+                'host' => $this->ht['smtp_host'],
+                'port' => $this->ht['smtp_port'],
+                'auth' => $this->ht['smtp_auth'],
+                'username' => $this->ht['userid'],
+                'password' => Mcrypt::decrypt($this->ht['userpass'], SECRET_SALT)
+                );
 
         return $info;
     }
@@ -207,12 +226,12 @@ class Email {
         $vars=$vars;
         $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
 
-        if($this->save($this->getId(),$vars,$errors)) {
-            $this->reload();
-            return true;
-        }
+        if(!$this->save($this->getId(), $vars, $errors))
+            return false;
 
-        return false;
+        $this->reload();
+        
+        return true;
     }
 
 
@@ -341,11 +360,8 @@ class Email {
 
             if(!isset($vars['postfetch']))
                 $errors['postfetch']='Indicate what to do with fetched emails';
-            elseif(!strcasecmp($vars['postfetch'],'archive')) {
-                if(!$vars['mail_archivefolder'])
-                    $errors['postfetch']='Valid folder required';
-            }
-            
+            elseif(!strcasecmp($vars['postfetch'],'archive') && !$vars['mail_archivefolder'] )
+                $errors['postfetch']='Valid folder required';
         }
         
         if($vars['smtp_active']) {
@@ -370,10 +386,16 @@ class Email {
         
         $passwd=$vars['passwd']?$vars['passwd']:$vars['cpasswd'];
         if(!$errors && $vars['mail_active']) {
-           
             //note: password is unencrypted at this point...MailFetcher expect plain text.
-            $fetcher = new MailFetcher($vars['userid'],$passwd,$vars['mail_host'],$vars['mail_port'],
-                                            $vars['mail_protocol'],$vars['mail_encryption']);
+            $fetcher = new MailFetcher(
+                    array(
+                        'host'  => $vars['mail_host'],
+                        'port'  => $vars['mail_port'],
+                        'username'  => $vars['userid'],
+                        'password'  => $passwd,
+                        'protocol'  => $vars['mail_protocol'],
+                        'encryption' => $vars['mail_encryption'])
+                    );
             if(!$fetcher->connect()) {
                 $errors['err']='Invalid login. Check '.Format::htmlchars($vars['mail_protocol']).' settings';
                 $errors['mail']='<br>'.$fetcher->getLastError();
