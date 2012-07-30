@@ -26,6 +26,7 @@ $info=array_merge($template->getMsgTemplate($info['tpl']),$info);
     </form>
 </div>
 <form action="templates.php?id=<?php echo $template->getId(); ?>" method="post" id="save">
+<?php csrf_token(); ?>
 <input type="hidden" name="id" value="<?php echo $template->getId(); ?>">
 <input type="hidden" name="tpl" value="<?php echo $info['tpl']; ?>">
 <input type="hidden" name="a" value="manage">

@@ -955,7 +955,7 @@ class Ticket{
         $this->reload();
 
 
-        if(!$dept && !($tpl = $dept->getTemplate()))
+        if(!$dept || !($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
        
         //If enabled...send confirmation to user. ( New Message AutoResponse)
@@ -996,7 +996,7 @@ class Ticket{
         $dept = $this->getDept();
 
         //Get template.
-        if(!$dept && !($tpl = $dept->getTemplate()))
+        if(!$dept || !($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
 
         //Email to use!
@@ -1292,7 +1292,7 @@ class Ticket{
     }
 
     //Insert message from client
-    function postMessage($msg,$source='',$emsgid=null,$headers='',$newticket=false){
+    function postMessage($message,$source='',$emsgid=null,$headers='',$newticket=false){
         global $cfg;
        
         if(!$this->getId()) return 0;
@@ -1303,7 +1303,7 @@ class Ticket{
             .' ,thread_type="M" '
             .' ,ticket_id='.db_input($this->getId())
             # XXX: Put Subject header into the 'title' field
-            .' ,body='.db_input(Format::striptags($msg)) //Tags/code stripped...meaning client can not send in code..etc
+            .' ,body='.db_input(Format::striptags($message)) //Tags/code stripped...meaning client can not send in code..etc
             .' ,source='.db_input($source?$source:$_SERVER['REMOTE_ADDR'])
             .' ,ip_address='.db_input($_SERVER['REMOTE_ADDR']);
     
@@ -1336,13 +1336,12 @@ class Ticket{
         if(!($email=$cfg->getAlertEmail()))
             $email =$cfg->getDefaultEmail();
 
-
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
             $body=$this->replaceTemplateVars($msg['body']);
             $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace("%message", $msg,$body);
+            $body = str_replace("%message", $message,$body);
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1494,14 +1493,16 @@ class Ticket{
     //Insert Internal Notes 
     function postNote($title,$note,$alert=true,$poster='') {        
         global $thisstaff,$cfg;
-
+		
+        $poster=($poster || !$thisstaff)?$poster:$thisstaff->getName();
+		
         $sql= 'INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '.
                 ',thread_type="N"'.
                 ',ticket_id='.db_input($this->getId()).
                 ',title='.db_input(Format::striptags($title)).
                 ',body='.db_input(Format::striptags($note)).
                 ',staff_id='.db_input($thisstaff?$thisstaff->getId():0).
-                ',poster='.db_input(($poster || !$thisstaff)?$poster:$thisstaff->getName());
+                ',poster='.db_input($poster);
         //echo $sql;
         if(!db_query($sql) || !($id=db_insert_id()))
             return false;
@@ -1522,6 +1523,8 @@ class Ticket{
             $body=$this->replaceTemplateVars($msg['body']);
             $subj=$this->replaceTemplateVars($msg['subj']);
             $body = str_replace('%note',"$title\n\n$note",$body);
+            # TODO: Support a variable replacement of the staff writing the
+            #       note
 
             // Alert recipients    
             $recipients=array();
