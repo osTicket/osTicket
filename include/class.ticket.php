@@ -624,7 +624,7 @@ class Ticket{
             /* The has here can be changed  but must match validation in attachment.php */
             $hash=md5($attachment['file_id'].session_id().$attachment['file_hash']); 
             if($attachment['size'])
-                $size=sprintf('(<i>%s</i>)',Format::file_size($attachment['size']));
+                $size=sprintf('<em>(%s)</em>', Format::file_size($attachment['size']));
                 
             $str.=sprintf('<a class="Icon file" href="attachment.php?id=%d&h=%s" target="%s">%s</a>%s&nbsp;%s',
                     $attachment['attach_id'], $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
@@ -1372,7 +1372,7 @@ class Ticket{
     }
 
     /* public */ 
-    function postReply($vars, $files, $errors, $alert = true) {
+    function postReply($vars, $errors, $alert = true) {
         global $thisstaff,$cfg;
 
         if(!$thisstaff || !$thisstaff->isStaff() || !$cfg) return 0;
@@ -1380,7 +1380,7 @@ class Ticket{
         if(!$vars['msgId'])
             $errors['msgId'] ='Missing messageId - internal error';
         if(!$vars['response'])
-            $errors['response'] = 'Resonse message required';
+            $errors['response'] = 'Response message required';
 
         if($errors) return 0;
 
@@ -1401,20 +1401,17 @@ class Ticket{
             $this->setStatus($vars['reply_ticket_status']);
 
         /* We can NOT recover from attachment related failures at this point */
-        //upload files.
-        $attachments = $uploads = array();
-        //Web based upload..
-        if($files && is_array($files) && ($files=Format::files($files)))
-            $attachments=array_merge($attachments,$files);
+        $attachments = array();
+        //Web based upload.. note that we're not "validating" attachments on response.
+        if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+            $attachments=$this->uploadAttachments($files, $respId, 'R');
 
         //Canned attachments...
-        if($vars['cannedattachments'] && is_array($vars['cannedattachments']))
-            $attachments=array_merge($attachments,$vars['cannedattachments']);
-
-        
-        //Upload attachments -ids used on outgoing emails are returned.
-        if($attachments)
-            $uploads = $this->uploadAttachments($attachments, $respId,'R');
+        if($vars['cannedattachments'] && is_array($vars['cannedattachments'])) {
+            foreach($vars['cannedattachments'] as $fileId)
+                if($fileId && $this->saveAttachment($fileId, $respId, 'R'))
+                    $attachments[] = $fileId;
+        }
 
         $this->onResponse(); //do house cleaning..
         $this->reload();
@@ -1448,7 +1445,7 @@ class Ticket{
                 $body ="\n$tag\n\n".$body;
 
             //Set attachments if emailing.
-            $attachments =($cfg->emailAttachments() && $uploads)?$this->getAttachments($respId,'R'):array();
+            $attachments =($cfg->emailAttachments() && $attachments)?$this->getAttachments($respId,'R'):array();
             //TODO: setup  5 param (options... e.g mid trackable on replies)
             $email->send($this->getEmail(), $subj, $body, $attachments);
         }
@@ -1566,14 +1563,29 @@ class Ticket{
 
     //online based attached files.
     function uploadAttachments($files, $refid, $type) {
+        global $ost;
 
         $uploaded=array();
         foreach($files as $file) {
-            if(($fileId=is_numeric($file)?$file:AttachmentFile::upload($file)) && is_numeric($fileId))
-                if($this->saveAttachment($fileId, $refid, $type))
-                    $uploaded[]=$fileId;
-        }
+            if(!$file['error'] 
+                    && ($id=AttachmentFile::upload($file)) 
+                    && $this->saveAttachment($id, $refid, $type))
+                $uploaded[]=$id;
+            elseif($file['error']!=UPLOAD_ERR_NO_FILE) { 
+                
+                // log file upload errors as interal notes + syslog debug.
+                if($file['error'] && gettype($file['error'])=='string')
+                    $error = $file['error'];
+                else
+                    $error ='Error #'.$file['error'];
 
+                $this->postNote('File Upload Error', $error, false);
+               
+                $ost->logDebug('File Upload Error (Ticket #'.$this->getExtId().')', $error);
+            }
+            
+        }
+        
         return $uploaded;
     }
 
@@ -1964,16 +1976,15 @@ class Ticket{
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
-        $dept = $ticket->getDept();
-     
+        
         if(!$cfg->useRandomIds()){
             //Sequential ticketIDs support really..really suck arse.
             $extId=$id; //To make things really easy we are going to use autoincrement ticket_id.
             db_query('UPDATE '.TICKET_TABLE.' SET ticketID='.db_input($extId).' WHERE ticket_id='.$id.' LIMIT 1'); 
             //TODO: RETHING what happens if this fails?? [At the moment on failure random ID is used...making stuff usable]
-        }   
+        }
 
-
+        $dept = $ticket->getDept();
         //post the message.
         $msgid=$ticket->postMessage($vars['message'],$source,$vars['mid'],$vars['header'],true);
 
@@ -2008,28 +2019,27 @@ class Ticket{
             $autorespond=false;
         }
 
-        // If a canned-response is immediately queued for this ticket,
-        // disable the autoresponse
-        if ($vars['cannedResponseId'])
-            $autorespond=false;
-
-        /***** See if we need to send some alerts ****/
-
-        $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
-
         if ($vars['cannedResponseId']
                 && ($canned = Canned::lookup($vars['cannedResponseId']))
                 && $canned->isEnabled()) {
             $files = array();
             foreach ($canned->getAttachments() as $file)
                 $files[] = $file['id'];
-            $ticket->postReply(array(
-                    'msgId'     => $msgid,
-                    'response'  =>
-                        $ticket->replaceTemplateVars($canned->getResponse()),
-                    'cannedattachments' => $files
-                ), null, $errors, true);
+            $ticket->postReply(
+                    array(
+                        'msgId'     => $msgid,
+                        'response'  =>
+                            $ticket->replaceTemplateVars($canned->getResponse()),
+                        'cannedattachments' => $files
+                    ),$errors, true);
+                    
+            // If a canned-response is immediately queued for this ticket,
+            // disable the autoresponse
+            $autorespond=false;
         }
+
+        /***** See if we need to send some alerts ****/
+        $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
 
         /************ check if the user JUST reached the max. open tickets limit **********/
         if($cfg->getMaxOpenTickets()>0
@@ -2046,7 +2056,7 @@ class Ticket{
         return $ticket;
     }
 
-    function open($vars, $files, &$errors) {
+    function open($vars, &$errors) {
         global $thisstaff,$cfg;
 
         if(!$thisstaff || !$thisstaff->canCreateTickets()) return false;
@@ -2068,7 +2078,7 @@ class Ticket{
         // post response - if any
         if($vars['response']) {
             $vars['response']=$ticket->replaceTemplateVars($vars['response']);
-            if(($respId=$ticket->postReply($vars,  $files, $errors, false))) {
+            if(($respId=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
                 if(isset($vars['ticket_state']) && $thisstaff->canCloseTickets())
                     $ticket->setState($vars['ticket_state']);

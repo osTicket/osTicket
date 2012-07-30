@@ -323,11 +323,13 @@ class MailFetcher {
     }
 
     function saveAttachments($ticket,$mid,$part,$index=0) {
-        global $cfg;
+        global $ost;
 
         if($part && $part->ifdparameters && ($filename=$part->dparameters[0]->value)){ //attachment
             $index=$index?$index:1;
-            if($ticket && $cfg->canUploadFileType($filename) && $cfg->getMaxFileSize()>=$part->bytes) {
+            if($ticket 
+                    && $ost->isFileTypeAllowed($filename) 
+                    && $ost->getConfig()->getMaxFileSize()>=$part->bytes) {
                 //extract the attachments...and do the magic.
                 $data=$this->decode($part->encoding, imap_fetchbody($this->mbox,$mid,$index));
                 $ticket->saveAttachment(array('name'=>$filename, 'data'=>$data),$ticket->getLastMsgId(),'M');

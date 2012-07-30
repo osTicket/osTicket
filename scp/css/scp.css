@@ -30,7 +30,8 @@ a {
 
 .strike { text-decoration:line-through; color:red; }
 
-#canned_attachments label { padding:3px; padding-right:10px; }
+.canned_attachments label, .canned_attachments span .uploads label { padding:3px; padding-right:10px; }
+.canned_attachments label { padding-right:3px; }
 
 
 #breadcrumbs {

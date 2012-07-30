@@ -121,7 +121,7 @@ $(document).ready(function(){
 
 
     //Canned attachments.
-    $('#canned_attachments, #faq_attachments').delegate('input:checkbox', 'click', function(e) {
+    $('.canned_attachments, .faq_attachments').delegate('input:checkbox', 'click', function(e) {
         var elem = $(this);
         if(!$(this).is(':checked') && confirm("Are you sure you want to remove this attachment?")==true) {
             elem.parent().addClass('strike');
@@ -154,12 +154,13 @@ $(document).ready(function(){
                             $('#response',fObj).val(canned.response);
                     }
                     //Canned attachments.
-                    if(canned.files && $('#canned_attachments',fObj).length) {
+                    if(canned.files && $('.canned_attachments',fObj).length) {
                         $.each(canned.files,function(i, j) {
-                            if(!$('#canned_attachments #f'+j.id,fObj).length) {
-                                var file='<label><input type="checkbox" name="cannedattachments[]" value="' + j.id+'" id="f'+j.id+'" checked="checked">';
-                                    file+= '<a href="file.php?h=' + j.hash + j.key+ '">'+ j.name +'</a></label>';
-                                $('#canned_attachments', fObj).append(file);
+                            if(!$('.canned_attachments #f'+j.id,fObj).length) {
+                                var file='<span><label><input type="checkbox" name="cannedattachments[]" value="' + j.id+'" id="f'+j.id+'" checked="checked">';
+                                    file+= ' '+ j.name + '</label>';
+                                    file+= ' (<a href="file.php?h=' + j.hash + j.key+ '">view</a>) </span>';
+                                $('.canned_attachments', fObj).append(file);
                             }
 
                          });
@@ -203,17 +204,24 @@ $(document).ready(function(){
        });
 
     /* Get config settings from the backend */
-    $.get('ajax.php/config/ui.json',
-        function(config){
-            /*
-            if(config && config.max_attachments)
-                alert(config.max_attachments);
-            */
-        },
-        'json')
-        .error( function() {});
-    /* Datepicker */
+    var $config = null;
+    $.ajax({
+        url: "ajax.php/config/scp",
+        dataType: 'json',
+        async: false,
+        success: function (config) {
+            $config = config;
+            }
+        });
+     
+    /* Multifile uploads */
+     $('.multifile').multifile({
+        container:   '.uploads',
+        max_uploads: ($config && $config.max_file_uploads)?$config.max_file_uploads:1,
+        file_types:  ($config && $config.file_types)?$config.file_types:".*"
+        });
 
+    /* Datepicker */
     $('.dp').datepicker({
         numberOfMonths: 2,
         showButtonPanel: true,

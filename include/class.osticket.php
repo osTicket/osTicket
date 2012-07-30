@@ -109,6 +109,45 @@ class osTicket {
 
         return false;
     }
+    
+    function isFileTypeAllowed($file, $mimeType='') {
+       
+        if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
+            return false;
+
+        //Return true if all file types are allowed (.*)
+        if(trim($allowedFileTypes)=='.*') return true;
+
+        $allowed = array_map('trim', explode(',', strtolower($allowedFileTypes)));
+        $filename = is_array($file)?$file['name']:$file;
+
+        $ext = strtolower(preg_replace("/.*\.(.{3,4})$/", "$1", $filename));
+
+        //TODO: Check MIME type - file ext. shouldn't be solely trusted.
+
+        return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
+    }
+
+    /* Function expects a well formatted array - see  Format::files()
+       It's up to the caller to reject the upload on error.
+     */
+    function validateFileUploads(&$files) {
+       
+        $errors=0;
+        foreach($files as &$file) {
+            if(!$this->isFileTypeAllowed($file))
+                $file['error']='Invalid file type for '.$file['name'];
+            elseif($file['size']>$this->getConfig()->getMaxFileSize())
+                $file['error']=sprintf('File (%s) is too big. Maximum of %s allowed',
+                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
+            elseif(!$file['error'] && !is_uploaded_file($file['tmp_name']))
+                $file['error']='Invalid or bad upload POST';
+
+            if($file['error']) $errors++;
+        }
+
+        return (!$errors);
+    }
 
     function addExtraHeader($header) {
         $this->headers[md5($header)] = $header;

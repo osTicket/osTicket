@@ -295,8 +295,13 @@ class Config {
         return $this->config['max_file_size'];
     }
 
-    function getMaxFileUploads() {
+    function getStaffMaxFileUploads() {
         return $this->config['max_staff_file_uploads'];
+    }
+
+    function getClientMaxFileUploads() {
+        //TODO: change max_user_file_uploads to max_client_file_uploads
+        return $this->config['max_user_file_uploads'];
     }
 
     function getLogLevel() {
@@ -509,6 +514,9 @@ class Config {
     
 
     /* Attachments */
+    function getAllowedFileTypes() {
+        return trim($this->config['allowed_filetypes']);
+    }
 
     function emailAttachments() {
         return ($this->config['email_attachments']);
@@ -530,22 +538,11 @@ class Config {
         return ($this->allowAttachments() && $this->config['allow_email_attachments']);
     }
 
+    /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
     function getUploadDir() {
         return $this->config['upload_dir'];
     }
     
-    //simply checking if destination dir is usable..nothing to do with permission to upload!
-    function canUploadFiles() {   
-        $dir=$this->config['upload_dir'];
-        return ($dir && is_writable($dir))?TRUE:FALSE;
-    }
-
-    function canUploadFileType($filename) {       
-        $ext = strtolower(preg_replace("/.*\.(.{3,4})$/", "$1", $filename));
-        $allowed=$this->config['allowed_filetypes']?array_map('trim',explode(',',strtolower($this->config['allowed_filetypes']))):null;
-        return ($ext && is_array($allowed) && (in_array(".$ext",$allowed) || in_array(".*",$allowed)))?TRUE:FALSE;
-    }
-
     function updateSettings($vars,&$errors) {
 
         if(!$vars || $errors)
@@ -736,10 +733,10 @@ class Config {
                 $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
 
             if(!$vars['max_user_file_uploads'] || $vars['max_user_file_uploads']>$maxfileuploads)
-                $errors['max_user_file_uploads']='Invalid selection';
+                $errors['max_user_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
 
             if(!$vars['max_staff_file_uploads'] || $vars['max_staff_file_uploads']>$maxfileuploads)
-                $errors['max_staff_file_uploads']='Invalid selection';
+                $errors['max_staff_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
         }
 
         if($errors) return false;

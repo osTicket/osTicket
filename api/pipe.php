@@ -100,8 +100,6 @@ if(preg_match ("[[#][0-9]{1,10}]",$var['subject'],$regs)) {
 $errors=array();
 $msgid=0;
 if(!$ticket){ //New tickets...
-    # Apply filters against the new ticket
-    $ef = new EmailFilter($var); $ef->apply($var);
     $ticket=Ticket::create($var,$errors,'email');
     if(!is_object($ticket) || $errors){
         api_exit(EX_DATAERR,'Ticket create Failed '.implode("\n",$errors)."\n\n");
@@ -118,14 +116,10 @@ if(!$ticket){ //New tickets...
     }
 }
 //Ticket created...save attachments if enabled.
-if($cfg->allowEmailAttachments()) {                   
-    if($attachments=$parser->getAttachments()){
-        //print_r($attachments);
-        foreach($attachments as $k=>$attachment){
-            if($attachment['filename'] && $cfg->canUploadFileType($attachment['filename'])) {
-                $ticket->saveAttachment(array('name' => $attachment['filename'], 'data' => $attachment['body']),$msgid,'M');
-            }
-        }
+if($cfg->allowEmailAttachments() && ($attachments=$parser->getAttachments())) {
+    foreach($attachments as $attachment) {
+        if($attachment['filename'] && $ost->isFileTypeAllowed($attachment['filename']))
+            $ticket->saveAttachment(array('name' => $attachment['filename'], 'data' => $attachment['body']), $msgid, 'M');
     }
 }
 api_exit(EX_SUCCESS);

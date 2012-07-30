@@ -28,7 +28,7 @@ ini_set('display_errors','0'); //Disable error display
 ini_set('display_startup_errors','0');
 
 //TODO: disable direct access via the browser? i,e All request must have REFER? 
-if(!defined('INCLUDE_DIR'))	Http::response(500,'config error');
+if(!defined('INCLUDE_DIR'))	Http::response(500, 'Server configuration error');
 
 require_once INCLUDE_DIR.'/class.dispatcher.php';
 require_once INCLUDE_DIR.'/class.ajax.php';
@@ -43,7 +43,7 @@ $dispatcher = patterns('',
         url_get('^ticket_variables', 'ticket_variables')
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
-        url_get('^ui', 'scp_ui')
+        url_get('^scp', 'scp')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
