@@ -139,7 +139,7 @@ class Mailer {
             $mail = mail::factory('smtp',
                     array ('host' => $smtp['host'],
                            'port' => $smtp['port'],
-                           'auth' => $smtp['auth']?true:false,
+                           'auth' => $smtp['auth'],
                            'username' => $smtp['username'],
                            'password' => $smtp['password'],
                            'timeout'  =>20,

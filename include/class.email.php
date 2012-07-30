@@ -132,7 +132,7 @@ class Email {
         $info = array (
                 'host' => $this->ht['smtp_host'],
                 'port' => $this->ht['smtp_port'],
-                'auth' => $this->ht['smtp_auth'],
+                'auth' => (bool) $this->ht['smtp_auth'],
                 'username' => $this->ht['userid'],
                 'password' => Mcrypt::decrypt($this->ht['userpass'], SECRET_SALT)
                 );
@@ -305,7 +305,7 @@ class Email {
             $smtp = mail::factory('smtp',
                     array ('host' => $vars['smtp_host'],
                            'port' => $vars['smtp_port'],
-                           'auth' => $vars['smtp_auth']?true:false,
+                           'auth' => (bool) $vars['smtp_auth'],
                            'username' =>$vars['userid'],
                            'password' =>$passwd,
                            'timeout'  =>20,
