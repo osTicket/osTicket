@@ -478,8 +478,15 @@ class MailFetcher {
                 $errors++;
             }
 
-            if(($max && $msgs>=$max) || $errors>100)
+            if($max && ($msgs>=$max || $errors>($max*0.8)))
                 break;
+        }
+
+        //Warn on excessive errors
+        if($errors>$msgs) {
+            $warn=sprintf('Excessive errors processing emails for %s/%s. Please manually check the inbox.',
+                    $this->getHost(), $this->getUsername());
+            $this->log($warn);
         }
 
         @imap_expunge($this->mbox);
@@ -487,6 +494,10 @@ class MailFetcher {
         return $msgs;
     }
 
+    function log($error) {
+        global $ost;
+        $ost->logWarning('Mail Fetcher', $error);
+    }
 
     /*
        MailFetcher::run()
