@@ -1302,8 +1302,8 @@ class Ticket{
         //Strip quoted reply...on emailed replies
         if(!strcasecmp($source, 'Email') 
                 && $cfg->stripQuotedReply() 
-                && ($tag=$cfg->getReplySeparator()) && strpos($msg, $tag))
-            list($msg)=split($tag, $msg);
+                && ($tag=$cfg->getReplySeparator()) && strpos($message, $tag))
+            list($message)=split($tag, $message);
 
 
         # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
