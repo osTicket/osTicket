@@ -66,7 +66,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                     <option value="API"   <?php echo ($info['source']=='API')?'selected="selected"':''; ?>>API</option>
                     <option value="Other" <?php echo ($info['source']=='Other')?'selected="selected"':''; ?>>Other</option>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?=$errors['source']?></font>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
         </tr>
         <tr>
@@ -85,7 +85,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?=$errors['topicId']?></font>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
         <tr>
@@ -104,7 +104,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error">*&nbsp;<?=$errors['priorityId']?></font>
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['priorityId']; ?></font>
             </td>
         </tr>
         <tr>
@@ -123,7 +123,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error">*&nbsp;<?=$errors['slaId']?></font>
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['slaId']; ?></font>
             </td>
         </tr>
         <tr>
@@ -131,8 +131,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                 Subject:
             </td>
             <td>
-                 <input type="text" name="subject" size="60" value="<?=$info['subject']?>">
-                 &nbsp;<font class="error">*&nbsp;<?=$errors['subject']?></font>
+                 <input type="text" name="subject" size="60" value="<?php echo $info['subject']; ?>">
+                 &nbsp;<font class="error">*&nbsp;<?php $errors['subject']; ?></font>
             </td>
         </tr>
         <tr>
@@ -149,7 +149,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                     
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
-                &nbsp;<font class="error">&nbsp;<?=$errors['duedate']?>&nbsp;<?php echo $errors['time']; ?></font>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?>&nbsp;<?php echo $errors['time']; ?></font>
                 <em>Time is based on your time zone (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
             </td>
         </tr>

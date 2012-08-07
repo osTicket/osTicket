@@ -92,7 +92,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <div>
                     <input type="file" name="attachments[]" value=""/>
                 </div>
-                <?}?>
+                <?php 
+                }?>
                 <div class="faded">You can upload up to 10 attachments per canned response.</div>
             </td>
         </tr>

@@ -30,7 +30,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <?php 
             if($cfg->notifyONNewStaffTicket()) { ?>
                &nbsp;&nbsp;&nbsp;
-               <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''?>>Send alert to user.
+               <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>>Send alert to user.
             <?php 
              } ?>
             </td>
@@ -71,7 +71,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <option value="Email" <?php echo ($info['source']=='Email')?'selected="selected"':''; ?>>Email</option>
                     <option value="Other" <?php echo ($info['source']=='Other')?'selected="selected"':''; ?>>Other</option>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?=$errors['source']?></font>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
         </tr>
         <tr>
@@ -90,7 +90,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?=$errors['deptId']?></font>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['deptId']; ?></font>
             </td>
         </tr>
 
@@ -110,7 +110,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?=$errors['topicId']?></font>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
         <tr>
@@ -118,13 +118,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Subject:
             </td>
             <td>
-                 <input type="text" name="subject" size="55" value="<?=$info['subject']?>">
-                 &nbsp;<font class="error">*&nbsp;<?=$errors['subject']?></font>
+                 <input type="text" name="subject" size="55" value="<?php echo $info['subject']; ?>">
+                 &nbsp;<font class="error">*&nbsp;<?php echo $errors['subject']; ?></font>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Issue summary</strong>: Detailed summary of the reason(s) of opening the ticket. <font class="error">*&nbsp;<?=$errors['issue']?></font></em>
+                <em><strong>Issue summary</strong>: Detailed summary of the reason(s) of opening the ticket. <font class="error">*&nbsp;<?php echo $errors['issue']; ?></font></em>
             </th>
         </tr>
         <tr>
@@ -179,14 +179,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <div class="file_input">
                     <input type="file" class="multifile" name="attachments[]" size="30" value="" />
                 </div>
-            <?
+            <?php
             } ?>
             </td>
         </tr>
 
         <tr>
             <th colspan="2">
-                <em><strong>Internal Note</strong>: Optional internal note (recommended on assignment) <font class="error">&nbsp;<?php echo $errors['note'];?></font></em>
+                <em><strong>Internal Note</strong>: Optional internal note (recommended on assignment) <font class="error">&nbsp;<?php echo $errors['note']; ?></font></em>
             </th>
         </tr>
         <tr>
@@ -213,7 +213,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
-                &nbsp;<font class="error">&nbsp;<?=$errors['duedate']?>&nbsp;<?php echo $errors['time']; ?></font>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
                 <em>Time is based on your time zone (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
             </td>
         </tr>
@@ -233,7 +233,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error">&nbsp;<?=$errors['priorityId']?></font>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['priorityId']; ?></font>
             </td>
         </tr>
         <?php
@@ -269,6 +269,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <?php
         } ?>
+
         <?php
         if($thisstaff->canCloseTickets()) { ?>
         <tr>
@@ -290,7 +291,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 ?>
                 <label><input type="radio" name="signature" value="none" checked="checked"> None</label>
                 <?php
-                if($thisstaff->getSignature()) {?>
+                if($thisstaff->getSignature()) { ?>
                     <label><input type="radio" name="signature" value="mine"
                         <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> My signature</label>
                 <?php
