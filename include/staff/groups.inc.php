@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 
 $qstr='';
 
-$sql='SELECT grp.*,count(staff.staff_id) as users, count(dept.dept_id) as depts '
+$sql='SELECT grp.*,count(DISTINCT staff.staff_id) as users, count(DISTINCT dept.dept_id) as depts '
      .' FROM '.GROUP_TABLE.' grp '
      .' LEFT JOIN '.STAFF_TABLE.' staff ON(staff.group_id=grp.group_id) '
      .' LEFT JOIN '.GROUP_DEPT_TABLE.' dept ON(dept.group_id=grp.group_id) '
