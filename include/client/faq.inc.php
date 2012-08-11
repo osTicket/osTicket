@@ -21,8 +21,8 @@ $category=$faq->getCategory();
 <?php
 if($faq->getNumAttachments()) { ?>
  <div><span class="faded"><b>Attachments:</b></span>  <?php echo $faq->getAttachmentsLinks(); ?></div>
-<?
-}?>
+<?php
+} ?>
 
 <div class="article-meta"><span class="faded"><b>Help Topics:</b></span>
     <?php echo ($topics=$faq->getHelpTopics())?implode(', ',$topics):' '; ?>
