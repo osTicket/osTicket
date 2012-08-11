@@ -163,7 +163,10 @@ if($_POST && !$errors):
                 $errors['err']='Perm. Denied. You are not allowed to edit tickets';
             elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
-                $_REQUEST['a'] = null;
+                $_REQUEST['a'] = null; //Clear edit action - going back to view.
+                //Check to make sure the staff STILL has access post-update (e.g dept change).
+                if(!$ticket->checkStaffAccess($thisstaff))
+                    $ticket=null;
             } elseif(!$errors['err']) {
                 $errors['err']='Unable to update the ticket. Correct the errors below and try again!';
             }
