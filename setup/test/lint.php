@@ -44,7 +44,40 @@ if (strlen($syntax_errors)) {
     echo "$syntax_errors";
     exit();
 } else {
+    echo "pass\n";
+}
+
+function line_number_for_offset($filename, $offset) {
+    $lines = file($filename);
+    $bytes = $line = 0;
+    while ($bytes < $offset) {
+        $bytes += strlen(array_shift($lines));
+        $line += 1;
+    }
+    return $line;
+}
+echo "Short open tags: ";
+$fails = array();
+foreach ($scripts as $s) {
+    $matches = array();
+    if (preg_match_all('/<\?\s*(?!php|xml).*$/m', file_get_contents($s), $matches,
+            PREG_OFFSET_CAPTURE) > 0) {
+        foreach ($matches[0] as $match)
+            $fails[] = array(
+                str_replace($root.'/', '', $s),
+                $match[0],
+                line_number_for_offset($s, $match[1]));
+    }
+}
+if (count($fails)) {
+    echo "FAIL\n";
+    echo "-------------------------------------------------------\n";
+    foreach ($fails as $f)
+        echo sprintf("In %s, line %d: %s\n", $f[0], $f[2],
+            str_replace("\n", " ", $f[1]));
     echo "\n";
+} else {
+    echo "pass\n";
 }
 
 # Run phplint across all php files

@@ -63,6 +63,6 @@ member.</p>
 
 <div id="table-here"></div>
 
-<?
+<?php
 include(STAFFINC_DIR.'footer.inc.php');
 ?>
