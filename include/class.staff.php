@@ -408,6 +408,8 @@ class Staff {
                 $errors['cpasswd']='Current password required';
             elseif(!$this->check_passwd($vars['cpasswd']))
                 $errors['cpasswd']='Invalid current password!';
+            elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
+                $errors['passwd1']='New password MUST be different from the current password!';
         }
 
         if(!$vars['timezone_id'])
