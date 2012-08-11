@@ -236,9 +236,9 @@ class Filter {
         );
         $match = false;
         # Respect configured filter email-id
-        if ($email['emailId'] && $this->getEmailId()
-                && $this->getEmailId() != $email['emailId'])
+        if ($this->getEmailId() && $this->getEmailId() != $email['emailId'])
             return false;
+
         foreach ($this->getRules() as $rule) {
             list($func, $pos, $neg) = $how[$rule['h']];
             # TODO: convert $what and $rule['v'] to mb_strtoupper and do
