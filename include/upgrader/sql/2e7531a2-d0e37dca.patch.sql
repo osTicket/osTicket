@@ -6,7 +6,7 @@
 
 -- Add help topic parent id.
 ALTER TABLE  `%TABLE_PREFIX%help_topic` 
-    ADD  `topic_pid` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `topic_id` ,
+    ADD  `topic_pid` INT(10) UNSIGNED NOT NULL DEFAULT  '0' AFTER  `topic_id` ,
     ADD INDEX (  `topic_pid` );
 
 -- Finished with patch
