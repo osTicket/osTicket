@@ -62,7 +62,7 @@
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
-    define('THIS_VERSION','1.7-RC1'); //Shown on admin panel
+    define('THIS_VERSION','1.7-RC2'); //Shown on admin panel
     define('SCHEMA_SIGNATURE','d0e37dca324648f1ce2d10528a6026d4'); //MD5 signature of the db schema. (used to trigger upgrades)
 
     #load config info
