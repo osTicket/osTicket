@@ -2,14 +2,15 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info=array();
 $qstr='';
-if($topic && $_REQUEST['a']!='add'){
+if($topic && $_REQUEST['a']!='add') {
     $title='Update Help Topic';
     $action='update';
     $submit_text='Save Changes';
     $info=$topic->getInfo();
     $info['id']=$topic->getId();
+    $info['pid']=$topic->getPid();
     $qstr.='&id='.$topic->getId();
-}else {
+} else {
     $title='Add New Help Topic';
     $action='create';
     $submit_text='Add Topic';
@@ -60,10 +61,34 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>>Public
-                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>>Private <em>(Internal)</em>
+                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>>Private/Internal
                 &nbsp;<span class="error">*&nbsp;</span>
             </td>
         </tr>
+        <tr>
+            <td width="180">
+                Parent Topic:
+            </td>
+            <td>
+                <select name="pid">
+                    <option value="">&mdash; Select Parent Topic &mdash;</option>
+                    <?php
+                    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE
+                        .' WHERE topic_pid=0 '
+                        .' ORDER by topic';
+                    if(($res=db_query($sql)) && db_num_rows($res)) {
+                        while(list($id, $name)=db_fetch_row($res)) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, (($info['pid'] && $id==$info['pid'])?'selected="selected"':'') ,$name);
+                        }
+                    }
+                    ?>
+                </select> (<em>optional</em>)
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
+            </td>
+        </tr>
+
+        <tr><th colspan="2"><em>New ticket options</em></th></tr>
         <tr>
             <td width="180" class="required">
                 Priority:
