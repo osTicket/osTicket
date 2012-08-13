@@ -14,17 +14,17 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <h3>Required: <font color="red"><?php echo $errors['prereq']; ?></font></h3>
             These items are necessary in order to install and use osTicket.
             <ul class="progress">
-                <li class="<? echo $installer->check_php()?'yes':'no'; ?>">
+                <li class="<?php echo $installer->check_php()?'yes':'no'; ?>">
                 PHP v4.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
-                <li class="<? echo $installer->check_mysql()?'yes':'no'; ?>">
+                <li class="<?php echo $installer->check_mysql()?'yes':'no'; ?>">
                 MySQL v4.4 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
             </ul>
             <h3>Recommended:</h3>
             You can use osTicket without these, but you may not be able to use all features.
             <ul class="progress">
-                <li class="<? echo extension_loaded('mcrypt')?'yes':'no'; ?>">Mcrypt extension</li>
-                <li class="<? echo extension_loaded('gd')?'yes':'no'; ?>">Gdlib extension</li>
-                <li class="<? echo extension_loaded('imap')?'yes':'no'; ?>">PHP IMAP extension</li>
+                <li class="<?php echo extension_loaded('mcrypt')?'yes':'no'; ?>">Mcrypt extension</li>
+                <li class="<?php echo extension_loaded('gd')?'yes':'no'; ?>">Gdlib extension</li>
+                <li class="<?php echo extension_loaded('imap')?'yes':'no'; ?>">PHP IMAP extension</li>
             </ul>
             <div id="bar">
                 <form method="post" action="install.php">

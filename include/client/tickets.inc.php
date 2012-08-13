@@ -147,12 +147,12 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
                 <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>" 
                     href="tickets.php?id=<?php echo $row['ticketID']; ?>"><?php echo $ticketID; ?></a>
                 </td>
-                <td>&nbsp;<?=Format::db_date($row['created'])?></td>
-                <td>&nbsp;<?=ucfirst($row['status'])?></td>
+                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
+                <td>&nbsp;<?php echo ucfirst($row['status']); ?></td>
                 <td>
                     <a href="tickets.php?id=<?php echo $row['ticketID']; ?>"><?php echo $subject; ?></a>
                 </td>
-                <td>&nbsp;<?=Format::truncate($dept,30)?></td>
+                <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
                 <td><?php echo $phone; ?></td>
             </tr>
         <?php

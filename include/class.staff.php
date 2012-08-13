@@ -82,20 +82,28 @@ class Staff {
     }
 
     /*compares user password*/
-    function check_passwd($password) {
+    function check_passwd($password, $autoupdate=true) {
 
         /*bcrypt based password match*/
         if(Passwd::cmp($password, $this->getPasswd()))
             return true;
 
-        /*Fall back to MD5 && force a password reset if it matches*/
-        if(strlen($this->getPasswd()) && !strcmp($this->getPasswd(), MD5($password))) {
+        //Fall back to MD5
+        if(!$password || strcmp($this->getPasswd(), MD5($password)))
+            return false;
+
+        //Password is a MD5 hash: rehash it (if enabled) otherwise force passwd change.
+        $sql='UPDATE '.STAFF_TABLE.' SET passwd='.db_input(Passwd::hash($password))
+            .' WHERE staff_id='.db_input($this->getId());
+
+        if(!$autoupdate || !db_query($sql))
             $this->forcePasswdRest();
 
-            return true;
-        }
+        return true;
+    }
 
-        return false;
+    function cmp_passwd($password) {
+        return $this->check_passwd($password, false);
     }
 
     function forcePasswdRest() {
@@ -406,7 +414,7 @@ class Staff {
             
             if(!$vars['cpasswd'])
                 $errors['cpasswd']='Current password required';
-            elseif(!$this->check_passwd($vars['cpasswd']))
+            elseif(!$this->cmp_passwd($vars['cpasswd']))
                 $errors['cpasswd']='Invalid current password!';
             elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
                 $errors['passwd1']='New password MUST be different from the current password!';
