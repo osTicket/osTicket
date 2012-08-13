@@ -133,5 +133,73 @@ class Client {
     function lookupByEmail($email) {
         return (($id=self::getLastTicketIdByEmail($email)))?self::lookup($id, $email):null;
     }
+
+    /* static */ function tryLogin($ticketID, $email, $auth=null) {
+        global $ost;
+        $cfg = $ost->getConfig();
+
+        # Only consider auth token for GET requests, and for GET requests,
+        # REQUIRE the auth token
+        $auto_login = $_SERVER['REQUEST_METHOD'] == 'GET';
+
+        //Check time for last max failed login attempt strike.
+        $loginmsg='Invalid login';
+        # XXX: SECURITY: Max attempts is enforced client-side via the PHP
+        #      session cookie.
+        if($_SESSION['_client']['laststrike']) {
+            if((time()-$_SESSION['_client']['laststrike'])<$cfg->getClientLoginTimeout()) {
+                $loginmsg='Excessive failed login attempts';
+                $errors['err']='You\'ve reached maximum failed login attempts allowed. Try again later or <a href="open.php">open a new ticket</a>';
+            }else{ //Timeout is over.
+                //Reset the counter for next round of attempts after the timeout.
+                $_SESSION['_client']['laststrike']=null;
+                $_SESSION['_client']['strikes']=0;
+            }
+        }
+        //See if we can fetch local ticket id associated with the ID given
+        if(!$errors && is_numeric($ticketID) && Validator::is_email($email) && ($ticket=Ticket::lookupByExtId($ticketID))) {
+            //At this point we know the ticket is valid.
+            //TODO: 1) Check how old the ticket is...3 months max?? 2) Must be the latest 5 tickets?? 
+            //Check the email given.
+            # Require auth token for automatic logins
+            if (!$auto_login || $auth === $ticket->getAuthToken()) {
+                if($ticket->getId() && strcasecmp($ticket->getEmail(),$email)==0){
+                    //valid match...create session goodies for the client.
+                    $user = new ClientSession($email,$ticket->getId());
+                    $_SESSION['_client']=array(); //clear.
+                    $_SESSION['_client']['userID']   =$ticket->getEmail(); //Email
+                    $_SESSION['_client']['key']      =$ticket->getExtId(); //Ticket ID --acts as password when used with email. See above.
+                    $_SESSION['_client']['token']    =$user->getSessionToken();
+                    $_SESSION['TZ_OFFSET']=$cfg->getTZoffset();
+                    $_SESSION['TZ_DST']=$cfg->observeDaylightSaving();
+                    //Log login info...
+                    $msg=sprintf("%s/%s logged in [%s]",$ticket->getEmail(),$ticket->getExtId(),$_SERVER['REMOTE_ADDR']);
+                    $ost->logDebug('User login', $msg);
+                    //Redirect tickets.php
+                    session_write_close();
+                    session_regenerate_id();
+                    @header("Location: tickets.php?id=".$ticket->getExtId());
+                    require_once('tickets.php'); //Just incase. of header already sent error.
+                    exit;
+                }
+            }
+        }
+        //If we get to this point we know the login failed.
+        $_SESSION['_client']['strikes']+=1;
+        if(!$errors && $_SESSION['_client']['strikes']>$cfg->getClientMaxLogins()) {
+            $loginmsg='Access Denied';
+            $errors['err']='Forgot your login info? Please <a href="open.php">open a new ticket</a>.';
+            $_SESSION['_client']['laststrike']=time();
+            $alert='Excessive login attempts by a client?'."\n".
+                    'Email: '.$_POST['lemail']."\n".'Ticket#: '.$_POST['lticket']."\n".
+                    'IP: '.$_SERVER['REMOTE_ADDR']."\n".'Time:'.date('M j, Y, g:i a T')."\n\n".
+                    'Attempts #'.$_SESSION['_client']['strikes'];
+            $ost->logError('Excessive login attempts (client)', $alert, ($cfg->alertONLoginError()));
+        }elseif($_SESSION['_client']['strikes']%2==0){ //Log every other failed login attempt as a warning.
+            $alert='Email: '.$_POST['lemail']."\n".'Ticket #: '.$_POST['lticket']."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
+                   "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_client']['strikes'];
+            $ost->logWarning('Failed login attempt (client)', $alert);
+        }
+    }
 }
 ?>

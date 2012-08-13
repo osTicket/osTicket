@@ -210,6 +210,11 @@ class Ticket{
         return $this->email;
     }
 
+    function getAuthToken() {
+        # XXX: Support variable email address (for CCs)
+        return md5($this->getId() . $this->getEmail() . SECRET_SALT);
+    }
+
     function getName(){
         return $this->fullname;
     }
@@ -973,7 +978,6 @@ class Ticket{
                 $email->send($this->getEmail(),$subj,$body);
             }
         }
-
     }
 
     function onAssign($note, $alert=true) {
@@ -1102,7 +1106,8 @@ class Ticket{
 
 
         $search = array('/%id/','/%ticket/','/%email/','/%name/','/%subject/','/%topic/','/%phone/','/%status/','/%priority/',
-                        '/%dept/','/%assigned_staff/','/%createdate/','/%duedate/','/%closedate/','/%url/');
+                        '/%dept/','/%assigned_staff/','/%createdate/','/%duedate/','/%closedate/','/%url/',
+                        '/%auth/', '/%clientlink/');
         $replace = array($this->getId(),
                          $this->getExtId(),
                          $this->getEmail(),
@@ -1117,12 +1122,14 @@ class Ticket{
                          Format::db_daydatetime($this->getCreateDate()),
                          Format::db_daydatetime($this->getDueDate()),
                          Format::db_daydatetime($this->getCloseDate()),
-                         $cfg->getBaseUrl());
-        return preg_replace($search,$replace,$text);
+                         $cfg->getBaseUrl(),
+                         $this->getAuthToken(),
+                         '%url/view.php?t=%ticket&e=%email&a=%auth');
+        while ($text != ($T = preg_replace($search,$replace,$text))) {
+            $text = $T;
+        }
+        return $text;
     }
-
-
-
 
     function markUnAnswered() {
         return (!$this->isAnswered() || $this->setAnsweredState(0));
@@ -1135,7 +1142,6 @@ class Ticket{
     function markOverdue($whine=true) {
         
         global $cfg;
-
         
         if($this->isOverdue())
             return true;
@@ -1294,14 +1300,11 @@ class Ticket{
        
         if(!$this->getId()) return 0;
 
-
-            
         //Strip quoted reply...on emailed replies
         if(!strcasecmp($source, 'Email') 
                 && $cfg->stripQuotedReply() 
                 && ($tag=$cfg->getReplySeparator()) && strpos($message, $tag))
             list($message)=split($tag, $message);
-
 
         # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
 
