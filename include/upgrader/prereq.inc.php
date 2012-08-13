@@ -14,9 +14,9 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             <h3>Prerequisites: <font color="red"><?php echo $errors['prereq']; ?></font></h3>
             These items are necessary in order to run the latest version of osTicket.
             <ul class="progress">
-                <li class="<? echo $upgrader->check_php()?'yes':'no'; ?>">
+                <li class="<?php echo $upgrader->check_php()?'yes':'no'; ?>">
                 PHP v4.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
-                <li class="<? echo $upgrader->check_mysql()?'yes':'no'; ?>">
+                <li class="<?php echo $upgrader->check_mysql()?'yes':'no'; ?>">
                 MySQL v4.4 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
             </ul>
             <h3>Higly Recommended:</h3>

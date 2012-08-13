@@ -28,7 +28,7 @@ $inc='knowledgebase.inc.php'; //FAQs landing page.
 if($faq && $faq->isPublished()) {
     $inc='faq.inc.php';
 } elseif($category && $category->isPublic() && $_REQUEST['a']!='search') {
-    $inc='kb-category.inc.php';
+    $inc='faq-category.inc.php';
 }
 require_once(CLIENTINC_DIR.'header.inc.php');
 require_once(CLIENTINC_DIR.$inc);

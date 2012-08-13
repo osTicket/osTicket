@@ -2,12 +2,16 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
-$sql='SELECT topic.*,dept.dept_name as department,priority_desc as priority '.
-     ' FROM '.TOPIC_TABLE.' topic '.
-     ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=topic.dept_id) '.
-     ' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=topic.priority_id) ';
+$sql='SELECT topic.* '
+    .', IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as name '
+    .', dept.dept_name as department '
+    .', priority_desc as priority '
+    .' FROM '.TOPIC_TABLE.' topic '
+    .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) '
+    .' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=topic.dept_id) '
+    .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=topic.priority_id) ';
 $sql.=' WHERE 1';
-$sortOptions=array('name'=>'topic.topic','status'=>'topic.isactive','type'=>'topic.ispublic',
+$sortOptions=array('name'=>'name','status'=>'topic.isactive','type'=>'topic.ispublic',
                    'dept'=>'department','priority'=>'priority','updated'=>'topic.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
@@ -83,7 +87,7 @@ else
                   <input type="checkbox" name="ids[]" value="<?php echo $row['topic_id']; ?>" 
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
                                 onClick="highLight(this.value,this.checked);"> </td>
-                <td><a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['topic']; ?></a>&nbsp;</td>
+                <td><a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>
                 <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
                 <td><?php echo $row['ispublic']?'Public':'<b>Private</b>'; ?></td>
                 <td><?php echo $row['priority']; ?></td>

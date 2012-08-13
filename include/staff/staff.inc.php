@@ -11,6 +11,7 @@ if($staff && $_REQUEST['a']!='add'){
     $passwd_text='To reset the password enter a new one below';
     $info=$staff->getInfo();
     $info['id']=$staff->getId();
+    $info['teams'] = $staff->getTeams();
     $qstr.='&id='.$staff->getId();
 }else {
     $title='Add New Staff';
@@ -295,6 +296,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <p style="padding-left:250px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="departments.php"'>
+    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="staff.php"'>
 </p>
 </form>

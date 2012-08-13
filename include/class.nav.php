@@ -123,12 +123,12 @@ class StaffNav {
                     $subnav[]=array('desc'=>'My&nbsp;Profile','href'=>'profile.php','iconclass'=>'users');
                     break;
                 case 'kbase':
-                    $subnav[]=array('desc'=>'Knowledgebase','href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
+                    $subnav[]=array('desc'=>'FAQs','href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
                     if($staff) {
                         if($staff->canManageFAQ())
-                            $subnav[]=array('desc'=>'Categories','href'=>'categories.php','iconclass'=>'kb-categories');
+                            $subnav[]=array('desc'=>'Categories','href'=>'categories.php','iconclass'=>'faq-categories');
                         if($staff->canManageCannedResponses())
-                            $subnav[]=array('desc'=>'Canned&nbsp;Replies','href'=>'canned.php','iconclass'=>'canned');
+                            $subnav[]=array('desc'=>'Canned&nbsp;Responses','href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
             }

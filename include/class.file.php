@@ -108,7 +108,7 @@ class AttachmentFile {
     function display() {
        
 
-        header('Content-type: '.$this->getType()?$this->getType():'application/octet-stream');
+        header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
         echo $this->getData();
         exit();
@@ -120,9 +120,7 @@ class AttachmentFile {
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: public');
-        header('Content-Type: application/octet-stream');
-
-        //header('Content-Type: '.$this->getType()?$this->getType():'application/octet-stream');
+        header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
     
         $filename=basename($this->getName());
         $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);

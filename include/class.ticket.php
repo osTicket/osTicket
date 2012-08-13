@@ -74,7 +74,7 @@ class Ticket{
 
         //TODO: delete helptopic field in ticket table.
        
-        $sql='SELECT  ticket.*, topic.topic as helptopic, lock_id, dept_name, priority_desc '
+        $sql='SELECT  ticket.*, lock_id, dept_name, priority_desc '
             .' ,count(attach.attach_id) as attachments '
             .' ,count(DISTINCT message.id) as messages '
             .' ,count(DISTINCT response.id) as responses '
@@ -83,8 +83,6 @@ class Ticket{
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON ('
                 .'ticket.priority_id=pri.priority_id) '
-            .' LEFT JOIN '.TOPIC_TABLE.' topic ON ('
-                .'ticket.topic_id=topic.topic_id) '
             .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON ('
                 .'ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
@@ -128,7 +126,6 @@ class Ticket{
         $this->dept_name = $this->ht['dept_name'];
         $this->sla_id = $this->ht['sla_id'];
         $this->topic_id = $this->ht['topic_id'];
-        $this->helptopic = $this->ht['helptopic'];
         $this->subject = $this->ht['subject'];
         $this->overdue = $this->ht['isoverdue'];
         
@@ -213,6 +210,11 @@ class Ticket{
         return $this->email;
     }
 
+    function getAuthToken() {
+        # XXX: Support variable email address (for CCs)
+        return md5($this->getId() . $this->getEmail() . SECRET_SALT);
+    }
+
     function getName(){
         return $this->fullname;
     }
@@ -227,7 +229,7 @@ class Ticket{
         if(!$this->helpTopic && ($topic=$this->getTopic()))
             $this->helpTopic = $topic->getName();
             
-        return $this->helptopic;
+        return $this->helpTopic;
     }
    
     function getCreateDate(){
@@ -417,14 +419,14 @@ class Ticket{
         return $assignees;
     }
 
-    function getTopicId(){
+    function getTopicId() {
         return $this->topic_id;
     }
 
     function getTopic() { 
 
         if(!$this->topic && $this->getTopicId())
-            $this->topic = Topic::lookup($this->getTopicId);
+            $this->topic = Topic::lookup($this->getTopicId());
 
         return $this->topic;
     }
@@ -976,7 +978,6 @@ class Ticket{
                 $email->send($this->getEmail(),$subj,$body);
             }
         }
-
     }
 
     function onAssign($note, $alert=true) {
@@ -1105,7 +1106,8 @@ class Ticket{
 
 
         $search = array('/%id/','/%ticket/','/%email/','/%name/','/%subject/','/%topic/','/%phone/','/%status/','/%priority/',
-                        '/%dept/','/%assigned_staff/','/%createdate/','/%duedate/','/%closedate/','/%url/');
+                        '/%dept/','/%assigned_staff/','/%createdate/','/%duedate/','/%closedate/','/%url/',
+                        '/%auth/', '/%clientlink/');
         $replace = array($this->getId(),
                          $this->getExtId(),
                          $this->getEmail(),
@@ -1120,12 +1122,14 @@ class Ticket{
                          Format::db_daydatetime($this->getCreateDate()),
                          Format::db_daydatetime($this->getDueDate()),
                          Format::db_daydatetime($this->getCloseDate()),
-                         $cfg->getBaseUrl());
-        return preg_replace($search,$replace,$text);
+                         $cfg->getBaseUrl(),
+                         $this->getAuthToken(),
+                         '%url/view.php?t=%ticket&e=%email&a=%auth');
+        while ($text != ($T = preg_replace($search,$replace,$text))) {
+            $text = $T;
+        }
+        return $text;
     }
-
-
-
 
     function markUnAnswered() {
         return (!$this->isAnswered() || $this->setAnsweredState(0));
@@ -1138,7 +1142,6 @@ class Ticket{
     function markOverdue($whine=true) {
         
         global $cfg;
-
         
         if($this->isOverdue())
             return true;
@@ -1297,14 +1300,11 @@ class Ticket{
        
         if(!$this->getId()) return 0;
 
-
-            
         //Strip quoted reply...on emailed replies
         if(!strcasecmp($source, 'Email') 
                 && $cfg->stripQuotedReply() 
-                && ($tag=$cfg->getReplySeparator()) && strpos($msg, $tag))
-            list($msg)=split($tag, $msg);
-
+                && ($tag=$cfg->getReplySeparator()) && strpos($message, $tag))
+            list($message)=split($tag, $message);
 
         # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
 

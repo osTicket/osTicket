@@ -375,6 +375,7 @@ INSERT INTO `%TABLE_PREFIX%group_dept_access` (`group_id`, `dept_id`) VALUES
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;
 CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `topic_id` int(11) unsigned NOT NULL auto_increment,
+  `topic_pid` int(10) unsigned NOT NULL default '0',
   `isactive` tinyint(1) unsigned NOT NULL default '1',
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `noautoresp` tinyint(3) unsigned NOT NULL default '0',
@@ -389,6 +390,7 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`topic_id`),
   UNIQUE KEY `topic` (`topic`),
+  KEY `topic_pid` (`topic_pid`),
   KEY `priority_id` (`priority_id`),
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`,`team_id`),

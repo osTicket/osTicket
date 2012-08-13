@@ -1,3 +1,8 @@
+New stuff in 1.7-rc2
+====================
+  * Bug fixes from rc1
+  * Nested help topics support
+
 New stuff in 1.7-rc1
 ====================
   * Upgrade support for osTicket 1.6-rc1 and later
