@@ -270,14 +270,14 @@ class Canned {
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update canned reply.';
+            $errors['err']='Unable to update canned response.';
 
         } else {
             $sql='INSERT INTO '.CANNED_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']='Unable to create the canned reply. Internal error';
+            $errors['err']='Unable to create the canned response. Internal error';
         }
 
         return false;

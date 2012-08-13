@@ -2,7 +2,7 @@
 /*********************************************************************
     canned.php
 
-    Canned Replies aka Premade Responses.
+    Canned Responses aka Premade Responses.
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2012 osTicket
@@ -25,15 +25,15 @@ if(!$thisstaff || !$thisstaff->canManageCannedResponses()) {
 
 $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid canned reply ID.';
+    $errors['err']='Unknown or invalid canned response ID.';
 
 if($_POST && $thisstaff->canManageCannedResponses()) {
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$canned) {
-                $errors['err']='Unknown or invalid canned reply.';
+                $errors['err']='Unknown or invalid canned response.';
             } elseif($canned->update($_POST, $errors)) {
-                $msg='Canned reply updated successfully';
+                $msg='Canned response updated successfully';
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
                 $keepers = $_POST['files']?$_POST['files']:array();
@@ -50,7 +50,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 $canned->reload();
 
             } elseif(!$errors['err']) {
-                $errors['err']='Error updating canned reply. Try again!';
+                $errors['err']='Error updating canned response. Try again!';
             }
             break;
         case 'create':
@@ -75,22 +75,22 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                         implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
-                            $msg='Selected canned replies enabled';
+                            $msg='Selected canned responses enabled';
                         else
-                            $warn="$num of $count selected canned replies enabled";
+                            $warn="$num of $count selected canned responses enabled";
                     } else {
-                        $errors['err']='Unable to enable selected canned replies.';
+                        $errors['err']='Unable to enable selected canned responses.';
                     }
                 } elseif($_POST['disable']) {
                     $sql='UPDATE '.CANNED_TABLE.' SET isenabled=0 WHERE canned_id IN ('.
                         implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
-                            $msg='Selected canned replies disabled';
+                            $msg='Selected canned responses disabled';
                         else
-                            $warn="$num of $count selected canned replies disabled";
+                            $warn="$num of $count selected canned responses disabled";
                     } else {
-                        $errors['err']='Unable to disable selected canned replies';
+                        $errors['err']='Unable to disable selected canned responses';
                     }
                 }elseif($_POST['delete']) {
                     $i=0;
@@ -100,11 +100,11 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                     }
 
                     if($i==$count)
-                        $msg='Selected canned replies deleted successfully';
+                        $msg='Selected canned responses deleted successfully';
                     elseif($i>0)
-                        $warn="$i of $count selected canned replies deleted";
+                        $warn="$i of $count selected canned responses deleted";
                     elseif(!$errors['err'])
-                        $errors['err']='Unable to delete selected canned replies';
+                        $errors['err']='Unable to delete selected canned responses';
                     
                 } else {
                     $errors['err']='Unknown command';
@@ -117,9 +117,9 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
     }
 }
 
-$page='cannedreplies.inc.php';
+$page='cannedresponses.inc.php';
 if($canned || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
-    $page='cannedreply.inc.php';
+    $page='cannedresponse.inc.php';
 
 $nav->setTabActive('kbase');
 require(STAFFINC_DIR.'header.inc.php');

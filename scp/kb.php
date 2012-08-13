@@ -19,9 +19,9 @@ $category=null;
 if($_REQUEST['cid'] && !($category=Category::lookup($_REQUEST['cid'])))
     $errors['err']='Unknown or invalid FAQ category';
 
-$inc='kb-categories.inc.php'; //KB landing page.
+$inc='faq-categories.inc.php'; //KB landing page.
 if($category && $_REQUEST['a']!='search') {
-    $inc='kb-category.inc.php';
+    $inc='faq-category.inc.php';
 }
 $nav->setTabActive('kbase');
 require_once(STAFFINC_DIR.'header.inc.php');

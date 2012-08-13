@@ -47,10 +47,10 @@ else
 
 ?>
 <div style="width:700;padding-top:5px; float:left;">
- <h2>Canned Replies</h2>
+ <h2>Canned Responses</h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="canned.php?a=add" class="Icon newReply">Add New Reply</a></b></div>
+    <b><a href="canned.php?a=add" class="Icon newReply">Add New Response</a></b></div>
 <div class="clear"></div>
 <form action="canned.php" method="POST" name="canned" onSubmit="return checkbox_checker(this,1,0);">
  <?php csrf_token(); ?>
@@ -105,7 +105,7 @@ else
             <a href="#" onclick="return reset_all(document.forms['canned'])">None</a>&nbsp;&nbsp;
             <a href="#" onclick="return toogle_all(document.forms['canned'],true)">Toggle</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No premade replies';
+                echo 'No canned responses';
             } ?>
         </td>
      </tr>
@@ -117,11 +117,11 @@ if($res && $num): //Show options..
 ?>
 <p class="centered">
     <input class="button" type="submit" name="enable" value="Enable"
-                onClick=' return confirm("Are you sure you want to ENABLE selected replies?");'>
+                onClick=' return confirm("Are you sure you want to ENABLE selected responses?");'>
     <input class="button" type="submit" name="disable" value="Disable"
-                onClick=' return confirm("Are you sure you want to DISABLE selected replies?");'>
+                onClick=' return confirm("Are you sure you want to DISABLE selected responses?");'>
     <input class="button" type="submit" name="delete" value="Delete"
-                onClick=' return confirm("Are you sure you want to DELETE selected replies?");'>
+                onClick=' return confirm("Are you sure you want to DELETE selected responses?");'>
 </p>
 <?php
 endif;

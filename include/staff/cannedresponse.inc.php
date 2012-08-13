@@ -3,16 +3,16 @@ if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 $info=array();
 $qstr='';
 if($canned && $_REQUEST['a']!='add'){
-    $title='Update Canned Reply';
+    $title='Update Canned Response';
     $action='update';
     $submit_text='Save Changes';
     $info=$canned->getInfo();
     $info['id']=$canned->getId();
     $qstr.='&id='.$canned->getId();
 }else {
-    $title='Add New Canned Reply';
+    $title='Add New Canned Response';
     $action='create';
-    $submit_text='Add Reply';
+    $submit_text='Add Response';
     $info['isenabled']=isset($info['isenabled'])?$info['isenabled']:1;
     $qstr.='&a='.$_REQUEST['a'];
 }
@@ -24,13 +24,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Canned Reply</h2>
+ <h2>Canned Response</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Canned reply settings</em>
+                <em>Canned response settings</em>
             </th>
         </tr>
     </thead>
@@ -63,7 +63,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Canned Reply</strong>: Make the title short and clear.&nbsp;</em>
+                <em><strong>Canned Response</strong>: Make the title short and clear.&nbsp;</em>
             </th>
         </tr>
         <tr>
@@ -99,7 +99,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Internal Notes</strong>: Notes about the canned reply.&nbsp;</em>
+                <em><strong>Internal Notes</strong>: Notes about the canned response.&nbsp;</em>
             </th>
         </tr>
         <tr>
@@ -111,7 +111,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
  <?php if ($canned && $canned->getFilters()) { ?>
     <br/>
-    <div id="msg_warning">Canned reply is in use by email filter(s): <?php
+    <div id="msg_warning">Canned response is in use by email filter(s): <?php
     echo implode(', ', $canned->getFilters()); ?></div>
  <?php } ?>
 <p style="padding-left:225px;">

@@ -113,7 +113,7 @@ if($res && $num): //Show options..
     <input class="button" type="submit" name="public" value="Make Public"
                 onClick=' return confirm("Are you sure you want to make selected categories PUBLIC?");'>
     <input class="button" type="submit" name="private" value="Make Internal"
-                onClick=' return confirm("Are you sure you want to make selected replies INTERNAL?");'>
+                onClick=' return confirm("Are you sure you want to make selected categories INTERNAL?");'>
     <input class="button" type="submit" name="delete" value="Delete"
                 onClick=' return confirm("Are you sure you want to DELETE selected categories - including associated FAQs?");'>
 </p>
