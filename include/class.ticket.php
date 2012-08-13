@@ -74,7 +74,7 @@ class Ticket{
 
         //TODO: delete helptopic field in ticket table.
        
-        $sql='SELECT  ticket.*, topic.topic as helptopic, lock_id, dept_name, priority_desc '
+        $sql='SELECT  ticket.*, lock_id, dept_name, priority_desc '
             .' ,count(attach.attach_id) as attachments '
             .' ,count(DISTINCT message.id) as messages '
             .' ,count(DISTINCT response.id) as responses '
@@ -83,8 +83,6 @@ class Ticket{
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON ('
                 .'ticket.priority_id=pri.priority_id) '
-            .' LEFT JOIN '.TOPIC_TABLE.' topic ON ('
-                .'ticket.topic_id=topic.topic_id) '
             .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON ('
                 .'ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
@@ -128,7 +126,6 @@ class Ticket{
         $this->dept_name = $this->ht['dept_name'];
         $this->sla_id = $this->ht['sla_id'];
         $this->topic_id = $this->ht['topic_id'];
-        $this->helptopic = $this->ht['helptopic'];
         $this->subject = $this->ht['subject'];
         $this->overdue = $this->ht['isoverdue'];
         
@@ -227,7 +224,7 @@ class Ticket{
         if(!$this->helpTopic && ($topic=$this->getTopic()))
             $this->helpTopic = $topic->getName();
             
-        return $this->helptopic;
+        return $this->helpTopic;
     }
    
     function getCreateDate(){
@@ -417,14 +414,14 @@ class Ticket{
         return $assignees;
     }
 
-    function getTopicId(){
+    function getTopicId() {
         return $this->topic_id;
     }
 
     function getTopic() { 
 
         if(!$this->topic && $this->getTopicId())
-            $this->topic = Topic::lookup($this->getTopicId);
+            $this->topic = Topic::lookup($this->getTopicId());
 
         return $this->topic;
     }

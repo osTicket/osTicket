@@ -16,11 +16,11 @@
 
 class Topic {
     var $id;
-    var $topic;
  
     var $ht;
+    var $parent;
     
-    function Topic($id){
+    function Topic($id) {
         $this->id=0;
         $this->load($id);
     }
@@ -30,12 +30,16 @@ class Topic {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT * FROM '.TOPIC_TABLE
-            .' WHERE topic_id='.db_input($id);
+        $sql='SELECT ht.* '
+            .', IF(ht.topic_pid IS NULL, ht.topic, CONCAT_WS(" / ", ht2.topic, ht.topic)) as name '
+            .' FROM '.TOPIC_TABLE.' ht '
+            .' LEFT JOIN '.TOPIC_TABLE.' ht2 ON(ht2.topic_id=ht.topic_pid) '
+            .' WHERE ht.topic_id='.db_input($id);
+
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
-        $this->ht=db_fetch_array($res);
+        $this->ht = db_fetch_array($res);
         $this->id=$this->ht['topic_id'];
     
         return true;
@@ -45,31 +49,42 @@ class Topic {
         return $this->load();
     }
     
-    function getId(){
+    function getId() {
         return $this->id;
     }
-    
-    function getName(){
-        return $this->ht['topic'];
+
+    function getPid() {
+        return $this->ht['topic_pid'];
+    }
+
+    function getParent() {
+        if(!$this->parent && $this->getPid())
+            $this->parent = self::lookup($this->getPid());
+
+        return $this->parent;
+    }
+
+    function getName() {
+        return $this->ht['name'];
     }
     
-    function getDeptId(){
+    function getDeptId() {
         return $this->ht['dept_id'];
     }
 
-    function getSLAId(){
+    function getSLAId() {
         return $this->ht['sla_id'];
     }
 
-    function getPriorityId(){
+    function getPriorityId() {
         return $this->ht['priority_id'];
     }
 
-    function getStaffId(){
+    function getStaffId() {
         return $this->ht['staff_id'];
     }
 
-    function getTeamId(){
+    function getTeamId() {
         return $this->ht['team_id'];
     }
     
@@ -81,11 +96,11 @@ class Topic {
          return ($this->ht['isactive']);
     }
 
-    function isActive(){
+    function isActive() {
         return $this->isEnabled();
     }
 
-    function isPublic(){
+    function isPublic() {
         return ($this->ht['ispublic']);
     }
 
@@ -97,18 +112,20 @@ class Topic {
         return $this->getHashtable();
     }
 
-    function update($vars,&$errors) {
+    function update($vars, &$errors) {
 
-        if($this->save($this->getId(),$vars,$errors)){
-            $this->reload();
-            return true;
-        }
-        return false;
+        if(!$this->save($this->getId(), $vars, $errors))
+            return false;
+
+        $this->reload();
+        return true;
     }
 
-    function delete(){
+    function delete() {
+
         $sql='DELETE FROM '.TOPIC_TABLE.' WHERE topic_id='.db_input($this->getId()).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())){
+        if(db_query($sql) && ($num=db_affected_rows())) {
+            db_query('UPDATE '.TOPIC_TABLE.' SET topic_pid=0 WHERE topic_pid='.db_input($this->getId()));
             db_query('UPDATE '.TICKET_TABLE.' SET topic_id=0 WHERE topic_id='.db_input($this->getId()));
             db_query('DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE topic_id='.db_input($this->getId()));
         }
@@ -117,19 +134,24 @@ class Topic {
     }
     /*** Static functions ***/
     function create($vars,&$errors) { 
-        return self::save(0,$vars,$errors);
+        return self::save(0, $vars, $errors);
     }
 
     function getHelpTopics($publicOnly=false) {
 
         $topics=array();
-        $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE
-            .' WHERE isactive=1';
+        $sql='SELECT ht.topic_id'
+            .', IF(ht2.topic_pid IS NULL, ht.topic, CONCAT_WS(" / ", ht2.topic, ht.topic)) as name '
+            .' FROM '.TOPIC_TABLE. ' ht '
+            .' LEFT JOIN '.TOPIC_TABLE.' ht2 ON(ht2.topic_id=ht.topic_pid) '
+            .' WHERE ht.isactive=1';
+
         if($publicOnly)
-            $sql.=' AND ispublic=1';
-        $sql.=' ORDER BY topic';
+            $sql.=' AND ht.ispublic=1';
+
+        $sql.=' ORDER BY name';
         if(($res=db_query($sql)) && db_num_rows($res))
-            while(list($id,$name)=db_fetch_row($res))
+            while(list($id, $name)=db_fetch_row($res))
                 $topics[$id]=$name;
 
         return $topics;
@@ -139,8 +161,7 @@ class Topic {
         return self::getHelpTopics(true);
     }
 
-
-    function getIdByName($topic){
+    function getIdByName($topic) {
         $sql='SELECT topic_id FROM '.TOPIC_TABLE.' WHERE topic='.db_input($topic);
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
@@ -148,11 +169,11 @@ class Topic {
         return $id;
     }
 
-    function lookup($id){
+    function lookup($id) {
         return ($id && is_numeric($id) && ($t= new Topic($id)) && $t->getId()==$id)?$t:null;
     }
 
-    function save($id,$vars,&$errors) {
+    function save($id, $vars, &$errors) {
 
         $vars['topic']=Format::striptags(trim($vars['topic']));
 
@@ -174,22 +195,24 @@ class Topic {
         
         if($errors) return false;
 
-        $sql=' updated=NOW(),topic='.db_input($vars['topic']).
-             ',dept_id='.db_input($vars['dept_id']).
-             ',priority_id='.db_input($vars['priority_id']).
-             ',sla_id='.db_input($vars['sla_id']).
-             ',isactive='.db_input($vars['isactive']).
-             ',ispublic='.db_input($vars['ispublic']).
-             ',noautoresp='.db_input(isset($vars['noautoresp'])?1:0).
-             ',notes='.db_input($vars['notes']);
+        $sql=' updated=NOW() '
+            .',topic='.db_input($vars['topic'])
+            .',topic_pid='.db_input($vars['pid'])
+            .',dept_id='.db_input($vars['dept_id'])
+            .',priority_id='.db_input($vars['priority_id'])
+            .',sla_id='.db_input($vars['sla_id'])
+            .',isactive='.db_input($vars['isactive'])
+            .',ispublic='.db_input($vars['ispublic'])
+            .',noautoresp='.db_input(isset($vars['noautoresp'])?1:0)
+            .',notes='.db_input($vars['notes']);
 
         //Auto assign ID is overloaded...
         if($vars['assign'] && $vars['assign'][0]=='s')
-             $sql.=',team_id=0,staff_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
+             $sql.=',team_id=0, staff_id='.db_input(preg_replace("/[^0-9]/", "", $vars['assign']));
         elseif($vars['assign'] && $vars['assign'][0]=='t')
-            $sql.=',staff_id=0,team_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
+            $sql.=',staff_id=0, team_id='.db_input(preg_replace("/[^0-9]/", "", $vars['assign']));
         else
-            $sql.=',staff_id=0,team_id=0 '; //no auto-assignment!
+            $sql.=',staff_id=0, team_id=0 '; //no auto-assignment!
             
         if($id) {
             $sql='UPDATE '.TOPIC_TABLE.' SET '.$sql.' WHERE topic_id='.db_input($id);
@@ -197,7 +220,7 @@ class Topic {
                 return true;
 
             $errors['err']='Unable to update topic. Internal error occurred';
-        }else{
+        } else {
             $sql='INSERT INTO '.TOPIC_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
