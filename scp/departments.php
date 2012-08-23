@@ -104,7 +104,7 @@ $page='departments.inc.php';
 if($dept || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page='department.inc.php';
 
-$nav->setTabActive('depts');
+$nav->setTabActive('staff');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

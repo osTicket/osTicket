@@ -162,12 +162,11 @@ class AdminNav extends StaffNav{
         if(!$this->tabs){
 
             $tabs=array();
-            $tabs['dashboard']=array('desc'=>'Dashboard','href'=>'admin.php','title'=>'Admin Dashboard');
+            $tabs['dashboard']=array('desc'=>'Dashboard','href'=>'logs.php','title'=>'Admin Dashboard');
             $tabs['settings']=array('desc'=>'Settings','href'=>'settings.php','title'=>'System Settings');
+            $tabs['manage']=array('desc'=>'Manage','href'=>'helptopics.php','title'=>'Manage Options');
             $tabs['emails']=array('desc'=>'Emails','href'=>'emails.php','title'=>'Email Settings');
-            $tabs['topics']=array('desc'=>'Help&nbsp;Topics','href'=>'helptopics.php','title'=>'Help Topics');
-            $tabs['staff']=array('desc'=>'Staff','href'=>'staff.php','title'=>'Staff Members');
-            $tabs['depts']=array('desc'=>'Departments','href'=>'departments.php','title'=>'Departments');
+            $tabs['staff']=array('desc'=>'Staff','href'=>'staff.php','title'=>'Manage Staff');
             $this->tabs=$tabs;
         }
 
@@ -185,36 +184,26 @@ class AdminNav extends StaffNav{
                     break;
                 case 'settings':
                     $subnav[]=array('desc'=>'Settings&nbsp;&amp;&nbsp;Preferences','href'=>'settings.php','iconclass'=>'preferences');
+                    break;
+                case 'manage':
+                    $subnav[]=array('desc'=>'Help&nbsp;Topics','href'=>'helptopics.php','iconclass'=>'helpTopics');
+                    $subnav[]=array('desc'=>'Ticket&nbsp;Filters','href'=>'filters.php',
+                                        'title'=>'Ticket&nbsp;Filters','iconclass'=>'emailFilters');
                     $subnav[]=array('desc'=>'SLA&nbsp;Plans','href'=>'slas.php','iconclass'=>'sla');
                     $subnav[]=array('desc'=>'API&nbsp;Keys','href'=>'apikeys.php','iconclass'=>'api');
                     break;
                 case 'emails':
-                    $subnav[]=array('desc'=>'Email&nbsp;Addresses','href'=>'emails.php','iconclass'=>'emailSettings');
-                    $subnav[]=array('desc'=>'Email&nbsp;Filters','href'=>'filters.php',
-                                        'title'=>'Email&nbsp;Filters','iconclass'=>'emailFilters');
-                    $subnav[]=array('desc'=>'Email&nbsp;Banlist','href'=>'banlist.php',
+                    $subnav[]=array('desc'=>'Emails','href'=>'emails.php', 'title'=>'Email Addresses', 'iconclass'=>'emailSettings');
+                    $subnav[]=array('desc'=>'Banlist','href'=>'banlist.php',
                                         'title'=>'Banned&nbsp;Emails','iconclass'=>'emailDiagnostic');
-                    $subnav[]=array('desc'=>'Email&nbsp;Templates','href'=>'templates.php','title'=>'Email Templates','iconclass'=>'emailTemplates');
-                    $subnav[]=array('desc'=>'Email&nbsp;Diagnostic','href'=>'emailtest.php','iconclass'=>'emailDiagnostic');
-                    break;
-                case 'topics':
-                    $subnav[]=array('desc'=>'Help&nbsp;Topics','href'=>'helptopics.php','iconclass'=>'helpTopics');
-                    $subnav[]=array('desc'=>'Add&nbsp;New&nbsp;Help&nbsp;Topics',
-                                    'href'=>'helptopics.php?a=add',
-                                    'iconclass'=>'newHelpTopic',
-                                    'droponly'=>true);
+                    $subnav[]=array('desc'=>'Templates','href'=>'templates.php','title'=>'Email Templates','iconclass'=>'emailTemplates');
+                    $subnav[]=array('desc'=>'Diagnostic','href'=>'emailtest.php', 'title'=>'Email Diagnostic', 'iconclass'=>'emailDiagnostic');
                     break;
                 case 'staff':
                     $subnav[]=array('desc'=>'Staff&nbsp;Members','href'=>'staff.php','iconclass'=>'users');
                     $subnav[]=array('desc'=>'Teams','href'=>'teams.php','iconclass'=>'teams');
                     $subnav[]=array('desc'=>'Groups','href'=>'groups.php','iconclass'=>'groups');
-                    break;
-                case 'depts':
                     $subnav[]=array('desc'=>'Departments','href'=>'departments.php','iconclass'=>'departments');
-                    $subnav[]=array('desc'=>'Add&nbsp;New&nbsp;Department',
-                                    'href'=>'departments.php?a=add',
-                                    'iconclass'=>'newDepartment',
-                                    'droponly'=>true);
                     break;
             }
             if($subnav)
