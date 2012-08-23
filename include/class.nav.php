@@ -183,7 +183,12 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>'System&nbsp;Logs','href'=>'logs.php','iconclass'=>'logs');
                     break;
                 case 'settings':
-                    $subnav[]=array('desc'=>'Settings&nbsp;&amp;&nbsp;Preferences','href'=>'settings.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'System&nbsp;Preferences','href'=>'settings.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Tickets','href'=>'settings.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Emails','href'=>'settings.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Knowledgebase','href'=>'settings.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Autoresponder','href'=>'autoresponder.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Alerts&nbsp;Notices','href'=>'alerts.php','iconclass'=>'preferences');
                     break;
                 case 'manage':
                     $subnav[]=array('desc'=>'Help&nbsp;Topics','href'=>'helptopics.php','iconclass'=>'helpTopics');
