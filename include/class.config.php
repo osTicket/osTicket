@@ -18,9 +18,8 @@ require_once(INCLUDE_DIR.'class.email.php');
 
 class Config {
     
-    var $id=0;
-    var $mysqltzoffset=0;
-    var $config=array();
+    var $id = 0;
+    var $config = array();
 
     var $defaultDept;   //Default Department    
     var $defaultSLA;   //Default SLA
@@ -33,18 +32,35 @@ class Config {
     }
 
     function load($id=0) {
+
         if(!$id && !($id=$this->getId()))
             return false;
 
         $sql='SELECT * FROM '.CONFIG_TABLE
             .' WHERE id='.db_input($id);
+        
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
             
-        $this->config=db_fetch_array($res);
-        $this->id=$this->config['id'];
-        $this->setMysqlTZ(db_timezone());
+        $this->config = db_fetch_array($res);
+        $this->id = $this->config['id'];
+        //Figure out DB timezone 
+        if(($dbtz=db_timezone())) {
+            if($dbtz=='SYSTEM')
+                $this->config['dbtz_offset'] = preg_replace('/([+-]\d{2})(\d{2})/', '\1', date('O'));
+            else
+                $this->config['dbtz_offset'] = preg_replace('/([+-]\d{2})(:)(\d{2})/', '\1', $dbtz);
+        } else {
+            $this->config['dbtz_offset'] = 0;
+        }
+
+        //Get the default time zone
+        // We can't JOIN timezone table above due to upgrade support.
+        if($this->config['default_timezone_id'])
+            $this->config['tz_offset'] = Timezone::getOffsetById($this->config['default_timezone_id']);
+        else
+            $this->config['tz_offset'] = 0;
 
         return true;
     }
@@ -92,17 +108,9 @@ class Config {
 
         return null;
     }
-
-    function setMysqlTZ($tz) {
-        //TODO: Combine the 2 replace regex
-        if($tz=='SYSTEM')
-            $this->mysqltzoffset=preg_replace('/([+-]\d{2})(\d{2})/','\1',date('O'));
-        else
-            $this->mysqltzoffset=preg_replace('/([+-]\d{2})(:)(\d{2})/','\1',$tz);
-    }
     
-    function getMysqlTZoffset() {
-        return $this->mysqltzoffset;
+    function getDBTZoffset() {
+        return $this->config['dbtz_offset'];
     }
 
     /* Date & Time Formats */
@@ -149,7 +157,7 @@ class Config {
     }
 
     function getTZOffset() {
-        return $this->config['timezone_offset'];
+        return $this->config['tz_offset'];
     }
 
     function getPageSize() {

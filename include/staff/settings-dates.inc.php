@@ -1,5 +1,6 @@
 <?php
 $gmtime=Misc::gmtime();
+
 ?>
 <form action="settings.php?t=dates" method="post" id="save">
 <?php csrf_token(); ?>
@@ -18,24 +19,24 @@ $gmtime=Misc::gmtime();
             <td>
                 <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>">
                     &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
-                    <em><?php echo Format::date($config['time_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em></td>
+                    <em><?php echo Format::date($config['time_format'],$gmtime,$config['tz_offset'],$config['enable_daylight_saving']); ?></em></td>
         </tr>
         <tr><td width="220" class="required">Date Format:</td>
             <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
-                        <em><?php echo Format::date($config['date_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+                        <em><?php echo Format::date($config['date_format'],$gmtime,$config['tz_offset'],$config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
         <tr><td width="220" class="required">Date &amp; Time Format:</td>
             <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
-                        <em><?php echo Format::date($config['datetime_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+                        <em><?php echo Format::date($config['datetime_format'],$gmtime,$config['tz_offset'],$config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
         <tr><td width="220" class="required">Day, Date &amp; Time Format:</td>
             <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
-                        <em><?php echo Format::date($config['daydatetime_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+                        <em><?php echo Format::date($config['daydatetime_format'],$gmtime,$config['tz_offset'],$config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
         <tr><td width="220" class="required">Default Time Zone:</td>
