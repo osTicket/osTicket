@@ -1924,16 +1924,16 @@ class Ticket{
                 $errors['duedate']='Due date must be in the future';
         }
 
+        //Any error above is fatal.
+        if ($errors) return 0;
+
         # Perform email filter actions on the new ticket arguments XXX: Move filter to the top and check for reject...
-        if (!$errors && $email_filter) $email_filter->apply($vars);
+        if ($email_filter) $email_filter->apply($vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
         if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
 
-        //Any error above is fatal.
-        if($errors)  return 0;
-        
         // OK...just do it.
         $deptId=$vars['deptId']; //pre-selected Dept if any.
         $priorityId=$vars['priorityId'];
@@ -1945,6 +1945,10 @@ class Ticket{
             $priorityId=$priorityId?$priorityId:$topic->getPriorityId();
             if($autorespond) $autorespond=$topic->autoRespond();
             $source=$vars['source']?$vars['source']:'Web';
+            if (!isset($vars['staffId']) && $topic->getStaffId())
+                $vars['staffId'] = $topic->getStaffId();
+            elseif (!isset($vars['teamId']) && $topic->getTeamId())
+                $vars['teamId'] = $topic->getTeamId();
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
             $deptId=$email->getDeptId();
             $priorityId=$priorityId?$priorityId:$email->getPriorityId();
