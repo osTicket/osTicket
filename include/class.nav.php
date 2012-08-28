@@ -43,7 +43,7 @@ class StaffNav {
         return (!$this->isAdminPanel());
     }
 
-    function setTabActive($tab){
+    function setTabActive($tab, $menu=''){
 
         if($this->tabs[$tab]){
             $this->tabs[$tab]['active']=true;
@@ -51,6 +51,7 @@ class StaffNav {
                  $this->tabs[$this->activetab]['active']=false;
 
             $this->activetab=$tab;
+            if($menu) $this->setActiveSubMenu($menu, $tab);
 
             return true;
         }
@@ -58,16 +59,25 @@ class StaffNav {
         return false;
     }
 
-    function setActiveTab($tab){
-        return $this->setTabActive($tab);
+    function setActiveTab($tab, $menu=''){
+        return $this->setTabActive($tab, $menu);
     }
 
     function getActiveTab(){
         return $this->activetab;
     }
 
-    function setActiveSubMenu($mid) {
-        $this->activeMenu = $mid;
+    function setActiveSubMenu($mid, $tab='') {
+        if(is_numeric($mid))
+            $this->activeMenu = $mid;
+        elseif($mid && $tab && ($subNav=$this->getSubNav($tab))) {
+            foreach($subNav as $k => $menu) {
+                if(strcasecmp($mid, $menu['href'])) continue;
+
+                $this->activeMenu = $k+1;
+                break;
+            }
+        }
     }
 
     function getActiveMenu() {
@@ -183,12 +193,12 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>'System&nbsp;Logs','href'=>'logs.php','iconclass'=>'logs');
                     break;
                 case 'settings':
-                    $subnav[]=array('desc'=>'System&nbsp;Preferences','href'=>'settings.php','iconclass'=>'preferences');
-                    $subnav[]=array('desc'=>'Tickets','href'=>'settings.php','iconclass'=>'preferences');
-                    $subnav[]=array('desc'=>'Emails','href'=>'settings.php','iconclass'=>'preferences');
-                    $subnav[]=array('desc'=>'Knowledgebase','href'=>'settings.php','iconclass'=>'preferences');
-                    $subnav[]=array('desc'=>'Autoresponder','href'=>'autoresponder.php','iconclass'=>'preferences');
-                    $subnav[]=array('desc'=>'Alerts&nbsp;Notices','href'=>'alerts.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'System&nbsp;Preferences','href'=>'settings.php?t=system','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Tickets','href'=>'settings.php?t=tickets','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Emails','href'=>'settings.php?t=emails','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Knowledgebase','href'=>'settings.php?t=kb','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Autoresponder','href'=>'settings.php?t=autoresp','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>'Alerts&nbsp;&amp;&nbsp;Notices','href'=>'settings.php?t=alerts','iconclass'=>'preferences');
                     break;
                 case 'manage':
                     $subnav[]=array('desc'=>'Help&nbsp;Topics','href'=>'helptopics.php','iconclass'=>'helpTopics');
