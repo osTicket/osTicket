@@ -1,12 +1,18 @@
-<form action="settings.php?t=general" method="post" id="save">
+<?php
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
+
+$gmtime = Misc::gmtime();
+?>
+<h2>System Settings and Preferences - <span>osTicket (v<?php echo $cfg->getVersion(); ?>)</span></h2>
+<form action="settings.php?t=system" method="post" id="save">
 <?php csrf_token(); ?>
-<input type="hidden" name="t" value="general" >
+<input type="hidden" name="t" value="system" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4>General Settings</h4>
-                <em>Offline mode will disable client interface and only allow admins to login to Staff Control Panel</em>
+                <h4>System Settings & Preferences</h4>
+                <em><b>General Settings</b>: Offline mode will disable client interface and only allow admins to login to Staff Control Panel</em>
             </th>
         </tr>
     </thead>
@@ -120,6 +126,12 @@
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['passwd_reset_period']; ?></font>
             </td>
         </tr>
+        <tr><td>Bind Staff Session to IP:</td>
+            <td>
+              <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
+              <em>(binds staff session to originating IP address upon login)</em>
+            </td>
+        </tr>
         <tr><td>Staff Excessive Logins:</td>
             <td>
                 <select name="staff_max_logins">
@@ -142,12 +154,6 @@
             <td>
               <input type="text" name="staff_session_timeout" size=6 value="<?php echo $config['staff_session_timeout']; ?>">
                 Maximum idle time in minutes before a staff member must log in again (enter 0 to disable).
-            </td>
-        </tr>
-       <tr><td>Bind Staff Session to IP:</td>
-            <td>
-              <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
-              <em>(binds staff session to originating IP address upon login)</em>
             </td>
         </tr>
         <tr><td>Client Excessive Logins:</td>
@@ -176,16 +182,56 @@
                 &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable).
             </td>
         </tr>
-        <tr><td>Clickable URLs:</td>
+        <tr>
+            <th colspan="2">
+                <em><b>Date and Time Options</b>: Please refer to <a href="http://php.net/date" target="_blank">PHP Manual</a> for supported parameters.</em>
+            </th>
+        </tr>
+        <tr><td width="220" class="required">Time Format:</td>
             <td>
-              <input type="checkbox" name="clickable_urls" <?php echo $config['clickable_urls']?'checked="checked"':''; ?>>
-               <em>(converts URLs in messages to clickable links)</em>
+                <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>">
+                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
+                    <em><?php echo Format::date($config['time_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em></td>
+        </tr>
+        <tr><td width="220" class="required">Date Format:</td>
+            <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
+                        <em><?php echo Format::date($config['date_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
-        <tr><td>Enable Auto Cron:</td>
+        <tr><td width="220" class="required">Date &amp; Time Format:</td>
+            <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
+                        <em><?php echo Format::date($config['datetime_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+            </td>
+        </tr>
+        <tr><td width="220" class="required">Day, Date &amp; Time Format:</td>
+            <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
+                        <em><?php echo Format::date($config['daydatetime_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+            </td>
+        </tr>
+        <tr><td width="220" class="required">Default Time Zone:</td>
             <td>
-              <input type="checkbox" name="enable_auto_cron" <?php echo $config['enable_auto_cron']?'checked="checked"':''; ?>>
-                <em>(executes cron jobs based on staff activity - not recommended)</em>
+                <select name="default_timezone_id">
+                    <option value="">&mdash; Select Default Time Zone &mdash;</option>
+                    <?php
+                    $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$offset, $tz)=db_fetch_row($res)){
+                            $sel=($config['default_timezone_id']==$id)?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['default_timezone_id']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="220">Daylight Saving:</td>
+            <td>
+                <input type="checkbox" name="enable_daylight_saving" <?php echo $config['enable_daylight_saving'] ? 'checked="checked"': ''; ?>>Observe daylight savings
             </td>
         </tr>
     </tbody>
@@ -195,4 +241,3 @@
     <input class="button" type="reset" name="reset" value="Reset Changes">
 </p>
 </form>
-
