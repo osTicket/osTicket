@@ -67,7 +67,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable POP/IMAP polling
                  &nbsp;&nbsp;
                  <input type="checkbox" name="enable_auto_cron" <?php echo $config['enable_auto_cron']?'checked="checked"':''; ?>>
-                 Enable Auto-Cron <em>(Poll emails based on staff activity - NOT recommended)</em>
+                 Enable Auto-Cron <em>(Poll based on staff activity - NOT recommended)</em>
             </td>
         </tr>
         <tr>
