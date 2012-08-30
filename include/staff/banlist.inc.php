@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$filter)
 
 $qstr='';
 $select='SELECT rule.* ';
-$from='FROM '.EMAIL_FILTER_RULE_TABLE.' rule ';
+$from='FROM '.FILTER_RULE_TABLE.' rule ';
 $where='WHERE rule.filter_id='.db_input($filter->getId());
 $search=false;
 if($_REQUEST['q'] && strlen($_REQUEST['q'])>3) {

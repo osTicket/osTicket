@@ -33,7 +33,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Filters are executed based on execution order.</em>
+                <em>Filters are executed based on execution order. Filter can target specific ticket source.</em>
             </th>
         </tr>
     </thead>
@@ -71,31 +71,36 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180">
-                To Email Address:
+            <td width="180" class="required">
+                Target:
             </td>
             <td>
-                <select name="email_id">
-                    <option value="0">&mdash; Filter applies to ALL incoming emails &dash;</option>
+                <select name="target">
+                    <option value="All" <?php echo ($info['target']=='All')?'selected="selected"':''; ?>>&mdash; Applies to ALL Tickets &dash;</option>
+                    <option value="Web" <?php echo ($info['target']=='Web')?'selected="selected"':''; ?>>Web Forms</option>
+                    <option value="API" <?php echo ($info['target']=='API')?'selected="selected"':''; ?>>API Calls</option>
+                    <option value="Email" <?php echo ($info['target']=='Email')?'selected="selected"':''; ?>>Emails</option>
                     <?php
                     $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$email,$name)=db_fetch_row($res)){
+                    if(($res=db_query($sql)) && db_num_rows($res)) {
+                        echo '<OPTGROUP label="Specific Incoming Emails">';
+                        while(list($id,$email,$name)=db_fetch_row($res)) {
                             $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
                             if($name)
                                 $email=Format::htmlchars("$name <$email>");
                             echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
                         }
+                        echo '</OPTGROUP>';
                     }
                     ?>
                 </select>
-                <br><em>(Highly recommended if the filter is specific to one incoming email address)</em>
+                &nbsp;
+                <span class="error">&nbsp;<?php echo $errors['target']; ?></span>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Filter Rules</strong>: Rules are applied based on the criteria.&nbsp;
-                    <span class="error">*&nbsp;<?php echo $errors['rules']; ?></span></em>
+                <em><strong>Filter Rules</strong>: Rules are applied based on the criteria.&nbsp;<span class="error">*&nbsp;<?php echo $errors['rules']; ?></span></em>
             </th>
         </tr>
         <tr>

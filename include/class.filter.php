@@ -18,7 +18,7 @@ class Filter {
     var $id;
     var $ht;
 
-    function Filter($id){
+    function Filter($id) {
         $this->id=0;
         $this->load($id);
     }
@@ -29,8 +29,8 @@ class Filter {
             return false;
 
         $sql='SELECT filter.*,count(rule.id) as rule_count '
-            .' FROM '.EMAIL_FILTER_TABLE.' filter '
-            .' LEFT JOIN '.EMAIL_FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '
+            .' FROM '.FILTER_TABLE.' filter '
+            .' LEFT JOIN '.FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '
             .' WHERE filter.id='.db_input($id)
             .' GROUP BY filter.id';
 
@@ -47,27 +47,31 @@ class Filter {
         return $this->load($this->getId());
     }
 
-    function getId(){
+    function getId() {
         return $this->id;
     }
 
-    function getName(){
+    function getTarget() {
+        return $this->ht['target'];
+    }
+
+    function getName() {
         return $this->ht['name'];
     }
 
-    function getNotes(){
+    function getNotes() {
         return $this->ht['notes'];
     }
 
-    function getInfo(){
+    function getInfo() {
         return  $this->ht;
     }
 
-    function getNumRules(){
+    function getNumRules() {
         return $this->ht['rule_count'];
     }
 
-    function getExecOrder(){
+    function getExecOrder() {
         return $this->ht['execorder'];
     }
 
@@ -75,7 +79,7 @@ class Filter {
         return $this->ht['email_id'];
     }
 
-    function isActive(){
+    function isActive() {
         return ($this->ht['isactive']);
     }
 
@@ -83,23 +87,23 @@ class Filter {
         return !strcasecmp($this->getName(),'SYSTEM BAN LIST');
     }
 
-    function getDeptId(){
+    function getDeptId() {
         return $this->ht['dept_id'];
     }
 
-    function getPriorityId(){
+    function getPriorityId() {
         return $this->ht['priority_id'];
     }
 
-    function getSLAId(){
+    function getSLAId() {
         return $this->ht['sla_id'];
     }
 
-    function getStaffId(){
+    function getStaffId() {
         return $this->ht['staff_id'];
     }
 
-    function getTeamId(){
+    function getTeamId() {
         return $this->ht['team_id'];
     }
 
@@ -107,36 +111,36 @@ class Filter {
         return $this->ht['canned_response_id'];
     }
 
-    function stopOnMatch(){
+    function stopOnMatch() {
         return ($this->ht['stop_on_match']);
     }
 
-    function matchAllRules(){
+    function matchAllRules() {
         return ($this->ht['match_all_rules']);
     }
 
-    function rejectEmail(){
+    function rejectEmail() {
         return ($this->ht['reject_email']);
     }
 
-    function useReplyToEmail(){
+    function useReplyToEmail() {
         return ($this->ht['use_replyto_email']);
     }
 
-    function disableAlerts(){
+    function disableAlerts() {
         return ($this->ht['disable_autoresponder']);
     }
      
-    function sendAlerts(){
+    function sendAlerts() {
         return (!$this->disableAlerts());
     }
 
-    function getRules(){
+    function getRules() {
         if (!$this->ht['rules']) {
             $rules=array();
             //We're getting the rules...live because it gets cleared on update.
-            $sql='SELECT * FROM '.EMAIL_FILTER_RULE_TABLE.' WHERE filter_id='.db_input($this->getId());
-            if(($res=db_query($sql)) && db_num_rows($res)){
+            $sql='SELECT * FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($this->getId());
+            if(($res=db_query($sql)) && db_num_rows($res)) {
                 while($row=db_fetch_array($res))
                     $rules[]=array('w'=>$row['what'],'h'=>$row['how'],'v'=>$row['val']);
             }
@@ -145,11 +149,11 @@ class Filter {
         return $this->ht['rules'];
     }
 
-    function getFlatRules(){ //Format used on html... I'm ashamed 
+    function getFlatRules() { //Format used on html... I'm ashamed 
 
         $info=array();
-        if(($rules=$this->getRules())){
-            foreach($rules as $k=>$rule){
+        if(($rules=$this->getRules())) {
+            foreach($rules as $k=>$rule) {
                 $i=$k+1;
                 $info["rule_w$i"]=$rule['w'];
                 $info["rule_h$i"]=$rule['h'];
@@ -169,7 +173,7 @@ class Filter {
 
     function removeRule($what, $how, $val) {
 
-        $sql='DELETE FROM '.EMAIL_FILTER_RULE_TABLE
+        $sql='DELETE FROM '.FILTER_RULE_TABLE
             .' WHERE filter_id='.db_input($this->getId())
             .' AND what='.db_input($what)
             .' AND how='.db_input($how)
@@ -197,7 +201,7 @@ class Filter {
         } else {
             # Fetch from database
             return 0 != db_count(
-                "SELECT COUNT(*) FROM ".EMAIL_FILTER_RULE_TABLE
+                "SELECT COUNT(*) FROM ".FILTER_RULE_TABLE
                ." WHERE filter_id=".db_input($this->id)
                ." AND what=".db_input($what)." AND how=".db_input($how)
                ." AND val=".db_input($val)
@@ -306,7 +310,7 @@ class Filter {
         );
     }
 
-    function update($vars,&$errors){
+    function update($vars,&$errors) {
 
         if(!Filter::save($this->getId(),$vars,$errors))
             return false;
@@ -316,47 +320,55 @@ class Filter {
         return true;
     }
 
-    function delete(){
+    function delete() {
         
         $id=$this->getId();
-        $sql='DELETE FROM '.EMAIL_FILTER_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())){
-            db_query('DELETE FROM '.EMAIL_FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
+        $sql='DELETE FROM '.FILTER_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
+        if(db_query($sql) && ($num=db_affected_rows())) {
+            db_query('DELETE FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
         }
 
         return $num;
     }
 
     /** static functions **/
-    function create($vars,&$errors){
+    function getTargets() {
+        return array(
+                'All' => 'All',
+                'Web' => 'Web Forms',
+                'Email' => 'Emails',
+                'API' => 'API Calls');
+    }
+
+    function create($vars,&$errors) {
         return Filter::save(0,$vars,$errors);
     }
 
-    function getIdByName($name){
+    function getIdByName($name) {
 
-        $sql='SELECT id FROM '.EMAIL_FILTER_TABLE.' WHERE name='.db_input($name);
+        $sql='SELECT id FROM '.FILTER_TABLE.' WHERE name='.db_input($name);
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
 
         return $id;
     }
 
-    function lookup($id){
+    function lookup($id) {
         return ($id && is_numeric($id) && ($f= new Filter($id)) && $f->getId()==$id)?$f:null;
     }
 
-    function validate_rules($vars,&$errors){
+    function validate_rules($vars,&$errors) {
         return self::save_rules(0,$vars,$errors);
     }
 
-    function save_rules($id,$vars,&$errors){
+    function save_rules($id,$vars,&$errors) {
 
         $matches=array('name','email','subject','body','header');
         $types=array('equal','not_equal','contains','dn_contain');
 
         $rules=array();
         for($i=1; $i<=25; $i++) { //Expecting no more than 25 rules...
-            if($vars["rule_w$i"] || $vars["rule_h$i"]){
+            if($vars["rule_w$i"] || $vars["rule_h$i"]) {
                 if(!$vars["rule_w$i"] || !in_array($vars["rule_w$i"],$matches))
                     $errors["rule_$i"]='Invalid match selection';
                 elseif(!$vars["rule_h$i"] || !in_array($vars["rule_h$i"],$types))
@@ -367,7 +379,7 @@ class Filter {
                     $errors["rule_$i"]='Valid email required for the match type';
                 else //for everything-else...we assume it's valid.
                     $rules[]=array('w'=>$vars["rule_w$i"],'h'=>$vars["rule_h$i"],'v'=>$vars["rule_v$i"]);
-            }elseif($vars["rule_v$i"]){
+            }elseif($vars["rule_v$i"]) {
                 $errors["rule_$i"]='Incomplete selection';
             }
         }
@@ -383,7 +395,7 @@ class Filter {
         if(!$id) return true; //When ID is 0 then assume it was just validation...
 
         //Clear existing rules...we're doing mass replace on each save!! 
-        db_query('DELETE FROM '.EMAIL_FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
+        db_query('DELETE FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
         $num=0;
         foreach($rules as $rule) {
             $rule['filter_id']=$id;
@@ -394,39 +406,49 @@ class Filter {
         return $num; 
     }
 
-    function save($id,$vars,&$errors){
+    function save($id,$vars,&$errors) {
 
 
         if(!$vars['execorder'])
-            $errors['execorder']='Order required';
+            $errors['execorder'] = 'Order required';
         elseif(!is_numeric($vars['execorder']))
-            $errors['execorder']='Must be numeric value';
+            $errors['execorder'] = 'Must be numeric value';
             
         if(!$vars['name'])
-            $errors['name']='Name required';
+            $errors['name'] = 'Name required';
         elseif(($sid=self::getIdByName($vars['name'])) && $sid!=$id)
-            $errors['name']='Name already in-use';
+            $errors['name'] = 'Name already in-use';
 
         if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
-            $errors['rules']='Unable to validate rules as entered';
+            $errors['rules'] = 'Unable to validate rules as entered';
+
+        if(!is_numeric($vars['target']) && !in_array($vars['target'], array('All', 'Email', 'Web')))
+            $errors['target'] = 'Unknown or invalid target';
 
         if($errors) return false;
 
-        $sql=' updated=NOW() '.
-             ',isactive='.db_input($vars['isactive']).
-             ',name='.db_input($vars['name']).
-             ',execorder='.db_input($vars['execorder']).
-             ',email_id='.db_input($vars['email_id']).
-             ',dept_id='.db_input($vars['dept_id']).
-             ',priority_id='.db_input($vars['priority_id']).
-             ',sla_id='.db_input($vars['sla_id']).
-             ',match_all_rules='.db_input($vars['match_all_rules']).
-             ',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0).
-             ',reject_email='.db_input(isset($vars['reject_email'])?1:0).
-             ',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0).
-             ',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0).
-             ',canned_response_id='.db_input($vars['canned_response_id']).
-             ',notes='.db_input($vars['notes']);
+        $emailId = 0;
+        if(is_numeric($vars['target'])) {
+            $emailId = $vars['target'];
+            $vars['target'] = 'Email';
+        }
+
+        $sql=' updated=NOW() '
+            .',isactive='.db_input($vars['isactive'])
+            .',target='.db_input($vars['target'])
+            .',name='.db_input($vars['name'])
+            .',execorder='.db_input($vars['execorder'])
+            .',email_id='.db_input($emailId)
+            .',dept_id='.db_input($vars['dept_id'])
+            .',priority_id='.db_input($vars['priority_id'])
+            .',sla_id='.db_input($vars['sla_id'])
+            .',match_all_rules='.db_input($vars['match_all_rules'])
+            .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
+            .',reject_email='.db_input(isset($vars['reject_email'])?1:0)
+            .',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0)
+            .',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0)
+            .',canned_response_id='.db_input($vars['canned_response_id'])
+            .',notes='.db_input($vars['notes']);
        
 
         //Auto assign ID is overloaded...
@@ -438,11 +460,11 @@ class Filter {
             $sql.=',staff_id=0,team_id=0 '; //no auto-assignment!
 
         if($id) {
-            $sql='UPDATE '.EMAIL_FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
+            $sql='UPDATE '.FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
             if(!db_query($sql))
                 $errors['err']='Unable to update the filter. Internal error occurred';
         }else{
-            $sql='INSERT INTO '.EMAIL_FILTER_TABLE.' SET '.$sql.',created=NOW() ';
+            $sql='INSERT INTO '.FILTER_TABLE.' SET '.$sql.',created=NOW() ';
             if(!db_query($sql) || !($id=db_insert_id()))
                 $errors['err']='Unable to add filter. Internal error';
         }
@@ -464,14 +486,14 @@ class FilterRule {
 
     var $filter;
 
-    function FilterRule($id,$filterId=0){
+    function FilterRule($id,$filterId=0) {
         $this->id=0;
         $this->load($id,$filterId);
     }
 
     function load($id,$filterId=0) {
 
-        $sql='SELECT rule.* FROM '.EMAIL_FILTER_RULE_TABLE.' rule '
+        $sql='SELECT rule.* FROM '.FILTER_RULE_TABLE.' rule '
             .' WHERE rule.id='.db_input($id);
         if($filterId)
             $sql.=' AND rule.filter_id='.db_input($filterId);
@@ -529,9 +551,9 @@ class FilterRule {
         return true;
     }
 
-    function delete(){
+    function delete() {
         
-        $sql='DELETE FROM '.EMAIL_FILTER_RULE_TABLE.' WHERE id='.db_input($this->getId()).' AND filter_id='.db_input($this->getFilterId());
+        $sql='DELETE FROM '.FILTER_RULE_TABLE.' WHERE id='.db_input($this->getId()).' AND filter_id='.db_input($this->getFilterId());
 
         return (db_query($sql) && db_affected_rows());
     }
@@ -559,12 +581,12 @@ class FilterRule {
             $sql.=',notes='.db_input($vars['notes']);
 
         if($id) {
-            $sql='UPDATE '.EMAIL_FILTER_RULE_TABLE.' SET '.$sql.' WHERE id='.db_input($id).' AND filter_id='.db_input($vars['filter_id']);
+            $sql='UPDATE '.FILTER_RULE_TABLE.' SET '.$sql.' WHERE id='.db_input($id).' AND filter_id='.db_input($vars['filter_id']);
             if(db_query($sql))
                 return true;
 
         } else {
-            $sql='INSERT INTO '.EMAIL_FILTER_RULE_TABLE.' SET created=NOW(), filter_id='.db_input($vars['filter_id']).', '.$sql;
+            $sql='INSERT INTO '.FILTER_RULE_TABLE.' SET created=NOW(), filter_id='.db_input($vars['filter_id']).', '.$sql;
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
         }
@@ -665,7 +687,7 @@ class EmailFilter {
     }
     
     /* static */ function getAllActive() {
-        $sql="SELECT id FROM ".EMAIL_FILTER_TABLE." WHERE isactive"
+        $sql="SELECT id FROM ".FILTER_TABLE." WHERE isactive"
            ." ORDER BY execorder";
 
         return db_query($sql);
@@ -695,8 +717,8 @@ class EmailFilter {
      */
     /* static */ function quickList($addr, $name=false, $subj=false, 
             $emailid=0) {
-        $sql="SELECT DISTINCT filter_id FROM ".EMAIL_FILTER_RULE_TABLE." rule"
-           ." INNER JOIN ".EMAIL_FILTER_TABLE." filter"
+        $sql="SELECT DISTINCT filter_id FROM ".FILTER_RULE_TABLE." rule"
+           ." INNER JOIN ".FILTER_TABLE." filter"
            ." ON (filter.id=rule.filter_id)"
            ." WHERE filter.isactive";
         # Filter by recipient email-id if specified
@@ -713,8 +735,8 @@ class EmailFilter {
         # sender-email-addresses or sender-names or subjects
         $sql.=") OR filter.id IN ("
                ." SELECT filter_id "
-               ." FROM ".EMAIL_FILTER_RULE_TABLE." rule"
-               ." INNER JOIN ".EMAIL_FILTER_TABLE." filter"
+               ." FROM ".FILTER_RULE_TABLE." rule"
+               ." INNER JOIN ".FILTER_TABLE." filter"
                ." ON (rule.filter_id=filter.id)"
                ." GROUP BY filter_id"
                ." HAVING COUNT(*)-COUNT(NULLIF(what,'email'))=0";
@@ -724,8 +746,8 @@ class EmailFilter {
         # have at least one rule 'what' type that wasn't considered
         $sql.=") OR filter.id IN ("
                ." SELECT filter_id"
-               ." FROM ".EMAIL_FILTER_RULE_TABLE." rule"
-               ." INNER JOIN ".EMAIL_FILTER_TABLE." filter"
+               ." FROM ".FILTER_RULE_TABLE." rule"
+               ." INNER JOIN ".FILTER_TABLE." filter"
                ." ON (rule.filter_id=filter.id)"
                ." WHERE what NOT IN ('email'"
         # Handle sender-name and subject if specified
@@ -751,8 +773,8 @@ class EmailFilter {
     /* static */ function isBanned($addr) {
 
         $sql='SELECT filter.id, what, how, UPPER(val) '
-            .' FROM '.EMAIL_FILTER_TABLE.' filter'
-            .' INNER JOIN '.EMAIL_FILTER_RULE_TABLE.' rule'
+            .' FROM '.FILTER_TABLE.' filter'
+            .' INNER JOIN '.FILTER_RULE_TABLE.' rule'
             .' ON (filter.id=rule.filter_id)'
             .' WHERE filter.reject_email'
             .'   AND filter.match_all_rules=0'
