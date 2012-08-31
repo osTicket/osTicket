@@ -235,7 +235,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `isactive` tinyint(1) unsigned NOT NULL default '1',
   `match_all_rules` tinyint(1) unsigned NOT NULL default '0',
   `stop_onmatch` tinyint(1) unsigned NOT NULL default '0',
-  `reject_email` tinyint(1) unsigned NOT NULL default '0',
+  `reject_ticket` tinyint(1) unsigned NOT NULL default '0',
   `use_replyto_email` tinyint(1) unsigned NOT NULL default '0',
   `disable_autoresponder` tinyint(1) unsigned NOT NULL default '0',
   `canned_response_id` int(11) unsigned NOT NULL default '0',
@@ -257,7 +257,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
 
 
 INSERT INTO `%TABLE_PREFIX%filter` (
-  `id`,`isactive`,`execorder`,`reject_email`,`name`,`notes`,`created`)
+  `id`,`isactive`,`execorder`,`reject_ticket`,`name`,`notes`,`created`)
     VALUES (1, 1, 99, 1, 'SYSTEM BAN LIST', 'Internal list for email banning. Do not remove', NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%filter_rule`;
