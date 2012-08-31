@@ -27,7 +27,7 @@ class Banlist {
     }
     
     function isbanned($email) {
-        return EmailFilter::isBanned($email);
+        return TicketFilter::isBanned($email);
     }
 
     function includes($email) {
@@ -50,7 +50,7 @@ class Banlist {
             'name'          => 'SYSTEM BAN LIST',
             'isactive'      => 1,
             'match_all_rules' => false,
-            'reject_email'  => true,
+            'reject_ticket'  => true,
             'rules'         => array(),
             'notes'         => 'Internal list for email banning. Do not remove'
         ), $errors);

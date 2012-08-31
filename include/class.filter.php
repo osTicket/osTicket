@@ -2,7 +2,7 @@
 /*********************************************************************
     class.filter.php
 
-    Email Filter Class
+    Ticket Filter
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2012 osTicket
@@ -119,8 +119,8 @@ class Filter {
         return ($this->ht['match_all_rules']);
     }
 
-    function rejectEmail() {
-        return ($this->ht['reject_email']);
+    function rejectOnMatch() {
+        return ($this->ht['reject_ticket']);
     }
 
     function useReplyToEmail() {
@@ -191,13 +191,15 @@ class Filter {
     }
 
     function containsRule($what, $how, $val) {
+        $val = trim($val);
         if (isset($this->ht['rules'])) {
+            $match = array("w"=>$what, "h"=>$how, "v"=>$val);
             foreach ($this->ht['rules'] as $rule) {
-                if (array("w"=>$what, "h"=>$how, "v"=>$val) == $rule) {
-                    return True;
-                }
+                if ($match == $rule)
+                    return true;
             }
-            return False;
+            return false;
+
         } else {
             # Fetch from database
             return 0 != db_count(
@@ -212,35 +214,39 @@ class Filter {
      * Simple true/false if the rules defined for this filter match the
      * incoming email
      *
-     * $email is an ARRAY, which has valid keys
-     *  *from - email address of sender
-     *   name - name of sender
-     *   subject - subject line of the email
-     *   body - body content of the email (no attachments, please)
+     * $info is an ARRAY, which has valid keys
+     *   email - FROM email address of the ticket owner
+     *   name - name of ticket owner
+     *   subject - subject line of the ticket
+     *   body - body content of the message (no attachments, please)
      *   reply-to - reply-to email address
      *   reply-to-name - name of sender to reply-to
      *   headers - array of email headers
-     *   emailid - osTicket email id of recipient
+     *   emailId - osTicket system email id 
      */
-    function matches($email) {
+    function matches($info) {
+
+        if(!$info) return false;
+
         $what = array(
-            "email"     => $email['email'],
-            "subject"   => $email['subject'],
+            'email'     => $info['email'],
+            'subject'   => $info['subject'],
             # XXX: Support reply-to too ?
-            "name"      => $email['name'],
-            "body"      => $email['message']
+            'name'      => $info['name'],
+            'body'      => $info['message']
             # XXX: Support headers
         );
         $how = array(
             # how => array(function, null or === this, null or !== this)
-            "equal"     => array("strcmp", 0),
-            "not_equal" => array("strcmp", null, 0),
-            "contains"  => array("strpos", null, false),
-            "dn_contain"=> array("strpos", false)
+            'equal'     => array('strcmp', 0),
+            'not_equal' => array('strcmp', null, 0),
+            'contains'  => array('strpos', null, false),
+            'dn_contain'=> array('strpos', false)
         );
+
         $match = false;
         # Respect configured filter email-id
-        if ($this->getEmailId() && $this->getEmailId() != $email['emailId'])
+        if ($this->getEmailId() && $this->getEmailId() != $info['emailId'])
             return false;
 
         foreach ($this->getRules() as $rule) {
@@ -269,7 +275,7 @@ class Filter {
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
-    function apply(&$ticket, $email=null) {
+    function apply(&$ticket, $info=null) {
         # TODO: Disable alerting
         # XXX: Does this imply turning it on as well? (via ->sendAlerts())
         if ($this->disableAlerts()) $ticket['autorespond']=false;
@@ -283,13 +289,15 @@ class Filter {
         #       XXX: Unset the other (of staffId or teamId) (?)
         if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
         elseif ($this->getTeamId()) $ticket['teamId']=$this->getTeamId();
-        #       Override name with reply-to information from the EmailFilter
+        #       Override name with reply-to information from the TcicketFilter
         #       match
-        if ($this->useReplyToEmail() && $email['reply-to']) {
-            $ticket['email'] = $email['reply-to'];
-            if ($email['reply-to-name']) 
-                $ticket['name'] = $email['reply-to-name'];
+        if ($this->useReplyToEmail() && $info['reply-to']) {
+            $ticket['email'] = $info['reply-to'];
+            if ($info['reply-to-name']) 
+                $ticket['name'] = $info['reply-to-name'];
         }
+
+        # Use canned response.
         if ($this->getCannedResponse())
             $ticket['cannedResponseId'] = $this->getCannedResponse();
     }
@@ -444,7 +452,7 @@ class Filter {
             .',sla_id='.db_input($vars['sla_id'])
             .',match_all_rules='.db_input($vars['match_all_rules'])
             .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
-            .',reject_email='.db_input(isset($vars['reject_email'])?1:0)
+            .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)
             .',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0)
             .',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0)
             .',canned_response_id='.db_input($vars['canned_response_id'])
@@ -601,50 +609,65 @@ class FilterRule {
 }
 
 /**
- * Applies rules defined in the staff control panel "Email Filters". Each
+ * Applies rules defined in the admin control panel > Settings tab > "Ticket Filters". Each
  * filter can have up to 25 rules (*currently). This will attempt to match
- * the incoming email against the defined rules, and, if the email matches,
- * the ticket will be modified as described in the filter
+ * the incoming tickets against the defined rules, and, if the email matches,
+ * the ticket will be modified as described in the filter actions.
  */
-class EmailFilter {
+class TicketFilter {
+
+    var $target;
+    var $vars;
+
     /**
-     * Construct a list of filters to handle a new ticket generated from an
-     * email or something with information common to email (such as API
-     * calls, etc).
+     * Construct a list of filters to handle a new ticket
+     * taking into account the source/origin of the ticket.
      *
-     * $email is an ARRAY, which has valid keys
-     *  *email - email address of sender
-     *   name - name of sender
-     *   subject - subject line of the email
-     *   email-id - id of osTicket email recipient address
+     * $vars is an ARRAY, which has valid keys
+     *  *email - email address of user
+     *   name - name of user
+     *   subject - subject of the ticket
+     *   emailId - id of osTicket's system email (for emailed tickets)
      *  ---------------
      *  @see Filter::matches() for a complete list of supported keys
      *
-     * $slow - if TRUE, every (active) filter will be fetched from the
-     *         database and matched against the email. Otherwise, a subset
-     *         of filters from the database that appear to have rules that
-     *         deal with the data in the email will be considered. @see
-     *         ::quickList() for more information.
+     *  IF $vars is not provided, every (active) filter will be fetched from the
+     *  database and matched against the incoming ticket. Otherwise, a subset
+     *  of filters from the database that appear to have rules that
+     *  deal with the data in the incoming ticket (based on $vars) will be considered.
+     *  @see ::quickList() for more information.
      */
-    function EmailFilter($email, $slow=false) {
-        $this->email = $email;
-        if ($slow) {
-            $this->build($this->getAllActive());
-        } else {
-            $this->build(
-                $this->quickList($email['email'], $email['name'],
-                    $email['subject'], $email['emailId']));
-        }
+    function TicketFilter($origin, $vars=null) {
+        
+        $this->target = self::origin2target($origin);
+        $this->vars = ($vars && is_array($vars))?array_filter(array_map('trim', $vars)):null;
+       
+        //Init filters.
+        $this->build();
     }
-    
-    function build($res) {
+
+    function build() {
+        
+        //Clear any memoized filters
         $this->filters = array();
-        while (list($id) = db_fetch_row($res))
-            array_push($this->filters, new Filter($id));
+        $this->short_list = array();
+
+        //Query DB for "possibly" matching filters.
+        $res = $this->vars?$this->quickList():$this->getAllActive();
+        if($res) {
+            while (list($id) = db_fetch_row($res))
+                array_push($this->filters, new Filter($id));
+        }
+
         return $this->filters;
     }
+
+    function getTarget() {
+        return $this->target;
+    }
+
     /**
-     * Fetches the short list of filters that match the email received in the
+     * Fetches the short list of filters that match the ticket vars received in the
      * constructor. This function is memoized so subsequent calls will
      * return immediately.
      */
@@ -652,17 +675,18 @@ class EmailFilter {
         if (!isset($this->short_list)) {
             $this->short_list = array();
             foreach ($this->filters as $filter)
-                if ($filter->matches($this->email))
+                if ($filter->matches($this->vars))
                     $this->short_list[] = $filter;
         }
+
         return $this->short_list;
     }
     /**
-     * Determine if the filters that match the received email indicate that
+     * Determine if the filters that match the received vars indicate that
      * the email should be rejected
      *
      * Returns FALSE if the email should be acceptable. If the email should
-     * be rejected, the first filter that matches and has rejectEmail set is
+     * be rejected, the first filter that matches and has reject ticket set is
      * returned.
      */
     function shouldReject() {
@@ -671,7 +695,7 @@ class EmailFilter {
             # be blocked; however, don't unset $reject, because if it
             # was set by another rule that did not set stopOnMatch(), we
             # should still honor its configuration
-            if ($filter->rejectEmail()) return $filter;
+            if ($filter->rejectOnMatch()) return $filter;
         }
         return false;
     }
@@ -681,17 +705,21 @@ class EmailFilter {
      */
     function apply(&$ticket) {
         foreach ($this->getMatchingFilterList() as $filter) {
-            $filter->apply($ticket, $this->email);
+            $filter->apply($ticket, $this->vars);
             if ($filter->stopOnMatch()) break;
         }
     }
     
     /* static */ function getAllActive() {
-        $sql="SELECT id FROM ".FILTER_TABLE." WHERE isactive"
-           ." ORDER BY execorder";
+
+        $sql='SELECT id FROM '.FILTER_TABLE
+            .' WHERE isactive=1 '
+            .'  AND (target="All" OR target='.db_input($this->getTarget()).') '
+            .' ORDER BY execorder';
 
         return db_query($sql);
     }
+
     /**
      * Fast lookup function to all filters that have at least one rule that
      * matches the received address or name or is not defined to match based
@@ -715,22 +743,28 @@ class EmailFilter {
      * information from the database. Whether the filter will completely
      * match or not is determined in the Filter::matches() method.
      */
-    /* static */ function quickList($addr, $name=false, $subj=false, 
-            $emailid=0) {
-        $sql="SELECT DISTINCT filter_id FROM ".FILTER_RULE_TABLE." rule"
-           ." INNER JOIN ".FILTER_TABLE." filter"
-           ." ON (filter.id=rule.filter_id)"
-           ." WHERE filter.isactive";
-        # Filter by recipient email-id if specified
-        if ($emailid) #TODO: Fix the logic here...
-            $sql.=" AND filter.email_id=".db_input($emailid);
+    /* static */ function quickList() {
+
+        if(!$this->vars || !$this->vars['email'])
+            return $this->getAllActive();
+
+        $sql='SELECT DISTINCT filter_id FROM '.FILTER_RULE_TABLE.' rule '
+            .' INNER JOIN '.FILTER_TABLE.' filter '
+            .' ON (filter.id=rule.filter_id) '
+            .' WHERE filter.isactive '
+            ."  AND (filter.target='All' OR  filter.target=".db_input($this->getTarget()).') ';
+
+        # Filter by system's email-id if specified
+        if($this->vars['emailId'])
+            $sql.=' AND (filter.email_id=0 OR filter.email_id='.db_input($this->vars['emailId']).')';
+        
         # Include rules for sender-email, sender-name and subject as
         # requested
-        $sql.=" AND ((what='email' AND LOCATE(val,".db_input($addr)."))";
-        if ($name) 
-            $sql.=" OR (what='name' AND LOCATE(val,".db_input($name)."))";
-        if ($subj) 
-            $sql.=" OR (what='subject' AND LOCATE(val,".db_input($subj)."))";
+        $sql.=" AND ((what='email' AND LOCATE(val, ".db_input($this->vars['email']).'))';
+        if($this->vars['name']) 
+            $sql.=" OR (what='name' AND LOCATE(val, ".db_input($this->vars['name']).'))';
+        if($this->vars['subject']) 
+            $sql.=" OR (what='subject' AND LOCATE(val, ".db_input($this->vars['subject']).'))';
         # Also include filters that do not have any rules concerning either
         # sender-email-addresses or sender-names or subjects
         $sql.=") OR filter.id IN ("
@@ -738,10 +772,12 @@ class EmailFilter {
                ." FROM ".FILTER_RULE_TABLE." rule"
                ." INNER JOIN ".FILTER_TABLE." filter"
                ." ON (rule.filter_id=filter.id)"
+               ." WHERE filter.isactive"
+               ." AND (filter.target='All' OR  filter.target=".db_input($this->getTarget()).")"
                ." GROUP BY filter_id"
                ." HAVING COUNT(*)-COUNT(NULLIF(what,'email'))=0";
-        if ($name!==false) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'name'))=0";
-        if ($subj!==false) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'subject'))=0";
+        if (!$this->vars['name']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'name'))=0";
+        if (!$this->vars['subject']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'subject'))=0";
         # Also include filters that do not have match_all_rules set to and
         # have at least one rule 'what' type that wasn't considered
         $sql.=") OR filter.id IN ("
@@ -749,11 +785,13 @@ class EmailFilter {
                ." FROM ".FILTER_RULE_TABLE." rule"
                ." INNER JOIN ".FILTER_TABLE." filter"
                ." ON (rule.filter_id=filter.id)"
-               ." WHERE what NOT IN ('email'"
+               ." WHERE filter.isactive"
+               ." AND (filter.target='All' OR  filter.target=".db_input($this->getTarget()).")"
+               ." AND what NOT IN ('email'"
         # Handle sender-name and subject if specified
-               .(($name!==false)?",'name'":"")
-               .(($subj!==false)?",'subject'":"")
-               .") AND filter.match_all_rules = false"
+               .((!$this->vars['name'])?",'name'":"")
+               .((!$this->vars['subject'])?",'subject'":"")
+               .") AND filter.match_all_rules = 0 "
         # Return filters in declared execution order
             .") ORDER BY filter.execorder";
         
@@ -776,7 +814,7 @@ class EmailFilter {
             .' FROM '.FILTER_TABLE.' filter'
             .' INNER JOIN '.FILTER_RULE_TABLE.' rule'
             .' ON (filter.id=rule.filter_id)'
-            .' WHERE filter.reject_email'
+            .' WHERE filter.reject_ticket'
             .'   AND filter.match_all_rules=0'
             .'   AND filter.email_id=0'
             .'   AND filter.isactive'
@@ -784,20 +822,22 @@ class EmailFilter {
             .'   AND rule.what="email"'
             .'   AND LOCATE(rule.val,'.db_input($addr).')';
 
+        if(!($res=db_query($sql)) || !db_num_rows($res))
+            return false;
+
         # XXX: Use MB_xxx function for proper unicode support
         $addr = strtoupper($addr);
         $how=array('equal'      => array('strcmp', 0),
                    'contains'   => array('strpos', null, false));
-
-        if ($res=db_query($sql)) {
-            while ($row=db_fetch_array($res)) {
-                list($func, $pos, $neg) = $how[$row['how']];
-                if (!$func) continue;
-                $res = call_user_func($func, $addr, $row['val']);
-                if (($neg === null && $res === $pos) || $res !== $neg)
-                    return $row['id'];
-            }
+            
+        while ($row=db_fetch_array($res)) {
+            list($func, $pos, $neg) = $how[$row['how']];
+            if (!$func) continue;
+            $result = call_user_func($func, $addr, $row['val']);
+            if (($neg === null && $result === $pos) || $result !== $neg)
+                return $row['id'];
         }
+
         return false;
     }
 
@@ -835,6 +875,16 @@ class EmailFilter {
             }
         }
         return false;
+    }
+
+    /** 
+     * Normalize ticket source to supported filter target 
+     *
+     */
+    function origin2target($origin) {
+        $sources=array('web' => 'Web', 'email' => 'Email', 'phone' => 'Web', 'staff' => 'Web', 'api' => 'API');
+    
+        return $sources[strtolower($origin)];
     }
 }
 ?>

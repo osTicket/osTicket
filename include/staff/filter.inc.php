@@ -161,11 +161,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Ban Email:
+                Reject Ticket:
             </td>
             <td>
-                <input type="checkbox" name="reject_email" value="1" <?php echo $info['reject_email']?'checked="checked"':''; ?> >
-                    <strong><font class="error">Reject email</font></strong> <em>(All other actions, rules and filters are ignored)</em>
+                <input type="checkbox" name="reject_ticket" value="1" <?php echo $info['reject_ticket']?'checked="checked"':''; ?> >
+                    <strong><font class="error">Reject Ticket</font></strong> <em>(All other actions and filters are ignored)</em>
             </td>
         </tr>
         <tr>
