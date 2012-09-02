@@ -37,7 +37,7 @@ class ContentAjaxAPI extends AjaxController {
     function ticket_variables() {
 
         $content='
-<div style="width:600px;">
+<div style="width:680px;">
     <h2>Ticket Variables</h2>
     Please note that non-base variables depends on the context of use.
     <br/>
@@ -56,7 +56,9 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%status</td><td>Status</td></tr>
                     <tr><td>%priority</td><td>Priority</td></tr>
                     <tr><td>%dept</td><td>Department</td></tr>
-                    <tr><td>%assigned</td><td>Assigned staff or team (if any)</td></tr>
+                    <tr><td>%staff</td><td>Assigned/closing staff</td></tr>
+                    <tr><td>%team</td><td>Assigned/closing team</td></tr>
+                    <tr><td>%assigned</td><td>Assigned staff and/or team</td></tr>
                     <tr><td>%createdate</td><td>Date created</td></tr>
                     <tr><td>%duedate</td><td>Due date</td></tr>
                     <tr><td>%closedate</td><td>Date closed</td></tr>
@@ -67,8 +69,8 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td width="100">%message</td><td>Message (incoming)</td></tr>
                     <tr><td>%response</td><td>Response (outgoing)</td></tr>
                     <tr><td>%note</td><td>Internal/transfer note</td></tr>
-                    <tr><td>%staff</td><td>Staff\'s name (alert/notices)</td></tr>
-                    <tr><td>%assignee</td><td>Assigned staff</td></tr>
+                    <tr><td>%staff.name</td><td>Staff\'s name (alert/notices)</td></tr>
+                    <tr><td>%assignee</td><td>Assigned staff (assignment)</td></tr>
                     <tr><td>%assigner</td><td>Staff assigning the ticket</td></tr>
                     <tr><td>%url</td><td>osTicket\'s base url (FQDN)</td></tr>
                     <tr><td>%auth</td><td>Client authentication token</td></tr>

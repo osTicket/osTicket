@@ -419,6 +419,11 @@ class Ticket{
         return $assignees;
     }
 
+    function getAssigned($glue='/') {
+        $assignees = $this->getAssignees();
+        return $assignees?implode($glue, $assignees):'';
+    }
+
     function getTopicId() {
         return $this->topic_id;
     }
@@ -1106,8 +1111,8 @@ class Ticket{
 
 
         $search = array('/%id/','/%ticket/','/%email/','/%name/','/%subject/','/%topic/','/%phone/','/%status/','/%priority/',
-                        '/%dept/','/%assigned_staff/','/%createdate/','/%duedate/','/%closedate/','/%url/',
-                        '/%auth/', '/%clientlink/');
+                        '/%dept/','/%staff/','/%team/','/%assigned/','/%createdate/','/%duedate/','/%closedate/',
+                        '/%url/','/%auth/', '/%clientlink/');
         $replace = array($this->getId(),
                          $this->getExtId(),
                          $this->getEmail(),
@@ -1119,6 +1124,8 @@ class Ticket{
                          $this->getPriority(),
                          ($dept?$dept->getName():''),
                          ($staff?$staff->getName():''),
+                         ($team?$team->getName():''),
+                         $this->getAssigned(),
                          Format::db_daydatetime($this->getCreateDate()),
                          Format::db_daydatetime($this->getDueDate()),
                          Format::db_daydatetime($this->getCloseDate()),
