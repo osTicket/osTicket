@@ -226,7 +226,7 @@ class Filter {
      */
     function matches($info) {
 
-        if(!$info) return false;
+        if(!$info || !is_array($info)) return false;
 
         $what = array(
             'email'     => $info['email'],
@@ -289,7 +289,7 @@ class Filter {
         #       XXX: Unset the other (of staffId or teamId) (?)
         if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
         elseif ($this->getTeamId()) $ticket['teamId']=$this->getTeamId();
-        #       Override name with reply-to information from the TcicketFilter
+        #       Override name with reply-to information from the TicketFilter
         #       match
         if ($this->useReplyToEmail() && $info['reply-to']) {
             $ticket['email'] = $info['reply-to'];
@@ -342,10 +342,10 @@ class Filter {
     /** static functions **/
     function getTargets() {
         return array(
-                'All' => 'All',
+                'Any' => 'Any',
                 'Web' => 'Web Forms',
-                'Email' => 'Emails',
-                'API' => 'API Calls');
+                'API' => 'API Calls',
+                'Email' => 'Emails');
     }
 
     function create($vars,&$errors) {
@@ -430,7 +430,10 @@ class Filter {
         if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
             $errors['rules'] = 'Unable to validate rules as entered';
 
-        if(!is_numeric($vars['target']) && !in_array($vars['target'], array('All', 'Email', 'Web')))
+        $targets = self::getTargets();
+        if(!$vars['target'])
+            $errors['target'] = 'Target required';
+        else if(!is_numeric($vars['target']) && !$targets[$vars['target']])
             $errors['target'] = 'Unknown or invalid target';
 
         if($errors) return false;
@@ -714,7 +717,7 @@ class TicketFilter {
 
         $sql='SELECT id FROM '.FILTER_TABLE
             .' WHERE isactive=1 '
-            .'  AND (target="All" OR target='.db_input($this->getTarget()).') '
+            .'  AND target IN ("Any", '.db_input($this->getTarget()).') '
             .' ORDER BY execorder';
 
         return db_query($sql);
@@ -743,7 +746,7 @@ class TicketFilter {
      * information from the database. Whether the filter will completely
      * match or not is determined in the Filter::matches() method.
      */
-    /* static */ function quickList() {
+     function quickList() {
 
         if(!$this->vars || !$this->vars['email'])
             return $this->getAllActive();
@@ -752,7 +755,7 @@ class TicketFilter {
             .' INNER JOIN '.FILTER_TABLE.' filter '
             .' ON (filter.id=rule.filter_id) '
             .' WHERE filter.isactive '
-            ."  AND (filter.target='All' OR  filter.target=".db_input($this->getTarget()).') ';
+            ."  AND filter.target IN ('Any', ".db_input($this->getTarget()).') ';
 
         # Filter by system's email-id if specified
         if($this->vars['emailId'])
@@ -773,7 +776,7 @@ class TicketFilter {
                ." INNER JOIN ".FILTER_TABLE." filter"
                ." ON (rule.filter_id=filter.id)"
                ." WHERE filter.isactive"
-               ." AND (filter.target='All' OR  filter.target=".db_input($this->getTarget()).")"
+               ." AND filter.target IN('Any', ".db_input($this->getTarget()).")"
                ." GROUP BY filter_id"
                ." HAVING COUNT(*)-COUNT(NULLIF(what,'email'))=0";
         if (!$this->vars['name']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'name'))=0";
@@ -786,7 +789,7 @@ class TicketFilter {
                ." INNER JOIN ".FILTER_TABLE." filter"
                ." ON (rule.filter_id=filter.id)"
                ." WHERE filter.isactive"
-               ." AND (filter.target='All' OR  filter.target=".db_input($this->getTarget()).")"
+               ." AND filter.target IN ('Any', ".db_input($this->getTarget()).")"
                ." AND what NOT IN ('email'"
         # Handle sender-name and subject if specified
                .((!$this->vars['name'])?",'name'":"")
