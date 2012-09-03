@@ -1,3 +1,4 @@
+<h2>Autoresponder Settings</h2>
 <form action="settings.php?t=autoresp" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="autoresp" >
