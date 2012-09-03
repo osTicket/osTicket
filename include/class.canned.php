@@ -36,7 +36,9 @@ class Canned {
             .' FROM '.CANNED_TABLE.' canned '
             .' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' attach ON (attach.canned_id=canned.canned_id) ' 
             .' LEFT JOIN '.EMAIL_FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) '
-            .' WHERE canned.canned_id='.db_input($id);
+            .' WHERE canned.canned_id='.db_input($id)
+            .' GROUP BY canned.canned_id';
+
         if(!($res=db_query($sql)) ||  !db_num_rows($res))
             return false;
 
