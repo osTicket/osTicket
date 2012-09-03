@@ -54,7 +54,9 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "table" => TOPIC_TABLE,
                 "pk" => "topic_id",
                 "sort" => 'ORDER BY topic',
-                "fields" => "T1.topic",
+                "fields" => "CONCAT_WS(' / ',"
+                    ."(SELECT P.topic FROM ".TOPIC_TABLE." P WHERE P.topic_id = T1.topic_pid),"
+                    ."T1.topic)",
                 "headers" => array('Help Topic')
             ),
             # XXX: This will be relative to permissions based on the
