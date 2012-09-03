@@ -96,7 +96,7 @@ $page='helptopics.inc.php';
 if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page='helptopic.inc.php';
 
-$nav->setTabActive('topics');
+$nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');
