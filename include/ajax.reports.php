@@ -104,16 +104,27 @@ class OverviewReportAjaxAPI extends AjaxController {
             ORDER BY '.$info['fields'])
         );
         $rows = array();
+        $cols = 1;
         foreach ($queries as $q) {
             list($c, $sql) = $q;
             $res = db_query($sql);
-            $i = 0;
+            $cols += $c;
             while ($row = db_fetch_row($res)) {
-                if (count($rows) <= $i)
-                    $rows[] = array_slice($row, 0, count($row) - $c);
-                $rows[$i] = array_merge($rows[$i], array_slice($row, -$c));
-                $i++;
+                $found = false;
+                foreach ($rows as &$r) {
+                    if ($r[0] == $row[0]) {
+                        $r = array_merge($r, array_slice($row, -$c));
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found)
+                    $rows[] = array_merge(array($row[0]), array_slice($row, -$c));
             }
+            # Make sure each row has the same number of items
+            foreach ($rows as &$r)
+                while (count($r) < $cols)
+                    $r[] = null;
         }
         return array("columns" => array_merge($info['headers'],
                         array('Open','Assigned','Overdue','Closed','Reopened',
