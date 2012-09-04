@@ -48,7 +48,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             "dept" => array(
                 "table" => DEPT_TABLE,
                 "pk" => "dept_id",
-                "sort" => 'ORDER BY dept_name',
+                "sort" => '1',
                 "fields" => 'T1.dept_name',
                 "headers" => array('Department'),
                 "filter" => "1"
@@ -56,7 +56,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             "topic" => array(
                 "table" => TOPIC_TABLE,
                 "pk" => "topic_id",
-                "sort" => 'ORDER BY topic',
+                "sort" => '1',
                 "fields" => "CONCAT_WS(' / ',"
                     ."(SELECT P.topic FROM ".TOPIC_TABLE." P WHERE P.topic_id = T1.topic_pid),"
                     ."T1.topic)",
@@ -66,7 +66,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             "staff" => array(
                 "table" => STAFF_TABLE,
                 "pk" => 'staff_id',
-                "sort" => 'ORDER BY T1.lastname, T1.firstname',
+                "sort" => 'T1.lastname, T1.firstname',
                 "fields" => "CONCAT_WS(' ', T1.firstname, T1.lastname)",
                 "headers" => array('Staff Member'),
                 "filter" =>
@@ -92,14 +92,14 @@ class OverviewReportAjaxAPI extends AjaxController {
                 LEFT JOIN '.TICKET_EVENT_TABLE.' A1 USING (ticket_id)
             WHERE '.$info['filter'].' AND A1.timestamp BETWEEN '.$start.' AND '.$stop.'
             GROUP BY '.$info['fields'].'
-            ORDER BY '.$info['fields']),
+            ORDER BY '.$info['sort']),
 
             array(1, 'SELECT '.$info['fields'].',
                 FORMAT(AVG(DATEDIFF(T2.closed, T2.created)),1) AS ServiceTime
             FROM '.$info['table'].' T1 LEFT JOIN '.TICKET_TABLE.' T2 USING ('.$info['pk'].')
             WHERE '.$info['filter'].' AND T2.closed BETWEEN '.$start.' AND '.$stop.'
             GROUP BY '.$info['fields'].'
-            ORDER BY '.$info['fields']),
+            ORDER BY '.$info['sort']),
 
             array(1, 'SELECT '.$info['fields'].',
                 FORMAT(AVG(DATEDIFF(B2.created, B1.created)),1) AS ResponseTime
@@ -109,7 +109,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 LEFT JOIN '.TICKET_THREAD_TABLE.' B1 ON (B2.pid = B1.id)
             WHERE '.$info['filter'].' AND B1.created BETWEEN '.$start.' AND '.$stop.'
             GROUP BY '.$info['fields'].'
-            ORDER BY '.$info['fields'])
+            ORDER BY '.$info['sort'])
         );
         $rows = array();
         $cols = 1;
