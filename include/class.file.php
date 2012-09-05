@@ -27,7 +27,8 @@ class AttachmentFile {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT f.*, count(DISTINCT c.canned_id) as canned, count(DISTINCT t.ticket_id) as tickets '
+        $sql='SELECT id, type, size, name, hash, f.created, '
+            .' count(DISTINCT c.canned_id) as canned, count(DISTINCT t.ticket_id) as tickets '
             .' FROM '.FILE_TABLE.' f '
             .' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' c ON(c.file_id=f.id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' t ON(t.file_id=f.id) '
@@ -90,12 +91,28 @@ class AttachmentFile {
         return $this->ht['hash'];
     }
 
-    function getBinary() {
-        return $this->ht['filedata'];
+    function sendData() {
+        # XXX: For maximum efficiency,
+        #      do "show variables like 'max_allowed_packet'", and use the
+        #      lesser of half of PHP's memory limit and that value as the
+        #      chunk_size
+        $chunk_size = 256 * 1024;
+        for ($start=1; $start<$this->getSize(); $start+=$chunk_size) {
+            list($data) = db_fetch_row(db_query(
+                'SELECT SUBSTRING(filedata,'.$start.','.$chunk_size
+                .') FROM '.FILE_TABLE.' WHERE id='.db_input($this->getId())));
+            echo $data;
+        }
     }
 
     function getData() {
-        return $this->getBinary();
+        # XXX: This is horrible, and is subject to php's memory
+        #      restrictions, etc. Don't use this function!
+        ob_start();
+        $this->sendData();
+        $data = &ob_get_contents();
+        ob_end_clean();
+        return $data;
     }
 
     function delete() {
@@ -110,7 +127,7 @@ class AttachmentFile {
 
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
-        echo $this->getData();
+        $this->sendData();
         exit();
     }
 
@@ -132,7 +149,7 @@ class AttachmentFile {
         
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$this->getSize());
-        echo $this->getBinary();
+        $this->sendData();
         exit();
     }
 
