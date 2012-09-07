@@ -246,7 +246,9 @@ class Filter {
 
         $match = false;
         # Respect configured filter email-id
-        if ($this->getEmailId() && $this->getEmailId() != $info['emailId'])
+        if ($this->getEmailId() 
+                && !strcasecmp($this->getTarget(), 'Email')
+                && $this->getEmailId() != $info['emailId'])
             return false;
 
         foreach ($this->getRules() as $rule) {
@@ -303,10 +305,10 @@ class Filter {
     }
     /* static */ function getSupportedMatches() {
         return array(
-            'name'=>    "Sender's Name",
-            'email'=>   "Sender's Email",
-            'subject'=> 'Email Subject',
-            'body'=>    'Email Body/Text'
+            'name'=>    'Name',
+            'email'=>   'Email',
+            'subject'=> 'Subject',
+            'body'=>    'Body/Text'
         );
     }
     /* static */ function getSupportedMatchTypes() {
