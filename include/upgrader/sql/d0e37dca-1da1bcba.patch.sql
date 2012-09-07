@@ -16,6 +16,8 @@ ALTER TABLE  `%TABLE_PREFIX%filter`
     ADD  `target` ENUM(  'Any',  'Web',  'Email',  'API' ) NOT NULL DEFAULT  'Any' AFTER  `sla_id` ,
     ADD INDEX (  `target` );
 
+UPDATE `%TABLE_PREFIX%filter` SET `target` = 'Email' WHERE `email_id` != 0;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `schema_signature`='1da1bcbafcedc65efef58f142a48ac91';
