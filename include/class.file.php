@@ -92,16 +92,15 @@ class AttachmentFile {
     }
 
     function sendData() {
-        # XXX: For maximum efficiency,
-        #      do "show variables like 'max_allowed_packet'", and use the
-        #      lesser of half of PHP's memory limit and that value as the
-        #      chunk_size
         $chunk_size = 256 * 1024;
-        for ($start=1; $start<$this->getSize(); $start+=$chunk_size) {
+        $start = 1;
+        for (;;) {
             list($data) = db_fetch_row(db_query(
                 'SELECT SUBSTRING(filedata,'.$start.','.$chunk_size
                 .') FROM '.FILE_TABLE.' WHERE id='.db_input($this->getId())));
+            if (!$data) break;
             echo $data;
+            $start += $chunk_size;
         }
     }
 
@@ -185,14 +184,27 @@ class AttachmentFile {
         if (!(db_query($sql) && ($id=db_insert_id())))
             return false;
 
-        foreach (str_split($file['data'], 1024*100) as $chunk) {
+        $chunk_size = 256 * 1024;
+        $start = 0;
+        # This boils down to a disagreement between the MySQL community and
+        # developers. I'll refrain from a soapbox discussion here, but MySQL
+        # will truncate the field to '' when the length of a CONCAT expression
+        # exceeds the value of max_allowed_packet. See the following bugs for
+        # more information. The easiest fix is to expand the parameter.
+        # http://bugs.mysql.com/bug.php?id=22853
+        # http://bugs.mysql.com/bug.php?id=34782
+        # http://bugs.mysql.com/bug.php?id=63919
+        if (db_get_variable('max_allowed_packet') < strlen($file['data']))
+            db_set_variable('max_allowed_packet', strlen($file['data']) + $chunk_size);
+        while ($chunk = substr($file['data'], $start, $chunk_size)) {
             $sql='UPDATE '.FILE_TABLE
-                .' SET filedata = CONCAT(filedata,'.db_input($chunk).')'
+                .' SET filedata = CONCAT(filedata, 0x'.bin2hex($chunk).')'
                 .' WHERE id='.db_input($id);
             if(!db_query($sql)) {
                 db_query('DELETE FROM '.FILE_TABLE.' WHERE id='.db_input($id).' LIMIT 1');
                 return false;
             }
+            $start += $chunk_size;
         }
 
         return $id;
