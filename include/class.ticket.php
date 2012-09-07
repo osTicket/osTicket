@@ -25,10 +25,11 @@ include_once(INCLUDE_DIR.'class.attachment.php');
 include_once(INCLUDE_DIR.'class.pdf.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
+include_once(INCLUDE_DIR.'class.variable.php');
 include_once(INCLUDE_DIR.'class.priority.php');
 include_once(INCLUDE_DIR.'class.sla.php');
 
-class Ticket{
+class Ticket {
 
     var $id;
     var $extid;
@@ -197,13 +198,22 @@ class Ticket{
             && $client->getTicketId()==$this->getExtId());
     }
 
+    //.
+    function asVar() {
+        return $this->getNumber();
+    }
+   
     //Getters
-    function getId(){
+    function getId() {
         return  $this->id;
     }
 
-    function getExtId(){
+    function getExtId() {
         return  $this->extid;
+    }
+
+    function getNumber() {
+        return $this->getExtId();
     }
    
     function getEmail(){

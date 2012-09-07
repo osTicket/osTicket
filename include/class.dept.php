@@ -59,6 +59,10 @@ class Dept {
         return $this->load();
     }
 
+    function asVar() {
+        return $this->getName();
+    }
+
     function getId() {
         return $this->id;
     }

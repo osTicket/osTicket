@@ -51,6 +51,10 @@ class Team {
         return $this->load($this->getId());
     }
 
+    function asVar() {
+        return $this->getName();
+    }
+
     function getId() {
         return $this->id;
     }
