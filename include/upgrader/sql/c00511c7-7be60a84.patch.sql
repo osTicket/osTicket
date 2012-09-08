@@ -63,7 +63,7 @@ ALTER TABLE `%TABLE_PREFIX%config`
     ADD `transfer_alert_dept_manager` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' AFTER `transfer_alert_assigned` ,
     ADD `transfer_alert_dept_members` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `transfer_alert_dept_manager`,
     ADD `send_sys_errors` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `enable_email_piping`,
-    ADD `enable_kb` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `use_email_priority`,
+    ADD `enable_kb` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `use_email_priority`,
     ADD `enable_premade` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `enable_kb`,
     ADD `show_related_tickets` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `auto_assign_reopened_tickets`,
     ADD `schema_signature` CHAR( 32 ) NOT NULL AFTER `ostversion`;

@@ -76,14 +76,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="target">
-                    <option value="All" <?php echo ($info['target']=='All')?'selected="selected"':''; ?>>&mdash; Applies to ALL Tickets &dash;</option>
-                    <option value="Web" <?php echo ($info['target']=='Web')?'selected="selected"':''; ?>>Web Forms</option>
-                    <option value="API" <?php echo ($info['target']=='API')?'selected="selected"':''; ?>>API Calls</option>
-                    <option value="Email" <?php echo ($info['target']=='Email')?'selected="selected"':''; ?>>Emails</option>
-                    <?php
+                   <option value="">&mdash; Select a Target &dash;</option>
+                   <?php
+                   foreach(Filter::getTargets() as $k => $v) {
+                       echo sprintf('<option value="%s" %s>%s</option>',
+                               $k, (($k==$info['target'])?'selected="selected"':''), $v);
+                    }
                     $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)) {
-                        echo '<OPTGROUP label="Specific Incoming Emails">';
+                        echo '<OPTGROUP label="Specific System Email">';
                         while(list($id,$email,$name)=db_fetch_row($res)) {
                             $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
                             if($name)
@@ -95,7 +96,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;
-                <span class="error">&nbsp;<?php echo $errors['target']; ?></span>
+                <span class="error">*&nbsp;<?php echo $errors['target']; ?></span>
             </td>
         </tr>
         <tr>
