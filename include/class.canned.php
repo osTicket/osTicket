@@ -35,7 +35,7 @@ class Canned {
             .' count(filter.id) as filters '
             .' FROM '.CANNED_TABLE.' canned '
             .' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' attach ON (attach.canned_id=canned.canned_id) ' 
-            .' LEFT JOIN '.EMAIL_FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) '
+            .' LEFT JOIN '.FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) '
             .' WHERE canned.canned_id='.db_input($id)
             .' GROUP BY canned.canned_id';
 
@@ -102,7 +102,7 @@ class Canned {
         if (!$this->_filters) {
             $this->_filters = array();
             $res = db_query(
-                  'SELECT name FROM '.EMAIL_FILTER_TABLE
+                  'SELECT name FROM '.FILTER_TABLE
                 .' WHERE canned_response_id = '.db_input($this->getId())
                 .' ORDER BY name');
             while ($row = db_fetch_row($res))

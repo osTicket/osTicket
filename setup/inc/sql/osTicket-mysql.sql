@@ -91,7 +91,7 @@ CREATE TABLE `%TABLE_PREFIX%config` (
   `clickable_urls` tinyint(1) unsigned NOT NULL default '1',
   `allow_priority_change` tinyint(1) unsigned NOT NULL default '0',
   `use_email_priority` tinyint(1) unsigned NOT NULL default '0',
-  `enable_kb` tinyint(1) unsigned NOT NULL default '1',
+  `enable_kb` tinyint(1) unsigned NOT NULL default '0',
   `enable_premade` tinyint(1) unsigned NOT NULL default '1',
   `enable_captcha` tinyint(1) unsigned NOT NULL default '0',
   `enable_auto_cron` tinyint(1) unsigned NOT NULL default '0',
@@ -228,14 +228,14 @@ CREATE TABLE `%TABLE_PREFIX%email` (
   KEY `dept_id` (`dept_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%email_filter`;
-CREATE TABLE `%TABLE_PREFIX%email_filter` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%filter`;
+CREATE TABLE `%TABLE_PREFIX%filter` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `execorder` int(10) unsigned NOT NULL default '99',
   `isactive` tinyint(1) unsigned NOT NULL default '1',
   `match_all_rules` tinyint(1) unsigned NOT NULL default '0',
   `stop_onmatch` tinyint(1) unsigned NOT NULL default '0',
-  `reject_email` tinyint(1) unsigned NOT NULL default '0',
+  `reject_ticket` tinyint(1) unsigned NOT NULL default '0',
   `use_replyto_email` tinyint(1) unsigned NOT NULL default '0',
   `disable_autoresponder` tinyint(1) unsigned NOT NULL default '0',
   `canned_response_id` int(11) unsigned NOT NULL default '0',
@@ -245,20 +245,22 @@ CREATE TABLE `%TABLE_PREFIX%email_filter` (
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
+  `target` ENUM(  'Any',  'Web',  'Email',  'API' ) NOT NULL DEFAULT  'Any',
   `name` varchar(32) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
+  KEY `target` (`target`),
   KEY `email_id` (`email_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 
-INSERT INTO `%TABLE_PREFIX%email_filter` (
-  `id`,`isactive`,`execorder`,`reject_email`,`name`,`notes`,`created`)
+INSERT INTO `%TABLE_PREFIX%filter` (
+  `id`,`isactive`,`execorder`,`reject_ticket`,`name`,`notes`,`created`)
     VALUES (1, 1, 99, 1, 'SYSTEM BAN LIST', 'Internal list for email banning. Do not remove', NOW());
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%email_filter_rule`;
+DROP TABLE IF EXISTS `%TABLE_PREFIX%filter_rule`;
 CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `filter_id` int(10) unsigned NOT NULL default '0',
@@ -274,7 +276,7 @@ CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
   UNIQUE `filter` (`filter_id`, `what`, `how`, `val`) 
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%email_filter_rule` (
+INSERT INTO `%TABLE_PREFIX%filter_rule` (
   `id`, `filter_id`, `isactive`, `what`,`how`,`val`,`created`)
     VALUES (1, 1, 1, 'email', 'equal', 'test@example.com',NOW());
 

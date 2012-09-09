@@ -1331,7 +1331,7 @@ class Ticket{
         if($newticket) return $msgid; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $headers && EmailFilter::isAutoResponse(Mail_Parse::splitHeaders($headers)))
+        if ($autorespond && $headers && TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($headers)))
             $autorespond=false;
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
@@ -1845,7 +1845,7 @@ class Ticket{
         if ($vars['email']  && Validator::is_email($vars['email'])) {
 
             //Make sure the email address is not banned
-            if(EmailFilter::isBanned($vars['email'])) {
+            if(TicketFilter::isBanned($vars['email'])) {
                 $errors['err']='Ticket denied. Error #403';
                 $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
                 return 0;
@@ -1865,12 +1865,15 @@ class Ticket{
                 return 0;
             }
         }
+
+        //Init ticket filters...
+        $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected
-        if (($email_filter=new EmailFilter($vars))
-                && ($filter=$email_filter->shouldReject())) {
+        if($ticket_filter 
+                && ($filter=$ticket_filter->shouldReject())) {
             $errors['err']='Ticket denied. Error #403';
             $ost->logWarning('Ticket denied', 
-                    sprintf('Banned email - %s by filter "%s"', 
+                    sprintf('Ticket rejected ( %s) by filter "%s"', 
                         $vars['email'], $filter->getName()));
 
             return 0;
@@ -1915,7 +1918,7 @@ class Ticket{
         }
 
         //Make sure the due date is valid
-        if($vars['duedate']){
+        if($vars['duedate']) {
             if(!$vars['time'] || strpos($vars['time'],':')===false)
                 $errors['time']='Select time';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
@@ -1924,16 +1927,16 @@ class Ticket{
                 $errors['duedate']='Due date must be in the future';
         }
 
-        # Perform email filter actions on the new ticket arguments XXX: Move filter to the top and check for reject...
-        if (!$errors && $email_filter) $email_filter->apply($vars);
+        //Any error above is fatal.
+        if($errors)  return 0;
+
+        # Perform ticket filter actions on the new ticket arguments
+        if ($ticket_filter) $ticket_filter->apply($vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
         if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
 
-        //Any error above is fatal.
-        if($errors)  return 0;
-        
         // OK...just do it.
         $deptId=$vars['deptId']; //pre-selected Dept if any.
         $priorityId=$vars['priorityId'];
@@ -1951,11 +1954,7 @@ class Ticket{
             if($autorespond) $autorespond=$email->autoRespond();
             $email=null;
             $source='Email';
-        }elseif($vars['deptId']){ //Opened by staff.
-            $deptId=$vars['deptId'];
-            $source=ucfirst($vars['source']);
         }
-
         //Last minute checks
         $priorityId=$priorityId?$priorityId:$cfg->getDefaultPriorityId();
         $deptId=$deptId?$deptId:$cfg->getDefaultDeptId();
@@ -2019,7 +2018,7 @@ class Ticket{
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
         if ($autorespond && $vars['header'] &&
-                EmailFilter::isAutoResponse(Mail_Parse::splitHeaders($vars['header']))) {
+                TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($vars['header']))) {
             $autorespond=false;
         }
 

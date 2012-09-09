@@ -63,8 +63,7 @@
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7-RC2'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','d0e37dca324648f1ce2d10528a6026d4'); //MD5 signature of the db schema. (used to trigger upgrades)
-
+    define('SCHEMA_SIGNATURE','1da1bcbafcedc65efef58f142a48ac91'); //MD5 signature of the db schema. (used to trigger upgrades)
     #load config info
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
@@ -159,8 +158,10 @@
   
     define('EMAIL_TABLE',TABLE_PREFIX.'email');
     define('EMAIL_TEMPLATE_TABLE',TABLE_PREFIX.'email_template');
-    define('EMAIL_FILTER_TABLE',TABLE_PREFIX.'email_filter');
-    define('EMAIL_FILTER_RULE_TABLE',TABLE_PREFIX.'email_filter_rule');
+
+    define('FILTER_TABLE',TABLE_PREFIX.'filter');
+    define('FILTER_RULE_TABLE',TABLE_PREFIX.'filter_rule');
+    
     define('BANLIST_TABLE',TABLE_PREFIX.'email_banlist'); //Not in use anymore....as of v 1.7
 
     define('SLA_TABLE',TABLE_PREFIX.'sla');
