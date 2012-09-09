@@ -42,33 +42,45 @@ class VariableReplacer {
     function getErrors() {
         return $this->errors;
     }
-
+    
     function getObj($tag) {
         return @$this->objects[$tag];
     }
 
-    function assign($tag, $val) {
+    function assign($var, $val='') {
         
-        if($val && is_object($val))
-            $this->objects[$tag] = $val;
-        else
-            $this->variables[$tag] = $val;
+        if($val && is_object($val)) {
+            $this->objects[$var] = $val;
+        } elseif($var && is_array($var)) {
+            foreach($var as $k => $v) 
+                $this->variables[$k] = $v; //NOT calling assign to force one dimentional array.
+        } elseif($var) {
+            $this->variables[$var] = $val;
+        }
     }
 
     function getVar($obj, $var) {
 
+        if(!$obj) return "";
+
         if(!$var && is_callable(array($obj, 'asVar')))
             return call_user_func(array($obj, 'asVar'));
 
-        if($var && is_callable(array($this, 'get'.ucfirst($var))))
-            return call_user_func(array($this, 'get'.ucfirst($var)));
+        list($v, $part) = explode('.', $var, 2);
+        if($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
+            $rv = call_user_func(array($obj, 'get'.ucfirst($v)));
+            if(!$rv || !is_object($rv))
+                return $rv;
 
+            return $this->getVar($rv, $part);
+        }
+       
         if(!$var || !is_callable(array($obj, 'getVar')))
-            return null;
+            return "";
 
         $parts = explode('.', $var);
         if(($rv = call_user_func(array($obj, 'getVar'), $parts[0]))===false)
-            return null;
+            return "";
 
         if(!is_object($rv))
             return $rv;
@@ -89,16 +101,16 @@ class VariableReplacer {
     function _resolveVar($var) {
 
         //Variable already memoized?
-        if($var && @$this->variables[$var])
+        if($var && @isset($this->variables[$var]))
             return $this->variables[$var];
 
         $parts = explode('.', $var, 2);
-        if(!$parts || !($obj=$this->getObj($parts[0]))) {
-            $this->setError('Unknown obj for "'.$var.'" tag ');
-            return null;
-        }
+        if($parts && ($obj=$this->getObj($parts[0])))
+            return $this->getVar($obj, $parts[1]);
 
-        return $this->getVar($obj, $parts[1]);
+        //Unknown object or variable - leavig it alone.
+        $this->setError('Unknown obj for "'.$var.'" tag ');
+        return false;
     }
 
     function _parse($text) {
@@ -109,7 +121,9 @@ class VariableReplacer {
 
         $vars = array();
         foreach($result[0] as $k => $v) {
-            if(!@$vars[$v] && ($val=$this->_resolveVar($result[1][$k])))
+            if(isset($vars[$v])) continue;
+            $val=$this->_resolveVar($result[1][$k]);
+            if($val!==false)
                 $vars[$v] = $val;
         }
 
