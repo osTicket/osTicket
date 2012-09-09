@@ -73,6 +73,10 @@ class Staff {
         return $this->load();
     }
 
+    function asVar() {
+        return $this->getName();
+    }
+
     function getHastable() {
         return $this->ht;
     }
