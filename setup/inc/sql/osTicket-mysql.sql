@@ -261,7 +261,7 @@ INSERT INTO `%TABLE_PREFIX%filter` (
     VALUES (1, 1, 99, 1, 'SYSTEM BAN LIST', 'Internal list for email banning. Do not remove', NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%filter_rule`;
-CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
+CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `filter_id` int(10) unsigned NOT NULL default '0',
   `what` enum('name','email','subject','body','header') NOT NULL,
