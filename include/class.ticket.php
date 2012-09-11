@@ -2105,7 +2105,7 @@ class Ticket{
 
         $ticket->reload();
         
-        if(!$cfg->notifyONNewStaffTicket() || !isset($var['alertuser']))
+        if(!$cfg->notifyONNewStaffTicket() || !isset($vars['alertuser']))
             return $ticket; //No alerts.
 
         //Send Notice to user --- if requested AND enabled!!
