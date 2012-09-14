@@ -96,7 +96,7 @@ $page='apikeys.inc.php';
 if($api || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page='apikey.inc.php';
 
-$nav->setTabActive('settings');
+$nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

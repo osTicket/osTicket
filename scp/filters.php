@@ -49,7 +49,7 @@ if($_POST){
             }else{
                 $count=count($_POST['ids']);
                 if($_POST['enable']){
-                    $sql='UPDATE '.EMAIL_FILTER_TABLE.' SET isactive=1 WHERE id IN ('.
+                    $sql='UPDATE '.FILTER_TABLE.' SET isactive=1 WHERE id IN ('.
                         implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
@@ -60,7 +60,7 @@ if($_POST){
                         $errors['err']='Unable to enable selected filters';
                     }
                 }elseif($_POST['disable']){
-                    $sql='UPDATE '.EMAIL_FILTER_TABLE.' SET isactive=0  WHERE id IN ('.
+                    $sql='UPDATE '.FILTER_TABLE.' SET isactive=0  WHERE id IN ('.
                         implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())) {
                         if($num==$count)
@@ -100,7 +100,7 @@ $page='filters.inc.php';
 if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page='filter.inc.php';
 
-$nav->setTabActive('emails');
+$nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

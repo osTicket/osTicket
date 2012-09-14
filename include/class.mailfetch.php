@@ -376,7 +376,7 @@ class MailFetcher {
             return true; //Reporting success so the email can be moved or deleted.
 
 	    //Is the email address banned?
-        if($mailinfo['email'] && EmailFilter::isBanned($mailinfo['email'])) {
+        if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
             $ost->logWarning('Ticket denied', 'Banned email - '.$mailinfo['email']);
 	        return true; //Report success (moved or delete)

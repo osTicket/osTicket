@@ -19,7 +19,6 @@ require_once(INCLUDE_DIR.'class.email.php');
 class Config {
     
     var $id=0;
-    var $mysqltzoffset=0;
     var $config=array();
 
     var $defaultDept;   //Default Department    
@@ -543,35 +542,32 @@ class Config {
         return $this->config['upload_dir'];
     }
     
-    function updateSettings($vars,&$errors) {
+    function updateSettings($vars, &$errors) {
 
         if(!$vars || $errors)
             return false;
         
         switch(strtolower($vars['t'])) {
-            case 'general':
-                return $this->updateGeneralSetting($vars,$errors);
-                break;
-            case 'dates':
-                return $this->updateDateTimeSetting($vars,$errors);
+            case 'system':
+                return $this->updateSystemSettings($vars, $errors);
                 break;
             case 'tickets':
-                return $this->updateTicketsSetting($vars,$errors);
+                return $this->updateTicketsSettings($vars, $errors);
                 break;
             case 'emails':
-                return $this->updateEmailsSetting($vars,$errors);
+                return $this->updateEmailsSettings($vars, $errors);
                 break;
            case 'attachments':
                 return $this->updateAttachmentsSetting($vars,$errors);
                 break;
-           case 'autoresponders':
-                return $this->updateAutoresponderSetting($vars,$errors);
+           case 'autoresp':
+                return $this->updateAutoresponderSettings($vars, $errors);
                 break;
             case 'alerts':
-                return $this->updateAlertsSetting($vars,$errors);
+                return $this->updateAlertsSettings($vars, $errors);
                 break;
             case 'kb':
-                return $this->updateKBSetting($vars,$errors);
+                return $this->updateKBSettings($vars, $errors);
                 break;
             default:
                 $errors['err']='Unknown setting option. Get technical support.';
@@ -580,7 +576,7 @@ class Config {
         return false;
     }
 
-    function updateGeneralSetting($vars, &$errors) {
+    function updateSystemSettings($vars, &$errors) {
 
         $f=array();
         $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk URl required');
@@ -589,6 +585,13 @@ class Config {
         $f['default_template_id']=array('type'=>'int',   'required'=>1, 'error'=>'You must select template.');
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        //Date & Time Options
+        $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>'Time format required');
+        $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>'Date format required');
+        $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Datetime format required');
+        $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Day, Datetime format required');
+        $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Timezone required');
+
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -610,26 +613,6 @@ class Config {
             .',client_max_logins='.db_input($vars['client_max_logins'])
             .',client_login_timeout='.db_input($vars['client_login_timeout'])
             .',client_session_timeout='.db_input($vars['client_session_timeout'])
-            .',clickable_urls='.db_input(isset($vars['clickable_urls'])?1:0)
-            .',enable_auto_cron='.db_input(isset($vars['enable_auto_cron'])?1:0)
-            .' WHERE id='.db_input($this->getId());
-        
-        return (db_query($sql));
-    }
-
-    function updateDateTimeSetting($vars,&$errors) {
-
-        $f=array();
-        $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>'Time format required');
-        $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>'Date format required');
-        $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Datetime format required');
-        $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Day, Datetime format required');
-        $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Timezone required');
-             
-        if(!Validator::process($f,$vars,$errors) || $errors)
-            return false;
-
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
             .',time_format='.db_input($vars['time_format'])
             .',date_format='.db_input($vars['date_format'])
             .',datetime_format='.db_input($vars['datetime_format'])
@@ -641,7 +624,7 @@ class Config {
         return (db_query($sql));
     }
 
-    function updateTicketsSetting($vars,&$errors) {
+    function updateTicketsSettings($vars, &$errors) {
 
 
         $f=array();
@@ -658,7 +641,30 @@ class Config {
                 $errors['enable_captcha']='PNG support required for Image Captcha';
         }
 
-        if(!Validator::process($f,$vars,$errors) || $errors)
+        if($vars['allow_attachments']) {
+
+            if(!ini_get('file_uploads'))
+                $errors['err']='The \'file_uploads\' directive is disabled in php.ini';
+
+            if(!is_numeric($vars['max_file_size']))
+                $errors['max_file_size']='Maximum file size required';
+
+            if(!$vars['allowed_filetypes'])
+                $errors['allowed_filetypes']='Allowed file extentions required';
+
+            if(!($maxfileuploads=ini_get('max_file_uploads')))
+                $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
+
+            if(!$vars['max_user_file_uploads'] || $vars['max_user_file_uploads']>$maxfileuploads)
+                $errors['max_user_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
+
+            if(!$vars['max_staff_file_uploads'] || $vars['max_staff_file_uploads']>$maxfileuploads)
+                $errors['max_staff_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
+        }
+
+
+
+        if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
         $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
@@ -676,14 +682,24 @@ class Config {
             .',show_answered_tickets='.db_input(isset($vars['show_answered_tickets'])?1:0)
             .',show_related_tickets='.db_input(isset($vars['show_related_tickets'])?1:0)
             .',show_notes_inline='.db_input(isset($vars['show_notes_inline'])?1:0)
+            .',clickable_urls='.db_input(isset($vars['clickable_urls'])?1:0)
             .',hide_staff_name='.db_input(isset($vars['hide_staff_name'])?1:0)
+            .',allow_attachments='.db_input(isset($vars['allow_attachments'])?1:0)
+            .',allowed_filetypes='.db_input(strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))))
+            .',max_file_size='.db_input($vars['max_file_size'])
+            .',max_user_file_uploads='.db_input($vars['max_user_file_uploads'])
+            .',max_staff_file_uploads='.db_input($vars['max_staff_file_uploads'])
+            .',email_attachments='.db_input(isset($vars['email_attachments'])?1:0)
+            .',allow_email_attachments='.db_input(isset($vars['allow_email_attachments'])?1:0)
+            .',allow_online_attachments='.db_input(isset($vars['allow_online_attachments'])?1:0)
+            .',allow_online_attachments_onlogin='.db_input(isset($vars['allow_online_attachments_onlogin'])?1:0)
             .' WHERE id='.db_input($this->getId());
 
         return (db_query($sql));
     }
 
 
-    function updateEmailsSetting($vars,&$errors) {
+    function updateEmailsSettings($vars, &$errors) {
 
         $f=array();
         $f['default_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default email required');
@@ -704,6 +720,7 @@ class Config {
             .',alert_email_id='.db_input($vars['alert_email_id'])
             .',default_smtp_id='.db_input($vars['default_smtp_id'])
             .',admin_email='.db_input($vars['admin_email'])
+            .',enable_auto_cron='.db_input(isset($vars['enable_auto_cron'])?1:0)
             .',enable_mail_polling='.db_input(isset($vars['enable_mail_polling'])?1:0)
             .',enable_email_piping='.db_input(isset($vars['enable_email_piping'])?1:0)
             .',strip_quoted_reply='.db_input(isset($vars['strip_quoted_reply'])?1:0)
@@ -756,7 +773,7 @@ class Config {
         return (db_query($sql));
     }
 
-    function updateAutoresponderSetting($vars,&$errors) {
+    function updateAutoresponderSettings($vars, &$errors) {
 
         if($errors) return false;
 
@@ -771,7 +788,7 @@ class Config {
     }
 
 
-    function updateKBSetting($vars,&$errors) {
+    function updateKBSettings($vars, &$errors) {
 
         if($errors) return false;
 
@@ -784,7 +801,7 @@ class Config {
     }
 
 
-    function updateAlertsSetting($vars,&$errors) {
+    function updateAlertsSettings($vars, &$errors) {
 
 
        if($vars['ticket_alert_active']

@@ -1,3 +1,9 @@
+<?php
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
+if(!($maxfileuploads=ini_get('max_file_uploads')))
+    $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
+?>
+<h2>Ticket Settings and Options</h2>
 <form action="settings.php?t=tickets" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
@@ -5,7 +11,7 @@
     <thead>
         <tr>
             <th colspan="2">
-                <h4>Ticket Settings and Options</h4>
+                <h4>Ticket Settings</h4>
                 <em>Global ticket settings and options.</em>
             </th>
         </tr>
@@ -55,41 +61,6 @@
              </td>
         </tr>
         <tr>
-            <td width="180">Web Tickets Priority</td>
-            <td>
-                <input type="checkbox" name="allow_priority_change" value="1" <?php echo $config['allow_priority_change'] ?'checked="checked"':''; ?>>
-                <em>(Allow user to overwrite/set priority)</em>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Emailed Tickets Priority</td>
-            <td>
-                <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
-                <em>(Use email priority when available)</em>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Show Related Tickets</td>
-            <td>
-                <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >
-                <em>(Show all related tickets on user login - otherwise access is restricted to one ticket view per login)</em>
-            </td>
-        </tr>        
-        <tr>
-            <td width="180">Show Notes Inline</td>
-            <td>
-                <input type="checkbox" name="show_notes_inline" value="1" <?php echo $config['show_notes_inline'] ?'checked="checked"':''; ?> >
-                <em>(Show internal notes  inline)</em>
-              </td>
-        </tr>  
-        <tr>
-            <td>Human Verification:</td>
-            <td>
-                <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
-                Enable CAPTCHA on new web tickets.<em>(requires GDLib)</em> &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font><br/>
-            </td>
-        </tr>
-        <tr>
             <td>Maximum <b>Open</b> Tickets:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
@@ -102,6 +73,47 @@
                 <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
                 <font class="error"><?php echo $errors['autolock_minutes']; ?></font>
                 <em>(Minutes to lock a ticket on activity - enter 0 to disable locking)</em>
+            </td>
+        </tr>
+        <tr>
+                    <td width="180">Web Tickets Priority:</td>
+                    <td>
+                        <input type="checkbox" name="allow_priority_change" value="1" <?php echo $config['allow_priority_change'] ?'checked="checked"':''; ?>>
+                        <em>(Allow user to overwrite/set priority)</em>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="180">Emailed Tickets Priority:</td>
+                    <td>
+                        <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
+                        <em>(Use email priority when available)</em>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Show Related Tickets:</td>
+            <td>
+                <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >
+                <em>(Show all related tickets on user login - otherwise access is restricted to one ticket view per login)</em>
+            </td>
+        </tr>        
+        <tr>
+            <td width="180">Show Notes Inline:</td>
+            <td>
+                <input type="checkbox" name="show_notes_inline" value="1" <?php echo $config['show_notes_inline'] ?'checked="checked"':''; ?> >
+                <em>(Show internal notes  inline)</em>
+              </td>
+        </tr>
+        <tr><td>Clickable URLs:</td>
+            <td>
+              <input type="checkbox" name="clickable_urls" <?php echo $config['clickable_urls']?'checked="checked"':''; ?>>
+               <em>(converts URLs in ticket thread to clickable links)</em>
+            </td>
+        </tr>
+        <tr>
+            <td>Human Verification:</td>
+            <td>
+                <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
+                Enable CAPTCHA on new web tickets.<em>(requires GDLib)</em> &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font><br/>
             </td>
         </tr>
         <tr>
@@ -137,6 +149,94 @@
             <td>
                 <input type="checkbox" name="hide_staff_name" <?php echo $config['hide_staff_name']?'checked="checked"':''; ?>>
                 Hide staff's name on responses.
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <em><b>Attachments</b>:  Size setting mainly apply to web tickets.</em>
+            </th>
+        </tr>
+        <tr>
+            <td width="180">Allow Attachments:</td>
+            <td>
+              <input type="checkbox" name="allow_attachments" <?php echo $config['allow_attachments']?'checked="checked"':''; ?>><b>Allow Attachments</b>
+                &nbsp; <em>(Global Setting)</em>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_attachments']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Emailed Attachments:</td>
+            <td>
+                <input type="checkbox" name="allow_email_attachments" <?php echo $config['allow_email_attachments']?'checked="checked"':''; ?>> Accept emailed files
+                    &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_email_attachments']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Online Attachments:</td>
+            <td>
+                <input type="checkbox" name="allow_online_attachments" <?php echo $config['allow_online_attachments']?'checked="checked"':''; ?> >
+                    Allow web upload &nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="checkbox" name="allow_online_attachments_onlogin" <?php echo $config['allow_online_attachments_onlogin'] ?'checked="checked"':''; ?> >
+                    Limit to authenticated users only. <em>(User must be logged in to upload files)</em>
+                    <font class="error">&nbsp;<?php echo $errors['allow_online_attachments']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td>Max. User File Uploads:</td>
+            <td>
+                <select name="max_user_file_uploads">
+                    <?php
+                    for($i = 1; $i <=$maxfileuploads; $i++) {
+                        ?>
+                        <option <?php echo $config['max_user_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
+                            <?php echo $i; ?>&nbsp;<?php echo ($i>1)?'files':'file'; ?></option>
+                        <?php
+                    } ?>
+                </select>
+                <em>(Number of files the user is allowed to upload simultaneously)</em>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['max_user_file_uploads']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td>Max. Staff File Uploads:</td>
+            <td>
+                <select name="max_staff_file_uploads">
+                    <?php
+                    for($i = 1; $i <=$maxfileuploads; $i++) {
+                        ?>
+                        <option <?php echo $config['max_staff_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
+                            <?php echo $i; ?>&nbsp;<?php echo ($i>1)?'files':'file'; ?></option>
+                        <?php
+                    } ?>
+                </select>
+                <em>(Number of files the staff is allowed to upload simultaneously)</em>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['max_staff_file_uploads']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Maximum File Size:</td>
+            <td>
+                <input type="text" name="max_file_size" value="<?php echo $config['max_file_size']; ?>"> in bytes.
+                    <em>(System Max. <?php echo Format::file_size(ini_get('upload_max_filesize')); ?>)</em>
+                    <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Ticket Response Files:</td>
+            <td>
+                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?> >Email attachments to the user
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <em><strong>Accepted File Types</strong>: Limit the type of files users are allowed to submit.
+                <font class="error">&nbsp;<?php echo $errors['allowed_filetypes']; ?></font></em>
+            </th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <em>Enter allowed file extensions separated by a comma. e.g .doc, .pdf. To accept all files enter wildcard <b><i>.*</i></b>&nbsp;i.e dotStar (NOT Recommended).</em><br>
+                <textarea name="allowed_filetypes" cols="21" rows="4" style="width: 65%;" wrap="hard" ><?php echo $config['allowed_filetypes']; ?></textarea>
             </td>
         </tr>
     </tbody>

@@ -1,13 +1,13 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
-
+$targets = Filter::getTargets();
 $qstr='';
 $sql='SELECT filter.*,count(rule.id) as rules '.
-     'FROM '.EMAIL_FILTER_TABLE.' filter '.
-     'LEFT JOIN '.EMAIL_FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '.
+     'FROM '.FILTER_TABLE.' filter '.
+     'LEFT JOIN '.FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '.
      'GROUP BY filter.id';
 $sortOptions=array('name'=>'filter.name','status'=>'filter.isactive','order'=>'filter.execorder','rules'=>'rules',
-                   'created'=>'filter.created','updated'=>'filter.updated');
+                   'target'=>'filter.target', 'created'=>'filter.created','updated'=>'filter.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
@@ -28,7 +28,7 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$total=db_count('SELECT count(*) FROM '.EMAIL_FILTER_TABLE.' filter ');
+$total=db_count('SELECT count(*) FROM '.FILTER_TABLE.' filter ');
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('filters.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
@@ -44,7 +44,7 @@ else
 ?>
 
 <div style="width:700;padding-top:5px; float:left;">
- <h2>Email Filters</h2>
+ <h2>Ticket Filters</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
  <b><a href="filters.php?a=add" class="Icon newEmailFilter">Add New Filter</a></b></div>
@@ -58,9 +58,10 @@ else
         <tr>
             <th width="7">&nbsp;</th>        
             <th width="320"><a <?php echo $name_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="100"><a  <?php echo $status_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
+            <th width="80"><a  <?php echo $status_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="80" style="text-align:center;"><a  <?php echo $order_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=order">Order</a></th>
             <th width="80" style="text-align:center;"><a  <?php echo $rules_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=rules">Rules</a></th>
+            <th width="100"><a  <?php echo $target_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=target">Target</a></th>
             <th width="120" nowrap><a  <?php echo $created_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=created">Date Added</a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
         </tr>
@@ -85,6 +86,7 @@ else
                 <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['execorder']; ?>&nbsp;</td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['rules']; ?>&nbsp;</td>
+                <td>&nbsp;<?php echo Format::htmlchars($targets[$row['target']]); ?></td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>
@@ -93,7 +95,7 @@ else
         endif; ?>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="8">
             <?php if($res && $num){ ?>
             Select:&nbsp;
             <a href="#" onclick="return select_all(document.forms['filters'],true)">All</a>&nbsp;&nbsp;
