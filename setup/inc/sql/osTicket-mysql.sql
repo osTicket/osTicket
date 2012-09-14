@@ -327,15 +327,24 @@ CREATE TABLE `%TABLE_PREFIX%file` (
   `size` varchar(25) NOT NULL default '',
   `hash` varchar(125) NOT NULL,
   `name` varchar(255) NOT NULL default '',
-  `filedata` longblob NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `hash` (`hash`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%file` (`id`, `type`, `size`, `hash`, `name`, `filedata`, `created`) VALUES
-(1, 'text/plain', '25', '670c6cc1d1dfc97fad20e5470251b255', 'osTicket.txt', 0x43616e6e6564206174746163686d656e747320726f636b210a, NOW());
+INSERT INTO `%TABLE_PREFIX%file` (`id`, `type`, `size`, `hash`, `name`, `created`) VALUES
+(1, 'text/plain', '25', '670c6cc1d1dfc97fad20e5470251b255', 'osTicket.txt', NOW());
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%file_chunk`;
+CREATE TABLE `%TABLE_PREFIX%file_chunk` (
+    `file_id` int(11) NOT NULL,
+    `chunk_id` int(11) NOT NULL,
+    `filedata` longblob NOT NULL,
+    PRIMARY KEY (`file_id`, `chunk_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
+INSERT INTO `%TABLE_PREFIX%file_chunk` (`file_id`, `chunk_id`, `filedata`)
+VALUES (1, 0, 0x43616e6e6564206174746163686d656e747320726f636b210a);
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%groups`;
 CREATE TABLE `%TABLE_PREFIX%groups` (

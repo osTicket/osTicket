@@ -91,17 +91,14 @@ class AttachmentFile {
         return $this->ht['hash'];
     }
 
+    function open() {
+        return new AttachmentChunkedData($this->id);
+    }
+
     function sendData() {
-        $chunk_size = 256 * 1024;
-        $start = 1;
-        for (;;) {
-            list($data) = db_fetch_row(db_query(
-                'SELECT SUBSTRING(filedata,'.$start.','.$chunk_size
-                .') FROM '.FILE_TABLE.' WHERE id='.db_input($this->getId())));
-            if (!$data) break;
-            echo $data;
-            $start += $chunk_size;
-        }
+        $file = $this->open();
+        while ($chunk = $file->read())
+            echo $chunk;
     }
 
     function getData() {
@@ -184,28 +181,9 @@ class AttachmentFile {
         if (!(db_query($sql) && ($id=db_insert_id())))
             return false;
 
-        $chunk_size = 256 * 1024;
-        $start = 0;
-        # This boils down to a disagreement between the MySQL community and
-        # developers. I'll refrain from a soapbox discussion here, but MySQL
-        # will truncate the field to '' when the length of a CONCAT expression
-        # exceeds the value of max_allowed_packet. See the following bugs for
-        # more information. The easiest fix is to expand the parameter.
-        # http://bugs.mysql.com/bug.php?id=22853
-        # http://bugs.mysql.com/bug.php?id=34782
-        # http://bugs.mysql.com/bug.php?id=63919
-        if (db_get_variable('max_allowed_packet') < strlen($file['data']))
-            db_set_variable('max_allowed_packet', strlen($file['data']) + $chunk_size);
-        while ($chunk = substr($file['data'], $start, $chunk_size)) {
-            $sql='UPDATE '.FILE_TABLE
-                .' SET filedata = CONCAT(filedata, 0x'.bin2hex($chunk).')'
-                .' WHERE id='.db_input($id);
-            if(!db_query($sql)) {
-                db_query('DELETE FROM '.FILE_TABLE.' WHERE id='.db_input($id).' LIMIT 1');
-                return false;
-            }
-            $start += $chunk_size;
-        }
+        $data = new AttachmentChunkedData($id);
+        if (!$data->write($file['data']))
+            return false;
 
         return $id;
     }
@@ -242,44 +220,83 @@ class AttachmentFile {
                     .'SELECT file_id FROM '.FAQ_ATTACHMENT_TABLE
                 .') still_loved'
             .')');
+        AttachmentChunkedData::deleteOrphans();
         return db_affected_rows();
     }
 }
 
-class AttachmentList {
-    function AttachmentList($table, $key) {
-        $this->table = $table;
-        $this->key = $key;
+/**
+ * Attachments stored in the database are cut into 256kB chunks and stored
+ * in the FILE_CHUNK_TABLE to overcome the max_allowed_packet limitation of
+ * LOB fields in the MySQL database
+ */
+define('CHUNK_SIZE', 256*1024); # Beware if you change this...
+class AttachmentChunkedData {
+    function AttachmentChunkedData($file) {
+        $this->_file = $file;
+        $this->_pos = 0;
     }
 
-    function all() {
-        if (!isset($this->list)) {
-            $this->list = array();
-            $res=db_query('SELECT file_id FROM '.$this->table
-                .' WHERE '.$this->key);
-            while(list($id) = db_fetch_row($res)) {
-                $this->list[] = new AttachmentFile($id);
-            }
+    function length() {
+        list($length) = db_fetch_row(db_query(
+             'SELECT SUM(LENGTH(filedata)) FROM '.FILE_CHUNK_TABLE
+            .' WHERE file_id='.db_input($this->_file)));
+        return $length;
+    }
+
+    function seek($location) {
+        $this->_pos=$location;
+    }
+
+    function tell() {
+        return $this->_pos;
+    }
+
+    function read($length=CHUNK_SIZE) {
+        # Read requested length of data from attachment chunks
+        $buffer='';
+        while ($length > 0) {
+            $chunk_id = floor($this->_pos / CHUNK_SIZE);
+            $start = $this->_pos % CHUNK_SIZE;
+            $size = min($length, CHUNK_SIZE - $start);
+            list($block) = @db_fetch_row(db_query(
+                'SELECT SUBSTR(filedata, '.($start+1).', '.$size
+                .') FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
+                .db_input($this->_file).' AND chunk_id='.$chunk_id));
+            if (!$block) return false;
+            $buffer .= $block;
+            $this->_pos += $size;
+            $length -= $size;
         }
-        return $this->list;
-    }
-    
-    function getCount() {
-        return count($this->all());
+        return $buffer;
     }
 
-    function add($fileId) {
-        db_query(
-            'INSERT INTO '.$this->table
-                .' SET '.$this->key
-                .' file_id='.db_input($fileId));
+    function write($what) {
+        # Figure out the remaining part of the current chunk (use CHUNK_SIZE
+        # and $this->_pos, increment pointer into $what and continue to end
+        # of what
+        $offset=0;
+        for (;;) {
+            $start = $this->_pos % CHUNK_SIZE;
+            $size = CHUNK_SIZE - $start;
+            $block = substr($what, $offset, $size);
+            if (!$block) break;
+            if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
+                    .' SET filedata=INSERT(filedata, '.($start+1).','.$size
+                    .', 0x'.bin2hex($block)
+                    .'), file_id='.db_input($this->_file)
+                    .', chunk_id='.floor($this->_pos / CHUNK_SIZE)))
+                return false;
+            $offset += $size;
+            $this->_pos += strlen($block);
+        }
+        return true;
     }
 
-    function remove($fileId) {
+    function deleteOrpans() {
         db_query(
-            'DELETE FROM '.$this->table
-                .' WHERE '.$this->key
-                .' AND file_id='.db_input($fileId));
+            'DELETE FROM '.FILE_CHUNK_TABLE.' WHERE file_id NOT IN '
+                .'( SELECT id FROM '.FILE_TABLE.') still_loved');
+        return db_affected_rows();
     }
 }
-?>
