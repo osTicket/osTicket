@@ -269,8 +269,6 @@ class Upgrader extends SetupWizard {
         $tasks=array();
         switch($phash) { //Add  patch specific scripted tasks.
             case 'c00511c7-7be60a84': //V1.6 ST- 1.7 * {{MD5('1.6 ST') -> c00511c7c1db65c0cfad04b4842afc57}}
-                $tasks[] = array('func' => 'migrateAttachments2DB',
-                                 'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
                 $tasks[] = array('func' => 'migrateSessionFile2DB',
                                  'desc' => 'Transitioning to db-backed sessions');
                 break;
@@ -281,6 +279,10 @@ class Upgrader extends SetupWizard {
             case '435c62c3-2e7531a2':
                 $tasks[] = array('func' => 'migrateGroupDeptAccess',
                                  'desc' => 'Migrating group\'s department access to a new table');
+                break;
+            case '15b30765-dd0022fb':
+                $tasks[] = array('func' => 'migrateAttachments2DB',
+                                 'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
                 break;
         }
 
