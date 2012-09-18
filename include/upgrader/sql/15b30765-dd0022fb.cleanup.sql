@@ -7,4 +7,4 @@ ALTER TABLE `%TABLE_PREFIX%ticket_attachment`
     DROP `file_name`,
     DROP `file_key`,
     DROP `updated`,
-    DROP `isdeleted`;
+    DROP `deleted`;
