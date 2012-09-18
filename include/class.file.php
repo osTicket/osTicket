@@ -244,7 +244,7 @@ class AttachmentChunkedData {
         return $length;
     }
 
-    function read($length=CHUNK_SIZE) {
+    function read() {
         # Read requested length of data from attachment chunks
         list($buffer) = @db_fetch_row(db_query(
             'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
