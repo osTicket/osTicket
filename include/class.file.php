@@ -230,7 +230,7 @@ class AttachmentFile {
  * in the FILE_CHUNK_TABLE to overcome the max_allowed_packet limitation of
  * LOB fields in the MySQL database
  */
-define('CHUNK_SIZE', 256*1024); # Beware if you change this...
+define('CHUNK_SIZE', 500*1024); # Beware if you change this...
 class AttachmentChunkedData {
     function AttachmentChunkedData($file) {
         $this->_file = $file;
@@ -244,51 +244,24 @@ class AttachmentChunkedData {
         return $length;
     }
 
-    function seek($location) {
-        $this->_pos=$location;
-    }
-
-    function tell() {
-        return $this->_pos;
-    }
-
     function read($length=CHUNK_SIZE) {
         # Read requested length of data from attachment chunks
-        $buffer='';
-        while ($length > 0) {
-            $chunk_id = floor($this->_pos / CHUNK_SIZE);
-            $start = $this->_pos % CHUNK_SIZE;
-            $size = min($length, CHUNK_SIZE - $start);
-            list($block) = @db_fetch_row(db_query(
-                'SELECT SUBSTR(filedata, '.($start+1).', '.$size
-                .') FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
-                .db_input($this->_file).' AND chunk_id='.$chunk_id));
-            if (!$block) return false;
-            $buffer .= $block;
-            $this->_pos += $size;
-            $length -= $size;
-        }
+        list($buffer) = @db_fetch_row(db_query(
+            'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
+            .db_input($this->_file).' AND chunk_id='.$this->_pos++));
         return $buffer;
     }
 
-    function write($what) {
-        # Figure out the remaining part of the current chunk (use CHUNK_SIZE
-        # and $this->_pos, increment pointer into $what and continue to end
-        # of what
+    function write($what, $chunk_size=CHUNK_SIZE) {
         $offset=0;
         for (;;) {
-            $start = $this->_pos % CHUNK_SIZE;
-            $size = CHUNK_SIZE - $start;
-            $block = substr($what, $offset, $size);
+            $block = substr($what, $offset, $chunk_size);
             if (!$block) break;
             if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
-                    .' SET filedata=INSERT(filedata, '.($start+1).','.$size
-                    .', 0x'.bin2hex($block)
-                    .'), file_id='.db_input($this->_file)
-                    .', chunk_id='.floor($this->_pos / CHUNK_SIZE)))
+                    .' SET filedata=0x'.bin2hex($block).', file_id='
+                    .db_input($this->_file).', chunk_id='.db_input($this->_pos++)))
                 return false;
-            $offset += $size;
-            $this->_pos += strlen($block);
+            $offset += strlen($block);
         }
         return true;
     }
