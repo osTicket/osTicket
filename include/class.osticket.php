@@ -149,6 +149,17 @@ class osTicket {
         return (!$errors);
     }
 
+    /* Replace Template Variables */
+    function replaceTemplateVariables($input, $vars=array()) {
+        
+        $replacer = new VariableReplacer();
+        $replacer->assign(array_merge($vars, 
+                    array('url' => $this->getConfig()->getBaseUrl())
+                    ));
+
+        return $replacer->replaceVars($input);
+    }
+
     function addExtraHeader($header) {
         $this->headers[md5($header)] = $header;
     }
