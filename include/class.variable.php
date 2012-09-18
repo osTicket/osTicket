@@ -53,7 +53,7 @@ class VariableReplacer {
             $this->objects[$var] = $val;
         } elseif($var && is_array($var)) {
             foreach($var as $k => $v) 
-                $this->variables[$k] = $v; //NOT calling assign to force one dimentional array.
+                $this->assign($k, $v);
         } elseif($var) {
             $this->variables[$var] = $val;
         }
@@ -90,12 +90,15 @@ class VariableReplacer {
         return $this->getVar($rv, $part);
     }
 
-    function replaceVars($text) {
+    function replaceVars($input) {
 
-        if(!($vars=$this->_parse($text)))
-            return $text;
+        if($input && is_array($input))
+            return array_map(array($this, 'replaceVars'), $input);
 
-        return preg_replace($this->_delimit(array_keys($vars)), array_values($vars), $text);
+        if(!($vars=$this->_parse($input)))
+            return $input;
+
+        return preg_replace($this->_delimit(array_keys($vars)), array_values($vars), $input);
     }
 
     function _resolveVar($var) {
