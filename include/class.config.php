@@ -36,7 +36,8 @@ class Config {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT * FROM '.CONFIG_TABLE
+        $sql='SELECT *, (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset '
+            .' FROM '.CONFIG_TABLE
             .' WHERE id='.db_input($id);
         
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -45,15 +46,6 @@ class Config {
             
         $this->config = db_fetch_array($res);
         $this->id = $this->config['id'];
-        //Figure out DB timezone 
-        if(($dbtz=db_timezone())) {
-            if($dbtz=='SYSTEM')
-                $this->config['dbtz_offset'] = preg_replace('/([+-]\d{2})(\d{2})/', '\1', date('O'));
-            else
-                $this->config['dbtz_offset'] = preg_replace('/([+-]\d{2})(:)(\d{2})/', '\1', $dbtz);
-        } else {
-            $this->config['dbtz_offset'] = 0;
-        }
 
         //Get the default time zone
         // We can't JOIN timezone table above due to upgrade support.
@@ -110,7 +102,7 @@ class Config {
     }
     
     function getDBTZoffset() {
-        return $this->config['dbtz_offset'];
+        return $this->config['db_tz_offset'];
     }
 
     /* Date & Time Formats */
