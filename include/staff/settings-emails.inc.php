@@ -1,3 +1,7 @@
+<?php
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
+?>
+<h2>Email Settings and Options</h2>
 <form action="settings.php?t=emails" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="emails" >
@@ -50,16 +54,20 @@
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">Admin Email Address:</td>
+            <td width="180" class="required">Admin's Email Address:</td>
             <td>
                 <input type="text" size=40 name="admin_email" value="<?php echo $config['admin_email']; ?>">
-                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['admin_email']; ?></font></td>
+                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['admin_email']; ?></font>
+                &nbsp;&nbsp;<em>(System administrator's email)</em> 
+            </td>
         </tr>
-        <tr><th colspan=2><em><strong>Incoming Emails</strong>: For mail fetcher (POP/IMAP) to work you must set a cron job or enable auto-cron</em></th>
+        <tr><th colspan=2><em><strong>Incoming Emails</strong>: For mail fetcher (polling) to work you must set an external cron job or enable auto-cron</em></th>
         <tr>
             <td width="180">Email Polling:</td>
-            <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable POP/IMAP
-                 &nbsp;&nbsp;<em>(Global setting which can be disabled at email level)</em>
+            <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable POP/IMAP polling
+                 &nbsp;&nbsp;
+                 <input type="checkbox" name="enable_auto_cron" <?php echo $config['enable_auto_cron']?'checked="checked"':''; ?>>
+                 Enable Auto-Cron <em>(Poll based on staff activity - NOT recommended)</em>
             </td>
         </tr>
         <tr>
