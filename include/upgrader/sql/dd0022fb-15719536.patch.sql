@@ -1,5 +1,5 @@
 /*
- * @version=1.6RC2+
+ * @version=1.7RC2+
  * 
  * change variable names
  */
@@ -406,4 +406,4 @@ UPDATE `%TABLE_PREFIX%email_template`
 
  -- update schema signature
 UPDATE `%TABLE_PREFIX%config`
-    SET `schema_signature`='7f35de4260e7a1d8bc2d4214786972ea';
+    SET `schema_signature`='157195364f4f2f68936cd432b86b0351';
