@@ -42,11 +42,11 @@ class ContentAjaxAPI extends AjaxController {
     Please note that non-base variables depends on the context of use. Visit osTicket Wiki for up to date documentation.
     <br/>
     <table width="100%" border="0" cellspacing=1 cellpadding=2>
-        <tr><td width="50%" valign="top"><b>Base Variables</b></td><td><b>Other Variables</b></td></tr>
+        <tr><td width="55%" valign="top"><b>Base Variables</b></td><td><b>Other Variables</b></td></tr>
         <tr>
-            <td width="50%" valign="top">
+            <td width="55%" valign="top">
                 <table width="100%" border="0" cellspacing=1 cellpadding=1>
-                    <tr><td width="100">%{ticket.id}</td><td>Ticket ID (internal ID)</td></tr>
+                    <tr><td width="130">%{ticket.id}</td><td>Ticket ID (internal ID)</td></tr>
                     <tr><td>%{ticket.number}</td><td>Ticket number (external ID)</td></tr>
                     <tr><td>%{ticket.email}</td><td>Email address</td></tr>
                     <tr><td>%{ticket.name}</td><td>Full name</td></tr>
@@ -61,7 +61,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{ticket.auth_token}</td><td>Auth. token used for auto-login</td></tr>
                     <tr><td>%{ticket.client_link}</td><td>Client\'s ticket view link</td></tr>
                     <tr><td>%{ticket.staff_link}</td><td>Staff\'s ticket view link</td></tr>
-                    <tr><td colspan="2"><em>Expandable Variables (See Wiki)</em></td></tr>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em>Expandable Variables (See Wiki)</em></td></tr>
                     <tr><td>%{ticket.<b>topic</b>}</td><td>Help topic</td></tr>
                     <tr><td>%{ticket.<b>dept</b>}</td><td>Department</td></tr>
                     <tr><td>%{ticket.<b>staff</b>}</td><td>Assigned/closing staff</td></tr>
@@ -70,7 +70,7 @@ class ContentAjaxAPI extends AjaxController {
             </td>
             <td valign="top">
                 <table width="100%" border="0" cellspacing=1 cellpadding=1>
-                    <tr><td width="100">%message</td><td>Message (incoming)</td></tr>
+                    <tr><td width="100">%{message}</td><td>Message (incoming)</td></tr>
                     <tr><td>%{response}</td><td>Response (outgoing)</td></tr>
                     <tr><td>%{title}</td><td>Internal/transfer note title</td></tr>
                     <tr><td>%{note}</td><td>Internal/transfer note message</td></tr>
