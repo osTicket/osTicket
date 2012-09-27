@@ -281,23 +281,6 @@ class Dept {
         return $num;
     }
 
-    //Replace staff's variables
-    function replaceVariables($text, $prefix='dept') {
-
-        $manager = $this->getManager();
-
-        $prefix = rtrim($prefix, '.');
-        $search = array("/%$prefix.name/", "/%$prefix.manager/", "/%$prefix.signature/");
-        $replace = array($this->getName(),
-                         ($manager?$manager->getName():''),
-                         $this->getSignature());
-        while ($text != ($T = preg_replace($search, $replace, $text))) {
-            $text = $T;
-        }
-
-        return $text;
-    }
-
     /*----Static functions-------*/
 	function getIdByName($name) {
         $id=0;

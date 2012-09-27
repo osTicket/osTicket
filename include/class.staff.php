@@ -506,28 +506,7 @@ class Staff {
         return $num;
     }
 
-    //Replace staff's variables
-    function replaceVariables($text, $prefix='staff') {
-
-        $prefix = rtrim($prefix, '.');
-        $search = array("/%$prefix.username/", "/%$prefix.firstname/", "/%$prefix.lastname/", 
-                        "/%$prefix.name/", "/%$prefix.email/", "/%$prefix.signature/");
-        $replace = array($this->getUserName(),
-                         $this->getFirstName(),
-                         $this->getLastName(),
-                         $this->getName(),
-                         $this->getEmail(),
-                         $this->getSignature());
-
-        while ($text != ($T = preg_replace($search,$replace,$text))) {
-            $text = $T;
-        }
-
-        return $text;
-    }
-
     /**** Static functions ********/
-
     function getStaffMembers($availableonly=false) {
 
         $sql='SELECT s.staff_id,CONCAT_WS(", ",s.lastname, s.firstname) as name '

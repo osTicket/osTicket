@@ -173,21 +173,6 @@ class Team {
         return true;
     }
 
-    //Replace staff's variables
-    function replaceVariables($text, $prefix='team') {
-
-        $lead = $this->getLead();
-
-        $prefix = rtrim($prefix, '.');
-        $search = array("/%$prefix.name/", "/%$prefix.lead/");
-        $replace = array($this->getName(), ($lead?$lead->getName():''));
-        while ($text != ($T = preg_replace($search, $replace, $text))) {
-            $text = $T;
-        }
-
-        return $text;
-    }
-
     /* ----------- Static function ------------------*/
     function lookup($id) {
         return ($id && is_numeric($id) && ($team= new Team($id)) && $team->getId()==$id)?$team:null;
