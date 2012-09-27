@@ -1113,17 +1113,13 @@ class Ticket {
             case 'phone_number':
                 return $this->getPhoneNumber();
                 break;
-            case 'auth_code':
             case 'auth_token':
                 return $this->getAuthToken();
                 break;
-                
-            case 'clientlink':
             case 'client_link':
                 return sprintf('%s/view.php?t=%s&e=%s&a=%s',
                         $cfg->getBaseUrl(), $this->getNumber(), $this->getEmail(), $this->getAuthToken());
                 break;
-            case 'stafflink':
             case 'staff_link':
                 return sprintf('%s/scp/tickets.php?id=%d', $cfg->getBaseUrl(), $this->getId());
                 break;
