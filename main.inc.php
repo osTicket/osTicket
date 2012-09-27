@@ -62,9 +62,8 @@
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
-    define('THIS_VERSION','1.7-RC2'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','d0e37dca324648f1ce2d10528a6026d4'); //MD5 signature of the db schema. (used to trigger upgrades)
-
+    define('THIS_VERSION','1.7-RC2+'); //Shown on admin panel
+    define('SCHEMA_SIGNATURE','dd0022fb14892c0bb6a9700392df2de7'); //MD5 signature of the db schema. (used to trigger upgrades)
     #load config info
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
@@ -132,6 +131,7 @@
     define('SYSLOG_TABLE',TABLE_PREFIX.'syslog');
     define('SESSION_TABLE',TABLE_PREFIX.'session');
     define('FILE_TABLE',TABLE_PREFIX.'file');
+    define('FILE_CHUNK_TABLE',TABLE_PREFIX.'file_chunk');
 
     define('STAFF_TABLE',TABLE_PREFIX.'staff');
     define('DEPT_TABLE',TABLE_PREFIX.'department');
@@ -159,8 +159,10 @@
   
     define('EMAIL_TABLE',TABLE_PREFIX.'email');
     define('EMAIL_TEMPLATE_TABLE',TABLE_PREFIX.'email_template');
-    define('EMAIL_FILTER_TABLE',TABLE_PREFIX.'email_filter');
-    define('EMAIL_FILTER_RULE_TABLE',TABLE_PREFIX.'email_filter_rule');
+
+    define('FILTER_TABLE',TABLE_PREFIX.'filter');
+    define('FILTER_RULE_TABLE',TABLE_PREFIX.'filter_rule');
+    
     define('BANLIST_TABLE',TABLE_PREFIX.'email_banlist'); //Not in use anymore....as of v 1.7
 
     define('SLA_TABLE',TABLE_PREFIX.'sla');
