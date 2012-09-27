@@ -1559,7 +1559,7 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
                    
-            $msg = $this->replaceVars($msg, array('note' => "$title\n\n$note"));
+            $msg = $this->replaceVars($msg, array('title' => $title, 'note' => $note));
 
             // Alert recipients    
             $recipients=array();

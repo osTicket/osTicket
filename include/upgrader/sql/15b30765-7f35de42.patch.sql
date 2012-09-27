@@ -361,7 +361,7 @@ UPDATE `%TABLE_PREFIX%email_template`
         `ticket_reply_body` = REPLACE(`ticket_reply_body`, '%note', '%{note}'),
         `ticket_alert_body` = REPLACE(`ticket_alert_body`, '%note', '%{note}'),
         `message_alert_body` = REPLACE(`message_alert_body`, '%note', '%{note}'),
-        `note_alert_body` = REPLACE(`note_alert_body`, '%note', '%{note}'),
+        `note_alert_body` = REPLACE(`note_alert_body`, '%note', '%{title}\r\n%{note}'),
         `assigned_alert_body` = REPLACE(`assigned_alert_body`, '%note', '%{note}'),
         `transfer_alert_body` = REPLACE(`transfer_alert_body`, '%note', '%{note}'),
         `ticket_overlimit_body` = REPLACE(`ticket_overlimit_body`, '%note', '%{note}');
