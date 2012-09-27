@@ -45,7 +45,7 @@ $gmtime = Misc::gmtime();
                     <?php
                     $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' WHERE ispublic=1';
                     if(($res=db_query($sql)) && db_num_rows($res)){
-                        while (list($id,$name) = db_fetch_row($res)){
+                        while (list($id, $name) = db_fetch_row($res)){
                             $selected = ($config['default_dept_id']==$id)?'selected="selected"':''; ?>
                             <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?> Dept</option>
                         <?php
@@ -62,7 +62,7 @@ $gmtime = Misc::gmtime();
                     <?php
                     $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_TABLE.' WHERE isactive=1 AND cfg_id='.db_input($cfg->getId()).' ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
-                        while (list($id,$name) = db_fetch_row($res)){
+                        while (list($id, $name) = db_fetch_row($res)){
                             $selected = ($config['default_template_id']==$id)?'selected="selected"':''; ?>
                             <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
@@ -119,7 +119,7 @@ $gmtime = Misc::gmtime();
                   <?php
                     for ($i = 1; $i <= 12; $i++) {
                         echo sprintf('<option value="%d" %s>%s%s</option>',
-                                $i,(($config['passwd_reset_period']==$i)?'selected="selected"':''),$i>1?"Every $i ":'',$i>1?' Months':'Monthly');
+                                $i,(($config['passwd_reset_period']==$i)?'selected="selected"':''), $i>1?"Every $i ":'', $i>1?' Months':'Monthly');
                     }
                     ?>
                 </select>
@@ -137,14 +137,14 @@ $gmtime = Misc::gmtime();
                 <select name="staff_max_logins">
                   <?php
                     for ($i = 1; $i <= 10; $i++) {
-                        echo sprintf('<option value="%d" %s>%d</option>',$i,(($config['staff_max_logins']==$i)?'selected="selected"':''),$i);
+                        echo sprintf('<option value="%d" %s>%d</option>', $i,(($config['staff_max_logins']==$i)?'selected="selected"':''), $i);
                     }
                     ?>
                 </select> failed login attempt(s) allowed before a
                 <select name="staff_login_timeout">
                   <?php
                     for ($i = 1; $i <= 10; $i++) {
-                        echo sprintf('<option value="%d" %s>%d</option>',$i,(($config['staff_login_timeout']==$i)?'selected="selected"':''),$i);
+                        echo sprintf('<option value="%d" %s>%d</option>', $i,(($config['staff_login_timeout']==$i)?'selected="selected"':''), $i);
                     }
                     ?>
                 </select> minute lock-out is enforced.
@@ -161,7 +161,7 @@ $gmtime = Misc::gmtime();
                 <select name="client_max_logins">
                   <?php
                     for ($i = 1; $i <= 10; $i++) {
-                        echo sprintf('<option value="%d" %s>%d</option>',$i,(($config['client_max_logins']==$i)?'selected="selected"':''),$i);
+                        echo sprintf('<option value="%d" %s>%d</option>', $i,(($config['client_max_logins']==$i)?'selected="selected"':''), $i);
                     }
 
                     ?>
@@ -169,7 +169,7 @@ $gmtime = Misc::gmtime();
                 <select name="client_login_timeout">
                   <?php
                     for ($i = 1; $i <= 10; $i++) {
-                        echo sprintf('<option value="%d" %s>%d</option>',$i,(($config['client_login_timeout']==$i)?'selected="selected"':''),$i);
+                        echo sprintf('<option value="%d" %s>%d</option>', $i,(($config['client_login_timeout']==$i)?'selected="selected"':''), $i);
                     }
                     ?>
                 </select> minute lock-out is enforced. 
@@ -191,24 +191,24 @@ $gmtime = Misc::gmtime();
             <td>
                 <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>">
                     &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
-                    <em><?php echo Format::date($config['time_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em></td>
+                    <em><?php echo Format::date($config['time_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em></td>
         </tr>
         <tr><td width="220" class="required">Date Format:</td>
             <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
-                        <em><?php echo Format::date($config['date_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+                        <em><?php echo Format::date($config['date_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
         <tr><td width="220" class="required">Date &amp; Time Format:</td>
             <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
-                        <em><?php echo Format::date($config['datetime_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+                        <em><?php echo Format::date($config['datetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
         <tr><td width="220" class="required">Day, Date &amp; Time Format:</td>
             <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
-                        <em><?php echo Format::date($config['daydatetime_format'],$gmtime,$config['timezone_offset'],$config['enable_daylight_saving']); ?></em>
+                        <em><?php echo Format::date($config['daydatetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
         <tr><td width="220" class="required">Default Time Zone:</td>
@@ -218,9 +218,9 @@ $gmtime = Misc::gmtime();
                     <?php
                     $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
                     if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$offset, $tz)=db_fetch_row($res)){
+                        while(list($id, $offset, $tz)=db_fetch_row($res)){
                             $sel=($config['default_timezone_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
+                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>', $id, $sel, $offset, $tz);
                         }
                     }
                     ?>
