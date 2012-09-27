@@ -4,14 +4,6 @@ ALTER TABLE `%TABLE_PREFIX%config`
     DROP COLUMN `timezone_offset`,
     DROP COLUMN `api_passphrase`;
 
--- Drop fields we no longer need in the reference table.
-ALTER TABLE `%TABLE_PREFIX%ticket_attachment`
-    DROP `file_size`,
-    DROP `file_name`,
-    DROP `file_key`,
-    DROP `updated`,
-    DROP `isdeleted`;
-
 -- Drop fields we no longer need in staff table.
 ALTER TABLE `%TABLE_PREFIX%staff`
     DROP `append_signature`,
