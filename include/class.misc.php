@@ -35,7 +35,7 @@ class Misc {
         if(!$var) return;
         
         $dbtime=is_int($var)?$var:strtotime($var);
-        return $dbtime-($cfg->getMysqlTZoffset()*3600);
+        return $dbtime-($cfg->getDBTZoffset()*3600);
     }
 
     //Take user time or gmtime and return db (mysql) time.
@@ -50,7 +50,7 @@ class Misc {
             $time=$time-($offset*3600);
         }
         //gm to db time
-        return $time+($cfg->getMysqlTZoffset()*3600);
+        return $time+($cfg->getDBTZoffset()*3600);
     }
     
     /*Helper get GM time based on timezone offset*/
