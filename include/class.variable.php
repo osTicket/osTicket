@@ -1,10 +1,10 @@
 <?php
 /*********************************************************************
-    class.filter.php
+    class.variable.php
 
     Variable replacer 
     
-    Used to resolve and replace variables.
+    Used to parse, resolve and replace variables.
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2012 osTicket
@@ -119,7 +119,7 @@ class VariableReplacer {
     function _parse($text) {
 
         $input = $text;
-        if(!preg_match_all('/'.$this->start_delim.'([A-Za-z\._]+)'.$this->end_delim.'/', $input, $result))
+        if(!preg_match_all('/'.$this->start_delim.'([A-Za-z_][\w._]+)'.$this->end_delim.'/', $input, $result))
             return null;
 
         $vars = array();
