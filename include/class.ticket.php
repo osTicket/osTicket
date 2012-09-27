@@ -1948,6 +1948,10 @@ class Ticket{
             $priorityId=$priorityId?$priorityId:$topic->getPriorityId();
             if($autorespond) $autorespond=$topic->autoRespond();
             $source=$vars['source']?$vars['source']:'Web';
+            if (!isset($vars['staffId']) && $topic->getStaffId())
+                $vars['staffId'] = $topic->getStaffId();
+            elseif (!isset($vars['teamId']) && $topic->getTeamId())
+                $vars['teamId'] = $topic->getTeamId();
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
             $deptId=$email->getDeptId();
             $priorityId=$priorityId?$priorityId:$email->getPriorityId();
