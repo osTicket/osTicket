@@ -110,6 +110,8 @@ class VariableReplacer {
         $parts = explode('.', $var, 2);
         if($parts && ($obj=$this->getObj($parts[0])))
             return $this->getVar($obj, $parts[1]);
+        elseif($parts[0] && @isset($this->variables[$parts[0]])) //root overwrite
+            return $this->variables[$parts[0]];
 
         //Unknown object or variable - leavig it alone.
         $this->setError('Unknown obj for "'.$var.'" tag ');
