@@ -81,13 +81,8 @@ if($_POST && !$errors):
                 elseif(strlen($_POST['transfer_message'])<5)
                     $errors['transfer_message'] = 'Transfer comments too short!';
 
-                $currentDept = $ticket->getDeptName(); //save current dept name.
                 if(!$errors && $ticket->transfer($_POST['deptId'], $_POST['transfer_message'])) {
                     $msg = 'Ticket transferred successfully to '.$ticket->getDeptName();
-                    //ticket->transfer does a reload...new dept at this point.
-                    $title='Dept. Transfer from '.$currentDept.' to '.$ticket->getDeptName();
-                    /*** log the message as internal note - with alerts disabled - ***/
-                    $ticket->postNote($title, $_POST['transfer_message'], false);
                     //Check to make sure the staff still has access to the ticket
                     if(!$ticket->checkStaffAccess($thisstaff))
                         $ticket=null;
@@ -140,7 +135,7 @@ if($_POST && !$errors):
             if(!Validator::process($fields, $_POST, $errors) && !$errors['err'])
                 $errors['err']=$errors['note']='Missing or invalid data. Correct the error(s) below and try again!';
             
-            if(!$errors && ($noteId=$ticket->postNote($_POST['title'], $_POST['internal_note']))) {
+            if(!$errors && ($noteId=$ticket->postNote($_POST['title'], $_POST['internal_note'], $thisstaff))) {
                 $msg='Internal note posted successfully';
                 //Upload attachments IF ANY - TODO: validate attachment types??
                 if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
