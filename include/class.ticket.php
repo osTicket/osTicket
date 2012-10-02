@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once(INCLUDE_DIR.'class.thread.php');
 include_once(INCLUDE_DIR.'class.staff.php');
 include_once(INCLUDE_DIR.'class.client.php');
 include_once(INCLUDE_DIR.'class.team.php');
@@ -545,7 +546,7 @@ class Ticket {
     }
 
     function getResponses($msgId=0) {
-        return $this->getThreadByType('R', $msgID);
+        return $this->getThreadByType('R', $msgId);
     }
 
     function getNotes() {
@@ -666,9 +667,9 @@ class Ticket {
 
     //DeptId can NOT be 0. No orphans please!
     function setDeptId($deptId){
-        
+       
         //Make sure it's a valid department//
-        if(!($dept=Dept::lookup($deptId)))
+        if(!($dept=Dept::lookup($deptId)) || $dept->getId()==$this->getDeptId())
             return false;
 
       
@@ -985,16 +986,21 @@ class Ticket {
         }
     }
 
-    function onAssign($note, $alert=true) {
+    function onAssign($assignee, $comments, $alert=true) {
         global $cfg, $thisstaff;
 
         if($this->isClosed()) $this->reopen(); //Assigned tickets must be open - otherwise why assign?
 
+        //Assignee must be an object of type Staff or Team
+        if(!$assignee || !is_object($assignee)) return false;
+
         $this->reload();
 
-        //Log an internal note - no alerts on the internal note.
         $note=$note?$note:'Ticket assignment';
-        $this->postNote('Ticket Assigned to '.$this->getAssignee(),$note,false);
+        $assigner =$thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
+        
+        //Log an internal note - no alerts on the internal note.
+        $this->postNote('Ticket Assigned to '.$assignee->getName(), $comments, $assigner, false);
 
         //See if we need to send alerts
         if(!$alert || !$cfg->alertONAssignment()) return true; //No alerts!
@@ -1003,36 +1009,36 @@ class Ticket {
 
         //Get template.
         if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
+            $tpl = $cfg->getDefaultTemplate();
 
         //Email to use!
         if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
+            $email = $cfg->getDefaultEmail();
+
+        //recipients
+        $recipients=array();
+        if(!strcasecmp(get_class($assignee), 'Staff')) {
+            if($cfg->alertStaffONAssignment())
+                $recipients[] = $assignee;
+        } elseif(!strcasecmp(get_class($assignee), 'Team')) {
+            if($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembers()))
+                $recipients+=$members;
+            elseif($cfg->alertTeamLeadONAssignment() && ($lead=$assignee->getTeamLead()))
+                $recipients[] = $lead;
+        }
 
         //Get the message template
-        if($tpl && ($msg=$tpl->getAssignedAlertMsgTemplate()) && $email) {
+        if($email && $recipients && $tpl && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
 
             $msg = $this->replaceVars($msg, 
-                        array('note' => $note,
-                              'message' => $note, //old template var.
-                              'assignee' => $this->getAssignee(),
-                              'assigner' => ($thisstaff)?$thisstaff->getName():'System'
+                        array('comments' => $comments,
+                              'assignee' => $assignee,
+                              'assigner' => $assigner
                               ));
-            //recipients
-            $recipients=array();
-            //Assigned staff or team... if any
-            // Assigning a ticket to a team when already assigned to staff disables alerts to the team (!))
-            if($cfg->alertStaffONAssignment() && $this->getStaffId())
-                $recipients[]=$this->getStaff();
-            elseif($this->getTeamId() && ($team=$this->getTeam())) {
-                if($cfg->alertTeamMembersONAssignment() && ($members=$team->getMembers()))
-                    $recipients+=$members;
-                elseif($cfg->alertTeamLeadONAssignment() && ($lead=$team->getTeamLead()))
-                    $recipients[]=$lead;
-            }
+
             //Send the alerts.
             $sentlist=array();
-            foreach( $recipients as $k=>$staff){
+            foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
                 $email->send($staff->getEmail(), $msg['subj'], $alert);
@@ -1107,7 +1113,7 @@ class Ticket {
         global $cfg;
 
         if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($obj, 'get'.ucfirst($tag)));
+            return call_user_func(array($this, 'get'.ucfirst($tag)));
 
         switch(strtolower($tag)) {
             case 'phone_number':
@@ -1195,24 +1201,33 @@ class Ticket {
 
     //Dept Tranfer...with alert.. done by staff 
     function transfer($deptId, $comments, $alert = true) {
+        
         global $cfg, $thisstaff;
       
-        if(!$this->setDeptId($deptId))
+        if(!$thisstaff || !$thisstaff->canTransferTickets())
             return false;
-         
+
+        $currentDept = $this->getDeptName(); //Current department
+
+        if(!$deptId || !$this->setDeptId($deptId))
+            return false;
+       
+        // Reopen ticket if closed 
+        if($this->isClosed()) $this->reopen();
+
+        $this->reload();
         // Change to SLA of the new department
         $this->selectSLAId();
-         $currentDept = $this->getDeptName(); //XXX: add to olddept to tpl vars??
+                  
+        /*** log the transfer comments as internal note - with alerts disabled - ***/
+        $title='Dept. Transfer from '.$currentDept.' to '.$this->getDeptName();
+        $comments=$comments?$comments:$title; 
+        $this->postNote($title, $comments, $thisstaff, false);
 
-         // Reopen ticket if closed 
-         if($this->isClosed())
-             $this->reopen();
+        $this->logEvent('transferred');
         
-         $this->reload(); //reload - new dept!!
-         $this->logEvent('transferred');
-
-         //Send out alerts if enabled AND requested
-         if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept())) return true; //no alerts!!
+        //Send out alerts if enabled AND requested
+        if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept())) return true; //no alerts!!
 
 
          //Get template.
@@ -1226,7 +1241,7 @@ class Ticket {
          //Get the message template 
          if($tpl && ($msg=$tpl->getTransferAlertMsgTemplate()) && $email) {
             
-             $msg = $this->replaceVars($msg, array('note' => $comments));
+             $msg = $this->replaceVars($msg, array('comments' => $comments, 'staff' => $thisstaff));
             //recipients            
             $recipients=array();
             //Assigned staff or team... if any
@@ -1265,7 +1280,7 @@ class Ticket {
         if(!$this->setStaffId($staff->getId()))
             return false;
 
-        $this->onAssign($note, $alert);
+        $this->onAssign($staff, $note, $alert);
         $this->logEvent('assigned');
 
         return true;
@@ -1284,7 +1299,7 @@ class Ticket {
         if($this->isClosed())
             $this->setStaffId(0);
 
-        $this->onAssign($note, $alert);
+        $this->onAssign($team, $note, $alert);
         $this->logEvent('assigned');
 
         return true;
@@ -1410,9 +1425,7 @@ class Ticket {
 
     /* public */ 
     function postReply($vars, $errors, $alert = true) {
-        global $thisstaff,$cfg;
-
-        if(!$thisstaff || !$thisstaff->isStaff() || !$cfg) return 0;
+        global $thisstaff, $cfg;
 
         if(!$vars['msgId'])
             $errors['msgId'] ='Missing messageId - internal error';
@@ -1421,14 +1434,16 @@ class Ticket {
 
         if($errors) return 0;
 
+        $poster = $thisstaff?$thisstaff->getName():'SYSTEM (Canned Response)';
+
         $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type="R"'
             .' ,ticket_id='.db_input($this->getId())
             .' ,pid='.db_input($vars['msgId'])
             .' ,body='.db_input(Format::striptags($vars['response']))
-            .' ,staff_id='.db_input($thisstaff->getId())
-            .' ,poster='.db_input($thisstaff->getName())
-            .' ,ip_address='.db_input($thisstaff->getIP());
+            .' ,staff_id='.db_input($thisstaff?$thisstaff->getId():0)
+            .' ,poster='.db_input($poster)
+            .' ,ip_address='.db_input($thisstaff?$thisstaff->getIP():'');
 
         if(!db_query($sql) || !($respId=db_insert_id()))
             return false;
@@ -1466,14 +1481,15 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getReplyMsgTemplate()) && $email) {
 
-            if($vars['signature']=='mine')
+            if($thisstaff && $vars['signature']=='mine')
                 $signature=$thisstaff->getSignature();
             elseif($vars['signature']=='dept' && $dept && $dept->isPublic())
                 $signature=$dept->getSignature();
             else
                 $signature='';
             
-            $msg = $this->replaceVars($msg, array('response' => $vars['response'], 'signature' => $signature));
+            $msg = $this->replaceVars($msg, 
+                    array('response' => $vars['response'], 'signature' => $signature, 'staff' => $thisstaff));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
@@ -1494,7 +1510,7 @@ class Ticket {
         if(!$cfg || !$cfg->logTicketActivity())
             return 0;
 
-        return $this->postNote($title,$note,false,'System');
+        return $this->postNote($title, $note, 'SYSTEM', false);
     }
 
     // History log -- used for statistics generation (pretty reports)
@@ -1526,21 +1542,29 @@ class Ticket {
     }
 
     //Insert Internal Notes 
-    function postNote($title,$note,$alert=true,$poster='') {        
-        global $thisstaff,$cfg;
+    function postNote($title, $body, $poster, $alert=true) {        
+        global $cfg;
 		
-        $poster=($poster || !$thisstaff)?$poster:$thisstaff->getName();
-		
+        $staffId = 0;
+        if($poster && is_object($poster)) {
+            $staffId = $poster->getId();
+            $poster = $poster->getName();
+        }
+
+        //TODO: move to class.thread.php
+
         $sql= 'INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '.
                 ',thread_type="N"'.
                 ',ticket_id='.db_input($this->getId()).
                 ',title='.db_input(Format::striptags($title)).
-                ',body='.db_input(Format::striptags($note)).
-                ',staff_id='.db_input($thisstaff?$thisstaff->getId():0).
+                ',body='.db_input(Format::striptags($body)).
+                ',staff_id='.db_input($staffId).
                 ',poster='.db_input($poster);
         //echo $sql;
         if(!db_query($sql) || !($id=db_insert_id()))
             return false;
+
+        $note = Note::lookup($id, $this->getId());
 
         // If alerts are not enabled then return a success.
         if(!$alert || !$cfg->alertONNewNote() || !($dept=$this->getDept()))
@@ -1555,7 +1579,7 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
                    
-            $msg = $this->replaceVars($msg, array('title' => $title, 'note' => $note));
+            $msg = $this->replaceVars($msg, array('note' => $note));
 
             // Alert recipients    
             $recipients=array();
@@ -1575,7 +1599,7 @@ class Ticket {
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !is_object($staff) || !$staff->getEmail() || !$staff->isAvailable()) continue;
-                if(in_array($staff->getEmail(),$sentlist) || ($thisstaff && $thisstaff->getId()==$staff->getId())) continue; 
+                if(in_array($staff->getEmail(),$sentlist) || ($staffId && $staffId==$staff->getId())) continue; 
                 $alert = str_replace('%{recipient}',$staff->getFirstName(), $msg['body']);
                 $email->send($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
@@ -1613,7 +1637,7 @@ class Ticket {
                 else
                     $error ='Error #'.$file['error'];
 
-                $this->postNote('File Upload Error', $error, false);
+                $this->postNote('File Upload Error', $error, 'SYSTEM', false);
                
                 $ost->logDebug('File Upload Error (Ticket #'.$this->getExtId().')', $error);
             }
@@ -1734,7 +1758,7 @@ class Ticket {
         if(!$vars['note'])
             $vars['note']=sprintf('Ticket Updated by %s', $thisstaff->getName());
 
-        $this->postNote('Ticket Updated', $vars['note']);
+        $this->postNote('Ticket Updated', $vars['note'], $thisstaff);
         $this->reload();
         
         return true;
@@ -2119,9 +2143,9 @@ class Ticket {
         }
         //Post Internal note
         if($vars['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
-            $ticket->assign($vars['assignId'],$vars['note']);
+            $ticket->assign($vars['assignId'], $vars['note']);
         } elseif($vars['note']) { //Not assigned...save optional note if any
-            $ticket->postNote('New Ticket',$vars['note'],false);
+            $ticket->postNote('New Ticket', $vars['note'], $thisstaff, false);
         } else { //Not assignment and no internal note - log activity
             $ticket->logActivity('New Ticket by Staff','Ticket created by staff -'.$thisstaff->getName());
         }
