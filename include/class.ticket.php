@@ -1766,8 +1766,17 @@ class Ticket {
 
    
    /*============== Static functions. Use Ticket::function(params); ==================*/
-    function getIdByExtId($extid) {
-        $sql ='SELECT  ticket_id FROM '.TICKET_TABLE.' ticket WHERE ticketID='.db_input($extid);
+    function getIdByExtId($extId, $email=null) {
+        
+        if(!$extId || !is_numeric($extId)) 
+            return 0;
+
+        $sql ='SELECT  ticket_id FROM '.TICKET_TABLE.' ticket '
+             .' WHERE ticketID='.db_input($extId);
+        
+        if($email)
+            $sql.=' AND email='.db_input($email);
+
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
 
@@ -1780,8 +1789,8 @@ class Ticket {
         return ($id && is_numeric($id) && ($ticket= new Ticket($id)) && $ticket->getId()==$id)?$ticket:null;    
     }
 
-    function lookupByExtId($id) {
-        return self::lookup(self:: getIdByExtId($id));
+    function lookupByExtId($id, $email=null) {
+        return self::lookup(self:: getIdByExtId($id, $email));
     }
 
     function genExtRandID() {
