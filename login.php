@@ -21,8 +21,10 @@ define('OSTCLIENTINC',TRUE); //make includes happy
 require_once(INCLUDE_DIR.'class.client.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
-if ($_POST) ClientSession::tryLogin($_POST['lticket'], $_POST['lemail']);
-else ClientSession::tryLogin($_GET['t'], $_GET['e'], $_GET['a']);
+if ($_POST)
+    Client::login($_POST['lticket'], $_POST['lemail']);
+elseif($_GET['t'] && $_GET['e'] && $_GET['a'])
+    Client::login($_GET['t'], $_GET['e'], $_GET['a']);
 
 $nav = new UserNav();
 $nav->setActiveNav('status');

@@ -134,7 +134,7 @@ class Client {
         return (($id=self::getLastTicketIdByEmail($email)))?self::lookup($id, $email):null;
     }
 
-    /* static */ function tryLogin($ticketID, $email, $auth=null) {
+    /* static */ function login($ticketID, $email, $auth=null) {
         global $ost;
         $cfg = $ost->getConfig();
 
