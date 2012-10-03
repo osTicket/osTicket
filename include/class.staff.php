@@ -558,15 +558,21 @@ class Staff {
 
         if($_SESSION['_staff']['laststrike']) {
             if((time()-$_SESSION['_staff']['laststrike'])<$cfg->getStaffLoginTimeout()) {
-                $errors['err']='You\'ve reached maximum failed login attempts allowed.';
+                $errors['err']='Max. failed login attempts reached';
+                $_SESSION['_staff']['laststrike'] = time(); //reset timer.
             } else { //Timeout is over.
                 //Reset the counter for next round of attempts after the timeout.
                 $_SESSION['_staff']['laststrike']=null;
                 $_SESSION['_staff']['strikes']=0;
             }
         }
+
+        if(!$username || !$passwd)
+            $errors['err'] = 'Username and password required';
+
+        if($errors) return false;
    
-        if(!$errors && ($user=new StaffSession($username)) && $user->getId() && $user->check_passwd($passwd)) {
+        if(($user=new StaffSession(trim($username))) && $user->getId() && $user->check_passwd($passwd)) {
             //update last login && password reset stuff.
             $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() ';
             if($user->isPasswdResetDue() && !$user->isAdmin())
@@ -574,15 +580,18 @@ class Staff {
             $sql.=' WHERE staff_id='.db_input($user->getId());
             db_query($sql);
             //Now set session crap and lets roll baby!
-            $_SESSION['_staff']=array(); //clear.
-            $_SESSION['_staff']['userID']=$username;
+            $_SESSION['_staff'] = array(); //clear.
+            $_SESSION['_staff']['userID'] = $username;
             $user->refreshSession(); //set the hash.
-            $_SESSION['TZ_OFFSET']=$user->getTZoffset();
-            $_SESSION['TZ_DST']=$user->observeDaylight();
+            $_SESSION['TZ_OFFSET'] = $user->getTZoffset();
+            $_SESSION['TZ_DST'] = $user->observeDaylight();
 
+            //Log debug info.
             $ost->logDebug('Staff login', 
                     sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
-            $sid=session_id(); //Current ID
+
+            //Regenerate session id.
+            $sid=session_id(); //Current id
             session_regenerate_id(TRUE);
             //Destroy old session ID - needed for PHP version < 5.1.0 TODO: remove when we move to php 5.3 as min. requirement.
             if(($session=$ost->getSession()) && is_object($session) && $sid)
@@ -599,14 +608,14 @@ class Staff {
             $errors['err']='Forgot your login info? Contact Admin.';
             $_SESSION['_staff']['laststrike']=time();
             $alert='Excessive login attempts by a staff member?'."\n".
-                   'Username: '.$_POST['username']."\n".'IP: '.$_SERVER['REMOTE_ADDR']."\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".
+                   'Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR']."\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".
                    'Attempts #'.$_SESSION['_staff']['strikes']."\n".'Timeout: '.($cfg->getStaffLoginTimeout()/60)." minutes \n\n";
-            $ost->logWarning('Excessive login attempts ('.$_POST['username'].')', $alert, ($cfg->alertONLoginError()));
+            $ost->logWarning('Excessive login attempts ('.$username.')', $alert, ($cfg->alertONLoginError()));
     
         } elseif($_SESSION['_staff']['strikes']%2==0) { //Log every other failed login attempt as a warning.
-            $alert='Username: '.$_POST['username']."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
+            $alert='Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
                    "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_staff']['strikes'];
-            $ost->logWarning('Failed staff login attempt ('.$_POST['username'].')', $alert, false);
+            $ost->logWarning('Failed staff login attempt ('.$username.')', $alert, false);
         }
 
         return false;
