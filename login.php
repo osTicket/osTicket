@@ -21,10 +21,17 @@ define('OSTCLIENTINC',TRUE); //make includes happy
 require_once(INCLUDE_DIR.'class.client.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
-if ($_POST)
-    Client::login($_POST['lticket'], $_POST['lemail']);
-elseif($_GET['t'] && $_GET['e'] && $_GET['a'])
-    Client::login($_GET['t'], $_GET['e'], $_GET['a']);
+if($_POST) {
+
+    if(($user=Client::login(trim($_POST['lticket']), trim($_POST['lemail']), null, $errors))) {
+        //XXX: Ticket owner is assumed.
+        @header('Location: tickets.php?id='.$user->getTicketID());
+        require_once('tickets.php'); //Just in case of 'header already sent' error.
+        exit;
+    } elseif(!$errors['err']) {
+        $errors['err'] = 'Authentication error - try again!';
+    }
+}
 
 $nav = new UserNav();
 $nav->setActiveNav('status');
