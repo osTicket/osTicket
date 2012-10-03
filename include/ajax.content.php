@@ -70,11 +70,11 @@ class ContentAjaxAPI extends AjaxController {
             </td>
             <td valign="top">
                 <table width="100%" border="0" cellspacing=1 cellpadding=1>
-                    <tr><td width="100">%{message}</td><td>Message (incoming)</td></tr>
-                    <tr><td>%{response}</td><td>Response (outgoing)</td></tr>
-                    <tr><td>%{title}</td><td>Internal/transfer note title</td></tr>
-                    <tr><td>%{note}</td><td>Internal/transfer note message</td></tr>
-                    <tr><td>%{assignee}</td><td>Assigned staff (assignment)</td></tr>
+                    <tr><td width="100">%{message}</td><td>Incoming message</td></tr>
+                    <tr><td>%{response}</td><td>Outgoing response</td></tr>
+                    <tr><td>%{comments}</td><td>Assign/transfer comments</td></tr>
+                    <tr><td>%{note}</td><td>Internal note <em>(expandable)</em></td></tr>
+                    <tr><td>%{assignee}</td><td>Assigned staff/team</td></tr>
                     <tr><td>%{assigner}</td><td>Staff assigning the ticket</td></tr>
                     <tr><td>%{url}</td><td>osTicket\'s base url (FQDN)</td></tr>
                 </table>
