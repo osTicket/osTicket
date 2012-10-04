@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC')) die('Kwaheri');
+if(!defined('OSTCLIENTINC')) die('Access Denied');
 
 $email=Format::input($_POST['lemail']?$_POST['lemail']:$_GET['e']);
 $ticketid=Format::input($_POST['lticket']?$_POST['lticket']:$_GET['t']);
@@ -8,7 +8,8 @@ $ticketid=Format::input($_POST['lticket']?$_POST['lticket']:$_GET['t']);
 <p>To view the status of a ticket, provide us with the login details below.</p>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
-    <strong>Authentication Required</strong>
+    <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
+    <br>
     <div>
         <label for="email">E-Mail Address:</label>
         <input id="email" type="text" name="lemail" size="30" value="<?php echo $email; ?>">

@@ -1,4 +1,8 @@
-<?php defined('OSTSCPINC') or die('Invalid path'); ?>
+<?php 
+defined('OSTSCPINC') or die('Invalid path');
+
+$info = ($_POST && $errors)?Format::htmlchars($_POST):array();
+?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -22,9 +26,9 @@
     <h3><?php echo Format::htmlchars($msg); ?></h3>
     <form action="login.php" method="post">
         <?php csrf_token(); ?>
-        <input type="hidden" name="d"o value="scplogin">
+        <input type="hidden" name="do" value="scplogin">
         <fieldset>
-            <input type="text" name="username" id="name" value="" placeholder="username" autocorrect="off" autocapitalize="off">
+            <input type="text" name="username" id="name" value="<?php echo $info['username']; ?>" placeholder="username" autocorrect="off" autocapitalize="off">
             <input type="password" name="passwd" id="pass" placeholder="password" autocorrect="off" autocapitalize="off">
         </fieldset>
         <input class="submit" type="submit" name="submit" value="Log In">
