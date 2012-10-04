@@ -375,6 +375,8 @@ class Template {
                 .' ,message_alert_body='.db_input($info['message_alert_body'])
                 .' ,note_alert_subj='.db_input($info['note_alert_subj'])
                 .' ,note_alert_body='.db_input($info['note_alert_body'])
+                .' ,transfer_alert_subj='.db_input($info['transfer_alert_subj'])
+                .' ,transfer_alert_body='.db_input($info['transfer_alert_body'])
                 .' ,assigned_alert_subj='.db_input($info['assigned_alert_subj'])
                 .' ,assigned_alert_body='.db_input($info['assigned_alert_body'])
                 .' ,ticket_overdue_subj='.db_input($info['ticket_overdue_subj'])

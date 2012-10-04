@@ -24,7 +24,7 @@ class Dept {
 
     var $ht;
   
-    function Dept($id){
+    function Dept($id) {
         $this->id=0;
         $this->load($id);
     }
@@ -55,24 +55,28 @@ class Dept {
         return true;
     }
 
-    function reload(){
+    function reload() {
         return $this->load();
     }
 
-    function getId(){
+    function asVar() {
+        return $this->getName();
+    }
+
+    function getId() {
         return $this->id;
     }
     
-    function getName(){
+    function getName() {
         return $this->ht['name'];
     }
 
         
-    function getEmailId(){
+    function getEmailId() {
         return $this->ht['email_id'];
     }
 
-    function getEmail(){
+    function getEmail() {
         
         if(!$this->email && $this->getEmailId())
             $this->email=Email::lookup($this->getEmailId());
@@ -80,16 +84,16 @@ class Dept {
         return $this->email;
     }
 
-    function getNumStaff(){
+    function getNumStaff() {
         return $this->ht['users'];
     }
 
      
-    function getNumUsers(){
+    function getNumUsers() {
         return $this->getNumStaff();
     }
 
-    function getNumMembers(){
+    function getNumMembers() {
         return count($this->getMembers());
     }
 
@@ -117,11 +121,11 @@ class Dept {
     }
 
 
-    function getSLAId(){
+    function getSLAId() {
         return $this->ht['sla_id'];
     }
 
-    function getSLA(){
+    function getSLA() {
 
         if(!$this->sla && $this->getSLAId())
             $this->sla=SLA::lookup($this->getSLAId());
@@ -164,11 +168,11 @@ class Dept {
         return ($this->getSignature() && $this->isPublic());
     }
     
-    function getManagerId(){
+    function getManagerId() {
         return $this->ht['manager_id'];
     }
 
-    function getManager(){
+    function getManager() {
      
         if(!$this->manager && $this->getManagerId())
             $this->manager=Staff::lookup($this->getManagerId());
@@ -176,19 +180,19 @@ class Dept {
         return $this->manager;
     }
 
-    function isPublic(){
+    function isPublic() {
          return ($this->ht['ispublic']);
     }
     
-    function autoRespONNewTicket(){
+    function autoRespONNewTicket() {
         return ($this->ht['ticket_auto_response']);
     }
         
-    function autoRespONNewMessage(){
+    function autoRespONNewMessage() {
         return ($this->ht['message_auto_response']);
     }
 
-    function noreplyAutoResp(){
+    function noreplyAutoResp() {
          return ($this->ht['noreply_autoresp']);
     }
 
@@ -201,7 +205,7 @@ class Dept {
         return $this->ht;
     }
 
-    function getInfo(){
+    function getInfo() {
         return $this->getHashtable();
     }
 
@@ -243,9 +247,9 @@ class Dept {
 
     }
 
-    function update($vars,&$errors){
+    function update($vars, &$errors) {
 
-        if(!$this->save($this->getId(),$vars,$errors))
+        if(!$this->save($this->getId(), $vars, $errors))
             return false;
 
         $this->updateAllowedGroups($vars['groups']);
@@ -262,7 +266,7 @@ class Dept {
 
         $id=$this->getId();
         $sql='DELETE FROM '.DEPT_TABLE.' WHERE dept_id='.db_input($id).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())){
+        if(db_query($sql) && ($num=db_affected_rows())) {
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
             db_query('UPDATE '.TICKET_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
@@ -287,7 +291,7 @@ class Dept {
         return $id;
     }
 
-    function lookup($id){
+    function lookup($id) {
         return ($id && is_numeric($id) && ($dept = new Dept($id)) && $dept->getId()==$id)?$dept:null;
     }
 
@@ -323,14 +327,14 @@ class Dept {
         return self::getDepartments(true);
     }
 
-    function create($vars,&$errors) {
+    function create($vars, &$errors) {
         if(($id=self::save(0, $vars, $errors)) && ($dept=self::lookup($id)))
             $dept->updateAllowedGroups($vars['groups']);
 
         return $id;
     }
 
-    function save($id,$vars,&$errors) {
+    function save($id, $vars, &$errors) {
         global $cfg;
                 
         if($id && $id!=$vars['id'])
@@ -342,11 +346,11 @@ class Dept {
         if(!is_numeric($vars['tpl_id']))
             $errors['tpl_id']='Template selection required';
 
-        if(!$vars['name']){
+        if(!$vars['name']) {
             $errors['name']='Name required';
-        }elseif(strlen($vars['name'])<4) {
+        } elseif(strlen($vars['name'])<4) {
             $errors['name']='Name is too short.';
-        }elseif(($did=Dept::getIdByName($vars['name'])) && $did!=$id){
+        } elseif(($did=Dept::getIdByName($vars['name'])) && $did!=$id) {
             $errors['name']='Department already exist';
         }
         
@@ -377,7 +381,7 @@ class Dept {
             
             $errors['err']='Unable to update '.Format::htmlchars($vars['name']).' Dept. Error occurred';
            
-        }else{
+        } else {
             $sql='INSERT INTO '.DEPT_TABLE.' '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;

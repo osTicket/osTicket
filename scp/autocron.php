@@ -30,13 +30,17 @@ ob_start(); //Keep the image output clean. Hide our dirt.
 //TODO: Make cron DB based to allow for better time limits. Direct calls for now sucks big time.
 //We DON'T want to spawn cron on every page load...we record the lastcroncall on the session per user
 $sec=time()-$_SESSION['lastcroncall'];
+$caller = $thisstaff->getUserName();
+
 if($sec>180): //user can call cron once every 3 minutes.
-require_once(INCLUDE_DIR.'class.cron.php');    
+require_once(INCLUDE_DIR.'class.cron.php');
+
+$thisstaff = null; //Clear staff obj to avoid false credit internal notes & auto-assignment
 Cron::TicketMonitor(); //Age tickets: We're going to age tickets regardless of cron settings. 
 if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enabled!
     Cron::MailFetcher();  //Fetch mail.
-    $ost->logDebug('Auto Cron', 'Mail fetcher cron call ['.$thisstaff->getUserName().']');
-} 
+    $ost->logDebug('Auto Cron', 'Mail fetcher cron call ['.$caller.']');
+}
 
 $_SESSION['lastcroncall']=time();
 endif;

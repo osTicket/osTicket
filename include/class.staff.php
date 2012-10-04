@@ -73,6 +73,10 @@ class Staff {
         return $this->load();
     }
 
+    function asVar() {
+        return $this->getName();
+    }
+
     function getHastable() {
         return $this->ht;
     }
@@ -503,7 +507,6 @@ class Staff {
     }
 
     /**** Static functions ********/
-
     function getStaffMembers($availableonly=false) {
 
         $sql='SELECT s.staff_id,CONCAT_WS(", ",s.lastname, s.firstname) as name '
