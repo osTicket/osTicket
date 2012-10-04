@@ -849,7 +849,6 @@ class Config {
         if($errors) return false;
         
         $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-             .',ticket_notice_active='.db_input($vars['ticket_notice_active'])
              .',ticket_alert_active='.db_input($vars['ticket_alert_active'])
              .',ticket_alert_admin='.db_input(isset($vars['ticket_alert_admin'])?1:0)
              .',ticket_alert_dept_manager='.db_input(isset($vars['ticket_alert_dept_manager'])?1:0)
