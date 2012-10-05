@@ -658,7 +658,7 @@ class TicketFilter {
         
         //Clear any memoized filters
         $this->filters = array();
-        $this->short_list = array();
+        $this->short_list = null;
 
         //Query DB for "possibly" matching filters.
         $res = $this->vars?$this->quickList():$this->getAllActive();
@@ -681,7 +681,7 @@ class TicketFilter {
      */
     function getMatchingFilterList() {
 
-        if (!$this->short_list) {
+        if (!isset($this->short_list)) {
             $this->short_list = array();
             foreach ($this->filters as $filter)
                 if ($filter->matches($this->vars))
