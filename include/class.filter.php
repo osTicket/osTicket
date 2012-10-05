@@ -677,7 +677,8 @@ class TicketFilter {
      * return immediately.
      */
     function getMatchingFilterList() {
-        if (!isset($this->short_list)) {
+
+        if (!$this->short_list) {
             $this->short_list = array();
             foreach ($this->filters as $filter)
                 if ($filter->matches($this->vars))
