@@ -247,6 +247,13 @@ a.attachment { background:url(../images/icons/attachment.gif ) }
 a.api { background:url(../images/icons/api.png) }
 a.newapi { background:url(../images/icons/new_api.png) }
 
+a.ticket-settings { background:url(../images/icons/ticket-settings.gif) }
+a.email-settings { background:url(../images/icons/email-settings.gif) }
+a.kb-settings { background:url(../images/icons/kb-settings.gif) }
+a.alert-settings { background:url(../images/icons/alert-settings.gif) }
+a.email-autoresponders { background:url(../images/icons/email-autoresponders.gif) }
+
+
 a.sla { background:url(../images/icons/slas.png) }
 a.newsla { background:url(../images/icons/new_sla.png) }
 
@@ -259,7 +266,8 @@ a.emailTemplates { background:url(../images/icons/email_templates.png) }
 a.newEmailTemplate { background:url(../images/icons/new_email_template.png) }
 
 a.emailFilters { background:url(../images/icons/email_filters.png) }
-a.newEmailFilter { background:url(../images/icons/new_email_filter.png) }
+a.ticketFilters { background:url(../images/icons/ticket_filters.png) }
+a.newTicketFilter { background:url(../images/icons/new_ticket_filter.png) }
 
 a.emailSettings { background:url(../images/icons/emails.png) }
 a.emailDiagnostic { background:url(../images/icons/email_diagnostic.gif) }
@@ -1292,7 +1300,7 @@ time {
 #advanced-search input[type="reset"],
 #advanced-search input[type="button"],
 #print-options input[type="reset"],
-#print-options input[type="button"] { 
+#print-options input[type="button"] {
     opacity:0.7;
 }
 

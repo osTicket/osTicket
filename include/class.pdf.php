@@ -82,11 +82,23 @@ class Ticket2PDF extends FPDF
 		$this->Cell(0, 7, 'Page ' . ($this->PageNo() - $this->pageOffset), 0, 0, 'R');
 	}
 
+    function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link='') {
+        parent::Cell($w, $h, $this->_utf8($txt), $border, $ln, $align, $fill, $link);
+    }
+
     function WriteText($w, $text, $border) {
 
         $this->SetFont('Times','',11);
         $this->MultiCell($w, 5, $text, $border, 'L');
 
+    }
+
+    function _utf8($text) {
+
+        if(function_exists('iconv'))
+            return iconv('UTF-8', 'windows-1252', $text);
+        
+        return utf8_encode($text);
     }
     
     function _print() {
@@ -95,7 +107,7 @@ class Ticket2PDF extends FPDF
             return;
 
         $w =(($this->w/2)-$this->lMargin);
-        $l = 40;
+        $l = 35;
         $c = $w-$l;
         $this->SetDrawColor(220, 220, 220);
         $this->SetFillColor(244, 250, 255);

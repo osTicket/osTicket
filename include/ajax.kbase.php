@@ -36,7 +36,7 @@ class KbaseAjaxAPI extends AjaxController {
             case 'json':
                 $resp['id'] = $canned->getId();
                 $resp['ticket'] = $canned->getTitle();
-                $resp['response'] = $ticket?$ticket->replaceTemplateVars($canned->getResponse()):$canned->getResponse();
+                $resp['response'] = $ticket?$ticket->replaceVars($canned->getResponse()):$canned->getResponse();
                 $resp['files'] = $canned->getAttachments();
 
 
@@ -44,7 +44,7 @@ class KbaseAjaxAPI extends AjaxController {
                 break;
             case 'txt':
             default:
-                $response =$ticket?$ticket->replaceTemplateVars($canned->getResponse()):$canned->getResponse();
+                $response =$ticket?$ticket->replaceVars($canned->getResponse()):$canned->getResponse();
         }
 
 

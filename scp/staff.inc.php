@@ -49,7 +49,7 @@ require_once(INCLUDE_DIR.'class.csrf.php');
 
 if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the function to  trap expired sessions.
     function staffLoginPage($msg) {
-        $_SESSION['_staff']['auth']['dest']=THISPAGE;
+        $_SESSION['_staff']['auth']['dest']=THISURI;
         $_SESSION['_staff']['auth']['msg']=$msg;
         require(SCP_DIR.'login.php');
         exit;

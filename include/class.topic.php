@@ -48,6 +48,10 @@ class Topic {
     function reload() {
         return $this->load();
     }
+
+    function asVar() {
+        return $this->getName();
+    }
     
     function getId() {
         return $this->id;

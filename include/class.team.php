@@ -21,7 +21,7 @@ class Team {
 
     var $members;
 
-    function Team($id){
+    function Team($id) {
 
         return $this->load($id);
     }
@@ -47,30 +47,34 @@ class Team {
         return $this->id;
     }
 
-    function reload(){
+    function reload() {
         return $this->load($this->getId());
     }
 
-    function getId(){
+    function asVar() {
+        return $this->getName();
+    }
+
+    function getId() {
         return $this->id;
     }
 
-    function getName(){
+    function getName() {
         return $this->ht['name'];
     }
 
-    function getNumMembers(){
+    function getNumMembers() {
         return $this->ht['members'];
     }
 
-    function getMembers(){
+    function getMembers() {
 
-        if(!$this->members && $this->getNumMembers()){
+        if(!$this->members && $this->getNumMembers()) {
             $sql='SELECT m.staff_id FROM '.TEAM_MEMBER_TABLE.' m '
                 .'LEFT JOIN '.STAFF_TABLE.' s USING(staff_id) '
                 .'WHERE m.team_id='.db_input($this->getId()).' AND s.staff_id IS NOT NULL '
                 .'ORDER BY s.lastname, s.firstname';
-            if(($res=db_query($sql)) && db_num_rows($res)){
+            if(($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res))
                     if(($staff= Staff::lookup($id)))
                         $this->members[]= $staff;
@@ -87,18 +91,18 @@ class Team {
             .'   AND staff_id='.db_input($staff->getId())) !== 0;
     }
 
-    function getLeadId(){
+    function getLeadId() {
         return $this->ht['lead_id'];
     }
 
-    function getTeamLead(){
+    function getTeamLead() {
         if(!$this->lead && $this->getLeadId())
             $this->lead=Staff::lookup($this->getLeadId());
 
         return $this->lead;
     }
 
-    function getLead(){
+    function getLead() {
         return $this->getTeamLead();
     }
 
@@ -106,27 +110,27 @@ class Team {
         return $this->ht;
     }
 
-    function getInfo(){
+    function getInfo() {
         return  $this->getHashtable();
     }
 
-    function isEnabled(){
+    function isEnabled() {
         return ($this->ht['isenabled']);
     }
 
-    function isActive(){
+    function isActive() {
         return $this->isEnabled();
     }
 
-    function update($vars,&$errors) {
+    function update($vars, &$errors) {
 
         //reset team lead if they're being deleted
         if($this->getLeadId()==$vars['lead_id'] 
-                && $vars['remove'] && in_array($this->getLeadId(),$vars['remove']))
+                && $vars['remove'] && in_array($this->getLeadId(), $vars['remove']))
             $vars['lead_id']=0;
 
         //Save the changes...
-        if(!Team::save($this->getId(),$vars,$errors))
+        if(!Team::save($this->getId(), $vars, $errors))
             return false;
 
         //Delete staff marked for removal...
@@ -170,12 +174,12 @@ class Team {
     }
 
     /* ----------- Static function ------------------*/
-    function lookup($id){
+    function lookup($id) {
         return ($id && is_numeric($id) && ($team= new Team($id)) && $team->getId()==$id)?$team:null;
     }
 
 
-    function getIdbyName($name){
+    function getIdbyName($name) {
 
         $sql='SELECT team_id FROM '.TEAM_TABLE.' WHERE name='.db_input($name);
         if(($res=db_query($sql)) && db_num_rows($res))
@@ -201,7 +205,7 @@ class Team {
                 .' ORDER by t.name ';
         }
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id,$name)=db_fetch_row($res))
+            while(list($id, $name)=db_fetch_row($res))
                 $teams[$id] = $name;
         }
 
@@ -212,20 +216,20 @@ class Team {
         return self::getTeams(true);
     }
 
-    function create($vars,&$errors) { 
-        return self::save(0,$vars,$errors);
+    function create($vars, &$errors) { 
+        return self::save(0, $vars, $errors);
     }
 
-    function save($id,$vars,&$errors) {
+    function save($id, $vars, &$errors) {
 
         if($id && $vars['id']!=$id)
             $errors['err']='Missing or invalid team';
             
         if(!$vars['name']) {
             $errors['name']='Team name required';
-        }elseif(strlen($vars['name'])<3) {
+        } elseif(strlen($vars['name'])<3) {
             $errors['name']='Team name must be at least 3 chars.';
-        }elseif(($tid=Team::getIdByName($vars['name'])) && $tid!=$id){
+        } elseif(($tid=Team::getIdByName($vars['name'])) && $tid!=$id) {
             $errors['name']='Team name already exists';
         }
         
@@ -242,7 +246,7 @@ class Team {
                 return true;
                     
             $errors['err']='Unable to update the team. Internal error';
-        }else{
+        } else {
             $sql='INSERT INTO '.TEAM_TABLE.' '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
