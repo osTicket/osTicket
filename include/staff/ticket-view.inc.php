@@ -61,7 +61,7 @@ if($ticket->isOverdue())
             <?php } ?>
             <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>"><i class="icon-print"></i> Print</a>
 
-            <div id="action-dropdown-1" class="action-dropdown">
+            <div id="action-dropdown-1" class="action-dropdown anchor-right">
               <ul>
                 <?php if($thisstaff->canDeleteTickets()) { ?>
                     <li><a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=delete">Delete Ticket</a></li>
@@ -71,7 +71,7 @@ if($ticket->isOverdue())
                 <?php } ?>
               </ul>
             </div>
-            <div id="action-dropdown-2" class="action-dropdown">
+            <div id="action-dropdown-2" class="action-dropdown anchor-right">
               <ul>
                 <?php if($thisstaff->canCloseTickets()) { ?>
                     <li><a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=close">Close Ticket</a></li>

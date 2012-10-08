@@ -783,6 +783,17 @@ ul.icons li .icon-large:before {
   border-bottom: 6px solid #FFF;
   display: inline-block;
 }
+
+.action-dropdown.anchor-right:before {
+  left: auto;
+  right: 9px;
+}
+
+.action-dropdown.anchor-right:after {
+  left: auto;
+  right: 10px;
+}
+
 .action-button {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
