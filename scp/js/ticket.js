@@ -316,26 +316,17 @@ jQuery(function($) {
             }
         }
      });
-    
-    //Ticket print options
-    $("#print-options").css({
-        top  : ($(window).height() /5),
-        left : ($(window).width() / 2 - 300)
-    });
-
-    $('a#ticket-print').click(function(e) {
-        e.preventDefault();
-        $('#overlay').show();
-        $('#print-options').show();
-        return false;
-    });
-
-    $('#print-options').delegate('a.close, input.close', 'click', function(e) {
-        e.preventDefault();
-        $('#print-options').hide()
-        $('#overlay').hide();
-    });
 
     //Start watching the form for activity.
     autoLock.Init();
+
+    /*** Ticket Actions **/
+    //print options
+    $('a#ticket-print').click(function(e) {
+        e.preventDefault();
+        $('#overlay').show();
+        $('.dialog#print-options').show();
+        return false;
+    });
+
 });
