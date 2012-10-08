@@ -279,16 +279,39 @@ $(document).ready(function(){
         property: "email"
     });
 
-    /* advanced search */
-    $("#overlay, #search_overlay").css({
+    //Overlay
+    $('#overlay').css({
         opacity : 0.3,
         top     : 0,
         left    : 0,
         width   : $(window).width(),
         height  : $(window).height()
     });
+       
+    //Dialog
+    $('.dialog').css({
+        top  : ($(window).height() /5),
+        left : ($(window).width() / 2 - 300)
+    });
+      
+    $('.dialog').delegate('a.close', 'click', function(e) {
+        e.preventDefault();
+        $(this).parent().hide()
+        $('#overlay').hide();
 
-    $("#advanced-search").css({
+        return false;
+    });
+
+    $('.dialog').delegate('input.close', 'click', function(e) {
+        e.preventDefault();
+        $(this).closest('form').parent().hide()
+        $('#overlay').hide();
+
+        return false;
+    });
+
+    /* advanced search */
+    $('.dialog#advanced-search').css({
         top  : ($(window).height() / 6),
         left : ($(window).width() / 2 - 300)
     });
@@ -296,15 +319,11 @@ $(document).ready(function(){
     $('#go-advanced').click(function(e) {
         e.preventDefault();
         $('#result-count').html('');
-        $('#search_overlay').show();
+        $('#overlay').show();
         $('#advanced-search').show();
     });
 
-    $('#advanced-search').delegate('a.close, input.close', 'click', function(e) {
-        e.preventDefault();
-        $('#advanced-search').hide()
-        $('#search_overlay').hide();
-    }).delegate('#status', 'change', function() {
+    $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {
             case 'closed':
                 $('select#assignee').find('option:first').attr('selected', 'selected').parent('select');
