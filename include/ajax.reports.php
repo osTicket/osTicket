@@ -48,7 +48,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             "dept" => array(
                 "table" => DEPT_TABLE,
                 "pk" => "dept_id",
-                "sort" => '1',
+                "sort" => 'T1.dept_name',
                 "fields" => 'T1.dept_name',
                 "headers" => array('Department'),
                 "filter" => ('T1.dept_id IN ('.implode(',', db_input($thisstaff->getDepts())).')')
@@ -66,8 +66,8 @@ class OverviewReportAjaxAPI extends AjaxController {
             "staff" => array(
                 "table" => STAFF_TABLE,
                 "pk" => 'staff_id',
-                "sort" => 'T1.lastname, T1.firstname',
-                "fields" => "CONCAT_WS(' ', T1.firstname, T1.lastname)",
+                "sort" => 'name',
+                "fields" => "CONCAT_WS(' ', T1.firstname, T1.lastname) as name",
                 "headers" => array('Staff Member'),
                 "filter" =>
                     ('T1.staff_id=S1.staff_id
