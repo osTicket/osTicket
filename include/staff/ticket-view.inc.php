@@ -36,16 +36,16 @@ if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">Marked overdue!</span>';
 
 ?>
-<table width="910" cellpadding="2" cellspacing="0" border="0">
+<table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><i class="icon-refresh"></i> Ticket #<?php echo $ticket->getExtId(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
             <?php if($thisstaff->canCloseTickets() || $thisstaff->canBanEmails()) { ?>
-                <span class="action-button">
-                    <span><i class="icon-cog"></i> More</span>
-                    <i data-dropdown="#action-dropdown-2" class="icon-caret-down"></i>
+                <span class="action-button" data-dropdown="#action-dropdown-2">
+                    <span ><i class="icon-cog"></i> More</span>
+                    <i class="icon-caret-down"></i>
                 </span>
             <?php } ?>
             <?php if($thisstaff->canDeleteTickets()) { ?>
