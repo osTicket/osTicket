@@ -214,6 +214,13 @@ class Staff {
     function getDepts() {
         return $this->getDepartments();
     }
+
+    function getManagedDepartments() {
+
+        return ($depts=Dept::getDepartments(
+                    array('manager' => $this->getId())
+                    ))?array_keys($depts):array();
+    }
      
     function getGroupId() {
         return $this->ht['group_id'];
