@@ -38,17 +38,50 @@ if($ticket->isOverdue())
 ?>
 <table width="910" cellpadding="2" cellspacing="0" border="0">
     <tr>
-        <td width="50%">
-             <h2>Ticket #<?php echo $ticket->getExtId(); ?>
-                <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload" class="reload">Reload</a></h2>
+        <td width="50%" class="has_bottom_border">
+             <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><i class="icon-refresh"></i> Ticket #<?php echo $ticket->getExtId(); ?></a></h2>
         </td>
-        <td width="50%" class="right_align">
-            <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print" title="Print Ticket" class="print" id="ticket-print">Print Ticket</a>
-            <?php
-            if($thisstaff->canEditTickets()) { ?>
-             <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" title="Edit Ticket" class="edit">Edit Ticket</a>
-            <?php
-            } ?>
+        <td width="50%" class="right_align has_bottom_border">
+            <?php if($thisstaff->canCloseTickets() || $thisstaff->canBanEmails()) { ?>
+                <span class="action-button">
+                    <span><i class="icon-cog"></i> More</span>
+                    <i data-dropdown="#action-dropdown-2" class="icon-caret-down"></i>
+                </span>
+            <?php } ?>
+            <?php if($thisstaff->canDeleteTickets()) { ?>
+                <span class="action-button">
+                    <a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=delete"><i class="icon-trash"></i> Delete</a>
+                    <?php if($thisstaff->canBanEmails()) { ?>
+                        <i data-dropdown="#action-dropdown-1" class="icon-caret-down"></i>
+                    <?php } ?>
+                </span>
+            <?php } ?>
+            <?php if($thisstaff->canEditTickets()) { ?>
+                <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-pencil"></i> Edit</a>
+            <?php } ?>
+            <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>"><i class="icon-print"></i> Print</a>
+
+            <div id="action-dropdown-1" class="action-dropdown">
+              <ul>
+                <?php if($thisstaff->canDeleteTickets()) { ?>
+                    <li><a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=delete">Delete Ticket</a></li>
+                <?php } ?>
+                <?php if($thisstaff->canBanEmails()) { ?>
+                    <li><a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=ban">Delete as Spam</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+            <div id="action-dropdown-2" class="action-dropdown">
+              <ul>
+                <?php if($thisstaff->canCloseTickets()) { ?>
+                    <li><a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=close">Close Ticket</a></li>
+                <?php } ?>
+                <?php if($thisstaff->canBanEmails()) { ?>
+                    <li><a href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=ban">Close &amp; Ban</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+
         </td>
     </tr>
 </table>
@@ -88,7 +121,7 @@ if($ticket->isOverdue())
                         if(($related=$ticket->getRelatedTicketsCount())) {
                             echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&query=%s" title="Related Tickets">(<b>%d</b>)</a>',
                                     urlencode($ticket->getEmail()),$related);
-                    
+
                         }
                     ?>
                     </td>
@@ -191,14 +224,14 @@ if($cfg->showNotesInline())
     <?php
     }?>
 </ul>
-<?php    
+<?php
 if(!$cfg->showNotesInline()) { ?>
 <div id="ticket_notes">
     <?php
     /* Internal Notes */
     if($ticket->getNumNotes() && ($notes=$ticket->getNotes())) {
         foreach($notes as $note) {
-        
+
         ?>
         <table class="note" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
@@ -264,11 +297,11 @@ if(!$cfg->showNotesInline()) { ?>
 </div>
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>
-    <div id="msg_error"><?php echo $errors['err']; ?></div>        
-<?php }elseif($msg) { ?>            
-    <div id="msg_notice"><?php echo $msg; ?></div>    
+    <div id="msg_error"><?php echo $errors['err']; ?></div>
+<?php }elseif($msg) { ?>
+    <div id="msg_notice"><?php echo $msg; ?></div>
 <?php }elseif($warn) { ?>
-    <div id="msg_warning"><?php echo $warn; ?></div>    
+    <div id="msg_warning"><?php echo $warn; ?></div>
 <?php } ?>
 
 <div id="response_options">
@@ -280,7 +313,7 @@ if(!$cfg->showNotesInline()) { ?>
         <li><a id="transfer_tab" href="#transfer">Dept. Transfer</a></li>
         <?php
         }
-        
+
         if($thisstaff->canAssignTickets()) { ?>
         <li><a id="assign_tab" href="#assign"><?php echo $ticket->isAssigned()?'Reassign Ticket':'Assign Ticket'; ?></a></li>
         <?php
@@ -356,14 +389,14 @@ if(!$cfg->showNotesInline()) { ?>
                     <label><input type="radio" name="signature" value="none" checked="checked"> None</label>
                     <?php
                     if($thisstaff->getSignature()) {?>
-                    <label><input type="radio" name="signature" value="mine" 
+                    <label><input type="radio" name="signature" value="mine"
                         <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> My signature</label>
                     <?php
                     } ?>
                     <?php
                     if($dept && $dept->canAppendSignature()) { ?>
-                    <label><input type="radio" name="signature" value="dept" 
-                        <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>> 
+                    <label><input type="radio" name="signature" value="dept"
+                        <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>>
                         Dept. Signature (<?php echo Format::htmlchars($dept->getName()); ?>)</label>
                     <?php
                     } ?>
@@ -423,11 +456,11 @@ if(!$cfg->showNotesInline()) { ?>
                 <td width="765">
                     <div><span class="faded">Internal note details</span>&nbsp;
                         <span class="error">*&nbsp;<?php echo $errors['internal_note']; ?></span></div>
-                    <textarea name="internal_note" id="internal_note" cols="50" rows="9" wrap="soft" 
+                    <textarea name="internal_note" id="internal_note" cols="50" rows="9" wrap="soft"
                         style="width:600px"><?php echo $info['internal_note']; ?></textarea>
                 </td>
             </tr>
-                       
+
             <?php
             if($cfg->allowAttachments()) { ?>
             <tr>
@@ -462,7 +495,7 @@ if(!$cfg->showNotesInline()) { ?>
                    <?php
                     } elseif($ticket->isAnswered()) { ?>
                         <label>
-                            <input type="checkbox" name="note_ticket_state" id="note_ticket_state" value="Unanswered" 
+                            <input type="checkbox" name="note_ticket_state" id="note_ticket_state" value="Unanswered"
                                 <?php echo $statusChecked; ?>>
                             Mark Unanswered
                         </label>
@@ -544,7 +577,7 @@ if(!$cfg->showNotesInline()) { ?>
             <tr>
                 <td width="160">&nbsp;</td>
                 <td>
-                <?php 
+                <?php
                     if($ticket->isAssigned())
                         echo sprintf('<em>Ticket is currently assigned to <b>%s</b></em>',$ticket->getAssignee());
                 ?>

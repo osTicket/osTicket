@@ -613,6 +613,13 @@ h2 {
     color:#0A568E;
 }
 
+h2 i {
+    font-size:12px;
+    top:-2px;
+    position:relative;
+    color:#0a0;
+}
+
 h2 span { color:#000; }
 
 h3 {
@@ -620,6 +627,11 @@ h3 {
     padding:5px 0;
     font-size:10pt;
     color:#444;
+}
+
+.has_bottom_border {
+    padding-bottom:5px;
+    border-bottom:1px solid #ddd;
 }
 
 .ticket_info th {
