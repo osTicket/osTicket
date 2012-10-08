@@ -59,7 +59,7 @@ if($ticket->isOverdue())
             <?php if($thisstaff->canEditTickets()) { ?>
                 <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-pencil"></i> Edit</a>
             <?php } ?>
-            <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>"><i class="icon-print"></i> Print</a>
+            <a id="ticket-print" class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> Print</a>
 
             <div id="action-dropdown-1" class="action-dropdown anchor-right">
               <ul>
@@ -642,7 +642,7 @@ if(!$cfg->showNotesInline()) { ?>
     <?php
     } ?>
 </div>
-<div style="display:none;" id="print-options">
+<div style="display:none;" class="dialog" id="print-options">
     <h3>Ticket Print Options</h3>
     <a class="close" href="">&times;</a>
     <hr/>
