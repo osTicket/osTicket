@@ -94,6 +94,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             FROM '.$info['table'].' T1 
                 LEFT JOIN '.TICKET_EVENT_TABLE.' A1 
                     ON (A1.'.$info['pk'].'=T1.'.$info['pk'].'
+                         AND NOT annulled 
                          AND (A1.timestamp BETWEEN '.$start.' AND '.$stop.'))
                 LEFT JOIN '.STAFF_TABLE.' S1 ON (S1.staff_id=A1.staff_id)
             WHERE '.$info['filter'].'
