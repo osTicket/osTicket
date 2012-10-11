@@ -1175,17 +1175,18 @@ time {
 .dialog {
     position:absolute;
     padding:1em;
-    width:640px;
-    height:360px;
+    width:500px;
+    height:250px;
+    height:auto !important;
     background:#fff;
     border:1px solid #2a67ac;
     display:none;
     z-index:1200;
 }
 
-.dialog#print-options {
-    width:500px;
-    height:250px;
+.dialog#advanced-search {
+    width:640px !important;
+    height:360px;
 }
 
 .dialog hr {
