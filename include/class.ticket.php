@@ -680,16 +680,18 @@ class Ticket {
     }
  
     //Set staff ID...assign/unassign/release (id can be 0)
-    function setStaffId($staffId){
+    function setStaffId($staffId) {
+
+        if(!is_numeric($staffId)) return false;
        
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
             .' WHERE ticket_id='.db_input($this->getId());
 
-        if (db_query($sql)  && db_affected_rows()) {
-            $this->staff_id = $staffId;
-            return true;
-        }
-        return false;
+        if (!db_query($sql)  || !db_affected_rows())
+            return false;
+        
+        $this->staff_id = $staffId;
+        return true;
     }
 
     function setSLAId($slaId) {
@@ -730,12 +732,14 @@ class Ticket {
     }
 
     //Set team ID...assign/unassign/release (id can be 0)
-    function setTeamId($teamId){
+    function setTeamId($teamId) {
+        
+        if(!is_numeric($teamId)) return false;
+      
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id='.db_input($teamId)
+            .' WHERE ticket_id='.db_input($this->getId());
 
-      $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id='.db_input($teamId)
-          .' WHERE ticket_id='.db_input($this->getId());
-
-      return (db_query($sql)  && db_affected_rows());
+        return (db_query($sql)  && db_affected_rows());
     }
 
     //Status helper.
@@ -996,8 +1000,8 @@ class Ticket {
 
         $this->reload();
 
-        $note=$note?$note:'Ticket assignment';
-        $assigner =$thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
+        $comments = $comments?$comments:'Ticket assignment';
+        $assigner = $thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
         
         //Log an internal note - no alerts on the internal note.
         $this->postNote('Ticket Assigned to '.$assignee->getName(), $comments, $assigner, false);
@@ -1328,15 +1332,23 @@ class Ticket {
         if(!$this->isAssigned()) //We can't release what is not assigned buddy!
             return true;
 
-        //We're unassigning in the order of precedence.
-        if($this->getStaffId())
-            return $this->setStaffId(0);
-        elseif($this->getTeamId())
-            return $this->setTeamId(0);
+        //We can only unassigned OPEN tickets.
+        if($this->isClosed())
+            return false;
 
-        return false;
+        //Unassign staff (if any)
+        if($this->getStaffId() && !$this->setStaffId(0))
+            return false;
+
+        //unassign team (if any)
+        if($this->getTeamId() && !$this->setTeamId(0))
+            return false;
+
+        $this->reload();
+
+        return true;
     }
-
+    
     function release() {
         return $this->unassign();
     }
