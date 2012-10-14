@@ -57,99 +57,109 @@ if($_POST && !$errors):
 
             $wasOpen =($ticket->isOpen());
             //If no error...do the do.
-            if(!$errors && ($respId=$ticket->postReply($_POST, $errors))) {
+            if(!$errors && ($respId=$ticket->postReply($_POST, $errorsi, isset($_POST['emailreply'])))) {
                 $msg='Reply posted successfully';
                 $ticket->reload();
                 if($ticket->isClosed() && $wasOpen)
                     $ticket=null;
+
             } elseif(!$errors['err']) {
                 $errors['err']='Unable to post the reply. Correct the errors below and try again!';
             }
             break;
         case 'transfer': /** Transfer ticket **/
             //Check permission 
-            if($thisstaff && $thisstaff->canTransferTickets()) {
+            if(!$thisstaff->canTransferTickets())
+                $errors['err']=$errors['transfer'] = 'Action Denied. You are not allowed to transfer tickets.';
+            else {
+
+                //Check target dept.
                 if(!$_POST['deptId'])
-                    $errors['deptId']='Select department';
+                    $errors['deptId'] = 'Select department';
                 elseif($_POST['deptId']==$ticket->getDeptId())
-                    $errors['deptId']='Ticket already in the Dept.';
+                    $errors['deptId'] = 'Ticket already in the department';
                 elseif(!($dept=Dept::lookup($_POST['deptId'])))
-                    $errors['deptId']='Unknown or invalid department';
-
-                if(!$_POST['transfer_message'])
-                    $errors['transfer_message'] = 'Transfer comments/notes required';
-                elseif(strlen($_POST['transfer_message'])<5)
-                    $errors['transfer_message'] = 'Transfer comments too short!';
-
-                if(!$errors && $ticket->transfer($_POST['deptId'], $_POST['transfer_message'])) {
+                    $errors['deptId'] = 'Unknown or invalid department';
+            
+                //Transfer message - required.
+                if(!$_POST['transfer_comments'])
+                    $errors['transfer_comments'] = 'Transfer comments required';
+                elseif(strlen($_POST['transfer_comments'])<5)
+                    $errors['transfer_comments'] = 'Transfer comments too short!';
+           
+                //If no errors - them attempt the transfer.
+                if(!$errors && $ticket->transfer($_POST['deptId'], $_POST['transfer_comments'])) {
                     $msg = 'Ticket transferred successfully to '.$ticket->getDeptName();
                     //Check to make sure the staff still has access to the ticket
                     if(!$ticket->checkStaffAccess($thisstaff))
                         $ticket=null;
 
-                } else {
-                    $errors['transfer']='Unable to complete the transfer - try again';
-                    $errors['err']='Missing or invalid data. Correct the error(s) below and try again!';
+                } elseif(!$errors['transfer']) {
+                    $errors['err'] = 'Unable to complete the ticket transfer';
+                    $errors['transfer']='Correct the error(s) below and try again!';
                 }
-            } else {
-                $errors['err']=$errors['transfer']='Action Denied. You are not allowed to transfer tickets.';
             }
             break;
         case 'assign':
 
-             if($thisstaff && $thisstaff->canAssignTickets()) {
-                 if(!$_POST['assignId'])
+             if(!$thisstaff->canAssignTickets())
+                 $errors['err']=$errors['assign'] = 'Action Denied. You are not allowed to assign/reassign tickets.';
+             else {
+
+                 $id = preg_replace("/[^0-9]/", "",$_POST['assignId']);
+                 $claim = (is_numeric($_POST['assignId']) && $_POST['assignId']==$thisstaff->getId()); 
+
+                 if(!$_POST['assignId'] || !$id)
                      $errors['assignId'] = 'Select assignee';
-                 elseif($_POST['assignId'][0]!='s' && $_POST['assignId'][0]!='t')
+                 elseif($_POST['assignId'][0]!='s' && $_POST['assignId'][0]!='t' && !$claim)
                      $errors['assignId']='Invalid assignee ID - get technical support';
                  elseif($ticket->isAssigned()) {
-                     $id=preg_replace("/[^0-9]/", "",$_POST['assignId']);
                      if($_POST['assignId'][0]=='s' && $id==$ticket->getStaffId())
                          $errors['assignId']='Ticket already assigned to the staff.';
                      elseif($_POST['assignId'][0]=='t' && $id==$ticket->getTeamId())
                          $errors['assignId']='Ticket already assigned to the team.';
                  }
 
-                 if(!$_POST['assign_message'])
-                     $errors['assign_message']='Comments required';
-                 elseif(strlen($_POST['assign_message'])<5)
-                     $errors['assign_message']='Comments too short';
-
-                 if(!$errors && $ticket->assign($_POST['assignId'],$_POST['assign_message'])) {
-                     $msg='Ticket assigned successfully to '.$ticket->getAssignee();
-                     TicketLock::removeStaffLocks($thisstaff->getId(),$ticket->getId());
-                     $ticket=null;
-                 }elseif(!$errors['err']) {
-                     $errors['err']='Unable to assign the ticket. Correct the errors below and try again.';
+                 //Comments are not required on self-assignment (claim)
+                 if($claim && !$_POST['assign_comments'])
+                     $_POST['assign_comments'] = 'Ticket claimed by '.$thisstaff->getName();
+                 elseif(!$_POST['assign_comments'])
+                     $errors['assign_comments'] = 'Assignment comments required';
+                 elseif(strlen($_POST['assign_comments'])<5)
+                         $errors['assign_comments'] = 'Comment too short';
+                 
+                 if(!$errors && $ticket->assign($_POST['assignId'], $_POST['assign_comments'], !$claim)) {
+                     if($claim) {
+                         $msg = 'Ticket is NOW assigned to you!';
+                     } else {
+                         $msg='Ticket assigned successfully to '.$ticket->getAssigned();
+                         TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
+                         $ticket=null;
+                     }
+                 } elseif(!$errors['assign']) {
+                     $errors['err'] = 'Unable to complete the ticket assignment';
+                     $errors['assign'] = 'Correct the error(s) below and try again!';
                  }
-
-             } else {
-                 $errors['err']=$errors['assign']='Action Denied. You are not allowed to assign/reassign tickets.';
              }
             break; 
         case 'postnote': /* Post Internal Note */
-            $fields=array();
-            $fields['title']    = array('type'=>'string',   'required'=>1, 'error'=>'Title required');
-            $fields['internal_note'] = array('type'=>'string',   'required'=>1, 'error'=>'Note message required');
-            
-            if(!Validator::process($fields, $_POST, $errors) && !$errors['err'])
-                $errors['err']=$errors['note']='Missing or invalid data. Correct the error(s) below and try again!';
-            
-            if(!$errors && ($noteId=$ticket->postNote($_POST['title'], $_POST['internal_note'], $thisstaff))) {
+            //Make sure the staff can set desired state
+            if($_POST['state']) {
+                if($_POST['state']=='closed' && !$thisstaff->canCloseTickets())
+                    $errors['state'] = "You don't have permission to close tickets";
+                elseif(in_array($_POST['state'], array('overdue', 'notdue', 'unassigned'))
+                        && (!($dept=$ticket->getDept()) || !$dept->isManager($thisstaff)))
+                    $errors['state'] = "You don't have permission to set the state";
+            }
+
+            $wasOpen = ($ticket->isOpen());
+            if(($noteId=$ticket->postNote($_POST, $errors, $thisstaff))) {
                 $msg='Internal note posted successfully';
-                //Upload attachments IF ANY - TODO: validate attachment types??
-                if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
-                    $ticket->uploadAttachments($files,$noteId,'N');
-                //Set state: Error on state change not critical! 
-                if(isset($_POST['note_ticket_state']) && $_POST['note_ticket_state']) {
-                    if($ticket->setState($_POST['note_ticket_state']) && $ticket->reload()) {
-                         $msg.=' and state changed to '.strtoupper($_POST['note_ticket_state']);
-                         if($ticket->isClosed())
-                             $ticket=null; //Going back to main listing.
-                    }
-                }
-            } elseif(!$errors['note']) {
-                $errors['note']='Error(s) occurred. Unable to post the note.';
+                if($wasOpen && $ticket->isClosed())
+                    $ticket = null; //Going back to main listing.
+            } else {
+                $errors['err'] = 'Unable to post internal note - missing or invalid data.';
+                $errors['postnote'] = 'Unable to post the note. Correct the error(s) below and try again!';
             }
             break;
         case 'edit':
@@ -180,13 +190,9 @@ if($_POST && !$errors):
                             $note = $_POST['ticket_status_notes'];
                         else
                             $note='Ticket closed (without comments)';
-                            
-                        $ticket->postNote('Ticket Closed', $note, $thisstaff);
-                        //ban email?
-
-                        if(isset($_POST['banemail']))
-                            Banlist::add($ticket->getEmail(), $thisstaff->getName());
-
+                        
+                        $ticket->logNote('Ticket Closed', $note, $thisstaff);
+                        
                         //Going back to main listing.
                         TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
                         $page=$ticket=null;
@@ -209,7 +215,8 @@ if($_POST && !$errors):
                         else
                             $note='Ticket reopened (without comments)';
 
-                        $ticket->postNote('Ticket Reopened', $note, $thisstaff);
+                        $ticket->logNote('Ticket Reopened', $note, $thisstaff);
+
                     } else {
                         $errors['err']='Problems reopening the ticket. Try again';
                     }
