@@ -450,7 +450,7 @@ class Ticket {
     function getSLA() {
 
         if(!$this->sla && $this->getSLAId())
-            $this->sla = SLA::lookup($this->getSLAId);
+            $this->sla = SLA::lookup($this->getSLAId());
 
         return $this->sla;
     }
