@@ -16,6 +16,7 @@ if($cfg->getLockTime() && !$ticket->acquireLock($thisstaff->getId(),$cfg->getLoc
 $dept  = $ticket->getDept();  //Dept
 $staff = $ticket->getStaff(); //Assigned or closed by..
 $team  = $ticket->getTeam();  //Assigned team.
+$sla   = $ticket->getSLA();
 $lock  = $ticket->getLock();  //Ticket lock obj
 $id    = $ticket->getId();    //Ticket ID.
 
@@ -164,7 +165,15 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th>Source:</th>
-                    <td><?php echo Format::htmlchars($ticket->getSource()); ?></td>
+                    <td><?php 
+                        echo Format::htmlchars($ticket->getSource());
+
+                        if($ticket->getIP())
+                            echo '&nbsp;&nbsp; <span class="faded">('.$ticket->getIP().')</span>';
+
+                    
+                        ?>
+                    </td>
                 </tr>
             </table>
         </td>
@@ -204,8 +213,8 @@ if($ticket->isOverdue())
                 <?php
                 } ?>
                 <tr>
-                    <th nowrap>Last Response:</th>
-                    <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
+                    <th>SLA Plan:</th>
+                    <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; none &mdash;</span>'; ?></td>
                 </tr>
                 <?php
                 if($ticket->isOpen()){ ?>
@@ -227,22 +236,23 @@ if($ticket->isOverdue())
         <td width="50%">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
                 <tr>
-                    <th width="100">Subject:</th>
-                    <td><?php echo Format::htmlchars(Format::truncate($ticket->getSubject(),200)); ?></td>
-                </tr>
-                <tr>
-                    <th>Help Topic:</th>
+                    <th width="100">Help Topic:</th>
                     <td><?php echo Format::htmlchars($ticket->getHelpTopic()); ?></td>
                 </tr>
                 <tr>
                     <th nowrap>Last Message:</th>
                     <td><?php echo Format::db_datetime($ticket->getLastMsgDate()); ?></td>
                 </tr>
+                <tr>
+                    <th nowrap>Last Response:</th>
+                    <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
+                </tr>
             </table>
         </td>
     </tr>
 </table>
-<div class="clear" style="padding-bottom:10px;"></div>
+<div class="clear"></div>
+<h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
 <?php
 $tcount = $ticket->getThreadCount();
 if($cfg->showNotesInline())
