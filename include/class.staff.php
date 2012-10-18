@@ -601,10 +601,8 @@ class Staff {
             $sid=session_id(); //Current id
             session_regenerate_id(TRUE);
             //Destroy old session ID - needed for PHP version < 5.1.0 TODO: remove when we move to php 5.3 as min. requirement.
-            if(($session=$ost->getSession()) && is_object($session) && $sid)
+            if(($session=$ost->getSession()) && is_object($session) && $sid!=session_id())
                 $session->destroy($sid);
-
-            session_write_close();
         
             return $user;
         }
