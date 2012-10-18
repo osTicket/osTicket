@@ -50,6 +50,8 @@ if($_SESSION['_client']['userID'] && $_SESSION['_client']['key'])
 //is the user logged in?
 if($thisclient && $thisclient->getId() && $thisclient->isValid()){
      $thisclient->refreshSession();
+} else {
+    $thisclient = null;
 }
 
 /******* CSRF Protectin *************/

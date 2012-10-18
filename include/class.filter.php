@@ -224,18 +224,10 @@ class Filter {
      *   headers - array of email headers
      *   emailId - osTicket system email id 
      */
-    function matches($info) {
+    function matches($what) {
 
-        if(!$info || !is_array($info)) return false;
+        if(!$what || !is_array($what)) return false;
 
-        $what = array(
-            'email'     => $info['email'],
-            'subject'   => $info['subject'],
-            # XXX: Support reply-to too ?
-            'name'      => $info['name'],
-            'body'      => $info['message']
-            # XXX: Support headers
-        );
         $how = array(
             # how => array(function, null or === this, null or !== this)
             'equal'     => array('strcmp', 0),
@@ -248,7 +240,7 @@ class Filter {
         # Respect configured filter email-id
         if ($this->getEmailId() 
                 && !strcasecmp($this->getTarget(), 'Email')
-                && $this->getEmailId() != $info['emailId'])
+                && $this->getEmailId() != $what['emailId'])
             return false;
 
         foreach ($this->getRules() as $rule) {
@@ -271,6 +263,7 @@ class Filter {
                 }
             }
         }
+
         return $match;
     }
     /** 
@@ -644,10 +637,20 @@ class TicketFilter {
      */
     function TicketFilter($origin, $vars=null) {
         
+        //Normalize the target based on ticket's origin.
         $this->target = self::origin2target($origin);
-        $this->vars = ($vars && is_array($vars))?array_filter(array_map('trim', $vars)):null;
-       
-        //Init filters.
+  
+        //Extract the vars we care about (fields we filter by!).
+         $this->vars = array_filter(array_map('trim', 
+                 array(
+                     'email'     => $vars['email'],
+                     'subject'   => $vars['subject'],
+                     'name'      => $vars['name'],
+                     'body'      => $vars['message'],
+                     'emailId'   => $vars['emailId'])
+                 ));
+        
+         //Init filters.
         $this->build();
     }
 
@@ -655,7 +658,7 @@ class TicketFilter {
         
         //Clear any memoized filters
         $this->filters = array();
-        $this->short_list = array();
+        $this->short_list = null;
 
         //Query DB for "possibly" matching filters.
         $res = $this->vars?$this->quickList():$this->getAllActive();
@@ -677,6 +680,7 @@ class TicketFilter {
      * return immediately.
      */
     function getMatchingFilterList() {
+
         if (!isset($this->short_list)) {
             $this->short_list = array();
             foreach ($this->filters as $filter)
@@ -719,8 +723,13 @@ class TicketFilter {
 
         $sql='SELECT id FROM '.FILTER_TABLE
             .' WHERE isactive=1 '
-            .'  AND target IN ("Any", '.db_input($this->getTarget()).') '
-            .' ORDER BY execorder';
+            .'  AND target IN ("Any", '.db_input($this->getTarget()).') ';
+                
+        #Take into account email ID.
+        if($this->vars['emailId'])
+            $sql.=' AND (email_id=0 OR email_id='.db_input($this->vars['emailId']).')';
+
+        $sql.=' ORDER BY execorder';
 
         return db_query($sql);
     }
@@ -770,6 +779,8 @@ class TicketFilter {
             $sql.=" OR (what='name' AND LOCATE(val, ".db_input($this->vars['name']).'))';
         if($this->vars['subject']) 
             $sql.=" OR (what='subject' AND LOCATE(val, ".db_input($this->vars['subject']).'))';
+
+
         # Also include filters that do not have any rules concerning either
         # sender-email-addresses or sender-names or subjects
         $sql.=") OR filter.id IN ("
@@ -784,7 +795,7 @@ class TicketFilter {
         if (!$this->vars['name']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'name'))=0";
         if (!$this->vars['subject']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'subject'))=0";
         # Also include filters that do not have match_all_rules set to and
-        # have at least one rule 'what' type that wasn't considered
+        # have at least one rule 'what' type that wasn't considered e.g body 
         $sql.=") OR filter.id IN ("
                ." SELECT filter_id"
                ." FROM ".FILTER_RULE_TABLE." rule"
@@ -799,7 +810,7 @@ class TicketFilter {
                .") AND filter.match_all_rules = 0 "
         # Return filters in declared execution order
             .") ORDER BY filter.execorder";
-        
+
         return db_query($sql);
     }
     /**

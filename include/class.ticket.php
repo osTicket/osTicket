@@ -29,6 +29,7 @@ include_once(INCLUDE_DIR.'class.template.php');
 include_once(INCLUDE_DIR.'class.variable.php');
 include_once(INCLUDE_DIR.'class.priority.php');
 include_once(INCLUDE_DIR.'class.sla.php');
+include_once(INCLUDE_DIR.'class.canned.php');
 
 class Ticket {
 
@@ -1423,6 +1424,22 @@ class Ticket {
         return $msgid;
     }
 
+    function postCannedReply($canned, $msgId, $alert=true) {
+
+        if((!is_object($canned) && !($canned=Canned::lookup($canned))) || !$canned->isEnabled())
+            return false;
+
+        $files = array();
+        foreach ($canned->getAttachments() as $file)
+            $files[] = $file['id'];
+
+        $info = array('msgId' => $msgId,
+                      'response' => $this->replaceVars($canned->getResponse()),
+                      'cannedattachments' => $files);
+
+        return $this->postReply($info, $errors, $alert);
+    }
+
     /* public */ 
     function postReply($vars, $errors, $alert = true) {
         global $thisstaff, $cfg;
@@ -2063,16 +2080,13 @@ class Ticket {
 
         //Auto assign staff or team - auto assignment based on filter rules.
         if($vars['staffId'] && !$vars['assignId'])
-             $ticket->assignToStaff($vars['staffId'],'auto-assignment');
+             $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
         if($vars['teamId'] && !$vars['assignId'])
-            $ticket->assignToTeam($vars['teamId'],'auto-assignment');
+            $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
 
         /**********   double check auto-response  ************/
         //Overwrite auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
-            $autorespond=false;
-
-        if($autorespond && $dept && !$dept->autoRespONNewTicket())
             $autorespond=false;
 
         # Messages that are clearly auto-responses from email systems should
@@ -2089,24 +2103,17 @@ class Ticket {
             $autorespond=false;
         }
 
+        //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
-                && ($canned = Canned::lookup($vars['cannedResponseId']))
-                && $canned->isEnabled()) {
-            $files = array();
-            foreach ($canned->getAttachments() as $file)
-                $files[] = $file['id'];
-            $ticket->postReply(
-                    array(
-                        'msgId'     => $msgid,
-                        'response'  =>
-                            $ticket->replaceVars($canned->getResponse()),
-                        'cannedattachments' => $files
-                    ),$errors, true);
-                    
-            // If a canned-response is immediately queued for this ticket,
-            // disable the autoresponse
-            $autorespond=false;
+            && $ticket->postCannedReply($vars['cannedResponseId'], $msgid, $autorespond)) {
+                $ticket->markUnAnswered(); //Leave the ticket as unanswred. 
+                $autorespond = false;
         }
+
+        //Check department's auto response settings
+        // XXX: Dept. setting doesn't affect canned responses.
+        if($autorespond && $dept && !$dept->autoRespONNewTicket())
+            $autorespond=false;
 
         /***** See if we need to send some alerts ****/
         $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
