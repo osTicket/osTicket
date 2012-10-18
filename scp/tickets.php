@@ -505,7 +505,7 @@ if($ticket) {
         $nav->setActiveSubMenu(-1);
 
     //set refresh rate if the user has it configured
-    if(!$_POST && $_REQUEST['a']!='search'  && ($min=$thisstaff->getRefreshRate()))
+    if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate()))
         $ost->addExtraHeader('<meta http-equiv="refresh" content="'.($min*60).'" />');
 }
 
