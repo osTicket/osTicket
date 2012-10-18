@@ -115,7 +115,7 @@
                 var first=true;
                 for (key in json) {
                     $('#tabular-navigation')
-                        .append($('<li>').attr((first) ? {class:"active"} : {})
+                        .append($('<li>').attr(first ? {'class':'active'} : {})
                         .append($('<a>')
                             .click(build_table)
                             .attr({'table-group':key,'href':'#'})
