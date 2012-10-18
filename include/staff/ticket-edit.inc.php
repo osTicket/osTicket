@@ -24,7 +24,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                 Full Name:
             </td>
             <td>
-                <input type="text" size="45" name="name" value="<?php echo $info['name']; ?>">
+                <input type="text" size="50" name="name" value="<?php echo $info['name']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>
@@ -33,7 +33,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                 Email Address:
             </td>
             <td>
-                <input type="text" size="45" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="50" name="email" value="<?php echo $info['email']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>
@@ -42,9 +42,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                 Phone Number:
             </td>
             <td>
-                <input type="text" size="18" name="phone" value="<?php echo $info['phone']; ?>">
+                <input type="text" size="20" name="phone" value="<?php echo $info['phone']; ?>">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['phone']; ?></span>
-                Ext <input type="text" size="5" name="phone_ext" value="<?php echo $info['phone_ext']; ?>">
+                Ext <input type="text" size="6" name="phone_ext" value="<?php echo $info['phone_ext']; ?>">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['phone_ext']; ?></span>
             </td>
         </tr>
@@ -109,11 +109,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
         </tr>
         <tr>
             <td width="160" class="required">
-                SLA:
+                Subject:
+            </td>
+            <td>
+                 <input type="text" name="subject" size="60" value="<?php echo $info['subject']; ?>">
+                 &nbsp;<font class="error">*&nbsp;<?php $errors['subject']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="160">
+                SLA Plan:
             </td>
             <td>
                 <select name="slaId">
-                    <option value="" selected >&mdash; Select SLA &mdash;</option>
+                    <option value="0" selected="selected" >&mdash; None &mdash;</option>
                     <?php
                     if($slas=SLA::getSLAs()) {
                         foreach($slas as $id =>$name) {
@@ -123,16 +132,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['slaId']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="160" class="required">
-                Subject:
-            </td>
-            <td>
-                 <input type="text" name="subject" size="60" value="<?php echo $info['subject']; ?>">
-                 &nbsp;<font class="error">*&nbsp;<?php $errors['subject']; ?></font>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['slaId']; ?></font>
             </td>
         </tr>
         <tr>

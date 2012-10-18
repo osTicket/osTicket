@@ -1787,15 +1787,15 @@ class Ticket {
         $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
         $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
         $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>'Help topic required');
-        $fields['slaId']    = array('type'=>'int',      'required'=>1, 'error'=>'SLA required');
         $fields['priorityId'] = array('type'=>'int',    'required'=>1, 'error'=>'Priority required');
+        $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>'Select SLA');
         $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
 
         $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] ='Missing or invalid data - check the errors and try again';
+            $errors['err'] = 'Missing or invalid data - check the errors and try again';
 
         if($vars['duedate']) {     
             if($this->isClosed())
@@ -2087,10 +2087,17 @@ class Ticket {
             $priorityId=$priorityId?$priorityId:$topic->getPriorityId();
             if($autorespond) $autorespond=$topic->autoRespond();
             $source=$vars['source']?$vars['source']:'Web';
+
+            //Auto assignment.
             if (!isset($vars['staffId']) && $topic->getStaffId())
                 $vars['staffId'] = $topic->getStaffId();
             elseif (!isset($vars['teamId']) && $topic->getTeamId())
                 $vars['teamId'] = $topic->getTeamId();
+
+            //set default sla.
+            if(!isset($vars['slaId']) && $topic->getSLAId())
+                $vars['slaId'] = $topic->getSLAId();
+
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
             $deptId=$email->getDeptId();
             $priorityId=$priorityId?$priorityId:$email->getPriorityId();
@@ -2280,7 +2287,7 @@ class Ticket {
     function checkOverdue() {
        
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
-            .' JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id) '
+            .' INNER JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
             .' WHERE status=\'open\' AND isoverdue=0 '
             .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
             .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
