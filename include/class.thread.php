@@ -163,9 +163,12 @@ Class ThreadEntry {
 
     /* static calls */
 
-    function _lookup($id, $type='', $tid=0) {
-        return ($id && is_numeric($id) 
-                && ($e = new ThreadEntry($id, $type, $tid)) && $e->getId()==$id)?$e:null;
+    function lookup($id, $tid=0, $type='') {
+        return ($id 
+                && is_numeric($id) 
+                && ($e = new ThreadEntry($id, $type, $tid)) 
+                && $e->getId()==$id
+                )?$e:null;
     }
 }
 
@@ -180,8 +183,13 @@ class Message extends ThreadEntry {
         return $this->getTitle();
     }
 
-    function lookup($id, $tid) {
-        return parent::_lookup($id, 'M', $tid);
+    function lookup($id, $tid, $type='M') {
+                
+        return ($id 
+                && is_numeric($id)
+                && ($m = new Message($id, $tid)) 
+                && $m->getId()==$id
+                )?$m:null;
     }
 }
 
@@ -200,8 +208,13 @@ class Response extends ThreadEntry {
         return $this->getStaff();
     }
 
-    function lookup($id, $tid) {
-        return parent::_lookup($id, 'R', $tid);
+    function lookup($id, $tid, $type='R') {
+                
+        return ($id 
+                && is_numeric($id)
+                && ($r = new Response($id, $tid))           
+                && $r->getId()==$id
+                )?$r:null;
     }
 }
 
@@ -216,7 +229,13 @@ class Note extends ThreadEntry {
         return $this->getBody();
     }
 
-    function lookup($id, $tid) {
-        return parent::_lookup($id, 'N', $tid);
+    function lookup($id, $tid, $type='N') {
+                
+        return ($id 
+                && is_numeric($id)
+                && ($n = new Note($id, $tid))          
+                && $n->getId()==$id
+                )?$n:null;
     }
 }
+?>

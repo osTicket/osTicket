@@ -613,6 +613,13 @@ h2 {
     color:#0A568E;
 }
 
+h2 i {
+    font-size:12px;
+    top:-2px;
+    position:relative;
+    color:#0a0;
+}
+
 h2 span { color:#000; }
 
 h3 {
@@ -620,6 +627,11 @@ h3 {
     padding:5px 0;
     font-size:10pt;
     color:#444;
+}
+
+.has_bottom_border {
+    padding-bottom:5px;
+    border-bottom:1px solid #ddd;
 }
 
 .ticket_info th {
@@ -1153,38 +1165,31 @@ time {
     margin-right:20px;
 }
 
-/* Advanced Search & Ticket print options */
-
-#search_overlay {
-    background:#000;
-    position:absolute;
-    display:none;
-    z-index:1000;
-}
-
-#advanced-search, #advanced-search *, #print-options, #print-options * {
+/* dialog */
+.dialog, .dialog * {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
 
-#advanced-search, #print-options {
+.dialog {
     position:absolute;
     padding:1em;
-    width:640px;
-    height:360px;
+    width:500px;
+    height:250px;
+    height:auto !important;
     background:#fff;
     border:1px solid #2a67ac;
     display:none;
     z-index:1200;
 }
 
-#print-options {
-    width:500px;
-    height:250px;
+.dialog#advanced-search {
+    width:640px !important;
+    height:360px;
 }
 
-#print-options hr {
+.dialog hr {
     height: 1px;
     border: 0;
     background: #aaa;
@@ -1196,7 +1201,7 @@ time {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00aaaaaa', endColorstr='#00aaaaaa',GradientType=1 ); /* IE6-9 */
 }
 
-#advanced-search h3, #print-options h3 {
+.dialog h3 {
     color:#2a67ac;
     font-size:20px;
     margin:0;
@@ -1204,14 +1209,14 @@ time {
     display:inline-block;
 }
 
-#advanced-search a.close, #print-options a.close {
+.dialog a.close {
     display:inline-block;
     float:right;
     font-size:16px;
     color:#777;
 }
 
-#advanced-search form, #print-options form {
+.dialog form {
     clear:both;
     padding-top:2em;
     width:100%;
@@ -1221,31 +1226,31 @@ time {
     display:none;
 }
 
-#advanced-search fieldset, #print-options fieldset {
+.dialog fieldset {
     margin:0;
     padding:0 0;
     border:none;
     overflow:hidden;
 }
 
-#advanced-search label, #print-options label {
+.dialog label {
     width:100px;
     display:inline-block;
     text-align:right;
     padding:10px;
 }
 
-#advanced-search fieldset input, #print-options fieldset input {
+.dialog fieldset input {
     border:1px solid #ccc;
     background:#fff;
 }
 
-#advanced-search fieldset select, #print-options fieldset select {
+.dialog fieldset select {
     width:170px;
     display:inline-block;
 }
 
-#advanced-search fieldset span, #print-options fieldset span {
+.dialog fieldset span {
     width:50px;
     display:inline-block;
     text-align:center;
@@ -1279,13 +1284,9 @@ time {
     text-align:center;
 }
 
-#advanced-search input[type="submit"],
-#advanced-search input[type="reset"],
-#advanced-search input[type="button"],
-#print-options input[type="submit"],
-#print-options input[type="reset"],
-#print-options input[type="button"]
-{
+.dialog input[type="submit"],
+.dialog input[type="reset"],
+.dialog input[type="button"] {
     display:inline-block;
     margin:0;
     height:24px;
@@ -1297,15 +1298,13 @@ time {
     color: #333;
 }
 
-#advanced-search input[type="reset"],
-#advanced-search input[type="button"],
-#print-options input[type="reset"],
-#print-options input[type="button"] {
+.dialog input[type="reset"],
+.dialog input[type="button"] {
     opacity:0.7;
 }
 
-#advanced-search input[type=submit]:hover, #advanced-search input[type=submit]:active,
-#advanced-search input[type=reset]:hover, #advanced-search input[type=reset]:active {
+.dialog input[type=submit]:hover, .dialog input[type=submit]:active,
+.dialog input[type=reset]:hover, .dialog input[type=reset]:active {
     background-position:bottom left;
 }
 

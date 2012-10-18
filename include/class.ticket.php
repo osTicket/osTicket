@@ -451,7 +451,7 @@ class Ticket {
     function getSLA() {
 
         if(!$this->sla && $this->getSLAId())
-            $this->sla = SLA::lookup($this->getSLAId);
+            $this->sla = SLA::lookup($this->getSLAId());
 
         return $this->sla;
     }
@@ -681,16 +681,18 @@ class Ticket {
     }
  
     //Set staff ID...assign/unassign/release (id can be 0)
-    function setStaffId($staffId){
+    function setStaffId($staffId) {
+
+        if(!is_numeric($staffId)) return false;
        
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
             .' WHERE ticket_id='.db_input($this->getId());
 
-        if (db_query($sql)  && db_affected_rows()) {
-            $this->staff_id = $staffId;
-            return true;
-        }
-        return false;
+        if (!db_query($sql)  || !db_affected_rows())
+            return false;
+        
+        $this->staff_id = $staffId;
+        return true;
     }
 
     function setSLAId($slaId) {
@@ -731,12 +733,14 @@ class Ticket {
     }
 
     //Set team ID...assign/unassign/release (id can be 0)
-    function setTeamId($teamId){
+    function setTeamId($teamId) {
+        
+        if(!is_numeric($teamId)) return false;
+      
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id='.db_input($teamId)
+            .' WHERE ticket_id='.db_input($this->getId());
 
-      $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id='.db_input($teamId)
-          .' WHERE ticket_id='.db_input($this->getId());
-
-      return (db_query($sql)  && db_affected_rows());
+        return (db_query($sql)  && db_affected_rows());
     }
 
     //Status helper.
@@ -775,6 +779,11 @@ class Ticket {
             case 'overdue':
                 return $this->markOverdue();
                 break;
+            case 'notdue':
+                return $this->clearOverdue();
+                break;
+            case 'unassined':
+                return $this->unassign();
         }
 
         return false;
@@ -997,11 +1006,11 @@ class Ticket {
 
         $this->reload();
 
-        $note=$note?$note:'Ticket assignment';
-        $assigner =$thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
+        $comments = $comments?$comments:'Ticket assignment';
+        $assigner = $thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
         
         //Log an internal note - no alerts on the internal note.
-        $this->postNote('Ticket Assigned to '.$assignee->getName(), $comments, $assigner, false);
+        $this->logNote('Ticket Assigned to '.$assignee->getName(), $comments, $assigner, false);
 
         //See if we need to send alerts
         if(!$alert || !$cfg->alertONAssignment()) return true; //No alerts!
@@ -1200,6 +1209,21 @@ class Ticket {
         return true;
     }
 
+    function clearOverdue() {
+
+        if(!$this->isOverdue()) 
+            return true;
+
+        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=0, updated=NOW() ';
+        //clear due date if it's in the past
+        if($this->getDueDate() && strtotime($this->getDueDate())<=time())
+            $sql.=', duedate=NULL';
+
+        $sql.=' WHERE ticket_id='.db_input($this->getId());
+
+        return (db_query($sql) && db_affected_rows());
+    }
+
     //Dept Tranfer...with alert.. done by staff 
     function transfer($deptId, $comments, $alert = true) {
         
@@ -1221,9 +1245,9 @@ class Ticket {
         $this->selectSLAId();
                   
         /*** log the transfer comments as internal note - with alerts disabled - ***/
-        $title='Dept. Transfer from '.$currentDept.' to '.$this->getDeptName();
+        $title='Ticket transfered from '.$currentDept.' to '.$this->getDeptName();
         $comments=$comments?$comments:$title; 
-        $this->postNote($title, $comments, $thisstaff, false);
+        $this->logNote($title, $comments, $thisstaff, false);
 
         $this->logEvent('transferred');
         
@@ -1315,7 +1339,7 @@ class Ticket {
         if($assignId[0]=='t') {
             $rv=$this->assignToTeam($id, $note, $alert);
         } elseif($assignId[0]=='s' || is_numeric($assignId)) {
-            $alert=($thisstaff && $thisstaff->getId()==$id)?false:$alert; //No alerts on self assigned tickets!!!
+            $alert=($alert && $thisstaff && $thisstaff->getId()==$id)?false:$alert; //No alerts on self assigned tickets!!!
             //We don't care if a team is already assigned to the ticket - staff assignment takes precedence
             $rv=$this->assignToStaff($id, $note, $alert);
         }
@@ -1329,15 +1353,23 @@ class Ticket {
         if(!$this->isAssigned()) //We can't release what is not assigned buddy!
             return true;
 
-        //We're unassigning in the order of precedence.
-        if($this->getStaffId())
-            return $this->setStaffId(0);
-        elseif($this->getTeamId())
-            return $this->setTeamId(0);
+        //We can only unassigned OPEN tickets.
+        if($this->isClosed())
+            return false;
 
-        return false;
+        //Unassign staff (if any)
+        if($this->getStaffId() && !$this->setStaffId(0))
+            return false;
+
+        //unassign team (if any)
+        if($this->getTeamId() && !$this->setTeamId(0))
+            return false;
+
+        $this->reload();
+
+        return true;
     }
-
+    
     function release() {
         return $this->unassign();
     }
@@ -1441,7 +1473,7 @@ class Ticket {
     }
 
     /* public */ 
-    function postReply($vars, $errors, $alert = true) {
+    function postReply($vars, &$errors, $alert = true) {
         global $thisstaff, $cfg;
 
         if(!$vars['msgId'])
@@ -1527,7 +1559,7 @@ class Ticket {
         if(!$cfg || !$cfg->logTicketActivity())
             return 0;
 
-        return $this->postNote($title, $note, 'SYSTEM', false);
+        return $this->logNote($title, $note, 'SYSTEM', false);
     }
 
     // History log -- used for statistics generation (pretty reports)
@@ -1558,14 +1590,32 @@ class Ticket {
             && db_affected_rows() == 1;
     }
 
-    //Insert Internal Notes 
-    function postNote($title, $body, $poster, $alert=true) {        
-        global $cfg;
+    //Insert Internal Notes
+    function logNote($title, $note, $poster, $alert=true) {
+
+        return $this->postNote(
+                array('title' => $title, 'note' => $note),
+                $errors,
+                $poster,
+                $alert);
+    }
+
+    function postNote($vars, &$errors, $poster, $alert=true) {        
+        global $cfg, $thisstaff;
+
+        if(!$vars || !is_array($vars))
+            $errors['err'] = 'Missing or invalid data';
+        elseif(!$vars['note'])
+            $errors['note'] = 'Note required';
+
+        if($errors) return false;
 		
         $staffId = 0;
         if($poster && is_object($poster)) {
             $staffId = $poster->getId();
             $poster = $poster->getName();
+        } elseif(!$poster) {
+            $poster ='SYSTEM';
         }
 
         //TODO: move to class.thread.php
@@ -1573,19 +1623,30 @@ class Ticket {
         $sql= 'INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '.
                 ',thread_type="N"'.
                 ',ticket_id='.db_input($this->getId()).
-                ',title='.db_input(Format::striptags($title)).
-                ',body='.db_input(Format::striptags($body)).
+                ',title='.db_input(Format::striptags($vars['title']?$vars['title']:'[No Title]')).
+                ',body='.db_input(Format::striptags($vars['note'])).
                 ',staff_id='.db_input($staffId).
                 ',poster='.db_input($poster);
         //echo $sql;
         if(!db_query($sql) || !($id=db_insert_id()))
             return false;
-
-        $note = Note::lookup($id, $this->getId());
+                
+        //Upload attachments IF ANY - TODO: validate attachment types??
+        if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+            $attachments = $this->uploadAttachments($files, $id, 'N');
+            
+        //Set state: Error on state change not critical! 
+        if(isset($vars['state']) && $vars['state']) {
+            if($this->setState($vars['state']))
+                $this->reload();
+        }
 
         // If alerts are not enabled then return a success.
         if(!$alert || !$cfg->alertONNewNote() || !($dept=$this->getDept()))
             return $id;
+
+        //Note obj.
+        $note = Note::lookup($id, $this->getId());
         
         if(!($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
@@ -1613,12 +1674,13 @@ class Ticket {
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
                 $recipients[]=$dept->getManager();
 
+            $attachments =($attachments)?$this->getAttachments($id, 'N'):array();
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !is_object($staff) || !$staff->getEmail() || !$staff->isAvailable()) continue;
                 if(in_array($staff->getEmail(),$sentlist) || ($staffId && $staffId==$staff->getId())) continue; 
                 $alert = str_replace('%{recipient}',$staff->getFirstName(), $msg['body']);
-                $email->send($staff->getEmail(), $msg['subj'], $alert);
+                $email->send($staff->getEmail(), $msg['subj'], $alert, $attachments);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1654,7 +1716,7 @@ class Ticket {
                 else
                     $error ='Error #'.$file['error'];
 
-                $this->postNote('File Upload Error', $error, 'SYSTEM', false);
+                $this->logNote('File Upload Error', $error, 'SYSTEM', false);
                
                 $ost->logDebug('File Upload Error (Ticket #'.$this->getExtId().')', $error);
             }
@@ -1775,7 +1837,7 @@ class Ticket {
         if(!$vars['note'])
             $vars['note']=sprintf('Ticket Updated by %s', $thisstaff->getName());
 
-        $this->postNote('Ticket Updated', $vars['note'], $thisstaff);
+        $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
         $this->reload();
         
         return true;
@@ -2165,7 +2227,7 @@ class Ticket {
         if($vars['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
             $ticket->assign($vars['assignId'], $vars['note']);
         } elseif($vars['note']) { //Not assigned...save optional note if any
-            $ticket->postNote('New Ticket', $vars['note'], $thisstaff, false);
+            $ticket->logNote('New Ticket', $vars['note'], $thisstaff, false);
         } else { //Not assignment and no internal note - log activity
             $ticket->logActivity('New Ticket by Staff','Ticket created by staff -'.$thisstaff->getName());
         }

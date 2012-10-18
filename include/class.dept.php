@@ -180,6 +180,14 @@ class Dept {
         return $this->manager;
     }
 
+    function isManager($staff) {
+
+        if(is_object($staff)) $staff=$staff->getId();
+
+        return ($this->getManagerId() && $this->getManagerId()==$staff);
+    }
+
+
     function isPublic() {
          return ($this->ht['ispublic']);
     }
