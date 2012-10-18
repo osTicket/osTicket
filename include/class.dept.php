@@ -316,12 +316,15 @@ class Dept {
         return ($cfg && $cfg->getDefaultDeptId() && ($name=Dept::getNameById($cfg->getDefaultDeptId())))?$name:null;
     }
 
-    function getDepartments( $publiconly=false) {
+    function getDepartments( $criteria=null) {
         
         $depts=array();
-        $sql ='SELECT dept_id, dept_name FROM '.DEPT_TABLE;
-        if($publiconly)
-            $sql.=' WHERE ispublic=1';
+        $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' WHERE 1';
+        if($criteria['publiconly'])
+            $sql.=' AND  ispublic=1';
+
+        if(($manager=$criteria['manager']))
+            $sql.=' AND manager_id='.db_input(is_object($manager)?$manager->getId():$manager);
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id, $name)=db_fetch_row($res))
@@ -332,7 +335,7 @@ class Dept {
     }
 
     function getPublicDepartments() {
-        return self::getDepartments(true);
+        return self::getDepartments(array('publiconly'=>true));
     }
 
     function create($vars, &$errors) {

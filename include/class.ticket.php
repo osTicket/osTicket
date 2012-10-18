@@ -804,15 +804,19 @@ class Ticket {
     function close(){
         global $thisstaff;
         
-        $sql='UPDATE '.TICKET_TABLE.' SET closed=NOW(), isoverdue=0, duedate=NULL, updated=NOW(), status='.db_input('closed');
-        
+        $sql='UPDATE '.TICKET_TABLE.' SET closed=NOW(),isoverdue=0, duedate=NULL, updated=NOW(), status='.db_input('closed');
         if($thisstaff) //Give the closing  staff credit. 
             $sql.=', staff_id='.db_input($thisstaff->getId());
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        $this->reload();
         $this->logEvent('closed');
-        return (db_query($sql) && db_affected_rows());
+
+        return true;
     }
 
     //set status to open on a closed ticket.
