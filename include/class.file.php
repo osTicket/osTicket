@@ -114,7 +114,13 @@ class AttachmentFile {
     function delete() {
 
         $sql='DELETE FROM '.FILE_TABLE.' WHERE id='.db_input($this->getId()).' LIMIT 1';
-        return (db_query($sql) && db_affected_rows());
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        //Delete file data.
+        AttachmentChunkedData::deleteOrphans();
+
+        return true;
     }
 
 
@@ -209,8 +215,8 @@ class AttachmentFile {
      * canned-response, or faq point to any more.
      */
     /* static */ function deleteOrphans() {
-        $res=db_query(
-            'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
+        
+        $sql = 'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
                 # DISTINCT implies sort and may not be necessary
                 .'SELECT DISTINCT(file_id) FROM ('
                     .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
@@ -219,9 +225,15 @@ class AttachmentFile {
                     .' UNION ALL '
                     .'SELECT file_id FROM '.FAQ_ATTACHMENT_TABLE
                 .') still_loved'
-            .')');
+            .')';
+
+        db_query($sql);
+        
+        //Delete orphaned chuncked data!
         AttachmentChunkedData::deleteOrphans();
-        return db_affected_rows();
+    
+        return true;
+
     }
 }
 
@@ -263,13 +275,17 @@ class AttachmentChunkedData {
                 return false;
             $offset += strlen($block);
         }
-        return true;
+
+        return $this->_pos;
     }
 
-    function deleteOrpans() {
-        db_query(
-            'DELETE FROM '.FILE_CHUNK_TABLE.' WHERE file_id NOT IN '
-                .'( SELECT id FROM '.FILE_TABLE.') still_loved');
-        return db_affected_rows();
+    function deleteOrphans() {
+            
+        $sql = 'DELETE c.* FROM '.FILE_CHUNK_TABLE.' c '
+             . ' LEFT JOIN '.FILE_TABLE.' f ON(f.id=c.file_id) '
+             . ' WHERE f.id IS NULL';
+        
+        return db_query($sql)?db_affected_rows():0;
     }
 }
+?>
