@@ -181,12 +181,10 @@ class TicketsAjaxAPI extends AjaxController {
     function acquireLock($tid) {
         global $cfg,$thisstaff;
 
-        if(!$tid or !is_numeric($tid) or !$thisstaff or !$cfg) 
+        if(!$tid or !is_numeric($tid) or !$thisstaff or !$cfg or !$cfg->getLockTime()) 
             return 0;
-       
-        $ticket = Ticket::lookup($tid);
         
-        if(!$ticket || !$ticket->checkStaffAccess($thisstaff))
+        if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
             return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>'Lock denied!'));
         
         //is the ticket already locked?
@@ -198,17 +196,13 @@ class TicketsAjaxAPI extends AjaxController {
             
             //Ticket already locked by staff...try renewing it.
             $lock->renew(); //New clock baby!
-            
-            return $this->json_encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime()));
+        } elseif(!($lock=$ticket->acquireLock($thisstaff->getId(),$cfg->getLockTime()))) {
+            //unable to obtain the lock..for some really weired reason!
+            //Client should watch for possible loop on retries. Max attempts?
+            return $this->json_encode(array('id'=>0, 'retry'=>true));
         }
-        
-        //Ticket is not locked or the lock is expired...try locking it...
-        if($lock=$ticket->acquireLock($thisstaff->getId(),$cfg->getLockTime())) //Set the lock.
-            return $this->json_encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime()));
-        
-        //unable to obtain the lock..for some really weired reason!
-        //Client should watch for possible loop on retries. Max attempts?
-        return $this->json_encode(array('id'=>0, 'retry'=>true));
+
+        return $this->json_encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime()));
     }
 
     function renewLock($tid, $id) {
