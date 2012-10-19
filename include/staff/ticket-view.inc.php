@@ -366,6 +366,7 @@ if(!$cfg->showNotesInline()) { ?>
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
+        <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
         <input type="hidden" name="a" value="reply">
         <span class="error"></span>
         <table border="0" cellspacing="0" cellpadding="3">
