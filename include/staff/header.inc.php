@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
-    <title>osTicket Staff Control Panel</title>
+    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: Staff Control Panel'; ?></title>
     <!--[if IE]>
     <style type="text/css">
         .tip_shadow { display:block !important; }
@@ -29,7 +29,7 @@
     }
     ?>
 </head>
-<body onunload="">
+<body>
 <div id="container">
     <div id="header">
         <a href="index.php" id="logo">osTicket - Customer Support System</a>

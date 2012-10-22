@@ -30,6 +30,7 @@ class osTicket {
     var $warning;
     var $message;
 
+    var $title; //Custom title. html > head > title.
     var $headers;
 
     var $config;
@@ -166,6 +167,14 @@ class osTicket {
 
     function getExtraHeaders() {
         return $this->headers;
+    }
+
+    function setPageTitle($title) {
+        $this->title = $title;
+    }
+
+    function getPageTitle() {
+        return $this->title;
     }
 
     function getErrors() {
