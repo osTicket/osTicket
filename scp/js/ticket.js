@@ -93,13 +93,18 @@ var autoLock = {
 
     Init: function(config) {
 
-        //make sure we are on ticket view page!
-        void(autoLock.form=document.forms['reply']);
-        if(!autoLock.form || !autoLock.form.id.value) {
-                return;
+        //make sure we are on ticket view page & locking is enabled!
+        var fObj=$('form#reply');
+        if(!fObj 
+                || !$(':input[name=id]',fObj).length 
+                || !$(':input[name=locktime]',fObj).length
+                || $(':input[name=locktime]',fObj).val()==0) {
+            return;
         }
 
-        void(autoLock.tid=parseInt(autoLock.form.id.value));
+        void(autoLock.tid=parseInt($(':input[name=id]',fObj).val()));
+        void(autoLock.lockTime=parseInt($(':input[name=locktime]',fObj).val()));
+
         autoLock.lockId=0;
         autoLock.timerId=0;
         autoLock.lasteventTime=0;
@@ -108,9 +113,6 @@ var autoLock = {
         autoLock.renewTime=0;
         autoLock.renewFreq=0; //renewal frequency in seconds...based on returned lock time.
         autoLock.time=0;
-        if(config && config.ticket_lock_time)
-            autoLock.timeTime=config.ticket_lock_time
-
         autoLock.lockAttempts=0; //Consecutive lock attempt errors
         autoLock.maxattempts=2; //Maximum failed lock attempts before giving up.
         autoLock.warn=true;
