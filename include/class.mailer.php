@@ -66,7 +66,7 @@ class Mailer {
     function getFromAddress() {
 
         if(!$this->ht['from'] && ($email=$this->getEmail()))
-            $this->ht['from'] =sprintf('"%s" <%s>', $this->str_utf8($email->getName()?$email->getName():$email->getEmail()), $email->getEmail());
+            $this->ht['from'] =sprintf('"%s" <%s>', ($email->getName()?$email->getName():$email->getEmail()), $email->getEmail());
 
         return $this->ht['from'];
     }
@@ -82,12 +82,6 @@ class Mailer {
 
     function addAttachments($attachments) {
         $this->attachments = array_merge($this->attachments, $attachments);
-    }
-
-    /* utils */
-
-    function str_utf8($text) {
-        return "=?utf-8?b?".base64_encode($text)."?=";
     }
 
     function send($to, $subject, $message, $options=null) {
@@ -109,7 +103,7 @@ class Mailer {
         $headers = array (
                 'From' => $this->getFromAddress(),
                 'To' => $to,
-                'Subject' => $this->str_utf8($subject),
+                'Subject' => $subject,
                 'Date'=> date('D, d M Y H:i:s O'),
                 'Message-ID' => $messageId,
                 'X-Mailer' =>'osTicket Mailer',
@@ -140,7 +134,7 @@ class Mailer {
         //encode the body
         $body = $mime->get($encodings);
         //encode the headers.
-        $headers = $mime->headers($headers);
+        $headers = $mime->headers($headers, true);
         if(($smtp=$this->getSMTPInfo())) { //Send via SMTP
             $mail = mail::factory('smtp',
                     array ('host' => $smtp['host'],
