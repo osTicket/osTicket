@@ -387,6 +387,15 @@ class Mail_smtp extends Mail {
     }
 
     /**
+     * Connection wrapper
+     *
+     *
+     */
+    function &connect() {
+        return $this->getSMTPObject();
+    }
+
+    /**
      * Add parameter associated with a SMTP service extension.
      *
      * @param string Extension keyword.
