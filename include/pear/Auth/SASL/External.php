@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------+ 
-// | Copyright (c) 2002-2003 Richard Heyes                                 | 
+// | Copyright (c) 2008 Christoph Schulz                                   | 
 // | All rights reserved.                                                  | 
 // |                                                                       | 
 // | Redistribution and use in source and binary forms, with or without    | 
@@ -29,43 +29,35 @@
 // | OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  | 
 // |                                                                       | 
 // +-----------------------------------------------------------------------+ 
-// | Author: Richard Heyes <richard@php.net>                               | 
+// | Author: Christoph Schulz <develop@kristov.de>                         | 
 // +-----------------------------------------------------------------------+ 
 // 
 // $Id$
 
 /**
-* Implmentation of ANONYMOUS SASL mechanism
+* Implmentation of EXTERNAL SASL mechanism
 *
-* @author  Richard Heyes <richard@php.net>
+* @author  Christoph Schulz <develop@kristov.de>
 * @access  public
-* @version 1.0
+* @version 1.0.3
 * @package Auth_SASL
 */
 
 require_once('Auth/SASL/Common.php');
 
-class Auth_SASL_Anonymous extends Auth_SASL_Common
+class Auth_SASL_External extends Auth_SASL_Common
 {
     /**
-    * Not much to do here except return the token supplied.
-    * No encoding, hashing or encryption takes place for this
-    * mechanism, simply one of:
-    *  o An email address
-    *  o An opaque string not containing "@" that can be interpreted
-    *    by the sysadmin
-    *  o Nothing
+    * Returns EXTERNAL response
     *
-    * We could have some logic here for the second option, but this
-    * would by no means create something interpretable.
-    *
-    * @param  string $token Optional email address or string to provide
-    *                       as trace information.
-    * @return string        The unaltered input token
+    * @param  string $authcid   Authentication id (username)
+    * @param  string $pass      Password
+    * @param  string $authzid   Autorization id
+    * @return string            EXTERNAL Response
     */
-    function getResponse($token = '')
+    function getResponse($authcid, $pass, $authzid = '')
     {
-        return $token;
+        return $authzid;
     }
 }
 ?>

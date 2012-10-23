@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard@php.net>                               | 
 // +-----------------------------------------------------------------------+ 
 // 
-// $Id: CramMD5.php,v 1.4 2003/02/21 16:07:17 mj Exp $
+// $Id$
 
 /**
 * Implmentation of CRAM-MD5 SASL mechanism
