@@ -59,4 +59,7 @@ if($ost->isUpgradePending()) {
 
 //Admin navigation - overwrites what was set in staff.inc.php
 $nav = new AdminNav($thisstaff);
+
+//Page title.
+$ost->setPageTitle('osTicket :: Admin Control Panel');
 ?>

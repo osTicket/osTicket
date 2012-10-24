@@ -479,6 +479,7 @@ if($thisstaff->canCreateTickets()) {
 
 $inc = 'tickets.inc.php';
 if($ticket) {
+    $ost->setPageTitle('Ticket #'.$ticket->getNumber());
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 

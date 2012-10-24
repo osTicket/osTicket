@@ -122,4 +122,7 @@ if($thisstaff->forcePasswdChange() && !$exempt) {
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
     exit;
 }
+
+$ost->setPageTitle('osTicket :: Staff Control Panel');
+
 ?>
