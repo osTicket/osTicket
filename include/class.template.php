@@ -100,6 +100,9 @@ class Template {
             case 'ticket_autoresp':
                  $tpl=array('subj'=>$this->ht['ticket_autoresp_subj'],'body'=>$this->ht['ticket_autoresp_body']);
                  break;
+            case 'ticket_autoreply':
+                 $tpl=array('subj'=>$this->ht['ticket_autoreply_subj'],'body'=>$this->ht['ticket_autoreply_body']);
+                 break;
             case 'msg_autoresp':
                  $tpl=array('subj'=>$this->ht['message_autoresp_subj'],'body'=>$this->ht['message_autoresp_body']);
                  break;
@@ -159,6 +162,10 @@ class Template {
         return $this->getMsgTemplate('ticket_autoresp');
     }
 
+    function getAutoReplyMsgTemplate() {
+        return $this->getMsgTemplate('ticket_autoreply');
+    }
+
     function getReplyMsgTemplate() {
         return $this->getMsgTemplate('ticket_reply');
     }
@@ -201,6 +208,9 @@ class Template {
         switch(strtolower($vars['tpl'])) {
             case 'ticket_autoresp':
                 $sql.=',ticket_autoresp_subj='.db_input($vars['subj']).',ticket_autoresp_body='.db_input($vars['body']);
+                break;
+            case 'ticket_autoreply':
+                $sql.=',ticket_autoreply_subj='.db_input($vars['subj']).',ticket_autoreply_body='.db_input($vars['body']);
                 break;
             case 'msg_autoresp':
                 $sql.=',message_autoresp_subj='.db_input($vars['subj']).',message_autoresp_body='.db_input($vars['body']);
@@ -283,8 +293,10 @@ class Template {
     function message_templates(){
 
         //TODO: Make it database driven and dynamic
-        $messages=array('ticket_autoresp'=>array('name'=>'New Ticket Autoresponse',
+        $messages=array('ticket_autoresp'=>array('name'=>'New Ticket Auto-response',
                                                  'desc'=>'Autoresponse sent to user, if enabled, on new ticket.'),
+                        'ticket_autoreply'=>array('name'=>'New Ticket Auto-reply',
+                                                 'desc'=>'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.'),
                         'msg_autoresp'=>array('name'=>'New Message Auto-response',
                                               'desc'=>'Confirmation sent to user when a new message is appended to an existing ticket.'),
                         'ticket_notice'=>array('name'=>'New Ticket Notice',
@@ -365,6 +377,8 @@ class Template {
                 .' ,cfg_id='.db_input($ost->getConfigId())
                 .' ,ticket_autoresp_subj='.db_input($info['ticket_autoresp_subj'])
                 .' ,ticket_autoresp_body='.db_input($info['ticket_autoresp_body'])
+                .' ,ticket_autoreply_subj='.db_input($info['ticket_autoreply_subj'])
+                .' ,ticket_autoreply_body='.db_input($info['ticket_autoreply_body'])
                 .' ,ticket_notice_subj='.db_input($info['ticket_notice_subj'])
                 .' ,ticket_notice_body='.db_input($info['ticket_notice_body'])
                 .' ,ticket_alert_subj='.db_input($info['ticket_alert_subj'])
