@@ -722,13 +722,14 @@ class Ticket {
         #     email filter? This method doesn't consider such a case
         if ($trump !== null) {
             $slaId = $trump;
-        } elseif ($this->getDept()->getSLAId()) {
+        } elseif ($this->getDept() && $this->getDept()->getSLAId()) {
             $slaId = $this->getDept()->getSLAId();
-        } elseif ($this->getTopicId() && $this->getTopic()) {
+        } elseif ($this->getTopic() && $this->getTopic()->getSLAId()) {
             $slaId = $this->getTopic()->getSLAId();
         } else {
             $slaId = $cfg->getDefaultSLAId();
         }
+
         return ($slaId && $this->setSLAId($slaId)) ? $slaId : false;
     }
 
