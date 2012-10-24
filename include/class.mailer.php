@@ -65,8 +65,8 @@ class Mailer {
 
     function getFromAddress() {
 
-        if(!$this->ht['from'] && $this->getEmail())
-            $this->ht['from'] =$this->getEmail()->getAddress();
+        if(!$this->ht['from'] && ($email=$this->getEmail()))
+            $this->ht['from'] =sprintf('"%s" <%s>', ($email->getName()?$email->getName():$email->getEmail()), $email->getEmail());
 
         return $this->ht['from'];
     }
@@ -134,7 +134,7 @@ class Mailer {
         //encode the body
         $body = $mime->get($encodings);
         //encode the headers.
-        $headers = $mime->headers($headers);
+        $headers = $mime->headers($headers, true);
         if(($smtp=$this->getSMTPInfo())) { //Send via SMTP
             $mail = mail::factory('smtp',
                     array ('host' => $smtp['host'],
@@ -142,7 +142,7 @@ class Mailer {
                            'auth' => $smtp['auth'],
                            'username' => $smtp['username'],
                            'password' => $smtp['password'],
-                           'timeout'  =>20,
+                           'timeout'  => 20,
                            'debug' => false,
                            ));
 
