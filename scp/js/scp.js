@@ -111,7 +111,7 @@ $(document).ready(function(){
         return false;
      });
 
-    $('#buttons input:submit.button').bind('click', function(e) {
+    $('#actions input:submit.button').bind('click', function(e) {
 
         var formObj = $(this).closest('form');
         e.preventDefault();

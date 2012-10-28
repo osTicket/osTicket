@@ -446,7 +446,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
     ?>
         <?php
          if($thisstaff->canManageTickets()) { ?>
-           <p class="centered" id="buttons">  
+           <p class="centered" id="actions">  
             <?php
             $status=$_REQUEST['status']?$_REQUEST['status']:$status;
             switch (strtolower($status)) {
