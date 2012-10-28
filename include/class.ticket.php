@@ -1628,7 +1628,7 @@ class Ticket {
     }
 
     //Insert Internal Notes
-    function logNote($title, $note, $poster, $alert=true) {
+    function logNote($title, $note, $poster='SYSTEM', $alert=true) {
 
         return $this->postNote(
                 array('title' => $title, 'note' => $note),
