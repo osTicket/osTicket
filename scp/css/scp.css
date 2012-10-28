@@ -411,6 +411,11 @@ table.list tbody td { background: #fff; padding: 1px; padding-left:2px; vertical
 table.list tbody tr.odd td { background-color: #f0faff; }
 table.list tbody tr:hover td { background: #ffe; }
 table.list tbody tr.odd:hover td { background: #ffd; }
+/* row highlighting on hover + select */
+table.list tbody tr:hover td, table.list tbody tr.highlight td {  background: #FFFFDD; }
+/* disabled highlighting on nohover */
+table.list tbody tr:hover td.nohover, table.list tbody tr.highlight td.nohover {}
+
 
 table.list tfoot td {
     background:#eee;
