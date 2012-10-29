@@ -297,10 +297,11 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
 <div style="margin-bottom:20px">
-<form action="tickets.php" method="POST" name='tickets' onSubmit="return checkbox_checker(this,1,0);">
+<form action="tickets.php" method="POST" name='tickets'>
 <?php csrf_token(); ?>
  <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
+ <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo $status; ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <caption><?php echo $showing; ?>&nbsp;&nbsp;&nbsp;<?php echo $results_type; ?></caption>
@@ -357,6 +358,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
         $class = "row1";
         $total=0;
         if($res && ($num=db_num_rows($res))):
+            $ids=($errors && $_POST['tids'] && is_array($_POST['tids']))?$_POST['tids']:null;
             while ($row = db_fetch_array($res)) {
                 $tag=$row['staff_id']?'assigned':'openticket';
                 $flag=null;
@@ -384,9 +386,14 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                 }
                 ?>
             <tr id="<?php echo $row['ticket_id']; ?>">
-                <?php if($thisstaff->canManageTickets()) { ?>
+                <?php if($thisstaff->canManageTickets()) { 
+                              
+                    $sel=false;
+                    if($ids && in_array($row['ticket_id'], $ids))
+                        $sel=true;
+                    ?>
                 <td align="center" class="nohover">
-                    <input type="checkbox" name="tids[]" value="<?php echo $row['ticket_id']; ?>" onClick="highLight(this.value,this.checked);">
+                    <input class="ckb" type="checkbox" name="tids[]" value="<?php echo $row['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <?php } ?>
                 <td align="center" title="<?php echo $row['email']; ?>" nowrap>
@@ -423,11 +430,11 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
     <tfoot>
      <tr>
         <td colspan="7">
-            <?php if($res && $num){ ?>
+            <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             Select:&nbsp;
-            <a href="#" onclick="return select_all(document.forms['tickets'],true)">All</a>&nbsp;&nbsp;
-            <a href="#" onclick="return reset_all(document.forms['tickets'])">None</a>&nbsp;&nbsp;
-            <a href="#" onclick="return toogle_all(document.forms['tickets'],true)">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
                 echo '<i>';
                 echo $ferror?Format::htmlchars($ferror):'Query returned 0 results.';
@@ -445,42 +452,66 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
     ?>
         <?php
          if($thisstaff->canManageTickets()) { ?>
-           <p class="centered">  
+           <p class="centered" id="actions">  
             <?php
             $status=$_REQUEST['status']?$_REQUEST['status']:$status;
             switch (strtolower($status)) {
                 case 'closed': ?>
-                    <input class="button" type="submit" name="reopen" value="Reopen"
-                        onClick=' return confirm("Are you sure you want to reopen selected tickets?");'>
+                    <input class="button" type="submit" name="reopen" value="Reopen" >
                     <?php
                     break;
                 case 'open':
                 case 'answered':
                 case 'assigned':
                     ?>
-                    <input class="button" type="submit" name="overdue" value="Overdue"
-                        onClick=' return confirm("Are you sure you want to mark selected tickets overdue/stale?");'>
-                    <input class="button" type="submit" name="close" value="Close"
-                        onClick=' return confirm("Are you sure you want to close selected tickets?");'>
+                    <input class="button" type="submit" name="mark_overdue" value="Overdue" >
+                    <input class="button" type="submit" name="close" value="Close">
                     <?php
                     break;
                 default: //search??
                     ?>
-                    <input class="button" type="submit" name="close" value="Close"
-                        onClick=' return confirm("Are you sure you want to close selected tickets?");'>
-                    <input class="button" type="submit" name="reopen" value="Reopen"
-                        onClick=' return confirm("Are you sure you want to reopen selected tickets?");'>
+                    <input class="button" type="submit" name="close" value="Close" >
+                    <input class="button" type="submit" name="reopen" value="Reopen">
             <?php
             }
             if($thisstaff->canDeleteTickets()) { ?>
-                <input class="button" type="submit" name="delete" value="Delete" 
-                    onClick=' return confirm("Are you sure you want to DELETE selected tickets?");'>
+                <input class="button" type="submit" name="delete" value="Delete">
             <?php } ?>
         </p>
         <?php
        }
     } ?>
     </form>
+</div>
+
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="close-confirm">
+        Are you sure want to <b>close</b> selected open tickets?
+    </p>
+    <p class="confirm-action" style="display:none;" id="reopen-confirm">
+        Are you sure want to <b>reopen</b> selected closed tickets?
+    </p>
+    <p class="confirm-action" style="display:none;" id="mark_overdue-confirm">
+        Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?
+    </p>
+    <p class="confirm-action" style="display:none;" id="delete-confirm">
+        <font color="red"><strong>Are you sure you want to DELETE selected tickets?</strong></font>
+        <br><br>Deleted tickets CANNOT be recovered, including any associated attachments.
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Yes, Do it!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
 </div>
 
 <div class="dialog" style="display:none;" id="advanced-search">

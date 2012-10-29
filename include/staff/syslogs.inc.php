@@ -104,9 +104,10 @@ else
     </div>
  </form>
 </div>
-<form action="logs.php" method="POST" name="logs" onSubmit="return checkbox_checker(this,1,0);">
+<form action="logs.php" method="POST" name="logs">
 <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
+ <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
@@ -125,15 +126,13 @@ else
         if($res && db_num_rows($res)):
             while ($row = db_fetch_array($res)) {
                 $sel=false;
-                if($ids && in_array($row['log_id'],$ids)){
-                    $class="$class highlight";
+                if($ids && in_array($row['log_id'],$ids))
                     $sel=true;
-                }
                 ?>
             <tr id="<?php echo $row['log_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['log_id']; ?>" 
-                            <?php echo $sel?'checked="checked"':''; ?> onClick="highLight(this.value,this.checked);"> </td>
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['log_id']; ?>" 
+                            <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td>&nbsp;<a class="tip" href="log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
                 <td><?php echo $row['log_type']; ?></td>
                 <td>&nbsp;<?php echo Format::db_daydatetime($row['created']); ?></td>
@@ -148,9 +147,9 @@ else
         <td colspan="6">
             <?php if($res && $num){ ?>
             Select:&nbsp;
-            <a href="#" onclick="return select_all(document.forms['logs'],true)">All</a>&nbsp;&nbsp;
-            <a href="#" onclick="return reset_all(document.forms['logs'])">None</a>&nbsp;&nbsp;
-            <a href="#" onclick="return toogle_all(document.forms['logs'],true)">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
                 echo 'No logs found';
             } ?>
@@ -162,11 +161,31 @@ else
 if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered">
-    <input class="button" type="submit" name="delete" value="Delete Selected Entries"
-                onClick=' return confirm("Are you sure you want to DELETE selected log entries?");'>
+<p class="centered" id="actions">
+    <input class="button" type="submit" name="delete" value="Delete Selected Entries">
 </p>
 <?php
 endif;
 ?>
 </form>
+
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="delete-confirm">
+        <font color="red"><strong>Are you sure you want to DELETE selected logs?</strong></font>
+        <br><br>Deleted logs CANNOT be recovered.
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Yes, Do it!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>

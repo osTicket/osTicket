@@ -134,7 +134,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Department Access</strong>: Check all departments the group members are allowed to access.&nbsp;&nbsp;&nbsp;<a href="#" onclick="return select_all(document.forms['group'])">Select All</a>&nbsp;&nbsp;<a href="#" onclick="return reset_all(document.forms['group'])">Select None</a></em>
+                <em><strong>Department Access</strong>: Check all departments the group members are allowed to access.&nbsp;&nbsp;&nbsp;<a id="selectAll" href="#deptckb">Select All</a>&nbsp;&nbsp;<a id="selectNone" href="#deptckb">Select None</a>&nbsp;&nbsp;</em>
             </th>
         </tr>
         <?php
@@ -142,7 +142,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
          if(($res=db_query($sql)) && db_num_rows($res)){
             while(list($id,$name) = db_fetch_row($res)){
                 $ck=($info['depts'] && in_array($id,$info['depts']))?'checked="checked"':'';
-                echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<input type="checkbox" name="depts[]" value="%d" %s>%s</td></tr>',$id,$ck,$name);
+                echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<input type="checkbox" class="deptckb" name="depts[]" value="%d" %s>%s</td></tr>',$id,$ck,$name);
             }
          }
         ?>

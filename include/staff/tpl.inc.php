@@ -12,7 +12,7 @@ $info=array_merge($template->getMsgTemplate($info['tpl']),$info);
     <input type="hidden" name="id" value="<?php echo $template->getId(); ?>">
     <input type="hidden" name="a" value="manage">
     Message Template:
-    <select name="tpl" style="width:300px;">
+    <select id="tpl_options" name="tpl" style="width:300px;">
         <option value="">&mdash; Select Setting Group &mdash;</option>
         <?php
         foreach($msgtemplates as $k=>$v) {
