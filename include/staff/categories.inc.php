@@ -46,9 +46,10 @@ else
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
     <b><a href="categories.php?a=add" class="Icon newCategory">Add New Category</a></b></div>
 <div class="clear"></div>
-<form action="categories.php" method="POST" name="cat" onSubmit="return checkbox_checker(this,1,0);">
+<form action="categories.php" method="POST" name="cat">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
+ <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
@@ -65,23 +66,20 @@ else
         $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         if($res && db_num_rows($res)):
-            $defaultId=$cfg->getDefaultDeptId();
             while ($row = db_fetch_array($res)) {
                 $sel=false;
-                if($ids && in_array($row['category_id'],$ids)){
-                    $class="$class highlight";
+                if($ids && in_array($row['category_id'],$ids))
                     $sel=true;
-                }
+                
                 $faqs=0;
                 if($row['faqs'])
                     $faqs=sprintf('<a href="faq.php?cid=%d">%d</a>',$row['category_id'],$row['faqs']);
-
                 ?>
             <tr id="<?php echo $row['category_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['category_id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
-                                onClick="highLight(this.value,this.checked);"> </td>
+                  <input type="checkbox" name="ids[]" value="<?php echo $row['category_id']; ?>" class="ckb"
+                            <?php echo $sel?'checked="checked"':''; ?>>
+                </td>
                 <td><a href="categories.php?id=<?php echo $row['category_id']; ?>"><?php echo Format::truncate($row['name'],200); ?></a>&nbsp;</td>
                 <td><?php echo $row['ispublic']?'<b>Public</b>':'Internal'; ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $faqs; ?></td>
@@ -95,9 +93,9 @@ else
         <td colspan="5">
             <?php if($res && $num){ ?>
             Select:&nbsp;
-            <a href="#" onclick="return select_all(document.forms['cat'],true)">All</a>&nbsp;&nbsp;
-            <a href="#" onclick="return reset_all(document.forms['cat'])">None</a>&nbsp;&nbsp;
-            <a href="#" onclick="return toogle_all(document.forms['cat'],true)">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
                 echo 'No FAQ categories found.';
             } ?>
@@ -109,15 +107,38 @@ else
 if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered">
-    <input class="button" type="submit" name="public" value="Make Public"
-                onClick=' return confirm("Are you sure you want to make selected categories PUBLIC?");'>
-    <input class="button" type="submit" name="private" value="Make Internal"
-                onClick=' return confirm("Are you sure you want to make selected categories INTERNAL?");'>
-    <input class="button" type="submit" name="delete" value="Delete"
-                onClick=' return confirm("Are you sure you want to DELETE selected categories - including associated FAQs?");'>
+<p class="centered" id="actions">
+    <input class="button" type="submit" name="make_public" value="Make Public">
+    <input class="button" type="submit" name="make_private" value="Make Internal">
+    <input class="button" type="submit" name="delete" value="Delete" >
 </p>
 <?php
 endif;
 ?>
 </form>
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="make_public-confirm">
+        Are you sure want to make selected categories <b>public</b>?
+    </p>
+    <p class="confirm-action" style="display:none;" id="make_private-confirm">
+        Are you sure want to make selected categories <b>private</b> (internal)?
+    </p>
+    <p class="confirm-action" style="display:none;" id="delete-confirm">
+        <font color="red"><strong>Are you sure you want to DELETE selected categories?</strong></font>
+        <br><br>Deleted entries CANNOT be recovered, including any associated FAQs.
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Yes, Do it!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>

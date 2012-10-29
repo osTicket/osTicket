@@ -17,8 +17,6 @@ if($_REQUEST['q'] && strlen($_REQUEST['q'])>3) {
     $errors['q']='Term too short!';
 }
 
-//TODO: Add search here..
-
 $sortOptions=array('email'=>'rule.val','status'=>'isactive','created'=>'rule.created','created'=>'rule.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'email';
@@ -71,9 +69,10 @@ if($search)
     $showing='Search Results: '.$showing;
     
 ?>
-<form action="banlist.php" method="POST" name="banlist" onSubmit="return checkbox_checker(this,1,0);">
+<form action="banlist.php" method="POST" name="banlist">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
+<input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
@@ -91,15 +90,13 @@ if($search)
             $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
             while ($row = db_fetch_array($res)) {
                 $sel=false;
-                if($ids && in_array($row['id'],$ids)){
-                    $class="$class highlight";
+                if($ids && in_array($row['id'],$ids))
                     $sel=true;
-                }
                 ?>
                <tr id="<?php echo $row['id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>  
-                        onClick="highLight(this.value,this.checked);">
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
+                </td>
                 <td>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
                 <td>&nbsp;&nbsp;<?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
@@ -113,9 +110,9 @@ if($search)
         <td colspan="5">
             <?php if($res && $num){ ?>
             Select:&nbsp;
-            <a href="#" onclick="return select_all(document.forms['banlist'],true)">All</a>&nbsp;&nbsp;
-            <a href="#" onclick="return reset_all(document.forms['banlist'])">None</a>&nbsp;&nbsp;
-            <a href="#" onclick="return toogle_all(document.forms['banlist'],true)">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
                 echo 'No banned emails found!';
             } ?>
@@ -127,18 +124,41 @@ if($search)
 if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered">
-    <input class="button" type="submit" name="enable" value="Enable"
-        onClick=' return confirm("Are you sure you want to ENABLE selected email ban?");'>
+<p class="centered" id="actions">
+    <input class="button" type="submit" name="enable" value="Enable" >
     &nbsp;&nbsp;
-    <input class="button" type="submit" name="disable" value="Disable"
-        onClick=' return confirm("Are you sure you want to DISABLE selected emails ban?");'>
+    <input class="button" type="submit" name="disable" value="Disable" >
     &nbsp;&nbsp;
-    <input class="button" type="submit" name="delete" value="Delete"
-        onClick=' return confirm("Are you sure you want to DELETE selected emails?");'>
+    <input class="button" type="submit" name="delete" value="Delete">
 </p>
 <?php
 endif;
 ?>
 </form>
+
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="enable-confirm">
+        Are you sure want to <b>enable</b> selected ban rules?
+    </p>
+    <p class="confirm-action" style="display:none;" id="disable-confirm">
+        Are you sure want to <b>disable</b>  selected ban rules?
+    </p>
+    <p class="confirm-action" style="display:none;" id="delete-confirm">
+        <font color="red"><strong>Are you sure you want to DELETE selected ban rules?</strong></font>
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Yes, Do it!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>
 

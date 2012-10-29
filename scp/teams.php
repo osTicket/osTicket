@@ -40,49 +40,54 @@ if($_POST){
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
                 $errors['err']='You must select at least one team.';
-            }else{
+            } else {
                 $count=count($_POST['ids']);
-                if($_POST['enable']){
-                    $sql='UPDATE '.TEAM_TABLE.' SET isenabled=1 WHERE team_id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())){
-                        if($num==$count)
-                            $msg='Selected teams activated';
-                        else
-                            $warn="$num of $count selected teams activated";
-                    }else{
-                        $errors['err']='Unable to activate selected teams';
-                    }
-                }elseif($_POST['disable']){
-                    $sql='UPDATE '.TEAM_TABLE.' SET isenabled=0 WHERE team_id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())) {
-                        if($num==$count)
-                            $msg='Selected teams disabled';
-                        else
-                            $warn="$num of $count selected teams disabled";
-                    }else{
-                        $errors['err']='Unable to disable selected teams';
-                    }
-                }elseif($_POST['delete']){
-                    foreach($_POST['ids'] as $k=>$v) {
-                        if(($t=Team::lookup($v)) && $t->delete())
-                            $i++;
-                    }
+                switch(strtolower($_POST['a'])) {
+                    case 'enable':
+                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=1 '
+                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
 
-                    if($i && $i==$count)
-                        $msg='Selected teams deleted successfully';
-                    elseif($i>0)
-                        $warn="$i of $count selected teams deleted";
-                    elseif(!$errors['err'])
-                        $errors['err']='Unable to delete selected teams';
-                }else{
-                    $errors['err']='Unknown action. Get technical help!';
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
+                                $msg = 'Selected teams activated';
+                            else
+                                $warn = "$num of $count selected teams activated";
+                        } else {
+                            $errors['err'] = 'Unable to activate selected teams';
+                        }
+                        break;
+                    case 'disable':
+                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=0 '
+                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
+
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
+                                $msg = 'Selected teams disabled';
+                            else
+                                $warn = "$num of $count selected teams disabled";
+                        } else {
+                            $errors['err'] = 'Unable to disable selected teams';
+                        }
+                        break;
+                    case 'delete':
+                        foreach($_POST['ids'] as $k=>$v) {
+                            if(($t=Team::lookup($v)) && $t->delete())
+                                $i++;
+                        }
+                        if($i && $i==$count)
+                            $msg = 'Selected teams deleted successfully';
+                        elseif($i>0)
+                            $warn = "$i of $count selected teams deleted";
+                        elseif(!$errors['err'])
+                            $errors['err'] = 'Unable to delete selected teams';
+                        break;
+                    default:
+                        $errors['err'] = 'Unknown action. Get technical help!';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']='Unknown action/command';
             break;
     }
 }

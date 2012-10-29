@@ -347,8 +347,10 @@ if($_POST && !$errors):
 
                                 if($i==$count)
                                     $msg = "Selected tickets ($i) reopened successfully";
-                                else
+                                elseif($i)
                                     $warn = "$i of $count selected tickets reopened";
+                                else
+                                    $errors['err'] = 'Unable to reopen selected tickets';
                             } else {
                                 $errors['err'] = 'You do not have permission to reopen tickets';
                             }
@@ -365,8 +367,10 @@ if($_POST && !$errors):
 
                                 if($i==$count)
                                     $msg ="Selected tickets ($i) closed succesfully";
-                                else
+                                elseif($i)
                                     $warn = "$i of $count selected tickets closed";
+                                else
+                                    $errors['err'] = 'Unable to close selected tickets';
                             } else {
                                 $errors['err'] = 'You do not have permission to close tickets';
                             }
@@ -382,8 +386,10 @@ if($_POST && !$errors):
 
                             if($i==$count)
                                 $msg = "Selected tickets ($i) marked overdue";
-                            else
+                            elseif($i)
                                 $warn = "$i of $count selected tickets marked overdue";
+                            else
+                                $errors['err'] = 'Unable to flag selected tickets as overdue';
                             break;
                         case 'delete':
                             if($thisstaff->canDeleteTickets()) {
@@ -401,8 +407,10 @@ if($_POST && !$errors):
 
                                 if($i==$count)
                                     $msg = "Selected tickets ($i) deleted successfully";
-                                else
+                                elseif($i)
                                     $warn = "$i of $count selected tickets deleted";
+                                else
+                                    $errors['err'] = 'Unable to delete selected tickets';
                             } else {
                                 $errors['err'] = 'You do not have permission to delete tickets';
                             }

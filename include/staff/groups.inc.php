@@ -45,9 +45,10 @@ else
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
     <b><a href="groups.php?a=add" class="Icon newgroup">Add New Group</a></b></div>
 <div class="clear"></div>
-<form action="groups.php" method="POST" name="groups" onSubmit="return checkbox_checker(this,1,0);">
+<form action="groups.php" method="POST" name="groups">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
+ <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
@@ -68,15 +69,13 @@ else
         if($res && db_num_rows($res)) {
             while ($row = db_fetch_array($res)) {
                 $sel=false;
-                if($ids && in_array($row['group_id'],$ids)){
-                    $class="$class highlight";
+                if($ids && in_array($row['group_id'],$ids))
                     $sel=true;
-                }
                 ?>
             <tr id="<?php echo $row['group_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['group_id']; ?>" 
-                            <?php echo $sel?'checked="checked"':''; ?> onClick="highLight(this.value,this.checked);"> </td>
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['group_id']; ?>" 
+                            <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td><a href="groups.php?id=<?php echo $row['group_id']; ?>"><?php echo $row['group_name']; ?></a> &nbsp;</td>
                 <td>&nbsp;<?php echo $row['group_enabled']?'Active':'<b>Disabled</b>'; ?></td>
                 <td style="text-align:right;padding-right:30px">&nbsp;&nbsp;
@@ -100,9 +99,9 @@ else
         <td colspan="7">
             <?php if($res && $num){ ?>
             Select:&nbsp;
-            <a href="#" onclick="return select_all(document.forms['groups'],true)">All</a>&nbsp;&nbsp;
-            <a href="#" onclick="return reset_all(document.forms['groups'])">None</a>&nbsp;&nbsp;
-            <a href="#" onclick="return toogle_all(document.forms['groups'],true)">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
                 echo 'No groups found!';
             } ?>
@@ -113,17 +112,40 @@ else
 <?php
 if($res && $num): //Show options..
 ?>
-<p class="centered">
-    <input class="button" type="submit" name="enable" value="Enable"
-                onClick=' return confirm("Are you sure you want to ENABLE selected groups?");'>
-    <input class="button" type="submit" name="disable" value="Disable"
-                onClick=' return confirm("Are you sure you want to DISABLE selected groups?");'>
-    <input class="button" type="submit" name="delete" value="Delete"
-                onClick=' return confirm("Are you sure you want to DELETE selected groups?");'>
+<p class="centered" id="actions">
+    <input class="button" type="submit" name="enable" value="Enable" >
+    <input class="button" type="submit" name="disable" value="Disable" >
+    <input class="button" type="submit" name="delete" value="Delete">
 </p>
 <?php
 endif;
 ?>
-
 </form>
+
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="enable-confirm">
+        Are you sure want to <b>enable</b> selected groups?
+    </p>
+    <p class="confirm-action" style="display:none;" id="disable-confirm">
+        Are you sure want to <b>disable</b> selected groups?
+    </p>
+    <p class="confirm-action" style="display:none;" id="delete-confirm">
+        <font color="red"><strong>Are you sure you want to DELETE selected groups?</strong></font>
+        <br><br>Deleted groups CANNOT be recovered and might affect staff's access.
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Yes, Do it!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>
 

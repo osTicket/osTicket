@@ -297,7 +297,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
 <div style="margin-bottom:20px">
-<form action="tickets.php" method="POST" name='tickets' onSubmit="return checkbox_checker(this,1,0);">
+<form action="tickets.php" method="POST" name='tickets'>
 <?php csrf_token(); ?>
  <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
@@ -358,6 +358,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
         $class = "row1";
         $total=0;
         if($res && ($num=db_num_rows($res))):
+            $ids=($errors && $_POST['tids'] && is_array($_POST['tids']))?$_POST['tids']:null;
             while ($row = db_fetch_array($res)) {
                 $tag=$row['staff_id']?'assigned':'openticket';
                 $flag=null;
@@ -385,9 +386,14 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                 }
                 ?>
             <tr id="<?php echo $row['ticket_id']; ?>">
-                <?php if($thisstaff->canManageTickets()) { ?>
+                <?php if($thisstaff->canManageTickets()) { 
+                              
+                    $sel=false;
+                    if($ids && in_array($row['ticket_id'], $ids))
+                        $sel=true;
+                    ?>
                 <td align="center" class="nohover">
-                    <input class="ckb" type="checkbox" name="tids[]" value="<?php echo $row['ticket_id']; ?>">
+                    <input class="ckb" type="checkbox" name="tids[]" value="<?php echo $row['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <?php } ?>
                 <td align="center" title="<?php echo $row['email']; ?>" nowrap>
