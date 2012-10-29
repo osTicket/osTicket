@@ -106,8 +106,7 @@ class Mailer {
                 'Subject' => $subject,
                 'Date'=> date('D, d M Y H:i:s O'),
                 'Message-ID' => $messageId,
-                'X-Mailer' =>'osTicket Mailer',
-                'Content-Type' => 'text/html; charset="UTF-8"'
+                'X-Mailer' =>'osTicket Mailer'
                 );
 
         $mime = new Mail_mime();
