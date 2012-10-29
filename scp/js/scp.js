@@ -6,43 +6,6 @@
  
  */
 
-function selectAll(formObj,task,highlight){
-   var highlight = highlight || false;
-
-   for (var i=0;i < formObj.length;i++){
-      var e = formObj.elements[i];
-      if (e.type == 'checkbox' && !e.disabled){
-         if(task==0){
-            e.checked =false;
-         }else if(task==1){
-            e.checked = true;
-         }else{
-            e.checked = (e.checked) ? false : true;
-         }
-
-         if(highlight && 0) {
-            highLight(e.value,e.checked);
-         }
-       }
-   }
-
-   return false;
-}
-
-function reset_all(formObj){
-    return selectAll(formObj,0,true);
-}
-function select_all(formObj,highlight){
-    return selectAll(formObj,1,highlight);
-}
-function toogle_all(formObj,highlight){
-
-    var highlight = highlight || false;
-    return selectAll(formObj,2,highlight);
-}
-
-
-
 function checkbox_checker(formObj, min, max) {
 
     var max = max || 0;
@@ -76,11 +39,13 @@ $(document).ready(function(){
             .toggleClass("highlight", this.checked);
      });
 
+    $('table.list input:checkbox:checked').trigger('change');
+
     $('#selectAll').click(function(e) {
         e.preventDefault();
         var target = $(this).attr('href').substr(1, $(this).attr('href').length);
         $(this).closest('form')
-            .find('input:checkbox.'+target)
+            .find('input:enabled:checkbox.'+target)
             .prop('checked', true)
             .trigger('change');
 
@@ -92,7 +57,7 @@ $(document).ready(function(){
         e.preventDefault();
         var target = $(this).attr('href').substr(1, $(this).attr('href').length);
         $(this).closest('form')
-            .find('input:checkbox.'+target)
+            .find('input:enabled:checkbox.'+target)
             .prop('checked', false)
             .trigger('change');
         return false;
@@ -102,7 +67,7 @@ $(document).ready(function(){
         e.preventDefault();
         var target = $(this).attr('href').substr(1, $(this).attr('href').length);
         $(this).closest('form')
-            .find('input:checkbox.'+target)
+            .find('input:enabled:checkbox.'+target)
             .each(function() {
                 $(this)
                     .prop('checked', !$(this).is(':checked'))
@@ -178,7 +143,7 @@ $(document).ready(function(){
         return true;
      });
 
-    $('select#setting_options').change(function() {
+    $('select#tpl_options').change(function() {
         $(this).closest('form').submit();
      });
 
