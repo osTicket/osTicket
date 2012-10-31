@@ -605,7 +605,7 @@ body {
   color: #a00;
 }
 #ticketTable th {
-  width: 160px;
+  padding-left: 3px;
   font-weight: normal;
   text-align: left;
 }
