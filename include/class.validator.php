@@ -137,33 +137,13 @@ class Validator {
     }
     function is_phone($phone) {
         /* We're not really validating the phone number but just making sure it doesn't contain illegal chars and of acceptable len */
-        $stripped=preg_replace("(\(|\)|\-|\+|[  ]+)","",$phone);
+        $stripped=preg_replace("(\(|\)|\-|\.|\+|[  ]+)","",$phone);
         return (!is_numeric($stripped) || ((strlen($stripped)<7) || (strlen($stripped)>16)))?false:true;
     }
     
-    function is_url($url) { //Thanks to 4ice for the fix.
-        
-        
-
-        $urlregex = "^(https?)\:\/\/";
-        // USER AND PASS (optional) 
-        $urlregex .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?"; # nolint
-        // HOSTNAME OR IP 
-        // http://x = allowed (ex. http://localhost, http://routerlogin) 
-        $urlregex .= "[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)*";       # nolint
-        //$urlregex .= "[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)+";  // http://x.x = minimum 
-        //$urlregex .= "([a-z0-9+\$_-]+\.)*[a-z0-9+\$_-]{2,3}";  // http://x.xx(x) = minimum 
-        //use only one of the above 
-        // PORT (optional) 
-        $urlregex .= "(\:[0-9]{2,5})?"; 
-        // PATH  (optional) 
-        $urlregex .= "(\/([a-z0-9+\$_-]\.?)+)*\/?";             # nolint
-        // GET Query (optional) 
-        $urlregex .= "(\?[a-z+&\$_.-][a-z0-9;:@/&%=+\$_.-]*)?"; # nolint
-        // ANCHOR (optional) 
-        $urlregex .= "(#[a-z_.-][a-z0-9+\$_.-]*)?\$";           # nolint 
-        
-        return eregi($urlregex, $url)?true:false; 
+    function is_url($url) {
+        //XXX: parse_url is not ideal for validating urls but it's ideal for basic checks.
+        return ($url && ($info=parse_url($url)) && $info['host']);
     }
 
     function is_ip($ip) {
