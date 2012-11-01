@@ -92,7 +92,7 @@ INSERT INTO `%TABLE_PREFIX%ticket_email_info`
                AND `thread_type` = 'M' ),
          `messageId`, `headers`
     FROM `%TABLE_PREFIX%ticket_message`
-    WHERE `messageId` IS NOT NULL;
+    WHERE `messageId` IS NOT NULL AND `messageId` <>'';
 
 -- Update attachment table
 UPDATE `%TABLE_PREFIX%ticket_attachment`
