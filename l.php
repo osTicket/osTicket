@@ -14,10 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require 'secure.inc.php';
-
-global $_GET;
-$url = $_GET['url'];
-if (!$url) exit();
+$url = trim($_GET['url']);
+if (!$url || !Validator::is_url($url)) exit('Invalid url');
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
