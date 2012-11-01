@@ -1,3 +1,11 @@
+New stuff in 1.7-rc3
+====================
+  * Bug fixes from rc2
+  * Canned auto-reply template
+  * Modal dialogs
+  * PEAR packages upgrade
+  * Email encoding 
+
 New stuff in 1.7-rc2
 ====================
   * Bug fixes from rc1
