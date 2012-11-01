@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard@php.net>                               | 
 // +-----------------------------------------------------------------------+ 
 // 
-// $Id: Plain.php,v 1.6 2003/09/11 18:53:56 mbretter Exp $
+// $Id$
 
 /**
 * Implmentation of PLAIN SASL mechanism

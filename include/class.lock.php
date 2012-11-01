@@ -88,7 +88,7 @@ class TicketLock {
     function renew($lockTime=0) {
 
         if(!$lockTime || !is_numeric($lockTime)) //XXX: test to  make it works.
-            $lockTime = '(TIME_TO_SEC(TIMEDIFF(created,expire))/60)';
+            $lockTime = '(TIME_TO_SEC(TIMEDIFF(expire,created))/60)';
             
 
         $sql='UPDATE '.TICKET_LOCK_TABLE

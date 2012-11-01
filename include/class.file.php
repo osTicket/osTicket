@@ -27,7 +27,8 @@ class AttachmentFile {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT f.*, count(DISTINCT c.canned_id) as canned, count(DISTINCT t.ticket_id) as tickets '
+        $sql='SELECT id, type, size, name, hash, f.created, '
+            .' count(DISTINCT c.canned_id) as canned, count(DISTINCT t.ticket_id) as tickets '
             .' FROM '.FILE_TABLE.' f '
             .' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' c ON(c.file_id=f.id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' t ON(t.file_id=f.id) '
@@ -90,18 +91,36 @@ class AttachmentFile {
         return $this->ht['hash'];
     }
 
-    function getBinary() {
-        return $this->ht['filedata'];
+    function open() {
+        return new AttachmentChunkedData($this->id);
+    }
+
+    function sendData() {
+        $file = $this->open();
+        while ($chunk = $file->read())
+            echo $chunk;
     }
 
     function getData() {
-        return $this->getBinary();
+        # XXX: This is horrible, and is subject to php's memory
+        #      restrictions, etc. Don't use this function!
+        ob_start();
+        $this->sendData();
+        $data = &ob_get_contents();
+        ob_end_clean();
+        return $data;
     }
 
     function delete() {
 
         $sql='DELETE FROM '.FILE_TABLE.' WHERE id='.db_input($this->getId()).' LIMIT 1';
-        return (db_query($sql) && db_affected_rows());
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        //Delete file data.
+        AttachmentChunkedData::deleteOrphans();
+
+        return true;
     }
 
 
@@ -110,7 +129,7 @@ class AttachmentFile {
 
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
-        echo $this->getData();
+        $this->sendData();
         exit();
     }
 
@@ -132,7 +151,7 @@ class AttachmentFile {
         
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$this->getSize());
-        echo $this->getBinary();
+        $this->sendData();
         exit();
     }
 
@@ -168,15 +187,9 @@ class AttachmentFile {
         if (!(db_query($sql) && ($id=db_insert_id())))
             return false;
 
-        foreach (str_split($file['data'], 1024*100) as $chunk) {
-            $sql='UPDATE '.FILE_TABLE
-                .' SET filedata = CONCAT(filedata,'.db_input($chunk).')'
-                .' WHERE id='.db_input($id);
-            if(!db_query($sql)) {
-                db_query('DELETE FROM '.FILE_TABLE.' WHERE id='.db_input($id).' LIMIT 1');
-                return false;
-            }
-        }
+        $data = new AttachmentChunkedData($id);
+        if (!$data->write($file['data']))
+            return false;
 
         return $id;
     }
@@ -202,8 +215,8 @@ class AttachmentFile {
      * canned-response, or faq point to any more.
      */
     /* static */ function deleteOrphans() {
-        $res=db_query(
-            'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
+        
+        $sql = 'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
                 # DISTINCT implies sort and may not be necessary
                 .'SELECT DISTINCT(file_id) FROM ('
                     .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
@@ -212,45 +225,67 @@ class AttachmentFile {
                     .' UNION ALL '
                     .'SELECT file_id FROM '.FAQ_ATTACHMENT_TABLE
                 .') still_loved'
-            .')');
-        return db_affected_rows();
+            .')';
+
+        db_query($sql);
+        
+        //Delete orphaned chuncked data!
+        AttachmentChunkedData::deleteOrphans();
+    
+        return true;
+
     }
 }
 
-class AttachmentList {
-    function AttachmentList($table, $key) {
-        $this->table = $table;
-        $this->key = $key;
+/**
+ * Attachments stored in the database are cut into 256kB chunks and stored
+ * in the FILE_CHUNK_TABLE to overcome the max_allowed_packet limitation of
+ * LOB fields in the MySQL database
+ */
+define('CHUNK_SIZE', 500*1024); # Beware if you change this...
+class AttachmentChunkedData {
+    function AttachmentChunkedData($file) {
+        $this->_file = $file;
+        $this->_pos = 0;
     }
 
-    function all() {
-        if (!isset($this->list)) {
-            $this->list = array();
-            $res=db_query('SELECT file_id FROM '.$this->table
-                .' WHERE '.$this->key);
-            while(list($id) = db_fetch_row($res)) {
-                $this->list[] = new AttachmentFile($id);
-            }
+    function length() {
+        list($length) = db_fetch_row(db_query(
+             'SELECT SUM(LENGTH(filedata)) FROM '.FILE_CHUNK_TABLE
+            .' WHERE file_id='.db_input($this->_file)));
+        return $length;
+    }
+
+    function read() {
+        # Read requested length of data from attachment chunks
+        list($buffer) = @db_fetch_row(db_query(
+            'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
+            .db_input($this->_file).' AND chunk_id='.$this->_pos++));
+        return $buffer;
+    }
+
+    function write($what, $chunk_size=CHUNK_SIZE) {
+        $offset=0;
+        for (;;) {
+            $block = substr($what, $offset, $chunk_size);
+            if (!$block) break;
+            if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
+                    .' SET filedata=0x'.bin2hex($block).', file_id='
+                    .db_input($this->_file).', chunk_id='.db_input($this->_pos++)))
+                return false;
+            $offset += strlen($block);
         }
-        return $this->list;
-    }
-    
-    function getCount() {
-        return count($this->all());
+
+        return $this->_pos;
     }
 
-    function add($fileId) {
-        db_query(
-            'INSERT INTO '.$this->table
-                .' SET '.$this->key
-                .' file_id='.db_input($fileId));
-    }
-
-    function remove($fileId) {
-        db_query(
-            'DELETE FROM '.$this->table
-                .' WHERE '.$this->key
-                .' AND file_id='.db_input($fileId));
+    function deleteOrphans() {
+            
+        $sql = 'DELETE c.* FROM '.FILE_CHUNK_TABLE.' c '
+             . ' LEFT JOIN '.FILE_TABLE.' f ON(f.id=c.file_id) '
+             . ' WHERE f.id IS NULL';
+        
+        return db_query($sql)?db_affected_rows():0;
     }
 }
 ?>

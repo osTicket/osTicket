@@ -1,21 +1,48 @@
 <?php
-//
-// +----------------------------------------------------------------------+
-// | PHP Version 4                                                        |
-// +----------------------------------------------------------------------+
-// | Copyright (c) 1997-2003 The PHP Group                                |
-// +----------------------------------------------------------------------+
-// | This source file is subject to version 2.02 of the PHP license,      |
-// | that is bundled with this package in the file LICENSE, and is        |
-// | available at through the world-wide-web at                           |
-// | http://www.php.net/license/2_02.txt.                                 |
-// | If you did not receive a copy of the PHP license and are unable to   |
-// | obtain it through the world-wide-web, please send a note to          |
-// | license@php.net so we can mail you a copy immediately.               |
-// +----------------------------------------------------------------------+
-// | Authors: Chuck Hagenbuch <chuck@horde.org>                           |
-// |          Jon Parise <jon@php.net>                                    |
-// +----------------------------------------------------------------------+
+/**
+ * SMTP implementation of the PEAR Mail interface. Requires the Net_SMTP class.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE:
+ *
+ * Copyright (c) 2010, Chuck Hagenbuch
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * o Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ * o Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ * o The names of the authors may not be used to endorse or promote
+ *   products derived from this software without specific prior written
+ *   permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @category    HTTP
+ * @package     HTTP_Request
+ * @author      Jon Parise <jon@php.net> 
+ * @author      Chuck Hagenbuch <chuck@horde.org>
+ * @copyright   2010 Chuck Hagenbuch
+ * @license     http://opensource.org/licenses/bsd-license.php New BSD License
+ * @version     CVS: $Id: smtp.php 294747 2010-02-08 08:18:33Z clockwerx $
+ * @link        http://pear.php.net/package/Mail/
+ */
 
 /** Error: Failed to create a Net_SMTP object */
 define('PEAR_MAIL_SMTP_ERROR_CREATE', 10000);
@@ -42,7 +69,7 @@ define('PEAR_MAIL_SMTP_ERROR_DATA', 10006);
  * SMTP implementation of the PEAR Mail interface. Requires the Net_SMTP class.
  * @access public
  * @package Mail
- * @version $Revision: 1.33 $
+ * @version $Revision: 294747 $
  */
 class Mail_smtp extends Mail {
 
@@ -278,6 +305,16 @@ class Mail_smtp extends Mail {
 
         /* Send the message's headers and the body as SMTP data. */
         $res = $this->_smtp->data($textHeaders . "\r\n\r\n" . $body);
+		list(,$args) = $this->_smtp->getResponse();
+
+		if (preg_match("/Ok: queued as (.*)/", $args, $queued)) {
+			$this->queued_as = $queued[1];
+		}
+
+		/* we need the greeting; from it we can extract the authorative name of the mail server we've really connected to.
+		 * ideal if we're connecting to a round-robin of relay servers and need to track which exact one took the email */
+		$this->greeting = $this->_smtp->getGreeting();
+
         if (is_a($res, 'PEAR_Error')) {
             $error = $this->_error('Failed to send data', $res);
             $this->_smtp->rset();
@@ -291,16 +328,6 @@ class Mail_smtp extends Mail {
 
         return true;
     }
-
-    /**
-     * Connection wrapper
-     *
-     *
-     */
-    function &connect() {
-        return $this->getSMTPObject();
-    }
-
 
     /**
      * Connect to the SMTP server by instantiating a Net_SMTP object.
@@ -336,7 +363,6 @@ class Mail_smtp extends Mail {
 
         /* Attempt to connect to the configured SMTP server. */
         if (PEAR::isError($res = $this->_smtp->connect($this->timeout))) {
-
             $error = $this->_error('Failed to connect to ' .
                                    $this->host . ':' . $this->port,
                                    $res);
@@ -361,6 +387,15 @@ class Mail_smtp extends Mail {
     }
 
     /**
+     * Connection wrapper
+     *
+     *
+     */
+    function &connect() {
+        return $this->getSMTPObject();
+    }
+
+    /**
      * Add parameter associated with a SMTP service extension.
      *
      * @param string Extension keyword.
@@ -373,9 +408,6 @@ class Mail_smtp extends Mail {
     {
         $this->_extparams[$keyword] = $value;
     }
-
-
-
 
     /**
      * Disconnect and destroy the current SMTP connection.

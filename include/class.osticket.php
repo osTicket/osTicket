@@ -30,6 +30,7 @@ class osTicket {
     var $warning;
     var $message;
 
+    var $title; //Custom title. html > head > title.
     var $headers;
 
     var $config;
@@ -149,12 +150,31 @@ class osTicket {
         return (!$errors);
     }
 
+    /* Replace Template Variables */
+    function replaceTemplateVariables($input, $vars=array()) {
+        
+        $replacer = new VariableReplacer();
+        $replacer->assign(array_merge($vars, 
+                    array('url' => $this->getConfig()->getBaseUrl())
+                    ));
+
+        return $replacer->replaceVars($input);
+    }
+
     function addExtraHeader($header) {
         $this->headers[md5($header)] = $header;
     }
 
     function getExtraHeaders() {
         return $this->headers;
+    }
+
+    function setPageTitle($title) {
+        $this->title = $title;
+    }
+
+    function getPageTitle() {
+        return $this->title;
     }
 
     function getErrors() {

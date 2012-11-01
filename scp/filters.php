@@ -45,53 +45,55 @@ if($_POST){
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']='You must select at least one filter to process.';
-            }else{
+                $errors['err'] = 'You must select at least one filter to process.';
+            } else {
                 $count=count($_POST['ids']);
-                if($_POST['enable']){
-                    $sql='UPDATE '.EMAIL_FILTER_TABLE.' SET isactive=1 WHERE id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())){
-                        if($num==$count)
-                            $msg='Selected filters enabled';
-                        else
-                            $warn="$num of $count selected filters enabled";
-                    }else{
-                        $errors['err']='Unable to enable selected filters';
-                    }
-                }elseif($_POST['disable']){
-                    $sql='UPDATE '.EMAIL_FILTER_TABLE.' SET isactive=0  WHERE id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())) {
-                        if($num==$count)
-                            $msg='Selected filters disabled';
-                        else
-                            $warn="$num of $count selected filters disabled";
-                    }else{
-                        $errors['err']='Unable to disable selected filters';
-                    }
-
-                }elseif($_POST['delete']){
-                    $i=0;
-                    foreach($_POST['ids'] as $k=>$v) {
-                        if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete())
-                            $i++;
-                    }
-
-                    if($i && $i==$count)
-                        $msg='Selected filters deleted successfully';
-                    elseif($i>0)
-                        $warn="$i of $count selected filters deleted";
-                    elseif(!$errors['err'])
-                        $errors['err']='Unable to delete selected filters';
-                    
-                }else {
-                    $errors['err']='Unknown action';
+                switch(strtolower($_POST['a'])) {
+                    case 'enable':
+                        $sql='UPDATE '.FILTER_TABLE.' SET isactive=1 '
+                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
+                                $msg = 'Selected filters enabled';
+                            else
+                                $warn = "$num of $count selected filters enabled";
+                        } else {
+                            $errors['err'] = 'Unable to enable selected filters';
+                        }
+                        break;
+                    case 'disable':
+                        $sql='UPDATE '.FILTER_TABLE.' SET isactive=0 '
+                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
+                                $msg = 'Selected filters disabled';
+                            else
+                                $warn = "$num of $count selected filters disabled";
+                        } else {
+                            $errors['err'] = 'Unable to disable selected filters';
+                        }
+                        break;
+                    case 'delete':
+                        $i=0;
+                        foreach($_POST['ids'] as $k=>$v) {
+                            if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete())
+                                $i++;
+                        }
+                        
+                        if($i && $i==$count)
+                            $msg = 'Selected filters deleted successfully';
+                        elseif($i>0)
+                            $warn = "$i of $count selected filters deleted";
+                        elseif(!$errors['err'])
+                            $errors['err'] = 'Unable to delete selected filters';
+                        break;
+                    default:
+                        $errors['err']='Unknown action - get technical help';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']='Unknown commande/action';
             break;
     }
 }
@@ -100,7 +102,7 @@ $page='filters.inc.php';
 if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page='filter.inc.php';
 
-$nav->setTabActive('emails');
+$nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

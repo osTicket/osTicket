@@ -376,7 +376,7 @@ class MailFetcher {
             return true; //Reporting success so the email can be moved or deleted.
 
 	    //Is the email address banned?
-        if($mailinfo['email'] && EmailFilter::isBanned($mailinfo['email'])) {
+        if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
             $ost->logWarning('Ticket denied', 'Banned email - '.$mailinfo['email']);
 	        return true; //Report success (moved or delete)
@@ -442,7 +442,7 @@ class MailFetcher {
                     //This should be really a comment on message - NoT an internal note.
                     //TODO: support comments on Messages and Responses.
                     $error = sprintf('Attachment %s [%s] rejected because of file type', $a['name'], $a['mime']);
-                    $ticket->postNote('Email Attachment Rejected', $error, false);
+                    $ticket->postNote('Email Attachment Rejected', $error, 'SYSTEM', false);
                     $ost->logDebug('Email Attachment Rejected (Ticket #'.$ticket->getExtId().')', $error);
                 }
             }

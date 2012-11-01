@@ -93,13 +93,18 @@ var autoLock = {
 
     Init: function(config) {
 
-        //make sure we are on ticket view page!
-        void(autoLock.form=document.forms['reply']);
-        if(!autoLock.form || !autoLock.form.id.value) {
-                return;
+        //make sure we are on ticket view page & locking is enabled!
+        var fObj=$('form#reply');
+        if(!fObj 
+                || !$(':input[name=id]',fObj).length 
+                || !$(':input[name=locktime]',fObj).length
+                || $(':input[name=locktime]',fObj).val()==0) {
+            return;
         }
 
-        void(autoLock.tid=parseInt(autoLock.form.id.value));
+        void(autoLock.tid=parseInt($(':input[name=id]',fObj).val()));
+        void(autoLock.lockTime=parseInt($(':input[name=locktime]',fObj).val()));
+
         autoLock.lockId=0;
         autoLock.timerId=0;
         autoLock.lasteventTime=0;
@@ -108,9 +113,6 @@ var autoLock = {
         autoLock.renewTime=0;
         autoLock.renewFreq=0; //renewal frequency in seconds...based on returned lock time.
         autoLock.time=0;
-        if(config && config.ticket_lock_time)
-            autoLock.timeTime=config.ticket_lock_time
-
         autoLock.lockAttempts=0; //Consecutive lock attempt errors
         autoLock.maxattempts=2; //Maximum failed lock attempts before giving up.
         autoLock.warn=true;
@@ -316,26 +318,44 @@ jQuery(function($) {
             }
         }
      });
-    
-    //Ticket print options
-    $("#print-options").css({
-        top  : ($(window).height() /5),
-        left : ($(window).width() / 2 - 300)
-    });
-
-    $('a#ticket-print').click(function(e) {
-        e.preventDefault();
-        $('#overlay').show();
-        $('#print-options').show();
-        return false;
-    });
-
-    $('#print-options').delegate('a.close, input.close', 'click', function(e) {
-        e.preventDefault();
-        $('#print-options').hide()
-        $('#overlay').hide();
-    });
 
     //Start watching the form for activity.
     autoLock.Init();
+
+    /*** Ticket Actions **/
+    //print options
+    $('a#ticket-print').click(function(e) {
+        e.preventDefault();
+        $('#overlay').show();
+        $('.dialog#print-options').show();
+        return false;
+    });
+
+    //ticket status (close & reopen)
+    $('a#ticket-close, a#ticket-reopen').click(function(e) {
+        e.preventDefault();
+        $('#overlay').show();
+        $('.dialog#ticket-status').show();
+        return false;
+    });
+       
+    //ticket actions confirmation - Delete + more
+    $('a#ticket-delete, a#ticket-claim, #action-dropdown-more li a').click(function(e) {
+        e.preventDefault();
+        if($('.dialog#confirm-action '+$(this).attr('href')+'-confirm').length) {
+            var action = $(this).attr('href').substr(1, $(this).attr('href').length);
+            $('.dialog#confirm-action #action').val(action);
+            $('#overlay').show();
+            $('.dialog#confirm-action .confirm-action').hide();
+            $('.dialog#confirm-action p'+$(this).attr('href')+'-confirm')
+            .show()
+            .parent('div').show().trigger('click');
+
+        } else {
+            alert('Unknown action '+$(this).attr('href')+'- get technical help.');
+        }
+
+        return false;
+    });
+
 });

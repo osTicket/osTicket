@@ -63,10 +63,14 @@ ALTER TABLE `%TABLE_PREFIX%config`
     ADD `transfer_alert_dept_manager` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' AFTER `transfer_alert_assigned` ,
     ADD `transfer_alert_dept_members` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `transfer_alert_dept_manager`,
     ADD `send_sys_errors` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `enable_email_piping`,
-    ADD `enable_kb` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `use_email_priority`,
+    ADD `enable_kb` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `use_email_priority`,
     ADD `enable_premade` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `enable_kb`,
     ADD `show_related_tickets` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `auto_assign_reopened_tickets`,
     ADD `schema_signature` CHAR( 32 ) NOT NULL AFTER `ostversion`;
+
+-- copy over timezone id - based on offset.
+UPDATE `%TABLE_PREFIX%config` SET default_timezone_id =
+    (SELECT id FROM `%TABLE_PREFIX%timezone` WHERE offset = `%TABLE_PREFIX%config`.timezone_offset);
 
 ALTER TABLE `%TABLE_PREFIX%staff` 
     ADD `passwdreset` DATETIME NULL DEFAULT NULL AFTER `lastlogin`;
@@ -145,8 +149,8 @@ ALTER TABLE `%TABLE_PREFIX%email_template`
     ADD `transfer_alert_subj` VARCHAR( 255 ) NOT NULL AFTER `assigned_alert_body`,
     ADD `transfer_alert_body` TEXT NOT NULL AFTER `transfer_alert_subj`;
 
--- Insert default text for the new messaage tpl (all records are updated).
-UPDATE `%TABLE_PREFIX%email_template` SET updated=NOW() ,transfer_alert_subj='Ticket Transfer #%ticket - %dept',transfer_alert_body='%staff,\r\n\r\nTicket #%ticket has been transferred to %dept department.\r\n\r\n----------------------\r\n\r\n%note\r\n\r\n-------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%url/scp/ticket.php?id=%id\r\n\r\n- Your friendly Customer Support System - powered by osTicket.';
+-- Insert default text for the new messaage tpl + make templates active (all records are updated).
+UPDATE `%TABLE_PREFIX%email_template` SET updated=NOW() ,isactive=1, transfer_alert_subj='Ticket Transfer #%ticket - %dept',transfer_alert_body='%staff,\r\n\r\nTicket #%ticket has been transferred to %dept department.\r\n\r\n----------------------\r\n\r\n%note\r\n\r\n-------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%url/scp/ticket.php?id=%id\r\n\r\n- Your friendly Customer Support System - powered by osTicket.';
 
 ALTER TABLE `%TABLE_PREFIX%help_topic`
     ADD ispublic TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER isactive,

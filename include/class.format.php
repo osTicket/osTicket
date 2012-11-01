@@ -180,7 +180,7 @@ class Format {
     }
 
     /* elapsed time */
-    function elapsedTime($sec){
+    function elapsedTime($sec) {
 
         if(!$sec || !is_numeric($sec)) return "";
 
@@ -197,32 +197,32 @@ class Format {
     /* Dates helpers...most of this crap will change once we move to PHP 5*/
     function db_date($time) {
         global $cfg;
-        return Format::userdate($cfg->getDateFormat(),Misc::db2gmtime($time));
+        return Format::userdate($cfg->getDateFormat(), Misc::db2gmtime($time));
     }
 
     function db_datetime($time) {
         global $cfg;
-        return Format::userdate($cfg->getDateTimeFormat(),Misc::db2gmtime($time));
+        return Format::userdate($cfg->getDateTimeFormat(), Misc::db2gmtime($time));
     }
     
     function db_daydatetime($time) {
         global $cfg;
-        return Format::userdate($cfg->getDayDateTimeFormat(),Misc::db2gmtime($time));
+        return Format::userdate($cfg->getDayDateTimeFormat(), Misc::db2gmtime($time));
     }
 
-    function userdate($format,$gmtime) {
-        return Format::date($format,$gmtime,$_SESSION['TZ_OFFSET'],$_SESSION['TZ_DST']);
+    function userdate($format, $gmtime) {
+        return Format::date($format, $gmtime, $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST']);
     }
     
-    function date($format,$gmtimestamp,$offset=0,$daylight=false){
-        if(!$gmtimestamp || !is_numeric($gmtimestamp)) return ""; 
-       
-        $offset+=$daylight?date('I',$gmtimestamp):0; //Daylight savings crap.
-        return date($format,($gmtimestamp+($offset*3600)));
-    }
-                        
+    function date($format, $gmtimestamp, $offset=0, $daylight=false){
         
-
-    
+        if(!$gmtimestamp || !is_numeric($gmtimestamp))
+            return ""; 
+        
+        $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
+        
+        return date($format, ($gmtimestamp+ ($offset*3600)));
+    }
+                      
 }
 ?>

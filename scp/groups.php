@@ -39,45 +39,52 @@ if($_POST){
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']='You must select at least one group.';
-            }else{
+                $errors['err'] = 'You must select at least one group.';
+            } elseif(in_array($thisstaff->getGroupId(), $_POST['ids'])) {
+                $errors['err'] = "As an admin, you can't disable/delete a group you belong to - you might lockout all admins!";
+            } else {
                 $count=count($_POST['ids']);
-                if($_POST['enable']){
-                    $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=1, updated=NOW() WHERE group_id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())){
-                        if($num==$count)
-                            $msg='Selected groups activated';
-                        else
-                            $warn="$num of $count selected groups activated";
-                    }else{
-                        $errors['err']='Unable to activate selected groups';
-                    }
-                }elseif($_POST['disable']){
-                    $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=0, updated=NOW() WHERE group_id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())) {
-                        if($num==$count)
-                            $msg='Selected groups disabled';
-                        else
-                            $warn="$num of $count selected groups disabled";
-                    }else{
-                        $errors['err']='Unable to disable selected groups';
-                    }
-                }elseif($_POST['delete']){
-                    foreach($_POST['ids'] as $k=>$v) {
-                        if(($g=Group::lookup($v)) && $g->delete())
-                            $i++;
-                    }
+                switch(strtolower($_POST['a'])) {
+                    case 'enable':
+                        $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=1, updated=NOW() '
+                            .' WHERE group_id IN ('.implode(',', db_input($_POST['ids'])).')';
 
-                    if($i && $i==$count)
-                        $msg='Selected groups deleted successfully';
-                    elseif($i>0)
-                        $warn="$i of $count selected groups deleted";
-                    elseif(!$errors['err'])
-                        $errors['err']='Unable to delete selected groups';
-                }else{
-                    $errors['err']='Unknown action. Get technical help!';
+                        if(db_query($sql) && ($num=db_affected_rows())){
+                            if($num==$count)
+                                $msg = 'Selected groups activated';
+                            else
+                                $warn = "$num of $count selected groups activated";
+                        } else {
+                            $errors['err'] = 'Unable to activate selected groups';
+                        }
+                        break;
+                    case 'disable':
+                        $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=0, updated=NOW() '
+                            .' WHERE group_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
+                                $msg = 'Selected groups disabled';
+                            else
+                                $warn = "$num of $count selected groups disabled";
+                        } else {
+                            $errors['err'] = 'Unable to disable selected groups';
+                        }
+                        break;
+                    case 'delete':
+                        foreach($_POST['ids'] as $k=>$v) {
+                            if(($g=Group::lookup($v)) && $g->delete())
+                                $i++;
+                        }   
+
+                        if($i && $i==$count)
+                            $msg = 'Selected groups deleted successfully';
+                        elseif($i>0)
+                            $warn = "$i of $count selected groups deleted";
+                        elseif(!$errors['err'])
+                            $errors['err'] = 'Unable to delete selected groups';
+                        break;
+                    default:
+                        $errors['err']  = 'Unknown action. Get technical help!';
                 }
             }
             break;

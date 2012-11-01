@@ -63,7 +63,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         $sql.=' AND faq.category_id='.db_input($_REQUEST['cid']);
 
     if($_REQUEST['q'])
-        $sql.=" AND MATCH(question,answer,keywords) AGAINST ('".db_input($_REQUEST['q'],false)."')";
+        $sql.=" AND question LIKE ('%".db_input($_REQUEST['q'],false)."%') OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%') OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%')";
 
     $sql.=' GROUP BY faq.faq_id';
     echo "<div><strong>Search Results</strong></div><div class='clear'></div>";

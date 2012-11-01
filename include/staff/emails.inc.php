@@ -48,9 +48,10 @@ else
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
     <b><a href="emails.php?a=add" class="Icon newEmail">Add New Email</a></b></div>
 <div class="clear"></div>
-<form action="emails.php" method="POST" name="emails" onSubmit="return checkbox_checker(this,1,0);">
+<form action="emails.php" method="POST" name="emails">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
+ <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
@@ -71,10 +72,8 @@ else
             $defaultId=$cfg->getDefaultEmailId();
             while ($row = db_fetch_array($res)) {
                 $sel=false;
-                if($ids && in_array($row['email_id'],$ids)){
-                    $class="$class highlight";
+                if($ids && in_array($row['email_id'],$ids))
                     $sel=true;
-                }
                 $default=($row['email_id']==$defaultId);
                 $email=$row['email'];
                 if($row['name'])
@@ -82,13 +81,8 @@ else
                 ?>
             <tr id="<?php echo $row['email_id']; ?>">
                 <td width=7px>
-                 <?php if($row['email_id']==$defaultId){ ?>
-                    &nbsp;
-                 <?php }else{ ?>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['email_id']; ?>" 
-                            <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>
-                                onClick="highLight(this.value,this.checked);"> 
-                  <?php } ?>
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['email_id']; ?>" 
+                            <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>>
                 </td>
                 <td><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo Format::htmlchars($email); ?></a>&nbsp;</td>
                 <td><?php echo $row['priority']; ?></td>
@@ -104,9 +98,9 @@ else
         <td colspan="6">
             <?php if($res && $num){ ?>
             Select:&nbsp;
-            <a href="#" onclick="return select_all(document.forms['emails'],true)">All</a>&nbsp;&nbsp;
-            <a href="#" onclick="return reset_all(document.forms['emails'])">None</a>&nbsp;&nbsp;
-            <a href="#" onclick="return toogle_all(document.forms['emails'],true)">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
                 echo 'No help emails found';
             } ?>
@@ -118,12 +112,31 @@ else
 if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered">
-    <input class="button" type="submit" name="delete" value="Delete Email(s)"
-                onClick=' return confirm("Are you sure you want to DELETE selected emails?");'>
+<p class="centered" id="actions">
+    <input class="button" type="submit" name="delete" value="Delete Email(s)" >
 </p>
 <?php
 endif;
 ?>
 </form>
 
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href="">&times;</a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="delete-confirm">
+        <font color="red"><strong>Are you sure you want to DELETE selected emails?</strong></font>
+        <br><br>Deleted emails CANNOT be recovered.
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Yes, Do it!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>

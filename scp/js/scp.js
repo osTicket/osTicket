@@ -6,47 +6,11 @@
  
  */
 
-function selectAll(formObj,task,highlight){
-   var highlight = highlight || false;
+function checkbox_checker(formObj, min, max) {
 
-   for (var i=0;i < formObj.length;i++){
-      var e = formObj.elements[i];
-      if (e.type == 'checkbox' && !e.disabled){
-         if(task==0){
-            e.checked =false;
-         }else if(task==1){
-            e.checked = true;
-         }else{
-            e.checked = (e.checked) ? false : true;
-         }
-
-         if(highlight && 0) {
-            highLight(e.value,e.checked);
-         }
-       }
-   }
-
-   return false;
-}
-
-function reset_all(formObj){
-    return selectAll(formObj,0,true);
-}
-function select_all(formObj,highlight){
-    return selectAll(formObj,1,highlight);
-}
-function toogle_all(formObj,highlight){
-
-    var highlight = highlight || false;
-    return selectAll(formObj,2,highlight);
-}
-
-
-
-function checkbox_checker(formObj, min,max) {
-
-
-    var checked=$("input[type=checkbox]:checked").length;
+    var max = max || 0;
+    var min = min || 1;
+    var checked=$('input:checkbox:checked', formObj).length;
     var action= action?action:"process";
     if (max>0 && checked > max ){
         msg="You're limited to only " + max + " selections.\n"
@@ -69,6 +33,75 @@ $(document).ready(function(){
 
     $("input:not(.dp):visible:enabled:first").focus();
     $('table.list tbody tr:odd').addClass('odd');
+    $('table.list input:checkbox').bind('click, change', function() {
+        $(this)
+            .parents("tr:first")
+            .toggleClass("highlight", this.checked);
+     });
+
+    $('table.list input:checkbox:checked').trigger('change');
+
+    $('#selectAll').click(function(e) {
+        e.preventDefault();
+        var target = $(this).attr('href').substr(1, $(this).attr('href').length);
+        $(this).closest('form')
+            .find('input:enabled:checkbox.'+target)
+            .prop('checked', true)
+            .trigger('change');
+
+        return false;
+     });
+
+
+    $('#selectNone').click(function(e) {
+        e.preventDefault();
+        var target = $(this).attr('href').substr(1, $(this).attr('href').length);
+        $(this).closest('form')
+            .find('input:enabled:checkbox.'+target)
+            .prop('checked', false)
+            .trigger('change');
+        return false;
+     });
+
+    $('#selectToggle').click(function(e) {
+        e.preventDefault();
+        var target = $(this).attr('href').substr(1, $(this).attr('href').length);
+        $(this).closest('form')
+            .find('input:enabled:checkbox.'+target)
+            .each(function() {
+                $(this)
+                    .prop('checked', !$(this).is(':checked'))
+                    .trigger('change');
+             });
+        return false;
+     });
+
+    $('#actions input:submit.button').bind('click', function(e) {
+
+        var formObj = $(this).closest('form');
+        e.preventDefault();
+        if($('.dialog#confirm-action p#'+this.name+'-confirm').length == 0) {
+            alert('Unknown action '+this.name+' - get technical help.');
+        } else if(checkbox_checker(formObj, 1)) {
+            var action = this.name;
+            $('.dialog#confirm-action').undelegate('.confirm');
+            $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
+                e.preventDefault();
+                $('.dialog#confirm-action').hide();
+                $('#overlay').hide();
+                $('input#action', formObj).val(action);
+                formObj.submit();
+                return false;
+             });
+            $('#overlay').show();
+            $('.dialog#confirm-action .confirm-action').hide();
+            $('.dialog#confirm-action p#'+this.name+'-confirm')
+            .show()
+            .parent('div').show().trigger('click');
+        } 
+        
+        return false;
+     });
 
     if($.browser.msie) {
         $('.inactive').mouseenter(function() {
@@ -110,7 +143,7 @@ $(document).ready(function(){
         return true;
      });
 
-    $('select#setting_options').change(function() {
+    $('select#tpl_options').change(function() {
         $(this).closest('form').submit();
      });
 
@@ -279,16 +312,31 @@ $(document).ready(function(){
         property: "email"
     });
 
-    /* advanced search */
-    $("#overlay, #search_overlay").css({
+    //Overlay
+    $('#overlay').css({
         opacity : 0.3,
         top     : 0,
         left    : 0,
         width   : $(window).width(),
         height  : $(window).height()
     });
+       
+    //Dialog
+    $('.dialog').css({
+        top  : ($(window).height() /5),
+        left : ($(window).width() / 2 - 300)
+    });
+      
+    $('.dialog').delegate('input.close, a.close', 'click', function(e) {
+        e.preventDefault();
+        $(this).parents('div.dialog').hide()
+        $('#overlay').hide();
 
-    $("#advanced-search").css({
+        return false;
+    });
+
+    /* advanced search */
+    $('.dialog#advanced-search').css({
         top  : ($(window).height() / 6),
         left : ($(window).width() / 2 - 300)
     });
@@ -296,15 +344,11 @@ $(document).ready(function(){
     $('#go-advanced').click(function(e) {
         e.preventDefault();
         $('#result-count').html('');
-        $('#search_overlay').show();
+        $('#overlay').show();
         $('#advanced-search').show();
     });
 
-    $('#advanced-search').delegate('a.close, input.close', 'click', function(e) {
-        e.preventDefault();
-        $('#advanced-search').hide()
-        $('#search_overlay').hide();
-    }).delegate('#status', 'change', function() {
+    $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {
             case 'closed':
                 $('select#assignee').find('option:first').attr('selected', 'selected').parent('select');

@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once(INCLUDE_DIR.'class.thread.php');
 include_once(INCLUDE_DIR.'class.staff.php');
 include_once(INCLUDE_DIR.'class.client.php');
 include_once(INCLUDE_DIR.'class.team.php');
@@ -25,10 +26,12 @@ include_once(INCLUDE_DIR.'class.attachment.php');
 include_once(INCLUDE_DIR.'class.pdf.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
+include_once(INCLUDE_DIR.'class.variable.php');
 include_once(INCLUDE_DIR.'class.priority.php');
 include_once(INCLUDE_DIR.'class.sla.php');
+include_once(INCLUDE_DIR.'class.canned.php');
 
-class Ticket{
+class Ticket {
 
     var $id;
     var $extid;
@@ -198,12 +201,16 @@ class Ticket{
     }
 
     //Getters
-    function getId(){
+    function getId() {
         return  $this->id;
     }
 
-    function getExtId(){
+    function getExtId() {
         return  $this->extid;
+    }
+
+    function getNumber() {
+        return $this->getExtId();
     }
    
     function getEmail(){
@@ -419,6 +426,11 @@ class Ticket{
         return $assignees;
     }
 
+    function getAssigned($glue='/') {
+        $assignees = $this->getAssignees();
+        return $assignees?implode($glue, $assignees):'';
+    }
+
     function getTopicId() {
         return $this->topic_id;
     }
@@ -439,7 +451,7 @@ class Ticket{
     function getSLA() {
 
         if(!$this->sla && $this->getSLAId())
-            $this->sla = SLA::lookup($this->getSLAId);
+            $this->sla = SLA::lookup($this->getSLAId());
 
         return $this->sla;
     }
@@ -535,7 +547,7 @@ class Ticket{
     }
 
     function getResponses($msgId=0) {
-        return $this->getThreadByType('R', $msgID);
+        return $this->getThreadByType('R', $msgId);
     }
 
     function getNotes() {
@@ -656,9 +668,9 @@ class Ticket{
 
     //DeptId can NOT be 0. No orphans please!
     function setDeptId($deptId){
-        
+       
         //Make sure it's a valid department//
-        if(!($dept=Dept::lookup($deptId)))
+        if(!($dept=Dept::lookup($deptId)) || $dept->getId()==$this->getDeptId())
             return false;
 
       
@@ -669,16 +681,18 @@ class Ticket{
     }
  
     //Set staff ID...assign/unassign/release (id can be 0)
-    function setStaffId($staffId){
+    function setStaffId($staffId) {
+
+        if(!is_numeric($staffId)) return false;
        
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
             .' WHERE ticket_id='.db_input($this->getId());
 
-        if (db_query($sql)  && db_affected_rows()) {
-            $this->staff_id = $staffId;
-            return true;
-        }
-        return false;
+        if (!db_query($sql)  || !db_affected_rows())
+            return false;
+        
+        $this->staff_id = $staffId;
+        return true;
     }
 
     function setSLAId($slaId) {
@@ -708,23 +722,26 @@ class Ticket{
         #     email filter? This method doesn't consider such a case
         if ($trump !== null) {
             $slaId = $trump;
-        } elseif ($this->getDept()->getSLAId()) {
+        } elseif ($this->getDept() && $this->getDept()->getSLAId()) {
             $slaId = $this->getDept()->getSLAId();
-        } elseif ($this->getTopicId() && $this->getTopic()) {
+        } elseif ($this->getTopic() && $this->getTopic()->getSLAId()) {
             $slaId = $this->getTopic()->getSLAId();
         } else {
             $slaId = $cfg->getDefaultSLAId();
         }
+
         return ($slaId && $this->setSLAId($slaId)) ? $slaId : false;
     }
 
     //Set team ID...assign/unassign/release (id can be 0)
-    function setTeamId($teamId){
+    function setTeamId($teamId) {
+        
+        if(!is_numeric($teamId)) return false;
+      
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id='.db_input($teamId)
+            .' WHERE ticket_id='.db_input($this->getId());
 
-      $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id='.db_input($teamId)
-          .' WHERE ticket_id='.db_input($this->getId());
-
-      return (db_query($sql)  && db_affected_rows());
+        return (db_query($sql)  && db_affected_rows());
     }
 
     //Status helper.
@@ -763,6 +780,11 @@ class Ticket{
             case 'overdue':
                 return $this->markOverdue();
                 break;
+            case 'notdue':
+                return $this->clearOverdue();
+                break;
+            case 'unassined':
+                return $this->unassign();
         }
 
         return false;
@@ -783,15 +805,19 @@ class Ticket{
     function close(){
         global $thisstaff;
         
-        $sql='UPDATE '.TICKET_TABLE.' SET closed=NOW(), isoverdue=0, duedate=NULL, updated=NOW(), status='.db_input('closed');
-        
+        $sql='UPDATE '.TICKET_TABLE.' SET closed=NOW(),isoverdue=0, duedate=NULL, updated=NOW(), status='.db_input('closed');
         if($thisstaff) //Give the closing  staff credit. 
             $sql.=', staff_id='.db_input($thisstaff->getId());
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        $this->reload();
         $this->logEvent('closed');
-        return (db_query($sql) && db_affected_rows());
+
+        return true;
     }
 
     //set status to open on a closed ticket.
@@ -832,17 +858,17 @@ class Ticket{
         if($autorespond && $email && $cfg->autoRespONNewTicket() 
                 && $dept->autoRespONNewTicket() 
                 &&  ($msg=$tpl->getAutoRespMsgTemplate())) {
-              
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%message', $message, $body);
-            $body = str_replace('%signature',($dept && $dept->isPublic())?$dept->getSignature():'',$body);
             
+            $msg = $this->replaceVars($msg, 
+                    array('message' => $message,
+                          'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
+                    );
+
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $body ="\n$tag\n\n".$body;
+                $msg['body'] ="\n$tag\n\n".$msg['body'];
             
             //TODO: add auto flags....be nice to mail servers and sysadmins!!
-            $email->send($this->getEmail(),$subj,$body);
+            $email->send($this->getEmail(), $msg['subj'], $msg['body']);
         }
         
         if(!($email=$cfg->getAlertEmail()))
@@ -852,17 +878,14 @@ class Ticket{
         if($alertstaff && $email
                 && $cfg->alertONNewTicket() 
                 && ($msg=$tpl->getNewTicketAlertMsgTemplate())) {
-              
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%message', $message, $body);
-            
+                    
+            $msg = $this->replaceVars($msg, array('message' => $message));
+
             $recipients=$sentlist=array();
-            
             //Alert admin??
             if($cfg->alertAdminONNewTicket()) {
-                $alert = str_replace("%staff",'Admin',$body);
-                $email->send($cfg->getAdminEmail(),$subj,$alert);
+                $alert = str_replace('%{recipient}', 'Admin', $msg['body']);
+                $email->send($cfg->getAdminEmail(), $msg['subj'], $alert);
                 $sentlist[]=$cfg->getAdminEmail();
             }
               
@@ -877,8 +900,8 @@ class Ticket{
                
             foreach( $recipients as $k=>$staff){
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
-                $alert = str_replace("%staff",$staff->getFirstName(),$body);
-                $email->send($staff->getEmail(),$subj,$alert);
+                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
+                $email->send($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
            
@@ -907,20 +930,21 @@ class Ticket{
             $email=$cfg->getDefaultEmail();
 
         if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%signature',($dept && $dept->isPublic())?$dept->getSignature():'',$body);
-            $email->send($this->getEmail(), $subj, $body);
+            
+            $msg = $this->replaceVars($msg, 
+                        array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
+            
+            $email->send($this->getEmail(), $msg['subj'], $msg['body']);
         }
 
         $client= $this->getClient();
         
         //Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
-        $msg='Max. open tickets reached for '.$this->getEmail()."\n"
-            .'Open ticket: '.$client->getNumOpenTickets()."\n"
-            .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
+        $alert='Max. open tickets reached for '.$this->getEmail()."\n"
+              .'Open ticket: '.$client->getNumOpenTickets()."\n"
+              .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
             
-        $ost->alertAdmin('Overlimit Notice', $msg);
+        $ost->alertAdmin('Overlimit Notice', $alert);
        
         return true;
     }
@@ -958,38 +982,40 @@ class Ticket{
 
 
         if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
-       
+            $tpl = $cfg->getDefaultTemplate();
+
+        if(!$dept || !($email = $dept->getAutoRespEmail()))
+            $email = $cfg->getDefaultEmail();
+      
         //If enabled...send confirmation to user. ( New Message AutoResponse)
-        if($tpl && ($msg=$tpl->getNewMessageAutorepMsgTemplate())) {
-                        
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%signature',($dept && $dept->isPublic())?$dept->getSignature():'',$body);
+        if($email && $tpl && ($msg=$tpl->getNewMessageAutorepMsgTemplate())) {
+
+            $msg = $this->replaceVars($msg,
+                            array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
             //Reply separator tag.
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $body ="\n$tag\n\n".$body;
-            
-            if(!$dept || !($email=$dept->getAutoRespEmail()))
-                $email=$cfg->getDefaultEmail();
-            
-            if($email) {
-                $email->send($this->getEmail(),$subj,$body);
-            }
+                $msg['body'] ="\n$tag\n\n".$msg['body'];
+        
+            $email->send($this->getEmail(), $msg['subj'], $msg['body']);
         }
     }
 
-    function onAssign($note, $alert=true) {
+    function onAssign($assignee, $comments, $alert=true) {
         global $cfg, $thisstaff;
 
         if($this->isClosed()) $this->reopen(); //Assigned tickets must be open - otherwise why assign?
 
+        //Assignee must be an object of type Staff or Team
+        if(!$assignee || !is_object($assignee)) return false;
+
         $this->reload();
 
+        $comments = $comments?$comments:'Ticket assignment';
+        $assigner = $thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
+        
         //Log an internal note - no alerts on the internal note.
-        $note=$note?$note:'Ticket assignment';
-        $this->postNote('Ticket Assigned to '.$this->getAssignee(),$note,false);
+        $this->logNote('Ticket Assigned to '.$assignee->getName(), $comments, $assigner, false);
 
         //See if we need to send alerts
         if(!$alert || !$cfg->alertONAssignment()) return true; //No alerts!
@@ -998,39 +1024,39 @@ class Ticket{
 
         //Get template.
         if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
+            $tpl = $cfg->getDefaultTemplate();
 
         //Email to use!
         if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
+            $email = $cfg->getDefaultEmail();
+
+        //recipients
+        $recipients=array();
+        if(!strcasecmp(get_class($assignee), 'Staff')) {
+            if($cfg->alertStaffONAssignment())
+                $recipients[] = $assignee;
+        } elseif(!strcasecmp(get_class($assignee), 'Team')) {
+            if($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembers()))
+                $recipients+=$members;
+            elseif($cfg->alertTeamLeadONAssignment() && ($lead=$assignee->getTeamLead()))
+                $recipients[] = $lead;
+        }
 
         //Get the message template
-        if($tpl && ($msg=$tpl->getAssignedAlertMsgTemplate()) && $email) {
+        if($email && $recipients && $tpl && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
 
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%note', $note, $body);
-            $body = str_replace('%message', $note, $body); //Previous versions used message.
-            $body = str_replace('%assignee', $this->getAssignee(), $body);
-            $body = str_replace('%assigner', ($thisstaff)?$thisstaff->getName():'System',$body);
-            //recipients
-            $recipients=array();
-            //Assigned staff or team... if any
-            // Assigning a ticket to a team when already assigned to staff disables alerts to the team (!))
-            if($cfg->alertStaffONAssignment() && $this->getStaffId())
-                $recipients[]=$this->getStaff();
-            elseif($this->getTeamId() && ($team=$this->getTeam())) {
-                if($cfg->alertTeamMembersONAssignment() && ($members=$team->getMembers()))
-                    $recipients+=$members;
-                elseif($cfg->alertTeamLeadONAssignment() && ($lead=$team->getTeamLead()))
-                    $recipients[]=$lead;
-            }
+            $msg = $this->replaceVars($msg, 
+                        array('comments' => $comments,
+                              'assignee' => $assignee,
+                              'assigner' => $assigner
+                              ));
+
             //Send the alerts.
             $sentlist=array();
-            foreach( $recipients as $k=>$staff){
+            foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
-                $alert = str_replace('%staff', $staff->getFirstName(), $body);
-                $email->send($staff->getEmail(), $subj, $alert);
+                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
+                $email->send($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1059,10 +1085,8 @@ class Ticket{
 
         //Get the message template
         if($tpl && ($msg=$tpl->getOverdueAlertMsgTemplate()) && $email) {
-
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%comments', $comments, $body); //Planned support.
+            
+            $msg = $this->replaceVars($msg, array('comments' => $comments));
 
             //recipients
             $recipients=array();
@@ -1084,51 +1108,83 @@ class Ticket{
             $sentlist=array();
             foreach( $recipients as $k=>$staff){
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
-                $alert = str_replace("%staff",$staff->getFirstName(),$body);
-                $email->send($staff->getEmail(),$subj,$alert);
+                $alert = str_replace("%{recipient}", $staff->getFirstName(), $msg['body']);
+                $email->send($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
 
         }
 
         return true;
+    
+    }
+   
+    //ticket obj as variable = ticket number.
+    function asVar() {
+       return $this->getNumber();
+    }
+
+    function getVar($tag) {
+        global $cfg;
+
+        if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
+            return call_user_func(array($this, 'get'.ucfirst($tag)));
+
+        switch(strtolower($tag)) {
+            case 'phone_number':
+                return $this->getPhoneNumber();
+                break;
+            case 'auth_token':
+                return $this->getAuthToken();
+                break;
+            case 'client_link':
+                return sprintf('%s/view.php?t=%s&e=%s&a=%s',
+                        $cfg->getBaseUrl(), $this->getNumber(), $this->getEmail(), $this->getAuthToken());
+                break;
+            case 'staff_link':
+                return sprintf('%s/scp/tickets.php?id=%d', $cfg->getBaseUrl(), $this->getId());
+                break;
+            case 'create_date':
+                return Format::date(
+                        $cfg->getDateTimeFormat(), 
+                        Misc::db2gmtime($this->getCreateDate()),
+                        $cfg->getTZOffset(),
+                        $cfg->observeDaylightSaving());
+                break;
+             case 'due_date':
+                $duedate ='';
+                if($this->getDueDate())
+                    $duedate = Format::date(
+                            $cfg->getDateTimeFormat(),
+                            Misc::db2gmtime($this->getDueDate()),
+                            $cfg->getTZOffset(),
+                            $cfg->observeDaylightSaving());
+
+                return $duedate;
+                break;
+            case 'close_date';
+                $closedate ='';
+                if($this->isClosed())
+                    $duedate = Format::date(
+                            $cfg->getDateTimeFormat(),
+                            Misc::db2gmtime($this->getCloseDate()),
+                            $cfg->getTZOffset(),
+                            $cfg->observeDaylightSaving());
+
+                return $closedate;
+                break;
+        }
+
+        return false;
     }
 
     //Replace base variables.
-    function replaceTemplateVars($text){
-        global $cfg;
+    function replaceVars($input, $vars = array()) {
+        global $ost;
 
-        $dept = $this->getDept();
-        $staff= $this->getStaff();
-        $team = $this->getTeam();
+        $vars = array_merge($vars, array('ticket' => $this));
 
-        //TODO: add new vars (team, sla...etc)
-
-
-        $search = array('/%id/','/%ticket/','/%email/','/%name/','/%subject/','/%topic/','/%phone/','/%status/','/%priority/',
-                        '/%dept/','/%assigned_staff/','/%createdate/','/%duedate/','/%closedate/','/%url/',
-                        '/%auth/', '/%clientlink/');
-        $replace = array($this->getId(),
-                         $this->getExtId(),
-                         $this->getEmail(),
-                         $this->getName(),
-                         $this->getSubject(),
-                         $this->getHelpTopic(),
-                         $this->getPhoneNumber(),
-                         $this->getStatus(),
-                         $this->getPriority(),
-                         ($dept?$dept->getName():''),
-                         ($staff?$staff->getName():''),
-                         Format::db_daydatetime($this->getCreateDate()),
-                         Format::db_daydatetime($this->getDueDate()),
-                         Format::db_daydatetime($this->getCloseDate()),
-                         $cfg->getBaseUrl(),
-                         $this->getAuthToken(),
-                         '%url/view.php?t=%ticket&e=%email&a=%auth');
-        while ($text != ($T = preg_replace($search,$replace,$text))) {
-            $text = $T;
-        }
-        return $text;
+        return $ost->replaceTemplateVariables($input, $vars);
     }
 
     function markUnAnswered() {
@@ -1158,26 +1214,50 @@ class Ticket{
         return true;
     }
 
+    function clearOverdue() {
+
+        if(!$this->isOverdue()) 
+            return true;
+
+        $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=0, updated=NOW() ';
+        //clear due date if it's in the past
+        if($this->getDueDate() && strtotime($this->getDueDate())<=time())
+            $sql.=', duedate=NULL';
+
+        $sql.=' WHERE ticket_id='.db_input($this->getId());
+
+        return (db_query($sql) && db_affected_rows());
+    }
+
     //Dept Tranfer...with alert.. done by staff 
     function transfer($deptId, $comments, $alert = true) {
+        
         global $cfg, $thisstaff;
       
-        if(!$this->setDeptId($deptId))
+        if(!$thisstaff || !$thisstaff->canTransferTickets())
             return false;
-         
+
+        $currentDept = $this->getDeptName(); //Current department
+
+        if(!$deptId || !$this->setDeptId($deptId))
+            return false;
+       
+        // Reopen ticket if closed 
+        if($this->isClosed()) $this->reopen();
+
+        $this->reload();
         // Change to SLA of the new department
         $this->selectSLAId();
-         $currentDept = $this->getDeptName(); //XXX: add to olddept to tpl vars??
+                  
+        /*** log the transfer comments as internal note - with alerts disabled - ***/
+        $title='Ticket transfered from '.$currentDept.' to '.$this->getDeptName();
+        $comments=$comments?$comments:$title; 
+        $this->logNote($title, $comments, $thisstaff, false);
 
-         // Reopen ticket if closed 
-         if($this->isClosed())
-             $this->reopen();
+        $this->logEvent('transferred');
         
-         $this->reload(); //reload - new dept!!
-         $this->logEvent('transferred');
-
-         //Send out alerts if enabled AND requested
-         if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept())) return true; //no alerts!!
+        //Send out alerts if enabled AND requested
+        if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept())) return true; //no alerts!!
 
 
          //Get template.
@@ -1191,10 +1271,7 @@ class Ticket{
          //Get the message template 
          if($tpl && ($msg=$tpl->getTransferAlertMsgTemplate()) && $email) {
             
-             $body=$this->replaceTemplateVars($msg['body']);
-             $subj=$this->replaceTemplateVars($msg['subj']);
-             $body = str_replace('%note', $comments, $body);
-                        
+             $msg = $this->replaceVars($msg, array('comments' => $comments, 'staff' => $thisstaff));
             //recipients            
             $recipients=array();
             //Assigned staff or team... if any
@@ -1216,8 +1293,8 @@ class Ticket{
             $sentlist=array();
             foreach( $recipients as $k=>$staff){
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
-                $alert = str_replace("%staff",$staff->getFirstName(),$body);
-                $email->send($staff->getEmail(),$subj,$alert);
+                $alert = str_replace('%{recipient}',$staff->getFirstName(), $msg['body']);
+                $email->send($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1233,7 +1310,7 @@ class Ticket{
         if(!$this->setStaffId($staff->getId()))
             return false;
 
-        $this->onAssign($note, $alert);
+        $this->onAssign($staff, $note, $alert);
         $this->logEvent('assigned');
 
         return true;
@@ -1252,7 +1329,7 @@ class Ticket{
         if($this->isClosed())
             $this->setStaffId(0);
 
-        $this->onAssign($note, $alert);
+        $this->onAssign($team, $note, $alert);
         $this->logEvent('assigned');
 
         return true;
@@ -1267,7 +1344,7 @@ class Ticket{
         if($assignId[0]=='t') {
             $rv=$this->assignToTeam($id, $note, $alert);
         } elseif($assignId[0]=='s' || is_numeric($assignId)) {
-            $alert=($thisstaff && $thisstaff->getId()==$id)?false:$alert; //No alerts on self assigned tickets!!!
+            $alert=($alert && $thisstaff && $thisstaff->getId()==$id)?false:$alert; //No alerts on self assigned tickets!!!
             //We don't care if a team is already assigned to the ticket - staff assignment takes precedence
             $rv=$this->assignToStaff($id, $note, $alert);
         }
@@ -1281,15 +1358,23 @@ class Ticket{
         if(!$this->isAssigned()) //We can't release what is not assigned buddy!
             return true;
 
-        //We're unassigning in the order of precedence.
-        if($this->getStaffId())
-            return $this->setStaffId(0);
-        elseif($this->getTeamId())
-            return $this->setTeamId(0);
+        //We can only unassigned OPEN tickets.
+        if($this->isClosed())
+            return false;
 
-        return false;
+        //Unassign staff (if any)
+        if($this->getStaffId() && !$this->setStaffId(0))
+            return false;
+
+        //unassign team (if any)
+        if($this->getTeamId() && !$this->setTeamId(0))
+            return false;
+
+        $this->reload();
+
+        return true;
     }
-
+    
     function release() {
         return $this->unassign();
     }
@@ -1331,7 +1416,7 @@ class Ticket{
         if($newticket) return $msgid; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $headers && EmailFilter::isAutoResponse(Mail_Parse::splitHeaders($headers)))
+        if ($autorespond && $headers && TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($headers)))
             $autorespond=false;
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
@@ -1347,9 +1432,7 @@ class Ticket{
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace("%message", $message,$body);
+            $msg = $this->replaceVars($msg, array('message' => $message));
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1369,8 +1452,8 @@ class Ticket{
             $sentlist=array(); //I know it sucks...but..it works.
             foreach( $recipients as $k=>$staff){
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() && in_array($staff->getEmail(),$sentlist)) continue;
-                $alert = str_replace("%staff",$staff->getFirstName(),$body);
-                $email->send($staff->getEmail(),$subj,$alert);
+                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
+                $email->send($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1378,11 +1461,57 @@ class Ticket{
         return $msgid;
     }
 
-    /* public */ 
-    function postReply($vars, $errors, $alert = true) {
-        global $thisstaff,$cfg;
+    function postCannedReply($canned, $msgId, $alert=true) {
+        global $ost, $cfg;
 
-        if(!$thisstaff || !$thisstaff->isStaff() || !$cfg) return 0;
+        if((!is_object($canned) && !($canned=Canned::lookup($canned))) || !$canned->isEnabled())
+            return false;
+
+        $files = array();
+        foreach ($canned->getAttachments() as $file)
+            $files[] = $file['id'];
+
+        $info = array('msgId' => $msgId,
+                      'response' => $this->replaceVars($canned->getResponse()),
+                      'cannedattachments' => $files);
+
+        if(!($respId=$this->postReply($info, $errors, false)))
+            return false;
+
+        $this->markUnAnswered();
+
+        if(!$alert) return $respId;
+
+        $dept = $this->getDept();
+
+        if(!($tpl = $dept->getTemplate()))
+            $tpl= $cfg->getDefaultTemplate();
+
+        if(!$dept || !($email=$dept->getEmail()))
+            $email = $cfg->getDefaultEmail();
+
+        if($tpl && ($msg=$tpl->getAutoReplyMsgTemplate()) && $email) {
+
+            if($dept && $dept->isPublic())
+                $signature=$dept->getSignature();
+            else
+                $signature='';
+
+            $msg = $this->replaceVars($msg, array('response' => $info['response'], 'signature' => $signature));
+
+            if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
+                $msg['body'] ="\n$tag\n\n".$msg['body'];
+
+            $attachments =($cfg->emailAttachments() && $files)?$this->getAttachments($respId, 'R'):array();
+            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
+        }
+
+        return $respId;
+    }
+
+    /* public */ 
+    function postReply($vars, &$errors, $alert = true) {
+        global $thisstaff, $cfg;
 
         if(!$vars['msgId'])
             $errors['msgId'] ='Missing messageId - internal error';
@@ -1391,14 +1520,16 @@ class Ticket{
 
         if($errors) return 0;
 
+        $poster = $thisstaff?$thisstaff->getName():'SYSTEM (Canned Reply)';
+
         $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type="R"'
             .' ,ticket_id='.db_input($this->getId())
             .' ,pid='.db_input($vars['msgId'])
             .' ,body='.db_input(Format::striptags($vars['response']))
-            .' ,staff_id='.db_input($thisstaff->getId())
-            .' ,poster='.db_input($thisstaff->getName())
-            .' ,ip_address='.db_input($thisstaff->getIP());
+            .' ,staff_id='.db_input($thisstaff?$thisstaff->getId():0)
+            .' ,poster='.db_input($poster)
+            .' ,ip_address='.db_input($thisstaff?$thisstaff->getIP():'');
 
         if(!db_query($sql) || !($respId=db_insert_id()))
             return false;
@@ -1435,26 +1566,24 @@ class Ticket{
             $email = $cfg->getDefaultEmail();
 
         if($tpl && ($msg=$tpl->getReplyMsgTemplate()) && $email) {
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%response',$vars['response'],$body);
 
-            if($vars['signature']=='mine')
+            if($thisstaff && $vars['signature']=='mine')
                 $signature=$thisstaff->getSignature();
             elseif($vars['signature']=='dept' && $dept && $dept->isPublic())
                 $signature=$dept->getSignature();
             else
                 $signature='';
-
-            $body = str_replace("%signature",$signature,$body);
+            
+            $msg = $this->replaceVars($msg, 
+                    array('response' => $vars['response'], 'signature' => $signature, 'staff' => $thisstaff));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $body ="\n$tag\n\n".$body;
+                $msg['body'] ="\n$tag\n\n".$msg['body'];
 
             //Set attachments if emailing.
             $attachments =($cfg->emailAttachments() && $attachments)?$this->getAttachments($respId,'R'):array();
             //TODO: setup  5 param (options... e.g mid trackable on replies)
-            $email->send($this->getEmail(), $subj, $body, $attachments);
+            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
         }
 
         return $respId;
@@ -1467,7 +1596,7 @@ class Ticket{
         if(!$cfg || !$cfg->logTicketActivity())
             return 0;
 
-        return $this->postNote($title,$note,false,'System');
+        return $this->logNote($title, $note, 'SYSTEM', false);
     }
 
     // History log -- used for statistics generation (pretty reports)
@@ -1498,26 +1627,63 @@ class Ticket{
             && db_affected_rows() == 1;
     }
 
-    //Insert Internal Notes 
-    function postNote($title,$note,$alert=true,$poster='') {        
-        global $thisstaff,$cfg;
+    //Insert Internal Notes
+    function logNote($title, $note, $poster='SYSTEM', $alert=true) {
+
+        return $this->postNote(
+                array('title' => $title, 'note' => $note),
+                $errors,
+                $poster,
+                $alert);
+    }
+
+    function postNote($vars, &$errors, $poster, $alert=true) {        
+        global $cfg, $thisstaff;
+
+        if(!$vars || !is_array($vars))
+            $errors['err'] = 'Missing or invalid data';
+        elseif(!$vars['note'])
+            $errors['note'] = 'Note required';
+
+        if($errors) return false;
 		
-        $poster=($poster || !$thisstaff)?$poster:$thisstaff->getName();
-		
+        $staffId = 0;
+        if($poster && is_object($poster)) {
+            $staffId = $poster->getId();
+            $poster = $poster->getName();
+        } elseif(!$poster) {
+            $poster ='SYSTEM';
+        }
+
+        //TODO: move to class.thread.php
+
         $sql= 'INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '.
                 ',thread_type="N"'.
                 ',ticket_id='.db_input($this->getId()).
-                ',title='.db_input(Format::striptags($title)).
-                ',body='.db_input(Format::striptags($note)).
-                ',staff_id='.db_input($thisstaff?$thisstaff->getId():0).
+                ',title='.db_input(Format::striptags($vars['title']?$vars['title']:'[No Title]')).
+                ',body='.db_input(Format::striptags($vars['note'])).
+                ',staff_id='.db_input($staffId).
                 ',poster='.db_input($poster);
         //echo $sql;
         if(!db_query($sql) || !($id=db_insert_id()))
             return false;
+                
+        //Upload attachments IF ANY - TODO: validate attachment types??
+        if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+            $attachments = $this->uploadAttachments($files, $id, 'N');
+            
+        //Set state: Error on state change not critical! 
+        if(isset($vars['state']) && $vars['state']) {
+            if($this->setState($vars['state']))
+                $this->reload();
+        }
 
         // If alerts are not enabled then return a success.
         if(!$alert || !$cfg->alertONNewNote() || !($dept=$this->getDept()))
             return $id;
+
+        //Note obj.
+        $note = Note::lookup($id, $this->getId());
         
         if(!($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
@@ -1527,12 +1693,8 @@ class Ticket{
 
 
         if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
-                    
-            $body=$this->replaceTemplateVars($msg['body']);
-            $subj=$this->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%note',"$title\n\n$note",$body);
-            # TODO: Support a variable replacement of the staff writing the
-            #       note
+                   
+            $msg = $this->replaceVars($msg, array('note' => $note));
 
             // Alert recipients    
             $recipients=array();
@@ -1549,12 +1711,13 @@ class Ticket{
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
                 $recipients[]=$dept->getManager();
 
+            $attachments =($attachments)?$this->getAttachments($id, 'N'):array();
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !is_object($staff) || !$staff->getEmail() || !$staff->isAvailable()) continue;
-                if(in_array($staff->getEmail(),$sentlist) || ($thisstaff && $thisstaff->getId()==$staff->getId())) continue; 
-                $alert = str_replace('%staff',$staff->getFirstName(),$body);
-                $email->send($staff->getEmail(),$subj,$alert);
+                if(in_array($staff->getEmail(),$sentlist) || ($staffId && $staffId==$staff->getId())) continue; 
+                $alert = str_replace('%{recipient}',$staff->getFirstName(), $msg['body']);
+                $email->send($staff->getEmail(), $msg['subj'], $alert, $attachments);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1590,7 +1753,7 @@ class Ticket{
                 else
                     $error ='Error #'.$file['error'];
 
-                $this->postNote('File Upload Error', $error, false);
+                $this->logNote('File Upload Error', $error, 'SYSTEM', false);
                
                 $ost->logDebug('File Upload Error (Ticket #'.$this->getExtId().')', $error);
             }
@@ -1657,15 +1820,15 @@ class Ticket{
         $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
         $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
         $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>'Help topic required');
-        $fields['slaId']    = array('type'=>'int',      'required'=>1, 'error'=>'SLA required');
         $fields['priorityId'] = array('type'=>'int',    'required'=>1, 'error'=>'Priority required');
+        $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>'Select SLA');
         $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
 
         $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] ='Missing or invalid data - check the errors and try again';
+            $errors['err'] = 'Missing or invalid data - check the errors and try again';
 
         if($vars['duedate']) {     
             if($this->isClosed())
@@ -1711,7 +1874,7 @@ class Ticket{
         if(!$vars['note'])
             $vars['note']=sprintf('Ticket Updated by %s', $thisstaff->getName());
 
-        $this->postNote('Ticket Updated', $vars['note']);
+        $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
         $this->reload();
         
         return true;
@@ -1719,8 +1882,17 @@ class Ticket{
 
    
    /*============== Static functions. Use Ticket::function(params); ==================*/
-    function getIdByExtId($extid) {
-        $sql ='SELECT  ticket_id FROM '.TICKET_TABLE.' ticket WHERE ticketID='.db_input($extid);
+    function getIdByExtId($extId, $email=null) {
+        
+        if(!$extId || !is_numeric($extId)) 
+            return 0;
+
+        $sql ='SELECT  ticket_id FROM '.TICKET_TABLE.' ticket '
+             .' WHERE ticketID='.db_input($extId);
+        
+        if($email)
+            $sql.=' AND email='.db_input($email);
+
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
 
@@ -1733,8 +1905,8 @@ class Ticket{
         return ($id && is_numeric($id) && ($ticket= new Ticket($id)) && $ticket->getId()==$id)?$ticket:null;    
     }
 
-    function lookupByExtId($id) {
-        return self::lookup(self:: getIdByExtId($id));
+    function lookupByExtId($id, $email=null) {
+        return self::lookup(self:: getIdByExtId($id, $email));
     }
 
     function genExtRandID() {
@@ -1845,7 +2017,7 @@ class Ticket{
         if ($vars['email']  && Validator::is_email($vars['email'])) {
 
             //Make sure the email address is not banned
-            if(EmailFilter::isBanned($vars['email'])) {
+            if(TicketFilter::isBanned($vars['email'])) {
                 $errors['err']='Ticket denied. Error #403';
                 $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
                 return 0;
@@ -1865,12 +2037,15 @@ class Ticket{
                 return 0;
             }
         }
+
+        //Init ticket filters...
+        $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected
-        if (($email_filter=new EmailFilter($vars))
-                && ($filter=$email_filter->shouldReject())) {
+        if($ticket_filter 
+                && ($filter=$ticket_filter->shouldReject())) {
             $errors['err']='Ticket denied. Error #403';
             $ost->logWarning('Ticket denied', 
-                    sprintf('Banned email - %s by filter "%s"', 
+                    sprintf('Ticket rejected ( %s) by filter "%s"', 
                         $vars['email'], $filter->getName()));
 
             return 0;
@@ -1915,7 +2090,7 @@ class Ticket{
         }
 
         //Make sure the due date is valid
-        if($vars['duedate']){
+        if($vars['duedate']) {
             if(!$vars['time'] || strpos($vars['time'],':')===false)
                 $errors['time']='Select time';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
@@ -1924,16 +2099,16 @@ class Ticket{
                 $errors['duedate']='Due date must be in the future';
         }
 
-        # Perform email filter actions on the new ticket arguments XXX: Move filter to the top and check for reject...
-        if (!$errors && $email_filter) $email_filter->apply($vars);
+        //Any error above is fatal.
+        if($errors)  return 0;
+
+        # Perform ticket filter actions on the new ticket arguments
+        if ($ticket_filter) $ticket_filter->apply($vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
         if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
 
-        //Any error above is fatal.
-        if($errors)  return 0;
-        
         // OK...just do it.
         $deptId=$vars['deptId']; //pre-selected Dept if any.
         $priorityId=$vars['priorityId'];
@@ -1945,17 +2120,24 @@ class Ticket{
             $priorityId=$priorityId?$priorityId:$topic->getPriorityId();
             if($autorespond) $autorespond=$topic->autoRespond();
             $source=$vars['source']?$vars['source']:'Web';
+
+            //Auto assignment.
+            if (!isset($vars['staffId']) && $topic->getStaffId())
+                $vars['staffId'] = $topic->getStaffId();
+            elseif (!isset($vars['teamId']) && $topic->getTeamId())
+                $vars['teamId'] = $topic->getTeamId();
+
+            //set default sla.
+            if(!isset($vars['slaId']) && $topic->getSLAId())
+                $vars['slaId'] = $topic->getSLAId();
+
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
             $deptId=$email->getDeptId();
             $priorityId=$priorityId?$priorityId:$email->getPriorityId();
             if($autorespond) $autorespond=$email->autoRespond();
             $email=null;
             $source='Email';
-        }elseif($vars['deptId']){ //Opened by staff.
-            $deptId=$vars['deptId'];
-            $source=ucfirst($vars['source']);
         }
-
         //Last minute checks
         $priorityId=$priorityId?$priorityId:$cfg->getDefaultPriorityId();
         $deptId=$deptId?$deptId:$cfg->getDefaultDeptId();
@@ -2004,22 +2186,19 @@ class Ticket{
 
         //Auto assign staff or team - auto assignment based on filter rules.
         if($vars['staffId'] && !$vars['assignId'])
-             $ticket->assignToStaff($vars['staffId'],'auto-assignment');
+             $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
         if($vars['teamId'] && !$vars['assignId'])
-            $ticket->assignToTeam($vars['teamId'],'auto-assignment');
+            $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
 
         /**********   double check auto-response  ************/
         //Overwrite auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
             $autorespond=false;
 
-        if($autorespond && $dept && !$dept->autoRespONNewTicket())
-            $autorespond=false;
-
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
         if ($autorespond && $vars['header'] &&
-                EmailFilter::isAutoResponse(Mail_Parse::splitHeaders($vars['header']))) {
+                TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($vars['header']))) {
             $autorespond=false;
         }
 
@@ -2030,24 +2209,17 @@ class Ticket{
             $autorespond=false;
         }
 
+        //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
-                && ($canned = Canned::lookup($vars['cannedResponseId']))
-                && $canned->isEnabled()) {
-            $files = array();
-            foreach ($canned->getAttachments() as $file)
-                $files[] = $file['id'];
-            $ticket->postReply(
-                    array(
-                        'msgId'     => $msgid,
-                        'response'  =>
-                            $ticket->replaceTemplateVars($canned->getResponse()),
-                        'cannedattachments' => $files
-                    ),$errors, true);
-                    
-            // If a canned-response is immediately queued for this ticket,
-            // disable the autoresponse
-            $autorespond=false;
+            && $ticket->postCannedReply($vars['cannedResponseId'], $msgid, $autorespond)) {
+                $ticket->markUnAnswered(); //Leave the ticket as unanswred. 
+                $autorespond = false;
         }
+
+        //Check department's auto response settings
+        // XXX: Dept. setting doesn't affect canned responses.
+        if($autorespond && $dept && !$dept->autoRespONNewTicket())
+            $autorespond=false;
 
         /***** See if we need to send some alerts ****/
         $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
@@ -2088,7 +2260,7 @@ class Ticket{
         
         // post response - if any
         if($vars['response']) {
-            $vars['response']=$ticket->replaceTemplateVars($vars['response']);
+            $vars['response'] = $ticket->replaceVars($vars['response']);
             if(($respId=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
                 if(isset($vars['ticket_state']) && $thisstaff->canCloseTickets())
@@ -2097,16 +2269,16 @@ class Ticket{
         }
         //Post Internal note
         if($vars['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
-            $ticket->assign($vars['assignId'],$vars['note']);
+            $ticket->assign($vars['assignId'], $vars['note']);
         } elseif($vars['note']) { //Not assigned...save optional note if any
-            $ticket->postNote('New Ticket',$vars['note'],false);
+            $ticket->logNote('New Ticket', $vars['note'], $thisstaff, false);
         } else { //Not assignment and no internal note - log activity
             $ticket->logActivity('New Ticket by Staff','Ticket created by staff -'.$thisstaff->getName());
         }
 
         $ticket->reload();
         
-        if(!$cfg->notifyONNewStaffTicket() || !isset($var['alertuser']))
+        if(!$cfg->notifyONNewStaffTicket() || !isset($vars['alertuser']))
             return $ticket; //No alerts.
 
         //Send Notice to user --- if requested AND enabled!!
@@ -2120,10 +2292,9 @@ class Ticket{
 
         if($tpl && ($msg=$tpl->getNewTicketNoticeMsgTemplate()) && $email) {
                         
-            $message =$vars['issue']."\n\n".$vars['response'];
-            $body=$ticket->replaceTemplateVars($msg['body']);
-            $subj=$ticket->replaceTemplateVars($msg['subj']);
-            $body = str_replace('%message',$message,$body);
+            $message = $vars['issue'];
+            if($vars['response'])
+                $message.="\n\n".$vars['response'];
 
             if($vars['signature']=='mine')
                 $signature=$thisstaff->getSignature();
@@ -2131,14 +2302,15 @@ class Ticket{
                 $signature=$dept->getSignature();
             else
                 $signature='';
-
-            $body = str_replace('%signature',$signature,$body);
+            
+            $msg = $ticket->replaceVars($msg, 
+                    array('message' => $message, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
-                $body ="\n$tag\n\n".$body;
+                $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $attachments =($cfg->emailAttachments() && $respId)?$this->getAttachments($respId,'R'):array();
-            $email->send($ticket->getEmail(), $subj, $body, $attachments);
+            $attachments =($cfg->emailAttachments() && $respId)?$ticket->getAttachments($respId,'R'):array();
+            $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments);
         }
 
         return $ticket;
@@ -2148,7 +2320,7 @@ class Ticket{
     function checkOverdue() {
        
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
-            .' JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id) '
+            .' INNER JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
             .' WHERE status=\'open\' AND isoverdue=0 '
             .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
             .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '

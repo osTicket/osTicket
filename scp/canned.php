@@ -70,44 +70,48 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 $errors['err']='You must select at least one canned response';
             } else {
                 $count=count($_POST['ids']);
-                if($_POST['enable']) {
-                    $sql='UPDATE '.CANNED_TABLE.' SET isenabled=1 WHERE canned_id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())) {
-                        if($num==$count)
-                            $msg='Selected canned responses enabled';
-                        else
-                            $warn="$num of $count selected canned responses enabled";
-                    } else {
-                        $errors['err']='Unable to enable selected canned responses.';
-                    }
-                } elseif($_POST['disable']) {
-                    $sql='UPDATE '.CANNED_TABLE.' SET isenabled=0 WHERE canned_id IN ('.
-                        implode(',', db_input($_POST['ids'])).')';
-                    if(db_query($sql) && ($num=db_affected_rows())) {
-                        if($num==$count)
-                            $msg='Selected canned responses disabled';
-                        else
-                            $warn="$num of $count selected canned responses disabled";
-                    } else {
-                        $errors['err']='Unable to disable selected canned responses';
-                    }
-                }elseif($_POST['delete']) {
-                    $i=0;
-                    foreach($_POST['ids'] as $k=>$v) {
-                        if(($c=Canned::lookup($v)) && $c->delete())
-                            $i++;
-                    }
+                switch(strtolower($_POST['a'])) {
+                    case 'enable':
+                        $sql='UPDATE '.CANNED_TABLE.' SET isenabled=1 '
+                            .' WHERE canned_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
+                                $msg = 'Selected canned responses enabled';
+                            else
+                                $warn = "$num of $count selected canned responses enabled";
+                        } else {
+                            $errors['err'] = 'Unable to enable selected canned responses.';
+                        }
+                        break;
+                    case 'disable':
+                        $sql='UPDATE '.CANNED_TABLE.' SET isenabled=0 '
+                            .' WHERE canned_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
+                                $msg = 'Selected canned responses disabled';
+                            else
+                                $warn = "$num of $count selected canned responses disabled";
+                        } else {
+                            $errors['err'] = 'Unable to disable selected canned responses';
+                        }
+                        break;
+                    case 'delete':
 
-                    if($i==$count)
-                        $msg='Selected canned responses deleted successfully';
-                    elseif($i>0)
-                        $warn="$i of $count selected canned responses deleted";
-                    elseif(!$errors['err'])
-                        $errors['err']='Unable to delete selected canned responses';
-                    
-                } else {
-                    $errors['err']='Unknown command';
+                        $i=0;
+                        foreach($_POST['ids'] as $k=>$v) {
+                            if(($c=Canned::lookup($v)) && $c->delete())
+                                $i++;
+                        }
+
+                        if($i==$count)
+                            $msg = 'Selected canned responses deleted successfully';
+                        elseif($i>0)
+                            $warn="$i of $count selected canned responses deleted";
+                        elseif(!$errors['err'])
+                            $errors['err'] = 'Unable to delete selected canned responses';
+                        break;
+                    default:
+                        $errors['err']='Unknown command';
                 }
             }
             break;
