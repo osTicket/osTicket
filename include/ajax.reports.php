@@ -37,10 +37,15 @@ class OverviewReportAjaxAPI extends AjaxController {
     function getData() {
         global $thisstaff;
 
-        $start = $this->get('start', 'last month');
-        $stop = $this->get('stop', 'now');
-        if (substr($stop, 0, 1) == '+')
-            $stop = $start . $stop;
+        if(($start = $this->get('start', 'last month'))) {
+            $stop = $this->get('stop', 'now');
+            if (substr($stop, 0, 1) == '+')
+                $stop = $start . $stop;
+        } else {
+            $start = 'last month';
+            $stop = 'now';
+        }
+
         $start = 'FROM_UNIXTIME('.strtotime($start).')';
         $stop = 'FROM_UNIXTIME('.strtotime($stop).')';
 
@@ -72,9 +77,9 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "filter" =>
                     ('T1.staff_id=S1.staff_id
                       AND 
-                      (T1.staff_id='.db_input($thisstaff->getDeptId())
+                      (T1.staff_id='.db_input($thisstaff->getId())
                         .(($depts=$thisstaff->getManagedDepartments())?
-                            (' OR T1.staff_id IN('.implode(',', db_input($depts)).')'):'')
+                            (' OR T1.dept_id IN('.implode(',', db_input($depts)).')'):'')
                      .')'
                      ) 
             )
@@ -166,10 +171,17 @@ class OverviewReportAjaxAPI extends AjaxController {
     }
 
     function getPlotData() {
-        $start = $this->get('start', 'last month');
-        $stop = $this->get('stop', 'now');
-        if (substr($stop, 0, 1) == '+')
-            $stop = $start . $stop;
+
+                
+        if(($start = $this->get('start', 'last month'))) {
+            $stop = $this->get('stop', 'now');
+            if (substr($stop, 0, 1) == '+')
+                $stop = $start . $stop;
+        } else {
+            $start = 'last month';
+            $stop = 'now';
+        }
+
         $start = strtotime($start);
         $stop = strtotime($stop);
 
