@@ -9,9 +9,7 @@
         $.ajax({
             method:     'GET',
             url:        'ajax.php/report/overview/graph',
-            data:       ((this.start && this.start.value) ? {
-                'start': this.start.value,
-                'stop': this.period.value} : {}),
+            data:       $(this).serialize(),
             dataType:   'json',
             success:    function(json) {
                 var times = [],
@@ -136,6 +134,7 @@
             start = this.start.value || 'last month';
             stop = this.period.value || 'now';
         }
+
         var group = current_tab.attr('table-group');
         $.ajax({
             method:     'GET',
@@ -250,7 +249,7 @@
 
                 // ------------------------> Export <-----------------------
                 $('<a>').attr({'href':'ajax.php/report/overview/table/export?group='
-                        +group}).append('Export')
+                        +group+'&start='+start+'&stop='+stop}).append('Export')
                     .appendTo($('<li>')
                     .appendTo(p));
 
@@ -259,6 +258,10 @@
         });
         return false;
     }
-    $(refresh);
-    $(function() { $('#timeframe-form').submit(refresh); });
+   
+    $(function() { 
+        $('#timeframe-form').submit(refresh);
+        //Trigger submit now...init.
+        $('#timeframe-form').submit(); 
+        });
 })(window.jQuery);
