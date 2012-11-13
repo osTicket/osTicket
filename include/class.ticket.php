@@ -1451,7 +1451,7 @@ class Ticket {
                 
             $sentlist=array(); //I know it sucks...but..it works.
             foreach( $recipients as $k=>$staff){
-                if(!$staff || !$staff->getEmail() || !$staff->isAvailable() && in_array($staff->getEmail(),$sentlist)) continue;
+                if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
                 $email->send($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
