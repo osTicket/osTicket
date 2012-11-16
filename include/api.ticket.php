@@ -15,7 +15,7 @@ class TicketController extends ApiController {
             "attachments" => array("*" => 
                 array("name", "type", "data", "encoding")
             ), 
-            "message", "ip"
+            "message", "ip", "priorityId"
         );
         if ($format == "xml") return array("ticket" => $supported);
         else return $supported;
