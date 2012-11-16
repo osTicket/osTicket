@@ -77,10 +77,14 @@ class XmlDataParser {
         $this->content = array_pop($this->stack);
         $i = 1;
         if (array_key_exists($name, $this->content)) {
-            while (array_key_exists("$name$i", $this->content)) $i++;
-            $name = "$name$i";
-        }
-        $this->content[$name] = $prev;
+            if(!isset($this->content[$name][0])) {
+                $current = $this->content[$name];
+                unset($this->content[$name]);
+                $this->content[$name][0] = $current;
+            }
+            $this->content[$name][] = $prev;
+        } else
+            $this->content[$name] = $prev;
     }
 
     function content($parser, $data) {
