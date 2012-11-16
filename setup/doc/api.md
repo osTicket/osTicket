@@ -12,6 +12,11 @@ Authentication via the API is done via API keys configured inside the
 osTicket admin panel. API keys are created and tied to a source IP address,
 which will be checked against the source IP of requests to the HTTP API.
 
+API keys can be created and managed via the admin panel. Navigate to Manage
+-> API keys. Use *Add New API Key* to create a new API key. Currently, no
+special configuration is required to allow the API key to be used for the
+HTTP API. All API keys are valid for the HTTP API.
+
 Wrappers
 --------
 
