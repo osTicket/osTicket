@@ -43,7 +43,7 @@ class TicketController extends ApiController {
                 if (!($info["data"] = base64_decode($info["data"], true)))
                     Http::response(400, sprintf(
                         "%s: Poorly encoded base64 data",
-                        $filename));
+                        $info['name']));
             }
             $info['size'] = strlen($info['data']);
         }
