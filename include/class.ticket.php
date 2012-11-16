@@ -976,7 +976,7 @@ class Ticket {
             $autorespond=$dept->autoRespONNewMessage();
 
 
-        if(!$autorespond && !$cfg->autoRespONNewMessage()) return;  //no autoresp or alerts.
+        if(!$autorespond || !$cfg->autoRespONNewMessage()) return;  //no autoresp or alerts.
 
         $this->reload();
 
