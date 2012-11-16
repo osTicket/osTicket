@@ -2019,6 +2019,7 @@ class Ticket {
             //Make sure the email address is not banned
             if(TicketFilter::isBanned($vars['email'])) {
                 $errors['err']='Ticket denied. Error #403';
+                $errors['errno'] = 403;
                 $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
                 return 0;
             }
@@ -2044,6 +2045,7 @@ class Ticket {
         if($ticket_filter 
                 && ($filter=$ticket_filter->shouldReject())) {
             $errors['err']='Ticket denied. Error #403';
+            $errors['errno'] = 403;
             $ost->logWarning('Ticket denied', 
                     sprintf('Ticket rejected ( %s) by filter "%s"', 
                         $vars['email'], $filter->getName()));
