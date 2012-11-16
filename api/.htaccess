@@ -1,8 +1,11 @@
-RewriteEngine On
+<IfModule mod_rewrite.c>
 
-RewriteBase /api/
+RewriteEngine On
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.*/api)
 
-RewriteRule ^(.*)$ http.php/$1 [L]
+RewriteRule ^(.*)$ %1/http.php/$1 [L]
+
+</IfModule>

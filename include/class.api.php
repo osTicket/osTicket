@@ -184,7 +184,7 @@ class ApiController {
     function validate($data, $structure, $prefix="") {
         foreach ($data as $key=>$info) {
             if (is_array($structure) and is_array($info)) {
-                $search = isset($structure[$key]) ? $key : "*"; 
+                $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*"; 
                 if (isset($structure[$search])) {
                     $this->validate($info, $structure[$search], "$prefix$key/");
                     continue;
@@ -219,16 +219,21 @@ class ApiXmlDataParser extends XmlDataParser {
             } else if ($key == "autorespond") {
                 $value = (bool)$value;
             } else if ($key == "attachments") {
-                foreach ($value as &$info) { 
-                    $info["data"] = $info[":text"]; 
-                    unset($info[":text"]);
+                if(!isset($value['file'][':text']))
+                    $value = $value['file'];
+
+                if($value && is_array($value)) {
+                    foreach ($value as &$info) { 
+                        $info["data"] = $info[":text"]; 
+                        unset($info[":text"]);
+                    }
+                    unset($info);
                 }
-                unset($info);
-            }
-            if (is_array($value)) {
+            } else if(is_array($value)) {
                 $value = $this->fixup($value);
             }
         }
+
         return $current;
     }
 }
@@ -255,7 +260,7 @@ class ApiJsonDataParser extends JsonDataParser {
                     # PHP5: fopen("data://$data[5:]");
                     if (substr($data, 0, 5) != "data:") {
                         $info = array(
-                            "data" => $data, 
+                            "data" => $data,
                             "type" => "text/plain",
                             "name" => key($info));
                     } else {
@@ -264,11 +269,17 @@ class ApiJsonDataParser extends JsonDataParser {
                         list($type, $extra) = explode(";", $meta);
                         $info = array(
                             "data" => $contents,
-                            "type" => $type,
+                            "type" => ($type) ? $type : "text/plain",
                             "name" => key($info));
                         if (substr($extra, -6) == "base64")
                             $info["encoding"] = "base64";
-                        # TODO: Handle 'charset' hint in $extra
+                        # Handle 'charset' hint in $extra, such as
+                        # data:text/plain;charset=iso-8859-1,Blah
+                        # Convert to utf-8 since it's the encoding scheme
+                        # for the database. Otherwise, assume utf-8
+                        list($param,$charset) = explode('=', $extra);
+                        if ($param == 'charset' && function_exists('iconv'))
+                            $contents = iconv($charset, "UTF-8", $contents);
                     }
                 }
                 unset($value);

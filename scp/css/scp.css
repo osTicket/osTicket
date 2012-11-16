@@ -311,6 +311,7 @@ a.Icon:hover {
 .Icon.webTicket { background:url(../images/icons/ticket_source_web.gif) 0 0 no-repeat; }
 .Icon.emailTicket { background:url(../images/icons/ticket_source_email.gif) 0 0 no-repeat; }
 .Icon.phoneTicket { background:url(../images/icons/ticket_source_phone.gif) 0 0 no-repeat; }
+.Icon.apiTicket { background:url(../images/icons/ticket_source_other.gif) 0 0 no-repeat; }
 .Icon.otherTicket { background:url(../images/icons/ticket_source_other.gif) 0 0 no-repeat; }
 .Icon.overdueTicket { background:url(../images/icons/overdue_ticket.gif) 0 0 no-repeat; }
 .Icon.assignedTicket { background:url(../images/icons/assigned_ticket.gif) 0 0 no-repeat; }
