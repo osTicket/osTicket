@@ -184,7 +184,7 @@ class ApiController {
     function validate($data, $structure, $prefix="") {
         foreach ($data as $key=>$info) {
             if (is_array($structure) and is_array($info)) {
-                $search = isset($structure[$key]) ? $key : "*"; 
+                $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*"; 
                 if (isset($structure[$search])) {
                     $this->validate($info, $structure[$search], "$prefix$key/");
                     continue;
@@ -219,16 +219,21 @@ class ApiXmlDataParser extends XmlDataParser {
             } else if ($key == "autorespond") {
                 $value = (bool)$value;
             } else if ($key == "attachments") {
-                foreach ($value as &$info) { 
-                    $info["data"] = $info[":text"]; 
-                    unset($info[":text"]);
+                if(!isset($value['file'][':text']))
+                    $value = $value['file'];
+
+                if($value && is_array($value)) {
+                    foreach ($value as &$info) { 
+                        $info["data"] = $info[":text"]; 
+                        unset($info[":text"]);
+                    }
+                    unset($info);
                 }
-                unset($info);
-            }
-            if (is_array($value)) {
+            } else if(is_array($value)) {
                 $value = $this->fixup($value);
             }
         }
+
         return $current;
     }
 }
