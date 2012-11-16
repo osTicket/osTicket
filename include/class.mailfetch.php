@@ -417,6 +417,10 @@ class MailFetcher {
         } elseif (($ticket=Ticket::create($var, $errors, 'Email'))) {
             $msgid = $ticket->getLastMsgId();
         } else {
+            //Report success if the email was absolutely rejected.
+            if(isset($errors['errno']) && $errors['errno'] == 403)
+                return true;
+
             //TODO: Log error..
             return null;
         }
