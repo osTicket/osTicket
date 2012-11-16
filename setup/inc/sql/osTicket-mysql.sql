@@ -265,7 +265,7 @@ CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `filter_id` int(10) unsigned NOT NULL default '0',
   `what` enum('name','email','subject','body','header') NOT NULL,
-  `how` enum('equal','not_equal','contains','dn_contain') NOT NULL,
+  `how` enum('equal','not_equal','contains','dn_contain','starts','ends') NOT NULL,
   `val` varchar(255) NOT NULL,
   `isactive` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `notes` tinytext NOT NULL,
