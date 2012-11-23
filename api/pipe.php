@@ -106,10 +106,18 @@ if($ticket) {
 } elseif(($ticket=Ticket::create($var, $errors, 'email'))) { // create new ticket.
     $msgid=$ticket->getLastMsgId();
 } else { // failure....
-    if(isset($errors['errno']) && $errors['errno'] == 403)
-        api_exit(EX_SUCCESS);  //report success on hard rejection
 
-    api_exit(EX_DATAERR,'Ticket create Failed '.implode("\n",$errors)."\n\n");
+    // report success on hard rejection
+    if(isset($errors['errno']) && $errors['errno'] == 403)
+        api_exit(EX_SUCCESS);
+
+    // check if it's a bounce!
+    if($var['header'] && TicketFilter::isAutoBounce($var['header'])) {
+        $ost->logWarning('Bounced email', $var['message'], false);
+        api_exit(EX_SUCCESS); 
+    }
+    
+    api_exit(EX_DATAERR, 'Ticket create Failed '.implode("\n",$errors)."\n\n");
 }
 
 //Ticket created...save attachments if enabled.
