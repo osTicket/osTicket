@@ -866,6 +866,10 @@ class TicketFilter {
      *    http://msdn.microsoft.com/en-us/library/ee219609(v=exchg.80).aspx
      */
     /* static */ function isAutoResponse($headers) {
+
+        if($headers && !is_array($headers))
+            $headers = Mail_Parse::splitHeaders($headers);
+
         $auto_headers = array(
             'Auto-Submitted'    => 'AUTO-REPLIED',
             'Precedence'        => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
@@ -875,21 +879,56 @@ class TicketFilter {
             'X-Autoresponse'    => '',
             'X-Auto-Reply-From' => ''
         );
+
         foreach ($auto_headers as $header=>$find) {
-            if ($value = strtoupper($headers[$header])) {
-                # Search text must be found at the beginning of the header
-                # value. This is especially import for something like the
-                # subject line, where something like an autoreponse may
-                # appear somewhere else in the value.
-                if (is_array($find)) {
-                    foreach ($find as $f)
-                        if (strpos($value, $f) === 0)
-                            return true;
-                } elseif (strpos($value, $find) === 0) {
-                    return true;
-                }
+            if(!isset($headers[$header])) continue;
+
+            $value = strtoupper($headers[$header]);
+            # Search text must be found at the beginning of the header
+            # value. This is especially import for something like the
+            # subject line, where something like an autoreponse may
+            # appear somewhere else in the value.
+
+            if (is_array($find)) {
+                foreach ($find as $f)
+                    if (strpos($value, $f) === 0)
+                        return true;
+            } elseif (strpos($value, $find) === 0) {
+                return true;
             }
         }
+
+        # Bounces also counts as auto-responses.
+        if(self::isAutoBounce($headers))
+            return true;
+
+        return false;
+    }
+
+    function isAutoBounce($headers) {
+
+        if($headers && !is_array($headers))
+            $headers = Mail_Parse::splitHeaders($headers);
+
+        $bounce_headers = array(
+            'From'          => array('<MAILER-DAEMON@MAILER-DAEMON>', 'MAILER-DAEMON', '<>'),
+            'Subject'       => array('DELIVERY FAILURE', 'DELIVERY STATUS', 'UNDELIVERABLE:'),
+        );
+
+        foreach ($bounce_headers as $header => $find) {
+            if(!isset($headers[$header])) continue;
+
+            $value = strtoupper($headers[$header]);
+
+            if (is_array($find)) {
+                foreach ($find as $f)
+                    if (strpos($value, $f) === 0)
+                        return true;
+            } elseif (strpos($value, $find) === 0) {
+                return true;
+            }
+        }
+
         return false;
     }
 
