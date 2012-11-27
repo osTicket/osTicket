@@ -195,6 +195,8 @@ if($_REQUEST['sort'] && $sortOptions[$_REQUEST['sort']])
     $order_by =$sortOptions[$_REQUEST['sort']];
 elseif(!strcasecmp($status, 'open') && !$showanswered && $sortOptions[$_SESSION['tickets']['sort']]) {
     $_REQUEST['sort'] = $_SESSION['tickets']['sort'];
+    $_REQUEST['order'] = $_SESSION['tickets']['order'];
+
     $order_by = $sortOptions[$_SESSION['tickets']['sort']];
     $order = $_SESSION['tickets']['order'];
 }
