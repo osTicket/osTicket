@@ -875,7 +875,7 @@ class TicketFilter {
             'Precedence'        => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
             'Subject'           => array('OUT OF OFFICE', 'AUTO-REPLY:', 'AUTORESPONSE'),
             'X-Autoreply'       => 'YES',
-            'X-Auto-Response-Suppress' => 'OOF',
+            'X-Auto-Response-Suppress' => array('ALL', 'DR', 'RN', 'NRN', 'OOF', 'AutoReply'),
             'X-Autoresponse'    => '',
             'X-Auto-Reply-From' => ''
         );
