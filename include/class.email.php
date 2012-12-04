@@ -142,12 +142,21 @@ class Email {
 
     function send($to, $subject, $message, $attachments=null, $options=null) {
 
-
         $mailer = new Mailer($this);
         if($attachments)
             $mailer->addAttachments($attachments);
 
         return $mailer->send($to, $subject, $message, $options);
+    }
+
+    function sendAutoReply($to, $subject, $message, $attachments=null, $options=array()) {
+        $options+= array('autoreply' => true);
+        return $this->send($to, $subject, $message, $attachments, $options);
+    }
+
+    function sendAlert($to, $subject, $message, $attachments=null, $options=array()) {
+        $options+= array('bulk' => true);
+        return $this->send($to, $subject, $message, $attachments, $options);
     }
 
     function update($vars,&$errors) {
