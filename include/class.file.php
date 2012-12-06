@@ -181,7 +181,7 @@ class AttachmentFile {
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input($file['type'])
             .',size='.db_input($file['size'])
-            .',name='.db_input($file['name'])
+            .',name='.db_input(Format::file_name($file['name']))
             .',hash='.db_input($file['hash']);
 
         if (!(db_query($sql) && ($id=db_insert_id())))
