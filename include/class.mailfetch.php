@@ -196,23 +196,25 @@ class MailFetcher {
     //Convert text to desired encoding..defaults to utf8
     function mime_encode($text, $charset=null, $enc='utf-8') { //Thank in part to afterburner  
         
-        if(function_exists('iconv') and $text) {
+        if(function_exists('iconv') and ($charset or function_exists('mb_detect_encoding'))) {
             if($charset)
                 return iconv($charset, $enc.'//IGNORE', $text);
             elseif(function_exists('mb_detect_encoding'))
                 return iconv(mb_detect_encoding($text, $this->encodings), $enc, $text);
+        } elseif(function_exists('iconv_mime_decode')) {
+            return iconv_mime_decode($text, 0, $enc);
         }
 
         return utf8_encode($text);
     }
     
-    //Generic decoder - mirrors imap_utf8
+    //Generic decoder - resuting text is utf8 encoded -> mirrors imap_utf8
     function mime_decode($text) {
         
         $str = '';
         $parts = imap_mime_header_decode($text);
         foreach ($parts as $part)
-            $str.= $part->text;
+            $str.= $this->mime_encode($part->text, ($part->charset=='default'?'ASCII':$part->charset), 'utf-8');
         
         return $str?$str:imap_utf8($text);
     }
@@ -310,15 +312,31 @@ class MailFetcher {
         if($part && !$part->parts) {
             //Check if the part is an attachment.
             $filename = '';
-            if($part->ifdisposition && in_array(strtolower($part->disposition), array('attachment', 'inline')))
+            if($part->ifdisposition && in_array(strtolower($part->disposition), array('attachment', 'inline'))) {
                 $filename = $part->dparameters[0]->value;
-            elseif($part->ifparameters && $part->type == 5) //inline image without disposition.
+                //Some inline attachments have multiple parameters.
+                if(count($part->dparameters)>1) {
+                    foreach($part->dparameters as $dparameter) {
+                        if(strcasecmp($dparameter->attribute, 'FILENAME')) continue;
+                        $filename = $dparameter->value;
+                        break;
+                    }
+                }
+            } elseif($part->ifparameters && $part->type == 5) { //inline image without disposition.
                 $filename = $part->parameters[0]->value;
+                if(count($part->parameters)>1) {
+                    foreach($part->parameters as $parameter) {
+                        if(strcasecmp($parameter->attribute, 'FILENAME')) continue;
+                        $filename = $parameter->value;
+                        break;
+                    }
+                }
+            }
 
             if($filename) {
                 return array(
                         array(
-                            'name'  => $filename,
+                            'name'  => $this->mime_decode($filename),
                             'mime'  => $this->getMimeType($part),
                             'encoding' => $part->encoding,
                             'index' => ($index?$index:1)
