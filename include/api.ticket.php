@@ -22,7 +22,9 @@ class TicketController extends ApiController {
     }
 
     function create($format) {
-        $this->requireApiKey();
+
+        if(!($key=$this->getApiKey()) || !$key->canCreateTickets())
+            Http::response(401, 'API key not authorized');
 
         # Parse request body
         $data = $this->getRequest($format);
