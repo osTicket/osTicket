@@ -102,7 +102,7 @@ class API {
             $sql.=' AND ipaddr='.db_input($ip);
         
         if(($res=db_query($sql)) && db_num_rows($res))
-            list($id) = db_insert_id();
+            list($id) = db_fetch_row($res);
 
         return $id;
     }
@@ -165,7 +165,7 @@ class ApiController {
             Http::response(403, "API key required");
         elseif (!($key=API::lookupByKey($_SERVER['HTTP_X_API_KEY'], $_SERVER['REMOTE_ADDR']))
                 || !$key->isActive() 
-                || $key->getIP()!=$_SERVER['REMOTE_ADDR'])
+                || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
             Http::response(401, "API key not found/active or source IP not authorized");
 
         return $key;
