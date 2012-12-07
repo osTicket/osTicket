@@ -21,7 +21,7 @@ if (!$url || !Validator::is_url($url)) exit('Invalid url');
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="refresh" content="0;<?php echo $url; ?>"/>
+    <meta http-equiv="refresh" content="0;URL=<?php echo $url; ?>"/>
 </head>
 <body/>
 </html>

@@ -92,9 +92,9 @@ class Mailer {
         require_once (PEAR_DIR.'Mail/mime.php'); // PEAR Mail_Mime packge
 
         //do some cleanup
-        $to=preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
-        $subject=stripslashes(preg_replace("/(\r\n|\r|\n)/s",'', trim($subject)));
-        $body = stripslashes(preg_replace("/(\r\n|\r)/s", "\n", trim($message)));
+        $to = preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
+        $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
+        $body = preg_replace("/(\r\n|\r)/s", "\n", trim($message));
 
         /* Message ID - generated for each outgoing email */
         $messageId = sprintf('<%s%d-%s>', Misc::randCode(6), time(),

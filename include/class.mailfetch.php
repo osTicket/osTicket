@@ -378,7 +378,7 @@ class MailFetcher {
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
-            $ost->logWarning('Ticket denied', 'Banned email - '.$mailinfo['email']);
+            $ost->logWarning('Ticket denied', 'Banned email - '.$mailinfo['email'], false);
 	        return true; //Report success (moved or delete)
         }
 
@@ -417,6 +417,16 @@ class MailFetcher {
         } elseif (($ticket=Ticket::create($var, $errors, 'Email'))) {
             $msgid = $ticket->getLastMsgId();
         } else {
+            //Report success if the email was absolutely rejected.
+            if(isset($errors['errno']) && $errors['errno'] == 403)
+                return true;
+
+            # check if it's a bounce!
+            if($var['header'] && TicketFilter::isAutoBounce($var['header'])) {
+                $ost->logWarning('Bounced email', $var['message'], false);
+                return true;
+            }
+
             //TODO: Log error..
             return null;
         }
