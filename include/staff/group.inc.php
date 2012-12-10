@@ -76,6 +76,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;&nbsp;<i>Ability to edit tickets.</i>
             </td>
         </tr>
+        <tr><td>Can <b>Post Reply</b></td>
+            <td>
+                <input type="radio" name="can_post_ticket_reply"  value="1"   <?php echo $info['can_post_ticket_reply']?'checked="checked"':''; ?> />Yes
+                &nbsp;&nbsp;
+                <input type="radio" name="can_post_ticket_reply"  value="0"   <?php echo !$info['can_post_ticket_reply']?'checked="checked"':''; ?> />No
+                &nbsp;&nbsp;<i>Ability to post a ticket reply.</i>
+            </td>
+        </tr>
         <tr><td>Can <b>Close</b> Tickets</td>
             <td>
                 <input type="radio" name="can_close_tickets"  value="1" <?php echo $info['can_close_tickets']?'checked="checked"':''; ?> />Yes
@@ -105,7 +113,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="radio" name="can_delete_tickets"  value="1"   <?php echo $info['can_delete_tickets']?'checked="checked"':''; ?> />Yes
                 &nbsp;&nbsp;
                 <input type="radio" name="can_delete_tickets"  value="0"   <?php echo !$info['can_delete_tickets']?'checked="checked"':''; ?> />No
-                &nbsp;&nbsp;<i>Deleted tickets can't be recovered!</i>
+                &nbsp;&nbsp;<i>Ability to delete tickets (Deleted tickets can't be recovered!)</i>
             </td>
         </tr>
         <tr><td>Can Ban Emails</td>
@@ -130,6 +138,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;&nbsp;
                 <input type="radio" name="can_manage_faq"  value="0" <?php echo !$info['can_manage_faq']?'checked="checked"':''; ?> />No
                 &nbsp;&nbsp;<i>Ability to add/update/disable/delete knowledgebase categories and FAQs.</i>
+            </td>
+        </tr>
+        <tr><td>Can View Staff Stats.</td>
+            <td>
+                <input type="radio" name="can_view_staff_stats"  value="1" <?php echo $info['can_view_staff_stats']?'checked="checked"':''; ?> />Yes
+                &nbsp;&nbsp;
+                <input type="radio" name="can_view_staff_stats"  value="0" <?php echo !$info['can_view_staff_stats']?'checked="checked"':''; ?> />No
+                &nbsp;&nbsp;<i>Ability to view stats of other staff members in allowed departments.</i>
             </td>
         </tr>
         <tr>
