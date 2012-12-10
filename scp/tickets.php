@@ -42,18 +42,23 @@ if($_POST && !$errors):
         $statusKeys=array('open'=>'Open','Reopen'=>'Open','Close'=>'Closed');
         switch(strtolower($_POST['a'])):
         case 'reply':
+            if(!$thisstaff->canPostReply())
+                $errors['err'] = 'Action denied. Contact admin for access';
+            else {
 
-            if(!$_POST['msgId'])
-                $errors['err']='Missing message ID - Internal error';
-            if(!$_POST['response'])
-                $errors['response']='Response required';
-            //Use locks to avoid double replies
-            if($lock && $lock->getStaffId()!=$thisstaff->getId())
-                $errors['err']='Action Denied. Ticket is locked by someone else!';
+                if(!$_POST['msgId'])
+                    $errors['err']='Missing message ID - Internal error';
+                if(!$_POST['response'])
+                    $errors['response']='Response required';
             
-            //Make sure the email is not banned
-            if(!$errors['err'] && TicketFilter::isBanned($ticket->getEmail()))
-                $errors['err']='Email is in banlist. Must be removed to reply.';
+                //Use locks to avoid double replies
+                if($lock && $lock->getStaffId()!=$thisstaff->getId())
+                    $errors['err']='Action Denied. Ticket is locked by someone else!';
+            
+                //Make sure the email is not banned
+                if(!$errors['err'] && TicketFilter::isBanned($ticket->getEmail()))
+                    $errors['err']='Email is in banlist. Must be removed to reply.';
+            }
 
             $wasOpen =($ticket->isOpen());
             //If no error...do the do.
