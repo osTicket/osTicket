@@ -67,7 +67,7 @@ class Upgrader extends SetupWizard {
 
         $subject = 'Upgrader Error';
         if($email) {
-            $email->send($thisstaff->getEmail(), $subject, $error);
+            $email->sendAlert($thisstaff->getEmail(), $subject, $error);
         } else {//no luck - try the system mail.
             Mailer::sendmail($thisstaff->getEmail(), $subject, $error, sprintf('"osTicket Alerts"<%s>', $thisstaff->getEmail()));
         }
