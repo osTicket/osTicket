@@ -47,7 +47,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $nav->setTabActive('emails');
 require(STAFFINC_DIR.'header.inc.php');
 ?>
-<form action="emailtest.php" method="post" id="emailtest">
+<form action="emailtest.php" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <h2>Test Outgoing Email</h2>

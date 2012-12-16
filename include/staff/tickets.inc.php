@@ -307,7 +307,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
  <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <input type="hidden" name="status" value="<?php echo $status; ?>" >
+ <input type="hidden" name="status" value="<?php echo $_REQUEST['status']; ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <caption><?php echo $showing; ?>&nbsp;&nbsp;&nbsp;<?php echo $results_type; ?></caption>
     <thead>
@@ -470,6 +470,11 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                 case 'assigned':
                     ?>
                     <input class="button" type="submit" name="mark_overdue" value="Overdue" >
+                    <input class="button" type="submit" name="close" value="Close">
+                    <?php
+                    break;
+                case 'overdue':
+                    ?>
                     <input class="button" type="submit" name="close" value="Close">
                     <?php
                     break;
