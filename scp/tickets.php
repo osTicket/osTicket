@@ -470,8 +470,8 @@ if($cfg->showAnsweredTickets()) {
 }
 
 if($stats['assigned']) {
-    if(!$sysnotice && $stats['assigned']>10)
-        $sysnotice=$stats['assigned'].' assigned to you!';
+    if(!$ost->getWarning() && $stats['assigned']>3)
+        $ost->setWarning($stats['assigned'].' tickets assigned to you! Do something about it!');
 
     $nav->addSubMenu(array('desc'=>'My Tickets ('.$stats['assigned'].')',
                            'title'=>'Assigned Tickets',
