@@ -136,14 +136,19 @@ class osTicket {
        
         $errors=0;
         foreach($files as &$file) {
-            if(!$this->isFileTypeAllowed($file))
-                $file['error']='Invalid file type for '.$file['name'];
-            elseif($file['size']>$this->getConfig()->getMaxFileSize())
-                $file['error']=sprintf('File (%s) is too big. Maximum of %s allowed',
-                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
-            elseif(!$file['error'] && !is_uploaded_file($file['tmp_name']))
-                $file['error']='Invalid or bad upload POST';
+            //skip no file upload "error" - why PHP calls it an error is beyond me.
+            if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) continue;
 
+            if($file['error']) //PHP defined error!
+                $file['error'] = 'File upload error #'.$file['error'];
+            elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
+                $file['error'] = 'Invalid or bad upload POST';
+            elseif(!$this->isFileTypeAllowed($file))
+                $file['error'] = 'Invalid file type for '.$file['name'];
+            elseif($file['size']>$this->getConfig()->getMaxFileSize())
+                $file['error'] = sprintf('File (%s) is too big. Maximum of %s allowed',
+                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
+            
             if($file['error']) $errors++;
         }
 
