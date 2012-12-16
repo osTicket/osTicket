@@ -107,7 +107,20 @@ class Mailer {
                 'Date'=> date('D, d M Y H:i:s O'),
                 'Message-ID' => $messageId,
                 'X-Mailer' =>'osTicket Mailer'
-                );
+               );
+
+        //Set bulk/auto-response headers.
+        if($options && ($options['autoreply'] or $options['bulk'])) {
+            $headers+= array(
+                    'X-Autoreply' => 'yes',
+                    'X-Auto-Response-Suppress' => 'ALL, AutoReply',
+                    'Auto-Submitted' => 'auto-replied');
+
+            if($options['bulk']) 
+                $headers+= array('Precedence' => 'bulk');
+            else
+                $headers+= array('Precedence' => 'auto_reply');
+        }
 
         $mime = new Mail_mime();
         $mime->setTXTBody($body);

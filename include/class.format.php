@@ -31,10 +31,7 @@ class Format {
     }
 
     function file_name($filename) {
-
-        $search = array('/ß/','/ä/','/Ä/','/ö/','/Ö/','/ü/','/Ü/','([^[:alnum:]._])');
-        $replace = array('ss','ae','Ae','oe','Oe','ue','Ue','_');
-        return preg_replace($search,$replace,$filename);
+        return preg_replace('/\s+/', '_', $filename);
     }
 
     /* re-arrange $_FILES array for the sane */

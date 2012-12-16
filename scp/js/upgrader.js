@@ -17,7 +17,7 @@ jQuery(function($) {
         e.preventDefault();
         var form = $(this);
         $('input[type=submit]', this).attr('disabled', 'disabled');
-        $('#overlay, #loading').show();
+        $('#overlay, #upgrading').show();
         doTasks('upgrade.php',form.serialize());
 
         return false;

@@ -80,7 +80,6 @@ if($_POST && $_POST['s']) {
     $_SESSION['ost_installer']['s']='done';
 }
 
-
 switch(strtolower($_SESSION['ost_installer']['s'])) {
     case 'config':
     case 'install':
@@ -105,7 +104,11 @@ switch(strtolower($_SESSION['ost_installer']['s'])) {
             $inc='install-prereq.inc.php';
         break;
     default:
-         $inc='install-prereq.inc.php';
+        //Fail IF any of the old config files exists.
+        if(file_exists(INCLUDE_DIR.'settings.php') || file_exists(ROOT_DIR.'ostconfig.php'))
+            $inc='file-unclean.inc.php';
+        else
+            $inc='install-prereq.inc.php';
 }
 
 require(INC_DIR.'header.inc.php');

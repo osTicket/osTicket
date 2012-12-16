@@ -867,8 +867,7 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
             
-            //TODO: add auto flags....be nice to mail servers and sysadmins!!
-            $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
         }
         
         if(!($email=$cfg->getAlertEmail()))
@@ -885,7 +884,7 @@ class Ticket {
             //Alert admin??
             if($cfg->alertAdminONNewTicket()) {
                 $alert = str_replace('%{recipient}', 'Admin', $msg['body']);
-                $email->send($cfg->getAdminEmail(), $msg['subj'], $alert);
+                $email->sendAlert($cfg->getAdminEmail(), $msg['subj'], $alert);
                 $sentlist[]=$cfg->getAdminEmail();
             }
               
@@ -901,7 +900,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff){
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->send($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
            
@@ -934,7 +933,7 @@ class Ticket {
             $msg = $this->replaceVars($msg, 
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
             
-            $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
         }
 
         $client= $this->getClient();
@@ -997,7 +996,7 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
         
-            $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
         }
     }
 
@@ -1056,7 +1055,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->send($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1109,7 +1108,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff){
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace("%{recipient}", $staff->getFirstName(), $msg['body']);
-                $email->send($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1294,7 +1293,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff){
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(),$sentlist)) continue;
                 $alert = str_replace('%{recipient}',$staff->getFirstName(), $msg['body']);
-                $email->send($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1453,7 +1452,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff){
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->send($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1503,7 +1502,7 @@ class Ticket {
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
             $attachments =($cfg->emailAttachments() && $files)?$this->getAttachments($respId, 'R'):array();
-            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
+            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
         }
 
         return $respId;
@@ -1717,7 +1716,7 @@ class Ticket {
                 if(!$staff || !is_object($staff) || !$staff->getEmail() || !$staff->isAvailable()) continue;
                 if(in_array($staff->getEmail(),$sentlist) || ($staffId && $staffId==$staff->getId())) continue; 
                 $alert = str_replace('%{recipient}',$staff->getFirstName(), $msg['body']);
-                $email->send($staff->getEmail(), $msg['subj'], $alert, $attachments);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, $attachments);
                 $sentlist[] = $staff->getEmail();
             }
         }
