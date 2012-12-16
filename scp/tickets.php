@@ -341,7 +341,7 @@ if($_POST && !$errors):
                                 foreach($_POST['tids'] as $k=>$v) {
                                     if(($t=Ticket::lookup($v)) && $t->isClosed() && @$t->reopen()) {
                                         $i++;
-                                        $t->logNote('Ticket Reopened', $note);
+                                        $t->logNote('Ticket Reopened', $note, $thisstaff);
                                     }
                                 }
 
@@ -361,7 +361,7 @@ if($_POST && !$errors):
                                 foreach($_POST['tids'] as $k=>$v) {
                                     if(($t=Ticket::lookup($v)) && $t->isOpen() && @$t->close()) { 
                                         $i++;
-                                        $t->logNote('Ticket Closed', $note);
+                                        $t->logNote('Ticket Closed', $note, $thisstaff);
                                     }
                                 }
 
@@ -380,7 +380,7 @@ if($_POST && !$errors):
                             foreach($_POST['tids'] as $k=>$v) {
                                 if(($t=Ticket::lookup($v)) && !$t->isOverdue() && $t->markOverdue()) {
                                     $i++;
-                                    $t->logNote('Ticket Marked Overdue', $note);
+                                    $t->logNote('Ticket Marked Overdue', $note, $thisstaff);
                                 }
                             }
 
