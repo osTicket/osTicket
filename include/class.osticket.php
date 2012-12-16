@@ -26,7 +26,16 @@ define('LOG_WARN',LOG_WARNING);
 class osTicket {
 
     var $loglevel=array(1=>'Error','Warning','Debug');
+    
+    //Page errors.
     var $errors;
+
+    //System 
+    var $system;
+
+
+
+
     var $warning;
     var $message;
 
@@ -187,18 +196,15 @@ class osTicket {
     }
 
     function setErrors($errors) {
-        if(!is_array($errors))
-            return  $this->setError($errors);
-
         $this->errors = $errors;
     }
 
     function getError() {
-        return $this->errors['err'];
+        return $this->system['err'];
     }
 
     function setError($error) {
-        $this->errors['err'] = $error;
+        $this->system['error'] = $error;
     }
 
     function clearError() {
@@ -206,11 +212,11 @@ class osTicket {
     }
 
     function getWarning() {
-        return $this->warning;
+        return $this->system['warning'];
     }
 
-    function setWarning($warn) {
-        $this->warning = $warn;
+    function setWarning($warning) {
+        $this->system['warning'] = $warning;
     }
 
     function clearWarning() {
@@ -218,16 +224,16 @@ class osTicket {
     }
 
 
-    function getMessage() {
-        return $this->message;
+    function getNotice() {
+        return $this->system['notice'];
     }
 
-    function setMessage($msg) {
-        $this->message = $msg;
+    function setNotice($notice) {
+        $this->system['notice'] = $notice;
     }
 
-    function clearMessage() {
-        $this->setMessage('');
+    function clearNotice() {
+        $this->setNotice('');
     }
 
 

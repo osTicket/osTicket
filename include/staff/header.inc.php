@@ -31,6 +31,14 @@
 </head>
 <body>
 <div id="container">
+    <?php
+    if($ost->getError())
+        echo sprintf('<div id="error_bar">%s</div>', $ost->getError());
+    elseif($ost->getWarning())
+        echo sprintf('<div id="warning_bar">%s</div>', $ost->getWarning());
+    elseif($ost->getNotice())
+        echo sprintf('<div id="notice_bar">%s</div>', $ost->getNotice());
+    ?>
     <div id="header">
         <a href="index.php" id="logo">osTicket - Customer Support System</a>
         <p id="info">Howdy, <strong><?php echo $thisstaff->getUserName(); ?></strong>

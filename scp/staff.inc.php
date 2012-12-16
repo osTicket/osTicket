@@ -119,10 +119,11 @@ $nav = new StaffNav($thisstaff);
 if($thisstaff->forcePasswdChange() && !$exempt) {
     # XXX: Call staffLoginPage() for AJAX and API requests _not_ to honor
     #      the request
+    $sysnotice = 'Password change required to continue';
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
     exit;
 }
-
+$ost->setWarning($sysnotice);
 $ost->setPageTitle('osTicket :: Staff Control Panel');
 
 ?>
