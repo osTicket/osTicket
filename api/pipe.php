@@ -16,6 +16,7 @@
 **********************************************************************/
 @chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
 ini_set('memory_limit', '256M'); //The concern here is having enough mem for emails with attachments.
+$apikey = null;
 require('api.inc.php');
 require_once(INCLUDE_DIR.'class.mailparse.php');
 require_once(INCLUDE_DIR.'class.email.php');
@@ -23,6 +24,9 @@ require_once(INCLUDE_DIR.'class.email.php');
 //Make sure piping is enabled!
 if(!$cfg->isEmailPipingEnabled())
     api_exit(EX_UNAVAILABLE,'Email piping not enabled - check MTA settings.');
+elseif($apikey && !$apikey->canCreateTickets()) //apikey is ONLY set on remote post - local post don't need a key (for now).
+    api_exit(EX_NOPERM, 'API key not authorized');
+
 //Get the input
 $data=isset($_SERVER['HTTP_HOST'])?file_get_contents('php://input'):file_get_contents('php://stdin');
 if(empty($data)){
@@ -77,8 +81,8 @@ $name=trim($from->personal,'"');
 if($from->comment && $from->comment[0])
     $name.=' ('.$from->comment[0].')';
 $subj=utf8_encode($parser->getSubject());
-if(!($body=Format::stripEmptyLines($parser->getBody())) && $subj)
-    $body=$subj;
+if(!($body=Format::stripEmptyLines($parser->getBody())))
+    $body=$subj?$subj:'(EMPTY)';
 
 $var['mid']=$parser->getMessageId();
 $var['email']=$from->mailbox.'@'.$from->host;
