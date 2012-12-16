@@ -190,37 +190,40 @@ $sortOptions=array('date'=>'ticket.created','ID'=>'ticketID','pri'=>'priority_ur
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
 //Sorting options...
+$queue = isset($_REQUEST['status'])?strtolower($_REQUEST['status']):$status;
 $order_by=$order=null;
 if($_REQUEST['sort'] && $sortOptions[$_REQUEST['sort']])
     $order_by =$sortOptions[$_REQUEST['sort']];
-elseif(!strcasecmp($status, 'open') && !$showanswered && $sortOptions[$_SESSION['tickets']['sort']]) {
-    $_REQUEST['sort'] = $_SESSION['tickets']['sort'];
-    $_REQUEST['order'] = $_SESSION['tickets']['order'];
+elseif($sortOptions[$_SESSION[$queue.'_tickets']['sort']]) {
+    $_REQUEST['sort'] = $_SESSION[$queue.'_tickets']['sort'];
+    $_REQUEST['order'] = $_SESSION[$queue.'_tickets']['order'];
 
-    $order_by = $sortOptions[$_SESSION['tickets']['sort']];
-    $order = $_SESSION['tickets']['order'];
+    $order_by = $sortOptions[$_SESSION[$queue.'_tickets']['sort']];
+    $order = $_SESSION[$queue.'_tickets']['order'];
 }
 
 if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
     $order=$orderWays[strtoupper($_REQUEST['order'])];
 
 //Save sort order for sticky sorting.
-if(!strcasecmp($status, 'open') && $_REQUEST['sort']) {
-    $_SESSION['tickets']['sort'] = $_REQUEST['sort'];
-    $_SESSION['tickets']['order'] = $_REQUEST['order'];
+if($_REQUEST['sort'] && $queue) {
+    $_SESSION[$queue.'_tickets']['sort'] = $_REQUEST['sort'];
+    $_SESSION[$queue.'_tickets']['order'] = $_REQUEST['order'];
 }
 
-if(!$order_by && $showanswered) {
-    $order_by='ticket.lastresponse, ticket.created'; //No priority sorting for answered tickets.
-}elseif(!$order_by && !strcasecmp($status,'closed')){
-    $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
+//Set default sort by columns.
+if(!$order_by ) {
+    if($showanswered) 
+        $order_by='ticket.lastresponse, ticket.created'; //No priority sorting for answered tickets.
+    elseif(!strcasecmp($status,'closed'))
+        $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
+    else
+        $order_by='priority_urgency ASC, effective_date, ticket.created';
 }
 
-$order_by =$order_by?$order_by:'priority_urgency, effective_date, ticket.created';
-$order=$order?$order:'ASC';
-
-if($order_by && strpos($order_by,','))
-    $order_by=str_replace(','," $order,",$order_by);
+$order=$order?$order:'DESC';
+if($order_by && strpos($order_by,',') && $order)
+    $order_by=preg_replace('/(?<!ASC|DESC),/', " $order,", $order_by);
 
 $sort=$_REQUEST['sort']?strtolower($_REQUEST['sort']):'urgency'; //Urgency is not on display table.
 $x=$sort.'_sort';
