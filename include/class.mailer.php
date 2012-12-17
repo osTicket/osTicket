@@ -92,9 +92,9 @@ class Mailer {
         require_once (PEAR_DIR.'Mail/mime.php'); // PEAR Mail_Mime packge
 
         //do some cleanup
-        $to=preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
-        $subject=stripslashes(preg_replace("/(\r\n|\r|\n)/s",'', trim($subject)));
-        $body = stripslashes(preg_replace("/(\r\n|\r)/s", "\n", trim($message)));
+        $to = preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
+        $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
+        $body = preg_replace("/(\r\n|\r)/s", "\n", trim($message));
 
         /* Message ID - generated for each outgoing email */
         $messageId = sprintf('<%s%d-%s>', Misc::randCode(6), time(),
@@ -107,7 +107,20 @@ class Mailer {
                 'Date'=> date('D, d M Y H:i:s O'),
                 'Message-ID' => $messageId,
                 'X-Mailer' =>'osTicket Mailer'
-                );
+               );
+
+        //Set bulk/auto-response headers.
+        if($options && ($options['autoreply'] or $options['bulk'])) {
+            $headers+= array(
+                    'X-Autoreply' => 'yes',
+                    'X-Auto-Response-Suppress' => 'ALL, AutoReply',
+                    'Auto-Submitted' => 'auto-replied');
+
+            if($options['bulk']) 
+                $headers+= array('Precedence' => 'bulk');
+            else
+                $headers+= array('Precedence' => 'auto_reply');
+        }
 
         $mime = new Mail_mime();
         $mime->setTXTBody($body);

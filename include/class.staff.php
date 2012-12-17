@@ -302,13 +302,21 @@ class Staff {
     function canEditTickets() {
         return ($this->ht['can_edit_tickets']);
     }
-    
+
     function canDeleteTickets() {
         return ($this->ht['can_delete_tickets']);
     }
    
     function canCloseTickets() {
         return ($this->ht['can_close_tickets']);
+    }
+
+    function canPostReply() {
+        return ($this->ht['can_post_ticket_reply']);
+    }
+
+    function canViewStaffStats() {
+        return ($this->ht['can_view_staff_stats']);
     }
 
     function canAssignTickets() {

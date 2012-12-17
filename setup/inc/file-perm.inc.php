@@ -9,9 +9,9 @@ if(!defined('SETUPINC')) die('Kwaheri!');
              </p>
             </div>
             <h3>Solution: <font color="red"><?php echo $errors['err']; ?></font></h3>
-            Please follow the instructions below to give read and write access to the web server.
+            Please follow the instructions below to give read and write access to the web server user.
             <ul>
-                <li><b>CLI</b>:<br><i>chmod 0777  include/ost-config.php</i></li>
+                <li><b>CLI</b>:<br><i>chmod 0666  include/ost-config.php</i></li>
                 <li><b>FTP</b>:<br>Using WS_FTP this would be right hand clicking on the fil, selecting chmod, and then giving all permissions to the file.</li>
                 <li><b>Cpanel</b>:<br>Click on the file, select change permission, and then giving all permissions to the file.</li>
             </ul>

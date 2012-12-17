@@ -15,14 +15,16 @@ class TicketController extends ApiController {
             "attachments" => array("*" => 
                 array("name", "type", "data", "encoding")
             ), 
-            "message", "ip"
+            "message", "ip", "priorityId"
         );
         if ($format == "xml") return array("ticket" => $supported);
         else return $supported;
     }
 
     function create($format) {
-        $this->requireApiKey();
+
+        if(!($key=$this->getApiKey()) || !$key->canCreateTickets())
+            Http::response(401, 'API key not authorized');
 
         # Parse request body
         $data = $this->getRequest($format);
@@ -43,7 +45,7 @@ class TicketController extends ApiController {
                 if (!($info["data"] = base64_decode($info["data"], true)))
                     Http::response(400, sprintf(
                         "%s: Poorly encoded base64 data",
-                        $filename));
+                        $info['name']));
             }
             $info['size'] = strlen($info['data']);
         }

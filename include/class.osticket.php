@@ -26,7 +26,16 @@ define('LOG_WARN',LOG_WARNING);
 class osTicket {
 
     var $loglevel=array(1=>'Error','Warning','Debug');
+    
+    //Page errors.
     var $errors;
+
+    //System 
+    var $system;
+
+
+
+
     var $warning;
     var $message;
 
@@ -136,14 +145,19 @@ class osTicket {
        
         $errors=0;
         foreach($files as &$file) {
-            if(!$this->isFileTypeAllowed($file))
-                $file['error']='Invalid file type for '.$file['name'];
-            elseif($file['size']>$this->getConfig()->getMaxFileSize())
-                $file['error']=sprintf('File (%s) is too big. Maximum of %s allowed',
-                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
-            elseif(!$file['error'] && !is_uploaded_file($file['tmp_name']))
-                $file['error']='Invalid or bad upload POST';
+            //skip no file upload "error" - why PHP calls it an error is beyond me.
+            if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) continue;
 
+            if($file['error']) //PHP defined error!
+                $file['error'] = 'File upload error #'.$file['error'];
+            elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
+                $file['error'] = 'Invalid or bad upload POST';
+            elseif(!$this->isFileTypeAllowed($file))
+                $file['error'] = 'Invalid file type for '.$file['name'];
+            elseif($file['size']>$this->getConfig()->getMaxFileSize())
+                $file['error'] = sprintf('File (%s) is too big. Maximum of %s allowed',
+                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
+            
             if($file['error']) $errors++;
         }
 
@@ -182,18 +196,15 @@ class osTicket {
     }
 
     function setErrors($errors) {
-        if(!is_array($errors))
-            return  $this->setError($errors);
-
         $this->errors = $errors;
     }
 
     function getError() {
-        return $this->errors['err'];
+        return $this->system['err'];
     }
 
     function setError($error) {
-        $this->errors['err'] = $error;
+        $this->system['error'] = $error;
     }
 
     function clearError() {
@@ -201,11 +212,11 @@ class osTicket {
     }
 
     function getWarning() {
-        return $this->warning;
+        return $this->system['warning'];
     }
 
-    function setWarning($warn) {
-        $this->warning = $warn;
+    function setWarning($warning) {
+        $this->system['warning'] = $warning;
     }
 
     function clearWarning() {
@@ -213,16 +224,16 @@ class osTicket {
     }
 
 
-    function getMessage() {
-        return $this->message;
+    function getNotice() {
+        return $this->system['notice'];
     }
 
-    function setMessage($msg) {
-        $this->message = $msg;
+    function setNotice($notice) {
+        $this->system['notice'] = $notice;
     }
 
-    function clearMessage() {
-        $this->setMessage('');
+    function clearNotice() {
+        $this->setNotice('');
     }
 
 
@@ -242,7 +253,7 @@ class osTicket {
             $email=$this->getConfig()->getDefaultEmail(); //will take the default email.
 
         if($email) {
-            $email->send($to, $subject, $message);
+            $email->sendAlert($to, $subject, $message);
         } else {//no luck - try the system mail.
             Email::sendmail($to, $subject, $message, sprintf('"osTicket Alerts"<%s>',$to));
         }

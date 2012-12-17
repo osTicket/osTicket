@@ -25,6 +25,7 @@ define('OSTADMININC',TRUE); //checked by admin include files
 define('ADMINPAGE',TRUE);   //Used by the header to swap menus.
 
 //Some security related warnings - bitch until fixed!!! :)
+$sysnotice= '';
 if($ost->isUpgradePending()) {
     $errors['err']=$sysnotice='System upgrade is pending <a href="upgrade.php">Upgrade Now</a>';
     if(!in_array(basename($_SERVER['SCRIPT_NAME']), array('upgrade.php', 'logs.php'))) {
@@ -56,6 +57,9 @@ if($ost->isUpgradePending()) {
     if(!$sysnotice && ini_get('register_globals'))
         $sysnotice='Please consider turning off register globals if possible';
 }
+
+//System notice displayed as a warning (if any).
+$ost->setWarning($sysnotice);
 
 //Admin navigation - overwrites what was set in staff.inc.php
 $nav = new AdminNav($thisstaff);

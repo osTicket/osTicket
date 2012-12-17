@@ -89,6 +89,13 @@ class Installer extends SetupWizard {
                 $this->errors['db']='Unable to create the database.';
             } elseif(!db_select_database($vars['dbname'])) {
                 $this->errors['dbname']='Unable to select the database';
+            } else {
+                //Abort if we have another installation (or table) with same prefix.
+                $sql = 'SELECT * FROM `'.$vars['prefix'].'config` LIMIT 1';
+                if(mysql_query($sql)) {
+                    $this->errors['err'] = 'We have a problem - another installation with same table prefix exists!';
+                    $this->errors['prefix'] = 'Prefix already in-use';
+                }
             }
         }
 

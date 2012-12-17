@@ -98,7 +98,7 @@ class VariableReplacer {
         if(!($vars=$this->_parse($input)))
             return $input;
 
-        return preg_replace($this->_delimit(array_keys($vars)), array_values($vars), $input);
+        return str_replace(array_keys($vars), array_values($vars), $input);
     }
 
     function _resolveVar($var) {
@@ -133,15 +133,6 @@ class VariableReplacer {
         }
 
         return $vars;
-    }
-
-    //Helper function - will be replaced by a lambda function (PHP 5.3+)
-    function _delimit($val, $d='/') {
-
-        if($val && is_array($val))
-            return array_map(array($this, '_delimit'), $val);
-
-        return $d.$val.$d;
     }
 }
 ?>

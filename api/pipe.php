@@ -16,6 +16,7 @@
 **********************************************************************/
 @chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
 ini_set('memory_limit', '256M'); //The concern here is having enough mem for emails with attachments.
+$apikey = null;
 require('api.inc.php');
 require_once(INCLUDE_DIR.'class.mailparse.php');
 require_once(INCLUDE_DIR.'class.email.php');
@@ -23,6 +24,9 @@ require_once(INCLUDE_DIR.'class.email.php');
 //Make sure piping is enabled!
 if(!$cfg->isEmailPipingEnabled())
     api_exit(EX_UNAVAILABLE,'Email piping not enabled - check MTA settings.');
+elseif($apikey && !$apikey->canCreateTickets()) //apikey is ONLY set on remote post - local post don't need a key (for now).
+    api_exit(EX_NOPERM, 'API key not authorized');
+
 //Get the input
 $data=isset($_SERVER['HTTP_HOST'])?file_get_contents('php://input'):file_get_contents('php://stdin');
 if(empty($data)){
@@ -77,8 +81,8 @@ $name=trim($from->personal,'"');
 if($from->comment && $from->comment[0])
     $name.=' ('.$from->comment[0].')';
 $subj=utf8_encode($parser->getSubject());
-if(!($body=Format::stripEmptyLines($parser->getBody())) && $subj)
-    $body=$subj;
+if(!($body=Format::stripEmptyLines($parser->getBody())))
+    $body=$subj?$subj:'(EMPTY)';
 
 $var['mid']=$parser->getMessageId();
 $var['email']=$from->mailbox.'@'.$from->host;
@@ -90,31 +94,38 @@ $var['header']=$parser->getHeader();
 $var['priorityId']=$cfg->useEmailPriority()?$parser->getPriority():0;
 
 $ticket=null;
-if(preg_match ("[[#][0-9]{1,10}]",$var['subject'],$regs)) {
+if(preg_match ("[[#][0-9]{1,10}]", $var['subject'], $regs)) {
     $extid=trim(preg_replace("/[^0-9]/", "", $regs[0]));
-    $ticket= new Ticket(Ticket::getIdByExtId($extid));
-    //Allow mismatched emails?? For now hell NO.
-    if(!is_object($ticket) || strcasecmp($ticket->getEmail(),$var['email']))
-        $ticket=null;
+    if(!($ticket=Ticket::lookupByExtId($extid, $var['email'])) || strcasecmp($ticket->getEmail(), $var['email']))
+       $ticket = null;
 }        
+
 $errors=array();
 $msgid=0;
-if(!$ticket) { //New tickets...
-    $ticket=Ticket::create($var,$errors,'email');
-    if(!is_object($ticket) || $errors) {
-        api_exit(EX_DATAERR,'Ticket create Failed '.implode("\n",$errors)."\n\n");
-    }
-
-    $msgid=$ticket->getLastMsgId();
-
-} else {
+if($ticket) {
     //post message....postMessage does the cleanup.
-    if(!($msgid=$ticket->postMessage($var['message'], 'Email',$var['mid'],$var['header']))) {
+    if(!($msgid=$ticket->postMessage($var['message'], 'Email',$var['mid'],$var['header'])))
         api_exit(EX_DATAERR, 'Unable to post message');
+
+} elseif(($ticket=Ticket::create($var, $errors, 'email'))) { // create new ticket.
+    $msgid=$ticket->getLastMsgId();
+} else { // failure....
+
+    // report success on hard rejection
+    if(isset($errors['errno']) && $errors['errno'] == 403)
+        api_exit(EX_SUCCESS);
+
+    // check if it's a bounce!
+    if($var['header'] && TicketFilter::isAutoBounce($var['header'])) {
+        $ost->logWarning('Bounced email', $var['message'], false);
+        api_exit(EX_SUCCESS); 
     }
+    
+    api_exit(EX_DATAERR, 'Ticket create Failed '.implode("\n",$errors)."\n\n");
 }
+
 //Ticket created...save attachments if enabled.
-if($cfg->allowEmailAttachments() && ($attachments=$parser->getAttachments())) {
+if($ticket && $cfg->allowEmailAttachments() && ($attachments=$parser->getAttachments())) {
     foreach($attachments as $attachment) {
         if($attachment['filename'] && $ost->isFileTypeAllowed($attachment['filename']))
             $ticket->saveAttachment(array('name' => $attachment['filename'], 'data' => $attachment['body']), $msgid, 'M');
