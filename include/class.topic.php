@@ -165,10 +165,13 @@ class Topic {
         return self::getHelpTopics(true);
     }
 
-    function getIdByName($topic) {
-        $sql='SELECT topic_id FROM '.TOPIC_TABLE.' WHERE topic='.db_input($topic);
+    function getIdByName($name, $pid=0) {
+
+        $sql='SELECT topic_id FROM '.TOPIC_TABLE
+            .' WHERE topic='.db_input($name)
+            .' AND topic_pid='.db_input($pid);
         if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
+            list($id) = db_fetch_row($res);
 
         return $id;
     }
@@ -188,7 +191,7 @@ class Topic {
             $errors['topic']='Help topic required';
         elseif(strlen($vars['topic'])<5)
             $errors['topic']='Topic is too short. 5 chars minimum';
-        elseif(($tid=self::getIdByName($vars['topic'])) && $tid!=$id)
+        elseif(($tid=self::getIdByName($vars['topic'], $vars['pid'])) && $tid!=$id)
             $errors['topic']='Topic already exists';
 
         if(!$vars['dept_id'])

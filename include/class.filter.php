@@ -233,7 +233,9 @@ class Filter {
             'equal'     => array('strcmp', 0),
             'not_equal' => array('strcmp', null, 0),
             'contains'  => array('strpos', null, false),
-            'dn_contain'=> array('strpos', false)
+            'dn_contain'=> array('strpos', false),
+            'starts'    => array('strpos', 0),
+            'ends'      => array('endsWith', true)
         );
 
         $match = false;
@@ -309,7 +311,9 @@ class Filter {
             'equal'=>       'Equal',
             'not_equal'=>   'Not Equal',
             'contains'=>    'Contains',
-            'dn_contain'=>  'Does Not Contain'
+            'dn_contain'=>  'Does Not Contain',
+            'starts'=>      'Starts With',
+            'ends'=>        'Ends With'
         );
     }
 
@@ -366,8 +370,8 @@ class Filter {
 
     function save_rules($id,$vars,&$errors) {
 
-        $matches=array('name','email','subject','body','header');
-        $types=array('equal','not_equal','contains','dn_contain');
+        $matches = array_keys(self::getSupportedMatches());
+        $types = array_keys(self::getSupportedMatchTypes());
 
         $rules=array();
         for($i=1; $i<=25; $i++) { //Expecting no more than 25 rules...
@@ -941,5 +945,21 @@ class TicketFilter {
     
         return $sources[strtolower($origin)];
     }
+}
+
+/**
+ * Function: endsWith
+ *
+ * Returns TRUE if the haystack ends with needle and FALSE otherwise.
+ * Thanks, http://stackoverflow.com/a/834355
+ */
+function endsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    if ($length == 0) {
+        return true;
+    }
+
+    return (substr($haystack, -$length) === $needle);
 }
 ?>

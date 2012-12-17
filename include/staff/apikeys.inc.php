@@ -5,7 +5,7 @@ $qstr='';
 $sql='SELECT * FROM '.API_KEY_TABLE.' WHERE 1';
 $sortOptions=array('key'=>'apikey','status'=>'isactive','ip'=>'ipaddr','date'=>'created','created'=>'created','updated'=>'updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
-$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'date';
+$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'key';
 //Sorting options...
 if($sort && $sortOptions[$sort]) {
     $order_column =$sortOptions[$sort];
@@ -54,10 +54,10 @@ else
     <thead>
         <tr>
             <th width="7">&nbsp;</th>        
-            <th width="150" nowrap><a  <?php echo $date_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=date">Date Added</a></th>
             <th width="320"><a <?php echo $key_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=key">API Key</a></th>
-            <th width="100"><a  <?php echo $status_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="120"><a  <?php echo $ip_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=ip">IP Addr.</a></th>
+            <th width="100"><a  <?php echo $status_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
+            <th width="150" nowrap><a  <?php echo $date_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=date">Date Added</a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
         </tr>
     </thead>
@@ -75,10 +75,10 @@ else
                 <td width=7px>
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" 
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
-                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<a href="apikeys.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['apikey']); ?></a></td>
-                <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
                 <td><?php echo $row['ipaddr']; ?></td>
+                <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
+                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>
             <?php

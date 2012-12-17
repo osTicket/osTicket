@@ -42,7 +42,7 @@ function api_exit($code,$msg='') {
         //Error occured...
         $_SESSION['api']['errors']+=1;
         $_SESSION['api']['time']=time();
-        $ost->logWarning("API error - code #$code",$msg);
+        $ost->logWarning("API error - code #$code", $msg, ($_SESSION['api']['errors']>10));
         //echo "API Error:.$msg";
     }
     if($remotehost){
@@ -66,19 +66,20 @@ function api_exit($code,$msg='') {
 }
 
 //Remote hosts need authorization.
+$apikey = null;
 if($remotehost) {
-
-    $ip=$_SERVER['REMOTE_ADDR'];
-    $key=$_SERVER['HTTP_USER_AGENT']; //pulling all tricks.
-    //Upto 10 consecutive errors allowed...before a 5 minute timeout.
+    //Upto 10 consecutive errors allowed...before a 2 minute timeout.
     //One more error during timeout and timeout starts a new clock
-    if($_SESSION['api']['errors']>10 && (time()-$_SESSION['api']['time'])<=5*60) { // timeout!
-        api_exit(EX_NOPERM,"Remote host [$ip] in timeout - error #".$_SESSION['api']['errors']);
-    }
-    //Check API key & ip
-    if(!Validator::is_ip($ip) || !Api::validate($key,$ip)) { 
-        api_exit(EX_NOPERM,'Unknown remote host ['.$ip.'] or invalid API key ['.$key.']');
-    }
+    if($_SESSION['api']['errors']>10 && (time()-$_SESSION['api']['time'])<=2*60)  // timeout!
+        api_exit(EX_NOPERM, 'Remote host ['.$_SERVER['REMOTE_ADDR'].'] in timeout - error #'.$_SESSION['api']['errors']);
+        
+    if(!isset($_SERVER['HTTP_X_API_KEY']) || !isset($_SERVER['REMOTE_ADDR']))
+        api_exit(EX_NOPERM, 'API key required');
+    elseif(!($apikey=API::lookupByKey($_SERVER['HTTP_X_API_KEY'], $_SERVER['REMOTE_ADDR']))
+                || !$apikey->isActive()
+                || $apikey->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
+        api_exit(EX_NOPERM, 'API key not found/active or source IP not authorized');
+    
     //At this point we know the remote host/IP is allowed.
     $_SESSION['api']['errors']=0; //clear errors for the session.
 }

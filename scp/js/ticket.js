@@ -94,7 +94,7 @@ var autoLock = {
     Init: function(config) {
 
         //make sure we are on ticket view page & locking is enabled!
-        var fObj=$('form#reply');
+        var fObj=$('form#note');
         if(!fObj 
                 || !$(':input[name=id]',fObj).length 
                 || !$(':input[name=locktime]',fObj).length

@@ -348,7 +348,11 @@ if(!$cfg->showNotesInline()) { ?>
 
 <div id="response_options">
     <ul>
+        <?php
+        if($thisstaff->canPostReply()) { ?>
         <li><a id="reply_tab" href="#reply">Post Reply</a></li>
+        <?php
+        } ?>
         <li><a id="note_tab" href="#note">Post Internal Note</a></li>
         <?php
         if($thisstaff->canTransferTickets()) { ?>
@@ -361,12 +365,12 @@ if(!$cfg->showNotesInline()) { ?>
         <?php
         } ?>
     </ul>
-
+    <?php
+    if($thisstaff->canPostReply()) { ?>
     <form id="reply" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
-        <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
         <input type="hidden" name="a" value="reply">
         <span class="error"></span>
         <table border="0" cellspacing="0" cellpadding="3">
@@ -485,9 +489,12 @@ if(!$cfg->showNotesInline()) { ?>
             <input class="btn_sm" type="reset" value="Reset">
         </p>
     </form>
+    <?php
+    } ?>
     <form id="note" action="tickets.php?id=<?php echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
+        <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
         <input type="hidden" name="a" value="postnote">
         <table border="0" cellspacing="0" cellpadding="3">
             <?php 

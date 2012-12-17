@@ -80,6 +80,8 @@ class OverviewReportAjaxAPI extends AjaxController {
                       (T1.staff_id='.db_input($thisstaff->getId())
                         .(($depts=$thisstaff->getManagedDepartments())?
                             (' OR T1.dept_id IN('.implode(',', db_input($depts)).')'):'')
+                        .(($thisstaff->canViewStaffStats())?
+                            (' OR T1.dept_id IN('.implode(',', db_input($thisstaff->getDepts())).')'):'')
                      .')'
                      ) 
             )

@@ -209,6 +209,8 @@ class Group {
             .', can_ban_emails='.db_input($vars['can_ban_emails'])
             .', can_manage_premade='.db_input($vars['can_manage_premade'])
             .', can_manage_faq='.db_input($vars['can_manage_faq'])
+            .', can_post_ticket_reply='.db_input($vars['can_post_ticket_reply'])
+            .', can_view_staff_stats='.db_input($vars['can_view_staff_stats'])
             .', notes='.db_input($vars['notes']);
             
         if($id) {
