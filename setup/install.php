@@ -105,7 +105,12 @@ switch(strtolower($_SESSION['ost_installer']['s'])) {
         break;
     default:
         //Fail IF any of the old config files exists.
-        if(file_exists(INCLUDE_DIR.'settings.php') || file_exists(ROOT_DIR.'ostconfig.php'))
+        if(file_exists(INCLUDE_DIR.'settings.php') 
+                || file_exists(ROOT_DIR.'ostconfig.php')
+                || (file_exists(OSTICKET_CONFIGFILE) 
+                    && preg_match("/define\('OSTINSTALLED',TRUE\)\;/i", 
+                        file_get_contents(OSTICKET_CONFIGFILE)))
+                )
             $inc='file-unclean.inc.php';
         else
             $inc='install-prereq.inc.php';
