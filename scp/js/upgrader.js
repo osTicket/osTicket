@@ -8,7 +8,7 @@ jQuery(function($) {
         height  : $(window).height()
         });
 
-    $("#loading").css({
+    $("#upgrading").css({
         top  : ($(window).height() / 3),
         left : ($(window).width() / 2 - 160)
         });
