@@ -15,7 +15,7 @@
 **********************************************************************/
 
 #This  version - changed on every release
-define('THIS_VERSION', '1.7-RC4');
+define('THIS_VERSION', '1.7-RC4+');
 
 #inits - error reporting.
 $error_reporting = E_ALL & ~E_NOTICE;
