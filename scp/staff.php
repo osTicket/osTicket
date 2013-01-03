@@ -60,7 +60,7 @@ if($_POST){
                         break;
                     case 'disable':
                         $sql='UPDATE '.STAFF_TABLE.' SET isactive=0 '
-                            .' WHERE staff_id IN ('.implode(',',$_POST['ids']).') AND staff_id!='.db_input($thisstaff->getId());
+                            .' WHERE staff_id IN ('.implode(',', db_input($_POST['ids'])).') AND staff_id!='.db_input($thisstaff->getId());
 
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)

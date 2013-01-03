@@ -484,9 +484,10 @@ class Staff {
                 db_query($sql);
             }
         }
+
         $sql='DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($this->getId());
         if($teams)
-            $sql.=' AND team_id NOT IN('.implode(',', $teams).')';
+            $sql.=' AND team_id NOT IN('.implode(',', db_input($teams)).')';
         
         db_query($sql);
 
@@ -494,6 +495,7 @@ class Staff {
     }
 
     function update($vars, &$errors) {
+
         if(!$this->save($this->getId(), $vars, $errors))
             return false;
 
