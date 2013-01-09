@@ -194,7 +194,10 @@ class MailFetcher {
     }
 
     //Convert text to desired encoding..defaults to utf8
-    function mime_encode($text, $charset=null, $enc='utf-8') { //Thank in part to afterburner  
+    function mime_encode($text, $charset=null, $enc='utf-8') { //Thank in part to afterburner 
+
+        if($charset && in_array(trim($charset), array('default','x-user-defined')))
+            $charset = 'ASCII';
         
         if(function_exists('iconv') and ($charset or function_exists('mb_detect_encoding'))) {
             if($charset)
@@ -208,13 +211,13 @@ class MailFetcher {
         return utf8_encode($text);
     }
     
-    //Generic decoder - resuting text is utf8 encoded -> mirrors imap_utf8
-    function mime_decode($text) {
+    //Generic decoder - resulting text is utf8 encoded -> mirrors imap_utf8
+    function mime_decode($text, $enc='utf-8') {
         
         $str = '';
         $parts = imap_mime_header_decode($text);
         foreach ($parts as $part)
-            $str.= $this->mime_encode($part->text, ($part->charset=='default'?'ASCII':$part->charset), 'utf-8');
+            $str.= $this->mime_encode($part->text, $part->charset, $enc);
         
         return $str?$str:imap_utf8($text);
     }
