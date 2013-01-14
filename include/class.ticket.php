@@ -720,7 +720,7 @@ class Ticket {
         global $cfg;
         # XXX Should the SLA be overwritten if it was originally set via an
         #     email filter? This method doesn't consider such a case
-        if ($trump !== null) {
+        if ($trump && is_numeric($trump)) {
             $slaId = $trump;
         } elseif ($this->getDept() && $this->getDept()->getSLAId()) {
             $slaId = $this->getDept()->getSLAId();
@@ -2129,7 +2129,9 @@ class Ticket {
                 $vars['teamId'] = $topic->getTeamId();
 
             //set default sla.
-            if(!isset($vars['slaId']) && $topic->getSLAId())
+            if(isset($vars['slaId']))
+                $vars['slaId'] = $vars['slaId']?$vars['slaId']:$cfg->getDefaultSLAId();
+            elseif($topic && $topic->getSLAId())
                 $vars['slaId'] = $topic->getSLAId();
 
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
