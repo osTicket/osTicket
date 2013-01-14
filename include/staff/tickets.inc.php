@@ -65,15 +65,15 @@ $qwhere =' WHERE ( '
         .'  ticket.staff_id='.db_input($thisstaff->getId());
 
 if(!$thisstaff->showAssignedOnly())
-    $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',',$depts):0).')';
+    $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',', db_input($depts)):0).')';
 
 if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-    $qwhere.=' OR ticket.team_id IN('.implode(',',array_filter($teams)).') ';
+    $qwhere.=' OR ticket.team_id IN('.implode(',', db_input(array_filter($teams))).') ';
 
 $qwhere .= ' )';
 
 //STATUS
-if($status){
+if($status) {
     $qwhere.=' AND status='.db_input(strtolower($status));    
 }
 
@@ -307,7 +307,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
  <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <input type="hidden" name="status" value="<?php echo $_REQUEST['status']; ?>" >
+ <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <caption><?php echo $showing; ?>&nbsp;&nbsp;&nbsp;<?php echo $results_type; ?></caption>
     <thead>

@@ -63,7 +63,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
 <h2>Staff Members</h2>
 <div style="width:700; float:left;">
     <form action="directory.php" method="GET" name="filter">
-       <input type="text" name="q" value="<?php echo $_REQUEST['q']; ?>" >
+       <input type="text" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>" >
         <select name="did" id="did">
              <option value="0">&mdash; All Department &mdash;</option>
              <?php

@@ -146,7 +146,7 @@ class FAQ {
 
         $sql='DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE faq_id='.db_input($this->getId());
         if($ids)
-            $sql.=' AND topic_id NOT IN('.implode(',',$ids).')';
+            $sql.=' AND topic_id NOT IN('.implode(',', db_input($ids)).')';
 
         db_query($sql);
 

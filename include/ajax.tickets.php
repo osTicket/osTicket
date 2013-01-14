@@ -37,10 +37,10 @@ class TicketsAjaxAPI extends AjaxController {
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
             
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-            $sql.=' OR team_id IN('.implode(',', array_filter($teams)).')';
+            $sql.=' OR team_id IN('.implode(',', db_input(array_filter($teams))).')';
             
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-            $sql.=' OR dept_id IN ('.implode(',', $depts).')';
+            $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
 
         $sql.=' )  '
             .' ORDER BY created  LIMIT '.$limit;
@@ -67,10 +67,10 @@ class TicketsAjaxAPI extends AjaxController {
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-            $sql.=' OR team_id IN('.implode(',', array_filter($teams)).')';
+            $sql.=' OR team_id IN('.implode(',', db_input(array_filter($teams))).')';
 
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-            $sql.=' OR dept_id IN ('.implode(',', $depts).')';
+            $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
         
         $sql.=' ) '
             .' GROUP BY email '
@@ -96,10 +96,10 @@ class TicketsAjaxAPI extends AjaxController {
         $where.=' AND ( ticket.staff_id='.db_input($thisstaff->getId());
 
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-            $where.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
+            $where.=' OR ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
 
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-            $where.=' OR ticket.dept_id IN ('.implode(',', $depts).')';
+            $where.=' OR ticket.dept_id IN ('.implode(',', db_input($depts)).')';
 
         $where.=' ) ';
 

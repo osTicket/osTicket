@@ -1970,10 +1970,10 @@ class Ticket {
             .' WHERE (ticket.staff_id='.db_input($staff->getId());
 
         if(($teams=$staff->getTeams()))
-            $sql.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
+            $sql.=' OR ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
 
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
-            $sql.=' OR ticket.dept_id IN('.implode(',', $depts).') ';
+            $sql.=' OR ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         $sql.=')';
 
