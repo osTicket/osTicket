@@ -383,7 +383,7 @@ CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `dept_id` int(10) unsigned NOT NULL default '0',
   UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
   KEY `dept_id`  (`dept_id`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%group_dept_access` (`group_id`, `dept_id`) VALUES
     (1, 1), (1, 2), (2, 1), (2, 2), (3, 1), (3, 2);
@@ -449,7 +449,7 @@ INSERT INTO `%TABLE_PREFIX%canned_attachment` (`canned_id`, `file_id`) VALUES (1
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
 CREATE TABLE `%TABLE_PREFIX%session` (
-  `session_id` varchar(255) collate utf8_unicode_ci NOT NULL default '',
+  `session_id` varchar(256) collate utf8_unicode_ci NOT NULL default '',
   `session_data` longtext collate utf8_unicode_ci,
   `session_expire` datetime default NULL,
   `session_updated` datetime default NULL,
@@ -558,7 +558,7 @@ CREATE TABLE `%TABLE_PREFIX%team_member` (
   `staff_id` int(10) unsigned NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`team_id`,`staff_id`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (

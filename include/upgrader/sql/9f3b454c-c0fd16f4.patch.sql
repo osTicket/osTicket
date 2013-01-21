@@ -1,13 +1,13 @@
 /**
  * @version v1.7
  *
- * @schema d5339caebcfbdcca7d57be5b17f804ee
+ * @schema c0fd16f4eaf99b920be9f7fc6ebead32
  */
 
--- increate varchar size for various fields... based on feedback from users.
+-- Increment varchar size for various fields... based on feedback from users.
 
 ALTER TABLE  `%TABLE_PREFIX%session` 
-    CHANGE  `session_id`  `session_id` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';
+    CHANGE  `session_id`  `session_id` VARCHAR( 256 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';
 
 ALTER TABLE  `%TABLE_PREFIX%ticket` 
     CHANGE  `name`  `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '',
@@ -25,4 +25,4 @@ ALTER TABLE  `%TABLE_PREFIX%department`
     CHANGE  `dept_name`  `dept_name` VARCHAR( 128 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '';
 
 UPDATE `%TABLE_PREFIX%config`
-    SET `schema_signature`='d5339caebcfbdcca7d57be5b17f804ee';
+    SET `schema_signature`='c0fd16f4eaf99b920be9f7fc6ebead32';
