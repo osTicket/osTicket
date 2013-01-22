@@ -49,7 +49,7 @@
             | <a href="index.php">Staff Panel</a>
             <?php } ?>
             | <a href="profile.php">My Preferences</a>
-            | <a href="logout.php?auth=<?php echo md5($ost->getCSRFToken().SECRET_SALT.session_id()); ?>">Log Out</a>
+            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
         </p>
     </div>
     <ul id="nav">
