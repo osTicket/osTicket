@@ -119,7 +119,15 @@ class osTicket {
 
         return false;
     }
-    
+
+    function getLinkToken() {
+        return md5($this->getCSRFToken().SECRET_SALT.session_id());
+    }
+
+    function validateLinkToken($token) {
+            return ($token && !strcasecmp($token, $this->getLinkToken()));
+    }
+
     function isFileTypeAllowed($file, $mimeType='') {
        
         if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
