@@ -74,7 +74,7 @@
         return ($database && @mysql_select_db($database));
     }
 
-    function db_create_database($database, $charset='utf8', $collate='utf8_unicode_ci') {
+    function db_create_database($database, $charset='utf8', $collate='utf8_general_ci') {
         return @mysql_query(sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s', $database, $charset, $collate));
     }
    

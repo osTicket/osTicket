@@ -10,7 +10,7 @@ CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `dept_id` int(10) unsigned NOT NULL default '0',
   UNIQUE KEY `group_dept`  (`group_id`,`dept_id`),
   KEY `dept_id` (`dept_id`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- Extend membership to groups
 ALTER TABLE `%TABLE_PREFIX%department`
