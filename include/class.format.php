@@ -127,12 +127,22 @@ class Format {
 
     //make urls clickable. Mainly for display 
     function clickableurls($text) {
-
+        global $ost;
+        
+        $token = $ost->getLinkToken();
         //Not perfect but it works - please help improve it. 
-        $text=preg_replace('/(((f|ht){1}tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
-            '<a href="l.php?url=\\1" target="_blank">\\1</a>', $text);
-        $text=preg_replace("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
-            '\\1<a href="l.php?url=http://\\2" target="_blank">\\2</a>', $text);
+        $text=preg_replace_callback('/(((f|ht){1}tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";',
+                        $token)),
+                $text);
+
+        $text=preg_replace_callback("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";',
+                        $token)),
+                $text);
+
         $text=preg_replace("/(^|[ \\n\\r\\t])([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})/",
             '\\1<a href="mailto:\\2" target="_blank">\\2</a>', $text);
 

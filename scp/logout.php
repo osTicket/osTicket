@@ -15,9 +15,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
-//CSRF Check: Make sure the user actually clicked on the link to logout.
-if(!$_GET['auth'] || $_GET['auth']!=md5($ost->getCSRFToken().SECRET_SALT.session_id()))
-   @header('Location: index.php');
+//Check token: Make sure the user actually clicked on the link to logout.
+if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
+    @header('Location: index.php');
 
 $ost->logDebug('Staff logout',
         sprintf("%s logged out [%s]", 

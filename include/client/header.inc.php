@@ -30,7 +30,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                 <a href="<?php echo ROOT_PATH; ?>tickets.php">My Tickets <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
                 <?php
                 } ?>
-                <a href="<?php echo ROOT_PATH; ?>logout.php">Log Out</a>
+                <a href="<?php echo ROOT_PATH; ?>logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
              <?php
              }elseif($nav){ ?>
                  Guest User - <a href="<?php echo ROOT_PATH; ?>login.php">Log In</a>
