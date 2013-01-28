@@ -1083,15 +1083,14 @@ h2 .reload {
 #kbSearch div {
     clear:both;
     overflow:hidden;
-    padding-top:5px;
+    padding:5px 0 2px 3px;
 }
 
 #kbSearch #query {
-    margin:0;
+    margin:1px 5px 0 0;
     display:inline-block;
     float:left;
     width:200px;
-    margin-right:5px;
 }
 
 #kbSearch #cid {
