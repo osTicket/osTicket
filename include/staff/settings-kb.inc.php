@@ -10,7 +10,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         <tr>
             <th colspan="2">
                 <h4>Knowledge Base Settings</h4>
-                <em>Disabling knowledge base disables clients'interface.</em>
+                <em>Disabling knowledge base disables clients' interface.</em>
             </th>
         </tr>
     </thead>
