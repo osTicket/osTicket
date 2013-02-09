@@ -217,11 +217,13 @@ class Canned {
 
     function getCannedResponses($deptId=0, $explicit=false) {
 
-        $sql='SELECT canned_id, title FROM '.CANNED_TABLE;
+        $sql='SELECT canned_id, title FROM '.CANNED_TABLE
+           .' WHERE isenabled';
         if($deptId){
-            $sql.=' WHERE dept_id='.db_input($deptId);
+            $sql.=' AND (dept_id='.db_input($deptId);
             if(!$explicit)
                 $sql.=' OR dept_id=0';
+            $sql.=')';
         }
         $sql.=' ORDER BY title';
 
