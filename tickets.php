@@ -40,7 +40,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
 
         if(!$errors) {
             //Everything checked out...do the magic.
-            if(($msgid=$ticket->postMessage($_POST['message'],'Web'))) {
+            if(($msgid=$ticket->postMessage(array('message'=>$_POST['message']), 'Web'))) {
     
                 //Upload files
                 if($cfg->allowOnlineAttachments() && $_FILES['attachments'])

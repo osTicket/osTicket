@@ -419,7 +419,7 @@ class MailFetcher {
         
         $errors=array();
         if($ticket) {
-            if(!($msgid=$ticket->postMessage($var['message'], 'Email', $var['mid'], $var['header'])))
+            if(!($msgid=$ticket->postMessage($vars, 'Email')))
                 return false;
 
         } elseif (($ticket=Ticket::create($var, $errors, 'Email'))) {
