@@ -91,4 +91,50 @@ class TicketApiController extends ApiController {
 
 }
 
+//Local email piping controller - no API key required!
+class PipeApiController extends TicketApiController {
+
+    //Overwrite grandparent's (ApiController) response method.
+    function response($code, $resp) {
+
+        //Use postfix exit codes - instead of HTTP 
+        switch($code) {
+            case 201: //Success
+                $exitcode = 0;
+                break;
+            case 400:
+                $exitcode = 66;
+                break;
+            case 401: /* permission denied */
+            case 403:
+                $exitcode = 77;
+                break;
+            case 415:
+            case 416:
+            case 417:
+            case 501:
+                $exitcode = 65;
+                break;
+            case 503:
+                $exitcode = 69;
+                break;
+            case 500: //Server error.
+            default: //Temp (unknown) failure - retry 
+                $exitcode = 75; 
+        }
+
+        //echo "$code ($exitcode):$resp";
+        //We're simply exiting - MTA will take care of the rest based on exit code!
+        exit($exitcode);
+    }
+
+    function  process() {
+        $pipe = new PipeApiController();
+        if(($ticket=$pipe->processEmail()))
+           return $pipe->response(201, $ticket->getNumber());
+
+        return $pipe->exerr(416, 'Request failed -retry again!');
+    }
+}
+
 ?>
