@@ -327,7 +327,7 @@ class MailFetcher {
                 return array(
                         array(
                             'name'  => $this->mime_decode($filename),
-                            'mime'  => $this->getMimeType($part),
+                            'type'  => $this->getMimeType($part),
                             'encoding' => $part->encoding,
                             'index' => ($index?$index:1)
                             )
@@ -446,23 +446,13 @@ class MailFetcher {
                 && $struct->parts 
                 && ($attachments=$this->getAttachments($struct))) {
                 
-            //We're just checking the type of file - not size or number of attachments...
-            // Restrictions are mainly due to PHP file uploads limitations
             foreach($attachments as $a ) {
-                if($ost->isFileTypeAllowed($a['name'], $a['mime'])) {
-                    $file = array(
-                            'name'  => $a['name'],
-                            'type'  => $a['mime'],
-                            'data'  => $this->decode($a['encoding'], imap_fetchbody($this->mbox, $mid, $a['index']))
-                            );
-                    $ticket->saveAttachment($file, $msgid, 'M');
-                } else {
-                    //This should be really a comment on message - NoT an internal note.
-                    //TODO: support comments on Messages and Responses.
-                    $error = sprintf('Attachment %s [%s] rejected because of file type', $a['name'], $a['mime']);
-                    $ticket->postNote('Email Attachment Rejected', $error, 'SYSTEM', false);
-                    $ost->logDebug('Email Attachment Rejected (Ticket #'.$ticket->getExtId().')', $error);
-                }
+                $file = array(
+                        'name'  => $a['name'],
+                        'type'  => $a['type'],
+                        'data'  => $this->decode(imap_fetchbody($this->mbox, $mid, $a['index']), $a['encoding'])
+                        );
+                $ticket->importAttachments(array($file), $msgid, 'M');
             }
         }
 

@@ -1735,10 +1735,11 @@ class Ticket {
     }
 
     //online based attached files.
-    function uploadAttachments($files, $refid, $type) {
+    function uploadAttachments($files, $refid, $type, $checkFileTypes=false) {
         global $ost;
 
         $uploaded=array();
+        $ost->validateFileUploads($files, $checkFileTypes); //Validator sets errors - if any
         foreach($files as $file) {
             if(!$file['error'] 
                     && ($id=AttachmentFile::upload($file)) 
@@ -1762,8 +1763,44 @@ class Ticket {
         return $uploaded;
     }
 
+    /* Wrapper or uploadAttachments 
+       - used on client interface 
+       - file type check is forced
+       - $_FILES  is passed.
+    */
+    function uploadFiles($files, $refid, $type) {
+        return $this->uploadAttachments(Format::files($files), $refid, $type, true);    
+    }
+
+    /* Emailed & API attachments handler */
+    function importAttachments($attachments, $refid, $type, $checkFileTypes=true) {
+        global $ost;
+
+        if(!$attachments || !is_array($attachments)) return null;
+
+        $files = array();        
+        foreach ($attachments as &$info) {
+            //Do error checking...
+            if ($checkFileTypes && !$ost->isFileTypeAllowed($info))
+                $info['error'] = 'Invalid file type (ext) for '.Format::htmlchars($info['name']);
+            elseif ($info['encoding'] && !strcasecmp($info['encoding'], 'base64')) {
+                if(!($info['data'] = base64_decode($info['data'], true)))
+                    $info['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($info['name']));
+            }
+
+            if($info['error']) {
+                $this->logNote('File Import Error', $error, 'SYSTEM', false);
+            } elseif (($id=$this->saveAttachment($info, $refid, $type))) {
+                $files[] = $id;
+            }
+        }
+
+        return $files;
+    }
+
+
     /*
-       Save attachment to the DB. uploads (above), email or json/xml.
+       Save attachment to the DB. upload/import (above).
        
        @file is a mixed var - can be ID or file hash.
      */

@@ -149,7 +149,7 @@ class osTicket {
     /* Function expects a well formatted array - see  Format::files()
        It's up to the caller to reject the upload on error.
      */
-    function validateFileUploads(&$files) {
+    function validateFileUploads(&$files, $checkFileTypes=true) {
        
         $errors=0;
         foreach($files as &$file) {
@@ -160,11 +160,12 @@ class osTicket {
                 $file['error'] = 'File upload error #'.$file['error'];
             elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
                 $file['error'] = 'Invalid or bad upload POST';
-            elseif(!$this->isFileTypeAllowed($file))
-                $file['error'] = 'Invalid file type for '.$file['name'];
+            elseif($checkFileTypes && !$this->isFileTypeAllowed($file))
+                $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
             elseif($file['size']>$this->getConfig()->getMaxFileSize())
                 $file['error'] = sprintf('File (%s) is too big. Maximum of %s allowed',
-                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
+                        Format::htmlchars($file['name']),
+                        Format::file_size($this->getConfig()->getMaxFileSize()));
             
             if($file['error']) $errors++;
         }
