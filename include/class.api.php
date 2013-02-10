@@ -156,23 +156,29 @@ class API {
  * in the database, and methods for parsing and validating data sent in the
  * API request.
  */
+
 class ApiController {
+
+    var $apikey;
 
     function requireApiKey() {
         # Validate the API key -- required to be sent via the X-API-Key
         # header
-        if (!isset($_SERVER['HTTP_X_API_KEY']) || !isset($_SERVER['REMOTE_ADDR']))
-            Http::response(403, "API key required");
-        elseif (!($key=API::lookupByKey($_SERVER['HTTP_X_API_KEY'], $_SERVER['REMOTE_ADDR']))
-                || !$key->isActive() 
-                || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
-            Http::response(401, "API key not found/active or source IP not authorized");
+
+        if(!($key=$this->getApiKey()))
+            return $this->exerr(401, 'API key required');
+        elseif (!$key->isActive() || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
+            return $this->exerr(401, 'API key not found/active or source IP not authorized');
 
         return $key;
     }
 
     function getApiKey() {
-        return $this->requireApiKey();
+
+        if (!$this->apikey && isset($_SERVER['HTTP_X_API_KEY']) && isset($_SERVER['REMOTE_ADDR']))
+            $this->apikey = API::lookupByKey($_SERVER['HTTP_X_API_KEY'], $_SERVER['REMOTE_ADDR']);
+
+        return $this->apikey;
     }
 
     /**
@@ -181,20 +187,43 @@ class ApiController {
      * work will be done for XML requests
      */
     function getRequest($format) {
-        if (!($stream = @fopen("php://input", "r")))
-            Http::response(400, "Unable to read request body");
-        if ($format == "xml") {
-            if (!function_exists("xml_parser_create"))
-                Http::response(500, "XML extension not supported");
-            $tree = new ApiXmlDataParser();
-        } elseif ($format == "json") {
-            $tree = new ApiJsonDataParser();
+        
+        $input = (substr(php_sapi_name(), 0, 3) == 'cli')?'php://stdin':'php://input';
+
+        if (!($stream = @fopen($input, 'r')))
+            $this->exerr(400, "Unable to read request body");
+
+        $parser = null;
+        switch(strtolower($format)) {
+            case 'xml':
+                if (!function_exists('xml_parser_create'))
+                    $this->exerr(501, 'XML extension not supported');
+
+                $parser = new ApiXmlDataParser();
+                break;
+            case 'json':
+                $parser = new ApiJsonDataParser();
+                break;
+            case 'email':
+                $parser = new ApiEmailDataParser();
+                break;
+            default:
+                $this->exerr(415, 'Unsupported data format');
         }
-        if (!($data = $tree->parse($stream)))
-            Http::response(400, $tree->lastError());
+
+        if (!($data = $parser->parse($stream)))
+            $this->exerr(400, $parser->lastError());
+       
         $this->validate($data, $this->getRequestStructure($format));
+
         return $data;
     }
+
+    function getEmailRequest() {
+        return $this->getRequest('email');
+    }
+
+
     /**
      * Structure to validate the request against -- must be overridden to be
      * useful
@@ -216,8 +245,36 @@ class ApiController {
             } elseif (in_array($key, $structure)) {
                 continue;
             }
-            Http::response(400, "$prefix$key: Unexpected data received");
+            $this->exerr(400, "$prefix$key: Unexpected data received");
         }
+    }
+
+    /**
+     * API error & logging and response!
+     *
+     */
+
+    /* If possible - DO NOT - overwrite the method downstream */
+    function exerr($code, $error='') {
+        global $ost;
+
+        if($error && is_array($error))
+            $error = Format::array_implode(": ", "\n", $error);
+
+        //Include api key - if available.
+        if($_SERVER['HTTP_X_API_KEY'])
+            $error.="\n\n*[".$_SERVER['HTTP_X_API_KEY']."]*\n";
+
+        $ost->logWarning("API Error ($code)", $error, false);
+
+        $this->response($code, $error); //Responder should exit...
+        return false;
+    }
+
+    //Default response method - can be overwritten in subclasses.
+    function response($code, $resp) {
+        Http::response($code, $resp);
+        exit();
     }
 }
 
@@ -232,6 +289,10 @@ class ApiXmlDataParser extends XmlDataParser {
      * XML data types
      */
     function fixup($current) {
+
+        if($current['ticket'])
+            $current = $current['ticket'];
+
         if (!is_array($current))
             return $current;
         foreach ($current as $key=>&$value) {
@@ -295,6 +356,7 @@ class ApiJsonDataParser extends JsonDataParser {
                             "data" => $contents,
                             "type" => ($type) ? $type : "text/plain",
                             "name" => key($info));
+                        # XXX: Handle decoding here??
                         if (substr($extra, -6) == "base64")
                             $info["encoding"] = "base64";
                         # Handle 'charset' hint in $extra, such as
@@ -302,8 +364,8 @@ class ApiJsonDataParser extends JsonDataParser {
                         # Convert to utf-8 since it's the encoding scheme
                         # for the database. Otherwise, assume utf-8
                         list($param,$charset) = explode('=', $extra);
-                        if ($param == 'charset' && function_exists('iconv'))
-                            $contents = iconv($charset, "UTF-8", $contents);
+                        if ($param == 'charset' && $charset)
+                            $contents = Formart::utf8encode($contents, $charset);
                     }
                 }
                 unset($value);
