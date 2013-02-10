@@ -164,6 +164,11 @@ class Mail_Parse {
         return $data;
     }
 
+     
+    function mime_encode($text, $charset=null, $encoding='utf-8') {
+        return Format::encode($text, $charset, $encoding);
+    }
+
     function getAttachments($part=null){
 
         if($part==null)
@@ -173,10 +178,20 @@ class Mail_Parse {
                 && (!strcasecmp($part->disposition,'attachment') 
                     || !strcasecmp($part->disposition,'inline') 
                     || !strcasecmp($part->ctype_primary,'image'))){
+            
             if(!($filename=$part->d_parameters['filename']) && $part->d_parameters['filename*'])
                 $filename=$part->d_parameters['filename*']; //Do we need to decode?
+           
+            $file=array(
+                    'name'  => $filename, 
+                    'type'  => strtolower($part->ctype_primary.'/'.$part->ctype_secondary),
+                    'data'  => $this->mime_encode($part->body, $part->ctype_parameters['charset'])
+                    );
 
-            return array(array('filename'=>$filename,'body'=>$part->body));
+            if(!$this->decode_bodies && $part->headers['content-transfer-encoding'])
+                $file['encoding'] = $part->headers['content-transfer-encoding'];
+
+            return array($file);
         }
 
         $files=array();
