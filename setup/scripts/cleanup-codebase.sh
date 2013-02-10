@@ -57,6 +57,7 @@ images/ticket_status_icon.jpg
 images/verticalbar.jpg
 images/view_closed_btn.gif
 images/view_open_btn.gif
+include/api.ticket.php
 include/class.msgtpl.php
 include/class.sys.php
 include/client/index.php
