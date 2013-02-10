@@ -17,8 +17,11 @@ class TicketController extends ApiController {
             ), 
             "message", "ip", "priorityId"
         );
-        if ($format == "xml") return array("ticket" => $supported);
-        else return $supported;
+
+        if(!strcasecmp($format, 'email'))
+            $supported = array_merge($supported, array('header', 'mid', 'emailId', 'ticketId'));
+
+        return $supported;
     }
 
     function create($format) {
