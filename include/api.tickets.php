@@ -1,9 +1,9 @@
 <?php
 
-include_once "include/class.api.php";
-include_once "include/class.ticket.php";
+include_once INCLUDE_DIR.'class.api.php';
+include_once INCLUDE_DIR.'class.ticket.php';
 
-class TicketController extends ApiController {
+class TicketApiController extends ApiController {
 
     # Supported arguments -- anything else is an error. These items will be
     # inspected _after_ the fixup() method of the ApiXxxDataParser classes
@@ -26,53 +26,69 @@ class TicketController extends ApiController {
 
     function create($format) {
 
-        if(!($key=$this->getApiKey()) || !$key->canCreateTickets())
-            Http::response(401, 'API key not authorized');
+        if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
+            return $this->exerr(401, 'API key not authorized');
 
-        # Parse request body
-        $data = $this->getRequest($format);
-        if ($format == "xml") $data = $data["ticket"];
+        $ticket = null;
+        if(!strcasecmp($format, 'email')) {
+            # Handle remote piped emails - could be a reply...etc.
+            $ticket = $this->processEmail();
+        } else {
+            # Parse request body
+            $ticket = $this->createTicket($this->getRequest($format));
+        }
+
+        if(!$ticket)
+            return $this->exerr(500, "Unable to create new ticket: unknown error");
+
+        $this->response(201, $ticket->getExtId());
+    }
+
+    /* private helper functions */
+
+    function createTicket($data) {
 
         # Pull off some meta-data
-        $alert = $data['alert'] ? $data['alert'] : true; 
+        $alert = $data['alert'] ? $data['alert'] : true;
         $autorespond = $data['autorespond'] ? $data['autorespond'] : true;
-        $source = $data['source'] ? $data['source'] : 'API';
-
-        $attachments = $data['attachments'] ? $data['attachments'] : array();
-
-		# TODO: Handle attachment encoding (base64)
-        foreach ($attachments as $filename=>&$info) {
-            if ($info["encoding"] == "base64") {
-                # XXX: May fail on large inputs. See
-                #      http://us.php.net/manual/en/function.base64-decode.php#105512
-                if (!($info["data"] = base64_decode($info["data"], true)))
-                    Http::response(400, sprintf(
-                        "%s: Poorly encoded base64 data",
-                        $info['name']));
-            }
-            $info['size'] = strlen($info['data']);
-        }
+        $data['source'] = $data['source'] ? $data['source'] : 'API';
 
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
-        $ticket = Ticket::create($data, $errors, $source, $autorespond, 
-            $alert);
-
+        $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
         # Return errors (?)
         if (count($errors)) {
-            Http::response(400, "Unable to create new ticket: validation errors:\n"
-                . Format::array_implode(": ", "\n", $errors));
+            if(isset($errors['errno']) && $errors['errno'] == 403)
+                return $this->exerr(403, 'Ticket denied');
+            else
+                return $this->exerr(
+                        400, 
+                        "Unable to create new ticket: validation errors:\n"
+                        .Format::array_implode(": ", "\n", $errors)
+                        );
         } elseif (!$ticket) {
-            Http::response(500, "Unable to create new ticket: unknown error");
+            return $this->exerr(500, "Unable to create new ticket: unknown error");
         }
 
+        
         # Save attachment(s)
-        foreach ($attachments as &$info)
-            $ticket->saveAttachment($info, $ticket->getLastMsgId(), "M");
+        if($data['attachments'])
+            $ticket->importAttachments($data['attachments'], $ticket->getLastMsgId(), 'M');
 
-        # All done. Return HTTP/201 --> Created
-        Http::response(201, $ticket->getExtId());
+        return $ticket;
     }
+
+    function processEmail() {
+
+        $data = $this->getEmailRequest();
+        if($data['ticketId'] && ($ticket=Ticket::lookup($data['ticketId']))) {
+            if(($msgid=$ticket->postMessage($data, 'Email')))
+                return $ticket;
+        }
+
+        return $this->createTicket($data);
+    }
+
 }
 
 ?>
