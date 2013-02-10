@@ -171,7 +171,7 @@ class MailFetcher {
     }
 
 
-    function decode($encoding, $text) {
+    function decode($text, $encoding) {
 
         switch($encoding) {
             case 1:
@@ -186,10 +186,8 @@ class MailFetcher {
             case 4:
             $text=imap_qprint($text);
             break;
-            case 5:
-            default:
-             $text=$text;
-        } 
+        }
+        
         return $text;
     }
 
@@ -262,7 +260,7 @@ class MailFetcher {
             $partNumber=$partNumber?$partNumber:1;
             if(($text=imap_fetchbody($this->mbox, $mid, $partNumber))) {
                 if($struct->encoding==3 or $struct->encoding==4) //base64 and qp decode.
-                    $text=$this->decode($struct->encoding, $text);
+                    $text=$this->decode($text, $struct->encoding);
 
                 $charset=null;
                 if($encoding) { //Convert text to desired mime encoding...
@@ -391,29 +389,29 @@ class MailFetcher {
         }
 
         $emailId = $this->getEmailId();
+        $vars = array();
+        $vars['name']=$this->mime_decode($mailinfo['name']);
+        $vars['email']=$mailinfo['email'];
+        $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
+        $vars['message']=Format::stripEmptyLines($this->getBody($mid));
+        $vars['header']=$this->getHeader($mid);
+        $vars['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
+        $vars['name']=$vars['name']?$vars['name']:$vars['email']; //No name? use email
+        $vars['mid']=$mailinfo['mid'];
 
-        $var['name']=$this->mime_decode($mailinfo['name']);
-        $var['email']=$mailinfo['email'];
-        $var['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
-        $var['message']=Format::stripEmptyLines($this->getBody($mid));
-        $var['header']=$this->getHeader($mid);
-        $var['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
-        $var['name']=$var['name']?$var['name']:$var['email']; //No name? use email
-        $var['mid']=$mailinfo['mid'];
-
-        if(!$var['message']) //An email with just attachments can have empty body.
-            $var['message'] = '(EMPTY)';
+        if(!$vars['message']) //An email with just attachments can have empty body.
+            $vars['message'] = '(EMPTY)';
 
         if($ost->getConfig()->useEmailPriority())
-            $var['priorityId']=$this->getPriority($mid);
+            $vars['priorityId']=$this->getPriority($mid);
        
         $ticket=null;
         $newticket=true;
         //Check the subject line for possible ID.
-        if($var['subject'] && preg_match ("[[#][0-9]{1,10}]", $var['subject'], $regs)) {
+        if($vars['subject'] && preg_match ("[[#][0-9]{1,10}]", $vars['subject'], $regs)) {
             $tid=trim(preg_replace("/[^0-9]/", "", $regs[0]));
             //Allow mismatched emails?? For now NO.
-            if(!($ticket=Ticket::lookupByExtId($tid)) || strcasecmp($ticket->getEmail(), $var['email']))
+            if(!($ticket=Ticket::lookupByExtId($tid, $vars['email'])))
                 $ticket=null;
         }
         
@@ -422,7 +420,7 @@ class MailFetcher {
             if(!($msgid=$ticket->postMessage($vars, 'Email')))
                 return false;
 
-        } elseif (($ticket=Ticket::create($var, $errors, 'Email'))) {
+        } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $msgid = $ticket->getLastMsgId();
         } else {
             //Report success if the email was absolutely rejected.
@@ -430,8 +428,8 @@ class MailFetcher {
                 return true;
 
             # check if it's a bounce!
-            if($var['header'] && TicketFilter::isAutoBounce($var['header'])) {
-                $ost->logWarning('Bounced email', $var['message'], false);
+            if($vars['header'] && TicketFilter::isAutoBounce($vars['header'])) {
+                $ost->logWarning('Bounced email', $vars['message'], false);
                 return true;
             }
 
