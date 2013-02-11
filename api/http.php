@@ -17,9 +17,14 @@ require 'api.inc.php';
 
 # Include the main api urls
 require_once INCLUDE_DIR."class.dispatcher.php";
-$dispatcher = Dispatcher::include_urls("urls.conf.php");
+
+$dispatcher = patterns('',
+        url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController','create')),
+        url('^/task/', patterns('',
+                url_get("^cron$", array('api.cron.php:CronApiController', 'execute'))
+         ))
+        );
 
 # Call the respective function
-$dispatcher->resolve($_SERVER['PATH_INFO']);
-
+print $dispatcher->resolve($_SERVER['PATH_INFO']);
 ?>

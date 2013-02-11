@@ -39,6 +39,7 @@ images/ticket_status_title.jpg
 include/settings.php
 
 # Removed in 1.7.0
+api/urls.conf.php
 images/bg.gif
 images/fibres.png
 images/home.gif

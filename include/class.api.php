@@ -71,6 +71,10 @@ class API {
         return ($this->ht['can_create_tickets']);
     }
 
+    function canExecuteCronjob() {
+        return true;
+    }
+
     function update($vars, &$errors) {
 
         if(!API::save($this->getId(), $vars, $errors))
@@ -166,7 +170,7 @@ class ApiController {
         # header
 
         if(!($key=$this->getApiKey()))
-            return $this->exerr(401, 'API key required');
+            return $this->exerr(401, 'Valid API key required');
         elseif (!$key->isActive() || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
             return $this->exerr(401, 'API key not found/active or source IP not authorized');
 
