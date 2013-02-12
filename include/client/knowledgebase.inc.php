@@ -33,19 +33,20 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
         <select name="topicId" id="topic-id">
             <option value="">&mdash; All Help Topics &mdash;</option>
             <?php
-            $sql='SELECT ht.topic_id, ht.topic, count(faq.topic_id) as faqs '
+            $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as helptopic, count(faq.topic_id) as faqs '
                 .' FROM '.TOPIC_TABLE.' ht '
-                .' LEFT JOIN '.FAQ_TOPIC_TABLE.' faq USING(topic_id) '
+                .' LEFT JOIN '.TOPIC_TABLE.' pht ON (pht.topic_id=ht.topic_pid) '
+                .' LEFT JOIN '.FAQ_TOPIC_TABLE.' faq ON(faq.topic_id=ht.topic_id) '
                 .' WHERE ht.ispublic=1 '
                 .' GROUP BY ht.topic_id '
                 .' HAVING faqs>0 '
-                .' ORDER BY ht.topic DESC ';
+                .' ORDER BY helptopic ';
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while($row=db_fetch_array($res))
                     echo sprintf('<option value="%d" %s>%s (%d)</option>',
                             $row['topic_id'],
                             ($_REQUEST['topicId'] && $row['topic_id']==$_REQUEST['topicId']?'selected="selected"':''),
-                            $row['topic'], $row['faqs']);
+                            $row['helptopic'], $row['faqs']);
             }
             ?>
         </select>
@@ -57,13 +58,22 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     $sql='SELECT faq.faq_id, question '
         .' FROM '.FAQ_TABLE.' faq '
-        .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat USING(category_id) '
+        .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id) '
+        .' LEFT JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.faq_id=faq.faq_id) '
         .' WHERE faq.ispublished=1 AND cat.ispublic=1';
+    
     if($_REQUEST['cid'])
         $sql.=' AND faq.category_id='.db_input($_REQUEST['cid']);
+    
+    if($_REQUEST['topicId'])
+        $sql.=' AND ft.topic_id='.db_input($_REQUEST['topicId']);
 
-    if($_REQUEST['q'])
-        $sql.=" AND question LIKE ('%".db_input($_REQUEST['q'],false)."%') OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%') OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%')";
+
+    if($_REQUEST['q']) {
+        $sql.=" AND question LIKE ('%".db_input($_REQUEST['q'],false)."%') 
+                 OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%') 
+                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%')";
+    }
 
     $sql.=' GROUP BY faq.faq_id';
     echo "<div><strong>Search Results</strong></div><div class='clear'></div>";

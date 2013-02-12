@@ -144,8 +144,7 @@ class Topic {
     function getHelpTopics($publicOnly=false) {
 
         $topics=array();
-        $sql='SELECT ht.topic_id'
-            .', IF(ht2.topic_pid IS NULL, ht.topic, CONCAT_WS(" / ", ht2.topic, ht.topic)) as name '
+        $sql='SELECT ht.topic_id, CONCAT_WS(" / ", ht2.topic, ht.topic) as name '
             .' FROM '.TOPIC_TABLE. ' ht '
             .' LEFT JOIN '.TOPIC_TABLE.' ht2 ON(ht2.topic_id=ht.topic_pid) '
             .' WHERE ht.isactive=1';
