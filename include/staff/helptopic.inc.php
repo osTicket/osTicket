@@ -137,11 +137,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="sla_id">
                     <option value="0">&mdash; Department's Default &mdash;</option>
                     <?php
-                    $sql='SELECT id,name FROM '.SLA_TABLE.' sla ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['sla_id'] && $id==$info['sla_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                    if($slas=SLA::getSLAs()) {
+                        foreach($slas as $id =>$name) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, ($info['sla_id']==$id)?'selected="selected"':'',$name);
                         }
                     }
                     ?>
