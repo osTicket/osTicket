@@ -1261,8 +1261,10 @@ class Ticket {
         if($this->isClosed()) $this->reopen();
 
         $this->reload();
-        // Change to SLA of the new department
-        $this->selectSLAId();
+
+        // Set SLA of the new department
+        if(!$this->getSLAId())
+            $this->selectSLAId();
                   
         /*** log the transfer comments as internal note - with alerts disabled - ***/
         $title='Ticket transfered from '.$currentDept.' to '.$this->getDeptName();
