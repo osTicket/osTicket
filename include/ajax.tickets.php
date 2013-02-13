@@ -301,13 +301,13 @@ class TicketsAjaxAPI extends AjaxController {
                     Format::db_datetime($ticket->getCloseDate()),
                     ($staff?$staff->getName():'staff')
                     );
-        } elseif($ticket->getDueDate()) {
+        } elseif($ticket->getEstDueDate()) {
             echo sprintf('
                     <tr>
                         <th>Due Date:</th>
                         <td>%s</td>
                     </tr>',
-                    Format::db_datetime($ticket->getDueDate()));
+                    Format::db_datetime($ticket->getEstDueDate()));
         }
         echo '</table>';
 

@@ -189,7 +189,7 @@ class Ticket2PDF extends FPDF
         if($ticket->isOpen()) {
             $this->Cell($l, 7, 'Due Date', 1, 0, 'L', true);
             $this->SetFont('');
-            $this->Cell($c, 7, Format::db_datetime($ticket->getDueDate()), 1, 0, 'L', true);
+            $this->Cell($c, 7, Format::db_datetime($ticket->getEstDueDate()), 1, 0, 'L', true);
         } else {
             $this->Cell($l, 7, 'Close Date', 1, 0, 'L', true);
             $this->SetFont('');
