@@ -78,12 +78,14 @@ class Ticket {
         //TODO: delete helptopic field in ticket table.
        
         $sql='SELECT  ticket.*, lock_id, dept_name, priority_desc '
+            .' ,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate ' 
             .' ,count(attach.attach_id) as attachments '
             .' ,count(DISTINCT message.id) as messages '
             .' ,count(DISTINCT response.id) as responses '
             .' ,count(DISTINCT note.id) as notes '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
+            .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
             .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON ('
                 .'ticket.priority_id=pri.priority_id) '
             .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON ('
@@ -257,6 +259,20 @@ class Ticket {
 
     function getDueDate(){
         return $this->duedate;
+    }
+
+    function getSLADuedate() {
+        return $this->ht['sla_duedate'];
+    }
+
+    function getEstDueDate() {
+
+        //Real due date 
+        if(($duedate=$this->getDueDate()))
+            return $duedate;
+
+        //return sla due date (If ANY)
+        return $this->getSLADueDate();
     }
 
     function getCloseDate(){
