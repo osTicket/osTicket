@@ -1418,7 +1418,7 @@ class Ticket {
         if(!$alerts) return $msgid; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $headers && TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($headers)))
+        if ($autorespond && $vars['header'] && TicketFilter::isAutoResponse($vars['header']))
             $autorespond=false;
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
@@ -1792,7 +1792,7 @@ class Ticket {
             }
 
             if($info['error']) {
-                $this->logNote('File Import Error', $error, 'SYSTEM', false);
+                $this->logNote('File Import Error', $info['error'], 'SYSTEM', false);
             } elseif (($id=$this->saveAttachment($info, $refid, $type))) {
                 $files[] = $id;
             }
