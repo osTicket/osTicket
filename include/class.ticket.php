@@ -1492,6 +1492,7 @@ class Ticket {
                       'response' => $this->replaceVars($canned->getResponse()),
                       'cannedattachments' => $files);
 
+        $errors = array();
         if(!($respId=$this->postReply($info, $errors, false)))
             return false;
 
@@ -1647,6 +1648,7 @@ class Ticket {
     //Insert Internal Notes
     function logNote($title, $note, $poster='SYSTEM', $alert=true) {
 
+        $errors = array();
         return $this->postNote(
                 array('title' => $title, 'note' => $note),
                 $errors,
