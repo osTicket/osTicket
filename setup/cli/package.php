@@ -115,6 +115,12 @@ package("setup/inc/sql/*.{sql,md5}", "upload/setup/inc/sql", -1);
 # Load the license and documentation
 package("*.{txt,md}", "");
 
+#Rename markdown as text TODO: Do html version before rename.
+if(($mds = glob("$stage_path/*.md"))) {
+    foreach($mds as $md)
+        rename($md, preg_replace('/\.md$/', '.txt', $md));
+}
+
 # Make an archive of the stage folder
 $version_info = preg_grep('/THIS_VERSION/',
     explode("\n", file_get_contents("$root/main.inc.php")));
