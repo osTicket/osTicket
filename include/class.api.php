@@ -72,7 +72,7 @@ class API {
     }
 
     function canExecuteCronjob() {
-        return true;
+        return ($this->ht['can_exec_cron']);
     }
 
     function update($vars, &$errors) {
@@ -129,6 +129,7 @@ class API {
         $sql=' updated=NOW() '
             .',isactive='.db_input($vars['isactive'])
             .',can_create_tickets='.db_input($vars['can_create_tickets'])
+            .',can_exec_cron='.db_input($vars['can_exec_cron'])
             .',notes='.db_input($vars['notes']);
 
         if($id) {
@@ -265,11 +266,11 @@ class ApiController {
         if($error && is_array($error))
             $error = Format::array_implode(": ", "\n", $error);
 
-        //Include api key - if available.
+        //Log the error as a warning - include api key if available.
+        $msg = $error;
         if($_SERVER['HTTP_X_API_KEY'])
-            $error.="\n\n*[".$_SERVER['HTTP_X_API_KEY']."]*\n";
-
-        $ost->logWarning("API Error ($code)", $error, false);
+            $msg.="\n*[".$_SERVER['HTTP_X_API_KEY']."]*\n";
+        $ost->logWarning("API Error ($code)", $msg, false);
 
         $this->response($code, $error); //Responder should exit...
         return false;
