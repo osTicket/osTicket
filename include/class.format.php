@@ -56,7 +56,7 @@ class Format {
 
         //Cleanup - junk 
         if($charset && in_array(trim($charset), array('default','x-user-defined')))
-            $charset = 'ASCII'; 
+            $charset = 'ISO-8859-1'; 
 
         if(function_exists('iconv') && $charset)
             return iconv($charset, $encoding.'//IGNORE', $text);
