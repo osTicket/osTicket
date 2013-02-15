@@ -50,9 +50,12 @@ var autoLock = {
             autoLock.renewLock(e);
         }
 
-        if(!autoLock.lasteventTime) //I hate nav away warnings..but
-            autoLock.addEvent(window,'beforeunload',autoLock.discardWarning,true);
-
+        if(!autoLock.lasteventTime) { //I hate nav away warnings..but
+            $(window).bind('beforeunload', function(e) {
+                return "Any changes or info you've entered will be discarded!";
+             });
+        }
+        
         autoLock.lasteventTime=new Date().getTime();
     },
 
@@ -126,7 +129,7 @@ var autoLock = {
     onSubmit: function(e) {
         if(e.type=='submit') { //Submit. double check!
             //remove nav away warning if any.
-            autoLock.removeEvent(window,'beforeunload',autoLock.discardWarning,true);
+            $(window).unbind('beforeunload');
             //Only warn if we had a failed lock attempt.
             if(autoLock.warn && !autoLock.lockId && autoLock.lasteventTime) {
                 var answer=confirm('Unable to acquire a lock on the ticket. Someone else could be working on the same ticket. \
