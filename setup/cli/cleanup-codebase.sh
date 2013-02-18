@@ -39,6 +39,7 @@ images/ticket_status_title.jpg
 include/settings.php
 
 # Removed in 1.7.0
+api/urls.conf.php
 images/bg.gif
 images/fibres.png
 images/home.gif
@@ -57,6 +58,7 @@ images/ticket_status_icon.jpg
 images/verticalbar.jpg
 images/view_closed_btn.gif
 images/view_open_btn.gif
+include/api.ticket.php
 include/class.msgtpl.php
 include/class.sys.php
 include/client/index.php

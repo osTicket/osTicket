@@ -336,10 +336,6 @@ class Config {
         return ($this->config['enable_mail_polling']);
     }
         
-    function isEmailPipingEnabled() {
-        return ($this->config['enable_email_piping']);
-    }
-
     function allowPriorityChange() {
         return ($this->config['allow_priority_change']);
     }
@@ -723,7 +719,6 @@ class Config {
             .',admin_email='.db_input($vars['admin_email'])
             .',enable_auto_cron='.db_input(isset($vars['enable_auto_cron'])?1:0)
             .',enable_mail_polling='.db_input(isset($vars['enable_mail_polling'])?1:0)
-            .',enable_email_piping='.db_input(isset($vars['enable_email_piping'])?1:0)
             .',strip_quoted_reply='.db_input(isset($vars['strip_quoted_reply'])?1:0)
             .',reply_separator='.db_input($vars['reply_separator'])
             .' WHERE id='.db_input($this->getId());

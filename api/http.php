@@ -1,8 +1,8 @@
 <?php
 /*********************************************************************
-    api.php
+    http.php
 
-    Controller for the osTicket API
+    HTTP controller for the osTicket API
 
     Jared Hancock
     Copyright (c)  2006-2012 osTicket
@@ -13,15 +13,18 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
-chdir('..');
-include "main.inc.php";
+require 'api.inc.php';
 
 # Include the main api urls
 require_once INCLUDE_DIR."class.dispatcher.php";
-$dispatcher = Dispatcher::include_urls("urls.conf.php");
+
+$dispatcher = patterns('',
+        url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController','create')),
+        url('^/task/', patterns('',
+                url_post("^cron$", array('api.cron.php:CronApiController', 'execute'))
+         ))
+        );
 
 # Call the respective function
-$dispatcher->resolve($_SERVER['PATH_INFO']);
-
+print $dispatcher->resolve($_SERVER['PATH_INFO']);
 ?>

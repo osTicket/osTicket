@@ -71,13 +71,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Enabled Services:</strong>: Check applicable API services. All active keys can make cron call.</em>
+                <em><strong>Services:</strong>: Check applicable API services enabled for the key.</em>
             </th>
         </tr>
         <tr>
             <td colspan=2 style="padding-left:5px">
-                <input type="checkbox" name="can_create_tickets" value="1" <?php echo $info['can_create_tickets']?'checked="checked"':''; ?> >
-                Can Create Tickets. <em>(XML/JSON/PIPE)</em>
+                <label>
+                    <input type="checkbox" name="can_create_tickets" value="1" <?php echo $info['can_create_tickets']?'checked="checked"':''; ?> >
+                    Can Create Tickets <em>(XML/JSON/EMAIL)</em>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan=2 style="padding-left:5px">
+                <label>
+                    <input type="checkbox" name="can_exec_cron" value="1" <?php echo $info['can_exec_cron']?'checked="checked"':''; ?> >
+                    Can Execute Cron
+                </label>
             </td>
         </tr>
         <tr>

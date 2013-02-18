@@ -15,8 +15,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once('Mail/mimeDecode.php');
-require_once('Mail/RFC822.php');
+require_once(PEAR_DIR.'Mail/mimeDecode.php');
+require_once(PEAR_DIR.'Mail/RFC822.php');
 
 class Mail_Parse {
     
@@ -164,6 +164,11 @@ class Mail_Parse {
         return $data;
     }
 
+     
+    function mime_encode($text, $charset=null, $encoding='utf-8') {
+        return Format::encode($text, $charset, $encoding);
+    }
+
     function getAttachments($part=null){
 
         if($part==null)
@@ -173,10 +178,20 @@ class Mail_Parse {
                 && (!strcasecmp($part->disposition,'attachment') 
                     || !strcasecmp($part->disposition,'inline') 
                     || !strcasecmp($part->ctype_primary,'image'))){
+            
             if(!($filename=$part->d_parameters['filename']) && $part->d_parameters['filename*'])
                 $filename=$part->d_parameters['filename*']; //Do we need to decode?
+           
+            $file=array(
+                    'name'  => $filename, 
+                    'type'  => strtolower($part->ctype_primary.'/'.$part->ctype_secondary),
+                    'data'  => $this->mime_encode($part->body, $part->ctype_parameters['charset'])
+                    );
 
-            return array(array('filename'=>$filename,'body'=>$part->body));
+            if(!$this->decode_bodies && $part->headers['content-transfer-encoding'])
+                $file['encoding'] = $part->headers['content-transfer-encoding'];
+
+            return array($file);
         }
 
         $files=array();
@@ -216,4 +231,94 @@ class Mail_Parse {
     function parseAddressList($address){
         return Mail_RFC822::parseAddressList($address, null, null,false);
     }
+
+    function parse($rawemail) {
+        $parser= new Mail_Parse($rawemail);
+        return ($parser && $parser->decode())?$parser:null;
+    }
 }
+
+class EmailDataParser {
+    var $stream;
+    var $error;
+
+    function EmailDataParser($stream=null) {
+        $this->stream = $stream;
+    }
+    
+    function parse($stream) {
+
+        $contents ='';
+        if(is_resource($stream)) {
+            while(!feof($stream))
+                $contents .= fread($stream, 8192);
+
+        } else {
+            $contents = $stream;
+        }
+
+        $parser= new Mail_Parse($contents);
+        if(!$parser->decode()) //Decode...returns false on decoding errors
+            return $this->err('Email parse failed ['.$parser->getError().']');
+        
+        $data =array();
+        //FROM address: who sent the email.
+        if(($fromlist = $parser->getFromAddressList()) && !PEAR::isError($fromlist)) {
+            $from=$fromlist[0]; //Default.
+            foreach($fromlist as $fromobj) {
+                if(!Validator::is_email($fromobj->mailbox.'@'.$fromobj->host)) continue;
+                $from = $fromobj;
+                break;
+            }
+
+            $data['name'] = trim($from->personal,'"');
+            if($from->comment && $from->comment[0])
+                $data['name'].= ' ('.$from->comment[0].')';
+
+            $data['email'] = $from->mailbox.'@'.$from->host;
+        }
+
+        //TO Address:Try to figure out the email address... associated with the incoming email.
+        $emailId = 0;
+        if(($tolist = $parser->getToAddressList())) {
+            foreach ($tolist as $toaddr) {
+                if(($emailId=Email::getIdByEmail($toaddr->mailbox.'@'.$toaddr->host)))
+                    break;
+            }
+        }
+        //maybe we got CC'ed??
+        if(!$emailId && ($cclist=$parser->getCcAddressList())) {
+            foreach ($cclist as $ccaddr) {
+                if(($emailId=Email::getIdByEmail($ccaddr->mailbox.'@'.$ccaddr->host)))
+                    break;
+            }
+        }
+            
+        $data['subject'] = Format::utf8encode($parser->getSubject());
+        $data['message'] = Format::utf8encode(Format::stripEmptyLines($parser->getBody()));
+        $data['header'] = $parser->getHeader();
+        $data['mid'] = $parser->getMessageId();
+        $data['priorityId'] = $parser->getPriority();
+        $data['emailId'] = $emailId;
+
+        //attachments XXX: worry about encoding??
+        $data['attachments'] = $parser->getAttachments();
+
+        return $data;
+    }
+
+    function err($error) {
+        $this->error = $error;
+
+        return false;
+    }
+
+    function getError() {
+        return $this->lastError();
+    }
+
+    function lastError() {
+        return $this->error;
+    }
+}
+?>

@@ -171,7 +171,7 @@ class MailFetcher {
     }
 
 
-    function decode($encoding, $text) {
+    function decode($text, $encoding) {
 
         switch($encoding) {
             case 1:
@@ -186,38 +186,23 @@ class MailFetcher {
             case 4:
             $text=imap_qprint($text);
             break;
-            case 5:
-            default:
-             $text=$text;
-        } 
+        }
+        
         return $text;
     }
 
     //Convert text to desired encoding..defaults to utf8
-    function mime_encode($text, $charset=null, $enc='utf-8') { //Thank in part to afterburner 
-
-        if($charset && in_array(trim($charset), array('default','x-user-defined')))
-            $charset = 'ASCII';
-        
-        if(function_exists('iconv') and ($charset or function_exists('mb_detect_encoding'))) {
-            if($charset)
-                return iconv($charset, $enc.'//IGNORE', $text);
-            elseif(function_exists('mb_detect_encoding'))
-                return iconv(mb_detect_encoding($text, $this->encodings), $enc, $text);
-        } elseif(function_exists('iconv_mime_decode')) {
-            return iconv_mime_decode($text, 0, $enc);
-        }
-
-        return utf8_encode($text);
+    function mime_encode($text, $charset=null, $encoding='utf-8') { //Thank in part to afterburner 
+        return Format::encode($text, $charset, $encoding);
     }
     
     //Generic decoder - resulting text is utf8 encoded -> mirrors imap_utf8
-    function mime_decode($text, $enc='utf-8') {
+    function mime_decode($text, $encoding='utf-8') {
         
         $str = '';
         $parts = imap_mime_header_decode($text);
         foreach ($parts as $part)
-            $str.= $this->mime_encode($part->text, $part->charset, $enc);
+            $str.= $this->mime_encode($part->text, $part->charset, $encoding);
         
         return $str?$str:imap_utf8($text);
     }
@@ -261,7 +246,7 @@ class MailFetcher {
             $partNumber=$partNumber?$partNumber:1;
             if(($text=imap_fetchbody($this->mbox, $mid, $partNumber))) {
                 if($struct->encoding==3 or $struct->encoding==4) //base64 and qp decode.
-                    $text=$this->decode($struct->encoding, $text);
+                    $text=$this->decode($text, $struct->encoding);
 
                 $charset=null;
                 if($encoding) { //Convert text to desired mime encoding...
@@ -323,7 +308,7 @@ class MailFetcher {
                 return array(
                         array(
                             'name'  => $this->mime_decode($filename),
-                            'mime'  => $this->getMimeType($part),
+                            'type'  => $this->getMimeType($part),
                             'encoding' => $part->encoding,
                             'index' => ($index?$index:1)
                             )
@@ -387,38 +372,38 @@ class MailFetcher {
         }
 
         $emailId = $this->getEmailId();
+        $vars = array();
+        $vars['name']=$this->mime_decode($mailinfo['name']);
+        $vars['email']=$mailinfo['email'];
+        $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
+        $vars['message']=Format::stripEmptyLines($this->getBody($mid));
+        $vars['header']=$this->getHeader($mid);
+        $vars['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
+        $vars['name']=$vars['name']?$vars['name']:$vars['email']; //No name? use email
+        $vars['mid']=$mailinfo['mid'];
 
-        $var['name']=$this->mime_decode($mailinfo['name']);
-        $var['email']=$mailinfo['email'];
-        $var['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
-        $var['message']=Format::stripEmptyLines($this->getBody($mid));
-        $var['header']=$this->getHeader($mid);
-        $var['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
-        $var['name']=$var['name']?$var['name']:$var['email']; //No name? use email
-        $var['mid']=$mailinfo['mid'];
-
-        if(!$var['message']) //An email with just attachments can have empty body.
-            $var['message'] = '(EMPTY)';
+        if(!$vars['message']) //An email with just attachments can have empty body.
+            $vars['message'] = '(EMPTY)';
 
         if($ost->getConfig()->useEmailPriority())
-            $var['priorityId']=$this->getPriority($mid);
+            $vars['priorityId']=$this->getPriority($mid);
        
         $ticket=null;
         $newticket=true;
         //Check the subject line for possible ID.
-        if($var['subject'] && preg_match ("[[#][0-9]{1,10}]", $var['subject'], $regs)) {
+        if($vars['subject'] && preg_match ("[[#][0-9]{1,10}]", $vars['subject'], $regs)) {
             $tid=trim(preg_replace("/[^0-9]/", "", $regs[0]));
             //Allow mismatched emails?? For now NO.
-            if(!($ticket=Ticket::lookupByExtId($tid)) || strcasecmp($ticket->getEmail(), $var['email']))
+            if(!($ticket=Ticket::lookupByExtId($tid, $vars['email'])))
                 $ticket=null;
         }
         
         $errors=array();
         if($ticket) {
-            if(!($msgid=$ticket->postMessage($var['message'], 'Email', $var['mid'], $var['header'])))
+            if(!($msgid=$ticket->postMessage($vars, 'Email')))
                 return false;
 
-        } elseif (($ticket=Ticket::create($var, $errors, 'Email'))) {
+        } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $msgid = $ticket->getLastMsgId();
         } else {
             //Report success if the email was absolutely rejected.
@@ -426,8 +411,8 @@ class MailFetcher {
                 return true;
 
             # check if it's a bounce!
-            if($var['header'] && TicketFilter::isAutoBounce($var['header'])) {
-                $ost->logWarning('Bounced email', $var['message'], false);
+            if($vars['header'] && TicketFilter::isAutoBounce($vars['header'])) {
+                $ost->logWarning('Bounced email', $vars['message'], false);
                 return true;
             }
 
@@ -442,23 +427,13 @@ class MailFetcher {
                 && $struct->parts 
                 && ($attachments=$this->getAttachments($struct))) {
                 
-            //We're just checking the type of file - not size or number of attachments...
-            // Restrictions are mainly due to PHP file uploads limitations
             foreach($attachments as $a ) {
-                if($ost->isFileTypeAllowed($a['name'], $a['mime'])) {
-                    $file = array(
-                            'name'  => $a['name'],
-                            'type'  => $a['mime'],
-                            'data'  => $this->decode($a['encoding'], imap_fetchbody($this->mbox, $mid, $a['index']))
-                            );
-                    $ticket->saveAttachment($file, $msgid, 'M');
-                } else {
-                    //This should be really a comment on message - NoT an internal note.
-                    //TODO: support comments on Messages and Responses.
-                    $error = sprintf('Attachment %s [%s] rejected because of file type', $a['name'], $a['mime']);
-                    $ticket->postNote('Email Attachment Rejected', $error, 'SYSTEM', false);
-                    $ost->logDebug('Email Attachment Rejected (Ticket #'.$ticket->getExtId().')', $error);
-                }
+                $file = array(
+                        'name'  => $a['name'],
+                        'type'  => $a['type'],
+                        'data'  => $this->decode(imap_fetchbody($this->mbox, $mid, $a['index']), $a['encoding'])
+                        );
+                $ticket->importAttachments(array($file), $msgid, 'M');
             }
         }
 

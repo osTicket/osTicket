@@ -46,6 +46,31 @@ class Format {
         return $result?array_filter($result):$files;
     }
 
+
+    /* encode text into desired encoding - taking into accout charset when available. */
+    function encode($text, $charset=null, $encoding='utf-8') {
+
+        //Try auto-detecting charset/encoding
+        if(!$charset && function_exists('mb_detect_encoding')) 
+            $charset = mb_detect_encoding($text);
+
+        //Cleanup - junk 
+        if($charset && in_array(trim($charset), array('default','x-user-defined')))
+            $charset = 'ISO-8859-1'; 
+
+        if(function_exists('iconv') && $charset)
+            return iconv($charset, $encoding.'//IGNORE', $text);
+        elseif(function_exists('iconv_mime_decode'))
+            return iconv_mime_decode($text, 0, $encoding);
+        else //default to utf8 encoding.
+            return utf8_encode($text);
+    }
+
+    //Wrapper for utf-8 encoding.
+    function utf8encode($text, $charset=null) {
+        return Format::enecode($text, $charset, 'utf-8');
+    }
+
 	function phone($phone) {
 
 		$stripped= preg_replace("/[^0-9]/", "", $phone);

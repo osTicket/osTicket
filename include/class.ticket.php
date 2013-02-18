@@ -1379,43 +1379,46 @@ class Ticket {
     }
 
     //Insert message from client
-    function postMessage($message,$source='',$emsgid=null,$headers='',$newticket=false){
+    function postMessage($vars, $source='', $alerts=true) {
         global $cfg;
        
-        if(!$this->getId()) return 0;
-
+        if(!$vars || !$vars['message'])
+            return 0;
+        
         //Strip quoted reply...on emailed replies
         if(!strcasecmp($source, 'Email') 
                 && $cfg->stripQuotedReply() 
-                && ($tag=$cfg->getReplySeparator()) && strpos($message, $tag))
-            list($message)=split($tag, $message);
+                && ($tag=$cfg->getReplySeparator()) && strpos($vars['message'], $tag))
+            list($vars['message']) = split($tag, $vars['message']);
 
         # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
+
 
         $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW()'
             .' ,thread_type="M" '
             .' ,ticket_id='.db_input($this->getId())
             # XXX: Put Subject header into the 'title' field
-            .' ,body='.db_input(Format::striptags($message)) //Tags/code stripped...meaning client can not send in code..etc
+            .' ,body='.db_input(Format::striptags($vars['message'])) //Tags/code stripped...meaning client can not send in code..etc
             .' ,source='.db_input($source?$source:$_SERVER['REMOTE_ADDR'])
             .' ,ip_address='.db_input($_SERVER['REMOTE_ADDR']);
     
-        if(!db_query($sql) || !($msgid=db_insert_id())) return 0; //bail out....
+        if(!db_query($sql) || !($msgid=db_insert_id()))
+            return 0; //bail out....
 
         $this->setLastMsgId($msgid);
-
-        if ($emsgid !== null) {
+        
+        if (isset($vars['mid'])) {
             $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
                 .' SET message_id='.db_input($msgid)
-                .', email_mid='.db_input($emsgid)
-                .', headers='.db_input($headers);
+                .', email_mid='.db_input($vars['mid'])
+                .', headers='.db_input($vars['header']);
             db_query($sql);
         }
 
-        if($newticket) return $msgid; //Our work is done...
+        if(!$alerts) return $msgid; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $headers && TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($headers)))
+        if ($autorespond && $vars['header'] && TicketFilter::isAutoResponse($vars['header']))
             $autorespond=false;
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
@@ -1431,7 +1434,7 @@ class Ticket {
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg, array('message' => $message));
+            $msg = $this->replaceVars($msg, array('message' => $vars['message']));
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1735,10 +1738,11 @@ class Ticket {
     }
 
     //online based attached files.
-    function uploadAttachments($files, $refid, $type) {
+    function uploadAttachments($files, $refid, $type, $checkFileTypes=false) {
         global $ost;
 
         $uploaded=array();
+        $ost->validateFileUploads($files, $checkFileTypes); //Validator sets errors - if any
         foreach($files as $file) {
             if(!$file['error'] 
                     && ($id=AttachmentFile::upload($file)) 
@@ -1762,8 +1766,44 @@ class Ticket {
         return $uploaded;
     }
 
+    /* Wrapper or uploadAttachments 
+       - used on client interface 
+       - file type check is forced
+       - $_FILES  is passed.
+    */
+    function uploadFiles($files, $refid, $type) {
+        return $this->uploadAttachments(Format::files($files), $refid, $type, true);    
+    }
+
+    /* Emailed & API attachments handler */
+    function importAttachments($attachments, $refid, $type, $checkFileTypes=true) {
+        global $ost;
+
+        if(!$attachments || !is_array($attachments)) return null;
+
+        $files = array();        
+        foreach ($attachments as &$info) {
+            //Do error checking...
+            if ($checkFileTypes && !$ost->isFileTypeAllowed($info))
+                $info['error'] = 'Invalid file type (ext) for '.Format::htmlchars($info['name']);
+            elseif ($info['encoding'] && !strcasecmp($info['encoding'], 'base64')) {
+                if(!($info['data'] = base64_decode($info['data'], true)))
+                    $info['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($info['name']));
+            }
+
+            if($info['error']) {
+                $this->logNote('File Import Error', $info['error'], 'SYSTEM', false);
+            } elseif (($id=$this->saveAttachment($info, $refid, $type))) {
+                $files[] = $id;
+            }
+        }
+
+        return $files;
+    }
+
+
     /*
-       Save attachment to the DB. uploads (above), email or json/xml.
+       Save attachment to the DB. upload/import (above).
        
        @file is a mixed var - can be ID or file hash.
      */
@@ -2182,7 +2222,7 @@ class Ticket {
 
         $dept = $ticket->getDept();
         //post the message.
-        $msgid=$ticket->postMessage($vars['message'],$source,$vars['mid'],$vars['header'],true);
+        $msgid=$ticket->postMessage($vars , $source, false);
 
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);

@@ -61,19 +61,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 &nbsp;&nbsp;<em>(System administrator's email)</em> 
             </td>
         </tr>
-        <tr><th colspan=2><em><strong>Incoming Emails</strong>: For mail fetcher (polling) to work you must set an external cron job or enable auto-cron</em></th>
+        <tr><th colspan=2><em><strong>Incoming Emails</strong>: For mail fetcher (polling) to work you must set an external cron job or enable auto-cron polling</em></th>
         <tr>
             <td width="180">Email Polling:</td>
             <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable POP/IMAP polling
                  &nbsp;&nbsp;
                  <input type="checkbox" name="enable_auto_cron" <?php echo $config['enable_auto_cron']?'checked="checked"':''; ?>>
-                 Enable Auto-Cron <em>(Poll based on staff activity - NOT recommended)</em>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Email Piping:</td>
-            <td><input type="checkbox" name="enable_email_piping" value=1 <?php echo $config['enable_email_piping']? 'checked="checked"': ''; ?>> Enable email piping
-                 &nbsp;&nbsp;<em>(You pipe we accept policy)</em>
+                 Poll on auto-cron <em>(Poll based on staff activity - NOT recommended)</em>
             </td>
         </tr>
         <tr>
