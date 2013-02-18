@@ -109,7 +109,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <?php
-        $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE;
+        $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as name '
+            .' FROM '.TOPIC_TABLE.' ht '
+            .' LEFT JOIN '.TOPIC_TABLE.' pht ON(pht.topic_id=ht.topic_pid) ';
         if(($res=db_query($sql)) && db_num_rows($res)) { ?>
         <tr>
             <th colspan="2">
