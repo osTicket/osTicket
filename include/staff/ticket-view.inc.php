@@ -220,7 +220,7 @@ if($ticket->isOverdue())
                 if($ticket->isOpen()){ ?>
                 <tr>
                     <th>Due Date:</th>
-                    <td><?php echo Format::db_datetime($ticket->getDueDate()); ?></td>
+                    <td><?php echo Format::db_datetime($ticket->getEstDueDate()); ?></td>
                 </tr>
                 <?php
                 }else { ?>
