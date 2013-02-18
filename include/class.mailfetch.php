@@ -250,20 +250,6 @@ class MailFetcher {
         return $header;
     }
 
-    function getAttachment($part) {
-
-        if(!$part) return null;
-
-        if($part->ifdisposition && in_array(strtolower($part->disposition), array('attachment', 'inline')))
-            return $part->dparameters[0]->value;
-
-        if($part->ifparameters && $part->type == 5)
-            return $part->parameters[0]->value;
-
-
-        return null;
-    }
-
     //search for specific mime type parts....encoding is the desired encoding.
     function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false) {
           
@@ -320,19 +306,16 @@ class MailFetcher {
                 //Some inline attachments have multiple parameters.
                 if(count($part->dparameters)>1) {
                     foreach($part->dparameters as $dparameter) {
-                        if(strcasecmp($dparameter->attribute, 'FILENAME')) continue;
+                        if(!in_array(strtoupper($dparameter->attribute), array('FILENAME', 'NAME'))) continue;
                         $filename = $dparameter->value;
                         break;
                     }
                 }
-            } elseif($part->ifparameters && $part->type == 5) { //inline image without disposition.
-                $filename = $part->parameters[0]->value;
-                if(count($part->parameters)>1) {
-                    foreach($part->parameters as $parameter) {
-                        if(strcasecmp($parameter->attribute, 'FILENAME')) continue;
-                        $filename = $parameter->value;
-                        break;
-                    }
+            } elseif($part->ifparameters && $part->parameters && $part->type > 0) { //inline attachments without disposition.
+                foreach($part->parameters as $parameter) {
+                    if(!in_array(strtoupper($parameter->attribute), array('FILENAME', 'NAME'))) continue;
+                    $filename = $parameter->value;
+                    break;
                 }
             }
 
