@@ -186,7 +186,9 @@ if($search):
 endif;
 
 $sortOptions=array('date'=>'ticket.created','ID'=>'ticketID','pri'=>'priority_urgency','name'=>'ticket.name',
-                   'subj'=>'ticket.subject','status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff');
+                   'subj'=>'ticket.subject','status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
+                   'dept'=>'dept_name');
+
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
 //Sorting options...
