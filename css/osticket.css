@@ -1,0 +1,25 @@
+/* Overlay */
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1000;
+    -webkit-transform: translate3d(0,0,0);
+}
+
+#loading {
+    border:1px solid #2a67ac;
+    padding: 10px 10px 10px 60px;
+    width: 300px;
+    height: 100px;
+    background: rgb( 255, 255, 255) url('../images/FhHRx-Spinner.gif') 10px 50% no-repeat;
+    position: fixed;
+    display: none;
+    z-index: 3000;
+}
+
+#loading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
