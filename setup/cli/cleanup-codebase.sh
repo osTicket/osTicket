@@ -40,6 +40,7 @@ include/settings.php
 
 # Removed in 1.7.0
 api/urls.conf.php
+css/font-awesome.css
 images/bg.gif
 images/fibres.png
 images/home.gif

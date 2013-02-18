@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="./css/scp.css" media="screen">
     <link rel="stylesheet" href="./css/typeahead.css" media="screen">
     <link type="text/css" href="../css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="../css/font-awesome.css">
+    <link type="text/css" rel="stylesheet" href="../css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="./css/dropdown.css">
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
     <?php
