@@ -5,7 +5,7 @@
     Teams
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -138,7 +138,7 @@ class Team {
             $sql='DELETE FROM '.TEAM_MEMBER_TABLE
                 .' WHERE team_id='.db_input($this->getId())
                 .' AND staff_id IN ('
-                    .implode(',', array_map('db_input', $_POST['remove']))
+                    .implode(',', db_input($vars['remove']))
                 .')';
             db_query($sql);
         }

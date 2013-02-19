@@ -5,7 +5,7 @@
     New tickets handle.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -33,12 +33,8 @@ if($_POST):
     if(($ticket=Ticket::create($_POST,$errors,SOURCE))){
         $msg='Support ticket request created';
         //Upload attachments...         
-        if($cfg->allowOnlineAttachments()
-                && $_FILES['attachments']
-                && ($files=Format::files($_FILES['attachments']))) {
-            $ost->validateFileUploads($files); //Validator sets errors - if any.
-            $ticket->uploadAttachments($files, $ticket->getLastMsgId(), 'M');
-        }
+        if($cfg->allowOnlineAttachments() && $_FILES['attachments'])
+            $ticket->uploadFiles($_FILES['attachments'], $ticket->getLastMsgId(), 'M');
 
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {

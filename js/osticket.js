@@ -8,18 +8,31 @@ $(document).ready(function(){
     $("input:not(.dp):visible:enabled:first").focus();
     $('table.list tbody tr:odd').addClass('odd');
 
-    $("form#save :input").change(function() {
+    //Overlay
+    $('#overlay').css({
+        opacity : 0.3,
+        top     : 0,
+        left    : 0
+     });
+
+    /* loading ... */
+    $("#loading").css({
+        top  : ($(window).height() / 3),
+        left : ($(window).width() / 2 - 160)    
+     });
+
+    $("form :input").change(function() {
         var fObj = $(this).closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
-                return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
+                return "Are you sure you want to leave? Any changes or info you've entered will be discarded!";
              });
         }
        });
 
-    $("form#save :input[type=reset]").click(function() {
+    $("form :input[type=reset]").click(function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
             $('input[type=submit]', fObj).removeAttr('style');
@@ -30,8 +43,9 @@ $(document).ready(function(){
         }
        });
 
-    $('form#save').submit(function() {
+    $('form').submit(function() {
         $(window).unbind('beforeunload');
+        $('#overlay, #loading').show();
         return true;
        });
 

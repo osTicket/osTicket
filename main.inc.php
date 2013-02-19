@@ -6,7 +6,7 @@
     The brain of the whole sytem. Don't monkey with it.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -62,8 +62,8 @@
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
-    define('THIS_VERSION','1.7-RC4'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE','9f3b454c06dfd5ee96003eae5182ac13'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('THIS_VERSION','1.7-RC5'); //Shown on admin panel
+    define('SCHEMA_SIGNATURE', 'd959a00e55c75e0c903b9e37324fd25d'); //MD5 signature of the db schema. (used to trigger upgrades)
     #load config info
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
@@ -170,6 +170,10 @@
 
     define('API_KEY_TABLE',TABLE_PREFIX.'api_key');
     define('TIMEZONE_TABLE',TABLE_PREFIX.'timezone'); 
+
+    #Global overwrite
+    if($_SERVER['HTTP_X_FORWARDED_FOR']) //Can contain multiple IPs - use the last one.
+        $_SERVER['REMOTE_ADDR'] =  array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
    
     #Connect to the DB && get configuration from database
     $ferror=null;

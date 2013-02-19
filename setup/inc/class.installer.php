@@ -5,7 +5,7 @@
     osTicket Intaller - installs the latest version.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -95,6 +95,9 @@ class Installer extends SetupWizard {
                 if(mysql_query($sql)) {
                     $this->errors['err'] = 'We have a problem - another installation with same table prefix exists!';
                     $this->errors['prefix'] = 'Prefix already in-use';
+                } else {
+                    //Try changing charset and collation of the DB - no bigie if we fail.
+                    mysql_query('ALTER DATABASE '.$vars['dbname'].' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
                 }
             }
         }

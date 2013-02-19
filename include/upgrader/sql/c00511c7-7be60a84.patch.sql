@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%sla` (
     `updated` datetime NOT NULL,
     PRIMARY KEY  (`id`),
     UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
  
 -- Create a default SLA
 INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team` (
     UNIQUE KEY `name` (`name`),
     KEY `isnabled` (`isenabled`),
     KEY `lead_id` (`lead_id`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- Create a default TEAM
 INSERT INTO `%TABLE_PREFIX%team` (`lead_id`, `isenabled`, `noalerts`, `name`, `notes`, `created`, `updated`)
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team_member` (
   `staff_id` int(10) unsigned NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`team_id`,`staff_id`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 ALTER TABLE `%TABLE_PREFIX%department`
     ADD sla_id INT UNSIGNED NOT NULL DEFAULT '0' AFTER tpl_id;

@@ -9,7 +9,7 @@
     Use osTicket::start(configId)
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -119,7 +119,15 @@ class osTicket {
 
         return false;
     }
-    
+
+    function getLinkToken() {
+        return md5($this->getCSRFToken().SECRET_SALT.session_id());
+    }
+
+    function validateLinkToken($token) {
+            return ($token && !strcasecmp($token, $this->getLinkToken()));
+    }
+
     function isFileTypeAllowed($file, $mimeType='') {
        
         if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
@@ -141,7 +149,7 @@ class osTicket {
     /* Function expects a well formatted array - see  Format::files()
        It's up to the caller to reject the upload on error.
      */
-    function validateFileUploads(&$files) {
+    function validateFileUploads(&$files, $checkFileTypes=true) {
        
         $errors=0;
         foreach($files as &$file) {
@@ -152,11 +160,12 @@ class osTicket {
                 $file['error'] = 'File upload error #'.$file['error'];
             elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
                 $file['error'] = 'Invalid or bad upload POST';
-            elseif(!$this->isFileTypeAllowed($file))
-                $file['error'] = 'Invalid file type for '.$file['name'];
+            elseif($checkFileTypes && !$this->isFileTypeAllowed($file))
+                $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
             elseif($file['size']>$this->getConfig()->getMaxFileSize())
                 $file['error'] = sprintf('File (%s) is too big. Maximum of %s allowed',
-                        $file['name'], Format::file_size($this->getConfig()->getMaxFileSize()));
+                        Format::htmlchars($file['name']),
+                        Format::file_size($this->getConfig()->getMaxFileSize()));
             
             if($file['error']) $errors++;
         }

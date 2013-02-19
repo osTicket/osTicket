@@ -8,7 +8,7 @@
           Client is modeled on the info of the ticket used to login .
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -112,6 +112,10 @@ class Client {
 
     function getNumOpenTickets() {
         return ($stats=$this->getTicketStats())?$stats['open']:0;
+    }
+
+    function getNumClosedTickets() {
+        return ($stats=$this->getTicketStats())?$stats['closed']:0;
     }
 
     /* ------------- Static ---------------*/

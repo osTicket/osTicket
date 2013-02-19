@@ -5,7 +5,7 @@
     The most important class! Don't play with fire please.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -78,12 +78,14 @@ class Ticket {
         //TODO: delete helptopic field in ticket table.
        
         $sql='SELECT  ticket.*, lock_id, dept_name, priority_desc '
+            .' ,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate ' 
             .' ,count(attach.attach_id) as attachments '
             .' ,count(DISTINCT message.id) as messages '
             .' ,count(DISTINCT response.id) as responses '
             .' ,count(DISTINCT note.id) as notes '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
+            .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
             .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON ('
                 .'ticket.priority_id=pri.priority_id) '
             .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON ('
@@ -257,6 +259,20 @@ class Ticket {
 
     function getDueDate(){
         return $this->duedate;
+    }
+
+    function getSLADuedate() {
+        return $this->ht['sla_duedate'];
+    }
+
+    function getEstDueDate() {
+
+        //Real due date 
+        if(($duedate=$this->getDueDate()))
+            return $duedate;
+
+        //return sla due date (If ANY)
+        return $this->getSLADueDate();
     }
 
     function getCloseDate(){
@@ -720,7 +736,7 @@ class Ticket {
         global $cfg;
         # XXX Should the SLA be overwritten if it was originally set via an
         #     email filter? This method doesn't consider such a case
-        if ($trump !== null) {
+        if ($trump && is_numeric($trump)) {
             $slaId = $trump;
         } elseif ($this->getDept() && $this->getDept()->getSLAId()) {
             $slaId = $this->getDept()->getSLAId();
@@ -1245,8 +1261,10 @@ class Ticket {
         if($this->isClosed()) $this->reopen();
 
         $this->reload();
-        // Change to SLA of the new department
-        $this->selectSLAId();
+
+        // Set SLA of the new department
+        if(!$this->getSLAId())
+            $this->selectSLAId();
                   
         /*** log the transfer comments as internal note - with alerts disabled - ***/
         $title='Ticket transfered from '.$currentDept.' to '.$this->getDeptName();
@@ -1379,43 +1397,46 @@ class Ticket {
     }
 
     //Insert message from client
-    function postMessage($message,$source='',$emsgid=null,$headers='',$newticket=false){
+    function postMessage($vars, $source='', $alerts=true) {
         global $cfg;
        
-        if(!$this->getId()) return 0;
-
+        if(!$vars || !$vars['message'])
+            return 0;
+        
         //Strip quoted reply...on emailed replies
         if(!strcasecmp($source, 'Email') 
                 && $cfg->stripQuotedReply() 
-                && ($tag=$cfg->getReplySeparator()) && strpos($message, $tag))
-            list($message)=split($tag, $message);
+                && ($tag=$cfg->getReplySeparator()) && strpos($vars['message'], $tag))
+            list($vars['message']) = split($tag, $vars['message']);
 
         # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
+
 
         $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW()'
             .' ,thread_type="M" '
             .' ,ticket_id='.db_input($this->getId())
             # XXX: Put Subject header into the 'title' field
-            .' ,body='.db_input(Format::striptags($message)) //Tags/code stripped...meaning client can not send in code..etc
+            .' ,body='.db_input(Format::striptags($vars['message'])) //Tags/code stripped...meaning client can not send in code..etc
             .' ,source='.db_input($source?$source:$_SERVER['REMOTE_ADDR'])
             .' ,ip_address='.db_input($_SERVER['REMOTE_ADDR']);
     
-        if(!db_query($sql) || !($msgid=db_insert_id())) return 0; //bail out....
+        if(!db_query($sql) || !($msgid=db_insert_id()))
+            return 0; //bail out....
 
         $this->setLastMsgId($msgid);
-
-        if ($emsgid !== null) {
+        
+        if (isset($vars['mid'])) {
             $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
                 .' SET message_id='.db_input($msgid)
-                .', email_mid='.db_input($emsgid)
-                .', headers='.db_input($headers);
+                .', email_mid='.db_input($vars['mid'])
+                .', headers='.db_input($vars['header']);
             db_query($sql);
         }
 
-        if($newticket) return $msgid; //Our work is done...
+        if(!$alerts) return $msgid; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $headers && TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($headers)))
+        if ($autorespond && $vars['header'] && TicketFilter::isAutoResponse($vars['header']))
             $autorespond=false;
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
@@ -1431,7 +1452,7 @@ class Ticket {
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg, array('message' => $message));
+            $msg = $this->replaceVars($msg, array('message' => $vars['message']));
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1474,6 +1495,7 @@ class Ticket {
                       'response' => $this->replaceVars($canned->getResponse()),
                       'cannedattachments' => $files);
 
+        $errors = array();
         if(!($respId=$this->postReply($info, $errors, false)))
             return false;
 
@@ -1629,6 +1651,7 @@ class Ticket {
     //Insert Internal Notes
     function logNote($title, $note, $poster='SYSTEM', $alert=true) {
 
+        $errors = array();
         return $this->postNote(
                 array('title' => $title, 'note' => $note),
                 $errors,
@@ -1735,10 +1758,11 @@ class Ticket {
     }
 
     //online based attached files.
-    function uploadAttachments($files, $refid, $type) {
+    function uploadAttachments($files, $refid, $type, $checkFileTypes=false) {
         global $ost;
 
         $uploaded=array();
+        $ost->validateFileUploads($files, $checkFileTypes); //Validator sets errors - if any
         foreach($files as $file) {
             if(!$file['error'] 
                     && ($id=AttachmentFile::upload($file)) 
@@ -1762,8 +1786,44 @@ class Ticket {
         return $uploaded;
     }
 
+    /* Wrapper or uploadAttachments 
+       - used on client interface 
+       - file type check is forced
+       - $_FILES  is passed.
+    */
+    function uploadFiles($files, $refid, $type) {
+        return $this->uploadAttachments(Format::files($files), $refid, $type, true);    
+    }
+
+    /* Emailed & API attachments handler */
+    function importAttachments($attachments, $refid, $type, $checkFileTypes=true) {
+        global $ost;
+
+        if(!$attachments || !is_array($attachments)) return null;
+
+        $files = array();        
+        foreach ($attachments as &$info) {
+            //Do error checking...
+            if ($checkFileTypes && !$ost->isFileTypeAllowed($info))
+                $info['error'] = 'Invalid file type (ext) for '.Format::htmlchars($info['name']);
+            elseif ($info['encoding'] && !strcasecmp($info['encoding'], 'base64')) {
+                if(!($info['data'] = base64_decode($info['data'], true)))
+                    $info['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($info['name']));
+            }
+
+            if($info['error']) {
+                $this->logNote('File Import Error', $info['error'], 'SYSTEM', false);
+            } elseif (($id=$this->saveAttachment($info, $refid, $type))) {
+                $files[] = $id;
+            }
+        }
+
+        return $files;
+    }
+
+
     /*
-       Save attachment to the DB. uploads (above), email or json/xml.
+       Save attachment to the DB. upload/import (above).
        
        @file is a mixed var - can be ID or file hash.
      */
@@ -1970,10 +2030,10 @@ class Ticket {
             .' WHERE (ticket.staff_id='.db_input($staff->getId());
 
         if(($teams=$staff->getTeams()))
-            $sql.=' OR ticket.team_id IN('.implode(',', array_filter($teams)).')';
+            $sql.=' OR ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
 
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
-            $sql.=' OR ticket.dept_id IN('.implode(',', $depts).') ';
+            $sql.=' OR ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         $sql.=')';
 
@@ -2129,7 +2189,9 @@ class Ticket {
                 $vars['teamId'] = $topic->getTeamId();
 
             //set default sla.
-            if(!isset($vars['slaId']) && $topic->getSLAId())
+            if(isset($vars['slaId']))
+                $vars['slaId'] = $vars['slaId']?$vars['slaId']:$cfg->getDefaultSLAId();
+            elseif($topic && $topic->getSLAId())
                 $vars['slaId'] = $topic->getSLAId();
 
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
@@ -2180,7 +2242,7 @@ class Ticket {
 
         $dept = $ticket->getDept();
         //post the message.
-        $msgid=$ticket->postMessage($vars['message'],$source,$vars['mid'],$vars['header'],true);
+        $msgid=$ticket->postMessage($vars , $source, false);
 
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);

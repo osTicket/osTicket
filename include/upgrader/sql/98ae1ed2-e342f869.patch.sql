@@ -143,7 +143,7 @@ CREATE TABLE `%TABLE_PREFIX%api_key` (
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `ipaddr` (`ipaddr`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%syslog`;
 CREATE TABLE `%TABLE_PREFIX%syslog` (
@@ -157,7 +157,7 @@ CREATE TABLE `%TABLE_PREFIX%syslog` (
   `updated` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`log_id`),
   KEY `log_type` (`log_type`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 UPDATE `%TABLE_PREFIX%config`
     SET `ostversion`='1.6 RC5';

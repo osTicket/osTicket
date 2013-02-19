@@ -5,3 +5,6 @@ include/ost-config.php
 .DS_Store
 .vagrant
 Vagrantfile
+
+# Staging directory used for packaging script
+stage

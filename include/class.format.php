@@ -5,7 +5,7 @@
     Collection of helper function used for formatting 
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -44,6 +44,31 @@ class Format {
         }
 
         return $result?array_filter($result):$files;
+    }
+
+
+    /* encode text into desired encoding - taking into accout charset when available. */
+    function encode($text, $charset=null, $encoding='utf-8') {
+
+        //Try auto-detecting charset/encoding
+        if(!$charset && function_exists('mb_detect_encoding')) 
+            $charset = mb_detect_encoding($text);
+
+        //Cleanup - junk 
+        if($charset && in_array(trim($charset), array('default','x-user-defined')))
+            $charset = 'ISO-8859-1'; 
+
+        if(function_exists('iconv') && $charset)
+            return iconv($charset, $encoding.'//IGNORE', $text);
+        elseif(function_exists('iconv_mime_decode'))
+            return iconv_mime_decode($text, 0, $encoding);
+        else //default to utf8 encoding.
+            return utf8_encode($text);
+    }
+
+    //Wrapper for utf-8 encoding.
+    function utf8encode($text, $charset=null) {
+        return Format::enecode($text, $charset, 'utf-8');
     }
 
 	function phone($phone) {
@@ -127,12 +152,22 @@ class Format {
 
     //make urls clickable. Mainly for display 
     function clickableurls($text) {
-
+        global $ost;
+        
+        $token = $ost->getLinkToken();
         //Not perfect but it works - please help improve it. 
-        $text=preg_replace('/(((f|ht){1}tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
-            '<a href="l.php?url=\\1" target="_blank">\\1</a>', $text);
-        $text=preg_replace("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
-            '\\1<a href="l.php?url=http://\\2" target="_blank">\\2</a>', $text);
+        $text=preg_replace_callback('/(((f|ht){1}tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";',
+                        $token)),
+                $text);
+
+        $text=preg_replace_callback("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";',
+                        $token)),
+                $text);
+
         $text=preg_replace("/(^|[ \\n\\r\\t])([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})/",
             '\\1<a href="mailto:\\2" target="_blank">\\2</a>', $text);
 

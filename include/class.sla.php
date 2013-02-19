@@ -5,7 +5,7 @@
     SLA
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -117,12 +117,13 @@ class SLA {
     function getSLAs() {
 
         $slas=array();
-
-        $sql='SELECT id, name FROM '.SLA_TABLE;
+        $sql='SELECT id, name, isactive, grace_period FROM '.SLA_TABLE.' ORDER BY name';
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name)=db_fetch_row($res))
-                $slas[$id]=$name;
-
+            while($row=db_fetch_array($res))
+                $slas[$row['id']] = sprintf('%s (%d hrs - %s)',
+                        $row['name'], 
+                        $row['grace_period'], 
+                        $row['isactive']?'Active':'Disabled');
         }
 
         return $slas;

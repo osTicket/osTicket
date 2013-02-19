@@ -7,7 +7,7 @@
     Mostly wrappers with error/resource checking.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -74,7 +74,7 @@
         return ($database && @mysql_select_db($database));
     }
 
-    function db_create_database($database, $charset='utf8', $collate='utf8_unicode_ci') {
+    function db_create_database($database, $charset='utf8', $collate='utf8_general_ci') {
         return @mysql_query(sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s', $database, $charset, $collate));
     }
    

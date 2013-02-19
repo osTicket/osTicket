@@ -65,15 +65,15 @@ $qwhere =' WHERE ( '
         .'  ticket.staff_id='.db_input($thisstaff->getId());
 
 if(!$thisstaff->showAssignedOnly())
-    $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',',$depts):0).')';
+    $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',', db_input($depts)):0).')';
 
 if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-    $qwhere.=' OR ticket.team_id IN('.implode(',',array_filter($teams)).') ';
+    $qwhere.=' OR ticket.team_id IN('.implode(',', db_input(array_filter($teams))).') ';
 
 $qwhere .= ' )';
 
 //STATUS
-if($status){
+if($status) {
     $qwhere.=' AND status='.db_input(strtolower($status));    
 }
 
@@ -186,7 +186,9 @@ if($search):
 endif;
 
 $sortOptions=array('date'=>'ticket.created','ID'=>'ticketID','pri'=>'priority_urgency','name'=>'ticket.name',
-                   'subj'=>'ticket.subject','status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff');
+                   'subj'=>'ticket.subject','status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
+                   'dept'=>'dept_name');
+
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
 //Sorting options...
@@ -217,8 +219,10 @@ if(!$order_by ) {
         $order_by='ticket.lastresponse, ticket.created'; //No priority sorting for answered tickets.
     elseif(!strcasecmp($status,'closed'))
         $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
-    else
-        $order_by='priority_urgency ASC, effective_date, ticket.created';
+    elseif($showoverdue) //priority> duedate > age in ASC order.
+        $order_by='priority_urgency ASC, ISNULL(duedate) ASC, duedate ASC, effective_date ASC, ticket.created';
+    else //XXX: Add due date here?? No - 
+        $order_by='priority_urgency ASC, effective_date DESC, ticket.created';
 }
 
 $order=$order?$order:'DESC';
@@ -256,6 +260,7 @@ $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&ord
 //ADD attachment,priorities, lock and other crap
 $qselect.=' ,count(attach.attach_id) as attachments '
          .' ,count(DISTINCT thread.id) as thread_count '
+         .' ,IF(ticket.duedate IS NULL,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)), ticket.duedate) as duedate '
          .' ,IF(ticket.reopened is NULL,IF(ticket.lastmessage is NULL,ticket.created,ticket.lastmessage),ticket.reopened) as effective_date '
          .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned ';
@@ -266,7 +271,8 @@ $qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.pri
        .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
        .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
        .' LEFT JOIN '.STAFF_TABLE.' staff ON (ticket.staff_id=staff.staff_id) '
-       .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) ';
+       .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) '
+       .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) ';
 
 $query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
@@ -307,7 +313,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
  <a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <input type="hidden" name="status" value="<?php echo $_REQUEST['status']; ?>" >
+ <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <caption><?php echo $showing; ?>&nbsp;&nbsp;&nbsp;<?php echo $results_type; ?></caption>
     <thead>

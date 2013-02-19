@@ -6,7 +6,7 @@
     will be used to provide functionality common to all Ajax API calls
 
     Jared Hancock 
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
