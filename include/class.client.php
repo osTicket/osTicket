@@ -114,6 +114,10 @@ class Client {
         return ($stats=$this->getTicketStats())?$stats['open']:0;
     }
 
+    function getNumClosedTickets() {
+        return ($stats=$this->getTicketStats())?$stats['closed']:0;
+    }
+
     /* ------------- Static ---------------*/
     function getLastTicketIdByEmail($email) {
         $sql='SELECT ticketID FROM '.TICKET_TABLE

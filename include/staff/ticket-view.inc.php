@@ -151,10 +151,24 @@ if($ticket->isOverdue())
                     <td>
                     <?php
                         echo $ticket->getEmail();
-                        if(($related=$ticket->getRelatedTicketsCount())) {
-                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&query=%s" title="Related Tickets">(<b>%d</b>)</a>',
-                                    urlencode($ticket->getEmail()),$related);
-
+                        if(($client=$ticket->getClient())) {
+                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&query=%s" title="Related Tickets" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
+                                    urlencode($ticket->getEmail()), $client->getNumTickets());
+                        ?>
+                            <div id="action-dropdown-stats" class="action-dropdown anchor-right">
+                                <ul>
+                                    <?php
+                                    if(($open=$client->getNumOpenTickets()))
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&query=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
+                                                $ticket->getEmail(), $open);
+                                    if(($closed=$client->getNumClosedTickets()))
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&query=%s"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
+                                                $ticket->getEmail(), $closed);
+                                    ?>
+                                    <li><a href="tickets.php?a=search&query=<?php echo $ticket->getEmail(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
+                                </u>
+                            </div>
+                    <?php
                         }
                     ?>
                     </td>
