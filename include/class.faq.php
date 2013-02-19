@@ -4,7 +4,7 @@
 
     Backend support for article creates, edits, deletes, and attachments.
 
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.

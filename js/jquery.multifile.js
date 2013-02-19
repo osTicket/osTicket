@@ -11,7 +11,7 @@
     * Plugin doesn't take into account PHP related limitations e.g max uploads + max size.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c) 2006-2012 osTicket
+    Copyright (c) 2006-2013 osTicket
     http://www.osticket.com
 
     Credits:

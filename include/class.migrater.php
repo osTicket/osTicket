@@ -5,7 +5,7 @@
     Migration utils required by upgrader.
     
     Jared Hancock <jared@osticket.com>
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -82,7 +82,7 @@ class DatabaseMigrater {
     hardware to find and retrieve old attachments and move them into the new
     database scheme with the data in the actual database.
 
-    Copyright (c)  2006-2012 osTicket
+    Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
