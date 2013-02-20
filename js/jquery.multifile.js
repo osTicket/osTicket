@@ -50,7 +50,23 @@
 
                 if(fObj.data('files')>=settings.max_uploads || (fObj.data('files')+file.count)>settings.max_uploads) {
                     alert('You have reached the maximum number of files ('+ settings.max_uploads+') allowed per upload');
-                } else if($.fn.multifile.checkFileTypes(file, settings.allowedFileTypes)) {
+                } else if(!$.fn.multifile.checkFileTypes(file, settings.allowedFileTypes)) {
+                    var msg = 'Selected file type is NOT allowed';
+                    if(file.count>1)
+                        msg = 'File type of one or more of the selected files is NOT allowed';
+
+                    alert('Error: '+msg);
+                    
+                    $this.replaceWith(new_input);
+                } else if(!$.fn.multifile.checkFileSize(file, settings.max_file_size)) {
+                    var msg = 'Selected file size is NOT allowed';
+                    if(file.count>1)
+                        msg = 'File size of one or more of the selected files is NOT allowed';
+
+                    alert('Error: '+msg);
+                    
+                    $this.replaceWith(new_input);
+                } else {
                     $this.hide();
                     
                     settings
@@ -61,15 +77,6 @@
                     fObj.data('files', fObj.data('files')+file.count);
                     if(fObj.data('files')<settings.max_uploads)
                         $this.after(new_input);
-
-                } else {
-                    var msg = 'Selected file type is NOT allowed';
-                    if(file.count>1)
-                        msg = 'File type of one or more of the selected files is NOT allowed';
-
-                    alert('Error: '+msg);
-                    
-                    $this.replaceWith(new_input);
                 }
         
             }
@@ -127,6 +134,16 @@
               return false;
 
       return true;
+  };  
+  
+  $.fn.multifile.checkFileSize = function(file, MaxFileSize) {
+     
+      var filesizes = $.map(file.size.split(','), $.trim);
+      for (var i = 0, _len = filesizes.length; i < _len; i++)
+          if(filesizes[i] > MaxFileSize)
+              return false;
+
+      return true;
   };
 
   //Clone file input and clear the value without triggering a warning!
@@ -150,16 +167,19 @@
     file.count = 1; 
     // check for HTML5 FileList support
     if ( !!global.FileList ) {
-      if ( input.files.length == 1 )
+      if ( input.files.length == 1 ) {
         file.name = input.files[0].name;
-      else { //Multi-select
+        file.size = '' + input.files[0].size;
+      } else { //Multi-select
         // We do this in order to support `multiple` files.
         // You can't display them separately because they 
         // belong to only one file input.  It is impossible
         // to remove just one of the files.
         file.name = input.files[0].name;
-        for (var i = 1, _len = input.files.length; i < _len; i++)
+        for (var i = 1, _len = input.files.length; i < _len; i++) {
           file.name += ', ' + input.files[i].name;
+          file.size += ', ' + input.files[i].size;
+        }
 
         file.count = i;
       }
@@ -173,6 +193,7 @@
   //Default options 
   $.fn.multifile.defaults = { 
                               max_uploads: 1,
-                              file_types: '.*'
+                              file_types: '.*',
+                              max_file_size: 2048
                             };
 })(jQuery, this);
