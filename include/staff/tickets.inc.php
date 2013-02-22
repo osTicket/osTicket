@@ -50,7 +50,7 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
         break;
     default:
         if(!$search)
-            $status='open';
+            $_REQUEST['status']=$status='open';
 }
 
 $qwhere ='';
@@ -144,19 +144,21 @@ if($search):
     }
         
     //Assignee 
-    if($_REQUEST['assignee'] && strcasecmp($_REQUEST['status'], 'closed'))  {
+    if(isset($_REQUEST['assignee']) && strcasecmp($_REQUEST['status'], 'closed'))  {
         $id=preg_replace("/[^0-9]/", "", $_REQUEST['assignee']);
         $assignee = $_REQUEST['assignee'];
         $qstr.='&assignee='.urlencode($_REQUEST['assignee']);
-        $qwhere.= ' AND ( ';
+        $qwhere.= ' AND ( 
+                ( ticket.status="open" ';
                   
         if($assignee[0]=='t')
-            $qwhere.='  (ticket.team_id='.db_input($id). ' AND ticket.status="open") ';
+            $qwhere.='  AND ticket.team_id='.db_input($id);
         elseif($assignee[0]=='s')
-            $qwhere.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
-        else
-            $qwhere.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
+            $qwhere.='  AND ticket.staff_id='.db_input($id);
+        elseif(is_numeric($id))
+            $qwhere.='  AND ticket.staff_id='.db_input($id);
         
+       $qwhere.=' ) ';
                    
         if($_REQUEST['staffId'] && !$_REQUEST['status']) { //Assigned TO + Closed By
             $qwhere.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';
@@ -579,7 +581,9 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
         <fieldset class="owner">
             <label for="assignee">Assigned To:</label>
             <select id="assignee" name="assignee">
-                <option value="0">&mdash; Anyone &mdash;</option>
+                <option value="">&mdash; Anyone &mdash;</option>
+                <option value="0">&mdash; Unassigned &mdash;</option>
+                <option value="<?php echo $thisstaff->getId(); ?>">Me</option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
                     echo '<OPTGROUP label="Staff Members ('.count($users).')">';
@@ -603,6 +607,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
             <label for="staffId">Closed By:</label>
             <select id="staffId" name="staffId">
                 <option value="0">&mdash; Anyone &mdash;</option>
+                <option value="<?php echo $thisstaff->getId(); ?>">Me</option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
                     foreach($users as $id => $name)
