@@ -19,10 +19,9 @@ if($search) {
       $searchTerm='';
   }
 }
-$showoverdue=$showanswered=$showassigned=false;
+$showoverdue=$showanswered=false;
 $staffId=0; //Nothing for now...TODO: Allow admin and manager to limit tickets to single staff level.
-//show Assigned To column, if enabled. Admins and managers can overwrite system settings!
-$showassigned=(($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets()) && !$search);
+$showassigned= true; //show Assigned To column - defaults to true 
 
 //Get status we are actually going to use on the query...making sure it is clean!
 $status=null;
@@ -32,7 +31,7 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
         break;
     case 'closed':
         $status='closed';
-        $showassigned=false;
+        $showassigned=true; //closed by.
         break;
     case 'overdue':
         $status='open';
@@ -77,8 +76,8 @@ if($status) {
     $qwhere.=' AND status='.db_input(strtolower($status));    
 }
 
-//Overloaded sub-statuses  - you've got to just have faith!
-if($staffId && ($staffId==$thisstaff->getId())) { //Staff's assigned tickets.
+//Queues: Overloaded sub-statuses  - you've got to just have faith!
+if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
     $results_type='Assigned Tickets';
     $qwhere.=' AND ticket.staff_id='.db_input($staffId);
     $showassigned=false; //My tickets...already assigned to the staff.
@@ -86,13 +85,19 @@ if($staffId && ($staffId==$thisstaff->getId())) { //Staff's assigned tickets.
     $qwhere.=' AND isoverdue=1 ';
 }elseif($showanswered) { ////Answered
     $qwhere.=' AND isanswered=1 ';
-}elseif(!$search && !$cfg->showAnsweredTickets() && !strcasecmp($status,'open')) {
-    $qwhere.=' AND isanswered=0 ';
-}
+}elseif(!strcasecmp($status, 'open') && !$search) { //Open queue (on search OPEN means all open tickets - regardless of state).
+    //Showing answered tickets on open queue??
+    if(!$cfg->showAnsweredTickets()) 
+        $qwhere.=' AND isanswered=0 ';
 
-//******* Showing assigned tickets? (don't confuse it with show assigned To column). F'it it's confusing - just trust me! ***/
-if(!($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets()) && strcasecmp($status,'closed') && !$search)
-    $sql.=' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($thisstaff->getId()).') ';
+    /* Showing assigned tickets on open queue? 
+       Don't confuse it with show assigned To column -> F'it it's confusing - just trust me!
+     */
+    if(!($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets())) {
+        $qwhere.=' AND ticket.staff_id=0 '; //XXX: NOT factoring in team assignments - only staff assignments.
+        $showassigned=false; //Not showing Assigned To column since assigned tickets are not part of open queue
+    }
+}
 
 //Search?? Somebody...get me some coffee 
 $deep_search=false;
@@ -155,6 +160,9 @@ if($search):
                    
         if($_REQUEST['staffId'] && !$_REQUEST['status']) { //Assigned TO + Closed By
             $qwhere.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';
+            $qstr.='&staffId='.urlencode($_REQUEST['staffId']);
+        }elseif(isset($_REQUEST['staffId'])) {
+            $qwhere.= ' OR ticket.status="closed" ';
             $qstr.='&staffId='.urlencode($_REQUEST['staffId']);
         }
             

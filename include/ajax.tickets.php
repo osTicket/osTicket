@@ -85,10 +85,10 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function search() {
-        global $thisstaff;
+        global $thisstaff, $cfg;
           
         $result=array();
-        $select = 'SELECT count(ticket.ticket_id) as tickets ';
+        $select = 'SELECT count( DISTINCT ticket.ticket_id) as tickets ';
         $from = ' FROM '.TICKET_TABLE.' ticket ';
         $where = ' WHERE 1 ';
 
@@ -109,7 +109,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         //Status
         switch(strtolower($_REQUEST['status'])) {
-            case 'open';
+            case 'open':
                 $where.=' AND ticket.status="open" ';
                 break;
             case 'overdue':
@@ -133,7 +133,9 @@ class TicketsAjaxAPI extends AjaxController {
                 $where.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
 
             if($_REQUEST['staffId'] && !$_REQUEST['status']) //Assigned TO + Closed By
-                $where.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';    
+                $where.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';
+            elseif(isset($_REQUEST['staffId'])) // closed by any
+                $where.= ' OR ticket.status="closed" ';
 
             $where.= ' ) ';
         } elseif($_REQUEST['staffId']) { 
@@ -163,7 +165,6 @@ class TicketsAjaxAPI extends AjaxController {
                        ." OR thread.title LIKE '%$queryterm%'"
                        ." OR thread.body LIKE '%$queryterm%'"               
                        .' )';
-            $groupby = 'GROUP BY ticket.ticket_id ';
         }
         
         $sql="$select $from $where $groupby";
