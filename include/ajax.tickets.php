@@ -107,6 +107,10 @@ class TicketsAjaxAPI extends AjaxController {
         if($_REQUEST['deptId'])
             $where.=' AND ticket.dept_id='.db_input($_REQUEST['deptId']);
 
+        //Help topic
+        if($_REQUEST['topicId'])
+            $where.=' AND ticket.topic_id='.db_input($_REQUEST['topicId']);
+
         //Status
         switch(strtolower($_REQUEST['status'])) {
             case 'open':

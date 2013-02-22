@@ -41,6 +41,7 @@ class Export {
                 'name' =>           'From',
                 'priority_desc' =>  'Priority',
                 'dept_name' =>      'Department',
+                'helptopic' =>      'Help Topic',
                 'source' =>         'Source',
                 'status' =>         'Current Status'
             ),

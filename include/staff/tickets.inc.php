@@ -142,6 +142,12 @@ if($search):
         $qwhere.=' AND ticket.dept_id='.db_input($_REQUEST['deptId']);
         $qstr.='&deptId='.urlencode($_REQUEST['deptId']);
     }
+
+    //Help topic
+    if($_REQUEST['topicId']) {
+        $qwhere.=' AND ticket.topic_id='.db_input($_REQUEST['topicId']);
+        $qstr.='&topicId='.urlencode($_REQUEST['topicId']);
+    }
         
     //Assignee 
     if(isset($_REQUEST['assignee']) && strcasecmp($_REQUEST['status'], 'closed'))  {
@@ -273,7 +279,8 @@ $qselect.=' ,count(attach.attach_id) as attachments '
          .' ,IF(ticket.duedate IS NULL,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)), ticket.duedate) as duedate '
          .' ,IF(ticket.reopened is NULL,IF(ticket.lastmessage is NULL,ticket.created,ticket.lastmessage),ticket.reopened) as effective_date '
          .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
-         .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned ';
+         .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
+         .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic ';
 
 $qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.priority_id) '
        .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW() 
@@ -282,7 +289,10 @@ $qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.pri
        .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
        .' LEFT JOIN '.STAFF_TABLE.' staff ON (ticket.staff_id=staff.staff_id) '
        .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) '
-       .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) ';
+       .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
+       .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
+       .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) ';
+
 
 $query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
@@ -612,6 +622,18 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                 if(($users=Staff::getStaffMembers())) {
                     foreach($users as $id => $name)
                         echo sprintf('<option value="%d">%s</option>', $id, $name);
+                }
+                ?>
+            </select>
+        </fieldset>
+        <fieldset>
+            <label for="topicId">Help Topic:</label>
+            <select id="topicId" name="topicId">
+                <option value="" selected >&mdash; All Help Topics &mdash;</option>
+                <?php
+                if($topics=Topic::getHelpTopics()) {
+                    foreach($topics as $id =>$name)
+                        echo sprintf('<option value="%d" >%s</option>', $id, $name);
                 }
                 ?>
             </select>
