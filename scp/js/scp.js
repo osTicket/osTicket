@@ -369,6 +369,7 @@ $(document).ready(function(){
                 break;
             case 'open':
             case 'overdue':
+            case 'answered':
                 $('select#staffId').find('option:first').attr('selected', 'selected').parent('select');
                 $('select#staffId').attr('disabled','disabled');
                 $('select#assignee').removeAttr('disabled');

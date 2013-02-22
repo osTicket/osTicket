@@ -555,6 +555,11 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
             <select id="status" name="status">
                 <option value="">&mdash; Any Status &mdash;</option>
                 <option value="open">Open</option>
+                <?php
+                if(!$cfg->showAnsweredTickets()) {?>
+                <option value="answered">Answered</option>
+                <?php
+                } ?>
                 <option value="overdue">Overdue</option>
                 <option value="closed">Closed</option>
             </select>

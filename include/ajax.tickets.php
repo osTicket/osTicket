@@ -112,6 +112,9 @@ class TicketsAjaxAPI extends AjaxController {
             case 'open':
                 $where.=' AND ticket.status="open" ';
                 break;
+            case 'answered':
+                $where.=' AND ticket.status="open" AND ticket.isanswered=1 ';
+                break;
             case 'overdue':
                 $where.=' AND ticket.status="open" AND ticket.isoverdue=1 ';
                 break;
