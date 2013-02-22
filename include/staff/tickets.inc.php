@@ -354,20 +354,23 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
             <?php
             }
 
-            if($showassigned){ ?>
-            <th width="150">
-                <a <?php echo $assignee_sort; ?> href="tickets.php?sort=assignee&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
-                    title="Sort By Assignee <?php echo $negorder;?>">Assigned To</a></th>
-            <?php 
-            } elseif(!strcasecmp($status,'closed')) { ?>
-            <th width="150">
-                <a <?php echo $staff_sort; ?> href="tickets.php?sort=staff&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
-                    title="Sort By Closing Staff Name <?php echo $negorder; ?>">Closed By</a></th>
-            <?php 
+            if($showassigned ) { 
+                //Closed by
+                if(!strcasecmp($status,'closed')) { ?>
+                    <th width="150">
+                        <a <?php echo $staff_sort; ?> href="tickets.php?sort=staff&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
+                            title="Sort By Closing Staff Name <?php echo $negorder; ?>">Closed By</a></th>
+                <?php
+                } else { //assigned to ?>
+                    <th width="150">
+                        <a <?php echo $assignee_sort; ?> href="tickets.php?sort=assignee&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
+                            title="Sort By Assignee <?php echo $negorder;?>">Assigned To</a></th>
+                <?php
+                }
             } else { ?>
-            <th width="150">
-                <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>" 
-                    title="Sort By Department <?php echo $negorder; ?>">Department</a></th>
+                <th width="150">
+                    <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>" 
+                        title="Sort By Department <?php echo $negorder; ?>">Department</a></th>
             <?php
             } ?>
         </tr>
@@ -387,7 +390,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                     $flag='overdue';
 
                 $lc='';
-                if($showassigned || !strcasecmp($status,'closed')) {
+                if($showassigned) {
                     if($row['staff_id'])
                         $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
                     elseif($row['team_id'])
