@@ -261,7 +261,7 @@ class Ticket {
         return $this->duedate;
     }
 
-    function getSLADuedate() {
+    function getSLADueDate() {
         return $this->ht['sla_duedate'];
     }
 
