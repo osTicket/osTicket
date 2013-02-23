@@ -68,7 +68,7 @@ class Format {
 
     //Wrapper for utf-8 encoding.
     function utf8encode($text, $charset=null) {
-        return Format::enecode($text, $charset, 'utf-8');
+        return Format::encode($text, $charset, 'utf-8');
     }
 
 	function phone($phone) {
