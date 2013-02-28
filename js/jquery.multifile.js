@@ -3,7 +3,9 @@
 
     Multifile plugin that allows users to upload multiple files at once in unobstructive manner - cleaner interface.
 
-    Allows limiting number of files and file type(s) using file extension.
+    Allows limiting number of files
+    Whitelist file type(s) using file extension
+    Limit file sizes.
 
     NOTE:
     * Files are not uploaded until the form is submitted
@@ -56,15 +58,13 @@
                         msg = 'File type of one or more of the selected files is NOT allowed';
 
                     alert('Error: '+msg);
-                    
                     $this.replaceWith(new_input);
                 } else if(!$.fn.multifile.checkFileSize(file, settings.max_file_size)) {
-                    var msg = 'Selected file size is NOT allowed';
+                    var msg = 'Selected file exceeds allowed size';
                     if(file.count>1)
-                        msg = 'File size of one or more of the selected files is NOT allowed';
+                        msg = 'File size of one or more of the selected files exceeds allowed size';
 
                     alert('Error: '+msg);
-                    
                     $this.replaceWith(new_input);
                 } else {
                     $this.hide();
@@ -137,6 +137,10 @@
   };  
   
   $.fn.multifile.checkFileSize = function(file, MaxFileSize) {
+
+      //Size info not available or max file is not set (let server-side handle it).
+      if(!MaxFileSize || !file.size)
+          return true;
      
       var filesizes = $.map(file.size.split(','), $.trim);
       for (var i = 0, _len = filesizes.length; i < _len; i++)
@@ -176,6 +180,7 @@
         // belong to only one file input.  It is impossible
         // to remove just one of the files.
         file.name = input.files[0].name;
+        file.size = '' + input.files[0].size;
         for (var i = 1, _len = input.files.length; i < _len; i++) {
           file.name += ', ' + input.files[i].name;
           file.size += ', ' + input.files[i].size;
@@ -194,6 +199,6 @@
   $.fn.multifile.defaults = { 
                               max_uploads: 1,
                               file_types: '.*',
-                              max_file_size: 2048
+                              max_file_size: 0
                             };
 })(jQuery, this);

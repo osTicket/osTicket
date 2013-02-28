@@ -65,6 +65,6 @@ $(document).ready(function(){
         container:   '.uploads',
         max_uploads: ($config && $config.max_file_uploads)?$config.max_file_uploads:1,
         file_types:  ($config && $config.file_types)?$config.file_types:".*",
-        max_file_size: ($config && $config.max_file_size)?$config.max_file_size:2048
+        max_file_size: ($config && $config.max_file_size)?$config.max_file_size:0
        });
 });
