@@ -24,6 +24,34 @@ class TicketApiController extends ApiController {
         return $supported;
     }
 
+    /* 
+     Validate data - overwrites parent's validator for additional validations.
+    */
+    function validate(&$data, $format) {
+        global $ost;
+
+        //Call parent to Validate the structure
+        if(!parent::validate($data, $format))
+            $this->exerr(400, 'Unexpected or invalid data received');
+
+        //Validate attachments: Do error checking... soft fail - set the error and pass on the request.
+        if($data['attachments'] && is_array($data['attachments'])) {
+            foreach($data['attachments'] as &$attachment) {
+                if(!$ost->isFileTypeAllowed($attachment))
+                    $data['error'] = 'Invalid file type (ext) for '.Format::htmlchars($attachment['name']);
+                elseif ($attachment['encoding'] && !strcasecmp($attachment['encoding'], 'base64')) {
+                    if(!($attachment['data'] = base64_decode($attachment['data'], true)))
+                        $attachment['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($attachment['name']));
+                }
+            }
+        }
+        unset($attachment);
+
+        return true;
+
+    }
+
+
     function create($format) {
 
         if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
@@ -69,11 +97,6 @@ class TicketApiController extends ApiController {
         } elseif (!$ticket) {
             return $this->exerr(500, "Unable to create new ticket: unknown error");
         }
-
-        
-        # Save attachment(s)
-        if($data['attachments'])
-            $ticket->importAttachments($data['attachments'], $ticket->getLastMsgId(), 'M');
 
         return $ticket;
     }
