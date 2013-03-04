@@ -34,19 +34,6 @@ class Format {
         return preg_replace('/\s+/', '_', $filename);
     }
 
-    /* re-arrange $_FILES array for the sane */
-    function files($files) {
-
-        foreach($files as $k => $a) {
-            if(is_array($a))
-                foreach($a as $i => $v)
-                    $result[$i][$k] = $v;
-        }
-
-        return $result?array_filter($result):$files;
-    }
-
-
     /* encode text into desired encoding - taking into accout charset when available. */
     function encode($text, $charset=null, $encoding='utf-8') {
 
