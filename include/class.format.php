@@ -55,7 +55,7 @@ class Format {
 
     //Wrapper for utf-8 encoding.
     function utf8encode($text, $charset=null) {
-        return Format::enecode($text, $charset, 'utf-8');
+        return Format::encode($text, $charset, 'utf-8');
     }
 
 	function phone($phone) {
@@ -96,24 +96,50 @@ class Format {
         return Format::html($html,array('safe'=>1,'balance'=>1));
     }
 
+    function sanitize($text, $striptags= true) {
+        
+        //balance and neutralize unsafe tags.
+        $text = Format::safe_html($text);
+
+        //If requested - strip tags with decoding disabled.
+        return $striptags?Format::striptags($text, false):$text;
+    }
+
     function htmlchars($var) {
+        return Format::htmlencode($var);
+    }
+
+    function htmlencode($var) {
         $flags = ENT_COMPAT | ENT_QUOTES;
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
+
         return is_array($var)
-            ? array_map(array('Format','htmlchars'),$var)
+            ? array_map(array('Format','htmlencode'), $var)
             : htmlentities($var, $flags, 'UTF-8');
     }
 
+    function htmldecode($var) {
+
+        if(is_array($var))
+            return array_map(array('Format','htmldecode'), $var);
+
+        $flags = ENT_COMPAT;
+        if (phpversion() >= '5.4.0')
+            $flags |= ENT_HTML401;
+            
+        return html_entity_decode($var, $flags, 'UTF-8');
+    }
+
     function input($var) {
-        return Format::htmlchars($var);
+        return Format::htmlencode($var);
     }
 
     //Format text for display..
     function display($text) {
         global $cfg;
 
-        $text=Format::htmlchars($text); //take care of html special chars
+        //make urls clickable.
         if($cfg && $cfg->clickableURLS() && $text)
             $text=Format::clickableurls($text);
 
@@ -127,14 +153,12 @@ class Format {
         return nl2br($text);
     }
 
-    function striptags($var) {
-        $flags = ENT_COMPAT;
-        if (phpversion() >= '5.4.0')
-            $flags |= ENT_HTML401;
-        return is_array($var)
-            ? array_map(array('Format','striptags'),$var)
-              //strip all tags ...no mercy!
-            : strip_tags(html_entity_decode($var, $flags, 'UTF-8'));
+    function striptags($var, $decode=true) {
+
+        if(is_array($var))
+            return array_map(array('Format','striptags'), $var, array_fill(0, count($var), $decode));
+
+        return strip_tags($decode?Format::htmldecode($var):$var);
     }
 
     //make urls clickable. Mainly for display 
