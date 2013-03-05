@@ -1,9 +1,9 @@
 <?php
 /*************************************************************************
     tickets.php
-    
+
     Handles all tickets related actions.
- 
+
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
@@ -46,23 +46,25 @@ if($_POST && !$errors):
                 $errors['err'] = 'Action denied. Contact admin for access';
             else {
 
-                if(!$_POST['msgId'])
-                    $errors['err']='Missing message ID - Internal error';
                 if(!$_POST['response'])
                     $errors['response']='Response required';
-            
                 //Use locks to avoid double replies
                 if($lock && $lock->getStaffId()!=$thisstaff->getId())
                     $errors['err']='Action Denied. Ticket is locked by someone else!';
-            
+
                 //Make sure the email is not banned
                 if(!$errors['err'] && TicketFilter::isBanned($ticket->getEmail()))
                     $errors['err']='Email is in banlist. Must be removed to reply.';
             }
 
             $wasOpen =($ticket->isOpen());
+
             //If no error...do the do.
-            if(!$errors && ($respId=$ticket->postReply($_POST, $errorsi, isset($_POST['emailreply'])))) {
+            $vars = $_POST;
+            if(!$errors && $_FILES['attachments'])
+                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+
+            if(!$errors && ($response=$ticket->postReply($vars, $errors, isset($_POST['emailreply'])))) {
                 $msg='Reply posted successfully';
                 $ticket->reload();
                 if($ticket->isClosed() && $wasOpen)
@@ -73,7 +75,7 @@ if($_POST && !$errors):
             }
             break;
         case 'transfer': /** Transfer ticket **/
-            //Check permission 
+            //Check permission
             if(!$thisstaff->canTransferTickets())
                 $errors['err']=$errors['transfer'] = 'Action Denied. You are not allowed to transfer tickets.';
             else {
@@ -85,13 +87,13 @@ if($_POST && !$errors):
                     $errors['deptId'] = 'Ticket already in the department';
                 elseif(!($dept=Dept::lookup($_POST['deptId'])))
                     $errors['deptId'] = 'Unknown or invalid department';
-            
+
                 //Transfer message - required.
                 if(!$_POST['transfer_comments'])
                     $errors['transfer_comments'] = 'Transfer comments required';
                 elseif(strlen($_POST['transfer_comments'])<5)
                     $errors['transfer_comments'] = 'Transfer comments too short!';
-           
+
                 //If no errors - them attempt the transfer.
                 if(!$errors && $ticket->transfer($_POST['deptId'], $_POST['transfer_comments'])) {
                     $msg = 'Ticket transferred successfully to '.$ticket->getDeptName();
@@ -112,7 +114,7 @@ if($_POST && !$errors):
              else {
 
                  $id = preg_replace("/[^0-9]/", "",$_POST['assignId']);
-                 $claim = (is_numeric($_POST['assignId']) && $_POST['assignId']==$thisstaff->getId()); 
+                 $claim = (is_numeric($_POST['assignId']) && $_POST['assignId']==$thisstaff->getId());
 
                  if(!$_POST['assignId'] || !$id)
                      $errors['assignId'] = 'Select assignee';
@@ -132,7 +134,7 @@ if($_POST && !$errors):
                      $errors['assign_comments'] = 'Assignment comments required';
                  elseif(strlen($_POST['assign_comments'])<5)
                          $errors['assign_comments'] = 'Comment too short';
-                 
+
                  if(!$errors && $ticket->assign($_POST['assignId'], $_POST['assign_comments'], !$claim)) {
                      if($claim) {
                          $msg = 'Ticket is NOW assigned to you!';
@@ -146,7 +148,7 @@ if($_POST && !$errors):
                      $errors['assign'] = 'Correct the error(s) below and try again!';
                  }
              }
-            break; 
+            break;
         case 'postnote': /* Post Internal Note */
             //Make sure the staff can set desired state
             if($_POST['state']) {
@@ -158,12 +160,22 @@ if($_POST && !$errors):
             }
 
             $wasOpen = ($ticket->isOpen());
-            if(($noteId=$ticket->postNote($_POST, $errors, $thisstaff))) {
+
+            $vars = $_POST;
+            if($_FILES['attachments'])
+                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+
+            if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
+
                 $msg='Internal note posted successfully';
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
+
             } else {
-                $errors['err'] = 'Unable to post internal note - missing or invalid data.';
+
+                if(!$errors['err'])
+                    $errors['err'] = 'Unable to post internal note - missing or invalid data.';
+
                 $errors['postnote'] = 'Unable to post the note. Correct the error(s) below and try again!';
             }
             break;
@@ -195,9 +207,9 @@ if($_POST && !$errors):
                             $note = $_POST['ticket_status_notes'];
                         else
                             $note='Ticket closed (without comments)';
-                        
+
                         $ticket->logNote('Ticket Closed', $note, $thisstaff);
-                        
+
                         //Going back to main listing.
                         TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
                         $page=$ticket=null;
@@ -299,7 +311,7 @@ if($_POST && !$errors):
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = 'Email removed from banlist';
                     } elseif(!BanList::includes($ticket->getEmail())) {
-                        $warn = 'Email is not in the banlist'; 
+                        $warn = 'Email is not in the banlist';
                     } else {
                         $errors['err']='Unable to remove the email from banlist. Try again.';
                     }
@@ -333,7 +345,7 @@ if($_POST && !$errors):
         switch($_POST['a']) {
             case 'mass_process':
                 if(!$thisstaff->canManageTickets())
-                    $errors['err']='You do not have permission to mass manage tickets. Contact admin for such access';    
+                    $errors['err']='You do not have permission to mass manage tickets. Contact admin for such access';
                 elseif(!$_POST['tids'] || !is_array($_POST['tids']))
                     $errors['err']='No tickets selected. You must select at least one ticket.';
                 else {
@@ -364,7 +376,7 @@ if($_POST && !$errors):
                             if($thisstaff->canCloseTickets()) {
                                 $note='Ticket closed without response by '.$thisstaff->getName();
                                 foreach($_POST['tids'] as $k=>$v) {
-                                    if(($t=Ticket::lookup($v)) && $t->isOpen() && @$t->close()) { 
+                                    if(($t=Ticket::lookup($v)) && $t->isOpen() && @$t->close()) {
                                         $i++;
                                         $t->logNote('Ticket Closed', $note, $thisstaff);
                                     }
@@ -401,7 +413,7 @@ if($_POST && !$errors):
                                 foreach($_POST['tids'] as $k=>$v) {
                                     if(($t=Ticket::lookup($v)) && @$t->delete()) $i++;
                                 }
-                        
+
                                 //Log a warning
                                 if($i) {
                                     $log = sprintf('%s (%s) just deleted %d ticket(s)',
@@ -429,13 +441,19 @@ if($_POST && !$errors):
                 $ticket=null;
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
-                }elseif(($ticket=Ticket::open($_POST, $errors))) {
-                    $msg='Ticket created successfully';
-                    $_REQUEST['a']=null;
-                    if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
-                        $ticket=null;
-                }elseif(!$errors['err']) {
-                    $errors['err']='Unable to create the ticket. Correct the error(s) and try again';
+                } else {
+                    $vars = $_POST;
+                    if($_FILES['attachments'])
+                        $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+
+                    if(($ticket=Ticket::open($vars, $errors))) {
+                        $msg='Ticket created successfully';
+                        $_REQUEST['a']=null;
+                        if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
+                            $ticket=null;
+                    } elseif(!$errors['err']) {
+                        $errors['err']='Unable to create the ticket. Correct the error(s) and try again';
+                    }
                 }
                 break;
         }
@@ -470,7 +488,7 @@ if($cfg->showAnsweredTickets()) {
                                'title'=>'Answered Tickets',
                                'href'=>'tickets.php?status=answered',
                                'iconclass'=>'answeredTickets'),
-                            ($_REQUEST['status']=='answered')); 
+                            ($_REQUEST['status']=='answered'));
     }
 }
 
@@ -515,7 +533,7 @@ if($thisstaff->canCreateTickets()) {
     $nav->addSubMenu(array('desc'=>'New Ticket',
                            'href'=>'tickets.php?a=open',
                            'iconclass'=>'newTicket'),
-                        ($_REQUEST['a']=='open'));    
+                        ($_REQUEST['a']=='open'));
 }
 
 
@@ -524,7 +542,7 @@ if($ticket) {
     $ost->setPageTitle('Ticket #'.$ticket->getNumber());
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
-    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) 
+    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets())
         $inc = 'ticket-edit.inc.php';
     elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
         $errors['err'] = 'Internal error: Unable to export the ticket to PDF for print.';

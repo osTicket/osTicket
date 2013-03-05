@@ -21,11 +21,11 @@ require (FPDF_DIR . 'fpdf.php');
 
 class Ticket2PDF extends FPDF
 {
-	
+
 	var $includenotes = false;
-	
+
 	var $pageOffset = 0;
-	
+
     var $ticket = null;
 
 	function Ticket2PDF($ticket, $psize='Letter', $notes=false) {
@@ -47,7 +47,7 @@ class Ticket2PDF extends FPDF
     function getTicket() {
         return $this->ticket;
     }
-	
+
 	//report header...most stuff are hard coded for now...
 	function Header() {
         global $cfg;
@@ -66,7 +66,7 @@ class Ticket2PDF extends FPDF
         $this->Cell(0, 5, 'Date & Time based on GMT '.$_SESSION['TZ_OFFSET'], 0, 1, 'R');
 		$this->Ln(10);
 	}
-	
+
 	//Page footer baby
 	function Footer() {
         global $thisstaff;
@@ -94,10 +94,10 @@ class Ticket2PDF extends FPDF
 
         if(function_exists('iconv'))
             return iconv('UTF-8', 'windows-1252', $text);
-        
+
         return utf8_encode($text);
     }
-    
+
     function _print() {
 
         if(!($ticket=$this->getTicket()))
@@ -107,7 +107,7 @@ class Ticket2PDF extends FPDF
         $l = 35;
         $c = $w-$l;
 
-        
+
         $this->SetFont('Arial', 'B', 11);
         $this->cMargin = 0;
         $this->SetFont('Arial', 'B', 11);
@@ -215,7 +215,11 @@ class Ticket2PDF extends FPDF
                         'R'=>array(255, 224, 179),
                         'N'=>array(250, 250, 210));
         //Get ticket thread
-        if(($entries = $ticket->getThread(($this->includenotes)))) { 
+        $types = array('M', 'R');
+        if($this->includenotes)
+            $types[] = 'N';
+
+        if(($entries = $ticket->getThreadEntries($types))) {
             foreach($entries as $entry) {
 
                 $color = $colors[$entry['thread_type']];
@@ -228,11 +232,12 @@ class Ticket2PDF extends FPDF
                 $this->Cell($w/2, 7, $entry['poster'], 'TBR', 1, 'L', true);
                 $this->SetFont('');
                 $text= $entry['body'];
-                if($entry['attachments'] 
-                        && ($attachments = $ticket->getAttachments($entry['id'], $entry['thread_type']))) {
+                if($entry['attachments']
+                        && ($tentry=$ticket->getThreadEntry($entry['id']))
+                        && ($attachments = $tentry->getAttachments())) {
                     foreach($attachments as $attachment)
                         $files[]= $attachment['name'];
-                    
+
                     $text.="\nFiles Attached: [".implode(', ',$files)."]\n";
                 }
                 $this->WriteText($w*2, $text, 1);
@@ -240,6 +245,6 @@ class Ticket2PDF extends FPDF
             }
         }
 
-    }	
+    }
 }
 ?>

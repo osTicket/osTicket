@@ -64,7 +64,9 @@ class Ticket {
     var $team;  //Team obj
     var $topic; //Topic obj
     var $tlock; //TicketLock obj
-    
+
+    var $thread; //Thread obj.
+
     function Ticket($id){
         $this->id = 0;
         $this->load($id);
@@ -78,11 +80,8 @@ class Ticket {
         //TODO: delete helptopic field in ticket table.
        
         $sql='SELECT  ticket.*, lock_id, dept_name, priority_desc '
-            .' ,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate ' 
+            .' ,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(attach.attach_id) as attachments '
-            .' ,count(DISTINCT message.id) as messages '
-            .' ,count(DISTINCT response.id) as responses '
-            .' ,count(DISTINCT note.id) as notes '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
@@ -92,12 +91,6 @@ class Ticket {
                 .'ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
                 .'ticket.ticket_id=attach.ticket_id) '
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' message ON ('
-                ."ticket.ticket_id=message.ticket_id AND message.thread_type = 'M') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' response ON ('
-                ."ticket.ticket_id=response.ticket_id AND response.thread_type = 'R') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' note ON ( '
-                ."ticket.ticket_id=note.ticket_id AND note.thread_type = 'N') "
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 
@@ -143,7 +136,10 @@ class Ticket {
         $this->tlock = null;
         $this->stats = null;
         $this->topic = null;
-        
+        $this->thread = null;
+
+        $this->getThread();
+
         return true;
     }
         
@@ -261,13 +257,13 @@ class Ticket {
         return $this->duedate;
     }
 
-    function getSLADuedate() {
+    function getSLADueDate() {
         return $this->ht['sla_duedate'];
     }
 
     function getEstDueDate() {
 
-        //Real due date 
+        //Real due date
         if(($duedate=$this->getDueDate()))
             return $duedate;
 
@@ -534,12 +530,16 @@ class Ticket {
         return $this->lastMsgId;
     }
 
-    function getRelatedTicketsCount(){
+    function getLastMessage() {
+        return Message::lookup($this->getLastMsgId(), $this->getId());
+    }
 
-        $sql='SELECT count(*)  FROM '.TICKET_TABLE
-            .' WHERE email='.db_input($this->getEmail());
+    function getThread() {
 
-        return db_result(db_query($sql));
+        if(!$this->thread)
+            $this->thread = Thread::lookup($this);
+
+        return $this->thread;
     }
 
     function getThreadCount() {
@@ -547,121 +547,42 @@ class Ticket {
     }
 
     function getNumMessages() {
-        return $this->ht['messages'];
+        return $this->getThread()->getNumMessages();
     }
 
     function getNumResponses() {
-        return $this->ht['responses'];
+        return $this->getThread()->getNumResponses();
     }
 
     function getNumNotes() {
-        return $this->ht['notes'];
+        return $this->getThread()->getNumNotes();
     }
 
     function getMessages() {
-        return $this->getThreadByType('M');
+        return $this->getThreadEntries('M');
     }
 
-    function getResponses($msgId=0) {
-        return $this->getThreadByType('R', $msgId);
+    function getResponses() {
+        return $this->getThreadEntries('R');
     }
 
     function getNotes() {
-        return $this->getThreadByType('N');
+        return $this->getThreadEntries('N');
     }
 
     function getClientThread() {
-        return $this->getThreadWithoutNotes();
+        return $this->getThreadEntries(array('M', 'R'));
     }
 
-    function getThreadWithNotes() {
-        return $this->getThread(true);
-    }
-    
-    function getThreadWithoutNotes() {
-        return $this->getThread(false);
+    function getThreadEntry($id) {
+        return $this->getThread()->getEntry($id);
     }
 
-    function getThread($includeNotes=false, $order='') {
-
-        $treadtypes=array('M', 'R'); // messages and responses.
-        if($includeNotes) //Include notes??
-            $treadtypes[] = 'N';
-
-        return $this->getThreadByType($treadtypes, $order);
-    }
-        
-    function getThreadByType($type, $order='ASC') {
-
-        if(!$order || !in_array($order, array('DESC','ASC')))
-            $order='ASC';
-
-        $sql='SELECT thread.* '
-            .' ,count(DISTINCT attach.attach_id) as attachments '
-            .' FROM '.TICKET_THREAD_TABLE.' thread '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach 
-                ON (thread.ticket_id=attach.ticket_id 
-                        AND thread.id=attach.ref_id 
-                        AND thread.thread_type=attach.ref_type) '
-            .' WHERE  thread.ticket_id='.db_input($this->getId());
-
-        if($type && is_array($type))
-            $sql.=" AND thread.thread_type IN('".implode("','", $type)."')";
-        elseif($type)
-            $sql.=' AND thread.thread_type='.db_input($type);
-
-        $sql.=' GROUP BY thread.id '
-             .' ORDER BY thread.created '.$order;
-
-        $thread=array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec=db_fetch_array($res))
-                $thread[] = $rec;
-
-        return $thread;
+    function getThreadEntries($type, $order='') {
+        return $this->getThread()->getEntries($type, $order);
     }
 
-    function getAttachments($refId=0, $type=null) {
 
-        if($refId && !$type)
-            return NULL;
-
-        //XXX: inner join the file table instead?
-        $sql='SELECT a.attach_id, f.id as file_id, f.size, f.hash as file_hash, f.name '
-            .' FROM '.FILE_TABLE.' f '
-            .' INNER JOIN '.TICKET_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
-            .' WHERE a.ticket_id='.db_input($this->getId());
-       
-        if($refId) 
-            $sql.=' AND a.ref_id='.db_input($refId);
-
-        if($type)
-            $sql.=' AND a.ref_type='.db_input($type);
-
-        $attachments = array();
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while($rec=db_fetch_array($res))
-                $attachments[] = $rec;
-        }
-
-        return $attachments;
-    }
-
-    function getAttachmentsLinks($refId, $type, $separator=' ',$target='') {
-
-        $str='';
-        foreach($this->getAttachments($refId, $type) as $attachment ) {
-            /* The has here can be changed  but must match validation in attachment.php */
-            $hash=md5($attachment['file_id'].session_id().$attachment['file_hash']); 
-            if($attachment['size'])
-                $size=sprintf('<em>(%s)</em>', Format::file_size($attachment['size']));
-                
-            $str.=sprintf('<a class="Icon file" href="attachment.php?id=%d&h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $attachment['attach_id'], $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
-        }
-
-        return $str;
-    }
 
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
@@ -1168,10 +1089,10 @@ class Ticket {
                 break;
              case 'due_date':
                 $duedate ='';
-                if($this->getDueDate())
+                if($this->getEstDueDate())
                     $duedate = Format::date(
                             $cfg->getDateTimeFormat(),
-                            Misc::db2gmtime($this->getDueDate()),
+                            Misc::db2gmtime($this->getEstDueDate()),
                             $cfg->getTZOffset(),
                             $cfg->observeDaylightSaving());
 
@@ -1397,46 +1318,34 @@ class Ticket {
     }
 
     //Insert message from client
-    function postMessage($vars, $source='', $alerts=true) {
+    function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;
-       
-        if(!$vars || !$vars['message'])
-            return 0;
-        
+
         //Strip quoted reply...on emailed replies
-        if(!strcasecmp($source, 'Email') 
-                && $cfg->stripQuotedReply() 
+        if(!strcasecmp($origin, 'Email')
+                && $cfg->stripQuotedReply()
                 && ($tag=$cfg->getReplySeparator()) && strpos($vars['message'], $tag))
-            list($vars['message']) = split($tag, $vars['message']);
+            if(list($msg) = split($tag, $vars['message']))
+                $vars['message'] = $msg;
 
-        # XXX: Refuse auto-response messages? (via email) XXX: No - but kill our auto-responder.
+        if($vars['ip'])
+            $vars['ip_address'] = $vars['ip'];
+        elseif(!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
+            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
+        $errors = array();
+        if(!($message = $this->getThread()->addMessage($vars, $errors)))
+            return null;
 
-        $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW()'
-            .' ,thread_type="M" '
-            .' ,ticket_id='.db_input($this->getId())
-            # XXX: Put Subject header into the 'title' field
-            .' ,body='.db_input(Format::striptags($vars['message'])) //Tags/code stripped...meaning client can not send in code..etc
-            .' ,source='.db_input($source?$source:$_SERVER['REMOTE_ADDR'])
-            .' ,ip_address='.db_input($_SERVER['REMOTE_ADDR']);
-    
-        if(!db_query($sql) || !($msgid=db_insert_id()))
-            return 0; //bail out....
+        $this->setLastMsgId($message->getId());
 
-        $this->setLastMsgId($msgid);
-        
-        if (isset($vars['mid'])) {
-            $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
-                .' SET message_id='.db_input($msgid)
-                .', email_mid='.db_input($vars['mid'])
-                .', headers='.db_input($vars['header']);
-            db_query($sql);
-        }
+        if (isset($vars['mid']))
+            $message->saveEmailInfo($vars);
 
-        if(!$alerts) return $msgid; //Our work is done...
+        if(!$alerts) return $message; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $vars['header'] && TicketFilter::isAutoResponse($vars['header']))
+        if ($autorespond && $message->isAutoResponse())
             $autorespond=false;
 
         $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
@@ -1452,7 +1361,7 @@ class Ticket {
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg, array('message' => $vars['message']));
+            $msg = $this->replaceVars($msg, array('message' => $message));
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1477,8 +1386,8 @@ class Ticket {
                 $sentlist[] = $staff->getEmail();
             }
         }
-        
-        return $msgid;
+
+        return $message;
     }
 
     function postCannedReply($canned, $msgId, $alert=true) {
@@ -1492,16 +1401,17 @@ class Ticket {
             $files[] = $file['id'];
 
         $info = array('msgId' => $msgId,
+                      'poster' => 'SYSTEM (Canned Reply)',
                       'response' => $this->replaceVars($canned->getResponse()),
                       'cannedattachments' => $files);
 
         $errors = array();
-        if(!($respId=$this->postReply($info, $errors, false)))
-            return false;
+        if(!($response=$this->postReply($info, $errors, false)))
+            return null;
 
         $this->markUnAnswered();
 
-        if(!$alert) return $respId;
+        if(!$alert) return $response;
 
         $dept = $this->getDept();
 
@@ -1518,65 +1428,41 @@ class Ticket {
             else
                 $signature='';
 
-            $msg = $this->replaceVars($msg, array('response' => $info['response'], 'signature' => $signature));
+            $msg = $this->replaceVars($msg, array('response' => $response, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $attachments =($cfg->emailAttachments() && $files)?$this->getAttachments($respId, 'R'):array();
+            $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
         }
 
-        return $respId;
+        return $response;
     }
 
-    /* public */ 
+    /* public */
     function postReply($vars, &$errors, $alert = true) {
         global $thisstaff, $cfg;
 
-        if(!$vars['msgId'])
-            $errors['msgId'] ='Missing messageId - internal error';
-        if(!$vars['response'])
-            $errors['response'] = 'Response message required';
 
-        if($errors) return 0;
+        if(!$vars['poster'] && $thisstaff)
+            $vars['poster'] = $thisstaff->getName();
 
-        $poster = $thisstaff?$thisstaff->getName():'SYSTEM (Canned Reply)';
+        if(!$vars['staffId'] && $thisstaff)
+            $vars['staffId'] = $thisstaff->getId();
 
-        $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
-            .' ,thread_type="R"'
-            .' ,ticket_id='.db_input($this->getId())
-            .' ,pid='.db_input($vars['msgId'])
-            .' ,body='.db_input(Format::striptags($vars['response']))
-            .' ,staff_id='.db_input($thisstaff?$thisstaff->getId():0)
-            .' ,poster='.db_input($poster)
-            .' ,ip_address='.db_input($thisstaff?$thisstaff->getIP():'');
-
-        if(!db_query($sql) || !($respId=db_insert_id()))
-            return false;
+        if(!($response = $this->getThread()->addResponse($vars, $errors)))
+            return null;
 
         //Set status - if checked.
         if(isset($vars['reply_ticket_status']) && $vars['reply_ticket_status'])
             $this->setStatus($vars['reply_ticket_status']);
 
-        /* We can NOT recover from attachment related failures at this point */
-        $attachments = array();
-        //Web based upload.. note that we're not "validating" attachments on response.
-        if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
-            $attachments=$this->uploadAttachments($files, $respId, 'R');
-
-        //Canned attachments...
-        if($vars['cannedattachments'] && is_array($vars['cannedattachments'])) {
-            foreach($vars['cannedattachments'] as $fileId)
-                if($fileId && $this->saveAttachment($fileId, $respId, 'R'))
-                    $attachments[] = $fileId;
-        }
-
         $this->onResponse(); //do house cleaning..
         $this->reload();
 
         /* email the user??  - if disabled - the bail out */
-        if(!$alert) return $respId;
+        if(!$alert) return $response;
 
         $dept = $this->getDept();
 
@@ -1594,20 +1480,20 @@ class Ticket {
                 $signature=$dept->getSignature();
             else
                 $signature='';
-            
-            $msg = $this->replaceVars($msg, 
-                    array('response' => $vars['response'], 'signature' => $signature, 'staff' => $thisstaff));
+
+            $msg = $this->replaceVars($msg,
+                    array('response' => $response, 'signature' => $signature, 'staff' => $thisstaff));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
             //Set attachments if emailing.
-            $attachments =($cfg->emailAttachments() && $attachments)?$this->getAttachments($respId,'R'):array();
+            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             //TODO: setup  5 param (options... e.g mid trackable on replies)
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
         }
 
-        return $respId;
+        return $response;
     }
 
     //Activity log - saved as internal notes WHEN enabled!!
@@ -1659,42 +1545,23 @@ class Ticket {
                 $alert);
     }
 
-    function postNote($vars, &$errors, $poster, $alert=true) {        
+    function postNote($vars, &$errors, $poster, $alert=true) {
         global $cfg, $thisstaff;
 
-        if(!$vars || !is_array($vars))
-            $errors['err'] = 'Missing or invalid data';
-        elseif(!$vars['note'])
-            $errors['note'] = 'Note required';
-
-        if($errors) return false;
-		
-        $staffId = 0;
+        //Who is posting the note - staff or system?
+        $vars['staffId'] = 0;
+        $vars['poster'] = 'SYSTEM';
         if($poster && is_object($poster)) {
-            $staffId = $poster->getId();
-            $poster = $poster->getName();
-        } elseif(!$poster) {
-            $poster ='SYSTEM';
+            $vars['staffId'] = $poster->getId();
+            $vars['poster'] = $poster->getName();
+        }elseif($poster) { //string
+            $vars['poster'] = $poster;
         }
 
-        //TODO: move to class.thread.php
+        if(!($note=$this->getThread()->addNote($vars, $errors)))
+            return null;
 
-        $sql= 'INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '.
-                ',thread_type="N"'.
-                ',ticket_id='.db_input($this->getId()).
-                ',title='.db_input(Format::striptags($vars['title']?$vars['title']:'[No Title]')).
-                ',body='.db_input(Format::striptags($vars['note'])).
-                ',staff_id='.db_input($staffId).
-                ',poster='.db_input($poster);
-        //echo $sql;
-        if(!db_query($sql) || !($id=db_insert_id()))
-            return false;
-                
-        //Upload attachments IF ANY - TODO: validate attachment types??
-        if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
-            $attachments = $this->uploadAttachments($files, $id, 'N');
-            
-        //Set state: Error on state change not critical! 
+        //Set state: Error on state change not critical!
         if(isset($vars['state']) && $vars['state']) {
             if($this->setState($vars['state']))
                 $this->reload();
@@ -1702,11 +1569,8 @@ class Ticket {
 
         // If alerts are not enabled then return a success.
         if(!$alert || !$cfg->alertONNewNote() || !($dept=$this->getDept()))
-            return $id;
+            return $note;
 
-        //Note obj.
-        $note = Note::lookup($id, $this->getId());
-        
         if(!($tpl = $dept->getTemplate()))
             $tpl= $cfg->getDefaultTemplate();
 
@@ -1733,7 +1597,7 @@ class Ticket {
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
                 $recipients[]=$dept->getManager();
 
-            $attachments =($attachments)?$this->getAttachments($id, 'N'):array();
+            $attachments = $note->getAttachments();
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !is_object($staff) || !$staff->getEmail() || !$staff->isAvailable()) continue;
@@ -1743,8 +1607,8 @@ class Ticket {
                 $sentlist[] = $staff->getEmail();
             }
         }
-        
-        return $id;
+
+        return $note;
     }
 
     //Print ticket... export the ticket thread as PDF.
@@ -1757,123 +1621,25 @@ class Ticket {
         exit;
     }
 
-    //online based attached files.
-    function uploadAttachments($files, $refid, $type, $checkFileTypes=false) {
-        global $ost;
+    function delete() {
 
-        $uploaded=array();
-        $ost->validateFileUploads($files, $checkFileTypes); //Validator sets errors - if any
-        foreach($files as $file) {
-            if(!$file['error'] 
-                    && ($id=AttachmentFile::upload($file)) 
-                    && $this->saveAttachment($id, $refid, $type))
-                $uploaded[]=$id;
-            elseif($file['error']!=UPLOAD_ERR_NO_FILE) { 
-                
-                // log file upload errors as interal notes + syslog debug.
-                if($file['error'] && gettype($file['error'])=='string')
-                    $error = $file['error'];
-                else
-                    $error ='Error #'.$file['error'];
-
-                $this->logNote('File Upload Error', $error, 'SYSTEM', false);
-               
-                $ost->logDebug('File Upload Error (Ticket #'.$this->getExtId().')', $error);
-            }
-            
-        }
-        
-        return $uploaded;
-    }
-
-    /* Wrapper or uploadAttachments 
-       - used on client interface 
-       - file type check is forced
-       - $_FILES  is passed.
-    */
-    function uploadFiles($files, $refid, $type) {
-        return $this->uploadAttachments(Format::files($files), $refid, $type, true);    
-    }
-
-    /* Emailed & API attachments handler */
-    function importAttachments($attachments, $refid, $type, $checkFileTypes=true) {
-        global $ost;
-
-        if(!$attachments || !is_array($attachments)) return null;
-
-        $files = array();        
-        foreach ($attachments as &$info) {
-            //Do error checking...
-            if ($checkFileTypes && !$ost->isFileTypeAllowed($info))
-                $info['error'] = 'Invalid file type (ext) for '.Format::htmlchars($info['name']);
-            elseif ($info['encoding'] && !strcasecmp($info['encoding'], 'base64')) {
-                if(!($info['data'] = base64_decode($info['data'], true)))
-                    $info['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($info['name']));
-            }
-
-            if($info['error']) {
-                $this->logNote('File Import Error', $info['error'], 'SYSTEM', false);
-            } elseif (($id=$this->saveAttachment($info, $refid, $type))) {
-                $files[] = $id;
-            }
-        }
-
-        return $files;
-    }
-
-
-    /*
-       Save attachment to the DB. upload/import (above).
-       
-       @file is a mixed var - can be ID or file hash.
-     */
-    function saveAttachment($file, $refid, $type) {
-
-        if(!$refid || !$type || !($fileId=is_numeric($file)?$file:AttachmentFile::save($file)))
-            return 0;
-
-        $sql ='INSERT INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
-             .' ,ticket_id='.db_input($this->getId())
-             .' ,file_id='.db_input($fileId)
-             .' ,ref_id='.db_input($refid)
-             .' ,ref_type='.db_input($type);
-
-        return (db_query($sql) && ($id=db_insert_id()))?$id:0;
-    }
-    
-
-
-    function deleteAttachments(){
-        
-        $deleted=0;
-        // Clear reference table
-        $res=db_query('DELETE FROM '.TICKET_ATTACHMENT_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-        if ($res && db_affected_rows())
-            $deleted = AttachmentFile::deleteOrphans();
-
-        return $deleted;
-    }
-
-
-    function delete(){
-        
-        $sql='DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1';
+        $sql = 'DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1';
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        db_query('DELETE FROM '.TICKET_THREAD_TABLE.' WHERE ticket_id='.db_input($this->getId()));
-        $this->deleteAttachments();
-        
+        //delete just orphaned ticket thread & associated attachments.
+        $this->getThread()->delete();
+
         return true;
     }
 
     function update($vars, &$errors) {
 
         global $cfg, $thisstaff;
-        
+
         if(!$cfg || !$thisstaff || !$thisstaff->canEditTickets())
             return false;
-         
+
         $fields=array();
         $fields['name']     = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
         $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
@@ -1959,9 +1725,14 @@ class Ticket {
     }
 
 
-   
+
     function lookup($id) { //Assuming local ID is the only lookup used!
-        return ($id && is_numeric($id) && ($ticket= new Ticket($id)) && $ticket->getId()==$id)?$ticket:null;    
+        return ($id
+                && is_numeric($id)
+                && ($ticket= new Ticket($id))
+                && $ticket->getId()==$id
+                && $ticket->getThread())
+            ?$ticket:null;
     }
 
     function lookupByExtId($id, $email=null) {
@@ -2241,8 +2012,11 @@ class Ticket {
         }
 
         $dept = $ticket->getDept();
+
         //post the message.
-        $msgid=$ticket->postMessage($vars , $source, false);
+        unset($vars['cannedattachments']); //Ticket::open() might have it set as part of  open & respond.
+        $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
+        $message = $ticket->postMessage($vars , $origin, false);
 
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
@@ -2260,10 +2034,8 @@ class Ticket {
 
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
-        if ($autorespond && $vars['header'] &&
-                TicketFilter::isAutoResponse(Mail_Parse::splitHeaders($vars['header']))) {
+        if ($autorespond && $message && $message->isAutoResponse())
             $autorespond=false;
-        }
 
         //Don't auto respond to mailer daemons.
         if( $autorespond &&
@@ -2274,8 +2046,8 @@ class Ticket {
 
         //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
-            && $ticket->postCannedReply($vars['cannedResponseId'], $msgid, $autorespond)) {
-                $ticket->markUnAnswered(); //Leave the ticket as unanswred. 
+            && $ticket->postCannedReply($vars['cannedResponseId'], $message->getId(), $autorespond)) {
+                $ticket->markUnAnswered(); //Leave the ticket as unanswred.
                 $autorespond = false;
         }
 
@@ -2285,7 +2057,7 @@ class Ticket {
             $autorespond=false;
 
         /***** See if we need to send some alerts ****/
-        $ticket->onNewTicket($vars['message'], $autorespond, $alertstaff);
+        $ticket->onNewTicket($message, $autorespond, $alertstaff);
 
         /************ check if the user JUST reached the max. open tickets limit **********/
         if($cfg->getMaxOpenTickets()>0
@@ -2306,25 +2078,25 @@ class Ticket {
         global $thisstaff,$cfg;
 
         if(!$thisstaff || !$thisstaff->canCreateTickets()) return false;
-        
+
+        if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
+            $errors['source']='Invalid source - '.Format::htmlchars($vars['source']);
+
         if(!$vars['issue'])
             $errors['issue']='Summary of the issue required';
         else
             $vars['message']=$vars['issue'];
 
-        if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
-            $errors['source']='Invalid source - '.Format::htmlchars($vars['source']);
-
         if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();
-        $respId = 0;
-        
+
         // post response - if any
-        if($vars['response']) {
+        $response = null;
+        if($vars['response'] && $thisstaff->canPostReply()) {
             $vars['response'] = $ticket->replaceVars($vars['response']);
-            if(($respId=$ticket->postReply($vars, $errors, false))) {
+            if(($response=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
                 if(isset($vars['ticket_state']) && $thisstaff->canCloseTickets())
                     $ticket->setState($vars['ticket_state']);
@@ -2340,7 +2112,7 @@ class Ticket {
         }
 
         $ticket->reload();
-        
+
         if(!$cfg->notifyONNewStaffTicket() || !isset($vars['alertuser']))
             return $ticket; //No alerts.
 
@@ -2356,8 +2128,8 @@ class Ticket {
         if($tpl && ($msg=$tpl->getNewTicketNoticeMsgTemplate()) && $email) {
                         
             $message = $vars['issue'];
-            if($vars['response'])
-                $message.="\n\n".$vars['response'];
+            if($response)
+                $message.="\n\n".$response->getBody();
 
             if($vars['signature']=='mine')
                 $signature=$thisstaff->getSignature();
@@ -2372,7 +2144,7 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $attachments =($cfg->emailAttachments() && $respId)?$ticket->getAttachments($respId,'R'):array();
+            $attachments =($cfg->emailAttachments() && $response)?$response->getAttachments():array();
             $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments);
         }
 

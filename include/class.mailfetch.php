@@ -400,11 +400,11 @@ class MailFetcher {
         
         $errors=array();
         if($ticket) {
-            if(!($msgid=$ticket->postMessage($vars, 'Email')))
+            if(!($message=$ticket->postMessage($vars, 'Email')))
                 return false;
 
         } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
-            $msgid = $ticket->getLastMsgId();
+            $message = $ticket->getLastMessage();
         } else {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403)
@@ -421,19 +421,22 @@ class MailFetcher {
         }
 
         //Save attachments if any.
-        if($msgid 
+        if($message
                 && $ost->getConfig()->allowEmailAttachments()
-                && ($struct = imap_fetchstructure($this->mbox, $mid)) 
-                && $struct->parts 
+                && ($struct = imap_fetchstructure($this->mbox, $mid))
+                && $struct->parts
                 && ($attachments=$this->getAttachments($struct))) {
-                
+
             foreach($attachments as $a ) {
-                $file = array(
-                        'name'  => $a['name'],
-                        'type'  => $a['type'],
-                        'data'  => $this->decode(imap_fetchbody($this->mbox, $mid, $a['index']), $a['encoding'])
-                        );
-                $ticket->importAttachments(array($file), $msgid, 'M');
+                $file = array('name'  => $a['name'], 'type'  => $a['type']);
+
+                //Check the file  type
+                if(!$ost->isFileTypeAllowed($file))
+                    $file['error'] = 'Invalid file type (ext) for '.Format::htmlchars($file['name']);
+                else //only fetch the body if necessary TODO: Make it a callback.
+                    $file['data'] = $this->decode(imap_fetchbody($this->mbox, $mid, $a['index']), $a['encoding']);
+
+                $message->importAttachment($file);
             }
         }
 

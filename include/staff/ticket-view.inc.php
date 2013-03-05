@@ -306,7 +306,9 @@ if(!$cfg->showNotesInline()) { ?>
                 </td>
             </tr>
             <?php
-            if($note['attachments'] && ($links=$ticket->getAttachmentsLinks($note['id'],'N'))) {?>
+             if($note['attachments'] 
+                    && ($tentry=$ticket->getThreadEntry($note['id'])) 
+                    && ($links=$tentry->getAttachmentsLinks())) { ?>
             <tr>
                 <td class="info" colspan="2"><?php echo $links; ?></td>
             </tr>
@@ -325,7 +327,10 @@ if(!$cfg->showNotesInline()) { ?>
     <?php
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     /* -------- Messages & Responses & Notes (if inline)-------------*/
-    if(($thread=$ticket->getThread($cfg->showNotesInline()))) {
+    $types = array('M', 'R');
+    if($cfg->showNotesInline())
+        $types[] = 'N';
+    if(($thread=$ticket->getThreadEntries($types))) {
        foreach($thread as $entry) {
            ?>
         <table class="<?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
@@ -336,7 +341,9 @@ if(!$cfg->showNotesInline()) { ?>
             </tr>
             <tr><td colspan=3><?php echo Format::display($entry['body']); ?></td></tr>
             <?php
-            if($entry['attachments'] && ($links=$ticket->getAttachmentsLinks($entry['id'], $entry['thread_type']))) {?>
+            if($entry['attachments'] 
+                    && ($tentry=$ticket->getThreadEntry($entry['id']))
+                    && ($links=$tentry->getAttachmentsLinks())) {?>
             <tr>
                 <td class="info" colspan=3><?php echo $links; ?></td>
             </tr>
@@ -512,7 +519,7 @@ if(!$cfg->showNotesInline()) { ?>
         <input type="hidden" name="a" value="postnote">
         <table border="0" cellspacing="0" cellpadding="3">
             <?php 
-            if($errors['note']) {?>
+            if($errors['postnote']) {?>
             <tr>
                 <td width="160">&nbsp;</td>
                 <td class="error"><?php echo $errors['postnote']; ?></td>

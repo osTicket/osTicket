@@ -72,7 +72,9 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
             <tr><th><?php echo Format::db_datetime($entry['created']); ?> &nbsp;&nbsp;<span><?php echo $poster; ?></span></th></tr>
             <tr><td><?php echo Format::display($entry['body']); ?></td></tr>
             <?php
-            if($entry['attachments'] && ($links=$ticket->getAttachmentsLinks($entry['id'], $entry['thread_type']))) { ?>
+            if($entry['attachments']
+                    && ($tentry=$ticket->getThreadEntry($entry['id']))
+                    && ($links=$tentry->getAttachmentsLinks())) { ?>
                 <tr><td class="info"><?php echo $links; ?></td></tr>
             <?php
             } ?>
