@@ -2013,20 +2013,31 @@ class Ticket {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff() || $cfg->getDBVersion())
             return null;
 
-
         $sql='SELECT count(open.ticket_id) as open, count(answered.ticket_id) as answered '
             .' ,count(overdue.ticket_id) as overdue, count(assigned.ticket_id) as assigned, count(closed.ticket_id) as closed '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.TICKET_TABLE.' open
-                ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\' AND open.isanswered=0) '
+                ON (open.ticket_id=ticket.ticket_id 
+                        AND open.status=\'open\' 
+                        AND open.isanswered=0
+                        '.((!($cfg->showAssignedTickets() || $staff->showAssignedTickets()))?
+                        ' AND open.staff_id=0 ':'').') '
             .' LEFT JOIN '.TICKET_TABLE.' answered
-                ON (answered.ticket_id=ticket.ticket_id AND answered.status=\'open\' AND answered.isanswered=1) '
+                ON (answered.ticket_id=ticket.ticket_id 
+                        AND answered.status=\'open\' 
+                        AND answered.isanswered=1) '
             .' LEFT JOIN '.TICKET_TABLE.' overdue
-                ON (overdue.ticket_id=ticket.ticket_id AND overdue.status=\'open\' AND overdue.isoverdue=1) '
+                ON (overdue.ticket_id=ticket.ticket_id 
+                        AND overdue.status=\'open\' 
+                        AND overdue.isoverdue=1) '
             .' LEFT JOIN '.TICKET_TABLE.' assigned
-                ON (assigned.ticket_id=ticket.ticket_id AND assigned.status=\'open\' AND assigned.staff_id='.db_input($staff->getId()).')'
+                ON (assigned.ticket_id=ticket.ticket_id 
+                        AND assigned.status=\'open\' 
+                        AND assigned.staff_id='.db_input($staff->getId()).')'
             .' LEFT JOIN '.TICKET_TABLE.' closed
-                ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\' AND closed.staff_id='.db_input($staff->getId()).')'
+                ON (closed.ticket_id=ticket.ticket_id 
+                        AND closed.status=\'closed\' 
+                        AND closed.staff_id='.db_input($staff->getId()).')'
             .' WHERE (ticket.staff_id='.db_input($staff->getId());
 
         if(($teams=$staff->getTeams()))
@@ -2037,10 +2048,6 @@ class Ticket {
 
         $sql.=')';
 
-        if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
-            $sql.=' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($staff->getId()).') ';
-
-     
         return db_fetch_array(db_query($sql));
     }
 
