@@ -28,7 +28,7 @@ if($sort && $sortOptions[$sort])
     $order_by =$sortOptions[$sort];
 
 $order_by=$order_by?$order_by:'ticket_created';
-if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) 
+if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
     $order=$orderWays[strtoupper($_REQUEST['order'])];
 
 $order=$order?$order:'ASC';
@@ -69,7 +69,8 @@ if($search) {
 }
 
 $total=db_count('SELECT count(DISTINCT ticket.ticket_id) '.$qfrom.' '.$qwhere);
-$pageNav=new Pagenate($total,$page, PAGE_LIMIT);
+$page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 
 //more stuff...
@@ -95,8 +96,15 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     <input type="text" name="q" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
     <select name="status">
         <option value="">&mdash; Any Status &mdash;</option>
-        <option value="open" <?php echo ($status=='open')?'selected="selected"':'';?>>Open</option>
-        <option value="closed" <?php echo ($status=='closed')?'selected="selected"':'';?>>Closed</option>
+        <option value="open"
+            <?php echo ($status=='open')?'selected="selected"':'';?>>Open (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
+        <?php
+        if($thisclient->getNumClosedTickets()) {
+            ?>
+        <option value="closed"
+            <?php echo ($status=='closed')?'selected="selected"':'';?>>Closed (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
+        <?php
+        } ?>
     </select>
     <input type="submit" value="Go">
 </form>
@@ -144,7 +152,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
             ?>
             <tr id="<?php echo $row['ticketID']; ?>">
                 <td class="centered">
-                <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>" 
+                <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>"
                     href="tickets.php?id=<?php echo $row['ticketID']; ?>"><?php echo $ticketID; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
@@ -165,7 +173,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     </tbody>
 </table>
 <?php
-if($res && $num>0) { 
+if($res && $num>0) {
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 }
 ?>
