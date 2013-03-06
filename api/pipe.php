@@ -14,14 +14,14 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
-//Only local piping supported via pipe.php
-if (substr(php_sapi_name(), 0, 3) != 'cli')
-    die('pipe.php only supports local piping - use http -> api/tickets.email');
-
 ini_set('memory_limit', '256M'); //The concern here is having enough mem for emails with attachments.
 @chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
 require('api.inc.php');
+
+//Only local piping supported via pipe.php
+if (!osTicket::is_cli())
+    die('pipe.php only supports local piping - use http -> api/tickets.email');
+
 require_once(INCLUDE_DIR.'api.tickets.php');
 PipeApiController::process();
 ?>
