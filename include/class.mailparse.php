@@ -247,6 +247,7 @@ class EmailDataParser {
     }
 
     function parse($stream) {
+        global $cfg;
 
         $contents ='';
         if(is_resource($stream)) {
@@ -301,8 +302,8 @@ class EmailDataParser {
         $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
 
-        //attachments XXX: worry about encoding??
-        $data['attachments'] = $parser->getAttachments();
+        if($cfg && $cfg->allowEmailAttachments())
+            $data['attachments'] = $parser->getAttachments();
 
         return $data;
     }

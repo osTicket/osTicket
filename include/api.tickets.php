@@ -12,9 +12,9 @@ class TicketApiController extends ApiController {
         $supported = array(
             "alert", "autorespond", "source", "topicId",
             "name", "email", "subject", "phone", "phone_ext",
-            "attachments" => array("*" => 
+            "attachments" => array("*" =>
                 array("name", "type", "data", "encoding")
-            ), 
+            ),
             "message", "ip", "priorityId"
         );
 
@@ -24,7 +24,7 @@ class TicketApiController extends ApiController {
         return $supported;
     }
 
-    /* 
+    /*
      Validate data - overwrites parent's validator for additional validations.
     */
     function validate(&$data, $format) {
@@ -33,6 +33,10 @@ class TicketApiController extends ApiController {
         //Call parent to Validate the structure
         if(!parent::validate($data, $format))
             $this->exerr(400, 'Unexpected or invalid data received');
+
+        //Nuke attachments IF API files are not allowed.
+        if(!$ost->getConfig()->allowAPIAttachments())
+            $data['attachments'] = array();
 
         //Validate attachments: Do error checking... soft fail - set the error and pass on the request.
         if($data['attachments'] && is_array($data['attachments'])) {
@@ -44,11 +48,10 @@ class TicketApiController extends ApiController {
                         $attachment['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($attachment['name']));
                 }
             }
+            unset($attachment);
         }
-        unset($attachment);
 
         return true;
-
     }
 
 
@@ -90,7 +93,7 @@ class TicketApiController extends ApiController {
                 return $this->exerr(403, 'Ticket denied');
             else
                 return $this->exerr(
-                        400, 
+                        400,
                         "Unable to create new ticket: validation errors:\n"
                         .Format::array_implode(": ", "\n", $errors)
                         );
@@ -120,7 +123,7 @@ class PipeApiController extends TicketApiController {
     //Overwrite grandparent's (ApiController) response method.
     function response($code, $resp) {
 
-        //Use postfix exit codes - instead of HTTP 
+        //Use postfix exit codes - instead of HTTP
         switch($code) {
             case 201: //Success
                 $exitcode = 0;
@@ -142,8 +145,8 @@ class PipeApiController extends TicketApiController {
                 $exitcode = 69;
                 break;
             case 500: //Server error.
-            default: //Temp (unknown) failure - retry 
-                $exitcode = 75; 
+            default: //Temp (unknown) failure - retry
+                $exitcode = 75;
         }
 
         //echo "$code ($exitcode):$resp";
