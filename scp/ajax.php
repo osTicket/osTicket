@@ -27,7 +27,7 @@ require('staff.inc.php');
 ini_set('display_errors','0'); //Disable error display
 ini_set('display_startup_errors','0');
 
-//TODO: disable direct access via the browser? i,e All request must have REFER? 
+//TODO: disable direct access via the browser? i,e All request must have REFER?
 if(!defined('INCLUDE_DIR'))	Http::response(500, 'Server configuration error');
 
 require_once INCLUDE_DIR.'/class.dispatcher.php';
@@ -65,5 +65,5 @@ $dispatcher = patterns('',
 );
 
 # Call the respective function
-print $dispatcher->resolve($_SERVER['PATH_INFO']);
+print $dispatcher->resolve($ost->get_path_info());
 ?>
