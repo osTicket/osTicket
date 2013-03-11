@@ -26,7 +26,6 @@ class Upgrader extends SetupWizard {
     function Upgrader($signature, $prefix, $sqldir) {
 
         $this->signature = $signature;
-        $this->shash = substr($signature, 0, 8);
         $this->prefix = $prefix;
         $this->sqldir = $sqldir;
         $this->errors = array();
@@ -45,8 +44,8 @@ class Upgrader extends SetupWizard {
         //Tasks to perform - saved on the session.
         $this->tasks = &$_SESSION['ost_upgrader'][$this->getShash()]['tasks'];
 
-        //Database migrater 
-        $this->migrater = new DatabaseMigrater($this->signature, SCHEMA_SIGNATURE, $this->sqldir);
+        //Database migrater
+        $this->migrater = null;
     }
 
     function onError($error) {
@@ -87,7 +86,7 @@ class Upgrader extends SetupWizard {
     }
 
     function getShash() {
-        return $this->shash;
+        return  substr($this->getSchemaSignature(), 0, 8);
     }
 
     function getTablePrefix() {
@@ -106,13 +105,24 @@ class Upgrader extends SetupWizard {
         $this->state = $state;
     }
 
+
+    function getMigrater() {
+        if(!$this->migrater)
+            $this->migrater = new DatabaseMigrater($this->signature, SCHEMA_SIGNATURE, $this->sqldir);
+
+        return  $this->migrater;
+    }
+
     function getPatches() {
-        return $this->migrater->getPatches();
+        $patches = array();
+        if($this->getMigrater())
+            $patches = $this->getMigrater()->getPatches();
+
+        return $patches;
     }
 
     function getNextPatch() {
-        $p = $this->getPatches();
-        return (count($p)) ? $p[0] : false;
+        return (($p=$this->getPatches()) && count($p)) ? $p[0] : false;
     }
 
     function getNextVersion() {
@@ -198,7 +208,11 @@ class Upgrader extends SetupWizard {
         if(!($tasks=$this->getPendingTasks()))
             return true; //Nothing to do.
 
-        $ost->logDebug('Upgrader', sprintf('There are %d pending upgrade tasks', count($tasks)));
+        $c = count($tasks);
+        $ost->logDebug(
+                sprintf('Upgrader - %s (%d pending tasks).', $this->getShash(), $c),
+                sprintf('There are %d pending upgrade tasks for %s patch', $c, $this->getShash())
+                );
         $start_time = Misc::micro_time();
         foreach($tasks as $k => $task) {
             //TODO: check time used vs. max execution - break if need be
@@ -227,18 +241,20 @@ class Upgrader extends SetupWizard {
             if (!$this->load_sql_file($patch, $this->getTablePrefix()))
                 return false;
 
-            //clear previous patch info - 
+            //clear previous patch info -
             unset($_SESSION['ost_upgrader'][$this->getShash()]);
 
             $phash = substr(basename($patch), 0, 17);
+            $shash = substr($phash, 9, 8);
 
             //Log the patch info
-            $logMsg = "Patch $phash applied ";
+            $logMsg = "Patch $phash applied successfully ";
             if(($info = $this->readPatchInfo($patch)) && $info['version'])
                 $logMsg.= ' ('.$info['version'].') ';
 
-            $ost->logDebug('Upgrader - Patch applied', $logMsg);
-            
+            $ost->logDebug("Upgrader - $shash applied", $logMsg);
+            $this->signature = $shash; //Update signature to the *new* HEAD
+
             //Check if the said patch has scripted tasks
             if(!($tasks=$this->getTasksForPatch($phash))) {
                 //Break IF elapsed time is greater than 80% max time allowed.
@@ -250,15 +266,13 @@ class Upgrader extends SetupWizard {
             }
 
             //We have work to do... set the tasks and break.
-            $shash = substr($phash, 9, 8);
             $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
             $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
-            
-            $ost->logDebug('Upgrader', sprintf('Found %d tasks to be executed for %s',
-                            count($tasks), $shash));
             break;
-
         }
+
+        //Reset the migrater
+        $this->migrater = null;
 
         return true;
 
