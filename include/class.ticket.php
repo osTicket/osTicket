@@ -1097,10 +1097,17 @@ class Ticket {
         if(!$this->isOverdue())
             return true;
 
+        //NOTE: Previously logged overdue event is NOT annuled.
+
         $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=0, updated=NOW() ';
+
         //clear due date if it's in the past
         if($this->getDueDate() && strtotime($this->getDueDate())<=time())
             $sql.=', duedate=NULL';
+
+        //Clear SLA if est. due date is in the past
+        if($this->getSLADueDate() && strtotime($this->getSLADueDate())<=time())
+            $sql.=', sla_id=0 ';
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
