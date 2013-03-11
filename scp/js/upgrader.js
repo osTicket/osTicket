@@ -1,5 +1,5 @@
 jQuery(function($) {
-            
+
     $("#overlay").css({
         opacity : 0.3,
         top     : 0,
@@ -12,18 +12,21 @@ jQuery(function($) {
         top  : ($(window).height() / 3),
         left : ($(window).width() / 2 - 160)
         });
-        
+
     $('form#upgrade').submit(function(e) {
-        e.preventDefault();
         var form = $(this);
         $('input[type=submit]', this).attr('disabled', 'disabled');
         $('#overlay, #upgrading').show();
-        doTasks('upgrade.php',form.serialize());
+        if($('input#mode', form).val() == 'manual') {
+            return  true;
+        } else {
+            e.preventDefault();
+            autoUpgrade('upgrade.php',form.serialize());
+            return false;
+        }
+      });
 
-        return false;
-        });
-
-    function doTasks(url, data) {
+    function autoUpgrade(url, data) {
         function _lp(count) {
             $.ajax({
                 type: 'POST',
@@ -33,26 +36,34 @@ jQuery(function($) {
                 data: data,
                 dataType: 'text',
                 success: function(res) {
-                    if (res) { 
-                        $('#loading #msg').html(res);
-                    }
+                    $('#main #task').html(res);
+                    $('#upgrading #action').html(res);
+                    $('#upgrading #msg').html('Still busy... smile #'+count);
                 },
                 statusCode: {
                     200: function() {
-                        setTimeout(function() { _lp(count+1); }, 2);
+                        setTimeout(function() { _lp(count+1); }, 200);
                     },
 
                     201: function() {
-                        $('#loading #msg').html("We're done... cleaning up!");
+                        $('#upgrading #msg').html("Cleaning up!...");
                         setTimeout(function() { location.href =url+'?c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 3000);
                     }
                 },
-                error: function() {
-                    $('#loading #msg').html("Something went wrong");
-                    setTimeout(function() { location.href =url+'?c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 1000);
+                error: function(jqXHR, textStatus, errorThrown) {
+                    $('#upgrading #action').html('Error occurred. Aborting...');
+                    switch(jqXHR.status) {
+                        case 404:
+                            $('#upgrading #msg').html("Manual upgrade required (ajax failed)");
+                            setTimeout(function() { location.href =url+'?m=manual&c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 2000);
+                            break;
+                        default:
+                            $('#upgrading #msg').html("Something went wrong");
+                            setTimeout(function() { location.href =url+'?c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 2000);
+                    }
                 }
             });
         };
-        _lp(0);
+        _lp(1);
     }
 });
