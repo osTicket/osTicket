@@ -85,10 +85,10 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function search() {
-        global $thisstaff;
+        global $thisstaff, $cfg;
           
         $result=array();
-        $select = 'SELECT count(ticket.ticket_id) as tickets ';
+        $select = 'SELECT count( DISTINCT ticket.ticket_id) as tickets ';
         $from = ' FROM '.TICKET_TABLE.' ticket ';
         $where = ' WHERE 1 ';
 
@@ -107,10 +107,17 @@ class TicketsAjaxAPI extends AjaxController {
         if($_REQUEST['deptId'])
             $where.=' AND ticket.dept_id='.db_input($_REQUEST['deptId']);
 
+        //Help topic
+        if($_REQUEST['topicId'])
+            $where.=' AND ticket.topic_id='.db_input($_REQUEST['topicId']);
+
         //Status
         switch(strtolower($_REQUEST['status'])) {
-            case 'open';
+            case 'open':
                 $where.=' AND ticket.status="open" ';
+                break;
+            case 'answered':
+                $where.=' AND ticket.status="open" AND ticket.isanswered=1 ';
                 break;
             case 'overdue':
                 $where.=' AND ticket.status="open" AND ticket.isoverdue=1 ';
@@ -121,19 +128,23 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         //Assignee 
-        if($_REQUEST['assignee'] && strcasecmp($_REQUEST['status'], 'closed'))  {
+        if(isset($_REQUEST['assignee']) && strcasecmp($_REQUEST['status'], 'closed'))  {
             $id=preg_replace("/[^0-9]/", "", $_REQUEST['assignee']);
             $assignee = $_REQUEST['assignee'];
-            $where.= ' AND ( ';
+            $where.= ' AND ( ( ticket.status="open" ';
             if($assignee[0]=='t')
-                $where.='  (ticket.team_id='.db_input($id). ' AND ticket.status="open") ';
+                $where.=' AND ticket.team_id='.db_input($id);
             elseif($assignee[0]=='s')
-                $where.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
-            else 
-                $where.='  (ticket.staff_id='.db_input($id). ' AND ticket.status="open") ';
+                $where.=' AND ticket.staff_id='.db_input($id);
+            elseif(is_numeric($id))
+                $where.=' AND ticket.staff_id='.db_input($id);
+
+            $where.=')';
 
             if($_REQUEST['staffId'] && !$_REQUEST['status']) //Assigned TO + Closed By
-                $where.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';    
+                $where.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';
+            elseif(isset($_REQUEST['staffId'])) // closed by any
+                $where.= ' OR ticket.status="closed" ';
 
             $where.= ' ) ';
         } elseif($_REQUEST['staffId']) { 
@@ -163,7 +174,6 @@ class TicketsAjaxAPI extends AjaxController {
                        ." OR thread.title LIKE '%$queryterm%'"
                        ." OR thread.body LIKE '%$queryterm%'"               
                        .' )';
-            $groupby = 'GROUP BY ticket.ticket_id ';
         }
         
         $sql="$select $from $where $groupby";

@@ -71,7 +71,7 @@ class API {
         return ($this->ht['can_create_tickets']);
     }
 
-    function canExecuteCronjob() {
+    function canExecuteCron() {
         return ($this->ht['can_exec_cron']);
     }
 
