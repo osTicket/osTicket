@@ -193,8 +193,8 @@ class ApiController {
      */
     function getRequest($format) {
         global $ost;
-        
-        $input = (substr(php_sapi_name(), 0, 3) == 'cli')?'php://stdin':'php://input';
+
+        $input = $ost->is_cli()?'php://stdin':'php://input';
 
         if (!($stream = @fopen($input, 'r')))
             $this->exerr(400, "Unable to read request body");

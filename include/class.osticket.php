@@ -338,6 +338,13 @@ class osTicket {
 
         return $ost;
     }
+
+    /* is_cli */
+    function is_cli() {
+        return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')
+                || (!$_SERVER['REQUEST_METHOD'] && !$_SERVER['HTTP_HOST']) //Fallback when php-cgi binary is used via cli
+                );
+    }
 }
 
 ?>
