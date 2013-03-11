@@ -23,12 +23,16 @@ class Upgrader extends SetupWizard {
     var $sqldir;
     var $signature;
 
+    var $state;
+    var $mode;
+
     function Upgrader($signature, $prefix, $sqldir) {
 
         $this->signature = $signature;
         $this->prefix = $prefix;
         $this->sqldir = $sqldir;
         $this->errors = array();
+        $this->mode = 'ajax'; //
 
         //Disable time limit if - safe mode is set.
         if(!ini_get('safe_mode'))
@@ -36,6 +40,8 @@ class Upgrader extends SetupWizard {
 
         //Init persistent state of upgrade.
         $this->state = &$_SESSION['ost_upgrader']['state'];
+
+        $this->mode = &$_SESSION['ost_upgrader']['mode'];
 
         //Init the task Manager.
         if(!isset($_SESSION['ost_upgrader'][$this->getShash()]))
@@ -105,6 +111,13 @@ class Upgrader extends SetupWizard {
         $this->state = $state;
     }
 
+    function getMode() {
+        return $this->mode;
+    }
+
+    function setMode($mode) {
+        $this->mode = $mode;
+    }
 
     function getMigrater() {
         if(!$this->migrater)
@@ -150,7 +163,7 @@ class Upgrader extends SetupWizard {
         $action='Upgrade osTicket to '.$this->getVersion();
         if($this->getNumPendingTasks() && ($task=$this->getNextTask())) {
             $action = $task['desc'];
-            if($task['status']) //Progress report... 
+            if($task['status']) //Progress report...
                 $action.=' ('.$task['status'].')';
         } elseif($this->isUpgradable() && ($nextversion = $this->getNextVersion())) {
             $action = "Upgrade to $nextversion";
@@ -171,9 +184,9 @@ class Upgrader extends SetupWizard {
             foreach($tasks as $k => $task) {
                 if(!$task['done'])
                     $pending[$k] = $task;
-            }  
+            }
         }
-        
+
         return $pending;
     }
 
@@ -225,7 +238,7 @@ class Upgrader extends SetupWizard {
 
         return $this->getPendingTasks();
     }
-    
+
     function upgrade() {
         global $ost;
 
@@ -300,9 +313,9 @@ class Upgrader extends SetupWizard {
                 break;
         }
 
-        //Check IF SQL cleanup exists. 
+        //Check IF SQL cleanup exists.
         $file=$this->getSQLDir().$phash.'.cleanup.sql';
-        if(file_exists($file)) 
+        if(file_exists($file))
             $tasks[] = array('func' => 'cleanup',
                              'desc' => 'Post-upgrade cleanup!',
                              'phash' => $phash);
@@ -320,7 +333,7 @@ class Upgrader extends SetupWizard {
         if(!file_exists($file)) //No cleanup script.
             return 0;
 
-        //We have a cleanup script  ::XXX: Don't abort on error? 
+        //We have a cleanup script  ::XXX: Don't abort on error?
         if($this->load_sql_file($file, $this->getTablePrefix(), false, true))
             return 0;
 
@@ -331,7 +344,7 @@ class Upgrader extends SetupWizard {
 
     function migrateAttachments2DB($taskId) {
         global $ost;
-        
+
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 30; //Default to 30 sec batches.
 
@@ -344,7 +357,7 @@ class Upgrader extends SetupWizard {
 
     function migrateSessionFile2DB($taskId) {
         # How about 'dis for a hack?
-        osTicketSession::write(session_id(), session_encode()); 
+        osTicketSession::write(session_id(), session_encode());
         return 0;
     }
 
