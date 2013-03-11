@@ -26,11 +26,11 @@ define('LOG_WARN',LOG_WARNING);
 class osTicket {
 
     var $loglevel=array(1=>'Error','Warning','Debug');
-    
+
     //Page errors.
     var $errors;
 
-    //System 
+    //System
     var $system;
 
 
@@ -47,7 +47,7 @@ class osTicket {
     var $csrf;
 
     function osTicket($cfgId) {
-        
+
         $this->config = Config::lookup($cfgId);
 
         //DB based session storage was added starting with v1.7
@@ -109,13 +109,13 @@ class osTicket {
         $name = $name?$name:$this->getCSRF()->getTokenName();
         if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
             return true;
-       
+
         if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
             return true;
 
         $msg=sprintf('Invalid CSRF token [%s] on %s',
                 ($_POST[$name].''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
-        $this->logWarning('Invalid CSRF Token '.$name, $msg);
+        $this->logWarning('Invalid CSRF Token '.$name, $msg, false);
 
         return false;
     }
@@ -129,7 +129,7 @@ class osTicket {
     }
 
     function isFileTypeAllowed($file, $mimeType='') {
-       
+
         if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
             return false;
 
@@ -148,9 +148,9 @@ class osTicket {
 
     /* Replace Template Variables */
     function replaceTemplateVariables($input, $vars=array()) {
-        
+
         $replacer = new VariableReplacer();
-        $replacer->assign(array_merge($vars, 
+        $replacer->assign(array_merge($vars,
                     array('url' => $this->getConfig()->getBaseUrl())
                     ));
 
@@ -220,7 +220,7 @@ class osTicket {
 
 
     function alertAdmin($subject, $message, $log=false) {
-                
+
         //Set admin's email address
         if(!($to=$this->getConfig()->getAdminEmail()))
             $to=ADMIN_EMAIL;
@@ -231,7 +231,7 @@ class osTicket {
 
         //Try getting the alert email.
         $email=null;
-        if(!($email=$this->getConfig()->getAlertEmail())) 
+        if(!($email=$this->getConfig()->getAlertEmail()))
             $email=$this->getConfig()->getDefaultEmail(); //will take the default email.
 
         if($email) {
@@ -257,7 +257,7 @@ class osTicket {
     function logWarning($title, $message, $alert=true) {
         return $this->log(LOG_WARN, $title, $message, $alert);
     }
-    
+
     function logError($title, $error, $alert=true) {
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
@@ -275,8 +275,8 @@ class osTicket {
         //We are providing only 3 levels of logs. Windows style.
         switch($priority) {
             case LOG_EMERG:
-            case LOG_ALERT: 
-            case LOG_CRIT: 
+            case LOG_ALERT:
+            case LOG_CRIT:
             case LOG_ERR:
                 $level=1; //Error
                 break;
@@ -306,9 +306,9 @@ class osTicket {
             ',log_type='.db_input($loglevel[$level]).
             ',log='.db_input($message).
             ',ip_address='.db_input($_SERVER['REMOTE_ADDR']);
-        
+
         mysql_query($sql); //don't use db_query to avoid possible loop.
-        
+
         return true;
     }
 
@@ -320,7 +320,7 @@ class osTicket {
         //System logs
         $sql='DELETE  FROM '.SYSLOG_TABLE.' WHERE DATE_ADD(created, INTERVAL '.$gp.' MONTH)<=NOW()';
         db_query($sql);
-        
+
         //TODO: Activity logs
 
         return true;
