@@ -26,5 +26,5 @@ $dispatcher = patterns('',
         );
 
 # Call the respective function
-print $dispatcher->resolve($_SERVER['PATH_INFO']);
+print $dispatcher->resolve($ost->get_path_info());
 ?>

@@ -30,5 +30,5 @@ $dispatcher = patterns('',
         url_get('^client', 'client')
     ))
 );
-print $dispatcher->resolve($_SERVER['PATH_INFO']);
+print $dispatcher->resolve($ost->get_path_info());
 ?>

@@ -325,6 +325,43 @@ class osTicket {
 
         return true;
     }
+    /*
+     * Util functions
+     *
+     */
+
+    function get_var($index, $vars, $default='', $type=null) {
+
+        if(is_array($vars)
+                && array_key_exists($index, $vars)
+                && (!$type || gettype($vars[$index])==$type))
+            return $vars[$index];
+
+        return $default;
+    }
+
+    function get_db_input($index, $vars, $quote=true) {
+        return db_input($this->get_var($index, $vars), $quote);
+    }
+
+    function get_path_info() {
+        if(isset($_SERVER['PATH_INFO']))
+            return $_SERVER['PATH_INFO'];
+
+        if(isset($_SERVER['ORIG_PATH_INFO']))
+            return $_SERVER['ORIG_PATH_INFO'];
+
+        //TODO: conruct possible path info.
+
+        return null;
+    }
+
+    /* returns true if script is being executed via commandline */
+    function is_cli() {
+        return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')
+                || (!$_SERVER['REQUEST_METHOD'] && !$_SERVER['HTTP_HOST']) //Fallback when php-cgi binary is used via cli
+                );
+    }
 
     /**** static functions ****/
     function start($configId) {
@@ -337,13 +374,6 @@ class osTicket {
         $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 
         return $ost;
-    }
-
-    /* is_cli */
-    function is_cli() {
-        return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')
-                || (!$_SERVER['REQUEST_METHOD'] && !$_SERVER['HTTP_HOST']) //Fallback when php-cgi binary is used via cli
-                );
     }
 }
 
