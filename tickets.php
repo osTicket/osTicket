@@ -40,12 +40,11 @@ if($_POST && is_object($ticket) && $ticket->getId()):
 
         if(!$errors) {
             //Everything checked out...do the magic.
-            if(($msgid=$ticket->postMessage(array('message'=>$_POST['message']), 'Web'))) {
-    
-                //Upload files
-                if($cfg->allowOnlineAttachments() && $_FILES['attachments'])
-                    $ticket->uploadFiles($_FILES['attachments'], $msgid, 'M');
+            $vars = array('message'=>$_POST['message']);
+            if($cfg->allowOnlineAttachments() && $_FILES['attachments'])
+                $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
+            if(($msgid=$ticket->postMessage($vars, 'Web'))) {
                 $msg='Message Posted Successfully';
             } else {
                 $errors['err']='Unable to post the message. Try again';

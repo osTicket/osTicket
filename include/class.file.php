@@ -210,6 +210,53 @@ class AttachmentFile {
         
         return ($id && ($file = new AttachmentFile($id)) && $file->getId()==$id)?$file:null;
     }
+
+    /* 
+      Method formats http based $_FILE uploads - plus basic validation.
+      @restrict - make sure file type & size are allowed.
+     */
+    function format($files, $restrict=false) {
+        global $ost;
+
+        if(!$files || !is_array($files))
+            return null;
+
+        //Reformat $_FILE  for the sane.
+        $attachments = array();
+        foreach($files as $k => $a) {
+            if(is_array($a))
+                foreach($a as $i => $v)
+                    $attachments[$i][$k] = $v;
+        }
+
+        //Basic validation.
+        foreach($attachments as $i => &$file) {
+            //skip no file upload "error" - why PHP calls it an error is beyond me.
+            if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) {
+                unset($attachments[$i]); 
+                continue;
+            }
+
+            if($file['error']) //PHP defined error!
+                $file['error'] = 'File upload error #'.$file['error'];
+            elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
+                $file['error'] = 'Invalid or bad upload POST';
+            elseif($restrict) { // make sure file type & size are allowed.
+                if(!$ost->isFileTypeAllowed($file))
+                    $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
+                elseif($ost->getConfig()->getMaxFileSize()
+                        && $file['size']>$ost->getConfig()->getMaxFileSize())
+                    $file['error'] = sprintf('File %s (%s) is too big. Maximum of %s allowed',
+                            Format::htmlchars($file['name']),
+                            Format::file_size($file['size']),
+                            Format::file_size($ost->getConfig()->getMaxFileSize()));
+            }
+        }
+        unset($file);
+
+        return array_filter($attachments);
+    }
+
     /**
      * Removes files and associated meta-data for files which no ticket,
      * canned-response, or faq point to any more.

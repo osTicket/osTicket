@@ -44,7 +44,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                     }
                 }
                 //Upload NEW attachments IF ANY - TODO: validate attachment types??
-                if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+                if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
                     $canned->uploadAttachments($files);
 
                 $canned->reload();
@@ -58,7 +58,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 $msg='Canned response added successfully';
                 $_REQUEST['a']=null;
                 //Upload attachments
-                if($_FILES['attachments'] && ($c=Canned::lookup($id)) && ($files=Format::files($_FILES['attachments'])))
+                if($_FILES['attachments'] && ($c=Canned::lookup($id)) && ($files=AttachmentFile::format($_FILES['attachments'])))
                     $c->uploadAttachments($files);
 
             } elseif(!$errors['err']) {

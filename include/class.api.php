@@ -192,6 +192,7 @@ class ApiController {
      * work will be done for XML requests
      */
     function getRequest($format) {
+        global $ost;
         
         $input = (substr(php_sapi_name(), 0, 3) == 'cli')?'php://stdin':'php://input';
 
@@ -219,7 +220,8 @@ class ApiController {
         if (!($data = $parser->parse($stream)))
             $this->exerr(400, $parser->lastError());
        
-        $this->validate($data, $this->getRequestStructure($format));
+        //Validate structure of the request.
+        $this->validate($data, $format);
 
         return $data;
     }
@@ -239,19 +241,33 @@ class ApiController {
      * expected. It is assumed that the functions actually implementing the
      * API will further validate the contents of the request
      */
-    function validate($data, $structure, $prefix="") {
+    function validateRequestStructure($data, $structure, $prefix="") {
+       
         foreach ($data as $key=>$info) {
             if (is_array($structure) and is_array($info)) {
                 $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*"; 
                 if (isset($structure[$search])) {
-                    $this->validate($info, $structure[$search], "$prefix$key/");
+                    $this->validateRequestStructure($info, $structure[$search], "$prefix$key/");
                     continue;
                 }
             } elseif (in_array($key, $structure)) {
                 continue;
             }
-            $this->exerr(400, "$prefix$key: Unexpected data received");
+            return $this->exerr(400, "$prefix$key: Unexpected data received");
         }
+
+        return true;
+    }
+
+    /**
+     * Validate request.
+     *
+     */
+    function validate(&$data, $format) {
+        return $this->validateRequestStructure(
+                $data, 
+                $this->getRequestStructure($format)
+                );
     }
 
     /**

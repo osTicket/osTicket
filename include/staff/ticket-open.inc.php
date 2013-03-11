@@ -219,6 +219,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <textarea name="issue" cols="21" rows="8" style="width:80%;"><?php echo $info['issue']; ?></textarea>
             </td>
         </tr>
+        <?php
+        //is the user allowed to post replies??
+        if($thisstaff->canPostReply()) {
+            ?>
         <tr>
             <th colspan="2">
                 <em><strong>Response</strong>: Optional response to the above issue.</em>
@@ -270,8 +274,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             </div>
                         </td>
                     </tr>
-            <?php
-            } ?>
+                <?php
+                } ?>
 
             <?php
             if($thisstaff->canCloseTickets()) { ?>
@@ -304,6 +308,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </table>
             </td>
         </tr>
+        <?php
+        } //end canPostReply
+        ?>
         <tr>
             <th colspan="2">
                 <em><strong>Internal Note</strong>: Optional internal note (recommended on assignment) <font class="error">&nbsp;<?php echo $errors['note']; ?></font></em>

@@ -19,16 +19,16 @@ require_once(PEAR_DIR.'Mail/mimeDecode.php');
 require_once(PEAR_DIR.'Mail/RFC822.php');
 
 class Mail_Parse {
-    
+
     var $mime_message;
     var $include_bodies;
     var $decode_headers;
     var $decode_bodies;
-    
+
     var $struct;
-    
+
     function Mail_parse($mimeMessage,$includeBodies=true,$decodeHeaders=TRUE,$decodeBodies=TRUE){
-        
+
         $this->mime_message=$mimeMessage;
         $this->include_bodies=$includeBodies;
         $this->decode_headers=$decodeHeaders;
@@ -42,9 +42,9 @@ class Mail_Parse {
                         'include_bodies'=> $this->include_bodies,
                         'decode_headers'=> $this->decode_headers,
                         'decode_bodies' => $this->decode_bodies);
-        $this->splitBodyHeader();    
+        $this->splitBodyHeader();
         $this->struct=Mail_mimeDecode::decode($params);
-        
+
         return (PEAR::isError($this->struct) || !(count($this->struct->headers)>1))?FALSE:TRUE;
     }
 
@@ -94,7 +94,7 @@ class Mail_Parse {
         }
         return $array;
     }
-    
+
 
     function getStruct(){
         return $this->struct;
@@ -109,8 +109,8 @@ class Mail_Parse {
     function getError(){
         return PEAR::isError($this->struct)?$this->struct->getMessage():'';
     }
-   
-    
+
+
     function getFromAddressList(){
         return Mail_Parse::parseAddressList($this->struct->headers['from']);
     }
@@ -119,7 +119,7 @@ class Mail_Parse {
         //Delivered-to incase it was a BBC mail.
        return Mail_Parse::parseAddressList($this->struct->headers['to']?$this->struct->headers['to']:$this->struct->headers['delivered-to']);
     }
-        
+
     function getCcAddressList(){
         return $this->struct->headers['cc']?Mail_Parse::parseAddressList($this->struct->headers['cc']):null;
     }
@@ -127,27 +127,27 @@ class Mail_Parse {
     function getMessageId(){
         return $this->struct->headers['message-id'];
     }
- 
+
     function getSubject(){
         return $this->struct->headers['subject'];
     }
-    
+
     function getBody(){
-        
+
         $body='';
         if(!($body=$this->getPart($this->struct,'text/plain'))) {
             if(($body=$this->getPart($this->struct,'text/html'))) {
                 //Cleanup the html.
-                $body=str_replace("</DIV><DIV>", "\n", $body);                        
+                $body=str_replace("</DIV><DIV>", "\n", $body);
                 $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
-                $body=Format::striptags(Format::html($body));
+                $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
             }
         }
         return $body;
     }
-    
+
     function getPart($struct,$ctypepart) {
-        
+
         if($struct && !$struct->parts) {
             $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
             if($ctype && strcasecmp($ctype,$ctypepart)==0)
@@ -164,7 +164,7 @@ class Mail_Parse {
         return $data;
     }
 
-     
+
     function mime_encode($text, $charset=null, $encoding='utf-8') {
         return Format::encode($text, $charset, $encoding);
     }
@@ -175,15 +175,15 @@ class Mail_Parse {
             $part=$this->getStruct();
 
         if($part && $part->disposition
-                && (!strcasecmp($part->disposition,'attachment') 
-                    || !strcasecmp($part->disposition,'inline') 
+                && (!strcasecmp($part->disposition,'attachment')
+                    || !strcasecmp($part->disposition,'inline')
                     || !strcasecmp($part->ctype_primary,'image'))){
-            
+
             if(!($filename=$part->d_parameters['filename']) && $part->d_parameters['filename*'])
                 $filename=$part->d_parameters['filename*']; //Do we need to decode?
-           
+
             $file=array(
-                    'name'  => $filename, 
+                    'name'  => $filename,
                     'type'  => strtolower($part->ctype_primary.'/'.$part->ctype_secondary),
                     'data'  => $this->mime_encode($part->body, $part->ctype_parameters['charset'])
                     );
@@ -245,8 +245,9 @@ class EmailDataParser {
     function EmailDataParser($stream=null) {
         $this->stream = $stream;
     }
-    
+
     function parse($stream) {
+        global $cfg;
 
         $contents ='';
         if(is_resource($stream)) {
@@ -260,7 +261,7 @@ class EmailDataParser {
         $parser= new Mail_Parse($contents);
         if(!$parser->decode()) //Decode...returns false on decoding errors
             return $this->err('Email parse failed ['.$parser->getError().']');
-        
+
         $data =array();
         //FROM address: who sent the email.
         if(($fromlist = $parser->getFromAddressList()) && !PEAR::isError($fromlist)) {
@@ -293,7 +294,7 @@ class EmailDataParser {
                     break;
             }
         }
-            
+
         $data['subject'] = Format::utf8encode($parser->getSubject());
         $data['message'] = Format::utf8encode(Format::stripEmptyLines($parser->getBody()));
         $data['header'] = $parser->getHeader();
@@ -301,8 +302,8 @@ class EmailDataParser {
         $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
 
-        //attachments XXX: worry about encoding??
-        $data['attachments'] = $parser->getAttachments();
+        if($cfg && $cfg->allowEmailAttachments())
+            $data['attachments'] = $parser->getAttachments();
 
         return $data;
     }

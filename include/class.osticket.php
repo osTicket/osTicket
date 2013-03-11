@@ -146,33 +146,6 @@ class osTicket {
         return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
 
-    /* Function expects a well formatted array - see  Format::files()
-       It's up to the caller to reject the upload on error.
-     */
-    function validateFileUploads(&$files, $checkFileTypes=true) {
-       
-        $errors=0;
-        foreach($files as &$file) {
-            //skip no file upload "error" - why PHP calls it an error is beyond me.
-            if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) continue;
-
-            if($file['error']) //PHP defined error!
-                $file['error'] = 'File upload error #'.$file['error'];
-            elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
-                $file['error'] = 'Invalid or bad upload POST';
-            elseif($checkFileTypes && !$this->isFileTypeAllowed($file))
-                $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
-            elseif($file['size']>$this->getConfig()->getMaxFileSize())
-                $file['error'] = sprintf('File (%s) is too big. Maximum of %s allowed',
-                        Format::htmlchars($file['name']),
-                        Format::file_size($this->getConfig()->getMaxFileSize()));
-            
-            if($file['error']) $errors++;
-        }
-
-        return (!$errors);
-    }
-
     /* Replace Template Variables */
     function replaceTemplateVariables($input, $vars=array()) {
         
