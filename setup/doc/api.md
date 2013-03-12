@@ -27,3 +27,4 @@ Resources
 ---------
 
 - [Tickets](api/tickets.md)
+- [Tasks](api/tasks.md)
