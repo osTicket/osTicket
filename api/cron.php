@@ -13,8 +13,11 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-if (substr(php_sapi_name(), 0, 3) != 'cli')
-    die('cron.php only supports local cron jobs - use http -> api/task/cron');
+@chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
+require('api.inc.php');
+
+if (!osTicket::is_cli())
+    die('cron.php only supports local cron calls - use http -> api/tasks/cron');
 
 @chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
 require('api.inc.php');

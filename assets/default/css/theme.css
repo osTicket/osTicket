@@ -702,9 +702,10 @@ body {
 .Icon.phoneTicket {
   background-image: url('../images/icons/ticket_source_phone.gif');
 }
-.Icon.otherTicket {
+.Icon.otherTicket, .Icon.apiTicket  {
   background-image: url('../images/icons/ticket_source_other.gif');
 }
+
 .Icon.attachment {
   background-image: url('../images/icons/attachment.gif');
 }

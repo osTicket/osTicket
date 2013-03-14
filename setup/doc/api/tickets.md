@@ -9,7 +9,7 @@ Create a Ticket
 ---------------
 
 Tickets can be created in the osTicket system by sending an HTTP POST to
-`api/tickets.xml` or `api/tickets.json` depending on the format of the
+`api/tickets.xml`, `api/tickets.email` or `api/tickets.json` depending on the format of the
 request content.
 
 ### Fields ######
@@ -32,7 +32,7 @@ request content.
     *   __name__:     *required* name of the file to be attached. Multiple files
                       with the same name are allowable
     *   __type__:     Mime type of the file. Default is `text/plain`
-    *   __encoding__: Set to `base64` if content is base64 encoded 
+    *   __encoding__: Set to `base64` if content is base64 encoded
 
 ### XML Payload Example ######
 
@@ -108,6 +108,59 @@ an object or array definition, and newlines are not allowed inside strings.
 ```
 
 [rfc 2397]:     http://www.ietf.org/rfc/rfc2397.txt     "Data URLs"
+
+### Email Payload Example ######
+
+* `POST /api/tickets.email`
+
+osTicket supports both remote (over http) and local piping. Please refer to the wiki on step-by-step instruction of setting up email piping.
+
+```email
+
+MIME-Version: 1.0
+Received: by 10.194.9.167 with HTTP; Thu, 7 Feb 2013 09:01:04 -0800 (PST)
+Date: Thu, 7 Feb 2013 11:01:04 -0600
+Delivered-To: support@osticket.com
+Message-ID: <CAL4KyrgKmpYxdX+6u3HyHZ3qN5K0mU2_sdfoVu6rT8cUNn+52w@osticket.com>
+Subject: Testing
+From: Peter Rotich <peter@osticket.com>
+To: support@osticket.com
+Content-Type: multipart/mixed; boundary=047d7bfcfaf263782204d52563a5
+
+--047d7bfcfaf263782204d52563a5
+Content-Type: multipart/alternative; boundary=047d7bfcfaf263781204d52563a3
+
+--047d7bfcfaf263781204d52563a3
+Content-Type: text/plain; charset=ISO-8859-1
+
+Testing testing.
+
+--
+Peter Rotich
+http://www.osticket.com
+
+--047d7bfcfaf263781204d52563a3
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Testing testing.<br clear=3D"all"><div><br></div>-- <br>Pe=
+ter Rotich<br>
+<a href=3D"http://www.osticket.com" target=3D"_blank">http://www.osticket.=
+com</a>
+</div>
+
+--047d7bfcfaf263781204d52563a3--
+--047d7bfcfaf263782204d52563a5
+Content-Type: text/plain; charset=US-ASCII; name="file.txt"
+Content-Disposition: attachment; filename="file.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hcw5kqf60
+
+Sm9lIGRhZGR5cyBjb250ZW50Cg==
+--047d7bfcfaf263782204d52563a5--
+```
+
+Local piping can utilize `api/pipe.php` without the neeed to setup an API key.
 
 ### Response ######
 

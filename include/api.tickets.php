@@ -12,9 +12,9 @@ class TicketApiController extends ApiController {
         $supported = array(
             "alert", "autorespond", "source", "topicId",
             "name", "email", "subject", "phone", "phone_ext",
-            "attachments" => array("*" => 
+            "attachments" => array("*" =>
                 array("name", "type", "data", "encoding")
-            ), 
+            ),
             "message", "ip", "priorityId"
         );
 
@@ -23,6 +23,37 @@ class TicketApiController extends ApiController {
 
         return $supported;
     }
+
+    /*
+     Validate data - overwrites parent's validator for additional validations.
+    */
+    function validate(&$data, $format) {
+        global $ost;
+
+        //Call parent to Validate the structure
+        if(!parent::validate($data, $format))
+            $this->exerr(400, 'Unexpected or invalid data received');
+
+        //Nuke attachments IF API files are not allowed.
+        if(!$ost->getConfig()->allowAPIAttachments())
+            $data['attachments'] = array();
+
+        //Validate attachments: Do error checking... soft fail - set the error and pass on the request.
+        if($data['attachments'] && is_array($data['attachments'])) {
+            foreach($data['attachments'] as &$attachment) {
+                if(!$ost->isFileTypeAllowed($attachment))
+                    $data['error'] = 'Invalid file type (ext) for '.Format::htmlchars($attachment['name']);
+                elseif ($attachment['encoding'] && !strcasecmp($attachment['encoding'], 'base64')) {
+                    if(!($attachment['data'] = base64_decode($attachment['data'], true)))
+                        $attachment['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($attachment['name']));
+                }
+            }
+            unset($attachment);
+        }
+
+        return true;
+    }
+
 
     function create($format) {
 
@@ -62,18 +93,13 @@ class TicketApiController extends ApiController {
                 return $this->exerr(403, 'Ticket denied');
             else
                 return $this->exerr(
-                        400, 
+                        400,
                         "Unable to create new ticket: validation errors:\n"
                         .Format::array_implode(": ", "\n", $errors)
                         );
         } elseif (!$ticket) {
             return $this->exerr(500, "Unable to create new ticket: unknown error");
         }
-
-        
-        # Save attachment(s)
-        if($data['attachments'])
-            $ticket->importAttachments($data['attachments'], $ticket->getLastMsgId(), 'M');
 
         return $ticket;
     }
@@ -97,7 +123,7 @@ class PipeApiController extends TicketApiController {
     //Overwrite grandparent's (ApiController) response method.
     function response($code, $resp) {
 
-        //Use postfix exit codes - instead of HTTP 
+        //Use postfix exit codes - instead of HTTP
         switch($code) {
             case 201: //Success
                 $exitcode = 0;
@@ -119,8 +145,8 @@ class PipeApiController extends TicketApiController {
                 $exitcode = 69;
                 break;
             case 500: //Server error.
-            default: //Temp (unknown) failure - retry 
-                $exitcode = 75; 
+            default: //Temp (unknown) failure - retry
+                $exitcode = 75;
         }
 
         //echo "$code ($exitcode):$resp";

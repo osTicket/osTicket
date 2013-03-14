@@ -170,7 +170,7 @@ class FAQ {
         }
 
         //Upload new attachments IF any.
-        if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+        if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
             $this->uploadAttachments($files);
 
         $this->reload();
@@ -282,7 +282,7 @@ class FAQ {
         if(($faq=self::lookup($id))) {
             $faq->updateTopics($vars['topics']);
                
-            if($_FILES['attachments'] && ($files=Format::files($_FILES['attachments'])))
+            if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
                 $faq->uploadAttachments($files);
 
             $faq->reload();

@@ -26,11 +26,11 @@ define('LOG_WARN',LOG_WARNING);
 class osTicket {
 
     var $loglevel=array(1=>'Error','Warning','Debug');
-    
+
     //Page errors.
     var $errors;
 
-    //System 
+    //System
     var $system;
 
 
@@ -47,7 +47,7 @@ class osTicket {
     var $csrf;
 
     function osTicket($cfgId) {
-        
+
         $this->config = Config::lookup($cfgId);
 
         //DB based session storage was added starting with v1.7
@@ -109,13 +109,13 @@ class osTicket {
         $name = $name?$name:$this->getCSRF()->getTokenName();
         if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
             return true;
-       
+
         if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
             return true;
 
         $msg=sprintf('Invalid CSRF token [%s] on %s',
                 ($_POST[$name].''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
-        $this->logWarning('Invalid CSRF Token '.$name, $msg);
+        $this->logWarning('Invalid CSRF Token '.$name, $msg, false);
 
         return false;
     }
@@ -129,7 +129,7 @@ class osTicket {
     }
 
     function isFileTypeAllowed($file, $mimeType='') {
-       
+
         if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
             return false;
 
@@ -146,38 +146,11 @@ class osTicket {
         return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
 
-    /* Function expects a well formatted array - see  Format::files()
-       It's up to the caller to reject the upload on error.
-     */
-    function validateFileUploads(&$files, $checkFileTypes=true) {
-       
-        $errors=0;
-        foreach($files as &$file) {
-            //skip no file upload "error" - why PHP calls it an error is beyond me.
-            if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) continue;
-
-            if($file['error']) //PHP defined error!
-                $file['error'] = 'File upload error #'.$file['error'];
-            elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
-                $file['error'] = 'Invalid or bad upload POST';
-            elseif($checkFileTypes && !$this->isFileTypeAllowed($file))
-                $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
-            elseif($file['size']>$this->getConfig()->getMaxFileSize())
-                $file['error'] = sprintf('File (%s) is too big. Maximum of %s allowed',
-                        Format::htmlchars($file['name']),
-                        Format::file_size($this->getConfig()->getMaxFileSize()));
-            
-            if($file['error']) $errors++;
-        }
-
-        return (!$errors);
-    }
-
     /* Replace Template Variables */
     function replaceTemplateVariables($input, $vars=array()) {
-        
+
         $replacer = new VariableReplacer();
-        $replacer->assign(array_merge($vars, 
+        $replacer->assign(array_merge($vars,
                     array('url' => $this->getConfig()->getBaseUrl())
                     ));
 
@@ -247,7 +220,7 @@ class osTicket {
 
 
     function alertAdmin($subject, $message, $log=false) {
-                
+
         //Set admin's email address
         if(!($to=$this->getConfig()->getAdminEmail()))
             $to=ADMIN_EMAIL;
@@ -258,7 +231,7 @@ class osTicket {
 
         //Try getting the alert email.
         $email=null;
-        if(!($email=$this->getConfig()->getAlertEmail())) 
+        if(!($email=$this->getConfig()->getAlertEmail()))
             $email=$this->getConfig()->getDefaultEmail(); //will take the default email.
 
         if($email) {
@@ -284,7 +257,7 @@ class osTicket {
     function logWarning($title, $message, $alert=true) {
         return $this->log(LOG_WARN, $title, $message, $alert);
     }
-    
+
     function logError($title, $error, $alert=true) {
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
@@ -302,8 +275,8 @@ class osTicket {
         //We are providing only 3 levels of logs. Windows style.
         switch($priority) {
             case LOG_EMERG:
-            case LOG_ALERT: 
-            case LOG_CRIT: 
+            case LOG_ALERT:
+            case LOG_CRIT:
             case LOG_ERR:
                 $level=1; //Error
                 break;
@@ -333,9 +306,9 @@ class osTicket {
             ',log_type='.db_input($loglevel[$level]).
             ',log='.db_input($message).
             ',ip_address='.db_input($_SERVER['REMOTE_ADDR']);
-        
+
         mysql_query($sql); //don't use db_query to avoid possible loop.
-        
+
         return true;
     }
 
@@ -347,10 +320,47 @@ class osTicket {
         //System logs
         $sql='DELETE  FROM '.SYSLOG_TABLE.' WHERE DATE_ADD(created, INTERVAL '.$gp.' MONTH)<=NOW()';
         db_query($sql);
-        
+
         //TODO: Activity logs
 
         return true;
+    }
+    /*
+     * Util functions
+     *
+     */
+
+    function get_var($index, $vars, $default='', $type=null) {
+
+        if(is_array($vars)
+                && array_key_exists($index, $vars)
+                && (!$type || gettype($vars[$index])==$type))
+            return $vars[$index];
+
+        return $default;
+    }
+
+    function get_db_input($index, $vars, $quote=true) {
+        return db_input($this->get_var($index, $vars), $quote);
+    }
+
+    function get_path_info() {
+        if(isset($_SERVER['PATH_INFO']))
+            return $_SERVER['PATH_INFO'];
+
+        if(isset($_SERVER['ORIG_PATH_INFO']))
+            return $_SERVER['ORIG_PATH_INFO'];
+
+        //TODO: conruct possible path info.
+
+        return null;
+    }
+
+    /* returns true if script is being executed via commandline */
+    function is_cli() {
+        return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')
+                || (!$_SERVER['REQUEST_METHOD'] && !$_SERVER['HTTP_HOST']) //Fallback when php-cgi binary is used via cli
+                );
     }
 
     /**** static functions ****/

@@ -259,7 +259,8 @@ $(document).ready(function(){
      $('.multifile').multifile({
         container:   '.uploads',
         max_uploads: ($config && $config.max_file_uploads)?$config.max_file_uploads:1,
-        file_types:  ($config && $config.file_types)?$config.file_types:".*"
+        file_types:  ($config && $config.file_types)?$config.file_types:".*",
+        max_file_size: ($config && $config.max_file_size)?$config.max_file_size:0
         });
 
     /* Datepicker */
@@ -369,6 +370,7 @@ $(document).ready(function(){
                 break;
             case 'open':
             case 'overdue':
+            case 'answered':
                 $('select#staffId').find('option:first').attr('selected', 'selected').parent('select');
                 $('select#staffId').attr('disabled','disabled');
                 $('select#assignee').removeAttr('disabled');

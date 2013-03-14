@@ -2,7 +2,7 @@
 /*********************************************************************
     class.config.php
 
-    osTicket config info manager. 
+    osTicket config info manager.
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
@@ -17,17 +17,17 @@
 require_once(INCLUDE_DIR.'class.email.php');
 
 class Config {
-    
+
     var $id = 0;
     var $config = array();
 
-    var $defaultDept;   //Default Department    
+    var $defaultDept;   //Default Department
     var $defaultSLA;   //Default SLA
-    var $defaultEmail;  //Default Email 
+    var $defaultEmail;  //Default Email
     var $alertEmail;  //Alert Email
     var $defaultSMTPEmail; //Default  SMTP Email
 
-    function Config($id) { 
+    function Config($id) {
         $this->load($id);
     }
 
@@ -39,11 +39,11 @@ class Config {
         $sql='SELECT *, (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset '
             .' FROM '.CONFIG_TABLE
             .' WHERE id='.db_input($id);
-        
+
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
-            
+
         $this->config = db_fetch_array($res);
         $this->id = $this->config['id'];
 
@@ -100,7 +100,7 @@ class Config {
 
         return null;
     }
-    
+
     function getDBTZoffset() {
         return $this->config['db_tz_offset'];
     }
@@ -135,15 +135,15 @@ class Config {
     function getConfigInfo() {
         return $this->config;
     }
-   
+
     function getTitle() {
         return $this->config['helpdesk_title'];
     }
-    
+
     function getUrl() {
-        return $this->config['helpdesk_url'];        
+        return $this->config['helpdesk_url'];
     }
-    
+
     function getBaseUrl() { //Same as above with no trailing slash.
         return rtrim($this->getUrl(),'/');
     }
@@ -171,11 +171,11 @@ class Config {
     function showNotesInline(){
         return $this->config['show_notes_inline'];
     }
-        
+
     function getClientTimeout() {
         return $this->getClientSessionTimeout();
     }
- 
+
     function getClientSessionTimeout() {
         return $this->config['client_session_timeout']*60;
     }
@@ -191,8 +191,8 @@ class Config {
     function getStaffTimeout() {
         return $this->getStaffSessionTimeout();
     }
-        
-    function getStaffSessionTimeout() {                
+
+    function getStaffSessionTimeout() {
         return $this->config['staff_session_timeout']*60;
     }
 
@@ -218,7 +218,7 @@ class Config {
             $this->defaultDept=Dept::lookup($this->getDefaultDeptId());
 
         return $this->defaultDept;
-    }   
+    }
 
     function getDefaultEmailId() {
         return $this->config['default_email_id'];
@@ -280,7 +280,7 @@ class Config {
     }
 
     function getDefaultTemplate() {
-    
+
         if(!$this->defaultTemplate && $this->getDefaultTemplateId())
             $this->defaultTemplate = Template::lookup($this->getDefaultTemplateId());
 
@@ -319,7 +319,7 @@ class Config {
     function clickableURLS() {
         return ($this->config['clickable_urls']);
     }
-        
+
     function enableStaffIPBinding() {
         return ($this->config['staff_ip_binding']);
     }
@@ -335,12 +335,12 @@ class Config {
     function isEmailPollingEnabled() {
         return ($this->config['enable_mail_polling']);
     }
-        
+
     function allowPriorityChange() {
         return ($this->config['allow_priority_change']);
     }
 
-        
+
     function useEmailPriority() {
         return ($this->config['use_email_priority']);
     }
@@ -352,7 +352,7 @@ class Config {
     function getReplySeparator() {
         return $this->config['reply_separator'];
     }
-  
+
     function stripQuotedReply() {
         return ($this->config['strip_quoted_reply']);
     }
@@ -360,7 +360,7 @@ class Config {
     function saveEmailHeaders() {
         return true; //No longer an option...hint: big plans for headers coming!!
     }
-    
+
     function useRandomIds() {
         return ($this->config['random_ticket_ids']);
     }
@@ -369,7 +369,7 @@ class Config {
     function autoRespONNewTicket() {
         return ($this->config['ticket_autoresponder']);
     }
-    
+
     function autoRespONNewMessage() {
         return ($this->config['message_autoresponder']);
     }
@@ -385,11 +385,11 @@ class Config {
     function alertLastRespondentONNewMessage() {
         return ($this->config['message_alert_laststaff']);
     }
-   
+
     function alertAssignedONNewMessage() {
         return ($this->config['message_alert_assigned']);
     }
-    
+
     function alertDeptManagerONNewMessage() {
         return ($this->config['message_alert_dept_manager']);
     }
@@ -417,7 +417,7 @@ class Config {
     function alertAdminONNewTicket() {
         return ($this->config['ticket_alert_admin']);
     }
-     
+
     function alertDeptManagerONNewTicket() {
         return ($this->config['ticket_alert_dept_manager']);
     }
@@ -433,11 +433,11 @@ class Config {
     function alertAssignedONTransfer() {
         return ($this->config['transfer_alert_assigned']);
     }
-    
+
     function alertDeptManagerONTransfer() {
         return ($this->config['transfer_alert_dept_manager']);
     }
-    
+
     function alertDeptMembersONTransfer() {
         return ($this->config['transfer_alert_dept_members']);
     }
@@ -486,7 +486,7 @@ class Config {
     function showAnsweredTickets() {
         return ($this->config['show_answered_tickets']);
     }
-        
+
     function hideStaffName() {
         return ($this->config['hide_staff_name']);
     }
@@ -494,10 +494,10 @@ class Config {
     function sendOverLimitNotice() {
         return ($this->config['overlimit_notice_active']);
     }
-        
+
     /* Error alerts sent to admin email when enabled */
     function alertONSQLError() {
-        return ($this->config['send_sql_errors']);                    
+        return ($this->config['send_sql_errors']);
     }
     function alertONLoginError() {
         return ($this->config['send_login_errors']);
@@ -507,7 +507,7 @@ class Config {
         return ($this->config['send_mailparse_errors']);
     }
 
-    
+
 
     /* Attachments */
     function getAllowedFileTypes() {
@@ -529,21 +529,27 @@ class Config {
     function allowAttachmentsOnlogin() {
         return ($this->allowOnlineAttachments() && $this->config['allow_online_attachments_onlogin']);
     }
-    
+
     function allowEmailAttachments() {
         return ($this->allowAttachments() && $this->config['allow_email_attachments']);
+    }
+
+    //TODO: change db field to allow_api_attachments - which will include  email/json/xml attachments
+    //       terminology changed on the UI
+    function allowAPIAttachments() {
+        return $this->allowEmailAttachments();
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
     function getUploadDir() {
         return $this->config['upload_dir'];
     }
-    
+
     function updateSettings($vars, &$errors) {
 
         if(!$vars || $errors)
             return false;
-        
+
         switch(strtolower($vars['t'])) {
             case 'system':
                 return $this->updateSystemSettings($vars, $errors);
@@ -702,10 +708,10 @@ class Config {
         $f['default_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default email required');
         $f['alert_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
         $f['admin_email']=array('type'=>'email',   'required'=>1, 'error'=>'System admin email required');
-       
+
         if($vars['strip_quoted_reply'] && !$vars['reply_separator'])
             $errors['reply_separator']='Reply separator required to strip quoted reply.';
-        
+
         if($vars['admin_email'] && Email::getIdByEmail($vars['admin_email'])) //Make sure admin email is not also a system email.
             $errors['admin_email']='Email already setup as system email';
 
@@ -724,7 +730,7 @@ class Config {
             .' WHERE id='.db_input($this->getId());
 
 
-        
+
         return (db_query($sql));
     }
 
@@ -732,16 +738,16 @@ class Config {
 
 
         if($vars['allow_attachments']) {
-        
+
             if(!ini_get('file_uploads'))
                 $errors['err']='The \'file_uploads\' directive is disabled in php.ini';
-                
+
             if(!is_numeric($vars['max_file_size']))
-                $errors['max_file_size']='Maximum file size required';       
-               
+                $errors['max_file_size']='Maximum file size required';
+
             if(!$vars['allowed_filetypes'])
                 $errors['allowed_filetypes']='Allowed file extentions required';
-        
+
             if(!($maxfileuploads=ini_get('max_file_uploads')))
                 $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
 
@@ -842,7 +848,7 @@ class Config {
         }
 
         if($errors) return false;
-        
+
         $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
              .',ticket_alert_active='.db_input($vars['ticket_alert_active'])
              .',ticket_alert_admin='.db_input(isset($vars['ticket_alert_admin'])?1:0)

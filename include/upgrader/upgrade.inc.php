@@ -1,5 +1,16 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
+
+//See if we need to switch the mode of upgrade...e.g from ajax (default) to manual
+if(($mode = $ost->get_var('m', $_GET)) &&  $mode!=$upgrader->getMode()) {
+    //Set Persistent mode/
+    $upgrader->setMode($mode);
+    //Log warning about ajax calls - most likely culprit is AcceptPathInfo directive.
+    if($mode=='manual')
+        $ost->logWarning('Ajax calls are failing',
+                'Make sure your server has AcceptPathInfo directive set to "ON" or get technical help');
+}
+
 $action=$upgrader->getNextAction();
 ?>
 <h2>osTicket Upgrade</h2>
@@ -9,7 +20,7 @@ $action=$upgrader->getNextAction();
              <p>Thank you for taking the time to upgrade your osTicket intallation!</p>
              <p>Please don't cancel or close the browser, any errors at this stage will be fatal.</p>
             </div>
-            <h2><?php echo $action ?></h2>
+            <h2 id="task"><?php echo $action ?></h2>
             <p>The upgrade wizard will now attempt to upgrade your database and core settings!</p>
             <ul>
                 <li>Database enhancements</li>
@@ -20,8 +31,9 @@ $action=$upgrader->getNextAction();
                 <form method="post" action="upgrade.php" id="upgrade">
                     <?php csrf_token(); ?>
                     <input type="hidden" name="s" value="upgrade">
+                    <input type="hidden" id="mode" name="m" value="<?php echo $upgrader->getMode(); ?>">
                     <input type="hidden" name="sh" value="<?php echo $upgrader->getSchemaSignature(); ?>">
-                    <input class="btn"  type="submit" name="submit" value="Do It Now!">
+                    <input class="btn"  type="submit" name="submit" value="Upgrade Now!">
                 </form>
             </div>
     </div>
@@ -33,9 +45,11 @@ $action=$upgrader->getNextAction();
     </div>
     <div class="clear"></div>
     <div id="upgrading">
-        <h4><?php echo $action; ?></h4>
+        <h4 id="action"><?php echo $action; ?></h4>
         Please wait... while we upgrade your osTicket installation!
-        <div id="msg" style="font-weight: bold;padding-top:10px;">Smile!</div>
+        <div id="msg" style="font-weight: bold;padding-top:10px;">
+            <?php echo sprintf("%s - Relax!", $thisstaff->getFirstName()); ?>
+        </div>
     </div>
 </div>
-<div class="clear"></div>`
+<div class="clear"></div>
