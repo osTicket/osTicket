@@ -1,10 +1,23 @@
+
+New stuff in 1.7-rc6
+====================
+  * Bug fixes and enhancements from rc5
+
+New stuff in 1.7-rc5
+====================
+  * Bug fixes from rc4
+
+New stuff in 1.7-rc4
+====================
+  * Bug fixes from rc3
+
 New stuff in 1.7-rc3
 ====================
   * Bug fixes from rc2
   * Canned auto-reply template
   * Modal dialogs
   * PEAR packages upgrade
-  * Email encoding 
+  * Email encoding
 
 New stuff in 1.7-rc2
 ====================
@@ -33,7 +46,7 @@ New stuff in 1.7-dpr4
 New stuff in 1.7-dpr3
 ======================
   * Advanced search on tickets page
-  * Ticket thread -- revised ticket message storage model for greater 
+  * Ticket thread -- revised ticket message storage model for greater
     flexability
   * New database upgrade system allowing for continuous updates to the
     database model. This will greatly simplify the process of making
