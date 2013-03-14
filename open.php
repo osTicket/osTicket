@@ -18,10 +18,11 @@ define('SOURCE','Web'); //Ticket source.
 $inc='open.inc.php';    //default include.
 $errors=array();
 if($_POST):
-    $_POST['deptId']=$_POST['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
+    $vars = $_POST;
+    $vars['deptId']=$vars['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
     if($thisclient) {
-        $_POST['name']=$thisclient->getName();
-        $_POST['email']=$thisclient->getEmail();
+        $vars['name']=$thisclient->getName();
+        $vars['email']=$thisclient->getEmail();
     } elseif($cfg->isCaptchaEnabled()) {
         if(!$_POST['captcha'])
             $errors['captcha']='Enter text shown on the image';
@@ -29,13 +30,12 @@ if($_POST):
             $errors['captcha']='Invalid - try again!';
     }
 
-    //Ticket::create...checks for errors..
-    if(($ticket=Ticket::create($_POST,$errors,SOURCE))){
-        $msg='Support ticket request created';
-        //Upload attachments...         
-        if($cfg->allowOnlineAttachments() && $_FILES['attachments'])
-            $ticket->uploadFiles($_FILES['attachments'], $ticket->getLastMsgId(), 'M');
+    if(!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
+        $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
+    //Ticket::create...checks for errors..
+    if(($ticket=Ticket::create($vars, $errors, SOURCE))){
+        $msg='Support ticket request created';
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             if(!$cfg->showRelatedTickets())
