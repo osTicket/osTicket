@@ -111,7 +111,6 @@ class osTicket {
     }
 
     function checkCSRFToken($name='') {
-
         $name = $name?$name:$this->getCSRF()->getTokenName();
         if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
             return true;
@@ -119,9 +118,9 @@ class osTicket {
         if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
             return true;
 
-        $msg=sprintf('Invalid CSRF token [%s] on %s',
+        $msg=sprintf(__('Invalid CSRF token [%1$s] on %2$s'),
                 ($_POST[$name].''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
-        $this->logWarning('Invalid CSRF Token '.$name, $msg, false);
+        $this->logWarning(__('Invalid CSRF Token').' '.$name, $msg, false);
 
         return false;
     }
@@ -247,7 +246,7 @@ class osTicket {
         if($email) {
             $email->sendAlert($to, $subject, $message, null, array('text'=>true));
         } else {//no luck - try the system mail.
-            Mailer::sendmail($to, $subject, $message, sprintf('"osTicket Alerts"<%s>',$to));
+            Mailer::sendmail($to, $subject, $message, sprintf(__('"osTicket Alerts" <%s>'),$to));
         }
 
         //log the alert? Watch out for loops here.

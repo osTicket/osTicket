@@ -201,7 +201,6 @@ class MailFetcher {
             $text=imap_qprint($text);
             break;
         }
-
         return $text;
     }
 
@@ -603,7 +602,7 @@ class MailFetcher {
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
-            $ost->logWarning('Ticket denied', 'Banned email - '.$mailinfo['email'], false);
+            $ost->logWarning(__('Ticket denied'), __('Banned email').' - '.$mailinfo['email'], false);
 	        return true; //Report success (moved or delete)
         }
 
@@ -730,8 +729,8 @@ class MailFetcher {
 
             // Log an error to the system logs
             $mailbox = Email::lookup($vars['emailId']);
-            $ost->logError('Mail Processing Exception', sprintf(
-                "Mailbox: %s\nError(s): %s",
+            $ost->logError(__('Mail Processing Exception'), sprintf(
+                __("Mailbox: %s | Error(s): %s"),
                 $mailbox->getEmail(),
                 print_r($errors, true)
             ), false);
@@ -754,7 +753,6 @@ class MailFetcher {
 
 
     function fetchEmails() {
-
 
         if(!$this->connect())
             return false;
@@ -785,7 +783,7 @@ class MailFetcher {
 
         //Warn on excessive errors
         if($errors>$msgs) {
-            $warn=sprintf('Excessive errors processing emails for %s/%s. Please manually check the inbox.',
+            $warn=sprintf(__('Excessive errors processing emails for %1$s/%2$s. Please manually check the inbox.'),
                     $this->getHost(), $this->getUsername());
             $this->log($warn);
         }
@@ -814,7 +812,7 @@ class MailFetcher {
         //We require imap ext to fetch emails via IMAP/POP3
         //We check here just in case the extension gets disabled post email config...
         if(!function_exists('imap_open')) {
-            $msg='osTicket requires PHP IMAP extension enabled for IMAP/POP3 email fetch to work!';
+            $msg=__('osTicket requires PHP IMAP extension enabled for IMAP/POP3 email fetch to work!');
             $ost->logWarning('Mail Fetch Error', $msg);
             return;
         }
@@ -853,13 +851,13 @@ class MailFetcher {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=mail_errors+1, mail_lasterror=NOW() WHERE email_id='.db_input($emailId));
                 if (++$errors>=$MAXERRORS) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
-                    $msg="\nosTicket is having trouble fetching emails from the following mail account: \n".
-                        "\nUser: ".$fetcher->getUsername().
-                        "\nHost: ".$fetcher->getHost().
-                        "\nError: ".$fetcher->getLastError().
-                        "\n\n ".$errors.' consecutive errors. Maximum of '.$MAXERRORS. ' allowed'.
-                        "\n\n This could be connection issues related to the mail server. Next delayed login attempt in approx. $TIMEOUT minutes";
-                    $ost->alertAdmin('Mail Fetch Failure Alert', $msg, true);
+                    $msg="\n".__('osTicket is having trouble fetching emails from the following mail account:')." \n".
+                        "\n".__('User:')." ".$fetcher->getUsername().
+                        "\n".__('Host:')." ".$fetcher->getHost().
+                        "\n".__('Error:')." ".$fetcher->getLastError().
+                        "\n\n ".sprintf(__('%1$d consecutive errors. Maximum of %2$d allowed'), $errors, $MAXERRORS).
+                        "\n\n ".sprintf(__('This could be connection issues related to the mail server. Next delayed login attempt in aprox. %d minutes'),$TIMEOUT);
+                    $ost->alertAdmin(__('Mail Fetch Failure Alert'), $msg, true);
                 }
             }
         } //end while.

@@ -15,7 +15,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
     <meta name="description" content="customer support platform">
     <meta name="keywords" content="osTicket, Customer support system, support ticket system">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
+	<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/print.css" media="print">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css"
@@ -51,19 +51,19 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                     && !$thisclient->isGuest()) {
                  echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
                  ?>
-                <a href="<?php echo ROOT_PATH; ?>account.php">Profile</a> |
-                <a href="<?php echo ROOT_PATH; ?>tickets.php">Tickets <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
-                <a href="<?php echo $signout_url; ?>">Sign Out</a>
+                <a href="<?php echo ROOT_PATH; ?>account.php"><?php echo __('Profile'); ?></a> |
+                <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a> -
+                <a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a>
             <?php
             } elseif($nav) {
                 if ($cfg->getClientRegistrationMode() == 'public') { ?>
-                    Guest User | <?php
+                    <?php echo __('Guest User'); ?> | <?php
                 }
                 if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
-                    <a href="<?php echo $signout_url; ?>">Sign Out</a><?php
+                    <a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a><?php
                 }
                 elseif ($cfg->getClientRegistrationMode() != 'disabled') { ?>
-                    <a href="<?php echo $signin_url; ?>">Sign In</a>
+                    <a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a>
 <?php
                 }
             } ?>

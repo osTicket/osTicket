@@ -329,34 +329,34 @@ class ClientAccount extends UserAccount {
         if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
 
             if (!$vars['passwd1'])
-                $errors['passwd1']='New password required';
+                $errors['passwd1']=__('New password required');
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']='Must be at least 6 characters';
+                $errors['passwd1']=__('Must be at least 6 characters');
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2']='Password(s) do not match';
+                $errors['passwd2']=__('Password(s) do not match');
 
             if ($rtoken) {
                 $_config = new Config('pwreset');
                 if ($_config->get($rtoken) != $this->getUserId())
                     $errors['err'] =
-                        'Invalid reset token. Logout and try again';
+                        __('Invalid reset token. Logout and try again');
                 elseif (!($ts = $_config->lastModified($rtoken))
                         && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
                     $errors['err'] =
-                        'Invalid reset token. Logout and try again';
+                        __('Invalid reset token. Logout and try again');
             }
             elseif ($this->get('passwd')) {
                 if (!$vars['cpasswd'])
-                    $errors['cpasswd']='Current password required';
+                    $errors['cpasswd']=__('Current password required');
                 elseif (!$this->hasCurrentPassword($vars['cpasswd']))
-                    $errors['cpasswd']='Invalid current password!';
+                    $errors['cpasswd']=__('Invalid current password!');
                 elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                    $errors['passwd1']='New password MUST be different from the current password!';
+                    $errors['passwd1']=__('New password MUST be different from the current password!');
             }
         }
 
         if (!$vars['timezone_id'])
-            $errors['timezone_id']='Time zone required';
+            $errors['timezone_id']=__('Time zone selection is required');
 
         if ($errors) return false;
 

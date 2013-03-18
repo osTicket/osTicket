@@ -482,7 +482,7 @@ Class ThreadEntry {
                 $uploaded[]=$id;
             else {
                 if(!$file['error'])
-                    $error = 'Unable to upload file - '.$file['name'];
+                    $error = sprintf(__('Unable to upload file - %s'),$file['name']);
                 elseif(is_numeric($file['error']))
                     $error ='Error #'.$file['error']; //TODO: Transplate to string.
                 else
@@ -492,7 +492,7 @@ Class ThreadEntry {
                  XXX: We're doing it here because it will eventually become a thread post comment (hint: comments coming!)
                  XXX: logNote must watch for possible loops
                */
-                $this->getTicket()->logNote('File Upload Error', $error, 'SYSTEM', false);
+                $this->getTicket()->logNote(__('File Upload Error'), $error, 'SYSTEM', false);
             }
 
         }
@@ -524,9 +524,9 @@ Class ThreadEntry {
             $error = $attachment['error'];
 
             if(!$error)
-                $error = 'Unable to import attachment - '.$attachment['name'];
+                $error = sprintf(__('Unable to import attachment - %s'),$attachment['name']);
 
-            $this->getTicket()->logNote('File Import Error', $error, 'SYSTEM', false);
+            $this->getTicket()->logNote(__('File Import Error'), $error, 'SYSTEM', false);
         }
 
         return $id;
@@ -1122,9 +1122,9 @@ class Message extends ThreadEntry {
     function add($vars, &$errors) {
 
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['message'])
-            $errors['message'] = 'Message required';
+            $errors['message'] = __('Message required');
 
         if($errors) return false;
 
@@ -1191,9 +1191,9 @@ class Response extends ThreadEntry {
     function add($vars, &$errors) {
 
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['response'])
-            $errors['response'] = 'Response required';
+            $errors['response'] = __('Response required');
 
         if($errors) return false;
 
@@ -1241,9 +1241,9 @@ class Note extends ThreadEntry {
 
         //Check required params.
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['note'])
-            $errors['note'] = 'Note required';
+            $errors['note'] = __('Note required');
 
         if($errors) return false;
 

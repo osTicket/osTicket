@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+
 class PageNate {
     
     var $start;
@@ -72,9 +73,9 @@ class PageNate {
         } else {
             $to= $this->total;
         }
-        $html="&nbsp;Showing&nbsp;&nbsp;";
+        $html="&nbsp;".__('Showing')."&nbsp;&nbsp;";
         if ($this->total > 0) {
-            $html .= "$from - $to of " .$this->total;
+            $html .= "$from - $to ".__('of')." " .$this->total;
         }else{
             $html .= " 0 ";
         }

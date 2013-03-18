@@ -304,17 +304,17 @@ class Topic {
         $vars['topic']=Format::striptags(trim($vars['topic']));
 
         if($id && $id!=$vars['id'])
-            $errors['err']='Internal error. Try again';
+            $errors['err']=__('Internal error. Try again');
 
         if(!$vars['topic'])
-            $errors['topic']='Help topic required';
+            $errors['topic']=__('Help topic required');
         elseif(strlen($vars['topic'])<5)
-            $errors['topic']='Topic is too short. 5 chars minimum';
+            $errors['topic']=__('Topic is too short. 5 chars minimum');
         elseif(($tid=self::getIdByName($vars['topic'], $vars['topic_pid'])) && $tid!=$id)
-            $errors['topic']='Topic already exists';
+            $errors['topic']=__('Topic already exists');
 
         if (!is_numeric($vars['dept_id']))
-            $errors['dept_id']='You must select a department';
+            $errors['dept_id']=__('You must select a department');
 
         if($errors) return false;
 
@@ -347,7 +347,7 @@ class Topic {
         if ($id) {
             $sql='UPDATE '.TOPIC_TABLE.' SET '.$sql.' WHERE topic_id='.db_input($id);
             if (!($rv = db_query($sql)))
-                $errors['err']='Unable to update topic. Internal error occurred';
+                $errors['err']=__('Unable to update topic. Internal error occurred');
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
@@ -363,7 +363,7 @@ class Topic {
             if (db_query($sql) && ($id = db_insert_id()))
                 $rv = $id;
             else
-                $errors['err']='Unable to create the topic. Internal error';
+                $errors['err']=__('Unable to create the topic. Internal error');
         }
         if (!$cfg || $cfg->getTopicSortMode() == 'a') {
             static::updateSortOrder();

@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+
 class SLA {
 
     var $id;
@@ -132,6 +133,7 @@ class SLA {
     function getSLAs() {
 
         $slas=array();
+
         $sql='SELECT id, name, isactive, grace_period FROM '.SLA_TABLE.' ORDER BY name';
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while($row=db_fetch_array($res))
@@ -160,16 +162,15 @@ class SLA {
 
     function save($id,$vars,&$errors) {
 
-
         if(!$vars['grace_period'])
-            $errors['grace_period']='Grace period required';
+            $errors['grace_period']=__('Grace period required');
         elseif(!is_numeric($vars['grace_period']))
-            $errors['grace_period']='Numeric value required (in hours)';
+            $errors['grace_period']=__('Numeric value required (in hours)');
 
         if(!$vars['name'])
-            $errors['name']='Name required';
+            $errors['name']=__('Name required');
         elseif(($sid=SLA::getIdByName($vars['name'])) && $sid!=$id)
-            $errors['name']='Name already exists';
+            $errors['name']=__('Name already exists');
 
         if($errors) return false;
 
@@ -186,7 +187,7 @@ class SLA {
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update SLA. Internal error occurred';
+            $errors['err']=__('Unable to update SLA. Internal error occurred');
         }else{
             if (isset($vars['id']))
                 $sql .= ', id='.db_input($vars['id']);
@@ -195,7 +196,7 @@ class SLA {
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']='Unable to add SLA. Internal error';
+            $errors['err']=__('Unable to add SLA. Internal error');
         }
 
         return false;

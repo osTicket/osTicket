@@ -266,6 +266,17 @@ class Bootstrap {
         }
         if (extension_loaded('iconv'))
             iconv_set_encoding('internal_encoding', 'UTF-8');
+
+        if ($use_php_gettext == true && function_exists('mb_detect_encoding')) {
+            $f = fopen(INCLUDE_DIR.'locale/'.$language.'/LC_MESSAGES/messages.mo', 'r');
+            $meta = stream_get_meta_data($f);
+            if ($meta['mode'] == NULL) {
+                $sysnotice='The translation file "include/locale/'.$language.'/LC_MESSAGES/messages.mo" isn\'t readable, check permissions.';
+            }
+            else {
+                fclose($f);
+            }
+        }
     }
 
     function croak($message) {

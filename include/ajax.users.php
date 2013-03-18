@@ -26,7 +26,7 @@ class UsersAjaxAPI extends AjaxController {
     function search($type = null) {
 
         if(!isset($_REQUEST['q'])) {
-            Http::response(400, 'Query argument is required');
+            Http::response(400, __('Query argument is required'));
         }
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;

@@ -2,13 +2,13 @@
 if(!defined('OSTCLIENTINC')) die('Access Denied');
 
 ?>
-<h1>Frequently Asked Questions</h1>
+<h1><?php echo __('Frequently Asked Questions');?></h1>
 <form action="index.php" method="get" id="kb-search">
     <input type="hidden" name="a" value="search">
     <div>
         <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         <select name="cid" id="cid">
-            <option value="">&mdash; All Categories &mdash;</option>
+            <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
             <?php
             $sql='SELECT category_id, name, count(faq.category_id) as faqs '
                 .' FROM '.FAQ_CATEGORY_TABLE.' cat '
@@ -27,11 +27,11 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
             }
             ?>
         </select>
-        <input id="searchSubmit" type="submit" value="Search">
+        <input id="searchSubmit" type="submit" value="<?php echo __('Search');?>">
     </div>
     <div>
         <select name="topicId" id="topic-id">
-            <option value="">&mdash; All Help Topics &mdash;</option>
+            <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
             <?php
             $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as helptopic, count(faq.topic_id) as faqs '
                 .' FROM '.TOPIC_TABLE.' ht '
@@ -79,19 +79,19 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     }
 
     $sql.=' GROUP BY faq.faq_id ORDER BY question';
-    echo "<div><strong>Search Results</strong></div><div class='clear'></div>";
+    echo "<div><strong>".__('Search Results').'</strong></div><div class="clear"></div>';
     if(($res=db_query($sql)) && ($num=db_num_rows($res))) {
-        echo '<div id="faq">'.$num.' FAQs matched your search criteria.
+        echo '<div id="faq">'.sprintf(__('%d FAQs matched your search criteria.'),$num).'
                 <ol>';
         while($row=db_fetch_array($res)) {
             echo sprintf('
                 <li><a href="faq.php?id=%d" class="previewfaq">%s</a></li>',
-                $row['faq_id'],$row['question'],$row['ispublished']?'Published':'Internal');
+                $row['faq_id'],$row['question'],$row['ispublished']?__('Published'):__('Internal'));
         }
         echo '  </ol>
              </div>';
     } else {
-        echo '<strong class="faded">The search did not match any FAQs.</strong>';
+        echo '<strong class="faded">'.__('The search did not match any FAQs.').'</strong>';
     }
 } else { //Category Listing.
     $sql='SELECT cat.category_id, cat.name, cat.description, cat.ispublic, count(faq.faq_id) as faqs '
@@ -102,7 +102,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         .' HAVING faqs>0 '
         .' ORDER BY cat.name';
     if(($res=db_query($sql)) && db_num_rows($res)) {
-        echo '<div>Click on the category to browse FAQs.</div>
+        echo '<div>'.__('Click on the category to browse FAQs.').'</div>
                 <ul id="kb">';
         while($row=db_fetch_array($res)) {
 
@@ -117,7 +117,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         }
         echo '</ul>';
     } else {
-        echo 'NO FAQs found';
+        echo __('NO FAQs found');
     }
 }
 ?>
