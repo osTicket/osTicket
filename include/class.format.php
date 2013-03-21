@@ -2,7 +2,7 @@
 /*********************************************************************
     class.format.php
 
-    Collection of helper function used for formatting 
+    Collection of helper function used for formatting
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
@@ -19,11 +19,11 @@ class Format {
 
 
     function file_size($bytes) {
-        
+
         if(!is_numeric($bytes))
             return $bytes;
         if($bytes<1024)
-            return $bytes.' bytes';        
+            return $bytes.' bytes';
         if($bytes <102400)
             return round(($bytes/1024),1).' kb';
 
@@ -38,12 +38,12 @@ class Format {
     function encode($text, $charset=null, $encoding='utf-8') {
 
         //Try auto-detecting charset/encoding
-        if(!$charset && function_exists('mb_detect_encoding')) 
+        if(!$charset && function_exists('mb_detect_encoding'))
             $charset = mb_detect_encoding($text);
 
-        //Cleanup - junk 
+        //Cleanup - junk
         if($charset && in_array(trim($charset), array('default','x-user-defined')))
-            $charset = 'ISO-8859-1'; 
+            $charset = 'ISO-8859-1';
 
         if(function_exists('iconv') && $charset)
             return iconv($charset, $encoding.'//IGNORE', $text);
@@ -70,10 +70,10 @@ class Format {
 	}
 
     function truncate($string,$len,$hard=false) {
-        
+
         if(!$len || $len>strlen($string))
             return $string;
-        
+
         $string = substr($string,0,$len);
 
         return $hard?$string:(substr($string,0,strrpos($string,' ')).' ...');
@@ -93,11 +93,17 @@ class Format {
     }
 
     function safe_html($html) {
-        return Format::html($html,array('safe'=>1,'balance'=>1));
+        $config = array(
+                'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
+                'balance' => 1, //balance and close unclosed tags.
+                'comment' => 1  //Remove html comments (OUTLOOK LOVE THEM)
+                );
+
+        return Format::html($html, $config);
     }
 
     function sanitize($text, $striptags= true) {
-        
+
         //balance and neutralize unsafe tags.
         $text = Format::safe_html($text);
 
@@ -127,7 +133,7 @@ class Format {
         $flags = ENT_COMPAT;
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
-            
+
         return html_entity_decode($var, $flags, 'UTF-8');
     }
 
@@ -161,12 +167,12 @@ class Format {
         return strip_tags($decode?Format::htmldecode($var):$var);
     }
 
-    //make urls clickable. Mainly for display 
+    //make urls clickable. Mainly for display
     function clickableurls($text) {
         global $ost;
-        
+
         $token = $ost->getLinkToken();
-        //Not perfect but it works - please help improve it. 
+        //Not perfect but it works - please help improve it.
         $text=preg_replace_callback('/(((f|ht){1}tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
                 create_function('$matches',
                     sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";',
@@ -191,7 +197,7 @@ class Format {
         return preg_replace("/\n{3,}/", "\n\n", $string);
     }
 
-    
+
     function linebreaks($string) {
         return urldecode(ereg_replace("%0D", " ", urlencode($string)));
     }
@@ -208,17 +214,17 @@ class Format {
      * @return string The imploded array
     */
     function array_implode( $glue, $separator, $array ) {
-        
+
         if ( !is_array( $array ) ) return $array;
 
         $string = array();
         foreach ( $array as $key => $val ) {
             if ( is_array( $val ) )
                 $val = implode( ',', $val );
-        
+
             $string[] = "{$key}{$glue}{$val}";
         }
-    
+
         return implode( $separator, $string );
     }
 
@@ -236,7 +242,7 @@ class Format {
 
         return $tstring;
     }
-    
+
     /* Dates helpers...most of this crap will change once we move to PHP 5*/
     function db_date($time) {
         global $cfg;
@@ -247,7 +253,7 @@ class Format {
         global $cfg;
         return Format::userdate($cfg->getDateTimeFormat(), Misc::db2gmtime($time));
     }
-    
+
     function db_daydatetime($time) {
         global $cfg;
         return Format::userdate($cfg->getDayDateTimeFormat(), Misc::db2gmtime($time));
@@ -256,16 +262,16 @@ class Format {
     function userdate($format, $gmtime) {
         return Format::date($format, $gmtime, $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST']);
     }
-    
+
     function date($format, $gmtimestamp, $offset=0, $daylight=false){
-        
+
         if(!$gmtimestamp || !is_numeric($gmtimestamp))
-            return ""; 
-        
+            return "";
+
         $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
-        
+
         return date($format, ($gmtimestamp+ ($offset*3600)));
     }
-                      
+
 }
 ?>
