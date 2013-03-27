@@ -46,16 +46,36 @@ class Format {
             $charset = 'ISO-8859-1';
 
         if(function_exists('iconv') && $charset)
-            return iconv($charset, $encoding.'//IGNORE', $text);
-        elseif(function_exists('iconv_mime_decode'))
-            return iconv_mime_decode($text, 0, $encoding);
-        else //default to utf8 encoding.
-            return utf8_encode($text);
+            $text = iconv($charset, $encoding.'//IGNORE', $text);
+        elseif(function_exists('mb_convert_encoding') && $charset && $encoding)
+            $text = mb_convert_encoding($text, $encoding, $charset);
+        elseif(!strcasecmp($encoding, 'utf-8')) //forced blind utf8 encoding.
+            $text = function_exists('imap_utf8')?imap_utf8($text):utf8_encode($text);
+
+        return $text;
     }
 
     //Wrapper for utf-8 encoding.
     function utf8encode($text, $charset=null) {
         return Format::encode($text, $charset, 'utf-8');
+    }
+
+    function mimedecode($text, $encoding='UTF-8') {
+
+        if(function_exists('imap_mime_header_decode')
+                && ($parts = imap_mime_header_decode($text))) {
+            $str ='';
+            foreach ($parts as $part)
+                $str.= Format::encode($part->text, $part->charset, $encoding);
+
+            $text = $str;
+        } elseif(function_exists('iconv_mime_decode')) {
+            $text = iconv_mime_decode($text, 0, $encoding);
+        } elseif(!strcasecmp($encoding, 'utf-8') && function_exists('imap_utf8')) {
+            $text = imap_utf8($text);
+        }
+
+        return $text;
     }
 
 	function phone($phone) {

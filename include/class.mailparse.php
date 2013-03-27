@@ -27,18 +27,29 @@ class Mail_Parse {
 
     var $struct;
 
-    function Mail_parse($mimeMessage,$includeBodies=true,$decodeHeaders=TRUE,$decodeBodies=TRUE){
+    var $charset ='UTF-8'; //Default charset.
 
-        $this->mime_message=$mimeMessage;
-        $this->include_bodies=$includeBodies;
-        $this->decode_headers=$decodeHeaders;
-        $this->decode_bodies=$decodeBodies;
+    function Mail_parse($mimeMessage, $charset=null){
+
+        $this->mime_message = $mimeMessage;
+
+        if($charset)
+            $this->charset = $charset;
+
+        $this->include_bodies = true;
+        $this->decode_headers = true;
+        $this->decode_bodies = true;
+
+        //Desired charset
+        if($charset)
+            $this->charset = $charset;
     }
 
     function decode() {
 
         $params = array('crlf'          => "\r\n",
-                        'input'         =>$this->mime_message,
+                        'charset'       => $this->charset,
+                        'input'         => $this->mime_message,
                         'include_bodies'=> $this->include_bodies,
                         'decode_headers'=> $this->decode_headers,
                         'decode_bodies' => $this->decode_bodies);
@@ -146,12 +157,18 @@ class Mail_Parse {
         return $body;
     }
 
-    function getPart($struct,$ctypepart) {
+    function getPart($struct, $ctypepart) {
 
         if($struct && !$struct->parts) {
             $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
-            if($ctype && strcasecmp($ctype,$ctypepart)==0)
-                return $struct->body;
+            if($ctype && strcasecmp($ctype,$ctypepart)==0) {
+                $content = $struct->body;
+                //Encode to desired encoding - ONLY if charset is known??
+                if(isset($struct->ctype_parameters['charset']) && strcasecmp($struct->ctype_parameters['charset'], $this->charset))
+                    $content = Format::encode($content, $struct->ctype_parameters['charset'], $this->charset);
+
+                return $content;
+            }
         }
 
         $data='';
@@ -295,8 +312,8 @@ class EmailDataParser {
             }
         }
 
-        $data['subject'] = Format::utf8encode($parser->getSubject());
-        $data['message'] = Format::utf8encode(Format::stripEmptyLines($parser->getBody()));
+        $data['subject'] = $parser->getSubject();
+        $data['message'] = Format::stripEmptyLines($parser->getBody());
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
