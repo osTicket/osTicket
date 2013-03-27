@@ -3,12 +3,12 @@
 require_once dirname(__file__) . "/class.module.php";
 
 class Unpacker extends Module {
-    
+
     var $prologue = "Unpacks osTicket into target install path";
 
     var $epilog =
         "Copies an unpacked osticket tarball or zipfile into a production
-         location, optionally placing the include/ folder in a separate 
+         location, optionally placing the include/ folder in a separate
          location if requested";
 
     var $options = array(
@@ -118,7 +118,7 @@ class Unpacker extends Module {
         $this->destination = $this->getArgument('install-path');
         if (!is_dir($this->destination))
             if (!mkdir($this->destination, 0751, true))
-                $this->die("Destination path does not exist and cannot be created");
+                die("Destination path does not exist and cannot be created");
 
         # Determine if this is an upgrade, and if so, where the include/
         # folder is currently located

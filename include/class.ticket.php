@@ -969,7 +969,7 @@ class Ticket {
             //recipients
             $recipients=array();
             //Assigned staff or team... if any
-            if($this->isAssigned() && $cfg->alertAssignedONTransfer()) {
+            if($this->isAssigned() && $cfg->alertAssignedONOverdueTicket()) {
                 if($this->getStaffId())
                     $recipients[]=$this->getStaff();
                 elseif($this->getTeamId() && ($team=$this->getTeam()) && ($members=$team->getMembers()))
