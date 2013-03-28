@@ -1651,6 +1651,14 @@ class Ticket {
         $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
         $this->reload();
 
+        //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
+        if($this->isOverdue()
+                && (!$this->getEstDueDate() //Duedate + SLA cleared
+                    || Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                    )) {
+            $this->clearOverdue();
+        }
+
         return true;
     }
 
