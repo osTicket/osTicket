@@ -1102,11 +1102,11 @@ class Ticket {
         $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=0, updated=NOW() ';
 
         //clear due date if it's in the past
-        if($this->getDueDate() && strtotime($this->getDueDate())<=time())
+        if($this->getDueDate() && Misc::db2gmtime($this->getDueDate()) <= Misc::gmtime())
             $sql.=', duedate=NULL';
 
         //Clear SLA if est. due date is in the past
-        if($this->getSLADueDate() && strtotime($this->getSLADueDate())<=time())
+        if($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
             $sql.=', sla_id=0 ';
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
