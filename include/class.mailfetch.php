@@ -372,16 +372,20 @@ class MailFetcher {
 
         $emailId = $this->getEmailId();
         $vars = array();
-        $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['email']=$mailinfo['email'];
+        $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
         $vars['message']=Format::stripEmptyLines($this->getBody($mid));
         $vars['header']=$this->getHeader($mid);
         $vars['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
-        $vars['name']=$vars['name']?$vars['name']:$vars['email']; //No name? use email
         $vars['mid']=$mailinfo['mid'];
 
-        if(!$vars['message']) //An email with just attachments can have empty body.
+        //Missing FROM name  - use email address.
+        if(!$vars['name'])
+            $vars['name'] = $vars['email'];
+
+        //An email with just attachments can have empty body.
+        if(!$vars['message'])
             $vars['message'] = '(EMPTY)';
 
         if($ost->getConfig()->useEmailPriority())
