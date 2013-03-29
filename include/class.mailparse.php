@@ -289,11 +289,15 @@ class EmailDataParser {
                 break;
             }
 
+            $data['email'] = $from->mailbox.'@'.$from->host;
+
             $data['name'] = trim($from->personal,'"');
             if($from->comment && $from->comment[0])
                 $data['name'].= ' ('.$from->comment[0].')';
 
-            $data['email'] = $from->mailbox.'@'.$from->host;
+            //Use email address as name  when FROM address doesn't  have a name.
+            if(!$data['name'] && $data['email'])
+                $data['name'] = $data['email'];
         }
 
         //TO Address:Try to figure out the email address... associated with the incoming email.
