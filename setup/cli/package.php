@@ -21,7 +21,7 @@ function get_osticket_root_path() {
 function glob_recursive($pattern, $flags = 0) {
     $files = glob($pattern, $flags);
     foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-        $files = array_merge($files, 
+        $files = array_merge($files,
             glob_recursive($dir.'/'.basename($pattern), $flags));
     }
     return $files;
@@ -95,14 +95,14 @@ package("kb/*.php", "upload/kb");
 # Load the staff interface
 package("scp/*.php", "upload/scp/", -1);
 foreach (array('css','images','js') as $dir)
-    package("$dir/*", "upload/scp/$dir", -1);
+    package("scp/$dir/*", "upload/scp/$dir", -1);
 
 # Load in the scripts
 mkdir("$stage_path/scripts/");
 package("setup/scripts/*", "scripts/", -1, "*stage");
 
 # Load the heart of the system
-package("include/*.php", "upload/include", -1);
+package("include/*.php", "upload/include", -1, '*ost-config.php');
 # And the sql patches
 package("include/upgrader/*.sql", "upload/include/upgrader", -1);
 
@@ -130,8 +130,8 @@ foreach ($version_info as $line)
 
 $pwd = getcwd();
 chdir($stage_path);
-shell_exec("tar cjf '$pwd/osticket-".THIS_VERSION.".tar.bz2' *");
-shell_exec("zip -r '$pwd/osticket-".THIS_VERSION.".zip' *");
+shell_exec("tar cjf '$pwd/osTicket-".THIS_VERSION.".tar.bz2' *");
+shell_exec("zip -r '$pwd/osTicket-".THIS_VERSION.".zip' *");
 
 chdir($pwd);
 ?>
