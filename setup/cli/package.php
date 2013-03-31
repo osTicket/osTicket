@@ -89,6 +89,9 @@ package("*.php", 'upload/');
 foreach (array('assets','css','images','js') as $dir)
     package("$dir/*", "upload/$dir", -1, "*less");
 
+# Load API
+package('api/{,.}*', 'upload/api');
+
 # Load the knowledgebase
 package("kb/*.php", "upload/kb");
 
@@ -102,9 +105,7 @@ mkdir("$stage_path/scripts/");
 package("setup/scripts/*", "scripts/", -1, "*stage");
 
 # Load the heart of the system
-package("include/*.php", "upload/include", -1, '*ost-config.php');
-# And the sql patches
-package("include/upgrader/*.sql", "upload/include/upgrader", -1);
+package("include/{,.}*", "upload/include", -1, array('*ost-config.php', '*.sw[a-z]'));
 
 # Include the installer
 package("setup/*.{php,txt}", "upload/setup", -1, array("*scripts","*test","*stage"));
