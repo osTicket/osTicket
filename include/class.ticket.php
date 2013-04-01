@@ -1764,8 +1764,7 @@ class Ticket {
                         AND assigned.staff_id='.db_input($staff->getId()).')'
             .' LEFT JOIN '.TICKET_TABLE.' closed
                 ON (closed.ticket_id=ticket.ticket_id
-                        AND closed.status=\'closed\'
-                        AND closed.staff_id='.db_input($staff->getId()).')'
+                        AND closed.status=\'closed\' )'
             .' WHERE (ticket.staff_id='.db_input($staff->getId());
 
         if(($teams=$staff->getTeams()))
