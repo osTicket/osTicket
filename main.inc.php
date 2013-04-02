@@ -75,7 +75,7 @@
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
-    define('THIS_VERSION','1.7-RC6'); //Shown on admin panel
+    define('THIS_VERSION','1.7.0'); //Shown on admin panel
     define('SCHEMA_SIGNATURE', 'd959a00e55c75e0c903b9e37324fd25d'); //MD5 signature of the db schema. (used to trigger upgrades)
     #load config info
     $configfile='';

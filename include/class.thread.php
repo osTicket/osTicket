@@ -542,8 +542,8 @@ Class ThreadEntry {
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
-            .' ,title='.db_input(Format::sanitize($vars['title']))
-            .' ,body='.db_input(Format::sanitize($vars['body']))
+            .' ,title='.db_input(Format::sanitize($vars['title'], true))
+            .' ,body='.db_input(Format::sanitize($vars['body'], true))
             .' ,staff_id='.db_input($vars['staffId'])
             .' ,poster='.db_input($vars['poster'])
             .' ,source='.db_input($vars['source']);

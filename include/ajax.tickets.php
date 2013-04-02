@@ -19,7 +19,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 include_once(INCLUDE_DIR.'class.ticket.php');
 
 class TicketsAjaxAPI extends AjaxController {
-   
+
     function lookup() {
         global $thisstaff;
 
@@ -33,12 +33,12 @@ class TicketsAjaxAPI extends AjaxController {
         $sql='SELECT DISTINCT ticketID, email'
             .' FROM '.TICKET_TABLE
             .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
-              
+
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
-            
+
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
             $sql.=' OR team_id IN('.implode(',', db_input(array_filter($teams))).')';
-            
+
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
             $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
 
@@ -63,7 +63,7 @@ class TicketsAjaxAPI extends AjaxController {
         $sql='SELECT email, count(ticket_id) as tickets '
             .' FROM '.TICKET_TABLE
             .' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
-                
+
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
@@ -71,11 +71,11 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
             $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
-        
+
         $sql.=' ) '
             .' GROUP BY email '
             .' ORDER BY created  LIMIT '.$limit;
-            
+
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($email, $count)=db_fetch_row($res))
                 $tickets[] = array('email'=>$email, 'value'=>$email, 'info'=>"$email ($count)");
@@ -86,7 +86,7 @@ class TicketsAjaxAPI extends AjaxController {
 
     function search() {
         global $thisstaff, $cfg;
-          
+
         $result=array();
         $select = 'SELECT count( DISTINCT ticket.ticket_id) as tickets ';
         $from = ' FROM '.TICKET_TABLE.' ticket ';
@@ -127,7 +127,7 @@ class TicketsAjaxAPI extends AjaxController {
                 break;
         }
 
-        //Assignee 
+        //Assignee
         if(isset($_REQUEST['assignee']) && strcasecmp($_REQUEST['status'], 'closed'))  {
             $id=preg_replace("/[^0-9]/", "", $_REQUEST['assignee']);
             $assignee = $_REQUEST['assignee'];
@@ -147,16 +147,16 @@ class TicketsAjaxAPI extends AjaxController {
                 $where.= ' OR ticket.status="closed" ';
 
             $where.= ' ) ';
-        } elseif($_REQUEST['staffId']) { 
+        } elseif($_REQUEST['staffId']) {
             $where.=' AND (ticket.staff_id='.db_input($_REQUEST['staffId']).' AND ticket.status="closed") ';
         }
-            
+
         //dates
         $startTime  =($_REQUEST['startDate'] && (strlen($_REQUEST['startDate'])>=8))?strtotime($_REQUEST['startDate']):0;
         $endTime    =($_REQUEST['endDate'] && (strlen($_REQUEST['endDate'])>=8))?strtotime($_REQUEST['endDate']):0;
         if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0))
             $startTime=$endTime=0;
-        
+
         if($startTime)
             $where.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
 
@@ -166,17 +166,17 @@ class TicketsAjaxAPI extends AjaxController {
         //Query
         if($_REQUEST['query']) {
             $queryterm=db_real_escape($_REQUEST['query'], false);
-               
+
             $from.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
             $where.=" AND (  ticket.email LIKE '%$queryterm%'"
                        ." OR ticket.name LIKE '%$queryterm%'"
                        ." OR ticket.subject LIKE '%$queryterm%'"
                        ." OR thread.title LIKE '%$queryterm%'"
-                       ." OR thread.body LIKE '%$queryterm%'"               
+                       ." OR thread.body LIKE '%$queryterm%'"
                        .' )';
         }
-        
-        $sql="$select $from $where $groupby";
+
+        $sql="$select $from $where";
         if(($tickets=db_result(db_query($sql)))) {
             $result['success'] =sprintf("Search criteria matched %s - <a href='tickets.php?%s'>view</a>",
                                         ($tickets>1?"$tickets tickets":"$tickets ticket"),
@@ -184,26 +184,26 @@ class TicketsAjaxAPI extends AjaxController {
         } else {
             $result['fail']='No tickets found matching your search criteria.';
         }
-            
+
         return $this->json_encode($result);
     }
 
     function acquireLock($tid) {
         global $cfg,$thisstaff;
 
-        if(!$tid or !is_numeric($tid) or !$thisstaff or !$cfg or !$cfg->getLockTime()) 
+        if(!$tid or !is_numeric($tid) or !$thisstaff or !$cfg or !$cfg->getLockTime())
             return 0;
-        
+
         if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
             return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>'Lock denied!'));
-        
+
         //is the ticket already locked?
         if($ticket->isLocked() && ($lock=$ticket->getLock()) && !$lock->isExpired()) {
             /*Note: Ticket->acquireLock does the same logic...but we need it here since we need to know who owns the lock up front*/
             //Ticket is locked by someone else.??
             if($lock->getStaffId()!=$thisstaff->getId())
                 return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>'Unable to acquire lock.'));
-            
+
             //Ticket already locked by staff...try renewing it.
             $lock->renew(); //New clock baby!
         } elseif(!($lock=$ticket->acquireLock($thisstaff->getId(),$cfg->getLockTime()))) {
@@ -220,17 +220,17 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(!$id or !is_numeric($id) or !$thisstaff)
             return $this->json_encode(array('id'=>0, 'retry'=>true));
-       
+
         $lock= TicketLock::lookup($id);
         if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
             return self::acquireLock($tid); //acquire the lock
-        
+
         if($lock->getStaffId()!=$thisstaff->getId()) //user doesn't own the lock anymore??? sorry...try to next time.
             return $this->json_encode(array('id'=>0, 'retry'=>false)); //Give up...
-   
+
         //Renew the lock.
         $lock->renew(); //Failure here is not an issue since the lock is not expired yet.. client need to check time!
-        
+
         return $this->json_encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime()));
     }
 
@@ -238,12 +238,12 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if($id && is_numeric($id)){ //Lock Id provided!
-        
+
             $lock = TicketLock::lookup($id, $tid);
             //Already gone?
             if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
                 return 1;
-        
+
             //make sure the user actually owns the lock before releasing it.
             return ($lock->getStaffId()==$thisstaff->getId() && $lock->release())?1:0;
 
@@ -269,7 +269,7 @@ class TicketsAjaxAPI extends AjaxController {
             $warn.='&nbsp;<span class="Icon lockedTicket">Ticket is locked by '.$lock->getStaffName().'</span>';
         elseif($ticket->isOverdue())
             $warn.='&nbsp;<span class="Icon overdueTicket">Marked overdue!</span>';
-       
+
         ob_start();
         echo sprintf(
                 '<div style="width:500px; padding: 2px 2px 0 5px;">
@@ -353,7 +353,7 @@ class TicketsAjaxAPI extends AjaxController {
         $options[]=array('action'=>'Thread ('.$ticket->getThreadCount().')','url'=>"tickets.php?id=$tid");
         if($ticket->getNumNotes())
             $options[]=array('action'=>'Notes ('.$ticket->getNumNotes().')','url'=>"tickets.php?id=$tid#notes");
-        
+
         if($ticket->isOpen())
             $options[]=array('action'=>'Reply','url'=>"tickets.php?id=$tid#reply");
 

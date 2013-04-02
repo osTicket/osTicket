@@ -969,7 +969,7 @@ class Ticket {
             //recipients
             $recipients=array();
             //Assigned staff or team... if any
-            if($this->isAssigned() && $cfg->alertAssignedONTransfer()) {
+            if($this->isAssigned() && $cfg->alertAssignedONOverdueTicket()) {
                 if($this->getStaffId())
                     $recipients[]=$this->getStaff();
                 elseif($this->getTeamId() && ($team=$this->getTeam()) && ($members=$team->getMembers()))
@@ -1102,11 +1102,11 @@ class Ticket {
         $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=0, updated=NOW() ';
 
         //clear due date if it's in the past
-        if($this->getDueDate() && strtotime($this->getDueDate())<=time())
+        if($this->getDueDate() && Misc::db2gmtime($this->getDueDate()) <= Misc::gmtime())
             $sql.=', duedate=NULL';
 
         //Clear SLA if est. due date is in the past
-        if($this->getSLADueDate() && strtotime($this->getSLADueDate())<=time())
+        if($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
             $sql.=', sla_id=0 ';
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
@@ -1651,6 +1651,14 @@ class Ticket {
         $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
         $this->reload();
 
+        //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
+        if($this->isOverdue()
+                && (!$this->getEstDueDate() //Duedate + SLA cleared
+                    || Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                    )) {
+            $this->clearOverdue();
+        }
+
         return true;
     }
 
@@ -1756,8 +1764,7 @@ class Ticket {
                         AND assigned.staff_id='.db_input($staff->getId()).')'
             .' LEFT JOIN '.TICKET_TABLE.' closed
                 ON (closed.ticket_id=ticket.ticket_id
-                        AND closed.status=\'closed\'
-                        AND closed.staff_id='.db_input($staff->getId()).')'
+                        AND closed.status=\'closed\' )'
             .' WHERE (ticket.staff_id='.db_input($staff->getId());
 
         if(($teams=$staff->getTeams()))
