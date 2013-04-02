@@ -32,10 +32,10 @@ class API {
         $sql='SELECT * FROM '.API_KEY_TABLE.' WHERE id='.db_input($id);
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
-        
+
         $this->ht = db_fetch_array($res);
         $this->id = $this->ht['id'];
-        
+
         return true;
     }
 
@@ -54,7 +54,7 @@ class API {
     function getIPAddr() {
         return $this->ht['ipaddr'];
     }
-        
+
     function getNotes() {
         return $this->ht['notes'];
     }
@@ -79,7 +79,7 @@ class API {
 
         if(!API::save($this->getId(), $vars, $errors))
             return false;
-        
+
         $this->reload();
 
         return true;
@@ -104,7 +104,7 @@ class API {
         $sql='SELECT id FROM '.API_KEY_TABLE.' WHERE apikey='.db_input($key);
         if($ip)
             $sql.=' AND ipaddr='.db_input($ip);
-        
+
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id) = db_fetch_row($res);
 
@@ -123,7 +123,7 @@ class API {
 
         if(!$id && (!$vars['ipaddr'] || !Validator::is_ip($vars['ipaddr'])))
             $errors['ipaddr'] = 'Valid IP required';
-        
+
         if($errors) return false;
 
         $sql=' updated=NOW() '
@@ -219,7 +219,7 @@ class ApiController {
 
         if (!($data = $parser->parse($stream)))
             $this->exerr(400, $parser->lastError());
-       
+
         //Validate structure of the request.
         $this->validate($data, $format);
 
@@ -242,10 +242,10 @@ class ApiController {
      * API will further validate the contents of the request
      */
     function validateRequestStructure($data, $structure, $prefix="") {
-       
+
         foreach ($data as $key=>$info) {
             if (is_array($structure) and is_array($info)) {
-                $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*"; 
+                $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*";
                 if (isset($structure[$search])) {
                     $this->validateRequestStructure($info, $structure[$search], "$prefix$key/");
                     continue;
@@ -265,7 +265,7 @@ class ApiController {
      */
     function validate(&$data, $format) {
         return $this->validateRequestStructure(
-                $data, 
+                $data,
                 $this->getRequestStructure($format)
                 );
     }
@@ -329,8 +329,8 @@ class ApiXmlDataParser extends XmlDataParser {
                     $value = $value['file'];
 
                 if($value && is_array($value)) {
-                    foreach ($value as &$info) { 
-                        $info["data"] = $info[":text"]; 
+                    foreach ($value as &$info) {
+                        $info["data"] = $info[":text"];
                         unset($info[":text"]);
                     }
                     unset($info);
@@ -355,7 +355,7 @@ class ApiJsonDataParser extends JsonDataParser {
         foreach ($current as $key=>&$value) {
             if ($key == "phone") {
                 list($value, $current["phone_ext"])
-                    = explode("X", strtoupper($value), 2); 
+                    = explode("X", strtoupper($value), 2);
             } else if ($key == "alert") {
                 $value = (bool)$value;
             } else if ($key == "autorespond") {
@@ -386,11 +386,11 @@ class ApiJsonDataParser extends JsonDataParser {
                         # for the database. Otherwise, assume utf-8
                         list($param,$charset) = explode('=', $extra);
                         if ($param == 'charset' && $charset)
-                            $contents = Formart::utf8encode($contents, $charset);
+                            $contents = Format::utf8encode($contents, $charset);
                     }
                 }
                 unset($value);
-            } 
+            }
             if (is_array($value)) {
                 $value = $this->fixup($value);
             }
