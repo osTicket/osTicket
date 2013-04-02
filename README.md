@@ -11,7 +11,7 @@ How osTicket works for you
   1. Users create tickets via your website, email, or phone
   1. Incoming tickets are saved and assigned to agents
   1. Agents help your users resolve their issues
- 
+
 osTicket is an attractive alternative to higher-cost and complex customer
 support systems; simple, lightweight, reliable, open source, web-based and
 easy to setup and use. The best part is, it's completely free.
@@ -28,7 +28,7 @@ you) and cd into it. Then clone the repository (the folder must be empty!):
 osTicket uses the git flow development model, so you’ll need to switch to
 the develop branch in order to see the bleeding-edge feature additions.
 
-    git checkout develop 
+    git checkout develop
 
 Follow the usual install instructions (beginning from Manual Installation
 above), except, don't delete the setup/ folder. For this reason, such an
@@ -42,9 +42,9 @@ osTicket codebase before embarking on an upgrade.
 
 To trigger the update process, fetch the osTicket-1.7 tarball from either
 the osTicket [github](http://github.com/osTicket/osTicket-1.7) page or from
-the osTicket website. Extract the tarball into the folder of you osTicket
+the osTicket website. Extract the tarball into the folder of your osTicket
 codebase. This can also be accomplished with the zip file, and a FTP client
-can of course be used to upload the new source code to your server. 
+can of course be used to upload the new source code to your server.
 
 Any way you choose your adventure, when you have your codebase upgraded to
 osTicket-1.7, visit the /scp page of you ticketing system. The upgrader will
@@ -57,7 +57,7 @@ Help
 ----
 Visit the [wiki](http://osticket.com/wiki/Home) or the
 [forum](http://osticket.com/forums/). And if you'd like professional help
-managing your osTicket installation, 
+managing your osTicket installation,
 [commercial support](http://osticket.com/support/) is available.
 
 Contributing
@@ -85,4 +85,4 @@ osTicket is supported by several magical open source projects including:
   * [PEAR/Net_SMTP](http://pear.php.net/package/Net_SMTP)
   * [PEAR/Net_Socket](http://pear.php.net/package/Net_Socket)
   * [PEAR/Serivces_JSON](http://pear.php.net/package/Services_JSON)
-  * [phplint](http://antirez.com/page/phplint.html) 
+  * [phplint](http://antirez.com/page/phplint.html)
