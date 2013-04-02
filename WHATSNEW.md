@@ -67,9 +67,9 @@ New Features in 1.7
 ===================
 Version 1.7 includes several new features
 
-Email Filters
+Ticket Filters
 -------------
-As an upgrade from email banning (which is still supported), email filters
+As an upgrade from email banning (which is still supported), ticket filters
 allow for matching incoming email in the subject line and message body. For
 matching emails, the administrator has the ability to automatically route
 tickets:
@@ -79,12 +79,25 @@ tickets:
   * Disable ticket auto-responses
   * Send automatic canned responses
 
+Tickets filters are also applied to tickets submitted via all ticket
+interfaces, including the API, email, staff and client web interfaces. And,
+as a bonus, the filters can be configured to target only a single interface.
+So an administrator could, for instance, target tickets received via email
+from a particular domain.
+
 Canned Attachments
 ------------------
 Attach files to your canned responses. These attachments are automatically
 attached to the ticket thread along with the canned response. The
 attachments are not duplicated in the database and therefore use virtually
 no space.
+
+Database-backed Attachments
+---------------------------
+No more crazy security-related configuration to your host server in order to
+support attachments. Attachments are now quietly stored in the database. The
+upgrade migration will automatically port attachments from the previous
+locations into the database.
 
 Service Level Agreements
 ------------------------
@@ -99,13 +112,15 @@ Manage a searchable help document portal for your users
 
 Dashboard Reports
 -----------------
-Flashy reports of ticket system activiy as well as exportable ticket system
+Flashy reports of ticket system activity as well as exportable ticket system
 statistics, allowing for easy report generation from office spreadsheet
 applications.
 
 Ticket Export
 -------------
-Convert the ticket thread to a printed format for long term storage.
+Convert the ticket thread to a printed format for long term storage. The
+ticket view page now supports a print feature, which will render the ticket
+as a PDF document.
 
 API
 ---
@@ -114,3 +129,26 @@ tickets are createable by submitting an HTTP POST request to either
 
     /api/tickets.xml
     /api/tickets.json
+
+The API can also be used to pipe emails into the osTicket system. Use the
+included `automail.php` or `automail.pl` script to pipe emails to the
+system, or post raw email messages directly to
+
+    /api/tickets.email
+
+Use of the API requires an API key, which can be created and configured in
+the admin panel of the support system.
+
+Geeky New Features
+==================
+
+Unicode
+-------
+Better and more consistent international text handling
+
+Flexible Template Variables
+---------------------------
+Template variables have been redesigned to be more flexible. They have been
+integrated into the respective object classes so that an object as well as
+its properties can be represented in template variables. For instance
+%{ticket.staff.name}
