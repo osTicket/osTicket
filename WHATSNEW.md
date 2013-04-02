@@ -1,3 +1,7 @@
+New stuff in 1.7.0
+====================
+   * Bug fixes from rc6
+
 New stuff in 1.7-rc6
 ====================
   * Bug fixes and enhancements from rc5
