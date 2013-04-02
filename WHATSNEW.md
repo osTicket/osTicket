@@ -1,4 +1,3 @@
-
 New stuff in 1.7-rc6
 ====================
   * Bug fixes and enhancements from rc5
@@ -138,6 +137,8 @@ system, or post raw email messages directly to
 
 Use of the API requires an API key, which can be created and configured in
 the admin panel of the support system.
+
+For technical details, please refer to [API Docs] (setup/doc/api.md).
 
 Geeky New Features
 ==================
