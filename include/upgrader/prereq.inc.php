@@ -20,7 +20,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
                 MySQL v4.4 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
             </ul>
             <h3>Higly Recommended:</h3>
-            We hightly recommend that you follow the steps below.
+            We highly recommend that you follow the steps below.
             <ul>
                 <li>Backup the current database, if you haven't done so already.</li>
                 <li>Be patient the upgrade process will take a couple of seconds.</li>
