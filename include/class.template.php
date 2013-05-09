@@ -374,7 +374,6 @@ class Template {
 
             $sql='INSERT INTO '.EMAIL_TEMPLATE_TABLE.' SET '.$sql
                 .' ,created=NOW() '
-                .' ,cfg_id='.db_input($ost->getConfigId())
                 .' ,ticket_autoresp_subj='.db_input($info['ticket_autoresp_subj'])
                 .' ,ticket_autoresp_body='.db_input($info['ticket_autoresp_body'])
                 .' ,ticket_autoreply_subj='.db_input($info['ticket_autoreply_subj'])

@@ -1741,7 +1741,7 @@ class Ticket {
         global $cfg;
 
         /* Unknown or invalid staff */
-        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff() || $cfg->getDBVersion())
+        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
         $sql='SELECT count(open.ticket_id) as open, count(answered.ticket_id) as answered '

@@ -18,7 +18,7 @@ require_once(INCLUDE_DIR.'class.email.php');
 
 class Config {
 
-    var $id = 0;
+    var $section = null;
     var $config = array();
 
     var $defaultDept;   //Default Department
@@ -27,40 +27,71 @@ class Config {
     var $alertEmail;  //Alert Email
     var $defaultSMTPEmail; //Default  SMTP Email
 
-    function Config($id) {
-        $this->load($id);
+    function Config($section=null) {
+        $this->load($section);
     }
 
-    function load($id=0) {
+    function load($section=null) {
+        $this->section = $section;
 
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT *, (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset '
-            .' FROM '.CONFIG_TABLE
-            .' WHERE id='.db_input($id);
+        $sql='SELECT id, `key`, namespace, value FROM '.TABLE_PREFIX.'config';
+        if ($section)
+            $sql .= ' WHERE `namespace` = '.db_input($section);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
+        while ($row = db_fetch_array($res))
+            $this->config[$row['namespace'].':'.$row['key']] = $row;
 
-        $this->config = db_fetch_array($res);
-        $this->id = $this->config['id'];
+        $sql='SELECT (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset';
+        if(!($res=db_query($sql)) || !db_num_rows($res))
+            return false;
 
         //Get the default time zone
         // We can't JOIN timezone table above due to upgrade support.
-        if($this->config['default_timezone_id'])
-            $this->config['tz_offset'] = Timezone::getOffsetById($this->config['default_timezone_id']);
+        if($this->get('default_timezone_id'))
+            $this->config['core:tz_offset'] =
+                Timezone::getOffsetById($this->get('default_timezone_id'));
         else
-            $this->config['tz_offset'] = 0;
+            $this->config['core:tz_offset'] = 0;
+
 
         return true;
     }
 
     function reload() {
-        if(!$this->load($this->getId()))
+        return $this->load($this->section);
+    }
+
+    function getNamespace() {
+        return $this->section;
+    }
+
+    function get($key, $section='core') {
+        return $this->config[$section.':'.$key]['value'];
+    }
+
+    function update($key, $value, $section='core') {
+        if (!isset($this->config[$section.':'.$key]))
             return false;
 
+        $setting = &$this->config[$section.':'.$key];
+        if ($setting['value'] == $value)
+            return true;
+
+        if (!db_query('UPDATE '.CONFIG_TABLE.' SET updated=NOW(), value='
+                .db_input($value).' WHERE id='.db_input($setting['id'])))
+            return false;
+
+        $setting['value'] = $value;
+        return true;
+    }
+
+    function updateAll($updates, $section='core') {
+        foreach ($updates as $key=>$value)
+            if (!$this->update($key, $value, $section))
+                return false;
         return true;
     }
 
@@ -73,12 +104,12 @@ class Config {
     }
 
     function isOnline() {
-        return ($this->config['isonline']);
+        return ($this->get('isonline'));
     }
 
     function isKnowledgebaseEnabled() {
         require_once(INCLUDE_DIR.'class.faq.php');
-        return ($this->config['enable_kb'] && FAQ::countPublishedFAQs());
+        return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
 
     function getVersion() {
@@ -87,61 +118,64 @@ class Config {
 
     //Used to detect version prior to 1.7 (useful during upgrade)
     function getDBVersion() {
-        return $this->config['ostversion'];
+        $sql='SELECT `ostversion` FROM '.TABLE_PREFIX.'config '
+            .'WHERE id=1';
+        if (($res=db_query($sql)) && ($row=db_fetch_row($res)))
+            return $row[0];
     }
 
-    function getSchemaSignature() {
+    function getSchemaSignature($section='core') {
 
-        if($this->config['schema_signature'])
-            return $this->config['schema_signature'];
+        if($this->get('schema_signature', $section))
+            return $this->get('schema_signature', $section);
 
-        if($this->config['ostversion']) //old version 1.6 RC[1-5]-ST
-            return md5(strtoupper(trim($this->config['ostversion'])));
+        // 1.7 before namespaced configuration
+        $sql='SELECT `schema_signature` FROM '.TABLE_PREFIX.'config '
+            .'WHERE id=1';
+        if (($res=db_query($sql)) && ($row=db_fetch_row($res)))
+            return $row[0];
 
-        return null;
+        // old version 1.6
+        return $this->getDBVersion();
     }
 
     function getDBTZoffset() {
-        return $this->config['db_tz_offset'];
+        return $this->get('db_tz_offset');
     }
 
     /* Date & Time Formats */
     function observeDaylightSaving() {
-        return ($this->config['enable_daylight_saving']);
+        return ($this->get('enable_daylight_saving'));
     }
     function getTimeFormat() {
-        return $this->config['time_format'];
+        return $this->get('time_format');
     }
     function getDateFormat() {
-        return $this->config['date_format'];
+        return $this->get('date_format');
     }
 
     function getDateTimeFormat() {
-        return $this->config['datetime_format'];
+        return $this->get('datetime_format');
     }
 
     function getDayDateTimeFormat() {
-        return $this->config['daydatetime_format'];
+        return $this->get('daydatetime_format');
     }
 
-    function getId() {
-        return $this->id;
-    }
-
-    function getConfigId() {
-        return $this->getId();
-    }
-
-    function getConfigInfo() {
-        return $this->config;
+    function getConfigInfo($section='core') {
+        $info = array();
+        foreach ($this->config as $setting)
+            if ($setting['namespace'] == $section)
+                $info[$setting['key']] = $setting['value'];
+        return $info;
     }
 
     function getTitle() {
-        return $this->config['helpdesk_title'];
+        return $this->get('helpdesk_title');
     }
 
     function getUrl() {
-        return $this->config['helpdesk_url'];
+        return $this->get('helpdesk_url');
     }
 
     function getBaseUrl() { //Same as above with no trailing slash.
@@ -149,27 +183,27 @@ class Config {
     }
 
     function getTZOffset() {
-        return $this->config['tz_offset'];
+        return $this->get('tz_offset');
     }
 
     function getPageSize() {
-        return $this->config['max_page_size'];
+        return $this->get('max_page_size');
     }
 
     function getGracePeriod() {
-        return $this->config['overdue_grace_period'];
+        return $this->get('overdue_grace_period');
     }
 
     function getPasswdResetPeriod() {
-        return $this->config['passwd_reset_period'];
+        return $this->get('passwd_reset_period');
     }
 
     function showRelatedTickets() {
-        return $this->config['show_related_tickets'];
+        return $this->get('show_related_tickets');
     }
 
     function showNotesInline(){
-        return $this->config['show_notes_inline'];
+        return $this->get('show_notes_inline');
     }
 
     function getClientTimeout() {
@@ -177,15 +211,15 @@ class Config {
     }
 
     function getClientSessionTimeout() {
-        return $this->config['client_session_timeout']*60;
+        return $this->get('client_session_timeout')*60;
     }
 
     function getClientLoginTimeout() {
-        return $this->config['client_login_timeout']*60;
+        return $this->get('client_login_timeout')*60;
     }
 
     function getClientMaxLogins() {
-        return $this->config['client_max_logins'];
+        return $this->get('client_max_logins');
     }
 
     function getStaffTimeout() {
@@ -193,23 +227,23 @@ class Config {
     }
 
     function getStaffSessionTimeout() {
-        return $this->config['staff_session_timeout']*60;
+        return $this->get('staff_session_timeout')*60;
     }
 
     function getStaffLoginTimeout() {
-        return $this->config['staff_login_timeout']*60;
+        return $this->get('staff_login_timeout')*60;
     }
 
     function getStaffMaxLogins() {
-        return $this->config['staff_max_logins'];
+        return $this->get('staff_max_logins');
     }
 
     function getLockTime() {
-        return $this->config['autolock_minutes'];
+        return $this->get('autolock_minutes');
     }
 
     function getDefaultDeptId() {
-        return $this->config['default_dept_id'];
+        return $this->get('default_dept_id');
     }
 
     function getDefaultDept() {
@@ -221,7 +255,7 @@ class Config {
     }
 
     function getDefaultEmailId() {
-        return $this->config['default_email_id'];
+        return $this->get('default_email_id');
     }
 
     function getDefaultEmail() {
@@ -238,7 +272,7 @@ class Config {
     }
 
     function getDefaultSLAId() {
-        return $this->config['default_sla_id'];
+        return $this->get('default_sla_id');
     }
 
     function getDefaultSLA() {
@@ -250,33 +284,33 @@ class Config {
     }
 
     function getAlertEmailId() {
-        return $this->config['alert_email_id'];
+        return $this->get('alert_email_id');
     }
 
     function getAlertEmail() {
 
-        if(!$this->alertEmail && $this->config['alert_email_id'])
-            $this->alertEmail= new Email($this->config['alert_email_id']);
+        if(!$this->alertEmail && $this->get('alert_email_id'))
+            $this->alertEmail= new Email($this->get('alert_email_id'));
         return $this->alertEmail;
     }
 
     function getDefaultSMTPEmail() {
 
-        if(!$this->defaultSMTPEmail && $this->config['default_smtp_id'])
-            $this->defaultSMTPEmail= new Email($this->config['default_smtp_id']);
+        if(!$this->defaultSMTPEmail && $this->get('default_smtp_id'))
+            $this->defaultSMTPEmail= new Email($this->get('default_smtp_id'));
         return $this->defaultSMTPEmail;
     }
 
     function allowSMTPSpoofing() {
-        return $this->config['spoof_default_smtp'];
+        return $this->get('spoof_default_smtp');
     }
 
     function getDefaultPriorityId() {
-        return $this->config['default_priority_id'];
+        return $this->get('default_priority_id');
     }
 
     function getDefaultTemplateId() {
-        return $this->config['default_template_id'];
+        return $this->get('default_template_id');
     }
 
     function getDefaultTemplate() {
@@ -288,73 +322,73 @@ class Config {
     }
 
     function getMaxOpenTickets() {
-         return $this->config['max_open_tickets'];
+         return $this->get('max_open_tickets');
     }
 
     function getMaxFileSize() {
-        return $this->config['max_file_size'];
+        return $this->get('max_file_size');
     }
 
     function getStaffMaxFileUploads() {
-        return $this->config['max_staff_file_uploads'];
+        return $this->get('max_staff_file_uploads');
     }
 
     function getClientMaxFileUploads() {
         //TODO: change max_user_file_uploads to max_client_file_uploads
-        return $this->config['max_user_file_uploads'];
+        return $this->get('max_user_file_uploads');
     }
 
     function getLogLevel() {
-        return $this->config['log_level'];
+        return $this->get('log_level');
     }
 
     function getLogGracePeriod() {
-        return $this->config['log_graceperiod'];
+        return $this->get('log_graceperiod');
     }
 
     function logTicketActivity() {
-        return $this->config['log_ticket_activity'];
+        return $this->get('log_ticket_activity');
     }
 
     function clickableURLS() {
-        return ($this->config['clickable_urls']);
+        return ($this->get('clickable_urls'));
     }
 
     function enableStaffIPBinding() {
-        return ($this->config['staff_ip_binding']);
+        return ($this->get('staff_ip_binding'));
     }
 
     function isCaptchaEnabled() {
-        return (extension_loaded('gd') && function_exists('gd_info') && $this->config['enable_captcha']);
+        return (extension_loaded('gd') && function_exists('gd_info') && $this->get('enable_captcha'));
     }
 
     function isAutoCronEnabled() {
-        return ($this->config['enable_auto_cron']);
+        return ($this->get('enable_auto_cron'));
     }
 
     function isEmailPollingEnabled() {
-        return ($this->config['enable_mail_polling']);
+        return ($this->get('enable_mail_polling'));
     }
 
     function allowPriorityChange() {
-        return ($this->config['allow_priority_change']);
+        return ($this->get('allow_priority_change'));
     }
 
 
     function useEmailPriority() {
-        return ($this->config['use_email_priority']);
+        return ($this->get('use_email_priority'));
     }
 
     function getAdminEmail() {
-         return $this->config['admin_email'];
+         return $this->get('admin_email');
     }
 
     function getReplySeparator() {
-        return $this->config['reply_separator'];
+        return $this->get('reply_separator');
     }
 
     function stripQuotedReply() {
-        return ($this->config['strip_quoted_reply']);
+        return ($this->get('strip_quoted_reply'));
     }
 
     function saveEmailHeaders() {
@@ -362,176 +396,176 @@ class Config {
     }
 
     function useRandomIds() {
-        return ($this->config['random_ticket_ids']);
+        return ($this->get('random_ticket_ids'));
     }
 
     /* autoresponders  & Alerts */
     function autoRespONNewTicket() {
-        return ($this->config['ticket_autoresponder']);
+        return ($this->get('ticket_autoresponder'));
     }
 
     function autoRespONNewMessage() {
-        return ($this->config['message_autoresponder']);
+        return ($this->get('message_autoresponder'));
     }
 
     function notifyONNewStaffTicket() {
-        return ($this->config['ticket_notice_active']);
+        return ($this->get('ticket_notice_active'));
     }
 
     function alertONNewMessage() {
-        return ($this->config['message_alert_active']);
+        return ($this->get('message_alert_active'));
     }
 
     function alertLastRespondentONNewMessage() {
-        return ($this->config['message_alert_laststaff']);
+        return ($this->get('message_alert_laststaff'));
     }
 
     function alertAssignedONNewMessage() {
-        return ($this->config['message_alert_assigned']);
+        return ($this->get('message_alert_assigned'));
     }
 
     function alertDeptManagerONNewMessage() {
-        return ($this->config['message_alert_dept_manager']);
+        return ($this->get('message_alert_dept_manager'));
     }
 
     function alertONNewNote() {
-        return ($this->config['note_alert_active']);
+        return ($this->get('note_alert_active'));
     }
 
     function alertLastRespondentONNewNote() {
-        return ($this->config['note_alert_laststaff']);
+        return ($this->get('note_alert_laststaff'));
     }
 
     function alertAssignedONNewNote() {
-        return ($this->config['note_alert_assigned']);
+        return ($this->get('note_alert_assigned'));
     }
 
     function alertDeptManagerONNewNote() {
-        return ($this->config['note_alert_dept_manager']);
+        return ($this->get('note_alert_dept_manager'));
     }
 
     function alertONNewTicket() {
-        return ($this->config['ticket_alert_active']);
+        return ($this->get('ticket_alert_active'));
     }
 
     function alertAdminONNewTicket() {
-        return ($this->config['ticket_alert_admin']);
+        return ($this->get('ticket_alert_admin'));
     }
 
     function alertDeptManagerONNewTicket() {
-        return ($this->config['ticket_alert_dept_manager']);
+        return ($this->get('ticket_alert_dept_manager'));
     }
 
     function alertDeptMembersONNewTicket() {
-        return ($this->config['ticket_alert_dept_members']);
+        return ($this->get('ticket_alert_dept_members'));
     }
 
     function alertONTransfer() {
-        return ($this->config['transfer_alert_active']);
+        return ($this->get('transfer_alert_active'));
     }
 
     function alertAssignedONTransfer() {
-        return ($this->config['transfer_alert_assigned']);
+        return ($this->get('transfer_alert_assigned'));
     }
 
     function alertDeptManagerONTransfer() {
-        return ($this->config['transfer_alert_dept_manager']);
+        return ($this->get('transfer_alert_dept_manager'));
     }
 
     function alertDeptMembersONTransfer() {
-        return ($this->config['transfer_alert_dept_members']);
+        return ($this->get('transfer_alert_dept_members'));
     }
 
     function alertONAssignment() {
-        return ($this->config['assigned_alert_active']);
+        return ($this->get('assigned_alert_active'));
     }
 
     function alertStaffONAssignment() {
-        return ($this->config['assigned_alert_staff']);
+        return ($this->get('assigned_alert_staff'));
     }
 
     function alertTeamLeadONAssignment() {
-        return ($this->config['assigned_alert_team_lead']);
+        return ($this->get('assigned_alert_team_lead'));
     }
 
     function alertTeamMembersONAssignment() {
-        return ($this->config['assigned_alert_team_members']);
+        return ($this->get('assigned_alert_team_members'));
     }
 
 
     function alertONOverdueTicket() {
-        return ($this->config['overdue_alert_active']);
+        return ($this->get('overdue_alert_active'));
     }
 
     function alertAssignedONOverdueTicket() {
-        return ($this->config['overdue_alert_assigned']);
+        return ($this->get('overdue_alert_assigned'));
     }
 
     function alertDeptManagerONOverdueTicket() {
-        return ($this->config['overdue_alert_dept_manager']);
+        return ($this->get('overdue_alert_dept_manager'));
     }
 
     function alertDeptMembersONOverdueTicket() {
-        return ($this->config['overdue_alert_dept_members']);
+        return ($this->get('overdue_alert_dept_members'));
     }
 
     function autoAssignReopenedTickets() {
-        return ($this->config['auto_assign_reopened_tickets']);
+        return ($this->get('auto_assign_reopened_tickets'));
     }
 
     function showAssignedTickets() {
-        return ($this->config['show_assigned_tickets']);
+        return ($this->get('show_assigned_tickets'));
     }
 
     function showAnsweredTickets() {
-        return ($this->config['show_answered_tickets']);
+        return ($this->get('show_answered_tickets'));
     }
 
     function hideStaffName() {
-        return ($this->config['hide_staff_name']);
+        return ($this->get('hide_staff_name'));
     }
 
     function sendOverLimitNotice() {
-        return ($this->config['overlimit_notice_active']);
+        return ($this->get('overlimit_notice_active'));
     }
 
     /* Error alerts sent to admin email when enabled */
     function alertONSQLError() {
-        return ($this->config['send_sql_errors']);
+        return ($this->get('send_sql_errors'));
     }
     function alertONLoginError() {
-        return ($this->config['send_login_errors']);
+        return ($this->get('send_login_errors'));
     }
 
     function alertONMailParseError() {
-        return ($this->config['send_mailparse_errors']);
+        return ($this->get('send_mailparse_errors'));
     }
 
 
 
     /* Attachments */
     function getAllowedFileTypes() {
-        return trim($this->config['allowed_filetypes']);
+        return trim($this->get('allowed_filetypes'));
     }
 
     function emailAttachments() {
-        return ($this->config['email_attachments']);
+        return ($this->get('email_attachments'));
     }
 
     function allowAttachments() {
-        return ($this->config['allow_attachments']);
+        return ($this->get('allow_attachments'));
     }
 
     function allowOnlineAttachments() {
-        return ($this->allowAttachments() && $this->config['allow_online_attachments']);
+        return ($this->allowAttachments() && $this->get('allow_online_attachments'));
     }
 
     function allowAttachmentsOnlogin() {
-        return ($this->allowOnlineAttachments() && $this->config['allow_online_attachments_onlogin']);
+        return ($this->allowOnlineAttachments() && $this->get('allow_online_attachments_onlogin'));
     }
 
     function allowEmailAttachments() {
-        return ($this->allowAttachments() && $this->config['allow_email_attachments']);
+        return ($this->allowAttachments() && $this->get('allow_email_attachments'));
     }
 
     //TODO: change db field to allow_api_attachments - which will include  email/json/xml attachments
@@ -542,7 +576,7 @@ class Config {
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
     function getUploadDir() {
-        return $this->config['upload_dir'];
+        return $this->get('upload_dir');
     }
 
     function updateSettings($vars, &$errors) {
@@ -599,32 +633,30 @@ class Config {
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-            .',isonline='.db_input($vars['isonline'])
-            .',helpdesk_title='.db_input($vars['helpdesk_title'])
-            .',helpdesk_url='.db_input($vars['helpdesk_url'])
-            .',default_dept_id='.db_input($vars['default_dept_id'])
-            .',default_template_id='.db_input($vars['default_template_id'])
-            .',max_page_size='.db_input($vars['max_page_size'])
-            .',log_level='.db_input($vars['log_level'])
-            .',log_graceperiod='.db_input($vars['log_graceperiod'])
-            .',passwd_reset_period='.db_input($vars['passwd_reset_period'])
-            .',staff_max_logins='.db_input($vars['staff_max_logins'])
-            .',staff_login_timeout='.db_input($vars['staff_login_timeout'])
-            .',staff_session_timeout='.db_input($vars['staff_session_timeout'])
-            .',staff_ip_binding='.db_input(isset($vars['staff_ip_binding'])?1:0)
-            .',client_max_logins='.db_input($vars['client_max_logins'])
-            .',client_login_timeout='.db_input($vars['client_login_timeout'])
-            .',client_session_timeout='.db_input($vars['client_session_timeout'])
-            .',time_format='.db_input($vars['time_format'])
-            .',date_format='.db_input($vars['date_format'])
-            .',datetime_format='.db_input($vars['datetime_format'])
-            .',daydatetime_format='.db_input($vars['daydatetime_format'])
-            .',default_timezone_id='.db_input($vars['default_timezone_id'])
-            .',enable_daylight_saving='.db_input(isset($vars['enable_daylight_saving'])?1:0)
-            .' WHERE id='.db_input($this->getId());
-
-        return (db_query($sql));
+        return $this->updateAll(array(
+            'isonline'=>$vars['isonline'],
+            'helpdesk_title'=>$vars['helpdesk_title'],
+            'helpdesk_url'=>$vars['helpdesk_url'],
+            'default_dept_id'=>$vars['default_dept_id'],
+            'default_template_id'=>$vars['default_template_id'],
+            'max_page_size'=>$vars['max_page_size'],
+            'log_level'=>$vars['log_level'],
+            'log_graceperiod'=>$vars['log_graceperiod'],
+            'passwd_reset_period'=>$vars['passwd_reset_period'],
+            'staff_max_logins'=>$vars['staff_max_logins'],
+            'staff_login_timeout'=>$vars['staff_login_timeout'],
+            'staff_session_timeout'=>$vars['staff_session_timeout'],
+            'staff_ip_binding'=>isset($vars['staff_ip_binding'])?1:0,
+            'client_max_logins'=>$vars['client_max_logins'],
+            'client_login_timeout'=>$vars['client_login_timeout'],
+            'client_session_timeout'=>$vars['client_session_timeout'],
+            'time_format'=>$vars['time_format'],
+            'date_format'=>$vars['date_format'],
+            'datetime_format'=>$vars['datetime_format'],
+            'daydatetime_format'=>$vars['daydatetime_format'],
+            'default_timezone_id'=>$vars['default_timezone_id'],
+            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+        ), 'core');
     }
 
     function updateTicketsSettings($vars, &$errors) {
@@ -670,35 +702,33 @@ class Config {
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-            .',random_ticket_ids='.db_input($vars['random_ticket_ids'])
-            .',default_priority_id='.db_input($vars['default_priority_id'])
-            .',default_sla_id='.db_input($vars['default_sla_id'])
-            .',max_open_tickets='.db_input($vars['max_open_tickets'])
-            .',autolock_minutes='.db_input($vars['autolock_minutes'])
-            .',allow_priority_change='.db_input(isset($vars['allow_priority_change'])?1:0)
-            .',use_email_priority='.db_input(isset($vars['use_email_priority'])?1:0)
-            .',enable_captcha='.db_input(isset($vars['enable_captcha'])?1:0)
-            .',log_ticket_activity='.db_input(isset($vars['log_ticket_activity'])?1:0)
-            .',auto_assign_reopened_tickets='.db_input(isset($vars['auto_assign_reopened_tickets'])?1:0)
-            .',show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0)
-            .',show_answered_tickets='.db_input(isset($vars['show_answered_tickets'])?1:0)
-            .',show_related_tickets='.db_input(isset($vars['show_related_tickets'])?1:0)
-            .',show_notes_inline='.db_input(isset($vars['show_notes_inline'])?1:0)
-            .',clickable_urls='.db_input(isset($vars['clickable_urls'])?1:0)
-            .',hide_staff_name='.db_input(isset($vars['hide_staff_name'])?1:0)
-            .',allow_attachments='.db_input(isset($vars['allow_attachments'])?1:0)
-            .',allowed_filetypes='.db_input(strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))))
-            .',max_file_size='.db_input($vars['max_file_size'])
-            .',max_user_file_uploads='.db_input($vars['max_user_file_uploads'])
-            .',max_staff_file_uploads='.db_input($vars['max_staff_file_uploads'])
-            .',email_attachments='.db_input(isset($vars['email_attachments'])?1:0)
-            .',allow_email_attachments='.db_input(isset($vars['allow_email_attachments'])?1:0)
-            .',allow_online_attachments='.db_input(isset($vars['allow_online_attachments'])?1:0)
-            .',allow_online_attachments_onlogin='.db_input(isset($vars['allow_online_attachments_onlogin'])?1:0)
-            .' WHERE id='.db_input($this->getId());
-
-        return (db_query($sql));
+        return $this->updateAll(array(
+            'random_ticket_ids'=>$vars['random_ticket_ids'],
+            'default_priority_id'=>$vars['default_priority_id'],
+            'default_sla_id'=>$vars['default_sla_id'],
+            'max_open_tickets'=>$vars['max_open_tickets'],
+            'autolock_minutes'=>$vars['autolock_minutes'],
+            'allow_priority_change'=>isset($vars['allow_priority_change'])?1:0,
+            'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
+            'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
+            'log_ticket_activity'=>isset($vars['log_ticket_activity'])?1:0,
+            'auto_assign_reopened_tickets'=>isset($vars['auto_assign_reopened_tickets'])?1:0,
+            'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?1:0,
+            'show_answered_tickets'=>isset($vars['show_answered_tickets'])?1:0,
+            'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
+            'show_notes_inline'=>isset($vars['show_notes_inline'])?1:0,
+            'clickable_urls'=>isset($vars['clickable_urls'])?1:0,
+            'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
+            'allow_attachments'=>isset($vars['allow_attachments'])?1:0,
+            'allowed_filetypes'=>strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))),
+            'max_file_size'=>$vars['max_file_size'],
+            'max_user_file_uploads'=>$vars['max_user_file_uploads'],
+            'max_staff_file_uploads'=>$vars['max_staff_file_uploads'],
+            'email_attachments'=>isset($vars['email_attachments'])?1:0,
+            'allow_email_attachments'=>isset($vars['allow_email_attachments'])?1:0,
+            'allow_online_attachments'=>isset($vars['allow_online_attachments'])?1:0,
+            'allow_online_attachments_onlogin'=>isset($vars['allow_online_attachments_onlogin'])?1:0,
+        ), 'core');
     }
 
 
@@ -718,20 +748,16 @@ class Config {
         if(!Validator::process($f,$vars,$errors) || $errors)
             return false;
 
-        $sql='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-            .',default_email_id='.db_input($vars['default_email_id'])
-            .',alert_email_id='.db_input($vars['alert_email_id'])
-            .',default_smtp_id='.db_input($vars['default_smtp_id'])
-            .',admin_email='.db_input($vars['admin_email'])
-            .',enable_auto_cron='.db_input(isset($vars['enable_auto_cron'])?1:0)
-            .',enable_mail_polling='.db_input(isset($vars['enable_mail_polling'])?1:0)
-            .',strip_quoted_reply='.db_input(isset($vars['strip_quoted_reply'])?1:0)
-            .',reply_separator='.db_input($vars['reply_separator'])
-            .' WHERE id='.db_input($this->getId());
-
-
-
-        return (db_query($sql));
+        return $this->updateAll(array(
+            'default_email_id'=>$vars['default_email_id'],
+            'alert_email_id'=>$vars['alert_email_id'],
+            'default_smtp_id'=>$vars['default_smtp_id'],
+            'admin_email'=>$vars['admin_email'],
+            'enable_auto_cron'=>isset($vars['enable_auto_cron'])?1:0,
+            'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
+            'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
+            'reply_separator'=>$vars['reply_separator'],
+         ), 'core');
     }
 
     function updateAttachmentsSetting($vars,&$errors) {
@@ -760,33 +786,29 @@ class Config {
 
         if($errors) return false;
 
-        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-             .',allow_attachments='.db_input(isset($vars['allow_attachments'])?1:0)
-             .',allowed_filetypes='.db_input(strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))))
-             .',max_file_size='.db_input($vars['max_file_size'])
-             .',max_user_file_uploads='.db_input($vars['max_user_file_uploads'])
-             .',max_staff_file_uploads='.db_input($vars['max_staff_file_uploads'])
-             .',email_attachments='.db_input(isset($vars['email_attachments'])?1:0)
-             .',allow_email_attachments='.db_input(isset($vars['allow_email_attachments'])?1:0)
-             .',allow_online_attachments='.db_input(isset($vars['allow_online_attachments'])?1:0)
-             .',allow_online_attachments_onlogin='.db_input(isset($vars['allow_online_attachments_onlogin'])?1:0)
-             .' WHERE id='.db_input($this->getId());
-
-        return (db_query($sql));
+        return $this->updateAll(array(
+            'allow_attachments'=>isset($vars['allow_attachments'])?1:0,
+            'allowed_filetypes'=>strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))),
+            'max_file_size'=>$vars['max_file_size'],
+            'max_user_file_uploads'=>$vars['max_user_file_uploads'],
+            'max_staff_file_uploads'=>$vars['max_staff_file_uploads'],
+            'email_attachments'=>isset($vars['email_attachments'])?1:0,
+            'allow_email_attachments'=>isset($vars['allow_email_attachments'])?1:0,
+            'allow_online_attachments'=>isset($vars['allow_online_attachments'])?1:0,
+            'allow_online_attachments_onlogin'=>isset($vars['allow_online_attachments_onlogin'])?1:0,
+        ), 'core');
     }
 
     function updateAutoresponderSettings($vars, &$errors) {
 
         if($errors) return false;
 
-        $sql ='UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-             .',ticket_autoresponder='.db_input($vars['ticket_autoresponder'])
-             .',message_autoresponder='.db_input($vars['message_autoresponder'])
-             .',ticket_notice_active='.db_input($vars['ticket_notice_active'])
-             .',overlimit_notice_active='.db_input($vars['overlimit_notice_active'])
-             .' WHERE id='.db_input($this->getId());
-
-        return (db_query($sql));
+        return $this->updateAll(array(
+            'ticket_autoresponder'=>$vars['ticket_autoresponder'],
+            'message_autoresponder'=>$vars['message_autoresponder'],
+            'ticket_notice_active'=>$vars['ticket_notice_active'],
+            'overlimit_notice_active'=>$vars['overlimit_notice_active'],
+        ), 'core');
     }
 
 
@@ -794,12 +816,10 @@ class Config {
 
         if($errors) return false;
 
-        $sql = 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-              .',enable_kb='.db_input(isset($vars['enable_kb'])?1:0)
-              .',enable_premade='.db_input(isset($vars['enable_premade'])?1:0)
-              .' WHERE id='.db_input($this->getId());
-
-        return (db_query($sql));
+        return $this->updateAll(array(
+            'enable_kb'=>isset($vars['enable_kb'])?1:0,
+               'enable_premade'=>isset($vars['enable_premade'])?1:0,
+        ), 'core');
     }
 
 
@@ -849,43 +869,40 @@ class Config {
 
         if($errors) return false;
 
-        $sql= 'UPDATE '.CONFIG_TABLE.' SET updated=NOW() '
-             .',ticket_alert_active='.db_input($vars['ticket_alert_active'])
-             .',ticket_alert_admin='.db_input(isset($vars['ticket_alert_admin'])?1:0)
-             .',ticket_alert_dept_manager='.db_input(isset($vars['ticket_alert_dept_manager'])?1:0)
-             .',ticket_alert_dept_members='.db_input(isset($vars['ticket_alert_dept_members'])?1:0)
-             .',message_alert_active='.db_input($vars['message_alert_active'])
-             .',message_alert_laststaff='.db_input(isset($vars['message_alert_laststaff'])?1:0)
-             .',message_alert_assigned='.db_input(isset($vars['message_alert_assigned'])?1:0)
-             .',message_alert_dept_manager='.db_input(isset($vars['message_alert_dept_manager'])?1:0)
-             .',note_alert_active='.db_input($vars['note_alert_active'])
-             .',note_alert_laststaff='.db_input(isset($vars['note_alert_laststaff'])?1:0)
-             .',note_alert_assigned='.db_input(isset($vars['note_alert_assigned'])?1:0)
-             .',note_alert_dept_manager='.db_input(isset($vars['note_alert_dept_manager'])?1:0)
-             .',assigned_alert_active='.db_input($vars['assigned_alert_active'])
-             .',assigned_alert_staff='.db_input(isset($vars['assigned_alert_staff'])?1:0)
-             .',assigned_alert_team_lead='.db_input(isset($vars['assigned_alert_team_lead'])?1:0)
-             .',assigned_alert_team_members='.db_input(isset($vars['assigned_alert_team_members'])?1:0)
-             .',transfer_alert_active='.db_input($vars['transfer_alert_active'])
-             .',transfer_alert_assigned='.db_input(isset($vars['transfer_alert_assigned'])?1:0)
-             .',transfer_alert_dept_manager='.db_input(isset($vars['transfer_alert_dept_manager'])?1:0)
-             .',transfer_alert_dept_members='.db_input(isset($vars['transfer_alert_dept_members'])?1:0)
-             .',overdue_alert_active='.db_input($vars['overdue_alert_active'])
-             .',overdue_alert_assigned='.db_input(isset($vars['overdue_alert_assigned'])?1:0)
-             .',overdue_alert_dept_manager='.db_input(isset($vars['overdue_alert_dept_manager'])?1:0)
-             .',overdue_alert_dept_members='.db_input(isset($vars['overdue_alert_dept_members'])?1:0)
-             .',send_sys_errors='.db_input(isset($vars['send_sys_errors'])?1:0)
-             .',send_sql_errors='.db_input(isset($vars['send_sql_errors'])?1:0)
-             .',send_login_errors='.db_input(isset($vars['send_login_errors'])?1:0)
-             .' WHERE id='.db_input($this->getId());
-
-        return (db_query($sql));
-
+        return $this->updateAll(array(
+            'ticket_alert_active'=>$vars['ticket_alert_active'],
+            'ticket_alert_admin'=>isset($vars['ticket_alert_admin'])?1:0,
+            'ticket_alert_dept_manager'=>isset($vars['ticket_alert_dept_manager'])?1:0,
+            'ticket_alert_dept_members'=>isset($vars['ticket_alert_dept_members'])?1:0,
+            'message_alert_active'=>$vars['message_alert_active'],
+            'message_alert_laststaff'=>isset($vars['message_alert_laststaff'])?1:0,
+            'message_alert_assigned'=>isset($vars['message_alert_assigned'])?1:0,
+            'message_alert_dept_manager'=>isset($vars['message_alert_dept_manager'])?1:0,
+            'note_alert_active'=>$vars['note_alert_active'],
+            'note_alert_laststaff'=>isset($vars['note_alert_laststaff'])?1:0,
+            'note_alert_assigned'=>isset($vars['note_alert_assigned'])?1:0,
+            'note_alert_dept_manager'=>isset($vars['note_alert_dept_manager'])?1:0,
+            'assigned_alert_active'=>$vars['assigned_alert_active'],
+            'assigned_alert_staff'=>isset($vars['assigned_alert_staff'])?1:0,
+            'assigned_alert_team_lead'=>isset($vars['assigned_alert_team_lead'])?1:0,
+            'assigned_alert_team_members'=>isset($vars['assigned_alert_team_members'])?1:0,
+            'transfer_alert_active'=>$vars['transfer_alert_active'],
+            'transfer_alert_assigned'=>isset($vars['transfer_alert_assigned'])?1:0,
+            'transfer_alert_dept_manager'=>isset($vars['transfer_alert_dept_manager'])?1:0,
+            'transfer_alert_dept_members'=>isset($vars['transfer_alert_dept_members'])?1:0,
+            'overdue_alert_active'=>$vars['overdue_alert_active'],
+            'overdue_alert_assigned'=>isset($vars['overdue_alert_assigned'])?1:0,
+            'overdue_alert_dept_manager'=>isset($vars['overdue_alert_dept_manager'])?1:0,
+            'overdue_alert_dept_members'=>isset($vars['overdue_alert_dept_members'])?1:0,
+            'send_sys_errors'=>isset($vars['send_sys_errors'])?1:0,
+            'send_sql_errors'=>isset($vars['send_sql_errors'])?1:0,
+            'send_login_errors'=>isset($vars['send_login_errors'])?1:0,
+        ), 'core');
     }
 
     /** static **/
-    function lookup($id) {
-        return ($id && ($cfg = new Config($id)) && $cfg->getId()==$id)?$cfg:null;
+    function lookup($section=null) {
+        return (($cfg = new Config($section)) && $cfg->getNamespace()==$section)?$cfg:null;
     }
 }
 ?>

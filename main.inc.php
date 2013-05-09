@@ -76,7 +76,7 @@
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7.0+'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE', '32de1766d56e43215041fa982dcb465e'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('SCHEMA_SIGNATURE', '75fce76967f1549ffd296a44139dea57'); //MD5 signature of the db schema. (used to trigger upgrades)
     #load config info
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
@@ -193,6 +193,7 @@
 
     #Connect to the DB && get configuration from database
     $ferror=null;
+<<<<<<< HEAD
     $options = array();
     if (defined('DBSSLCA'))
         $options['ssl'] = array(
@@ -206,6 +207,11 @@
     }elseif(!db_select_database(DBNAME)) {
         $ferror='Unknown or invalid database '.DBNAME;
     } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
+=======
+    if (!db_connect(DBHOST,DBUSER,DBPASS) || !db_select_database(DBNAME)) {
+        $ferror='Unable to connect to the database';
+    } elseif(!($ost=osTicket::start()) || !($cfg = $ost->getConfig())) {
+>>>>>>> Federate configuration settings
         $ferror='Unable to load config info from DB. Get tech support.';
     }
 

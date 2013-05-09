@@ -46,9 +46,9 @@ class osTicket {
     var $session;
     var $csrf;
 
-    function osTicket($cfgId) {
+    function osTicket() {
 
-        $this->config = Config::lookup($cfgId);
+        $this->config = Config::lookup();
 
         //DB based session storage was added starting with v1.7
         if($this->config && !$this->getConfig()->getDBVersion())
@@ -64,7 +64,11 @@ class osTicket {
     }
 
     function isUpgradePending() {
-        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getDBSignature(), SCHEMA_SIGNATURE));
+		foreach (Migrator::getUpgradeStreams() as $stream=>$hash)
+			if (strcasecmp($hash,
+					$this->getConfig()->get('schema_signature', $stream)))
+				return true;
+		return false;
     }
 
     function getSession() {
@@ -73,11 +77,6 @@ class osTicket {
 
     function getConfig() {
         return $this->config;
-    }
-
-    function getConfigId() {
-
-        return $this->getConfig()?$this->getConfig()->getId():0;
     }
 
     function getDBSignature() {
@@ -364,9 +363,9 @@ class osTicket {
     }
 
     /**** static functions ****/
-    function start($configId) {
+    function start() {
 
-        if(!$configId || !($ost = new osTicket($configId)) || $ost->getConfigId()!=$configId)
+        if(!($ost = new osTicket()))
             return null;
 
         //Set default time zone... user/staff settting will overwrite it (on login).
