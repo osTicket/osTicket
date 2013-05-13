@@ -27,13 +27,6 @@ class UpgraderAjaxAPI extends AjaxController {
 
         $upgrader = new Upgrader(TABLE_PREFIX, UPGRADE_DIR.'streams/');
 
-        //Just report the next action on the first call.
-        if(!$_SESSION['ost_upgrader'] || !$_SESSION['ost_upgrader'][$upgrader->getShash()]['progress']) {
-            $_SESSION['ost_upgrader'][$upgrader->getShash()]['progress'] = $upgrader->getNextAction();
-            Http::response(200, $upgrader->getNextAction());
-            exit;
-        }
-
         if($upgrader->isAborted()) {
             Http::response(416, "We have a problem ... wait a sec.");
             exit;

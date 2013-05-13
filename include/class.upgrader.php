@@ -98,7 +98,8 @@ class Upgrader {
     }
 
     function getNumPendingTasks() {
-        return $this->getCurrentStream()->getNumPendingTasks();
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getNumPendingTasks();
     }
 
     function doTasks() {
@@ -125,7 +126,8 @@ class Upgrader {
     }
 
     function getSHash() {
-        return $this->getCurrentStream()->getSHash();
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getSHash();
     }
 }
 
