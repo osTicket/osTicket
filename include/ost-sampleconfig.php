@@ -4,7 +4,7 @@
 
     Static osTicket configuration file. Mainly useful for mysql login info.
     Created during installation process and shouldn't change even on upgrades.
-   
+
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2010 osTicket
     http://www.osticket.com
@@ -36,10 +36,30 @@ define('ADMIN_EMAIL','%ADMIN-EMAIL');
 
 #Mysql Login info
 define('DBTYPE','mysql');
-define('DBHOST','%CONFIG-DBHOST'); 
+define('DBHOST','%CONFIG-DBHOST');
 define('DBNAME','%CONFIG-DBNAME');
 define('DBUSER','%CONFIG-DBUSER');
 define('DBPASS','%CONFIG-DBPASS');
+
+# SSL Options
+# ---------------------------------------------------
+# SSL options for MySQL can be enabled by adding a certificate allowed by
+# the database server here. To use SSL, you must have a client certificate
+# signed by a CA (certificate authority). You can easily create this
+# yourself with the EasyRSA suite. Give the public CA certificate, and both
+# the public and private parts of your client certificate below.
+#
+# Once configured, you can ask MySQL to require the certificate for
+# connections:
+#
+# > create user osticket;
+# > grant all on osticket.* to osticket require subject '<subject>';
+#
+# More information (to-be) available in doc/security/hardening.md
+
+# define('DBSSLCA','/path/to/ca.crt');
+# define('DBSSLCERT','/path/to/client.crt');
+# define('DBSSLKEY','/path/to/client.key');
 
 #Table prefix
 define('TABLE_PREFIX','%CONFIG-PREFIX');
