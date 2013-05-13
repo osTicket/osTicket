@@ -71,13 +71,13 @@ class DatabaseMigrater {
         return array_filter($patches);
     }
 
-	/**
+    /**
      * Reads update stream information from UPGRADE_DIR/<streams>/streams.cfg.
      * Each declared stream folder should contain a file under the name of the
-     * stream with an 'md5' extension. The file will be the md5 of the
+     * stream with an 'sig' extension. The file will be the hash of the
      * signature of the tip of the stream. A corresponding config variable
      * 'schema_signature' should exist in the namespace of the stream itself.
-     * If the md5 file doesn't match the schema_signature on record, then an
+     * If the hash file doesn't match the schema_signature on record, then an
      * update is triggered and the patches in the stream folder are used to
      * upgrade the database.
 	 */
@@ -85,17 +85,18 @@ class DatabaseMigrater {
 		static $streams = array();
         if ($streams) return $streams;
 
-        $config = file_get_contents($basedir.'/streams.cfg');
+        $config = @file_get_contents($basedir.'/streams.cfg');
+        if (!$config) $config = 'core';
         foreach (explode("\n", $config) as $line) {
             $line = trim(preg_replace('/#.*$/', '', $line));
             if (!$line)
                 continue;
-            else if (file_exists($basedir."$line.md5") && is_dir($basedir.$line))
-				$streams[$line] =
-                    trim(file_get_contents($basedir."$line.md5"));
+            else if (file_exists($basedir."$line.sig") && is_dir($basedir.$line))
+                $streams[$line] =
+                    trim(file_get_contents($basedir."$line.sig"));
         }
-		return $streams;
-	}
+        return $streams;
+    }
 }
 
 

@@ -116,7 +116,7 @@ class Installer extends SetupWizard {
         if(!file_exists($schemaFile) || !($fp = fopen($schemaFile, 'rb')))
             $this->errors['err']='Internal Error - please make sure your download is the latest (#1)';
         elseif(
-                !($signature=trim(file_get_contents("$schemaFile.md5")))
+                !($signature=trim(file_get_contents("$schemaFile.sig")))
                 || !($hash=md5(fread($fp, filesize($schemaFile))))
                 || strcasecmp($signature, $hash))
             $this->errors['err']='Unknown or invalid schema signature ('

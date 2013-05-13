@@ -22,7 +22,7 @@ class Upgrader {
         global $ost;
 
         $this->streams = array();
-		foreach (DatabaseMigrater::getUpgradeStreams($basedir) as $stream=>$hash) {
+        foreach (DatabaseMigrater::getUpgradeStreams($basedir) as $stream=>$hash) {
             $signature = $ost->getConfig()->getSchemaSignature($stream);
             $this->streams[$stream] = new StreamUpgrader($signature, $hash, $stream,
                 $prefix, $basedir.$stream.'/', $this);
@@ -151,10 +151,10 @@ class StreamUpgrader extends SetupWizard {
 
     /**
      * Parameters:
-     * schema_signature - (string<md5-hex>) Current database-reflected (via
+     * schema_signature - (string<hash-hex>) Current database-reflected (via
      *      config table) version of the stream
-     * target - (stream<md5-hex>) Current stream tip, as reflected by
-     *      streams/<stream>.md5
+     * target - (stream<hash-hex>) Current stream tip, as reflected by
+     *      streams/<stream>.sig
      * stream - (string) Name of the stream (folder)
      * prefix - (string) Database table prefix
      * sqldir - (string<path>) Path of sql patches
