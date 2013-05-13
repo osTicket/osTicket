@@ -72,7 +72,7 @@ class DatabaseMigrater {
     }
 
 	/**
-     * Reads update stream information from UPGRADE_DIR/<stream>/<stream>.md5.
+     * Reads update stream information from UPGRADE_DIR/<streams>/streams.cfg.
      * Each declared stream folder should contain a file under the name of the
      * stream with an 'md5' extension. The file will be the md5 of the
      * signature of the tip of the stream. A corresponding config variable
@@ -85,11 +85,15 @@ class DatabaseMigrater {
 		static $streams = array();
         if ($streams) return $streams;
 
-		$h = opendir($basedir);
-		while (($next = readdir($h)) !== false)
-			if (file_exists($basedir."$next.md5") && is_dir($basedir.$next))
-				$streams[$next] =
-                    trim(file_get_contents($basedir."$next.md5"));
+        $config = file_get_contents($basedir.'/streams.cfg');
+        foreach (explode("\n", $config) as $line) {
+            $line = trim(preg_replace('/#.*$/', '', $line));
+            if (!$line)
+                continue;
+            else if (file_exists($basedir."$line.md5") && is_dir($basedir.$line))
+				$streams[$line] =
+                    trim(file_get_contents($basedir."$line.md5"));
+        }
 		return $streams;
 	}
 }
