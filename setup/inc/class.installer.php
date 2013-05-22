@@ -44,7 +44,7 @@ class Installer extends SetupWizard {
     function install($vars) {
 
         $this->errors=$f=array();
-        
+
         $f['name']          = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
         $f['email']         = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
         $f['fname']         = array('type'=>'string',   'required'=>1, 'error'=>'First name required');
@@ -58,7 +58,7 @@ class Installer extends SetupWizard {
         $f['dbname']        = array('type'=>'string',   'required'=>1, 'error'=>'Database name required');
         $f['dbuser']        = array('type'=>'string',   'required'=>1, 'error'=>'Username required');
         $f['dbpass']        = array('type'=>'string',   'required'=>1, 'error'=>'password required');
-        
+
 
         if(!Validator::process($f,$vars,$this->errors) && !$this->errors['err'])
             $this->errors['err']='Missing or invalid data - correct the errors and try again.';
@@ -67,14 +67,14 @@ class Installer extends SetupWizard {
         //Staff's email can't be same as system emails.
         if($vars['admin_email'] && $vars['email'] && !strcasecmp($vars['admin_email'],$vars['email']))
             $this->errors['admin_email']='Conflicts with system email above';
-        //Admin's pass confirmation. 
+        //Admin's pass confirmation.
         if(!$this->errors && strcasecmp($vars['passwd'],$vars['passwd2']))
             $this->errors['passwd2']='passwords to not match!';
         //Check table prefix underscore required at the end!
         if($vars['prefix'] && substr($vars['prefix'], -1)!='_')
             $this->errors['prefix']='Bad prefix. Must have underscore (_) at the end. e.g \'ost_\'';
 
-        //Make sure admin username is not very predictable. XXX: feels dirty but necessary 
+        //Make sure admin username is not very predictable. XXX: feels dirty but necessary
         if(!$this->errors['username'] && in_array(strtolower($vars['username']),array('admin','admins','username','osticket')))
             $this->errors['username']='Bad username';
 
@@ -123,11 +123,27 @@ class Installer extends SetupWizard {
             $this->errors['err']='Unable to open config file for writing. Permission denied! (#3)';
         elseif(!$this->load_sql_file($schemaFile,$vars['prefix'], true, $debug))
             $this->errors['err']='Error parsing SQL schema! Get help from developers (#4)';
-              
+
+        $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
+        $sla_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
+        $dept_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template ORDER BY `tpl_id` LIMIT 1';
+        $template_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
+        $group_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
+        $eastern_timezone = mysql_result(mysql_query($sql), 0);
+
         if(!$this->errors) {
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
-                .', isactive=1, isadmin=1, group_id=1, dept_id=1, timezone_id=8, max_page_size=25 '
+                .", isactive=1, isadmin=1, group_id=$group_id_1, dept_id=$dept_id_1"
+                .", timezone_id=$eastern_timezone, max_page_size=25"
                 .', email='.db_input($_POST['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])
@@ -138,11 +154,26 @@ class Installer extends SetupWizard {
         }
 
         if(!$this->errors) {
+            //Create default emails!
+            $email = $vars['email'];
+            list(,$domain)=explode('@',$vars['email']);
+            $sql='INSERT INTO '.PREFIX.'email (`name`,`email`,`created`,`updated`) VALUES '
+                    ." ('Support','$email',NOW(),NOW())"
+                    .",('osTicket Alerts','alerts@$domain',NOW(),NOW())"
+                    .",('','noreply@$domain',NOW(),NOW())";
+            @mysql_query($sql);
+            $support_email_id = mysql_insert_id();
+
+            $sql='SELECT `email_id` FROM '.PREFIX."email WHERE `email`='alerts@$domain' LIMIT 1";
+            $alert_email_id = mysql_result(mysql_query($sql), 0);
+
             //Create config settings---default settings!
             //XXX: rename ostversion  helpdesk_* ??
             $sql='INSERT INTO '.PREFIX.'config SET updated=NOW(), isonline=0 '
-                .', default_email_id=1, alert_email_id=2, default_dept_id=1 '
-                .', default_sla_id=1, default_timezone_id=8, default_template_id=1 '
+                .", default_email_id=$support_email_id, alert_email_id=$alert_email_id"
+                .", default_dept_id=$dept_id_1"
+                .", default_sla_id=$sla_id_1, default_timezone_id=$eastern_timezone"
+                .", default_template_id=$template_id_1 "
                 .', admin_email='.db_input($vars['admin_email'])
                 .', schema_signature='.db_input($signature)
                 .', helpdesk_url='.db_input(URL)
@@ -170,18 +201,17 @@ class Installer extends SetupWizard {
         @fclose($fp);
 
         /************* Make the system happy ***********************/
-        //Create default emails!
-        $email = $vars['email'];
-        list(,$domain)=explode('@',$vars['email']);
-        $sql='INSERT INTO '.PREFIX.'email (`email_id`, `dept_id`, `name`,`email`,`created`,`updated`) VALUES '
-                ." (1,1,'Support','$email',NOW(),NOW())"
-                .",(2,1,'osTicket Alerts','alerts@$domain',NOW(),NOW())"
-                .",(3,1,'','noreply@$domain',NOW(),NOW())";
-        @mysql_query($sql);
-                   
+
+
+        $sql='UPDATE '.PREFIX."email SET dept_id=$dept_id_1";
+        mysql_query($sql);
+        $sql='UPDATE '.PREFIX."department SET email_id=$email_id_1"
+            .", autoresp_email_id=$email_id_1";
+        mysql_query($sql);
+
         //Create a ticket to make the system warm and happy.
         $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web" '
-            .' ,priority_id=2, dept_id=1, topic_id=1 '
+            ." ,priority_id=0, dept_id=$dept_id_1, topic_id=0 "
             .' ,ticketID='.db_input(Misc::randNumber(6))
             .' ,email="support@osticket.com" '
             .' ,name="osTicket Support" '
@@ -189,7 +219,7 @@ class Installer extends SetupWizard {
         if(mysql_query($sql) && ($tid=mysql_insert_id())) {
             if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
                 $msg='Congratulations and Thank you for choosing osTicket!';
-                        
+
             $sql='INSERT INTO '.PREFIX.'ticket_thread SET created=NOW()'
                 .', source="Web" '
                 .', thread_type="M" '
@@ -199,7 +229,7 @@ class Installer extends SetupWizard {
             @mysql_query($sql);
         }
         //TODO: create another personalized ticket and assign to admin??
-                    
+
         //Log a message.
         $msg="Congratulations osTicket basic installation completed!\n\nThank you for choosing osTicket!";
         $sql='INSERT INTO '.PREFIX.'syslog SET created=NOW(), updated=NOW(), log_type="Debug" '
