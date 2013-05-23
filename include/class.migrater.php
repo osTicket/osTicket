@@ -3,7 +3,7 @@
     class.migrater.php
 
     Migration utils required by upgrader.
-    
+
     Jared Hancock <jared@osticket.com>
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
@@ -34,11 +34,11 @@ class DatabaseMigrater {
     var $sqldir;
 
     function DatabaseMigrater($start, $end, $sqldir) {
-       
+
         $this->start = $start;
         $this->end = $end;
         $this->sqldir = $sqldir;
-       
+
     }
 
     function getPatches($stop=null) {
@@ -50,14 +50,13 @@ class DatabaseMigrater {
         while (true) {
             $next = glob($this->sqldir . substr($start, 0, 8)
                          . '-*.patch.sql');
-            if (count($next) == 1) {
+            if(!$next || empty($next)) {
+                # No patches leaving the current signature.
+                # Assume that we've applied all the available patches
+                break;
+            } elseif (count($next) == 1) {
                 $patches[] = $next[0];
                 $start = substr(basename($next[0]), 9, 8);
-            } elseif (count($next) == 0) {
-                # There are no patches leaving the current signature. We
-                # have to assume that we've applied all the available
-                # patches.
-                break;
             } else {
                 # Problem -- more than one patch exists from this snapshot.
                 # We probably need a graph approach to solve this.
@@ -69,7 +68,7 @@ class DatabaseMigrater {
                 break;
         }
 
-        return $patches;
+        return array_filter($patches);
     }
 }
 
@@ -159,7 +158,7 @@ class AttachmentMigrater {
         }
         # Get the mime/type of each file
         # XXX: Use finfo_buffer for PHP 5.3+
-        if(function_exists('mime_content_type')) { 
+        if(function_exists('mime_content_type')) {
             //XXX: function depreciated in newer versions of PHP!!!!!
             $info['type'] = mime_content_type($info['path']);
         } elseif (function_exists('finfo_file')) { // PHP 5.3.0+
@@ -193,7 +192,7 @@ class AttachmentMigrater {
     /* static */ function queueAttachments($limit=0){
         global $cfg, $ost;
 
-        # Since the queue is persistent - we want to make sure we get to empty 
+        # Since the queue is persistent - we want to make sure we get to empty
         # before we find more attachments.
         if(($qc=$this->getQueueLength()))
             return $qc;
@@ -231,9 +230,9 @@ class AttachmentMigrater {
             );
             $filename15=sprintf("%s/%s_%s",rtrim($dir,'/'),$key,$name);
             $filename16=sprintf("%s/%s/%s_%s",rtrim($dir,'/'),$month,$key,$name); //new destination.
-            if (file_exists($filename15)) { 
+            if (file_exists($filename15)) {
                 $info['path'] = $filename15;
-            } elseif (file_exists($filename16)) {  
+            } elseif (file_exists($filename16)) {
                 $info['path'] = $filename16;
             } else {
                 # XXX Cannot find file for attachment

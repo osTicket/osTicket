@@ -1549,8 +1549,11 @@ class Ticket {
             $attachments = $note->getAttachments();
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
-                if(!$staff || !is_object($staff) || !$staff->getEmail() || !$staff->isAvailable()) continue;
-                if(in_array($staff->getEmail(), $sentlist) || ($staffId && $staffId==$staff->getId())) continue;
+                if(!is_object($staff)
+                        || !$staff->isAvailable() //Don't bother vacationing staff.
+                        || in_array($staff->getEmail(), $sentlist) //No duplicates.
+                        || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
+                    continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
                 $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, $attachments);
                 $sentlist[] = $staff->getEmail();

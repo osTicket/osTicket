@@ -13,7 +13,7 @@ CREATE TABLE `%TABLE_PREFIX%api_key` (
   PRIMARY KEY  (`id`),
   KEY `ipaddr` (`ipaddr`),
   UNIQUE KEY `apikey` (`apikey`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
@@ -29,16 +29,15 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   PRIMARY KEY  (`faq_id`),
   UNIQUE KEY `question` (`question`),
   KEY `category_id` (`category_id`),
-  KEY `ispublished` (`ispublished`),
-  FULLTEXT KEY `faq` (`question`,`answer`,`keywords`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `ispublished` (`ispublished`)
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_attachment`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_attachment` (
   `faq_id` int(10) unsigned NOT NULL,
   `file_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`file_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_category`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_category` (
@@ -51,14 +50,14 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_category` (
   `updated` date NOT NULL,
   PRIMARY KEY  (`category_id`),
   KEY (`ispublic`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_topic`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   `faq_id` int(10) unsigned NOT NULL,
   `topic_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`topic_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%config`;
 CREATE TABLE `%TABLE_PREFIX%config` (
@@ -143,8 +142,8 @@ CREATE TABLE `%TABLE_PREFIX%config` (
   `allow_attachments` tinyint(1) unsigned NOT NULL default '0',
   `allow_email_attachments` tinyint(1) unsigned NOT NULL default '0',
   `allow_online_attachments` tinyint(1) unsigned NOT NULL default '0',
-  `allow_online_attachments_onlogin` tinyint(1) unsigned NOT NULL default 
-    '0',
+  `allow_online_attachments_onlogin` tinyint(1) unsigned NOT NULL default
+  '0',
   `random_ticket_ids` tinyint(1) unsigned NOT NULL default '1',
   `log_level` tinyint(1) unsigned NOT NULL default '2',
   `log_graceperiod` int(10) unsigned NOT NULL default '12',
@@ -156,14 +155,33 @@ CREATE TABLE `%TABLE_PREFIX%config` (
   `daydatetime_format` varchar(60) NOT NULL default 'D, M j Y g:ia',
   `reply_separator` varchar(60) NOT NULL default '-- do not edit --',
   `admin_email` varchar(125) NOT NULL default '',
-  `helpdesk_title` varchar(255) NOT NULL default 
-    'osTicket Support Ticket System',
+  `helpdesk_title` varchar(255) NOT NULL default
+  'osTicket Support Ticket System',
   `helpdesk_url` varchar(255) NOT NULL default '',
   `schema_signature` char(32) NOT NULL default '',
   `updated` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   KEY `isoffline` (`isonline`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
+CREATE TABLE `%TABLE_PREFIX%sla` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `isactive` tinyint(1) unsigned NOT NULL default '1',
+  `enable_priority_escalation` tinyint(1) unsigned NOT NULL default '1',
+  `disable_overdue_alerts` tinyint(1) unsigned NOT NULL default '0',
+  `grace_period` int(10) unsigned NOT NULL default '0',
+  `name` varchar(64) NOT NULL default '',
+  `notes` text,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
+INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
+  `disable_overdue_alerts`, `grace_period`, `name`, `notes`, `created`, `updated`)
+  VALUES (1, 1, 0, 48, 'Default SLA', NULL, NOW(), NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%department`;
 CREATE TABLE `%TABLE_PREFIX%department` (
@@ -186,11 +204,11 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   KEY `manager_id` (`manager_id`),
   KEY `autoresp_email_id` (`autoresp_email_id`),
   KEY `tpl_id` (`tpl_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%department` (`dept_id`, `tpl_id`, `sla_id`, `email_id`, `autoresp_email_id`, `manager_id`, `dept_name`, `dept_signature`, `ispublic`, `ticket_auto_response`, `message_auto_response`) VALUES
-    (1, 0, 0, 1, 1, 0, 'Support', 'Support Dept', 1, 1, 1),
-    (2, 0, 1, 1, 1, 0, 'Billing', 'Billing Dept', 1, 1, 1);
+INSERT INTO `%TABLE_PREFIX%department` (`sla_id`, `dept_name`, `dept_signature`, `ispublic`, `ticket_auto_response`, `message_auto_response`) VALUES
+  (0, 'Support', 'Support Dept', 1, 1, 1),
+  ((SELECT `id` FROM `%TABLE_PREFIX%sla` ORDER BY `id` LIMIT 1), 'Billing', 'Billing Dept', 1, 1, 1);
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%email`;
 CREATE TABLE `%TABLE_PREFIX%email` (
@@ -227,7 +245,7 @@ CREATE TABLE `%TABLE_PREFIX%email` (
   UNIQUE KEY `email` (`email`),
   KEY `priority_id` (`priority_id`),
   KEY `dept_id` (`dept_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%filter`;
 CREATE TABLE `%TABLE_PREFIX%filter` (
@@ -254,12 +272,12 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   PRIMARY KEY  (`id`),
   KEY `target` (`target`),
   KEY `email_id` (`email_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 
 INSERT INTO `%TABLE_PREFIX%filter` (
-  `id`,`isactive`,`execorder`,`reject_ticket`,`name`,`notes`,`created`)
-    VALUES (1, 1, 99, 1, 'SYSTEM BAN LIST', 'Internal list for email banning. Do not remove', NOW());
+`isactive`,`execorder`,`reject_ticket`,`name`,`notes`,`created`)
+VALUES (1, 99, 1, 'SYSTEM BAN LIST', 'Internal list for email banning. Do not remove', NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%filter_rule`;
 CREATE TABLE `%TABLE_PREFIX%filter_rule` (
@@ -274,12 +292,12 @@ CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `filter_id` (`filter_id`),
-  UNIQUE `filter` (`filter_id`, `what`, `how`, `val`) 
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  UNIQUE `filter` (`filter_id`, `what`, `how`, `val`)
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%filter_rule` (
-  `id`, `filter_id`, `isactive`, `what`,`how`,`val`,`created`)
-    VALUES (1, 1, 1, 'email', 'equal', 'test@example.com',NOW());
+  `filter_id`, `isactive`, `what`,`how`,`val`,`created`)
+  VALUES (LAST_INSERT_ID(), 1, 'email', 'equal', 'test@example.com',NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%email_template`;
 CREATE TABLE `%TABLE_PREFIX%email_template` (
@@ -315,13 +333,12 @@ CREATE TABLE `%TABLE_PREFIX%email_template` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`tpl_id`),
-  KEY `cfg_id` (`cfg_id`),
-  FULLTEXT KEY `message_subj` (`ticket_reply_subj`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  KEY `cfg_id` (`cfg_id`)
+) DEFAULT CHARSET=utf8;
 
 -- TODO: Dump revised copy before release!!!
-INSERT INTO `%TABLE_PREFIX%email_template` (`tpl_id`, `cfg_id`, `isactive`, `name`, `notes`, `ticket_autoresp_subj`, `ticket_autoresp_body`, `ticket_autoreply_subj`, `ticket_autoreply_body`, `ticket_notice_subj`, `ticket_notice_body`, `ticket_alert_subj`, `ticket_alert_body`, `message_autoresp_subj`, `message_autoresp_body`, `message_alert_subj`, `message_alert_body`, `note_alert_subj`, `note_alert_body`, `assigned_alert_subj`, `assigned_alert_body`, `transfer_alert_subj`, `transfer_alert_body`, `ticket_overdue_subj`, `ticket_overdue_body`, `ticket_overlimit_subj`, `ticket_overlimit_body`, `ticket_reply_subj`, `ticket_reply_body`, `created`, `updated`) VALUES
-(1, 1, 1, 'osTicket Default Template', 'Default osTicket templates', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name},\r\n\r\nA request for support has been created and assigned ticket #%{ticket.number}. A representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\nIf you wish to send additional comments or information regarding this issue, please don''t open a new ticket. Simply login using the link above and update the ticket.\r\n\r\n%{signature}', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name},\r\n\r\nA request for support has been created and assigned ticket #%{ticket.number} with the following auto-reply:\r\n\r\n%{response}\r\n\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not open another ticket. If need be, representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name},\r\n\r\nOur customer care team has created a ticket, #%{ticket.number} on your behalf, with the following message.\r\n\r\n%{message}\r\n\r\nIf you wish to provide additional comments or information regarding this issue, please don''t open a new ticket. You can update or view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\n%{signature}', 'New Ticket Alert', '%{recipient},\r\n\r\nNew ticket #%{ticket.number} created.\r\n\r\n-----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n-----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', '[#%{ticket.number}] Message Added', '%{ticket.name},\r\n\r\nYour reply to support request #%{ticket.number} has been noted.\r\n\r\nYou can view this support request progress online here: %{ticket.client_link}.\r\n\r\n%{signature}', 'New Message Alert', '%{recipient},\r\n\r\nNew message appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'New Internal Note Alert', '%{recipient},\r\n\r\nInternal note appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\n* %{note.title} *\r\n\r\n%{note.message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'Ticket #%{ticket.number} Assigned to you', '%{assignee},\r\n\r\nTicket #%{ticket.number} has been assigned to you by %{assigner}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view complete details, simply login to the support system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Support Ticket System - powered by osTicket.', 'Ticket Transfer #%{ticket.number} - %{ticket.dept.name}', '%{recipient},\r\n\r\nTicket #%{ticket.number} has been transferred to %{ticket.dept.name} department by %{staff.name}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'Stale Ticket Alert', '%{recipient},\r\n\r\nA ticket, #%{ticket.number} assigned to you or in your department is seriously overdue.\r\n\r\n%{ticket.staff_link}\r\n\r\nWe should all work hard to guarantee that all tickets are being addressed in a timely manner.\r\n\r\n- Your friendly (although with limited patience) Support Ticket System - powered by osTicket.', 'Open Tickets Limit Reached', '%{ticket.name}\r\n\r\nYou have reached the maximum number of open tickets allowed.\r\n\r\nTo be able to open another ticket, one of your pending tickets must be closed. To update or add comments to an open ticket simply login using the link below.\r\n\r\n%{url}/tickets.php?e=%{ticket.email}\r\n\r\nThank you.\r\n\r\nSupport Ticket System', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name},\r\n\r\nA customer support staff member has replied to your support request, #%{ticket.number} with the following response:\r\n\r\n%{response}\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not send another email. Instead, reply to this email or login to your account for a complete archive of all your support requests and responses.\r\n\r\n%{ticket.client_link}\r\n\r\n%{signature}', NOW(), NOW());
+INSERT INTO `%TABLE_PREFIX%email_template` (`isactive`, `name`, `notes`, `ticket_autoresp_subj`, `ticket_autoresp_body`, `ticket_autoreply_subj`, `ticket_autoreply_body`, `ticket_notice_subj`, `ticket_notice_body`, `ticket_alert_subj`, `ticket_alert_body`, `message_autoresp_subj`, `message_autoresp_body`, `message_alert_subj`, `message_alert_body`, `note_alert_subj`, `note_alert_body`, `assigned_alert_subj`, `assigned_alert_body`, `transfer_alert_subj`, `transfer_alert_body`, `ticket_overdue_subj`, `ticket_overdue_body`, `ticket_overlimit_subj`, `ticket_overlimit_body`, `ticket_reply_subj`, `ticket_reply_body`, `created`, `updated`) VALUES
+(1, 'osTicket Default Template', 'Default osTicket templates', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name},\r\n\r\nA request for support has been created and assigned ticket #%{ticket.number}. A representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\nIf you wish to send additional comments or information regarding this issue, please don''t open a new ticket. Simply login using the link above and update the ticket.\r\n\r\n%{signature}', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name},\r\n\r\nA request for support has been created and assigned ticket #%{ticket.number} with the following auto-reply:\r\n\r\n%{response}\r\n\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not open another ticket. If need be, representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name},\r\n\r\nOur customer care team has created a ticket, #%{ticket.number} on your behalf, with the following message.\r\n\r\n%{message}\r\n\r\nIf you wish to provide additional comments or information regarding this issue, please don''t open a new ticket. You can update or view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\n%{signature}', 'New Ticket Alert', '%{recipient},\r\n\r\nNew ticket #%{ticket.number} created.\r\n\r\n-----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n-----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', '[#%{ticket.number}] Message Added', '%{ticket.name},\r\n\r\nYour reply to support request #%{ticket.number} has been noted.\r\n\r\nYou can view this support request progress online here: %{ticket.client_link}.\r\n\r\n%{signature}', 'New Message Alert', '%{recipient},\r\n\r\nNew message appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'New Internal Note Alert', '%{recipient},\r\n\r\nInternal note appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\n* %{note.title} *\r\n\r\n%{note.message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'Ticket #%{ticket.number} Assigned to you', '%{assignee},\r\n\r\nTicket #%{ticket.number} has been assigned to you by %{assigner}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view complete details, simply login to the support system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Support Ticket System - powered by osTicket.', 'Ticket Transfer #%{ticket.number} - %{ticket.dept.name}', '%{recipient},\r\n\r\nTicket #%{ticket.number} has been transferred to %{ticket.dept.name} department by %{staff.name}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'Stale Ticket Alert', '%{recipient},\r\n\r\nA ticket, #%{ticket.number} assigned to you or in your department is seriously overdue.\r\n\r\n%{ticket.staff_link}\r\n\r\nWe should all work hard to guarantee that all tickets are being addressed in a timely manner.\r\n\r\n- Your friendly (although with limited patience) Support Ticket System - powered by osTicket.', 'Open Tickets Limit Reached', '%{ticket.name}\r\n\r\nYou have reached the maximum number of open tickets allowed.\r\n\r\nTo be able to open another ticket, one of your pending tickets must be closed. To update or add comments to an open ticket simply login using the link below.\r\n\r\n%{url}/tickets.php?e=%{ticket.email}\r\n\r\nThank you.\r\n\r\nSupport Ticket System', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name},\r\n\r\nA customer support staff member has replied to your support request, #%{ticket.number} with the following response:\r\n\r\n%{response}\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not send another email. Instead, reply to this email or login to your account for a complete archive of all your support requests and responses.\r\n\r\n%{ticket.client_link}\r\n\r\n%{signature}', NOW(), NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file`;
 CREATE TABLE `%TABLE_PREFIX%file` (
@@ -333,21 +350,21 @@ CREATE TABLE `%TABLE_PREFIX%file` (
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `hash` (`hash`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%file` (`id`, `type`, `size`, `hash`, `name`, `created`) VALUES
-(1, 'text/plain', '25', '670c6cc1d1dfc97fad20e5470251b255', 'osTicket.txt', NOW());
+INSERT INTO `%TABLE_PREFIX%file` (`type`, `size`, `hash`, `name`, `created`) VALUES
+  ('text/plain', '25', '670c6cc1d1dfc97fad20e5470251b255', 'osTicket.txt', NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file_chunk`;
 CREATE TABLE `%TABLE_PREFIX%file_chunk` (
-    `file_id` int(11) NOT NULL,
-    `chunk_id` int(11) NOT NULL,
-    `filedata` longblob NOT NULL,
-    PRIMARY KEY (`file_id`, `chunk_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  `file_id` int(11) NOT NULL,
+  `chunk_id` int(11) NOT NULL,
+  `filedata` longblob NOT NULL,
+  PRIMARY KEY (`file_id`, `chunk_id`)
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%file_chunk` (`file_id`, `chunk_id`, `filedata`)
-VALUES (1, 0, 0x43616e6e6564206174746163686d656e747320726f636b210a);
+  VALUES (LAST_INSERT_ID(), 0, 0x43616e6e6564206174746163686d656e747320726f636b210a);
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%groups`;
 CREATE TABLE `%TABLE_PREFIX%groups` (
@@ -370,12 +387,12 @@ CREATE TABLE `%TABLE_PREFIX%groups` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`group_id`),
   KEY `group_active` (`group_enabled`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%groups` (`group_id`, `group_enabled`, `group_name`, `can_create_tickets`, `can_edit_tickets`, `can_delete_tickets`, `can_close_tickets`, `can_assign_tickets`, `can_transfer_tickets`, `can_ban_emails`, `can_manage_premade`, `can_manage_faq`, `notes`, `created`, `updated`) VALUES
-    (1, 1, 'Admins', 1, 1, 1, 1, 1, 1, 1, 1, 1, 'overlords', NOW(), NOW()),
-    (2, 1, 'Managers', 1, 1, 1, 1, 1, 1, 1, 1, 1, '', NOW(), NOW()),
-    (3, 1, 'Staff', 1, 1, 0, 1, 1, 1, 0, 0, 0, '', NOW(), NOW());
+INSERT INTO `%TABLE_PREFIX%groups` (`group_enabled`, `group_name`, `can_create_tickets`, `can_edit_tickets`, `can_delete_tickets`, `can_close_tickets`, `can_assign_tickets`, `can_transfer_tickets`, `can_ban_emails`, `can_manage_premade`, `can_manage_faq`, `notes`, `created`, `updated`) VALUES
+  (1, 'Admins', 1, 1, 1, 1, 1, 1, 1, 1, 1, 'overlords', NOW(), NOW()),
+  (1, 'Managers', 1, 1, 1, 1, 1, 1, 1, 1, 1, '', NOW(), NOW()),
+  (1, 'Staff', 1, 1, 0, 1, 1, 1, 0, 0, 0, '', NOW(), NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
 CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
@@ -383,10 +400,11 @@ CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `dept_id` int(10) unsigned NOT NULL default '0',
   UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
   KEY `dept_id`  (`dept_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%group_dept_access` (`group_id`, `dept_id`) VALUES
-    (1, 1), (1, 2), (2, 1), (2, 2), (3, 1), (3, 2);
+INSERT INTO `%TABLE_PREFIX%group_dept_access` (`group_id`, `dept_id`)
+  SELECT `%TABLE_PREFIX%groups`.`group_id`, `%TABLE_PREFIX%department`.`dept_id`
+  FROM `%TABLE_PREFIX%groups`, `%TABLE_PREFIX%department`;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;
 CREATE TABLE `%TABLE_PREFIX%help_topic` (
@@ -411,11 +429,11 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`,`team_id`),
   KEY `sla_id` (`sla_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%help_topic` (`topic_id`, `isactive`, `ispublic`, `noautoresp`, `priority_id`, `dept_id`, `staff_id`, `team_id`, `sla_id`, `topic`, `notes`) VALUES
-    (1, 1, 1, 0, 2, 1, 0, 0, 1, 'Support', NULL),
-    (2, 1, 1, 0, 3, 1, 0, 0, 0, 'Billing', NULL);
+INSERT INTO `%TABLE_PREFIX%help_topic` (`isactive`, `ispublic`, `noautoresp`, `dept_id`, `sla_id`, `topic`, `notes`) VALUES
+  (1, 1, 0, (SELECT `dept_id` FROM `%TABLE_PREFIX%department` ORDER BY `dept_id` LIMIT 1), (SELECT `id` FROM `%TABLE_PREFIX%sla` ORDER BY `id` LIMIT 1), 'Support', NULL),
+  (1, 1, 0, (SELECT `dept_id` FROM `%TABLE_PREFIX%department` ORDER BY `dept_id` LIMIT 1), 0, 'Billing', NULL);
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%canned_response`;
 CREATE TABLE `%TABLE_PREFIX%canned_response` (
@@ -430,27 +448,27 @@ CREATE TABLE `%TABLE_PREFIX%canned_response` (
   PRIMARY KEY  (`canned_id`),
   UNIQUE KEY `title` (`title`),
   KEY `dept_id` (`dept_id`),
-  KEY `active` (`isenabled`),
-  FULLTEXT KEY `resp` (`title`,`response`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  KEY `active` (`isenabled`)
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%canned_response` (`canned_id`, `dept_id`, `isenabled`, `title`, `response`) VALUES
-    (1, 0, 1, 'What is osTicket (sample)?', '\r\nosTicket is a widely-used open source support ticket system, an attractive alternative to higher-cost and complex customer support systems - simple, lightweight, reliable, open source, web-based and easy to setup and use.'),
-    (2, 0, 1, 'Sample (with variables)', '\r\n%{ticket.name},\r\n\r\nYour ticket #%{ticket.number} created on %{ticket.create_date} is in %{ticket.dept.name} department.\r\n\r\n');
+INSERT INTO `%TABLE_PREFIX%canned_response` (`isenabled`, `title`, `response`) VALUES
+  (1, 'What is osTicket (sample)?', '\r\nosTicket is a widely-used open source support ticket system, an attractive alternative to higher-cost and complex customer support systems - simple, lightweight, reliable, open source, web-based and easy to setup and use.'),
+  (1, 'Sample (with variables)', '\r\n%{ticket.name},\r\n\r\nYour ticket #%{ticket.number} created on %{ticket.create_date} is in %{ticket.dept.name} department.\r\n\r\n');
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%canned_attachment`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%canned_attachment` (
   `canned_id` int(10) unsigned NOT NULL,
   `file_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`canned_id`,`file_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%canned_attachment` (`canned_id`, `file_id`) VALUES (1,1);
+INSERT INTO `%TABLE_PREFIX%canned_attachment` (`canned_id`, `file_id`)
+  VALUES (LAST_INSERT_ID(), (SELECT `id` FROM `%TABLE_PREFIX%file` ORDER BY `id` LIMIT 1));
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
 CREATE TABLE `%TABLE_PREFIX%session` (
-  `session_id` varchar(256) collate utf8_unicode_ci NOT NULL default '',
-  `session_data` longtext collate utf8_unicode_ci,
+  `session_id` varchar(255) collate ascii_general_ci NOT NULL default '',
+  `session_data` blob,
   `session_expire` datetime default NULL,
   `session_updated` datetime default NULL,
   `user_id` int(10) unsigned NOT NULL default '0' COMMENT 'osTicket staff ID',
@@ -459,26 +477,7 @@ CREATE TABLE `%TABLE_PREFIX%session` (
   PRIMARY KEY  (`session_id`),
   KEY `updated` (`session_updated`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
-CREATE TABLE `%TABLE_PREFIX%sla` (
-  `id` int(11) unsigned NOT NULL auto_increment,
-  `isactive` tinyint(1) unsigned NOT NULL default '1',
-  `enable_priority_escalation` tinyint(1) unsigned NOT NULL default '1',
-  `disable_overdue_alerts` tinyint(1) unsigned NOT NULL default '0',
-  `grace_period` int(10) unsigned NOT NULL default '0',
-  `name` varchar(64) NOT NULL default '',
-  `notes` text,
-  `created` datetime NOT NULL,
-  `updated` datetime NOT NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
-        `disable_overdue_alerts`, `grace_period`, `name`, `notes`, `created`, `updated`)
-    VALUES (1, 1, 0, 48, 'Default SLA', NULL, NOW(), NOW());
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%staff`;
 CREATE TABLE `%TABLE_PREFIX%staff` (
@@ -517,7 +516,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   KEY `dept_id` (`dept_id`),
   KEY `issuperuser` (`isadmin`),
   KEY `group_id` (`group_id`,`staff_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%syslog`;
 CREATE TABLE `%TABLE_PREFIX%syslog` (
@@ -531,7 +530,7 @@ CREATE TABLE `%TABLE_PREFIX%syslog` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`log_id`),
   KEY `log_type` (`log_type`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%team`;
 CREATE TABLE `%TABLE_PREFIX%team` (
@@ -547,10 +546,10 @@ CREATE TABLE `%TABLE_PREFIX%team` (
   UNIQUE KEY `name` (`name`),
   KEY `isnabled` (`isenabled`),
   KEY `lead_id` (`lead_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%team` (`lead_id`, `isenabled`, `noalerts`, `name`, `notes`, `created`, `updated`)
-    VALUES (0, 1, 0, 'Level I Support', '', NOW(), NOW());
+INSERT INTO `%TABLE_PREFIX%team` (`isenabled`, `noalerts`, `name`, `notes`, `created`, `updated`)
+  VALUES (1, 0, 'Level I Support', '', NOW(), NOW());
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%team_member`;
 CREATE TABLE `%TABLE_PREFIX%team_member` (
@@ -558,15 +557,15 @@ CREATE TABLE `%TABLE_PREFIX%team_member` (
   `staff_id` int(10) unsigned NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`team_id`,`staff_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
   `ticket_id` int(11) unsigned NOT NULL auto_increment,
   `ticketID` int(11) unsigned NOT NULL default '0',
-  `dept_id` int(10) unsigned NOT NULL default '1',
+  `dept_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
-  `priority_id` int(10) unsigned NOT NULL default '2',
+  `priority_id` int(10) unsigned NOT NULL default '0',
   `topic_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
@@ -577,8 +576,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `phone_ext` varchar(8) default NULL,
   `ip_address` varchar(64) NOT NULL default '',
   `status` enum('open','closed') NOT NULL default 'open',
-  `source` enum('Web','Email','Phone','API','Other') NOT NULL default
-'Other',
+  `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
   `isoverdue` tinyint(1) unsigned NOT NULL default '0',
   `isanswered` tinyint(1) unsigned NOT NULL default '0',
   `duedate` datetime default NULL,
@@ -600,7 +598,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `duedate` (`duedate`),
   KEY `topic_id` (`topic_id`),
   KEY `sla_id` (`sla_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_attachment`;
 CREATE TABLE `%TABLE_PREFIX%ticket_attachment` (
@@ -615,7 +613,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_attachment` (
   KEY `ref_type` (`ref_type`),
   KEY `ref_id` (`ref_id`),
   KEY `file_id` (`file_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_lock`;
 CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
@@ -627,7 +625,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
   PRIMARY KEY  (`lock_id`),
   UNIQUE KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
 CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
@@ -635,7 +633,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
   `email_mid` varchar(255) NOT NULL,
   `headers` text,
   KEY `message_id` (`email_mid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
 CREATE TABLE `%TABLE_PREFIX%ticket_event` (
@@ -650,7 +648,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `timestamp` datetime NOT NULL,
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_priority`;
 CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
@@ -664,13 +662,13 @@ CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
   UNIQUE KEY `priority` (`priority`),
   KEY `priority_urgency` (`priority_urgency`),
   KEY `ispublic` (`ispublic`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%ticket_priority` (`priority_id`, `priority`, `priority_desc`, `priority_color`, `priority_urgency`, `ispublic`) VALUES
-    (1, 'low', 'Low', '#DDFFDD', 4, 1),
-    (2, 'normal', 'Normal', '#FFFFF0', 3, 1),
-    (3, 'high', 'High', '#FEE7E7', 2, 1),
-    (4, 'emergency', 'Emergency', '#FEE7E7', 1, 0);
+INSERT INTO `%TABLE_PREFIX%ticket_priority` (`priority`, `priority_desc`, `priority_color`, `priority_urgency`, `ispublic`) VALUES
+  ('low', 'Low', '#DDFFDD', 4, 1),
+  ('normal', 'Normal', '#FFFFF0', 3, 1),
+  ('high', 'High', '#FEE7E7', 2, 1),
+  ('emergency', 'Emergency', '#FEE7E7', 1, 0);
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_thread`;
 CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
@@ -689,9 +687,8 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   PRIMARY KEY  (`id`),
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
-  KEY `pid` (`pid`),
-  FULLTEXT KEY `body` (`body`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  KEY `pid` (`pid`)
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%timezone`;
 CREATE TABLE `%TABLE_PREFIX%timezone` (
@@ -699,36 +696,36 @@ CREATE TABLE `%TABLE_PREFIX%timezone` (
   `offset` float(3,1) NOT NULL default '0.0',
   `timezone` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%timezone` (`id`, `offset`, `timezone`) VALUES
-(1, -12.0, 'Eniwetok, Kwajalein'),
-(2, -11.0, 'Midway Island, Samoa'),
-(3, -10.0, 'Hawaii'),
-(4, -9.0, 'Alaska'),
-(5, -8.0, 'Pacific Time (US & Canada)'),
-(6, -7.0, 'Mountain Time (US & Canada)'),
-(7, -6.0, 'Central Time (US & Canada), Mexico City'),
-(8, -5.0, 'Eastern Time (US & Canada), Bogota, Lima'),
-(9, -4.0, 'Atlantic Time (Canada), Caracas, La Paz'),
-(10, -3.5, 'Newfoundland'),
-(11, -3.0, 'Brazil, Buenos Aires, Georgetown'),
-(12, -2.0, 'Mid-Atlantic'),
-(13, -1.0, 'Azores, Cape Verde Islands'),
-(14, 0.0, 'Western Europe Time, London, Lisbon, Casablanca'),
-(15, 1.0, 'Brussels, Copenhagen, Madrid, Paris'),
-(16, 2.0, 'Kaliningrad, South Africa'),
-(17, 3.0, 'Baghdad, Riyadh, Moscow, St. Petersburg'),
-(18, 3.5, 'Tehran'),
-(19, 4.0, 'Abu Dhabi, Muscat, Baku, Tbilisi'),
-(20, 4.5, 'Kabul'),
-(21, 5.0, 'Ekaterinburg, Islamabad, Karachi, Tashkent'),
-(22, 5.5, 'Bombay, Calcutta, Madras, New Delhi'),
-(23, 6.0, 'Almaty, Dhaka, Colombo'),
-(24, 7.0, 'Bangkok, Hanoi, Jakarta'),
-(25, 8.0, 'Beijing, Perth, Singapore, Hong Kong'),
-(26, 9.0, 'Tokyo, Seoul, Osaka, Sapporo, Yakutsk'),
-(27, 9.5, 'Adelaide, Darwin'),
-(28, 10.0, 'Eastern Australia, Guam, Vladivostok'),
-(29, 11.0, 'Magadan, Solomon Islands, New Caledonia'),
-(30, 12.0, 'Auckland, Wellington, Fiji, Kamchatka');
+INSERT INTO `%TABLE_PREFIX%timezone` (`offset`, `timezone`) VALUES
+  (-12.0, 'Eniwetok, Kwajalein'),
+  (-11.0, 'Midway Island, Samoa'),
+  (-10.0, 'Hawaii'),
+  (-9.0, 'Alaska'),
+  (-8.0, 'Pacific Time (US & Canada)'),
+  (-7.0, 'Mountain Time (US & Canada)'),
+  (-6.0, 'Central Time (US & Canada), Mexico City'),
+  (-5.0, 'Eastern Time (US & Canada), Bogota, Lima'),
+  (-4.0, 'Atlantic Time (Canada), Caracas, La Paz'),
+  (-3.5, 'Newfoundland'),
+  (-3.0, 'Brazil, Buenos Aires, Georgetown'),
+  (-2.0, 'Mid-Atlantic'),
+  (-1.0, 'Azores, Cape Verde Islands'),
+  (0.0, 'Western Europe Time, London, Lisbon, Casablanca'),
+  (1.0, 'Brussels, Copenhagen, Madrid, Paris'),
+  (2.0, 'Kaliningrad, South Africa'),
+  (3.0, 'Baghdad, Riyadh, Moscow, St. Petersburg'),
+  (3.5, 'Tehran'),
+  (4.0, 'Abu Dhabi, Muscat, Baku, Tbilisi'),
+  (4.5, 'Kabul'),
+  (5.0, 'Ekaterinburg, Islamabad, Karachi, Tashkent'),
+  (5.5, 'Bombay, Calcutta, Madras, New Delhi'),
+  (6.0, 'Almaty, Dhaka, Colombo'),
+  (7.0, 'Bangkok, Hanoi, Jakarta'),
+  (8.0, 'Beijing, Perth, Singapore, Hong Kong'),
+  (9.0, 'Tokyo, Seoul, Osaka, Sapporo, Yakutsk'),
+  (9.5, 'Adelaide, Darwin'),
+  (10.0, 'Eastern Australia, Guam, Vladivostok'),
+  (11.0, 'Magadan, Solomon Islands, New Caledonia'),
+  (12.0, 'Auckland, Wellington, Fiji, Kamchatka');

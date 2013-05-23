@@ -124,10 +124,26 @@ class Installer extends SetupWizard {
         elseif(!$this->load_sql_file($schemaFile,$vars['prefix'], true, $debug))
             $this->errors['err']='Error parsing SQL schema! Get help from developers (#4)';
 
+        $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
+        $sla_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
+        $dept_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template ORDER BY `tpl_id` LIMIT 1';
+        $template_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
+        $group_id_1 = mysql_result(mysql_query($sql), 0);
+
+        $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
+        $eastern_timezone = mysql_result(mysql_query($sql), 0);
+
         if(!$this->errors) {
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
-                .', isactive=1, isadmin=1, group_id=1, dept_id=1, timezone_id=8, max_page_size=25 '
+                .", isactive=1, isadmin=1, group_id=$group_id_1, dept_id=$dept_id_1"
+                .", timezone_id=$eastern_timezone, max_page_size=25"
                 .', email='.db_input($_POST['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])
@@ -138,11 +154,26 @@ class Installer extends SetupWizard {
         }
 
         if(!$this->errors) {
+            //Create default emails!
+            $email = $vars['email'];
+            list(,$domain)=explode('@',$vars['email']);
+            $sql='INSERT INTO '.PREFIX.'email (`name`,`email`,`created`,`updated`) VALUES '
+                    ." ('Support','$email',NOW(),NOW())"
+                    .",('osTicket Alerts','alerts@$domain',NOW(),NOW())"
+                    .",('','noreply@$domain',NOW(),NOW())";
+            @mysql_query($sql);
+            $support_email_id = mysql_insert_id();
+
+            $sql='SELECT `email_id` FROM '.PREFIX."email WHERE `email`='alerts@$domain' LIMIT 1";
+            $alert_email_id = mysql_result(mysql_query($sql), 0);
+
             //Create config settings---default settings!
             //XXX: rename ostversion  helpdesk_* ??
             $sql='INSERT INTO '.PREFIX.'config SET updated=NOW(), isonline=0 '
-                .', default_email_id=1, alert_email_id=2, default_dept_id=1 '
-                .', default_sla_id=1, default_timezone_id=8, default_template_id=1 '
+                .", default_email_id=$support_email_id, alert_email_id=$alert_email_id"
+                .", default_dept_id=$dept_id_1"
+                .", default_sla_id=$sla_id_1, default_timezone_id=$eastern_timezone"
+                .", default_template_id=$template_id_1 "
                 .', admin_email='.db_input($vars['admin_email'])
                 .', schema_signature='.db_input($signature)
                 .', helpdesk_url='.db_input(URL)
@@ -170,18 +201,16 @@ class Installer extends SetupWizard {
         @fclose($fp);
 
         /************* Make the system happy ***********************/
-        //Create default emails!
-        $email = $vars['email'];
-        list(,$domain)=explode('@',$vars['email']);
-        $sql='INSERT INTO '.PREFIX.'email (`email_id`, `dept_id`, `name`,`email`,`created`,`updated`) VALUES '
-                ." (1,1,'Support','$email',NOW(),NOW())"
-                .",(2,1,'osTicket Alerts','alerts@$domain',NOW(),NOW())"
-                .",(3,1,'','noreply@$domain',NOW(),NOW())";
-        @mysql_query($sql);
+
+        $sql='UPDATE '.PREFIX."email SET dept_id=$dept_id_1";
+        mysql_query($sql);
+        $sql='UPDATE '.PREFIX."department SET email_id=$email_id_1"
+            .", autoresp_email_id=$email_id_1";
+        mysql_query($sql);
 
         //Create a ticket to make the system warm and happy.
         $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web" '
-            .' ,priority_id=2, dept_id=1, topic_id=1 '
+            ." ,priority_id=0, dept_id=$dept_id_1, topic_id=0 "
             .' ,ticketID='.db_input(Misc::randNumber(6))
             .' ,email="support@osticket.com" '
             .' ,name="osTicket Support" '
