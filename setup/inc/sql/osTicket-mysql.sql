@@ -13,7 +13,7 @@ CREATE TABLE `%TABLE_PREFIX%api_key` (
   PRIMARY KEY  (`id`),
   KEY `ipaddr` (`ipaddr`),
   UNIQUE KEY `apikey` (`apikey`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
@@ -29,16 +29,15 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   PRIMARY KEY  (`faq_id`),
   UNIQUE KEY `question` (`question`),
   KEY `category_id` (`category_id`),
-  KEY `ispublished` (`ispublished`),
-  FULLTEXT KEY `faq` (`question`,`answer`,`keywords`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `ispublished` (`ispublished`)
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_attachment`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_attachment` (
   `faq_id` int(10) unsigned NOT NULL,
   `file_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`file_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_category`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_category` (
@@ -51,14 +50,14 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_category` (
   `updated` date NOT NULL,
   PRIMARY KEY  (`category_id`),
   KEY (`ispublic`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_topic`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   `faq_id` int(10) unsigned NOT NULL,
   `topic_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`topic_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%config`;
 CREATE TABLE `%TABLE_PREFIX%config` (
@@ -163,7 +162,7 @@ CREATE TABLE `%TABLE_PREFIX%config` (
   `updated` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   KEY `isoffline` (`isonline`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
 CREATE TABLE `%TABLE_PREFIX%sla` (
@@ -178,7 +177,7 @@ CREATE TABLE `%TABLE_PREFIX%sla` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
   `disable_overdue_alerts`, `grace_period`, `name`, `notes`, `created`, `updated`)
@@ -205,7 +204,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   KEY `manager_id` (`manager_id`),
   KEY `autoresp_email_id` (`autoresp_email_id`),
   KEY `tpl_id` (`tpl_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%department` (`sla_id`, `dept_name`, `dept_signature`, `ispublic`, `ticket_auto_response`, `message_auto_response`) VALUES
   (0, 'Support', 'Support Dept', 1, 1, 1),
@@ -246,7 +245,7 @@ CREATE TABLE `%TABLE_PREFIX%email` (
   UNIQUE KEY `email` (`email`),
   KEY `priority_id` (`priority_id`),
   KEY `dept_id` (`dept_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%filter`;
 CREATE TABLE `%TABLE_PREFIX%filter` (
@@ -273,7 +272,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   PRIMARY KEY  (`id`),
   KEY `target` (`target`),
   KEY `email_id` (`email_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 
 INSERT INTO `%TABLE_PREFIX%filter` (
@@ -294,7 +293,7 @@ CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   PRIMARY KEY  (`id`),
   KEY `filter_id` (`filter_id`),
   UNIQUE `filter` (`filter_id`, `what`, `how`, `val`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%filter_rule` (
   `filter_id`, `isactive`, `what`,`how`,`val`,`created`)
@@ -334,9 +333,8 @@ CREATE TABLE `%TABLE_PREFIX%email_template` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`tpl_id`),
-  KEY `cfg_id` (`cfg_id`),
-  FULLTEXT KEY `message_subj` (`ticket_reply_subj`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  KEY `cfg_id` (`cfg_id`)
+) DEFAULT CHARSET=utf8;
 
 -- TODO: Dump revised copy before release!!!
 INSERT INTO `%TABLE_PREFIX%email_template` (`isactive`, `name`, `notes`, `ticket_autoresp_subj`, `ticket_autoresp_body`, `ticket_autoreply_subj`, `ticket_autoreply_body`, `ticket_notice_subj`, `ticket_notice_body`, `ticket_alert_subj`, `ticket_alert_body`, `message_autoresp_subj`, `message_autoresp_body`, `message_alert_subj`, `message_alert_body`, `note_alert_subj`, `note_alert_body`, `assigned_alert_subj`, `assigned_alert_body`, `transfer_alert_subj`, `transfer_alert_body`, `ticket_overdue_subj`, `ticket_overdue_body`, `ticket_overlimit_subj`, `ticket_overlimit_body`, `ticket_reply_subj`, `ticket_reply_body`, `created`, `updated`) VALUES
@@ -352,7 +350,7 @@ CREATE TABLE `%TABLE_PREFIX%file` (
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `hash` (`hash`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%file` (`type`, `size`, `hash`, `name`, `created`) VALUES
   ('text/plain', '25', '670c6cc1d1dfc97fad20e5470251b255', 'osTicket.txt', NOW());
@@ -363,7 +361,7 @@ CREATE TABLE `%TABLE_PREFIX%file_chunk` (
   `chunk_id` int(11) NOT NULL,
   `filedata` longblob NOT NULL,
   PRIMARY KEY (`file_id`, `chunk_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%file_chunk` (`file_id`, `chunk_id`, `filedata`)
   VALUES (LAST_INSERT_ID(), 0, 0x43616e6e6564206174746163686d656e747320726f636b210a);
@@ -389,7 +387,7 @@ CREATE TABLE `%TABLE_PREFIX%groups` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`group_id`),
   KEY `group_active` (`group_enabled`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%groups` (`group_enabled`, `group_name`, `can_create_tickets`, `can_edit_tickets`, `can_delete_tickets`, `can_close_tickets`, `can_assign_tickets`, `can_transfer_tickets`, `can_ban_emails`, `can_manage_premade`, `can_manage_faq`, `notes`, `created`, `updated`) VALUES
   (1, 'Admins', 1, 1, 1, 1, 1, 1, 1, 1, 1, 'overlords', NOW(), NOW()),
@@ -402,7 +400,7 @@ CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `dept_id` int(10) unsigned NOT NULL default '0',
   UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
   KEY `dept_id`  (`dept_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%group_dept_access` (`group_id`, `dept_id`)
   SELECT `%TABLE_PREFIX%groups`.`group_id`, `%TABLE_PREFIX%department`.`dept_id`
@@ -431,7 +429,7 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`,`team_id`),
   KEY `sla_id` (`sla_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%help_topic` (`isactive`, `ispublic`, `noautoresp`, `dept_id`, `sla_id`, `topic`, `notes`) VALUES
   (1, 1, 0, (SELECT `dept_id` FROM `%TABLE_PREFIX%department` ORDER BY `dept_id` LIMIT 1), (SELECT `id` FROM `%TABLE_PREFIX%sla` ORDER BY `id` LIMIT 1), 'Support', NULL),
@@ -450,9 +448,8 @@ CREATE TABLE `%TABLE_PREFIX%canned_response` (
   PRIMARY KEY  (`canned_id`),
   UNIQUE KEY `title` (`title`),
   KEY `dept_id` (`dept_id`),
-  KEY `active` (`isenabled`),
-  FULLTEXT KEY `resp` (`title`,`response`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  KEY `active` (`isenabled`)
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%canned_response` (`isenabled`, `title`, `response`) VALUES
   (1, 'What is osTicket (sample)?', '\r\nosTicket is a widely-used open source support ticket system, an attractive alternative to higher-cost and complex customer support systems - simple, lightweight, reliable, open source, web-based and easy to setup and use.'),
@@ -463,15 +460,15 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%canned_attachment` (
   `canned_id` int(10) unsigned NOT NULL,
   `file_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`canned_id`,`file_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%canned_attachment` (`canned_id`, `file_id`)
   VALUES (LAST_INSERT_ID(), (SELECT `id` FROM `%TABLE_PREFIX%file` ORDER BY `id` LIMIT 1));
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
 CREATE TABLE `%TABLE_PREFIX%session` (
-  `session_id` varchar(256) collate utf8_unicode_ci NOT NULL default '',
-  `session_data` longtext collate utf8_unicode_ci,
+  `session_id` varchar(255) collate ascii_general_ci NOT NULL default '',
+  `session_data` blob,
   `session_expire` datetime default NULL,
   `session_updated` datetime default NULL,
   `user_id` int(10) unsigned NOT NULL default '0' COMMENT 'osTicket staff ID',
@@ -480,7 +477,7 @@ CREATE TABLE `%TABLE_PREFIX%session` (
   PRIMARY KEY  (`session_id`),
   KEY `updated` (`session_updated`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%staff`;
 CREATE TABLE `%TABLE_PREFIX%staff` (
@@ -519,7 +516,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   KEY `dept_id` (`dept_id`),
   KEY `issuperuser` (`isadmin`),
   KEY `group_id` (`group_id`,`staff_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%syslog`;
 CREATE TABLE `%TABLE_PREFIX%syslog` (
@@ -533,7 +530,7 @@ CREATE TABLE `%TABLE_PREFIX%syslog` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`log_id`),
   KEY `log_type` (`log_type`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%team`;
 CREATE TABLE `%TABLE_PREFIX%team` (
@@ -549,7 +546,7 @@ CREATE TABLE `%TABLE_PREFIX%team` (
   UNIQUE KEY `name` (`name`),
   KEY `isnabled` (`isenabled`),
   KEY `lead_id` (`lead_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%team` (`isenabled`, `noalerts`, `name`, `notes`, `created`, `updated`)
   VALUES (1, 0, 'Level I Support', '', NOW(), NOW());
@@ -560,7 +557,7 @@ CREATE TABLE `%TABLE_PREFIX%team_member` (
   `staff_id` int(10) unsigned NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`team_id`,`staff_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
@@ -601,7 +598,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `duedate` (`duedate`),
   KEY `topic_id` (`topic_id`),
   KEY `sla_id` (`sla_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_attachment`;
 CREATE TABLE `%TABLE_PREFIX%ticket_attachment` (
@@ -616,7 +613,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_attachment` (
   KEY `ref_type` (`ref_type`),
   KEY `ref_id` (`ref_id`),
   KEY `file_id` (`file_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_lock`;
 CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
@@ -628,7 +625,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
   PRIMARY KEY  (`lock_id`),
   UNIQUE KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
 CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
@@ -636,7 +633,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
   `email_mid` varchar(255) NOT NULL,
   `headers` text,
   KEY `message_id` (`email_mid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
 CREATE TABLE `%TABLE_PREFIX%ticket_event` (
@@ -651,7 +648,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `timestamp` datetime NOT NULL,
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_priority`;
 CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
@@ -665,7 +662,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
   UNIQUE KEY `priority` (`priority`),
   KEY `priority_urgency` (`priority_urgency`),
   KEY `ispublic` (`ispublic`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%ticket_priority` (`priority`, `priority_desc`, `priority_color`, `priority_urgency`, `ispublic`) VALUES
   ('low', 'Low', '#DDFFDD', 4, 1),
@@ -690,9 +687,8 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   PRIMARY KEY  (`id`),
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
-  KEY `pid` (`pid`),
-  FULLTEXT KEY `body` (`body`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  KEY `pid` (`pid`)
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%timezone`;
 CREATE TABLE `%TABLE_PREFIX%timezone` (
@@ -700,7 +696,7 @@ CREATE TABLE `%TABLE_PREFIX%timezone` (
   `offset` float(3,1) NOT NULL default '0.0',
   `timezone` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%timezone` (`offset`, `timezone`) VALUES
   (-12.0, 'Eniwetok, Kwajalein'),
