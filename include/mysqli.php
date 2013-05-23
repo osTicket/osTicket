@@ -214,6 +214,11 @@ function db_input($var, $quote=true) {
     return db_real_escape($var, $quote);
 }
 
+function db_field_type($res, $col=0) {
+    global $__db;
+    return $res->fetch_field_direct($col);
+}
+
 function db_connect_error() {
     global $__db;
     return $__db->connect_error;

@@ -13,7 +13,7 @@ class Manager extends Module {
 
     var $usage = '$script action [options] [arguments]';
 
-    var $autohelp = false;
+    var $autohelp = true;
 
     function showHelp() {
         foreach (glob(dirname(__file__).'/modules/*.php') as $script)
