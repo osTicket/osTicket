@@ -81,7 +81,7 @@ class Installer extends SetupWizard {
         //MYSQL: Connect to the DB and check the version & database (create database if it doesn't exist!)
         if(!$this->errors) {
             if(!db_connect($vars['dbhost'],$vars['dbuser'],$vars['dbpass']))
-                $this->errors['db']='Unable to connect to MySQL server. Possibly invalid login info.';
+                $this->errors['db']='Unable to connect to MySQL server. '.db_connect_error();
             elseif(db_version()< $this->getMySQLVersion())
                 $this->errors['db']=sprintf('osTicket requires MySQL %s or better!',$this->getMySQLVersion());
             elseif(!db_select_database($vars['dbname']) && !db_create_database($vars['dbname'])) {

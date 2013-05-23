@@ -201,9 +201,10 @@
             'key' => DBSSLKEY
         );
 
-    if (!db_connect(DBHOST, DBUSER, DBPASS, $options)
-            || !db_select_database(DBNAME)) {
-        $ferror='Unable to connect to the database';
+    if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
+        $ferror='Unable to connect to the database -'.db_connect_error();
+    }elseif(!db_select_database(DBNAME)) {
+        $ferror='Unknown or invalid database '.DBNAME;
     } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
         $ferror='Unable to load config info from DB. Get tech support.';
     }
