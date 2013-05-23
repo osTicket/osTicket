@@ -72,7 +72,7 @@ class osTicketSession {
 
         $sql='REPLACE INTO '.SESSION_TABLE.' SET session_updated=NOW() '.
              ',session_id='.db_input($id).
-             ',session_data='.db_input($data).
+             ',session_data=0x'.bin2hex($data).
              ',session_expire=(NOW() + INTERVAL '.$ttl.' SECOND)'.
              ',user_id='.db_input($thisstaff?$thisstaff->getId():0).
              ',user_ip='.db_input($_SERVER['REMOTE_ADDR']).

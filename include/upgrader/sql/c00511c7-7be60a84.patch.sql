@@ -46,7 +46,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   KEY `ticket_stats` (`timestamp`, `state`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-ALTER TABLE `%TABLE_PREFIX%config` 
+ALTER TABLE `%TABLE_PREFIX%config`
     ADD `passwd_reset_period` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `staff_session_timeout`,
     ADD `default_timezone_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `default_template_id`,
     ADD `default_sla_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `default_dept_id`,
@@ -56,7 +56,7 @@ ALTER TABLE `%TABLE_PREFIX%config`
     ADD `max_staff_file_uploads` TINYINT UNSIGNED NOT NULL AFTER `max_user_file_uploads`,
     ADD `assigned_alert_active` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `overdue_alert_dept_members`,
     ADD `assigned_alert_staff` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `assigned_alert_active`,
-    ADD `assigned_alert_team_lead` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `assigned_alert_staff`, 
+    ADD `assigned_alert_team_lead` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `assigned_alert_staff`,
     ADD `assigned_alert_team_members` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `assigned_alert_team_lead`,
     ADD `transfer_alert_active` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `note_alert_dept_manager` ,
     ADD `transfer_alert_assigned` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `transfer_alert_active` ,
@@ -72,7 +72,7 @@ ALTER TABLE `%TABLE_PREFIX%config`
 UPDATE `%TABLE_PREFIX%config` SET default_timezone_id =
     (SELECT id FROM `%TABLE_PREFIX%timezone` WHERE offset = `%TABLE_PREFIX%config`.timezone_offset);
 
-ALTER TABLE `%TABLE_PREFIX%staff` 
+ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `passwdreset` DATETIME NULL DEFAULT NULL AFTER `lastlogin`;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%sla` (
     PRIMARY KEY  (`id`),
     UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
- 
+
 -- Create a default SLA
 INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
         `disable_overdue_alerts`, `grace_period`, `name`, `notes`, `created`, `updated`)
@@ -134,7 +134,7 @@ ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `default_signature_type` ENUM( 'none', 'mine', 'dept' ) NOT NULL DEFAULT 'none' AFTER `auto_refresh_rate`;
 
 -- Copy over time zone offet to tz_id
-UPDATE `%TABLE_PREFIX%staff` SET timezone_id = 
+UPDATE `%TABLE_PREFIX%staff` SET timezone_id =
     (SELECT id FROM `%TABLE_PREFIX%timezone` WHERE offset = `%TABLE_PREFIX%staff`.timezone_offset);
 
 ALTER TABLE `%TABLE_PREFIX%groups`
@@ -159,14 +159,14 @@ ALTER TABLE `%TABLE_PREFIX%help_topic`
     ADD team_id INT UNSIGNED NOT NULL DEFAULT '0' AFTER staff_id,
     ADD sla_id INT UNSIGNED NOT NULL DEFAULT '0' AFTER team_id,
     ADD INDEX ( staff_id , team_id ),
-    ADD INDEX ( sla_id ); 
+    ADD INDEX ( sla_id );
 
 ALTER TABLE `%TABLE_PREFIX%email`
     ADD mail_archivefolder VARCHAR(255) NULL AFTER mail_fetchmax,
     ADD notes TEXT NULL DEFAULT NULL AFTER smtp_auth,
     ADD smtp_spoofing TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER smtp_auth;
 
-ALTER TABLE `%TABLE_PREFIX%api_key` 
+ALTER TABLE `%TABLE_PREFIX%api_key`
     ADD notes TEXT NULL DEFAULT NULL AFTER apikey,
     ADD UNIQUE (apikey);
 
@@ -199,11 +199,11 @@ CREATE TABLE `%TABLE_PREFIX%email_filter` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- Copy banlist to a new email filter
-INSERT INTO `%TABLE_PREFIX%email_filter` (`id`, `execorder`, `isactive`,
+INSERT INTO `%TABLE_PREFIX%email_filter` (`execorder`, `isactive`,
     `match_all_rules`, `stop_onmatch`, `reject_email`, `use_replyto_email`,
     `disable_autoresponder`, `email_id`, `priority_id`, `dept_id`, `staff_id`,
     `team_id`, `sla_id`, `name`, `notes`) VALUES
-    (1, 99, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 'SYSTEM BAN LIST', 
+    (99, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 'SYSTEM BAN LIST',
         'Internal list for email banning. Do not remove');
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%email_filter_rule`;
@@ -219,12 +219,12 @@ CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `filter_id` (`filter_id`),
-  UNIQUE `filter` (`filter_id`, `what`, `how`, `val`) 
+  UNIQUE `filter` (`filter_id`, `what`, `how`, `val`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 -- SYSTEM BAN LIST was the first filter created, with ID of '1'
-INSERT INTO `%TABLE_PREFIX%email_filter_rule` (`filter_id`, `what`, `how`, `val`) 
-    SELECT 1, 'email', 'equals', email FROM `%TABLE_PREFIX%email_banlist`;
+INSERT INTO `%TABLE_PREFIX%email_filter_rule` (`filter_id`, `what`, `how`, `val`)
+    SELECT LAST_INSERT_ID(), 'email', 'equals', email FROM `%TABLE_PREFIX%email_banlist`;
 
 -- Create table session
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
@@ -283,7 +283,7 @@ ALTER TABLE `%TABLE_PREFIX%kb_premade`
   ADD `notes` TEXT NOT NULL AFTER `response`,
   DROP INDEX `title`,
   ADD FULLTEXT `resp` (`title` ,`response`);
-  
+
 ALTER TABLE `%TABLE_PREFIX%kb_premade` RENAME TO `%TABLE_PREFIX%canned_response`;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_category`;
@@ -308,4 +308,4 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
 
 
 UPDATE `%TABLE_PREFIX%config`
-    SET `schema_signature`='7be60a8432e44989e782d5914ef784d2'; 
+    SET `schema_signature`='7be60a8432e44989e782d5914ef784d2';
