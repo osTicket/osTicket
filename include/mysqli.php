@@ -22,22 +22,24 @@ function db_connect($host, $user, $passwd, $options) {
     global $__db;
 
     //Assert
-    if(!strlen($user) || !strlen($passwd) || !strlen($host))
+    if(!strlen($user) || !strlen($host))
         return NULL;
 
     if (!($__db = mysqli_init()))
         return NULL;
 
     // Setup SSL if enabled
-    if (isset($options['certs']))
-        $__db->set_ssl(
-                $options['certs']['key'],
-                $options['certs']['cert'],
-                $options['certs']['ca'],
+    if (isset($options['ssl']))
+        $__db->ssl_set(
+                $options['ssl']['key'],
+                $options['ssl']['cert'],
+                $options['ssl']['ca'],
                 null, null);
+    elseif(!$passwd)
+        return NULL;
 
     //Connectr
-    if(!$__db->real_connect($host, $user, $passwd))
+    if(!@$__db->real_connect($host, $user, $passwd))
         return NULL;
 
     //Select the database, if any.
@@ -212,6 +214,11 @@ function db_input($var, $quote=true) {
         return $var;
 
     return db_real_escape($var, $quote);
+}
+
+function db_connect_error() {
+    global $__db;
+    return $__db->connect_error;
 }
 
 function db_error() {

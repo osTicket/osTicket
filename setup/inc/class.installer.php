@@ -44,7 +44,7 @@ class Installer extends SetupWizard {
     function install($vars) {
 
         $this->errors=$f=array();
-        
+
         $f['name']          = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
         $f['email']         = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
         $f['fname']         = array('type'=>'string',   'required'=>1, 'error'=>'First name required');
@@ -58,7 +58,7 @@ class Installer extends SetupWizard {
         $f['dbname']        = array('type'=>'string',   'required'=>1, 'error'=>'Database name required');
         $f['dbuser']        = array('type'=>'string',   'required'=>1, 'error'=>'Username required');
         $f['dbpass']        = array('type'=>'string',   'required'=>1, 'error'=>'password required');
-        
+
 
         if(!Validator::process($f,$vars,$this->errors) && !$this->errors['err'])
             $this->errors['err']='Missing or invalid data - correct the errors and try again.';
@@ -67,14 +67,14 @@ class Installer extends SetupWizard {
         //Staff's email can't be same as system emails.
         if($vars['admin_email'] && $vars['email'] && !strcasecmp($vars['admin_email'],$vars['email']))
             $this->errors['admin_email']='Conflicts with system email above';
-        //Admin's pass confirmation. 
+        //Admin's pass confirmation.
         if(!$this->errors && strcasecmp($vars['passwd'],$vars['passwd2']))
             $this->errors['passwd2']='passwords to not match!';
         //Check table prefix underscore required at the end!
         if($vars['prefix'] && substr($vars['prefix'], -1)!='_')
             $this->errors['prefix']='Bad prefix. Must have underscore (_) at the end. e.g \'ost_\'';
 
-        //Make sure admin username is not very predictable. XXX: feels dirty but necessary 
+        //Make sure admin username is not very predictable. XXX: feels dirty but necessary
         if(!$this->errors['username'] && in_array(strtolower($vars['username']),array('admin','admins','username','osticket')))
             $this->errors['username']='Bad username';
 
@@ -123,7 +123,7 @@ class Installer extends SetupWizard {
             $this->errors['err']='Unable to open config file for writing. Permission denied! (#3)';
         elseif(!$this->load_sql_file($schemaFile,$vars['prefix'], true, $debug))
             $this->errors['err']='Error parsing SQL schema! Get help from developers (#4)';
-              
+
         if(!$this->errors) {
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
@@ -178,7 +178,7 @@ class Installer extends SetupWizard {
                 .",(2,1,'osTicket Alerts','alerts@$domain',NOW(),NOW())"
                 .",(3,1,'','noreply@$domain',NOW(),NOW())";
         @mysql_query($sql);
-                   
+
         //Create a ticket to make the system warm and happy.
         $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web" '
             .' ,priority_id=2, dept_id=1, topic_id=1 '
@@ -189,7 +189,7 @@ class Installer extends SetupWizard {
         if(mysql_query($sql) && ($tid=mysql_insert_id())) {
             if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
                 $msg='Congratulations and Thank you for choosing osTicket!';
-                        
+
             $sql='INSERT INTO '.PREFIX.'ticket_thread SET created=NOW()'
                 .', source="Web" '
                 .', thread_type="M" '
@@ -199,7 +199,7 @@ class Installer extends SetupWizard {
             @mysql_query($sql);
         }
         //TODO: create another personalized ticket and assign to admin??
-                    
+
         //Log a message.
         $msg="Congratulations osTicket basic installation completed!\n\nThank you for choosing osTicket!";
         $sql='INSERT INTO '.PREFIX.'syslog SET created=NOW(), updated=NOW(), log_type="Debug" '

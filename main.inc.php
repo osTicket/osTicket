@@ -195,12 +195,13 @@
     $ferror=null;
     $options = array();
     if (defined('DBSSLCA'))
-        $options['certs'] = array(
+        $options['ssl'] = array(
             'ca' => DBSSLCA,
             'cert' => DBSSLCERT,
             'key' => DBSSLKEY
         );
-    if (!db_connect(DBHOST,DBUSER,DBPASS, $options)
+
+    if (!db_connect(DBHOST, DBUSER, DBPASS, $options)
             || !db_select_database(DBNAME)) {
         $ferror='Unable to connect to the database';
     } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
