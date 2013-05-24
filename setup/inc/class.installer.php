@@ -81,7 +81,7 @@ class Installer extends SetupWizard {
         //MYSQL: Connect to the DB and check the version & database (create database if it doesn't exist!)
         if(!$this->errors) {
             if(!db_connect($vars['dbhost'],$vars['dbuser'],$vars['dbpass']))
-                $this->errors['db']='Unable to connect to MySQL server. Possibly invalid login info.';
+                $this->errors['db']='Unable to connect to MySQL server. '.db_connect_error();
             elseif(db_version()< $this->getMySQLVersion())
                 $this->errors['db']=sprintf('osTicket requires MySQL %s or better!',$this->getMySQLVersion());
             elseif(!db_select_database($vars['dbname']) && !db_create_database($vars['dbname'])) {
@@ -92,12 +92,12 @@ class Installer extends SetupWizard {
             } else {
                 //Abort if we have another installation (or table) with same prefix.
                 $sql = 'SELECT * FROM `'.$vars['prefix'].'config` LIMIT 1';
-                if(mysql_query($sql)) {
+                if(db_query($sql, false)) {
                     $this->errors['err'] = 'We have a problem - another installation with same table prefix exists!';
                     $this->errors['prefix'] = 'Prefix already in-use';
                 } else {
                     //Try changing charset and collation of the DB - no bigie if we fail.
-                    mysql_query('ALTER DATABASE '.$vars['dbname'].' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
+                    db_query('ALTER DATABASE '.$vars['dbname'].' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci', false);
                 }
             }
         }
@@ -125,19 +125,19 @@ class Installer extends SetupWizard {
             $this->errors['err']='Error parsing SQL schema! Get help from developers (#4)';
 
         $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
-        $sla_id_1 = mysql_result(mysql_query($sql), 0);
+        $sla_id_1 = db_result(db_query($sql, false), 0);
 
         $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
-        $dept_id_1 = mysql_result(mysql_query($sql), 0);
+        $dept_id_1 = db_result(db_query($sql, false), 0);
 
         $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template ORDER BY `tpl_id` LIMIT 1';
-        $template_id_1 = mysql_result(mysql_query($sql), 0);
+        $template_id_1 = db_result(db_query($sql, false), 0);
 
         $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
-        $group_id_1 = mysql_result(mysql_query($sql), 0);
+        $group_id_1 = db_result(db_query($sql, false), 0);
 
         $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
-        $eastern_timezone = mysql_result(mysql_query($sql), 0);
+        $eastern_timezone = db_result(db_query($sql, false), 0);
 
         if(!$this->errors) {
             //Create admin user.
@@ -149,7 +149,7 @@ class Installer extends SetupWizard {
                 .', lastname='.db_input($vars['lname'])
                 .', username='.db_input($vars['username'])
                 .', passwd='.db_input(Passwd::hash($vars['passwd']));
-            if(!mysql_query($sql) || !($uid=mysql_insert_id()))
+            if(!db_query($sql, false) || !($uid=db_insert_id()))
                 $this->errors['err']='Unable to create admin user (#6)';
         }
 
@@ -161,11 +161,11 @@ class Installer extends SetupWizard {
                     ." ('Support','$email',NOW(),NOW())"
                     .",('osTicket Alerts','alerts@$domain',NOW(),NOW())"
                     .",('','noreply@$domain',NOW(),NOW())";
-            @mysql_query($sql);
-            $support_email_id = mysql_insert_id();
+            $support_email_id = db_query($sql, false) ? db_insert_id() : 0;
+
 
             $sql='SELECT `email_id` FROM '.PREFIX."email WHERE `email`='alerts@$domain' LIMIT 1";
-            $alert_email_id = mysql_result(mysql_query($sql), 0);
+            $alert_email_id = db_result(db_query($sql, false), 0);
 
             //Create config settings---default settings!
             //XXX: rename ostversion  helpdesk_* ??
@@ -178,7 +178,7 @@ class Installer extends SetupWizard {
                 .', schema_signature='.db_input($signature)
                 .', helpdesk_url='.db_input(URL)
                 .', helpdesk_title='.db_input($vars['name']);
-            if(!mysql_query($sql) || !($cid=mysql_insert_id()))
+            if(!db_query($sql, false) || !($cid=db_insert_id()))
                 $this->errors['err']='Unable to create config settings (#7)';
         }
 
@@ -202,12 +202,11 @@ class Installer extends SetupWizard {
 
         /************* Make the system happy ***********************/
 
-
         $sql='UPDATE '.PREFIX."email SET dept_id=$dept_id_1";
-        mysql_query($sql);
-        $sql='UPDATE '.PREFIX."department SET email_id=$email_id_1"
-            .", autoresp_email_id=$email_id_1";
-        mysql_query($sql);
+        db_query($sql, false);
+        $sql='UPDATE '.PREFIX."department SET email_id=$support_email_id"
+            .", autoresp_email_id=$support_email_id";
+        db_query($sql, false);
 
         //Create a ticket to make the system warm and happy.
         $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web" '
@@ -216,7 +215,7 @@ class Installer extends SetupWizard {
             .' ,email="support@osticket.com" '
             .' ,name="osTicket Support" '
             .' ,subject="osTicket Installed!"';
-        if(mysql_query($sql) && ($tid=mysql_insert_id())) {
+        if(db_query($sql, false) && ($tid=db_insert_id())) {
             if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
                 $msg='Congratulations and Thank you for choosing osTicket!';
 
@@ -226,7 +225,7 @@ class Installer extends SetupWizard {
                 .', ticket_id='.db_input($tid)
                 .', title='.db_input('osTicket Installed')
                 .', body='.db_input($msg);
-            @mysql_query($sql);
+            db_query($sql, false);
         }
         //TODO: create another personalized ticket and assign to admin??
 
@@ -236,7 +235,7 @@ class Installer extends SetupWizard {
             .', title="osTicket installed!"'
             .', log='.db_input($msg)
             .', ip_address='.db_input($_SERVER['REMOTE_ADDR']);
-        @mysql_query($sql);
+        db_query($sql, false);
 
         return true;
     }

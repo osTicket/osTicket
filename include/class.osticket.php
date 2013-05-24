@@ -307,7 +307,7 @@ class osTicket {
             ',log='.db_input($message).
             ',ip_address='.db_input($_SERVER['REMOTE_ADDR']);
 
-        mysql_query($sql); //don't use db_query to avoid possible loop.
+        db_query($sql, false);
 
         return true;
     }

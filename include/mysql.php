@@ -2,7 +2,7 @@
 /*********************************************************************
     mysql.php
 
-    Collection of MySQL helper interface functions. 
+    Collection of MySQL helper interface functions.
 
     Mostly wrappers with error/resource checking.
 
@@ -16,8 +16,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-    function db_connect($host, $user, $passwd, $db = "") {
-        
+    function db_connect($host, $user, $passwd, $options = array()) {
+
         //Assert
         if(!strlen($user) || !strlen($passwd) || !strlen($host))
       	    return NULL;
@@ -27,7 +27,7 @@
             return NULL;
 
         //Select the database, if any.
-        if($db) db_select_database($db);
+        if($options['db']) db_select_database($options['db']);
 
         //set desired encoding just in case mysql charset is not UTF-8 - Thanks to FreshMedia
         @mysql_query('SET NAMES "utf8"');
@@ -36,7 +36,7 @@
 
         @db_set_variable('sql_mode', '');
 
-        return $dblink;	
+        return $dblink;
     }
 
     function db_close() {
@@ -47,7 +47,7 @@
     function db_version() {
 
         $version=0;
-        if(preg_match('/(\d{1,2}\.\d{1,2}\.\d{1,2})/', 
+        if(preg_match('/(\d{1,2}\.\d{1,2}\.\d{1,2})/',
                 mysql_result(db_query('SELECT VERSION()'),0,0),
                 $matches))                                      # nolint
             $version=$matches[1];                               # nolint
@@ -77,18 +77,14 @@
     function db_create_database($database, $charset='utf8', $collate='utf8_general_ci') {
         return @mysql_query(sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s', $database, $charset, $collate));
     }
-   
+
 	// execute sql query
-	function db_query($query, $database="", $conn="") {
+	function db_query($query, $logError=true) {
         global $ost;
-       
-		if($conn) { /* connection is provided*/
-            $res = ($database)?mysql_db_query($database, $query, $conn):mysql_query($query, $conn);
-   	    } else {
-            $res = ($database)?mysql_db_query($database, $query):mysql_query($query);
-   	    }
-                
-        if(!$res && $ost) { //error reporting
+
+        $res = mysql_query($query);
+
+        if(!$res && $logError && $ost) { //error reporting
             $msg='['.$query.']'."\n\n".db_error();
             $ost->logDBError('DB Error #'.db_errno(), $msg);
             //echo $msg; #uncomment during debuging or dev.
@@ -98,7 +94,7 @@
 	}
 
 	function db_squery($query) { //smart db query...utilizing args and sprintf
-	
+
 		$args  = func_get_args();
   		$query = array_shift($args);
   		$query = str_replace("?", "%s", $query);
@@ -108,7 +104,7 @@
 		return db_query($query);
 	}
 
-	function db_count($query) {		
+	function db_count($query) {
         return db_result(db_query($query));
 	}
 
@@ -126,7 +122,7 @@
 
     function db_fetch_field($res) {
         return ($res)?mysql_fetch_field($res):NULL;
-    }   
+    }
 
     function db_assoc_array($res, $mode=false) {
 	    if($res && db_num_rows($res)) {
@@ -159,13 +155,13 @@
 	function db_free_result($res) {
    	    return mysql_free_result($res);
   	}
-  
+
 	function db_output($var) {
 
         if(!function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime()) //Sucker is NOT on - thanks.
             return $var;
 
-        if (is_array($var)) 
+        if (is_array($var))
             return array_map('db_output', $var);
 
         return (!is_numeric($var))?stripslashes($var):$var;
@@ -192,9 +188,13 @@
     }
 
 	function db_error() {
-   	    return mysql_error();   
+   	    return mysql_error();
 	}
-   
+
+    function db_connect_error() {
+        return db_error();
+    }
+
     function db_errno() {
         return mysql_errno();
     }

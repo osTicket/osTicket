@@ -122,7 +122,10 @@
     require(INCLUDE_DIR.'class.format.php'); //format helpers
     require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
     require(INCLUDE_DIR.'class.mailer.php');
-    require(INCLUDE_DIR.'mysql.php');
+    if (extension_loaded('mysqli'))
+        require_once INCLUDE_DIR.'mysqli.php';
+    else
+        require(INCLUDE_DIR.'mysql.php');
 
     #CURRENT EXECUTING SCRIPT.
     define('THISPAGE', Misc::currentURL());
@@ -190,8 +193,18 @@
 
     #Connect to the DB && get configuration from database
     $ferror=null;
-    if (!db_connect(DBHOST,DBUSER,DBPASS) || !db_select_database(DBNAME)) {
-        $ferror='Unable to connect to the database';
+    $options = array();
+    if (defined('DBSSLCA'))
+        $options['ssl'] = array(
+            'ca' => DBSSLCA,
+            'cert' => DBSSLCERT,
+            'key' => DBSSLKEY
+        );
+
+    if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
+        $ferror='Unable to connect to the database -'.db_connect_error();
+    }elseif(!db_select_database(DBNAME)) {
+        $ferror='Unknown or invalid database '.DBNAME;
     } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
         $ferror='Unable to load config info from DB. Get tech support.';
     }
