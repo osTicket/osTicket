@@ -79,16 +79,12 @@
     }
 
 	// execute sql query
-	function db_query($query, $database="", $conn="") {
+	function db_query($query, $logError=true) {
         global $ost;
 
-		if($conn) { /* connection is provided*/
-            $res = ($database)?mysql_db_query($database, $query, $conn):mysql_query($query, $conn);
-   	    } else {
-            $res = ($database)?mysql_db_query($database, $query):mysql_query($query);
-   	    }
+        $res = mysql_query($query);
 
-        if(!$res && $ost) { //error reporting
+        if(!$res && $logError && $ost) { //error reporting
             $msg='['.$query.']'."\n\n".db_error();
             $ost->logDBError('DB Error #'.db_errno(), $msg);
             //echo $msg; #uncomment during debuging or dev.

@@ -98,14 +98,12 @@ function db_create_database($database, $charset='utf8',
 }
 
 // execute sql query
-function db_query($query, $conn=null) {
+function db_query($query, $logError=true) {
     global $ost, $__db;
 
-    if (!$conn) $conn = $__db;
+    $res = $__db->query($query);
 
-    $res = $conn->query($query);
-
-    if(!$res && $ost) { //error reporting
+    if(!$res && $logError && $ost) { //error reporting
         $msg='['.$query.']'."\n\n".db_error();
         $ost->logDBError('DB Error #'.db_errno(), $msg);
         //echo $msg; #uncomment during debuging or dev.
