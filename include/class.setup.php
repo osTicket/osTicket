@@ -21,7 +21,7 @@ Class SetupWizard {
                         'mysql' => '4.4');
 
     //Version info - same as the latest version.
-    
+
     var $version =THIS_VERSION;
     var $version_verbose = THIS_VERSION;
 
@@ -35,7 +35,7 @@ Class SetupWizard {
     }
 
     function load_sql_file($file, $prefix, $abort=true, $debug=false) {
-        
+
         if(!file_exists($file) || !($schema=file_get_contents($file)))
             return $this->abort('Error accessing SQL file '.basename($file), $debug);
 
@@ -49,18 +49,17 @@ Class SetupWizard {
 
         # Strip comments and remarks
         $schema=preg_replace('%^\s*(#|--).*$%m', '', $schema);
-        # Replace table prefis
+        # Replace table prefix
         $schema = str_replace('%TABLE_PREFIX%', $prefix, $schema);
-        # Split by semicolons - and cleanup 
+        # Split by semicolons - and cleanup
         if(!($statements = array_filter(array_map('trim', @explode(';', $schema)))))
             return $this->abort('Error parsing SQL schema', $debug);
 
 
-        @mysql_query('SET SESSION SQL_MODE =""');
+        db_query('SET SESSION SQL_MODE =""', false);
         foreach($statements as $k=>$sql) {
-            //Note that we're not using db_query - because we want to control how errors are reported.
-            if(mysql_query($sql)) continue;
-            $error = "[$sql] ".mysql_error();
+            if(db_query($sql, false)) continue;
+            $error = "[$sql] ".db_error();
             if($abort)
                     return $this->abort($error, $debug);
         }
@@ -100,7 +99,7 @@ Class SetupWizard {
         @error is a mixed var.
     */
     function abort($error, $debug=false) {
-       
+
         if($debug) echo $error;
         $this->onError($error);
 
@@ -108,7 +107,7 @@ Class SetupWizard {
     }
 
     function setError($error) {
-    
+
         if($error && is_array($error))
             $this->errors = array_merge($this->errors, $error);
         elseif($error)
