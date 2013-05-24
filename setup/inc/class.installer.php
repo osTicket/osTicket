@@ -204,8 +204,8 @@ class Installer extends SetupWizard {
 
         $sql='UPDATE '.PREFIX."email SET dept_id=$dept_id_1";
         db_query($sql, false);
-        $sql='UPDATE '.PREFIX."department SET email_id=$email_id_1"
-            .", autoresp_email_id=$email_id_1";
+        $sql='UPDATE '.PREFIX."department SET email_id=$support_email_id"
+            .", autoresp_email_id=$support_email_id";
         db_query($sql, false);
 
         //Create a ticket to make the system warm and happy.
