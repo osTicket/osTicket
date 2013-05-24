@@ -18,7 +18,7 @@
 **********************************************************************/
 $__db = null;
 
-function db_connect($host, $user, $passwd, $options) {
+function db_connect($host, $user, $passwd, $options = array()) {
     global $__db;
 
     //Assert

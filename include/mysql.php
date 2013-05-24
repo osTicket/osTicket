@@ -16,7 +16,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-    function db_connect($host, $user, $passwd, $options = NULL) {
+    function db_connect($host, $user, $passwd, $options = array()) {
 
         //Assert
         if(!strlen($user) || !strlen($passwd) || !strlen($host))
