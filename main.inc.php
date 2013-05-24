@@ -193,7 +193,6 @@
 
     #Connect to the DB && get configuration from database
     $ferror=null;
-<<<<<<< HEAD
     $options = array();
     if (defined('DBSSLCA'))
         $options['ssl'] = array(
@@ -206,12 +205,7 @@
         $ferror='Unable to connect to the database -'.db_connect_error();
     }elseif(!db_select_database(DBNAME)) {
         $ferror='Unknown or invalid database '.DBNAME;
-    } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
-=======
-    if (!db_connect(DBHOST,DBUSER,DBPASS) || !db_select_database(DBNAME)) {
-        $ferror='Unable to connect to the database';
     } elseif(!($ost=osTicket::start()) || !($cfg = $ost->getConfig())) {
->>>>>>> Federate configuration settings
         $ferror='Unable to load config info from DB. Get tech support.';
     }
 

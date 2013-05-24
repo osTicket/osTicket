@@ -48,7 +48,7 @@ class osTicket {
 
     function osTicket() {
 
-        $this->config = Config::lookup();
+        $this->config = new OsticketConfig();
 
         //DB based session storage was added starting with v1.7
         if($this->config && !$this->getConfig()->getDBVersion())
@@ -64,11 +64,8 @@ class osTicket {
     }
 
     function isUpgradePending() {
-		foreach (Migrator::getUpgradeStreams() as $stream=>$hash)
-			if (strcasecmp($hash,
-					$this->getConfig()->get('schema_signature', $stream)))
-				return true;
-		return false;
+        return strcasecmp(SCHEMA_SIGNATURE,
+                $this->getConfig()->getSchemaSignature());
     }
 
     function getSession() {

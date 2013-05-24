@@ -17,45 +17,31 @@
 require_once(INCLUDE_DIR.'class.email.php');
 
 class Config {
-
-    var $section = null;
     var $config = array();
 
-    var $defaultDept;   //Default Department
-    var $defaultSLA;   //Default SLA
-    var $defaultEmail;  //Default Email
-    var $alertEmail;  //Alert Email
-    var $defaultSMTPEmail; //Default  SMTP Email
+    var $section = null;                    # Default namespace ('core')
+    var $table = 'config';                  # Table name (with prefix)
+    var $section_column = 'namespace';      # namespace column name
 
     function Config($section=null) {
-        $this->load($section);
+        $this->load($section ? $section : $this->section);
     }
 
     function load($section=null) {
-        $this->section = $section;
-
-        $sql='SELECT id, `key`, namespace, value FROM '.TABLE_PREFIX.'config';
         if ($section)
-            $sql .= ' WHERE `namespace` = '.db_input($section);
+            $this->section = $section;
+
+        if ($this->section === null)
+            return false;
+
+        $sql='SELECT id, `key`, value FROM '.$this->table
+            .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
         while ($row = db_fetch_array($res))
-            $this->config[$row['namespace'].':'.$row['key']] = $row;
-
-        $sql='SELECT (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset';
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        //Get the default time zone
-        // We can't JOIN timezone table above due to upgrade support.
-        if($this->get('default_timezone_id'))
-            $this->config['core:tz_offset'] =
-                Timezone::getOffsetById($this->get('default_timezone_id'));
-        else
-            $this->config['core:tz_offset'] = 0;
-
+            $this->config[$row['key']] = $row;
 
         return true;
     }
@@ -68,19 +54,38 @@ class Config {
         return $this->section;
     }
 
-    function get($key, $section='core') {
-        return $this->config[$section.':'.$key]['value'];
+    function get($key, $default=null) {
+        if (isset($this->config[$key]))
+            return $this->config[$key]['value'];
+        else
+            return $this->set($key, $default);
     }
 
-    function update($key, $value, $section='core') {
-        if (!isset($this->config[$section.':'.$key]))
+    function set($key, $value) {
+        return ($this->update($key, $value)) ? $value : null;
+    }
+
+    function create($key, $value) {
+        $res = db_query('INSERT INTO '.$this->table
+            .' SET `'.$this->section_column.'`='.db_input($this->section)
+            .', `key`='.db_input($key)
+            .', value='.db_input($value));
+        if (!db_query($res) || !($id=db_insert_id()))
             return false;
 
-        $setting = &$this->config[$section.':'.$key];
+        $this->config[$key] = array('key'=>$key, 'value'=>$value, 'id'=>$id);
+        return true;
+    }
+
+    function update($key, $value) {
+        if (!isset($this->config[$key]))
+            return $this->create($key, $value);
+
+        $setting = &$this->config[$key];
         if ($setting['value'] == $value)
             return true;
 
-        if (!db_query('UPDATE '.CONFIG_TABLE.' SET updated=NOW(), value='
+        if (!db_query('UPDATE '.$this->table.' SET updated=NOW(), value='
                 .db_input($value).' WHERE id='.db_input($setting['id'])))
             return false;
 
@@ -88,12 +93,39 @@ class Config {
         return true;
     }
 
-    function updateAll($updates, $section='core') {
+    function updateAll($updates) {
         foreach ($updates as $key=>$value)
-            if (!$this->update($key, $value, $section))
+            if (!$this->update($key, $value))
                 return false;
         return true;
     }
+}
+
+class OsticketConfig extends Config {
+    var $table = CONFIG_TABLE;
+    var $section = 'core';
+
+    var $defaultDept;   //Default Department
+    var $defaultSLA;   //Default SLA
+    var $defaultEmail;  //Default Email
+    var $alertEmail;  //Alert Email
+    var $defaultSMTPEmail; //Default  SMTP Email
+
+    function load($section) {
+        parent::load($section);
+
+        //Get the default time zone
+        // We can't JOIN timezone table above due to upgrade support.
+        if($this->get('default_timezone_id'))
+            $this->config['tz_offset'] =
+                Timezone::getOffsetById($this->get('default_timezone_id'));
+        else
+            $this->config['tz_offset'] = 0;
+
+
+        return true;
+    }
+
 
     function isHelpDeskOffline() {
         return !$this->isOnline();
@@ -104,7 +136,7 @@ class Config {
     }
 
     function isOnline() {
-        return ($this->get('isonline'));
+        return ($this->get('isonline', false));
     }
 
     function isKnowledgebaseEnabled() {
@@ -124,15 +156,21 @@ class Config {
             return $row[0];
     }
 
-    function getSchemaSignature($section='core') {
+    function getSchemaSignature($section=null) {
 
-        if($this->get('schema_signature', $section))
-            return $this->get('schema_signature', $section);
+        if (!$section && ($v=$this->get('schema_signature')))
+            return $v;
+
+        // 1.7 after namespaced configuration, other namespace
+        $sql='SELECT value FROM '.$this->table
+            .'WHERE `key` = "schema_signature" and namespace='.db_input($section);
+        if (($res=db_query($sql, false)) && ($row=db_fetch_row($res)))
+            return $row[0];
 
         // 1.7 before namespaced configuration
-        $sql='SELECT `schema_signature` FROM '.TABLE_PREFIX.'config '
+        $sql='SELECT `schema_signature` FROM '.$this->table
             .'WHERE id=1';
-        if (($res=db_query($sql)) && ($row=db_fetch_row($res)))
+        if (($res=db_query($sql, false)) && ($row=db_fetch_row($res)))
             return $row[0];
 
         // old version 1.6
@@ -140,7 +178,12 @@ class Config {
     }
 
     function getDBTZoffset() {
-        return $this->get('db_tz_offset');
+        if (!isset($this->_db_tz_offset)) {
+            $sql='SELECT (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset';
+            if(($res=db_query($sql)) && db_num_rows($res))
+                $this->_db_tz_offset = db_result($res);
+        }
+        return $this->_db_tz_offset;
     }
 
     /* Date & Time Formats */
@@ -162,11 +205,10 @@ class Config {
         return $this->get('daydatetime_format');
     }
 
-    function getConfigInfo($section='core') {
+    function getConfigInfo() {
         $info = array();
-        foreach ($this->config as $setting)
-            if ($setting['namespace'] == $section)
-                $info[$setting['key']] = $setting['value'];
+        foreach ($this->config as $key=>$setting)
+            $info[$key] = $setting['value'];
         return $info;
     }
 
@@ -656,7 +698,7 @@ class Config {
             'daydatetime_format'=>$vars['daydatetime_format'],
             'default_timezone_id'=>$vars['default_timezone_id'],
             'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
-        ), 'core');
+        ));
     }
 
     function updateTicketsSettings($vars, &$errors) {
@@ -728,7 +770,7 @@ class Config {
             'allow_email_attachments'=>isset($vars['allow_email_attachments'])?1:0,
             'allow_online_attachments'=>isset($vars['allow_online_attachments'])?1:0,
             'allow_online_attachments_onlogin'=>isset($vars['allow_online_attachments_onlogin'])?1:0,
-        ), 'core');
+        ));
     }
 
 
@@ -757,7 +799,7 @@ class Config {
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
-         ), 'core');
+         ));
     }
 
     function updateAttachmentsSetting($vars,&$errors) {
@@ -796,7 +838,7 @@ class Config {
             'allow_email_attachments'=>isset($vars['allow_email_attachments'])?1:0,
             'allow_online_attachments'=>isset($vars['allow_online_attachments'])?1:0,
             'allow_online_attachments_onlogin'=>isset($vars['allow_online_attachments_onlogin'])?1:0,
-        ), 'core');
+        ));
     }
 
     function updateAutoresponderSettings($vars, &$errors) {
@@ -808,7 +850,7 @@ class Config {
             'message_autoresponder'=>$vars['message_autoresponder'],
             'ticket_notice_active'=>$vars['ticket_notice_active'],
             'overlimit_notice_active'=>$vars['overlimit_notice_active'],
-        ), 'core');
+        ));
     }
 
 
@@ -819,7 +861,7 @@ class Config {
         return $this->updateAll(array(
             'enable_kb'=>isset($vars['enable_kb'])?1:0,
                'enable_premade'=>isset($vars['enable_premade'])?1:0,
-        ), 'core');
+        ));
     }
 
 
@@ -897,12 +939,7 @@ class Config {
             'send_sys_errors'=>isset($vars['send_sys_errors'])?1:0,
             'send_sql_errors'=>isset($vars['send_sql_errors'])?1:0,
             'send_login_errors'=>isset($vars['send_login_errors'])?1:0,
-        ), 'core');
-    }
-
-    /** static **/
-    function lookup($section=null) {
-        return (($cfg = new Config($section)) && $cfg->getNamespace()==$section)?$cfg:null;
+        ));
     }
 }
 ?>
