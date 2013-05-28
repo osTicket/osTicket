@@ -48,13 +48,9 @@ class osTicket {
 
     function osTicket() {
 
-        $this->config = new OsticketConfig();
+        $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
-        //DB based session storage was added starting with v1.7
-        if($this->config && !$this->getConfig()->getDBVersion())
-            $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
-        else
-            session_start();
+        $this->config = new OsticketConfig();
 
         $this->csrf = new CSRF('__CSRFToken__');
     }

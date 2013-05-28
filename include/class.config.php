@@ -23,16 +23,18 @@ class Config {
     var $table = 'config';                  # Table name (with prefix)
     var $section_column = 'namespace';      # namespace column name
 
-    function Config($section=null) {
-        $this->load($section ? $section : $this->section);
-    }
+    var $session = null;                    # Session-backed configuration
 
-    function load($section=null) {
+    function Config($section=null) {
         if ($section)
             $this->section = $section;
 
         if ($this->section === null)
             return false;
+
+        if (!isset($_SESSION['cfg:'.$this->section]))
+            $_SESSION['cfg:'.$this->section] = array();
+        $this->session = &$_SESSION['cfg:'.$this->section];
 
         $sql='SELECT id, `key`, value FROM '.$this->table
             .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
@@ -46,10 +48,6 @@ class Config {
         return true;
     }
 
-    function reload() {
-        return $this->load($this->section);
-    }
-
     function getNamespace() {
         return $this->section;
     }
@@ -57,12 +55,23 @@ class Config {
     function get($key, $default=null) {
         if (isset($this->config[$key]))
             return $this->config[$key]['value'];
-        else
+        elseif (isset($this->session[$key]))
+            return $this->session[$key];
+        elseif ($default !== null)
             return $this->set($key, $default);
+    }
+
+    function exists($key) {
+        return $this->get($key, null) ? true : false;
     }
 
     function set($key, $value) {
         return ($this->update($key, $value)) ? $value : null;
+    }
+
+    function persist($key, $value) {
+        $this->session[$key] = $value;
+        return true;
     }
 
     function create($key, $value) {
@@ -111,21 +120,22 @@ class OsticketConfig extends Config {
     var $alertEmail;  //Alert Email
     var $defaultSMTPEmail; //Default  SMTP Email
 
-    function load($section) {
-        parent::load($section);
+    function OsticketConfig($section=null) {
+        parent::Config($section);
 
         //Get the default time zone
         // We can't JOIN timezone table above due to upgrade support.
-        if($this->get('default_timezone_id'))
-            $this->config['tz_offset'] =
-                Timezone::getOffsetById($this->get('default_timezone_id'));
-        else
-            $this->config['tz_offset'] = 0;
-
+        if ($this->get('default_timezone_id')) {
+            if (!$this->exists('tz_offset'))
+                $this->persist('tz_offset',
+                    Timezone::getOffsetById($this->get('default_timezone_id')));
+        } else
+            // Previous osTicket versions saved the offset value instead of
+            // a timezone instance. This is compatibility for the upgrader
+            $this->persist('tz_offset', 0);
 
         return true;
     }
-
 
     function isHelpDeskOffline() {
         return !$this->isOnline();
@@ -148,42 +158,36 @@ class OsticketConfig extends Config {
         return THIS_VERSION;
     }
 
-    //Used to detect version prior to 1.7 (useful during upgrade)
-    function getDBVersion() {
-        $sql='SELECT `ostversion` FROM '.TABLE_PREFIX.'config '
-            .'WHERE id=1';
-        if (($res=db_query($sql)) && ($row=db_fetch_row($res)))
-            return $row[0];
-    }
-
     function getSchemaSignature($section=null) {
 
         if (!$section && ($v=$this->get('schema_signature')))
             return $v;
 
         // 1.7 after namespaced configuration, other namespace
-        $sql='SELECT value FROM '.$this->table
-            .'WHERE `key` = "schema_signature" and namespace='.db_input($section);
-        if (($res=db_query($sql, false)) && ($row=db_fetch_row($res)))
-            return $row[0];
+        if ($section) {
+            $sql='SELECT value FROM '.$this->table
+                .'WHERE `key` = "schema_signature" and namespace='.db_input($section);
+            if (($res=db_query($sql, false)) && db_num_rows($res))
+                return db_result($res);
+        }
 
         // 1.7 before namespaced configuration
         $sql='SELECT `schema_signature` FROM '.$this->table
             .'WHERE id=1';
-        if (($res=db_query($sql, false)) && ($row=db_fetch_row($res)))
-            return $row[0];
+        if (($res=db_query($sql, false)) && db_num_rows($res))
+            return db_result($res);
 
         // old version 1.6
-        return $this->getDBVersion();
+        return self::getDBVersion();
     }
 
     function getDBTZoffset() {
-        if (!isset($this->_db_tz_offset)) {
+        if (!$this->exists('db_tz_offset')) {
             $sql='SELECT (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset';
             if(($res=db_query($sql)) && db_num_rows($res))
-                $this->_db_tz_offset = db_result($res);
+                $this->persist('db_tz_offset', db_result($res));
         }
-        return $this->_db_tz_offset;
+        return $this->get('db_tz_offset');
     }
 
     /* Date & Time Formats */
@@ -894,6 +898,13 @@ class OsticketConfig extends Config {
             'send_sql_errors'=>isset($vars['send_sql_errors'])?1:0,
             'send_login_errors'=>isset($vars['send_login_errors'])?1:0,
         ));
+    }
+
+    //Used to detect version prior to 1.7 (useful during upgrade)
+    /* static */ function getDBVersion() {
+        $sql='SELECT `ostversion` FROM '.TABLE_PREFIX.'config '
+            .'WHERE id=1';
+        return db_result(db_query($sql));
     }
 }
 ?>
