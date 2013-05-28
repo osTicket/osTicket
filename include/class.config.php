@@ -343,10 +343,6 @@ class OsticketConfig extends Config {
         return $this->defaultSMTPEmail;
     }
 
-    function allowSMTPSpoofing() {
-        return $this->get('spoof_default_smtp');
-    }
-
     function getDefaultPriorityId() {
         return $this->get('default_priority_id');
     }
@@ -636,9 +632,6 @@ class OsticketConfig extends Config {
             case 'emails':
                 return $this->updateEmailsSettings($vars, $errors);
                 break;
-           case 'attachments':
-                return $this->updateAttachmentsSetting($vars,$errors);
-                break;
            case 'autoresp':
                 return $this->updateAutoresponderSettings($vars, $errors);
                 break;
@@ -800,45 +793,6 @@ class OsticketConfig extends Config {
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
          ));
-    }
-
-    function updateAttachmentsSetting($vars,&$errors) {
-
-
-        if($vars['allow_attachments']) {
-
-            if(!ini_get('file_uploads'))
-                $errors['err']='The \'file_uploads\' directive is disabled in php.ini';
-
-            if(!is_numeric($vars['max_file_size']))
-                $errors['max_file_size']='Maximum file size required';
-
-            if(!$vars['allowed_filetypes'])
-                $errors['allowed_filetypes']='Allowed file extentions required';
-
-            if(!($maxfileuploads=ini_get('max_file_uploads')))
-                $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
-
-            if(!$vars['max_user_file_uploads'] || $vars['max_user_file_uploads']>$maxfileuploads)
-                $errors['max_user_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
-
-            if(!$vars['max_staff_file_uploads'] || $vars['max_staff_file_uploads']>$maxfileuploads)
-                $errors['max_staff_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
-        }
-
-        if($errors) return false;
-
-        return $this->updateAll(array(
-            'allow_attachments'=>isset($vars['allow_attachments'])?1:0,
-            'allowed_filetypes'=>strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))),
-            'max_file_size'=>$vars['max_file_size'],
-            'max_user_file_uploads'=>$vars['max_user_file_uploads'],
-            'max_staff_file_uploads'=>$vars['max_staff_file_uploads'],
-            'email_attachments'=>isset($vars['email_attachments'])?1:0,
-            'allow_email_attachments'=>isset($vars['allow_email_attachments'])?1:0,
-            'allow_online_attachments'=>isset($vars['allow_online_attachments'])?1:0,
-            'allow_online_attachments_onlogin'=>isset($vars['allow_online_attachments_onlogin'])?1:0,
-        ));
     }
 
     function updateAutoresponderSettings($vars, &$errors) {
