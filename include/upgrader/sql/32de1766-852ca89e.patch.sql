@@ -1,6 +1,6 @@
 /**
  * @version v1.7.1
- * @signature 75fce76967f1549ffd296a44139dea57
+ * @signature 852ca89e1440e736d763b3b87f039bd7
  *
  *  - Changes config table to be key/value based and allows for
  *    configuration key clobbering by defining a namespace for the keys. The
@@ -18,9 +18,8 @@ CREATE TABLE `%TABLE_PREFIX%_config` (
   UNIQUE KEY (`namespace`, `key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `%TABLE_PREFIX%_config` (`key`, `value`, `namespace`) VALUES 
+INSERT INTO `%TABLE_PREFIX%_config` (`key`, `value`, `namespace`) VALUES
   ('isonline', (SELECT `isonline` FROM `%TABLE_PREFIX%config` WHERE `id` = 1), 'core')
-, ('timezone_offset', (SELECT `timezone_offset` FROM `%TABLE_PREFIX%config` WHERE `id` = 1), 'core')
 , ('enable_daylight_saving', (SELECT `enable_daylight_saving` FROM `%TABLE_PREFIX%config` WHERE `id` = 1), 'core')
 , ('staff_ip_binding', (SELECT `staff_ip_binding` FROM `%TABLE_PREFIX%config` WHERE `id` = 1), 'core')
 , ('staff_max_logins', (SELECT `staff_max_logins` FROM `%TABLE_PREFIX%config` WHERE `id` = 1), 'core')
@@ -120,5 +119,5 @@ ALTER TABLE `%TABLE_PREFIX%_config` RENAME TO `%TABLE_PREFIX%config`;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '75fce76967f1549ffd296a44139dea57'
+    SET `value` = '852ca89e1440e736d763b3b87f039bd7'
 	WHERE `key` = 'schema_signature' AND `namespace` = 'core';

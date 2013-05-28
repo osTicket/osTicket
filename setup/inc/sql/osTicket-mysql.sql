@@ -91,7 +91,6 @@ CREATE TABLE `%TABLE_PREFIX%config` (
 
 INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
   ('core', 'isonline', '0'),
-  ('core', 'timezone_offset', '0.0'),
   ('core', 'enable_daylight_saving', '0'),
   ('core', 'staff_ip_binding', '1'),
   ('core', 'staff_max_logins', '4'),

@@ -39,13 +39,9 @@ class Config {
         $sql='SELECT id, `key`, value FROM '.$this->table
             .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
 
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        while ($row = db_fetch_array($res))
-            $this->config[$row['key']] = $row;
-
-        return true;
+        if(($res=db_query($sql)) && db_num_rows($res))
+            while ($row = db_fetch_array($res))
+                $this->config[$row['key']] = $row;
     }
 
     function getNamespace() {
@@ -59,6 +55,7 @@ class Config {
             return $this->session[$key];
         elseif ($default !== null)
             return $this->set($key, $default);
+        return null;
     }
 
     function exists($key) {
@@ -75,11 +72,11 @@ class Config {
     }
 
     function create($key, $value) {
-        $res = db_query('INSERT INTO '.$this->table
+        $sql = 'INSERT INTO '.$this->table
             .' SET `'.$this->section_column.'`='.db_input($this->section)
             .', `key`='.db_input($key)
-            .', value='.db_input($value));
-        if (!db_query($res) || !($id=db_insert_id()))
+            .', value='.db_input($value);
+        if (!db_query($sql) || !($id=db_insert_id()))
             return false;
 
         $this->config[$key] = array('key'=>$key, 'value'=>$value, 'id'=>$id);
@@ -123,6 +120,14 @@ class OsticketConfig extends Config {
     function OsticketConfig($section=null) {
         parent::Config($section);
 
+        if (count($this->config) == 0) {
+            // Fallback for osticket < 1.7@852ca89e
+            $sql='SELECT * FROM '.$this->table.' WHERE id = 1';
+            if (($res=db_query($sql)) && db_num_rows($res))
+                foreach (db_fetch_array($res) as $key=>$value)
+                    $this->config[$key] = array('value'=>$value);
+        }
+
         //Get the default time zone
         // We can't JOIN timezone table above due to upgrade support.
         if ($this->get('default_timezone_id')) {
@@ -146,7 +151,7 @@ class OsticketConfig extends Config {
     }
 
     function isOnline() {
-        return ($this->get('isonline', false));
+        return ($this->get('isonline'));
     }
 
     function isKnowledgebaseEnabled() {
@@ -166,19 +171,19 @@ class OsticketConfig extends Config {
         // 1.7 after namespaced configuration, other namespace
         if ($section) {
             $sql='SELECT value FROM '.$this->table
-                .'WHERE `key` = "schema_signature" and namespace='.db_input($section);
+                .' WHERE `key` = "schema_signature" and namespace='.db_input($section);
             if (($res=db_query($sql, false)) && db_num_rows($res))
                 return db_result($res);
         }
 
         // 1.7 before namespaced configuration
         $sql='SELECT `schema_signature` FROM '.$this->table
-            .'WHERE id=1';
+            .' WHERE id=1';
         if (($res=db_query($sql, false)) && db_num_rows($res))
             return db_result($res);
 
         // old version 1.6
-        return self::getDBVersion();
+        return md5(self::getDBVersion());
     }
 
     function getDBTZoffset() {
