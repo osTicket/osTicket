@@ -212,7 +212,7 @@ class AttachmentMigrater {
         if(!($res=db_query($sql)))
             return $this->error('Unable to query DB for attached files to migrate!');
 
-        $ost->logDebug('Found '.db_num_rows($res).' attachments to migrate');
+        $ost->logDebug("Attachment migration", 'Found '.db_num_rows($res).' attachments to migrate');
         if(!db_num_rows($res))
             return 0;  //Nothing else to do!!
 

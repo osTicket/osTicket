@@ -148,10 +148,11 @@ class Upgrader extends SetupWizard {
 
     function readPatchInfo($patch) {
         $info = array();
-        if (preg_match('/\*(.*)\*/', file_get_contents($patch), $matches)) {
-            if (preg_match('/@([\w\d_-]+)\s+(.*)$/', $matches[0], $matches2))
+        if (preg_match(':/\*\*(.*)\*/:s', file_get_contents($patch), $matches)) {
+            if (preg_match_all('/@([\w\d_-]+)\s+(.*)$/m', $matches[0],
+                        $matches2, PREG_SET_ORDER))
                 foreach ($matches2 as $match)
-                    $info[$match[0]] = $match[1];
+                    $info[$match[1]] = $match[2];
         }
         if (!isset($info['version']))
             $info['version'] = substr(basename($patch), 9, 8);
@@ -249,7 +250,8 @@ class Upgrader extends SetupWizard {
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 300; //Apache/IIS defaults.
 
-        foreach ($patches as $patch) {
+        // Apply up to five patches at a time
+        foreach (array_slice($patches, 0, 5) as $patch) {
             //TODO: check time used vs. max execution - break if need be
             if (!$this->load_sql_file($patch, $this->getTablePrefix()))
                 return false;

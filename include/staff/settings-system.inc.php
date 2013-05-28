@@ -11,7 +11,7 @@ $gmtime = Misc::gmtime();
     <thead>
         <tr>
             <th colspan="2">
-                <h4>System Settings & Preferences</h4>
+                <h4>System Settings &amp; Preferences</h4>
                 <em><b>General Settings</b>: Offline mode will disable client interface and only allow admins to login to Staff Control Panel</em>
             </th>
         </tr>
@@ -60,7 +60,7 @@ $gmtime = Misc::gmtime();
                 <select name="default_template_id">
                     <option value="">&mdash; Select Default Template &mdash;</option>
                     <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_TABLE.' WHERE isactive=1 AND cfg_id='.db_input($cfg->getId()).' ORDER BY name';
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_TABLE.' WHERE isactive=1 ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while (list($id, $name) = db_fetch_row($res)){
                             $selected = ($config['default_template_id']==$id)?'selected="selected"':''; ?>

@@ -76,7 +76,7 @@
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7.0+'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE', '32de1766d56e43215041fa982dcb465e'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('SCHEMA_SIGNATURE', '852ca89e1440e736d763b3b87f039bd7'); //MD5 signature of the db schema. (used to trigger upgrades)
     #load config info
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
@@ -205,7 +205,7 @@
         $ferror='Unable to connect to the database -'.db_connect_error();
     }elseif(!db_select_database(DBNAME)) {
         $ferror='Unknown or invalid database '.DBNAME;
-    } elseif(!($ost=osTicket::start(1)) || !($cfg = $ost->getConfig())) {
+    } elseif(!($ost=osTicket::start()) || !($cfg = $ost->getConfig())) {
         $ferror='Unable to load config info from DB. Get tech support.';
     }
 

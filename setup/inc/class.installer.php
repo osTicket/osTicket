@@ -169,17 +169,19 @@ class Installer extends SetupWizard {
 
             //Create config settings---default settings!
             //XXX: rename ostversion  helpdesk_* ??
-            $sql='INSERT INTO '.PREFIX.'config SET updated=NOW(), isonline=0 '
-                .", default_email_id=$support_email_id, alert_email_id=$alert_email_id"
-                .", default_dept_id=$dept_id_1"
-                .", default_sla_id=$sla_id_1, default_timezone_id=$eastern_timezone"
-                .", default_template_id=$template_id_1 "
-                .', admin_email='.db_input($vars['admin_email'])
-                .', schema_signature='.db_input($signature)
-                .', helpdesk_url='.db_input(URL)
-                .', helpdesk_title='.db_input($vars['name']);
-            if(!db_query($sql, false) || !($cid=db_insert_id()))
-                $this->errors['err']='Unable to create config settings (#7)';
+			$defaults = array('isonline'=>'0', 'default_email_id'=>$support_email_id,
+				'alert_email_id'=>$alert_email_id, 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
+				'default_timezone_id'=>$eastern_timezone, 'default_template_id'=>$template_id_1,
+				'admin_email'=>db_input($vars['admin_email']),
+				'schema_signature'=>db_input($signature),
+				'helpdesk_url'=>db_input(URL),
+				'helpdesk_title'=>db_input($vars['name']));
+			foreach ($defaults as $key=>$value) {
+				$sql='UPDATE '.PREFIX.'config SET updated=NOW(), value='.$value
+					.' WHERE namespace="core" AND `key`='.db_input($key);
+	            if(!db_query($sql, false))
+	                $this->errors['err']='Unable to create config settings (#7)';
+			}
         }
 
         if($this->errors) return false; //Abort on internal errors.

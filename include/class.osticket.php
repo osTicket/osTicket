@@ -46,15 +46,11 @@ class osTicket {
     var $session;
     var $csrf;
 
-    function osTicket($cfgId) {
+    function osTicket() {
 
-        $this->config = Config::lookup($cfgId);
+        $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
-        //DB based session storage was added starting with v1.7
-        if($this->config && !$this->getConfig()->getDBVersion())
-            $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
-        else
-            session_start();
+        $this->config = new OsticketConfig();
 
         $this->csrf = new CSRF('__CSRFToken__');
     }
@@ -64,7 +60,8 @@ class osTicket {
     }
 
     function isUpgradePending() {
-        return (defined('SCHEMA_SIGNATURE') && strcasecmp($this->getDBSignature(), SCHEMA_SIGNATURE));
+        return strcasecmp(SCHEMA_SIGNATURE,
+                $this->getConfig()->getSchemaSignature());
     }
 
     function getSession() {
@@ -73,11 +70,6 @@ class osTicket {
 
     function getConfig() {
         return $this->config;
-    }
-
-    function getConfigId() {
-
-        return $this->getConfig()?$this->getConfig()->getId():0;
     }
 
     function getDBSignature() {
@@ -237,7 +229,7 @@ class osTicket {
         if($email) {
             $email->sendAlert($to, $subject, $message);
         } else {//no luck - try the system mail.
-            Email::sendmail($to, $subject, $message, sprintf('"osTicket Alerts"<%s>',$to));
+            Mailer::sendmail($to, $subject, $message, sprintf('"osTicket Alerts"<%s>',$to));
         }
 
         //log the alert? Watch out for loops here.
@@ -364,9 +356,9 @@ class osTicket {
     }
 
     /**** static functions ****/
-    function start($configId) {
+    function start() {
 
-        if(!$configId || !($ost = new osTicket($configId)) || $ost->getConfigId()!=$configId)
+        if(!($ost = new osTicket()))
             return null;
 
         //Set default time zone... user/staff settting will overwrite it (on login).
