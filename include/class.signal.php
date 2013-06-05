@@ -46,18 +46,27 @@ class Signal {
      * Optionally, if $object is a class and is passed into the ::connect()
      * method, only instances of the named class or subclass will actually
      * be connected to the callable function.
+     *
+     * A predicate function, $check, can be used to filter calls to the
+     * signal handler. The function will receive the signal data and should
+     * return true if the signal handler should be called.
      */
-    /*static*/ function connect($signal, $callable, $object=null) {
+    /*static*/ function connect($signal, $callable, $object=null,
+            $check=null) {
         global $_subscribers;
         if (!isset($_subscribers[$signal])) $_subscribers[$signal] = array();
         // XXX: Ensure $object if set is a class
         if ($object && !is_string($object))
             trigger_error("Invalid object: $object: Expected class");
-        $_subscribers[$signal][] = array($object, $callable);    
+        elseif ($check && !is_callable($check)) {
+            trigger_error("Invalid check function: Must be callable");
+            $check = null;
+        }
+        $_subscribers[$signal][] = array($object, $callable, $check);
     }
 
     /**
-     * Publish a signal. 
+     * Publish a signal.
      *
      * Signal::send('user.login', $this, array('username'=>'blah'));
      *
@@ -81,8 +90,10 @@ class Signal {
         if (!isset($_subscribers[$signal]))
             return;
         foreach ($_subscribers[$signal] as $sub) {
-            list($s, $callable) = $sub;
+            list($s, $callable, $check) = $sub;
             if ($s && !is_a($object, $s))
+                continue;
+            elseif ($check && !call_user_func($check, $data))
                 continue;
             call_user_func($callable, $data);
         }
