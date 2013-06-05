@@ -1,7 +1,7 @@
 <?php
 
 class Option {
-    
+
     var $default = false;
 
     function Option() {
@@ -23,6 +23,8 @@ class Option {
             : null;
         $this->metavar = (isset($options['metavar'])) ? $options['metavar']
             : 'var';
+        $this->nargs = (isset($options['nargs'])) ? $options['nargs']
+            : 1;
     }
 
     function hasArg() {
@@ -87,6 +89,9 @@ class Module {
     var $usage = '$script [options] $args [arguments]';
     var $autohelp = true;
 
+    var $_options;
+    var $_args;
+
     function Module() {
         call_user_func_array(array($this, '__construct'), func_get_args());
     }
@@ -143,9 +148,8 @@ class Module {
 
     function getArgument($name, $default=false) {
         $this->parseOptions();
-        foreach (array_keys($this->arguments) as $idx=>$arg)
-            if ($arg == $name && isset($this->_args[$idx]))
-                return $this->_args[$idx];
+        if (isset($this->_args[$name]))
+            return $this->_args[$name];
         return $default;
     }
 
@@ -160,6 +164,8 @@ class Module {
         foreach (array_keys($this->arguments) as $idx=>$name)
             if (!isset($this->_args[$idx]))
                 $this->optionError($name . " is a required argument");
+            else
+                $this->_args[$name] = &$this->_args[$idx];
 
         if ($this->autohelp && $this->getOption('help')) {
             $this->showHelp();
@@ -173,7 +179,12 @@ class Module {
         die();
     }
 
-    /* abstract */ function run() {
+    function _run() {
+        $this->parseOptions();
+        return $this->run($this->_args, $this->_options);
+    }
+
+    /* abstract */ function run($args, $options) {
     }
 
     /* static */ function register($action, $class) {

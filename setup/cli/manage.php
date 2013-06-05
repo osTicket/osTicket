@@ -20,12 +20,12 @@ class Manager extends Module {
             include_once $script;
 
         global $registered_modules;
-        $this->epilog = 
+        $this->epilog =
             "Currently available modules follow. Use 'manage.php <module>
             --help' for usage regarding each respective module:";
 
         parent::showHelp();
-        
+
         echo "\n";
         foreach ($registered_modules as $name=>$mod)
             echo str_pad($name, 20) . $mod->prologue . "\n";
@@ -43,9 +43,10 @@ class Manager extends Module {
                 if ($val == $action)
                     unset($argv[$idx]);
 
-            include_once dirname(__file__) . '/modules/' . $action . '.php';
+            foreach (glob(dirname(__file__).'/modules/*.php') as $script)
+                include_once $script;
             $module = Module::getInstance($action);
-            $module->run();
+            $module->_run();
         }
     }
 }
