@@ -114,7 +114,7 @@ class Unpacker extends Module {
         return INCLUDE_DIR;
     }
 
-    function run() {
+    function run($args, $options) {
         $this->destination = $this->getArgument('install-path');
         if (!is_dir($this->destination))
             if (!mkdir($this->destination, 0751, true))
