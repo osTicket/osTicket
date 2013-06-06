@@ -144,7 +144,7 @@ class Installer extends SetupWizard {
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
                 .", isactive=1, isadmin=1, group_id=$group_id_1, dept_id=$dept_id_1"
                 .", timezone_id=$eastern_timezone, max_page_size=25"
-                .', email='.db_input($_POST['admin_email'])
+                .', email='.db_input($vars['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])
                 .', username='.db_input($vars['username'])
