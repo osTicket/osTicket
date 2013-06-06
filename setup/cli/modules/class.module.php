@@ -142,6 +142,8 @@ class Module {
         $this->parseOptions();
         if (isset($this->_options[$name]))
             return $this->_options[$name];
+        elseif ($this->options[$name]->default)
+            return $this->options[$name]->default;
         else
             return $default;
     }
@@ -166,6 +168,10 @@ class Module {
                 $this->optionError($name . " is a required argument");
             else
                 $this->_args[$name] = &$this->_args[$idx];
+
+        foreach ($this->options as $name=>$opt)
+            if (!isset($this->_options[$name]))
+                $this->_options[$name] = $opt->default;
 
         if ($this->autohelp && $this->getOption('help')) {
             $this->showHelp();
