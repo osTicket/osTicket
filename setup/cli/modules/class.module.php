@@ -80,6 +80,21 @@ class Option {
     }
 }
 
+class OutputStream {
+    var $stream;
+
+    function OutputStream() {
+        call_user_func_array(array($this, '__construct'), func_get_args());
+    }
+    function __construct($stream) {
+        $this->stream = fopen($stream, 'w');
+    }
+
+    function write($what) {
+        fwrite($this->stream, $what);
+    }
+}
+
 class Module {
 
     var $options = array();
@@ -88,6 +103,9 @@ class Module {
     var $epilog = "";
     var $usage = '$script [options] $args [arguments]';
     var $autohelp = true;
+
+    var $stdout;
+    var $stderr;
 
     var $_options;
     var $_args;
@@ -102,6 +120,8 @@ class Module {
             'help'=>"Display this help message");
         foreach ($this->options as &$opt)
             $opt = new Option($opt);
+        $this->stdout = new OutputStream('php://output');
+        $this->stderr = new OutputStream('php://stderr');
     }
 
     function showHelp() {
