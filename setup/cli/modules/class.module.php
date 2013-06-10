@@ -34,7 +34,7 @@ class Option {
 
     function handleValue(&$destination, $args) {
         $nargs = 0;
-        $value = array_shift($args);
+        $value = ($this->hasArg()) ? array_shift($args) : null;
         if ($value[0] == '-')
             $value = null;
         elseif ($value)
@@ -62,7 +62,7 @@ class Option {
     function toString() {
         $short = explode(':', $this->short);
         $long = explode(':', $this->long);
-        if ($this->nargs == '?')
+        if ($this->nargs === '?')
             $switches = sprintf('    %s [%3$s], %s[=%3$s]', $short[0],
                 $long[0], $this->metavar);
         elseif ($this->hasArg())
