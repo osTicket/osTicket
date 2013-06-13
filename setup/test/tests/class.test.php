@@ -62,5 +62,14 @@ class Test {
         }
     }
 
+    function line_number_for_offset($filename, $offset) {
+        $lines = file($filename);
+        $bytes = $line = 0;
+        while ($bytes < $offset) {
+            $bytes += strlen(array_shift($lines));
+            $line += 1;
+        }
+        return $line;
+    }
 }
 ?>
