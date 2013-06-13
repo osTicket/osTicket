@@ -229,4 +229,3 @@ function db_errno() {
     return $__db->errno;
 }
 ?>
-

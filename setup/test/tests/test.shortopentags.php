@@ -13,23 +13,12 @@ class ShortOpenTag extends Test {
                 foreach ($matches[0] as $match)
                     $this->fail(
                         $s,
-                        line_number_for_offset($s, $match[1]),
+                        $this->line_number_for_offset($s, $match[1]),
                         $match[0]);
             }
             else $this->pass();
         }
     }
 }
-
-function line_number_for_offset($filename, $offset) {
-    $lines = file($filename);
-    $bytes = $line = 0;
-    while ($bytes < $offset) {
-        $bytes += strlen(array_shift($lines));
-        $line += 1;
-    }
-    return $line;
-}
-
 return 'ShortOpenTag';
 ?>
