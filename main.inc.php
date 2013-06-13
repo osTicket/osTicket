@@ -118,6 +118,7 @@
     require(INCLUDE_DIR.'class.misc.php');
     require(INCLUDE_DIR.'class.timezone.php');
     require(INCLUDE_DIR.'class.http.php');
+    require(INCLUDE_DIR.'class.signal.php');
     require(INCLUDE_DIR.'class.nav.php');
     require(INCLUDE_DIR.'class.format.php'); //format helpers
     require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.

@@ -501,6 +501,8 @@ class Staff {
 
         $this->updateTeams($vars['teams']);
         $this->reload();
+
+        Signal::send('model.modified', $this);
         
         return true;
     }
@@ -519,6 +521,8 @@ class Staff {
             //Cleanup Team membership table.
             db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($id));
         }
+
+        Signal::send('model.deleted', $this);
 
         return $num;
     }
@@ -613,9 +617,14 @@ class Staff {
             //Destroy old session ID - needed for PHP version < 5.1.0 TODO: remove when we move to php 5.3 as min. requirement.
             if(($session=$ost->getSession()) && is_object($session) && $sid!=session_id())
                 $session->destroy($sid);
+
+            Signal::send('auth.login.succeeded', $user);
         
             return $user;
         }
+
+        Signal::send('auth.login.failed', null, array('username'=>$username,
+            'password'=>$passwd));
     
         //If we get to this point we know the login failed.
         $_SESSION['_staff']['strikes']+=1;
@@ -637,8 +646,10 @@ class Staff {
     }
 
     function create($vars, &$errors) {
-        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($staff=Staff::lookup($id)))
+        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($staff=Staff::lookup($id))) {
             $staff->updateTeams($vars['teams']);
+            Signal::send('model.created', $staff);
+        }
 
         return $id;
     }
