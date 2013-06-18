@@ -44,10 +44,12 @@ class Deployment extends Unpacker {
         $root = $this->find_root_folder();
 
         # Unpack everything but the include/ folder
-        $this->unpackage("$root/*", $this->destination, -1,
-            array("$root/setup", "$root/include", "*.md", "*.txt"));
+        $this->unpackage("$root/{,.}*", $this->destination, -1,
+            array("$root/setup", "$root/include", "$root/.git*",
+                "*.sw[a-z]","*.md", "*.txt"));
         # Unpack the include folder
-        $this->unpackage("$root/include/*", $include, -1);
+        $this->unpackage("$root/include/{,.}*", $include, -1,
+            array("*/include/ost-config.php"));
         if (!$upgrade && $include != "{$this->destination}/include")
             $this->change_include_dir($include);
     }

@@ -115,8 +115,11 @@ class Unpacker extends Module {
             }
         }
         if ($recurse) {
-            foreach (glob(dirname($folder).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-                if ($this->exclude($exclude, $dir))
+            foreach (glob(dirname($folder).'/'.basename($folder),
+                    GLOB_BRACE|GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+                if (in_array(basename($dir), array('.','..')))
+                    continue;
+                elseif ($this->exclude($exclude, $dir))
                     continue;
                 $this->unpackage(
                     dirname($folder).'/'.basename($dir).'/'.basename($folder),
@@ -158,7 +161,7 @@ class Unpacker extends Module {
             # Get the current value of the INCLUDE_DIR before overwriting
             # main.inc.php
             $include = $this->get_include_dir();
-        $this->unpackage("$upload/*", $this->destination, -1, "*include");
+        $this->unpackage("$upload/{,.}*", $this->destination, -1, "*include");
 
         if (!$upgrade) {
             if ($this->getOption('include')) {
@@ -166,14 +169,14 @@ class Unpacker extends Module {
                 if (!is_dir("$location/"))
                     if (!mkdir("$location/", 0751, true))
                         die("Unable to create folder for include/ files\n");
-                $this->unpackage("$upload/include/*", $location, -1);
+                $this->unpackage("$upload/include/{,.}*", $location, -1);
                 $this->change_include_dir($location);
             }
             else
-                $this->unpackage("$upload/include/*", "{$this->destination}/include", -1);
+                $this->unpackage("$upload/include/{,.}*", "{$this->destination}/include", -1);
         }
         else {
-            $this->unpackage("$upload/include/*", $include, -1);
+            $this->unpackage("$upload/include/{,.}*", $include, -1);
             # Change the new main.inc.php to reflect the location of the
             # include/ directory
             $this->change_include_dir($include);
