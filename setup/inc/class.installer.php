@@ -113,10 +113,14 @@ class Installer extends SetupWizard {
         $debug = true; //XXX:Change it to true to show SQL errors.
 
         //Last minute checks.
-        if(!file_exists($schemaFile))
+        if(!file_exists($schemaFile) || !($fp = fopen($schemaFile, 'rb')))
             $this->errors['err']='Internal Error - please make sure your download is the latest (#1)';
-        elseif(!($signature=trim(file_get_contents("$schemaFile.md5"))) || strcasecmp($signature, md5_file($schemaFile)))
-            $this->errors['err']='Unknown or invalid schema signature ('.$signature.' .. '.md5_file($schemaFile).')';
+        elseif(
+                !($signature=trim(file_get_contents("$schemaFile.md5")))
+                || !($hash=md5(fread($fp, filesize($schemaFile))))
+                || strcasecmp($signature, $hash))
+            $this->errors['err']='Unknown or invalid schema signature ('
+                .$signature.' .. '.$hash.')';
         elseif(!file_exists($this->getConfigFile()) || !($configFile=file_get_contents($this->getConfigFile())))
             $this->errors['err']='Unable to read config file. Permission denied! (#2)';
         elseif(!($fp = @fopen($this->getConfigFile(),'r+')))
