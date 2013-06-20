@@ -144,7 +144,7 @@ class Unpacker extends Module {
     }
 
     function run($args, $options) {
-        $this->destination = $this->getArgument('install-path');
+        $this->destination = $args['install-path'];
         if (!is_dir($this->destination))
             if (!mkdir($this->destination, 0751, true))
                 die("Destination path does not exist and cannot be created");
