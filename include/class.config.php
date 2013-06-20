@@ -49,10 +49,10 @@ class Config {
     }
 
     function get($key, $default=null) {
-        if (isset($this->config[$key]))
-            return $this->config[$key]['value'];
-        elseif (isset($this->session[$key]))
+        if (isset($this->session[$key]))
             return $this->session[$key];
+        elseif (isset($this->config[$key]))
+            return $this->config[$key]['value'];
         elseif ($default !== null)
             return $this->set($key, $default);
         return null;
