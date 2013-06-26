@@ -32,7 +32,7 @@ ob_start(); //Keep the image output clean. Hide our dirt.
 $sec=time()-$_SESSION['lastcroncall'];
 $caller = $thisstaff->getUserName();
 
-if($sec>180): //user can call cron once every 3 minutes.
+if($sec>180 && $ost && !$ost->isUpgradePending()): //user can call cron once every 3 minutes.
 require_once(INCLUDE_DIR.'class.cron.php');
 
 $thisstaff = null; //Clear staff obj to avoid false credit internal notes & auto-assignment
