@@ -41,6 +41,10 @@ class Cron {
     }
 
     function run(){ //called by outside cron NOT autocron
+        global $ost;
+        if (!$ost || $ost->isUpgradePending())
+            return;
+
         self::MailFetcher();
         self::TicketMonitor();
         self::PurgeLogs();
