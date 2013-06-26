@@ -96,6 +96,7 @@ class AttachmentFile {
     }
 
     function sendData() {
+        @ini_set('zlib.output_compression', 'Off');
         $file = $this->open();
         while ($chunk = $file->read())
             echo $chunk;
