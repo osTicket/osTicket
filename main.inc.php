@@ -179,6 +179,7 @@
     define('TICKET_EMAIL_INFO_TABLE',TABLE_PREFIX.'ticket_email_info');
 
     define('EMAIL_TABLE',TABLE_PREFIX.'email');
+    define('EMAIL_TEMPLATE_GRP_TABLE',TABLE_PREFIX.'email_template_group');
     define('EMAIL_TEMPLATE_TABLE',TABLE_PREFIX.'email_template');
 
     define('FILTER_TABLE',TABLE_PREFIX.'filter');

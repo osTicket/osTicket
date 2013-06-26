@@ -301,46 +301,63 @@ INSERT INTO `%TABLE_PREFIX%filter_rule` (
   `filter_id`, `isactive`, `what`,`how`,`val`,`created`)
   VALUES (LAST_INSERT_ID(), 1, 'email', 'equal', 'test@example.com',NOW());
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%email_template`;
-CREATE TABLE `%TABLE_PREFIX%email_template` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%email_template_group`;
+CREATE TABLE `%TABLE_PREFIX%email_template_group` (
   `tpl_id` int(11) NOT NULL auto_increment,
-  `cfg_id` int(10) unsigned NOT NULL default '0',
   `isactive` tinyint(1) unsigned NOT NULL default '0',
   `name` varchar(32) NOT NULL default '',
   `notes` text,
-  `ticket_autoresp_subj` varchar(255) NOT NULL default '',
-  `ticket_autoresp_body` text NOT NULL,
-  `ticket_autoreply_subj` varchar(255) NOT NULL default '',
-  `ticket_autoreply_body` text NOT NULL,
-  `ticket_notice_subj` varchar(255) NOT NULL,
-  `ticket_notice_body` text NOT NULL,
-  `ticket_alert_subj` varchar(255) NOT NULL default '',
-  `ticket_alert_body` text NOT NULL,
-  `message_autoresp_subj` varchar(255) NOT NULL default '',
-  `message_autoresp_body` text NOT NULL,
-  `message_alert_subj` varchar(255) NOT NULL default '',
-  `message_alert_body` text NOT NULL,
-  `note_alert_subj` varchar(255) NOT NULL,
-  `note_alert_body` text NOT NULL,
-  `assigned_alert_subj` varchar(255) NOT NULL default '',
-  `assigned_alert_body` text NOT NULL,
-  `transfer_alert_subj` varchar(255) NOT NULL default '',
-  `transfer_alert_body` text NOT NULL,
-  `ticket_overdue_subj` varchar(255) NOT NULL default '',
-  `ticket_overdue_body` text NOT NULL,
-  `ticket_overlimit_subj` varchar(255) NOT NULL default '',
-  `ticket_overlimit_body` text NOT NULL,
-  `ticket_reply_subj` varchar(255) NOT NULL default '',
-  `ticket_reply_body` text NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` timestamp NOT NULL,
+  PRIMARY KEY  (`tpl_id`)
+) DEFAULT CHARSET=utf8;
+
+INSERT INTO `%TABLE_PREFIX%email_template_group` SET
+    `isactive` = 1, `name` = 'osTicket Default Template',
+    `notes` = 'Default osTicket templates', `created` = NOW(), `updated` = NOW();
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%email_template`;
+CREATE TABLE `%TABLE_PREFIX%email_template` (
+  `id` int(11) UNSIGNED NOT NULL auto_increment,
+  `tpl_id` int(11) UNSIGNED NOT NULL,
+  `code_name` varchar(32) NOT NULL,
+  `subject` varchar(255) NOT NULL default '',
+  `body` text NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  PRIMARY KEY  (`tpl_id`),
-  KEY `cfg_id` (`cfg_id`)
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `template_lookup` (`tpl_id`, `code_name`)
 ) DEFAULT CHARSET=utf8;
 
 -- TODO: Dump revised copy before release!!!
-INSERT INTO `%TABLE_PREFIX%email_template` (`isactive`, `name`, `notes`, `ticket_autoresp_subj`, `ticket_autoresp_body`, `ticket_autoreply_subj`, `ticket_autoreply_body`, `ticket_notice_subj`, `ticket_notice_body`, `ticket_alert_subj`, `ticket_alert_body`, `message_autoresp_subj`, `message_autoresp_body`, `message_alert_subj`, `message_alert_body`, `note_alert_subj`, `note_alert_body`, `assigned_alert_subj`, `assigned_alert_body`, `transfer_alert_subj`, `transfer_alert_body`, `ticket_overdue_subj`, `ticket_overdue_body`, `ticket_overlimit_subj`, `ticket_overlimit_body`, `ticket_reply_subj`, `ticket_reply_body`, `created`, `updated`) VALUES
-(1, 'osTicket Default Template', 'Default osTicket templates', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name},\r\n\r\nA request for support has been created and assigned ticket #%{ticket.number}. A representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\nIf you wish to send additional comments or information regarding this issue, please don''t open a new ticket. Simply login using the link above and update the ticket.\r\n\r\n%{signature}', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name},\r\n\r\nA request for support has been created and assigned ticket #%{ticket.number} with the following auto-reply:\r\n\r\n%{response}\r\n\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not open another ticket. If need be, representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name},\r\n\r\nOur customer care team has created a ticket, #%{ticket.number} on your behalf, with the following message.\r\n\r\n%{message}\r\n\r\nIf you wish to provide additional comments or information regarding this issue, please don''t open a new ticket. You can update or view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\n%{signature}', 'New Ticket Alert', '%{recipient},\r\n\r\nNew ticket #%{ticket.number} created.\r\n\r\n-----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n-----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', '[#%{ticket.number}] Message Added', '%{ticket.name},\r\n\r\nYour reply to support request #%{ticket.number} has been noted.\r\n\r\nYou can view this support request progress online here: %{ticket.client_link}.\r\n\r\n%{signature}', 'New Message Alert', '%{recipient},\r\n\r\nNew message appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'New Internal Note Alert', '%{recipient},\r\n\r\nInternal note appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\n* %{note.title} *\r\n\r\n%{note.message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'Ticket #%{ticket.number} Assigned to you', '%{assignee},\r\n\r\nTicket #%{ticket.number} has been assigned to you by %{assigner}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view complete details, simply login to the support system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Support Ticket System - powered by osTicket.', 'Ticket Transfer #%{ticket.number} - %{ticket.dept.name}', '%{recipient},\r\n\r\nTicket #%{ticket.number} has been transferred to %{ticket.dept.name} department by %{staff.name}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.', 'Stale Ticket Alert', '%{recipient},\r\n\r\nA ticket, #%{ticket.number} assigned to you or in your department is seriously overdue.\r\n\r\n%{ticket.staff_link}\r\n\r\nWe should all work hard to guarantee that all tickets are being addressed in a timely manner.\r\n\r\n- Your friendly (although with limited patience) Support Ticket System - powered by osTicket.', 'Open Tickets Limit Reached', '%{ticket.name}\r\n\r\nYou have reached the maximum number of open tickets allowed.\r\n\r\nTo be able to open another ticket, one of your pending tickets must be closed. To update or add comments to an open ticket simply login using the link below.\r\n\r\n%{url}/tickets.php?e=%{ticket.email}\r\n\r\nThank you.\r\n\r\nSupport Ticket System', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name},\r\n\r\nA customer support staff member has replied to your support request, #%{ticket.number} with the following response:\r\n\r\n%{response}\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not send another email. Instead, reply to this email or login to your account for a complete archive of all your support requests and responses.\r\n\r\n%{ticket.client_link}\r\n\r\n%{signature}', NOW(), NOW());
+INSERT INTO `%TABLE_PREFIX%email_template` (`code_name`, `subject`, `body`)
+    VALUES (
+    'ticket.autoresp', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name}, \r\n\r\nA request for support has been created and assigned ticket #%{ticket.number}. A representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\nIf you wish to send additional comments or information regarding this issue, please don''t open a new ticket. Simply login using the link above and update the ticket.\r\n\r\n%{signature}'
+    ), (
+    'ticket.autoreply', 'Support Ticket Opened [#%{ticket.number}]', '%{ticket.name}, \r\n\r\nA request for support has been created and assigned ticket #%{ticket.number} with the following auto-reply:\r\n\r\n%{response}\r\n\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not open another ticket. If need be, representative will follow-up with you as soon as possible.\r\n\r\nYou can view this ticket''s progress online here: %{ticket.client_link}.'
+    ), (
+    'ticket.notice', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name}, \r\n\r\nOur customer care team has created a ticket, #%{ticket.number} on your behalf, with the following message.\r\n\r\n%{message}\r\n\r\nIf you wish to provide additional comments or information regarding this issue, please don''t open a new ticket. You can update or view this ticket''s progress online here: %{ticket.client_link}.\r\n\r\n%{signature}'
+    ), (
+    'ticket.alert', 'New Ticket Alert', '%{recipient}, \r\n\r\nNew ticket #%{ticket.number} created.\r\n\r\n-----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n-----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.'
+    ), (
+    'message.autoresp', '[#%{ticket.number}] Message Added', '%{ticket.name}, \r\n\r\nYour reply to support request #%{ticket.number} has been noted.\r\n\r\nYou can view this support request progress online here: %{ticket.client_link}.\r\n\r\n%{signature}'
+    ), (
+    'message.alert', 'New Message Alert', '%{recipient}, \r\n\r\nNew message appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\nName: %{ticket.name}\r\nEmail: %{ticket.email}\r\nDept: %{ticket.dept.name}\r\n\r\n%{message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.'
+    ), (
+    'note.alert', 'New Internal Note Alert', '%{recipient}, \r\n\r\nInternal note appended to ticket #%{ticket.number}\r\n\r\n----------------------\r\n* %{note.title} *\r\n\r\n%{note.message}\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.'
+    ), (
+    'assigned.alert', 'Ticket #%{ticket.number} Assigned to you', '%{assignee}, \r\n\r\nTicket #%{ticket.number} has been assigned to you by %{assigner}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view complete details, simply login to the support system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Support Ticket System - powered by osTicket.'
+    ), (
+    'transfer.alert', 'Ticket Transfer #%{ticket.number} - %{ticket.dept.name}', '%{recipient}, \r\n\r\nTicket #%{ticket.number} has been transferred to %{ticket.dept.name} department by %{staff.name}\r\n\r\n----------------------\r\n\r\n%{comments}\r\n\r\n----------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\n%{ticket.staff_link}\r\n\r\n- Your friendly Customer Support System - powered by osTicket.'
+    ), (
+    'ticket.overdue', 'Stale Ticket Alert', '%{recipient}, \r\n\r\nA ticket, #%{ticket.number} assigned to you or in your department is seriously overdue.\r\n\r\n%{ticket.staff_link}\r\n\r\nWe should all work hard to guarantee that all tickets are being addressed in a timely manner.\r\n\r\n- Your friendly (although with limited patience) Support Ticket System - powered by osTicket.'
+    ), (
+    'ticket.overlimit', 'Open Tickets Limit Reached', '%{ticket.name}\r\n\r\nYou have reached the maximum number of open tickets allowed.\r\n\r\nTo be able to open another ticket, one of your pending tickets must be closed. To update or add comments to an open ticket simply login using the link below.\r\n\r\n%{url}/tickets.php?e=%{ticket.email}\r\n\r\nThank you.\r\n\r\nSupport Ticket System'
+    ), (
+    'ticket.reply', '[#%{ticket.number}] %{ticket.subject}', '%{ticket.name}, \r\n\r\nA customer support staff member has replied to your support request, #%{ticket.number} with the following response:\r\n\r\n%{response}\r\n\r\nWe hope this response has sufficiently answered your questions. If not, please do not send another email. Instead, reply to this email or login to your account for a complete archive of all your support requests and responses.\r\n\r\n%{ticket.client_link}\r\n\r\n%{signature}'
+    );
+UPDATE `%TABLE_PREFIX%email_template` SET `created`=NOW(), `updated`=NOW(),
+       `tpl_id` = (SELECT `tpl_id` FROM `%TABLE_PREFIX%email_template_group`);
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file`;
 CREATE TABLE `%TABLE_PREFIX%file` (

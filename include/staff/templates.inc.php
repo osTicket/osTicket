@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
 $sql='SELECT tpl.*,count(dept.tpl_id) as depts '.
-     'FROM '.EMAIL_TEMPLATE_TABLE.' tpl '.
+     'FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl '.
      'LEFT JOIN '.DEPT_TABLE.' dept USING(tpl_id) '.
      'WHERE 1 ';
 $sortOptions=array('name'=>'tpl.name','status'=>'tpl.isactive','created'=>'tpl.created','updated'=>'tpl.updated');
@@ -27,7 +27,7 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$total=db_count('SELECT count(*) FROM '.EMAIL_TEMPLATE_TABLE.' tpl ');
+$total=db_count('SELECT count(*) FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl ');
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('templates.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
@@ -56,7 +56,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
+            <th width="7">&nbsp;</th>
             <th width="350"><a <?php echo $name_sort; ?> href="templates.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
             <th width="100"><a  <?php echo $status_sort; ?> href="templates.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="80"><a <?php echo $inuse_sort; ?> href="templates.php?<?php echo $qstr; ?>&sort=inuse">In-Use</a></th>
@@ -75,15 +75,15 @@ else
                 $sel=false;
                 if($ids && in_array($row['tpl_id'],$ids))
                     $sel=true;
-                
+
                 $default=($defaultTplId==$row['tpl_id'])?'<small class="fadded">(System Default)</small>':'';
                 ?>
             <tr id="<?php echo $row['tpl_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['tpl_id']; ?>" 
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['tpl_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?> <?php echo $default?'disabled="disabled"':''; ?> >
                 </td>
-                <td>&nbsp;<a href="templates.php?id=<?php echo $row['tpl_id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a>
+                <td>&nbsp;<a href="templates.php?tpl_id=<?php echo $row['tpl_id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a>
                 &nbsp;<?php echo $default; ?></td>
                 <td>&nbsp;<?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
                 <td>&nbsp;&nbsp;<?php echo ($inuse)?'<b>Yes</b>':'No'; ?></td>
