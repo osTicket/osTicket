@@ -20,7 +20,7 @@ include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
 
 class Staff {
-    
+
     var $ht;
     var $id;
 
@@ -30,7 +30,7 @@ class Staff {
     var $teams;
     var $timezone;
     var $stats;
-    
+
     function Staff($var) {
         $this->id =0;
         return ($this->load($var));
@@ -50,7 +50,7 @@ class Staff {
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
 
-        
+
         $this->ht=db_fetch_array($res);
         $this->id  = $this->ht['staff_id'];
         $this->teams = $this->ht['teams'] = array();
@@ -117,7 +117,7 @@ class Staff {
     /* check if passwd reset is due. */
     function isPasswdResetDue() {
         global $cfg;
-        return ($cfg && $cfg->getPasswdResetPeriod() 
+        return ($cfg && $cfg->getPasswdResetPeriod()
                     && $this->ht['passwd_change']>($cfg->getPasswdResetPeriod()*30*24*60*60));
     }
 
@@ -160,15 +160,15 @@ class Staff {
     function getName() {
         return ucfirst($this->ht['firstname'].' '.$this->ht['lastname']);
     }
-        
+
     function getFirstName() {
         return $this->ht['firstname'];
     }
-        
+
     function getLastName() {
         return $this->ht['lastname'];
     }
-    
+
     function getSignature() {
         return $this->ht['signature'];
     }
@@ -221,13 +221,13 @@ class Staff {
                     array('manager' => $this->getId())
                     ))?array_keys($depts):array();
     }
-     
+
     function getGroupId() {
         return $this->ht['group_id'];
     }
 
     function getGroup() {
-     
+
         if(!$this->group && $this->getGroupId())
             $this->group = Group::lookup($this->getGroupId());
 
@@ -266,7 +266,7 @@ class Staff {
     function isVisible() {
          return ($this->ht['isvisible']);
     }
-        
+
     function onVacation() {
         return ($this->ht['onvacation']);
     }
@@ -282,7 +282,7 @@ class Staff {
     function isAccessLimited() {
         return $this->showAssignedOnly();
     }
-  
+
     function isAdmin() {
         return ($this->ht['isadmin']);
     }
@@ -306,7 +306,7 @@ class Staff {
     function canDeleteTickets() {
         return ($this->ht['can_delete_tickets']);
     }
-   
+
     function canCloseTickets() {
         return ($this->ht['can_close_tickets']);
     }
@@ -330,10 +330,10 @@ class Staff {
     function canBanEmails() {
         return ($this->ht['can_ban_emails']);
     }
-  
+
     function canManageTickets() {
-        return ($this->isAdmin() 
-                 || $this->canDeleteTickets() 
+        return ($this->isAdmin()
+                 || $this->canDeleteTickets()
                     || $this->canCloseTickets());
     }
 
@@ -359,7 +359,7 @@ class Staff {
     }
 
     function getTeams() {
-        
+
         if(!$this->teams) {
             $sql='SELECT team_id FROM '.TEAM_MEMBER_TABLE
                 .' WHERE staff_id='.db_input($this->getId());
@@ -405,7 +405,7 @@ class Staff {
 
         if(!$vars['firstname'])
             $errors['firstname']='First name required';
-        
+
         if(!$vars['lastname'])
             $errors['lastname']='Last name required';
 
@@ -430,7 +430,7 @@ class Staff {
                 $errors['passwd1']='Must be at least 6 characters';
             elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']='Password(s) do not match';
-            
+
             if(!$vars['cpasswd'])
                 $errors['cpasswd']='Current password required';
             elseif(!$this->cmp_passwd($vars['cpasswd']))
@@ -488,7 +488,7 @@ class Staff {
         $sql='DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($this->getId());
         if($teams)
             $sql.=' AND team_id NOT IN('.implode(',', db_input($teams)).')';
-        
+
         db_query($sql);
 
         return true;
@@ -503,7 +503,7 @@ class Staff {
         $this->reload();
 
         Signal::send('model.modified', $this);
-        
+
         return true;
     }
 
@@ -561,7 +561,7 @@ class Staff {
         return $id;
     }
     function getIdByEmail($email) {
-                    
+
         $sql='SELECT staff_id FROM '.STAFF_TABLE.' WHERE email='.db_input($email);
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id) = db_fetch_row($res);
@@ -592,7 +592,7 @@ class Staff {
             $errors['err'] = 'Username and password required';
 
         if($errors) return false;
-   
+
         if(($user=new StaffSession(trim($username))) && $user->getId() && $user->check_passwd($passwd)) {
             //update last login && password reset stuff.
             $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() ';
@@ -608,7 +608,7 @@ class Staff {
             $_SESSION['TZ_DST'] = $user->observeDaylight();
 
             //Log debug info.
-            $ost->logDebug('Staff login', 
+            $ost->logDebug('Staff login',
                     sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
 
             //Regenerate session id.
@@ -619,13 +619,13 @@ class Staff {
                 $session->destroy($sid);
 
             Signal::send('auth.login.succeeded', $user);
-        
+
             return $user;
         }
 
-        Signal::send('auth.login.failed', null, array('username'=>$username,
-            'password'=>$passwd));
-    
+        $info = array('username'=>$username, 'password'=>$passwd);
+        Signal::send('auth.login.failed', null, $info);
+
         //If we get to this point we know the login failed.
         $_SESSION['_staff']['strikes']+=1;
         if(!$errors && $_SESSION['_staff']['strikes']>$cfg->getStaffMaxLogins()) {
@@ -635,7 +635,7 @@ class Staff {
                    'Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR']."\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".
                    'Attempts #'.$_SESSION['_staff']['strikes']."\n".'Timeout: '.($cfg->getStaffLoginTimeout()/60)." minutes \n\n";
             $ost->logWarning('Excessive login attempts ('.$username.')', $alert, ($cfg->alertONLoginError()));
-    
+
         } elseif($_SESSION['_staff']['strikes']%2==0) { //Log every other failed login attempt as a warning.
             $alert='Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
                    "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_staff']['strikes'];
@@ -655,7 +655,7 @@ class Staff {
     }
 
     function save($id, $vars, &$errors) {
-            
+
         $vars['username']=Format::striptags($vars['username']);
         $vars['firstname']=Format::striptags($vars['firstname']);
         $vars['lastname']=Format::striptags($vars['lastname']);
@@ -663,17 +663,17 @@ class Staff {
 
         if($id && $id!=$vars['id'])
             $errors['err']='Internal Error';
-            
+
         if(!$vars['firstname'])
             $errors['firstname']='First name required';
         if(!$vars['lastname'])
             $errors['lastname']='Last name required';
-            
+
         if(!$vars['username'] || strlen($vars['username'])<2)
             $errors['username']='Username required';
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
             $errors['username']='Username already in-use';
-        
+
         if(!$vars['email'] || !Validator::is_email($vars['email']))
             $errors['email']='Valid email required';
         elseif(Email::getIdByEmail($vars['email']))
@@ -683,7 +683,7 @@ class Staff {
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
             $errors['phone']='Valid number required';
-        
+
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
             $errors['mobile']='Valid number required';
 
@@ -697,10 +697,10 @@ class Staff {
                 $errors['passwd2']='Password(s) do not match';
             }
         }
-        
+
         if(!$vars['dept_id'])
             $errors['dept_id']='Department required';
-            
+
         if(!$vars['group_id'])
             $errors['group_id']='Group required';
 
@@ -709,7 +709,7 @@ class Staff {
 
         if($errors) return false;
 
-            
+
         $sql='SET updated=NOW() '
             .' ,isadmin='.db_input($vars['isadmin'])
             .' ,isactive='.db_input($vars['isactive'])
@@ -729,24 +729,24 @@ class Staff {
             .' ,mobile="'.db_input(Format::phone($vars['mobile']),false).'"'
             .' ,signature='.db_input($vars['signature'])
             .' ,notes='.db_input($vars['notes']);
-            
+
         if($vars['passwd1'])
             $sql.=' ,passwd='.db_input(Passwd::hash($vars['passwd1']));
-                
+
         if(isset($vars['change_passwd']))
             $sql.=' ,change_passwd=1';
-            
+
         if($id) {
             $sql='UPDATE '.STAFF_TABLE.' '.$sql.' WHERE staff_id='.db_input($id);
             if(db_query($sql) && db_affected_rows())
                 return true;
-                
+
             $errors['err']='Unable to update the user. Internal error occurred';
         } else {
             $sql='INSERT INTO '.STAFF_TABLE.' '.$sql.', created=NOW()';
             if(db_query($sql) && ($uid=db_insert_id()))
                 return $uid;
-                
+
             $errors['err']='Unable to create user. Internal error';
         }
 
