@@ -23,8 +23,12 @@ $nav=null;
 require(CLIENTINC_DIR.'header.inc.php');
 ?>
 <div id="landing_page">
-    <h1>Support Ticket System Offline</h1>
-    <p>Thank you for your interest in contacting us.</p>
-    <p>Our helpdesk is offline at the moment, please check back at a later time.</p>
+<?php
+if(($page=$cfg->getOfflinePage())) {
+    echo $page->getBody();
+} else {
+    echo '<h1>Support Ticket System Offline</h1>';
+}
+?>
 </div>
 <?php require(CLIENTINC_DIR.'footer.inc.php'); ?>

@@ -363,7 +363,7 @@ class OsticketConfig extends Config {
     function getDefaultTemplate() {
 
         if(!$this->defaultTemplate && $this->getDefaultTemplateId())
-            $this->defaultTemplate = Template::lookup($this->getDefaultTemplateId());
+            $this->defaultTemplate = EmailTemplateGroup::lookup($this->getDefaultTemplateId());
 
         return $this->defaultTemplate;
     }
