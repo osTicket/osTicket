@@ -292,6 +292,9 @@ a.departments { background:url(../images/icons/list_departments.gif) }
 a.newDepartment { background:url(../images/icons/new_department.gif) }
 
 
+a.pages { background:url(../images/icons/pages.gif) }
+a.newPage { background:url(../images/icons/new_page.gif) }
+
 /* Generic CSS based Icons. use=> <tag class="Icon iconname">text</tag> */
 
 .Icon {
@@ -1378,27 +1381,27 @@ ul.progress li.no small {color:red;}
 #bar.error { background: #ffd; text-align: center; color: #a00; font-weight: bold; }
 
 /* Overlay */
-#overlay { 
-    display: none; 
-    position: fixed; 
+#overlay {
+    display: none;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: #000;
     z-index: 1000;
-    -webkit-transform: translate3d(0,0,0); 
+    -webkit-transform: translate3d(0,0,0);
 }
 
 #loading, #upgrading {
     border:1px solid #2a67ac;
-    padding: 10px 10px 10px 60px; 
-    width: 300px; 
-    height: 100px; 
+    padding: 10px 10px 10px 60px;
+    width: 300px;
+    height: 100px;
     background: rgb( 255, 255, 255) url('../images/FhHRx-Spinner.gif') 10px 50% no-repeat;
-    position: fixed; 
-    display: none; 
-    z-index: 3000; 
+    position: fixed;
+    display: none;
+    z-index: 3000;
 }
 
 #loading h4, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }

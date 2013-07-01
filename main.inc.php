@@ -120,6 +120,7 @@
     require(INCLUDE_DIR.'class.http.php');
     require(INCLUDE_DIR.'class.signal.php');
     require(INCLUDE_DIR.'class.nav.php');
+    require(INCLUDE_DIR.'class.page.php');
     require(INCLUDE_DIR.'class.format.php'); //format helpers
     require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
     require(INCLUDE_DIR.'class.mailer.php');
@@ -158,6 +159,8 @@
     define('GROUP_DEPT_TABLE', TABLE_PREFIX.'group_dept_access');
     define('TEAM_TABLE',TABLE_PREFIX.'team');
     define('TEAM_MEMBER_TABLE',TABLE_PREFIX.'team_member');
+
+    define('PAGE_TABLE', TABLE_PREFIX.'page');
 
     define('FAQ_TABLE',TABLE_PREFIX.'faq');
     define('FAQ_ATTACHMENT_TABLE',TABLE_PREFIX.'faq_attachment');
