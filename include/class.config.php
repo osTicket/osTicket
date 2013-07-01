@@ -368,6 +368,51 @@ class OsticketConfig extends Config {
         return $this->defaultTemplate;
     }
 
+    function getLandingPageId() {
+        return $this->get('landing_page_id');
+    }
+
+    function getLandingPage() {
+
+        if(!$this->landing_page && $this->getLandingPageId())
+            $this->landing_page = Page::lookup($this->getLandingPageId());
+
+        return $this->landing_page;
+    }
+
+    function getOfflinePageId() {
+        return $this->get('offline_page_id');
+    }
+
+    function getOfflinePage() {
+
+        if(!$this->offline_page && $this->getOfflinePageId())
+            $this->offline_page = Page::lookup($this->getOfflinePageId());
+
+        return $this->offline_page;
+    }
+
+    function getThankYouPageId() {
+        return $this->get('thank-you_page_id');
+    }
+
+    function getThankYouPage() {
+
+        if(!$this->thankyou_page && $this->getThankYouPageId())
+            $this->thankyou_page = Page::lookup($this->getThankYouPageId());
+
+        return $this->thankyou_page;
+    }
+
+    function getDefaultPages() {
+        /* Array of ids...as opposed to objects */
+        return array(
+                $this->getLandingPageId(),
+                $this->getOfflinePageId(),
+                $this->getThankYouPageId(),
+                );
+    }
+
     function getMaxOpenTickets() {
          return $this->get('max_open_tickets');
     }
@@ -641,6 +686,9 @@ class OsticketConfig extends Config {
             case 'emails':
                 return $this->updateEmailsSettings($vars, $errors);
                 break;
+            case 'pages':
+                return $this->updatePagesSettings($vars, $errors);
+                break;
            case 'autoresp':
                 return $this->updateAutoresponderSettings($vars, $errors);
                 break;
@@ -802,6 +850,23 @@ class OsticketConfig extends Config {
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
          ));
+    }
+
+    function updatePagesSettings($vars, &$errors) {
+
+        $f=array();
+        $f['landing_page_id'] = array('type'=>'int',   'required'=>1, 'error'=>'required');
+        $f['offline_page_id'] = array('type'=>'int',   'required'=>1, 'error'=>'required');
+        $f['thank-you_page_id'] = array('type'=>'int',   'required'=>1, 'error'=>'required');
+
+        if(!Validator::process($f, $vars, $errors) || $errors)
+            return false;
+
+        return $this->updateAll(array(
+            'landing_page_id' => $vars['landing_page_id'],
+            'offline_page_id' => $vars['offline_page_id'],
+            'thank-you_page_id' => $vars['thank-you_page_id'],
+           ));
     }
 
     function updateAutoresponderSettings($vars, &$errors) {
