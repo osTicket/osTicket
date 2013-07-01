@@ -41,18 +41,23 @@ class Format {
         if(!$charset && function_exists('mb_detect_encoding'))
             $charset = mb_detect_encoding($text);
 
-        //Cleanup - junk
-        if($charset && in_array(trim($charset), array('default','x-user-defined')))
+        // Cleanup - incorrect, bogus, or ambiguous charsets
+        if($charset && in_array(strtolower(trim($charset)),
+                array('default','x-user-defined','iso')))
             $charset = 'ISO-8859-1';
 
+        $original = $text;
         if(function_exists('iconv') && $charset)
             $text = iconv($charset, $encoding.'//IGNORE', $text);
         elseif(function_exists('mb_convert_encoding') && $charset && $encoding)
             $text = mb_convert_encoding($text, $encoding, $charset);
         elseif(!strcasecmp($encoding, 'utf-8')) //forced blind utf8 encoding.
             $text = function_exists('imap_utf8')?imap_utf8($text):utf8_encode($text);
-
-        return $text;
+        
+        // If $text is false, then we have a (likely) invalid charset, use
+        // the original text and assume 8-bit (latin-1 / iso-8859-1)
+        // encoding
+        return (!$text && $original) ? $original : $text;
     }
 
     //Wrapper for utf-8 encoding.
