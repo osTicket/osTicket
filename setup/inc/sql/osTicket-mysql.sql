@@ -440,6 +440,7 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
+  `page_id` int(10) unsigned NOT NULL default '0',
   `topic` varchar(32) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
@@ -450,7 +451,8 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   KEY `priority_id` (`priority_id`),
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`,`team_id`),
-  KEY `sla_id` (`sla_id`)
+  KEY `sla_id` (`sla_id`),
+  KEY `page_id` (`page_id`)
 ) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%help_topic` (`isactive`, `ispublic`, `noautoresp`, `dept_id`, `sla_id`, `topic`, `notes`) VALUES
@@ -751,3 +753,28 @@ INSERT INTO `%TABLE_PREFIX%timezone` (`offset`, `timezone`) VALUES
   (10.0, 'Eastern Australia, Guam, Vladivostok'),
   (11.0, 'Magadan, Solomon Islands, New Caledonia'),
   (12.0, 'Auckland, Wellington, Fiji, Kamchatka');
+
+-- pages
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%page` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `isactive` tinyint(1) unsigned NOT NULL default '0',
+  `type` enum('landing','offline','thank-you','other') NOT NULL default 'other',
+  `name` varchar(255) NOT NULL,
+  `body` text NOT NULL,
+  `notes` text,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
+
+INSERT INTO `%TABLE_PREFIX%page` (`id`, `isactive`, `type`, `name`, `body`, `notes`, `created`, `updated`) VALUES
+('', 1, 'offline', 'Offline', '<div>\r\n<h1><span style="font-size: medium">Support Ticket System Offline</span></h1>\r\n<p>Thank you for your interest in contacting us.</p>\r\n<p>Our helpdesk is offline at the moment, please check back at a later time.</p>\r\n</div>', 'Default offline page', NOW(), NOW()),
+('', 1, 'thank-you', 'Thank you', '<div>%{ticket.name},<br />\r\n    \r\n<p>\r\nThank you for contacting us.</p><p> A support ticket request #%{ticket.number} has been created and a representative will be getting back to you shortly if necessary.</p>\r\n          \r\n<p>Support Team </p>\r\n</div>', 'Default "thank you" page displayed after the end-user creates a web ticket.', NOW(), NOW()),
+('', 1, 'landing', 'Landing', '<h1>Welcome to the Support Center</h1>\r\n<p>In order to streamline support requests and better serve you, we utilize a support ticket system. Every support request is assigned a unique ticket number which you can use to track the progress and responses online. For your reference we provide complete archives and history of all your support requests. A valid email address is required to submit a ticket.\r\n</p>\r\n', 'Introduction text on the landing page.', NOW(), NOW());
+
+INSERT INTO `%TABLE_PREFIX%config` (`key`, `value`, `namespace`) VALUES
+  ('landing_page_id', (SELECT `id` FROM `%TABLE_PREFIX%page` WHERE `type` = 'landing'), 'core'),
+  ('offline_page_id', (SELECT `id` FROM `%TABLE_PREFIX%page` WHERE `type` = 'offline'), 'core'),
+  ('thank-you_page_id', (SELECT `id` FROM `%TABLE_PREFIX%page` WHERE `type` = 'thank-you'), 'core');
