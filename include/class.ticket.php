@@ -1812,6 +1812,11 @@ class Ticket {
     function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
+        // Drop extra whitespace
+        foreach (array('email', 'phone', 'subject', 'name') as $f)
+            if (isset($vars[$f]))
+                $vars[$f] = trim($vars[$f]);
+
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
 
