@@ -11,6 +11,15 @@ class Deployment extends Unpacker {
         script to deploy changes made by you or upstream development to your
         installation target";
 
+    function __construct() {
+        $this->options['dry-run'] = array('-t','--dry-run',
+            'action'=>'store_true',
+            'help'=>'Don\'t actually deploy new code. Just show the files
+                that would be copied');
+        # super(*args);
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+    }
+
     function find_root_folder() {
         # Hop up to the root folder of this repo
         $start = dirname(__file__);
@@ -50,7 +59,8 @@ class Deployment extends Unpacker {
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
             array("*/include/ost-config.php"));
-        if (!$upgrade && $include != "{$this->destination}/include")
+        if (!$options['dry-run'] && !$upgrade
+                 && $include != "{$this->destination}/include")
             $this->change_include_dir($include);
     }
 }

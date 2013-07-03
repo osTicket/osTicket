@@ -97,21 +97,23 @@ class Unpacker extends Module {
      *      to disable exclusions
      */
     function unpackage($folder, $destination, $recurse=0, $exclude=false) {
-        $verbose = $this->getOption('verbose');
+        $dryrun = $this->getOption('dry-run', false);
+        $verbose = $this->getOption('verbose') || $dryrun;
         if (substr($destination, -1) !== '/')
             $destination .= '/';
         foreach (glob($folder, GLOB_BRACE|GLOB_NOSORT) as $file) {
             if ($this->exclude($exclude, $file))
                 continue;
             if (is_file($file)) {
-                if (!is_dir($destination))
+                if (!is_dir($destination) && !$dryrun)
                     mkdir($destination, 0751, true);
                 $target = $destination . basename($file);
-                if (is_file($target) && md5_file($target) == md5_file($file))
+                if (is_file($target) && (md5_file($target) == md5_file($file)))
                     continue;
                 if ($verbose)
                     $this->stdout->write($target."\n");
-                copy($file, $target);
+                if (!$dryrun)
+                    copy($file, $target);
             }
         }
         if ($recurse) {

@@ -162,7 +162,7 @@ class Module {
         $this->parseOptions();
         if (isset($this->_options[$name]))
             return $this->_options[$name];
-        elseif ($this->options[$name]->default)
+        elseif (isset($this->options[$name]) && $this->options[$name]->default)
             return $this->options[$name]->default;
         else
             return $default;
