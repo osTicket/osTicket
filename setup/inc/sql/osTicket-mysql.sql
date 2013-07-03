@@ -345,14 +345,17 @@ INSERT INTO `%TABLE_PREFIX%email_template` (`isactive`, `name`, `notes`, `ticket
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file`;
 CREATE TABLE `%TABLE_PREFIX%file` (
   `id` int(11) NOT NULL auto_increment,
+  `ft` CHAR( 1 ) NOT NULL DEFAULT  'T',
   `type` varchar(255) NOT NULL default '',
   `size` varchar(25) NOT NULL default '',
   `hash` varchar(125) NOT NULL,
   `name` varchar(255) NOT NULL default '',
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
+  KEY `ft` (`ft`),
   KEY `hash` (`hash`)
 ) DEFAULT CHARSET=utf8;
+
 
 INSERT INTO `%TABLE_PREFIX%file` (`type`, `size`, `hash`, `name`, `created`) VALUES
   ('text/plain', '25', '670c6cc1d1dfc97fad20e5470251b255', 'osTicket.txt', NOW());
