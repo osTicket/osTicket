@@ -60,7 +60,7 @@ $gmtime = Misc::gmtime();
                 <select name="default_template_id">
                     <option value="">&mdash; Select Default Template &mdash;</option>
                     <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_TABLE.' WHERE isactive=1 ORDER BY name';
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' WHERE isactive=1 ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while (list($id, $name) = db_fetch_row($res)){
                             $selected = ($config['default_template_id']==$id)?'selected="selected"':''; ?>
@@ -99,7 +99,7 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr>
             <td>Purge Logs:</td>
-            <td>        
+            <td>
                 <select name="log_graceperiod">
                     <option value=0 selected>Never Purge Logs</option>
                     <?php
@@ -172,7 +172,7 @@ $gmtime = Misc::gmtime();
                         echo sprintf('<option value="%d" %s>%d</option>', $i,(($config['client_login_timeout']==$i)?'selected="selected"':''), $i);
                     }
                     ?>
-                </select> minute lock-out is enforced. 
+                </select> minute lock-out is enforced.
             </td>
         </tr>
 

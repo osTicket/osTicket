@@ -134,7 +134,7 @@ class Installer extends SetupWizard {
         $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
         $dept_id_1 = db_result(db_query($sql, false), 0);
 
-        $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template ORDER BY `tpl_id` LIMIT 1';
+        $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
         $template_id_1 = db_result(db_query($sql, false), 0);
 
         $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';

@@ -88,7 +88,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="tpl_id">
                     <option value="0">&mdash; System default &mdash;</option>
                     <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_TABLE.' tpl WHERE isactive=1 ORDER by name';
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl WHERE isactive=1 ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while(list($id,$name)=db_fetch_row($res)){
                             $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';
@@ -144,7 +144,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['manager_id']; ?></span>
             </td>
         </tr>
-        <?php 
+        <?php
         } ?>
 
         <tr>
@@ -167,7 +167,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="ticket_auto_response" value="0" <?php echo !$info['ticket_auto_response']?'checked="checked"':''; ?> >
-                
+
                 <strong>Disable</strong> new ticket auto-response for this Dept.
             </td>
         </tr>
@@ -217,7 +217,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
              .' ORDER BY group_name';
          if(($res=db_query($sql)) && db_num_rows($res)){
             while(list($id, $name, $members) = db_fetch_row($res)) {
-                if($members>0) 
+                if($members>0)
                     $members=sprintf('<a href="staff.php?a=filter&gid=%d">%d</a>', $id, $members);
 
                 $ck=($info['groups'] && in_array($id,$info['groups']))?'checked="checked"':'';

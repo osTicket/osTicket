@@ -1,23 +1,45 @@
 <?php
-$msgtemplates=Template::message_templates();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$_REQUEST);
-$info['tpl']=($info['tpl'] && $msgtemplates[$info['tpl']])?$info['tpl']:'ticket_autoresp';
+
+if (is_a($template, EmailTemplateGroup)) {
+    // New template implementation
+    $id = 0;
+    $tpl_id = $template->getId();
+    $name = $template->getName();
+    $selected = $_REQUEST['code_name'];
+    $action = 'implement';
+    $extras = array('code_name'=>$selected, 'tpl_id'=>$tpl_id);
+    $msgtemplates=$template->all_names;
+} else {
+    // Template edit
+    $id = $template->getId();
+    $tpl_id = $template->getTplId();
+    $name = $template->getGroup()->getName();
+    $selected = $template->getCodeName();
+    $action = 'updatetpl';
+    $extras = array();
+    $msgtemplates=$template->getGroup()->all_names;
+    $info=array_merge(array('subj'=>$template->getSubject(), 'body'=>$template->getBody()),$info);
+}
+$info['tpl']=($info['tpl'] && $msgtemplates[$info['tpl']])?$info['tpl']:'ticket.autoresp';
 $tpl=$msgtemplates[$info['tpl']];
-$info=array_merge($template->getMsgTemplate($info['tpl']),$info);
 
 ?>
-<h2>Email Template Message - <span><?php echo $template->getName(); ?></span></h2>
+<h2>Email Template Message - <span><?php echo $name; ?></span></h2>
 <div style="padding-top:10px;padding-bottom:5px;">
     <form method="get" action="templates.php">
-    <input type="hidden" name="id" value="<?php echo $template->getId(); ?>">
     <input type="hidden" name="a" value="manage">
     Message Template:
-    <select id="tpl_options" name="tpl" style="width:300px;">
+    <select id="tpl_options" name="id" style="width:300px;">
         <option value="">&mdash; Select Setting Group &mdash;</option>
         <?php
-        foreach($msgtemplates as $k=>$v) {
-            $sel=($info['tpl']==$k)?'selected="selected"':'';
-            echo sprintf('<option value="%s" %s>%s</option>',$k,$sel,$v['name']);
+        foreach($template->getGroup()->getTemplates() as $cn=>$t) {
+            $nfo=$t->getDescription();
+            if (!$nfo['name'])
+                continue;
+            $sel=($selected==$cn)?'selected="selected"':'';
+            echo sprintf('<option value="%s" %s>%s</option>',
+                    $t->getId(),$sel,$nfo['name']);
         }
         ?>
     </select>
@@ -25,12 +47,14 @@ $info=array_merge($template->getMsgTemplate($info['tpl']),$info);
     &nbsp;&nbsp;&nbsp;<font color="red"><?php echo $errors['tpl']; ?></font>
     </form>
 </div>
-<form action="templates.php?id=<?php echo $template->getId(); ?>" method="post" id="save">
+<form action="templates.php?id=<?php echo $id; ?>" method="post" id="save">
 <?php csrf_token(); ?>
-<input type="hidden" name="id" value="<?php echo $template->getId(); ?>">
-<input type="hidden" name="tpl" value="<?php echo $info['tpl']; ?>">
+<?php foreach ($extras as $k=>$v) { ?>
+    <input type="hidden" name="<?php echo $k; ?>" value="<?php echo $v; ?>" />
+<?php } ?>
+<input type="hidden" name="id" value="<?php echo $id; ?>">
 <input type="hidden" name="a" value="manage">
-<input type="hidden" name="do" value="updatetpl">
+<input type="hidden" name="do" value="<?php echo $action; ?>">
 
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
    <thead>
@@ -59,6 +83,7 @@ $info=array_merge($template->getMsgTemplate($info['tpl']),$info);
 <p style="padding-left:210px;">
     <input class="button" type="submit" name="submit" value="Save Changes">
     <input class="button" type="reset" name="reset" value="Reset Changes">
-    <input class="button" type="button" name="cancel" value="Cancel Changes" onclick='window.location.href="templates.php?id=<?php echo $template->getId(); ?>"'>
+    <input class="button" type="button" name="cancel" value="Cancel Changes"
+        onclick='window.location.href="templates.php?tpl_id=<?php echo $tpl_id; ?>"'>
 </p>
 </form>

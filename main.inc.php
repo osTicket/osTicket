@@ -76,7 +76,7 @@
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7.0+'); //Shown on admin panel
-    define('SCHEMA_SIGNATURE', '852ca89e1440e736d763b3b87f039bd7'); //MD5 signature of the db schema. (used to trigger upgrades)
+    define('SCHEMA_SIGNATURE', '740428f9986da6ad85f88ec841b57bfe'); //MD5 signature of the db schema. (used to trigger upgrades)
     #load config info
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
@@ -120,6 +120,7 @@
     require(INCLUDE_DIR.'class.http.php');
     require(INCLUDE_DIR.'class.signal.php');
     require(INCLUDE_DIR.'class.nav.php');
+    require(INCLUDE_DIR.'class.page.php');
     require(INCLUDE_DIR.'class.format.php'); //format helpers
     require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
     require(INCLUDE_DIR.'class.mailer.php');
@@ -159,6 +160,8 @@
     define('TEAM_TABLE',TABLE_PREFIX.'team');
     define('TEAM_MEMBER_TABLE',TABLE_PREFIX.'team_member');
 
+    define('PAGE_TABLE', TABLE_PREFIX.'page');
+
     define('FAQ_TABLE',TABLE_PREFIX.'faq');
     define('FAQ_ATTACHMENT_TABLE',TABLE_PREFIX.'faq_attachment');
     define('FAQ_TOPIC_TABLE',TABLE_PREFIX.'faq_topic');
@@ -176,6 +179,7 @@
     define('TICKET_EMAIL_INFO_TABLE',TABLE_PREFIX.'ticket_email_info');
 
     define('EMAIL_TABLE',TABLE_PREFIX.'email');
+    define('EMAIL_TEMPLATE_GRP_TABLE',TABLE_PREFIX.'email_template_group');
     define('EMAIL_TEMPLATE_TABLE',TABLE_PREFIX.'email_template');
 
     define('FILTER_TABLE',TABLE_PREFIX.'filter');

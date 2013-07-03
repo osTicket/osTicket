@@ -8,8 +8,8 @@ if($template && $_REQUEST['a']!='add'){
     $action='update';
     $submit_text='Save Changes';
     $info=$template->getInfo();
-    $info['id']=$template->getId();
-    $qstr.='&id='.$template->getId();
+    $info['tpl_id']=$template->getId();
+    $qstr.='&tpl_id='.$template->getId();
 }else {
     $title='Add New Template';
     $action='add';
@@ -23,7 +23,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
- <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
+ <input type="hidden" name="tpl_id" value="<?php echo $info['tpl_id']; ?>">
  <h2>Email Template</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
@@ -74,10 +74,31 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <?php
-         foreach(Template::message_templates() as $k=>$tpl){
-            echo sprintf('<tr><td colspan=2>&nbsp;<strong><a href="templates.php?id=%d&a=manage&tpl=%s">%s</a></strong>&nbsp-&nbsp<em>%s</em></td></tr>',
-                    $template->getId(),$k,Format::htmlchars($tpl['name']),Format::htmlchars($tpl['desc']));
+         foreach($template->getTemplates() as $tpl){
+             $info = $tpl->getDescription();
+             if (!$info['name'])
+                 continue;
+            echo sprintf('<tr><td colspan=2>&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>&nbsp-&nbsp<em>%s</em></td></tr>',
+                    $tpl->getId(),Format::htmlchars($info['name']),
+                    Format::htmlchars($info['desc']));
          }
+         if (($undef = $template->getUndefinedTemplateNames())) { ?>
+        <tr>
+            <th colspan="2">
+                <em><strong>Unimplemented Template Messages</strong>: Click
+                on the message to implement</em>
+            </th>
+        </tr>
+        <?php
+            foreach($template->getUndefinedTemplateNames() as $cn=>$info){
+                echo sprintf('<tr><td colspan=2>&nbsp;<strong><a
+                    href="templates.php?tpl_id=%d&a=implement&code_name=%s"
+                    style="color:red;text-decoration:underline"
+                    >%s</a></strong>&nbsp-&nbsp<em>%s</em></td></tr>',
+                    $template->getId(),$cn,Format::htmlchars($info['name']),
+                    Format::htmlchars($info['desc']));
+            }
+        }
         }else{ ?>
         <tr>
             <td width="180" class="required">
@@ -87,7 +108,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="tpl_id">
                     <option value="0">&mdash; Select One &dash;</option>
                     <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_TABLE.' ORDER by name';
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while(list($id,$name)=db_fetch_row($res)){
                             $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';

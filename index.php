@@ -17,13 +17,13 @@ require('client.inc.php');
 $section = 'home';
 require(CLIENTINC_DIR.'header.inc.php');
 ?>
-
 <div id="landing_page">
-    <h1>Welcome to the Support Center</h1>
-    <p>
-        In order to streamline support requests and better serve you, we utilize a support ticket system. Every support request is assigned a unique ticket number which you can use to track the progress and responses online. For your reference we provide complete archives and history of all your support requests. A valid email address is required to submit a ticket.
-    </p>
-
+    <?php
+    if($cfg && ($page = $cfg->getLandingPage()))
+        echo $page->getBody();
+    else
+        echo  '<h1>Welcome to the Support Center</h1>';
+    ?>
     <div id="new_ticket">
         <h3>Open A New Ticket</h3>
         <br>

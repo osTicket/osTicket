@@ -19,6 +19,7 @@ $settingOptions=array(
                 'system' => 'System Settings',
                 'tickets' => 'Ticket Settings and Options',
                 'emails' => 'Email Settings',
+                'pages' => 'Site Pages',
                 'kb' => 'Knowledgebase Settings',
                 'autoresp' => 'Autoresponder Settings',
                 'alerts' => 'Alerts and Notices Settings');
