@@ -25,7 +25,7 @@ class UpgraderAjaxAPI extends AjaxController {
         if(!$thisstaff or !$thisstaff->isAdmin() or !$ost)
             Http::response(403, 'Access Denied');
 
-        $upgrader = new Upgrader($ost->getDBSignature(), TABLE_PREFIX, SQL_DIR);
+        $upgrader = new Upgrader(TABLE_PREFIX, UPGRADE_DIR.'streams/');
 
         //Just report the next action on the first call.
         if(!$_SESSION['ost_upgrader'] || !$_SESSION['ost_upgrader'][$upgrader->getShash()]['progress']) {
@@ -51,7 +51,7 @@ class UpgraderAjaxAPI extends AjaxController {
                     Http::response(200, "Upgraded to $version ... post-upgrade checks!");
                     exit;
                 }
-            } else { 
+            } else {
                 //Abort: Upgrade pending but NOT upgradable - invalid or wrong hash.
                 $upgrader->abort(sprintf('Upgrade Failed: Invalid or wrong hash [%s]',$ost->getDBSignature()));
             }

@@ -20,6 +20,7 @@
 
 require_once(INCLUDE_DIR.'class.config.php'); //Config helper
 require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
+require_once(INCLUDE_DIR.'class.migrater.php');
 
 define('LOG_WARN',LOG_WARNING);
 
@@ -60,8 +61,11 @@ class osTicket {
     }
 
     function isUpgradePending() {
-        return strcasecmp(SCHEMA_SIGNATURE,
-                $this->getConfig()->getSchemaSignature());
+		foreach (DatabaseMigrater::getUpgradeStreams(UPGRADE_DIR.'streams/') as $stream=>$hash)
+			if (strcasecmp($hash,
+					$this->getConfig()->getSchemaSignature($stream)))
+				return true;
+		return false;
     }
 
     function getSession() {
@@ -72,8 +76,8 @@ class osTicket {
         return $this->config;
     }
 
-    function getDBSignature() {
-        return $this->getConfig()->getSchemaSignature();
+    function getDBSignature($namespace='core') {
+        return $this->getConfig()->getSchemaSignature($namespace);
     }
 
     function getVersion() {
