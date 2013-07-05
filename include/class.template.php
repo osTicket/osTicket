@@ -445,8 +445,8 @@ class EmailTemplate {
         return self::lookup(self::create($vars, $errors));
     }
 
-    function lookupByName($tpl, $name, $group=null) {
-        $sql = 'SELCT id FROM '.EMAIL_TEMPLATE_TABLE
+    function lookupByName($tpl_id, $name, $group=null) {
+        $sql = 'SELECT id FROM '.EMAIL_TEMPLATE_TABLE
             .' WHERE tpl_id='.db_input($tpl_id)
             .' AND code_name='.db_input($name);
         if (($res=db_query($sql)) && ($id=db_result($res)))
