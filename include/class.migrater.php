@@ -81,10 +81,13 @@ class DatabaseMigrater {
      * update is triggered and the patches in the stream folder are used to
      * upgrade the database.
 	 */
-	/* static */ function getUpgradeStreams($basedir) {
+	/* static */
+    function getUpgradeStreams($basedir) {
 		static $streams = array();
         if ($streams) return $streams;
 
+        // TODO: Make the hash algo configurable in the streams
+        //       configuration ( core : md5 )
         $config = @file_get_contents($basedir.'/streams.cfg');
         if (!$config) $config = 'core';
         foreach (explode("\n", $config) as $line) {
