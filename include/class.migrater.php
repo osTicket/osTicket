@@ -70,6 +70,36 @@ class DatabaseMigrater {
 
         return array_filter($patches);
     }
+
+    /**
+     * Reads update stream information from UPGRADE_DIR/<streams>/streams.cfg.
+     * Each declared stream folder should contain a file under the name of the
+     * stream with an 'sig' extension. The file will be the hash of the
+     * signature of the tip of the stream. A corresponding config variable
+     * 'schema_signature' should exist in the namespace of the stream itself.
+     * If the hash file doesn't match the schema_signature on record, then an
+     * update is triggered and the patches in the stream folder are used to
+     * upgrade the database.
+	 */
+	/* static */
+    function getUpgradeStreams($basedir) {
+		static $streams = array();
+        if ($streams) return $streams;
+
+        // TODO: Make the hash algo configurable in the streams
+        //       configuration ( core : md5 )
+        $config = @file_get_contents($basedir.'/streams.cfg');
+        if (!$config) $config = 'core';
+        foreach (explode("\n", $config) as $line) {
+            $line = trim(preg_replace('/#.*$/', '', $line));
+            if (!$line)
+                continue;
+            else if (file_exists($basedir."$line.sig") && is_dir($basedir.$line))
+                $streams[$line] =
+                    trim(file_get_contents($basedir."$line.sig"));
+        }
+        return $streams;
+    }
 }
 
 

@@ -17,90 +17,48 @@
 require_once INCLUDE_DIR.'class.setup.php';
 require_once INCLUDE_DIR.'class.migrater.php';
 
-class Upgrader extends SetupWizard {
+class Upgrader {
+    function Upgrader($prefix, $basedir) {
+        global $ost;
 
-    var $prefix;
-    var $sqldir;
-    var $signature;
-
-    var $state;
-    var $mode;
-
-    function Upgrader($signature, $prefix, $sqldir) {
-
-        $this->signature = $signature;
-        $this->prefix = $prefix;
-        $this->sqldir = $sqldir;
-        $this->errors = array();
-        $this->mode = 'ajax'; //
-
-        //Disable time limit if - safe mode is set.
-        if(!ini_get('safe_mode'))
-            set_time_limit(0);
+        $this->streams = array();
+        foreach (DatabaseMigrater::getUpgradeStreams($basedir) as $stream=>$hash) {
+            $signature = $ost->getConfig()->getSchemaSignature($stream);
+            $this->streams[$stream] = new StreamUpgrader($signature, $hash, $stream,
+                $prefix, $basedir.$stream.'/', $this);
+        }
 
         //Init persistent state of upgrade.
         $this->state = &$_SESSION['ost_upgrader']['state'];
 
         $this->mode = &$_SESSION['ost_upgrader']['mode'];
 
-        //Init the task Manager.
-        if(!isset($_SESSION['ost_upgrader'][$this->getShash()]))
-            $_SESSION['ost_upgrader'][$this->getShash()]['tasks']=array();
-
-        //Tasks to perform - saved on the session.
-        $this->tasks = &$_SESSION['ost_upgrader'][$this->getShash()]['tasks'];
-
-        //Database migrater
-        $this->migrater = null;
+        $this->current = &$_SESSION['ost_upgrader']['stream'];
+        if (!$this->current || $this->getCurrentStream()->isFinished()) {
+            $streams = array_keys($this->streams);
+            do {
+                $this->current = array_shift($streams);
+            } while ($this->current && $this->getCurrentStream()->isFinished());
+        }
     }
 
-    function onError($error) {
-        global $ost, $thisstaff;
-
-        $ost->logError('Upgrader Error', $error);
-        $this->setError($error);
-        $this->setState('aborted');
-
-        //Alert staff upgrading the system - if the email is not same as admin's
-        // admin gets alerted on error log (above)
-        if(!$thisstaff || !strcasecmp($thisstaff->getEmail(), $ost->getConfig()->getAdminEmail()))
-            return;
-
-        $email=null;
-        if(!($email=$ost->getConfig()->getAlertEmail()))
-            $email=$ost->getConfig()->getDefaultEmail(); //will take the default email.
-
-        $subject = 'Upgrader Error';
-        if($email) {
-            $email->sendAlert($thisstaff->getEmail(), $subject, $error);
-        } else {//no luck - try the system mail.
-            Mailer::sendmail($thisstaff->getEmail(), $subject, $error, sprintf('"osTicket Alerts"<%s>', $thisstaff->getEmail()));
-        }
-
+    function getCurrentStream() {
+        return $this->streams[$this->current];
     }
 
     function isUpgradable() {
-        return (!$this->isAborted() && $this->getNextPatch());
+        if ($this->isAborted())
+            return false;
+
+        foreach ($this->streams as $s)
+            if (!$s->isUpgradable())
+                return false;
+
+        return true;
     }
 
     function isAborted() {
         return !strcasecmp($this->getState(), 'aborted');
-    }
-
-    function getSchemaSignature() {
-        return $this->signature;
-    }
-
-    function getShash() {
-        return  substr($this->getSchemaSignature(), 0, 8);
-    }
-
-    function getTablePrefix() {
-        return $this->prefix;
-    }
-
-    function getSQLDir() {
-        return $this->sqldir;
     }
 
     function getState() {
@@ -119,9 +77,164 @@ class Upgrader extends SetupWizard {
         $this->mode = $mode;
     }
 
+    function upgrade() {
+        if (!$this->current)
+            return true;
+
+        return $this->getCurrentStream()->upgrade();
+    }
+
+    function check_prereq() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->check_prereq();
+    }
+    function check_php() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->check_php();
+    }
+    function check_mysql() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->check_mysql();
+    }
+
+    function getNumPendingTasks() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getNumPendingTasks();
+    }
+
+    function doTasks() {
+        if ($this->getNumPendingTasks())
+            return $this->getCurrentStream()->doTasks();
+    }
+
+    function getErrors() {
+        return $this->getCurrentStream()->getError();
+    }
+
+    function getNextAction() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getNextAction();
+    }
+
+    function getNextVersion() {
+        return $this->getCurrentStream()->getNextVersion();
+    }
+
+    function getSchemaSignature() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getSchemaSignature();
+    }
+
+    function getSHash() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getSHash();
+    }
+}
+
+/**
+ * Updates a single database stream. In the classical sense, osTicket only
+ * maintained a single database update stream. In that model, this
+ * represents upgrading that single stream. In multi-stream mode,
+ * customizations and plugins are supported to have their own respective
+ * database update streams. The Upgrader class is used to coordinate updates
+ * for all the streams, whereas the work to upgrade each stream is done in
+ * this class
+ */
+class StreamUpgrader extends SetupWizard {
+
+    var $prefix;
+    var $sqldir;
+    var $signature;
+
+    var $state;
+    var $mode;
+
+    /**
+     * Parameters:
+     * schema_signature - (string<hash-hex>) Current database-reflected (via
+     *      config table) version of the stream
+     * target - (stream<hash-hex>) Current stream tip, as reflected by
+     *      streams/<stream>.sig
+     * stream - (string) Name of the stream (folder)
+     * prefix - (string) Database table prefix
+     * sqldir - (string<path>) Path of sql patches
+     * upgrader - (Upgrader) Parent coordinator of parallel stream updates
+     */
+    function StreamUpgrader($schema_signature, $target, $stream, $prefix, $sqldir, $upgrader) {
+
+        $this->signature = $schema_signature;
+        $this->target = $target;
+        $this->prefix = $prefix;
+        $this->sqldir = $sqldir;
+        $this->errors = array();
+        $this->mode = 'ajax'; //
+        $this->upgrader = $upgrader;
+        $this->name = $stream;
+
+        //Disable time limit if - safe mode is set.
+        if(!ini_get('safe_mode'))
+            set_time_limit(0);
+
+
+        //Init the task Manager.
+        if(!isset($_SESSION['ost_upgrader'][$this->getShash()]))
+            $_SESSION['ost_upgrader'][$this->getShash()]['tasks']=array();
+
+        //Tasks to perform - saved on the session.
+        $this->tasks = &$_SESSION['ost_upgrader'][$this->getShash()]['tasks'];
+
+        //Database migrater
+        $this->migrater = null;
+    }
+
+    function onError($error) {
+        global $ost, $thisstaff;
+
+        $subject = '['.$this->name.']: Upgrader Error';
+        $ost->logError($subject, $error);
+        $this->setError($error);
+        $this->upgrader->setState('aborted');
+
+        //Alert staff upgrading the system - if the email is not same as admin's
+        // admin gets alerted on error log (above)
+        if(!$thisstaff || !strcasecmp($thisstaff->getEmail(), $ost->getConfig()->getAdminEmail()))
+            return;
+
+        $email=null;
+        if(!($email=$ost->getConfig()->getAlertEmail()))
+            $email=$ost->getConfig()->getDefaultEmail(); //will take the default email.
+
+        if($email) {
+            $email->sendAlert($thisstaff->getEmail(), $subject, $error);
+        } else {//no luck - try the system mail.
+            Mailer::sendmail($thisstaff->getEmail(), $subject, $error, sprintf('"osTicket Alerts"<%s>', $thisstaff->getEmail()));
+        }
+
+    }
+
+    function isUpgradable() {
+        return $this->getNextPatch();
+    }
+
+    function getSchemaSignature() {
+        return $this->signature;
+    }
+
+    function getShash() {
+        return  substr($this->getSchemaSignature(), 0, 8);
+    }
+
+    function getTablePrefix() {
+        return $this->prefix;
+    }
+
+    function getSQLDir() {
+        return $this->sqldir;
+    }
+
     function getMigrater() {
         if(!$this->migrater)
-            $this->migrater = new DatabaseMigrater($this->signature, SCHEMA_SIGNATURE, $this->sqldir);
+            $this->migrater = new DatabaseMigrater($this->signature, $this->target, $this->sqldir);
 
         return  $this->migrater;
     }
@@ -144,6 +257,12 @@ class Upgrader extends SetupWizard {
 
         $info = $this->readPatchInfo($patch);
         return $info['version'];
+    }
+
+    function isFinished() {
+        # TODO: 1. Check if current and target hashes match,
+        #       2. Any pending tasks
+        return !($this->getNextPatch() || $this->getPendingTasks());
     }
 
     function readPatchInfo($patch) {
@@ -170,7 +289,7 @@ class Upgrader extends SetupWizard {
             $action = "Upgrade to $nextversion";
         }
 
-        return $action;
+        return '['.$this->name.'] '.$action;
     }
 
     function getNumPendingTasks() {

@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR.'class.migrater.php';
 require_once INCLUDE_DIR.'class.setup.php';
 
 class Installer extends SetupWizard {
@@ -109,24 +110,34 @@ class Installer extends SetupWizard {
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('PREFIX',$vars['prefix']); //Table prefix
 
-        $schemaFile =INC_DIR.'sql/osTicket-mysql.sql'; //DB dump.
-        $debug = true; //XXX:Change it to true to show SQL errors.
+        $debug = true; // Change it to false to squelch SQL errors.
 
         //Last minute checks.
-        if(!file_exists($schemaFile) || !($fp = fopen($schemaFile, 'rb')))
-            $this->errors['err']='Internal Error - please make sure your download is the latest (#1)';
-        elseif(
-                !($signature=trim(file_get_contents("$schemaFile.md5")))
-                || !($hash=md5(fread($fp, filesize($schemaFile))))
-                || strcasecmp($signature, $hash))
-            $this->errors['err']='Unknown or invalid schema signature ('
-                .$signature.' .. '.$hash.')';
-        elseif(!file_exists($this->getConfigFile()) || !($configFile=file_get_contents($this->getConfigFile())))
+        if(!file_exists($this->getConfigFile()) || !($configFile=file_get_contents($this->getConfigFile())))
             $this->errors['err']='Unable to read config file. Permission denied! (#2)';
         elseif(!($fp = @fopen($this->getConfigFile(),'r+')))
             $this->errors['err']='Unable to open config file for writing. Permission denied! (#3)';
-        elseif(!$this->load_sql_file($schemaFile,$vars['prefix'], true, $debug))
-            $this->errors['err']='Error parsing SQL schema! Get help from developers (#4)';
+
+        else {
+            foreach (DatabaseMigrater::getUpgradeStreams(INCLUDE_DIR.'upgrader/streams/')
+                    as $stream=>$signature) {
+                $schemaFile = INC_DIR."streams/$stream/install-mysql.sql";
+                if (!file_exists($schemaFile) || !($fp2 = fopen($schemaFile, 'rb')))
+                    $this->errors['err'] = $stream
+                        . ': Internal Error - please make sure your download is the latest (#1)';
+                elseif (
+                        // TODO: Make the hash algo configurable in the streams
+                        //       configuration ( core : md5 )
+                        !($hash = md5(fread($fp2, filesize($schemaFile))))
+                        || strcasecmp($signature, $hash))
+                    $this->errors['err'] = $stream
+                        .': Unknown or invalid schema signature ('
+                        .$signature.' .. '.$hash.')';
+                elseif (!$this->load_sql_file($schemaFile, $vars['prefix'], true, $debug))
+                    $this->errors['err'] = $stream
+                        .': Error parsing SQL schema! Get help from developers (#4)';
+            }
+        }
 
         $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
         $sla_id_1 = db_result(db_query($sql, false), 0);
@@ -173,6 +184,7 @@ class Installer extends SetupWizard {
 
             //Create config settings---default settings!
             //XXX: rename ostversion  helpdesk_* ??
+            // XXX: Some of this can go to the core install file
 			$defaults = array('isonline'=>'0', 'default_email_id'=>$support_email_id,
 				'alert_email_id'=>$alert_email_id, 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
 				'default_timezone_id'=>$eastern_timezone, 'default_template_id'=>$template_id_1,
