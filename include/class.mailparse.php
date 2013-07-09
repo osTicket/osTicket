@@ -202,8 +202,13 @@ class Mail_Parse {
             $file=array(
                     'name'  => $filename,
                     'type'  => strtolower($part->ctype_primary.'/'.$part->ctype_secondary),
-                    'data'  => $this->mime_encode($part->body, $part->ctype_parameters['charset'])
                     );
+
+            if ($part->ctype_parameters['charset'])
+                $file['data'] = $this->mime_encode($part->body,
+                    $part->ctype_parameters['charset']);
+            else
+                $file['data'] = $part->body;
 
             if(!$this->decode_bodies && $part->headers['content-transfer-encoding'])
                 $file['encoding'] = $part->headers['content-transfer-encoding'];

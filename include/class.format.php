@@ -45,6 +45,9 @@ class Format {
         if($charset && in_array(strtolower(trim($charset)),
                 array('default','x-user-defined','iso')))
             $charset = 'ISO-8859-1';
+        
+        if (strcasecmp($charset, $encoding) === 0)
+            return $text;
 
         $original = $text;
         if(function_exists('iconv') && $charset)
