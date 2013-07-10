@@ -364,6 +364,14 @@ class EmailTemplate {
         return $this->id;
     }
 
+    function asArray() {
+        return array(
+            'id' => $this->getId(),
+            'subj' => $this->getSubject(),
+            'body' => $this->getBody(),
+        );
+    }
+
     function getSubject() {
         return $this->ht['subject'];
     }

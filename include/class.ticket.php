@@ -738,7 +738,7 @@ class Ticket {
                 && $dept->autoRespONNewTicket()
                 &&  ($msg=$tpl->getAutoRespMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                     array('message' => $message,
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
@@ -757,7 +757,7 @@ class Ticket {
                 && $cfg->alertONNewTicket()
                 && ($msg=$tpl->getNewTicketAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg, array('message' => $message));
+            $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
             $recipients=$sentlist=array();
             //Alert admin??
@@ -809,7 +809,7 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
@@ -868,7 +868,7 @@ class Ticket {
         //If enabled...send confirmation to user. ( New Message AutoResponse)
         if($email && $tpl && ($msg=$tpl->getNewMessageAutorepMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                             array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
             //Reply separator tag.
@@ -923,7 +923,7 @@ class Ticket {
         //Get the message template
         if($email && $recipients && $tpl && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                         array('comments' => $comments,
                               'assignee' => $assignee,
                               'assigner' => $assigner
@@ -964,7 +964,8 @@ class Ticket {
         //Get the message template
         if($tpl && ($msg=$tpl->getOverdueAlertMsgTemplate()) && $email) {
 
-            $msg = $this->replaceVars($msg, array('comments' => $comments));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('comments' => $comments));
 
             //recipients
             $recipients=array();
@@ -1158,7 +1159,8 @@ class Ticket {
          //Get the message template
          if($tpl && ($msg=$tpl->getTransferAlertMsgTemplate()) && $email) {
 
-             $msg = $this->replaceVars($msg, array('comments' => $comments, 'staff' => $thisstaff));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('comments' => $comments, 'staff' => $thisstaff));
             //recipients
             $recipients=array();
             //Assigned staff or team... if any
@@ -1310,7 +1312,7 @@ class Ticket {
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg, array('message' => $message));
+            $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1377,7 +1379,8 @@ class Ticket {
             else
                 $signature='';
 
-            $msg = $this->replaceVars($msg, array('response' => $response, 'signature' => $signature));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('response' => $response, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
@@ -1430,7 +1433,7 @@ class Ticket {
             else
                 $signature='';
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                     array('response' => $response, 'signature' => $signature, 'staff' => $thisstaff));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
@@ -1529,7 +1532,8 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
 
-            $msg = $this->replaceVars($msg, array('note' => $note));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('note' => $note));
 
             // Alert recipients
             $recipients=array();
@@ -2113,7 +2117,7 @@ class Ticket {
             else
                 $signature='';
 
-            $msg = $ticket->replaceVars($msg,
+            $msg = $ticket->replaceVars($msg->asArray(),
                     array('message' => $message, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
