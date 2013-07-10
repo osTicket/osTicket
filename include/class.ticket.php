@@ -584,7 +584,7 @@ class Ticket {
     /**
      * Selects the appropriate service-level-agreement plan for this ticket.
      * When tickets are transfered between departments, the SLA of the new
-     * department should be applied to the ticket. This would be usefule,
+     * department should be applied to the ticket. This would be useful,
      * for instance, if the ticket is transferred to a different department
      * which has a shorter grace period, the ticket should be considered
      * overdue in the shorter window now that it is owned by the new
@@ -1134,7 +1134,7 @@ class Ticket {
         $this->reload();
 
         // Set SLA of the new department
-        if(!$this->getSLAId())
+        if(!$this->getSLAId() || $this->getSLA()->isTransient())
             $this->selectSLAId();
 
         /*** log the transfer comments as internal note - with alerts disabled - ***/
@@ -1657,6 +1657,10 @@ class Ticket {
 
         $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
         $this->reload();
+
+        // Reselect SLA if transient
+        if(!$this->getSLAId() || $this->getSLA()->isTransient())
+            $this->selectSLAId();
 
         //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()

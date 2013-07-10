@@ -48,6 +48,13 @@ class Config {
         return $this->section;
     }
 
+    function getInfo() {
+        $info = array();
+        foreach ($this->config as $key=>$setting)
+            $info[$key] = $setting['value'];
+        return $info;
+    }
+
     function get($key, $default=null) {
         if (isset($this->session[$key]))
             return $this->session[$key];
@@ -215,10 +222,7 @@ class OsticketConfig extends Config {
     }
 
     function getConfigInfo() {
-        $info = array();
-        foreach ($this->config as $key=>$setting)
-            $info[$key] = $setting['value'];
-        return $info;
+        return $this->getInfo();
     }
 
     function getTitle() {
