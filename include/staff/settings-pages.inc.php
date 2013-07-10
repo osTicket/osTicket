@@ -11,7 +11,7 @@ $pages = Page::getPages();
         <tr>
             <th colspan="2">
                 <h4>Pages</h4>
-                <em>To edit or add new pages go to <a href="pages">Manage > Site Pages</a></em>
+                <em>To edit or add new pages go to <a href="pages.php">Manage > Site Pages</a></em>
             </th>
         </tr>
     </thead>
