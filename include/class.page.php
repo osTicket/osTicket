@@ -237,7 +237,7 @@ class Page {
             .', `type`='.db_input($vars['type'])
             .', name='.db_input($vars['name'])
             .', body='.db_input(Format::safe_html($vars['body']))
-            .', isactive='.db_input(isset($vars['isactive'])?1:0)
+            .', isactive='.db_input($vars['isactive'] ? 1 : 0)
             .', notes='.db_input($vars['notes']);
 
         if($id) {
