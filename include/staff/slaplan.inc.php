@@ -76,6 +76,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
+                Transient:
+            </td>
+            <td>
+                <input type="checkbox" name="transient" value="1" <?php echo $info['transient']?'checked="checked"':''; ?> >
+                SLA can be overwritten on ticket transfer or help topic
+                change
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                 Ticket Overdue Alerts:
             </td>
             <td>

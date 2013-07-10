@@ -18,6 +18,7 @@ class SLA {
     var $id;
 
     var $info;
+    var $config;
 
     function SLA($id) {
         $this->id=0;
@@ -53,21 +54,31 @@ class SLA {
     function getGracePeriod() {
         return $this->ht['grace_period'];
     }
-        
+
     function getNotes() {
         return $this->ht['notes'];
     }
 
     function getHashtable() {
-        return  $this->ht;
+        return array_merge($this->getConfig()->getInfo(), $this->ht);
     }
 
     function getInfo() {
         return $this->getHashtable();
     }
 
+    function getConfig() {
+        if (!isset($this->config))
+            $this->config = new SlaConfig($this->getId());
+        return $this->config;
+    }
+
     function isActive() {
         return ($this->ht['isactive']);
+    }
+
+    function isTransient() {
+        return $this->getConfig()->get('transient', false);
     }
 
     function sendAlerts() {
@@ -83,11 +94,12 @@ class SLA {
     }
 
     function update($vars,&$errors) {
-        
+
         if(!SLA::save($this->getId(),$vars,$errors))
             return false;
 
         $this->reload();
+        $this->getConfig()->set('transient', isset($vars['transient']) ? 1 : 0);
 
         return true;
     }
@@ -111,7 +123,10 @@ class SLA {
 
     /** static functions **/
     function create($vars,&$errors) {
-        return SLA::save(0,$vars,$errors);
+        if (($id = SLA::save(0,$vars,$errors)) && ($sla = self::lookup($id)))
+            $sla->getConfig()->set('transient',
+                isset($vars['transient']) ? 1 : 0);
+        return $id;
     }
 
     function getSLAs() {
@@ -121,8 +136,8 @@ class SLA {
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while($row=db_fetch_array($res))
                 $slas[$row['id']] = sprintf('%s (%d hrs - %s)',
-                        $row['name'], 
-                        $row['grace_period'], 
+                        $row['name'],
+                        $row['grace_period'],
                         $row['isactive']?'Active':'Disabled');
         }
 
@@ -150,7 +165,7 @@ class SLA {
             $errors['grace_period']='Grace period required';
         elseif(!is_numeric($vars['grace_period']))
             $errors['grace_period']='Numeric value required (in hours)';
-            
+
         if(!$vars['name'])
             $errors['name']='Name required';
         elseif(($sid=SLA::getIdByName($vars['name'])) && $sid!=$id)
@@ -181,6 +196,15 @@ class SLA {
         }
 
         return false;
+    }
+}
+
+require_once(INCLUDE_DIR.'class.config.php');
+class SlaConfig extends Config {
+    var $table = CONFIG_TABLE;
+
+    function SlaConfig($id) {
+        parent::Config("sla.$id");
     }
 }
 ?>
