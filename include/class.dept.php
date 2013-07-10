@@ -362,11 +362,11 @@ class Dept {
         } elseif(strlen($vars['name'])<4) {
             $errors['name']='Name is too short.';
         } elseif(($did=Dept::getIdByName($vars['name'])) && $did!=$id) {
-            $errors['name']='Department already exist';
+            $errors['name']='Department already exists';
         }
 
         if(!$vars['ispublic'] && ($vars['id']==$cfg->getDefaultDeptId()))
-            $errors['ispublic']='System default department can not be private';
+            $errors['ispublic']='System default department cannot be private';
 
         if($errors) return false;
 

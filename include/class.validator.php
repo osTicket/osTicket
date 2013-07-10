@@ -40,7 +40,7 @@ class Validator {
         if(!$source || !is_array($source))
             $this->errors['err']='Invalid input';
         elseif(!$this->fields || !is_array($this->fields))
-            $this->errors['err']='No fields setup';
+            $this->errors['err']='No fields set up';
         //Abort on error
         if($this->errors)
             return false;

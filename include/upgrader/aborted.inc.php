@@ -20,7 +20,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             echo '<b><font color="red">Internal error occurred - get technical help.</font></b>';
         }
         ?>
-        <p><b>For detailed - please view <a href="logs.php">system logs</a> or check your email.</b></p>
+        <p><b>For more detailed information, please view <a href="logs.php">system logs</a> or check your email.</b></p>
         <br>
         <p>Please, refer to the <a target="_blank" href="http://osticket.com/wiki/Upgrade_and_Migration">Upgrade Guide</a> on the wiki for more information.</p>
     </div>

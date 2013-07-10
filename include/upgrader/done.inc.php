@@ -7,7 +7,7 @@ $_SESSION['ost_upgrader']=null;
     <div id="main">
         <h1 style="color:green;">Upgrade Completed!</h1>
         <div id="intro">
-        <p>Congratulations osTicket upgrade has been completed successfully.</p>
+        <p>Congratulations! osTicket upgrade has completed successfully.</p>
         <p>Please refer to <a href="http://osticket.com/wiki/Release_Notes" target="_blank">Release Notes</a> for more information about changes and/or new features.</p>
         </div>
         <p>Once again, thank you for choosing osTicket.</p>
@@ -20,7 +20,7 @@ $_SESSION['ost_upgrader']=null;
     </div>
     <div id="sidebar">
             <h3>What's Next?</h3>
-            <p><b>Post-upgrade</b>: You can now go to <a href="scp/settings.php" target="_blank">Admin Panel</a> to enable the system and explore the new features. For complete and upto date release notes see <a href="http://osticket.com/wiki/Release_Notes" target="_blank">osTicket wiki</a></p>
+            <p><b>Post-upgrade</b>: You can now go to <a href="scp/settings.php" target="_blank">Admin Panel</a> to enable the system and explore the new features. For complete and up-to-date release notes, see <a href="http://osticket.com/wiki/Release_Notes" target="_blank">osTicket wiki</a></p>
             <p><b>Stay up to date</b>: It's important to keep your osTicket installation up to date. Get announcements, security updates and alerts delivered directly to you! 
             <a target="_blank" href="http://osticket.com/support/subscribe.php">Get in the loop</a> today and stay informed!</p>
             <p><b>Commercial support available</b>: Get guidance and hands-on expertise to address unique challenges and make sure your osTicket runs smoothly, efficiently, and securely. <a target="_blank" href="http://osticket.com/support/commercial_support.php.php">Learn More!</a></p>

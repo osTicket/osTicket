@@ -672,14 +672,14 @@ class Staff {
         if(!$vars['username'] || strlen($vars['username'])<2)
             $errors['username']='Username required';
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
-            $errors['username']='Username already in-use';
+            $errors['username']='Username already in use';
 
         if(!$vars['email'] || !Validator::is_email($vars['email']))
             $errors['email']='Valid email required';
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']='Already in-use system email';
         elseif(($uid=Staff::getIdByEmail($vars['email'])) && $uid!=$id)
-            $errors['email']='Email already in-use by another staff member';
+            $errors['email']='Email already in use by another staff member';
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
             $errors['phone']='Valid number required';

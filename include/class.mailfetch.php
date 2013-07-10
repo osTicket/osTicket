@@ -545,7 +545,7 @@ class MailFetcher {
                         "\nHost: ".$fetcher->getHost().
                         "\nError: ".$fetcher->getLastError().
                         "\n\n ".$errors.' consecutive errors. Maximum of '.$MAXERRORS. ' allowed'.
-                        "\n\n This could be connection issues related to the mail server. Next delayed login attempt in aprox. $TIMEOUT minutes";
+                        "\n\n This could be connection issues related to the mail server. Next delayed login attempt in approx. $TIMEOUT minutes";
                     $ost->alertAdmin('Mail Fetch Failure Alert', $msg, true);
                 }
             }

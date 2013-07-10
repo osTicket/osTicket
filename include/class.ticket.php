@@ -1609,11 +1609,11 @@ class Ticket {
 
         if($vars['duedate']) {
             if($this->isClosed())
-                $errors['duedate']='Duedate can NOT be set on a closed ticket';
+                $errors['duedate']='Due date can NOT be set on a closed ticket';
             elseif(!$vars['time'] || strpos($vars['time'],':')===false)
                 $errors['time']='Select time';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
-                $errors['duedate']='Invalid duedate';
+                $errors['duedate']='Invalid due date';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
                 $errors['duedate']='Due date must be in the future';
         }
@@ -1900,7 +1900,7 @@ class Ticket {
             if(!$vars['time'] || strpos($vars['time'],':')===false)
                 $errors['time']='Select time';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
-                $errors['duedate']='Invalid duedate';
+                $errors['duedate']='Invalid due date';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
                 $errors['duedate']='Due date must be in the future';
         }
