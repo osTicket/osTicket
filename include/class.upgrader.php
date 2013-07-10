@@ -61,6 +61,11 @@ class Upgrader {
         return !strcasecmp($this->getState(), 'aborted');
     }
 
+    function abort($msg, $debug=false) {
+        if ($this->getCurrentStream())
+            $this->getCurrentStream()->abort($msg, $debug);
+    }
+
     function getState() {
         return $this->state;
     }
@@ -108,7 +113,8 @@ class Upgrader {
     }
 
     function getErrors() {
-        return $this->getCurrentStream()->getError();
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getError();
     }
 
     function getNextAction() {
