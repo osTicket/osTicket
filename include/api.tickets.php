@@ -159,7 +159,7 @@ class PipeApiController extends TicketApiController {
         if(($ticket=$pipe->processEmail()))
            return $pipe->response(201, $ticket->getNumber());
 
-        return $pipe->exerr(416, 'Request failed -retry again!');
+        return $pipe->exerr(416, 'Request failed - retry again!');
     }
 }
 

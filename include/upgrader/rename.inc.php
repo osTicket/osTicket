@@ -27,7 +27,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
     <div id="sidebar">
             <h3>Need Help?</h3>
             <p>
-            If you are looking for a greater level of support, we provide <u>professional upgrade</u> and commercial support with guaranteed response times, and access to the core development team. We can also help customize osTicket or even add new features to the system to meet your unique needs. <a target="_blank" href="http://osticket.com/support/professional_services.php">Learn More!</a>
+            If you are looking for a greater level of support, we provide <u>professional upgrade</u> and commercial support with guaranteed response times and access to the core development team. We can also help customize osTicket or even add new features to the system to meet your unique needs. <a target="_blank" href="http://osticket.com/support/professional_services.php">Learn More!</a>
             </p>
     </div>
     <div class="clear"></div>

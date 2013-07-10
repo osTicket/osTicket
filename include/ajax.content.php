@@ -39,7 +39,7 @@ class ContentAjaxAPI extends AjaxController {
         $content='
 <div style="width:680px;">
     <h2>Ticket Variables</h2>
-    Please note that non-base variables depends on the context of use. Visit osTicket Wiki for up to date documentation.
+    Please note that non-base variables depend on the context of use. Visit osTicket Wiki for up-to-date documentation.
     <br/>
     <table width="100%" border="0" cellspacing=1 cellpadding=2>
         <tr><td width="55%" valign="top"><b>Base Variables</b></td><td><b>Other Variables</b></td></tr>

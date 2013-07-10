@@ -224,11 +224,11 @@ class Email {
         if(!$vars['email'] || !Validator::is_email($vars['email'])) {
             $errors['email']='Valid email required';
         }elseif(($eid=Email::getIdByEmail($vars['email'])) && $eid!=$id) {
-            $errors['email']='Email already exits';
+            $errors['email']='Email already exists';
         }elseif($cfg && !strcasecmp($cfg->getAdminEmail(), $vars['email'])) {
             $errors['email']='Email already used as admin email!';
         }elseif(Staff::getIdByEmail($vars['email'])) { //make sure the email doesn't belong to any of the staff 
-            $errors['email']='Email in-use by a staff member';
+            $errors['email']='Email in use by a staff member';
         }
 
         if(!$vars['name'])
@@ -284,7 +284,7 @@ class Email {
                 $sql.=' AND email_id!='.db_input($id);
                 
             if(db_num_rows(db_query($sql)))
-                $errors['userid']=$errors['host']='Host/userid combination already in-use.';
+                $errors['userid']=$errors['host']='Host/userid combination already in use.';
         }
         
         $passwd=$vars['passwd']?$vars['passwd']:$vars['cpasswd'];
@@ -322,7 +322,7 @@ class Email {
                            ));
             $mail = $smtp->connect();
             if(PEAR::isError($mail)) {
-                $errors['err']='Unable to login. Check SMTP settings.';
+                $errors['err']='Unable to log in. Check SMTP settings.';
                 $errors['smtp']='<br>'.$mail->getMessage();
             }else{
                 $smtp->disconnect(); //Thank you, sir!

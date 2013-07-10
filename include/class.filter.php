@@ -424,7 +424,7 @@ class Filter {
         if(!$vars['name'])
             $errors['name'] = 'Name required';
         elseif(($sid=self::getIdByName($vars['name'])) && $sid!=$id)
-            $errors['name'] = 'Name already in-use';
+            $errors['name'] = 'Name already in use';
 
         if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
             $errors['rules'] = 'Unable to validate rules as entered';
