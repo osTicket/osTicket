@@ -1,11 +1,11 @@
 /**
  * Merge ticket thread tables into one
- *  
+ *
  * Replace the ticket_{message,response,note} tables with a single
  * ticket_thread table that will contain data for all three current message
- * types. This simplifies much of the ticket thread code and paves the way 
+ * types. This simplifies much of the ticket thread code and paves the way
  * for other types of messages in the future.
- * 
+ *
  * This patch automagically moves the data from the three federated tables
  * into the one combined table.
  */
@@ -31,7 +31,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   KEY `old_pk` (`old_pk`),
   KEY `created` (`created`),
   FULLTEXT KEY `body` (`body`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
 CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
@@ -39,7 +39,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
   `email_mid` varchar(255) NOT NULL,
   `headers` text,
   KEY `message_id` (`email_mid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- Transfer messages
 INSERT INTO `%TABLE_PREFIX%ticket_thread`
@@ -54,7 +54,7 @@ INSERT INTO `%TABLE_PREFIX%ticket_thread`
   (`ticket_id`, `staff_id`, `thread_type`, `poster`, `body`, `ip_address`,
     `created`, `updated`, `old_pk`, `old_pid`)
   SELECT `ticket_id`, `staff_id`, 'R', `staff_name`, `response`, `ip_address`,
-    `created`, COALESCE(`updated`, NOW()), `response_id`, `msg_id` 
+    `created`, COALESCE(`updated`, NOW()), `response_id`, `msg_id`
     FROM `%TABLE_PREFIX%ticket_response`;
 
 -- Connect responses to (new) messages
