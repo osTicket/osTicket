@@ -10,7 +10,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `timestamp` datetime NOT NULL,
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_history`;
 DROP TABLE IF EXISTS `%TABLE_PREFIX%history`;

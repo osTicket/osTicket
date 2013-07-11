@@ -3,7 +3,7 @@
  * @signature e342f869c7a537ab3ee937fb6e21cdd4
  *
  *  Upgrade from 1.6 RC1-4 to 1.6 RC5
- *  
+ *
  */
 
 ALTER TABLE `%TABLE_PREFIX%config`
@@ -31,7 +31,7 @@ ALTER TABLE `%TABLE_PREFIX%config`
     ADD `hide_staff_name` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' AFTER `show_answered_tickets`,
     ADD `log_graceperiod` INT UNSIGNED NOT NULL DEFAULT '12' AFTER `log_level`;
 
-ALTER TABLE `%TABLE_PREFIX%email` 
+ALTER TABLE `%TABLE_PREFIX%email`
     ADD `userid` VARCHAR( 125 ) NOT NULL AFTER `name` ,
     ADD `userpass` VARCHAR( 125 ) NOT NULL AFTER `userid`,
     ADD `mail_active` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `userpass` ,
@@ -52,7 +52,7 @@ ALTER TABLE `%TABLE_PREFIX%email`
 
 -- Transfer old POP3 settings to "new" email table
 UPDATE `%TABLE_PREFIX%email` as T1 JOIN `%TABLE_PREFIX%email_pop3` as T2 ON(T1.email_id = T2.`email_id`)
-    SET 
+    SET
      `updated`=NOW(),
      `mail_protocol`='POP',
      `mail_encryption`='NONE',
@@ -103,10 +103,10 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
     ADD `lastresponse` DATETIME NULL AFTER `lastmessage`,
     ADD INDEX ( `duedate` ) ;
 
-ALTER TABLE `%TABLE_PREFIX%ticket` 
+ALTER TABLE `%TABLE_PREFIX%ticket`
     CHANGE `source` `source` ENUM( 'Web', 'Email', 'Phone', 'Other' ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'Other' ;
- 
-ALTER TABLE `%TABLE_PREFIX%email_template` 
+
+ALTER TABLE `%TABLE_PREFIX%email_template`
     ADD `note_alert_subj` VARCHAR( 255 ) NOT NULL AFTER `message_alert_body` ,
     ADD `note_alert_body` TEXT NOT NULL AFTER `note_alert_subj`,
     ADD `notes` TEXT NULL AFTER `name`;
@@ -123,7 +123,7 @@ UPDATE `%TABLE_PREFIX%email_template`
                 REPLACE(`ticket_reply_body`, 'view.php', 'ticket.php'),
             '%message', '%response');
 
-ALTER TABLE `%TABLE_PREFIX%ticket_message` 
+ALTER TABLE `%TABLE_PREFIX%ticket_message`
     ADD `messageId` VARCHAR( 255 ) NULL AFTER `ticket_id`,
     ADD INDEX ( `messageId` ) ;
 
@@ -132,7 +132,7 @@ ALTER TABLE `%TABLE_PREFIX%ticket_message` ADD FULLTEXT (`message`);
 ALTER TABLE `%TABLE_PREFIX%ticket_response` ADD FULLTEXT (`response`);
 
 ALTER TABLE `%TABLE_PREFIX%ticket_note` ADD FULLTEXT (`note`);
-  
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%api_key`;
 CREATE TABLE `%TABLE_PREFIX%api_key` (
   `id` int(10) unsigned NOT NULL auto_increment,
@@ -143,7 +143,7 @@ CREATE TABLE `%TABLE_PREFIX%api_key` (
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `ipaddr` (`ipaddr`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%syslog`;
 CREATE TABLE `%TABLE_PREFIX%syslog` (
@@ -157,7 +157,7 @@ CREATE TABLE `%TABLE_PREFIX%syslog` (
   `updated` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`log_id`),
   KEY `log_type` (`log_type`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 UPDATE `%TABLE_PREFIX%config`
     SET `ostversion`='1.6 RC5';

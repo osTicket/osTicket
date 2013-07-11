@@ -87,7 +87,7 @@ CREATE TABLE `%TABLE_PREFIX%config` (
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   UNIQUE KEY (`namespace`, `key`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
   ('core', 'isonline', '0'),

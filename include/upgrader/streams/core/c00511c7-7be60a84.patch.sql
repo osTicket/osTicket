@@ -16,7 +16,7 @@ CREATE TABLE `%TABLE_PREFIX%file` (
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `hash` (`hash`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- update ticket attachments ref. table.
 ALTER TABLE `%TABLE_PREFIX%ticket_attachment`
@@ -44,7 +44,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `timestamp` datetime NOT NULL,
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 ALTER TABLE `%TABLE_PREFIX%config`
     ADD `passwd_reset_period` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `staff_session_timeout`,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%sla` (
     `updated` datetime NOT NULL,
     PRIMARY KEY  (`id`),
     UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- Create a default SLA
 INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team` (
     UNIQUE KEY `name` (`name`),
     KEY `isnabled` (`isenabled`),
     KEY `lead_id` (`lead_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- Create a default TEAM
 INSERT INTO `%TABLE_PREFIX%team` (`lead_id`, `isenabled`, `noalerts`, `name`, `notes`, `created`, `updated`)
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team_member` (
   `staff_id` int(10) unsigned NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`team_id`,`staff_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 ALTER TABLE `%TABLE_PREFIX%department`
     ADD sla_id INT UNSIGNED NOT NULL DEFAULT '0' AFTER tpl_id;
@@ -196,7 +196,7 @@ CREATE TABLE `%TABLE_PREFIX%email_filter` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `email_id` (`email_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- Copy banlist to a new email filter
 INSERT INTO `%TABLE_PREFIX%email_filter` (`execorder`, `isactive`,
@@ -220,7 +220,7 @@ CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
   PRIMARY KEY  (`id`),
   KEY `filter_id` (`filter_id`),
   UNIQUE `filter` (`filter_id`, `what`, `how`, `val`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- SYSTEM BAN LIST was the first filter created, with ID of '1'
 INSERT INTO `%TABLE_PREFIX%email_filter_rule` (`filter_id`, `what`, `how`, `val`)
@@ -239,7 +239,7 @@ CREATE TABLE `%TABLE_PREFIX%session` (
   PRIMARY KEY  (`session_id`),
   KEY `updated` (`session_updated`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Create tables for FAQ + attachments.
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq`;
@@ -258,14 +258,14 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   KEY `category_id` (`category_id`),
   KEY `ispublished` (`ispublished`),
   FULLTEXT KEY `faq` (`question`,`answer`,`keywords`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_attachment`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_attachment` (
   `faq_id` int(10) unsigned NOT NULL,
   `file_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`file_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- Add support for attachments to canned responses
 DROP TABLE IF EXISTS `%TABLE_PREFIX%canned_attachment`;
@@ -273,7 +273,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%canned_attachment` (
   `canned_id` int(10) unsigned NOT NULL,
   `file_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`canned_id`,`file_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- Rename kb_premade to canned_response
 ALTER TABLE `%TABLE_PREFIX%kb_premade`
@@ -297,14 +297,14 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_category` (
   `updated` date NOT NULL,
   PRIMARY KEY  (`category_id`),
   KEY (`ispublic`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_topic`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   `faq_id` int(10) unsigned NOT NULL,
   `topic_id` int(10) unsigned NOT NULL,
   PRIMARY KEY  (`faq_id`,`topic_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 
 UPDATE `%TABLE_PREFIX%config`

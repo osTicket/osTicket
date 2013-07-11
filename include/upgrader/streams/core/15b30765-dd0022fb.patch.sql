@@ -3,7 +3,7 @@
  * @signature dd0022fb14892c0bb6a9700392df2de7
  *
  * Migrate file attachment data from %file to %file_chunk
- *  
+ *
  */
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file_chunk`;
@@ -12,7 +12,7 @@ CREATE TABLE `%TABLE_PREFIX%file_chunk` (
     `chunk_id` int(11) NOT NULL,
     `filedata` longblob NOT NULL,
     PRIMARY KEY (`file_id`, `chunk_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%file_chunk` (`file_id`, `chunk_id`, `filedata`)
     SELECT `id`, 0, `filedata`

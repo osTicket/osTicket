@@ -10,19 +10,19 @@ CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `dept_id` int(10) unsigned NOT NULL default '0',
   UNIQUE KEY `group_dept`  (`group_id`,`dept_id`),
   KEY `dept_id` (`dept_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
 -- Extend membership to groups
 ALTER TABLE `%TABLE_PREFIX%department`
     ADD `group_membership` tinyint( 1 ) unsigned NOT NULL DEFAULT '0' AFTER `ispublic`;
 
 -- Fix teams dates...
-UPDATE `%TABLE_PREFIX%team` 
+UPDATE `%TABLE_PREFIX%team`
     SET `created`=IF(TO_DAYS(`created`), `created`, IF(TO_DAYS(`updated`), `updated`, NOW())),
         `updated`=IF(TO_DAYS(`updated`), `updated`, NOW());
 
--- Fix groups dates... 
-UPDATE `%TABLE_PREFIX%groups` 
+-- Fix groups dates...
+UPDATE `%TABLE_PREFIX%groups`
     SET `created`=IF(TO_DAYS(`created`), `created`, IF(TO_DAYS(`updated`), `updated`, NOW())),
         `updated`=IF(TO_DAYS(`updated`), `updated`, NOW());
 
