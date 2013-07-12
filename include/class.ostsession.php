@@ -26,7 +26,7 @@ class osTicketSession {
         if(!$this->ttl)
             $this->ttl=SESSION_TTL;
 
-        if (!OsticketConfig::getDBVersion()) {
+        if (!defined('DISABLE_SESSION') && !OsticketConfig::getDBVersion()) {
             //Set handlers.
             session_set_save_handler(
                 array(&$this, 'open'),
