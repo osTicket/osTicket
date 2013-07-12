@@ -18,6 +18,8 @@ require_once dirname(__file__) . "/class.module.php";
 require_once dirname(__file__) . '/../../../main.inc.php';
 
 require_once INCLUDE_DIR . 'class.json.php';
+require_once INCLUDE_DIR . 'class.migrater.php';
+require_once INCLUDE_DIR . 'class.signal.php';
 
 define('OSTICKET_BACKUP_SIGNATURE', 'osTicket-Backup');
 define('OSTICKET_BACKUP_VERSION', 'A');
@@ -30,16 +32,19 @@ class Exporter extends Module {
         FILE_CHUNK_TABLE, STAFF_TABLE, DEPT_TABLE, TOPIC_TABLE, GROUP_TABLE,
         GROUP_DEPT_TABLE, TEAM_TABLE, TEAM_MEMBER_TABLE, FAQ_TABLE,
         FAQ_ATTACHMENT_TABLE, FAQ_TOPIC_TABLE, FAQ_CATEGORY_TABLE,
-        CANNED_TABLE, CANNED_ATTACHMENT_TABLE, TICKET_TABLE, TICKET_THREAD_TABLE,
-        TICKET_ATTACHMENT_TABLE, TICKET_PRIORITY_TABLE, PRIORITY_TABLE,
+        CANNED_TABLE, CANNED_ATTACHMENT_TABLE, TICKET_TABLE,
+        TICKET_THREAD_TABLE, TICKET_ATTACHMENT_TABLE, TICKET_PRIORITY_TABLE,
         TICKET_LOCK_TABLE, TICKET_EVENT_TABLE, TICKET_EMAIL_INFO_TABLE,
-        EMAIL_TABLE, EMAIL_TEMPLATE_TABLE, FILTER_TABLE, FILTER_RULE_TABLE,
-        SLA_TABLE, API_KEY_TABLE, TIMEZONE_TABLE, PAGE_TABLE);
+        EMAIL_TABLE, EMAIL_TEMPLATE_TABLE, EMAIL_TEMPLATE_GRP_TABLE,
+        FILTER_TABLE, FILTER_RULE_TABLE, SLA_TABLE, API_KEY_TABLE,
+        TIMEZONE_TABLE, SESSION_TABLE, PAGE_TABLE);
 
     var $options = array(
-        'stream' => array('-o', '--output', 'default'=>'compress.zlib://php://stdout',
-            "File or stream to receive the exported output. As a default,
-            zlib compressed output is sent to standard out.")
+        'stream' => array('-o', '--output', 'default'=>'php://stdout',
+            'help'=> "File or stream to receive the exported output. As a
+            default, zlib compressed output is sent to standard out."),
+        'compress' => array('-z', '--compress', 'action'=>'store_true',
+            'help'=> "Send zlib compress data to the output stream"),
     );
 
     var $stream;
@@ -51,13 +56,23 @@ class Exporter extends Module {
 
     function run($args, $options) {
         global $ost;
-        $this->stream = fopen($options['stream'], 'w');
+
+        $stream = $options['stream'];
+        if ($options['compress']) $stream = "compress.zlib://$stream";
+        $this->stream = fopen($stream, 'w');
+
+        // Allow plugins to change the tables exported
+        Signal::send('export.tables', $this, $this->tables);
+
         $header = array(
             array(OSTICKET_BACKUP_SIGNATURE, OSTICKET_BACKUP_VERSION),
             array(
                 'version'=>THIS_VERSION,
                 'table_prefix'=>TABLE_PREFIX,
                 'salt'=>SECRET_SALT,
+                'dbtype'=>DBTYPE,
+                'streams'=>DatabaseMigrater::getUpgradeStreams(
+                    UPGRADE_DIR . 'streams/'),
             ),
         );
         $this->write_block($header);
@@ -77,6 +92,11 @@ class Exporter extends Module {
             $res = db_query("select * from $t");
             $types = array();
 
+            if (!$table) {
+                $this->stderr->write(
+                    $t.': Cannot export table with no fields'."\n");
+                die();
+            }
             $this->write_block(
                 array('table', substr($t, strlen(TABLE_PREFIX)), $table,
                     $indexes));
