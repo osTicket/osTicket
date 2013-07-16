@@ -91,6 +91,18 @@ class AttachmentFile {
         return $this->ht['hash'];
     }
 
+    function lastModified() {
+        return $this->ht['created'];
+    }
+
+    /**
+     * Retrieve a hash that can be sent to scp/file.php?h= in order to
+     * download this file
+     */
+    function getDownloadHash() {
+        return strtolower($this->getHash() . md5($this->getId().session_id().$this->getHash()));
+    }
+
     function open() {
         return new AttachmentChunkedData($this->id);
     }
@@ -126,7 +138,19 @@ class AttachmentFile {
 
 
     function display() {
-       
+
+        // Thanks, http://stackoverflow.com/a/1583753/1025836
+        $last_modified = strtotime($this->lastModified());
+        header("Last-Modified: ".gmdate(DATE_RFC822, $last_modified)." GMT", false);
+        header('ETag: "'.$this->getHash().'"');
+        header('Cache-Control: private, max-age=3600');
+        header('Expires: ' . date(DATE_RFC822, time() + 3600) . ' GMT');
+        header('Pragma: private');
+        if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified ||
+            @trim($_SERVER['HTTP_IF_NONE_MATCH']) == $this->getHash()) {
+                header("HTTP/1.1 304 Not Modified");
+                exit();
+        }
 
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
@@ -141,7 +165,7 @@ class AttachmentFile {
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: public');
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
-    
+
         $filename=basename($this->getName());
         $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
         if ((is_integer(strpos($user_agent,'msie'))) && (is_integer(strpos($user_agent,'win')))) {
@@ -149,7 +173,7 @@ class AttachmentFile {
         }else{
             header('Content-Disposition: attachment; filename='.$filename.';' );
         }
-        
+
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$this->getSize());
         $this->sendData();
@@ -157,12 +181,13 @@ class AttachmentFile {
     }
 
     /* Function assumes the files types have been validated */
-    function upload($file) {
-        
+    function upload($file, $ft='T') {
+
         if(!$file['name'] || $file['error'] || !is_uploaded_file($file['tmp_name']))
             return false;
 
         $info=array('type'=>$file['type'],
+                    'filetype'=>$ft,
                     'size'=>$file['size'],
                     'name'=>$file['name'],
                     'hash'=>MD5(MD5_FILE($file['tmp_name']).time()),
@@ -172,15 +197,49 @@ class AttachmentFile {
         return AttachmentFile::save($info);
     }
 
+    function uploadLogo($file, &$error, $aspect_ratio=3) {
+        /* Borrowed in part from
+         * http://salman-w.blogspot.com/2009/04/crop-to-fit-image-using-aspphp.html
+         */
+        if (!extension_loaded('gd'))
+            return self::upload($file, 'L');
+
+        $source_path = $file['tmp_name'];
+
+        list($source_width, $source_height, $source_type) = getimagesize($source_path);
+
+        switch ($source_type) {
+            case IMAGETYPE_GIF:
+            case IMAGETYPE_JPEG:
+            case IMAGETYPE_PNG:
+                break;
+            default:
+                // TODO: Return an error
+                $error = 'Invalid image file type';
+                return false;
+        }
+
+        $source_aspect_ratio = $source_width / $source_height;
+
+        if ($source_aspect_ratio >= $aspect_ratio)
+            return self::upload($file, 'L');
+
+        $error = 'Image is too square. Upload a wider image';
+        return false;
+    }
+
     function save($file) {
 
         if(!$file['hash'])
             $file['hash']=MD5(MD5($file['data']).time());
         if(!$file['size'])
             $file['size']=strlen($file['data']);
-        
+        if(!$file['filetype'])
+            $file['filetype'] = 'T';
+
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input($file['type'])
+            .',ft='.db_input($file['filetype'])
             .',size='.db_input($file['size'])
             .',name='.db_input(Format::file_name($file['name']))
             .',hash='.db_input($file['hash']);
@@ -208,11 +267,11 @@ class AttachmentFile {
     function lookup($id) {
 
         $id = is_numeric($id)?$id:AttachmentFile::getIdByHash($id);
-        
+
         return ($id && ($file = new AttachmentFile($id)) && $file->getId()==$id)?$file:null;
     }
 
-    /* 
+    /*
       Method formats http based $_FILE uploads - plus basic validation.
       @restrict - make sure file type & size are allowed.
      */
@@ -234,7 +293,7 @@ class AttachmentFile {
         foreach($attachments as $i => &$file) {
             //skip no file upload "error" - why PHP calls it an error is beyond me.
             if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) {
-                unset($attachments[$i]); 
+                unset($attachments[$i]);
                 continue;
             }
 
@@ -263,7 +322,7 @@ class AttachmentFile {
      * canned-response, or faq point to any more.
      */
     /* static */ function deleteOrphans() {
-        
+
         $sql = 'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
                 # DISTINCT implies sort and may not be necessary
                 .'SELECT DISTINCT(file_id) FROM ('
@@ -273,15 +332,26 @@ class AttachmentFile {
                     .' UNION ALL '
                     .'SELECT file_id FROM '.FAQ_ATTACHMENT_TABLE
                 .') still_loved'
-            .')';
+            .') AND `ft` = "T"';
 
         db_query($sql);
-        
+
         //Delete orphaned chuncked data!
         AttachmentChunkedData::deleteOrphans();
-    
+
         return true;
 
+    }
+
+    /* static */
+    function allLogos() {
+        $sql = 'SELECT id FROM '.FILE_TABLE.' WHERE ft="L"
+            ORDER BY created';
+        $logos = array();
+        $res = db_query($sql);
+        while (list($id) = db_fetch_row($res))
+            $logos[] = AttachmentFile::lookup($id);
+        return $logos;
     }
 }
 
@@ -328,11 +398,11 @@ class AttachmentChunkedData {
     }
 
     function deleteOrphans() {
-            
+
         $sql = 'DELETE c.* FROM '.FILE_CHUNK_TABLE.' c '
              . ' LEFT JOIN '.FILE_TABLE.' f ON(f.id=c.file_id) '
              . ' WHERE f.id IS NULL';
-        
+
         return db_query($sql)?db_affected_rows():0;
     }
 }

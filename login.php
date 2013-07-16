@@ -2,7 +2,7 @@
 /*********************************************************************
     login.php
 
-    Client Login 
+    Client Login
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket

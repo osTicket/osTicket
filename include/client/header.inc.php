@@ -20,7 +20,10 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
 <body>
     <div id="container">
         <div id="header">
-            <a id="logo" href="<?php echo ROOT_PATH; ?>index.php" title="Support Center"><img src="<?php echo ASSETS_PATH; ?>images/logo.png" border=0 alt="Support Center"></a>
+            <a id="logo" href="<?php echo ROOT_PATH; ?>index.php"
+            title="Support Center"><img src="logo.php" border=0 alt="<?php
+                echo $ost->getConfig()->getTitle(); ?>"
+                style="height: 5em"></a>
             <p>
              <?php
              if($thisclient && is_object($thisclient) && $thisclient->isValid()) {
