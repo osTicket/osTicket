@@ -43,9 +43,15 @@ class Staff {
 
         $sql='SELECT staff.*, staff.created as added, grp.* '
             .' FROM '.STAFF_TABLE.' staff '
-            .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id) ';
+            .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id)
+               WHERE ';
 
-        $sql.=sprintf(' WHERE %s=%s',is_numeric($var)?'staff_id':'username',db_input($var));
+        if (is_numeric($var))
+            $sql .= 'staff_id='.db_input($var);
+        elseif (Validator::is_email($var))
+            $sql .= 'email='.db_input($var);
+        else
+            $sql .= 'username='.db_input($var);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
@@ -588,7 +594,7 @@ class Staff {
             }
         }
 
-        if(!$username || !$passwd)
+        if(!$username || !$passwd || is_numeric($username))
             $errors['err'] = 'Username and password required';
 
         if($errors) return false;
