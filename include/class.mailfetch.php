@@ -181,7 +181,9 @@ class MailFetcher {
             $text=imap_binary($text);
             break;
             case 3:
-            $text=imap_base64($text);
+            // imap_base64 implies strict mode. If it refuses to decode the
+            // data, then fallback to base64_decode in non-strict mode
+            $text = (($conv=imap_base64($text))) ? $conv : base64_decode($text);
             break;
             case 4:
             $text=imap_qprint($text);
