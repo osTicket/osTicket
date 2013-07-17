@@ -2,7 +2,8 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
-$sql='SELECT page.id, page.isactive, page.name, page.created, page.updated, count(topic.topic_id) as topics '
+$sql='SELECT page.id, page.isactive, page.name, page.created, page.updated, '
+     .'page.type, count(topic.topic_id) as topics '
      .' FROM '.PAGE_TABLE.' page '
      .' LEFT JOIN '.TOPIC_TABLE.' topic ON(topic.page_id=page.id) '
      .' WHERE 1 ';

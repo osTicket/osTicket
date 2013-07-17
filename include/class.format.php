@@ -56,7 +56,7 @@ class Format {
             $text = mb_convert_encoding($text, $encoding, $charset);
         elseif(!strcasecmp($encoding, 'utf-8')) //forced blind utf8 encoding.
             $text = function_exists('imap_utf8')?imap_utf8($text):utf8_encode($text);
-        
+
         // If $text is false, then we have a (likely) invalid charset, use
         // the original text and assume 8-bit (latin-1 / iso-8859-1)
         // encoding
@@ -299,6 +299,21 @@ class Format {
         $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
 
         return date($format, ($gmtimestamp+ ($offset*3600)));
+    }
+
+    // Thanks, http://stackoverflow.com/a/2955878/1025836
+    /* static */
+    function slugify($text) {
+        // replace non letter or digits by -
+        $text = preg_replace('~[^\p{L}\p{N}]+~u', '-', $text);
+
+        // trim
+        $text = trim($text, '-');
+
+        // lowercase
+        $text = strtolower($text);
+
+        return (empty($text)) ? 'n-a' : $text;
     }
 
 }

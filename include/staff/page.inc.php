@@ -13,6 +13,7 @@ if($page && $_REQUEST['a']!='add'){
     $action='update';
     $submit_text='Save Changes';
     $info=$page->getHashtable();
+    $slug = Format::slugify($info['name']);
     $qstr.='&id='.$page->getId();
 }else {
     $title='Add New Page';
@@ -64,6 +65,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['type']; ?></span>
             </td>
         </tr>
+        <?php if ($info['name'] && $info['type'] == 'other') { ?>
+        <tr>
+            <td width="180" class="required">
+                Public URL:
+            </td>
+            <td><a href="<?php echo sprintf("%s/pages/%s",
+                    $ost->getConfig()->getBaseUrl(), urlencode($slug));
+                ?>">pages/<?php echo $slug; ?></a>
+            </td>
+        </tr>
+        <?php } ?>
         <tr>
             <td width="180" class="required">
                 Status:
