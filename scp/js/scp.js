@@ -1,9 +1,9 @@
-/* 
+/*
    scp.js
 
    osTicket SCP
    Copyright (c) osTicket.com
- 
+
  */
 
 function checkbox_checker(formObj, min, max) {
@@ -98,18 +98,20 @@ $(document).ready(function(){
             $('.dialog#confirm-action p#'+this.name+'-confirm')
             .show()
             .parent('div').show().trigger('click');
-        } 
-        
+        }
+
         return false;
      });
 
     $(window).scroll(function () {
-         
-        $('.dialog').css({
-            top  : (($(this).height() /5)+$(this).scrollTop()),
-            left : ($(this).width() / 2 - 300)
-         });
-     });
+        var w = $(window);
+        $('.dialog').each(function() {
+            $(this).css({
+                top  : w.height() / 5 + w.scrollTop(),
+                left : (w.width() - $(this).outerWidth()) / 2
+            });
+        });
+    });
 
     if($.browser.msie) {
         $('.inactive').mouseenter(function() {
@@ -228,11 +230,11 @@ $(document).ready(function(){
             var sr_origin = '//' + host;
             var origin = protocol + sr_origin;
             // Allow absolute or scheme relative URLs to same origin
-            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') || 
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
                 (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
                 // or any other URL that isn't scheme relative or absolute i.e
                 // relative.
-                !(/^(\/\/|http:|https:).*/.test(url));    
+                !(/^(\/\/|http:|https:).*/.test(url));
         }
 
         function safeMethod(method) {
@@ -254,7 +256,7 @@ $(document).ready(function(){
             $config = config;
             }
         });
-     
+
     /* Multifile uploads */
      $('.multifile').multifile({
         container:   '.uploads',
@@ -327,13 +329,16 @@ $(document).ready(function(){
         top     : 0,
         left    : 0
     });
-       
+
     //Dialog
-    $('.dialog').css({
-        top  : ($(window).height() /5),
-        left : ($(window).width() / 2 - 300)
+    $('.dialog').each(function() {
+        var w = $(window);
+        $(this).css({
+            top  : w.height() / 5 + w.scrollTop(),
+            left : (w.width() - $(this).outerWidth()) / 2
+        });
     });
-      
+
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
         e.preventDefault();
         $(this).parents('div.dialog').hide()
@@ -348,11 +353,11 @@ $(document).ready(function(){
         left : ($(window).width() / 2 - 300)
     });
 
-    /* loading ... */    
+    /* loading ... */
     $("#loading").css({
         top  : ($(window).height() / 3),
-        left : ($(window).width() / 2 - 160)
-        });
+        left : ($(window).width() - $("#loading").outerWidth()) / 2
+    });
 
     $('#go-advanced').click(function(e) {
         e.preventDefault();
@@ -381,7 +386,7 @@ $(document).ready(function(){
         }
     });
 
-    $('#advanced-search form#search').submit(function(e) { 
+    $('#advanced-search form#search').submit(function(e) {
         e.preventDefault();
         var fObj = $(this);
         var elem = $('#advanced-search');
@@ -396,7 +401,7 @@ $(document).ready(function(){
                    return true;
                 },
                 success: function (resp) {
-                        
+
                     if(resp.success) {
                         $('#result-count').html('<div class="success">' + resp.success +'</div>');
                     } else if (resp.fail) {

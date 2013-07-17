@@ -20,6 +20,7 @@ require_once('client.inc.php');
 //Client Login page: Ajax interface can pre-declare the function to trap logins.
 if(!function_exists('clientLoginPage')) {
     function clientLoginPage($msg ='') {
+        global $ost;
         require('./login.php');
         exit;
     }

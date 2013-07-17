@@ -856,6 +856,20 @@ class OsticketConfig extends Config {
          ));
     }
 
+    function getLogo($site) {
+        $id = $this->get("{$site}_logo_id", false);
+        return ($id) ? AttachmentFile::lookup($id) : null;
+    }
+    function getClientLogo() {
+        return $this->getLogo('client');
+    }
+    function getLogoId($site) {
+        return $this->get("{$site}_logo_id", false);
+    }
+    function getClientLogoId() {
+        return $this->getLogoId('client');
+    }
+
     function updatePagesSettings($vars, &$errors) {
 
         $f=array();
@@ -863,13 +877,33 @@ class OsticketConfig extends Config {
         $f['offline_page_id'] = array('type'=>'int',   'required'=>1, 'error'=>'required');
         $f['thank-you_page_id'] = array('type'=>'int',   'required'=>1, 'error'=>'required');
 
+        if ($_FILES['logo']) {
+            $error = false;
+            list($logo) = AttachmentFile::format($_FILES['logo']);
+            if (!$logo)
+                ; // Pass
+            elseif ($logo['error'])
+                $errors['logo'] = $logo['error'];
+            elseif (!($id = AttachmentFile::uploadLogo($logo, $error)))
+                $errors['logo'] = 'Unable to upload logo image. '.$error;
+        }
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
+
+        if (isset($vars['delete-logo']))
+            foreach ($vars['delete-logo'] as $id)
+                if (($vars['selected-logo'] != $id)
+                        && ($f = AttachmentFile::lookup($id)))
+                    $f->delete();
 
         return $this->updateAll(array(
             'landing_page_id' => $vars['landing_page_id'],
             'offline_page_id' => $vars['offline_page_id'],
             'thank-you_page_id' => $vars['thank-you_page_id'],
+            'client_logo_id' => (
+                (is_numeric($vars['selected-logo']) && $vars['selected-logo'])
+                ? $vars['selected-logo'] : false),
            ));
     }
 
