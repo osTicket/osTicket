@@ -198,4 +198,8 @@
     function db_errno() {
         return mysql_errno();
     }
+
+    function db_field_type($res, $col=0) {
+        return mysql_field_type($res, $col);
+    }
 ?>

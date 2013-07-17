@@ -39,6 +39,8 @@ class Option {
             $value = null;
         elseif ($value)
             $nargs = 1;
+        if ($this->type == 'int')
+            $value = (int)$value;
         switch ($this->action) {
             case 'store_true':
                 $value = true;
@@ -49,10 +51,17 @@ class Option {
             case 'store_const':
                 $value = $this->const;
                 break;
+            case 'append':
+                if (!isset($destination[$this->dest]))
+                    $destination[$this->dest] = array($value);
+                else {
+                    $T = &$destination[$this->dest];
+                    $T[] = $value;
+                    $value = $T;
+                }
+                break;
             case 'store':
             default:
-                if ($this->type == 'int')
-                    $value = (int)$value;
                 break;
         }
         $destination[$this->dest] = $value;
@@ -71,7 +80,7 @@ class Option {
         else
             $switches = sprintf("    %s, %s", $short[0], $long[0]);
         $help = preg_replace('/\s+/', ' ', $this->help);
-        if (strlen($switches) > 24)
+        if (strlen($switches) > 23)
             $help = "\n" . str_repeat(" ", 24) . $help;
         else
             $switches = str_pad($switches, 24);
@@ -103,6 +112,7 @@ class Module {
     var $epilog = "";
     var $usage = '$script [options] $args [arguments]';
     var $autohelp = true;
+    var $module_name;
 
     var $stdout;
     var $stderr;
@@ -128,11 +138,13 @@ class Module {
         if ($this->prologue)
             echo $this->prologue . "\n\n";
 
-        echo "Usage:\n";
         global $argv;
+        $manager = @$argv[0];
+
+        echo "Usage:\n";
         echo "    " . str_replace(
                 array('$script', '$args'),
-                array($argv[0], implode(' ', array_keys($this->arguments))),
+                array($manager ." ". $this->module_name, implode(' ', array_keys($this->arguments))),
             $this->usage) . "\n";
 
         ksort($this->options);
@@ -205,15 +217,18 @@ class Module {
         die();
     }
 
-    function _run() {
+    function _run($module_name) {
+        $this->module_name = $module_name;
         $this->parseOptions();
         return $this->run($this->_args, $this->_options);
     }
 
-    /* abstract */ function run($args, $options) {
+    /* abstract */
+    function run($args, $options) {
     }
 
-    /* static */ function register($action, $class) {
+    /* static */
+    function register($action, $class) {
         global $registered_modules;
         $registered_modules[$action] = new $class();
     }

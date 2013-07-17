@@ -3,6 +3,9 @@
 
 require_once "modules/class.module.php";
 
+if (!function_exists('noop')) { function noop() {} }
+session_set_save_handler('noop','noop','noop','noop','noop','noop');
+
 class Manager extends Module {
     var $prologue =
         "Manage one or more osTicket installations";
@@ -31,12 +34,12 @@ class Manager extends Module {
             echo str_pad($name, 20) . $mod->prologue . "\n";
     }
 
-    function run() {
-        if ($this->getOption('help') && !$this->getArgument('action'))
+    function run($args, $options) {
+        if ($options['help'] && !$args['action'])
             $this->showHelp();
 
         else {
-            $action = $this->getArgument('action');
+            $action = $args['action'];
 
             global $argv;
             foreach ($argv as $idx=>$val)
@@ -45,8 +48,11 @@ class Manager extends Module {
 
             foreach (glob(dirname(__file__).'/modules/*.php') as $script)
                 include_once $script;
-            $module = Module::getInstance($action);
-            $module->_run();
+            if (($module = Module::getInstance($action)))
+                return $module->_run($args['action']);
+
+            $this->stderr->write("Unknown action given\n");
+            $this->showHelp();
         }
     }
 }
@@ -56,6 +62,6 @@ if (php_sapi_name() != "cli")
 
 $manager = new Manager();
 $manager->parseOptions();
-$manager->run();
+$manager->_run(basename(__file__));
 
 ?>

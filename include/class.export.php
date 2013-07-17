@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************
     class.export.php
-    
+
     Exports stuff (details to follow)
 
     Jared Hancock <jared@osticket.com>
@@ -15,7 +15,7 @@
 **********************************************************************/
 
 class Export {
-    
+
     /* static */ function dumpQuery($sql, $headers, $how='csv', $filter=false) {
         $exporters = array(
             'csv' => CsvResultsExporter,
@@ -135,5 +135,82 @@ class JsonResultsExporter extends ResultSetExporter {
             $rows[] = $row;
         }
         echo $exp->encode($rows);
+    }
+}
+
+require_once INCLUDE_DIR . 'class.json.php';
+require_once INCLUDE_DIR . 'class.migrater.php';
+require_once INCLUDE_DIR . 'class.signal.php';
+
+class DatabaseExporter {
+
+    var $stream;
+    var $tables = array(CONFIG_TABLE, SYSLOG_TABLE, FILE_TABLE,
+        FILE_CHUNK_TABLE, STAFF_TABLE, DEPT_TABLE, TOPIC_TABLE, GROUP_TABLE,
+        GROUP_DEPT_TABLE, TEAM_TABLE, TEAM_MEMBER_TABLE, FAQ_TABLE,
+        FAQ_ATTACHMENT_TABLE, FAQ_TOPIC_TABLE, FAQ_CATEGORY_TABLE,
+        CANNED_TABLE, CANNED_ATTACHMENT_TABLE, TICKET_TABLE,
+        TICKET_THREAD_TABLE, TICKET_ATTACHMENT_TABLE, TICKET_PRIORITY_TABLE,
+        TICKET_LOCK_TABLE, TICKET_EVENT_TABLE, TICKET_EMAIL_INFO_TABLE,
+        EMAIL_TABLE, EMAIL_TEMPLATE_TABLE, EMAIL_TEMPLATE_GRP_TABLE,
+        FILTER_TABLE, FILTER_RULE_TABLE, SLA_TABLE, API_KEY_TABLE,
+        TIMEZONE_TABLE, SESSION_TABLE, PAGE_TABLE);
+
+    function DatabaseExporter($stream) {
+        $this->stream = $stream;
+    }
+
+    function write_block($what) {
+        fwrite($this->stream, JsonDataEncoder::encode($what));
+        fwrite($this->stream, "\x1e");
+    }
+
+    function dump($error_stream) {
+        // Allow plugins to change the tables exported
+        Signal::send('export.tables', $this, $this->tables);
+
+        $header = array(
+            array(OSTICKET_BACKUP_SIGNATURE, OSTICKET_BACKUP_VERSION),
+            array(
+                'version'=>THIS_VERSION,
+                'table_prefix'=>TABLE_PREFIX,
+                'salt'=>SECRET_SALT,
+                'dbtype'=>DBTYPE,
+                'streams'=>DatabaseMigrater::getUpgradeStreams(
+                    UPGRADE_DIR . 'streams/'),
+            ),
+        );
+        $this->write_block($header);
+
+        foreach ($this->tables as $t) {
+            if ($error_stream) $error_stream->write("$t\n");
+            // Inspect schema
+            $table = $indexes = array();
+            $res = db_query("show columns from $t");
+            while ($field = db_fetch_array($res))
+                $table[] = $field;
+
+            $res = db_query("show indexes from $t");
+            while ($col = db_fetch_array($res))
+                $indexes[] = $col;
+
+            $res = db_query("select * from $t");
+            $types = array();
+
+            if (!$table) {
+                if ($error_stream) $error_stream->write(
+                    $t.': Cannot export table with no fields'."\n");
+                die();
+            }
+            $this->write_block(
+                array('table', substr($t, strlen(TABLE_PREFIX)), $table,
+                    $indexes));
+
+            // Dump row data
+            while ($row = db_fetch_row($res))
+                $this->write_block($row);
+
+            $this->write_block(array('end-table'));
+        }
     }
 }
