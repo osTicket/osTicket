@@ -1674,7 +1674,7 @@ class Ticket {
     }
 
 
-   /*============== Static functions. Use Ticket::function(params); ==================*/
+   /*============== Static functions. Use Ticket::function(params); =============nolint*/
     function getIdByExtId($extId, $email=null) {
 
         if(!$extId || !is_numeric($extId))

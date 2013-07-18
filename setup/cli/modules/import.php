@@ -1,4 +1,4 @@
-<?
+<?php
 /*********************************************************************
     cli/import.php
 
@@ -14,10 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once dirname(__file__) . "/class.module.php";
-
-require_once dirname(__file__) . '/../../../main.inc.php';
-
-require_once INCLUDE_DIR . 'class.json.php';
 
 class Importer extends Module {
     var $prologue =
@@ -222,6 +218,9 @@ class Importer extends Module {
     }
 
     function run($args, $options) {
+        require_once dirname(__file__) . '/../../../main.inc.php';
+        require_once INCLUDE_DIR . 'class.json.php';
+
         $stream = $options['stream'];
         if ($options['compress']) $stream = "compress.zlib://$stream";
         if (!($this->stream = fopen($stream, 'rb'))) {

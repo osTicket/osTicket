@@ -26,15 +26,18 @@ class Test {
     function teardown() {
     }
 
-    /*static*/ function getAllScripts() {
+    /*static*/
+    function getAllScripts($excludes=true) {
         $root = get_osticket_root_path();
         $scripts = array();
         foreach (glob_recursive("$root/*.php") as $s) {
             $found = false;
-            foreach ($this->third_party_paths as $p) {
-                if (strpos($s, $p) !== false) {
-                    $found = true;
-                    break;
+            if ($excludes) {
+                foreach ($this->third_party_paths as $p) {
+                    if (strpos($s, $p) !== false) {
+                        $found = true;
+                        break;
+                    }
                 }
             }
             if (!$found)

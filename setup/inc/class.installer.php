@@ -119,8 +119,8 @@ class Installer extends SetupWizard {
             $this->errors['err']='Unable to open config file for writing. Permission denied! (#3)';
 
         else {
-            foreach (DatabaseMigrater::getUpgradeStreams(INCLUDE_DIR.'upgrader/streams/')
-                    as $stream=>$signature) {
+            $streams = DatabaseMigrater::getUpgradeStreams(INCLUDE_DIR.'upgrader/streams/');
+            foreach ($streams as $stream=>$signature) {
                 $schemaFile = INC_DIR."streams/$stream/install-mysql.sql";
                 if (!file_exists($schemaFile) || !($fp2 = fopen($schemaFile, 'rb')))
                     $this->errors['err'] = $stream
@@ -211,7 +211,7 @@ class Installer extends SetupWizard {
         $configFile= str_replace('%CONFIG-DBUSER',$vars['dbuser'],$configFile);
         $configFile= str_replace('%CONFIG-DBPASS',$vars['dbpass'],$configFile);
         $configFile= str_replace('%CONFIG-PREFIX',$vars['prefix'],$configFile);
-        $configFile= str_replace('%CONFIG-SIRI',Misc::randcode(32),$configFile);
+        $configFile= str_replace('%CONFIG-SIRI',Misc::randCode(32),$configFile);
         if(!$fp || !ftruncate($fp,0) || !fwrite($fp,$configFile)) {
             $this->errors['err']='Unable to write to config file. Permission denied! (#5)';
             return false;

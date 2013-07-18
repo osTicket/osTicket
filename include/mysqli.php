@@ -30,7 +30,7 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     // Setup SSL if enabled
     if (isset($options['ssl']))
-        $__db->ssl_set(
+        $__db->ssl_set( # nolint
                 $options['ssl']['key'],
                 $options['ssl']['cert'],
                 $options['ssl']['ca'],
@@ -40,16 +40,16 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     //Connectr
     $start = microtime(true);
-    if(!@$__db->real_connect($host, $user, $passwd))
+    if(!@$__db->real_connect($host, $user, $passwd)) # nolint
         return NULL;
 
     //Select the database, if any.
-    if(isset($options['db'])) $__db->select_db($options['db']);
+    if(isset($options['db'])) $__db->select_db($options['db']); # nolint
 
     //set desired encoding just in case mysql charset is not UTF-8 - Thanks to FreshMedia
-    @$__db->query('SET NAMES "utf8"');
-    @$__db->query('SET CHARACTER SET "utf8"');
-    @$__db->query('SET COLLATION_CONNECTION=utf8_general_ci');
+    @$__db->query('SET NAMES "utf8"');                          # nolint
+    @$__db->query('SET CHARACTER SET "utf8"');                  # nolint
+    @$__db->query('SET COLLATION_CONNECTION=utf8_general_ci');  # nolint
 
     @db_set_variable('sql_mode', '');
 
@@ -92,13 +92,15 @@ function db_set_variable($variable, $value, $type='session') {
 
 function db_select_database($database) {
     global $__db;
-    return ($database && @$__db->select_db($database));
+    return ($database && @$__db->select_db($database)); # nolint
 }
 
 function db_create_database($database, $charset='utf8',
         $collate='utf8_general_ci') {
     global $__db;
-    return @$__db->query(sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s', $database, $charset, $collate));
+    return @$__db->query( # nolint
+        sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s',
+            $database, $charset, $collate));
 }
 
 // execute sql query
@@ -135,21 +137,21 @@ function db_result($res, $row=0) {
     if (!$res)
         return NULL;
 
-    $res->data_seek($row);
+    $res->data_seek($row); # nolint
     list($value) = db_output($res->fetch_row());
     return $value;
 }
 
 function db_fetch_array($res, $mode=MYSQL_ASSOC) {
-    return ($res) ? db_output($res->fetch_array($mode)) : NULL;
+    return ($res) ? db_output($res->fetch_array($mode)) : NULL; # nolint
 }
 
 function db_fetch_row($res) {
-    return ($res) ? db_output($res->fetch_row()) : NULL;
+    return ($res) ? db_output($res->fetch_row()) : NULL; # nolint
 }
 
 function db_fetch_field($res) {
-    return ($res) ? $res->fetch_field() : NULL;
+    return ($res) ? $res->fetch_field() : NULL; # nolint
 }
 
 function db_assoc_array($res, $mode=false) {
@@ -161,7 +163,7 @@ function db_assoc_array($res, $mode=false) {
 }
 
 function db_num_rows($res) {
-    return ($res) ? $res->num_rows : 0;
+    return ($res) ? $res->num_rows : 0; # nolint
 }
 
 function db_affected_rows() {
@@ -170,7 +172,7 @@ function db_affected_rows() {
 }
 
 function db_data_seek($res, $row_number) {
-    return ($res && $res->data_seek($row_number));
+    return ($res && $res->data_seek($row_number)); # nolint
 }
 
 function db_data_reset($res) {
@@ -183,7 +185,7 @@ function db_insert_id() {
 }
 
 function db_free_result($res) {
-    return ($res && $res->free());
+    return ($res && $res->free()); # nolint
 }
 
 function db_output($var) {
@@ -220,7 +222,7 @@ function db_input($var, $quote=true) {
 
 function db_field_type($res, $col=0) {
     global $__db;
-    return $res->fetch_field_direct($col);
+    return $res->fetch_field_direct($col); # nolint
 }
 
 function db_connect_error() {

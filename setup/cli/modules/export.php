@@ -15,10 +15,6 @@
 **********************************************************************/
 require_once dirname(__file__) . "/class.module.php";
 
-require_once dirname(__file__) . '/../../../main.inc.php';
-
-require_once INCLUDE_DIR . 'class.export.php';
-
 define('OSTICKET_BACKUP_SIGNATURE', 'osTicket-Backup');
 define('OSTICKET_BACKUP_VERSION', 'A');
 
@@ -35,6 +31,9 @@ class Exporter extends Module {
     );
 
     function run($args, $options) {
+        require_once dirname(__file__) . '/../../../main.inc.php';
+        require_once INCLUDE_DIR . 'class.export.php';
+
         global $ost;
 
         $stream = $options['stream'];
