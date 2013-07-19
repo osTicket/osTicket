@@ -21,7 +21,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
     <div id="container">
         <div id="header">
             <a id="logo" href="<?php echo ROOT_PATH; ?>index.php"
-            title="Support Center"><img src="logo.php" border=0 alt="<?php
+            title="Support Center"><img src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
                 echo $ost->getConfig()->getTitle(); ?>"
                 style="height: 5em"></a>
             <p>
