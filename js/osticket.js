@@ -1,4 +1,4 @@
-/* 
+/*
    osticket.js
    Copyright (c) osTicket.com
  */
@@ -18,7 +18,7 @@ $(document).ready(function(){
     /* loading ... */
     $("#loading").css({
         top  : ($(window).height() / 3),
-        left : ($(window).width() / 2 - 160)    
+        left : ($(window).width() / 2 - 160)
      });
 
     $("form :input").change(function() {
@@ -49,22 +49,34 @@ $(document).ready(function(){
         return true;
        });
 
-    /* Get config settings from the backend */
-    var $config = null;
-    $.ajax({
-        url: "ajax.php/config/client",
-        dataType: 'json',
-        async: false,
-        success: function (config) {
-            $config = config;
-            }
-        });
-     
+    jQuery.fn.exists = function() { return this.length>0; };
+
+    var getConfig = (function() {
+        var dfd = $.Deferred();
+        return function() {
+            if (!dfd.isResolved())
+                $.ajax({
+                    url: "ajax.php/config/client",
+                    dataType: 'json',
+                    success: function (json_config) {
+                        dfd.resolve(json_config);
+                    }
+                });
+            return dfd;
+        }
+    })();
+
     /* Multifile uploads */
-     $('.multifile').multifile({
-        container:   '.uploads',
-        max_uploads: ($config && $config.max_file_uploads)?$config.max_file_uploads:1,
-        file_types:  ($config && $config.file_types)?$config.file_types:".*",
-        max_file_size: ($config && $config.max_file_size)?$config.max_file_size:0
-       });
+    var elems = $('.multifile');
+    if (elems.exists()) {
+        /* Get config settings from the backend */
+        getConfig().then(function(c) {
+            elems.multifile({
+                container:   '.uploads',
+                max_uploads: c.max_file_uploads || 1,
+                file_types:  c.file_types || ".*",
+                max_file_size: c.max_file_size || 0
+            });
+        });
+    }
 });
