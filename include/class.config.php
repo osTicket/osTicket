@@ -20,10 +20,16 @@ class Config {
     var $config = array();
 
     var $section = null;                    # Default namespace ('core')
-    var $table = 'config';                  # Table name (with prefix)
+    var $table = CONFIG_TABLE;              # Table name (with prefix)
     var $section_column = 'namespace';      # namespace column name
 
     var $session = null;                    # Session-backed configuration
+
+    # Defaults for this configuration. If settings don't exist in the
+    # database yet, the ->getInfo() method will not include the (default)
+    # values in the returned array. $defaults allows developers to define
+    # new settings and the corresponding default values.
+    var $defaults = array();                # List of default values
 
     function Config($section=null) {
         if ($section)
@@ -36,7 +42,7 @@ class Config {
             $_SESSION['cfg:'.$this->section] = array();
         $this->session = &$_SESSION['cfg:'.$this->section];
 
-        $sql='SELECT id, `key`, value FROM '.$this->table
+        $sql='SELECT id, `key`, value, `updated` FROM '.$this->table
             .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
 
         if(($res=db_query($sql)) && db_num_rows($res))
@@ -49,7 +55,7 @@ class Config {
     }
 
     function getInfo() {
-        $info = array();
+        $info = $this->defaults;
         foreach ($this->config as $key=>$setting)
             $info[$key] = $setting['value'];
         return $info;
@@ -62,6 +68,8 @@ class Config {
             return $this->config[$key]['value'];
         elseif ($default !== null)
             return $this->set($key, $default);
+        elseif (isset($this->defaults[$key]))
+            return $this->defaults[$key];
         return null;
     }
 
@@ -76,6 +84,13 @@ class Config {
     function persist($key, $value) {
         $this->session[$key] = $value;
         return true;
+    }
+
+    function lastModified($key) {
+        if (isset($this->config[$key]))
+            return $this->config[$key]['updated'];
+        else
+            return false;
     }
 
     function create($key, $value) {
@@ -123,6 +138,11 @@ class OsticketConfig extends Config {
     var $defaultEmail;  //Default Email
     var $alertEmail;  //Alert Email
     var $defaultSMTPEmail; //Default  SMTP Email
+
+    var $defaults = array(
+        'allow_pw_reset' =>     true,
+        'pw_reset_mins' =>      30,
+    );
 
     function OsticketConfig($section=null) {
         parent::Config($section);
