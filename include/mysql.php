@@ -23,6 +23,7 @@
       	    return NULL;
 
         //Connect
+        $start = (double) microtime() * 1000000;
         if(!($dblink =@mysql_connect($host, $user, $passwd)))
             return NULL;
 
@@ -35,6 +36,9 @@
         @mysql_query('SET COLLATION_CONNECTION=utf8_general_ci');
 
         @db_set_variable('sql_mode', '');
+
+        // Use connection timing to seed the random number generator
+        Misc::__rand_seed(((double) microtime() * 1000000) - $start);
 
         return $dblink;
     }
