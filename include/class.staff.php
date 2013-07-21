@@ -15,6 +15,7 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.dept.php');
+include_once(INCLUDE_DIR.'class.error.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
@@ -401,6 +402,7 @@ class Staff {
 
     //Staff profile update...unfortunately we have to separate it from admin update to avoid potential issues
     function updateProfile($vars, &$errors) {
+        global $cfg;
 
         $vars['firstname']=Format::striptags($vars['firstname']);
         $vars['lastname']=Format::striptags($vars['lastname']);
@@ -437,7 +439,17 @@ class Staff {
             elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']='Password(s) do not match';
 
-            if(!$vars['cpasswd'])
+            if (($rtoken = $_SESSION['_staff']['reset-token'])) {
+                $_config = new Config('pwreset');
+                if ($_config->get($rtoken) != $this->getId())
+                    $errors['err'] =
+                        'Invalid reset token. Logout and try again';
+                elseif (!($ts = $_config->lastModified($rtoken))
+                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
+                    $errors['err'] =
+                        'Invalid reset token. Logout and try again';
+            }
+            elseif(!$vars['cpasswd'])
                 $errors['cpasswd']='Current password required';
             elseif(!$this->cmp_passwd($vars['cpasswd']))
                 $errors['cpasswd']='Invalid current password!';
@@ -470,8 +482,10 @@ class Staff {
             .' ,default_paper_size='.db_input($vars['default_paper_size']);
 
 
-        if($vars['passwd1'])
+        if($vars['passwd1']) {
             $sql.=' ,change_passwd=0, passwdreset=NOW(), passwd='.db_input(Passwd::hash($vars['passwd1']));
+            $this->cancelResetTokens();
+        }
 
         $sql.=' WHERE staff_id='.db_input($this->getId());
 
@@ -576,7 +590,7 @@ class Staff {
     }
 
     function lookup($id) {
-        return ($id && is_numeric($id) && ($staff= new Staff($id)) && $staff->getId()==$id)?$staff:null;
+        return ($id && ($staff= new Staff($id)) && $staff->getId()) ? $staff : null;
     }
 
     function login($username, $passwd, &$errors, $strike=true) {
@@ -600,31 +614,10 @@ class Staff {
         if($errors) return false;
 
         if(($user=new StaffSession(trim($username))) && $user->getId() && $user->check_passwd($passwd)) {
-            //update last login && password reset stuff.
-            $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() ';
-            if($user->isPasswdResetDue() && !$user->isAdmin())
-                $sql.=',change_passwd=1';
-            $sql.=' WHERE staff_id='.db_input($user->getId());
-            db_query($sql);
-            //Now set session crap and lets roll baby!
-            $_SESSION['_staff'] = array(); //clear.
-            $_SESSION['_staff']['userID'] = $username;
-            $user->refreshSession(); //set the hash.
-            $_SESSION['TZ_OFFSET'] = $user->getTZoffset();
-            $_SESSION['TZ_DST'] = $user->observeDaylight();
-
-            //Log debug info.
-            $ost->logDebug('Staff login',
-                    sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
-
-            //Regenerate session id.
-            $sid=session_id(); //Current id
-            session_regenerate_id(TRUE);
-            //Destroy old session ID - needed for PHP version < 5.1.0 TODO: remove when we move to php 5.3 as min. requirement.
-            if(($session=$ost->getSession()) && is_object($session) && $sid!=session_id())
-                $session->destroy($sid);
+            self::_do_login($user, $username);
 
             Signal::send('auth.login.succeeded', $user);
+            $user->cancelResetTokens();
 
             return $user;
         }
@@ -651,6 +644,36 @@ class Staff {
         return false;
     }
 
+    function _do_login($user, $username) {
+        global $ost;
+
+        //update last login && password reset stuff.
+        $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() ';
+        if($user->isPasswdResetDue() && !$user->isAdmin())
+            $sql.=',change_passwd=1';
+        $sql.=' WHERE staff_id='.db_input($user->getId());
+        db_query($sql);
+        //Now set session crap and lets roll baby!
+        $_SESSION['_staff'] = array(); //clear.
+        $_SESSION['_staff']['userID'] = $username;
+        $user->refreshSession(); //set the hash.
+        $_SESSION['TZ_OFFSET'] = $user->getTZoffset();
+        $_SESSION['TZ_DST'] = $user->observeDaylight();
+
+        //Log debug info.
+        $ost->logDebug('Staff login',
+                sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
+
+        //Regenerate session id.
+        $sid=session_id(); //Current id
+        session_regenerate_id(TRUE);
+        //Destroy old session ID - needed for PHP version < 5.1.0 TODO: remove when we move to php 5.3 as min. requirement.
+        if(($session=$ost->getSession()) && is_object($session) && $sid!=session_id())
+            $session->destroy($sid);
+
+        return $user;
+    }
+
     function create($vars, &$errors) {
         if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($staff=Staff::lookup($id))) {
             $staff->updateTeams($vars['teams']);
@@ -658,6 +681,43 @@ class Staff {
         }
 
         return $id;
+    }
+
+    function cancelResetTokens() {
+        // TODO: Drop password-reset tokens from the config table for
+        //       this user id
+        $sql = 'DELETE FROM '.CONFIG_TABLE.' WHERE `namespace`="pwreset"
+            AND `value`='.db_input($this->getId());
+        db_query($sql);
+        unset($_SESSION['_staff']['reset-token']);
+    }
+
+    function sendResetEmail() {
+        global $ost, $cfg;
+
+        if(!($tpl = $this->getDept()->getTemplate()))
+            $tpl= $ost->getConfig()->getDefaultTemplate();
+
+        $token = Misc::randCode(48); // 290-bits
+        if (!($template = $tpl->getMsgTemplate('staff.pwreset')))
+            return new Error('Unable to retrieve password reset email template');
+
+        $msg = $ost->replaceTemplateVariables($template->asArray(), array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'token' => $token,
+            'reset_link' => sprintf(
+                "%s/scp/pwreset.php?token=%s",
+                $ost->getConfig()->getBaseUrl(),
+                $token),
+        ));
+
+        if(!($email=$cfg->getAlertEmail()))
+            $email =$cfg->getDefaultEmail();
+
+        $_config = new Config('pwreset');
+        $_config->set($token, $this->getId());
+
+        $email->send($this->getEmail(), $msg['subj'], $msg['body']);
     }
 
     function save($id, $vars, &$errors) {
@@ -736,8 +796,9 @@ class Staff {
             .' ,signature='.db_input($vars['signature'])
             .' ,notes='.db_input($vars['notes']);
 
-        if($vars['passwd1'])
+        if($vars['passwd1']) {
             $sql.=' ,passwd='.db_input(Passwd::hash($vars['passwd1']));
+        }
 
         if(isset($vars['change_passwd']))
             $sql.=' ,change_passwd=1';

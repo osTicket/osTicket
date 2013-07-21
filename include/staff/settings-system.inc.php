@@ -112,7 +112,12 @@ $gmtime = Misc::gmtime();
                 </select>
             </td>
         </tr>
-        <tr><td>Password Reset Policy:</th>
+        <tr>
+            <th colspan="2">
+                <em><b>Authentication Settings</b></em>
+            </th>
+        </tr>
+        <tr><td>Password Change Policy:</th>
             <td>
                 <select name="passwd_reset_period">
                    <option value="0"> &mdash; None &mdash;</option>
@@ -126,10 +131,20 @@ $gmtime = Misc::gmtime();
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['passwd_reset_period']; ?></font>
             </td>
         </tr>
-        <tr><td>Bind Staff Session to IP:</td>
+        <tr><td>Allow Password Resets:</th>
             <td>
-              <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
-              <em>(binds staff session to originating IP address upon login)</em>
+              <input type="checkbox" name="allow_pw_reset" <?php echo $config['allow_pw_reset']?'checked="checked"':''; ?>>
+              <em>Enables the <u>Forgot my password</u> link on the staff
+              control panel</em>
+            </td>
+        </tr>
+        <tr><td>Password Reset Window:</th>
+            <td>
+              <input type="text" name="pw_reset_window" size="6" value="<?php
+                    echo $config['pw_reset_window']; ?>">
+                Maximum time <em>in minutes</em> a password reset token can
+                be valid.
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['pw_reset_window']; ?></font>
             </td>
         </tr>
         <tr><td>Staff Excessive Logins:</td>
@@ -180,6 +195,12 @@ $gmtime = Misc::gmtime();
             <td>
               <input type="text" name="client_session_timeout" size=6 value="<?php echo $config['client_session_timeout']; ?>">
                 &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable).
+            </td>
+        </tr>
+        <tr><td>Bind Staff Session to IP:</td>
+            <td>
+              <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
+              <em>(binds staff session to originating IP address upon login)</em>
             </td>
         </tr>
         <tr>

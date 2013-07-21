@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************
     staff.inc.php
-    
+
     File included on every staff page...handles logins (security) and file path issues.
 
     Peter Rotich <peter@osticket.com>
@@ -42,13 +42,14 @@ require_once(INCLUDE_DIR.'class.nav.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 /* First order of the day is see if the user is logged in and with a valid session.
-    * User must be valid staff beyond this point 
+    * User must be valid staff beyond this point
     * ONLY super admins can access the helpdesk on offline state.
 */
 
 
 if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the function to  trap expired sessions.
     function staffLoginPage($msg) {
+        global $ost, $cfg;
         $_SESSION['_staff']['auth']['dest']=THISURI;
         $_SESSION['_staff']['auth']['msg']=$msg;
         require(SCP_DIR.'login.php');
@@ -59,7 +60,15 @@ if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the fu
 $thisstaff = new StaffSession($_SESSION['_staff']['userID']); //Set staff object.
 //1) is the user Logged in for real && is staff.
 if(!$thisstaff || !is_object($thisstaff) || !$thisstaff->getId() || !$thisstaff->isValid()){
-    $msg=(!$thisstaff || !$thisstaff->isValid())?'Authentication Required':'Session timed out due to inactivity';
+    if (isset($_SESSION['_staff']['auth']['msg'])) {
+        $msg = $_SESSION['_staff']['auth']['msg'];
+        unset($_SESSION['_staff']['auth']['msg']);
+    }
+    elseif ($thisstaff && !$thisstaff->isValid())
+        $msg = 'Session timed out due to inactivity';
+    else
+        $msg = 'Authentication Required';
+
     staffLoginPage($msg);
     exit;
 }
@@ -88,7 +97,7 @@ if ($_POST  && !$ost->checkCSRFToken()) {
     exit;
 }
 
-//Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME] 
+//Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME]
 $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'" />');
 
 /******* SET STAFF DEFAULTS **********/

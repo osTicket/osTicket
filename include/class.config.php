@@ -474,6 +474,30 @@ class OsticketConfig extends Config {
         return ($this->get('staff_ip_binding'));
     }
 
+    /**
+     * Configuration: allow_pw_reset
+     *
+     * TRUE if the <a>Forgot my password</a> link and system should be
+     * enabled, and FALSE otherwise.
+     */
+    function allowPasswordReset() {
+        return $this->get('allow_pw_reset');
+    }
+
+    /**
+     * Configuration: pw_reset_window
+     *
+     * Number of minutes for which the password reset token is valid.
+     *
+     * Returns: Number of seconds the password reset token is valid. The
+     *      number of minutes from the database is automatically converted
+     *      to seconds here.
+     */
+    function getPwResetWindow() {
+        // pw_reset_window is stored in minutes. Return value in seconds
+        return $this->get('pw_reset_window') * 60;
+    }
+
     function isCaptchaEnabled() {
         return (extension_loaded('gd') && function_exists('gd_info') && $this->get('enable_captcha'));
     }
@@ -744,6 +768,8 @@ class OsticketConfig extends Config {
         $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Datetime format required');
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Day, Datetime format required');
         $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Timezone required');
+        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
+            'error'=>'Valid password reset window required');
 
 
         if(!Validator::process($f, $vars, $errors) || $errors)
@@ -766,6 +792,8 @@ class OsticketConfig extends Config {
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],
+            'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
+            'pw_reset_window'=>$vars['pw_reset_window'],
             'time_format'=>$vars['time_format'],
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],

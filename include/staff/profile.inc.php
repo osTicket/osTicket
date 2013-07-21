@@ -190,6 +190,7 @@ $info['id']=$staff->getId();
                 <em><strong>Password</strong>: To reset your password, provide your current password and a new password below.&nbsp;<span class="error">&nbsp;<?php echo $errors['passwd']; ?></span></em>
             </th>
         </tr>
+        <?php if (!isset($_SESSION['_staff']['reset-token'])) { ?>
         <tr>
             <td width="180">
                 Current Password:
@@ -199,6 +200,7 @@ $info['id']=$staff->getId();
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['cpasswd']; ?></span>
             </td>
         </tr>
+        <?php } ?>
         <tr>
             <td width="180">
                 New Password:

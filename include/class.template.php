@@ -56,6 +56,9 @@ class EmailTemplateGroup {
         'ticket.overdue'=>array(
             'name'=>'Overdue Ticket Alert',
             'desc'=>'Alert sent to staff on stale or overdue tickets.'),
+        'staff.pwreset' => array(
+            'name' => 'Staff Password Reset',
+            'desc' => 'Notice sent to staff with the password reset link.'),
         );
 
     function EmailTemplateGroup($id){
