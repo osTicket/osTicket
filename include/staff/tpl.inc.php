@@ -11,6 +11,12 @@ if (is_a($template, EmailTemplateGroup)) {
     $action = 'implement';
     $extras = array('code_name'=>$selected, 'tpl_id'=>$tpl_id);
     $msgtemplates=$template->all_names;
+    // Attempt to lookup the default data if it is defined
+    $default = @$template->getMsgTemplate($selected);
+    if ($default) {
+        $info['subj'] = $default->getSubject();
+        $info['body'] = $default->getBody();
+    }
 } else {
     // Template edit
     $id = $template->getId();

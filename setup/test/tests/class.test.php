@@ -9,6 +9,7 @@ class Test {
         '/include/htmLawed.php',
         '/include/PasswordHash.php',
         '/include/pear/',
+        '/include/Spyc.php',
     );
 
     function Test() {

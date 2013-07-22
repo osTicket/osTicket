@@ -48,4 +48,13 @@ class Error /* extends Exception */ {
     }
 }
 
+class InitialDataError extends Error {
+    var $title = 'Problem with install initial data';
+}
+
+function raise_error($message, $class=false) {
+    if (!$class) $class = 'Error';
+    new $class($message);
+}
+
 ?>
