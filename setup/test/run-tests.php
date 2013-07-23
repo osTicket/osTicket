@@ -19,13 +19,37 @@ $root = get_osticket_root_path();
 function glob_recursive($pattern, $flags = 0) {
     $files = glob($pattern, $flags);
     foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-        $files = array_merge($files, 
+        $files = array_merge($files,
             glob_recursive($dir.'/'.basename($pattern), $flags));
     }
     return $files;
 }
 
 $fails = array();
+
+function show_fails() {
+    global $fails, $root;
+    if ($fails) {
+        echo count($fails) . " FAIL(s)\n";
+        echo "-------------------------------------------------------\n";
+        foreach ($fails as $f) {
+            list($test, $script, $line, $message) = $f;
+            $script = str_replace($root.'/', '', $script);
+            print("$test: $message @ $script:$line\n");
+        }
+    }
+}
+if (function_exists('pcntl_signal')) {
+    declare(ticks=1);
+    function show_fails_on_ctrlc() {
+        while (@ob_end_flush());
+        print("\n");
+        show_fails();
+        exit();
+    }
+    pcntl_signal(SIGINT, 'show_fails_on_ctrlc');
+}
+
 foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
     if (strpos($t,"class.") !== false)
         continue;
@@ -38,15 +62,6 @@ foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
     $fails = array_merge($fails, $test->fails);
     echo " ok\n";
 }
-
-if ($fails) {
-    echo count($fails) . " FAIL(s)\n";
-    echo "-------------------------------------------------------\n";
-    foreach ($fails as $f) {
-        list($test, $script, $line, $message) = $f;
-        $script = str_replace($root.'/', '', $script);
-        print("$test: $message @ $script:$line\n");
-    }
-}
+show_fails();
 
 ?>
