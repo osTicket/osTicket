@@ -3,7 +3,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canManageFAQ()) die('Acc
 $info=array();
 $qstr='';
 if($category && $_REQUEST['a']!='add'){
-    $title='Update Category :'.$category->getName();
+    $title='Update Category: '.$category->getName();
     $action='update';
     $submit_text='Save Changes';
     $info=$category->getHashtable();

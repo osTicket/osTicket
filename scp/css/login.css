@@ -1,15 +1,6 @@
-* {
-    box-sizing: border-box;
-    position: relative;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-}
-
-*:focus {
-    outline-color: rgb(207,16,118);
-    outline-style: auto;
-    outline-width: 5px;
-    z-index:1000;
+input:focus {
+    border: 1px solid rgb(207,16,118);
+    box-shadow: 0 0 4px rgb(207,16,118);
 }
 
 :-webkit-input-placeholder {
@@ -43,7 +34,6 @@ body {
 
 body, input {
     font-family: helvetica, arial, sans-serif;
-    font-size: 100%/1.5;
     color: #000;
 }
 
@@ -59,11 +49,16 @@ input[type=reset], input[type=submit], input[type=button] {
     border:1px solid #2a67ac;
     border-right:2px solid #2a67ac;
     border-bottom:3px solid #2a67ac;
+    box-shadow: 2px 2px 8px rgba(42, 103, 172, 0.5);
     background:#fff;
     width:400px;
     margin:10% auto 0 auto;
     padding:1em;
+    padding-bottom: 1em;
     text-align:center;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -96,23 +91,24 @@ form {
 
 fieldset {
     border:none;
-    margin:0;
+    margin:0.25em;
     padding:0;
 }
 
 fieldset input {
     display:block;
-    width:100%;
     margin-bottom:1em;
     border:1px solid #ccc;
+    border:1px solid rgba(0,0,0,0.3);
     background:#fff;
-    padding:2px;
+    padding:2px 4px;
+    width: 96%;
 }
 
 input.submit {
     display:inline-block;
     float:right;
-    margin:0;
+    margin:0.25em;
     height:24px;
     line-height:24px;
     font-weight:bold;
