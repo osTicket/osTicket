@@ -10,8 +10,8 @@ class UndefinedMethods extends Test {
         foreach ($scripts as $s) {
             $matches = array();
             preg_match_all('/^\s*(?:\/\*[^*]*\*\/)?\s*'
-                    .'(?:private|public|static|abstract)?\s*'
-                    .'function\s+&?\s*([^(\s]+)\s*\\(/m',
+                    .'(?:(?:private|public|protected|static|abstract)\s+)*'
+                    .'function\s+&?\s*([^(\s]+)\s*\(/m',
                 file_get_contents($s), $matches);
             $function_defs = array_merge($function_defs, $matches[1]);
         }

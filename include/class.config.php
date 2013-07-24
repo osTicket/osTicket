@@ -141,7 +141,7 @@ class OsticketConfig extends Config {
 
     var $defaults = array(
         'allow_pw_reset' =>     true,
-        'pw_reset_mins' =>      30,
+        'pw_reset_window' =>    30,
     );
 
     function OsticketConfig($section=null) {
