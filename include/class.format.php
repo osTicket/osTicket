@@ -45,7 +45,7 @@ class Format {
         if($charset && in_array(strtolower(trim($charset)),
                 array('default','x-user-defined','iso')))
             $charset = 'ISO-8859-1';
-        
+
         if (strcasecmp($charset, $encoding) === 0)
             return $text;
 
@@ -202,14 +202,14 @@ class Format {
         $token = $ost->getLinkToken();
         //Not perfect but it works - please help improve it.
         $text=preg_replace_callback('/(((f|ht){1}tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
-                create_function('$matches',
-                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";',
+                create_function('$matches', # nolint
+                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";', # nolint
                         $token)),
                 $text);
 
         $text=preg_replace_callback("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
-                create_function('$matches',
-                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";',
+                create_function('$matches', # nolint
+                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";', # nolint
                         $token)),
                 $text);
 
@@ -219,7 +219,7 @@ class Format {
         return $text;
     }
 
-    function stripEmptyLines ($string) {
+    function stripEmptyLines($string) {
         //return preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $string);
         //return preg_replace('/\s\s+/',"\n",$string); //Too strict??
         return preg_replace("/\n{3,}/", "\n\n", $string);

@@ -55,6 +55,7 @@ class Unpacker extends Module {
         else
             $include_path = "'$include_path'";
         # Find the line that defines INCLUDE_DIR
+        $match = array();
         foreach ($lines as &$line) {
             if (preg_match("/(\s*)define\s*\(\s*'INCLUDE_DIR'/", $line, $match)) {
                 # Replace the definition with the new locatin
@@ -117,8 +118,9 @@ class Unpacker extends Module {
             }
         }
         if ($recurse) {
-            foreach (glob(dirname($folder).'/'.basename($folder),
-                    GLOB_BRACE|GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+            $folders = glob(dirname($folder).'/'.basename($folder),
+                GLOB_BRACE|GLOB_ONLYDIR|GLOB_NOSORT);
+            foreach ($folders as $dir) {
                 if (in_array(basename($dir), array('.','..')))
                     continue;
                 elseif ($this->exclude($exclude, $dir))

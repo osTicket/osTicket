@@ -133,7 +133,8 @@ class Validator {
         return $this->errors;
     }
 
-    /*** Functions below can be called directly without class instance. Validator::func(var..); ***/
+    /*** Functions below can be called directly without class instance.
+         Validator::func(var..);  (nolint) ***/
     function is_email($email) {
         return preg_match('/^([*+!.&#$|\'\\%\/0-9a-z^_`{}=?~:-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})$/i',$email);
     }

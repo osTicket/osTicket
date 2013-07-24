@@ -22,7 +22,7 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 
 /**
  * Overview Report
- * 
+ *
  * The overview report allows for the display of basic ticket statistics in
  * both graphical and tabular formats.
  */
@@ -76,14 +76,14 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "headers" => array('Staff Member'),
                 "filter" =>
                     ('T1.staff_id=S1.staff_id
-                      AND 
+                      AND
                       (T1.staff_id='.db_input($thisstaff->getId())
                         .(($depts=$thisstaff->getManagedDepartments())?
                             (' OR T1.dept_id IN('.implode(',', db_input($depts)).')'):'')
                         .(($thisstaff->canViewStaffStats())?
                             (' OR T1.dept_id IN('.implode(',', db_input($thisstaff->getDepts())).')'):'')
                      .')'
-                     ) 
+                     )
             )
         );
         $group = $this->get('group', 'dept');
@@ -98,10 +98,10 @@ class OverviewReportAjaxAPI extends AjaxController {
                 COUNT(*)-COUNT(NULLIF(A1.state, "overdue")) AS Overdue,
                 COUNT(*)-COUNT(NULLIF(A1.state, "closed")) AS Closed,
                 COUNT(*)-COUNT(NULLIF(A1.state, "reopened")) AS Reopened
-            FROM '.$info['table'].' T1 
-                LEFT JOIN '.TICKET_EVENT_TABLE.' A1 
+            FROM '.$info['table'].' T1
+                LEFT JOIN '.TICKET_EVENT_TABLE.' A1
                     ON (A1.'.$info['pk'].'=T1.'.$info['pk'].'
-                         AND NOT annulled 
+                         AND NOT annulled
                          AND (A1.timestamp BETWEEN '.$start.' AND '.$stop.'))
                 LEFT JOIN '.STAFF_TABLE.' S1 ON (S1.staff_id=A1.staff_id)
             WHERE '.$info['filter'].'
@@ -110,7 +110,7 @@ class OverviewReportAjaxAPI extends AjaxController {
 
             array(1, 'SELECT '.$info['fields'].',
                 FORMAT(AVG(DATEDIFF(T2.closed, T2.created)),1) AS ServiceTime
-            FROM '.$info['table'].' T1 
+            FROM '.$info['table'].' T1
                 LEFT JOIN '.TICKET_TABLE.' T2 ON (T2.'.$info['pk'].'=T1.'.$info['pk'].')
                 LEFT JOIN '.STAFF_TABLE.' S1 ON (S1.staff_id=T2.staff_id)
             WHERE '.$info['filter'].' AND T2.closed BETWEEN '.$start.' AND '.$stop.'
@@ -119,7 +119,7 @@ class OverviewReportAjaxAPI extends AjaxController {
 
             array(1, 'SELECT '.$info['fields'].',
                 FORMAT(AVG(DATEDIFF(B2.created, B1.created)),1) AS ResponseTime
-            FROM '.$info['table'].' T1 
+            FROM '.$info['table'].' T1
                 LEFT JOIN '.TICKET_TABLE.' T2 ON (T2.'.$info['pk'].'=T1.'.$info['pk'].')
                 LEFT JOIN '.TICKET_THREAD_TABLE.' B2 ON (B2.ticket_id = T2.ticket_id
                     AND B2.thread_type="R")
@@ -174,7 +174,7 @@ class OverviewReportAjaxAPI extends AjaxController {
 
     function getPlotData() {
 
-                
+
         if(($start = $this->get('start', 'last month'))) {
             $stop = $this->get('stop', 'now');
             if (substr($stop, 0, 1) == '+')
@@ -211,6 +211,7 @@ class OverviewReportAjaxAPI extends AjaxController {
 
         $time = null; $times = array();
         # Iterate over result set, adding zeros for missing ticket events
+        $slots = array();
         while ($row = db_fetch_row($res)) {
             $row_time = strtotime($row[1]);
             if ($time != $row_time) {

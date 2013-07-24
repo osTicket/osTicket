@@ -36,10 +36,10 @@ class Filter {
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
-        
+
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['id'];
-        
+
         return true;
     }
 
@@ -130,7 +130,7 @@ class Filter {
     function disableAlerts() {
         return ($this->ht['disable_autoresponder']);
     }
-     
+
     function sendAlerts() {
         return (!$this->disableAlerts());
     }
@@ -149,7 +149,7 @@ class Filter {
         return $this->ht['rules'];
     }
 
-    function getFlatRules() { //Format used on html... I'm ashamed 
+    function getFlatRules() { //Format used on html... I'm ashamed
 
         $info=array();
         if(($rules=$this->getRules())) {
@@ -181,7 +181,7 @@ class Filter {
 
         return (db_query($sql) && db_affected_rows());
     }
-    
+
     function getRule($id) {
         return $this->getRuleById($id);
     }
@@ -222,7 +222,7 @@ class Filter {
      *   reply-to - reply-to email address
      *   reply-to-name - name of sender to reply-to
      *   headers - array of email headers
-     *   emailId - osTicket system email id 
+     *   emailId - osTicket system email id
      */
     function matches($what) {
 
@@ -240,7 +240,7 @@ class Filter {
 
         $match = false;
         # Respect configured filter email-id
-        if ($this->getEmailId() 
+        if ($this->getEmailId()
                 && !strcasecmp($this->getTarget(), 'Email')
                 && $this->getEmailId() != $what['emailId'])
             return false;
@@ -259,7 +259,7 @@ class Filter {
                 if (!$this->matchAllRules()) break;
             } else {
                 # No match. Continue?
-                if ($this->matchAllRules()) { 
+                if ($this->matchAllRules()) {
                     $match = false;
                     break;
                 }
@@ -268,7 +268,7 @@ class Filter {
 
         return $match;
     }
-    /** 
+    /**
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
@@ -290,7 +290,7 @@ class Filter {
         #       match
         if ($this->useReplyToEmail() && $info['reply-to']) {
             $ticket['email'] = $info['reply-to'];
-            if ($info['reply-to-name']) 
+            if ($info['reply-to-name'])
                 $ticket['name'] = $info['reply-to-name'];
         }
 
@@ -323,12 +323,12 @@ class Filter {
             return false;
 
         $this->reload();
-       
+
         return true;
     }
 
     function delete() {
-        
+
         $id=$this->getId();
         $sql='DELETE FROM '.FILTER_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
@@ -401,7 +401,7 @@ class Filter {
 
         if(!$id) return true; //When ID is 0 then assume it was just validation...
 
-        //Clear existing rules...we're doing mass replace on each save!! 
+        //Clear existing rules...we're doing mass replace on each save!!
         db_query('DELETE FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
         $num=0;
         foreach($rules as $rule) {
@@ -410,7 +410,7 @@ class Filter {
                 $num++;
         }
 
-        return $num; 
+        return $num;
     }
 
     function save($id,$vars,&$errors) {
@@ -420,7 +420,7 @@ class Filter {
             $errors['execorder'] = 'Order required';
         elseif(!is_numeric($vars['execorder']))
             $errors['execorder'] = 'Must be numeric value';
-            
+
         if(!$vars['name'])
             $errors['name'] = 'Name required';
         elseif(($sid=self::getIdByName($vars['name'])) && $sid!=$id)
@@ -459,7 +459,7 @@ class Filter {
             .',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0)
             .',canned_response_id='.db_input($vars['canned_response_id'])
             .',notes='.db_input($vars['notes']);
-       
+
 
         //Auto assign ID is overloaded...
         if($vars['assign'] && $vars['assign'][0]=='s')
@@ -484,7 +484,7 @@ class Filter {
         //Success with update/create...save the rules. We can't recover from any errors at this point.
         # Don't care about errors stashed in $xerrors
         self::save_rules($id,$vars,$xerrors);               # nolint
-      
+
         return true;
     }
 }
@@ -507,15 +507,15 @@ class FilterRule {
             .' WHERE rule.id='.db_input($id);
         if($filterId)
             $sql.=' AND rule.filter_id='.db_input($filterId);
-        
+
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
 
-        
+
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['id'];
-        
+
         $this->filter=null;
 
         return true;
@@ -546,7 +546,7 @@ class FilterRule {
     }
 
     function getFilter() {
-        
+
         if(!$this->filter && $this->getFilterId())
             $this->filter = Filter::lookup($this->getFilterId());
 
@@ -562,7 +562,7 @@ class FilterRule {
     }
 
     function delete() {
-        
+
         $sql='DELETE FROM '.FILTER_RULE_TABLE.' WHERE id='.db_input($this->getId()).' AND filter_id='.db_input($this->getFilterId());
 
         return (db_query($sql) && db_affected_rows());
@@ -579,14 +579,14 @@ class FilterRule {
 
 
         if($errors) return false;
-      
+
         $sql=' updated=NOW() '.
              ',what='.db_input($vars['w']).
              ',how='.db_input($vars['h']).
              ',val='.db_input($vars['v']).
              ',isactive='.db_input(isset($vars['isactive'])?$vars['isactive']:1);
 
-       
+
         if(isset($vars['notes']))
             $sql.=',notes='.db_input($vars['notes']);
 
@@ -640,12 +640,12 @@ class TicketFilter {
      *  @see ::quickList() for more information.
      */
     function TicketFilter($origin, $vars=null) {
-        
+
         //Normalize the target based on ticket's origin.
         $this->target = self::origin2target($origin);
-  
+
         //Extract the vars we care about (fields we filter by!).
-         $this->vars = array_filter(array_map('trim', 
+         $this->vars = array_filter(array_map('trim',
                  array(
                      'email'     => $vars['email'],
                      'subject'   => $vars['subject'],
@@ -653,13 +653,13 @@ class TicketFilter {
                      'body'      => $vars['message'],
                      'emailId'   => $vars['emailId'])
                  ));
-        
+
          //Init filters.
         $this->build();
     }
 
     function build() {
-        
+
         //Clear any memoized filters
         $this->filters = array();
         $this->short_list = null;
@@ -722,13 +722,13 @@ class TicketFilter {
             if ($filter->stopOnMatch()) break;
         }
     }
-    
+
     /* static */ function getAllActive() {
 
         $sql='SELECT id FROM '.FILTER_TABLE
             .' WHERE isactive=1 '
             .'  AND target IN ("Any", '.db_input($this->getTarget()).') ';
-                
+
         #Take into account email ID.
         if($this->vars['emailId'])
             $sql.=' AND (email_id=0 OR email_id='.db_input($this->vars['emailId']).')';
@@ -746,7 +746,7 @@ class TicketFilter {
      * arguments. This method will request the database to make a first pass
      * and eliminate the filters from being considered that would never
      * match the received email.
-     * 
+     *
      * Returns an array<Filter::Id> which will need to have their respective
      * matches() method queried to determine if the Filter actually matches
      * the email.
@@ -775,13 +775,13 @@ class TicketFilter {
         # Filter by system's email-id if specified
         if($this->vars['emailId'])
             $sql.=' AND (filter.email_id=0 OR filter.email_id='.db_input($this->vars['emailId']).')';
-        
+
         # Include rules for sender-email, sender-name and subject as
         # requested
         $sql.=" AND ((what='email' AND LOCATE(val, ".db_input($this->vars['email']).'))';
-        if($this->vars['name']) 
+        if($this->vars['name'])
             $sql.=" OR (what='name' AND LOCATE(val, ".db_input($this->vars['name']).'))';
-        if($this->vars['subject']) 
+        if($this->vars['subject'])
             $sql.=" OR (what='subject' AND LOCATE(val, ".db_input($this->vars['subject']).'))';
 
 
@@ -799,7 +799,7 @@ class TicketFilter {
         if (!$this->vars['name']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'name'))=0";
         if (!$this->vars['subject']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'subject'))=0";
         # Also include filters that do not have match_all_rules set to and
-        # have at least one rule 'what' type that wasn't considered e.g body 
+        # have at least one rule 'what' type that wasn't considered e.g body
         $sql.=") OR filter.id IN ("
                ." SELECT filter_id"
                ." FROM ".FILTER_RULE_TABLE." rule"
@@ -828,7 +828,8 @@ class TicketFilter {
      *      Filter::matches() method.
      *      Peter - Let's keep it as a quick scan for obviously banned emails.
      */
-    /* static */ function isBanned($addr) {
+    /* static */
+    function isBanned($addr) {
 
         $sql='SELECT filter.id, what, how, UPPER(val) '
             .' FROM '.FILTER_TABLE.' filter'
@@ -849,7 +850,7 @@ class TicketFilter {
         $addr = strtoupper($addr);
         $how=array('equal'      => array('strcmp', 0),
                    'contains'   => array('strpos', null, false));
-            
+
         while ($row=db_fetch_array($res)) {
             list($func, $pos, $neg) = $how[$row['how']];
             if (!$func) continue;
@@ -869,7 +870,8 @@ class TicketFilter {
      * X-Auto-Response-Supress is outlined here,
      *    http://msdn.microsoft.com/en-us/library/ee219609(v=exchg.80).aspx
      */
-    /* static */ function isAutoResponse($headers) {
+    /* static */
+    function isAutoResponse($headers) {
 
         if($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
@@ -936,13 +938,13 @@ class TicketFilter {
         return false;
     }
 
-    /** 
-     * Normalize ticket source to supported filter target 
+    /**
+     * Normalize ticket source to supported filter target
      *
      */
     function origin2target($origin) {
         $sources=array('web' => 'Web', 'email' => 'Email', 'phone' => 'Web', 'staff' => 'Web', 'api' => 'API');
-    
+
         return $sources[strtolower($origin)];
     }
 }

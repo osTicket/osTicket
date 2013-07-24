@@ -21,12 +21,12 @@ class Email {
 
     var $dept;
     var $ht;
-    
+
     function Email($id) {
         $this->id=0;
         $this->load($id);
     }
-    
+
     function load($id=0) {
 
         if(!$id && !($id=$this->getId()))
@@ -36,20 +36,20 @@ class Email {
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
-        
+
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['email_id'];
         $this->address=$this->ht['name']?($this->ht['name'].'<'.$this->ht['email'].'>'):$this->ht['email'];
 
         $this->dept = null;
-        
+
         return true;
     }
-  
+
     function reload() {
         return $this->load();
     }
-    
+
     function getId() {
         return $this->id;
     }
@@ -57,11 +57,11 @@ class Email {
     function getEmail() {
         return $this->ht['email'];
     }
-    
+
     function getAddress() {
         return $this->address;
     }
-    
+
     function getName() {
         return $this->ht['name'];
     }
@@ -78,7 +78,7 @@ class Email {
 
         if(!$this->dept && $this->getDeptId())
             $this->dept=Dept::lookup($this->getDeptId());
-        
+
         return $this->dept;
     }
 
@@ -93,7 +93,7 @@ class Email {
     function getHashtable() {
         return $this->ht;
     }
-    
+
     function getInfo() {
         return $this->getHashtable();
     }
@@ -109,7 +109,7 @@ class Email {
                 'encryption' => $this->ht['mail_encryption'],
                 'username'  => $this->ht['userid'],
                 'password' => Mcrypt::decrypt($this->ht['userpass'], SECRET_SALT),
-                //osTicket specific                
+                //osTicket specific
                 'email_id'  => $this->getId(), //Required for email routing to work.
                 'max_fetch' => $this->ht['mail_fetchmax'],
                 'delete_mail' => $this->ht['mail_delete'],
@@ -128,7 +128,7 @@ class Email {
     }
 
     function getSMTPInfo() {
-            
+
         $info = array (
                 'host' => $this->ht['smtp_host'],
                 'port' => $this->ht['smtp_port'],
@@ -167,7 +167,7 @@ class Email {
             return false;
 
         $this->reload();
-        
+
         return true;
     }
 
@@ -191,13 +191,13 @@ class Email {
 
 
     /******* Static functions ************/
-    
+
    function getIdByEmail($email) {
-        
+
         $sql='SELECT email_id FROM '.EMAIL_TABLE.' WHERE email='.db_input($email);
-        if(($res=db_query($sql)) && db_num_rows($res))   
+        if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
-        
+
         return $id;
     }
 
@@ -227,7 +227,7 @@ class Email {
             $errors['email']='Email already exists';
         }elseif($cfg && !strcasecmp($cfg->getAdminEmail(), $vars['email'])) {
             $errors['email']='Email already used as admin email!';
-        }elseif(Staff::getIdByEmail($vars['email'])) { //make sure the email doesn't belong to any of the staff 
+        }elseif(Staff::getIdByEmail($vars['email'])) { //make sure the email doesn't belong to any of the staff
             $errors['email']='Email in use by a staff member';
         }
 
@@ -237,11 +237,11 @@ class Email {
         if($vars['mail_active'] || ($vars['smtp_active'] && $vars['smtp_auth'])) {
             if(!$vars['userid'])
                 $errors['userid']='Username missing';
-                
+
             if(!$id && !$vars['passwd'])
                 $errors['passwd']='Password required';
         }
-        
+
         if($vars['mail_active']) {
             //Check pop/imapinfo only when enabled.
             if(!function_exists('imap_open'))
@@ -266,7 +266,7 @@ class Email {
             elseif(!strcasecmp($vars['postfetch'],'archive') && !$vars['mail_archivefolder'] )
                 $errors['postfetch']='Valid folder required';
         }
-        
+
         if($vars['smtp_active']) {
             if(!$vars['smtp_host'])
                 $errors['smtp_host']='Host name required';
@@ -276,17 +276,17 @@ class Email {
 
         //abort on errors
         if($errors) return false;
-        
+
         if(!$errors && ($vars['mail_host'] && $vars['userid'])) {
             $sql='SELECT email_id FROM '.EMAIL_TABLE
                 .' WHERE mail_host='.db_input($vars['mail_host']).' AND userid='.db_input($vars['userid']);
             if($id)
                 $sql.=' AND email_id!='.db_input($id);
-                
+
             if(db_num_rows(db_query($sql)))
                 $errors['userid']=$errors['host']='Host/userid combination already in use.';
         }
-        
+
         $passwd=$vars['passwd']?$vars['passwd']:$vars['cpasswd'];
         if(!$errors && $vars['mail_active']) {
             //note: password is unencrypted at this point...MailFetcher expect plain text.
@@ -308,7 +308,7 @@ class Email {
                      $errors['mail']='Invalid or unknown archive folder!';
             }
         }
-        
+
         if(!$errors && $vars['smtp_active']) { //Check SMTP login only.
             require_once 'Mail.php'; // PEAR Mail package
             $smtp = mail::factory('smtp',
@@ -328,7 +328,7 @@ class Email {
                 $smtp->disconnect(); //Thank you, sir!
             }
         }
-       
+
         if($errors) return false;
 
         //Default to default priority and dept..
@@ -336,7 +336,7 @@ class Email {
             $vars['priority_id']=$cfg->getDefaultPriorityId();
         if(!$vars['dept_id'] && $cfg)
             $vars['dept_id']=$cfg->getDefaultDeptId();
-       
+
         $sql='updated=NOW(),mail_errors=0, mail_lastfetch=NULL'.
              ',email='.db_input($vars['email']).
              ',name='.db_input(Format::striptags($vars['name'])).
@@ -365,15 +365,15 @@ class Email {
             $sql.=',mail_delete=0,mail_archivefolder='.db_input($vars['mail_archivefolder']);
         else
             $sql.=',mail_delete=0,mail_archivefolder=NULL';
-        
+
         if($vars['passwd']) //New password - encrypt.
             $sql.=',userpass='.db_input(Mcrypt::encrypt($vars['passwd'],SECRET_SALT));
-        
+
         if($id) { //update
             $sql='UPDATE '.EMAIL_TABLE.' SET '.$sql.' WHERE email_id='.db_input($id);
             if(db_query($sql) && db_affected_rows())
                 return true;
-                
+
             $errors['err']='Unable to update email. Internal error occurred';
         }else {
             $sql='INSERT INTO '.EMAIL_TABLE.' SET '.$sql.',created=NOW()';
@@ -382,7 +382,7 @@ class Email {
 
             $errors['err']='Unable to add email. Internal error';
         }
-        
+
         return false;
     }
 }

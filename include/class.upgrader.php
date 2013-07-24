@@ -272,7 +272,7 @@ class StreamUpgrader extends SetupWizard {
     }
 
     function readPatchInfo($patch) {
-        $info = array();
+        $info = $matches = $matches2 = array();
         if (preg_match(':/\*\*(.*)\*/:s', file_get_contents($patch), $matches)) {
             if (preg_match_all('/@([\w\d_-]+)\s+(.*)$/m', $matches[0],
                         $matches2, PREG_SET_ORDER))
