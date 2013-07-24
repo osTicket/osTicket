@@ -14,7 +14,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once('client.inc.php');
-if(is_object($ost) && $ost->isSystemOnline()) {
+if(is_object($ost) && $ost->isSystemOnline()
+        && (!in_array(strtolower(basename($_SERVER['SCRIPT_NAME'])),
+            array('logo.php',)))) {
     @header('Location: index.php'); //Redirect if the system is online.
     include('index.php');
     exit;
