@@ -544,8 +544,6 @@ a.print {
 }
 
 .form_table input[type=radio], .form_table input[type=checkbox] {
-    position:relative;
-    top:3px;
     margin-left:0;
     padding-left:0;
 }
@@ -1124,7 +1122,7 @@ h2 .reload {
 #faq {
   clear: both;
   margin: 0;
-  padding: 5 0 10px 5px;
+  padding: 5px 0 10px 5px;
 }
 #faq ol {
   font-size: 15px;

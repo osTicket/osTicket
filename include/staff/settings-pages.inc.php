@@ -87,7 +87,8 @@ $pages = Page::getPages();
                 <img src="../assets/default/images/logo.png"
                     alt="Default Logo" valign="middle"
                     style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
-                        margin: 0.5em; height: 5em"/>
+                        margin: 0.5em; height: 5em;
+                        vertical-align: middle"/>
                 </label>
         </td></tr>
         <tr>
@@ -110,7 +111,8 @@ $pages = Page::getPages();
                 <img src="image.php?h=<?php echo $logo->getDownloadHash(); ?>"
                     alt="Custom Logo" valign="middle"
                     style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
-                        margin: 0.5em; height: 5em;"/>
+                        margin: 0.5em; height: 5em;
+                        vertical-align: middle;"/>
                 </label>
                 <?php if ($logo->getId() != $current) { ?>
                 <label>

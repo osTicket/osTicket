@@ -61,7 +61,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
 //echo $query;
 ?>
 <h2>Staff Members</h2>
-<div style="width:700; float:left;">
+<div style="width:700px; float:left;">
     <form action="directory.php" method="GET" name="filter">
        <input type="text" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>" >
         <select name="did" id="did">

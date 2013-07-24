@@ -121,7 +121,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         for($i=1; $i<=$n; $i++){ ?>
         <tr id="r<?php echo $i; ?>">
             <td colspan="2">
-                <div  style="width:700; float:left;">
+                <div  style="width:700px; float:left;">
                     <select name="rule_w<?php echo $i; ?>">
                         <option value="">&mdash; Select One &dash;</option>
                         <?php

@@ -42,7 +42,7 @@ else
 
 ?>
 
-<div style="width:700;padding-top:5px; float:left;">
+<div style="width:700px;padding-top:5px; float:left;">
  <h2>Email Templates</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
