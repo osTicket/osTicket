@@ -24,7 +24,7 @@ $msg = $_SESSION['_staff']['auth']['msg'];
 $msg = $msg?$msg:'Authentication Required';
 if($_POST) {
     //$_SESSION['_staff']=array(); #Uncomment to disable login strikes.
-    if(($user=Staff::login($_POST['username'], $_POST['passwd'], $errors))){
+    if(($user=Staff::login($_POST['userid'], $_POST['passwd'], $errors))){
         $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
         @header("Location: $dest");
         require_once('index.php'); //Just incase header is messed up.

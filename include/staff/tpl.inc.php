@@ -6,15 +6,23 @@ if (is_a($template, EmailTemplateGroup)) {
     $id = 0;
     $tpl_id = $template->getId();
     $name = $template->getName();
+    $group = $template;
     $selected = $_REQUEST['code_name'];
     $action = 'implement';
     $extras = array('code_name'=>$selected, 'tpl_id'=>$tpl_id);
     $msgtemplates=$template->all_names;
+    // Attempt to lookup the default data if it is defined
+    $default = @$template->getMsgTemplate($selected);
+    if ($default) {
+        $info['subj'] = $default->getSubject();
+        $info['body'] = $default->getBody();
+    }
 } else {
     // Template edit
     $id = $template->getId();
     $tpl_id = $template->getTplId();
     $name = $template->getGroup()->getName();
+    $group = $template->getGroup();
     $selected = $template->getCodeName();
     $action = 'updatetpl';
     $extras = array();
@@ -33,7 +41,7 @@ $tpl=$msgtemplates[$info['tpl']];
     <select id="tpl_options" name="id" style="width:300px;">
         <option value="">&mdash; Select Setting Group &mdash;</option>
         <?php
-        foreach($template->getGroup()->getTemplates() as $cn=>$t) {
+        foreach($group->getTemplates() as $cn=>$t) {
             $nfo=$t->getDescription();
             if (!$nfo['name'])
                 continue;
@@ -41,6 +49,10 @@ $tpl=$msgtemplates[$info['tpl']];
             echo sprintf('<option value="%s" %s>%s</option>',
                     $t->getId(),$sel,$nfo['name']);
         }
+        if ($id == 0) { ?>
+            <option selected="selected" value="<?php echo $id; ?>"><?php
+            echo $msgtemplates[$selected]['name']; ?></option>
+        <?php }
         ?>
     </select>
     <input type="submit" value="Go">

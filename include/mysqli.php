@@ -39,6 +39,7 @@ function db_connect($host, $user, $passwd, $options = array()) {
         return NULL;
 
     //Connectr
+    $start = microtime(true);
     if(!@$__db->real_connect($host, $user, $passwd))
         return NULL;
 
@@ -51,6 +52,9 @@ function db_connect($host, $user, $passwd, $options = array()) {
     @$__db->query('SET COLLATION_CONNECTION=utf8_general_ci');
 
     @db_set_variable('sql_mode', '');
+
+    // Use connection timing to seed the random number generator
+    Misc::__rand_seed((microtime(true) - $start) * 1000000);
 
     return $__db;
 }

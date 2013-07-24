@@ -15,9 +15,9 @@
 **********************************************************************/
 
 if(!defined('INCLUDE_DIR')) die('!');
-	    
+
 class ContentAjaxAPI extends AjaxController {
-   
+
     function log($id) {
 
         if($id && ($log=Log::lookup($id))) {
@@ -77,6 +77,8 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{assignee}</td><td>Assigned staff/team</td></tr>
                     <tr><td>%{assigner}</td><td>Staff assigning the ticket</td></tr>
                     <tr><td>%{url}</td><td>osTicket\'s base url (FQDN)</td></tr>
+                    <tr><td>%{reset_link}</td>
+                        <td>Reset link used by the password reset feature</td></tr>
                 </table>
             </td>
         </tr>

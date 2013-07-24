@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR.'class.yaml.php';
 
 class EmailTemplateGroup {
 
@@ -56,6 +57,10 @@ class EmailTemplateGroup {
         'ticket.overdue'=>array(
             'name'=>'Overdue Ticket Alert',
             'desc'=>'Alert sent to staff on stale or overdue tickets.'),
+        'staff.pwreset' => array(
+            'name' => 'Staff Password Reset',
+            'desc' => 'Notice sent to staff with the password reset link.',
+            'default' => 'templates/staff.pwreset.txt'),
         );
 
     function EmailTemplateGroup($id){
@@ -108,6 +113,10 @@ class EmailTemplateGroup {
         return $this->isEnabled();
     }
 
+    function getLanguage() {
+        return 'en_US';
+    }
+
     function isInUse(){
         global $cfg;
 
@@ -138,6 +147,9 @@ class EmailTemplateGroup {
         global $ost;
 
         if ($tpl=EmailTemplate::lookupByName($this->getId(), $name, $this))
+            return $tpl;
+
+        if ($tpl=EmailTemplate::fromInitialData($name, $this))
             return $tpl;
 
         $ost->logWarning('Template Fetch Error', "Unable to fetch '$name' template - id #".$this->getId());
@@ -330,11 +342,12 @@ class EmailTemplateGroup {
 class EmailTemplate {
 
     var $id;
+    var $ht;
     var $_group;
 
     function EmailTemplate($id, $group=null){
         $this->id=0;
-        $this->load($id);
+        if ($id) $this->load($id);
         if ($group) $this->_group = $group;
     }
 
@@ -465,6 +478,25 @@ class EmailTemplate {
 
     function lookup($id, $group=null) {
         return ($id && is_numeric($id) && ($t= new EmailTemplate($id, $group)) && $t->getId()==$id)?$t:null;
+    }
+
+    /**
+     * Load the template from the initial_data directory. The format of the
+     * file should be free flow text. The first line is the subject and the
+     * rest of the file is the body.
+     */
+    function fromInitialData($name, $group=null) {
+        $templ = new EmailTemplate(0, $group);
+        $lang = ($group) ? $group->getLanguage() : 'en_US';
+        $info = YamlDataParser::load(I18N_DIR . "$lang/templates/$name.yaml");
+        if (isset($info['subject']) && isset($info['body'])) {
+            $templ->ht = $info;
+            return $templ;
+        }
+        raise_error("$lang/templates/$name.yaml: "
+            . 'Email templates must define both "subject" and "body" parts of the template',
+            'InitialDataError');
+        return false;
     }
 }
 ?>

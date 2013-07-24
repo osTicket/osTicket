@@ -3,7 +3,7 @@
     class.validator.php
 
     Input validation helper. This class contains collection of functions used for data validation.
-   
+
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
@@ -28,11 +28,11 @@ class Validator {
             $this->fields=$fields;
             return (true);
         endif;
-        
+
         return (false);
     }
-   
-   
+
+
     function validate($source,$userinput=true){
 
         $this->errors=array();
@@ -56,7 +56,7 @@ class Validator {
         foreach($this->fields as $k=>$field){
             if(!$field['required'] && !$this->input[$k]) //NOT required...and no data provided...
                 continue;
-            
+
             if($field['required'] && !isset($this->input[$k]) || (!$this->input[$k] && $field['type']!='int')){ //Required...and no data provided...
                 $this->errors[$k]=$field['error'];
                 continue;
@@ -67,7 +67,9 @@ class Validator {
             case 'int':
                 if(!is_numeric($this->input[$k]))
                      $this->errors[$k]=$field['error'];
-                break;  
+                elseif ($field['min'] && $this->input[$k] < $field['min'])
+                     $this->errors[$k]=$field['error'];
+                break;
             case 'double':
                 if(!is_numeric($this->input[$k]))
                     $this->errors[$k]=$field['error'];
@@ -114,7 +116,7 @@ class Validator {
                 break;
             case 'zipcode':
                 if(!is_numeric($this->input[$k]) || (strlen($this->input[$k])!=5))
-                    $this->errors[$k]=$field['error'];   
+                    $this->errors[$k]=$field['error'];
                 break;
             default://If param type is not set...or handle..error out...
                 $this->errors[$k]=$field['error'].' (type not set)';
@@ -122,15 +124,15 @@ class Validator {
         }
         return ($this->errors)?(FALSE):(TRUE);
     }
-   
+
     function iserror(){
         return $this->errors?true:false;
     }
-   
+
     function errors(){
         return $this->errors;
     }
-   
+
     /*** Functions below can be called directly without class instance. Validator::func(var..); ***/
     function is_email($email) {
         return preg_match('/^([*+!.&#$|\'\\%\/0-9a-z^_`{}=?~:-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})$/i',$email);
@@ -140,17 +142,17 @@ class Validator {
         $stripped=preg_replace("(\(|\)|\-|\.|\+|[  ]+)","",$phone);
         return (!is_numeric($stripped) || ((strlen($stripped)<7) || (strlen($stripped)>16)))?false:true;
     }
-    
+
     function is_url($url) {
         //XXX: parse_url is not ideal for validating urls but it's ideal for basic checks.
         return ($url && ($info=parse_url($url)) && $info['host']);
     }
 
     function is_ip($ip) {
-      
+
         if(!$ip or empty($ip))
             return false;
-      
+
         $ip=trim($ip);
         # Thanks to http://stackoverflow.com/a/1934546
         if (function_exists('inet_pton')) { # PHP 5.1.0

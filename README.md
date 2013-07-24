@@ -86,3 +86,4 @@ osTicket is supported by several magical open source projects including:
   * [PEAR/Net_Socket](http://pear.php.net/package/Net_Socket)
   * [PEAR/Serivces_JSON](http://pear.php.net/package/Services_JSON)
   * [phplint](http://antirez.com/page/phplint.html)
+  * [Spyc](http://github.com/mustangostang/spyc)

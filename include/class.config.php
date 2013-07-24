@@ -20,10 +20,16 @@ class Config {
     var $config = array();
 
     var $section = null;                    # Default namespace ('core')
-    var $table = 'config';                  # Table name (with prefix)
+    var $table = CONFIG_TABLE;              # Table name (with prefix)
     var $section_column = 'namespace';      # namespace column name
 
     var $session = null;                    # Session-backed configuration
+
+    # Defaults for this configuration. If settings don't exist in the
+    # database yet, the ->getInfo() method will not include the (default)
+    # values in the returned array. $defaults allows developers to define
+    # new settings and the corresponding default values.
+    var $defaults = array();                # List of default values
 
     function Config($section=null) {
         if ($section)
@@ -36,7 +42,7 @@ class Config {
             $_SESSION['cfg:'.$this->section] = array();
         $this->session = &$_SESSION['cfg:'.$this->section];
 
-        $sql='SELECT id, `key`, value FROM '.$this->table
+        $sql='SELECT id, `key`, value, `updated` FROM '.$this->table
             .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
 
         if(($res=db_query($sql)) && db_num_rows($res))
@@ -49,7 +55,7 @@ class Config {
     }
 
     function getInfo() {
-        $info = array();
+        $info = $this->defaults;
         foreach ($this->config as $key=>$setting)
             $info[$key] = $setting['value'];
         return $info;
@@ -62,6 +68,8 @@ class Config {
             return $this->config[$key]['value'];
         elseif ($default !== null)
             return $this->set($key, $default);
+        elseif (isset($this->defaults[$key]))
+            return $this->defaults[$key];
         return null;
     }
 
@@ -76,6 +84,13 @@ class Config {
     function persist($key, $value) {
         $this->session[$key] = $value;
         return true;
+    }
+
+    function lastModified($key) {
+        if (isset($this->config[$key]))
+            return $this->config[$key]['updated'];
+        else
+            return false;
     }
 
     function create($key, $value) {
@@ -123,6 +138,11 @@ class OsticketConfig extends Config {
     var $defaultEmail;  //Default Email
     var $alertEmail;  //Alert Email
     var $defaultSMTPEmail; //Default  SMTP Email
+
+    var $defaults = array(
+        'allow_pw_reset' =>     true,
+        'pw_reset_mins' =>      30,
+    );
 
     function OsticketConfig($section=null) {
         parent::Config($section);
@@ -454,6 +474,30 @@ class OsticketConfig extends Config {
         return ($this->get('staff_ip_binding'));
     }
 
+    /**
+     * Configuration: allow_pw_reset
+     *
+     * TRUE if the <a>Forgot my password</a> link and system should be
+     * enabled, and FALSE otherwise.
+     */
+    function allowPasswordReset() {
+        return $this->get('allow_pw_reset');
+    }
+
+    /**
+     * Configuration: pw_reset_window
+     *
+     * Number of minutes for which the password reset token is valid.
+     *
+     * Returns: Number of seconds the password reset token is valid. The
+     *      number of minutes from the database is automatically converted
+     *      to seconds here.
+     */
+    function getPwResetWindow() {
+        // pw_reset_window is stored in minutes. Return value in seconds
+        return $this->get('pw_reset_window') * 60;
+    }
+
     function isCaptchaEnabled() {
         return (extension_loaded('gd') && function_exists('gd_info') && $this->get('enable_captcha'));
     }
@@ -724,6 +768,8 @@ class OsticketConfig extends Config {
         $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Datetime format required');
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Day, Datetime format required');
         $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Timezone required');
+        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
+            'error'=>'Valid password reset window required');
 
 
         if(!Validator::process($f, $vars, $errors) || $errors)
@@ -746,6 +792,8 @@ class OsticketConfig extends Config {
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],
+            'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
+            'pw_reset_window'=>$vars['pw_reset_window'],
             'time_format'=>$vars['time_format'],
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],
