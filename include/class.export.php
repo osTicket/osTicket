@@ -43,7 +43,16 @@ class Export {
                 'dept_name' =>      'Department',
                 'helptopic' =>      'Help Topic',
                 'source' =>         'Source',
-                'status' =>         'Current Status'
+                'status' =>         'Current Status',
+                'effective_date' => 'Last Updated',
+                'duedate' =>        'Due Date',
+                'isoverdue' =>      'Overdue',
+                'isanswered' =>     'Answered',
+                'assigned' =>       'Assigned To',
+                'staff' =>          'Staff Assigned',
+                'team' =>           'Team Assigned',
+                'thread_count' =>   'Thread Count',
+                'attachments' =>    'Attachment Count',
             ),
             $how);
     }
@@ -73,7 +82,7 @@ class ResultSetExporter {
             $this->keys = array();
             $this->lookups = array();
             foreach ($headers as $field=>$name) {
-                if (isset($row[$field])) {
+                if (array_key_exists($field, $row)) {
                     $this->headers[] = $name;
                     $this->keys[] = $field;
                     # Remember the location of this header in the query results
