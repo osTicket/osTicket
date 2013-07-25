@@ -234,15 +234,17 @@ class AttachmentFile {
             $file['hash']=MD5(MD5($file['data']).time());
         if(!$file['size'])
             $file['size']=strlen($file['data']);
-        if(!$file['filetype'])
-            $file['filetype'] = 'T';
 
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input($file['type'])
-            .',ft='.db_input($file['filetype'])
             .',size='.db_input($file['size'])
             .',name='.db_input(Format::file_name($file['name']))
             .',hash='.db_input($file['hash']);
+
+        # XXX: ft does not exists during the upgrade when attachments are
+        #      migrated!
+        if(isset($file['filetype']))
+            $sql.=',ft='.db_input($file['filetype']);
 
         if (!(db_query($sql) && ($id=db_insert_id())))
             return false;
