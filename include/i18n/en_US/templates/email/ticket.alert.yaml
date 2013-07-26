@@ -13,20 +13,41 @@ notes: |
 subject: |
     New Ticket Alert
 body: |
-    %{recipient},
-
-    New ticket #%{ticket.number} created.
-
-    -----------------------
-    Name: %{ticket.name}
-    Email: %{ticket.email}
-    Dept: %{ticket.dept.name}
-
-    %{message}
-
-    -----------------------
-    To view/respond to the ticket, please login to the support ticket system.
-
-    %{ticket.staff_link}
-
-    - Your friendly Customer Support System - powered by osTicket.
+    <h2>Hi %{recipient},</h2>
+    <p>
+        New ticket #%{ticket.number} created
+    </p>
+    <table>
+    <tbody>
+    <tr>
+        <td>
+            <strong>From</strong>:
+        </td>
+        <td>
+            %{ticket.name} &lt;%{ticket.email}&gt;
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <strong>Department</strong>:
+        </td>
+        <td>
+            %{ticket.dept.name}
+        </td>
+    </tr>
+    </tbody>
+    </table>
+    <p>
+        %{message}
+    </p>
+    <hr>
+    <p>
+        To view/respond to the ticket, please <a href="%{ticket.staff_link}">login</a>
+        to the support ticket system
+    </p>
+    <p>
+        <em>Your friendly Customer Support System
+        <br/>
+        <a href="http://osticket.com/"><img width="126" height="23"
+            alt="Powered By osTicket" src="cid:QURBOEMxRUY4QjcyRTFFMyIvPiA8L3Jk"/></a>
+    </p>

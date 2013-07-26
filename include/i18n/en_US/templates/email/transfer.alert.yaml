@@ -10,22 +10,25 @@
 notes: |
 
 subject: |
-    Ticket Transfer #%{ticket.number} - %{ticket.dept.name}
+    Ticket #%{ticket.number} transfer - %{ticket.dept.name}
 body: |
-    %{recipient},
-
-    Ticket #%{ticket.number} has been transferred to the %{ticket.dept.name}
-    department by %{staff.name}
-
-    ----------------------
-
-    %{comments}
-
-    ----------------------
-
-    To view/respond to the ticket, please login to the support ticket
-    system.
-
-    %{ticket.staff_link}
-
-    - Your friendly Customer Support System - powered by osTicket.
+    <h3>Hi %{recipient},</h3>
+    <p>
+        Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> has
+        been transferred to the %{ticket.dept.name} department by
+        <strong>%{staff.name}</strong>
+    </p>
+    <blockquote>
+        %{comments}
+    </blockquote>
+    <hr>
+    <p style="font-size:small">
+        To view/respond to the ticket, please <a
+        href="%{ticket.staff_link}">login</a> to the support ticket system.
+    </p>
+    <p>
+        <em>Your friendly Customer Support System
+        <br/>
+        <a href="http://osticket.com/"><img width="126" height="23"
+            alt="Powered By osTicket" src="cid:QURBOEMxRUY4QjcyRTFFMyIvPiA8L3Jk"/></a>
+    </p>

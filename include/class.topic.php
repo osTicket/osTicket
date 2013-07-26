@@ -227,7 +227,7 @@ class Topic {
             .',isactive='.db_input($vars['isactive'])
             .',ispublic='.db_input($vars['ispublic'])
             .',noautoresp='.db_input(isset($vars['noautoresp'])?1:0)
-            .',notes='.db_input($vars['notes']);
+            .',notes='.db_input(Format::sanitize($vars['notes']));
 
         //Auto assign ID is overloaded...
         if($vars['assign'] && $vars['assign'][0]=='s')

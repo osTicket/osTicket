@@ -20,7 +20,7 @@ class Canned {
     var $ht;
 
     var $attachments;
-    
+
     function Canned($id){
         $this->id=0;
         $this->load($id);
@@ -34,7 +34,8 @@ class Canned {
         $sql='SELECT canned.*, count(attach.file_id) as attachments, '
             .' count(filter.id) as filters '
             .' FROM '.CANNED_TABLE.' canned '
-            .' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' attach ON (attach.canned_id=canned.canned_id) ' 
+            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+                    ON (attach.object_id=canned.canned_id AND attach.`type`=\'C\' AND NOT attach.inline) '
             .' LEFT JOIN '.FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) '
             .' WHERE canned.canned_id='.db_input($id)
             .' GROUP BY canned.canned_id';
@@ -42,18 +43,18 @@ class Canned {
         if(!($res=db_query($sql)) ||  !db_num_rows($res))
             return false;
 
-        
+
         $this->ht = db_fetch_array($res);
         $this->id = $this->ht['canned_id'];
-        $this->attachments = array();
-    
+        $this->attachments = new GenericAttachments($this->id, 'C');
+
         return true;
     }
-  
+
     function reload() {
         return $this->load();
     }
-    
+
     function getId(){
         return $this->id;
     }
@@ -69,13 +70,16 @@ class Canned {
     function getNumFilters() {
         return $this->ht['filters'];
     }
-    
+
     function getTitle() {
         return $this->ht['title'];
     }
 
     function getResponse() {
         return $this->ht['response'];
+    }
+    function getResponseWithImages() {
+        return Format::viewableImages($this->getResponse());
     }
 
     function getReply() {
@@ -85,7 +89,7 @@ class Canned {
     function getNotes() {
         return $this->ht['notes'];
     }
-    
+
     function getDeptId(){
         return $this->ht['dept_id'];
     }
@@ -115,76 +119,14 @@ class Canned {
 
         if(!$this->save($this->getId(),$vars,$errors))
             return false;
-        
+
         $this->reload();
 
         return true;
     }
-   
+
     function getNumAttachments() {
         return $this->ht['attachments'];
-    }
-   
-    function getAttachments() {
-
-        if(!$this->attachments && $this->getNumAttachments()) {
-            
-            $sql='SELECT f.id, f.size, f.hash, f.name '
-                .' FROM '.FILE_TABLE.' f '
-                .' INNER JOIN '.CANNED_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
-                .' WHERE a.canned_id='.db_input($this->getId());
-
-            $this->attachments = array();
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($rec=db_fetch_array($res)) {
-                    $rec['key'] =md5($rec['id'].session_id().$rec['hash']);
-                    $this->attachments[] = $rec;
-                }
-            }
-        }
-        
-        return $this->attachments;
-    }
-    /*
-    @files is an array - hash table of multiple attachments.
-    */
-    function uploadAttachments($files) {
-
-        $i=0;
-        foreach($files as $file) {
-            if(($fileId=is_numeric($file)?$file:AttachmentFile::upload($file)) && is_numeric($fileId)) {
-                $sql ='INSERT INTO '.CANNED_ATTACHMENT_TABLE
-                     .' SET canned_id='.db_input($this->getId()).', file_id='.db_input($fileId);
-                if(db_query($sql)) $i++;
-            }
-        }
-
-        if($i) $this->reload();
-
-        return $i;
-    }
-
-    function deleteAttachment($file_id) {
-        $deleted = 0;
-        $sql='DELETE FROM '.CANNED_ATTACHMENT_TABLE
-            .' WHERE canned_id='.db_input($this->getId())
-            .'   AND file_id='.db_input($file_id);
-        if(db_query($sql) && db_affected_rows()) {
-            $deleted = AttachmentFile::deleteOrphans();
-        }
-        return ($deleted > 0);
-    }
-
-    function deleteAttachments(){
-
-        $deleted=0;
-        $sql='DELETE FROM '.CANNED_ATTACHMENT_TABLE
-            .' WHERE canned_id='.db_input($this->getId());
-        if(db_query($sql) && db_affected_rows()) {
-            $deleted = AttachmentFile::deleteOrphans();
-        }
-
-        return $deleted;
     }
 
     function delete(){
@@ -192,7 +134,7 @@ class Canned {
 
         $sql='DELETE FROM '.CANNED_TABLE.' WHERE canned_id='.db_input($this->getId()).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
-            $this->deleteAttachments();
+            $this->attachments->deleteAll();
         }
 
         return $num;
@@ -203,7 +145,7 @@ class Canned {
         return ($id && is_numeric($id) && ($c= new Canned($id)) && $c->getId()==$id)?$c:null;
     }
 
-    function create($vars,&$errors) { 
+    function create($vars,&$errors) {
         return self::save(0,$vars,$errors);
     }
 
@@ -241,10 +183,9 @@ class Canned {
     }
 
     function save($id,$vars,&$errors) {
+        global $cfg;
 
-        //We're stripping html tags - until support is added to tickets.
         $vars['title']=Format::striptags(trim($vars['title']));
-        $vars['response']=Format::striptags(trim($vars['response']));
         $vars['notes']=Format::striptags(trim($vars['notes']));
 
         if($id && $id!=$vars['id'])
@@ -259,14 +200,15 @@ class Canned {
 
         if(!$vars['response'])
             $errors['response']='Response text required';
-            
+
         if($errors) return false;
 
         $sql=' updated=NOW() '.
              ',dept_id='.db_input($vars['dept_id']?$vars['dept_id']:0).
              ',isenabled='.db_input($vars['isenabled']).
              ',title='.db_input($vars['title']).
-             ',response='.db_input($vars['response']).
+             ',response='.db_input(Format::sanitize($vars['response'],
+                    !$cfg->isHtmlThreadEnabled())).
              ',notes='.db_input($vars['notes']);
 
         if($id) {

@@ -9,6 +9,7 @@ if($faq){
     $info=$faq->getHashtable();
     $info['id']=$faq->getId();
     $info['topics']=$faq->getHelpTopicsIds();
+    $info['answer']=$faq->getAnswer();
     $qstr='id='.$faq->getId();
 }else {
     $title='Add New FAQ';
@@ -81,16 +82,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div>
-                    <b>Answer</b>&nbsp;<font class="error">*&nbsp;<?php echo $errors['answer']; ?></font></div>
-                    <textarea name="answer" cols="21" rows="12" style="width:98%;" class="richtext"><?php echo $info['answer']; ?></textarea>
+                <div style="margin-bottom:0.5em;margin-top:0.5em">
+                    <b>Answer</b>&nbsp;<font class="error">*&nbsp;<?php echo $errors['answer']; ?></font>
+                </div>
+                <textarea name="answer" cols="21" rows="12"
+                    style="width:98%;" class="richtext draft"
+                    data-draft-namespace="faq"
+                    data-draft-object-id="<?php if (isset($faq)) echo $faq->getId(); ?>"
+                    ><?php echo $info['answer']; ?></textarea>
             </td>
         </tr>
         <tr>
             <td colspan=2>
                 <div><b>Attachments</b> (optional) <font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
                 <?php
-                if($faq && ($files=$faq->getAttachments())) {
+                if($faq && ($files=$faq->attachments->getSeparates())) {
                     echo '<div class="faq_attachments"><span class="faded">Uncheck to delete the attachment on submit</span><br>';
                     foreach($files as $file) {
                         $hash=$file['hash'].md5($file['id'].session_id().$file['hash']);
@@ -145,7 +151,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
+    <input type="reset"  name="reset"  value="Reset" onclick="javascript:
+        $(this.form).find('textarea.richtext')
+            .redactor('deleteDraft');
+        location.reload();" />
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="faq.php?<?php echo $qstr; ?>"'>
 </p>
 </form>

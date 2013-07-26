@@ -22,7 +22,7 @@ class Attachment {
     var $ticket_id;
 
     var $info;
-    
+
     function Attachment($id,$tid=0) {
 
         $sql='SELECT * FROM '.TICKET_ATTACHMENT_TABLE.' WHERE attach_id='.db_input($id);
@@ -31,19 +31,19 @@ class Attachment {
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
-        
+
         $this->ht=db_fetch_array($res);
-        
+
         $this->id=$this->ht['attach_id'];
         $this->file_id=$this->ht['file_id'];
         $this->ticket_id=$this->ht['ticket_id'];
-        
+
         $this->file=null;
         $this->ticket=null;
-        
+
         return true;
     }
-    
+
     function getId() {
         return $this->id;
     }
@@ -58,7 +58,7 @@ class Attachment {
 
         return $this->ticket;
     }
-    
+
     function getFileId() {
         return $this->file_id;
     }
@@ -73,7 +73,7 @@ class Attachment {
     function getCreateDate() {
         return $this->ht['created'];
     }
-    
+
     function getHashtable() {
         return $this->ht;
     }
@@ -101,5 +101,104 @@ class Attachment {
             && $attach->getId()==$id)?$attach:null;
     }
 
+}
+
+class GenericAttachments {
+
+    var $id;
+    var $type;
+
+    function GenericAttachments($object_id, $type) {
+        $this->id = $object_id;
+        $this->type = $type;
+    }
+
+    function getId() { return $this->id; }
+    function getType() { return $this->type; }
+
+    function upload($files, $inline=false) {
+        $i=array();
+        if (!is_array($files)) $files=array($files);
+        foreach ($files as $file) {
+            if (($fileId = is_numeric($file)
+                    ? $file : AttachmentFile::upload($file))
+                    && is_numeric($fileId)) {
+                $sql ='INSERT INTO '.ATTACHMENT_TABLE
+                    .' SET `type`='.db_input($this->getType())
+                    .',object_id='.db_input($this->getId())
+                    .',file_id='.db_input($fileId)
+                    .',inline='.db_input($inline ? 1 : 0);
+                if (db_query($sql))
+                    $i[] = $fileId;
+            }
+        }
+        return $i;
+    }
+
+    function save($info, $inline=true) {
+        if (!($fileId = AttachmentFile::save($info)))
+            return false;
+
+        $sql ='INSERT INTO '.ATTACHMENT_TABLE
+            .' SET `type`='.db_input($this->getType())
+            .',object_id='.db_input($this->getId())
+            .',file_id='.db_input($fileId)
+            .',inline='.db_input($inline ? 1 : 0);
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
+
+        return $fileId;
+    }
+
+    function getInlines() { return $this->_getList(false, true); }
+    function getSeparates() { return $this->_getList(true, false); }
+    function getAll() { return $this->_getList(true, true); }
+
+    function _getList($separate=false, $inlines=false) {
+        if(!isset($this->attachments)) {
+            $this->attachments = array();
+            $sql='SELECT f.id, f.size, f.hash, f.name '
+                .' FROM '.FILE_TABLE.' f '
+                .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
+                .' WHERE a.`type`='.db_input($this->getType())
+                .' AND a.object_id='.db_input($this->getId());
+            if ($inlines && !$separate)
+                $sql .= ' AND a.inline';
+            elseif (!$inlines && $separate)
+                $sql .= ' AND NOT a.inline';
+
+            if(($res=db_query($sql)) && db_num_rows($res)) {
+                while($rec=db_fetch_array($res)) {
+                    $rec['key'] = md5($rec['id'].session_id().$rec['hash']);
+                    $rec['file_id'] = $rec['id'];
+                    $this->attachments[] = $rec;
+                }
+            }
+        }
+        return $this->attachments;
+    }
+
+    function delete($file_id) {
+        $deleted = 0;
+        $sql='DELETE FROM '.ATTACHMENT_TABLE
+            .' WHERE object_id='.db_input($this->getId())
+            .'   AND `type`='.db_input($this->getType())
+            .'   AND file_id='.db_input($file_id);
+        return db_query($sql) && db_affected_rows() > 0;
+    }
+
+    function deleteAll($inline_only=false){
+        $deleted=0;
+        $sql='DELETE FROM '.ATTACHMENT_TABLE
+            .' WHERE object_id='.db_input($this->getId())
+            .'   AND `type`='.db_input($this->getType());
+        if ($inline_only)
+            $sql .= ' AND inline = 1';
+        return db_query($sql) && db_affected_rows() > 0;
+    }
+
+    function deleteInlines() {
+        return $this->deleteAll(true);
+    }
 }
 ?>

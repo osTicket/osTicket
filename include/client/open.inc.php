@@ -33,7 +33,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
         <th class="required" width="160">Email Address:</th>
         <td>
             <?php
-            if($thisclient && $thisclient->isValid()) { 
+            if($thisclient && $thisclient->isValid()) {
                 echo $thisclient->getEmail();
             } else { ?>
                 <input id="email" type="text" name="email" size="30" value="<?php echo $info['email']; ?>">
@@ -50,7 +50,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
             <label for="ext" class="inline">Ext.:</label>
             <input id="ext" type="text" name="phone_ext" size="3" value="<?php echo $info['phone_ext']; ?>">
             <font class="error">&nbsp;<?php echo $errors['phone']; ?>&nbsp;&nbsp;<?php echo $errors['phone_ext']; ?></font>
-        </td>   
+        </td>
     </tr>
     <tr><td colspan=2>&nbsp;</td></tr>
     <tr>
@@ -82,8 +82,13 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
     <tr>
         <td class="required">Message:</td>
         <td>
-            <div><em>Please provide as much detail as possible so we can best assist you.</em> <font class="error">*&nbsp;<?php echo $errors['message']; ?></font></div>
-            <textarea id="message" cols="60" rows="8" name="message"><?php echo $info['message']; ?></textarea>
+            <div style="margin-bottom:0.5em;"><em>Please provide as much detail as possible so we can best assist you.</em> <font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
+                </div>
+            <textarea id="message" cols="60" rows="8" name="message"
+                class="richtext ifhtml draft"
+                data-draft-namespace="ticket.client"
+                data-draft-object-id="<?php echo substr(session_id(), -12); ?>"
+                ><?php echo $info['message']; ?></textarea>
         </td>
     </tr>
 
@@ -111,7 +116,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
                     foreach($priorities as $id =>$name) {
                         echo sprintf('<option value="%d" %s>%s</option>',
                                         $id, ($info['priorityId']==$id)?'selected="selected"':'', $name);
-                        
+
                     }
                 ?>
             </select>

@@ -158,14 +158,17 @@ class Mail_Parse {
 
     function getBody(){
 
-        $body='';
-        if($body=$this->getPart($this->struct,'text/plain'))
-            $body = Format::htmlchars($body);
-        elseif($body=$this->getPart($this->struct,'text/html')) {
+        if ($body=$this->getPart($this->struct,'text/html')) {
             //Cleanup the html.
-            $body=str_replace("</DIV><DIV>", "\n", $body);
-            $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
             $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
+            if (!$cfg->isHtmlThreadEnabled()) {
+                $body = convert_html_to_text($body, 120);
+                $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+            }
+        }
+        elseif ($body=$this->getPart($this->struct,'text/plain')) {
+            $body = Format::htmlchars($body);
+            $body = "<div style=\"white-space:pre-wrap\">$body</div>";
         }
         return $body;
     }
@@ -247,6 +250,10 @@ class Mail_Parse {
 
             if(!$this->decode_bodies && $part->headers['content-transfer-encoding'])
                 $file['encoding'] = $part->headers['content-transfer-encoding'];
+
+            // Include Content-Id (for inline-images), stripping the <>
+            $file['cid'] = (isset($part->headers['content-id']))
+                ? rtrim(ltrim($part->headers['content-id'], '<'), '>') : false;
 
             return array($file);
         }

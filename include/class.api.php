@@ -130,7 +130,7 @@ class API {
             .',isactive='.db_input($vars['isactive'])
             .',can_create_tickets='.db_input($vars['can_create_tickets'])
             .',can_exec_cron='.db_input($vars['can_exec_cron'])
-            .',notes='.db_input($vars['notes']);
+            .',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.API_KEY_TABLE.' SET '.$sql.' WHERE id='.db_input($id);

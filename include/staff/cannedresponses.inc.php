@@ -5,7 +5,8 @@ $qstr='';
 $sql='SELECT canned.*, count(attach.file_id) as files, dept.dept_name as department '.
      ' FROM '.CANNED_TABLE.' canned '.
      ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=canned.dept_id) '.
-     ' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' attach ON (attach.canned_id=canned.canned_id) ';
+     ' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+            ON (attach.object_id=canned.canned_id AND attach.`type`=\'C\' AND NOT attach.inline)';
 $sql.=' WHERE 1';
 
 $sortOptions=array('title'=>'canned.title','status'=>'canned.isenabled','dept'=>'department','updated'=>'canned.updated');

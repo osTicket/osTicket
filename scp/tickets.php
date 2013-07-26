@@ -19,6 +19,7 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.filter.php');
 require_once(INCLUDE_DIR.'class.canned.php');
+require_once(INCLUDE_DIR.'class.json.php');
 
 
 $page='';
@@ -67,6 +68,12 @@ if($_POST && !$errors):
             if(!$errors && ($response=$ticket->postReply($vars, $errors, isset($_POST['emailreply'])))) {
                 $msg='Reply posted successfully';
                 $ticket->reload();
+
+                // Cleanup drafts for the ticket. If not closed, only clean
+                // for this staff. Else clean all drafts for the ticket.
+                Draft::deleteForNamespace('ticket.%.' . $ticket->getId(),
+                    $ticket->isClosed() ? false : $thisstaff->getId());
+
                 if($ticket->isClosed() && $wasOpen)
                     $ticket=null;
 
@@ -170,6 +177,11 @@ if($_POST && !$errors):
                 $msg='Internal note posted successfully';
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
+
+                // Cleanup drafts for the ticket. If not closed, only clean
+                // for this staff. Else clean all drafts for the ticket.
+                Draft::deleteForTicket($ticket->getId(),
+                    $ticket->isClosed() ? false : $thisstaff->getId());
 
             } else {
 
@@ -451,6 +463,7 @@ if($_POST && !$errors):
                         $_REQUEST['a']=null;
                         if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
+                        Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
                     } elseif(!$errors['err']) {
                         $errors['err']='Unable to create the ticket. Correct the error(s) and try again';
                     }

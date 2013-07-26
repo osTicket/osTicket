@@ -26,6 +26,12 @@ if($_POST) {
             if(($pageId=Page::create($_POST, $errors))) {
                 $_REQUEST['a'] = null;
                 $msg='Page added successfully';
+                // Attach inline attachments from the editor
+                if (isset($_POST['draft_id'])
+                        && ($draft = Draft::lookup($_POST['draft_id'])))
+                    $c->attachments->upload(
+                        $draft->getAttachmentIds($_POST['response']), true);
+                Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
                 $errors['err'] = 'Unable to add page. Try again!';
         break;
@@ -35,6 +41,15 @@ if($_POST) {
             elseif($page->update($_POST, $errors)) {
                 $msg='Page updated successfully';
                 $_REQUEST['a']=null; //Go back to view
+                // Attach inline attachments from the editor
+                if (isset($_POST['draft_id'])
+                        && ($draft = Draft::lookup($_POST['draft_id']))) {
+                    $page->attachments->deleteInlines();
+                    $page->attachments->upload(
+                        $draft->getAttachmentIds($_POST['response']),
+                        true);
+                }
+                Draft::deleteForNamespace('page.'.$page->getId());
             } elseif(!$errors['err'])
                 $errors['err'] = 'Unable to update page. Try again!';
             break;

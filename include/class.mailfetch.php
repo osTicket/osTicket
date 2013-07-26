@@ -19,6 +19,7 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.email.php');
 require_once(INCLUDE_DIR.'class.filter.php');
+require_once(INCLUDE_DIR.'html2text.php');
 
 class MailFetcher {
 
@@ -377,13 +378,17 @@ class MailFetcher {
                 $filename = $this->findFilename($part->parameters);
             }
 
+            $content_id = ($part->ifid)
+                ? rtrim(ltrim($part->id, '<'), '>') : false;
+
             if($filename) {
                 return array(
                         array(
                             'name'  => $this->mime_decode($filename),
                             'type'  => $this->getMimeType($part),
                             'encoding' => $part->encoding,
-                            'index' => ($index?$index:1)
+                            'index' => ($index?$index:1),
+                            'cid'   => $content_id,
                             )
                         );
             }
@@ -411,19 +416,27 @@ class MailFetcher {
     }
 
     function getBody($mid) {
+        global $cfg;
 
-        $body ='';
-        if ($body = $this->getPart($mid,'TEXT/PLAIN', $this->charset))
-            // The Content-Type was text/plain, so escape anything that
-            // looks like HTML
-            $body=Format::htmlchars($body);
-        elseif ($body = $this->getPart($mid,'TEXT/HTML', $this->charset)) {
+        if ($body = $this->getPart($mid,'TEXT/HTML', $this->charset)) {
             //Convert tags of interest before we striptags
-            $body=str_replace("</DIV><DIV>", "\n", $body);
-            $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
+            //$body=str_replace("</DIV><DIV>", "\n", $body);
+            //$body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
             $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
+            if (!$cfg->isHtmlThreadEnabled())
+                $body = convert_html_to_text($body);
         }
-
+        elseif ($body = $this->getPart($mid,'TEXT/PLAIN', $this->charset)) {
+            // Escape anything that looks like HTML chars since what's in
+            // the database will be considered HTML
+            // TODO: Consider the reverse of the above edits (replace \n
+            //       <br/>
+            $body=Format::htmlchars($body);
+            if ($cfg->isHtmlThreadEnabled()) {
+                $body = wordwrap($body, 90);
+                $body = "<div style=\"white-space:pre\">$body</div>";
+            }
+        }
         return $body;
     }
 
@@ -464,7 +477,34 @@ class MailFetcher {
         $errors=array();
         $seen = false;
 
-        if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
+        // Fetch attachments if any.
+        if($ost->getConfig()->allowEmailAttachments()
+                && ($struct = imap_fetchstructure($this->mbox, $mid))
+                && ($attachments=$this->getAttachments($struct))) {
+
+            $vars['attachments'] = array();
+            foreach($attachments as $a ) {
+                $file = array('name' => $a['name'], 'type' => $a['type']);
+
+                //Check the file  type
+                if(!$ost->isFileTypeAllowed($file)) {
+                    $file['error'] = 'Invalid file type (ext) for '.Format::htmlchars($file['name']);
+                }
+                else {
+                    // only fetch the body if necessary
+                    $self = $this;
+                    $file['data'] = function() use ($self, $mid, $a) {
+                        return $self->decode(imap_fetchbody($self->mbox,
+                            $mid, $a['index']), $a['encoding']);
+                    };
+                }
+                // Include the Content-Id if specified (for inline images)
+                $file['cid'] = isset($a['cid']) ? $a['cid'] : false;
+                $vars['attachments'][] = $file;
+            }
+        }
+
+        if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
                 && ($message = $thread->postEmail($vars))) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
@@ -492,25 +532,6 @@ class MailFetcher {
 
             //TODO: Log error..
             return null;
-        }
-
-        //Save attachments if any.
-        if($message
-                && $ost->getConfig()->allowEmailAttachments()
-                && ($struct = imap_fetchstructure($this->mbox, $mid))
-                && ($attachments=$this->getAttachments($struct))) {
-
-            foreach($attachments as $a ) {
-                $file = array('name'  => $a['name'], 'type'  => $a['type']);
-
-                //Check the file  type
-                if(!$ost->isFileTypeAllowed($file))
-                    $file['error'] = 'Invalid file type (ext) for '.Format::htmlchars($file['name']);
-                else //only fetch the body if necessary TODO: Make it a callback.
-                    $file['data'] = $this->decode(imap_fetchbody($this->mbox, $mid, $a['index']), $a['encoding']);
-
-                $message->importAttachment($file);
-            }
         }
 
         return $ticket;
@@ -603,9 +624,9 @@ class MailFetcher {
         while(list($emailId, $errors)=db_fetch_row($res)) {
             $fetcher = new MailFetcher($emailId);
             if($fetcher->connect()) {
+                db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=0, mail_lastfetch=NOW() WHERE email_id='.db_input($emailId));
                 $fetcher->fetchEmails();
                 $fetcher->close();
-                db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=0, mail_lastfetch=NOW() WHERE email_id='.db_input($emailId));
             } else {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=mail_errors+1, mail_lasterror=NOW() WHERE email_id='.db_input($emailId));
                 if(++$errors>=$MAXERRORS) {

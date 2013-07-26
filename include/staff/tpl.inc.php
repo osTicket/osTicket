@@ -27,7 +27,7 @@ if (is_a($template, EmailTemplateGroup)) {
     $action = 'updatetpl';
     $extras = array();
     $msgtemplates=$template->getGroup()->all_names;
-    $info=array_merge(array('subject'=>$template->getSubject(), 'body'=>$template->getBody()),$info);
+    $info=array_merge(array('subject'=>$template->getSubject(), 'body'=>$template->getBodyWithImages()),$info);
 }
 $tpl=$msgtemplates[$selected];
 
@@ -58,7 +58,7 @@ $tpl=$msgtemplates[$selected];
     &nbsp;&nbsp;&nbsp;<font color="red"><?php echo $errors['tpl']; ?></font>
     </form>
 </div>
-<form action="templates.php?id=<?php echo $id; ?>" method="post" id="save">
+<form action="templates.php?id=<?php echo $id; ?>&amp;a=manage" method="post" id="save">
 <?php csrf_token(); ?>
 <?php foreach ($extras as $k=>$v) { ?>
     <input type="hidden" name="<?php echo $k; ?>" value="<?php echo $v; ?>" />
@@ -85,15 +85,21 @@ $tpl=$msgtemplates[$selected];
         </tr>
         <tr>
             <td colspan="2">
-                <strong>Message Body:</strong> <em>Email message body.</em> <font class="error">*&nbsp;<?php echo $errors['body']; ?></font><br>
-                <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft" ><?php echo $info['body']; ?></textarea>
+                <div style="margin-bottom:0.5em;margin-top:0.5em">
+                <strong>Message Body:</strong> <em>Email message body.</em> <font class="error">*&nbsp;<?php echo $errors['body']; ?></font>
+                </div>
+                <input type="hidden" name="draft_id" value=""/>
+                <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
+                    class="richtext draft" data-draft-namespace="tpl.<?php echo $selected; ?>"
+                    data-draft-object-id="<?php echo $tpl_id; ?>"><?php echo $info['body']; ?></textarea>
             </td>
         </tr>
     </tbody>
 </table>
 <p style="padding-left:210px;">
     <input class="button" type="submit" name="submit" value="Save Changes">
-    <input class="button" type="reset" name="reset" value="Reset Changes">
+    <input class="button" type="reset" name="reset" value="Reset Changes" onclick="javascript:
+        setTimeout('location.reload()', 25);" />
     <input class="button" type="button" name="cancel" value="Cancel Changes"
         onclick='window.location.href="templates.php?tpl_id=<?php echo $tpl_id; ?>"'>
 </p>

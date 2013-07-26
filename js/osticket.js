@@ -51,10 +51,37 @@ $(document).ready(function(){
 
     jQuery.fn.exists = function() { return this.length>0; };
 
-    var getConfig = (function() {
+    //Add CSRF token to the ajax requests.
+    // Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ + jared.
+    $(document).ajaxSend(function(event, xhr, settings) {
+
+        function sameOrigin(url) {
+            // url could be relative or scheme relative or absolute
+            var host = document.location.host; // host + port
+            var protocol = document.location.protocol;
+            var sr_origin = '//' + host;
+            var origin = protocol + sr_origin;
+            // Allow absolute or scheme relative URLs to same origin
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                // or any other URL that isn't scheme relative or absolute i.e
+                // relative.
+                !(/^(\/\/|http:|https:).*/.test(url));
+        }
+
+        function safeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+            xhr.setRequestHeader("X-CSRFToken", $("meta[name=csrf_token]").attr("content"));
+        }
+
+    });
+
+    getConfig = (function() {
         var dfd = $.Deferred();
         return function() {
-            if (!dfd.isResolved())
+            if (dfd.state() != 'resolved')
                 $.ajax({
                     url: "ajax.php/config/client",
                     dataType: 'json',
@@ -80,3 +107,28 @@ $(document).ready(function(){
         });
     }
 });
+
+showImagesInline = function(urls, thread_id) {
+    var selector = (thread_id == undefined)
+        ? '.thread-body img[src^=cid]'
+        : '.thread-body#thread-id-'+thread_id+' img[src^=cid]';
+    $(selector).each(function(i, el) {
+        var hash = $(el).attr('src').slice(4),
+            info = urls[hash],
+            e = $(el);
+        if (info && e.attr('src') == 'cid:' + hash) {
+            e.attr('src', info.url);
+            // Add a hover effect with the filename
+            var caption = $('<div class="image-hover">')
+                .hover(
+                    function() { $(this).find('.caption').slideDown(250); },
+                    function() { $(this).find('.caption').slideUp(250); }
+                ).append($('<div class="caption">')
+                    .append('<span class="filename">'+info.filename+'</span>')
+                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
+                )
+            caption.appendTo(e.parent())
+            e.appendTo(caption);
+        }
+    });
+}

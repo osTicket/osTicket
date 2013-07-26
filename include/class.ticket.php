@@ -752,8 +752,8 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'],
-                $msg['body'], null, $options);
+            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
+                null, $options);
         }
 
         if(!($email=$cfg->getAlertEmail()))
@@ -1004,7 +1004,8 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace("%{recipient}", $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
+                    null);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1327,6 +1328,7 @@ class Ticket {
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
+            $attachments = $message->getAttachments();
             $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
             //Build list of recipients and fire the alerts.
@@ -1350,7 +1352,7 @@ class Ticket {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
                 $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
-                    null, $options);
+                    $attachments, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1365,7 +1367,7 @@ class Ticket {
             return false;
 
         $files = array();
-        foreach ($canned->getAttachments() as $file)
+        foreach ($canned->attachments->getAll() as $file)
             $files[] = $file['id'];
 
         $info = array('msgId' => $msgId,
@@ -1396,13 +1398,14 @@ class Ticket {
             else
                 $signature='';
 
+            $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
+
             $msg = $this->replaceVars($msg->asArray(),
                 array('response' => $response, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
             $options = array('references' => $response->getEmailMessageId());
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
@@ -1452,14 +1455,15 @@ class Ticket {
             else
                 $signature='';
 
+            //Set attachments if emailing.
+            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
+
             $msg = $this->replaceVars($msg->asArray(),
                     array('response' => $response, 'signature' => $signature, 'staff' => $thisstaff));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            //Set attachments if emailing.
-            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             $options = array('references' => $response->getEmailMessageId());
             //TODO: setup  5 param (options... e.g mid trackable on replies)
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
@@ -1553,6 +1557,8 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
 
+            $attachments = $note->getAttachments();
+
             $msg = $this->replaceVars($msg->asArray(),
                 array('note' => $note));
 
@@ -1571,7 +1577,6 @@ class Ticket {
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
                 $recipients[]=$dept->getManager();
 
-            $attachments = $note->getAttachments();
             $options = array('references' => $note->getEmailMessageId());
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
@@ -2144,13 +2149,14 @@ class Ticket {
             else
                 $signature='';
 
+            $attachments =($cfg->emailAttachments() && $response)?$response->getAttachments():array();
+
             $msg = $ticket->replaceVars($msg->asArray(),
                     array('message' => $message, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $attachments =($cfg->emailAttachments() && $response)?$response->getAttachments():array();
             $references = $ticket->getLastMessage()->getEmailMessageId();
             if (isset($response))
                 $references = array($response->getEmailMessageId(), $references);

@@ -17,6 +17,7 @@
 **********************************************************************/
 
 include_once(INCLUDE_DIR.'class.email.php');
+require_once(INCLUDE_DIR.'html2text.php');
 
 class Mailer {
 
@@ -94,11 +95,9 @@ class Mailer {
         //do some cleanup
         $to = preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
-        //We're decoding html entities here becasuse we only support plain text for now - html support comming.
-        $body = Format::htmldecode(preg_replace("/(\r\n|\r)/s", "\n", trim($message)));
 
         /* Message ID - generated for each outgoing email */
-        $messageId = sprintf('<%s%d-%s>', Misc::randCode(6), time(),
+        $messageId = sprintf('<%s-%s>', Misc::randCode(16),
                 ($this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer'));
 
         $headers = array (
@@ -136,12 +135,40 @@ class Mailer {
         }
 
         $mime = new Mail_mime();
-        $mime->setTXTBody($body);
+
+        // Make sure nothing unsafe has creeped into the message
+        $message = Format::safe_html($message);
+        $mime->setTXTBody(convert_html_to_text($message));
+
+        $domain = 'local';
+        if ($ost->getConfig()->isHtmlThreadEnabled()) {
+            // TODO: Lookup helpdesk domain
+            $domain = substr(md5($ost->getConfig()->getURL()), -12);
+            // Format content-ids with the domain, and add the inline images
+            // to the email attachment list
+            $self = $this;
+            $message = preg_replace_callback('/cid:([\w.-]{32})/',
+                function($match) use ($domain, $mime, $self) {
+                    if (!($file = AttachmentFile::lookup($match[1])))
+                        return $match[0];
+                    $mime->addHTMLImage($file->getData(),
+                        $file->getType(), $file->getName(), false,
+                        $file->getHash().'@'.$domain);
+                    // Don't re-attach the image below
+                    unset($self->attachments[$file->getId()]);
+                    return $match[0].'@'.$domain;
+                }, $message);
+            // Add an HTML body
+            $mime->setHTMLBody($message);
+        }
         //XXX: Attachments
         if(($attachments=$this->getAttachments())) {
             foreach($attachments as $attachment) {
-                if($attachment['file_id'] && ($file=AttachmentFile::lookup($attachment['file_id'])))
-                    $mime->addAttachment($file->getData(),$file->getType(), $file->getName(),false);
+                if ($attachment['file_id']
+                        && ($file=AttachmentFile::lookup($attachment['file_id']))) {
+                    $mime->addAttachment($file->getData(),
+                        $file->getType(), $file->getName(),false);
+                }
                 elseif($attachment['file'] &&  file_exists($attachment['file']) && is_readable($attachment['file']))
                     $mime->addAttachment($attachment['file'],$attachment['type'],$attachment['name']);
             }

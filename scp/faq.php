@@ -28,9 +28,11 @@ if($_POST):
     switch(strtolower($_POST['do'])) {
         case 'create':
         case 'add':
-            if(($faq=FAQ::add($_POST,$errors)))
+            if(($faq=FAQ::add($_POST,$errors))) {
                 $msg='FAQ added successfully';
-            elseif(!$errors['err'])
+                // Delete draft for this new faq
+                Draft::deleteForNamespace('faq', $thisstaff->getId());
+            } elseif(!$errors['err'])
                 $errors['err'] = 'Unable to add FAQ. Try again!';
         break;
         case 'update':
@@ -41,8 +43,10 @@ if($_POST):
                 $msg='FAQ updated successfully';
                 $_REQUEST['a']=null; //Go back to view
                 $faq->reload();
+                // Delete pending draft updates for this faq (for ALL users)
+                Draft::deleteForNamespace('faq.'.$faq->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = 'Unable to update FAQ. Try again!';     
+                $errors['err'] = 'Unable to update FAQ. Try again!';
             break;
         case 'manage-faq':
             if(!$faq) {
@@ -80,7 +84,7 @@ if($_POST):
             break;
         default:
             $errors['err']='Unknown action';
-    
+
     }
 endif;
 

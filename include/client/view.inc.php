@@ -73,11 +73,16 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         ?>
         <table class="<?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><?php echo Format::db_datetime($entry['created']); ?> &nbsp;&nbsp;<span><?php echo $poster; ?></span></th></tr>
-            <tr><td><?php echo Format::display($entry['body']); ?></td></tr>
+            <tr><td class="thread-body"><?php echo Format::display($entry['body']); ?></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
+                    && ($urls = $tentry->getAttachmentUrls())
                     && ($links=$tentry->getAttachmentsLinks())) { ?>
+                <script type="text/javascript">
+                    $(function() { showImagesInline(<?php echo
+                        JsonDataEncoder::encode($urls); ?>); });
+                </script>
                 <tr><td class="info"><?php echo $links; ?></td></tr>
             <?php
             } ?>
@@ -113,8 +118,12 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                     $msg='To best assist you, please be specific and detailed';
                 }
                 ?>
-                <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font><br/>
-                <textarea name="message" id="message" cols="50" rows="9" wrap="soft"><?php echo $info['message']; ?></textarea>
+                <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
+                <br/>
+                <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
+                    data-draft-namespace="ticket.client"
+                    data-draft-object-id="<?php echo $ticket->getExtId(); ?>"
+                    class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
             </td>
         </tr>
         <?php

@@ -60,10 +60,11 @@ class Bootstrap {
         define('CONFIG_TABLE',$prefix.'config');
 
         define('CANNED_TABLE',$prefix.'canned_response');
-        define('CANNED_ATTACHMENT_TABLE',$prefix.'canned_attachment');
         define('PAGE_TABLE', $prefix.'page');
         define('FILE_TABLE',$prefix.'file');
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
+
+        define('ATTACHMENT_TABLE',$prefix.'attachment');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');
@@ -73,10 +74,10 @@ class Bootstrap {
         define('GROUP_DEPT_TABLE', $prefix.'group_dept_access');
 
         define('FAQ_TABLE',$prefix.'faq');
-        define('FAQ_ATTACHMENT_TABLE',$prefix.'faq_attachment');
         define('FAQ_TOPIC_TABLE',$prefix.'faq_topic');
         define('FAQ_CATEGORY_TABLE',$prefix.'faq_category');
 
+        define('DRAFT_TABLE',$prefix.'draft');
         define('TICKET_TABLE',$prefix.'ticket');
         define('TICKET_THREAD_TABLE',$prefix.'ticket_thread');
         define('TICKET_ATTACHMENT_TABLE',$prefix.'ticket_attachment');

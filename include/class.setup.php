@@ -17,8 +17,8 @@
 Class SetupWizard {
 
     //Mimimum requirements
-    var $prereq = array('php'   => '4.3',
-                        'mysql' => '4.4');
+    var $prereq = array('php'   => '5.3',
+                        'mysql' => '5.0');
 
     //Version info - same as the latest version.
 
@@ -88,7 +88,7 @@ Class SetupWizard {
     }
 
     function check_mysql() {
-        return (extension_loaded('mysql'));
+        return (extension_loaded('mysqli'));
     }
 
     function check_prereq() {

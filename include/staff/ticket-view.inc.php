@@ -335,19 +335,27 @@ if(!$cfg->showNotesInline()) { ?>
            if ($entry['body'] == '-')
                $entry['body'] = '(EMPTY)';
            ?>
-        <table class="<?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
+        <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
-                <th width="200"><?php echo Format::db_datetime($entry['created']);?></th>
+                <th width="auto"><?php echo Format::db_datetime($entry['created']);?></th>
                 <th width="440"><span><?php echo $entry['title']; ?></span></th>
-                <th width="300" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th>
+                <th width="auto" class="textra" style="text-align:right"></th>
+                <th width="auto" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th>
             </tr>
-            <tr><td colspan=3><?php echo Format::display($entry['body']); ?></td></tr>
+            <tr><td colspan="4" class="thread-body" id="thread-id-<?php
+                echo $entry['id']; ?>"><?php
+                echo Format::viewableImages(Format::display($entry['body'])); ?></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
+                    && ($urls = $tentry->getAttachmentUrls())
                     && ($links=$tentry->getAttachmentsLinks())) {?>
             <tr>
-                <td class="info" colspan=3><?php echo $links; ?></td>
+                <td class="info" colspan="4"><?php echo $links; ?></td>
+                <script type="text/javascript">
+                    $(function() { showImagesInline(<?php echo
+                        JsonDataEncoder::encode($urls); ?>); });
+                </script>
             </tr>
             <?php
             }?>
@@ -370,7 +378,7 @@ if(!$cfg->showNotesInline()) { ?>
 <?php } ?>
 
 <div id="response_options">
-    <ul>
+    <ul class="tabs">
         <?php
         if($thisstaff->canPostReply()) { ?>
         <li><a id="reply_tab" href="#reply">Post Reply</a></li>
@@ -438,7 +446,13 @@ if(!$cfg->showNotesInline()) { ?>
                         <br>
                     <?php
                     }?>
-                    <textarea name="response" id="response" cols="50" rows="9" wrap="soft"><?php echo $info['response']; ?></textarea>
+                    <input type="hidden" name="draft_id" value=""/>
+                    <textarea name="response" id="response" cols="50"
+                        data-draft-namespace="ticket.response"
+                        data-draft-object-id="<?php echo $ticket->getId(); ?>"
+                        rows="9" wrap="soft"
+                        class="richtext ifhtml draft"><?php
+                        echo $info['response']; ?></textarea>
                 </td>
             </tr>
             <?php
@@ -534,8 +548,13 @@ if(!$cfg->showNotesInline()) { ?>
                 </td>
                 <td width="765">
                     <div><span class="faded">Note details</span>&nbsp;
-                        <span class="error">*&nbsp;<?php echo $errors['note']; ?></span></div>
-                    <textarea name="note" id="internal_note" cols="80" rows="9" wrap="soft"><?php echo $info['note']; ?></textarea><br>
+                        <span class="error">*&nbsp;<?php echo $errors['note']; ?></span>
+                    </div>
+                    <textarea name="note" id="internal_note" cols="80"
+                        rows="9" wrap="soft" data-draft-namespace="ticket.note"
+                        data-draft-object-id="<?php echo $ticket->getId(); ?>"
+                        class="richtext ifhtml draft"><?php echo $info['note'];
+                        ?></textarea><br>
                     <div>
                         <span class="faded">Note title - summary of the note (optional)</span>&nbsp;
                         <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
@@ -665,7 +684,8 @@ if(!$cfg->showNotesInline()) { ?>
                     <span class="faded">Enter reasons for the transfer.</span>
                     <span class="error">*&nbsp;<?php echo $errors['transfer_comments']; ?></span><br>
                     <textarea name="transfer_comments" id="transfer_comments"
-                        cols="80" rows="7" wrap="soft"><?php echo $info['transfer_comments']; ?></textarea>
+                        class="richtext ifhtml no-bar" cols="80" rows="7" wrap="soft"><?php
+                        echo $info['transfer_comments']; ?></textarea>
                 </td>
             </tr>
         </table>
@@ -752,7 +772,8 @@ if(!$cfg->showNotesInline()) { ?>
                 <td width="765">
                     <span class="faded">Enter reasons for the assignment or instructions for assignee.</span>
                     <span class="error">*&nbsp;<?php echo $errors['assign_comments']; ?></span><br>
-                    <textarea name="assign_comments" id="assign_comments" cols="80" rows="7" wrap="soft"><?php echo $info['assign_comments']; ?></textarea>
+                    <textarea name="assign_comments" id="assign_comments" cols="80" rows="7" wrap="soft"
+                        class="richtext ifhtml no-bar"><?php echo $info['assign_comments']; ?></textarea>
                 </td>
             </tr>
         </table>
@@ -814,8 +835,12 @@ if(!$cfg->showNotesInline()) { ?>
         <input type="hidden" name="a" value="process">
         <input type="hidden" name="do" value="<?php echo $ticket->isClosed()?'reopen':'close'; ?>">
         <fieldset>
-            <em>Reasons for status change (internal note). Optional but highly recommended.</em><br>
-            <textarea name="ticket_status_notes" id="ticket_status_notes" cols="50" rows="5" wrap="soft"><?php echo $info['ticket_status_notes']; ?></textarea>
+            <div style="margin-bottom:0.5em">
+            <em>Reasons for status change (internal note). Optional but highly recommended.</em>
+            </div>
+            <textarea name="ticket_status_notes" id="ticket_status_notes" cols="50" rows="5" wrap="soft"
+                style="width:100%"
+                class="richtext ifhtml no-bar"><?php echo $info['ticket_status_notes']; ?></textarea>
         </fieldset>
         <hr style="margin-top:1em"/>
         <p class="full-width">

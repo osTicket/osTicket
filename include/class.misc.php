@@ -17,7 +17,7 @@ class Misc {
 
 	function randCode($count=8, $chars=false) {
         $chars = $chars ? $chars
-            : 'abcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            : 'abcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.';
         $data = '';
         $m = strlen($chars) - 1;
         for ($i=0; $i < $count; $i++)

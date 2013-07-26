@@ -406,7 +406,6 @@ class Staff {
 
         $vars['firstname']=Format::striptags($vars['firstname']);
         $vars['lastname']=Format::striptags($vars['lastname']);
-        $vars['signature']=Format::striptags($vars['signature']);
 
         if($this->getId()!=$vars['id'])
             $errors['err']='Internal Error';
@@ -472,7 +471,7 @@ class Staff {
             .' ,phone="'.db_input(Format::phone($vars['phone']),false).'"'
             .' ,phone_ext='.db_input($vars['phone_ext'])
             .' ,mobile="'.db_input(Format::phone($vars['mobile']),false).'"'
-            .' ,signature='.db_input($vars['signature'])
+            .' ,signature='.db_input(Format::sanitize($vars['signature']))
             .' ,timezone_id='.db_input($vars['timezone_id'])
             .' ,daylight_saving='.db_input(isset($vars['daylight_saving'])?1:0)
             .' ,show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0)
@@ -707,6 +706,7 @@ class Staff {
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'token' => $token,
+            'staff' => $this,
             'reset_link' => sprintf(
                 "%s/scp/pwreset.php?token=%s",
                 $ost->getConfig()->getBaseUrl(),
@@ -732,7 +732,6 @@ class Staff {
         $vars['username']=Format::striptags($vars['username']);
         $vars['firstname']=Format::striptags($vars['firstname']);
         $vars['lastname']=Format::striptags($vars['lastname']);
-        $vars['signature']=Format::striptags($vars['signature']);
 
         if($id && $id!=$vars['id'])
             $errors['err']='Internal Error';
@@ -801,8 +800,8 @@ class Staff {
             .' ,phone="'.db_input(Format::phone($vars['phone']),false).'"'
             .' ,phone_ext='.db_input($vars['phone_ext'])
             .' ,mobile="'.db_input(Format::phone($vars['mobile']),false).'"'
-            .' ,signature='.db_input($vars['signature'])
-            .' ,notes='.db_input($vars['notes']);
+            .' ,signature='.db_input(Format::sanitize($vars['signature']))
+            .' ,notes='.db_input(Format::sanitize($vars['notes']));
 
         if($vars['passwd1']) {
             $sql.=' ,passwd='.db_input(Passwd::hash($vars['passwd1']));

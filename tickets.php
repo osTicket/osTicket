@@ -17,6 +17,7 @@
 require('secure.inc.php');
 if(!is_object($thisclient) || !$thisclient->isValid()) die('Access denied'); //Double check again.
 require_once(INCLUDE_DIR.'class.ticket.php');
+require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
 if($_REQUEST['id']) {
     if(!($ticket=Ticket::lookupByExtId($_REQUEST['id']))) {
@@ -43,9 +44,14 @@ if($_POST && is_object($ticket) && $ticket->getId()):
             $vars = array('message'=>$_POST['message']);
             if($cfg->allowOnlineAttachments() && $_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
+            if (isset($_POST['draft_id']))
+                $vars['draft_id'] = $_POST['draft_id'];
 
             if(($msgid=$ticket->postMessage($vars, 'Web'))) {
                 $msg='Message Posted Successfully';
+                // Cleanup drafts for the ticket. If not closed, only clean
+                // for this staff. Else clean all drafts for the ticket.
+                Draft::deleteForNamespace('ticket.client.' . $ticket->getExtId());
             } else {
                 $errors['err']='Unable to post the message. Try again';
             }

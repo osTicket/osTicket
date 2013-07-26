@@ -51,6 +51,7 @@ class Internationalization {
             'team.yaml' =>          'Team', # notrans
             // Note that group requires department
             'group.yaml' =>         'Group', # notrans
+            'file.yaml' =>          'AttachmentFile', # notrans
         );
 
         $errors = array();

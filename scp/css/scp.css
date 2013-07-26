@@ -727,7 +727,9 @@ h2 .reload {
     background:url(../images/icons/note.gif) 10px 50% no-repeat;
 }
 
-#ticket_thread table {
+#ticket_thread table.message,
+#ticket_thread table.response,
+#ticket_thread table.note {
     margin-top:10px;
     border:1px solid #aaa;
     border-bottom:2px solid #aaa;
@@ -782,19 +784,19 @@ h2 .reload {
     padding-left:5px;
 }
 
-#ticket_thread .message th {
+#ticket_thread > .message th {
     background:#C3D9FF;
 }
 
-#ticket_thread .response th {
+#ticket_thread > .response th {
     background:#FFE0B3;
 }
 
-#ticket_thread .note th {
+#ticket_thread > .note th {
     background:#FFE;
 }
 
-#ticket_thread table td, #ticket_notes table td {
+#ticket_notes table td {
     padding:5px;
 }
 
@@ -817,11 +819,11 @@ h2 .reload {
     margin-top:30px;
 }
 
-#response_options form {
+#response_options > form {
     padding:0 10px;
 }
 
-#response_options ul {
+#response_options ul.tabs {
     padding:4px 0 0 190px;
     margin:0;
     text-align:center;
@@ -830,14 +832,14 @@ h2 .reload {
     background:#eef3f8;
 }
 
-#response_options li {
+#response_options ul.tabs li {
     margin:0;
     padding:0;
     display:inline;
     list-style:none;
 }
 
-#response_options li a {
+#response_options ul.tabs li a {
     width:130px;
     font-weight:bold;
     padding:5px;
@@ -861,7 +863,7 @@ h2 .reload {
     background-repeat:no-repeat;
 }
 
-#response_options li a.active {
+#response_options ul.tabs li a.active {
     height:18px;
     color:#184E81;
     background-color:#f9f9f9;
@@ -870,18 +872,18 @@ h2 .reload {
     border-bottom:none;
 }
 
-#response_options form {
+#response_options > form {
     padding:10px 5px;
     background:#f9f9f9;
     border:1px solid #aaa;
     border-top:none;
 }
 
-#response_options table {
+#response_options > table {
     width:928px;
 }
 
-#response_options td {
+#response_options > table td {
     vertical-align:top;
 }
 
@@ -889,7 +891,7 @@ h2 .reload {
     width:760px !important;
 }
 
-#response_options input[type=text], #response_options textarea {
+#response_options input[type=text], #response_options textarea:not(.richtext) {
     border:1px solid #aaa;
     background:#fff;
 }
@@ -1190,10 +1192,16 @@ time {
     width:500px;
     height:250px;
     height:auto !important;
-    background:#fff;
-    border:1px solid #2a67ac;
+    background:#f8f8f8;
+    border:2px solid #2a67ac;
     display:none;
     z-index:1200;
+    box-shadow: 0 5px 60px #001;
+    border-radius: 5px;
+}
+
+.redactor_air {
+    z-index: 1201 !important;
 }
 
 .dialog#advanced-search {
@@ -1404,3 +1412,46 @@ ul.progress li.no small {color:red;}
 
 #loading h4, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
 
+/* Inline image hovering with download link */
+.image-hover {
+    display: inline-block;
+    position: relative;
+}
+.image-hover .caption {
+    background-color: rgba(0,0,0,0.5);
+    min-width: 20em;
+    color: white;
+    padding: 1em;
+    display: none;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+.image-hover .caption .filename {
+    display: inline-block;
+    max-width: 60%;
+    overflow: hidden;
+}
+
+.thread-body img:not(.optional) {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+}
+
+.non-local-image {
+    display: inline-block;
+}
+
+.non-local-image:after {
+    background: url(../images/ost-logo.png) center center no-repeat;
+    background-size: cover;
+    content: "";
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0.3;
+}
