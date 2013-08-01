@@ -26,9 +26,44 @@ define('CRYPT_PHPSECLIB', 3);
 require_once PEAR_DIR.'Crypt/Hash.php';
 require_once PEAR_DIR.'Crypt/Random.php';
 
+/**
+ * Class: Crypto
+ *
+ * Pluggable encryption/decryption utility which allows for automatic
+ * algorithm detection of encrypted data as well as automatic upgrading (on
+ * encrypt()) of existing data.
+ *
+ * The utility makes use of a subkey tecnhique where the master key used to
+ * encrypt and decrypt data is not used by itself the encrypt the data.
+ * Another key, called the subkey, is mixed with the master key to generate
+ * the key used to perform the encryption. This means that the same key is
+ * not used to encrypt all data stored in the database.
+ *
+ * The encryption process will select a library to perform the low-level
+ * encryption automatically based on the PHP extensions currently available.
+ * Therefore, the best encryption library, algorithm, and configuration will
+ * be used to perform the encryption.
+ */
 class Crypto {
 
-
+    /**
+     * Encrypt data using two keys. The first key is considered a 'Master
+     * Key' which might be used to encrypt different kinds of data in your
+     * system. Using a subkey allows the master key to be reused in a way
+     * that two encrypted messages can be encrypted with the same master key
+     * but have different namespaces as it were. It allows various parts of
+     * the application to encrypt things using a common master key that are
+     * not recoverable by other parts of the application.
+     *
+     * Parameters:
+     * input - (string) text subject that is to be encrypted
+     * key - (string) master key used for the encryption
+     * skey - (string:optional) sub-key or namespace of the encryption
+     *      context
+     * crypt - (int:optional) Cryto tag id used for the encryption. This
+     *      is only really useful for testing. The crypto library will be
+     *      automatically selected based on the available PHP extensions.
+     */
     function encrypt($input, $key, $skey='encryption', $crypt=null) {
 
         //Gets preffered crypto.
@@ -44,6 +79,17 @@ class Crypto {
         return sprintf('$%d$%s', $crypto->getTagNumber(), $ciphertext);
     }
 
+    /**
+     * Decrypt data originally returned from ::encrypt() using the two keys
+     * that were originially passed into the ::encrypt() method.
+     *
+     * Parameters:
+     * ciphertext - (string<binary>) Unencoded data returned from the
+     *      ::encrypt() method
+     * key - (string) master key used for the encryption originally
+     * skey - (string_ sub key or namespace used originally for the
+     *      encryption
+     */
     function decrypt($ciphertext, $key, $skey='encryption') {
 
         if(!preg_match('/^\\$(\d)\\$(.*)/', $ciphertext, $result))
@@ -112,6 +158,18 @@ class Crypto {
     }
 }
 
+/**
+ * Class: CryptoAlgo
+ *
+ * Abstract cryptographic library implementation. This class is intended to
+ * be extended and implemented for a particular PHP extension, such as
+ * mcrypt, openssl, etc.
+ *
+ * The class implies but does not define abstract methods for encrypt() and
+ * decrypt() which will perform the respective operations on the text
+ * subjects using a specific library.
+ */
+/* abstract */
 class CryptoAlgo {
 
     var $master_key;
@@ -140,15 +198,44 @@ class CryptoAlgo {
         $this->sub_key = $sub;
     }
 
+    /**
+     * Function: getKeyHash
+     *
+     * Utility function to retrieve the encryption key used by the
+     * encryption algorithm based on the master key, the sub-key, and some
+     * know, random seed. The hash returned should be used as the binary key
+     * for the encryption algorithm.
+     *
+     * Parameters:
+     * seed - (string) third-level seed for the encryption key. This will
+     *      likely an IV or salt value
+     */
     function getKeyHash($seed) {
 
         $hash = Crypto::hash($this->getMasterKey().md5($this->getSubKey()), $seed);
         return $seed? substr($hash, 0, strlen($seed)) : $hash;
     }
+
+    /**
+     * Determines if the library used to implement encryption is currently
+     * available and supported. This method is abstract and should be
+     * defined in extension classes.
+     */
+    /* abstract */
+    function exists() { return false; }
 }
 
 define('CRYPTO_CIPHER_MCRYPT_RIJNDAEL_128', 1);
 
+/**
+ * Class: CryptoMcrypt
+ *
+ * Mcrypt library encryption implementation. This allows for encrypting and
+ * decrypting text using the php_mcrypt extension.
+ *
+ * NOTE: Don't instanciate this class directly. Use Crypt::encrypt() and
+ * Crypt::decrypt() to encrypt data.
+ */
 Class CryptoMcrypt extends CryptoAlgo {
 
     var $ciphers = array(
@@ -164,6 +251,15 @@ Class CryptoMcrypt extends CryptoAlgo {
             ? $this->ciphers[$id] : null;
     }
 
+    /**
+     * Encrypt clear-text data using the mycrpt library. Optionally, a
+     * configuration tag-id can be passed as the second parameter to specify
+     * the actual encryption algorithm to be used.
+     *
+     * Parameters:
+     * text - (string) clear text subject to be encrypted
+     * cid - (int) encryption configuration to be used. @see $this->ciphers
+     */
     function encrypt($text, $cid=CRYPTO_CIPHER_MCRYPT_RIJNDAEL_128) {
 
         if(!$this->exists() || !$text || !($cipher=$this->getCipher($cid)))
@@ -188,6 +284,14 @@ Class CryptoMcrypt extends CryptoAlgo {
         return sprintf('$%s$%s', $cid, $ciphertext);
     }
 
+    /**
+     * Recover text that was originally encrypted using this library with
+     * the ::encrypt() method.
+     *
+     * Parameters:
+     * text - (string<binary>) Unencoded, binary string which is the result
+     *      of the ::encrypt() method.
+     */
     function decrypt($ciphertext) {
 
          if(!$this->exists() || !$ciphertext)
@@ -229,6 +333,15 @@ Class CryptoMcrypt extends CryptoAlgo {
 
 define('CRYPTO_CIPHER_OPENSSL_AES_128_CBC', 1);
 
+/**
+ * Class: CryptoOpenSSL
+ *
+ * OpenSSL library encryption implementation. This allows for encrypting and
+ * decrypting text using the php_openssl extension.
+ *
+ * NOTE: Don't instanciate this class directly. Use Crypt::encrypt() and
+ * Crypt::decrypt() to encrypt data.
+ */
 class CryptoOpenSSL extends CryptoAlgo {
 
     var $ciphers = array(
@@ -242,6 +355,15 @@ class CryptoOpenSSL extends CryptoAlgo {
             $this->ciphers[$cid]['method'] : null;
     }
 
+    /**
+     * Encrypt clear-text data using the openssl library. Optionally, a
+     * configuration tag-id can be passed as the second parameter to specify
+     * the actual encryption algorithm to be used.
+     *
+     * Parameters:
+     * text - (string) clear text subject to be encrypted
+     * cid - (int) encryption configuration to be used. @see $this->ciphers
+     */
     function encrypt($text, $cid=CRYPTO_CIPHER_OPENSSL_AES_128_CBC) {
 
         if(!$this->exists() || !$text || !($method=$this->getMethod($cid)))
@@ -257,6 +379,14 @@ class CryptoOpenSSL extends CryptoAlgo {
         return sprintf('$%s$%s%s', $cid, $iv, $ciphertext);
     }
 
+    /**
+     * Decrypt and recover text originally encrypted using the ::encrypt()
+     * method of this class.
+     *
+     * Parameters:
+     * text - (string<binary>) Unencoded, binary string which is the result
+     *      of the ::encrypt() method.
+     */
     function decrypt($ciphertext) {
 
 
@@ -289,28 +419,35 @@ class CryptoOpenSSL extends CryptoAlgo {
 require_once PEAR_DIR.'Crypt/AES.php';
 define('CRYPTO_CIPHER_PHPSECLIB_AES_CBC', 1);
 
+/**
+ * Class: CryptoPHPSecLib
+ *
+ * Pure PHP source library encryption implementation using phpseclib. This
+ * allows for encrypting and decrypting text when no compiled library is
+ * available for use.
+ *
+ * NOTE: Don't instanciate this class directly. Use Crypt::encrypt() and
+ * Crypt::decrypt() to encrypt data.
+ */
 class CryptoPHPSecLib extends CryptoAlgo {
     var $ciphers = array(
             CRYPTO_CIPHER_PHPSECLIB_AES_CBC => array(
                 'mode' => CRYPT_AES_MODE_CBC,
                 'ivlen' => 16,
+                'class' => 'Crypt_AES'
                 ),
             );
 
     function getCrypto($cid) {
 
-        if(!$cid || !isset($this->ciphers[$cid])
-                || !($cipher=$this->ciphers[$cid]))
-            return false;
+        if ($cid && isset($this->ciphers[$cid])
+                && ($cipher = $this->ciphers[$cid])
+                && ($class = $cipher['class']) 
+                && class_exists($class))
+            return new $class($cipher['mode']);
 
-        $crypto = null;
-        switch($cid) {
-            case CRYPTO_CIPHER_PHPSECLIB_AES_CBC:
-                $crypto = new Crypt_AES($cipher['mode']);
-                break;
-        }
-
-        return $crypto;
+        // else
+        return false;
     }
 
     function getIVLen($cid) {
