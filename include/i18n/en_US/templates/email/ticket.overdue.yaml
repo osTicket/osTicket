@@ -1,0 +1,29 @@
+#
+# Email template: ticket.overdue.yaml
+#
+# Sent to staff members when a ticket transitions to overdue in the system.
+# Overdue tickets occur based on the ticket's due-date as well as the SLA
+# defined for the ticket.
+#
+%YAML 1.0
+---
+notes: |
+    Sent to staff members when a ticket transitions to overdue in the system.
+    Overdue tickets occur based on the ticket's due-date as well as the SLA
+    defined for the ticket.
+
+subject: |
+    Stale Ticket Alert
+body: |
+    %{recipient},
+
+    A ticket, #%{ticket.number} assigned to you or in your department is
+    seriously overdue.
+
+    %{ticket.staff_link}
+
+    We should all work hard to guarantee that all tickets are being
+    addressed in a timely manner.
+
+    - Your friendly (although with limited patience) Support Ticket System -
+    powered by osTicket.

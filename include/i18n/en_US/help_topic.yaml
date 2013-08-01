@@ -1,0 +1,38 @@
+#
+# Default help topics installed for the system
+#
+# Fields:
+# id - (int:optional) id number in the database
+# topic - (string) descriptive name of the help topic
+# isactive - (bool:0|1) if the help topic should be initially usable
+# ispublic - (bool:0|1) true or false if end users should be able to see the
+#       help topic. In other words, true or false if the help topic is _not_
+#       for internal use only
+# noautoresp - (bool:0|1) true or false if the autoresponder should be
+#       disabled for tickets assigned to this help topic
+# dept_id - (int) id number of the department with which this help topic is
+#       associated
+# sla_id - (int:optional) id number of the sla with which this help topic is
+#       associated
+# notes - (string) administrative notes (internally viewable only)
+#
+---
+- isactive: 1
+  ispublic: 1
+  noautoresp: 0
+  dept_id: 1
+  sla_id: 1
+  priority_id: 2
+  topic: Support
+  notes: |
+    Tickets that primarily concern the support deparment
+
+- isactive: 1
+  ispublic: 1
+  noautoresp: 0
+  dept_id: 1
+  sla_id: 0
+  priority_id: 2
+  topic: Billing
+  notes: |
+    Tickets that primarily concern the sales and billing deparments

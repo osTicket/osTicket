@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR.'class.i18n.php';
 require_once INCLUDE_DIR.'class.yaml.php';
 
 class EmailTemplateGroup {
@@ -298,8 +299,8 @@ class EmailTemplateGroup {
         elseif(($tid=EmailTemplateGroup::getIdByName($vars['name'])) && $tid!=$id)
             $errors['name']='Template name already exists';
 
-        if(!$id && (!$vars['tpl_id'] || !($tpl=EmailTemplateGroup::lookup($vars['tpl_id']))))
-            $errors['tpl_id']='Selection required';
+        if(!$id && ($vars['tpl_id'] && !($tpl=EmailTemplateGroup::lookup($vars['tpl_id']))))
+            $errors['tpl_id']='Invalid template group specified';
 
         if($errors) return false;
 
@@ -315,7 +316,7 @@ class EmailTemplateGroup {
 
             $errors['err']='Unable to update the template. Internal error occurred';
 
-        } elseif($tpl && ($info=$tpl->getInfo())) {
+        } else {
 
             $sql='INSERT INTO '.EMAIL_TEMPLATE_GRP_TABLE
                 .' SET created=NOW(), '.$sql;
@@ -324,15 +325,18 @@ class EmailTemplateGroup {
                 return false;
             }
 
-            $sql='INSERT INTO '.EMAIL_TEMPLATE_TABLE.'
+            if ($tpl && ($info=$tpl->getInfo())) {
+                $sql='INSERT INTO '.EMAIL_TEMPLATE_TABLE.'
                     (created, updated, tpl_id, code_name, subject, body)
                     SELECT NOW() as created, NOW() as updated, '.db_input($new_id)
                     .' as tpl_id, code_name, subject, body
                     FROM '.EMAIL_TEMPLATE_TABLE
                     .' WHERE tpl_id='.db_input($tpl->getId());
 
-            if(db_query($sql) && db_insert_id())
-                return $new_id;
+                if(!db_query($sql) || !db_insert_id())
+                    return false;
+            }
+            return $new_id;
         }
 
         return false;
@@ -423,8 +427,8 @@ class EmailTemplate {
     }
 
     function save($id, $vars, &$errors) {
-        if(!$vars['subj'])
-            $errors['subj']='Message subject required';
+        if(!$vars['subject'])
+            $errors['subject']='Message subject required';
 
         if(!$vars['body'])
             $errors['body']='Message body required';
@@ -441,7 +445,7 @@ class EmailTemplate {
 
         if ($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() '
-                .', subject='.db_input($vars['subj'])
+                .', subject='.db_input($vars['subject'])
                 .', body='.db_input($vars['body'])
                 .' WHERE id='.db_input($this->getId());
 
@@ -450,7 +454,7 @@ class EmailTemplate {
             $sql='INSERT INTO '.EMAIL_TEMPLATE_TABLE.' SET created=NOW(),
                 updated=NOW(), tpl_id='.db_input($vars['tpl_id'])
                 .', code_name='.db_input($vars['code_name'])
-                .', subject='.db_input($vars['subj'])
+                .', subject='.db_input($vars['subject'])
                 .', body='.db_input($vars['body']);
             if (db_query($sql) && ($id=db_insert_id()))
                 return $id;
@@ -488,7 +492,10 @@ class EmailTemplate {
     function fromInitialData($name, $group=null) {
         $templ = new EmailTemplate(0, $group);
         $lang = ($group) ? $group->getLanguage() : 'en_US';
-        $info = YamlDataParser::load(I18N_DIR . "$lang/templates/$name.yaml");
+        $i18n = new Internationalization($lang);
+        if ((!($tpl = $i18n->getTemplate("templates/email/$name.yaml")))
+                || (!($info = $tpl->getData())))
+            return false;
         if (isset($info['subject']) && isset($info['body'])) {
             $templ->ht = $info;
             return $templ;

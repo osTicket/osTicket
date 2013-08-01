@@ -1,0 +1,30 @@
+#
+# Email template: ticket.overlimit.yaml
+#
+# Sent to users when they have exceeded the maximum open ticket limit. The
+# limit is configurable in the Admin Panel, and is defined by the number of
+# tickets open by a particular email address.
+#
+%YAML 1.0
+---
+notes: |
+    Sent to users when they have exceeded the maximum open ticket limit. The
+    limit is configurable in the Admin Panel, and is defined by the number
+    of tickets open by a particular email address.
+
+subject: |
+     Open Tickets Limit Reached
+body: |
+    %{ticket.name},
+
+    You have reached the maximum number of open tickets allowed.
+
+    To be able to open another ticket, one of your pending tickets must be
+    closed. To update or add comments to an open ticket simply login using
+    the link below.
+
+    %{url}/tickets.php?e=%{ticket.email}
+
+    Thank you.
+
+    Support Ticket System

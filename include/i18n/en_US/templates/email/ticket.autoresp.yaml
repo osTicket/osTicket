@@ -1,0 +1,25 @@
+#
+# Email template: ticket.autoresp.yaml
+#
+# Sent to a user when a new ticket is created
+#
+---
+notes: |
+    Sent to a user when a new ticket is created
+
+subject: |
+    Support Ticket Opened [#%{ticket.number}]
+body: |
+    %{ticket.name},
+
+    A request for support has been created and assigned ticket
+    #%{ticket.number}. A representative will follow-up with you as soon as
+    possible.
+
+    You can view this ticket's progress online here: %{ticket.client_link}.
+
+    If you wish to send additional comments or information regarding this
+    issue, please don't open a new ticket.  Simply login using the link
+    above and update the ticket.
+
+    %{signature}

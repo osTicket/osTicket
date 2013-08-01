@@ -1,0 +1,27 @@
+#
+# Email template: ticket.notice.yaml
+#
+# Sent to a user when a staff member creates a ticket on the user's behalf.
+# This is most commonly performed when user's call in on the phone.
+#
+%YAML 1.0
+---
+notes: |
+    Sent to a user when a staff member creates a ticket on the user's behalf.
+    This is most commonly performed when user's call in on the phone.
+
+subject: |
+    [#%{ticket.number}] %{ticket.subject}
+body: |
+    %{ticket.name},
+
+    Our customer care team has created a ticket, #%{ticket.number} on your
+    behalf, with the following message.
+
+    %{message}
+
+    If you wish to provide additional comments or information regarding this
+    issue, please don't open a new ticket. You can update or view this
+    ticket's progress online here: %{ticket.client_link}.
+
+    %{signature}

@@ -1,0 +1,81 @@
+#
+# Default groups defined for the system
+#
+# Fields:
+# isactive - (bool:0|1) true or false if the group should be initially
+#       usable
+# name - (string) descriptive name for the group
+# notes - (string) administrative notes (viewable internally only)
+# can_create_tickets - (bool:0|1) true or false if users of the group can
+#       create new tickets
+# can_edit_tickets - (bool:0|1) true or false if users of the group can
+#       modify and update existing tickets
+# can_delete_tickets - (bool:0|1) true or false if members of the group can
+#       delete tickets (permanently)
+# can_close_tickets - (bool:0|1) true or false if members of the group can
+#       close active tickets
+# can_assign_ticets - (bool:0|1) true or false if members of the group can
+#       assign tickets to staff
+# can_transfer_tickets - (bool:0|1) true or false if members of the group
+#       can change the department tickets are assigne dto
+# can_ban_emails - (bool:0|1) true or false if members of the group can add
+#       emails to the system ban list
+# can_manage_premade - (bool:0|1) true or false if members of the group can
+#       create, modify, and delete canned responses
+# can_manage_faq - (bool:0|1) true or false if members of the group can
+#       manage the customer-facing and internal knowledgebase
+#
+# depts: (list<Department<id>>) id's of the departments to which the group
+#       should initially have access
+#
+---
+- isactive: 1
+  name: Admins
+  notes: |
+    System overlords
+  can_create_tickets: 1
+  can_edit_tickets: 1
+  can_delete_tickets: 1
+  can_close_tickets: 1
+  can_assign_tickets: 1
+  can_transfer_tickets: 1
+  can_ban_emails: 1
+  can_manage_premade: 1
+  can_manage_faq: 1
+  can_post_ticket_reply: 1
+
+  depts: [1, 2]
+
+- isactive: 1
+  name: Managers
+  notes: |
+    Inhabitants of the ivory tower
+  can_create_tickets: 1
+  can_edit_tickets: 1
+  can_delete_tickets: 1
+  can_close_tickets: 1
+  can_assign_tickets: 1
+  can_transfer_tickets: 1
+  can_ban_emails: 1
+  can_manage_premade: 1
+  can_manage_faq: 1
+  can_post_ticket_reply: 1
+
+  depts: [1, 2]
+
+- isactve: 1
+  name: Staff
+  notes: |
+    Lowly staff members
+  can_create_tickets: 1
+  can_edit_tickets: 1
+  can_delete_tickets: 0
+  can_close_tickets: 1
+  can_assign_tickets: 1
+  can_transfer_tickets: 1
+  can_ban_emails: 0
+  can_manage_premade: 0
+  can_manage_faq: 0
+  can_post_ticket_reply: 1
+
+  depts: [1, 2]

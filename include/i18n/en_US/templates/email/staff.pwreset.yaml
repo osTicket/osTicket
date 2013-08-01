@@ -5,7 +5,12 @@
 # password</a> link in the staff control login screen
 #
 ---
-subject: osTicket Staff Password Reset
+notes: |
+    Sent when a staff member requests a password reset via the <a>Forgot my
+    password</a> link in the staff control login screen
+
+subject: |
+    osTicket Staff Password Reset
 body: |
     You or perhaps somebody you know has submitted a password reset request on
     your behalf for the helpdesk at %{url}.

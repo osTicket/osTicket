@@ -1,0 +1,31 @@
+#
+# Email template: note.alert.yaml
+#
+# Sent to staff members when a new internal note is appended to a ticket.
+# Internal notes can only be added by staff members.
+#
+%YAML 1.0
+---
+notes: |
+    Sent to staff members when a new internal note is appended to a ticket.
+    Internal notes can only be added by staff members.
+
+subject: |
+    New Internal Note Alert
+body: |
+    %{recipient},
+
+    Internal note appended to ticket #%{ticket.number}
+
+    ----------------------
+    * %{note.title} *
+
+    %{note.message}
+    ----------------------
+
+    To view/respond to the ticket, please login to the support ticket
+    system.
+
+    %{ticket.staff_link}
+
+    - Your friendly Customer Support System - powered by osTicket.

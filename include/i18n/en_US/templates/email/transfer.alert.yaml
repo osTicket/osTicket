@@ -1,0 +1,31 @@
+#
+# Email template: transfer.alert.yaml
+#
+# Sent to staff members when a ticket is assigned to them. Tickets can be
+# assigned automatically by the system or manually by another staff member.
+# Use %{assigner} to distinguish who made the assignment.
+#
+%YAML 1.0
+---
+notes: |
+
+subject: |
+    Ticket Transfer #%{ticket.number} - %{ticket.dept.name}
+body: |
+    %{recipient},
+
+    Ticket #%{ticket.number} has been transferred to the %{ticket.dept.name}
+    department by %{staff.name}
+
+    ----------------------
+
+    %{comments}
+
+    ----------------------
+
+    To view/respond to the ticket, please login to the support ticket
+    system.
+
+    %{ticket.staff_link}
+
+    - Your friendly Customer Support System - powered by osTicket.

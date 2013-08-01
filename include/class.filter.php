@@ -385,7 +385,8 @@ class Filter {
                 elseif($vars["rule_w$i"]=='email' && $vars["rule_h$i"]=='equal' && !Validator::is_email($vars["rule_v$i"]))
                     $errors["rule_$i"]='Valid email required for the match type';
                 else //for everything-else...we assume it's valid.
-                    $rules[]=array('w'=>$vars["rule_w$i"],'h'=>$vars["rule_h$i"],'v'=>$vars["rule_v$i"]);
+                    $rules[]=array('what'=>$vars["rule_w$i"],
+                        'how'=>$vars["rule_h$i"],'val'=>$vars["rule_v$i"]);
             }elseif($vars["rule_v$i"]) {
                 $errors["rule_$i"]='Incomplete selection';
             }
@@ -581,9 +582,9 @@ class FilterRule {
         if($errors) return false;
 
         $sql=' updated=NOW() '.
-             ',what='.db_input($vars['w']).
-             ',how='.db_input($vars['h']).
-             ',val='.db_input($vars['v']).
+             ',what='.db_input($vars['what']).
+             ',how='.db_input($vars['how']).
+             ',val='.db_input($vars['val']).
              ',isactive='.db_input(isset($vars['isactive'])?$vars['isactive']:1);
 
 

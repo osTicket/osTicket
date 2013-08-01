@@ -1,0 +1,32 @@
+#
+# Email template: ticket.alert.yaml
+#
+# Sent to a staff member when a new ticket is created in the system. This
+# applies to tickets created via email, the web portal, or the api.
+#
+%YAML 1.0
+---
+notes: |
+    Sent to a staff member when a new ticket is created in the system. This
+    applies to tickets created via email, the web portal, or the api.
+
+subject: |
+    New Ticket Alert
+body: |
+    %{recipient},
+
+    New ticket #%{ticket.number} created.
+
+    -----------------------
+    Name: %{ticket.name}
+    Email: %{ticket.email}
+    Dept: %{ticket.dept.name}
+
+    %{message}
+
+    -----------------------
+    To view/respond to the ticket, please login to the support ticket system.
+
+    %{ticket.staff_link}
+
+    - Your friendly Customer Support System - powered by osTicket.

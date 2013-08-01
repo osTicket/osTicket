@@ -15,6 +15,7 @@
 **********************************************************************/
 require_once INCLUDE_DIR.'class.migrater.php';
 require_once INCLUDE_DIR.'class.setup.php';
+require_once INCLUDE_DIR.'class.i18n.php';
 
 class Installer extends SetupWizard {
 
@@ -109,6 +110,7 @@ class Installer extends SetupWizard {
         /*************** We're ready to install ************************/
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('PREFIX',$vars['prefix']); //Table prefix
+        Bootstrap::defineTables(PREFIX);
 
         $debug = true; // Change it to false to squelch SQL errors.
 
@@ -138,6 +140,10 @@ class Installer extends SetupWizard {
                         .': Error parsing SQL schema! Get help from developers (#4)';
             }
         }
+
+        // TODO: Use language selected from install worksheet
+        $i18n = new Internationalization('en_US');
+        $i18n->loadDefaultData();
 
         $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
         $sla_id_1 = db_result(db_query($sql, false), 0);

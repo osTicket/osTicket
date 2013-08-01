@@ -14,7 +14,7 @@ if (is_a($template, EmailTemplateGroup)) {
     // Attempt to lookup the default data if it is defined
     $default = @$template->getMsgTemplate($selected);
     if ($default) {
-        $info['subj'] = $default->getSubject();
+        $info['subject'] = $default->getSubject();
         $info['body'] = $default->getBody();
     }
 } else {
@@ -27,7 +27,7 @@ if (is_a($template, EmailTemplateGroup)) {
     $action = 'updatetpl';
     $extras = array();
     $msgtemplates=$template->getGroup()->all_names;
-    $info=array_merge(array('subj'=>$template->getSubject(), 'body'=>$template->getBody()),$info);
+    $info=array_merge(array('subject'=>$template->getSubject(), 'body'=>$template->getBody()),$info);
 }
 $info['tpl']=($info['tpl'] && $msgtemplates[$info['tpl']])?$info['tpl']:'ticket.autoresp';
 $tpl=$msgtemplates[$info['tpl']];
@@ -80,8 +80,8 @@ $tpl=$msgtemplates[$info['tpl']];
     <tbody>
         <tr>
             <td colspan=2>
-                <strong>Message Subject:</strong> <em>Email message subject</em> <font class="error">*&nbsp;<?php echo $errors['subj']; ?></font><br>
-                <input type="text" name="subj" size="60" value="<?php echo $info['subj']; ?>" >
+                <strong>Message Subject:</strong> <em>Email message subject</em> <font class="error">*&nbsp;<?php echo $errors['subject']; ?></font><br>
+                <input type="text" name="subject" size="60" value="<?php echo $info['subject']; ?>" >
             </td>
         </tr>
         <tr>

@@ -351,7 +351,8 @@ class Dept {
         if($id && $id!=$vars['id'])
             $errors['err']='Missing or invalid Dept ID (internal error).';
 
-        if(!$vars['email_id'] || !is_numeric($vars['email_id']))
+        if(!isset($vars['id'])
+                && (!$vars['email_id'] || !is_numeric($vars['email_id'])))
             $errors['email_id']='Email selection required';
 
         if(!is_numeric($vars['tpl_id']))
@@ -365,18 +366,18 @@ class Dept {
             $errors['name']='Department already exists';
         }
 
-        if(!$vars['ispublic'] && ($vars['id']==$cfg->getDefaultDeptId()))
+        if(!$vars['ispublic'] && $cfg && ($vars['id']==$cfg->getDefaultDeptId()))
             $errors['ispublic']='System default department cannot be private';
 
         if($errors) return false;
 
 
         $sql='SET updated=NOW() '
-            .' ,ispublic='.db_input($vars['ispublic'])
-            .' ,email_id='.db_input($vars['email_id'])
-            .' ,tpl_id='.db_input($vars['tpl_id'])
-            .' ,sla_id='.db_input($vars['sla_id'])
-            .' ,autoresp_email_id='.db_input($vars['autoresp_email_id'])
+            .' ,ispublic='.db_input(isset($vars['ispublic'])?$vars['ispublic']:0)
+            .' ,email_id='.db_input(isset($vars['email_id'])?$vars['email_id']:0)
+            .' ,tpl_id='.db_input(isset($vars['tpl_id'])?$vars['tpl_id']:0)
+            .' ,sla_id='.db_input(isset($vars['sla_id'])?$vars['sla_id']:0)
+            .' ,autoresp_email_id='.db_input(isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0)
             .' ,manager_id='.db_input($vars['manager_id']?$vars['manager_id']:0)
             .' ,dept_name='.db_input(Format::striptags($vars['name']))
             .' ,dept_signature='.db_input(Format::striptags($vars['signature']))
@@ -393,6 +394,9 @@ class Dept {
             $errors['err']='Unable to update '.Format::htmlchars($vars['name']).' Dept. Error occurred';
 
         } else {
+            if (isset($vars['id']))
+                $sql .= ', dept_id='.db_input($vars['id']);
+
             $sql='INSERT INTO '.DEPT_TABLE.' '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;

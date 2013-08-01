@@ -15,7 +15,7 @@
 **********************************************************************/
 if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__))) die('kwaheri rafiki!');
 
-$thisdir=str_replace('\\\\', '/', realpath(dirname(__FILE__))).'/'; 
+$thisdir=str_replace('\\', '/', realpath(dirname(__FILE__))).'/';
 if(!file_exists($thisdir.'main.inc.php')) die('Fatal Error.');
 
 require_once($thisdir.'main.inc.php');

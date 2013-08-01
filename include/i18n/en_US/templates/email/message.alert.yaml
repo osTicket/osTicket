@@ -1,0 +1,34 @@
+#
+# Email template: message.alert.yaml
+#
+# Sent to staff members when a new message is posted by a user to a ticket.
+# This can occur if the users responds to an email from the system or visits
+# the customer web portal and posts a new message there.
+#
+%YAML 1.0
+---
+notes: |
+    Sent to staff members when a new message is posted by a user to a
+    ticket.  This can occur if the users responds to an email from the
+    system or visits the customer web portal and posts a new message there.
+
+subject: |
+    New Message Alert
+body: |
+    %{recipient},
+
+    New message appended to ticket #%{ticket.number}
+
+    ----------------------
+    Name: %{ticket.name}
+    Email: %{ticket.email}
+    Dept: %{ticket.dept.name}
+
+    %{message}
+    ----------------------
+
+    To view/respond to the ticket, please login to the support ticket system.
+
+    %{ticket.staff_link}
+
+    - Your friendly Customer Support System - powered by osTicket.

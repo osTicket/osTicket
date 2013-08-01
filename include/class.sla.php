@@ -188,6 +188,9 @@ class SLA {
 
             $errors['err']='Unable to update SLA. Internal error occurred';
         }else{
+            if (isset($vars['id']))
+                $sql .= ', id='.db_input($vars['id']);
+
             $sql='INSERT INTO '.SLA_TABLE.' SET '.$sql.',created=NOW() ';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;

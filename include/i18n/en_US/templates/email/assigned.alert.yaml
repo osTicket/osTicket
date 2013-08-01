@@ -1,0 +1,32 @@
+#
+# Email template: assigned.alert.yaml
+#
+# Sent to staff members when a ticket is assigned to them. Tickets can be
+# assigned automatically by the system or manually by another staff member.
+# Use %{assigner} to distinguish who made the assignment.
+#
+%YAML 1.0
+---
+notes: |
+    Sent to staff members when a ticket is assigned to them. Tickets can be
+    assigned automatically by the system or manually by another staff
+    member.  Use %{assigner} to distinguish who made the assignment.
+
+subject: |
+    Ticket #%{ticket.number} Assigned to you
+body: |
+    %{assignee},
+
+    Ticket #%{ticket.number} has been assigned to you by %{assigner}
+
+    ----------------------
+
+    %{comments}
+
+    ----------------------
+
+    To view complete details, simply login to the support system.
+
+    %{ticket.staff_link}
+
+    - Your friendly Support Ticket System - powered by osTicket.

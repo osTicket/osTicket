@@ -1,0 +1,16 @@
+#
+# Default configuration. The format is key: value and the data will be
+# inserted into the %config table at install time
+#
+---
+core:
+    allowed_filetypes: '.doc, .pdf'
+    time_format: ' h:i A'
+    date_format: 'm/d/Y'
+    datetime_format: 'm/d/Y g:i a'
+    daydatetime_format: 'D, M j Y g:ia'
+    default_timezone_id: 0
+    default_priority_id: 2
+    enable_daylight_saving: 0
+
+    reply_separator: '-- do not edit --'
