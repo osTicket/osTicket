@@ -17,9 +17,9 @@ if(!$dept || !$dept->isPublic())
                 <a href="view.php?id=<?php echo $ticket->getExtId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
             </h1>
         </td>
-    </tr> 
+    </tr>
     <tr>
-        <td width="50%">   
+        <td width="50%">
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                 <tr>
                     <th width="100">Ticket Status:</th>
@@ -58,10 +58,13 @@ if(!$dept || !$dept->isPublic())
 <br>
 <span class="Icon thread">Ticket Thread</span>
 <div id="ticketThread">
-<?php    
+<?php
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     $threadType=array('M' => 'message', 'R' => 'response');
     foreach($thread as $entry) {
+        if($entry['body'], '-')
+            $entry['body'] = '(EMPTY)';
+
         //Making sure internal notes are not displayed due to backend MISTAKES!
         if(!$threadType[$entry['thread_type']]) continue;
         $poster = $entry['poster'];

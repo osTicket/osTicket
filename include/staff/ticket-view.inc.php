@@ -54,7 +54,7 @@ if($ticket->isOverdue())
             <?php if($thisstaff->canDeleteTickets()) { ?>
                 <a id="ticket-delete" class="action-button" href="#delete"><i class="icon-trash"></i> Delete</a>
             <?php } ?>
-            <?php 
+            <?php
             if($thisstaff->canCloseTickets()) {
                 if($ticket->isOpen()) {?>
                 <a id="ticket-close" class="action-button" href="#close"><i class="icon-remove-circle"></i> Close</a>
@@ -63,18 +63,18 @@ if($ticket->isOverdue())
                 <a id="ticket-reopen" class="action-button" href="#reopen"><i class="icon-undo"></i> Reopen</a>
                 <?php
                 } ?>
-            <?php 
+            <?php
             } ?>
-            <?php 
+            <?php
             if($thisstaff->canEditTickets()) { ?>
                 <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> Edit</a>
-            <?php 
+            <?php
             } ?>
 
             <?php
             if($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
                 <a id="ticket-claim" class="action-button" href="#claim"><i class="icon-user"></i> Claim</a>
-                
+
             <?php
             }?>
 
@@ -82,19 +82,19 @@ if($ticket->isOverdue())
 
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
-                <?php 
+                <?php
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
-                        
+
                     if($ticket->isAssigned()) { ?>
                         <li><a id="ticket-release" href="#release"><i class="icon-user"></i> Release (unassign) Ticket</a></li>
                     <?php
                     }
-                    
+
                     if(!$ticket->isOverdue()) { ?>
                         <li><a id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> Mark as Overdue</a></li>
                     <?php
                     }
-                    
+
                     if($ticket->isAnswered()) { ?>
                         <li><a id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> Mark as Unanswered</a></li>
                     <?php
@@ -103,11 +103,11 @@ if($ticket->isOverdue())
                     <?php
                     }
                 }
-              
-                if($thisstaff->canBanEmails()) { 
+
+                if($thisstaff->canBanEmails()) {
                      if(!$emailBanned) {?>
                         <li><a id="ticket-banemail" href="#banemail"><i class="icon-ban-circle"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
-                <?php 
+                <?php
                      } elseif($unbannable) { ?>
                         <li><a id="ticket-banemail" href="#unbanemail"><i class="icon-undo"></i> Unban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
                     <?php
@@ -179,13 +179,13 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th>Source:</th>
-                    <td><?php 
+                    <td><?php
                         echo Format::htmlchars($ticket->getSource());
 
                         if($ticket->getIP())
                             echo '&nbsp;&nbsp; <span class="faded">('.$ticket->getIP().')</span>';
 
-                    
+
                         ?>
                     </td>
                 </tr>
@@ -306,8 +306,8 @@ if(!$cfg->showNotesInline()) { ?>
                 </td>
             </tr>
             <?php
-             if($note['attachments'] 
-                    && ($tentry=$ticket->getThreadEntry($note['id'])) 
+             if($note['attachments']
+                    && ($tentry=$ticket->getThreadEntry($note['id']))
                     && ($links=$tentry->getAttachmentsLinks())) { ?>
             <tr>
                 <td class="info" colspan="2"><?php echo $links; ?></td>
@@ -332,6 +332,8 @@ if(!$cfg->showNotesInline()) { ?>
         $types[] = 'N';
     if(($thread=$ticket->getThreadEntries($types))) {
        foreach($thread as $entry) {
+           if($entry['body'], '-')
+               $entry['body'] = '(EMPTY)';
            ?>
         <table class="<?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
@@ -341,7 +343,7 @@ if(!$cfg->showNotesInline()) { ?>
             </tr>
             <tr><td colspan=3><?php echo Format::display($entry['body']); ?></td></tr>
             <?php
-            if($entry['attachments'] 
+            if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
                     && ($links=$tentry->getAttachmentsLinks())) {?>
             <tr>
@@ -518,7 +520,7 @@ if(!$cfg->showNotesInline()) { ?>
         <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
         <input type="hidden" name="a" value="postnote">
         <table border="0" cellspacing="0" cellpadding="3">
-            <?php 
+            <?php
             if($errors['postnote']) {?>
             <tr>
                 <td width="160">&nbsp;</td>
@@ -569,7 +571,7 @@ if(!$cfg->showNotesInline()) { ?>
                         <option value="" selected="selected">&mdash; unchanged &mdash;</option>
                         <?php
                         $state = $info['state'];
-                        if($ticket->isClosed()){ 
+                        if($ticket->isClosed()){
                             echo sprintf('<option value="open" %s>Reopen Ticket</option>',
                                     ($state=='reopen')?'selected="selelected"':'');
                         } else {
@@ -579,12 +581,12 @@ if(!$cfg->showNotesInline()) { ?>
 
                             /* Ticket open - states */
                             echo '<option value="" disabled="disabled">&mdash; Ticket States &mdash;</option>';
-                       
+
                             //Answer - state
                             if($ticket->isAnswered())
                                 echo sprintf('<option value="unanswered" %s>Mark As Unanswered</option>',
                                     ($state=='unanswered')?'selected="selelected"':'');
-                            else 
+                            else
                                 echo sprintf('<option value="answered" %s>Mark As Answered</option>',
                                     ($state=='answered')?'selected="selelected"':'');
 
@@ -681,7 +683,7 @@ if(!$cfg->showNotesInline()) { ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="assign">
         <table border="0" cellspacing="0" cellpadding="3">
-                
+
             <?php
             if($errors['assign']) {
                 ?>
@@ -837,7 +839,7 @@ if(!$cfg->showNotesInline()) { ?>
     </p>
     <p class="confirm-action" style="display:none;" id="answered-confirm">
         Are you sure want to flag the ticket as <b>answered</b>?
-    </p>    
+    </p>
     <p class="confirm-action" style="display:none;" id="unanswered-confirm">
         Are you sure want to flag the ticket as <b>unanswered</b>?
     </p>

@@ -415,7 +415,7 @@ class ApiEmailDataParser extends EmailDataParser {
         $data['source'] = 'Email';
 
         if(!$data['message'])
-            $data['message'] = $data['subject']?$data['subject']:'(EMPTY)';
+            $data['message'] = $data['subject']?$data['subject']:'-';
 
         if(!$data['subject'])
             $data['subject'] = '[No Subject]';

@@ -388,7 +388,7 @@ class MailFetcher {
 
         //An email with just attachments can have empty body.
         if(!$vars['message'])
-            $vars['message'] = '(EMPTY)';
+            $vars['message'] = '-';
 
         if($ost->getConfig()->useEmailPriority())
             $vars['priorityId']=$this->getPriority($mid);
@@ -429,7 +429,6 @@ class MailFetcher {
         if($message
                 && $ost->getConfig()->allowEmailAttachments()
                 && ($struct = imap_fetchstructure($this->mbox, $mid))
-                && $struct->parts
                 && ($attachments=$this->getAttachments($struct))) {
 
             foreach($attachments as $a ) {
