@@ -17,7 +17,6 @@ if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Access denied'); 
 
 if(!file_exists('../main.inc.php')) die('Fatal error... get technical support');
 
-define('ROOT_PATH','../'); //Path to the root dir.
 require_once('../main.inc.php');
 
 if(!defined('INCLUDE_DIR')) die('Fatal error... invalid setting.');

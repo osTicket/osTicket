@@ -60,7 +60,12 @@
     }
 
     #Set Dir constants
-    if(!defined('ROOT_PATH')) define('ROOT_PATH','./'); //root path. Damn directories
+    $here = substr(realpath(dirname(__file__)),
+        strlen($_SERVER['DOCUMENT_ROOT']));
+    // Determine the path in the URI used as the base of the osTicket
+    // installation
+    if (!defined('ROOT_PATH'))
+        define('ROOT_PATH', str_replace('\\', '/', $here.'/')); //root path. Damn directories
 
     define('ROOT_DIR',str_replace('\\\\', '/', realpath(dirname(__FILE__))).'/'); #Get real path for root dir ---linux and windows
     define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
@@ -127,8 +132,8 @@
         require(INCLUDE_DIR.'mysql.php');
 
     #Cookies
-    session_set_cookie_params(86400, dirname($_SERVER['PHP_SELF']),
-        $_SERVER['HTTP_HOST'], osTicket::is_https());
+    session_set_cookie_params(86400, ROOT_PATH, $_SERVER['HTTP_HOST'],
+        osTicket::is_https());
 
     #CURRENT EXECUTING SCRIPT.
     define('THISPAGE', Misc::currentURL());
