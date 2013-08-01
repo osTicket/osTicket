@@ -63,7 +63,7 @@ if(!$thisstaff || !is_object($thisstaff) || !$thisstaff->getId() || !$thisstaff-
         $msg = $_SESSION['_staff']['auth']['msg'];
         unset($_SESSION['_staff']['auth']['msg']);
     }
-    elseif ($thisstaff && !$thisstaff->isValid())
+    elseif (isset($_SESSION['_staff']['userID']) && !$thisstaff->isValid())
         $msg = 'Session timed out due to inactivity';
     else
         $msg = 'Authentication Required';
