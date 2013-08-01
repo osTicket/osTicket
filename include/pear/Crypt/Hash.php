@@ -85,7 +85,7 @@ class Crypt_Hash {
     /**
      * Byte-length of compression blocks / key (Internal HMAC)
      *
-     * @see Crypt_Hash::setAlgorithm()
+     * @see Crypt_Hash::setAlgorithm() #nolint
      * @var Integer
      * @access private
      */
