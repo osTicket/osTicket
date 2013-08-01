@@ -34,8 +34,6 @@
     ini_set('session.use_trans_sid', 0);
     #No cache
     session_cache_limiter('nocache');
-    #Cookies
-    //ini_set('session.cookie_path','/osticket/');
 
     #Error reporting...Good idea to ENABLE error reporting to a file. i.e display_errors should be set to false
     $error_reporting = E_ALL & ~E_NOTICE;
@@ -127,6 +125,10 @@
         require_once INCLUDE_DIR.'mysqli.php';
     else
         require(INCLUDE_DIR.'mysql.php');
+
+    #Cookies
+    session_set_cookie_params(86400, dirname($_SERVER['PHP_SELF']),
+        $_SERVER['HTTP_HOST'], osTicket::is_https());
 
     #CURRENT EXECUTING SCRIPT.
     define('THISPAGE', Misc::currentURL());
