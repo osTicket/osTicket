@@ -342,13 +342,15 @@ class MailFetcher {
     function getBody($mid) {
 
         $body ='';
-        if(!($body = $this->getPart($mid,'TEXT/PLAIN', $this->charset))) {
-            if(($body = $this->getPart($mid,'TEXT/HTML', $this->charset))) {
-                //Convert tags of interest before we striptags
-                $body=str_replace("</DIV><DIV>", "\n", $body);
-                $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
-                $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
-            }
+        if ($body = $this->getPart($mid,'TEXT/PLAIN', $this->charset))
+            // The Content-Type was text/plain, so escape anything that
+            // looks like HTML
+            $body=Format::htmlchars($body);
+        elseif ($body = $this->getPart($mid,'TEXT/HTML', $this->charset)) {
+            //Convert tags of interest before we striptags
+            $body=str_replace("</DIV><DIV>", "\n", $body);
+            $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
+            $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
         }
 
         return $body;
