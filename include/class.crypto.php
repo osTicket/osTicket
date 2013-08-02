@@ -149,28 +149,6 @@ class Crypto {
         return $cryptos;
     }
 
-    function test($count=1) {
-
-        $input = 'PASSWORD$$';
-        $mkey = md5('siri');
-        $skey = 'testing';
-
-        $cryptos = self::cryptos();
-        for($i=0; $i<$count; $i++) {
-            foreach($cryptos as $cid => $crypto) {
-                if(call_user_func(array($crypto, 'exists'))) {
-                    $ciphertext = Crypto::encrypt($input, $mkey, $skey, $cid);
-                    echo sprintf("\n%s: [%s] => [%s] => [%s]\n",
-                            get_class($crypto),
-                            $input,
-                            $ciphertext,
-                            Crypto::decrypt($ciphertext, $mkey, $skey));
-                } else
-                    echo sprintf("\n%s:  (unsupported)\n", get_clasi($crypto));
-            }
-        }
-    }
-
     function hash($string, $key) {
         $hash = new Crypt_Hash('sha512');
         $hash->setKey($key);
