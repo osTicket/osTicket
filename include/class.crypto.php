@@ -201,12 +201,38 @@ class CryptoAlgo {
 
     var $tag_number;
 
+    var $ciphers = null;
+
     function  CryptoAlgo($tag) {
         $this->tag_number = $tag;
     }
 
     function getTagNumber() {
         return $this->tag_number;
+    }
+
+    function getCipher($cid, $callback=null) {
+
+        if(!$this->ciphers)
+            return null;
+
+        $cipher = null;
+        if($cid)
+            $cipher =  isset($this->ciphers[$cid]) ? $this->ciphers[$cid] : null;
+        elseif($this->ciphers) { // search best available.
+            foreach($this->ciphers as $k => $c) {
+                if(!$callback
+                        || (is_callable($callback)
+                            && call_user_func($callback, $c))) {
+                    $cid = $k;
+                    $cipher = $c;
+                    break;
+                }
+            }
+        }
+
+        return $cipher ?
+            array_merge($cipher, array('cid' => $cid)) : null;
     }
 
     function getMasterKey() {
@@ -248,6 +274,8 @@ class CryptoAlgo {
      */
     /* abstract */
     function exists() { return false; }
+
+
 }
 
 
@@ -276,25 +304,17 @@ Class CryptoMcrypt extends CryptoAlgo {
             );
 
     function getCipher($cid=null) {
+        return parent::getCipher($cid, array($this, '_checkCipher'));
+    }
 
-        $cipher = null;
-        if($cid)
-            $cipher =  isset($this->ciphers[$cid]) ? $this->ciphers[$cid] : null;
-        elseif($this->ciphers) { // search best available.
-            foreach($this->ciphers as $k => $c) {
-                if($c['name']
-                        && $c['mode']
-                        && mcrypt_module_open($c['name'], '', $c['mode'], '')) {
+   function _checkCipher($c) {
 
-                    $cid = $k;
-                    $cipher = $c;
-                    break;
-                }
-            }
-        }
-
-        return $cipher ?
-            array_merge($cipher, array('cid' => $cid)) : null;
+       return ($c
+               && $c['name']
+               && $c['mode']
+               && $this->exists()
+               && mcrypt_module_open($c['name'], '', $c['mode'], '')
+               );
     }
 
     /**
@@ -385,7 +405,8 @@ Class CryptoMcrypt extends CryptoAlgo {
     }
 
     function exists() {
-        return extension_loaded('mcrypt');
+        return (extension_loaded('mcrypt')
+                && function_exists('mcrypt_module_open'));
     }
 }
 
@@ -417,22 +438,16 @@ class CryptoOpenSSL extends CryptoAlgo {
     }
 
     function getCipher($cid) {
+        return parent::getCipher($cid, array($this, '_checkCipher'));
+    }
 
-        $cipher = null;
-        if($cid)
-            $cipher =  isset($this->ciphers[$cid]) ? $this->ciphers[$cid] : null;
-        elseif($this->ciphers) { // search best available.
-            foreach($this->ciphers as $k => $c) {
-                if($c['method'] &&  openssl_cipher_iv_length($c['method'])) {
-                    $cid = $k;
-                    $cipher = $c;
-                    break;
-                }
-            }
-        }
+    function _checkCipher($c) {
 
-        return $cipher ?
-            array_merge($cipher, array('cid' => $cid)) : null;
+        return ($c
+                && $c['method']
+                && $this->exists()
+                && openssl_cipher_iv_length($c['method'])
+                );
     }
 
     /**
@@ -515,7 +530,7 @@ define('CRYPTO_CIPHER_PHPSECLIB_AES_CBC', 1);
 
 class CryptoPHPSecLib extends CryptoAlgo {
 
-    var $ciphers = array( //Replace with interface class
+    var $ciphers = array(
             CRYPTO_CIPHER_PHPSECLIB_AES_CBC => array(
                 'mode' => CRYPT_AES_MODE_CBC,
                 'ivlen' => 16,
@@ -523,34 +538,29 @@ class CryptoPHPSecLib extends CryptoAlgo {
                 ),
             );
 
-    //TODO: Will be replaced by interface cryto class.. with default/preset
-    // ivlen + extends PHPSecLib crypto classes.
-    function getCipher($cid) {
-
-        if ($cid)
-            $cipher = $this->ciphers[$cid];
-        elseif($this->ciphers) {
-            foreach($this->ciphers as $k => $c) {
-                if($c['class'] && class_exists($c['class'])) {
-                    $cid = $k;
-                    $cipher = $c;
-                    break;
-                }
-            }
-        }
-
-        return $cipher ?
-            array_merge($cipher, array('cid' => $cid)) : null;
-    }
 
     function getCrypto($cid) {
         if(!$cid
                 || !($c=$this->getCipher($cid))
-                || !($class=$c['class'])
-                || !class_exists($class))
+                || !$this->_checkCipher($c))
             return null;
 
+        $class = $c['class'];
+
         return new $class($c['mode']);
+    }
+
+    function getCipher($cid) {
+        return  parent::getCipher($cid, array($this, '_checkCipher'));
+    }
+
+    function _checkCipher($c) {
+
+        return ($c
+                && $c['mode']
+                && $c['ivlen']
+                && $c['class']
+                && class_exists($c['class']));
     }
 
     function encrypt($text, $cid=0) {
