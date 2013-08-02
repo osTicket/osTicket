@@ -135,11 +135,12 @@ class Crypto {
 
         if ($cryptos === false) {
             $cryptos =  array();
-            if(defined('CRYPT_MCRYPT') && class_exists('CryptoMcrypt'))
-                $cryptos[CRYPT_MCRYPT] = new CryptoMcrypt(CRYPT_MCRYPT);
 
             if(defined('CRYPT_OPENSSL') && class_exists('CryptoOpenSSL'))
                 $cryptos[CRYPT_OPENSSL] = new CryptoOpenSSL(CRYPT_OPENSSL);
+
+            if(defined('CRYPT_MCRYPT') && class_exists('CryptoMcrypt'))
+                $cryptos[CRYPT_MCRYPT] = new CryptoMcrypt(CRYPT_MCRYPT);
 
             if(defined('CRYPT_PHPSECLIB') && class_exists('CryptoPHPSecLib'))
                 $cryptos[CRYPT_PHPSECLIB] = new CryptoPHPSecLib(CRYPT_PHPSECLIB);
@@ -428,7 +429,6 @@ class CryptoOpenSSL extends CryptoAlgo {
     var $ciphers = array(
             CRYPTO_CIPHER_OPENSSL_AES_128_CBC => array(
                 'method' => 'aes-128-cbc',
-                'seed' => 8
                 ),
             );
 
@@ -468,7 +468,7 @@ class CryptoOpenSSL extends CryptoAlgo {
             return false;
 
         $ivlen  = openssl_cipher_iv_length($cipher['method']);
-        $iv = openssl_random_pseudo_bytes($cipher['seed']);
+        $iv = openssl_random_pseudo_bytes($ivlen);
         $key = $this->getKeyHash($iv, $ivlen);
 
         $options = (defined('OPENSSL_RAW_DATA')) ? OPENSSL_RAW_DATA : true;
@@ -501,8 +501,8 @@ class CryptoOpenSSL extends CryptoAlgo {
              return false;
 
         $ivlen  = openssl_cipher_iv_length($cipher['method']);
-        $iv = substr($ciphertext, 0, $cipher['seed']);
-        $ciphertext = substr($ciphertext, $cipher['seed']);
+        $iv = substr($ciphertext, 0, $ivlen);
+        $ciphertext = substr($ciphertext, $ivlen);
         $key = $this->getKeyHash($iv, $ivlen);
 
         $options = (defined('OPENSSL_RAW_DATA')) ? OPENSSL_RAW_DATA : true;
@@ -538,7 +538,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
     var $ciphers = array(
             CRYPTO_CIPHER_PHPSECLIB_AES_CBC => array(
                 'mode' => CRYPT_AES_MODE_CBC,
-                'seed' => 8,
+                'ivlen' => 16,  #WARNING: DO NOT CHANGE!
                 'class' => 'Crypt_AES',
                 ),
             );
@@ -577,7 +577,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
                 )
             return false;
 
-        $ivlen = $cipher['seed'];
+        $ivlen = $cipher['ivlen'];
         $iv = Crypto::randcode($ivlen);
         $crypto->setKey($this->getKeyHash($iv, $ivlen));
         $crypto->setIV($iv);
@@ -598,7 +598,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
                  )
              return false;
 
-        $ivlen = $cipher['seed'];
+        $ivlen = $cipher['ivlen'];
         $iv = substr($ciphertext, 0, $ivlen);
         if (!($ciphertext = substr($ciphertext, $ivlen)))
             return false;
