@@ -95,18 +95,17 @@ class Crypto {
      */
     function decrypt($ciphertext, $key, $skey='encryption') {
 
-        if($key || !$ciphertext || $ciphertext[0] != '$')
+        if(!$key || !$ciphertext || $ciphertext[0] != '$')
             return false;
 
         list(, $crypt, $ciphertext) = explode('$', $ciphertext, 3);
-
         //Get crypto....  based on crypt tag.
         if(!$crypt || !($crypto=Crypto::get($crypt)) || !$crypto->exists())
             return false;
 
         $crypto->setKeys($key, $skey);
 
-        return $crypto->decrypt(base64_decrypt($ciphertext));
+        return $crypto->decrypt(base64_decode($ciphertext));
     }
 
     function get($crypt) {
@@ -149,7 +148,28 @@ class Crypto {
         return $cryptos;
     }
 
-    /* Hash string  - sha1 is used by default */
+    function test($count=1) {
+
+        $input = 'PASSWORD$$';
+        $mkey = md5('siri');
+        $skey = 'testing';
+
+        $cryptos = self::cryptos();
+        for($i=0; $i<$count; $i++) {
+            foreach($cryptos as $cid => $crypto) {
+                if(call_user_func(array($crypto, 'exists'))) {
+                    $ciphertext = Crypto::encrypt($input, $mkey, $skey, $cid);
+                    echo sprintf("\n%s: [%s] => [%s] => [%s]\n",
+                            get_class($crypto),
+                            $input,
+                            $ciphertext,
+                            Crypto::decrypt($ciphertext, $mkey, $skey));
+                } else
+                    echo sprintf("\n%s:  (unsupported)\n", get_clasi($crypto));
+            }
+        }
+    }
+
     function hash($string, $key) {
         $hash = new Crypt_Hash('sha512');
         $hash->setKey($key);
@@ -255,24 +275,26 @@ Class CryptoMcrypt extends CryptoAlgo {
                 ),
             );
 
-    function getCipher($id=null) {
+    function getCipher($cid=null) {
 
         $cipher = null;
-        if($id)
-            $cipher =  isset($this->ciphers[$id]) ? $this->ciphers[$id] : null;
+        if($cid)
+            $cipher =  isset($this->ciphers[$cid]) ? $this->ciphers[$cid] : null;
         elseif($this->ciphers) { // search best available.
             foreach($this->ciphers as $k => $c) {
-                if(!$c['name'] || !mcrypt_module_open($c['name'], '', $c['mode'], ''))
-                    continue;
+                if($c['name']
+                        && $c['mode']
+                        && mcrypt_module_open($c['name'], '', $c['mode'], '')) {
 
-                $id = $k;
-                $cipher = $c;
-                break;
+                    $cid = $k;
+                    $cipher = $c;
+                    break;
+                }
             }
         }
 
         return $cipher ?
-            array_merge($cipher, array('id', $id)) : null;
+            array_merge($cipher, array('cid' => $cid)) : null;
     }
 
     /**
@@ -289,11 +311,10 @@ Class CryptoMcrypt extends CryptoAlgo {
         if(!$this->exists()
                 || !$text
                 || !($cipher=$this->getCipher($cid))
-                || !$cipher['id'])
+                || !$cipher['cid'])
             return false;
 
-        $td = mcrypt_module_open($cipher['name'], '', $cipher['mode'], '');
-        if(!$td)
+        if(!($td = mcrypt_module_open($cipher['name'], '', $cipher['mode'], '')))
             return false;
 
         $keysize = mcrypt_enc_get_key_size($td);
@@ -311,7 +332,7 @@ Class CryptoMcrypt extends CryptoAlgo {
         mcrypt_generic_deinit($td);
         mcrypt_module_close($td);
 
-        return sprintf('$%s$%s', $cipher['id'], $ciphertext);
+        return sprintf('$%s$%s', $cipher['cid'], $ciphertext);
     }
 
     /**
@@ -335,11 +356,10 @@ Class CryptoMcrypt extends CryptoAlgo {
          if(!$cid
                  || !$ciphertext
                  || !($cipher=$this->getCipher($cid))
-                 || $cipher['id']!=$cid)
+                 || $cipher['cid']!=$cid)
              return false;
 
-         $td = mcrypt_module_open($cipher['name'], '', $cipher['mode'], '');
-         if(!$td)
+         if(!($td = mcrypt_module_open($cipher['name'], '', $cipher['mode'], '')))
              return false;
 
          $keysize = mcrypt_enc_get_key_size($td);
@@ -391,8 +411,28 @@ class CryptoOpenSSL extends CryptoAlgo {
             );
 
     function getMethod($cid) {
-        return ($cid && isset($this->ciphers[$cid])) ?
-            $this->ciphers[$cid]['method'] : null;
+
+        return (($cipher=$this->getCipher($cid)))
+            ? $cipher['method']: '';
+    }
+
+    function getCipher($cid) {
+
+        $cipher = null;
+        if($cid)
+            $cipher =  isset($this->ciphers[$cid]) ? $this->ciphers[$cid] : null;
+        elseif($this->ciphers) { // search best available.
+            foreach($this->ciphers as $k => $c) {
+                if($c['method'] &&  openssl_cipher_iv_length($c['method'])) {
+                    $cid = $k;
+                    $cipher = $c;
+                    break;
+                }
+            }
+        }
+
+        return $cipher ?
+            array_merge($cipher, array('cid' => $cid)) : null;
     }
 
     /**
@@ -404,19 +444,21 @@ class CryptoOpenSSL extends CryptoAlgo {
      * text - (string) clear text subject to be encrypted
      * cid - (int) encryption configuration to be used. @see $this->ciphers
      */
-    function encrypt($text, $cid=CRYPTO_CIPHER_OPENSSL_AES_128_CBC) {
+    function encrypt($text, $cid=0) {
 
-        if(!$this->exists() || !$text || !($method=$this->getMethod($cid)))
+        if(!$this->exists()
+                || !$text
+                || !($cipher=$this->getCipher($cid)))
             return false;
 
-        $ivlen  = openssl_cipher_iv_length($method);
+        $ivlen  = openssl_cipher_iv_length($cipher['method']);
         $iv = openssl_random_pseudo_bytes($ivlen);
+        $key = $this->getKeyHash($iv, $ivlen);
 
-        if(!($ciphertext = openssl_encrypt($text, $method,
-                        $this->getKeyHash($iv), 0, $iv)))
+        if(!($ciphertext = openssl_encrypt($text, $cipher['method'], $key, 0, $iv)))
             return false;
 
-        return sprintf('$%s$%s%s', $cid, $iv, $ciphertext);
+        return sprintf('$%s$%s%s', $cipher['cid'], $iv, $ciphertext);
     }
 
     /**
@@ -430,28 +472,28 @@ class CryptoOpenSSL extends CryptoAlgo {
     function decrypt($ciphertext) {
 
 
-        if(!$this->exists() || !$ciphertext)
+        if(!$this->exists() || !$ciphertext || $ciphertext[0] != '$')
             return false;
 
-        if(!preg_match('/^\\$(\d)\\$(.*)/', $ciphertext, $result)
-                ||
-                !($method=$this->getMethod($result[1])))
-            return false;
+        list(, $cid, $ciphertext) = explode('$', $ciphertext, 3);
 
-        $ciphertext = $result[2];
+         if(!$cid
+                 || !$ciphertext
+                 || !($method=$this->getMethod($cid)))
+             return false;
 
         $ivlen  = openssl_cipher_iv_length($method);
         $iv = substr($ciphertext, 0, $ivlen);
         $ciphertext = substr($ciphertext, $ivlen);
+        $key = $this->getKeyHash($iv, $ivlen);
 
-        $plaintext = openssl_decrypt($ciphertext, $method,
-                $this->getKeyHash($iv), 0, $iv);
+        $plaintext = openssl_decrypt($ciphertext, $method, $key, 0, $iv);
 
         return $plaintext;
     }
 
     function exists() {
-        return  extension_loaded('openssl');
+        return  (extension_loaded('openssl') && function_exists('openssl_cipher_iv_length'));
     }
 }
 
@@ -472,41 +514,60 @@ require_once PEAR_DIR.'Crypt/AES.php';
 define('CRYPTO_CIPHER_PHPSECLIB_AES_CBC', 1);
 
 class CryptoPHPSecLib extends CryptoAlgo {
-    var $ciphers = array(
+
+    var $ciphers = array( //Replace with interface class
             CRYPTO_CIPHER_PHPSECLIB_AES_CBC => array(
                 'mode' => CRYPT_AES_MODE_CBC,
                 'ivlen' => 16,
-                'class' => 'Crypt_AES'
+                'class' => 'Crypt_AES',
                 ),
             );
 
+    //TODO: Will be replaced by interface cryto class.. with default/preset
+    // ivlen + extends PHPSecLib crypto classes.
+    function getCipher($cid) {
+
+        if ($cid)
+            $cipher = $this->ciphers[$cid];
+        elseif($this->ciphers) {
+            foreach($this->ciphers as $k => $c) {
+                if($c['class'] && class_exists($c['class'])) {
+                    $cid = $k;
+                    $cipher = $c;
+                    break;
+                }
+            }
+        }
+
+        return $cipher ?
+            array_merge($cipher, array('cid' => $cid)) : null;
+    }
+
     function getCrypto($cid) {
+        if(!$cid
+                || !($c=$this->getCipher($cid))
+                || !($class=$c['class'])
+                || !class_exists($class))
+            return null;
 
-        if ($cid && isset($this->ciphers[$cid])
-                && ($cipher = $this->ciphers[$cid])
-                && ($class = $cipher['class'])
-                && class_exists($class))
-            return new $class($cipher['mode']);
-
-        // else
-        return false;
+        return new $class($c['mode']);
     }
 
-    function getIVLen($cid) {
-        return ($cid && !isset($this->ciphers[$cid]['ivlen'])) ?
-            $this->ciphers[$cid]['ivlen'] : 16;
-    }
+    function encrypt($text, $cid=0) {
 
-    function encrypt($text, $cid=CRYPTO_CIPHER_PHPSECLIB_AES_CBC) {
-
-        if(!$this->exists() || !$text || !($crypto=$this->getCrypto($cid)))
+        if(!$this->exists()
+                || !$text
+                || !($cipher=$this->getCipher($cid))
+                || !($crypto=$this->getCrypto($cipher['cid']))
+                )
             return false;
 
-        $iv = Crypto::randcode($this->getIVLen($cid));
-        $crypto->setKey($this->getKeyHash($iv));
+        $ivlen = $cipher['ivlen'];
+        $iv = Crypto::randcode($ivlen);
+        $crypto->setKey($this->getKeyHash($iv, $ivlen));
         $crypto->setIV($iv);
 
-        return sprintf('$%s$%s%s', $cid, $iv, $crypto->encrypt($text));
+        return sprintf('$%s$%s%s', $cipher['cid'], $iv, $crypto->encrypt($text));
     }
 
     function decrypt($ciphertext) {
@@ -514,15 +575,18 @@ class CryptoPHPSecLib extends CryptoAlgo {
         if(!$this->exists() || !$ciphertext || $ciphertext[0] != '$')
             return false;
 
-        if(!preg_match('/^\\$(\d)\\$(.*)/', $ciphertext, $result)
-                || !($crypto=$this->getCrypto($result[1])))
-            return false;
+        list(, $cid, $ciphertext) = explode('$', $ciphertext, 3);
+         if(!$cid
+                 || !$ciphertext
+                 || !($cipher=$this->getCipher($cid))
+                 || !($crypto=$this->getCrypto($cipher['cid']))
+                 )
+             return false;
 
-        $ciphertext = $result[2];
-        $ivlen = $this->getIVLen($result[1]);
-        $iv = substr($result[2], 0, $ivlen);
-        $ciphertext = substr($result[2], $ivlen);
-        $crypto->setKey($this->getKeyHash($iv));
+        $ivlen = $cipher['ivlen'];
+        $iv = substr($ciphertext, 0, $ivlen);
+        $ciphertext = substr($ciphertext, $ivlen);
+        $crypto->setKey($this->getKeyHash($iv, $ivlen));
         $crypto->setIV($iv);
 
         return $crypto->decrypt($ciphertext);
