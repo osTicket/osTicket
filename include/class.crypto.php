@@ -296,6 +296,7 @@ endif;
 
 Class CryptoMcrypt extends CryptoAlgo {
 
+    # WARNING: Change and you will lose your passwords ...
     var $ciphers = array(
             CRYPTO_CIPHER_MCRYPT_RIJNDAEL_128 => array(
                 'name' => MCRYPT_RIJNDAEL_128,
@@ -385,11 +386,9 @@ Class CryptoMcrypt extends CryptoAlgo {
          $keysize = mcrypt_enc_get_key_size($td);
          $ivsize = mcrypt_enc_get_iv_size($td);
 
-         if(strlen($ciphertext) <= $ivsize)
-             return false;
-
          $iv = substr($ciphertext, 0, $ivsize);
-         $ciphertext = substr($ciphertext, $ivsize);
+         if (!($ciphertext = substr($ciphertext, $ivsize)))
+            return false;
 
          // Do the decryption.
          mcrypt_generic_init($td, $this->getKeyHash($iv, $ivsize), $iv);
@@ -425,9 +424,11 @@ define('CRYPTO_CIPHER_OPENSSL_AES_128_CBC', 1);
 
 class CryptoOpenSSL extends CryptoAlgo {
 
+    # WARNING: Change and you will lose your passwords ...
     var $ciphers = array(
             CRYPTO_CIPHER_OPENSSL_AES_128_CBC => array(
                 'method' => 'aes-128-cbc',
+                'seed' => 8
                 ),
             );
 
@@ -467,10 +468,12 @@ class CryptoOpenSSL extends CryptoAlgo {
             return false;
 
         $ivlen  = openssl_cipher_iv_length($cipher['method']);
-        $iv = openssl_random_pseudo_bytes($ivlen);
+        $iv = openssl_random_pseudo_bytes($cipher['seed']);
         $key = $this->getKeyHash($iv, $ivlen);
 
-        if(!($ciphertext = openssl_encrypt($text, $cipher['method'], $key, 0, $iv)))
+        $options = (defined('OPENSSL_RAW_DATA')) ? OPENSSL_RAW_DATA : true;
+        if(!($ciphertext = openssl_encrypt($text, $cipher['method'], $key,
+                $options, $iv)))
             return false;
 
         return sprintf('$%s$%s%s', $cipher['cid'], $iv, $ciphertext);
@@ -494,15 +497,17 @@ class CryptoOpenSSL extends CryptoAlgo {
 
          if(!$cid
                  || !$ciphertext
-                 || !($method=$this->getMethod($cid)))
+                 || !($cipher=$this->getCipher($cid)))
              return false;
 
-        $ivlen  = openssl_cipher_iv_length($method);
-        $iv = substr($ciphertext, 0, $ivlen);
-        $ciphertext = substr($ciphertext, $ivlen);
+        $ivlen  = openssl_cipher_iv_length($cipher['method']);
+        $iv = substr($ciphertext, 0, $cipher['seed']);
+        $ciphertext = substr($ciphertext, $cipher['seed']);
         $key = $this->getKeyHash($iv, $ivlen);
 
-        $plaintext = openssl_decrypt($ciphertext, $method, $key, 0, $iv);
+        $options = (defined('OPENSSL_RAW_DATA')) ? OPENSSL_RAW_DATA : true;
+        $plaintext = openssl_decrypt($ciphertext, $cipher['method'], $key,
+            $options, $iv);
 
         return $plaintext;
     }
@@ -533,7 +538,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
     var $ciphers = array(
             CRYPTO_CIPHER_PHPSECLIB_AES_CBC => array(
                 'mode' => CRYPT_AES_MODE_CBC,
-                'ivlen' => 16,
+                'seed' => 8,
                 'class' => 'Crypt_AES',
                 ),
             );
@@ -572,7 +577,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
                 )
             return false;
 
-        $ivlen = $cipher['ivlen'];
+        $ivlen = $cipher['seed'];
         $iv = Crypto::randcode($ivlen);
         $crypto->setKey($this->getKeyHash($iv, $ivlen));
         $crypto->setIV($iv);
@@ -593,9 +598,11 @@ class CryptoPHPSecLib extends CryptoAlgo {
                  )
              return false;
 
-        $ivlen = $cipher['ivlen'];
+        $ivlen = $cipher['seed'];
         $iv = substr($ciphertext, 0, $ivlen);
-        $ciphertext = substr($ciphertext, $ivlen);
+        if (!($ciphertext = substr($ciphertext, $ivlen)))
+            return false;
+
         $crypto->setKey($this->getKeyHash($iv, $ivlen));
         $crypto->setIV($iv);
 

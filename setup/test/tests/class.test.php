@@ -55,6 +55,32 @@ class Test {
         fputs(STDOUT, ".");
     }
 
+    function warn($message) {
+        $this->fails[] = array(get_class($this), '', '', 'WARNING: '.$message);
+        fputs(STDOUT, 'w');
+    }
+
+    function assert($expr, $message) {
+        if ($expr)
+            $this->pass();
+        elseif ($message)
+            $this->fail('', '', $message);
+        else
+            $this->fail('', '', "assertion: {$a} != {$b}");
+    }
+
+    function assertEqual($a, $b, $message=false) {
+        if (!$message)
+            $message = "Assertion: {$a} != {$b}";
+        return $this->assert($a == $b, $message);
+    }
+
+    function assertNotEqual($a, $b, $message=false) {
+        if (!$message)
+            $message = "Assertion: {$a} == {$b}";
+        return $this->assert($a != $b, $message);
+    }
+
     function run() {
         $rc = new ReflectionClass(get_class($this));
         foreach ($rc->getMethods() as $m) {
