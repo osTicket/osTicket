@@ -484,6 +484,8 @@ class Staff {
 
         if($vars['passwd1']) {
             $sql.=' ,change_passwd=0, passwdreset=NOW(), passwd='.db_input(Passwd::hash($vars['passwd1']));
+            $info = array('password' => $vars['passwd1']);
+            Signal::send('auth.pwchange', $this, $info);
             $this->cancelResetTokens();
         }
 
@@ -702,20 +704,24 @@ class Staff {
         if (!($template = $tpl->getMsgTemplate('staff.pwreset')))
             return new Error('Unable to retrieve password reset email template');
 
-        $msg = $ost->replaceTemplateVariables($template->asArray(), array(
+        $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'token' => $token,
             'reset_link' => sprintf(
                 "%s/scp/pwreset.php?token=%s",
                 $ost->getConfig()->getBaseUrl(),
                 $token),
-        ));
+        );
+        $info = array('email' => $email, 'vars' => &$vars);
+        Signal::send('auth.pwreset.email', $this, $info);
+
+        $msg = $ost->replaceTemplateVariables($template->asArray(), $vars);
 
         if(!($email=$cfg->getAlertEmail()))
             $email =$cfg->getDefaultEmail();
 
         $_config = new Config('pwreset');
-        $_config->set($token, $this->getId());
+        $_config->set($vars['token'], $this->getId());
 
         $email->send($this->getEmail(), $msg['subj'], $msg['body']);
     }
