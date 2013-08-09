@@ -29,8 +29,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`),
   KEY `old_pk` (`old_pk`),
-  KEY `created` (`created`),
-  FULLTEXT KEY `body` (`body`)
+  KEY `created` (`created`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
