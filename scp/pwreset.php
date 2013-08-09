@@ -60,9 +60,11 @@ if($_POST) {
             elseif (!$staff->forcePasswdRest())
                 $msg = 'Unable to reset password';
             else {
+                $info = array('page' => 'index.php');
+                Signal::send('auth.pwreset.login', $staff, $info);
                 Staff::_do_login($staff, $_POST['userid']);
                 $_SESSION['_staff']['reset-token'] = $_POST['token'];
-                header('Location: index.php');
+                header('Location: '.$info['page']);
                 exit();
             }
             break;
