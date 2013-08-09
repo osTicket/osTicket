@@ -67,7 +67,7 @@ class TestCrypto extends Test {
 
     function testOpenSSL() {
         $tests = array(
-            1 => 'JDEk4Wt4jRG460XnEIzKhTCKE9I0xfU3UadzF4rvlx++uCAOz0cQXDnRFX+VzHtgvfdabZ0FJ8T3e+M=',
+            1 => 'JDEkRiLtWBgRN68kJjp4jsM6xKJY+XFYwMeaQIHJXKW8v3fEZzs3gCq3hKevgvAjvdgwx5ZUYLFPsFehLtkzAw8IlQ==',
         );
         if (!CryptoOpenSSL::exists())
             return $this->warn('Not testing openssl encryption');
@@ -79,7 +79,7 @@ class TestCrypto extends Test {
 
     function testPHPSecLib() {
         $tests = array(
-            1 => 'JDEkj42jvo2ADNoAGCvtbKoZfsVvFPGNNPDQrlcHOxQV9pjNRTJocsJhguJtjqajFTJX6rMuEVmMgrE=',
+            1 => 'JDEkvH/es2Drdsmc8pU2UBnBxhiPavtvst2Sl9jOYVXTRjHsgPmv8+8mIgwnA1nQ6EI2AoTq2gMZtoBoqK3Mzpw8IQ==',
         );
         if (!CryptoPHPSecLib::exists())
             return $this->warn('Not testing PHPSecLib encryption');
