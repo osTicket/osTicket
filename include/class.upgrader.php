@@ -114,7 +114,7 @@ class Upgrader {
 
     function getErrors() {
         if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getError();
+            return $this->getCurrentStream()->getErrors();
     }
 
     function getNextAction() {
