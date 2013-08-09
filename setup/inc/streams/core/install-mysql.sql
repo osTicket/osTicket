@@ -92,7 +92,7 @@ CREATE TABLE `%TABLE_PREFIX%config` (
 INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
   ('core', 'isonline', '0'),
   ('core', 'enable_daylight_saving', '0'),
-  ('core', 'staff_ip_binding', '1'),
+  ('core', 'staff_ip_binding', '0'),
   ('core', 'staff_max_logins', '4'),
   ('core', 'staff_login_timeout', '2'),
   ('core', 'staff_session_timeout', '30'),
@@ -221,7 +221,7 @@ CREATE TABLE `%TABLE_PREFIX%email` (
   `email` varchar(255) NOT NULL default '',
   `name` varchar(255) NOT NULL default '',
   `userid` varchar(255) NOT NULL,
-  `userpass` varchar(125) NOT NULL,
+  `userpass` varchar(255) collate ascii_general_ci NOT NULL,
   `mail_active` tinyint(1) NOT NULL default '0',
   `mail_host` varchar(255) NOT NULL,
   `mail_protocol` enum('POP','IMAP') NOT NULL default 'POP',
