@@ -102,6 +102,12 @@ class Upgrader {
             return $this->getCurrentStream()->check_mysql();
     }
 
+
+    function getTask() {
+        if($this->getCurrentStream())
+            return $this->getCurrentStream()->getTask();
+    }
+
     function doTask() {
         return $this->getCurrentStream()->doTask();
     }
@@ -263,7 +269,7 @@ class StreamUpgrader extends SetupWizard {
     function isFinished() {
         # TODO: 1. Check if current and target hashes match,
         #       2. Any pending tasks
-        return !($this->getNextPatch() || $this->getPendingTasks());
+        return !($this->getNextPatch() || $this->getPendingTask());
     }
 
     function readPatchInfo($patch) {
@@ -301,6 +307,8 @@ class StreamUpgrader extends SetupWizard {
     }
 
     function getTask() {
+        global $ost;
+
         $task_file = $this->getSQLDir() . "{$this->phash}.task.php";
         if (!file_exists($task_file))
             return null;
@@ -308,7 +316,7 @@ class StreamUpgrader extends SetupWizard {
         if (!isset($this->task)) {
             $class = (include $task_file);
             if (!is_string($class) || !class_exists($class))
-                return $ost->logError("{$phash}:{$class}: Bogus migration task");
+                return $ost->logError("{$this->phash}:{$class}: Bogus migration task");
             $this->task = new $class();
             if (isset($_SESSION['ost_upgrader']['task'][$this->phash]))
                 $this->task->wakeup($_SESSION['ost_upgrader']['task'][$this->phash]);
@@ -410,7 +418,7 @@ class StreamUpgrader extends SetupWizard {
             return 0;
 
         $ost->logDebug('Upgrader', sprintf("%s: Unable to process cleanup file",
-                        $phash));
+                        $this->phash));
         return 0;
     }
 }

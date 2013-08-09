@@ -63,10 +63,8 @@ class Test {
     function assert($expr, $message) {
         if ($expr)
             $this->pass();
-        elseif ($message)
-            $this->fail('', '', $message);
         else
-            $this->fail('', '', "assertion: {$a} != {$b}");
+            $this->fail('', '', $message);
     }
 
     function assertEqual($a, $b, $message=false) {
