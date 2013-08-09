@@ -32,11 +32,11 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
                 $errors['err']='Config file rename required to continue!';
             } else {
                 $upgrader->setState('upgrade');
-            } 
+            }
             break;
         case 'upgrade': //Manual upgrade.... when JS (ajax) is not supported.
-            if($upgrader->getNumPendingTasks()) {
-                $upgrader->doTasks();
+            if($upgrader->getPendingTask()) {
+                $upgrader->doTask();
             } elseif($ost->isUpgradePending() && $upgrader->isUpgradable()) {
                 $upgrader->upgrade();
             } elseif(!$ost->isUpgradePending()) {

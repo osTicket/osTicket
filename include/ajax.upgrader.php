@@ -32,7 +32,7 @@ class UpgraderAjaxAPI extends AjaxController {
             exit;
         }
 
-        if($upgrader->getNumPendingTasks() && $upgrader->doTasks()) {
+        if($upgrader->getTask() && $upgrader->doTask()) {
             //More pending tasks - doTasks returns the number of pending tasks
             Http::response(200, $upgrader->getNextAction());
             exit;

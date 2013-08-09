@@ -116,7 +116,7 @@
     require(INCLUDE_DIR.'class.usersession.php');
     require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
     require(INCLUDE_DIR.'class.log.php');
-    require(INCLUDE_DIR.'class.mcrypt.php');
+    require(INCLUDE_DIR.'class.crypto.php');
     require(INCLUDE_DIR.'class.misc.php');
     require(INCLUDE_DIR.'class.timezone.php');
     require(INCLUDE_DIR.'class.http.php');

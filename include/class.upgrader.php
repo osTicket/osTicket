@@ -102,14 +102,14 @@ class Upgrader {
             return $this->getCurrentStream()->check_mysql();
     }
 
-    function getNumPendingTasks() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getNumPendingTasks();
+
+    function getTask() {
+        if($this->getCurrentStream())
+            return $this->getCurrentStream()->getTask();
     }
 
-    function doTasks() {
-        if ($this->getNumPendingTasks())
-            return $this->getCurrentStream()->doTasks();
+    function doTask() {
+        return $this->getCurrentStream()->doTask();
     }
 
     function getErrors() {
@@ -155,6 +155,8 @@ class StreamUpgrader extends SetupWizard {
     var $state;
     var $mode;
 
+    var $phash;
+
     /**
      * Parameters:
      * schema_signature - (string<hash-hex>) Current database-reflected (via
@@ -181,13 +183,12 @@ class StreamUpgrader extends SetupWizard {
         if(!ini_get('safe_mode'))
             set_time_limit(0);
 
-
         //Init the task Manager.
         if(!isset($_SESSION['ost_upgrader'][$this->getShash()]))
-            $_SESSION['ost_upgrader'][$this->getShash()]['tasks']=array();
+            $_SESSION['ost_upgrader']['task'] = array();
 
         //Tasks to perform - saved on the session.
-        $this->tasks = &$_SESSION['ost_upgrader'][$this->getShash()]['tasks'];
+        $this->phash = &$_SESSION['ost_upgrader']['phash'];
 
         //Database migrater
         $this->migrater = null;
@@ -268,7 +269,7 @@ class StreamUpgrader extends SetupWizard {
     function isFinished() {
         # TODO: 1. Check if current and target hashes match,
         #       2. Any pending tasks
-        return !($this->getNextPatch() || $this->getPendingTasks());
+        return !($this->getNextPatch() || $this->getPendingTask());
     }
 
     function readPatchInfo($patch) {
@@ -287,10 +288,8 @@ class StreamUpgrader extends SetupWizard {
     function getNextAction() {
 
         $action='Upgrade osTicket to '.$this->getVersion();
-        if($this->getNumPendingTasks() && ($task=$this->getNextTask())) {
-            $action = $task['desc'];
-            if($task['status']) //Progress report...
-                $action.=' ('.$task['status'].')';
+        if($task=$this->getTask()) {
+            $action = $task->getDescription() .' ('.$task->getStatus().')';
         } elseif($this->isUpgradable() && ($nextversion = $this->getNextVersion())) {
             $action = "Upgrade to $nextversion";
         }
@@ -298,77 +297,64 @@ class StreamUpgrader extends SetupWizard {
         return '['.$this->name.'] '.$action;
     }
 
-    function getNumPendingTasks() {
-
-        return count($this->getPendingTasks());
-    }
-
-    function getPendingTasks() {
+    function getPendingTask() {
 
         $pending=array();
-        if(($tasks=$this->getTasks())) {
-            foreach($tasks as $k => $task) {
-                if(!$task['done'])
-                    $pending[$k] = $task;
-            }
-        }
+        if ($task=$this->getTask())
+            return ($task->isFinished()) ? 1 : 0;
 
-        return $pending;
+        return false;
     }
 
-    function getTasks() {
-       return $this->tasks;
-    }
+    function getTask() {
+        global $ost;
 
-    function getNextTask() {
-
-        if(!($tasks=$this->getPendingTasks()))
+        $task_file = $this->getSQLDir() . "{$this->phash}.task.php";
+        if (!file_exists($task_file))
             return null;
 
-        return current($tasks);
+        if (!isset($this->task)) {
+            $class = (include $task_file);
+            if (!is_string($class) || !class_exists($class))
+                return $ost->logError("{$this->phash}:{$class}: Bogus migration task");
+            $this->task = new $class();
+            if (isset($_SESSION['ost_upgrader']['task'][$this->phash]))
+                $this->task->wakeup($_SESSION['ost_upgrader']['task'][$this->phash]);
+        }
+        return $this->task;
     }
 
-    function removeTask($tId) {
-
-        if(isset($this->tasks[$tId]))
-            unset($this->tasks[$tId]);
-
-        return (!$this->tasks[$tId]);
-    }
-
-    function setTaskStatus($tId, $status) {
-        if(isset($this->tasks[$tId]))
-            $this->tasks[$tId]['status'] = $status;
-    }
-
-    function doTasks() {
+    function doTask() {
 
         global $ost;
-        if(!($tasks=$this->getPendingTasks()))
-            return true; //Nothing to do.
+        if(!($task = $this->getTask()))
+            return false; //Nothing to do.
 
-        $c = count($tasks);
         $ost->logDebug(
-                sprintf('Upgrader - %s (%d pending tasks).', $this->getShash(), $c),
-                sprintf('There are %d pending upgrade tasks for %s patch', $c, $this->getShash())
+                sprintf('Upgrader - %s (task pending).', $this->getShash()),
+                sprintf('The %s task reports there is work to do',
+                    get_class($task))
                 );
-        $start_time = Misc::micro_time();
-        foreach($tasks as $k => $task) {
-            //TODO: check time used vs. max execution - break if need be
-            if(call_user_func(array($this, $task['func']), $k)===0) {
-                $this->tasks[$k]['done'] = true;
-            } else { //Task has pending items to process.
-                break;
-            }
-        }
+        if(!($max_time = ini_get('max_execution_time')))
+            $max_time = 30; //Default to 30 sec batches.
 
-        return $this->getPendingTasks();
+        $task->run($max_time);
+        if (!$task->isFinished()) {
+            $_SESSION['ost_upgrader']['task'][$this->phash] = $task->sleep();
+            return true;
+        }
+        // Run the cleanup script, if any, and destroy the task's session
+        // data
+        $this->cleanup();
+        unset($_SESSION['ost_upgrader']['task'][$this->phash]);
+        unset($this->phash);
+        return false;
     }
 
     function upgrade() {
         global $ost;
 
-        if($this->getPendingTasks() || !($patches=$this->getPatches()))
+        if($this->getPendingTask() || !($patches=$this->getPatches()))
             return false;
 
         $start_time = Misc::micro_time();
@@ -394,19 +380,20 @@ class StreamUpgrader extends SetupWizard {
 
             $ost->logDebug("Upgrader - $shash applied", $logMsg);
             $this->signature = $shash; //Update signature to the *new* HEAD
+            $this->phash = $phash;
 
-            //Check if the said patch has scripted tasks
-            if(!($tasks=$this->getTasksForPatch($phash))) {
-                //Break IF elapsed time is greater than 80% max time allowed.
-                if(($elapsedtime=(Misc::micro_time()-$start_time)) && $max_time && $elapsedtime>($max_time*0.80))
+            //Break IF elapsed time is greater than 80% max time allowed.
+            if (!($task=$this->getTask())) {
+                $this->cleanup();
+                if (($elapsedtime=(Misc::micro_time()-$start_time))
+                        && $max_time && $elapsedtime>($max_time*0.80))
                     break;
-
-                continue;
-
+                else
+                    // Apply the next patch
+                    continue;
             }
 
             //We have work to do... set the tasks and break.
-            $_SESSION['ost_upgrader'][$shash]['tasks'] = $tasks;
             $_SESSION['ost_upgrader'][$shash]['state'] = 'upgrade';
             break;
         }
@@ -415,47 +402,13 @@ class StreamUpgrader extends SetupWizard {
         $this->migrater = null;
 
         return true;
-
-    }
-
-    function getTasksForPatch($phash) {
-
-        $tasks=array();
-        switch($phash) { //Add  patch specific scripted tasks.
-            case 'c00511c7-7be60a84': //V1.6 ST- 1.7 * {{MD5('1.6 ST') -> c00511c7c1db65c0cfad04b4842afc57}}
-                $tasks[] = array('func' => 'migrateSessionFile2DB',
-                                 'desc' => 'Transitioning to db-backed sessions');
-                break;
-            case '98ae1ed2-e342f869': //v1.6 RC1-4 -> v1.6 RC5
-                $tasks[] = array('func' => 'migrateAPIKeys',
-                                 'desc' => 'Migrating API keys to a new table');
-                break;
-            case '435c62c3-2e7531a2':
-                $tasks[] = array('func' => 'migrateGroupDeptAccess',
-                                 'desc' => 'Migrating group\'s department access to a new table');
-                break;
-            case '15b30765-dd0022fb':
-                $tasks[] = array('func' => 'migrateAttachments2DB',
-                                 'desc' => 'Migrating attachments to database, it might take a while depending on the number of files.');
-                break;
-        }
-
-        //Check IF SQL cleanup exists.
-        $file=$this->getSQLDir().$phash.'.cleanup.sql';
-        if(file_exists($file))
-            $tasks[] = array('func' => 'cleanup',
-                             'desc' => 'Post-upgrade cleanup!',
-                             'phash' => $phash);
-
-        return $tasks;
     }
 
     /************* TASKS **********************/
-    function cleanup($taskId) {
+    function cleanup() {
         global $ost;
 
-        $phash = $this->tasks[$taskId]['phash'];
-        $file=$this->getSQLDir().$phash.'.cleanup.sql';
+        $file = $this->getSQLDir().$this->phash.'.cleanup.sql';
 
         if(!file_exists($file)) //No cleanup script.
             return 0;
@@ -465,67 +418,8 @@ class StreamUpgrader extends SetupWizard {
             return 0;
 
         $ost->logDebug('Upgrader', sprintf("%s: Unable to process cleanup file",
-                        $phash));
+                        $this->phash));
         return 0;
-    }
-
-    function migrateAttachments2DB($taskId) {
-        global $ost;
-
-        if(!($max_time = ini_get('max_execution_time')))
-            $max_time = 30; //Default to 30 sec batches.
-
-        $att_migrater = new AttachmentMigrater();
-        if($att_migrater->do_batch(($max_time*0.9), 100)===0)
-            return 0;
-
-        return $att_migrater->getQueueLength();
-    }
-
-    function migrateSessionFile2DB($taskId) {
-        # How about 'dis for a hack?
-        osTicketSession::write(session_id(), session_encode());
-        return 0;
-    }
-
-    function migrateAPIKeys($taskId) {
-
-        $res = db_query('SELECT api_whitelist, api_key FROM '.CONFIG_TABLE.' WHERE id=1');
-        if(!$res || !db_num_rows($res))
-            return 0;  //Reporting success.
-
-        list($whitelist, $key) = db_fetch_row($res);
-
-        $ips=array_filter(array_map('trim', explode(',', $whitelist)));
-        foreach($ips as $ip) {
-            $sql='INSERT INTO '.API_KEY_TABLE.' SET created=NOW(), updated=NOW(), isactive=1 '
-                .',ipaddr='.db_input($ip)
-                .',apikey='.db_input(strtoupper(md5($ip.md5($key))));
-            db_query($sql);
-        }
-
-        return 0;
-    }
-
-    function migrateGroupDeptAccess($taskId) {
-
-        $res = db_query('SELECT group_id, dept_access FROM '.GROUP_TABLE);
-        if(!$res || !db_num_rows($res))
-            return 0;  //No groups??
-
-        while(list($groupId, $access) = db_fetch_row($res)) {
-            $depts=array_filter(array_map('trim', explode(',', $access)));
-            foreach($depts as $deptId) {
-                $sql='INSERT INTO '.GROUP_DEPT_TABLE
-                    .' SET dept_id='.db_input($deptId).', group_id='.db_input($groupId);
-                db_query($sql);
-            }
-        }
-
-        return 0;
-
-
-
     }
 }
 ?>

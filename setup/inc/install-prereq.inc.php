@@ -22,7 +22,6 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <h3>Recommended:</h3>
             You can use osTicket without these, but you may not be able to use all features.
             <ul class="progress">
-                <li class="<?php echo extension_loaded('mcrypt')?'yes':'no'; ?>">Mcrypt extension</li>
                 <li class="<?php echo extension_loaded('gd')?'yes':'no'; ?>">Gdlib extension</li>
                 <li class="<?php echo extension_loaded('imap')?'yes':'no'; ?>">PHP IMAP extension</li>
             </ul>
