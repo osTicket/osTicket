@@ -15,7 +15,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 @chdir(realpath(dirname(__file__).'/../'));
-define('ROOT_PATH','../');
 
 require_once('client.inc.php');
 require_once(INCLUDE_DIR.'class.format.php');

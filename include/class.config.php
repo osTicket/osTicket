@@ -66,11 +66,10 @@ class Config {
             return $this->session[$key];
         elseif (isset($this->config[$key]))
             return $this->config[$key]['value'];
-        elseif ($default !== null)
-            return $this->set($key, $default);
         elseif (isset($this->defaults[$key]))
             return $this->defaults[$key];
-        return null;
+
+        return $default;
     }
 
     function exists($key) {

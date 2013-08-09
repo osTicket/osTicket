@@ -34,8 +34,6 @@
     ini_set('session.use_trans_sid', 0);
     #No cache
     session_cache_limiter('nocache');
-    #Cookies
-    //ini_set('session.cookie_path','/osticket/');
 
     #Error reporting...Good idea to ENABLE error reporting to a file. i.e display_errors should be set to false
     $error_reporting = E_ALL & ~E_NOTICE;
@@ -62,7 +60,12 @@
     }
 
     #Set Dir constants
-    if(!defined('ROOT_PATH')) define('ROOT_PATH','./'); //root path. Damn directories
+    $here = substr(realpath(dirname(__file__)),
+        strlen($_SERVER['DOCUMENT_ROOT']));
+    // Determine the path in the URI used as the base of the osTicket
+    // installation
+    if (!defined('ROOT_PATH'))
+        define('ROOT_PATH', str_replace('\\', '/', $here.'/')); //root path. Damn directories
 
     define('ROOT_DIR',str_replace('\\\\', '/', realpath(dirname(__FILE__))).'/'); #Get real path for root dir ---linux and windows
     define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
@@ -127,6 +130,10 @@
         require_once INCLUDE_DIR.'mysqli.php';
     else
         require(INCLUDE_DIR.'mysql.php');
+
+    #Cookies
+    session_set_cookie_params(86400, ROOT_PATH, $_SERVER['HTTP_HOST'],
+        osTicket::is_https());
 
     #CURRENT EXECUTING SCRIPT.
     define('THISPAGE', Misc::currentURL());

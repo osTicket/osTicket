@@ -13,7 +13,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-define('ROOT_PATH','../');
 require_once('../client.inc.php');
 require_once(INCLUDE_DIR.'class.faq.php');
 /* Bail out if knowledgebase is disabled or if we have no public-published FAQs. */

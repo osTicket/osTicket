@@ -17,7 +17,6 @@ if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Access denied'); 
 
 if(!file_exists('../main.inc.php')) die('Fatal error... get technical support');
 
-define('ROOT_PATH','../'); //Path to the root dir.
 require_once('../main.inc.php');
 
 if(!defined('INCLUDE_DIR')) die('Fatal error... invalid setting.');
@@ -64,7 +63,7 @@ if(!$thisstaff || !is_object($thisstaff) || !$thisstaff->getId() || !$thisstaff-
         $msg = $_SESSION['_staff']['auth']['msg'];
         unset($_SESSION['_staff']['auth']['msg']);
     }
-    elseif ($thisstaff && !$thisstaff->isValid())
+    elseif (isset($_SESSION['_staff']['userID']) && !$thisstaff->isValid())
         $msg = 'Session timed out due to inactivity';
     else
         $msg = 'Authentication Required';

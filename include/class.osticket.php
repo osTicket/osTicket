@@ -352,6 +352,16 @@ class osTicket {
         return null;
     }
 
+    /**
+     * Returns TRUE if the request was made via HTTPS and false otherwise
+     */
+    function is_https() {
+        return (isset($_SERVER['HTTPS'])
+                && strtolower($_SERVER['HTTPS']) == 'on')
+            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+                && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
+    }
+
     /* returns true if script is being executed via commandline */
     function is_cli() {
         return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')

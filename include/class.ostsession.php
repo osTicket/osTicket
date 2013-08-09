@@ -21,7 +21,6 @@ class osTicketSession {
     var $id = '';
 
     function osTicketSession($ttl=0){
-
         $this->ttl =$ttl?$ttl:get_cfg_var('session.gc_maxlifetime');
         if(!$this->ttl)
             $this->ttl=SESSION_TTL;
@@ -40,6 +39,7 @@ class osTicketSession {
             register_shutdown_function('session_write_close');
         }
         //Start the session.
+        session_name('OSTSESSID');
         session_start();
     }
 
