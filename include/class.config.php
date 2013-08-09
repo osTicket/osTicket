@@ -191,7 +191,8 @@ class OsticketConfig extends Config {
 
     function getSchemaSignature($section=null) {
 
-        if (!$section && ($v=$this->get('schema_signature')))
+        if ((!$section || $section == $this->section)
+                && ($v=$this->get('schema_signature')))
             return $v;
 
         // 1.7 after namespaced configuration, other namespace
