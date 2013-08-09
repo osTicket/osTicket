@@ -87,7 +87,7 @@ class Email {
     }
 
     function getPasswd() {
-        return $this->ht['userpass']?Mcrypt::decrypt($this->ht['userpass'],SECRET_SALT):'';
+        return $this->ht['userpass']?Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid']):'';
     }
 
     function getHashtable() {
@@ -108,7 +108,7 @@ class Email {
                 'protocol'  => $this->ht['mail_protocol'],
                 'encryption' => $this->ht['mail_encryption'],
                 'username'  => $this->ht['userid'],
-                'password' => Mcrypt::decrypt($this->ht['userpass'], SECRET_SALT),
+                'password' => Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid']),
                 //osTicket specific
                 'email_id'  => $this->getId(), //Required for email routing to work.
                 'max_fetch' => $this->ht['mail_fetchmax'],
@@ -134,7 +134,7 @@ class Email {
                 'port' => $this->ht['smtp_port'],
                 'auth' => (bool) $this->ht['smtp_auth'],
                 'username' => $this->ht['userid'],
-                'password' => Mcrypt::decrypt($this->ht['userpass'], SECRET_SALT)
+                'password' => Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid'])
                 );
 
         return $info;
@@ -367,7 +367,7 @@ class Email {
             $sql.=',mail_delete=0,mail_archivefolder=NULL';
 
         if($vars['passwd']) //New password - encrypt.
-            $sql.=',userpass='.db_input(Mcrypt::encrypt($vars['passwd'],SECRET_SALT));
+            $sql.=',userpass='.db_input(Crypto::encrypt($vars['passwd'],SECRET_SALT, $vars['userid']));
 
         if($id) { //update
             $sql='UPDATE '.EMAIL_TABLE.' SET '.$sql.' WHERE email_id='.db_input($id);
