@@ -712,13 +712,14 @@ class Staff {
                 $ost->getConfig()->getBaseUrl(),
                 $token),
         );
+
+        if(!($email=$cfg->getAlertEmail()))
+            $email = $cfg->getDefaultEmail();
+
         $info = array('email' => $email, 'vars' => &$vars);
         Signal::send('auth.pwreset.email', $this, $info);
 
         $msg = $ost->replaceTemplateVariables($template->asArray(), $vars);
-
-        if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
 
         $_config = new Config('pwreset');
         $_config->set($vars['token'], $this->getId());
