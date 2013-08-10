@@ -42,7 +42,7 @@ class Staff {
         if(!$var && !($var=$this->getId()))
             return false;
 
-        $sql='SELECT staff.*, staff.created as added, grp.* '
+        $sql='SELECT staff.created as added, grp.*, staff.* '
             .' FROM '.STAFF_TABLE.' staff '
             .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id)
                WHERE ';
