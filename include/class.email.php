@@ -120,7 +120,12 @@ class Email {
     }
 
     function isSMTPEnabled() {
-        return $this->ht['smtp_active'];
+
+        return (
+                $this->ht['smtp_active']
+                    && ($info=$this->getSMTPInfo())
+                    && (!$info['auth'] || $info['password'])
+                );
     }
 
     function allowSpoofing() {
