@@ -192,7 +192,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while(list($id,$email,$name)=db_fetch_row($res)){
-                            $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
+                            $selected = (isset($info['autoresp_email_id'])
+                                    && $id == $info['autoresp_email_id'])
+                                ? 'selected="selected"' : '';
                             if($name)
                                 $email=Format::htmlchars("$name <$email>");
                             echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
