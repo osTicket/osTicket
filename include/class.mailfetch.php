@@ -234,6 +234,23 @@ class MailFetcher {
                       'mid'    =>$headerinfo->message_id
                       );
 
+        //Try to determine target email - useful when fetched inbox has
+        // aliases that are independent emails within osTicket.
+        $emailId = 0;
+        $tolist = array();
+        if($headerinfo->to)
+            $tolist = array_merge($tolist, $headerinfo->to);
+        if($headerinfo->cc)
+            $tolist = array_merge($tolist, $headerinfo->cc);
+        if($headerinfo->bcc)
+            $tolist = array_merge($tolist, $headerinfo->bcc);
+
+        foreach($tolist as $addr)
+            if(($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
+                break;
+
+        $header['emailId'] = $emailId;
+
         return $header;
     }
 
@@ -374,14 +391,13 @@ class MailFetcher {
 	        return true; //Report success (moved or delete)
         }
 
-        $emailId = $this->getEmailId();
         $vars = array();
         $vars['email']=$mailinfo['email'];
         $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
         $vars['message']=Format::stripEmptyLines($this->getBody($mid));
         $vars['header']=$this->getHeader($mid);
-        $vars['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
+        $vars['emailId']=$mailinfo['emailId']?$mailinfo['emailId']:$this->getEmailId();
         $vars['mid']=$mailinfo['mid'];
 
         //Missing FROM name  - use email address.
