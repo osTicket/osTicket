@@ -40,7 +40,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em><strong>Email Information</strong>: Login details are optional BUT required when IMAP/POP or SMTP are enabled.</em>
+                <em><strong>Email Information &amp; Settings</strong></em>
             </th>
         </tr>
     </thead>
@@ -65,7 +65,61 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Login Username
+                New Ticket Priority
+            </td>
+            <td>
+                <select name="priority_id">
+                    <option value="">&mdash; Select Priority &mdash;</option>
+                    <?php
+                    $sql='SELECT priority_id,priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$name)=db_fetch_row($res)){
+                            $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['priority_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                New Ticket Dept.
+            </td>
+            <td>
+                <select name="dept_id">
+                    <option value="">&mdash; Select Department &mdash;</option>
+                    <?php
+                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$name)=db_fetch_row($res)){
+                            $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['dept_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                Auto-response
+            </td>
+            <td>
+                <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
+                <strong>Disable</strong> new ticket auto-response for this email. Overwrite global and dept. settings.
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <em><strong>Login Information:</strong>: Optional BUT required when IMAP/POP or SMTP (with auth.) are enabled.</em>
+            </th>
+        </tr>
+        <tr>
+            <td width="180">
+                Username
             </td>
             <td>
                 <input type="text" size="35" name="userid" value="<?php echo $info['userid']; ?>">
@@ -74,7 +128,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Login Password
+               Password
             </td>
             <td>
                 <input type="password" size="35" name="passwd" value="<?php echo $info['passwd']; ?>">
@@ -135,55 +189,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" name="mail_fetchmax" size=4 value="<?php echo $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>"> Maximum emails to process per fetch.
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                New Ticket Priority:
-            </td>
-            <td>
-                <select name="priority_id">
-                    <option value="">&mdash; Select Priority &mdash;</option>
-                    <?php
-                    $sql='SELECT priority_id,priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error"><?php echo $errors['priority_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                New Ticket Dept.
-            </td>
-            <td>
-                <select name="dept_id">
-                    <option value="">&mdash; Select Department &mdash;</option>
-                    <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error"><?php echo $errors['dept_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                Auto-response
-            </td>
-            <td>
-                <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                <strong>Disable</strong> new ticket auto-response for this email. Overwrite global and dept. settings.
             </td>
         </tr>
         <tr><td valign="top">Fetched Emails</td>
