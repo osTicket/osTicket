@@ -332,7 +332,7 @@ if(!$cfg->showNotesInline()) { ?>
         $types[] = 'N';
     if(($thread=$ticket->getThreadEntries($types))) {
        foreach($thread as $entry) {
-           if($entry['body'], '-')
+           if($entry['body']=='-')
                $entry['body'] = '(EMPTY)';
            ?>
         <table class="<?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">

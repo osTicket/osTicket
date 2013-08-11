@@ -62,7 +62,7 @@ if(!$dept || !$dept->isPublic())
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     $threadType=array('M' => 'message', 'R' => 'response');
     foreach($thread as $entry) {
-        if($entry['body'], '-')
+        if($entry['body']=='-')
             $entry['body'] = '(EMPTY)';
 
         //Making sure internal notes are not displayed due to backend MISTAKES!
