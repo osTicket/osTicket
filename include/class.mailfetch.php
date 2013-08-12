@@ -229,9 +229,10 @@ class MailFetcher {
         $sender=$headerinfo->from[0];
         //Just what we need...
         $header=array('name'  =>@$sender->personal,
-                      'email' =>(strtolower($sender->mailbox).'@'.$sender->host),
+                      'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
                       'subject'=>@$headerinfo->subject,
-                      'mid'    =>$headerinfo->message_id
+                      'mid'    => trim(@$headerinfo->message_id),
+                      'header' => $this->getHeader($mid),
                       );
 
         //Try to determine target email - useful when fetched inbox has
@@ -250,6 +251,13 @@ class MailFetcher {
                 break;
 
         $header['emailId'] = $emailId;
+
+        // Ensure we have a message-id. If unable to read it out of the
+        // email, use the hash of the entire email headers
+        if (!$header['mid'] && $header['header'])
+            if (!($header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
+                    'message-id')))
+                $header['mid'] = '<' . md5($header['header']) . '@local>';
 
         return $header;
     }
@@ -380,10 +388,6 @@ class MailFetcher {
         if(!($mailinfo = $this->getHeaderInfo($mid)))
             return false;
 
-        //Make sure the email is NOT already fetched... (undeleted emails)
-        if($mailinfo['mid'] && ($id=Ticket::getIdByMessageId(trim($mailinfo['mid']), $mailinfo['email'])))
-            return true; //Reporting success so the email can be moved or deleted.
-
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
@@ -391,12 +395,16 @@ class MailFetcher {
 	        return true; //Report success (moved or delete)
         }
 
+        //Make sure the email is NOT already fetched... (undeleted emails)
+        if($mailinfo['mid'] && ($id=Ticket::getIdByMessageId($mailinfo['mid'], $mailinfo['email'])))
+            return true; //Reporting success so the email can be moved or deleted.
+
         $vars = array();
         $vars['email']=$mailinfo['email'];
         $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
         $vars['message']=Format::stripEmptyLines($this->getBody($mid));
-        $vars['header']=$this->getHeader($mid);
+        $vars['header']=$mailinfo['header'];
         $vars['emailId']=$mailinfo['emailId']?$mailinfo['emailId']:$this->getEmailId();
         $vars['mid']=$mailinfo['mid'];
 

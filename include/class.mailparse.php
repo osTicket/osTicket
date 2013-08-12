@@ -106,6 +106,15 @@ class Mail_Parse {
         return $array;
     }
 
+    /* static */
+    function findHeaderEntry($headers, $name) {
+        if (!is_array($headers))
+            $headers = self::splitHeaders($headers);
+        foreach ($headers as $key=>$val)
+            if (strcasecmp($key, $name) === 0)
+                return $val;
+        return false;
+    }
 
     function getStruct(){
         return $this->struct;
