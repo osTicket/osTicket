@@ -153,7 +153,9 @@ class AttachmentMigrater extends MigrationTask {
         if(!($res=db_query($sql)))
             return $this->error('Unable to query DB for attached files to migrate!');
 
-        $ost->logDebug("Attachment migration", 'Found '.db_num_rows($res).' attachments to migrate');
+        // Force the log message to the database
+        $ost->logDebug("Attachment migration", 'Found '.db_num_rows($res)
+            .' attachments to migrate', true);
         if(!db_num_rows($res))
             return 0;  //Nothing else to do!!
 
@@ -217,7 +219,8 @@ class AttachmentMigrater extends MigrationTask {
 
         $this->errors++;
         $this->errorList[] = $what;
-        $ost->logDebug('Upgrader: Attachment Migrater', $what);
+        // Log the error but don't send the alert email
+        $ost->logError('Upgrader: Attachment Migrater', $what, false);
         # Assist in returning FALSE for inline returns with this method
         return false;
     }

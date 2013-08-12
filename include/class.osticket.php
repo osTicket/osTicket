@@ -242,8 +242,8 @@ class osTicket {
 
     }
 
-    function logDebug($title, $message, $alert=false) {
-        return $this->log(LOG_DEBUG, $title, $message, $alert);
+    function logDebug($title, $message, $force=false) {
+        return $this->log(LOG_DEBUG, $title, $message, false, $force);
     }
 
     function logInfo($title, $message, $alert=false) {
@@ -266,7 +266,7 @@ class osTicket {
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
 
-    function log($priority, $title, $message, $alert=false) {
+    function log($priority, $title, $message, $alert=false, $force=false) {
 
         //We are providing only 3 levels of logs. Windows style.
         switch($priority) {
@@ -292,7 +292,7 @@ class osTicket {
             $this->alertAdmin($title, $message);
 
         //Logging everything during upgrade.
-        if($this->getConfig()->getLogLevel()<$level && !$this->isUpgradePending())
+        if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;
 
         //Save log based on system log level settings.

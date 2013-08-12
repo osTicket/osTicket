@@ -326,11 +326,10 @@ class StreamUpgrader extends SetupWizard {
 
     function doTask() {
 
-        global $ost;
         if(!($task = $this->getTask()))
             return false; //Nothing to do.
 
-        $ost->logDebug(
+        $this->log(
                 sprintf('Upgrader - %s (task pending).', $this->getShash()),
                 sprintf('The %s task reports there is work to do',
                     get_class($task))
@@ -379,7 +378,7 @@ class StreamUpgrader extends SetupWizard {
             if(($info = $this->readPatchInfo($patch)) && $info['version'])
                 $logMsg.= ' ('.$info['version'].') ';
 
-            $ost->logDebug("Upgrader - $shash applied", $logMsg);
+            $this->log("Upgrader - $shash applied", $logMsg);
             $this->signature = $shash; //Update signature to the *new* HEAD
             $this->phash = $phash;
 
@@ -405,10 +404,14 @@ class StreamUpgrader extends SetupWizard {
         return true;
     }
 
+    function log($title, $message, $level=LOG_DEBUG) {
+        global $ost;
+        // Never alert the admin, and force the write to the database
+        $ost->log($level, $title, $message, false, true);
+    }
+
     /************* TASKS **********************/
     function cleanup() {
-        global $ost;
-
         $file = $this->getSQLDir().$this->phash.'.cleanup.sql';
 
         if(!file_exists($file)) //No cleanup script.
@@ -416,12 +419,12 @@ class StreamUpgrader extends SetupWizard {
 
         //We have a cleanup script  ::XXX: Don't abort on error?
         if($this->load_sql_file($file, $this->getTablePrefix(), false, true)) {
-            $ost->logDebug("Upgrader - {$this->phash} cleanup",
+            $this->log("Upgrader - {$this->phash} cleanup",
                 "Applied cleanup script {$file}");
             return 0;
         }
 
-        $ost->logDebug('Upgrader', sprintf("%s: Unable to process cleanup file",
+        $this->log('Upgrader', sprintf("%s: Unable to process cleanup file",
                         $this->phash));
         return 0;
     }
