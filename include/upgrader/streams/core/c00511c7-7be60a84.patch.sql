@@ -256,8 +256,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   PRIMARY KEY  (`faq_id`),
   UNIQUE KEY `question` (`question`),
   KEY `category_id` (`category_id`),
-  KEY `ispublished` (`ispublished`),
-  FULLTEXT KEY `faq` (`question`,`answer`,`keywords`)
+  KEY `ispublished` (`ispublished`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_attachment`;
@@ -281,8 +280,7 @@ ALTER TABLE `%TABLE_PREFIX%kb_premade`
   CHANGE `title` `title` VARCHAR( 255 ) NOT NULL DEFAULT '',
   CHANGE `answer` `response` TEXT NOT NULL,
   ADD `notes` TEXT NOT NULL AFTER `response`,
-  DROP INDEX `title`,
-  ADD FULLTEXT `resp` (`title` ,`response`);
+  DROP INDEX `title`;
 
 ALTER TABLE `%TABLE_PREFIX%kb_premade` RENAME TO `%TABLE_PREFIX%canned_response`;
 

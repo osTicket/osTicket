@@ -114,7 +114,7 @@ class Upgrader {
 
     function getErrors() {
         if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getError();
+            return $this->getCurrentStream()->getErrors();
     }
 
     function getNextAction() {
@@ -316,7 +316,7 @@ class StreamUpgrader extends SetupWizard {
         if (!isset($this->task)) {
             $class = (include $task_file);
             if (!is_string($class) || !class_exists($class))
-                return $ost->logError("{$this->phash}:{$class}: Bogus migration task");
+                return $ost->logError("Bogus migration task", "{$this->phash}:{$class}") ;
             $this->task = new $class();
             if (isset($_SESSION['ost_upgrader']['task'][$this->phash]))
                 $this->task->wakeup($_SESSION['ost_upgrader']['task'][$this->phash]);
@@ -347,7 +347,8 @@ class StreamUpgrader extends SetupWizard {
         // data
         $this->cleanup();
         unset($_SESSION['ost_upgrader']['task'][$this->phash]);
-        unset($this->phash);
+        $this->phash = null;
+        unset($this->task);
         return false;
     }
 
@@ -414,8 +415,11 @@ class StreamUpgrader extends SetupWizard {
             return 0;
 
         //We have a cleanup script  ::XXX: Don't abort on error?
-        if($this->load_sql_file($file, $this->getTablePrefix(), false, true))
+        if($this->load_sql_file($file, $this->getTablePrefix(), false, true)) {
+            $ost->logDebug("Upgrader - {$this->phash} cleanup",
+                "Applied cleanup script {$file}");
             return 0;
+        }
 
         $ost->logDebug('Upgrader', sprintf("%s: Unable to process cleanup file",
                         $this->phash));

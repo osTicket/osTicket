@@ -332,7 +332,7 @@ if(!$cfg->showNotesInline()) { ?>
         $types[] = 'N';
     if(($thread=$ticket->getThreadEntries($types))) {
        foreach($thread as $entry) {
-           if($entry['body']=='-')
+           if ($entry['body'] == '-')
                $entry['body'] = '(EMPTY)';
            ?>
         <table class="<?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
@@ -537,7 +537,7 @@ if(!$cfg->showNotesInline()) { ?>
                         <span class="error">*&nbsp;<?php echo $errors['note']; ?></span></div>
                     <textarea name="note" id="internal_note" cols="80" rows="9" wrap="soft"><?php echo $info['note']; ?></textarea><br>
                     <div>
-                        <span class="faded">Note title - summarry of the note (optional)</span>&nbsp;
+                        <span class="faded">Note title - summary of the note (optional)</span>&nbsp;
                         <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
                     <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >

@@ -127,12 +127,6 @@ ALTER TABLE `%TABLE_PREFIX%ticket_message`
     ADD `messageId` VARCHAR( 255 ) NULL AFTER `ticket_id`,
     ADD INDEX ( `messageId` ) ;
 
-ALTER TABLE `%TABLE_PREFIX%ticket_message` ADD FULLTEXT (`message`);
-
-ALTER TABLE `%TABLE_PREFIX%ticket_response` ADD FULLTEXT (`response`);
-
-ALTER TABLE `%TABLE_PREFIX%ticket_note` ADD FULLTEXT (`note`);
-
 DROP TABLE IF EXISTS `%TABLE_PREFIX%api_key`;
 CREATE TABLE `%TABLE_PREFIX%api_key` (
   `id` int(10) unsigned NOT NULL auto_increment,
