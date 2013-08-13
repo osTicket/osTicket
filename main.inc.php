@@ -199,8 +199,10 @@
     define('TIMEZONE_TABLE',TABLE_PREFIX.'timezone');
 
     #Global overwrite
-    if($_SERVER['HTTP_X_FORWARDED_FOR']) //Can contain multiple IPs - use the last one.
-        $_SERVER['REMOTE_ADDR'] =  array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
+    if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+        // Take the left-most item for X-Forwarded-For
+        $_SERVER['REMOTE_ADDR'] = array_pop(
+            explode(',', trim($_SERVER['HTTP_X_FORWARDED_FOR'])));
 
     #Connect to the DB && get configuration from database
     $ferror=null;
