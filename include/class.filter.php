@@ -651,8 +651,10 @@ class TicketFilter {
                      'subject'   => $vars['subject'],
                      'name'      => $vars['name'],
                      'body'      => $vars['message'],
-                     'emailId'   => $vars['emailId'])
-                 ));
+                     'emailId'   => $vars['emailId'],
+                     'reply-to'  => @$vars['reply-to'],
+                     'reply-to-name' => @$vars['reply-to-name'],
+                 )));
 
          //Init filters.
         $this->build();
