@@ -42,7 +42,7 @@ class TicketApiController extends ApiController {
         if($data['attachments'] && is_array($data['attachments'])) {
             foreach($data['attachments'] as &$attachment) {
                 if(!$ost->isFileTypeAllowed($attachment))
-                    $data['error'] = 'Invalid file type (ext) for '.Format::htmlchars($attachment['name']);
+                    $attachment['error'] = 'Invalid file type (ext) for '.Format::htmlchars($attachment['name']);
                 elseif ($attachment['encoding'] && !strcasecmp($attachment['encoding'], 'base64')) {
                     if(!($attachment['data'] = base64_decode($attachment['data'], true)))
                         $attachment['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($attachment['name']));
