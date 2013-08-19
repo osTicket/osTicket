@@ -317,8 +317,9 @@ class ApiXmlDataParser extends XmlDataParser {
         if (!is_array($current))
             return $current;
         foreach ($current as $key=>&$value) {
-            if ($key == "phone") {
-                $current["phone_ext"] = $value["ext"];  # PHP [like] point
+            if ($key == "phone" && is_array($value)) {
+                if (isset($value['ext']))
+                    $current["phone_ext"] = $value["ext"];  # PHP [like] point
                 $value = $value[":text"];
             } else if ($key == "alert") {
                 $value = (bool)$value;
@@ -339,6 +340,7 @@ class ApiXmlDataParser extends XmlDataParser {
                 $value = $this->fixup($value);
             }
         }
+        unset($value);
 
         return $current;
     }
