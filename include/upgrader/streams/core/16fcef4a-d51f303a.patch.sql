@@ -1,6 +1,6 @@
 /**
  * @version v1.8.0
- * @signature 43fbf5b9254787c93d049be0b607cf2d
+ * @signature d51f303a2c9ee04f9906fc1b6047459f
  *
  * Make default data translatable. This patch also adds columns to database
  * tables to introduce the concept of a language.
@@ -21,5 +21,5 @@ ALTER TABLE `%TABLE_PREFIX%page`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '43fbf5b9254787c93d049be0b607cf2d'
+    SET `value` = 'd51f303a2c9ee04f9906fc1b6047459f'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
