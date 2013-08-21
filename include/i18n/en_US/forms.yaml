@@ -1,0 +1,47 @@
+#
+# Default (dynamic) form configuration
+#
+# Fields:
+---
+- id: 1
+  title: Default
+  sections:
+    - title: User Information
+      sort: 10
+      fields:
+        - type: text # notrans
+          name: email # notrans
+          label: Email Address
+          required: true
+          sort: 10
+          configuration:
+              size: 40
+              length: 40
+              validator: email # notrans
+
+        - type: text # notrans
+          name: name # notrans
+          label: Full Name
+          required: true
+          sort: 20
+          configuration:
+              size: 40
+              length: 40
+
+        - type: phone # notrans
+          name: phone # notrans
+          label: Phone Number
+          required: false
+          sort: 30
+
+    - title: Ticket Details
+      sort: 20
+      fields:
+        - type: text # notrans
+          name: subject # notrans
+          label: Subject
+          hint: Issue Summary
+          sort: 10
+          configuration:
+              size: 40
+              length: 50

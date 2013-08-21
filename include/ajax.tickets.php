@@ -30,9 +30,13 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT DISTINCT ticketID, email'
-            .' FROM '.TICKET_TABLE
-            .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
+        $sql='SELECT DISTINCT ticketID, email.value AS email'
+            .' FROM '.TICKET_TABLE.' ticket'
+            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
+            .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
+            .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
+            .' WHERE field.name = "email"'
+            .' AND ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
@@ -43,7 +47,7 @@ class TicketsAjaxAPI extends AjaxController {
             $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
 
         $sql.=' )  '
-            .' ORDER BY created  LIMIT '.$limit;
+            .' ORDER BY ticket.created LIMIT '.$limit;
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id, $email)=db_fetch_row($res))
@@ -60,9 +64,13 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT email, count(ticket_id) as tickets '
-            .' FROM '.TICKET_TABLE
-            .' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
+        $sql='SELECT email.value AS email, count(ticket.ticket_id) as tickets '
+            .' FROM '.TICKET_TABLE.' ticket'
+            .' JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
+            .' JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
+            .' JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
+            .' WHERE field.name = "email"'
+            .' AND email.value LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
@@ -73,8 +81,8 @@ class TicketsAjaxAPI extends AjaxController {
             $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
 
         $sql.=' ) '
-            .' GROUP BY email '
-            .' ORDER BY created  LIMIT '.$limit;
+            .' GROUP BY email.value '
+            .' ORDER BY ticket.created  LIMIT '.$limit;
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($email, $count)=db_fetch_row($res))

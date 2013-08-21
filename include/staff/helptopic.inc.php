@@ -89,6 +89,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
 
         <tr><th colspan="2"><em>New ticket options</em></th></tr>
+       <tr>
+           <td><strong>Formset</strong>:</td>
+           <td><select name="formset_id">
+               <option value="0">&mdash; Select a Formset &mdash;</option>
+               <?php foreach (DynamicFormset::objects() as $group) { ?>
+                   <option value="<?php echo $group->get('id'); ?>"
+                       <?php if ($group->get('id') == $info['formset_id'])
+                            echo 'selected="selected"'; ?>>
+                       <?php echo $group->get('title'); ?>
+                   </option>
+               <?php } ?>
+               </select>
+               <em>Information for tickets associated with this help topic</em>
+               &nbsp;<span class="error">&nbsp;<?php echo $errors['formset_id']; ?></span>
+           </td>
+       </tr>
         <tr>
             <td width="180" class="required">
                 Priority:
@@ -217,7 +233,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     this topic (Overrides Dept. settings).
             </td>
         </tr>
-
         <tr>
             <th colspan="2">
                 <em><strong>Admin Notes</strong>: Internal notes about the help topic.&nbsp;</em>

@@ -141,26 +141,26 @@ class Installer extends SetupWizard {
             }
         }
 
-        // TODO: Use language selected from install worksheet
-        $i18n = new Internationalization('en_US');
-        $i18n->loadDefaultData();
-
-        $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
-        $sla_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
-        $dept_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
-        $template_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
-        $group_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
-        $eastern_timezone = db_result(db_query($sql, false), 0);
-
         if(!$this->errors) {
+            // TODO: Use language selected from install worksheet
+            $i18n = new Internationalization('en_US');
+            $i18n->loadDefaultData();
+
+            $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
+            $sla_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
+            $dept_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
+            $template_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
+            $group_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
+            $eastern_timezone = db_result(db_query($sql, false), 0);
+
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
                 .", isactive=1, isadmin=1, group_id=$group_id_1, dept_id=$dept_id_1"

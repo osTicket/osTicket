@@ -38,13 +38,25 @@ if($order_by && strpos($order_by,','))
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
-$qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, dept.ispublic, ticket.subject, ticket.name, ticket.email '.
-           ',dept_name,ticket. status, ticket.source, ticket.created ';
+$qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, '
+        .'dept.ispublic, subject.value as subject, name.value as name, email.value as email, '
+        .'dept_name,ticket. status, ticket.source, ticket.created ';
+
+$dynfields='(SELECT entry.ticket_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
+         'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
+         'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
+         'WHERE field.name = "%1$s") %1$s ON ticket.ticket_id = %1$s.ticket_id ';
+$subject_sql = sprintf($dynfields, 'subject');
+$email_sql = sprintf($dynfields, 'email');
+$name_sql = sprintf($dynfields, 'name');
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
-      .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) ';
+      .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
+      .' LEFT JOIN '.$subject_sql
+      .' LEFT JOIN '.$email_sql
+      .' LEFT JOIN '.$name_sql;
 
-$qwhere =' WHERE ticket.email='.db_input($thisclient->getEmail());
+$qwhere =' WHERE email.value='.db_input($thisclient->getEmail());
 
 if($status){
     $qwhere.=' AND ticket.status='.db_input($status);

@@ -536,6 +536,8 @@ a.print {
 
 .form_table td.multi-line {
     vertical-align:top;
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
 }
 
 .form_table input[type=text], .form_table input[type=password], .form_table textarea {

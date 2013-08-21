@@ -87,6 +87,17 @@ class Bootstrap {
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
 
+        define('FORM_SEC_TABLE',$prefix.'form_section');
+        define('FORM_FIELD_TABLE',$prefix.'form_field');
+        define('FORMSET_TABLE',$prefix.'formset');
+        define('FORMSET_SEC_TABLE',$prefix.'formset_sections');
+
+        define('LIST_TABLE',$prefix.'list');
+        define('LIST_ITEM_TABLE',$prefix.'list_items');
+
+        define('FORM_ENTRY_TABLE',$prefix.'form_entry');
+        define('FORM_ANSWER_TABLE',$prefix.'form_entry_values');
+
         define('TOPIC_TABLE',$prefix.'help_topic');
         define('SLA_TABLE', $prefix.'sla');
 

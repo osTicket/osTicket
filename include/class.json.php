@@ -22,10 +22,12 @@ include_once "JSON.php";
 
 class JsonDataParser {
     function parse($stream) {
-        $contents = '';
-        while (!feof($stream)) {
-            $contents .= fread($stream, 8192);
-        }
+        if (is_resource($stream)) {
+            $contents = '';
+            while (!feof($stream))
+                $contents .= fread($stream, 8192);
+        } else
+            $contents = $stream;
         return self::decode($contents);
     }
 

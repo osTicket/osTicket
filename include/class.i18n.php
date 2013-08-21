@@ -41,17 +41,20 @@ class Internationalization {
      * system language and reload the data.
      */
     function loadDefaultData() {
+        # notrans -- do not translate the contents of this array
         $models = array(
-            'email_template_group.yaml' => 'EmailTemplateGroup', # notrans
-            'department.yaml' =>    'Dept', # notrans
-            'sla.yaml' =>           'SLA', # notrans
-            // Note that department and sla are required for help_topic
-            'help_topic.yaml' =>    'Topic', # notrans
-            'filter.yaml' =>        'Filter', # notrans
-            'team.yaml' =>          'Team', # notrans
+            'email_template_group.yaml' => 'EmailTemplateGroup',
+            'department.yaml' =>    'Dept',
+            'sla.yaml' =>           'SLA',
+            'forms.yaml' =>         'DynamicFormset',
+            // Note that department, sla, and forms are required for
+            // help_topic
+            'help_topic.yaml' =>    'Topic',
+            'filter.yaml' =>        'Filter',
+            'team.yaml' =>          'Team',
             // Note that group requires department
-            'group.yaml' =>         'Group', # notrans
-            'file.yaml' =>          'AttachmentFile', # notrans
+            'group.yaml' =>         'Group',
+            'file.yaml' =>          'AttachmentFile',
         );
 
         $errors = array();

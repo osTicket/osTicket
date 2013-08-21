@@ -30,6 +30,7 @@ include_once(INCLUDE_DIR.'class.variable.php');
 include_once(INCLUDE_DIR.'class.priority.php');
 include_once(INCLUDE_DIR.'class.sla.php');
 include_once(INCLUDE_DIR.'class.canned.php');
+require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 class Ticket {
 
@@ -85,6 +86,8 @@ class Ticket {
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['ticketID'];
 
+        $this->loadDynamicData();
+
         //Reset the sub classes (initiated ondemand)...good for reloads.
         $this->staff = null;
         $this->client = null;
@@ -100,6 +103,14 @@ class Ticket {
         $this->getThread();
 
         return true;
+    }
+
+    function loadDynamicData() {
+        $this->_answers = array();
+        foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
+            foreach ($form->getAnswers() as $answer)
+                $this->_answers[$answer->getField()->get('name')] =
+                    $answer->toString();
     }
 
     function reload() {
@@ -170,8 +181,8 @@ class Ticket {
         return $this->number;
     }
 
-    function getEmail() {
-        return $this->ht['email'];
+    function getEmail(){
+        return $this->_answers['email'];
     }
 
     function getAuthToken() {
@@ -179,12 +190,12 @@ class Ticket {
         return md5($this->getId() . $this->getEmail() . SECRET_SALT);
     }
 
-    function getName() {
-        return $this->ht['name'];
+    function getName(){
+        return $this->_answers['name'];
     }
 
     function getSubject() {
-        return $this->ht['subject'];
+        return $this->_answers['subject'];
     }
 
     /* Help topic title  - NOT object -> $topic */
@@ -259,19 +270,17 @@ class Ticket {
     }
 
     function getPhone() {
-        return $this->ht['phone'];
+        list($phone, $ext) = explode(" ", $this->_answers['phone'], 2);
+        return $phone;
     }
 
     function getPhoneExt() {
-        return $this->ht['phone_ext'];
+        list($phone, $ext) = explode(" ", $this->_answers['phone'], 2);
+        return $ext;
     }
 
     function getPhoneNumber() {
-        $phone=Format::phone($this->getPhone());
-        if(($ext=$this->getPhoneExt()))
-            $phone.=" $ext";
-
-        return $phone;
+        return $this->_answers['phone'];
     }
 
     function getSource() {
@@ -288,11 +297,8 @@ class Ticket {
 
     function getUpdateInfo() {
 
-        $info=array('name'  =>  $this->getName(),
-                    'email' =>  $this->getEmail(),
-                    'phone' =>  $this->getPhone(),
+        $info=array('phone' =>  $this->getPhone(),
                     'phone_ext' =>  $this->getPhoneExt(),
-                    'subject'   =>  $this->getSubject(),
                     'source'    =>  $this->getSource(),
                     'topicId'   =>  $this->getTopicId(),
                     'priorityId'    =>  $this->getPriorityId(),
@@ -1069,6 +1075,12 @@ class Ticket {
 
                 return $closedate;
                 break;
+            default:
+                if (isset($this->_answers[$tag]))
+                    # TODO: Use DynamicField to format the value, also,
+                    # private field data should never go external, via
+                    # email, for instance
+                    return $this->_answers[$tag];
         }
 
         return false;
@@ -1625,13 +1637,9 @@ class Ticket {
             return false;
 
         $fields=array();
-        $fields['name']     = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
-        $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
-        $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
         $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>'Help topic required');
         $fields['priorityId'] = array('type'=>'int',    'required'=>1, 'error'=>'Priority required');
         $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>'Select SLA');
-        $fields['phone']    = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
 
         $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
@@ -1650,22 +1658,9 @@ class Ticket {
                 $errors['duedate']='Due date must be in the future';
         }
 
-        //Make sure phone extension is valid
-        if($vars['phone_ext'] ) {
-            if(!is_numeric($vars['phone_ext']) && !$errors['phone'])
-                $errors['phone']='Invalid phone ext.';
-            elseif(!$vars['phone']) //make sure they just didn't enter ext without phone #
-                $errors['phone']='Phone number required';
-        }
-
         if($errors) return false;
 
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
-            .' ,email='.db_input($vars['email'])
-            .' ,name='.db_input(Format::striptags($vars['name']))
-            .' ,subject='.db_input(Format::striptags($vars['subject']))
-            .' ,phone="'.db_input($vars['phone'],false).'"'
-            .' ,phone_ext='.db_input($vars['phone_ext']?$vars['phone_ext']:NULL)
             .' ,priority_id='.db_input($vars['priorityId'])
             .' ,topic_id='.db_input($vars['topicId'])
             .' ,sla_id='.db_input($vars['slaId'])
@@ -1708,11 +1703,14 @@ class Ticket {
         if(!$extId || !is_numeric($extId))
             return 0;
 
-        $sql ='SELECT  ticket_id FROM '.TICKET_TABLE.' ticket '
-             .' WHERE ticketID='.db_input($extId);
+        $sql ='SELECT ticket.ticket_id FROM '.TICKET_TABLE.' ticket '
+             .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
+             .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
+             .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
+             .' WHERE field.name = "email" AND ticket.ticketID='.db_input($extId);
 
         if($email)
-            $sql.=' AND email='.db_input($email);
+            $sql .= ' AND email.value = '.db_input($email);
 
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
@@ -1761,15 +1759,6 @@ class Ticket {
             list($id)=db_fetch_row($res);
 
         return $id;
-    }
-
-    function getOpenTicketsByEmail($email) {
-
-        $sql='SELECT count(*) as open FROM '.TICKET_TABLE.' WHERE status='.db_input('open').' AND email='.db_input($email);
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($num)=db_fetch_row($res);
-
-        return $num;
     }
 
     /* Quick staff's tickets stats */
@@ -1835,7 +1824,10 @@ class Ticket {
                 ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\') '
             .' LEFT JOIN '.TICKET_TABLE.' closed
                 ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\')'
-            .' WHERE ticket.email='.db_input($email);
+            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
+            .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
+            .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
+            .' WHERE field.name = "email" AND email.value = '.db_input($email);
 
         return db_fetch_array(db_query($sql));
     }
@@ -1895,9 +1887,6 @@ class Ticket {
 
         $id=0;
         $fields=array();
-        $fields['name']     = array('type'=>'string',   'required'=>1, 'error'=>'Name required');
-        $fields['email']    = array('type'=>'email',    'required'=>1, 'error'=>'Valid email required');
-        $fields['subject']  = array('type'=>'string',   'required'=>1, 'error'=>'Subject required');
         $fields['message']  = array('type'=>'text',     'required'=>1, 'error'=>'Message required');
         switch (strtolower($origin)) {
             case 'web':
@@ -1918,18 +1907,9 @@ class Ticket {
                 $errors['err']=$errors['origin'] = 'Invalid origin given';
         }
         $fields['priorityId']   = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
-        $fields['phone']        = array('type'=>'phone',    'required'=>0, 'error'=>'Valid phone # required');
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] ='Missing or invalid data - check the errors and try again';
-
-        //Make sure phone extension is valid
-        if($vars['phone_ext'] ) {
-            if(!is_numeric($vars['phone_ext']) && !$errors['phone'])
-                $errors['phone']='Invalid phone ext.';
-            elseif(!$vars['phone']) //make sure they just didn't enter ext without phone # XXX: reconsider allowing!
-                $errors['phone']='Phone number required';
-        }
 
         //Make sure the due date is valid
         if($vars['duedate']) {
@@ -1996,11 +1976,6 @@ class Ticket {
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
             .' ,priority_id='.db_input($priorityId)
-            .' ,email='.db_input($vars['email'])
-            .' ,name='.db_input(Format::striptags($vars['name']))
-            .' ,subject='.db_input(Format::striptags($vars['subject']))
-            .' ,phone="'.db_input($vars['phone'],false).'"'
-            .' ,phone_ext='.db_input($vars['phone_ext']?$vars['phone_ext']:'')
             .' ,ip_address='.db_input($ipaddress)
             .' ,source='.db_input($source);
 
