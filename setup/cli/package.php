@@ -84,13 +84,15 @@ mkdir($stage_path . '/upload');
 
 # Load the root directory files
 package("*.php", 'upload/');
+package("web.config", 'upload/');
 
 # Load the client interface
 foreach (array('assets','css','images','js') as $dir)
     package("$dir/*", "upload/$dir", -1, "*less");
 
-# Load API
+# Load API and pages
 package('api/{,.}*', 'upload/api');
+package('pages/{,.}*', 'upload/pages');
 
 # Load the knowledgebase
 package("kb/*.php", "upload/kb");
