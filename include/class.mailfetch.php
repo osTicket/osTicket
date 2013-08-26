@@ -235,6 +235,11 @@ class MailFetcher {
                       'header' => $this->getHeader($mid),
                       );
 
+        if ($replyto = $headerinfo->reply_to) {
+            $header['reply-to'] = $replyto[0]->mailbox.'@'.$replyto[0]->host;
+            $header['reply-to-name'] = $replyto[0]->personal;
+        }
+
         //Try to determine target email - useful when fetched inbox has
         // aliases that are independent emails within osTicket.
         $emailId = 0;
@@ -399,14 +404,11 @@ class MailFetcher {
         if($mailinfo['mid'] && ($id=Ticket::getIdByMessageId($mailinfo['mid'], $mailinfo['email'])))
             return true; //Reporting success so the email can be moved or deleted.
 
-        $vars = array();
-        $vars['email']=$mailinfo['email'];
+        $vars = $mailinfo;
         $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
         $vars['message']=Format::stripEmptyLines($this->getBody($mid));
-        $vars['header']=$mailinfo['header'];
         $vars['emailId']=$mailinfo['emailId']?$mailinfo['emailId']:$this->getEmailId();
-        $vars['mid']=$mailinfo['mid'];
 
         //Missing FROM name  - use email address.
         if(!$vars['name'])
