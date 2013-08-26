@@ -245,6 +245,11 @@ class Email {
 
             if(!$id && !$vars['passwd'])
                 $errors['passwd']='Password required';
+            elseif($vars['passwd']
+                    && $vars['userid']
+                    && !Crypto::encrypt($vars['passwd'], SECRET_SALT, $vars['userid'])
+                    )
+                $errors['passwd'] = 'Unable to encrypt password - get technical support';
         }
 
         if($vars['mail_active']) {
