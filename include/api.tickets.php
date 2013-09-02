@@ -113,6 +113,10 @@ class TicketApiController extends ApiController {
                 return $ticket;
         }
 
+        if (($thread = ThreadEntry::lookupByEmailHeaders($data))
+                && $thread->postEmail($data)) {
+            return true;
+        }
         return $this->createTicket($data);
     }
 
