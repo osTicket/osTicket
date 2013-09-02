@@ -28,7 +28,7 @@
                 <input type="radio" name="ticket_notice_active"  value="1"   <?php echo $config['ticket_notice_active']?'checked="checked"':''; ?> /><b>Enable</b>
                 <input type="radio" name="ticket_notice_active"  value="0"   <?php echo !$config['ticket_notice_active']?'checked="checked"':''; ?> />Disable
                  &nbsp;&nbsp;&nbsp;
-                 <em>(Notice sent when staff creates a ticket on behalf of the user (Staff can overwrite))</em>
+                 <em>(Notice sent when staff creates a ticket on behalf of the user (Staff can override))</em>
             </td>
         </tr>
         <tr>

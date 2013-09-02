@@ -80,7 +80,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="transient" value="1" <?php echo $info['transient']?'checked="checked"':''; ?> >
-                SLA can be overwritten on ticket transfer or help topic
+                SLA can be overridden on ticket transfer or help topic
                 change
             </td>
         </tr>
@@ -90,10 +90,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="disable_overdue_alerts" value="1" <?php echo $info['disable_overdue_alerts']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> overdue alerts notices. <em>(Overwrite global setting)</em>
+                    <strong>Disable</strong> overdue alerts notices.
+                    <em>(Override global setting)</em>
             </td>
         </tr>
-
         <tr>
             <th colspan="2">
                 <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>

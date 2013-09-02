@@ -198,7 +198,7 @@
     define('API_KEY_TABLE',TABLE_PREFIX.'api_key');
     define('TIMEZONE_TABLE',TABLE_PREFIX.'timezone');
 
-    #Global overwrite
+    #Global override
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
         // Take the left-most item for X-Forwarded-For
         $_SERVER['REMOTE_ADDR'] = array_pop(
@@ -235,7 +235,7 @@
     $session = $ost->getSession();
 
     //System defaults we might want to make global//
-    #pagenation default - user can overwrite it!
+    #pagenation default - user can override it!
     define('DEFAULT_PAGE_LIMIT', $cfg->getPageSize()?$cfg->getPageSize():25);
 
     #Cleanup magic quotes crap.

@@ -81,7 +81,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="noalerts" value="1" <?php echo $info['noalerts']?'checked="checked"':''; ?> >
-                <strong>Disable</strong> assignment alerts for this team (<i>overwrite global settings.</i>)
+                <strong>Disable</strong> assignment alerts for this team (<i>override global settings.</i>)
             </td>
         </tr>
         <?php
@@ -97,8 +97,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             <b><a href="staff.php?id=%d">%s</a></span></b>
                             &nbsp;<input type="checkbox" name="remove[]" value="%d"><i>Remove</i></td></tr>',
                           $staff->getId(),$staff->getName(),$staff->getId());
-               
-            
+
+
             }
         } ?>
         <tr>

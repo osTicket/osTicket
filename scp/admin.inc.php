@@ -34,11 +34,11 @@ if($ost->isUpgradePending()) {
         exit;
     }
 } else {
-    
+
     if(!strcasecmp(basename(CONFIG_FILE), 'settings.php')) {
         $sysnotice=sprintf('Please rename config file include/%s to include/ost-config.php to avoid possible conflicts',
                                 basename(CONFIG_FILE));
-        //Die gracefully - otherwise upgraded RC5 installations will die with confusing message. 
+        //Die gracefully - otherwise upgraded RC5 installations will die with confusing message.
         if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
             die($sysnotice);
 

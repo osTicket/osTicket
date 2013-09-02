@@ -375,7 +375,7 @@ class osTicket {
         if(!($ost = new osTicket()))
             return null;
 
-        //Set default time zone... user/staff settting will overwrite it (on login).
+        //Set default time zone... user/staff settting will override it (on login).
         $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
         $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 

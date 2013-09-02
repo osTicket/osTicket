@@ -50,7 +50,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Ticket Information</strong>: Due date overwrites SLA's grace period.</em>
+                <em><strong>Ticket Information</strong>: Due date overrides SLA's grace period.</em>
             </th>
         </tr>
         <tr>
@@ -146,7 +146,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
                 $min=$hr=null;
                 if($info['time'])
                     list($hr, $min)=explode(':', $info['time']);
-                    
+
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?>&nbsp;<?php echo $errors['time']; ?></font>
