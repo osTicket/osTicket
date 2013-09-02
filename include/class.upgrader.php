@@ -72,6 +72,33 @@ class Upgrader {
 
     function setState($state) {
         $this->state = $state;
+        if ($state == 'done')
+            $this->createUpgradedTicket();
+    }
+
+    function createUpgradedTicket() {
+        //Create a ticket to make the system warm and happy.
+        $dept_id = $cfg->getDefaultDeptId();
+        $prio_id = $cfg->getDefaultPriorityId();
+        $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW(), status="open", source="Web" '
+            ." ,priority_id=$prio_id, dept_id=$dept_id, topic_id=0 "
+            .' ,ticketID='.db_input(Misc::randNumber(6))
+            .' ,email="support@osticket.com" '
+            .' ,name="osTicket Support" '
+            .' ,subject="osTicket Upgraded!"';
+
+        if(db_query($sql, false) && ($tid=db_insert_id())) {
+            if(!($msg=file_get_contents(UPGRADE_DIR.'msg/upgraded.txt')))
+                $msg='Congratulations and Thank you for choosing osTicket!';
+
+            $sql='INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW()'
+                .', source="Web" '
+                .', thread_type="M" '
+                .', ticket_id='.db_input($tid)
+                .', title='.db_input('osTicket Upgraded')
+                .', body='.db_input($msg);
+            db_query($sql, false);
+        }
     }
 
     function getMode() {

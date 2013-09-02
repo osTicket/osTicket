@@ -1,0 +1,11 @@
+osTicket upgraded successfully! Please refer to the Release Notes (http://osticket.com/wiki/Release_Notes) for more information about changes and new features.
+
+Be sure to join osTicket forum (http://osticket.com/forums) and our mailing list (http://osticket.com/updates) , if you haven't done so already,  to stay up to date on announcements, security updates and alerts! Your contribution to osTicket community will be appreciated!
+
+The osTicket team is committed to providing support to all users through our free online resources and a full range of commercial support packages and services. For more information, or to discuss your needs, please contact us today at http://osticket.com/support/. Any feedback will be appreciated!
+
+If managing and upgrading this osTicket installation is daunting, you can try osTicket as a hosted service at http://www.supportsystem.com/ -- no upgrading ever, and we can import your data!  With SupportSystem's turnkey infrastructure, you get osTicket at its best, leaving you free to focus on your customers without the burden of making sure the application is stable, maintained, and secure.
+
+-
+osTicket Team
+http://osticket.com/
