@@ -597,7 +597,7 @@ class Ticket {
      */
     function selectSLAId($trump=null) {
         global $cfg;
-        # XXX Should the SLA be overwritten if it was originally set via an
+        # XXX Should the SLA be overridden if it was originally set via an
         #     email filter? This method doesn't consider such a case
         if ($trump && is_numeric($trump)) {
             $slaId = $trump;
@@ -1815,7 +1815,7 @@ class Ticket {
     /*
      * The mother of all functions...You break it you fix it!
      *
-     *  $autorespond and $alertstaff overwrites config settings...
+     *  $autorespond and $alertstaff overrides config settings...
      */
     function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
@@ -1928,7 +1928,7 @@ class Ticket {
         $priorityId=$vars['priorityId'];
         $source=ucfirst($vars['source']);
         $topic=NULL;
-        // Intenal mapping magic...see if we need to overwrite anything
+        // Intenal mapping magic...see if we need to override anything
         if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff
             $deptId=$deptId?$deptId:$topic->getDeptId();
             $priorityId=$priorityId?$priorityId:$topic->getPriorityId();
@@ -2010,7 +2010,7 @@ class Ticket {
             $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
 
         /**********   double check auto-response  ************/
-        //Overwrite auto responder if the FROM email is one of the internal emails...loop control.
+        //Override auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
             $autorespond=false;
 

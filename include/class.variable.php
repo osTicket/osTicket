@@ -2,8 +2,8 @@
 /*********************************************************************
     class.variable.php
 
-    Variable replacer 
-    
+    Variable replacer
+
     Used to parse, resolve and replace variables.
 
     Peter Rotich <peter@osticket.com>
@@ -42,17 +42,17 @@ class VariableReplacer {
     function getErrors() {
         return $this->errors;
     }
-    
+
     function getObj($tag) {
         return @$this->objects[$tag];
     }
 
     function assign($var, $val='') {
-        
+
         if($val && is_object($val)) {
             $this->objects[$var] = $val;
         } elseif($var && is_array($var)) {
-            foreach($var as $k => $v) 
+            foreach($var as $k => $v)
                 $this->assign($k, $v);
         } elseif($var) {
             $this->variables[$var] = $val;
@@ -74,7 +74,7 @@ class VariableReplacer {
 
             return $this->getVar($rv, $part);
         }
-       
+
         if(!$var || !is_callable(array($obj, 'getVar')))
             return "";
 
@@ -84,9 +84,9 @@ class VariableReplacer {
 
         if(!is_object($rv))
             return $rv;
-            
+
         list(, $part) = explode('.', $var, 2);
-        
+
         return $this->getVar($rv, $part);
     }
 
@@ -110,7 +110,7 @@ class VariableReplacer {
         $parts = explode('.', $var, 2);
         if($parts && ($obj=$this->getObj($parts[0])))
             return $this->getVar($obj, $parts[1]);
-        elseif($parts[0] && @isset($this->variables[$parts[0]])) //root overwrite
+        elseif($parts[0] && @isset($this->variables[$parts[0]])) //root override
             return $this->variables[$parts[0]];
 
         //Unknown object or variable - leavig it alone.

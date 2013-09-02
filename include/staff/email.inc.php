@@ -109,7 +109,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                <strong>Disable</strong> new ticket auto-response for this email. Overwrite global and dept. settings.
+                <strong>Disable</strong> new ticket auto-response for this
+                email. Override global and dept. settings.
             </td>
         </tr>
         <tr>

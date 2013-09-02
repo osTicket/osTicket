@@ -2,7 +2,7 @@
 /*********************************************************************
     class.mailer.php
 
-    osTicket mailer 
+    osTicket mailer
 
     It's mainly PEAR MAIL wrapper for now (more improvements planned).
 
@@ -27,10 +27,10 @@ class Mailer {
 
     var $smtp = array();
     var $eol="\n";
-    
+
     function Mailer($email=null, $options=null) {
         global $cfg;
-       
+
         if(is_object($email) && $email->isSMTPEnabled() && ($info=$email->getSMTPInfo())) { //is SMTP enabled for the current email?
             $this->smtp = $info;
         } elseif($cfg && ($e=$cfg->getDefaultSMTPEmail()) && $e->isSMTPEnabled()) { //What about global SMTP setting?
@@ -54,7 +54,7 @@ class Mailer {
     function getEmail() {
         return $this->email;
     }
-    
+
     function getSMTPInfo() {
         return $this->smtp;
     }
@@ -117,7 +117,7 @@ class Mailer {
                     'X-Auto-Response-Suppress' => 'ALL, AutoReply',
                     'Auto-Submitted' => 'auto-replied');
 
-            if($options['bulk']) 
+            if($options['bulk'])
                 $headers+= array('Precedence' => 'bulk');
             else
                 $headers+= array('Precedence' => 'auto_reply');
@@ -134,7 +134,7 @@ class Mailer {
                     $mime->addAttachment($attachment['file'],$attachment['type'],$attachment['name']);
             }
         }
-        
+
         //Desired encodings...
         $encodings=array(
                 'head_encoding' => 'quoted-printable',
@@ -176,7 +176,7 @@ class Mailer {
 
     function logError($error) {
         global $ost;
-        //NOTE: Admin alert overwrite - don't email when having email trouble!
+        //NOTE: Admin alert override - don't email when having email trouble!
         $ost->logError('Mailer Error', $error, false);
     }
 

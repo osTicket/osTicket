@@ -158,7 +158,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Auto Response Settings</strong>: Overwrite global auto-response settings for tickets routed to the Dept.</em>
+                <em><strong>Auto Response Settings</strong>: Override global auto-response settings for tickets routed to the Dept.</em>
             </th>
         </tr>
         <tr>

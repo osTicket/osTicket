@@ -52,7 +52,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7px">&nbsp;</th>        
+            <th width="7px">&nbsp;</th>
             <th width="250"><a <?php echo $name_sort; ?> href="teams.php?<?php echo $qstr; ?>&sort=name">Team Name</a></th>
             <th width="80"><a  <?php echo $status_sort; ?> href="teams.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="80"><a  <?php echo $members_sort; ?>href="teams.php?<?php echo $qstr; ?>&sort=members">Members</a></th>
@@ -73,7 +73,7 @@ else
                 ?>
             <tr id="<?php echo $row['team_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['team_id']; ?>" 
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['team_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td><a href="teams.php?id=<?php echo $row['team_id']; ?>"><?php echo $row['name']; ?></a> &nbsp;</td>
                 <td>&nbsp;<?php echo $row['isenabled']?'Active':'<b>Disabled</b>'; ?></td>
