@@ -22,7 +22,7 @@ if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__)) || !defined
 #Install flag
 define('OSTINSTALLED',FALSE);
 if(OSTINSTALLED!=TRUE){
-    if(!file_exists(ROOT_PATH.'setup/install.php')) die('Error: Contact system admin.'); //Something is really wrong!
+    if(!file_exists(ROOT_DIR.'setup/install.php')) die('Error: Contact system admin.'); //Something is really wrong!
     //Invoke the installer.
     header('Location: '.ROOT_PATH.'setup/install.php');
     exit;
