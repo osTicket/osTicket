@@ -25,7 +25,7 @@ define('OSTICKET_CONFIGFILE','../include/ost-config.php'); //XXX: Make sure the 
 $installer = new Installer(OSTICKET_CONFIGFILE); //Installer instance.
 $wizard=array();
 $wizard['title']='osTicket Installer';
-$wizard['tagline']='Installing osTicket v'.$installer->getVersionVerbose();
+$wizard['tagline']='Installing osTicket '.$installer->getVersionVerbose();
 $wizard['logo']='logo.png';
 $wizard['menu']=array('Installation Guide'=>'http://osticket.com/wiki/Installation',
         'Get Professional Help'=>'http://osticket.com/support');
@@ -85,17 +85,17 @@ switch(strtolower($_SESSION['ost_installer']['s'])) {
     case 'install':
         if(!$installer->config_exists()) {
             $inc='file-missing.inc.php';
-        } elseif(!($cFile=file_get_contents($installer->getConfigFile())) 
+        } elseif(!($cFile=file_get_contents($installer->getConfigFile()))
                 || preg_match("/define\('OSTINSTALLED',TRUE\)\;/i",$cFile)) { //osTicket already installed or empty config file?
             $inc='file-unclean.inc.php';
         } elseif(!$installer->config_writable()) { //writable config file??
             clearstatcache();
             $inc='file-perm.inc.php';
         } else { //Everything checked out show install form.
-            $inc='install.inc.php'; 
+            $inc='install.inc.php';
         }
         break;
-    case 'subscribe': //TODO: Prep for v1.7 RC1 
+    case 'subscribe': //TODO: Prep for v1.7 RC1
        $inc='subscribe.inc.php';
         break;
     case 'done':
@@ -105,10 +105,10 @@ switch(strtolower($_SESSION['ost_installer']['s'])) {
         break;
     default:
         //Fail IF any of the old config files exists.
-        if(file_exists(INCLUDE_DIR.'settings.php') 
+        if(file_exists(INCLUDE_DIR.'settings.php')
                 || file_exists(ROOT_DIR.'ostconfig.php')
-                || (file_exists(OSTICKET_CONFIGFILE) 
-                    && preg_match("/define\('OSTINSTALLED',TRUE\)\;/i", 
+                || (file_exists(OSTICKET_CONFIGFILE)
+                    && preg_match("/define\('OSTINSTALLED',TRUE\)\;/i",
                         file_get_contents(OSTICKET_CONFIGFILE)))
                 )
             $inc='file-unclean.inc.php';
