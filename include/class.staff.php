@@ -690,7 +690,7 @@ class Staff {
         //       this user id
         $sql = 'DELETE FROM '.CONFIG_TABLE.' WHERE `namespace`="pwreset"
             AND `value`='.db_input($this->getId());
-        db_query($sql);
+        db_query($sql, false);
         unset($_SESSION['_staff']['reset-token']);
     }
 
