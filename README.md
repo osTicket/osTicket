@@ -51,6 +51,11 @@ osTicket-1.7, visit the /scp page of you ticketing system. The upgrader will
 be presented and will walk you through the rest of the process. (The couple
 clicks needed to go through the process are pretty boring to describe).
 
+**WARNING**: If you are upgrading from osTicket 1.6, please ensure that all
+    your files in your upload folder are both readable and writable to your
+    http server software. Unreadable files will not be migrated to the
+    database during the upgrade and will be effectively lost.
+
 View the UPGRADING.txt file for other todo items to complete your upgrade.
 
 Help
