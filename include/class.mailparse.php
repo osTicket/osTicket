@@ -341,6 +341,9 @@ class EmailDataParser {
         $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
 
+        $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
+        $data['references'] = $parser->struct->headers['references'];
+
         if ($replyto = $parser->getReplyTo()) {
             $replyto = $replyto[0];
             $data['reply-to'] = $replyto->mailbox.'@'.$replyto->host;
