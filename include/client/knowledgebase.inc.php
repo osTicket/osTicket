@@ -61,18 +61,18 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id) '
         .' LEFT JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.faq_id=faq.faq_id) '
         .' WHERE faq.ispublished=1 AND cat.ispublic=1';
-    
+
     if($_REQUEST['cid'])
         $sql.=' AND faq.category_id='.db_input($_REQUEST['cid']);
-    
+
     if($_REQUEST['topicId'])
         $sql.=' AND ft.topic_id='.db_input($_REQUEST['topicId']);
 
 
     if($_REQUEST['q']) {
-        $sql.=" AND question LIKE ('%".db_input($_REQUEST['q'],false)."%') 
-                 OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%') 
-                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%')";
+        $sql.=" AND (question LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%'))";
     }
 
     $sql.=' GROUP BY faq.faq_id';
