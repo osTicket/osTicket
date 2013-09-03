@@ -157,7 +157,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Filter Actions</strong>: Can be overwriten by other filters depending on processing order.&nbsp;</em>
+                <em><strong>Filter Actions</strong>: Can be overridden by other filters depending on processing order.&nbsp;</em>
             </th>
         </tr>
         <tr>
@@ -184,7 +184,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="disable_autoresponder" value="1" <?php echo $info['disable_autoresponder']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> auto-response. <em>(Overwrites Dept. settings)</em>
+                    <strong>Disable</strong> auto-response. <em>(Override Dept. settings)</em>
             </td>
         </tr>
         <tr>
@@ -249,7 +249,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['priority_id']; ?></span>
-                <em>(Overwrites department's priority)</em>
+                <em>(Overrides department's priority)</em>
             </td>
         </tr>
         <tr>
@@ -269,7 +269,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                <em>(Overwrites department's SLA)</em>
+                <em>(Overrides department's SLA)</em>
             </td>
         </tr>
         <tr>

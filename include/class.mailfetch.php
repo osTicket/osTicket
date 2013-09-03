@@ -229,10 +229,42 @@ class MailFetcher {
         $sender=$headerinfo->from[0];
         //Just what we need...
         $header=array('name'  =>@$sender->personal,
-                      'email' =>(strtolower($sender->mailbox).'@'.$sender->host),
+                      'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
                       'subject'=>@$headerinfo->subject,
-                      'mid'    =>$headerinfo->message_id
+                      'mid'    => trim(@$headerinfo->message_id),
+                      'header' => $this->getHeader($mid),
+                      'in-reply-to' => $headerinfo->in_reply_to,
+                      'references' => $headerinfo->references,
                       );
+
+        if ($replyto = $headerinfo->reply_to) {
+            $header['reply-to'] = $replyto[0]->mailbox.'@'.$replyto[0]->host;
+            $header['reply-to-name'] = $replyto[0]->personal;
+        }
+
+        //Try to determine target email - useful when fetched inbox has
+        // aliases that are independent emails within osTicket.
+        $emailId = 0;
+        $tolist = array();
+        if($headerinfo->to)
+            $tolist = array_merge($tolist, $headerinfo->to);
+        if($headerinfo->cc)
+            $tolist = array_merge($tolist, $headerinfo->cc);
+        if($headerinfo->bcc)
+            $tolist = array_merge($tolist, $headerinfo->bcc);
+
+        foreach($tolist as $addr)
+            if(($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
+                break;
+
+        $header['emailId'] = $emailId;
+
+        // Ensure we have a message-id. If unable to read it out of the
+        // email, use the hash of the entire email headers
+        if (!$header['mid'] && $header['header'])
+            if (!($header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
+                    'message-id')))
+                $header['mid'] = '<' . md5($header['header']) . '@local>';
 
         return $header;
     }
@@ -363,10 +395,6 @@ class MailFetcher {
         if(!($mailinfo = $this->getHeaderInfo($mid)))
             return false;
 
-        //Make sure the email is NOT already fetched... (undeleted emails)
-        if($mailinfo['mid'] && ($id=Ticket::getIdByMessageId(trim($mailinfo['mid']), $mailinfo['email'])))
-            return true; //Reporting success so the email can be moved or deleted.
-
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
@@ -374,15 +402,11 @@ class MailFetcher {
 	        return true; //Report success (moved or delete)
         }
 
-        $emailId = $this->getEmailId();
-        $vars = array();
-        $vars['email']=$mailinfo['email'];
+        $vars = $mailinfo;
         $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
         $vars['message']=Format::stripEmptyLines($this->getBody($mid));
-        $vars['header']=$this->getHeader($mid);
-        $vars['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
-        $vars['mid']=$mailinfo['mid'];
+        $vars['emailId']=$mailinfo['emailId']?$mailinfo['emailId']:$this->getEmailId();
 
         //Missing FROM name  - use email address.
         if(!$vars['name'])
@@ -397,19 +421,15 @@ class MailFetcher {
 
         $ticket=null;
         $newticket=true;
-        //Check the subject line for possible ID.
-        if($vars['subject'] && preg_match ("[[#][0-9]{1,10}]", $vars['subject'], $regs)) {
-            $tid=trim(preg_replace("/[^0-9]/", "", $regs[0]));
-            //Allow mismatched emails?? For now NO.
-            if(!($ticket=Ticket::lookupByExtId($tid, $vars['email'])))
-                $ticket=null;
-        }
 
         $errors=array();
-        if($ticket) {
-            if(!($message=$ticket->postMessage($vars, 'Email')))
-                return false;
-
+        if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
+                && ($message = $thread->postEmail($vars))) {
+            if ($message === true)
+                // Email has been processed previously
+                return true;
+            elseif ($message)
+                $ticket = $message->getTicket();
         } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
         } else {

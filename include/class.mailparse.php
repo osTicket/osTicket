@@ -106,6 +106,15 @@ class Mail_Parse {
         return $array;
     }
 
+    /* static */
+    function findHeaderEntry($headers, $name) {
+        if (!is_array($headers))
+            $headers = self::splitHeaders($headers);
+        foreach ($headers as $key=>$val)
+            if (strcasecmp($key, $name) === 0)
+                return $val;
+        return false;
+    }
 
     function getStruct(){
         return $this->struct;
@@ -141,6 +150,10 @@ class Mail_Parse {
 
     function getSubject(){
         return $this->struct->headers['subject'];
+    }
+
+    function getReplyTo() {
+        return Mail_Parse::parseAddressList($this->struct->headers['reply-to']);
     }
 
     function getBody(){
@@ -327,6 +340,13 @@ class EmailDataParser {
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
+
+        if ($replyto = $parser->getReplyTo()) {
+            $replyto = $replyto[0];
+            $data['reply-to'] = $replyto->mailbox.'@'.$replyto->host;
+            if ($replyto->personal)
+                $data['reply-to-name'] = trim($replyto->personal, " \t\n\r\0\x0B\x22");
+        }
 
         if($cfg && $cfg->allowEmailAttachments())
             $data['attachments'] = $parser->getAttachments();

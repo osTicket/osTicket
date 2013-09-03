@@ -30,7 +30,7 @@
     $session = $ost->getSession();
 
     //System defaults we might want to make global//
-    #pagenation default - user can overwrite it!
+    #pagenation default - user can override it!
     define('DEFAULT_PAGE_LIMIT', $cfg->getPageSize()?$cfg->getPageSize():25);
 
     #Cleanup magic quotes crap.

@@ -230,8 +230,9 @@ define('DEFAULT_PRIORITY_ID',1);
 
 define('EXT_TICKET_ID_LEN',6); //Ticket create. when you start getting collisions. Applies only on random ticket ids.
 
-#Global overwrite
-if($_SERVER['HTTP_X_FORWARDED_FOR']) //Can contain multiple IPs - use the last one.
-    $_SERVER['REMOTE_ADDR'] =  array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
-
+#Global override
+if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+    // Take the left-most item for X-Forwarded-For
+    $_SERVER['REMOTE_ADDR'] = trim(array_pop(
+        explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])));
 ?>

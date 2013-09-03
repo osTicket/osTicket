@@ -657,7 +657,7 @@ class Staff {
         db_query($sql);
         //Now set session crap and lets roll baby!
         $_SESSION['_staff'] = array(); //clear.
-        $_SESSION['_staff']['userID'] = $username;
+        $_SESSION['_staff']['userID'] = $user->getId();
         $user->refreshSession(); //set the hash.
         $_SESSION['TZ_OFFSET'] = $user->getTZoffset();
         $_SESSION['TZ_DST'] = $user->observeDaylight();
@@ -742,8 +742,9 @@ class Staff {
         if(!$vars['lastname'])
             $errors['lastname']='Last name required';
 
-        if(!$vars['username'] || strlen($vars['username'])<2)
-            $errors['username']='Username required';
+        $error = '';
+        if(!$vars['username'] || !Validator::is_username($vars['username'], $error))
+            $errors['username']=($error) ? $error : 'Username required';
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
             $errors['username']='Username already in use';
 

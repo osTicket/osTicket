@@ -30,7 +30,7 @@ Class SetupWizard {
 
     function SetupWizard(){
         $this->errors=array();
-        $this->version_verbose = ('osTicket v'. strtoupper(THIS_VERSION));
+        $this->version_verbose = ('osTicket '. strtoupper(THIS_VERSION));
 
     }
 

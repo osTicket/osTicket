@@ -58,7 +58,7 @@ if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the fu
 
 $thisstaff = new StaffSession($_SESSION['_staff']['userID']); //Set staff object.
 //1) is the user Logged in for real && is staff.
-if(!$thisstaff || !is_object($thisstaff) || !$thisstaff->getId() || !$thisstaff->isValid()){
+if(!$thisstaff->getId() || !$thisstaff->isValid()){
     if (isset($_SESSION['_staff']['auth']['msg'])) {
         $msg = $_SESSION['_staff']['auth']['msg'];
         unset($_SESSION['_staff']['auth']['msg']);

@@ -146,7 +146,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                <em>(Overwrites department's SLA)</em>
+                <em>(Overrides department's SLA)</em>
             </td>
         </tr>
         <tr>
@@ -166,7 +166,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>&nbsp;<font class="error"><?php echo $errors['page_id']; ?></font>
-                <em>(Overwrites global setting. Applies to web tickets only.)</em>
+                <em>(Overrides global setting. Applies to web tickets only.)</em>
             </td>
         </tr>
         <tr>
@@ -213,7 +213,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> new ticket auto-response for this topic (Overwrites Dept. settings).
+                    <strong>Disable</strong> new ticket auto-response for
+                    this topic (Overrides Dept. settings).
             </td>
         </tr>
 

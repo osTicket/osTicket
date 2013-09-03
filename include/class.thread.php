@@ -189,6 +189,14 @@ class Thread {
 
     function delete() {
 
+        /* XXX: Leave this out until TICKET_EMAIL_INFO_TABLE has a primary
+         *      key
+        $sql = 'DELETE mid.* FROM '.TICKET_EMAIL_INFO_TABLE.' mid
+            INNER JOIN '.TICKET_THREAD_TABLE.' thread ON (thread.id = mid.message_id)
+            WHERE thread.ticket_id = '.db_input($this->getTicketId());
+        db_query($sql);
+         */
+
         $res=db_query('DELETE FROM '.TICKET_THREAD_TABLE.' WHERE ticket_id='.db_input($this->getTicketId()));
         if(!$res || !db_affected_rows())
             return false;
@@ -230,7 +238,7 @@ Class ThreadEntry {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT thread.*, info.* '
+        $sql='SELECT thread.*, info.email_mid '
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
             .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
@@ -307,6 +315,10 @@ Class ThreadEntry {
 
     function getTicketId() {
         return $this->ht['ticket_id'];
+    }
+
+    function getEmailMessageId() {
+        return $this->ht['email_mid'];
     }
 
     function getTicket() {
@@ -471,7 +483,76 @@ Class ThreadEntry {
 
         return $str;
     }
+    /**
+     * postEmail
+     *
+     * After some security and sanity checks, attaches the body and subject
+     * of the message in reply to this thread item
+     *
+     * Parameters:
+     * mailinfo - (array) of information about the email, with at least the
+     *          following keys
+     *      - mid - (string) email message-id
+     *      - name - (string) personal name of email originator
+     *      - email - (string<email>) originating email address
+     *      - subject - (string) email subject line (decoded)
+     *      - body - (string) email message body (decoded)
+     */
+    function postEmail($mailinfo) {
+        // +==================+===================+=============+
+        // | Orig Thread-Type | Reply Thread-Type | Requires    |
+        // +==================+===================+=============+
+        // | *                | Message (M)       | From: Owner |
+        // | *                | Note (N)          | From: Staff |
+        // | Response (R)     | Message (M)       |             |
+        // | Message (M)      | Response (R)      | From: Staff |
+        // +------------------+-------------------+-------------+
 
+        if (!$ticket = $this->getTicket())
+            // Kind of hard to continue a discussion without a ticket ...
+            return false;
+
+        // Make sure the email is NOT already fetched... (undeleted emails)
+        elseif ($this->getEmailMessageId() == $mailinfo['mid'])
+            // Reporting success so the email can be moved or deleted.
+            return true;
+
+        $vars = array(
+            'mid' =>    $mailinfo['mid'],
+            'ticketId' => $ticket->getId(),
+            'poster' => $mailinfo['name'],
+            'origin' => 'Email',
+            'source' => 'Email',
+            'ip' =>     '',
+            'reply_to' => $this,
+        );
+
+        $body = $mailinfo['message'];
+
+        // Disambiguate if the user happens also to be a staff member of the
+        // system. The current ticket owner should _always_ post messages
+        // instead of notes or responses
+        if ($mailinfo['email'] == $ticket->getEmail()) {
+            $vars['message'] = $body;
+            return $ticket->postMessage($vars, 'Email');
+        }
+        elseif ($staff_id = Staff::getIdByEmail($mailinfo['email'])) {
+            $vars['staffId'] = $staff_id;
+            $poster = Staff::lookup($staff_id);
+            $errors = array();
+            $vars['note'] = $body;
+            return $ticket->postNote($vars, $errors, $poster);
+        }
+        // TODO: Consider security constraints
+        else {
+            $vars['message'] = sprintf("Received From: %s\n\n%s",
+                $mailinfo['email'], $body);
+            return $ticket->postMessage($vars, 'Email');
+        }
+        // Currently impossible, but indicate that this thread object could
+        // not append the incoming email.
+        return false;
+    }
 
     /* Returns file names with id as key */
     function getFiles() {
@@ -495,8 +576,11 @@ Class ThreadEntry {
 
         $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
             .' SET message_id='.db_input($this->getId()) //TODO: change it to thread_id
-            .', email_mid='.db_input($vars['mid']) //TODO: change it to mid.
-            .', headers='.db_input($vars['header']);
+            .', email_mid='.db_input($vars['mid']); //TODO: change it to mid.
+        if (isset($vars['header']))
+            $sql .= ', headers='.db_input($vars['header']);
+
+        $this->ht['email_mid'] = $vars['mid'];
 
         return db_query($sql)?db_insert_id():0;
     }
@@ -544,8 +628,56 @@ Class ThreadEntry {
                 )?$e:null;
     }
 
+    /**
+     * Parameters:
+     * mailinfo (hash<String>) email header information. Must include keys
+     *  - "mid" => Message-Id header of incoming mail
+     *  - "in-reply-to" => Message-Id the email is a direct response to
+     *  - "references" => List of Message-Id's the email is in response
+     *  - "subject" => Find external ticket number in the subject line
+     */
+    function lookupByEmailHeaders($mailinfo) {
+        // Search for messages using the References header, then the
+        // in-reply-to header
+        $search = 'SELECT message_id FROM '.TICKET_EMAIL_INFO_TABLE
+               . ' WHERE email_mid=%s ORDER BY message_id DESC';
+
+        if ($id = db_result(db_query(
+                sprintf($search, db_input($mailinfo['mid'])))))
+            return ThreadEntry::lookup($id);
+
+        foreach (array('mid', 'in-reply-to', 'references') as $header) {
+            $matches = array();
+            if (!isset($mailinfo[$header]) || !$mailinfo[$header])
+                continue;
+            // Header may have multiple entries (usually separated by
+            // semi-colons (;))
+            elseif (!preg_match_all('/<[^>@]+@[^>]+>/', $mailinfo[$header],
+                        $matches))
+                continue;
+
+            foreach ($matches[0] as $mid) {
+                $res = db_query(sprintf($search, db_input($mid)));
+                while (list($id) = db_fetch_row($res)) {
+                    if ($t = ThreadEntry::lookup($id))
+                        return $t;
+                }
+            }
+        }
+
+        // Search for ticket by the [#123456] in the subject line
+        $subject = $mailinfo['subject'];
+        $match = array();
+        if ($subject && preg_match("/\[#([0-9]{1,10})\]/", $subject, $match))
+            // Return last message for the thread
+            return Message::lastByExtTicketId((int)$match[1]);
+
+        return null;
+    }
+
     //new entry ... we're trusting the caller to check validity of the data.
     function create($vars) {
+        global $cfg;
 
         //Must have...
         if(!$vars['ticketId'] || !$vars['type'] || !in_array($vars['type'], array('M','R','N')))
@@ -562,6 +694,12 @@ Class ThreadEntry {
 
         if(isset($vars['pid']))
             $sql.=' ,pid='.db_input($vars['pid']);
+        // Check if 'reply_to' is in the $vars as the previous ThreadEntry
+        // instance. If the body of the previous message is found in the new
+        // body, strip it out.
+        elseif (isset($vars['reply_to'])
+                && $vars['reply_to'] instanceof ThreadEntry)
+            $sql.=' ,pid='.db_input($vars['reply_to']->getId());
 
         if($vars['ip_address'])
             $sql.=' ,ip_address='.db_input($vars['ip_address']);
@@ -583,6 +721,12 @@ Class ThreadEntry {
         //Canned attachments...
         if($vars['cannedattachments'] && is_array($vars['cannedattachments']))
             $entry->saveAttachments($vars['cannedattachments']);
+
+        // Email message id (required for all thread posts)
+        if (!isset($vars['mid']))
+            $vars['mid'] = sprintf('<%s@%s>', Misc::randCode(24),
+                substr(md5($cfg->getUrl()), -10));
+        $entry->saveEmailInfo($vars);
 
         return $entry;
     }
@@ -629,6 +773,17 @@ class Message extends ThreadEntry {
                 && ($m = new Message($id, $tid))
                 && $m->getId()==$id
                 )?$m:null;
+    }
+
+    function lastByExtTicketId($ticketId) {
+        $sql = 'SELECT thread.id FROM '.TICKET_THREAD_TABLE
+            .' thread JOIN '.TICKET_TABLE.' ticket ON (ticket.ticket_id = thread.ticket_id)
+                WHERE thread_type=\'M\' AND ticket.ticketID = '.db_input($ticketId)
+            .' ORDER BY thread.id DESC LIMIT 1';
+        if (($res = db_query($sql)) && (list($id) = db_fetch_row($res)))
+            return Message::lookup($id);
+        else
+            return null;
     }
 }
 

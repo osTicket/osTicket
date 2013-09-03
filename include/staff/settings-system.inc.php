@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 
 $gmtime = Misc::gmtime();
 ?>
-<h2>System Settings and Preferences - <span>osTicket (v<?php echo $cfg->getVersion(); ?>)</span></h2>
+<h2>System Settings and Preferences - <span>osTicket (<?php echo $cfg->getVersion(); ?>)</span></h2>
 <form action="settings.php?t=system" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="system" >
