@@ -233,6 +233,8 @@ class MailFetcher {
                       'subject'=>@$headerinfo->subject,
                       'mid'    => trim(@$headerinfo->message_id),
                       'header' => $this->getHeader($mid),
+                      'in-reply-to' => $headerinfo->in_reply_to,
+                      'references' => $headerinfo->references,
                       );
 
         if ($replyto = $headerinfo->reply_to) {
@@ -400,10 +402,6 @@ class MailFetcher {
 	        return true; //Report success (moved or delete)
         }
 
-        //Make sure the email is NOT already fetched... (undeleted emails)
-        if($mailinfo['mid'] && ($id=Ticket::getIdByMessageId($mailinfo['mid'], $mailinfo['email'])))
-            return true; //Reporting success so the email can be moved or deleted.
-
         $vars = $mailinfo;
         $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
@@ -423,19 +421,15 @@ class MailFetcher {
 
         $ticket=null;
         $newticket=true;
-        //Check the subject line for possible ID.
-        if($vars['subject'] && preg_match ("[[#][0-9]{1,10}]", $vars['subject'], $regs)) {
-            $tid=trim(preg_replace("/[^0-9]/", "", $regs[0]));
-            //Allow mismatched emails?? For now NO.
-            if(!($ticket=Ticket::lookupByExtId($tid, $vars['email'])))
-                $ticket=null;
-        }
 
         $errors=array();
-        if($ticket) {
-            if(!($message=$ticket->postMessage($vars, 'Email')))
-                return false;
-
+        if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
+                && ($message = $thread->postEmail($vars))) {
+            if ($message === true)
+                // Email has been processed previously
+                return true;
+            elseif ($message)
+                $ticket = $message->getTicket();
         } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
         } else {

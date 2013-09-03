@@ -423,11 +423,6 @@ class ApiEmailDataParser extends EmailDataParser {
         if(!$data['emailId'])
             $data['emailId'] = $cfg->getDefaultEmailId();
 
-        if($data['email'] && preg_match ('[[#][0-9]{1,10}]', $data['subject'], $matches)) {
-            if(($tid=Ticket::getIdByExtId(trim(preg_replace('/[^0-9]/', '', $matches[0])), $data['email'])))
-                $data['ticketId'] = $tid;
-        }
-
         if(!$cfg->useEmailPriority())
             unset($data['priorityId']);
 

@@ -123,6 +123,18 @@ class Mailer {
                 $headers+= array('Precedence' => 'auto_reply');
         }
 
+        if ($options) {
+            if (isset($options['replyto']))
+                $headers += array('In-Reply-To' => $options['replyto']);
+            if (isset($options['references'])) {
+                if (is_array($options['references']))
+                    $headers += array('References' =>
+                        implode(' ', $options['references']));
+                else
+                    $headers += array('References' => $options['references']);
+            }
+        }
+
         $mime = new Mail_mime();
         $mime->setTXTBody($body);
         //XXX: Attachments

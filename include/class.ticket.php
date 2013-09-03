@@ -733,6 +733,8 @@ class Ticket {
         if(!$dept || !($email=$dept->getAutoRespEmail()))
             $email =$cfg->getDefaultEmail();
 
+        $options = array('references'=>$message->getEmailMessageId());
+
         //Send auto response - if enabled.
         if($autorespond && $email && $cfg->autoRespONNewTicket()
                 && $dept->autoRespONNewTicket()
@@ -746,7 +748,8 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getEmail(), $msg['subj'],
+                $msg['body'], null, $options);
         }
 
         if(!($email=$cfg->getAlertEmail()))
@@ -763,7 +766,8 @@ class Ticket {
             //Alert admin??
             if($cfg->alertAdminONNewTicket()) {
                 $alert = str_replace('%{recipient}', 'Admin', $msg['body']);
-                $email->sendAlert($cfg->getAdminEmail(), $msg['subj'], $alert);
+                $email->sendAlert($cfg->getAdminEmail(), $msg['subj'],
+                    $alert, null, $options);
                 $sentlist[]=$cfg->getAdminEmail();
             }
 
@@ -779,7 +783,8 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
+                    null, $options);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -831,7 +836,7 @@ class Ticket {
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1,lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
     }
 
-    function onMessage($autorespond=true, $alert=true) {
+    function onMessage($autorespond=true, $message=null) {
         global $cfg;
 
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
@@ -875,7 +880,11 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
+            if (!$message)
+                $message = $this->getLastMessage();
+            $options = array('references' => $message->getEmailMessageId());
+            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
+                null, $options);
         }
     }
 
@@ -893,7 +902,8 @@ class Ticket {
         $assigner = $thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
 
         //Log an internal note - no alerts on the internal note.
-        $this->logNote('Ticket Assigned to '.$assignee->getName(), $comments, $assigner, false);
+        $note = $this->logNote('Ticket Assigned to '.$assignee->getName(),
+            $comments, $assigner, false);
 
         //See if we need to send alerts
         if(!$alert || !$cfg->alertONAssignment()) return true; //No alerts!
@@ -931,10 +941,12 @@ class Ticket {
 
             //Send the alerts.
             $sentlist=array();
+            $options = array('references' => $note->getEmailMessageId());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
+                    null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1140,7 +1152,7 @@ class Ticket {
         /*** log the transfer comments as internal note - with alerts disabled - ***/
         $title='Ticket transfered from '.$currentDept.' to '.$this->getDeptName();
         $comments=$comments?$comments:$title;
-        $this->logNote($title, $comments, $thisstaff, false);
+        $note = $this->logNote($title, $comments, $thisstaff, false);
 
         $this->logEvent('transferred');
 
@@ -1180,10 +1192,12 @@ class Ticket {
                 $recipients[]= $manager;
 
             $sentlist=array();
+            $options = array('references' => $note->getEmailMessageId());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
+                    null, $options);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1279,7 +1293,7 @@ class Ticket {
             if(list($msg) = split($tag, $vars['message']))
                 $vars['message'] = $msg;
 
-        if($vars['ip'])
+        if(isset($vars['ip']))
             $vars['ip_address'] = $vars['ip'];
         elseif(!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
             $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
@@ -1290,16 +1304,13 @@ class Ticket {
 
         $this->setLastMsgId($message->getId());
 
-        if (isset($vars['mid']))
-            $message->saveEmailInfo($vars);
-
         if(!$alerts) return $message; //Our work is done...
 
         $autorespond = true;
         if ($autorespond && $message->isAutoResponse())
             $autorespond=false;
 
-        $this->onMessage($autorespond); //must be called b4 sending alerts to staff.
+        $this->onMessage($autorespond, $message); //must be called b4 sending alerts to staff.
 
         $dept = $this->getDept();
 
@@ -1330,10 +1341,12 @@ class Ticket {
                 $recipients[]=$manager;
 
             $sentlist=array(); //I know it sucks...but..it works.
+            $options = array('references'=>$message->getEmailMessageId());
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
+                    null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1386,7 +1399,9 @@ class Ticket {
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
             $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
+            $options = array('references' => $response->getEmailMessageId());
+            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+                $options);
         }
 
         return $response;
@@ -1441,8 +1456,10 @@ class Ticket {
 
             //Set attachments if emailing.
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
+            $options = array('references' => $response->getEmailMessageId());
             //TODO: setup  5 param (options... e.g mid trackable on replies)
-            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments);
+            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+                $options);
         }
 
         return $response;
@@ -1551,6 +1568,7 @@ class Ticket {
                 $recipients[]=$dept->getManager();
 
             $attachments = $note->getAttachments();
+            $options = array('references' => $note->getEmailMessageId());
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff)
@@ -1559,7 +1577,8 @@ class Ticket {
                         || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
                     continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, $attachments);
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, $attachments,
+                    $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -2128,7 +2147,12 @@ class Ticket {
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
 
             $attachments =($cfg->emailAttachments() && $response)?$response->getAttachments():array();
-            $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments);
+            $references = $ticket->getLastMessage()->getEmailMessageId();
+            if (isset($response))
+                $references = array($response->getEmailMessageId(), $references);
+            $options = array('references' => $references);
+            $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
+                $options);
         }
 
         return $ticket;
