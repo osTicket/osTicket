@@ -19,7 +19,8 @@ class TicketApiController extends ApiController {
         );
 
         if(!strcasecmp($format, 'email'))
-            $supported = array_merge($supported, array('header', 'mid', 'emailId', 'ticketId'));
+            $supported = array_merge($supported, array('header', 'mid',
+                'emailId', 'ticketId', 'reply-to', 'reply-to-name'));
 
         return $supported;
     }
@@ -42,7 +43,7 @@ class TicketApiController extends ApiController {
         if($data['attachments'] && is_array($data['attachments'])) {
             foreach($data['attachments'] as &$attachment) {
                 if(!$ost->isFileTypeAllowed($attachment))
-                    $data['error'] = 'Invalid file type (ext) for '.Format::htmlchars($attachment['name']);
+                    $attachment['error'] = 'Invalid file type (ext) for '.Format::htmlchars($attachment['name']);
                 elseif ($attachment['encoding'] && !strcasecmp($attachment['encoding'], 'base64')) {
                     if(!($attachment['data'] = base64_decode($attachment['data'], true)))
                         $attachment['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($attachment['name']));
@@ -159,7 +160,7 @@ class PipeApiController extends TicketApiController {
         if(($ticket=$pipe->processEmail()))
            return $pipe->response(201, $ticket->getNumber());
 
-        return $pipe->exerr(416, 'Request failed -retry again!');
+        return $pipe->exerr(416, 'Request failed - retry again!');
     }
 }
 

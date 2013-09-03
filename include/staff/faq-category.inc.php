@@ -2,7 +2,7 @@
 if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 
 ?>
-<div style="width:700;padding-top:10px; float:left;">
+<div style="width:700px;padding-top:10px; float:left;">
   <h2>Frequently Asked Questions</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">&nbsp;</div>

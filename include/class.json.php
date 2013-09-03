@@ -26,6 +26,10 @@ class JsonDataParser {
         while (!feof($stream)) {
             $contents .= fread($stream, 8192);
         }
+        return self::decode($contents);
+    }
+
+    function decode($contents) {
         if (function_exists("json_decode")) {
             return json_decode($contents, true);
         } else {
@@ -56,7 +60,11 @@ class JsonDataParser {
 
 class JsonDataEncoder {
     function encode($var) {
-        $decoder = new Services_JSON();
-        return $decoder->encode($var);
+        if (function_exists('json_encode'))
+            return json_encode($var);
+        else {
+            $decoder = new Services_JSON();
+            return $decoder->encode($var);
+        }
     }
 }

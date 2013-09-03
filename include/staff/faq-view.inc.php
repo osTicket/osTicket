@@ -10,7 +10,7 @@ $category=$faq->getCategory();
     &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
     <span class="faded">(<?php echo $category->isPublic()?'Public':'Internal'; ?>)</span>
 </div>
-<div style="width:700;padding-top:2px; float:left;">
+<div style="width:700px;padding-top:2px; float:left;">
 <strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo $faq->isPublished()?'(Published)':''; ?></span>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">

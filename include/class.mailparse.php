@@ -106,6 +106,15 @@ class Mail_Parse {
         return $array;
     }
 
+    /* static */
+    function findHeaderEntry($headers, $name) {
+        if (!is_array($headers))
+            $headers = self::splitHeaders($headers);
+        foreach ($headers as $key=>$val)
+            if (strcasecmp($key, $name) === 0)
+                return $val;
+        return false;
+    }
 
     function getStruct(){
         return $this->struct;
@@ -143,16 +152,20 @@ class Mail_Parse {
         return $this->struct->headers['subject'];
     }
 
+    function getReplyTo() {
+        return Mail_Parse::parseAddressList($this->struct->headers['reply-to']);
+    }
+
     function getBody(){
 
         $body='';
-        if(!($body=$this->getPart($this->struct,'text/plain'))) {
-            if(($body=$this->getPart($this->struct,'text/html'))) {
-                //Cleanup the html.
-                $body=str_replace("</DIV><DIV>", "\n", $body);
-                $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
-                $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
-            }
+        if($body=$this->getPart($this->struct,'text/plain'))
+            $body = Format::htmlchars($body);
+        elseif($body=$this->getPart($this->struct,'text/html')) {
+            //Cleanup the html.
+            $body=str_replace("</DIV><DIV>", "\n", $body);
+            $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
+            $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
         }
         return $body;
     }
@@ -202,8 +215,13 @@ class Mail_Parse {
             $file=array(
                     'name'  => $filename,
                     'type'  => strtolower($part->ctype_primary.'/'.$part->ctype_secondary),
-                    'data'  => $this->mime_encode($part->body, $part->ctype_parameters['charset'])
                     );
+
+            if ($part->ctype_parameters['charset'])
+                $file['data'] = $this->mime_encode($part->body,
+                    $part->ctype_parameters['charset']);
+            else
+                $file['data'] = $part->body;
 
             if(!$this->decode_bodies && $part->headers['content-transfer-encoding'])
                 $file['encoding'] = $part->headers['content-transfer-encoding'];
@@ -322,6 +340,13 @@ class EmailDataParser {
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
+
+        if ($replyto = $parser->getReplyTo()) {
+            $replyto = $replyto[0];
+            $data['reply-to'] = $replyto->mailbox.'@'.$replyto->host;
+            if ($replyto->personal)
+                $data['reply-to-name'] = trim($replyto->personal, " \t\n\r\0\x0B\x22");
+        }
 
         if($cfg && $cfg->allowEmailAttachments())
             $data['attachments'] = $parser->getAttachments();

@@ -3,6 +3,9 @@
 
 require_once "modules/class.module.php";
 
+if (!function_exists('noop')) { function noop() {} }
+session_set_save_handler('noop','noop','noop','noop','noop','noop');
+
 class Manager extends Module {
     var $prologue =
         "Manage one or more osTicket installations";
@@ -20,32 +23,36 @@ class Manager extends Module {
             include_once $script;
 
         global $registered_modules;
-        $this->epilog = 
+        $this->epilog =
             "Currently available modules follow. Use 'manage.php <module>
             --help' for usage regarding each respective module:";
 
         parent::showHelp();
-        
+
         echo "\n";
         foreach ($registered_modules as $name=>$mod)
             echo str_pad($name, 20) . $mod->prologue . "\n";
     }
 
-    function run() {
-        if ($this->getOption('help') && !$this->getArgument('action'))
+    function run($args, $options) {
+        if ($options['help'] && !$args['action'])
             $this->showHelp();
 
         else {
-            $action = $this->getArgument('action');
+            $action = $args['action'];
 
             global $argv;
             foreach ($argv as $idx=>$val)
                 if ($val == $action)
                     unset($argv[$idx]);
 
-            include_once dirname(__file__) . '/modules/' . $action . '.php';
-            $module = Module::getInstance($action);
-            $module->run();
+            foreach (glob(dirname(__file__).'/modules/*.php') as $script)
+                include_once $script;
+            if (($module = Module::getInstance($action)))
+                return $module->_run($args['action']);
+
+            $this->stderr->write("Unknown action given\n");
+            $this->showHelp();
         }
     }
 }
@@ -55,6 +62,6 @@ if (php_sapi_name() != "cli")
 
 $manager = new Manager();
 $manager->parseOptions();
-$manager->run();
+$manager->_run(basename(__file__));
 
 ?>

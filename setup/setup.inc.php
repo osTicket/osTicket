@@ -15,7 +15,7 @@
 **********************************************************************/
 
 #This  version - changed on every release
-define('THIS_VERSION', '1.7.0');
+define('THIS_VERSION', '1.7.0+');
 
 #inits - error reporting.
 $error_reporting = E_ALL & ~E_NOTICE;
@@ -51,10 +51,10 @@ define('SETUPINC',true);
 define('URL',rtrim('http'.(($_SERVER['HTTPS']=='on')?'s':'').'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']),'setup'));
 
 #define paths
-define('INC_DIR','./inc/'); //local include dir!
+define('INC_DIR',dirname(__file__).'/inc/'); //local include dir!
 if(!defined('INCLUDE_DIR')):
-define('ROOT_PATH','../');
-define('ROOT_DIR','../');
+define('ROOT_PATH',dirname(__file__).'/../');
+define('ROOT_DIR',dirname(__file__).'/../');
 define('INCLUDE_DIR',ROOT_DIR.'include/');
 define('PEAR_DIR',INCLUDE_DIR.'pear/');
 ini_set('include_path', './'.PATH_SEPARATOR.INC_DIR.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
@@ -66,5 +66,10 @@ require_once(INCLUDE_DIR.'class.validator.php');
 require_once(INCLUDE_DIR.'class.passwd.php');
 require_once(INCLUDE_DIR.'class.format.php');
 require_once(INCLUDE_DIR.'class.misc.php');
-require_once(INCLUDE_DIR.'mysql.php');
+
+if (extension_loaded('mysqli'))
+    require_once INCLUDE_DIR.'mysqli.php';
+else
+    require(INCLUDE_DIR.'mysql.php');
+
 ?>

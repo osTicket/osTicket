@@ -21,6 +21,9 @@ class Unpacker extends Module {
              code in that folder. The folder will be automatically created if
              it doesn't already exist."
         ),
+        'verbose' => array('-v','--verbose', 'default'=>false, 'nargs'=>0,
+            'action'=>'store_true', 'help'=>
+            "Move verbose logging to stdout"),
     );
 
     var $arguments = array(
@@ -45,13 +48,14 @@ class Unpacker extends Module {
         # Read the main.inc.php script
         $main_inc_php = $this->destination . '/main.inc.php';
         $lines = explode("\n", file_get_contents($main_inc_php));
-        # Try and use ROOT_PATH
+        # Try and use ROOT_DIR
         if (strpos($include_path, $this->destination) === 0)
-            $include_path = "ROOT_PATH . '" .
+            $include_path = "ROOT_DIR . '" .
                 str_replace($this->destination, '', $include_path) . "'";
         else
             $include_path = "'$include_path'";
         # Find the line that defines INCLUDE_DIR
+        $match = array();
         foreach ($lines as &$line) {
             if (preg_match("/(\s*)define\s*\(\s*'INCLUDE_DIR'/", $line, $match)) {
                 # Replace the definition with the new locatin
@@ -78,23 +82,52 @@ class Unpacker extends Module {
         return false;
     }
 
-    function unpackage($folder, $destination, $recurse=true, $exclude=false) {
+    /**
+     * Copy from source to desination, perhaps recursing up to n folders.
+     * Exclusions are also permitted. If any files match an MD5 sum, they
+     * will be excluded from the copy operation.
+     *
+     * Parameters:
+     * folder - (string) source folder root
+     * destination - (string) destination folder root
+     * recurse - (int) recuse up to this many folders. Use 0 or false to
+     *      disable recursion, and -1 to recurse infinite folders.
+     * exclude - (string | array<string>) patterns that will be matched
+     *      using the PHP `fnmatch` function. If any file or folder matches,
+     *      it will be excluded from the copy procedure. Omit or use false
+     *      to disable exclusions
+     */
+    function unpackage($folder, $destination, $recurse=0, $exclude=false) {
+        $dryrun = $this->getOption('dry-run', false);
+        $verbose = $this->getOption('verbose') || $dryrun;
+        if (substr($destination, -1) !== '/')
+            $destination .= '/';
         foreach (glob($folder, GLOB_BRACE|GLOB_NOSORT) as $file) {
             if ($this->exclude($exclude, $file))
                 continue;
             if (is_file($file)) {
-                if (!is_dir($destination))
+                if (!is_dir($destination) && !$dryrun)
                     mkdir($destination, 0751, true);
-                copy($file, $destination . '/' . basename($file));
+                $target = $destination . basename($file);
+                if (is_file($target) && (md5_file($target) == md5_file($file)))
+                    continue;
+                if ($verbose)
+                    $this->stdout->write($target."\n");
+                if (!$dryrun)
+                    copy($file, $target);
             }
         }
         if ($recurse) {
-            foreach (glob(dirname($folder).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-                if ($this->exclude($exclude, $dir))
+            $folders = glob(dirname($folder).'/'.basename($folder),
+                GLOB_BRACE|GLOB_ONLYDIR|GLOB_NOSORT);
+            foreach ($folders as $dir) {
+                if (in_array(basename($dir), array('.','..')))
+                    continue;
+                elseif ($this->exclude($exclude, $dir))
                     continue;
                 $this->unpackage(
                     dirname($folder).'/'.basename($dir).'/'.basename($folder),
-                    $destination.'/'.basename($dir),
+                    $destination.basename($dir),
                     $recurse - 1, $exclude);
             }
         }
@@ -114,8 +147,8 @@ class Unpacker extends Module {
         return INCLUDE_DIR;
     }
 
-    function run() {
-        $this->destination = $this->getArgument('install-path');
+    function run($args, $options) {
+        $this->destination = $args['install-path'];
         if (!is_dir($this->destination))
             if (!mkdir($this->destination, 0751, true))
                 die("Destination path does not exist and cannot be created");
@@ -132,7 +165,7 @@ class Unpacker extends Module {
             # Get the current value of the INCLUDE_DIR before overwriting
             # main.inc.php
             $include = $this->get_include_dir();
-        $this->unpackage("$upload/*", $this->destination, -1, "*include");
+        $this->unpackage("$upload/{,.}*", $this->destination, -1, "*include");
 
         if (!$upgrade) {
             if ($this->getOption('include')) {
@@ -140,14 +173,14 @@ class Unpacker extends Module {
                 if (!is_dir("$location/"))
                     if (!mkdir("$location/", 0751, true))
                         die("Unable to create folder for include/ files\n");
-                $this->unpackage("$upload/include/*", $location, -1);
+                $this->unpackage("$upload/include/{,.}*", $location, -1);
                 $this->change_include_dir($location);
             }
             else
-                $this->unpackage("$upload/include/*", "{$this->destination}/include", -1);
+                $this->unpackage("$upload/include/{,.}*", "{$this->destination}/include", -1);
         }
         else {
-            $this->unpackage("$upload/include/*", $include, -1);
+            $this->unpackage("$upload/include/{,.}*", $include, -1);
             # Change the new main.inc.php to reflect the location of the
             # include/ directory
             $this->change_include_dir($include);

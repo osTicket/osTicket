@@ -119,21 +119,12 @@ if($search):
             //This sucks..mass scan! search anything that moves! 
             
             $deep_search=true;
-            if($_REQUEST['stype'] && $_REQUEST['stype']=='FT') { //Using full text on big fields.
-                $qwhere.=" AND ( ticket.email LIKE '%$queryterm%'".
-                            " OR ticket.name LIKE '%$queryterm%'".
-                            " OR ticket.subject LIKE '%$queryterm%'".
-                            " OR thread.title LIKE '%$queryterm%'".
-                            " OR MATCH(thread.body)   AGAINST('$queryterm')".
-                            ' ) ';
-            }else{
-                $qwhere.=" AND ( ticket.email LIKE '%$queryterm%'".
-                            " OR ticket.name LIKE '%$queryterm%'".
-                            " OR ticket.subject LIKE '%$queryterm%'".
-                            " OR thread.body LIKE '%$queryterm%'".
-                            " OR thread.title LIKE '%$queryterm%'".
-                            ' ) ';
-            }
+            $qwhere.=" AND ( ticket.email LIKE '%$queryterm%'".
+                        " OR ticket.name LIKE '%$queryterm%'".
+                        " OR ticket.subject LIKE '%$queryterm%'".
+                        " OR thread.body LIKE '%$queryterm%'".
+                        " OR thread.title LIKE '%$queryterm%'".
+                        ' ) ';
         }
     }
     //department

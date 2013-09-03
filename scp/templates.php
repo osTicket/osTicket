@@ -16,7 +16,11 @@
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.template.php');
 $template=null;
-if($_REQUEST['id'] && !($template=Template::lookup($_REQUEST['id'])))
+if($_REQUEST['tpl_id'] &&
+        !($template=EmailTemplateGroup::lookup($_REQUEST['tpl_id'])))
+    $errors['err']='Unknown or invalid template group ID.';
+elseif($_REQUEST['id'] &&
+        !($template=EmailTemplate::lookup($_REQUEST['id'])))
     $errors['err']='Unknown or invalid template ID.';
 
 if($_POST){
@@ -24,8 +28,18 @@ if($_POST){
         case 'updatetpl':
             if(!$template){
                 $errors['err']='Unknown or invalid template';
-            }elseif($template->updateMsgTemplate($_POST,$errors)){
+            }elseif($template->update($_POST,$errors)){
                 $template->reload();
+                $msg='Message template updated successfully';
+            }elseif(!$errors['err']){
+                $errors['err']='Error updating message template. Try again!';
+            }
+            break;
+        case 'implement':
+            if(!$template){
+                $errors['err']='Unknown or invalid template';
+            }elseif($new = EmailTemplate::add($_POST,$errors)){
+                $template = $new;
                 $msg='Message template updated successfully';
             }elseif(!$errors['err']){
                 $errors['err']='Error updating message template. Try again!';
@@ -41,7 +55,8 @@ if($_POST){
             }
             break;
         case 'add':
-            if((Template::create($_POST,$errors))){
+            if(($new=EmailTemplateGroup::add($_POST,$errors))){
+                $template=$new;
                 $msg='Template added successfully';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
@@ -55,7 +70,7 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET isactive=1 '
+                        $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET isactive=1 '
                             .' WHERE tpl_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
                             if($num==$count)
@@ -69,7 +84,7 @@ if($_POST){
                     case 'disable':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=Template::lookup($v)) && !$t->isInUse() && $t->disable())
+                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->disable())
                                 $i++;
                         }
                         if($i && $i==$count)
@@ -82,7 +97,7 @@ if($_POST){
                     case 'delete':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=Template::lookup($v)) && !$t->isInUse() && $t->delete())
+                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->delete())
                                 $i++;
                         }
 
@@ -106,6 +121,8 @@ if($_POST){
 
 $page='templates.inc.php';
 if($template && !strcasecmp($_REQUEST['a'],'manage')){
+    $page='tpl.inc.php';
+}elseif($template && !strcasecmp($_REQUEST['a'],'implement')){
     $page='tpl.inc.php';
 }elseif($template || !strcasecmp($_REQUEST['a'],'add')){
     $page='template.inc.php';

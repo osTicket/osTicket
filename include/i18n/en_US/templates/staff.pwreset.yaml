@@ -1,0 +1,20 @@
+#
+# Email template: staff.pwreset
+#
+# Sent when a staff member requests a password reset via the <a>Forgot my
+# password</a> link in the staff control login screen
+#
+---
+subject: osTicket Staff Password Reset
+body: |
+    You or perhaps somebody you know has submitted a password reset request on
+    your behalf for the helpdesk at %{url}.
+
+    If you feel that this has been done in error. Delete and disregard this
+    email.  Your account is still secure and no one has been given access to it.
+    It is not locked and your password has not been reset. Someone could have
+    mistakenly entered your email address.
+
+    Follow the link below to login to the help desk and change your password.
+
+    %{reset_link}

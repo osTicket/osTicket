@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 
 $gmtime = Misc::gmtime();
 ?>
-<h2>System Settings and Preferences - <span>osTicket (v<?php echo $cfg->getVersion(); ?>)</span></h2>
+<h2>System Settings and Preferences - <span>osTicket (<?php echo $cfg->getVersion(); ?>)</span></h2>
 <form action="settings.php?t=system" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="system" >
@@ -11,7 +11,7 @@ $gmtime = Misc::gmtime();
     <thead>
         <tr>
             <th colspan="2">
-                <h4>System Settings & Preferences</h4>
+                <h4>System Settings &amp; Preferences</h4>
                 <em><b>General Settings</b>: Offline mode will disable client interface and only allow admins to login to Staff Control Panel</em>
             </th>
         </tr>
@@ -60,7 +60,7 @@ $gmtime = Misc::gmtime();
                 <select name="default_template_id">
                     <option value="">&mdash; Select Default Template &mdash;</option>
                     <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_TABLE.' WHERE isactive=1 AND cfg_id='.db_input($cfg->getId()).' ORDER BY name';
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' WHERE isactive=1 ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while (list($id, $name) = db_fetch_row($res)){
                             $selected = ($config['default_template_id']==$id)?'selected="selected"':''; ?>
@@ -99,7 +99,7 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr>
             <td>Purge Logs:</td>
-            <td>        
+            <td>
                 <select name="log_graceperiod">
                     <option value=0 selected>Never Purge Logs</option>
                     <?php
@@ -112,7 +112,12 @@ $gmtime = Misc::gmtime();
                 </select>
             </td>
         </tr>
-        <tr><td>Password Reset Policy:</th>
+        <tr>
+            <th colspan="2">
+                <em><b>Authentication Settings</b></em>
+            </th>
+        </tr>
+        <tr><td>Password Change Policy:</th>
             <td>
                 <select name="passwd_reset_period">
                    <option value="0"> &mdash; None &mdash;</option>
@@ -126,10 +131,20 @@ $gmtime = Misc::gmtime();
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['passwd_reset_period']; ?></font>
             </td>
         </tr>
-        <tr><td>Bind Staff Session to IP:</td>
+        <tr><td>Allow Password Resets:</th>
             <td>
-              <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
-              <em>(binds staff session to originating IP address upon login)</em>
+              <input type="checkbox" name="allow_pw_reset" <?php echo $config['allow_pw_reset']?'checked="checked"':''; ?>>
+              <em>Enables the <u>Forgot my password</u> link on the staff
+              control panel</em>
+            </td>
+        </tr>
+        <tr><td>Password Reset Window:</th>
+            <td>
+              <input type="text" name="pw_reset_window" size="6" value="<?php
+                    echo $config['pw_reset_window']; ?>">
+                Maximum time <em>in minutes</em> a password reset token can
+                be valid.
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['pw_reset_window']; ?></font>
             </td>
         </tr>
         <tr><td>Staff Excessive Logins:</td>
@@ -172,7 +187,7 @@ $gmtime = Misc::gmtime();
                         echo sprintf('<option value="%d" %s>%d</option>', $i,(($config['client_login_timeout']==$i)?'selected="selected"':''), $i);
                     }
                     ?>
-                </select> minute lock-out is enforced. 
+                </select> minute lock-out is enforced.
             </td>
         </tr>
 
@@ -180,6 +195,12 @@ $gmtime = Misc::gmtime();
             <td>
               <input type="text" name="client_session_timeout" size=6 value="<?php echo $config['client_session_timeout']; ?>">
                 &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable).
+            </td>
+        </tr>
+        <tr><td>Bind Staff Session to IP:</td>
+            <td>
+              <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
+              <em>(binds staff session to originating IP address upon login)</em>
             </td>
         </tr>
         <tr>

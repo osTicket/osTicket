@@ -3,7 +3,7 @@
     settings.php
 
     Handles all admin settings.
-    
+
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
@@ -19,6 +19,7 @@ $settingOptions=array(
                 'system' => 'System Settings',
                 'tickets' => 'Ticket Settings and Options',
                 'emails' => 'Email Settings',
+                'pages' => 'Site Pages',
                 'kb' => 'Knowledgebase Settings',
                 'autoresp' => 'Autoresponder Settings',
                 'alerts' => 'Alerts and Notices Settings');
@@ -26,7 +27,6 @@ $settingOptions=array(
 if($_POST && !$errors) {
     if($cfg && $cfg->updateSettings($_POST,$errors)) {
         $msg=Format::htmlchars($settingOptions[$_POST['t']]).' Updated Successfully';
-        $cfg->reload();
     } elseif(!$errors['err']) {
         $errors['err']='Unable to update settings - correct errors below and try again';
     }

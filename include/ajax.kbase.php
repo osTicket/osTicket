@@ -15,9 +15,9 @@
 **********************************************************************/
 if(!defined('INCLUDE_DIR')) die('!');
 
-	    
+
 class KbaseAjaxAPI extends AjaxController {
-    
+
     function cannedResp($id, $format='') {
         global $thisstaff, $_GET;
 
@@ -52,20 +52,21 @@ class KbaseAjaxAPI extends AjaxController {
     }
 
     function faq($id, $format='html') {
-        global $thisstaff; //XXX: user ajax->getThisStaff()
+        //XXX: user ajax->getThisStaff() (nolint)
+        global $thisstaff;
         include_once(INCLUDE_DIR.'class.faq.php');
 
         if(!($faq=FAQ::lookup($id)))
             return null;
 
-        //TODO: $fag->getJSON() for json format.
+        //TODO: $fag->getJSON() for json format. (nolint)
         $resp = sprintf(
                 '<div style="width:650px;">
                  <strong>%s</strong><p>%s</p>
                  <div class="faded">Last updated %s</div>
                  <hr>
                  <a href="faq.php?id=%d">View</a> | <a href="faq.php?id=%d">Attachments (%s)</a>',
-                $faq->getQuestion(), 
+                $faq->getQuestion(),
                 Format::safe_html($faq->getAnswer()),
                 Format::db_daydatetime($faq->getUpdateDate()),
                 $faq->getId(),
@@ -77,7 +78,7 @@ class KbaseAjaxAPI extends AjaxController {
         }
         $resp.='</div>';
 
-        return $resp; 
+        return $resp;
     }
 }
 ?>

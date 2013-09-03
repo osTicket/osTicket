@@ -584,7 +584,7 @@ class Ticket {
     /**
      * Selects the appropriate service-level-agreement plan for this ticket.
      * When tickets are transfered between departments, the SLA of the new
-     * department should be applied to the ticket. This would be usefule,
+     * department should be applied to the ticket. This would be useful,
      * for instance, if the ticket is transferred to a different department
      * which has a shorter grace period, the ticket should be considered
      * overdue in the shorter window now that it is owned by the new
@@ -597,7 +597,7 @@ class Ticket {
      */
     function selectSLAId($trump=null) {
         global $cfg;
-        # XXX Should the SLA be overwritten if it was originally set via an
+        # XXX Should the SLA be overridden if it was originally set via an
         #     email filter? This method doesn't consider such a case
         if ($trump && is_numeric($trump)) {
             $slaId = $trump;
@@ -738,7 +738,7 @@ class Ticket {
                 && $dept->autoRespONNewTicket()
                 &&  ($msg=$tpl->getAutoRespMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                     array('message' => $message,
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
@@ -757,7 +757,7 @@ class Ticket {
                 && $cfg->alertONNewTicket()
                 && ($msg=$tpl->getNewTicketAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg, array('message' => $message));
+            $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
             $recipients=$sentlist=array();
             //Alert admin??
@@ -809,7 +809,7 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
@@ -868,7 +868,7 @@ class Ticket {
         //If enabled...send confirmation to user. ( New Message AutoResponse)
         if($email && $tpl && ($msg=$tpl->getNewMessageAutorepMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                             array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
             //Reply separator tag.
@@ -923,7 +923,7 @@ class Ticket {
         //Get the message template
         if($email && $recipients && $tpl && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                         array('comments' => $comments,
                               'assignee' => $assignee,
                               'assigner' => $assigner
@@ -964,7 +964,8 @@ class Ticket {
         //Get the message template
         if($tpl && ($msg=$tpl->getOverdueAlertMsgTemplate()) && $email) {
 
-            $msg = $this->replaceVars($msg, array('comments' => $comments));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('comments' => $comments));
 
             //recipients
             $recipients=array();
@@ -1133,7 +1134,7 @@ class Ticket {
         $this->reload();
 
         // Set SLA of the new department
-        if(!$this->getSLAId())
+        if(!$this->getSLAId() || $this->getSLA()->isTransient())
             $this->selectSLAId();
 
         /*** log the transfer comments as internal note - with alerts disabled - ***/
@@ -1158,7 +1159,8 @@ class Ticket {
          //Get the message template
          if($tpl && ($msg=$tpl->getTransferAlertMsgTemplate()) && $email) {
 
-             $msg = $this->replaceVars($msg, array('comments' => $comments, 'staff' => $thisstaff));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('comments' => $comments, 'staff' => $thisstaff));
             //recipients
             $recipients=array();
             //Assigned staff or team... if any
@@ -1310,7 +1312,7 @@ class Ticket {
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg, array('message' => $message));
+            $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1377,7 +1379,8 @@ class Ticket {
             else
                 $signature='';
 
-            $msg = $this->replaceVars($msg, array('response' => $response, 'signature' => $signature));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('response' => $response, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] ="\n$tag\n\n".$msg['body'];
@@ -1430,7 +1433,7 @@ class Ticket {
             else
                 $signature='';
 
-            $msg = $this->replaceVars($msg,
+            $msg = $this->replaceVars($msg->asArray(),
                     array('response' => $response, 'signature' => $signature, 'staff' => $thisstaff));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
@@ -1529,7 +1532,8 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
 
-            $msg = $this->replaceVars($msg, array('note' => $note));
+            $msg = $this->replaceVars($msg->asArray(),
+                array('note' => $note));
 
             // Alert recipients
             $recipients=array();
@@ -1549,8 +1553,11 @@ class Ticket {
             $attachments = $note->getAttachments();
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
-                if(!$staff || !is_object($staff) || !$staff->getEmail() || !$staff->isAvailable()) continue;
-                if(in_array($staff->getEmail(), $sentlist) || ($staffId && $staffId==$staff->getId())) continue;
+                if(!is_object($staff)
+                        || !$staff->isAvailable() //Don't bother vacationing staff.
+                        || in_array($staff->getEmail(), $sentlist) //No duplicates.
+                        || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
+                    continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
                 $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, $attachments);
                 $sentlist[] = $staff->getEmail();
@@ -1606,11 +1613,11 @@ class Ticket {
 
         if($vars['duedate']) {
             if($this->isClosed())
-                $errors['duedate']='Duedate can NOT be set on a closed ticket';
+                $errors['duedate']='Due date can NOT be set on a closed ticket';
             elseif(!$vars['time'] || strpos($vars['time'],':')===false)
                 $errors['time']='Select time';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
-                $errors['duedate']='Invalid duedate';
+                $errors['duedate']='Invalid due date';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
                 $errors['duedate']='Due date must be in the future';
         }
@@ -1651,6 +1658,10 @@ class Ticket {
         $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
         $this->reload();
 
+        // Reselect SLA if transient
+        if(!$this->getSLAId() || $this->getSLA()->isTransient())
+            $this->selectSLAId();
+
         //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
                 && (!$this->getEstDueDate() //Duedate + SLA cleared
@@ -1663,7 +1674,7 @@ class Ticket {
     }
 
 
-   /*============== Static functions. Use Ticket::function(params); ==================*/
+   /*============== Static functions. Use Ticket::function(params); =============nolint*/
     function getIdByExtId($extId, $email=null) {
 
         if(!$extId || !is_numeric($extId))
@@ -1738,7 +1749,7 @@ class Ticket {
         global $cfg;
 
         /* Unknown or invalid staff */
-        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff() || $cfg->getDBVersion())
+        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
         $sql='SELECT count(open.ticket_id) as open, count(answered.ticket_id) as answered '
@@ -1804,10 +1815,15 @@ class Ticket {
     /*
      * The mother of all functions...You break it you fix it!
      *
-     *  $autorespond and $alertstaff overwrites config settings...
+     *  $autorespond and $alertstaff overrides config settings...
      */
     function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
+
+        // Drop extra whitespace
+        foreach (array('email', 'phone', 'subject', 'name') as $f)
+            if (isset($vars[$f]))
+                $vars[$f] = trim($vars[$f]);
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
@@ -1892,7 +1908,7 @@ class Ticket {
             if(!$vars['time'] || strpos($vars['time'],':')===false)
                 $errors['time']='Select time';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
-                $errors['duedate']='Invalid duedate';
+                $errors['duedate']='Invalid due date';
             elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
                 $errors['duedate']='Due date must be in the future';
         }
@@ -1912,7 +1928,7 @@ class Ticket {
         $priorityId=$vars['priorityId'];
         $source=ucfirst($vars['source']);
         $topic=NULL;
-        // Intenal mapping magic...see if we need to overwrite anything
+        // Intenal mapping magic...see if we need to override anything
         if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff
             $deptId=$deptId?$deptId:$topic->getDeptId();
             $priorityId=$priorityId?$priorityId:$topic->getPriorityId();
@@ -1994,7 +2010,7 @@ class Ticket {
             $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
 
         /**********   double check auto-response  ************/
-        //Overwrite auto responder if the FROM email is one of the internal emails...loop control.
+        //Override auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
             $autorespond=false;
 
@@ -2105,7 +2121,7 @@ class Ticket {
             else
                 $signature='';
 
-            $msg = $ticket->replaceVars($msg,
+            $msg = $ticket->replaceVars($msg->asArray(),
                     array('message' => $message, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))

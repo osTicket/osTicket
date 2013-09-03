@@ -15,9 +15,9 @@
 **********************************************************************/
 
 if(!defined('INCLUDE_DIR')) die('!');
-	    
+
 class ContentAjaxAPI extends AjaxController {
-   
+
     function log($id) {
 
         if($id && ($log=Log::lookup($id))) {
@@ -39,7 +39,7 @@ class ContentAjaxAPI extends AjaxController {
         $content='
 <div style="width:680px;">
     <h2>Ticket Variables</h2>
-    Please note that non-base variables depends on the context of use. Visit osTicket Wiki for up to date documentation.
+    Please note that non-base variables depend on the context of use. Visit osTicket Wiki for up-to-date documentation.
     <br/>
     <table width="100%" border="0" cellspacing=1 cellpadding=2>
         <tr><td width="55%" valign="top"><b>Base Variables</b></td><td><b>Other Variables</b></td></tr>
@@ -77,6 +77,8 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{assignee}</td><td>Assigned staff/team</td></tr>
                     <tr><td>%{assigner}</td><td>Staff assigning the ticket</td></tr>
                     <tr><td>%{url}</td><td>osTicket\'s base url (FQDN)</td></tr>
+                    <tr><td>%{reset_link}</td>
+                        <td>Reset link used by the password reset feature</td></tr>
                 </table>
             </td>
         </tr>

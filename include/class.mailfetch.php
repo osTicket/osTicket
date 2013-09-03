@@ -181,7 +181,9 @@ class MailFetcher {
             $text=imap_binary($text);
             break;
             case 3:
-            $text=imap_base64($text);
+            // imap_base64 implies strict mode. If it refuses to decode the
+            // data, then fallback to base64_decode in non-strict mode
+            $text = (($conv=imap_base64($text))) ? $conv : base64_decode($text);
             break;
             case 4:
             $text=imap_qprint($text);
@@ -227,10 +229,40 @@ class MailFetcher {
         $sender=$headerinfo->from[0];
         //Just what we need...
         $header=array('name'  =>@$sender->personal,
-                      'email' =>(strtolower($sender->mailbox).'@'.$sender->host),
+                      'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
                       'subject'=>@$headerinfo->subject,
-                      'mid'    =>$headerinfo->message_id
+                      'mid'    => trim(@$headerinfo->message_id),
+                      'header' => $this->getHeader($mid),
                       );
+
+        if ($replyto = $headerinfo->reply_to) {
+            $header['reply-to'] = $replyto[0]->mailbox.'@'.$replyto[0]->host;
+            $header['reply-to-name'] = $replyto[0]->personal;
+        }
+
+        //Try to determine target email - useful when fetched inbox has
+        // aliases that are independent emails within osTicket.
+        $emailId = 0;
+        $tolist = array();
+        if($headerinfo->to)
+            $tolist = array_merge($tolist, $headerinfo->to);
+        if($headerinfo->cc)
+            $tolist = array_merge($tolist, $headerinfo->cc);
+        if($headerinfo->bcc)
+            $tolist = array_merge($tolist, $headerinfo->bcc);
+
+        foreach($tolist as $addr)
+            if(($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
+                break;
+
+        $header['emailId'] = $emailId;
+
+        // Ensure we have a message-id. If unable to read it out of the
+        // email, use the hash of the entire email headers
+        if (!$header['mid'] && $header['header'])
+            if (!($header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
+                    'message-id')))
+                $header['mid'] = '<' . md5($header['header']) . '@local>';
 
         return $header;
     }
@@ -340,13 +372,15 @@ class MailFetcher {
     function getBody($mid) {
 
         $body ='';
-        if(!($body = $this->getPart($mid,'TEXT/PLAIN', $this->charset))) {
-            if(($body = $this->getPart($mid,'TEXT/HTML', $this->charset))) {
-                //Convert tags of interest before we striptags
-                $body=str_replace("</DIV><DIV>", "\n", $body);
-                $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
-                $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
-            }
+        if ($body = $this->getPart($mid,'TEXT/PLAIN', $this->charset))
+            // The Content-Type was text/plain, so escape anything that
+            // looks like HTML
+            $body=Format::htmlchars($body);
+        elseif ($body = $this->getPart($mid,'TEXT/HTML', $this->charset)) {
+            //Convert tags of interest before we striptags
+            $body=str_replace("</DIV><DIV>", "\n", $body);
+            $body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
+            $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
         }
 
         return $body;
@@ -359,10 +393,6 @@ class MailFetcher {
         if(!($mailinfo = $this->getHeaderInfo($mid)))
             return false;
 
-        //Make sure the email is NOT already fetched... (undeleted emails)
-        if($mailinfo['mid'] && ($id=Ticket::getIdByMessageId(trim($mailinfo['mid']), $mailinfo['email'])))
-            return true; //Reporting success so the email can be moved or deleted.
-
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
@@ -370,15 +400,15 @@ class MailFetcher {
 	        return true; //Report success (moved or delete)
         }
 
-        $emailId = $this->getEmailId();
-        $vars = array();
-        $vars['email']=$mailinfo['email'];
+        //Make sure the email is NOT already fetched... (undeleted emails)
+        if($mailinfo['mid'] && ($id=Ticket::getIdByMessageId($mailinfo['mid'], $mailinfo['email'])))
+            return true; //Reporting success so the email can be moved or deleted.
+
+        $vars = $mailinfo;
         $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
         $vars['message']=Format::stripEmptyLines($this->getBody($mid));
-        $vars['header']=$this->getHeader($mid);
-        $vars['emailId']=$emailId?$emailId:$ost->getConfig()->getDefaultEmailId(); //ok to default?
-        $vars['mid']=$mailinfo['mid'];
+        $vars['emailId']=$mailinfo['emailId']?$mailinfo['emailId']:$this->getEmailId();
 
         //Missing FROM name  - use email address.
         if(!$vars['name'])
@@ -386,7 +416,7 @@ class MailFetcher {
 
         //An email with just attachments can have empty body.
         if(!$vars['message'])
-            $vars['message'] = '(EMPTY)';
+            $vars['message'] = '-';
 
         if($ost->getConfig()->useEmailPriority())
             $vars['priorityId']=$this->getPriority($mid);
@@ -427,7 +457,6 @@ class MailFetcher {
         if($message
                 && $ost->getConfig()->allowEmailAttachments()
                 && ($struct = imap_fetchstructure($this->mbox, $mid))
-                && $struct->parts
                 && ($attachments=$this->getAttachments($struct))) {
 
             foreach($attachments as $a ) {
@@ -545,7 +574,7 @@ class MailFetcher {
                         "\nHost: ".$fetcher->getHost().
                         "\nError: ".$fetcher->getLastError().
                         "\n\n ".$errors.' consecutive errors. Maximum of '.$MAXERRORS. ' allowed'.
-                        "\n\n This could be connection issues related to the mail server. Next delayed login attempt in aprox. $TIMEOUT minutes";
+                        "\n\n This could be connection issues related to the mail server. Next delayed login attempt in approx. $TIMEOUT minutes";
                     $ost->alertAdmin('Mail Fetch Failure Alert', $msg, true);
                 }
             }

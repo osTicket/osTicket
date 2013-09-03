@@ -100,4 +100,3 @@
         <?php }elseif($warn) { ?>
             <div id="msg_warning"><?php echo $warn; ?></div>
         <?php } ?>
-

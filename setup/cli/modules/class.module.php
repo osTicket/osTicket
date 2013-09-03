@@ -1,7 +1,7 @@
 <?php
 
 class Option {
-    
+
     var $default = false;
 
     function Option() {
@@ -23,6 +23,8 @@ class Option {
             : null;
         $this->metavar = (isset($options['metavar'])) ? $options['metavar']
             : 'var';
+        $this->nargs = (isset($options['nargs'])) ? $options['nargs']
+            : 1;
     }
 
     function hasArg() {
@@ -32,11 +34,13 @@ class Option {
 
     function handleValue(&$destination, $args) {
         $nargs = 0;
-        $value = array_shift($args);
+        $value = ($this->hasArg()) ? array_shift($args) : null;
         if ($value[0] == '-')
             $value = null;
         elseif ($value)
             $nargs = 1;
+        if ($this->type == 'int')
+            $value = (int)$value;
         switch ($this->action) {
             case 'store_true':
                 $value = true;
@@ -47,10 +51,17 @@ class Option {
             case 'store_const':
                 $value = $this->const;
                 break;
+            case 'append':
+                if (!isset($destination[$this->dest]))
+                    $destination[$this->dest] = array($value);
+                else {
+                    $T = &$destination[$this->dest];
+                    $T[] = $value;
+                    $value = $T;
+                }
+                break;
             case 'store':
             default:
-                if ($this->type == 'int')
-                    $value = (int)$value;
                 break;
         }
         $destination[$this->dest] = $value;
@@ -60,21 +71,36 @@ class Option {
     function toString() {
         $short = explode(':', $this->short);
         $long = explode(':', $this->long);
-        if ($this->nargs == '?')
-            $switches = sprintf('    %s [%3$s], %s[=%3$s]', $short[0],
+        if ($this->nargs === '?')
+            $switches = sprintf('    %s [%3$s], %s[=%3$s]', $short[0], # nolint
                 $long[0], $this->metavar);
         elseif ($this->hasArg())
-            $switches = sprintf('    %s %3$s, %s=%3$s', $short[0], $long[0],
+            $switches = sprintf('    %s %3$s, %s=%3$s', $short[0], $long[0], # nolint
                 $this->metavar);
         else
             $switches = sprintf("    %s, %s", $short[0], $long[0]);
         $help = preg_replace('/\s+/', ' ', $this->help);
-        if (strlen($switches) > 24)
+        if (strlen($switches) > 23)
             $help = "\n" . str_repeat(" ", 24) . $help;
         else
             $switches = str_pad($switches, 24);
         $help = wordwrap($help, 54, "\n" . str_repeat(" ", 24));
         return $switches . $help;
+    }
+}
+
+class OutputStream {
+    var $stream;
+
+    function OutputStream() {
+        call_user_func_array(array($this, '__construct'), func_get_args());
+    }
+    function __construct($stream) {
+        $this->stream = fopen($stream, 'w');
+    }
+
+    function write($what) {
+        fwrite($this->stream, $what);
     }
 }
 
@@ -86,6 +112,13 @@ class Module {
     var $epilog = "";
     var $usage = '$script [options] $args [arguments]';
     var $autohelp = true;
+    var $module_name;
+
+    var $stdout;
+    var $stderr;
+
+    var $_options;
+    var $_args;
 
     function Module() {
         call_user_func_array(array($this, '__construct'), func_get_args());
@@ -97,17 +130,21 @@ class Module {
             'help'=>"Display this help message");
         foreach ($this->options as &$opt)
             $opt = new Option($opt);
+        $this->stdout = new OutputStream('php://output');
+        $this->stderr = new OutputStream('php://stderr');
     }
 
     function showHelp() {
         if ($this->prologue)
             echo $this->prologue . "\n\n";
 
-        echo "Usage:\n";
         global $argv;
+        $manager = @$argv[0];
+
+        echo "Usage:\n";
         echo "    " . str_replace(
-                array('$script', '$args'),
-                array($argv[0], implode(' ', array_keys($this->arguments))),
+                array('$script', '$args'), # nolint
+                array($manager ." ". $this->module_name, implode(' ', array_keys($this->arguments))),
             $this->usage) . "\n";
 
         ksort($this->options);
@@ -137,15 +174,16 @@ class Module {
         $this->parseOptions();
         if (isset($this->_options[$name]))
             return $this->_options[$name];
+        elseif (isset($this->options[$name]) && $this->options[$name]->default)
+            return $this->options[$name]->default;
         else
             return $default;
     }
 
     function getArgument($name, $default=false) {
         $this->parseOptions();
-        foreach (array_keys($this->arguments) as $idx=>$arg)
-            if ($arg == $name && isset($this->_args[$idx]))
-                return $this->_args[$idx];
+        if (isset($this->_args[$name]))
+            return $this->_args[$name];
         return $default;
     }
 
@@ -160,6 +198,12 @@ class Module {
         foreach (array_keys($this->arguments) as $idx=>$name)
             if (!isset($this->_args[$idx]))
                 $this->optionError($name . " is a required argument");
+            else
+                $this->_args[$name] = &$this->_args[$idx];
+
+        foreach ($this->options as $name=>$opt)
+            if (!isset($this->_options[$name]))
+                $this->_options[$name] = $opt->default;
 
         if ($this->autohelp && $this->getOption('help')) {
             $this->showHelp();
@@ -173,10 +217,18 @@ class Module {
         die();
     }
 
-    /* abstract */ function run() {
+    function _run($module_name) {
+        $this->module_name = $module_name;
+        $this->parseOptions();
+        return $this->run($this->_args, $this->_options);
     }
 
-    /* static */ function register($action, $class) {
+    /* abstract */
+    function run($args, $options) {
+    }
+
+    /* static */
+    function register($action, $class) {
         global $registered_modules;
         $registered_modules[$action] = new $class();
     }

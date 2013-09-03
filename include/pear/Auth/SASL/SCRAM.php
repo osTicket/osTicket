@@ -211,7 +211,7 @@ class Auth_SASL_SCRAM extends Auth_SASL_Common
         $channel_binding = 'c=' . base64_encode($this->gs2_header); // TODO: support channel binding.
         $final_message = $channel_binding . ',r=' . $nonce; // XXX: no extension.
 
-        // TODO: $password = $this->normalize($password); // SASLprep profile of stringprep.
+        // TODO: $password = $this->normalize($password); // SASLprep profile of stringprep. nolint
         $saltedPassword = $this->hi($password, $salt, $i);
         $this->saltedPassword = $saltedPassword;
         $clientKey = call_user_func($this->hmac, $saltedPassword, "Client Key", TRUE);

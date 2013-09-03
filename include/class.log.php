@@ -1,8 +1,8 @@
 <?php
 /*********************************************************************
-    class.group.php
+    class.log.php
 
-    User Group - Everything about a group!
+    Log
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket

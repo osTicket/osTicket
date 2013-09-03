@@ -143,7 +143,7 @@ class API {
             $sql='INSERT INTO '.API_KEY_TABLE.' SET '.$sql
                 .',created=NOW() '
                 .',ipaddr='.db_input($vars['ipaddr'])
-                .',apikey='.db_input(strtoupper(md5(time().$vars['ipaddr'].md5(Misc::randcode(16)))));
+                .',apikey='.db_input(strtoupper(md5(time().$vars['ipaddr'].md5(Misc::randCode(16)))));
 
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
@@ -415,7 +415,7 @@ class ApiEmailDataParser extends EmailDataParser {
         $data['source'] = 'Email';
 
         if(!$data['message'])
-            $data['message'] = $data['subject']?$data['subject']:'(EMPTY)';
+            $data['message'] = $data['subject']?$data['subject']:'-';
 
         if(!$data['subject'])
             $data['subject'] = '[No Subject]';

@@ -84,13 +84,15 @@ mkdir($stage_path . '/upload');
 
 # Load the root directory files
 package("*.php", 'upload/');
+package("web.config", 'upload/');
 
 # Load the client interface
 foreach (array('assets','css','images','js') as $dir)
     package("$dir/*", "upload/$dir", -1, "*less");
 
-# Load API
+# Load API and pages
 package('api/{,.}*', 'upload/api');
+package('pages/{,.}*', 'upload/pages');
 
 # Load the knowledgebase
 package("kb/*.php", "upload/kb");
@@ -111,7 +113,7 @@ package("include/{,.}*", "upload/include", -1, array('*ost-config.php', '*.sw[a-
 package("setup/*.{php,txt}", "upload/setup", -1, array("*scripts","*test","*stage"));
 foreach (array('css','images','js') as $dir)
     package("setup/$dir/*", "upload/setup/$dir", -1);
-package("setup/inc/sql/*.{sql,md5}", "upload/setup/inc/sql", -1);
+package("setup/inc/streams/*.sql", "upload/setup/inc/streams", -1);
 
 # Load the license and documentation
 package("*.{txt,md}", "");
@@ -123,16 +125,17 @@ if(($mds = glob("$stage_path/*.md"))) {
 }
 
 # Make an archive of the stage folder
-$version_info = preg_grep('/THIS_VERSION/',
-    explode("\n", file_get_contents("$root/main.inc.php")));
-
-foreach ($version_info as $line)
-    eval($line);
+$version = exec('git describe');
 
 $pwd = getcwd();
 chdir($stage_path);
-shell_exec("tar cjf '$pwd/osTicket-".THIS_VERSION.".tar.bz2' *");
-shell_exec("zip -r '$pwd/osTicket-".THIS_VERSION.".zip' *");
+
+// Replace THIS_VERSION in the stage/ folder
+
+shell_exec("grep -rl \"define('THIS_VERSION'\" * | xargs sed -ri -e \"s/( *).*THIS_VERSION.*/\\1define('THIS_VERSION', '$version');/\"");
+
+shell_exec("tar cjf '$pwd/osTicket-$version.tar.bz2' *");
+shell_exec("zip -r '$pwd/osTicket-$version.zip' *");
 
 chdir($pwd);
 ?>

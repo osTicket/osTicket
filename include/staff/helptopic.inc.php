@@ -146,7 +146,27 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                <em>(Overwrites department's SLA)</em>
+                <em>(Overrides department's SLA)</em>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Thank-you Page:</td>
+            <td>
+                <select name="page_id">
+                    <option value="">&mdash; System Default &mdash;</option>
+                    <?php
+                    if(($pages = Page::getActiveThankYouPages())) {
+                        foreach($pages as $page) {
+                            if(strcasecmp($page->getType(), 'thank-you')) continue;
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $page->getId(),
+                                    ($info['page_id']==$page->getId())?'selected="selected"':'',
+                                    $page->getName());
+                        }
+                    }
+                    ?>
+                </select>&nbsp;<font class="error"><?php echo $errors['page_id']; ?></font>
+                <em>(Overrides global setting. Applies to web tickets only.)</em>
             </td>
         </tr>
         <tr>
@@ -156,14 +176,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <select name="assign">
                     <option value="0">&mdash; Unassigned &mdash;</option>
-                                
-
                     <?php
-                    
-                                
                     $sql=' SELECT staff_id,CONCAT_WS(", ",lastname,firstname) as name '.
                          ' FROM '.STAFF_TABLE.' WHERE isactive=1 ORDER BY name';
-                                
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         echo '<OPTGROUP label="Staff Members">';
                         while (list($id,$name) = db_fetch_row($res)){
@@ -171,10 +186,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             $selected = ($info['assign']==$k || $info['staff_id']==$id)?'selected="selected"':'';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
-                            
+
                         <?php }
                         echo '</OPTGROUP>';
-                        
                     }
                     $sql='SELECT team_id, name FROM '.TEAM_TABLE.' WHERE isenabled=1';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -199,7 +213,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> new ticket auto-response for this topic (Overwrites Dept. settings).
+                    <strong>Disable</strong> new ticket auto-response for
+                    this topic (Overrides Dept. settings).
             </td>
         </tr>
 

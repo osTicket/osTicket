@@ -146,6 +146,10 @@ class Thread {
         //Add ticket Id.
         $vars['ticketId'] = $this->getTicketId();
 
+        // DELME: When HTML / rich-text is supported
+        $vars['title'] = Format::htmlchars($vars['title']);
+        $vars['body'] = Format::htmlchars($vars['body']);
+
         return Note::create($vars, $errors);
     }
 
@@ -154,12 +158,20 @@ class Thread {
         $vars['ticketId'] = $this->getTicketId();
         $vars['staffId'] = 0;
 
+        // DELME: When HTML / rich-text is supported
+        $vars['title'] = Format::htmlchars($vars['title']);
+        $vars['body'] = Format::htmlchars($vars['body']);
+
         return Message::create($vars, $errors);
     }
 
     function addResponse($vars, &$errors) {
 
         $vars['ticketId'] = $this->getTicketId();
+
+        // DELME: When HTML / rich-text is supported
+        $vars['title'] = Format::htmlchars($vars['title']);
+        $vars['body'] = Format::htmlchars($vars['body']);
 
         return Response::create($vars, $errors);
     }
