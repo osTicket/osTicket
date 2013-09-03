@@ -77,6 +77,8 @@ class Upgrader {
     }
 
     function createUpgradedTicket() {
+        global $cfg;
+
         //Create a ticket to make the system warm and happy.
         $dept_id = $cfg->getDefaultDeptId();
         $prio_id = $cfg->getDefaultPriorityId();
