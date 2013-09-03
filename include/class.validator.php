@@ -111,8 +111,9 @@ class Validator {
                     $this->errors[$k]=$field['error'].' (5 chars min)';
                 break;
             case 'username':
-                if(strlen($this->input[$k])<2)
-                    $this->errors[$k]=$field['error'].' (2 chars min)';
+                $error = '';
+                if (!$this->is_username($this->input[$k], $error))
+                    $this->errors[$k]=$field['error'].": $error";
                 break;
             case 'zipcode':
                 if(!is_numeric($this->input[$k]) || (strlen($this->input[$k])!=5))
@@ -167,6 +168,14 @@ class Validator {
             return true;
         }
         return false;
+    }
+
+    function is_username($username, &$error='') {
+        if (strlen($username)<2)
+            $error = 'At least two (2) characters';
+        elseif (!preg_match('/^[\w._-]+$/', $username))
+            $error = 'Username contains invalid characters';
+        return $error == '';
     }
 
     function process($fields,$vars,&$errors){

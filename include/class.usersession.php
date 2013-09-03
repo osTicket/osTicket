@@ -147,7 +147,7 @@ class StaffSession extends Staff {
     
     function StaffSession($var){
         parent::Staff($var);
-        $this->session= new UserSession($var);
+        $this->session= new UserSession($this->getId());
     }
 
     function isValid(){
