@@ -1,3 +1,72 @@
+osTicket v1.7.1
+===============
+### Bugfixes
+  * Properly reject attachments submitted via the API (#668)
+  * Correctly support the "Use Reply-To" in ticket filters (#669)
+  * Don't log users out after changing username or email address (#684)
+  * Don't leak private FAQ article titles (#683)
+
+osTicket v1.7.1-rc1
+===================
+### Enhancements
+  * Custom logos and site pages (#604, #632, #616)
+  * Password reset link (#638)
+  * Export and import feature. Useful for migrations and backups. (#626)
+  * Use your email address as your username for logins (#631)
+  * SLA's can be marked *transient*. Tickets with a transient SLA will
+    change to the SLA of the new department or help-topic when transferred
+    or edited.
+  * Support installation on MySQL and MariaDB clusters. Use default storage
+    engine and don't assume predictable auto-increment values (#568, #621)
+
+### Geeky Stuff
+  * mysqli support for PHP5+
+  * SSL support for database connections
+  * Namespaced configuration. This greatly simplifies the process of adding
+  * new configurable item (#564)
+  * Add signals API. A simple event hooking mechanism to allow for
+  * extensibility (#577)
+  * Add deployment command-line script (#586)
+  * Allow XHTML editing in the nicEditor (#615)
+  * Allow parallel database migration streams (#563) -- paves the way for
+    *extensions*
+  * Use row-based email templates (#604) -- simplifies the process of adding
+    new email message templates (think *extensions*)
+  * Support fetching from email boxes with aliased email addresses (#663)
+  * Introduce new crypto library that provides failsafe encryption for email
+    passwords (#651)
+
+### Bugfixes
+  * Several typos in code and messages (#617, #618, #644, #660)
+  * Fix several upgrader bugs (#548, #619)
+  * Fix install fail on some Windows platforms (#570)
+  * Fix several issues in the command-line management (#580)
+  * Make room for command-line installation of osTicket (#581)
+  * *regression* Fix corrupted attachment downloads (#579, #583)
+  * Fix truncated attachment downloads when `zlib.output_compression` is
+    enabled (#596)
+  * Disable cron activities when upgrade is pending (#594)
+  * Provide failsafe encoding for improperly-formatted emails (#601)
+  * Fix corrupted email attachments processed via `pipe.php` (#607)
+  * Fix discarding of poorly encoded base64 emails (#624)
+  * Support MariaDB 10.0+ (#630)
+  * Properly trim ticket email and name fields (#600)
+  * Fix truncated text from text/plain emails and web interface posts (#652)
+  * Add **Assigned To** and other fields to ticket view export (#646)
+  * *regression* Fix attachment migration (#648)
+  * Display correct staff notes (#588)
+  * Display correct auto-response email for departments (#575)
+  * Fix login form ("Authentication Required") loop (#653)
+  * Ensure email message-id is fetched correctly (#664)
+  * Ensure X-Forwarded-For header does not have leading or trailing
+    whitespace (#665)
+
+### Performance
+  * Only fetch configuration for multifile upload if necessary (#637)
+  * Don't use sessions on the API (#623)
+  * *regression* Avoid an extra query per request to fetch schema signature
+    (#658)
+
 New stuff in 1.7.0
 ====================
    * Bug fixes from rc6
