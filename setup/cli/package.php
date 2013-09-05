@@ -110,7 +110,7 @@ package("setup/scripts/*", "scripts/", -1, "*stage");
 package("include/{,.}*", "upload/include", -1, array('*ost-config.php', '*.sw[a-z]'));
 
 # Include the installer
-package("setup/*.{php,txt}", "upload/setup", -1, array("*scripts","*test","*stage"));
+package("setup/*.{php,txt,html}", "upload/setup", -1, array("*scripts","*test","*stage"));
 foreach (array('css','images','js') as $dir)
     package("setup/$dir/*", "upload/setup/$dir", -1);
 package("setup/inc/streams/*.sql", "upload/setup/inc/streams", -1);
