@@ -139,21 +139,17 @@ class Misc {
         return $output;
     }
 
-    function siteBaseUrl() {
-        # Detects Alias-ing
-        $paths = explode('/', $_SERVER['REQUEST_URI']);
-        # Drop the last item -- it will be the php page we're on
-        array_pop($paths);
-        $leading = array();
-        while (count($paths)) {
-            if (in_array($paths[0], array('scp','client')))
-                break;
-            $leading[] = array_shift($paths);
+    /* static */
+    function siteRootPath($main_inc_path) {
+        $root = str_replace('\\', '/', $main_inc_path);
+        $root2 = str_replace('\\','/', $_SERVER['DOCUMENT_ROOT']);
+        $path = '';
+        while (strpos($_SERVER['DOCUMENT_ROOT'], $root) === false) {
+            $lastslash = strrpos($root, '/');
+            $path = substr($root, $lastslash) . $path;
+            $root = substr($root, 0, $lastslash);
         }
-        if (count($leading) > 1)
-            return implode('/', $leading);
-        else
-            return '';
+        return $path;
     }
 
 }
