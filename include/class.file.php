@@ -136,21 +136,23 @@ class AttachmentFile {
         return true;
     }
 
-
-    function display() {
-
+    function makeCacheable($ttl=3600) {
         // Thanks, http://stackoverflow.com/a/1583753/1025836
-        $last_modified = strtotime($this->lastModified());
-        header("Last-Modified: ".gmdate(DATE_RFC822, $last_modified)." GMT", false);
+        $last_modified = Misc::db2gmtime($this->lastModified());
+        header("Last-Modified: ".date('D, d M y H:i:s', $last_modified)." GMT", false);
         header('ETag: "'.$this->getHash().'"');
-        header('Cache-Control: private, max-age=3600');
-        header('Expires: ' . date(DATE_RFC822, time() + 3600) . ' GMT');
+        header("Cache-Control: private, max-age=$ttl");
+        header('Expires: ' . gmdate(DATE_RFC822, time() + $ttl)." GMT");
         header('Pragma: private');
         if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified ||
             @trim($_SERVER['HTTP_IF_NONE_MATCH']) == $this->getHash()) {
                 header("HTTP/1.1 304 Not Modified");
                 exit();
         }
+    }
+
+    function display() {
+        $this->makeCacheable();
 
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
@@ -159,20 +161,20 @@ class AttachmentFile {
     }
 
     function download() {
+        $this->makeCacheable();
 
-        header('Pragma: public');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Cache-Control: public');
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
 
         $filename=basename($this->getName());
         $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
-        if ((is_integer(strpos($user_agent,'msie'))) && (is_integer(strpos($user_agent,'win')))) {
-            header('Content-Disposition: filename='.$filename.';');
-        }else{
-            header('Content-Disposition: attachment; filename='.$filename.';' );
-        }
+        if (false !== strpos($user_agent,'msie') && false !== strpos($user_agent,'win'))
+            header('Content-Disposition: filename='.rawurlencode($filename).';');
+        elseif (false !== strpos($user_agent, 'safari') && false === strpos($user_agent, 'chrome'))
+            // Safari and Safari only can handle the filename as is
+            header('Content-Disposition: filename='.str_replace(',', '', $filename).';');
+        else
+            // Use RFC5987
+            header("Content-Disposition: filename*=UTF-8''".rawurlencode($filename).';' );
 
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$this->getSize());
@@ -238,7 +240,7 @@ class AttachmentFile {
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input($file['type'])
             .',size='.db_input($file['size'])
-            .',name='.db_input(Format::file_name($file['name']))
+            .',name='.db_input($file['name'])
             .',hash='.db_input($file['hash']);
 
         # XXX: ft does not exists during the upgrade when attachments are
