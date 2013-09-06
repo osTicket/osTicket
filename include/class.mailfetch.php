@@ -423,6 +423,25 @@ class MailFetcher {
         $newticket=true;
 
         $errors=array();
+
+        // Fetch attachments if any.
+        if($ost->getConfig()->allowEmailAttachments()
+                && ($struct = imap_fetchstructure($this->mbox, $mid))
+                && ($attachments=$this->getAttachments($struct))) {
+
+            $vars['attachments'] = array();
+            foreach($attachments as $a ) {
+                $file = array('name' => $a['name'], 'type' => $a['type']);
+
+                //Check the file  type
+                if(!$ost->isFileTypeAllowed($file))
+                    $file['error'] = 'Invalid file type (ext) for '.Format::htmlchars($file['name']);
+                else //only fetch the body if necessary TODO: Make it a callback.
+                    $file['data'] = $this->decode(imap_fetchbody($this->mbox, $mid, $a['index']), $a['encoding']);
+                $vars['attachments'][] = $file;
+            }
+        }
+
         if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
                 && ($message = $thread->postEmail($vars))) {
             if ($message === true)
