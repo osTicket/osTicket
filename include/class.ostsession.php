@@ -25,19 +25,32 @@ class osTicketSession {
         if(!$this->ttl)
             $this->ttl=SESSION_TTL;
 
-        if (!defined('DISABLE_SESSION') && !OsticketConfig::getDBVersion()) {
-            //Set handlers.
-            session_set_save_handler(
-                array(&$this, 'open'),
-                array(&$this, 'close'),
-                array(&$this, 'read'),
-                array(&$this, 'write'),
-                array(&$this, 'destroy'),
-                array(&$this, 'gc')
-            );
-            //Forced cleanup.
-            register_shutdown_function('session_write_close');
-        }
+        if (defined('DISABLE_SESSION') || OsticketConfig::getDBVersion())
+            return;
+
+        # Cookies
+        // Avoid setting a cookie domain without a dot, thanks
+        // http://stackoverflow.com/a/1188145
+        $domain = null;
+        if (isset($_SERVER['HTTP_HOST'])
+                && strpos($_SERVER['HTTP_HOST'], '.') !== false
+                && !Validator::is_ip($_SERVER['HTTP_HOST']))
+            $domain = $_SERVER['HTTP_HOST'];
+        session_set_cookie_params(86400, ROOT_PATH, $domain,
+            osTicket::is_https());
+
+        //Set handlers.
+        session_set_save_handler(
+            array(&$this, 'open'),
+            array(&$this, 'close'),
+            array(&$this, 'read'),
+            array(&$this, 'write'),
+            array(&$this, 'destroy'),
+            array(&$this, 'gc')
+        );
+        //Forced cleanup.
+        register_shutdown_function('session_write_close');
+
         //Start the session.
         session_name('OSTSESSID');
         session_start();
