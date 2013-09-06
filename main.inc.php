@@ -130,10 +130,6 @@
     else
         require(INCLUDE_DIR.'mysql.php');
 
-    #Cookies
-    session_set_cookie_params(86400, ROOT_PATH, $_SERVER['HTTP_HOST'],
-        osTicket::is_https());
-
     #CURRENT EXECUTING SCRIPT.
     define('THISPAGE', Misc::currentURL());
     define('THISURI', $_SERVER['REQUEST_URI']);
