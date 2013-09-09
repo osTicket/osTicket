@@ -426,11 +426,10 @@ class MailFetcher {
 
         if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
                 && ($message = $thread->postEmail($vars))) {
-            if ($message === true)
+            if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
-                return true;
-            elseif ($message)
-                $ticket = $message->getTicket();
+                return $message;
+            $ticket = $message->getTicket();
         } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
         } else {

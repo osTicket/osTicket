@@ -519,6 +519,7 @@ Class ThreadEntry {
 
         $vars = array(
             'mid' =>    $mailinfo['mid'],
+            'header' => $mailinfo['header'],
             'ticketId' => $ticket->getId(),
             'poster' => $mailinfo['name'],
             'origin' => 'Email',
@@ -542,6 +543,10 @@ Class ThreadEntry {
             $errors = array();
             $vars['note'] = $body;
             return $ticket->postNote($vars, $errors, $poster);
+        }
+        elseif (Email::lookupByEmail($mailinfo['email'])) {
+            // Don't process the email -- it came FROM this system
+            return true;
         }
         // TODO: Consider security constraints
         else {
