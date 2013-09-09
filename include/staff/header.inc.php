@@ -41,7 +41,7 @@
     ?>
     <div id="header">
         <a href="index.php" id="logo">osTicket - Customer Support System</a>
-        <p id="info">Howdy, <strong><?php echo $thisstaff->getUserName(); ?></strong>
+        <p id="info">Welcome, <strong><?php echo $thisstaff->getFirstName(); ?></strong>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
             | <a href="admin.php">Admin Panel</a>
