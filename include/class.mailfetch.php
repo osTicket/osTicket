@@ -423,6 +423,7 @@ class MailFetcher {
         $newticket=true;
 
         $errors=array();
+
         if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
                 && ($message = $thread->postEmail($vars))) {
             if ($message === true)

@@ -31,7 +31,7 @@ define('ASSETS_PATH',ROOT_PATH.'assets/default/');
 //Check the status of the HelpDesk.
 if (!in_array(strtolower(basename($_SERVER['SCRIPT_NAME'])), array('logo.php',))
         && !(is_object($ost) && $ost->isSystemOnline())) {
-    include('./offline.php');
+    include(ROOT_DIR.'offline.php');
     exit;
 }
 

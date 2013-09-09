@@ -1,13 +1,5 @@
 <?php
 
-#Set Dir constants
-$here = substr(realpath(dirname(__file__)),
-    strlen($_SERVER['DOCUMENT_ROOT']));
-// Determine the path in the URI used as the base of the osTicket
-// installation
-if (!defined('ROOT_PATH'))
-    define('ROOT_PATH', str_replace('\\', '/', $here.'/')); //root path. Damn directories
-
 #Get real path for root dir ---linux and windows
 define('ROOT_DIR',str_replace('\\', '/', realpath(dirname(__FILE__))).'/');
 define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
@@ -16,6 +8,13 @@ define('SETUP_DIR',ROOT_DIR.'setup/');
 
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
 define('I18N_DIR', INCLUDE_DIR.'i18n/');
+
+require(INCLUDE_DIR.'class.misc.php');
+
+// Determine the path in the URI used as the base of the osTicket
+// installation
+if (!defined('ROOT_PATH'))
+    define('ROOT_PATH', Misc::siteRootPath(realpath(dirname(__file__))).'/'); //root path. Damn directories
 
 class Bootstrap {
 
@@ -36,10 +35,6 @@ class Bootstrap {
         ini_set('session.use_trans_sid', 0);
         #No cache
         session_cache_limiter('nocache');
-        #Cookies
-        # TODO: Determine root path
-        session_set_cookie_params(86400, dirname($_SERVER['PHP_SELF']),
-            $_SERVER['HTTP_HOST'], self::https());
 
         #Error reporting...Good idea to ENABLE error reporting to a file. i.e display_errors should be set to false
         $error_reporting = E_ALL & ~E_NOTICE;
@@ -220,10 +215,6 @@ else
 #CURRENT EXECUTING SCRIPT.
 define('THISPAGE', Misc::currentURL());
 define('THISURI', $_SERVER['REQUEST_URI']);
-
-#Cookies
-session_set_cookie_params(86400, ROOT_PATH, $_SERVER['HTTP_HOST'],
-    osTicket::is_https());
 
 define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
 define('DEFAULT_PRIORITY_ID',1);
