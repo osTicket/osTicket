@@ -15,9 +15,9 @@
 
     * TIMEOUT
     Token can be expired after X seconds of inactivity (timeout) independent of the session.
-    
 
-    Jared Hancock 
+
+    Jared Hancock
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
 
@@ -57,7 +57,7 @@ Class CSRF {
 
         if(!$this->csrf['token'] || $this->isExpired()) {
 
-            $this->csrf['token'] = sha1(session_id().Crypto::randcode(16).SECRET_SALT);
+            $this->csrf['token'] = sha1(session_id().Crypto::random(16).SECRET_SALT);
             $this->csrf['time'] = time();
         } else {
             //Reset the timer
