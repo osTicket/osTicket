@@ -68,17 +68,19 @@
     define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
     define('I18N_DIR', INCLUDE_DIR.'i18n/');
 
-    require(INCLUDE_DIR.'class.misc.php');
-
-    // Determine the path in the URI used as the base of the osTicket
-    // installation
-    if (!defined('ROOT_PATH'))
-        define('ROOT_PATH', Misc::siteRootPath(realpath(dirname(__file__))).'/'); //root path. Damn directories
-
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
     define('THIS_VERSION','1.7.0+'); //Shown on admin panel
+
+
+    require(INCLUDE_DIR.'class.osticket.php');
+
+    // Determine the path in the URI used as the base of the osTicket
+    // installation
+    if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
+        define('ROOT_PATH', rtrim($rp, '/').'/');
+
     #load config info
     $configfile='';
     if(file_exists(ROOT_DIR.'ostconfig.php')) //Old installs prior to v 1.6 RC5
@@ -98,6 +100,10 @@
     require($configfile);
     define('CONFIG_FILE',$configfile); //used in admin.php to check perm.
 
+    //Die if root path is not defined
+    if(!defined('ROOT_PATH') || !ROOT_PATH)
+        die("<b>Fatal Error:</b> unknown root path. Define it in your 'ost-config.php'");
+
    //Path separator
     if(!defined('PATH_SEPARATOR')){
         if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))
@@ -111,7 +117,7 @@
 
 
     #include required files
-    require(INCLUDE_DIR.'class.osticket.php');
+    require(INCLUDE_DIR.'class.misc.php');
     require(INCLUDE_DIR.'class.ostsession.php');
     require(INCLUDE_DIR.'class.usersession.php');
     require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!

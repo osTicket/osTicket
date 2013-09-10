@@ -352,6 +352,39 @@ class osTicket {
         return null;
     }
 
+    /* static */
+    function get_root_path($dir) {
+
+        if(!$_SERVER['DOCUMENT_ROOT']
+                || !strcasecmp($_SERVER['DOCUMENT_ROOT'], $dir))
+            return '/';
+
+        $dir = str_replace('\\', '/', $dir);
+        $root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+
+        if(strpos($dir, $root)!==false)
+            return substr($dir, strlen($dir));
+
+        $origdir = $dir;
+        $path = '';
+        while (strpos($root, $dir) === false) {
+            $lastslash = strrpos($dir, '/');
+            $path = substr($dir, $lastslash) . $path;
+            $dir = substr($dir, 0, $lastslash);
+            if (!$dir)
+                break;
+        }
+
+        if($dir && $path)
+            return $path;
+
+        $path = substr($_SERVER['SCRIPT_FILENAME'], strlen(ROOT_DIR));
+        if($path  && ($pos=strpos($_SERVER['SCRIPT_NAME'], $path))!==false)
+            return substr($_SERVER['SCRIPT_NAME'], 0, $pos);
+
+        return null;
+    }
+
     /**
      * Returns TRUE if the request was made via HTTPS and false otherwise
      */
