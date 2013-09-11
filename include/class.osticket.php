@@ -352,6 +352,82 @@ class osTicket {
         return null;
     }
 
+    /* static */
+    function get_root_path($dir) {
+
+        /* If run from the commandline, DOCUMENT_ROOT will not be set. It is
+         * also likely that the ROOT_PATH will not be necessary, so don't
+         * bother attempting to figure it out.
+         *
+         * Secondly, if the directory of main.inc.php is the same as the
+         * document root, the the ROOT path truly is '/'
+         */
+        if(!$_SERVER['DOCUMENT_ROOT']
+                || !strcasecmp($_SERVER['DOCUMENT_ROOT'], $dir))
+            return '/';
+
+        /* If DOCUMENT_ROOT is set and isn't the same as the directory for
+         * main.inc.php, then assume that the two have something in common.
+         * For instance, you might have the following configurations
+         *
+         * +-----------------+-----------------------+------------+----------+
+         * | DOCUMENT_ROOT   | dirname(main.inc.php) | ROOT_PATH  | Comments |
+         * +-----------------+-----------------------+------------+----------+
+         * | /var/www        | /var/www/osticket     | /osticket/ | vanilla  |
+         * | /srv/httpd/www  | /httpd/www            | /          | chrooted |
+         * | /srv/httpd/www  | /httpd/www/osticket   | /osticket/ | chrooted |
+         * +-----------------+-----------------------+------------+----------+
+         *
+         * This algorithm will walk the two paths right to left, chipping
+         * away at the path of main.inc.php. When the two paths are equal,
+         * the part removed from the main.inc.php path is the ROOT_PATH
+         */
+        $dir = str_replace('\\', '/', $dir);
+        $root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+
+        // Not chrooted
+        if(strpos($dir, $root)!==false)
+            return substr($dir, strlen($dir));
+
+        // Chrooted ?
+        $path = '';
+        while (strpos($root, $dir) === false) {
+            $lastslash = strrpos($dir, '/');
+            $path = substr($dir, $lastslash) . $path;
+            $dir = substr($dir, 0, $lastslash);
+            if (!$dir)
+                break;
+        }
+
+        if($dir && $path)
+            return $path;
+
+        /* The last resort is to try and use SCRIPT_FILENAME and
+         * SCRIPT_NAME. The SCRIPT_FILENAME server variable should be the
+         * full path of the originally-executed-script. The SCRIPT_NAME
+         * should be the path of that script inside the DOCUMENT_ROOT. This
+         * is most likely useful if osTicket is run using something like
+         * Apache UserDir setting where the DOCUMENT_ROOT of Apache and the
+         * installation path of osTicket have nothing in comon.
+         *
+         * +---------------------------+-------------------+----------------+
+         * | SCRIPT_FILENAME           | SCRIPT_NAME       | ROOT_PATH      |
+         * +---------------------------+-------------------+----------------+
+         * | /home/u1/www/osticket/... | /~u1/osticket/... | /~u1/osticket/ |
+         * +---------------------------+-------------------+----------------+
+         *
+         * The algorithm will remove the directory of main.inc.php from
+         * SCRIPT_FILENAME. What's left should be the script executed inside
+         * the osTicket installation. That is removed from SCRIPT_NAME.
+         * What's left is the ROOT_PATH.
+         */
+        $path = substr($_SERVER['SCRIPT_FILENAME'], strlen(ROOT_DIR));
+        if($path  && ($pos=strpos($_SERVER['SCRIPT_NAME'], $path))!==false)
+            return substr($_SERVER['SCRIPT_NAME'], 0, $pos);
+
+        return null;
+    }
+
     /**
      * Returns TRUE if the request was made via HTTPS and false otherwise
      */
