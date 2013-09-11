@@ -1,21 +1,5 @@
 <?php
 
-#Get real path for root dir ---linux and windows
-define('ROOT_DIR',str_replace('\\', '/', realpath(dirname(__FILE__))).'/');
-define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
-define('PEAR_DIR',INCLUDE_DIR.'pear/');
-define('SETUP_DIR',ROOT_DIR.'setup/');
-
-define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
-define('I18N_DIR', INCLUDE_DIR.'i18n/');
-
-require(INCLUDE_DIR.'class.misc.php');
-
-// Determine the path in the URI used as the base of the osTicket
-// installation
-if (!defined('ROOT_PATH'))
-    define('ROOT_PATH', Misc::siteRootPath(realpath(dirname(__file__))).'/'); //root path. Damn directories
-
 class Bootstrap {
 
     function init() {
@@ -174,12 +158,19 @@ class Bootstrap {
     }
 }
 
-Bootstrap::init();
+#Get real path for root dir ---linux and windows
+define('ROOT_DIR',str_replace('\\', '/', realpath(dirname(__FILE__))).'/');
+define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
+define('PEAR_DIR',INCLUDE_DIR.'pear/');
+define('SETUP_DIR',ROOT_DIR.'setup/');
+
+define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
+define('I18N_DIR', INCLUDE_DIR.'i18n/');
 
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
-define('THIS_VERSION','1.7.0+'); //Shown on admin panel
+define('THIS_VERSION','1.8.0-devel'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))
@@ -190,6 +181,15 @@ if(!defined('PATH_SEPARATOR')){
 
 //Set include paths. Overwrite the default paths.
 ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
+
+require(INCLUDE_DIR.'class.osticket.php');
+
+// Determine the path in the URI used as the base of the osTicket
+// installation
+if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
+    define('ROOT_PATH', rtrim($rp, '/').'/');
+
+Bootstrap::init();
 
 #include required files
 require(INCLUDE_DIR.'class.osticket.php');

@@ -16,8 +16,22 @@
     $Id: $
 **********************************************************************/
 
+/**
+ * If you have a strange HTTP server configuration and osTicket cannot
+ * discover the URL path of where your osTicket is installed, define
+ * ROOT_PATH here.
+ *
+ * The ROOT_PATH is the part of the URL used to access your osTicket
+ * helpdesk before the '/scp' part and after the hostname. For instance, for
+ * http://mycompany.com/support', the ROOT_PATH should be '/support/'
+ *
+ * ROOT_PATH *must* end with a forward-slash!
+ */
+# define('ROOT_PATH', '/support/');
+
 #Disable direct access.
-if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__)) || !defined('ROOT_PATH')) die('kwaheri rafiki!');
+if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__)) || !defined('INCLUDE_DIR'))
+    die('kwaheri rafiki!');
 
 #Install flag
 define('OSTINSTALLED',FALSE);
