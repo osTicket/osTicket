@@ -24,8 +24,10 @@ define('CRYPT_MCRYPT', 1);
 define('CRYPT_OPENSSL', 2);
 define('CRYPT_PHPSECLIB', 3);
 
+define('CRYPT_IS_WINDOWS', !strncasecmp(PHP_OS, 'WIN', 3));
+
 require_once PEAR_DIR.'Crypt/Hash.php';
-require_once PEAR_DIR.'Crypt/Random.php';
+require_once PEAR_DIR.'Crypt/AES.php';
 
 /**
  * Class: Crypto
@@ -155,9 +157,50 @@ class Crypto {
         return $hash->hash($string);
     }
 
-    /* Generates random string of @len length */
-    function randcode($len) {
-        return crypt_random_string($len);
+    /*
+      Random String Generator
+      Credit: The routine borrows heavily from PHPSecLib's Crypt_Random
+      package.
+     */
+    function random($len) {
+
+        if(CRYPT_IS_WINDOWS) {
+            if (function_exists('mcrypt_create_iv')
+                    && version_compare(PHP_VERSION, '5.3', '>='))
+                return mcrypt_create_iv($len);
+
+            if (function_exists('openssl_random_pseudo_bytes')
+                    && version_compare(PHP_VERSION, '5.3.4', '>='))
+                return openssl_random_pseudo_bytes($len);
+        } else {
+
+            if (function_exists('openssl_random_pseudo_bytes'))
+                return openssl_random_pseudo_bytes($len);
+
+            static $fp = null;
+            if ($fp == null)
+                $fp = @fopen('/dev/urandom', 'rb');
+
+            if ($fp)
+                return fread($fp, $len);
+
+            if (function_exists('mcrypt_create_iv'))
+                return mcrypt_create_iv($len, MCRYPT_DEV_URANDOM);
+        }
+
+        $seed = session_id().microtime().getmypid();
+        $key = pack('H*', sha1($seed . 'A'));
+        $iv = pack('H*', sha1($seed . 'C'));
+        $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
+        $crypto->setKey($key);
+        $crypto->setIV($iv);
+        $crypto->enableContinuousBuffer(); //Sliding iv.
+        $start = mt_rand(5, PHP_INT_MAX);
+        $output ='';
+        for($i=$start; strlen($output)<$len; $i++)
+            $output.= $crypto->encrypt($i);
+
+        return substr($output, 0, $len);
     }
 }
 
@@ -319,7 +362,7 @@ Class CryptoMcrypt extends CryptoAlgo {
 
         $keysize = mcrypt_enc_get_key_size($td);
         $ivsize = mcrypt_enc_get_iv_size($td);
-        $iv = Crypto::randcode($ivsize);
+        $iv = Crypto::random($ivsize);
 
         //Add padding
         $blocksize = mcrypt_enc_get_block_size($td);
@@ -507,8 +550,6 @@ class CryptoOpenSSL extends CryptoAlgo {
  * Crypt::decrypt() to encrypt data.
  */
 
-require_once PEAR_DIR.'Crypt/AES.php';
-
 define('CRYPTO_CIPHER_PHPSECLIB_AES_CBC', 1);
 
 class CryptoPHPSecLib extends CryptoAlgo {
@@ -556,7 +597,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
             return false;
 
         $ivlen = $cipher['ivlen'];
-        $iv = Crypto::randcode($ivlen);
+        $iv = Crypto::random($ivlen);
         $crypto->setKey($this->getKeyHash($iv, $ivlen));
         $crypto->setIV($iv);
 
