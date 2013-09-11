@@ -192,7 +192,6 @@ if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
 Bootstrap::init();
 
 #include required files
-require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.ostsession.php');
 require(INCLUDE_DIR.'class.usersession.php');
 require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
