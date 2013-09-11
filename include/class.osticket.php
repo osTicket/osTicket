@@ -18,7 +18,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once(INCLUDE_DIR.'class.config.php'); //Config helper
 require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
 require_once(INCLUDE_DIR.'class.migrater.php');
 
@@ -48,6 +47,8 @@ class osTicket {
     var $csrf;
 
     function osTicket() {
+
+        require_once(INCLUDE_DIR.'class.config.php'); //Config helper
 
         $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
@@ -387,7 +388,7 @@ class osTicket {
 
         // Not chrooted
         if(strpos($dir, $root)!==false)
-            return substr($dir, strlen($dir));
+            return substr($dir, strlen($root));
 
         // Chrooted ?
         $path = '';
