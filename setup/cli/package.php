@@ -132,7 +132,11 @@ chdir($stage_path);
 
 // Replace THIS_VERSION in the stage/ folder
 
-shell_exec("grep -rl \"define('THIS_VERSION'\" * | xargs sed -ri -e \"s/( *).*THIS_VERSION.*/\\1define('THIS_VERSION', '$version');/\"");
+shell_exec("find . -name '*.php' -print0 | xargs -0 sed -ri -e \"
+    s/( *).*THIS_VERSION.*/\\1define('THIS_VERSION', '$version');/
+    s/( *)ini_set\( *'display_errors'.*/\\1ini_set('display_errors', 0);/
+    s/( *)ini_set\( *'display_startup_errors'.*/\\1ini_set('display_startup_errors', 0);/
+    \"");
 
 shell_exec("tar cjf '$pwd/osTicket-$version.tar.bz2' *");
 shell_exec("zip -r '$pwd/osTicket-$version.zip' *");
