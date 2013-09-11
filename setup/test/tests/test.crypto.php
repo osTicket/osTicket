@@ -88,6 +88,15 @@ class TestCrypto extends Test {
         $c->setKeys($this->master, 'simple');
         $this->_testLibrary($c, $tests);
     }
+
+    function testRandom() {
+        for ($i=1; $i<128; $i+=4) {
+            $data = Crypto::random($i);
+            $this->assertNotEqual($data, '', 'Empty random data generated');
+            $this->assert(strlen($data) == $i,
+                'Random data received was not the length requested');
+        }
+    }
 }
 return 'TestCrypto';
 ?>
