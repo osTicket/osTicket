@@ -294,7 +294,7 @@ if(!$cfg->showNotesInline()) { ?>
                 <th width="640">
                     <?php
                     echo sprintf('%s <em>posted by <b>%s</b></em>',
-                            Format::htmlchars($note['title']),
+                            $note['title'],
                             Format::htmlchars($note['poster']));
                     ?>
                 </th>
@@ -338,7 +338,7 @@ if(!$cfg->showNotesInline()) { ?>
         <table class="<?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
                 <th width="200"><?php echo Format::db_datetime($entry['created']);?></th>
-                <th width="440"><span><?php echo Format::htmlchars($entry['title']); ?></span></th>
+                <th width="440"><span><?php echo $entry['title']; ?></span></th>
                 <th width="300" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th>
             </tr>
             <tr><td colspan=3><?php echo Format::display($entry['body']); ?></td></tr>
