@@ -2,7 +2,7 @@
 /*********************************************************************
     class.orm.php
 
-    Simple ORM (Object Relational Mapper) for PHPv4 based on Django's ORM,
+    Simple ORM (Object Relational Mapper) for PHP5 based on Django's ORM,
     except that complex filter operations are not supported. The ORM simply
     supports ANDed filter operations without any GROUP BY support.
 
@@ -89,7 +89,7 @@ class VerySimpleModel {
         if (!is_array($pk)) $pk=array($pk);
 
         foreach ($pk as $p)
-            $filter[] = $p.' = '.$this->input($this->get($p));
+            $filter[] = $p.' = '.db_input($this->get($p));
         $sql .= ' WHERE '.implode(' AND ', $filter).' LIMIT 1';
         return db_affected_rows(db_query($sql)) == 1;
     }
@@ -353,24 +353,63 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     }
 }
 
-class MySqlCompiler {
+class SqlCompiler {
     var $params = array();
+    var $joins = array();
+    var $aliases = array();
+    var $alias_num = 1;
 
     static $operators = array(
-        'exact' => '%1$s = %2$s',
-        'contains' => array('self', '__contains'),
-        'gt' => '%1$s > %2$s',
-        'lt' => '%1$s < %2$s',
-        'isnull' => '%1$s IS NULL',
-        'like' => '%1$s LIKE %2$s',
+        'exact' => '%$1s = %$2s'
     );
 
-    function __contains($a, $b) {
-        # {%a} like %{$b}%
-        return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
-    }
-
-    function _get_joins_and_field($field, $model, $options=array()) {
+    /**
+     * Handles breaking down a field or model search descriptor into the
+     * model search path, field, and operator parts. When used in a queryset
+     * filter, an expression such as
+     *
+     * user__email__hostname__contains => 'foobar'
+     *
+     * would be broken down to search from the root model (passed in,
+     * perhaps a ticket) to the user and email models by inspecting the
+     * model metadata 'joins' property. The 'constraint' value found there
+     * will be used to build the JOIN sql clauses.
+     *
+     * The 'hostname' will be the field on 'email' model that should be
+     * compared in the WHERE clause. The comparison should be made using a
+     * 'contains' function, which in MySQL, might be implemented using
+     * something like "<lhs> LIKE '%foobar%'"
+     *
+     * This function will rely heavily on the pushJoin() function which will
+     * handle keeping track of joins made previously in the query and
+     * therefore prevent multiple joins to the same table for the same
+     * reason. (Self joins are still supported).
+     *
+     * Comparison functions supported by this function are defined for each
+     * respective SqlCompiler subclass; however at least these functions
+     * should be defined:
+     *
+     *      function    a__function => b
+     *      ----------+------------------------------------------------
+     *      exact     | a is exactly equal to b
+     *      gt        | a is greater than b
+     *      lte       | b is greater than a
+     *      lt        | a is less than b
+     *      gte       | b is less than a
+     *      ----------+------------------------------------------------
+     *      contains  | (string) b is contained within a
+     *      statswith | (string) first len(b) chars of a are exactly b
+     *      endswith  | (string) last len(b) chars of a are exactly b
+     *      like      | (string) a matches pattern b
+     *      ----------+------------------------------------------------
+     *      in        | a is in the list or the nested queryset b
+     *      ----------+------------------------------------------------
+     *      isnull    | a is null (if b) else a is not null
+     *
+     * If no comparison function is declared in the field descriptor,
+     * 'exact' is assumed.
+     */
+    function getField($field, $model, $options=array()) {
         $joins = array();
 
         // Break apart the field descriptor by __ (double-underbars). The
@@ -379,59 +418,93 @@ class MySqlCompiler {
         // The last item (after the last __) is allowed to be an operator
         // specifiction.
         $parts = explode('__', $field);
-        $field = array_pop($parts);
-        if (array_key_exists($field, self::$operators)) {
-            $operator = self::$operators[$field];
+        $operator = static::$operators['exact'];
+        if (!isset($options['table'])) {
             $field = array_pop($parts);
-        } else {
-            $operator = self::$operators['exact'];
+            if (array_key_exists($field, static::$operators)) {
+                $operator = static::$operators[$field];
+                $field = array_pop($parts);
+            }
         }
 
-        // Form the official join path (with the operator and foreign field
-        // removed)
-        $spec = implode('__', $parts);
-
-        // TODO: If the join-spec already exists in the compiler, maybe use
-        //       table aliases for the join a second time
+        $path = array();
+        $crumb = '';
+        $alias = $this->quote($model::$meta['table']);
 
         // Traverse through the parts and establish joins between the tables
         // if the field is joined to a foreign model
         if (count($parts) && isset($model::$meta['joins'][$parts[0]])) {
+            // Call pushJoin for each segment in the join path. A new
+            // JOIN fragment will need to be emitted and/or cached
             foreach ($parts as $p) {
-                $constraints = array();
+                $path[] = $p;
+                $tip = implode('__', $path);
                 $info = $model::$meta['joins'][$p];
-                $join = ' JOIN ';
-                if (isset($info['null']) && $info['null'])
-                    $join = ' LEFT'.$join;
+                $alias = $this->pushJoin($crumb, $tip, $model, $info);
+                // Roll to foreign model
                 foreach ($info['constraint'] as $local => $foreign) {
-                    $table = $model::$meta['table'];
-                    list($model, $right) = explode('.', $foreign);
-                    $constraints[] = sprintf("%s.%s = %s.%s",
-                        $this->quote($table), $this->quote($local),
-                        $this->quote($model::$meta['table']), $this->quote($right)
-                    );
+                    list($model, $f) = explode('.', $foreign);
+                    if (class_exists($model))
+                        break;
                 }
-                $joins[] = $join.$this->quote($model::$meta['table'])
-                    .' ON ('.implode(' AND ', $constraints).')';
+                $crumb = $tip;
             }
         }
         if (isset($options['table']) && $options['table'])
-            $field = $this->quote($model::$meta['table']);
-        elseif ($table)
-            $field = $this->quote($model::$meta['table']).'.'.$this->quote($field);
+            $field = $alias;
+        elseif ($alias)
+            $field = $alias.'.'.$this->quote($field);
         else
             $field = $this->quote($field);
-        return array($joins, $field, $operator);
+        return array($field, $operator);
     }
 
-    function _compile_where($where, $model) {
-        $joins = array();
+    /**
+     * Uses the compiler-specific `compileJoin` function to compile the join
+     * statement fragment, and caches the result in the local $joins list. A
+     * new alias is acquired using the `nextAlias` function which will be
+     * associated with the join. If the same path is requested again, the
+     * algorithm is short-circuited and the originally-assigned table alias
+     * is returned immediately.
+     */
+    function pushJoin($tip, $path, $model, $info) {
+        // TODO: Build the join statement fragment and return the table
+        // alias. The table alias will be useful where the join is used in
+        // the WHERE and ORDER BY clauses
+
+        // If the join already exists for the statement-being-compiled, just
+        // return the alias being used.
+        if (isset($this->joins[$path]))
+            return $this->joins[$path]['alias'];
+
+        // TODO: Support only using aliases if necessary. Use actual table
+        // names for everything except oddities like self-joins
+
+        $alias = $this->nextAlias();
+        // Keep an association between the table alias and the model. This
+        // will make model construction much easier when we have the data
+        // and the table alias from the database.
+        $this->aliases[$alias] = $model;
+
+        // TODO: Stash joins and join constraints into local ->joins array.
+        // This will be useful metadata in the executor to construct the
+        // final models for fetching
+        // TODO: Always use a table alias. This will further help with
+        // coordination between the data returned from the database (where
+        // table alias is available) and the corresponding data.
+        $this->joins[$path] = array(
+            'alias' => $alias,
+            'sql'=> $this->compileJoin($tip, $model, $alias, $info),
+        );
+        return $alias;
+    }
+
+    function compileWhere($where, $model) {
         $constrints = array();
         foreach ($where as $constraint) {
             $filter = array();
             foreach ($constraint as $field=>$value) {
-                list($js, $field, $op) = self::_get_joins_and_field($field, $model);
-                $joins = array_merge($joins, $js);
+                list($field, $op) = $this->getField($field, $model);
                 // Allow operators to be callable rather than sprintf
                 // strings
                 if (is_callable($op))
@@ -446,20 +519,105 @@ class MySqlCompiler {
         $filter = implode(' OR ', $constraints);
         if (count($constraints) > 1)
             $filter = '(' . $filter . ')';
-        return array($joins, $filter);
-    }
-
-    function input($what) {
-        $this->params[] = $what;
-        return '?';
-    }
-
-    function quote($what) {
-        return "`$what`";
+        return $filter;
     }
 
     function getParams() {
         return $this->params;
+    }
+
+    function getJoins() {
+        $sql = '';
+        foreach ($this->joins as $j)
+            $sql .= $j['sql'];
+        return $sql;
+    }
+
+    function nextAlias() {
+        // Use alias A1-A9,B1-B9,...
+        $alias = chr(65 + (int)($this->alias_num / 9)) . $this->alias_num % 9;
+        $this->alias_num++;
+        return $alias;
+    }
+}
+
+class DbEngine {
+
+    function __construct($info) {
+    }
+
+    function connect() {
+    }
+
+    // Gets a compiler compatible with this database engine that can compile
+    // and execute a queryset or DML request.
+    function getCompiler() {
+    }
+}
+
+class MySqlCompiler extends SqlCompiler {
+
+    static $operators = array(
+        'exact' => '%1$s = %2$s',
+        'contains' => array('self', '__contains'),
+        'gt' => '%1$s > %2$s',
+        'lt' => '%1$s < %2$s',
+        'isnull' => '%1$s IS NULL',
+        'like' => '%1$s LIKE %2$s',
+        'in' => array('self', '__in'),
+    );
+
+    function __contains($a, $b) {
+        # {%a} like %{$b}%
+        return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
+    }
+
+    function __in($a, $b) {
+        if (is_array($b)) {
+            $vals = array_map(array($this, 'input'), $b);
+            $b = implode(', ', $vals);
+        }
+        else {
+            $b = $this->input($b);
+        }
+        return sprintf('%s IN %s', $a, $b);
+    }
+
+    function compileJoin($tip, $model, $alias, $info) {
+        $constraints = array();
+        $join = ' JOIN ';
+        if (isset($info['null']) && $info['null'])
+            $join = ' LEFT'.$join;
+        if (isset($this->joins[$tip]))
+            $table = $this->joins[$tip]['alias'];
+        else
+            $table = $this->quote($model::$meta['table']);
+        foreach ($info['constraint'] as $local => $foreign) {
+            list($rmodel, $right) = explode('.', $foreign);
+            // TODO: Support a constant constraint
+            $constraints[] = sprintf("%s.%s = %s.%s",
+                $table, $this->quote($local), $alias,
+                $this->quote($right)
+            );
+        }
+        return $join.$this->quote($rmodel::$meta['table'])
+            .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
+    }
+
+    function input($what) {
+        if ($b instanceof QuerySet) {
+            $q = $b->getQuery();
+            $this->params += $q->params;
+            return '(' . (string)$q . ')';
+        }
+        else {
+            $this->params[] = $what;
+            return '?';
+        }
+    }
+
+    function quote($what) {
+        return "`$what`";
     }
 
     function compileCount($queryset) {
@@ -469,14 +627,10 @@ class MySqlCompiler {
         $where_neg = array();
         $joins = array();
         foreach ($queryset->constraints as $where) {
-            list($_joins, $filter) = $this->_compile_where($where, $model);
-            $where_pos[] = $filter;
-            $joins = array_merge($joins, $_joins);
+            $where_pos[] = $this->compileWhere($where, $model);
         }
         foreach ($queryset->exclusions as $where) {
-            list($_joins, $filter) = $this->_compile_where($where, $model);
-            $where_neg[] = $filter;
-            $joins = array_merge($joins, $_joins);
+            $where_neg[] = $this->compileWhere($where, $model);
         }
 
         $where = '';
@@ -484,6 +638,7 @@ class MySqlCompiler {
             $where = ' WHERE '.implode(' AND ', $where_pos)
                 .implode(' AND NOT ', $where_neg);
         }
+        $joins = $this->getJoins();
         $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
         $exec = new MysqlExecutor($sql, $this->params);
         $row = $exec->getArray();
@@ -496,14 +651,10 @@ class MySqlCompiler {
         $where_neg = array();
         $joins = array();
         foreach ($queryset->constraints as $where) {
-            list($_joins, $filter) = $this->_compile_where($where, $model);
-            $where_pos[] = $filter;
-            $joins = array_merge($joins, $_joins);
+            $where_pos[] = $this->compileWhere($where, $model);
         }
         foreach ($queryset->exclusions as $where) {
-            list($_joins, $filter) = $this->_compile_where($where, $model);
-            $where_neg[] = $filter;
-            $joins = array_merge($joins, $_joins);
+            $where_neg[] = $this->compileWhere($where, $model);
         }
 
         $where = '';
@@ -521,8 +672,7 @@ class MySqlCompiler {
                     $dir = 'DESC';
                     $sort = substr($sort, 1);
                 }
-                list($js, $field) = $this->_get_joins_and_field($sort, $model);
-                $joins = ($joins) ? array_merge($joins, $js) : $js;
+                list($field) = $this->getField($sort, $model);
                 $orders[] = $field.' '.$dir;
             }
             $sort = ' ORDER BY '.implode(', ', $orders);
@@ -532,26 +682,23 @@ class MySqlCompiler {
         $fields = array();
         $table = $model::$meta['table'];
         if ($queryset->related) {
-            $tables = array($this->quote($table));
+            $fields = array($this->quote($table).'.*');
             foreach ($queryset->related as $rel) {
-                list($js, $t) = $this->_get_joins_and_field($rel, $model,
+                // XXX: This is ugly
+                list($t) = $this->getField($rel, $model,
                     array('table'=>true));
                 $fields[] = $t.'.*';
-                $joins = array_merge($joins, $js);
             }
         // Support only retrieving a list of values rather than a model
         } elseif ($queryset->values) {
             foreach ($queryset->values as $v) {
-                list($js, $fields[]) = $this->_get_joins_and_field($v, $model);
-                $joins = array_merge($joins, $js);
+                list($fields[]) = $this->getField($v, $model);
             }
         } else {
             $fields[] = $this->quote($table).'.*';
         }
 
-        if (is_array($joins))
-            # XXX: This will change the order of the joins
-            $joins = implode('', array_unique($joins));
+        $joins = $this->getJoins();
         $sql = 'SELECT '.implode(', ', $fields).' FROM '
             .$this->quote($table).$joins.$where.$sort;
         if ($queryset->limit)

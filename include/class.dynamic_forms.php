@@ -343,6 +343,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
             'entry' => array(
                 'constraint' => array('entry_id' => 'DynamicFormEntry.id'),
             ),
+            'form' => array(
+                'lazy' => true,
+                'constraint' => array('form_id' => 'DynamicFormSection.id'),
+            ),
         ),
     );
 
