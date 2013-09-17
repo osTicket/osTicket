@@ -3,12 +3,12 @@ require('admin.inc.php');
 require_once(INCLUDE_DIR."/class.dynamic_forms.php");
 
 $form=null;
-if($_REQUEST['id'] && !($form=DynamicFormSection::lookup($_REQUEST['id'])))
+if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
     $errors['err']='Unknown or invalid dynamic form ID.';
 
 if($_POST) {
     $fields = array('title', 'notes', 'instructions');
-    $required = array('name','email','subject');
+    $required = array('subject');
     switch(strtolower($_POST['do'])) {
         case 'update':
             foreach ($fields as $f)
@@ -38,7 +38,7 @@ if($_POST) {
             }
             break;
         case 'add':
-            $form = DynamicFormSection::create(array(
+            $form = DynamicForm::create(array(
                 'title'=>$_POST['title'],
                 'instructions'=>$_POST['instructions'],
                 'notes'=>$_POST['notes']));
@@ -52,7 +52,7 @@ if($_POST) {
             if (!$_POST["label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
-                'section_id'=>$form->get('id'),
+                'form_id'=>$form->get('id'),
                 'sort'=>$_POST["sort-new-$i"],
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
@@ -68,11 +68,11 @@ if($_POST) {
     }
 }
 
-$page='dynamic-form-sections.inc.php';
+$page='dynamic-forms.inc.php';
 if($form || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
-    $page='dynamic-form-section.inc.php';
+    $page='dynamic-form.inc.php';
 
-$nav->setTabActive('forms');
+$nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

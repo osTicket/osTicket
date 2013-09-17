@@ -46,7 +46,7 @@ class Internationalization {
             'email_template_group.yaml' => 'EmailTemplateGroup',
             'department.yaml' =>    'Dept',
             'sla.yaml' =>           'SLA',
-            'forms.yaml' =>         'DynamicFormset',
+            'form.yaml' =>          'DynamicForm',
             // Note that department, sla, and forms are required for
             // help_topic
             'help_topic.yaml' =>    'Topic',

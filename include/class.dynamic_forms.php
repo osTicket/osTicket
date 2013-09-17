@@ -23,7 +23,7 @@ require_once(INCLUDE_DIR . 'class.forms.php');
  * Form template, used for designing the custom form and for entering custom
  * data for a ticket
  */
-class DynamicFormSection extends VerySimpleModel {
+class DynamicForm extends VerySimpleModel {
 
     static $meta = array(
         'table' => FORM_SEC_TABLE,
@@ -46,9 +46,15 @@ class DynamicFormSection extends VerySimpleModel {
     function getDynamicFields() {
         if (!isset($this->_dfields))
             $this->_dfields = DynamicFormField::objects()
-                ->filter(array('section_id'=>$this->id))
+                ->filter(array('form_id'=>$this->id))
                 ->all();
         return $this->_dfields;
+    }
+
+    function hasField($name) {
+        foreach ($this->getDynamicFields() as $f)
+            if ($f->get('name') == $name)
+                return true;
     }
 
     function getTitle() { return $this->get('title'); }
@@ -63,7 +69,7 @@ class DynamicFormSection extends VerySimpleModel {
 
     function instanciate($sort=1) {
         return DynamicFormEntry::create(array(
-            'section_id'=>$this->get('id'), 'sort'=>$sort));
+            'form_id'=>$this->get('id'), 'sort'=>$sort));
     }
 
     function save() {
@@ -79,7 +85,7 @@ class DynamicFormSection extends VerySimpleModel {
             $inst->save();
             foreach ($ht['fields'] as $f) {
                 $f = DynamicFormField::create($f);
-                $f->section_id = $inst->id;
+                $f->form_id = $inst->id;
                 $f->save();
             }
         }
@@ -98,7 +104,7 @@ class DynamicFormField extends VerySimpleModel {
         'joins' => array(
             'form' => array(
                 'null' => true,
-                'constraint' => array('section_id' => 'DynamicFormSection.id'),
+                'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
         ),
     );
@@ -152,12 +158,12 @@ class DynamicFormField extends VerySimpleModel {
 
     function delete() {
         // Don't really delete form fields as that will screw up the data
-        // model. Instead, just drop the association with the form section
-        // which will give the appearance of deletion. Not deleting means
-        // that the field will continue to exist on form entries it may
-        // already have answers on, but since it isn't associated with the
-        // form section, it won't be available for new form submittals.
-        $this->set('section_id', 0);
+        // model. Instead, just drop the association with the form which
+        // will give the appearance of deletion. Not deleting means that
+        // the field will continue to exist on form entries it may already
+        // have answers on, but since it isn't associated with the form, it
+        // won't be available for new form submittals.
+        $this->set('form_id', 0);
         $this->save();
     }
 
@@ -195,7 +201,7 @@ class DynamicFormEntry extends VerySimpleModel {
         'joins' => array(
             'form' => array(
                 'null' => true,
-                'constraint' => array('section_id' => 'DynamicFormSection.id'),
+                'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
         ),
     );
@@ -231,7 +237,7 @@ class DynamicFormEntry extends VerySimpleModel {
 
     function getForm() {
         if (!$this->_form)
-            $this->_form = DynamicFormSection::lookup($this->get('section_id'));
+            $this->_form = DynamicForm::lookup($this->get('form_id'));
         return $this->_form;
     }
 
@@ -275,10 +281,10 @@ class DynamicFormEntry extends VerySimpleModel {
     /**
      * addMissingFields
      *
-     * Adds fields that have been added to the linked form section (field
-     * set) since this entry was originally created. If fields are added to
-     * the form section, the method will automatically add the fields and
-     * null answers to the entry.
+     * Adds fields that have been added to the linked form (field set) since
+     * this entry was originally created. If fields are added to the form,
+     * the method will automatically add the fields and null answers to the
+     * entry.
      */
     function addMissingFields() {
         foreach ($this->getForm()->getFields() as $field) {
@@ -289,7 +295,6 @@ class DynamicFormEntry extends VerySimpleModel {
                 }
             }
             if (!$found) {
-                # Section ID is auto set in the ::save method
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
                 $a->field = $field;
@@ -326,9 +331,9 @@ class DynamicFormEntry extends VerySimpleModel {
 }
 
 /**
- * Represents a single answer to a single field on a dynamic form section.
- * The data / answer to the field is linked back to the form section and
- * field which was originally used for the submission.
+ * Represents a single answer to a single field on a dynamic form. The
+ * data / answer to the field is linked back to the form and field which was
+ * originally used for the submission.
  */
 class DynamicFormEntryAnswer extends VerySimpleModel {
 
@@ -342,10 +347,6 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
             ),
             'entry' => array(
                 'constraint' => array('entry_id' => 'DynamicFormEntry.id'),
-            ),
-            'form' => array(
-                'lazy' => true,
-                'constraint' => array('form_id' => 'DynamicFormSection.id'),
             ),
         ),
     );
@@ -381,106 +382,6 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 
     function toString() {
         return $this->getField()->toString($this->getValue());
-    }
-}
-
-/**
- * A collection of form sections makes up a "form" in the context of dynamic
- * forms. This model represents that list of sections. The individual
- * association of form sections to this form are delegated to the
- * DynamicFormsetSections model
- */
-class DynamicFormset extends VerySimpleModel {
-
-    static $meta = array(
-        'table' => FORMSET_TABLE,
-        'ordering' => array('title'),
-        'pk' => array('id'),
-    );
-
-    var $_forms;
-
-    function getForms() {
-        if (!isset($this->_forms))
-            $this->_forms = DynamicFormsetSections::objects()->filter(
-                    array('formset_id'=>$this->id))->all();
-        return $this->_forms;
-    }
-
-    function hasField($name) {
-        foreach ($this->getForms() as $form)
-            foreach ($form->getForm()->getFields() as $f)
-                if ($f->get('name') == $name)
-                    return true;
-    }
-
-    function errors() {
-        return $this->_errors;
-    }
-
-    function isValid() {
-        if (!$this->_errors) $this->_errors = array();
-        return count($this->_errors) === 0;
-    }
-
-    function save() {
-        if (count($this->dirty))
-            $this->set('updated', new SqlFunction('NOW'));
-        return parent::save();
-    }
-
-    static function create($ht=false) {
-        $inst = parent::create($ht);
-        $inst->set('created', new SqlFunction('NOW'));
-        if (isset($ht['sections'])) {
-            $inst->save();
-            foreach ($ht['sections'] as $s) {
-                $sort = 1;
-                if (isset($s['sort'])) {
-                    $sort = $s['sort'];
-                    unset($s['sort']);
-                }
-                $sec = DynamicFormSection::create($s);
-                $sec->save();
-                DynamicFormsetSections::create(array(
-                    'formset_id' => $inst->id,
-                    'section_id' => $sec->id,
-                    'sort' => $sort
-                ))->save();
-            }
-        }
-        return $inst;
-    }
-}
-
-/**
- * Represents an assocation of form section (DynamicFormSection) with a
- * "form" (DynamicFormset).
- */
-class DynamicFormsetSections extends VerySimpleModel {
-    static $meta = array(
-        'table' => FORMSET_SEC_TABLE,
-        'ordering' => array('sort'),
-        'pk' => array('id'),
-    );
-
-    var $_section;
-
-    function getForm() {
-        if (!isset($this->_section))
-            $this->_section = DynamicFormSection::lookup($this->get('section_id'));
-        return $this->_section;
-    }
-
-    function errors() {
-        return $this->_errors;
-    }
-
-    function isValid() {
-        if (!$this->_errors) $this->_errors = array();
-        if (!is_numeric($this->get('sort')))
-            $this->_errors['sort'] = 'Enter a number';
-        return count($this->errors()) === 0;
     }
 }
 
@@ -660,7 +561,7 @@ class SelectionWidget extends ChoicesWidget {
     function render() {
         $config = $this->field->getConfiguration();
         $value = false;
-        if ($this->value && get_class($this->value) == 'DynamicListItem') {
+        if (is_object($this->value) && get_class($this->value) == 'DynamicListItem') {
             // Loaded from database
             $value = $this->value->get('id');
             $name = $this->value->get('value');

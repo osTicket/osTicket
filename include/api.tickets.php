@@ -20,10 +20,9 @@ class TicketApiController extends ApiController {
         # the names to the supported request structure
         if (isset($data['topicId'])) {
             $topic=Topic::lookup($data['topicId']);
-            $formset=DynamicFormset::lookup($topic->ht['formset_id']);
-            foreach ($formset->getForms() as $form)
-                foreach ($form->getForm()->getFields() as $field)
-                    $supported[] = $field->get('name');
+            $form=DynamicForm::lookup($topic->ht['form_id']);
+            foreach ($form->getFields() as $field)
+                $supported[] = $field->get('name');
         }
 
         if(!strcasecmp($format, 'email')) {
@@ -100,18 +99,15 @@ class TicketApiController extends ApiController {
         $errors = array();
 
         $topic=Topic::lookup($data['topicId']);
-        $forms=DynamicFormset::lookup($topic->ht['formset_id'])->getForms();
-        foreach ($forms as $idx=>$f) {
-            $forms[$idx] = $form = $f->getForm()->instanciate($f->sort);
-            # Collect name, email address, and subject for banning and such
-            foreach ($form->getFields() as $field) {
-                $fname = $field->get('name');
-                if ($fname && isset($data[$fname]))
-                    $field->value = $data[$fname];
-            }
-            if (!$form->isValid())
-                $errors = array_merge($errors, $form->errors());
+        $form=DynamicForm::lookup($topic->ht['form_id'])->instanciate();
+        # Collect name, email address, and subject for banning and such
+        foreach ($form->getFields() as $field) {
+            $fname = $field->get('name');
+            if ($fname && isset($data[$fname]))
+                $field->value = $data[$fname];
         }
+        if (!$form->isValid())
+            $errors = array_merge($errors, $form->errors());
 
         $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
         # Return errors (?)

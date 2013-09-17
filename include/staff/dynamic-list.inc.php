@@ -84,6 +84,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php if ($list)
         $icon = ($info['sort_mode'] == 'SortCol')
             ? '<i class="icon-sort"></i>&nbsp;' : '';
+        if ($list) {
         foreach ($list->getItems($pageNav->getLimit(), $pageNav->getStart()) as $i) {
             $id = $i->get('id'); ?>
         <tr>
@@ -97,6 +98,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 value="<?php echo $i->get('extra'); ?>"/></td>
         </tr>
     <?php }
+    }
     for ($i=0; $i<$newcount; $i++) { ?>
         <tr>
             <td><?php echo $icon; ?> <em>add</em>

@@ -175,7 +175,6 @@ class AdminNav extends StaffNav{
             $tabs['dashboard']=array('desc'=>'Dashboard','href'=>'logs.php','title'=>'Admin Dashboard');
             $tabs['settings']=array('desc'=>'Settings','href'=>'settings.php','title'=>'System Settings');
             $tabs['manage']=array('desc'=>'Manage','href'=>'helptopics.php','title'=>'Manage Options');
-            $tabs['forms']=array('desc'=>'Forms','href'=>'dynamic-forms.php','title'=>'Manage Forms');
             $tabs['emails']=array('desc'=>'Emails','href'=>'emails.php','title'=>'Email Settings');
             $tabs['staff']=array('desc'=>'Staff','href'=>'staff.php','title'=>'Manage Staff');
             $this->tabs=$tabs;
@@ -208,12 +207,9 @@ class AdminNav extends StaffNav{
                                         'title'=>'Ticket&nbsp;Filters','iconclass'=>'ticketFilters');
                     $subnav[]=array('desc'=>'SLA&nbsp;Plans','href'=>'slas.php','iconclass'=>'sla');
                     $subnav[]=array('desc'=>'API&nbsp;Keys','href'=>'apikeys.php','iconclass'=>'api');
-                    $subnav[]=array('desc'=>'Site&nbsp;Pages', 'href'=>'pages.php','title'=>'Pages','iconclass'=>'pages');
-                    break;
-                case 'forms':
-                    $subnav[]=array('desc'=>'Dynamic&nbsp;Forms','href'=>'dynamic-forms.php','iconclass'=>'');
-                    $subnav[]=array('desc'=>'Form&nbsp;Sections','href'=>'dynamic-form-sections.php','iconclass'=>'');
-                    $subnav[]=array('desc'=>'Dynamic&nbsp;Lists','href'=>'dynamic-lists.php','iconclass'=>'');
+                    $subnav[]=array('desc'=>'Pages', 'href'=>'pages.php','title'=>'Pages','iconclass'=>'pages');
+                    $subnav[]=array('desc'=>'Forms','href'=>'forms.php','iconclass'=>'pages');
+                    $subnav[]=array('desc'=>'Lists','href'=>'lists.php','iconclass'=>'pages');
                     break;
                 case 'emails':
                     $subnav[]=array('desc'=>'Emails','href'=>'emails.php', 'title'=>'Email Addresses', 'iconclass'=>'emailSettings');

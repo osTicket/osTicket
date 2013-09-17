@@ -32,21 +32,17 @@ if($_POST):
 
     $interest=array('name','email','subject');
     $topic=Topic::lookup($vars['topicId']);
-    $forms=DynamicFormset::lookup($topic->ht['formset_id'])->getForms();
-    foreach ($forms as $idx=>$f) {
-        $form=$f->getForm()->instanciate($f->sort);
-        # Collect name, email, and subject address for banning and such
-        foreach ($form->getAnswers() as $answer) {
-            $fname = $answer->getField()->get('name');
-            if (in_array($fname, $interest))
-                # XXX: Assigning to _POST not considered great PHP
-                #      coding style
-                $vars[$fname] = $answer->getField()->getClean();
-        }
-        $forms[$idx] = $form;
-        if (!$form->isValid())
-            $errors = array_merge($errors, $form->errors());
+    $form=DynamicForm::lookup($topic->ht['form_id'])->instanciate();
+    # Collect name, email, and subject address for banning and such
+    foreach ($form->getAnswers() as $answer) {
+        $fname = $answer->getField()->get('name');
+        if (in_array($fname, $interest))
+            # XXX: Assigning to _POST not considered great PHP
+            #      coding style
+            $vars[$fname] = $answer->getField()->getClean();
     }
+    if (!$form->isValid())
+        $errors = array_merge($errors, $form->errors());
 
     if(!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
@@ -56,10 +52,8 @@ if($_POST):
         $msg='Support ticket request created';
         Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
         # TODO: Save dynamic form(s)
-        foreach ($forms as $f) {
-            $f->set('ticket_id', $ticket->getId());
-            $f->save();
-        }
+        $form->set('ticket_id', $ticket->getId());
+        $form->save();
         $ticket->loadDynamicData();
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {

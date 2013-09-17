@@ -90,19 +90,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
         <tr><th colspan="2"><em>New ticket options</em></th></tr>
        <tr>
-           <td><strong>Formset</strong>:</td>
-           <td><select name="formset_id">
-               <option value="0">&mdash; Select a Formset &mdash;</option>
-               <?php foreach (DynamicFormset::objects() as $group) { ?>
+           <td><strong>Dynamic Form</strong>:</td>
+           <td><select name="form_id">
+               <option value="0">&mdash; Select a Form &mdash;</option>
+               <?php foreach (DynamicForm::objects() as $group) { ?>
                    <option value="<?php echo $group->get('id'); ?>"
-                       <?php if ($group->get('id') == $info['formset_id'])
+                       <?php if ($group->get('id') == $info['form_id'])
                             echo 'selected="selected"'; ?>>
                        <?php echo $group->get('title'); ?>
                    </option>
                <?php } ?>
                </select>
                <em>Information for tickets associated with this help topic</em>
-               &nbsp;<span class="error">&nbsp;<?php echo $errors['formset_id']; ?></span>
+               &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
            </td>
        </tr>
         <tr>

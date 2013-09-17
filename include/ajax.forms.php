@@ -5,7 +5,7 @@ require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
 
 class DynamicFormsAjaxAPI extends AjaxController {
     function getForm($form_id) {
-        $form = DynamicFormSection::lookup($form_id);
+        $form = DynamicForm::lookup($form_id);
         if (!$form) return;
 
         foreach ($form->getFields() as $field) {
@@ -15,14 +15,12 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
     function getFormsForHelpTopic($topic_id, $client=false) {
         $topic = Topic::lookup($topic_id);
-        foreach (DynamicFormset::lookup($topic->ht['formset_id'])->getForms() as $form) {
-            $set=$form;
-            $form=$form->getForm();
-            if ($client)
-                include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
-            else
-                include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
-        }
+        $form =DynamicForm::lookup($topic->ht['form_id']);
+        $set=$form;
+        if ($client)
+            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+        else
+            include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
     }
 
     function getClientFormsForHelpTopic($topic_id) {

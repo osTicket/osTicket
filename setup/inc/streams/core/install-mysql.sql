@@ -170,31 +170,8 @@ INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
   ('core', 'helpdesk_url', ''),
   ('core', 'schema_signature', '');
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%formset`;
-CREATE TABLE `%TABLE_PREFIX%formset` (
-    `id` int(11) unsigned auto_increment,
-    `title` varchar(255) NOT NULL,
-    `instructions` varchar(512),
-    `notes` text,
-    `created` datetime NOT NULL,
-    `updated` datetime NOT NULL,
-    PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%formset_sections`;
-CREATE TABLE `%TABLE_PREFIX%formset_sections` (
-    `id` int(11) unsigned NOT NULL auto_increment,
-    `formset_id` int(11) NOT NULL,
-    `section_id` int(11) NOT NULL,
-    `title` varchar(255),
-    `instructions` text,
-    -- Allow more than one form, sorted in this order
-    `sort` int(11) NOT NULL DEFAULT 1,
-    PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%form_section`;
-CREATE TABLE `%TABLE_PREFIX%form_section` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%form`;
+CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
@@ -207,7 +184,7 @@ CREATE TABLE `%TABLE_PREFIX%form_section` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form_field`;
 CREATE TABLE `%TABLE_PREFIX%form_field` (
     `id` int(11) unsigned NOT NULL auto_increment,
-    `section_id` int(11) unsigned NOT NULL,
+    `form_id` int(11) unsigned NOT NULL,
     `type` varchar(255) NOT NULL DEFAULT 'text',
     `label` varchar(255) NOT NULL,
     `required` tinyint(1) NOT NULL DEFAULT 0,
@@ -224,8 +201,9 @@ CREATE TABLE `%TABLE_PREFIX%form_field` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form_entry`;
 CREATE TABLE `%TABLE_PREFIX%form_entry` (
     `id` int(11) unsigned NOT NULL auto_increment,
-    `section_id` int(11) unsigned NOT NULL,
-    `ticket_id` int(11) unsigned,
+    `form_id` int(11) unsigned NOT NULL,
+    `object_id` int(11) unsigned,
+    `object_type` char(1),
     `sort` int(11) unsigned NOT NULL DEFAULT 1,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
@@ -355,7 +333,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
-  `formset_id` int(11) unsigned NOT NULL default '0',
+  `form_id` int(11) unsigned NOT NULL default '0',
   `target` ENUM(  'Any',  'Web',  'Email',  'API' ) NOT NULL DEFAULT  'Any',
   `name` varchar(32) NOT NULL default '',
   `notes` text,
@@ -474,7 +452,7 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `team_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `page_id` int(10) unsigned NOT NULL default '0',
-  `formset_id` int(10) unsigned NOT NULL default '0',
+  `form_id` int(10) unsigned NOT NULL default '0',
   `topic` varchar(32) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,

@@ -2,15 +2,15 @@
  <h2>Dynamic Forms</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="dynamic-forms.php?a=add" class="Icon">Add Dynamic Form</a></b></div>
+ <b><a href="forms.php?a=add" class="Icon">Add New Dynamic Form</a></b></div>
 <div class="clear"></div>
 
 <?php
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$count = DynamicFormset::objects()->count();
+$count = DynamicForm::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$pageNav->setURL('dynamic-lists.php');
-$showing=$pageNav->showing().' dynamic forms';
+$pageNav->setURL('forms.php');
+$showing=$pageNav->showing().' forms';
 ?>
 
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
@@ -23,7 +23,7 @@ $showing=$pageNav->showing().' dynamic forms';
         </tr>
     </thead>
     <tbody>
-    <?php foreach (DynamicFormset::objects()->order_by('title')
+    <?php foreach (DynamicForm::objects()->order_by('title')
                 ->limit($pageNav->getLimit())
                 ->offset($pageNav->getStart()) as $form) { ?>
         <tr>

@@ -186,11 +186,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         </tbody>
         <tbody id="dynamic-form">
-        <?php if ($forms) {
-            foreach ($forms as $form) {
-                include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
-            }
-        } ?>
+        <?php if ($form)
+            include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
+        ?>
         </tbody>
         <tbody>
         <tr>

@@ -459,21 +459,18 @@ if($_POST && !$errors):
                 $ticket=null;
                 $interest=array('name','email','subject');
                 $topic=Topic::lookup($_POST['topicId']);
-                $forms=DynamicFormset::lookup($topic->ht['formset_id'])->getForms();
-                foreach ($forms as $idx=>$f) {
-                    $form=$f->getForm()->instanciate($f->sort);
-                    # Collect name, email, and subject address for banning and such
-                    foreach ($form->getAnswers() as $answer) {
-                        $fname = $answer->getField()->get('name');
-                        if (in_array($fname, $interest))
-                            # XXX: Assigning to _POST not considered great PHP
-                            #      coding style
-                            $_POST[$fname] = $answer->getField()->getClean();
-                    }
-                    $forms[$idx] = $form;
-                    if (!$form->isValid())
-                        $errors = array_merge($errors, $form->errors());
+                $form=DynamicForm::lookup($topic->ht['form_id']);
+                $form=$form->instanciate();
+                # Collect name, email, and subject address for banning and such
+                foreach ($form->getAnswers() as $answer) {
+                    $fname = $answer->getField()->get('name');
+                    if (in_array($fname, $interest))
+                        # XXX: Assigning to _POST not considered great PHP
+                        #      coding style
+                        $_POST[$fname] = $answer->getField()->getClean();
                 }
+                if (!$form->isValid())
+                    $errors = array_merge($errors, $form->errors());
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
@@ -485,10 +482,8 @@ if($_POST && !$errors):
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;
                         # TODO: Save dynamic form(s)
-                        foreach ($forms as $f) {
-                            $f->set('ticket_id', $ticket->getId());
-                            $f->save();
-                        }
+                        $form->set('ticket_id', $ticket->getId());
+                        $form->save();
                         $ticket->loadDynamicData();
                         if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;

@@ -2,14 +2,14 @@
  <h2>Dynamic Lists</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="dynamic-lists.php?a=add" class="Icon">Add New Dynamic List</a></b></div>
+ <b><a href="lists.php?a=add" class="Icon">Add New Dynamic List</a></b></div>
 <div class="clear"></div>
 
 <?php
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = DynamicList::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$pageNav->setURL('dynamic-lists.php');
+$pageNav->setURL('lists.php');
 $showing=$pageNav->showing().' dynamic lists';
 ?>
 

@@ -59,7 +59,7 @@ $page='dynamic-lists.inc.php';
 if($list || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page='dynamic-list.inc.php';
 
-$nav->setTabActive('forms');
+$nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');
