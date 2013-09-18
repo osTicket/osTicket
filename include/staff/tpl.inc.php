@@ -29,8 +29,7 @@ if (is_a($template, EmailTemplateGroup)) {
     $msgtemplates=$template->getGroup()->all_names;
     $info=array_merge(array('subj'=>$template->getSubject(), 'body'=>$template->getBody()),$info);
 }
-$info['tpl']=($info['tpl'] && $msgtemplates[$info['tpl']])?$info['tpl']:'ticket.autoresp';
-$tpl=$msgtemplates[$info['tpl']];
+$tpl=$msgtemplates[$selected];
 
 ?>
 <h2>Email Template Message - <span><?php echo $name; ?></span></h2>
@@ -72,7 +71,7 @@ $tpl=$msgtemplates[$info['tpl']];
    <thead>
      <tr>
         <th colspan="2">
-            <h4><?php echo Format::htmlchars($tpl['desc']); ?></h4>
+            <h4><?php echo Format::htmlchars($nfo['desc']); ?></h4>
             <em>Subject and body required.  <a class="tip" href="ticket_variables.txt">Supported Variables</a>.</em>
         </th>
      </tr>
