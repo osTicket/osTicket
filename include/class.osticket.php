@@ -386,7 +386,8 @@ class osTicket {
          * What's left is the ROOT_PATH.
          */
         $frame = array_pop(debug_backtrace(false));
-        $path = substr($frame['file'], strlen(ROOT_DIR));
+        $file = str_replace('\\','/', $frame['file']);
+        $path = substr($file, strlen(ROOT_DIR));
         if($path && ($pos=strpos($_SERVER['SCRIPT_NAME'], $path))!==false)
             return substr($_SERVER['SCRIPT_NAME'], 0, $pos);
 
