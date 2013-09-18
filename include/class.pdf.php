@@ -14,7 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-define('THIS_DIR', str_replace('\\\\', '/', realpath(dirname(__FILE__))) . '/'); //Include path..
+define('THIS_DIR', str_replace('\\', '/', realpath(dirname(__FILE__))) . '/'); //Include path..
 define('FPDF_DIR', THIS_DIR . 'fpdf/');
 define('FPDF_FONTPATH', FPDF_DIR . 'font/'); //fonts directory.
 require (FPDF_DIR . 'fpdf.php');
