@@ -17,21 +17,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </thead>
     <tbody>
-    <?php
-    if($cfg->notifyONNewStaffTicket()) { ?>
+        <?php
+        UserForm::getStaticForm()->render();
+        if($cfg->notifyONNewStaffTicket()) {  ?>
         <tr>
-            <th>
-            <em><strong>User Information</strong></em>
-            </th>
-        </tr>
             <td width="160">Alert:</td>
             <td>
-            &nbsp;&nbsp;&nbsp;
             <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>>Send alert to user.
             </td>
         </tr>
-            <?php
-             } ?>
+        <?php } ?>
         <tr>
             <th colspan="2">
                 <em><strong>Ticket Information &amp; Options</strong>:</em>

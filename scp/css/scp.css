@@ -1330,6 +1330,14 @@ time {
     background-position:bottom left;
 }
 
+/* Dynamic forms in dialogs */
+.dialog th {
+    background-color: #eee;
+    padding: 0.3em;
+    text-align: left;
+    padding-left: 1em;
+}
+
 #result-count div {
     padding:5px 10px;
     text-align:left;

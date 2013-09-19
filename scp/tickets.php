@@ -205,6 +205,7 @@ if($_POST && !$errors):
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
                 foreach ($forms as $f) $f->save();
+                $ticket->setOwner($form2->getClean());
                 if(!$ticket->checkStaffAccess($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {
@@ -458,19 +459,23 @@ if($_POST && !$errors):
             case 'open':
                 $ticket=null;
                 $interest=array('name','email','subject');
-                $topic=Topic::lookup($_POST['topicId']);
-                $form=DynamicForm::lookup($topic->ht['form_id']);
-                $form=$form->instanciate();
-                # Collect name, email, and subject address for banning and such
-                foreach ($form->getAnswers() as $answer) {
-                    $fname = $answer->getField()->get('name');
-                    if (in_array($fname, $interest))
-                        # XXX: Assigning to _POST not considered great PHP
-                        #      coding style
-                        $_POST[$fname] = $answer->getField()->getClean();
+                if ($topic=Topic::lookup($_POST['topicId'])) {
+                    $form = DynamicForm::lookup($topic->ht['form_id']);
+                    $form = $form->instanciate();
+                    # Collect name, email, and subject address for banning and such
+                    foreach ($form->getAnswers() as $answer) {
+                        $fname = $answer->getField()->get('name');
+                        if (in_array($fname, $interest))
+                            # XXX: Assigning to _POST not considered great PHP
+                            #      coding style
+                            $_POST[$fname] = $answer->getField()->getClean();
+                    }
+                    if (!$form->isValid())
+                        $errors = array_merge($errors, $form->errors());
                 }
-                if (!$form->isValid())
-                    $errors = array_merge($errors, $form->errors());
+                $form2 = UserForm::getStaticForm();
+                if (!$form2->isValid())
+                    $errors = array_merge($errors, $form2->errors());
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
@@ -482,7 +487,7 @@ if($_POST && !$errors):
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;
                         # TODO: Save dynamic form(s)
-                        $form->set('ticket_id', $ticket->getId());
+                        $form->setTicketId($ticket->getId());
                         $form->save();
                         $ticket->loadDynamicData();
                         if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())

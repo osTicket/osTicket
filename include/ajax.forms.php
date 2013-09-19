@@ -39,6 +39,67 @@ class DynamicFormsAjaxAPI extends AjaxController {
         else
             $field->save();
     }
+
+    function _getUserForms() {
+        $static = new Form(array(
+            'first' => new TextboxField(array(
+                'label'=>'First Name', 'configuration'=>array('size'=>30))
+            ),
+            'last' => new TextboxField(array(
+                'label'=>'Last Name', 'configuration'=>array('size'=>30))
+            ),
+            'email' => new TextboxField(array(
+                'label'=>'Default Email', 'configuration'=>array(
+                    'validator'=>'email', 'size'=>40))
+            ),
+        ));
+
+        return $static;
+    }
+
+    function getUserInfo($user_id) {
+        $user = User::lookup($user_id);
+        $static = $this->_getUserForms();
+
+        $data = $user->ht;
+        $data['email'] = $user->default_email->address;
+        $static->data($data);
+
+        $custom = array();
+        foreach ($user->getDynamicData() as $cd)
+            $custom[] = $cd->getForm();
+
+        include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
+    }
+
+    function saveUserInfo($user_id) {
+        $user = User::lookup($user_id);
+        $static = $this->_getUserForms();
+        $valid = $static->isValid();
+
+        $custom_data = $user->getDynamicData();
+        $custom = array();
+        foreach ($custom_data as $cd) {
+            $cf = $custom[] = $cd->getForm();
+            $valid &= $cf->isValid();
+        }
+
+        if (!$valid) {
+            include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
+            return;
+        }
+
+        $data = $static->getClean();
+        $user->first = $data['first'];
+        $user->last = $data['last'];
+        $user->default_email->address = $data['email'];
+        $user->save();
+        $user->default_email->save();
+
+        // Save custom data
+        foreach ($custom_data as $cd)
+            $cd->save();
+    }
 }
 
 ?>

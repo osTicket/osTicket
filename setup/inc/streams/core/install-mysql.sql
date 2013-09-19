@@ -173,6 +173,7 @@ INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form`;
 CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
+    `type` char(1) NOT NULL DEFAULT 'T',
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
     `notes` text,
@@ -203,7 +204,7 @@ CREATE TABLE `%TABLE_PREFIX%form_entry` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `form_id` int(11) unsigned NOT NULL,
     `object_id` int(11) unsigned,
-    `object_type` char(1),
+    `object_type` char(1) NOT NULL DEFAULT 'T',
     `sort` int(11) unsigned NOT NULL DEFAULT 1,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
@@ -579,6 +580,8 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
   `ticket_id` int(11) unsigned NOT NULL auto_increment,
   `ticketID` int(11) unsigned NOT NULL default '0',
+  `user_id` int(11) unsigned NOT NULL default '0',
+  `user_email_id` int(11) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `priority_id` int(10) unsigned NOT NULL default '0',
@@ -748,3 +751,23 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%page` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
 ) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;
+CREATE TABLE `%TABLE_PREFIX%user` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `default_email_id` int(10) NOT NULL,
+  `first` varchar(64) NOT NULL,
+  `last` varchar(64),
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY  (`id`)
+);
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
+CREATE TABLE `%TABLE_PREFIX%user_email` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `user_id` int(10) unsigned NOT NULL,
+  `address` varchar(128) NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `address` (`address`)
+);

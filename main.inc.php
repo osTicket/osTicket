@@ -21,6 +21,7 @@ if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__))) die('kwahe
 require('bootstrap.php');
 Bootstrap::loadConfig();
 Bootstrap::defineTables(TABLE_PREFIX);
+Bootstrap::loadCode();
 Bootstrap::connect();
 
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))

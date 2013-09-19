@@ -39,6 +39,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
             <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
         </td>
     </tr>
+    <?php UserForm::getStaticForm()->render(false, 'Your Information'); ?>
     </tbody>
     <tbody id="dynamic-form">
         <?php if ($forms) {

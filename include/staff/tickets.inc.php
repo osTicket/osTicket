@@ -114,12 +114,16 @@ if($search):
         }elseif(strpos($searchTerm,'@') && Validator::is_email($searchTerm)){ //pulling all tricks!
             # XXX: What about searching for email addresses in the body of
             #      the thread message
-            $qwhere.=" AND email.value='$queryterm'";
+            $qwhere.=" AND email.address='$queryterm'";
         }else{//Deep search!
             //This sucks..mass scan! search anything that moves!
 
             $deep_search=true;
         }
+    }
+    // OwnerId
+    if ($_REQUEST['ownerId']) {
+        $qwhere .= ' AND ticket.user_id='.db_input($_REQUEST['ownerId']);
     }
     //department
     if($_REQUEST['deptId'] && in_array($_REQUEST['deptId'],$thisstaff->getDepts())) {
@@ -237,23 +241,23 @@ $$x=' class="'.strtolower($order).'" ';
 if($_GET['limit'])
     $qstr.='&limit='.urlencode($_GET['limit']);
 
-$dynfields='(SELECT entry.ticket_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
+$dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
          'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
          'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
-         'WHERE field.name = "%1$s")';
+         'WHERE field.name = "%1$s" AND entry.object_type="T")';
 $subject_sql=sprintf($dynfields, 'subject');
-$name_sql=sprintf($dynfields, 'name');
-$email_sql=sprintf($dynfields, 'email');
 
 $qselect ='SELECT DISTINCT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_id,ticket.team_id '
-         .' ,subject.value as subject,name.value as name,email.value as email,dept_name '
+    .' ,subject.value as subject'
+    .' ,user.name'
+    .' ,email.address as email, dept_name '
          .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created,pri.* ';
 
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
+       ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
+       ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id '.
-       ' LEFT JOIN '.$subject_sql.' subject ON subject.ticket_id = ticket.ticket_id '.
-       ' LEFT JOIN '.$name_sql.' name ON name.ticket_id = ticket.ticket_id '.
-       ' LEFT JOIN '.$email_sql.' email ON email.ticket_id = ticket.ticket_id ';
+       ' LEFT JOIN '.$subject_sql.' subject ON subject.object_id = ticket.ticket_id';
 
 $sjoin='';
 if($search && $deep_search) {

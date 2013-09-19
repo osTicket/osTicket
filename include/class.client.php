@@ -40,17 +40,19 @@ class Client {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT ticket.ticket_id, ticketID, email.value as email, phone.value as phone '
+        $sql='SELECT ticket.ticket_id, ticketID, email.address as email, phone.value as phone '
             .' FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
-            .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
-            .' LEFT JOIN '.FORM_FIELD_TABLE.' field1 ON email.field_id = field1.id '
-            .' LEFT JOIN '.FORM_ANSWER_TABLE.' phone ON email.entry_id = entry.id '
-            .' LEFT JOIN '.FORM_FIELD_TABLE.' field2 ON phone.field_id = field2.id '
-            .' WHERE field1.name = "email" AND field2.name="phone" AND ticketID='.db_input($id);
+            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON
+                    (entry.object_id = ticket.ticket_id AND entry.object_type = "T")'
+            .' LEFT JOIN '.FORM_ANSWER_TABLE.' phone ON phone.entry_id = entry.id'
+            .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON
+                   (phone.field_id = field.id AND field.name="phone")'
+            .' WHERE ticketID='.db_input($id);
 
         if($email)
-            $sql.=' AND email.value = '.db_input($email);
+            $sql.=' AND email.address = '.db_input($email);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
@@ -60,10 +62,8 @@ class Client {
         $this->ticket_id  = $this->ht['ticket_id'];
         $this->ticketID   = $this->ht['ticketID'];
 
-        $entry = DynamicFormEntry::forTicket($this->ticket_id);
-        foreach ($entry as $form)
-            if ($form->getAnswer('name'))
-                $this->fullname = $form->getAnswer('name');
+        $user = User::lookup(array('emails__address'=>$this->ht['email']));
+        $this->fullname   = $user->getFullName();
 
         $this->username   = $this->ht['email'];
         $this->email      = $this->ht['email'];
@@ -132,10 +132,9 @@ class Client {
     /* ------------- Static ---------------*/
     function getLastTicketIdByEmail($email) {
         $sql='SELECT ticket.ticketID '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
-            .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
-            .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
-            .' WHERE field.name = "email" AND email.value = '.db_input($email)
+            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+            .' WHERE email.address = '.db_input($email)
             .' ORDER BY ticket.created '
             .' LIMIT 1';
         if(($res=db_query($sql)) && db_num_rows($res))

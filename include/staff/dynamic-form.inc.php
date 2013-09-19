@@ -55,7 +55,39 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em>Form Fields</em>
+                <em><strong>User Information Fields</strong> more information here</em>
+            </th>
+        </tr>
+        <tr>
+            <th></th>
+            <th>Label</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Private</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><input type="checkbox" disabled="disabled"/></td>
+            <td>Full Name</td><td>Short Answer</td><td>name</td>
+            <td><input type="checkbox" disabled="disabled"/></td>
+            <td><input type="checkbox" disabled="disabled" checked="checked"/></td></tr>
+        <tr>
+            <td><input type="checkbox" disabled="disabled"/></td>
+            <td>Email Address</td><td>Short Answer</td><td>email</td>
+            <td><input type="checkbox" disabled="disabled"/></td>
+            <td><input type="checkbox" disabled="disabled" checked="checked"/></td></tr>
+        <tr>
+            <td><input type="checkbox" disabled="disabled"/></td>
+            <td>Phone Number</td><td>Phone Number</td><td>phone</td>
+            <td><input type="checkbox" disabled="disabled"/></td>
+            <td><input type="checkbox" disabled="disabled"/></td></tr>
+    </tbody>
+    <thead>
+        <tr>
+            <th colspan="7">
+                <em><strong>Form Fields</strong> fields available for ticket information</em>
             </th>
         </tr>
         <tr>

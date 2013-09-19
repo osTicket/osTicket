@@ -31,6 +31,7 @@ include_once(INCLUDE_DIR.'class.priority.php');
 include_once(INCLUDE_DIR.'class.sla.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
+require_once(INCLUDE_DIR.'class.user.php');
 
 class Ticket {
 
@@ -181,8 +182,31 @@ class Ticket {
         return $this->number;
     }
 
+    function getOwnerId() {
+        return $this->ht['user_id'];
+    }
+
+    function getOwner() {
+        if (!isset($this->user))
+            $this->user = User::lookup($this->getOwnerId());
+        return $this->user;
+    }
+
     function getEmail(){
-        return $this->_answers['email'];
+        if ($o = $this->getOwner())
+            return $o->getEmail();
+        return null;
+    }
+
+    function getReplyToEmail() {
+        if ($this->ht['user_email_id']) {
+            if (!isset($this->reply_email))
+                $this->reply_email = UserEmail::lookup($this->ht['user_email_id']);
+            return $this->reply_email->address;
+        }
+        else {
+            return $this->getEmail();
+        }
     }
 
     function getAuthToken() {
@@ -191,7 +215,9 @@ class Ticket {
     }
 
     function getName(){
-        return $this->_answers['name'];
+        if ($o = $this->getOwner())
+            return $o->getFullName();
+        return null;
     }
 
     function getSubject() {
@@ -1704,13 +1730,12 @@ class Ticket {
             return 0;
 
         $sql ='SELECT ticket.ticket_id FROM '.TICKET_TABLE.' ticket '
-             .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
-             .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
-             .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
-             .' WHERE field.name = "email" AND ticket.ticketID='.db_input($extId);
+             .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+             .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+             .' WHERE ticket.ticketID='.db_input($extId);
 
         if($email)
-            $sql .= ' AND email.value = '.db_input($email);
+            $sql .= ' AND email.address = '.db_input($email);
 
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id)=db_fetch_row($res);
@@ -1817,6 +1842,8 @@ class Ticket {
 
         if(!$email || !Validator::is_email($email))
             return null;
+        if (!$user = User::lookup(array('emails__address'=>$email)))
+            return null;
 
         $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
             .' FROM '.TICKET_TABLE.' ticket '
@@ -1824,10 +1851,7 @@ class Ticket {
                 ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\') '
             .' LEFT JOIN '.TICKET_TABLE.' closed
                 ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\')'
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
-            .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
-            .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
-            .' WHERE field.name = "email" AND email.value = '.db_input($email);
+            .' WHERE ticket.user_id = '.db_input($user->getId());
 
         return db_fetch_array(db_query($sql));
     }
@@ -1841,7 +1865,7 @@ class Ticket {
         global $ost, $cfg, $thisclient, $_FILES;
 
         // Drop extra whitespace
-        foreach (array('email', 'phone', 'subject', 'name') as $f)
+        foreach (array('phone', 'subject') as $f)
             if (isset($vars[$f]))
                 $vars[$f] = trim($vars[$f]);
 
@@ -1924,6 +1948,13 @@ class Ticket {
         //Any error above is fatal.
         if($errors)  return 0;
 
+        # Identify the user creating the ticket
+        $user_info = UserForm::getStaticForm()->getClean();
+        if (isset($vars['emailId']) || !isset($user_info['email']))
+            $user_info = $vars;
+        $user = User::fromForm($user_info);
+        $user_email = UserEmail::ensure($user_info['email']);
+
         # Perform ticket filter actions on the new ticket arguments
         if ($ticket_filter) $ticket_filter->apply($vars);
 
@@ -1972,6 +2003,8 @@ class Ticket {
         $extId=Ticket::genExtRandID();
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
             .' ,lastmessage= NOW()'
+            .' ,user_id='.db_input($user->id)
+            .' ,user_email_id='.db_input($user_email->id)
             .' ,ticketID='.db_input($extId)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)

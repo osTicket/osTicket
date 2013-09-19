@@ -23,13 +23,20 @@ class Form {
     var $title = 'Unnamed Form';
     var $instructions = '';
 
+    var $_errors;
+
     function Form() {
         call_user_func_array(array($this, '__construct'), func_get_args());
     }
-    function __construct($fields=array(), $title='Unnamed', $instructions='') {
+    function __construct($fields=array(), $title=false, $instructions=false) {
         $this->fields = $fields;
         $this->title = $title;
         $this->instructions = $instructions;
+    }
+    function data($source) {
+        foreach ($this->fields as $name=>$f)
+            if (isset($source[$name]))
+                $f->value = $source[$name];
     }
 
     function getFields() {
@@ -39,16 +46,39 @@ class Form {
     function getInstructions() { return $this->instructions; }
 
     function isValid() {
-        $this->validate();
-        foreach ($this->fields as $f)
-            if (!$f->isValidEntry())
-                return false;
-        return true;
+        if (!is_array($this->_errors)) {
+            $this->_errors = array();
+            $this->getClean();
+            foreach ($this->getFields() as $field)
+                if ($field->errors())
+                    $this->_errors[$field->get('id')] = $field->errors();
+        }
+        return !$this->_errors;
     }
 
-    function validate() {
-        foreach ($this->fields as $f)
-            $f->validateEntry();
+    function getClean() {
+        if (!$this->_clean) {
+            $this->_clean = array();
+            foreach ($this->getFields() as $key=>$field)
+                $this->_clean[$key] = $field->getClean();
+        }
+        return $this->_clean;
+    }
+
+    function errors() {
+        return $this->_errors;
+    }
+
+    function render($staff=true, $title=false, $instructions=false) {
+        if ($title)
+            $this->title = $title;
+        if ($instructions)
+            $this->instructions = $instructions;
+        $form = $this;
+        if ($staff)
+            include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
+        else
+            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
     }
 }
 
@@ -159,7 +189,7 @@ class FormField {
      * useful error message indicating what is wrong with the input.
      */
     function parse($value) {
-        return $value;
+        return trim($value);
     }
 
     /**
@@ -233,7 +263,10 @@ class FormField {
     function getAnswer() { return $this->answer; }
 
     function getFormName() {
-        return '-field-id-'.$this->get('id');
+        if (is_numeric($this->get('id')))
+            return '-field-id-'.$this->get('id');
+        else
+            return $this->get('id');
     }
 
     function render() {
@@ -512,10 +545,15 @@ class TextboxWidget extends Widget {
             $size = "size=\"{$config['size']}\"";
         if (isset($config['length']))
             $maxlength = "maxlength=\"{$config['length']}\"";
+        if (isset($config['classes']))
+            $classes = 'class="'.implode(' ', $config['classes']).'"';
+        if (isset($config['autocomplete']))
+            $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
         ?>
         <span style="display:inline-block">
         <input type="text" id="<?php echo $this->name; ?>"
             <?php echo $size . " " . $maxlength; ?>
+            <?php echo $classes.' '.$autocomplete; ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         </span>

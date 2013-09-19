@@ -30,13 +30,11 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT DISTINCT ticketID, email.value AS email'
+        $sql='SELECT DISTINCT ticketID, email.address AS email'
             .' FROM '.TICKET_TABLE.' ticket'
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
-            .' LEFT JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
-            .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
-            .' WHERE field.name = "email"'
-            .' AND ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
+            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+            .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
@@ -64,13 +62,11 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT email.value AS email, count(ticket.ticket_id) as tickets '
+        $sql='SELECT email.address AS email, count(ticket.ticket_id) as tickets '
             .' FROM '.TICKET_TABLE.' ticket'
-            .' JOIN '.FORM_ENTRY_TABLE.' entry ON entry.ticket_id = ticket.ticket_id '
-            .' JOIN '.FORM_ANSWER_TABLE.' email ON email.entry_id = entry.id '
-            .' JOIN '.FORM_FIELD_TABLE.' field ON email.field_id = field.id '
-            .' WHERE field.name = "email"'
-            .' AND email.value LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
+            .' JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+            .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+            .' WHERE email.address LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 

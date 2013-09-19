@@ -31,6 +31,13 @@ class DynamicForm extends VerySimpleModel {
         'pk' => array('id'),
     );
 
+    // Registered form types
+    static $types = array(
+        'T' => 'Ticket Information',
+        'U' => 'User Information',
+    );
+
+    var $_form;
     var $_fields;
     var $_dfields;
 
@@ -51,6 +58,12 @@ class DynamicForm extends VerySimpleModel {
         return $this->_dfields;
     }
 
+    // Multiple inheritance -- delegate to Form
+    function __call($what, $args) {
+        return call_user_func_array(
+            array($this->getForm(), $what), $args);
+    }
+
     function hasField($name) {
         foreach ($this->getDynamicFields() as $f)
             if ($f->get('name') == $name)
@@ -61,15 +74,22 @@ class DynamicForm extends VerySimpleModel {
     function getInstructions() { return $this->get('instructions'); }
 
     function getForm() {
-        $fields = $this->getFields();
-        foreach ($fields as &$f)
-            $f = $f->getField();
-        return new Form($fields, $this->title, $this->instructions);
+        if (!$this->_form) {
+            $fields = $this->getFields();
+            $this->_form = new Form($fields, $this->title, $this->instructions);
+        }
+        return $this->_form;
     }
 
     function instanciate($sort=1) {
         return DynamicFormEntry::create(array(
             'form_id'=>$this->get('id'), 'sort'=>$sort));
+    }
+
+    function data($data) {
+        if ($data instanceof DynamicFormEntry) {
+            $this->_fields = $data->getFields();
+        }
     }
 
     function save() {
@@ -90,6 +110,42 @@ class DynamicForm extends VerySimpleModel {
             }
         }
         return $inst;
+    }
+
+    static function addFormTypes($types) {
+        static::$types += $types;
+    }
+
+    static function allTypes() {
+        return static::$types;
+    }
+}
+
+class UserForm extends DynamicForm {
+    static function objects() {
+        $os = parent::objects();
+        return $os->filter(array('type'=>'U'));
+    }
+
+    function getStaticForm() {
+        static $form = null;
+        if (!$form)
+            $form = new Form(array(
+            'email' => new TextboxField(array(
+                'id'=>'email', 'label'=>'Email Address', 'required'=>true,
+                'validator' => 'email', 'configuration'=>array(
+                    'autocomplete'=>false, 'classes'=>array('typeahead'),
+                    'size'=>40)
+            )),
+            'name' => new TextboxField(array(
+                'id'=>'name', 'label'=>'Full Name', 'required'=>true,
+                'configuration' => array('size'=>40),
+            )),
+            'phone' => new PhoneField(array(
+                'id'=>'c', 'label'=>'Phone Number', 'required'=>false, 'default'=>'',
+                )),
+            ), 'User Information');
+        return $form;
     }
 }
 
@@ -236,8 +292,11 @@ class DynamicFormEntry extends VerySimpleModel {
     function getInstructions() { return $this->getForm()->getInstructions(); }
 
     function getForm() {
-        if (!$this->_form)
+        if (!$this->_form) {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
+            if ($this->id)
+                $this->_form->data($this);
+        }
         return $this->_form;
     }
 
@@ -274,8 +333,21 @@ class DynamicFormEntry extends VerySimpleModel {
         static $entries = array();
         if (!isset($entries[$ticket_id]))
             $entries[$ticket_id] = DynamicFormEntry::objects()
-                ->filter(array('ticket_id'=>$ticket_id));
+                ->filter(array('object_id'=>$ticket_id, 'object_type'=>'T'));
         return $entries[$ticket_id];
+    }
+    function setTicketId($ticket_id) {
+        $this->object_type = 'T';
+        $this->object_id = $ticket_id;
+    }
+
+    function forClient($user_id) {
+        return DynamicFormEntry::objects()
+            ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
+    }
+    function setClientId($user_id) {
+        $this->object_type = 'U';
+        $this->object_id = $user_id;
     }
 
     /**

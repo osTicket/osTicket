@@ -65,6 +65,8 @@ class Bootstrap {
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
 
         define('ATTACHMENT_TABLE',$prefix.'attachment');
+        define('USER_TABLE',$prefix.'user');
+        define('USER_EMAIL_TABLE',$prefix.'user_email');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');
@@ -162,6 +164,27 @@ class Bootstrap {
             self::croak($ferror);
     }
 
+    function loadCode() {
+        #include required files
+        require(INCLUDE_DIR.'class.ostsession.php');
+        require(INCLUDE_DIR.'class.usersession.php');
+        require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
+        require(INCLUDE_DIR.'class.log.php');
+        require(INCLUDE_DIR.'class.crypto.php');
+        require(INCLUDE_DIR.'class.timezone.php');
+        require(INCLUDE_DIR.'class.http.php');
+        require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.nav.php');
+        require(INCLUDE_DIR.'class.page.php');
+        require(INCLUDE_DIR.'class.format.php'); //format helpers
+        require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
+        require(INCLUDE_DIR.'class.mailer.php');
+        if (extension_loaded('mysqli'))
+            require_once INCLUDE_DIR.'mysqli.php';
+        else
+            require(INCLUDE_DIR.'mysql.php');
+    }
+
     function croak($message) {
         $msg = $message."\n\n".THISPAGE;
         Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
@@ -196,6 +219,7 @@ if(!defined('PATH_SEPARATOR')){
 ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
 
 require(INCLUDE_DIR.'class.osticket.php');
+require(INCLUDE_DIR.'class.misc.php');
 
 // Determine the path in the URI used as the base of the osTicket
 // installation
@@ -203,26 +227,6 @@ if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
     define('ROOT_PATH', rtrim($rp, '/').'/');
 
 Bootstrap::init();
-
-#include required files
-require(INCLUDE_DIR.'class.ostsession.php');
-require(INCLUDE_DIR.'class.usersession.php');
-require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
-require(INCLUDE_DIR.'class.log.php');
-require(INCLUDE_DIR.'class.crypto.php');
-require(INCLUDE_DIR.'class.misc.php');
-require(INCLUDE_DIR.'class.timezone.php');
-require(INCLUDE_DIR.'class.http.php');
-require(INCLUDE_DIR.'class.signal.php');
-require(INCLUDE_DIR.'class.nav.php');
-require(INCLUDE_DIR.'class.page.php');
-require(INCLUDE_DIR.'class.format.php'); //format helpers
-require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
-require(INCLUDE_DIR.'class.mailer.php');
-if (extension_loaded('mysqli'))
-    require_once INCLUDE_DIR.'mysqli.php';
-else
-    require(INCLUDE_DIR.'mysql.php');
 
 #CURRENT EXECUTING SCRIPT.
 define('THISPAGE', Misc::currentURL());

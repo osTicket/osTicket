@@ -31,19 +31,22 @@ if($_POST):
     }
 
     $interest=array('name','email','subject');
-    $topic=Topic::lookup($vars['topicId']);
-    $form=DynamicForm::lookup($topic->ht['form_id'])->instanciate();
-    # Collect name, email, and subject address for banning and such
-    foreach ($form->getAnswers() as $answer) {
-        $fname = $answer->getField()->get('name');
-        if (in_array($fname, $interest))
-            # XXX: Assigning to _POST not considered great PHP
-            #      coding style
-            $vars[$fname] = $answer->getField()->getClean();
+    if ($topic=Topic::lookup($vars['topicId'])) {
+        $form=DynamicForm::lookup($topic->ht['form_id'])->instanciate();
+        # Collect name, email, and subject address for banning and such
+        foreach ($form->getAnswers() as $answer) {
+            $fname = $answer->getField()->get('name');
+            if (in_array($fname, $interest))
+                # XXX: Assigning to _POST not considered great PHP
+                #      coding style
+                $vars[$fname] = $answer->getField()->getClean();
+        }
+        if (!$form->isValid())
+            $errors = array_merge($errors, $form->errors());
     }
-    if (!$form->isValid())
-        $errors = array_merge($errors, $form->errors());
-
+    $form2 = UserForm::getStaticForm();
+    if (!$form2->isValid())
+        $errors += $form2->errors();
     if(!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
@@ -52,7 +55,7 @@ if($_POST):
         $msg='Support ticket request created';
         Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
         # TODO: Save dynamic form(s)
-        $form->set('ticket_id', $ticket->getId());
+        $form->setTicketId($ticket->getId());
         $form->save();
         $ticket->loadDynamicData();
         //Logged in...simply view the newly created ticket.

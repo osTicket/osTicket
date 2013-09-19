@@ -29,6 +29,7 @@ class VerySimpleModel {
 
     function __construct($row) {
         $this->ht = $row;
+        $this->__setupForeignLists();
         $this->dirty = array();
     }
 
@@ -38,10 +39,29 @@ class VerySimpleModel {
     function __get($field) {
         if (array_key_exists($field, $this->ht))
             return $this->ht[$field];
-        return $this->{$field};
+        elseif (isset(static::$meta['joins'][$field])) {
+            // TODO: Support instrumented lists and such
+            $j = static::$meta['joins'][$field];
+            $class = $j['fkey'][0];
+            $v = $this->ht[$field] = $class::lookup($this->ht[$j['local']]);
+            return $v;
+        }
     }
 
     function set($field, $value) {
+        // Update of foreign-key by assignment to model instance
+        if (isset(static::$meta['joins'][$field])) {
+            $j = static::$meta['joins'][$field];
+            // XXX: Ensure $value instanceof $j['fkey'][0]
+            if ($value->__new__)
+                $value->save();
+            // Capture the object under the object's field name
+            $this->ht[$field] = $value;
+            // Capture the foreign key id value
+            $field = $j['local'];
+            $value = $value->{$j['fkey'][1]};
+            // Fall through to the standard logic below
+        }
         // XXX: Fully support or die if updating pk
         // XXX: The contents of $this->dirty should be the value after the
         // previous fetch or save. For instance, if the value is changed more
@@ -62,10 +82,45 @@ class VerySimpleModel {
             $this->set($field, $value);
     }
 
-    function _inspect() {
+    function __setupForeignLists() {
+        // Construct related lists
+        if (isset(static::$meta['joins'])) {
+            foreach (static::$meta['joins'] as $name => $j) {
+                if (isset($j['list']) && $j['list']) {
+                    $fkey = $j['fkey'];
+                    $this->{$name} = new InstrumentedList(
+                        // Send Model, Foriegn-Field, Local-Id
+                        array($fkey[0], $fkey[1], $this->{$j['local']})
+                    );
+                }
+            }
+        }
+    }
+
+    static function _inspect() {
         if (!static::$meta['table'])
             throw new OrmConfigurationError(
-                'Model does not define meta.table', $this);
+                'Model does not define meta.table', get_called_class());
+
+        // Break down foreign-key metadata
+        foreach (static::$meta['joins'] as $field => &$j) {
+            if (isset($j['reverse'])) {
+                list($model, $key) = explode('.', $j['reverse']);
+                $info = $model::$meta['joins'][$key];
+                $constraint = array();
+                foreach ($info['constraint'] as $foreign => $local) {
+                    list(,$field) = explode('.', $local);
+                    $constraint[$field] = "$model.$foreign";
+                }
+                $j['constraint'] = $constraint;
+                $j['list'] = true;
+            }
+            // XXX: Make this better (ie. composite keys)
+            $keys = array_keys($j['constraint']);
+            $foreign = $j['constraint'][$keys[0]];
+            $j['fkey'] = explode('.', $foreign);
+            $j['local'] = $keys[0];
+        }
     }
 
     static function objects() {
@@ -127,6 +182,8 @@ class VerySimpleModel {
             if (count($pk) == 1)
                 $this->ht[$pk[0]] = db_insert_id();
             $this->__new__ = false;
+            // Setup lists again
+            $this->__setupForeignLists();
         }
         # Refetch row from database
         # XXX: Too much voodoo
@@ -233,6 +290,12 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this;
     }
 
+    function values_flat() {
+        $this->values = func_get_args();
+        $this->iterator = 'FlatArrayIterator';
+        return $this;
+    }
+
     function all() {
         return $this->getIterator()->asArray();
     }
@@ -240,6 +303,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     function count() {
         $compiler = new $this->compiler();
         return $compiler->compileCount($this);
+    }
+
+    function exists() {
+        return $this->count() > 0;
     }
 
     // IteratorAggregate interface
@@ -267,7 +334,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return (string)$this->getQuery();
     }
 
-    function getQuery() {
+    function getQuery($options=array()) {
         if (isset($this->query))
             return $this->query;
 
@@ -276,7 +343,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         if (!$this->ordering && isset($model::$meta['ordering']))
             $this->ordering = $model::$meta['ordering'];
 
-        $compiler = new $this->compiler();
+        $compiler = new $this->compiler($options);
         $this->query = $compiler->compileSelect($this);
 
         return $this->query;
@@ -290,9 +357,11 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     var $position = 0;
     var $queryset;
 
-    function __construct($queryset) {
-        $this->model = $queryset->model;
-        $this->resource = $queryset->getQuery();
+    function __construct($queryset=false) {
+        if ($queryset) {
+            $this->model = $queryset->model;
+            $this->resource = $queryset->getQuery();
+        }
     }
 
     function buildModel($row) {
@@ -353,7 +422,58 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     }
 }
 
+class FlatArrayIterator extends ModelInstanceIterator {
+    function __construct($queryset) {
+        $this->resource = $queryset->getQuery();
+    }
+    function fillTo($index) {
+        while ($this->resource && $index >= count($this->cache)) {
+            if ($row = $this->resource->getRow()) {
+                $this->cache += $row;
+            } else {
+                $this->resource->close();
+                $this->resource = null;
+                break;
+            }
+        }
+    }
+}
+
+class InstrumentedList extends ModelInstanceIterator {
+    var $key;
+    var $id;
+
+    function __construct($fkey, $queryset=false) {
+        list($model, $this->key, $this->id) = $fkey;
+        if (!$queryset)
+            $queryset = $model::objects()->filter(array($this->key=>$this->id));
+        parent::__construct($queryset);
+        if (!$this->id)
+            $this->resource = null;
+    }
+
+    function add($object) {
+        $object->{$this->key} = $this->id;
+        $object->save();
+        $this->list[] = $object;
+    }
+    function remove($object) {
+        $object->delete();
+    }
+
+    function offsetUnset($a) {
+        $this->fillTo($a);
+        $this->cache[$a]->delete();
+    }
+    function offsetSet($a, $b) {
+        $this->fillTo($a);
+        $this->cache[$a]->delete();
+        $this->add($b);
+    }
+}
+
 class SqlCompiler {
+    var $options = array();
     var $params = array();
     var $joins = array();
     var $aliases = array();
@@ -362,6 +482,11 @@ class SqlCompiler {
     static $operators = array(
         'exact' => '%$1s = %$2s'
     );
+
+    function __construct($options=false) {
+        if ($options)
+            $this->options = array_merge($this->options, $options);
+    }
 
     /**
      * Handles breaking down a field or model search descriptor into the
@@ -508,7 +633,7 @@ class SqlCompiler {
                 // Allow operators to be callable rather than sprintf
                 // strings
                 if (is_callable($op))
-                    $filter[] = $op($field, $value);
+                    $filter[] = call_user_func($op, $field, $value);
                 else
                     $filter[] = sprintf($op, $field, $this->input($value));
             }
@@ -605,8 +730,8 @@ class MySqlCompiler extends SqlCompiler {
     }
 
     function input($what) {
-        if ($b instanceof QuerySet) {
-            $q = $b->getQuery();
+        if ($what instanceof QuerySet) {
+            $q = $what->getQuery(array('nosort'=>true));
             $this->params += $q->params;
             return '(' . (string)$q . ')';
         }
@@ -664,7 +789,7 @@ class MySqlCompiler extends SqlCompiler {
         }
 
         $sort = '';
-        if ($queryset->ordering) {
+        if ($queryset->ordering && !isset($this->options['nosort'])) {
             $orders = array();
             foreach ($queryset->ordering as $sort) {
                 $dir = 'ASC';
@@ -753,13 +878,15 @@ class MysqlExecutor {
 
         $types = '';
         $ps = array();
-        foreach ($params as $p) {
+        foreach ($params as &$p) {
             if (is_int($p))
                 $types .= 'i';
             elseif (is_string($p))
                 $types .= 's';
+            // TODO: Emit error if param is null
             $ps[] = &$p;
         }
+        unset($p);
         array_unshift($ps, $types);
         call_user_func_array(array($this->stmt,'bind_param'), $ps);
     }
@@ -798,6 +925,39 @@ class MysqlExecutor {
         foreach ($this->fields as $f)
             $variables[] = &$output[$f->name]; // pass by reference
 
+        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
+        if (!$this->next())
+            return false;
+        return $output;
+    }
+
+    function getRow() {
+        $output = array();
+        $variables = array();
+
+        if (!isset($this->stmt))
+            $this->_prepare();
+
+        foreach ($this->fields as $f)
+            $variables[] = &$output[]; // pass by reference
+
+        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
+        if (!$this->next())
+            return false;
+        return $output;
+    }
+
+    function getStruct() {
+        $output = array();
+        $variables = array();
+
+        if (!isset($this->stmt))
+            $this->_prepare();
+
+        foreach ($this->fields as $f)
+            $variables[] = &$output[$f->table][$f->name]; // pass by reference
+
+        // TODO: Figure out what the table alias for the root model will be
         call_user_func_array(array($this->stmt, 'bind_result'), $variables);
         if (!$this->next())
             return false;

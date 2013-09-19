@@ -18,8 +18,8 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
     $status='open'; //Defaulting to open
 }
 
-$sortOptions=array('id'=>'ticketID', 'name'=>'ticket.name', 'subject'=>'ticket.subject',
-                    'email'=>'ticket.email', 'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
+$sortOptions=array('id'=>'ticketID', 'name'=>'user.name', 'subject'=>'subject.value',
+                    'email'=>'email.address', 'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 //Sorting options...
 $order_by=$order=null;
@@ -39,24 +39,23 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
 $qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, '
-        .'dept.ispublic, subject.value as subject, name.value as name, email.value as email, '
-        .'dept_name,ticket. status, ticket.source, ticket.created ';
+    .'dept.ispublic, subject.value as subject, '
+    .'user.name, email.address as email, '
+    .'dept_name,ticket. status, ticket.source, ticket.created ';
 
-$dynfields='(SELECT entry.ticket_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
+$dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
          'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
          'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
-         'WHERE field.name = "%1$s") %1$s ON ticket.ticket_id = %1$s.ticket_id ';
+         'WHERE field.name = "%1$s" entry.object_type="T") %1$s ON ticket.ticket_id = %1$s.ticket_id ';
 $subject_sql = sprintf($dynfields, 'subject');
-$email_sql = sprintf($dynfields, 'email');
-$name_sql = sprintf($dynfields, 'name');
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
-      .' LEFT JOIN '.$subject_sql
-      .' LEFT JOIN '.$email_sql
-      .' LEFT JOIN '.$name_sql;
+      .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+      .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+      .' LEFT JOIN '.$subject_sql;
 
-$qwhere =' WHERE email.value='.db_input($thisclient->getEmail());
+$qwhere =' WHERE email.address='.db_input($thisclient->getEmail());
 
 if($status){
     $qwhere.=' AND ticket.status='.db_input($status);

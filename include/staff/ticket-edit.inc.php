@@ -10,14 +10,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
  <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
  <h2>Update Ticket #<?php echo $ticket->getExtId(); ?></h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr>
-            <th colspan="2">
-                <h4>Ticket Update</h4>
-                <em><strong>User Information</strong>: Make sure the email address is valid.</em>
-            </th>
-        </tr>
-    </thead>
     <tbody>
         <tr>
             <th colspan="2">

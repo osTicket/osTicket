@@ -1,8 +1,10 @@
+    <?php if ($form->getTitle()) { ?>
     <tr><th colspan="2">
         <em><strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
         <?php echo Format::htmlchars($form->getInstructions()); ?></em>
     </th></tr>
     <?php
+    }
     foreach ($form->getFields() as $field) {
         ?>
         <tr><td class="multi-line <?php if ($field->get('required')) echo 'required'; ?>">

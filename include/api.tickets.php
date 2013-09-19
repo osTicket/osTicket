@@ -126,7 +126,7 @@ class TicketApiController extends ApiController {
 
         # Save dynamic forms
         foreach ($forms as $f) {
-            $f->set('ticket_id', $ticket->getId());
+            $f->setTicketId($ticket->getId());
             $f->save();
         }
 
