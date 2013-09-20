@@ -533,7 +533,7 @@ Class ThreadEntry {
         // Disambiguate if the user happens also to be a staff member of the
         // system. The current ticket owner should _always_ post messages
         // instead of notes or responses
-        if ($mailinfo['email'] == $ticket->getEmail()) {
+        if (strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
             return $ticket->postMessage($vars, 'Email');
         }
