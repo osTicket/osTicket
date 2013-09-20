@@ -544,7 +544,7 @@ Class ThreadEntry {
             $vars['note'] = $body;
             return $ticket->postNote($vars, $errors, $poster);
         }
-        elseif (Email::lookupByEmail($mailinfo['email'])) {
+        elseif (Email::getIdByEmail($mailinfo['email'])) {
             // Don't process the email -- it came FROM this system
             return true;
         }
