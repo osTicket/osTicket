@@ -25,7 +25,12 @@ class osTicketSession {
         if(!$this->ttl)
             $this->ttl=SESSION_TTL;
 
-        if (defined('DISABLE_SESSION') || OsticketConfig::getDBVersion())
+        session_name('OSTSESSID');
+
+        if (OsticketConfig::getDBVersion())
+            return session_start();
+
+        elseif (defined('DISABLE_SESSION'))
             return;
 
         # Cookies
@@ -54,7 +59,6 @@ class osTicketSession {
         register_shutdown_function('session_write_close');
 
         //Start the session.
-        session_name('OSTSESSID');
         session_start();
     }
 
