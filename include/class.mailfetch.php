@@ -308,6 +308,31 @@ class MailFetcher {
         return $text;
     }
 
+    /**
+     * Searches the attribute list for a possible filename attribute. If
+     * found, the attribute value is returned. If the attribute uses rfc5987
+     * to encode the attribute value, the value is returned properly decoded
+     * if possible
+     *
+     * Attribute Search Preference:
+     *   filename
+     *   filename*
+     *   name
+     *   name*
+     */
+    function findFilename($attributes) {
+        foreach (array('filename', 'name') as $pref) {
+            foreach ($attributes as $a) {
+                if (strtolower($a->attribute) == $pref)
+                    return $a->value;
+                // Allow the RFC5987 specification of the filename
+                elseif (strtolower($a->attribute) == $pref.'*')
+                    return Format::decodeRfc5987($a->value);
+            }
+        }
+        return false;
+    }
+
     /*
      getAttachments
 
@@ -319,23 +344,16 @@ class MailFetcher {
 
         if($part && !$part->parts) {
             //Check if the part is an attachment.
-            $filename = '';
-            if($part->ifdisposition && in_array(strtolower($part->disposition), array('attachment', 'inline'))) {
-                $filename = $part->dparameters[0]->value;
-                //Some inline attachments have multiple parameters.
-                if(count($part->dparameters)>1) {
-                    foreach($part->dparameters as $dparameter) {
-                        if(!in_array(strtoupper($dparameter->attribute), array('FILENAME', 'NAME'))) continue;
-                        $filename = $dparameter->value;
-                        break;
-                    }
-                }
-            } elseif($part->ifparameters && $part->parameters && $part->type > 0) { //inline attachments without disposition.
-                foreach($part->parameters as $parameter) {
-                    if(!in_array(strtoupper($parameter->attribute), array('FILENAME', 'NAME'))) continue;
-                    $filename = $parameter->value;
-                    break;
-                }
+            $filename = false;
+            if ($part->ifdisposition
+                    && in_array(strtolower($part->disposition),
+                        array('attachment', 'inline'))) {
+                $filename = $this->findFilename($part->dparameters);
+            }
+            // Inline attachments without disposition.
+            if (!$filename && $part->ifparameters && $part->parameters
+                    && $part->type > 0) {
+                $filename = $this->findFilename($part->parameters);
             }
 
             if($filename) {
