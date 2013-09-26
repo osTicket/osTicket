@@ -39,7 +39,9 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
             <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
         </td>
     </tr>
-    <?php UserForm::getStaticForm()->render(false, 'Your Information'); ?>
+<?php
+        UserForm::getStaticForm()->render(false, 'Your Information');
+        TicketForm::getInstance()->render(false); ?>
     </tbody>
     <tbody id="dynamic-form">
         <?php if ($forms) {
@@ -49,32 +51,6 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
         } ?>
     </tbody>
     <tbody>
-    <tr><td colspan="2"><hr /></td></tr>
-    <tr>
-        <td class="required">Message:</td>
-        <td>
-            <div style="margin-bottom:0.5em;"><em>Please provide as much detail as possible so we can best assist you.</em> <font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
-                </div>
-            <textarea id="message" cols="60" rows="8" name="message"
-                class="richtext ifhtml draft"
-                data-draft-namespace="ticket.client"
-                data-draft-object-id="<?php echo substr(session_id(), -12); ?>"
-                ><?php echo $info['message']; ?></textarea>
-        </td>
-    </tr>
-
-    <?php if(($cfg->allowOnlineAttachments() && !$cfg->allowAttachmentsOnlogin())
-            || ($cfg->allowAttachmentsOnlogin() && ($thisclient && $thisclient->isValid()))) { ?>
-    <tr>
-        <td>Attachments:</td>
-        <td>
-            <div class="uploads"></div><br>
-            <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />
-            <font class="error">&nbsp;<?php echo $errors['attachments']; ?></font>
-        </td>
-    </tr>
-    <tr><td colspan=2>&nbsp;</td></tr>
-    <?php } ?>
     <?php
     if($cfg->allowPriorityChange() && ($priorities=Priority::getPriorities())) { ?>
     <tr>

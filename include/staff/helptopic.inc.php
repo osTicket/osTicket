@@ -92,8 +92,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
        <tr>
            <td><strong>Dynamic Form</strong>:</td>
            <td><select name="form_id">
-               <option value="0">&mdash; Select a Form &mdash;</option>
-               <?php foreach (DynamicForm::objects() as $group) { ?>
+               <option value="0">&mdash; No Extra Fields &mdash;</option>
+               <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>
                    <option value="<?php echo $group->get('id'); ?>"
                        <?php if ($group->get('id') == $info['form_id'])
                             echo 'selected="selected"'; ?>>
@@ -101,7 +101,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                    </option>
                <?php } ?>
                </select>
-               <em>Information for tickets associated with this help topic</em>
+               <em>Extra information for tickets associated with this help topic</em>
                &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
            </td>
        </tr>

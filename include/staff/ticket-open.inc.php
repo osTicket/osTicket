@@ -88,25 +88,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
-        <tr>
-            <td width="160">
-                Priority:
-            </td>
-            <td>
-                <select name="priorityId">
-                    <option value="0" selected >&mdash; System Default &mdash;</option>
-                    <?php
-                    if($priorities=Priority::getPriorities()) {
-                        foreach($priorities as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['priorityId']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['priorityId']; ?></font>
-            </td>
-         </tr>
          <tr>
             <td width="160">
                 SLA Plan:
@@ -178,29 +159,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <?php
-        } ?>
+        }
+        TicketForm::getInstance()->render(true);
+        ?>
         </tbody>
         <tbody id="dynamic-form">
-        <?php if ($form)
-            include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
+        <?php
+            if ($form) $form->render(true);
         ?>
         </tbody>
         <tbody>
-        <tr>
-            <th colspan="2">
-                <em><strong>Issue</strong>: The user will be able to see the issue summary below and any associated responses.</em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <div><em><strong>Issue</strong>: Details on the reason(s) for opening the ticket.</em> <font class="error">*&nbsp;<?php echo $errors['issue']; ?></font></div>
-                <textarea class="richtext ifhtml draft draft-delete"
-                    placeholder="Details on the reason(s) for opening the ticket."
-                    data-draft-namespace="ticket.staff" name="issue"
-                    cols="21" rows="8" style="width:80%;"
-                    ><?php echo $info['issue']; ?></textarea>
-            </td>
-        </tr>
         <?php
         //is the user allowed to post replies??
         if($thisstaff->canPostReply()) {

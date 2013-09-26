@@ -151,8 +151,6 @@ class VerySimpleModel {
 
     function save($refetch=false) {
         $pk = static::$meta['pk'];
-        if (!$this->isValid())
-            return false;
         if (!is_array($pk)) $pk=array($pk);
         if ($this->__new__)
             $sql = 'INSERT INTO '.static::$meta['table'];
@@ -632,7 +630,9 @@ class SqlCompiler {
                 list($field, $op) = $this->getField($field, $model);
                 // Allow operators to be callable rather than sprintf
                 // strings
-                if (is_callable($op))
+                if ($value === null)
+                    $filter[] = sprintf('%s IS NULL', $field);
+                elseif (is_callable($op))
                     $filter[] = call_user_func($op, $field, $value);
                 else
                     $filter[] = sprintf($op, $field, $this->input($value));

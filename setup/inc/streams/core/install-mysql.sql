@@ -173,7 +173,8 @@ INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form`;
 CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
-    `type` char(1) NOT NULL DEFAULT 'T',
+    `type` char(1) NOT NULL DEFAULT 'G',
+    `deletable` tinyint(1) NOT NULL DEFAULT 1,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
     `notes` text,
@@ -190,6 +191,7 @@ CREATE TABLE `%TABLE_PREFIX%form_field` (
     `label` varchar(255) NOT NULL,
     `required` tinyint(1) NOT NULL DEFAULT 0,
     `private` tinyint(1) NOT NULL DEFAULT 0,
+    `edit_mask` tinyint(1) NOT NULL DEFAULT 1,
     `name` varchar(64) NOT NULL,
     `configuration` text,
     `sort` int(11) unsigned NOT NULL,
@@ -218,6 +220,7 @@ CREATE TABLE `%TABLE_PREFIX%form_entry_values` (
     `entry_id` int(11) unsigned NOT NULL,
     `field_id` int(11) unsigned NOT NULL,
     `value` text,
+    `value_id` int(11),
     PRIMARY KEY (`entry_id`, `field_id`)
 ) DEFAULT CHARSET=utf8;
 
@@ -349,7 +352,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%filter_rule`;
 CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `filter_id` int(10) unsigned NOT NULL default '0',
-  `what` enum('name','email','subject','body','header') NOT NULL,
+  `what` varchar(32) NOT NULL,
   `how` enum('equal','not_equal','contains','dn_contain','starts','ends') NOT NULL,
   `val` varchar(255) NOT NULL,
   `isactive` tinyint(1) unsigned NOT NULL DEFAULT '1',
@@ -756,8 +759,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;
 CREATE TABLE `%TABLE_PREFIX%user` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `default_email_id` int(10) NOT NULL,
-  `first` varchar(64) NOT NULL,
-  `last` varchar(64),
+  `name` varchar(128) NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`)

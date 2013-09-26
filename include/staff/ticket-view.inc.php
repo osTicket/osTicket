@@ -140,7 +140,7 @@ if($ticket->isOverdue())
                 </tr>
             </table>
         </td>
-        <td width="50%">
+        <td width="50%" style="vertical-align:top">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100">Client:</th>
@@ -177,14 +177,10 @@ if($ticket->isOverdue())
                     </td>
                 </tr>
                 <tr>
-                    <th>Default Email:</th>
+                    <th>Email:</th>
                     <td>
                     <?php echo $ticket->getEmail(); ?>
                     </td>
-                </tr>
-                <tr>
-                    <th>Phone:</th>
-                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                 </tr>
                 <tr>
                     <th>Source:</th>
@@ -193,8 +189,6 @@ if($ticket->isOverdue())
 
                         if($ticket->getIP())
                             echo '&nbsp;&nbsp; <span class="faded">('.$ticket->getIP().')</span>';
-
-
                         ?>
                     </td>
                 </tr>
@@ -285,7 +279,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     //           array('email', ...))));
     $answers = array_filter($form->getAnswers(), function ($a) {
         return !in_array($a->getField()->get('name'),
-                array('email','subject','name','phone'));
+                array('email','subject','name','priority'));
         });
     if (count($answers) == 0)
         continue;
@@ -293,7 +287,8 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
         </tr><tr>
         <td colspan="2">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
-            <?php foreach($answers as $a) { ?>
+            <?php foreach($answers as $a) {
+                if (!$a->toString()) continue; ?>
                 <tr>
                     <th width="100"><?php
     echo $a->getField()->get('label');

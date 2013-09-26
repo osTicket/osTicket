@@ -18,6 +18,17 @@ class Filter {
     var $id;
     var $ht;
 
+    static $match_types = array(
+        'Basic Fields' => array(
+            'name'      => 'Name',
+            'email'     => 'Email',
+            'subject'   => 'Subject',
+            'body'      => 'Body/Text',
+            'reply-to'  => 'Reply-To Email',
+            'reply-to-name' => 'Reply-To Name',
+        ),
+    );
+
     function Filter($id) {
         $this->id=0;
         $this->load($id);
@@ -299,13 +310,28 @@ class Filter {
             $ticket['cannedResponseId'] = $this->getCannedResponse();
     }
     /* static */ function getSupportedMatches() {
-        return array(
-            'name'=>    'Name',
-            'email'=>   'Email',
-            'subject'=> 'Subject',
-            'body'=>    'Body/Text'
-        );
+        foreach (static::$match_types as $k=>&$v) {
+            if (is_callable($v))
+                $v = $v();
+        }
+        unset($v);
+        return static::$match_types;
     }
+
+    static function addSupportedMatches($group, $callable) {
+        static::$match_types[$group] = $callable;
+    }
+
+    static function getSupportedMatchFields() {
+        $keys = array();
+        foreach (static::getSupportedMatches() as $group=>$matches) {
+            foreach ($matches as $key=>$label) {
+                $keys[] = $key;
+            }
+        }
+        return $keys;
+    }
+
     /* static */ function getSupportedMatchTypes() {
         return array(
             'equal'=>       'Equal',
@@ -370,7 +396,7 @@ class Filter {
 
     function save_rules($id,$vars,&$errors) {
 
-        $matches = array_keys(self::getSupportedMatches());
+        $matches = array_keys(self::getSupportedMatchFields());
         $types = array_keys(self::getSupportedMatchTypes());
 
         $rules=array();
@@ -382,7 +408,9 @@ class Filter {
                     $errors["rule_$i"]='Invalid match type selection';
                 elseif(!$vars["rule_v$i"])
                     $errors["rule_$i"]='Value required';
-                elseif($vars["rule_w$i"]=='email' && $vars["rule_h$i"]=='equal' && !Validator::is_email($vars["rule_v$i"]))
+                elseif($vars["rule_w$i"]=='email'
+                        && $vars["rule_h$i"]=='equal'
+                        && !Validator::is_email($vars["rule_v$i"]))
                     $errors["rule_$i"]='Valid email required for the match type';
                 else //for everything-else...we assume it's valid.
                     $rules[]=array('what'=>$vars["rule_w$i"],
@@ -640,22 +668,18 @@ class TicketFilter {
      *  deal with the data in the incoming ticket (based on $vars) will be considered.
      *  @see ::quickList() for more information.
      */
-    function TicketFilter($origin, $vars=null) {
+    function TicketFilter($origin, $vars=array()) {
 
         //Normalize the target based on ticket's origin.
         $this->target = self::origin2target($origin);
 
         //Extract the vars we care about (fields we filter by!).
-         $this->vars = array_filter(array_map('trim',
-                 array(
-                     'email'     => $vars['email'],
-                     'subject'   => $vars['subject'],
-                     'name'      => $vars['name'],
-                     'body'      => $vars['message'],
-                     'emailId'   => $vars['emailId'],
-                     'reply-to'  => @$vars['reply-to'],
-                     'reply-to-name' => @$vars['reply-to-name'],
-                 )));
+        $this->vars = array('body'=>$vars['message']);
+        $interest = Filter::getSupportedMatchFields();
+        foreach ($vars as $k=>$v) {
+            if (in_array($k, $interest))
+                $this->vars[$k] = trim($v);
+        }
 
          //Init filters.
         $this->build();

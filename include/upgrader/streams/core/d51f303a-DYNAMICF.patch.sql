@@ -10,48 +10,28 @@
  * fields are dropped from the ticket table.
  */
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_formset`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_formset` (
-    `id` int(11) unsigned auto_increment,
+DROP TABLE IF EXISTS `%TABLE_PREFIX%form`;
+CREATE TABLE `%TABLE_PREFIX%form` (
+    `id` int(11) unsigned NOT NULL auto_increment,
+    `type` char(1) NOT NULL DEFAULT 'G',
+    `deletable` tinyint(1) NOT NULL DEFAULT 1,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_formset_sections`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_formset_sections` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%form_field`;
+CREATE TABLE `%TABLE_PREFIX%form_field` (
     `id` int(11) unsigned NOT NULL auto_increment,
-    `formset_id` int(11) NOT NULL,
-    `section_id` int(11) NOT NULL,
-    `title` varchar(255),
-    `instructions` text,
-    -- Allow more than one form, sorted in this order
-    `sort` int(11) NOT NULL DEFAULT 1,
-    PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_form_section`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_form` (
-    `id` int(11) unsigned NOT NULL auto_increment,
-    `title` varchar(255) NOT NULL,
-    `instructions` varchar(512),
-    `notes` text,
-    `created` datetime NOT NULL,
-    `updated` datetime NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_form_field`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_form_field` (
-    `id` int(11) unsigned NOT NULL auto_increment,
-    `section_id` int(11) unsigned NOT NULL,
+    `form_id` int(11) unsigned NOT NULL,
     `type` varchar(255) NOT NULL DEFAULT 'text',
     `label` varchar(255) NOT NULL,
     `required` tinyint(1) NOT NULL DEFAULT 0,
     `private` tinyint(1) NOT NULL DEFAULT 0,
+    `edit_mask` tinyint(1) NOT NULL DEFAULT 1,
     `name` varchar(64) NOT NULL,
     `configuration` text,
     `sort` int(11) unsigned NOT NULL,
@@ -59,65 +39,33 @@ CREATE TABLE `%TABLE_PREFIX%dynamic_form_field` (
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
--- Create a default form to mimic the previous default form of osTicket < 1.7.1
-INSERT INTO `%TABLE_PREFIX%dynamic_form_section` SET
-    `id` = 1, `title` = 'User Information', `created` = NOW(),
-    `updated` = NOW();
-INSERT INTO `%TABLE_PREFIX%dynamic_form_section` SET
-    `id` = 2, `title` = 'Ticket Details', `created` = NOW(),
-    `updated` = NOW();
-
-INSERT INTO `%TABLE_PREFIX%dynamic_formset` SET
-    `id` = 1, `title` = 'Default', `created` = NOW(), `updated` = NOW();
-
-INSERT INTO `%TABLE_PREFIX%dynamic_formset_sections` SET
-    `formset_id` = 1, `section_id` = 1, `sort` = 10;
-INSERT INTO `%TABLE_PREFIX%dynamic_formset_sections` SET
-    `formset_id` = 1, `section_id` = 2, `sort` = 20;
-
-INSERT INTO `%TABLE_PREFIX%dynamic_form_field` SET
-    `section_id` = 1, `type` = 'text', `label` = 'Email Address',
-    `required` = 1, `configuration` = '{"size":40,"length":120,"validator":"email"}',
-    `name` = 'email', `sort` = 10, `created` = NOW(), `updated` = NOW();
-INSERT INTO `%TABLE_PREFIX%dynamic_form_field` SET
-    `section_id` = 1, `type` = 'text', `label` = 'Full Name',
-    `required` = 1, `configuration` = '{"size":40,"length":32}',
-    `name` = 'name', `sort` = 20, `created` = NOW(), `updated` = NOW();
-INSERT INTO `%TABLE_PREFIX%dynamic_form_field` SET
-    `section_id` = 1, `type` = 'phone', `label` = 'Phone Number',
-    `name` = 'phone', `sort` = 30, `created` = NOW(), `updated` = NOW();
-
-INSERT INTO `%TABLE_PREFIX%dynamic_form_field` SET
-    `section_id` = 2, `type` = 'text', `label` = 'Subject',
-    `hint` = 'Issue summary', `required` = 1,
-    `configuration` = '{"size":40,"length":64}',
-    `name` = 'subject', `sort` = 10, `created` = NOW(), `updated` = NOW();
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_form_entry`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_form_entry` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%form_entry`;
+CREATE TABLE `%TABLE_PREFIX%form_entry` (
     `id` int(11) unsigned NOT NULL auto_increment,
-    `section_id` int(11) unsigned NOT NULL,
-    `ticket_id` int(11) unsigned,
+    `form_id` int(11) unsigned NOT NULL,
+    `object_id` int(11) unsigned,
+    `object_type` char(1) NOT NULL DEFAULT 'T',
     `sort` int(11) unsigned NOT NULL DEFAULT 1,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`),
     KEY `ticket_dyn_form_lookup` (`ticket_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_form_entry_values`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_form_entry_values` (
-    -- references dynamic_form_entry.id
+DROP TABLE IF EXISTS `%TABLE_PREFIX%form_entry_values`;
+CREATE TABLE `%TABLE_PREFIX%form_entry_values` (
+    -- references form_entry.id
     `entry_id` int(11) unsigned NOT NULL,
     `field_id` int(11) unsigned NOT NULL,
     `value` text,
+    `value_id` int(11),
     PRIMARY KEY (`entry_id`, `field_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_list`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_list` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%list`;
+CREATE TABLE `%TABLE_PREFIX%list` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `name` varchar(255) NOT NULL,
     `name_plural` varchar(255),
@@ -126,10 +74,10 @@ CREATE TABLE `%TABLE_PREFIX%dynamic_list` (
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%dynamic_list_items`;
-CREATE TABLE `%TABLE_PREFIX%dynamic_list_items` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%list_items`;
+CREATE TABLE `%TABLE_PREFIX%list_items` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `list_id` int(11),
     `value` varchar(255) NOT NULL,
@@ -137,68 +85,94 @@ CREATE TABLE `%TABLE_PREFIX%dynamic_list_items` (
     `extra` varchar(255),
     `sort` int(11) NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
-    KEY `dynamic_list_item_lookup` (`list_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+    KEY `list_item_lookup` (`list_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;
+CREATE TABLE `%TABLE_PREFIX%user` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `default_email_id` int(10) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY  (`id`)
+);
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
+CREATE TABLE `%TABLE_PREFIX%user_email` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `user_id` int(10) unsigned NOT NULL,
+  `address` varchar(128) NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `address` (`address`)
+);
+
+ALTER TABLE `%TABLE_PREFIX%filter_rule`
+    CHANGE `what` `what` varchar(32) NOT NULL;
 
 ALTER TABLE `%TABLE_PREFIX%help_topic`
   ADD `formset_id` int(11) unsigned NOT NULL default '0' AFTER `sla_id`;
 
--- All help topics will link to the default formset
-UPDATE `%TABLE_PREFIX%help_topic` SET `formset_id` = 1;
 
 -- Port data from the ticket table
 -- 1. Create form entries for each ticket
-INSERT INTO `%TABLE_PREFIX%dynamic_form_entry` (
+INSERT INTO `%TABLE_PREFIX%form_entry` (
     `section_id`, `ticket_id`, `sort`, `created`, `updated`)
     SELECT 1, `ticket_id`, 10, `created`, `updated`
     FROM `%TABLE_PREFIX%ticket`;
 
-INSERT INTO `%TABLE_PREFIX%dynamic_form_entry` (
-    `section_id`, `ticket_id`, `sort`, `created`, `updated`)
-    SELECT 2, `ticket_id`, 20, `created`, `updated`
-    FROM `%TABLE_PREFIX%ticket`;
-
--- 2. Copy Name, Email, and Phone from the ticket table to section #1
-INSERT INTO `%TABLE_PREFIX%dynamic_form_entry_values` (
-    `field_id`, `entry_id`, `value`)
-    SELECT A3.`field_id`, A2.`id`, A1.`name`
-    FROM `%TABLE_PREFIX%ticket` A1
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_entry` A2 ON (A1.`ticket_id`
-                = A2.`ticket_id` AND A2.`section_id` = 1),
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_field` A3 ON (A2.`section_id`
-                = A3.`section_id`)
-    WHERE A3.`name` = 'name' AND LENGTH(A1.`name`);
-
-INSERT INTO `%TABLE_PREFIX%dynamic_form_entry_values` (
-    `field_id`, `entry_id`, `value`)
-    SELECT A3.`field_id`, A2.`id`, A1.`email`
-    FROM `%TABLE_PREFIX%ticket` A1
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_entry` A2 ON (A1.`ticket_id`
-                = A2.`ticket_id` AND A2.`section_id` = 1),
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_field` A3 ON (A2.`section_id`
-                = A3.`section_id`)
-    WHERE A3.`name` = 'email' AND LENGTH(A1.`email`);
-
-INSERT INTO `%TABLE_PREFIX%dynamic_form_entry_values` (
-    `field_id`, `entry_id`, `value`)
-    SELECT A3.`field_id`, A2.`id`, CONCAT(A1.`phone`, 'X', A1.`phone_ext`)
-    FROM `%TABLE_PREFIX%ticket` A1
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_entry` A2 ON (A1.`ticket_id`
-                = A2.`ticket_id` AND A2.`section_id` = 1),
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_field` A3 ON (A2.`section_id`
-                = A3.`section_id`)
-    WHERE A3.`name` = 'phone' AND LENGTH(A1.`phone`);
-
--- 3. Copy subject lines from the ticket table into section #2
-INSERT INTO `%TABLE_PREFIX%dynamic_form_entry_values` (
+-- 2. Copy subject lines from the ticket table into section #2
+INSERT INTO `%TABLE_PREFIX%form_entry_values` (
     `field_id`, `entry_id`, `value`)
     SELECT A3.`field_id`, A2.`id`, A1.`subject`
     FROM `%TABLE_PREFIX%ticket` A1
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_entry` A2 ON (A1.`ticket_id`
+        INNER JOIN `%TABLE_PREFIX%form_entry` A2 ON (A1.`ticket_id`
                 = A2.`ticket_id` AND A2.`section_id` = 2),
-        INNER JOIN `%TABLE_PREFIX%dynamic_form_field` A3 ON (A2.`section_id`
+        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A2.`section_id`
                 = A3.`section_id`)
     WHERE A3.`name` = 'subject';
+
+-- TODO: Move this to a client info dynamic entry
+-- 3. Copy Phone from the ticket table to section #1
+INSERT INTO `%TABLE_PREFIX%form_entry_values` (
+    `field_id`, `entry_id`, `value`)
+    SELECT A3.`field_id`, A2.`id`, CONCAT(A1.`phone`, 'X', A1.`phone_ext`)
+    FROM `%TABLE_PREFIX%ticket` A1
+        INNER JOIN `%TABLE_PREFIX%form_entry` A2 ON (A1.`ticket_id`
+                = A2.`ticket_id` AND A2.`section_id` = 1),
+        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A2.`section_id`
+                = A3.`section_id`)
+    WHERE A3.`name` = 'phone' AND LENGTH(A1.`phone`);
+
+-- 4. Create <user> accounts for everybody
+--      - Start with creating email addresses for the accounts
+INSERT INTO `%TABLE_PREFIX%user_email` (`address`)
+    SELECT DISTINCT `email` FROM `%TABLE_PREFIX%ticket`;
+
+--      - Then create the accounts and link the `default_email`s
+INSERT INTO `%TABLE_PREFIX%user` (`first`, `default_email_id`)
+    SELECT MAX(`name`), A2.`id`
+    FROM `%TABLE_PREFIX%ticket` A1
+        INNER JOIN `%TABLE_PREFIX%user_email` A2 ON (A1.`email` = A2.`address`);
+    GROUP BY A2.`id`
+
+--      - Now link the user and user_email tables
+ALTER TABLE `%TABLE_PREFIX%user` ADD KEY `def_eml_id` (`default_email_id`, `id`);
+UPDATE `%TABLE_PREFIX%user_email` A1
+    SET user_id = (
+        SELECT A2.`id` FROM `%TABLE_PREFIX%user` A2
+        WHERE `default_email_id` = A1.`id`);
+ALTER TABLE `%TABLE_PREFIX%user` DROP INDEX `def_eml_id`;
+
+--      - Update the ticket table
+ALTER TABLE `%TABLE_PREFIX%ticket`
+    ADD `user_id` int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `ticket_id`,
+    ADD `user_email_id` int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `user_id`;
+
+UPDATE `%TABLE_PREFIX%ticket` A1
+    JOIN `%TABLE_PREFIX%user_email` A2 ON A2.`address` = A1.`email`
+    SET `user_id` = A2.`user_id`,
+        `user_email_id` = A2.`id`;
 
 -- 4. Remove columns from ticket table
 ALTER TABLE `%TABLE_PREFIX%ticket`

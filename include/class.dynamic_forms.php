@@ -45,7 +45,8 @@ class DynamicForm extends VerySimpleModel {
         if (!isset($this->_fields)) {
             $this->_fields = array();
             foreach ($this->getDynamicFields() as $f)
-                $this->_fields[] = $f->getImpl();
+                // TODO: Index by field name or id
+                $this->_fields[$f->get('id')] = $f->getImpl($f);
         }
         return $this->_fields;
     }
@@ -111,20 +112,22 @@ class DynamicForm extends VerySimpleModel {
         }
         return $inst;
     }
-
-    static function addFormTypes($types) {
-        static::$types += $types;
-    }
-
-    static function allTypes() {
-        return static::$types;
-    }
 }
 
 class UserForm extends DynamicForm {
+    static $instance;
+
     static function objects() {
         $os = parent::objects();
         return $os->filter(array('type'=>'U'));
+    }
+
+    static function getInstance() {
+        if (!isset(static::$instance)) {
+            $o = static::objects();
+            static::$instance = $o[0]->instanciate();
+        }
+        return static::$instance;
     }
 
     function getStaticForm() {
@@ -134,20 +137,44 @@ class UserForm extends DynamicForm {
             'email' => new TextboxField(array(
                 'id'=>'email', 'label'=>'Email Address', 'required'=>true,
                 'validator' => 'email', 'configuration'=>array(
-                    'autocomplete'=>false, 'classes'=>array('typeahead'),
+                    'autocomplete'=>false, 'classes'=>'typeahead',
                     'size'=>40)
             )),
             'name' => new TextboxField(array(
                 'id'=>'name', 'label'=>'Full Name', 'required'=>true,
                 'configuration' => array('size'=>40),
             )),
-            'phone' => new PhoneField(array(
-                'id'=>'c', 'label'=>'Phone Number', 'required'=>false, 'default'=>'',
-                )),
             ), 'User Information');
         return $form;
     }
 }
+
+class TicketForm extends DynamicForm {
+    static $instance;
+
+    static function objects() {
+        $os = parent::objects();
+        return $os->filter(array('type'=>'T'));
+    }
+
+    static function getInstance() {
+        if (!isset(static::$instance)) {
+            $o = static::objects();
+            static::$instance = $o[0]->instanciate();
+        }
+        return static::$instance;
+    }
+}
+// Add fields from the standard ticket form to the ticket filterable fields
+Filter::addSupportedMatches('Dynamic Fields', function() {
+    $matches = array();
+    foreach (TicketForm::getInstance()->getFields() as $f) {
+        if (!$f->hasData())
+            continue;
+        $matches['field.'.$f->get('id')] = $f->getLabel();
+    }
+    return $matches;
+});
 
 require_once(INCLUDE_DIR . "class.json.php");
 
@@ -200,8 +227,8 @@ class DynamicFormField extends VerySimpleModel {
      * errors. If false, the errors were written into the received errors
      * array.
      */
-    function setConfiguration($errors) {
-        $errors = $config = array();
+    function setConfiguration(&$errors=array()) {
+        $config = array();
         foreach ($this->getConfigurationForm() as $name=>$field) {
             $config[$name] = $field->getClean();
             $errors = array_merge($errors, $field->errors());
@@ -210,6 +237,19 @@ class DynamicFormField extends VerySimpleModel {
             $this->set('configuration', JsonDataEncoder::encode($config));
         $this->set('hint', $_POST['hint']);
         return count($errors) === 0;
+    }
+
+    function isDeletable() {
+        return $this->get('edit_mask') & 1;
+    }
+    function isNameEditable() {
+        return $this->get('edit_mask') & 2;
+    }
+    function isPrivacyForced() {
+        return $this->get('edit_mask') & 4;
+    }
+    function isRequirementForced() {
+        return $this->get('edit_mask') & 8;
     }
 
     function delete() {
@@ -265,6 +305,8 @@ class DynamicFormEntry extends VerySimpleModel {
     var $_values;
     var $_fields;
     var $_form;
+    var $_errors = false;
+    var $_clean = false;
 
     function getAnswers() {
         if (!isset($this->_values)) {
@@ -283,6 +325,16 @@ class DynamicFormEntry extends VerySimpleModel {
                 return $ans->getValue();
         return null;
     }
+    function setAnswer($name, $value, $id=false) {
+        foreach ($this->getAnswers() as $ans) {
+            if ($ans->getField()->get('name') == $name) {
+                $ans->set('value', $value);
+                if ($id !== false)
+                    $ans->set('value_id', $id);
+                break;
+            }
+        }
+    }
 
     function errors() {
         return $this->_errors;
@@ -292,7 +344,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function getInstructions() { return $this->getForm()->getInstructions(); }
 
     function getForm() {
-        if (!$this->_form) {
+        if (!isset($this->_form)) {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
             if ($this->id)
                 $this->_form->data($this);
@@ -301,7 +353,7 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     function getFields() {
-        if (!$this->_fields) {
+        if (!isset($this->_fields)) {
             $this->_fields = array();
             foreach ($this->getAnswers() as $a)
                 $this->_fields[] = $a->getField();
@@ -350,6 +402,10 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $user_id;
     }
 
+    function render($staff=true) {
+        return $this->getForm()->render($staff);
+    }
+
     /**
      * addMissingFields
      *
@@ -359,20 +415,26 @@ class DynamicFormEntry extends VerySimpleModel {
      * entry.
      */
     function addMissingFields() {
-        foreach ($this->getForm()->getFields() as $field) {
+        foreach ($this->getForm()->getDynamicFields() as $field) {
             $found = false;
             foreach ($this->getAnswers() as $answer) {
                 if ($answer->get('field_id') == $field->get('id')) {
                     $found = true; break;
                 }
             }
-            if (!$found) {
+            if (!$found && ($field = $field->getImpl($field))
+                    && !$field->isPresentationOnly()) {
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
                 $a->field = $field;
+                $a->entry = $this;
                 // Add to list of answers
                 $this->_values[] = $a;
-                $a->save();
+                $this->_fields[] = $field;
+                // Omit fields without data
+                if ($field->hasData())
+                    $a->save();
+                unset($this->_form);
             }
         }
     }
@@ -382,9 +444,18 @@ class DynamicFormEntry extends VerySimpleModel {
             $this->set('updated', new SqlFunction('NOW'));
         parent::save();
         foreach ($this->getAnswers() as $a) {
-            $a->set('value', $a->getField()->to_database($a->getField()->getClean()));
+            $field = $a->getField();
+            $val = $field->to_database($field->getClean());
+            if (is_array($val)) {
+                $a->set('value', $val[0]);
+                $a->set('value_id', $val[1]);
+            }
+            else
+                $a->set('value', $val);
             $a->set('entry_id', $this->get('id'));
-            $a->save();
+            // Don't save answers for presentation-only fields
+            if ($field->hasData() && !$field->isPresentationOnly())
+                $a->save();
         }
         $this->_values = array();
     }
@@ -393,6 +464,7 @@ class DynamicFormEntry extends VerySimpleModel {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
         foreach ($inst->getForm()->getFields() as $f) {
+            if (!$f->hasData()) continue;
             $a = DynamicFormEntryAnswer::create(
                 array('field_id'=>$f->get('id')));
             $a->field = $f;
@@ -440,7 +512,8 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 
     function getField() {
         if (!isset($this->field)) {
-            $this->field = DynamicFormField::lookup($this->get('field_id'))->getImpl();
+            $f = DynamicFormField::lookup($this->get('field_id'));
+            $this->field = $f->getImpl($f);
             $this->field->answer = $this;
         }
         return $this->field;
@@ -448,8 +521,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 
     function getValue() {
         if (!$this->_value)
-            $this->_value = $this->getField()->to_php($this->get('value'));
+            $this->_value = $this->getField()->to_php(
+                $this->get('value'), $this->get('value_id'));
         return $this->_value;
+    }
+
+    function getIdValue() {
+        return $this->get('value_id');
     }
 
     function toString() {
@@ -490,7 +568,7 @@ class DynamicList extends VerySimpleModel {
     }
 
     function getPluralName() {
-        if ($name = $this->get('plural_name'))
+        if ($name = $this->get('name_plural'))
             return $name;
         else
             return $this->get('name') . 's';
@@ -530,13 +608,13 @@ class DynamicList extends VerySimpleModel {
         $selections = array();
         foreach (DynamicList::objects() as $list) {
             $selections['list-'.$list->id] =
-                array('Selection: ' .  $list->getPluralName(),
+                array($list->getPluralName(),
                     SelectionField, $list->get('id'));
         }
         return $selections;
     }
 }
-FormField::addFieldTypes(array(DynamicList, 'getSelections'));
+FormField::addFieldTypes('Custom Lists', array(DynamicList, 'getSelections'));
 
 /**
  * Represents a single item in a dynamic list
@@ -576,12 +654,14 @@ class DynamicListItem extends VerySimpleModel {
 }
 
 class SelectionField extends FormField {
+    function getListId() {
+        list(,$list_id) = explode('-', $this->get('type'));
+        return $list_id;
+    }
+
     function getList() {
-        if (!$this->_list) {
-            $list_id = explode('-', $this->get('type'));
-            $list_id = $list_id[1];
-            $this->_list = DynamicList::lookup($list_id);
-        }
+        if (!$this->_list)
+            $this->_list = DynamicList::lookup($this->getListId());
         return $this->_list;
     }
 
@@ -589,33 +669,35 @@ class SelectionField extends FormField {
         return new SelectionWidget($this);
     }
 
-    function parse($id) {
-        return $this->to_php($id);
+    function parse($value) {
+        return $this->to_php($value);
     }
 
-    function to_php($id) {
-        if (!$id)
-            return null;
-        list($id, $value) = explode(':', $id);
-        $item = DynamicListItem::lookup($id);
+    function to_php($value, $id=false) {
+        $item = DynamicListItem::lookup($id ? $id : $value);
         # Attempt item lookup by name too
         if (!$item) {
-            $item = DynamicListItem::objects()->filter(array(
-                        'value'=>$id,
-                        'list_id'=>$this->getList()->get('id')));
-            $item = (count($item)) ? $item[0] : null;
+            $item = DynamicListItem::lookup(array(
+                'value'=>$value,
+                'list_id'=>$this->getListId()));
         }
-        return $item;
+        return ($item) ? $item : $id;
     }
 
     function to_database($item) {
-        if ($item && $item->get('id'))
-            return $item->id . ':' . $item->value;
+        if ($item instanceof DynamicListItem)
+            return array($item->value, $item->id);
         return null;
     }
 
     function toString($item) {
-        return ($item) ? $item->toString() : '';
+        return ($item instanceof DynamicListItem) ? $item->toString() : $item;
+    }
+
+    function validateEntry($item) {
+        parent::validateEntry($item);
+        if ($item && !$item instanceof DynamicListItem)
+            $this->_errors[] = 'Select a value from the list';
     }
 
     function getConfigurationOptions() {
@@ -627,21 +709,30 @@ class SelectionField extends FormField {
                 'hint'=>'Typeahead will work better for large lists')),
         );
     }
+
+    function getChoices() {
+        if (!$this->_choices) {
+            $this->_choices = array();
+            foreach ($this->getList()->getItems() as $i)
+                $this->_choices[$i->get('id')] = $i->get('value');
+        }
+        return $this->_choices;
+    }
 }
 
 class SelectionWidget extends ChoicesWidget {
     function render() {
         $config = $this->field->getConfiguration();
         $value = false;
-        if (is_object($this->value) && get_class($this->value) == 'DynamicListItem') {
+        if ($this->value instanceof DynamicListItem) {
             // Loaded from database
             $value = $this->value->get('id');
             $name = $this->value->get('value');
         } elseif ($this->value) {
             // Loaded from POST
             $value = $this->value;
-            $name = DynamicListItem::lookup($this->value);
-            $name = ($name) ? $name->get('value') : null;
+            $name = DynamicListItem::lookup($value);
+            $name = ($name) ? $name->get('value') : $value;
         }
 
         if (!$config['typeahead']) {
@@ -652,22 +743,20 @@ class SelectionWidget extends ChoicesWidget {
         $source = array();
         foreach ($this->field->getList()->getItems() as $i)
             $source[] = array(
-                'info' => $i->get('value'),
-                'value' => strtolower($i->get('value').' '.$i->get('extra')),
-                'id' => $i->get('id'));
+                'value' => $i->get('value'),
+                'info' => $i->get('value')." -- ".$i->get('extra'),
+            );
         ?>
         <span style="display:inline-block">
-        <input type="hidden" name="<?php echo $this->name; ?>"
-            value="<?php echo $value; ?>" />
-        <input type="text" size="30" id="<?php echo $this->name; ?>"
-            value="<?php echo $name; ?>" />
+        <input type="text" size="30" name="<?php echo $this->name; ?>"
+            value="<?php echo $name; ?>" autocomplete="off" />
         <script type="text/javascript">
         $(function() {
-            $('#<?php echo $this->name; ?>').typeahead({
+            $('input[name=<?php echo $this->name; ?>]').typeahead({
                 source: <?php echo JsonDataEncoder::encode($source); ?>,
+                property: 'info',
                 onselect: function(item) {
-                    $('#<?php echo $this->name; ?>').val(item['info'])
-                    $('input[name="<?php echo $this->name; ?>"]').val(item['id'])
+                    $('input[name="<?php echo $this->name; ?>"]').val(item['value'])
                 }
             });
         });
@@ -675,15 +764,5 @@ class SelectionWidget extends ChoicesWidget {
         </span>
         <?php
     }
-
-    function getChoices() {
-        if (!$this->_choices) {
-            $this->_choices = array();
-            foreach ($this->field->getList()->getItems() as $i)
-                $this->_choices[$i->get('id')] = $i->get('value');
-        }
-        return $this->_choices;
-    }
 }
-
 ?>

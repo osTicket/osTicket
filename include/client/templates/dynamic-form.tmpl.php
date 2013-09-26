@@ -30,14 +30,22 @@
         if ($field->get('private'))
             continue;
         ?>
-        <tr><td class="<?php if ($field->get('required')) echo 'required'; ?>">
-            <?php echo Format::htmlchars($field->get('label')); ?>:</td>
-            <td><?php $field->render(); ?>
+        <tr>
+            <?php if ($field->isBlockLevel()) { ?>
+                <td colspan="2">
+            <?php
+            }
+            else { ?>
+                <td class="<?php if ($field->get('required')) echo 'required'; ?>">
+                <?php echo Format::htmlchars($field->get('label')); ?>:</td><td>
+            <?php
+            }
+            $field->render('client'); ?>
             <?php if ($field->get('required')) { ?>
                 <font class="error">*</font>
             <?php
             }
-            if ($field->get('hint')) { ?>
+            if ($field->get('hint') && !$field->isBlockLevel()) { ?>
                 <br /><em style="color:gray;display:inline-block"><?php
                     echo Format::htmlchars($field->get('hint')); ?></em>
             <?php
@@ -45,7 +53,9 @@
             foreach ($field->errors() as $e) { ?>
                 <br />
                 <font class="error"><?php echo $e; ?></font>
-            <?php } ?>
+            <?php }
+            $field->renderExtras('client');
+            ?>
             </td>
         </tr>
         <?php

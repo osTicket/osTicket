@@ -7,14 +7,21 @@
     }
     foreach ($form->getFields() as $field) {
         ?>
-        <tr><td class="multi-line <?php if ($field->get('required')) echo 'required'; ?>">
-            <?php echo Format::htmlchars($field->get('label')); ?>:</td>
-            <td><?php $field->render(); ?>
+        <tr><?php if ($field->isBlockLevel()) { ?>
+                <td colspan="2" class="<?php if ($field->get('required')) echo 'required'; ?>">
+                <?php
+            }
+            else { ?>
+                <td class="multi-line <?php if ($field->get('required')) echo 'required'; ?>">
+                <?php echo Format::htmlchars($field->get('label')); ?>:</td>
+                <td><?php
+            }
+            $field->render(); ?>
             <?php if ($field->get('required')) { ?>
                 <font class="error">*</font>
             <?php
             }
-            if ($field->get('hint')) { ?>
+            if ($field->get('hint') && !$field->isBlockLevel()) { ?>
                 <br /><em style="color:gray;display:inline-block"><?php
                     echo Format::htmlchars($field->get('hint')); ?></em>
             <?php

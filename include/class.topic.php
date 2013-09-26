@@ -209,15 +209,6 @@ class Topic {
         elseif(($tid=self::getIdByName($vars['topic'], $vars['pid'])) && $tid!=$id)
             $errors['topic']='Topic already exists';
 
-        if (!$vars['form_id'])
-            $errors['form_id'] = 'You must select a form';
-        else {
-            $form=DynamicForm::lookup($vars['form_id']);
-            foreach (array('subject') as $f)
-                if (!$form->hasField($f))
-                    $errors['form_id']="Form must define the '$f' field";
-        }
-
         if(!$vars['dept_id'])
             $errors['dept_id']='You must select a department';
 

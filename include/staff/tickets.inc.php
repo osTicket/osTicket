@@ -49,7 +49,7 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
         $results_type='Answered Tickets';
         break;
     default:
-        if(!$search)
+        if(!$search && !isset($_REQUEST['advsid']))
             $_REQUEST['status']=$status='open';
 }
 
@@ -109,90 +109,36 @@ if($search):
     if($searchTerm){
         $qstr.='&query='.urlencode($searchTerm);
         $queryterm=db_real_escape($searchTerm,false); //escape the term ONLY...no quotes.
-        if(is_numeric($searchTerm)){
+        if (is_numeric($searchTerm)) {
             $qwhere.=" AND ticket.ticketID LIKE '$queryterm%'";
-        }elseif(strpos($searchTerm,'@') && Validator::is_email($searchTerm)){ //pulling all tricks!
+        } elseif (strpos($searchTerm,'@') && Validator::is_email($searchTerm)) {
+            //pulling all tricks!
             # XXX: What about searching for email addresses in the body of
             #      the thread message
             $qwhere.=" AND email.address='$queryterm'";
-        }else{//Deep search!
+        } else {//Deep search!
             //This sucks..mass scan! search anything that moves!
+            require_once(INCLUDE_DIR.'ajax.tickets.php');
 
-            $deep_search=true;
-        }
-    }
-    // OwnerId
-    if ($_REQUEST['ownerId']) {
-        $qwhere .= ' AND ticket.user_id='.db_input($_REQUEST['ownerId']);
-    }
-    //department
-    if($_REQUEST['deptId'] && in_array($_REQUEST['deptId'],$thisstaff->getDepts())) {
-        //This is dept based search..perm taken care above..put the sucker in.
-        $qwhere.=' AND ticket.dept_id='.db_input($_REQUEST['deptId']);
-        $qstr.='&deptId='.urlencode($_REQUEST['deptId']);
-    }
-
-    //Help topic
-    if($_REQUEST['topicId']) {
-        $qwhere.=' AND ticket.topic_id='.db_input($_REQUEST['topicId']);
-        $qstr.='&topicId='.urlencode($_REQUEST['topicId']);
-    }
-
-    //Assignee
-    if(isset($_REQUEST['assignee']) && strcasecmp($_REQUEST['status'], 'closed'))  {
-        $id=preg_replace("/[^0-9]/", "", $_REQUEST['assignee']);
-        $assignee = $_REQUEST['assignee'];
-        $qstr.='&assignee='.urlencode($_REQUEST['assignee']);
-        $qwhere.= ' AND (
-                ( ticket.status="open" ';
-
-        if($assignee[0]=='t')
-            $qwhere.='  AND ticket.team_id='.db_input($id);
-        elseif($assignee[0]=='s')
-            $qwhere.='  AND ticket.staff_id='.db_input($id);
-        elseif(is_numeric($id))
-            $qwhere.='  AND ticket.staff_id='.db_input($id);
-
-       $qwhere.=' ) ';
-
-        if($_REQUEST['staffId'] && !$_REQUEST['status']) { //Assigned TO + Closed By
-            $qwhere.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';
-            $qstr.='&staffId='.urlencode($_REQUEST['staffId']);
-        }elseif(isset($_REQUEST['staffId'])) {
-            $qwhere.= ' OR ticket.status="closed" ';
-            $qstr.='&staffId='.urlencode($_REQUEST['staffId']);
-        }
-
-        $qwhere.= ' ) ';
-    } elseif($_REQUEST['staffId']) {
-        $qwhere.=' AND (ticket.staff_id='.db_input($_REQUEST['staffId']).' AND ticket.status="closed") ';
-        $qstr.='&staffId='.urlencode($_REQUEST['staffId']);
-    }
-
-    //dates
-    $startTime  =($_REQUEST['startDate'] && (strlen($_REQUEST['startDate'])>=8))?strtotime($_REQUEST['startDate']):0;
-    $endTime    =($_REQUEST['endDate'] && (strlen($_REQUEST['endDate'])>=8))?strtotime($_REQUEST['endDate']):0;
-    if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0)){
-        $errors['err']='Entered date span is invalid. Selection ignored.';
-        $startTime=$endTime=0;
-    }else{
-        //Have fun with dates.
-        if($startTime){
-            $qwhere.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
-            $qstr.='&startDate='.urlencode($_REQUEST['startDate']);
-
-        }
-        if($endTime){
-            $qwhere.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
-            $qstr.='&endDate='.urlencode($_REQUEST['endDate']);
+            $tickets = TicketsAjaxApi::_search(array('query'=>$queryterm));
+            if (count($tickets))
+                $qwhere .= ' AND ticket.ticket_id IN ('.
+                    implode(',',db_input($tickets)).')';
         }
    }
 
 endif;
 
-$sortOptions=array('date'=>'ticket.created','ID'=>'ticketID','pri'=>'priority_urgency','name'=>'name.value',
-                   'subj'=>'subject.value','status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
-                   'dept'=>'dept_name');
+if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
+    $qstr.='advsid='.$_REQUEST['advsid'];
+    $qwhere .= ' AND ticket.ticket_id IN ('. implode(',',
+        db_input($_SESSION['adv_'.$_REQUEST['advsid']])).')';
+}
+
+$sortOptions=array('date'=>'ticket.created','ID'=>'ticketID',
+    'pri'=>'priority_urgency','name'=>'user.name','subj'=>'subject.value',
+    'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
+    'dept'=>'dept_name');
 
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
@@ -241,11 +187,12 @@ $$x=' class="'.strtolower($order).'" ';
 if($_GET['limit'])
     $qstr.='&limit='.urlencode($_GET['limit']);
 
-$dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
+$dynfields='(SELECT entry.object_id, value, value_id FROM '.FORM_ANSWER_TABLE.' ans '.
          'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
          'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
          'WHERE field.name = "%1$s" AND entry.object_type="T")';
 $subject_sql=sprintf($dynfields, 'subject');
+$prio_sql=sprintf($dynfields, 'priority');
 
 $qselect ='SELECT DISTINCT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,subject.value as subject'
@@ -257,7 +204,8 @@ $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
        ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id '.
-       ' LEFT JOIN '.$subject_sql.' subject ON subject.object_id = ticket.ticket_id';
+       ' LEFT JOIN '.$subject_sql.' subject ON subject.object_id = ticket.ticket_id'.
+       ' LEFT JOIN '.$prio_sql.' tprio ON tprio.object_id = ticket.ticket_id';
 
 $sjoin='';
 if($search && $deep_search) {
@@ -282,7 +230,7 @@ $qselect.=' ,count(attach.attach_id) as attachments '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
          .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic ';
 
-$qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (ticket.priority_id=pri.priority_id) '
+$qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (tprio.value_id=pri.priority_id) '
        .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()
                AND tlock.staff_id!='.db_input($thisstaff->getId()).') '
        .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
@@ -643,6 +591,17 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
             <input class="dp" type="input" size="20" name="startDate">
             <span>TO</span>
             <input class="dp" type="input" size="20" name="endDate">
+        </fieldset>
+        <fieldset>
+        <?php
+        foreach (TicketForm::getInstance()->getFields() as $f) {
+            if (in_array($f->get('type'), array('text', 'memo', 'phone', 'thread')))
+                continue;
+            elseif (!$f->hasData())
+                continue;
+            ?><label><?php echo $f->getLabel(); ?>:</label>
+                <div style="display:inline-block;width: 12.5em;"><?php $f->render(); ?></div>
+        <?php } ?>
         </fieldset>
         <p>
             <span class="buttons">

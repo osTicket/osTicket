@@ -18,20 +18,24 @@ if($_POST) {
                 $form->save();
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
-                if ($_POST["delete-$id"] == 'on') {
+                if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
                     $field->delete();
+                    // Don't bother updating the field
                     continue;
                 }
-                foreach (array('sort','label','type','name') as $f)
-                    if (isset($_POST["$f-$id"]))
-                        $field->set($f, $_POST["$f-$id"]);
+                if (isset($_POST["type-$id"]) && $field->isChangeable())
+                    $field->set('type', $_POST["type-$id"]);
+                if (isset($_POST["name-$id"]) && $field->isNameEditable())
+                    $field->set('name', $_POST["name-$id"]);
                 # TODO: make sure all help topics still have all required fields
-                $field->set('required', $_POST["required-$id"] == 'on' ?  1 : 0);
-                $field->set('private', $_POST["private-$id"] == 'on' ?  1 : 0);
-                # Core fields are forced required and public
-                if (in_array($field->get('name'), $required)) {
-                    $field->set('required', 1);
-                    $field->set('private', 0);
+                if (!$field->isRequirementForced())
+                    $field->set('required', $_POST["required-$id"] == 'on' ?  1 : 0);
+                if (!$field->isPrivacyForced())
+                    $field->set('private', $_POST["private-$id"] == 'on' ?  1 : 0);
+                foreach (array('sort','label') as $f) {
+                    if (isset($_POST["$f-$id"])) {
+                        $field->set($f, $_POST["$f-$id"]);
+                    }
                 }
                 if ($field->isValid())
                     $field->save();

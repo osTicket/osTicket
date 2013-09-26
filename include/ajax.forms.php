@@ -15,12 +15,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
     function getFormsForHelpTopic($topic_id, $client=false) {
         $topic = Topic::lookup($topic_id);
-        $form =DynamicForm::lookup($topic->ht['form_id']);
-        $set=$form;
-        if ($client)
-            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
-        else
-            include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
+        if ($form =DynamicForm::lookup($topic->ht['form_id']))
+            $form->render(!$client);
     }
 
     function getClientFormsForHelpTopic($topic_id) {
@@ -66,8 +62,10 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $static->data($data);
 
         $custom = array();
-        foreach ($user->getDynamicData() as $cd)
+        foreach ($user->getDynamicData() as $cd) {
+            $cd->addMissingFields();
             $custom[] = $cd->getForm();
+        }
 
         include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
     }
@@ -80,8 +78,9 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $custom_data = $user->getDynamicData();
         $custom = array();
         foreach ($custom_data as $cd) {
+            $cd->addMissingFields();
             $cf = $custom[] = $cd->getForm();
-            $valid &= $cf->isValid();
+            $valid &= $cd->isValid();
         }
 
         if (!$valid) {

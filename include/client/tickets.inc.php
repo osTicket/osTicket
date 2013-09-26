@@ -46,14 +46,14 @@ $qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, '
 $dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
          'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
          'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
-         'WHERE field.name = "%1$s" entry.object_type="T") %1$s ON ticket.ticket_id = %1$s.ticket_id ';
+         'WHERE field.name = "%1$s" AND entry.object_type="T")';
 $subject_sql = sprintf($dynfields, 'subject');
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
       .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
       .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-      .' LEFT JOIN '.$subject_sql;
+      .' LEFT JOIN '.$subject_sql.' subject ON ticket.ticket_id = subject.object_id ';
 
 $qwhere =' WHERE email.address='.db_input($thisclient->getEmail());
 

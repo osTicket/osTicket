@@ -30,24 +30,15 @@ if($_POST):
             $errors['captcha']='Invalid - try again!';
     }
 
-    $interest=array('name','email','subject');
-    if ($topic=Topic::lookup($vars['topicId'])) {
-        $form=DynamicForm::lookup($topic->ht['form_id'])->instanciate();
-        # Collect name, email, and subject address for banning and such
-        foreach ($form->getAnswers() as $answer) {
-            $fname = $answer->getField()->get('name');
-            if (in_array($fname, $interest))
-                # XXX: Assigning to _POST not considered great PHP
-                #      coding style
-                $vars[$fname] = $answer->getField()->getClean();
+    $interest = array('subject');
+    if ($topic = Topic::lookup($vars['topicId'])) {
+        if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
+            $form = $form->instanciate();
+            if (!$form->isValid())
+                $errors += $form->errors();
         }
-        if (!$form->isValid())
-            $errors = array_merge($errors, $form->errors());
     }
-    $form2 = UserForm::getStaticForm();
-    if (!$form2->isValid())
-        $errors += $form2->errors();
-    if(!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
+    if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
     //Ticket::create...checks for errors..
@@ -55,9 +46,11 @@ if($_POST):
         $msg='Support ticket request created';
         Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
         # TODO: Save dynamic form(s)
-        $form->setTicketId($ticket->getId());
-        $form->save();
-        $ticket->loadDynamicData();
+        if (isset($form)) {
+            $form->setTicketId($ticket->getId());
+            $form->save();
+            $ticket->loadDynamicData();
+        }
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             if(!$cfg->showRelatedTickets())

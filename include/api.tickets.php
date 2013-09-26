@@ -21,9 +21,12 @@ class TicketApiController extends ApiController {
         if (isset($data['topicId'])) {
             $topic=Topic::lookup($data['topicId']);
             $form=DynamicForm::lookup($topic->ht['form_id']);
-            foreach ($form->getFields() as $field)
+            foreach ($form->getDynamicFields() as $field)
                 $supported[] = $field->get('name');
         }
+        $form = TicketForm::lookup()->instanciate();
+        foreach ($form->getDynamicFields() as $field)
+            $supported[] = $field->get('name');
 
         if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
@@ -98,16 +101,13 @@ class TicketApiController extends ApiController {
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
 
-        $topic=Topic::lookup($data['topicId']);
-        $form=DynamicForm::lookup($topic->ht['form_id'])->instanciate();
-        # Collect name, email address, and subject for banning and such
-        foreach ($form->getFields() as $field) {
-            $fname = $field->get('name');
-            if ($fname && isset($data[$fname]))
-                $field->value = $data[$fname];
+        if ($topic=Topic::lookup($data['topicId'])) {
+            if ($form=DynamicForm::lookup($topic->ht['form_id'])) {
+                $form = $form->instanciate();
+                if (!$form->isValid())
+                    $errors += $form->errors();
+            }
         }
-        if (!$form->isValid())
-            $errors = array_merge($errors, $form->errors());
 
         $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
         # Return errors (?)
@@ -124,10 +124,10 @@ class TicketApiController extends ApiController {
             return $this->exerr(500, "Unable to create new ticket: unknown error");
         }
 
-        # Save dynamic forms
-        foreach ($forms as $f) {
-            $f->setTicketId($ticket->getId());
-            $f->save();
+        # Save dynamic form
+        if (isset($form)) {
+            $form->setTicketId($ticket->getId());
+            $form->save();
         }
 
         return $ticket;

@@ -17,6 +17,7 @@
 if(!defined('INCLUDE_DIR')) die('403');
 
 include_once(INCLUDE_DIR.'class.ticket.php');
+require_once(INCLUDE_DIR.'class.ajax.php');
 
 class TicketsAjaxAPI extends AjaxController {
 
@@ -77,7 +78,7 @@ class TicketsAjaxAPI extends AjaxController {
             $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
 
         $sql.=' ) '
-            .' GROUP BY email.value '
+            .' GROUP BY email.address '
             .' ORDER BY ticket.created  LIMIT '.$limit;
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -88,11 +89,11 @@ class TicketsAjaxAPI extends AjaxController {
         return $this->json_encode($tickets);
     }
 
-    function search() {
+    function _search($req) {
         global $thisstaff, $cfg;
 
         $result=array();
-        $select = 'SELECT count( DISTINCT ticket.ticket_id) as tickets ';
+        $select = 'SELECT DISTINCT ticket.ticket_id';
         $from = ' FROM '.TICKET_TABLE.' ticket ';
         $where = ' WHERE 1 ';
 
@@ -108,15 +109,15 @@ class TicketsAjaxAPI extends AjaxController {
         $where.=' ) ';
 
         //Department
-        if($_REQUEST['deptId'])
-            $where.=' AND ticket.dept_id='.db_input($_REQUEST['deptId']);
+        if($req['deptId'])
+            $where.=' AND ticket.dept_id='.db_input($req['deptId']);
 
         //Help topic
-        if($_REQUEST['topicId'])
-            $where.=' AND ticket.topic_id='.db_input($_REQUEST['topicId']);
+        if($req['topicId'])
+            $where.=' AND ticket.topic_id='.db_input($req['topicId']);
 
         //Status
-        switch(strtolower($_REQUEST['status'])) {
+        switch(strtolower($req['status'])) {
             case 'open':
                 $where.=' AND ticket.status="open" ';
                 break;
@@ -132,9 +133,9 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         //Assignee
-        if(isset($_REQUEST['assignee']) && strcasecmp($_REQUEST['status'], 'closed'))  {
-            $id=preg_replace("/[^0-9]/", "", $_REQUEST['assignee']);
-            $assignee = $_REQUEST['assignee'];
+        if(isset($req['assignee']) && strcasecmp($req['status'], 'closed'))  {
+            $id=preg_replace("/[^0-9]/", "", $req['assignee']);
+            $assignee = $req['assignee'];
             $where.= ' AND ( ( ticket.status="open" ';
             if($assignee[0]=='t')
                 $where.=' AND ticket.team_id='.db_input($id);
@@ -145,19 +146,19 @@ class TicketsAjaxAPI extends AjaxController {
 
             $where.=')';
 
-            if($_REQUEST['staffId'] && !$_REQUEST['status']) //Assigned TO + Closed By
-                $where.= ' OR (ticket.staff_id='.db_input($_REQUEST['staffId']). ' AND ticket.status="closed") ';
-            elseif(isset($_REQUEST['staffId'])) // closed by any
+            if($req['staffId'] && !$req['status']) //Assigned TO + Closed By
+                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']). ' AND ticket.status="closed") ';
+            elseif(isset($req['staffId'])) // closed by any
                 $where.= ' OR ticket.status="closed" ';
 
             $where.= ' ) ';
-        } elseif($_REQUEST['staffId']) {
-            $where.=' AND (ticket.staff_id='.db_input($_REQUEST['staffId']).' AND ticket.status="closed") ';
+        } elseif($req['staffId']) {
+            $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND ticket.status="closed") ';
         }
 
         //dates
-        $startTime  =($_REQUEST['startDate'] && (strlen($_REQUEST['startDate'])>=8))?strtotime($_REQUEST['startDate']):0;
-        $endTime    =($_REQUEST['endDate'] && (strlen($_REQUEST['endDate'])>=8))?strtotime($_REQUEST['endDate']):0;
+        $startTime  =($req['startDate'] && (strlen($req['startDate'])>=8))?strtotime($req['startDate']):0;
+        $endTime    =($req['endDate'] && (strlen($req['endDate'])>=8))?strtotime($req['endDate']):0;
         if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0))
             $startTime=$endTime=0;
 
@@ -168,23 +169,65 @@ class TicketsAjaxAPI extends AjaxController {
             $where.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
 
         //Query
-        if($_REQUEST['query']) {
-            $queryterm=db_real_escape($_REQUEST['query'], false);
+        if($req['query']) {
+            $queryterm=db_real_escape($req['query'], false);
 
-            $from.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
-            $where.=" AND (  ticket.email LIKE '%$queryterm%'"
-                       ." OR ticket.name LIKE '%$queryterm%'"
-                       ." OR ticket.subject LIKE '%$queryterm%'"
+            $from.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )'
+                .' LEFT JOIN '.FORM_ENTRY_TABLE.' tentry ON (tentry.object_id = ticket.ticket_id
+                   AND tentry.object_type="T")
+                   LEFT JOIN '.FORM_ANSWER_TABLE.' tans ON (tans.entry_id = tentry.id
+                   AND tans.value_id IS NULL)
+                   LEFT JOIN '.FORM_ENTRY_TABLE.' uentry ON (uentry.object_id = ticket.user_id
+                   AND uentry.object_type="U")
+                   LEFT JOIN '.FORM_ANSWER_TABLE.' uans ON (uans.entry_id = uentry.id
+                   AND uans.value_id IS NULL)
+                   LEFT JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id)
+                   LEFT JOIN '.USER_EMAIL_TABLE.' uemail ON (user.id = uemail.user_id)';
+
+            $where.=" AND (  uemail.address LIKE '%$queryterm%'"
+                       ." OR user.name LIKE '%$queryterm%'"
+                       ." OR tans.value LIKE '%$queryterm%'"
+                       ." OR uans.value LIKE '%$queryterm%'"
                        ." OR thread.title LIKE '%$queryterm%'"
                        ." OR thread.body LIKE '%$queryterm%'"
                        .' )';
         }
 
+        // Dynamic fields
+        $dynfields='(SELECT entry.object_id, value, value_id FROM '.FORM_ANSWER_TABLE.' ans '.
+             'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
+             'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
+             'WHERE field.name = %1$s AND entry.object_type="T")';
+        foreach (TicketForm::getInstance()->getFields() as $f) {
+            if ($f->get('name') && isset($req[$f->getFormName()])
+                    && ($val = $req[$f->getFormName()])) {
+                $name = 'dyn_'.$f->get('id');
+                $from .= ' LEFT JOIN '.sprintf($dynfields, db_input($f->get('name')))
+                    ." $name ON ($name.object_id = ticket.ticket_id)";
+                $where .= " AND ($name.value_id = ".db_input($val)
+                    . " OR $name.value LIKE '%".db_real_escape($val)."%')";
+            }
+        }
+
         $sql="$select $from $where";
-        if(($tickets=db_result(db_query($sql)))) {
-            $result['success'] =sprintf("Search criteria matched %s - <a href='tickets.php?%s'>view</a>",
-                                        ($tickets>1?"$tickets tickets":"$tickets ticket"),
-                                        str_replace(array('&amp;', '&'), array('&', '&amp;'), $_SERVER['QUERY_STRING']));
+        $res = db_query($sql);
+        while (list($tickets[]) = db_fetch_row($res));
+        $tickets = array_filter($tickets);
+
+        return $tickets;
+    }
+
+    function search() {
+        $tickets = self::_search($_REQUEST);
+
+        if (count($tickets)) {
+            $uid = md5($_SERVER['QUERY_STRING']);
+            $_SESSION["adv_$uid"] = $tickets;
+            $result['success'] =sprintf(
+                "Search criteria matched %d %s - <a href='tickets.php?%s'>view</a>",
+                count($tickets), (count($tickets)>1?"tickets":"ticket"),
+                'advsid='.$uid
+            );
         } else {
             $result['fail']='No tickets found matching your search criteria.';
         }

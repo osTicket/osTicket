@@ -111,7 +111,7 @@ class Ticket {
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             foreach ($form->getAnswers() as $answer)
                 $this->_answers[$answer->getField()->get('name')] =
-                    $answer->toString();
+                    $answer->getValue();
     }
 
     function reload() {
@@ -216,7 +216,7 @@ class Ticket {
 
     function getName(){
         if ($o = $this->getOwner())
-            return $o->getFullName();
+            return $o->getName();
         return null;
     }
 
@@ -288,11 +288,17 @@ class Ticket {
     }
 
     function getPriorityId() {
-        return $this->ht['priority_id'];
+        global $cfg;
+
+        if ($a = $this->_answers['priority'])
+            return $a->getId();
+        return $cfg->getDefaultPriorityId();
     }
 
-    function getPriority() { //TODO: Make it an obj.
-        return  $this->ht['priority_desc'];
+    function getPriority() {
+        if ($a = $this->_answers['priority'])
+            return $a->getDesc();
+        return '...ummm...';
     }
 
     function getPhone() {
@@ -563,20 +569,6 @@ class Ticket {
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
         return $this->lastMsgId=$msgid;
-    }
-
-    function setPriority($priorityId) {
-
-        //XXX: what happens to SLA priority???
-
-        if(!$priorityId || $priorityId==$this->getPriorityId())
-            return ($priorityId);
-
-        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
-            .', priority_id='.db_input($priorityId)
-            .' WHERE ticket_id='.db_input($this->getId());
-
-        return (($res=db_query($sql)) && db_affected_rows($res));
     }
 
     //DeptId can NOT be 0. No orphans please!
@@ -1664,7 +1656,6 @@ class Ticket {
 
         $fields=array();
         $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>'Help topic required');
-        $fields['priorityId'] = array('type'=>'int',    'required'=>1, 'error'=>'Priority required');
         $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>'Select SLA');
         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
 
@@ -1687,7 +1678,6 @@ class Ticket {
         if($errors) return false;
 
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
-            .' ,priority_id='.db_input($vars['priorityId'])
             .' ,topic_id='.db_input($vars['topicId'])
             .' ,sla_id='.db_input($vars['slaId'])
             .' ,duedate='.($vars['duedate']?db_input(date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))):'NULL');
@@ -1895,6 +1885,23 @@ class Ticket {
             }
         }
 
+        // Create and verify the dynamic form entry for the new ticket
+        $form = TicketForm::getInstance();
+        // If submitting via email, ensure we have a subject and such
+        foreach ($form->getFields() as $field) {
+            $fname = $field->get('name');
+            if ($fname && isset($vars[$fname]) && !$field->value)
+                $field->value = $vars[$fname];
+        }
+
+        // Don't enforce form validation for email
+        if (!$form->isValid() && strtolower($origin) != 'email')
+            $errors += $form->errors();
+
+        // Unpack dynamic variables into $vars for filter application
+        foreach ($form->getFields() as $f)
+            $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+
         //Init ticket filters...
         $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected
@@ -1930,7 +1937,6 @@ class Ticket {
                 # TODO: Return error message
                 $errors['err']=$errors['origin'] = 'Invalid origin given';
         }
-        $fields['priorityId']   = array('type'=>'int',      'required'=>0, 'error'=>'Invalid Priority');
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] ='Missing or invalid data - check the errors and try again';
@@ -1945,15 +1951,18 @@ class Ticket {
                 $errors['duedate']='Due date must be in the future';
         }
 
-        //Any error above is fatal.
-        if($errors)  return 0;
-
         # Identify the user creating the ticket
         $user_info = UserForm::getStaticForm()->getClean();
+        // Data is slightly different between HTTP posts and emails
         if (isset($vars['emailId']) || !isset($user_info['email']))
             $user_info = $vars;
+        elseif (!UserForm::getStaticForm()->isValid())
+            $errors['user'] = 'Incomplete client information';
         $user = User::fromForm($user_info);
         $user_email = UserEmail::ensure($user_info['email']);
+
+        //Any error above is fatal.
+        if($errors)  return 0;
 
         # Perform ticket filter actions on the new ticket arguments
         if ($ticket_filter) $ticket_filter->apply($vars);
@@ -1964,13 +1973,13 @@ class Ticket {
 
         // OK...just do it.
         $deptId=$vars['deptId']; //pre-selected Dept if any.
-        $priorityId=$vars['priorityId'];
         $source=ucfirst($vars['source']);
         $topic=NULL;
         // Intenal mapping magic...see if we need to override anything
         if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff
             $deptId=$deptId?$deptId:$topic->getDeptId();
-            $priorityId=$priorityId?$priorityId:$topic->getPriorityId();
+            if (!$form->getAnswer('priority'))
+                $form->setAnswer('priority', null, $topic->getPriorityId());
             if($autorespond) $autorespond=$topic->autoRespond();
             $source=$vars['source']?$vars['source']:'Web';
 
@@ -1988,13 +1997,15 @@ class Ticket {
 
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
             $deptId=$email->getDeptId();
-            $priorityId=$priorityId?$priorityId:$email->getPriorityId();
+            if (!$form->getAnswer('priority'))
+                $form->setAnswer('priority', null, $email->getPriorityId());
             if($autorespond) $autorespond=$email->autoRespond();
             $email=null;
             $source='Email';
         }
         //Last minute checks
-        $priorityId=$priorityId?$priorityId:$cfg->getDefaultPriorityId();
+        if (!$form->getAnswer('priority'))
+            $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
         $deptId=$deptId?$deptId:$cfg->getDefaultDeptId();
         $topicId=$vars['topicId']?$vars['topicId']:0;
         $ipaddress=$vars['ip']?$vars['ip']:$_SERVER['REMOTE_ADDR'];
@@ -2008,7 +2019,6 @@ class Ticket {
             .' ,ticketID='.db_input($extId)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
-            .' ,priority_id='.db_input($priorityId)
             .' ,ip_address='.db_input($ipaddress)
             .' ,source='.db_input($source);
 
@@ -2028,6 +2038,10 @@ class Ticket {
             db_query('UPDATE '.TICKET_TABLE.' SET ticketID='.db_input($extId).' WHERE ticket_id='.$id.' LIMIT 1');
             //TODO: RETHING what happens if this fails?? [At the moment on failure random ID is used...making stuff usable]
         }
+
+        // Save the (common) dynamic form
+        $form->setTicketId($id);
+        $form->save();
 
         $dept = $ticket->getDept();
 
@@ -2099,11 +2113,6 @@ class Ticket {
 
         if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
             $errors['source']='Invalid source - '.Format::htmlchars($vars['source']);
-
-        if(!$vars['issue'])
-            $errors['issue']='Summary of the issue required';
-        else
-            $vars['message']=$vars['issue'];
 
         if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
             return false;

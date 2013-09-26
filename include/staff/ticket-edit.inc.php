@@ -52,25 +52,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
             </td>
         </tr>
         <tr>
-            <td width="160" class="required">
-                Priority Level:
-            </td>
-            <td>
-                <select name="priorityId">
-                    <option value="" selected >&mdash; Select Priority &mdash;</option>
-                    <?php
-                    if($priorities=Priority::getPriorities()) {
-                        foreach($priorities as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['priorityId']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['priorityId']; ?></font>
-            </td>
-        </tr>
-        <tr>
             <td width="160">
                 SLA Plan:
             </td>
@@ -111,7 +92,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
         <tbody id="dynamic-form">
         <?php if ($forms)
             foreach ($forms as $form) {
-                include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
+                $form->render(true);
         } ?>
         </tbody>
         <tbody>
