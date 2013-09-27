@@ -112,6 +112,23 @@ class User extends UserModel {
         }
         return $data;
     }
+
+    function save($refetch=false) {
+        // Drop commas and reorganize the name without them
+        $parts = array_map('trim', explode(',', $this->name));
+        switch (count($parts)) {
+            case 2:
+                // Assume last, first --or-- last suff., first
+                $this->name = $parts[1].' '.$parts[0];
+                // XXX: Consider last, first suff.
+                break;
+            case 3:
+                // Assume last, first, suffix, write 'first last suffix'
+                $this->name = $parts[1].' '.$parts[0].' '.$parts[2];
+                break;
+        }
+        return parent::save($refetch);
+    }
 }
 User::_inspect();
 
@@ -146,7 +163,10 @@ class PersonsName {
     }
 
     function getLastFirst() {
-        return $this->parts['last'].', '.$this->parts['first'];
+        $name = $this->parts['last'].', '.$this->parts['first'];
+        if ($this->parts['suffix'])
+            $name .= ', '.$this->parts['suffix'];
+        return $name;
     }
 
     function __toString() {
@@ -158,12 +178,6 @@ class PersonsName {
      */
     static function splitName($name) {
         $results = array();
-
-        // If there is a comma in the name, reverse the name
-        if (mb_strpos($name, ',' !== false)) {
-            list($last, $first) = explode(',', $name);
-            $name = $first.' '.$last;
-        }
 
         $r = explode(' ', $name);
         $size = count($r);

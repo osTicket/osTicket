@@ -39,10 +39,10 @@ class DynamicFormsAjaxAPI extends AjaxController {
     function _getUserForms() {
         $static = new Form(array(
             'name' => new TextboxField(array(
-                'label'=>'Full Name', 'configuration'=>array('size'=>40))
+                'label'=>'Full Name', 'required'=>true, 'configuration'=>array('size'=>40))
             ),
             'email' => new TextboxField(array(
-                'label'=>'Default Email', 'configuration'=>array(
+                'label'=>'Default Email', 'required'=>true, 'configuration'=>array(
                     'validator'=>'email', 'size'=>40))
             ),
         ));
@@ -86,11 +86,10 @@ class DynamicFormsAjaxAPI extends AjaxController {
         }
 
         $data = $static->getClean();
-        $user->first = $data['first'];
-        $user->last = $data['last'];
+        $user->name = $data['name'];
         $user->default_email->address = $data['email'];
-        $user->save();
         $user->default_email->save();
+        $user->save();
 
         // Save custom data
         foreach ($custom_data as $cd)

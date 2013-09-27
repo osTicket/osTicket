@@ -8,6 +8,7 @@
             if (!data.length) {
                 form.closest('.dialog').hide();
                 $('#overlay').hide();
+                location.reload();
             } else {
                 form.closest('.dialog').empty().append(data);
             }
