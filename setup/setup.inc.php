@@ -14,9 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-#This  version - changed on every release
-define('THIS_VERSION', '1.8-git');
-
 #inits - error reporting.
 $error_reporting = E_ALL & ~E_NOTICE;
 if (defined('E_STRICT')) # 5.4.0

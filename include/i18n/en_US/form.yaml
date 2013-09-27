@@ -79,5 +79,6 @@
       name: priority # notrans
       label: Priority Level
       required: false
+      private: true
       edit_mask: 3
       sort: 3

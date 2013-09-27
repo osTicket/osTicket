@@ -46,6 +46,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </tbody>
     </table>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <?php if ($form && $form->get('type') == 'T') { ?>
     <thead>
         <tr>
             <th colspan="7">
@@ -89,6 +90,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
         <?php } ?>
     </tbody>
+    <?php } # form->type == 'T' ?>
     <thead>
         <tr>
             <th colspan="7">
@@ -107,10 +109,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody class="sortable-rows" data-sort="sort-">
     <?php if ($form) foreach ($form->getFields() as $f) {
         $id = $f->get('id');
-        $deletable = ($f->get('editable') & 1) ? 'disabled="disabled"' : '';
-        $force_name = ($f->get('editable') & 2) ? 'disabled="disabled"' : '';
-        $force_privacy = ($f->get('editable') & 4) ? 'disabled="disabled"' : '';
-        $force_required = ($f->get('editable') & 8) ? 'disabled="disabled"' : '';
+        $deletable = $f->isDeletable() ? 'disabled="disabled"' : '';
+        $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
+        $force_privacy = $f->isPrivacyForced() ? 'disabled="disabled"' : '';
+        $force_required = $f->isRequirementForced() ? 'disabled="disabled"' : '';
         $errors = $f->errors(); ?>
         <tr>
             <td><input type="checkbox" name="delete-<?php echo $id; ?>"

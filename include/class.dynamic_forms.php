@@ -242,7 +242,7 @@ class DynamicFormField extends VerySimpleModel {
     function isDeletable() {
         return $this->get('edit_mask') & 1;
     }
-    function isNameEditable() {
+    function isNameForced() {
         return $this->get('edit_mask') & 2;
     }
     function isPrivacyForced() {

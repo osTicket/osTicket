@@ -191,7 +191,7 @@ CREATE TABLE `%TABLE_PREFIX%form_field` (
     `label` varchar(255) NOT NULL,
     `required` tinyint(1) NOT NULL DEFAULT 0,
     `private` tinyint(1) NOT NULL DEFAULT 0,
-    `edit_mask` tinyint(1) NOT NULL DEFAULT 1,
+    `edit_mask` tinyint(1) NOT NULL DEFAULT 0,
     `name` varchar(64) NOT NULL,
     `configuration` text,
     `sort` int(11) unsigned NOT NULL,
@@ -211,7 +211,7 @@ CREATE TABLE `%TABLE_PREFIX%form_entry` (
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `ticket_dyn_form_lookup` (`ticket_id`)
+    KEY `entry_lookup` (`object_id`, `object_type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form_entry_values`;
@@ -587,7 +587,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `user_email_id` int(11) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
-  `priority_id` int(10) unsigned NOT NULL default '0',
   `topic_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
@@ -608,7 +607,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `staff_id` (`staff_id`),
   KEY `team_id` (`staff_id`),
   KEY `status` (`status`),
-  KEY `priority_id` (`priority_id`),
   KEY `created` (`created`),
   KEY `closed` (`closed`),
   KEY `duedate` (`duedate`),

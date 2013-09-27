@@ -38,11 +38,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
     function _getUserForms() {
         $static = new Form(array(
-            'first' => new TextboxField(array(
-                'label'=>'First Name', 'configuration'=>array('size'=>30))
-            ),
-            'last' => new TextboxField(array(
-                'label'=>'Last Name', 'configuration'=>array('size'=>30))
+            'name' => new TextboxField(array(
+                'label'=>'Full Name', 'configuration'=>array('size'=>40))
             ),
             'email' => new TextboxField(array(
                 'label'=>'Default Email', 'configuration'=>array(

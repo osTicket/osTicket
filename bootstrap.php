@@ -176,8 +176,8 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.nav.php');
         require(INCLUDE_DIR.'class.page.php');
-        require(INCLUDE_DIR.'class.format.php'); //format helpers
-        require(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
+        require_once(INCLUDE_DIR.'class.format.php'); //format helpers
+        require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
         require(INCLUDE_DIR.'class.mailer.php');
         if (extension_loaded('mysqli'))
             require_once INCLUDE_DIR.'mysqli.php';
@@ -206,7 +206,7 @@ define('I18N_DIR', INCLUDE_DIR.'i18n/');
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
-define('THIS_VERSION','1.8.0-devel'); //Shown on admin panel
+define('THIS_VERSION','1.8-git'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))

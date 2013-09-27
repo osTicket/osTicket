@@ -15,7 +15,6 @@
 **********************************************************************/
 require_once INCLUDE_DIR.'class.migrater.php';
 require_once INCLUDE_DIR.'class.setup.php';
-require_once INCLUDE_DIR.'class.i18n.php';
 
 class Installer extends SetupWizard {
 
@@ -111,6 +110,7 @@ class Installer extends SetupWizard {
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('PREFIX',$vars['prefix']); //Table prefix
         Bootstrap::defineTables(PREFIX);
+        Bootstrap::loadCode();
 
         $debug = true; // Change it to false to squelch SQL errors.
 
@@ -143,6 +143,8 @@ class Installer extends SetupWizard {
 
         if(!$this->errors) {
             // TODO: Use language selected from install worksheet
+            require_once INCLUDE_DIR.'class.i18n.php';
+
             $i18n = new Internationalization('en_US');
             $i18n->loadDefaultData();
 
@@ -232,25 +234,22 @@ class Installer extends SetupWizard {
             .", autoresp_email_id=$support_email_id";
         db_query($sql, false);
 
-        //Create a ticket to make the system warm and happy.
-        $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web" '
-            ." ,priority_id=0, dept_id=$dept_id_1, topic_id=0 "
-            .' ,ticketID='.db_input(Misc::randNumber(6))
-            .' ,email="support@osticket.com" '
-            .' ,name="osTicket Support" '
-            .' ,subject="osTicket Installed!"';
-        if(db_query($sql, false) && ($tid=db_insert_id())) {
-            if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
-                $msg='Congratulations and Thank you for choosing osTicket!';
+        global $cfg;
+        $cfg = new OsticketConfig();
 
-            $sql='INSERT INTO '.PREFIX.'ticket_thread SET created=NOW()'
-                .', source="Web" '
-                .', thread_type="M" '
-                .', ticket_id='.db_input($tid)
-                .', title='.db_input('osTicket Installed')
-                .', body='.db_input($msg);
-            db_query($sql, false);
-        }
+        //Create a ticket to make the system warm and happy.
+        if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
+            $msg='Congratulations and Thank you for choosing osTicket!';
+        $errors = array();
+        $tid = Ticket::create(array(
+            'email' =>      'support@osticket.com',
+            'name' =>       'osTicket Support',
+            'subject' =>    'osTicket Installed!',
+            'message' =>    $msg,
+            'source' =>     'email',
+            'deptId' =>     $dept_id_1),
+            $errors,
+            'api', false, false);
         //TODO: create another personalized ticket and assign to admin??
 
         //Log a message.

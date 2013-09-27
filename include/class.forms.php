@@ -267,14 +267,18 @@ class FormField {
      */
     function getImpl($parent=null) {
         // Allow registration with ::addFieldTypes and delayed calling
-        $this->parent = $parent;
         $type = static::getFieldType($this->get('type'));
         $clazz = $type[1];
-        return new $clazz($this->ht);
+        $inst = new $clazz($this->ht);
+        $inst->parent = $parent;
+        return $inst;
     }
 
     function __call($what, $args) {
         // XXX: Throw exception if $this->parent is not set
+        // BEWARE: DynamicFormField has a __call() which will create a new
+        //      FormField instance and invoke __call() on it or bounce
+        //      immediately back
         return call_user_func_array(
             array($this->parent, $what), $args);
     }
