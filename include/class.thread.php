@@ -528,6 +528,9 @@ Class ThreadEntry {
             'reply_to' => $this,
         );
 
+        if (isset($mailinfo['attachments']))
+            $vars['attachments'] = $mailinfo['attachments'];
+
         $body = $mailinfo['message'];
 
         // Disambiguate if the user happens also to be a staff member of the
