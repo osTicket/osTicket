@@ -31,9 +31,11 @@ if($_POST) {
         case 'add':
             $list = DynamicList::create(array(
                 'name'=>$_POST['name'],
+                'name_plural'=>$_POST['name_plural'],
+                'sort_mode'=>$_POST['sort_mode'],
                 'notes'=>$_POST['notes']));
             if ($list->isValid())
-                $list->save();
+                $list->save(true);
             break;
     }
 

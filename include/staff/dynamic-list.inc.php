@@ -49,12 +49,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php } ?>
                 </select></td>
         </tr>
-        <tr>
-            <td width="180">Description:</td>
-            <td><textarea name="notes" rows="3" cols="40"><?php
-                echo $info['notes']; ?></textarea>
-            </td>
-        </tr>
     </tbody>
     </table>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -67,6 +61,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $showing=$pageNav->showing().' list items';
         ?>
     <?php }
+        else $showing = 'Add a few initial items to the list';
     ?>
         <tr>
             <th colspan="4">
@@ -76,7 +71,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th>Delete</th>
             <th>Value</th>
-            <th>Extra</th>
+            <th>Extra <em style="display:inline">&mdash; abbreviations and such</em></th>
         </tr>
     </thead>
     <tbody <?php if ($info['sort_mode'] == 'SortCol') { ?>
@@ -85,7 +80,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $icon = ($info['sort_mode'] == 'SortCol')
             ? '<i class="icon-sort"></i>&nbsp;' : '';
         if ($list) {
-        foreach ($list->getItems($pageNav->getLimit(), $pageNav->getStart()) as $i) {
+        foreach ($list->getItems() as $i) {
             $id = $i->get('id'); ?>
         <tr>
             <td><?php echo $icon; ?>
@@ -94,7 +89,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 value="<?php echo $i->get('sort'); ?>"/></td>
             <td><input type="text" size="40" name="value-<?php echo $id; ?>"
                 value="<?php echo $i->get('value'); ?>"/></td>
-            <td><input type="text" size="20" name="extra-<?php echo $id; ?>"
+            <td><input type="text" size="30" name="extra-<?php echo $id; ?>"
                 value="<?php echo $i->get('extra'); ?>"/></td>
         </tr>
     <?php }
@@ -104,15 +99,24 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td><?php echo $icon; ?> <em>add</em>
                 <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
             <td><input type="text" size="40" name="value-new-<?php echo $i; ?>"/></td>
-            <td><input type="text" size="20" name="extra-new-<?php echo $i; ?>"/></td>
+            <td><input type="text" size="30" name="extra-new-<?php echo $i; ?>"/></td>
         </tr>
     <?php } ?>
     </tbody>
+    <tbody>
+        <tr>
+            <th colspan="7">
+                <em><strong>Internal Notes:</strong> be liberal, they're internal</em>
+            </th>
+        </tr>
+        <tr>
+            <td colspan="7"><textarea name="notes" rows="6" cols="80" style="width:95%"><?php
+                echo $info['notes']; ?></textarea>
+            </td>
+        </tr>
+    </tbody>
     </table>
-<?php
-if ($count) //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
-?>
+    </table>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
