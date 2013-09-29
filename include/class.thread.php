@@ -674,11 +674,16 @@ Class ThreadEntry {
         }
 
         // Search for ticket by the [#123456] in the subject line
+        // This is the last resort -  emails must match to avoid message
+        // injection by third-party.
         $subject = $mailinfo['subject'];
         $match = array();
-        if ($subject && preg_match("/\[#([0-9]{1,10})\]/", $subject, $match))
+        if ($subject && $mailinfo['email']
+                && preg_match("/\[#([0-9]{1,10})\]/", $subject, $match)
+                && ($tid = Ticket::getIdByExtId((int)$match[1], $mailinfo['email']))
+                )
             // Return last message for the thread
-            return Message::lastByExtTicketId((int)$match[1]);
+            return Message::lastByTicketId($tid);
 
         return null;
     }
