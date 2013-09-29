@@ -783,15 +783,16 @@ class Message extends ThreadEntry {
                 )?$m:null;
     }
 
-    function lastByExtTicketId($ticketId) {
-        $sql = 'SELECT thread.id FROM '.TICKET_THREAD_TABLE
-            .' thread JOIN '.TICKET_TABLE.' ticket ON (ticket.ticket_id = thread.ticket_id)
-                WHERE thread_type=\'M\' AND ticket.ticketID = '.db_input($ticketId)
+    function lastByTicketId($ticketId) {
+
+        $sql=' SELECT thread.id FROM '.TICKET_THREAD_TABLE.' thread '
+            .' WHERE thread_type=\'M\' AND thread.ticket_id = '.db_input($ticketId)
             .' ORDER BY thread.id DESC LIMIT 1';
-        if (($res = db_query($sql)) && (list($id) = db_fetch_row($res)))
+
+        if (($res = db_query($sql)) && ($id = db_result($res)))
             return Message::lookup($id);
-        else
-            return null;
+
+        return null;
     }
 }
 
