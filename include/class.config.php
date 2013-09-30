@@ -883,7 +883,7 @@ class OsticketConfig extends Config {
         $f['alert_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
         $f['admin_email']=array('type'=>'email',   'required'=>1, 'error'=>'System admin email required');
 
-        if($vars['strip_quoted_reply'] && !$vars['reply_separator'])
+        if($vars['strip_quoted_reply'] && !trim($vars['reply_separator']))
             $errors['reply_separator']='Reply separator required to strip quoted reply.';
 
         if($vars['admin_email'] && Email::getIdByEmail($vars['admin_email'])) //Make sure admin email is not also a system email.
