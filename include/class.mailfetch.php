@@ -462,19 +462,27 @@ class MailFetcher {
         $newticket=true;
 
         $errors=array();
+        $seen = false;
 
-        if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
+        if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
                 && ($message = $thread->postEmail($vars))) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
             $ticket = $message->getTicket();
+        } elseif ($seen) {
+            // Already processed, but for some reason (like rejection), no
+            // thread item was created. Ignore the email
+            return true;
         } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
         } else {
             //Report success if the email was absolutely rejected.
-            if(isset($errors['errno']) && $errors['errno'] == 403)
+            if(isset($errors['errno']) && $errors['errno'] == 403) {
+                // Never process this email again!
+                ThreadEntry::logEmailInfo(0, $vars['mid']);
                 return true;
+            }
 
             # check if it's a bounce!
             if($vars['header'] && TicketFilter::isAutoBounce($vars['header'])) {
