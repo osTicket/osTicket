@@ -107,10 +107,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     <input type="hidden" name="a" value="reply">
     <table border="0" cellspacing="0" cellpadding="3" width="800">
         <tr>
-            <td width="160">
-                <label>Message:</label>
-            </td>
-            <td width="640">
+            <td colspan="2">
                 <?php
                 if($ticket->isClosed()) {
                     $msg='<b>Ticket will be reopened on message post</b>';

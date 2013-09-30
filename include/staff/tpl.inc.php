@@ -15,7 +15,7 @@ if (is_a($template, EmailTemplateGroup)) {
     $default = @$template->getMsgTemplate($selected);
     if ($default) {
         $info['subject'] = $default->getSubject();
-        $info['body'] = $default->getBody();
+        $info['body'] = Format::viewableImages($default->getBody());
     }
 } else {
     // Template edit

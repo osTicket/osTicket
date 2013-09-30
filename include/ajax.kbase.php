@@ -41,8 +41,10 @@ class KbaseAjaxAPI extends AjaxController {
                     : $canned->getResponseWithImages();
                 $resp['files'] = $canned->attachments->getSeparates();
 
-                if (!$cfg->isHtmlThreadEnabled())
+                if (!$cfg->isHtmlThreadEnabled()) {
                     $resp['response'] = convert_html_to_text($resp['response'], 90);
+                    $resp['files'] += $canned->attachments->getInlines();
+                }
 
                 $response = $this->json_encode($resp);
                 break;

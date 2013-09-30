@@ -35,8 +35,8 @@ class FAQ {
             .' FROM '.FAQ_TABLE.' faq '
             .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id) '
             .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-                 ON(attach.object_id=faq.faq_id AND attach.`type`=\'F\') '
-            .' WHERE attach.inline=0 AND faq.faq_id='.db_input($id)
+                 ON(attach.object_id=faq.faq_id AND attach.`type`=\'F\' AND attach.inline=0) '
+            .' WHERE faq.faq_id='.db_input($id)
             .' GROUP BY faq.faq_id';
 
         if (!($res=db_query($sql)) || !db_num_rows($res))
@@ -306,7 +306,7 @@ class FAQ {
             .', answer='.db_input(Format::sanitize($vars['answer'], false))
             .', category_id='.db_input($vars['category_id'])
             .', ispublished='.db_input(isset($vars['ispublished'])?$vars['ispublished']:0)
-            .', notes='.db_input($vars['notes']);
+            .', notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.FAQ_TABLE.' SET '.$sql.' WHERE faq_id='.db_input($id);

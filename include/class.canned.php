@@ -186,7 +186,6 @@ class Canned {
         global $cfg;
 
         $vars['title']=Format::striptags(trim($vars['title']));
-        $vars['notes']=Format::striptags(trim($vars['notes']));
 
         if($id && $id!=$vars['id'])
             $errors['err']='Internal error. Try again';
@@ -207,9 +206,8 @@ class Canned {
              ',dept_id='.db_input($vars['dept_id']?$vars['dept_id']:0).
              ',isenabled='.db_input($vars['isenabled']).
              ',title='.db_input($vars['title']).
-             ',response='.db_input(Format::sanitize($vars['response'],
-                    !$cfg->isHtmlThreadEnabled())).
-             ',notes='.db_input($vars['notes']);
+             ',response='.db_input(Format::sanitize($vars['response'])).
+             ',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.CANNED_TABLE.' SET '.$sql.' WHERE canned_id='.db_input($id);

@@ -110,14 +110,13 @@ $(document).ready(function(){
 
 showImagesInline = function(urls, thread_id) {
     var selector = (thread_id == undefined)
-        ? '.thread-body img[src^=cid]'
-        : '.thread-body#thread-id-'+thread_id+' img[src^=cid]';
+        ? '.thread-body img[data-cid]'
+        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
     $(selector).each(function(i, el) {
-        var hash = $(el).attr('src').slice(4),
-            info = urls[hash],
+        var cid = $(el).data('cid'),
+            info = urls[cid],
             e = $(el);
-        if (info && e.attr('src') == 'cid:' + hash) {
-            e.attr('src', info.url);
+        if (info) {
             // Add a hover effect with the filename
             var caption = $('<div class="image-hover">')
                 .hover(

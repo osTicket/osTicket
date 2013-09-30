@@ -74,10 +74,16 @@ RedactorPlugins.draft = {
             .val(data.draft_id);
         this.draft_id = data.draft_id;
 
-        this.opts.clipboardUploadUrl =
-        this.opts.imageUpload =
-            'ajax.php/draft/'+data.draft_id+'/attach';
-        this.opts.imageUploadErrorCallback = this.displayError;
+        var self = this;
+        getConfig().then(function(c) {
+            console.log(c);
+            if (c.allow_attachments) {
+                self.opts.clipboardUploadUrl =
+                self.opts.imageUpload =
+                    'ajax.php/draft/'+data.draft_id+'/attach';
+                self.opts.imageUploadErrorCallback = self.displayError;
+            }
+        });
         this.opts.autosave = 'ajax.php/draft/'+data.draft_id;
     },
 

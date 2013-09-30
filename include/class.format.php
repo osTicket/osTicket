@@ -197,7 +197,7 @@ class Format {
     }
 
     //Format text for display..
-    function display($text) {
+    function display($text, $inline_images=true) {
         global $cfg;
 
         //make urls clickable.
@@ -212,14 +212,19 @@ class Format {
         #    $text);
 
         // Make showing offsite images optional
-        return preg_replace_callback('/<img ([^>]*)(src="http.+)\/>/',
+        $text = preg_replace_callback('/<img ([^>]*)(src="http[^"]+")([^>]*)\/>/',
             function($match) {
                 // Drop embedded classes -- they don't refer to ours
                 $match = preg_replace('/class="[^"]*"/', '', $match);
-                return sprintf('<div %s class="non-local-image" data-%s></div>',
-                    $match[1], $match[2]);
+                return sprintf('<div %s class="non-local-image" data-%s %s></div>',
+                    $match[1], $match[2], $match[3]);
             },
             $text);
+
+        if ($inline_images)
+            return self::viewableImages($text);
+
+        return $text;
     }
 
     function striptags($var, $decode=true) {

@@ -103,10 +103,10 @@ UPDATE `%TABLE_PREFIX%team`
 
 -- Migrate canned responses to HTML
 UPDATE `%TABLE_PREFIX%canned_response`
-    SET `body` = REPLACE('\n', '<br/>',
+    SET `notes` = REPLACE('\n', '<br/>',
         REPLACE('<', '&lt;',
             REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `body`)))),
+                REPLACE('&', '&amp;', `notes`)))),
     `response` = REPLACE('\n', '<br/>',
         REPLACE('<', '&lt;',
             REPLACE('>', '&gt;',

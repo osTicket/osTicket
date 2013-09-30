@@ -157,25 +157,26 @@ class GenericAttachments {
     function _getList($separate=false, $inlines=false) {
         if(!isset($this->attachments)) {
             $this->attachments = array();
-            $sql='SELECT f.id, f.size, f.hash, f.name '
+            $sql='SELECT f.id, f.size, f.hash, f.name, a.inline '
                 .' FROM '.FILE_TABLE.' f '
                 .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
                 .' WHERE a.`type`='.db_input($this->getType())
                 .' AND a.object_id='.db_input($this->getId());
-            if ($inlines && !$separate)
-                $sql .= ' AND a.inline';
-            elseif (!$inlines && $separate)
-                $sql .= ' AND NOT a.inline';
-
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while($rec=db_fetch_array($res)) {
-                    $rec['key'] = md5($rec['id'].session_id().$rec['hash']);
-                    $rec['file_id'] = $rec['id'];
                     $this->attachments[] = $rec;
                 }
             }
         }
-        return $this->attachments;
+        $attachments = array();
+        foreach ($this->attachments as $a) {
+            if ($a['inline'] != $separate || $a['inline'] == $inlines) {
+                $a['key'] = md5($a['id'].session_id().$a['hash']);
+                $a['file_id'] = $a['id'];
+                $attachments[] = $a;
+            }
+        }
+        return $attachments;
     }
 
     function delete($file_id) {

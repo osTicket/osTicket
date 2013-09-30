@@ -14,6 +14,6 @@
 #
 ---
 - isactive: 1
-  name: osTicket Default Template
+  name: osTicket Default Template (HTML)
   notes: |
     Default osTicket templates

@@ -25,20 +25,18 @@ class Draft {
     function getNamespace() { return $this->ht['namespace']; }
 
     function getAttachmentIds($body=false) {
-        if (!isset($this->_attachments)) {
-            $this->_attachments = array();
-            if (!$body)
-                $body = $this->getBody();
-            $body = Format::localizeInlineImages($body);
-            $matches = array();
-            if (preg_match_all('/"cid:([\\w.-]{32})"/', $body, $matches)) {
-                foreach ($matches[1] as $hash) {
-                    if ($file_id = AttachmentFile::getIdByHash($hash))
-                        $this->_attachments[] = $file_id;
-                }
+        $attachments = array();
+        if (!$body)
+            $body = $this->getBody();
+        $body = Format::localizeInlineImages($body);
+        $matches = array();
+        if (preg_match_all('/"cid:([\\w.-]{32})"/', $body, $matches)) {
+            foreach ($matches[1] as $hash) {
+                if ($file_id = AttachmentFile::getIdByHash($hash))
+                    $attachments[] = $file_id;
             }
         }
-        return $this->_attachments;
+        return $attachments;
     }
 
     /*

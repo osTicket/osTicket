@@ -392,7 +392,7 @@ class HtmlImgElement extends HtmlInlineElement {
         if ($title)
             $title = ": $title";
         $alt = $this->node->getAttribute("alt");
-        return "[$alt$title] ";
+        return "[image:$alt$title] ";
     }
     function getWeight() { return parent::getWeight() + 4; }
 }

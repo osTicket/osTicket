@@ -11,6 +11,7 @@ if($canned && $_REQUEST['a']!='add'){
     $qstr.='&id='.$canned->getId();
     // Replace cid: scheme with downloadable URL for inline images
     $info['response'] = $canned->getResponseWithImages();
+    $info['notes'] = Format::viewableImages($info['notes']);
 }else {
     $title='Add New Canned Response';
     $action='create';
@@ -75,7 +76,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <br><br><div style="margin-bottom:0.5em"><b>Canned Response</b> <font class="error">*&nbsp;<?php echo $errors['response']; ?></font>
                     &nbsp;&nbsp;&nbsp;(<a class="tip" href="ticket_variables">Supported Variables</a>)
                     </div>
-                <textarea name="response ifhtml draft draft-delete" cols="21" rows="12"
+                <textarea name="response" class="richtext draft draft-delete" cols="21" rows="12"
                     data-draft-namespace="canned"
                     data-draft-object-id="<?php if (isset($canned)) echo $canned->getId(); ?>"
                     style="width:98%;" class="richtext draft"><?php

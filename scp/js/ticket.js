@@ -390,6 +390,7 @@ jQuery(function($) {
               showNonLocalImage(img);
               $(img).removeClass('non-local-image')
                 // Remove placeholder sizing
+                .css({'display':'inline-block'})
                 .width('auto')
                 .height('auto')
                 .removeAttr('width')
@@ -405,15 +406,13 @@ jQuery(function($) {
             var $img = $(img);
             // Save a copy of the original styling
             $img.data('style', $img.attr('style'));
+            $img.removeAttr('style');
             // If the image has a 'height' attribute, use it, otherwise, use
             // 40px
-            if ($img.attr('height'))
-                $img.height($img.attr('height'));
-            else
-                $img.height('40px');
+            $img.height(($img.attr('height') || '40') + 'px');
             // Ensure the image placeholder is visible width-wise
             if (!$img.width())
-                $img.width('80px');
+                $img.width(($img.attr('width') || '80') + 'px');
             // TODO: Add a hover-button to show just one image
         });
     });

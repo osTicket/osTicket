@@ -14,7 +14,7 @@ if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
     <time>Last updated <?php echo Format::db_daydatetime($category->getUpdateDate()); ?></time>
 </div>
 <div class="cat-desc">
-<?php echo Format::safe_html($category->getDescription()); ?>
+<?php echo Format::display($category->getDescription()); ?>
 </div>
 <?php
 if($thisstaff->canManageFAQ()) {
