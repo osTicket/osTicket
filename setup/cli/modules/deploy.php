@@ -16,6 +16,10 @@ class Deployment extends Unpacker {
             'action'=>'store_true',
             'help'=>'Don\'t actually deploy new code. Just show the files
                 that would be copied');
+        $this->options['setup'] = array('-s','--setup',
+            'action'=>'store_true',
+            'help'=>'Deploy the setup folder. Useful for deploying for new
+                installations.');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -52,10 +56,14 @@ class Deployment extends Unpacker {
         # Locate the upload folder
         $root = $this->find_root_folder();
 
+        $exclusions = array("$root/include", "$root/.git*",
+            "*.sw[a-z]","*.md", "*.txt");
+        if (!$options['setup'])
+            $exclusions[] = "$root/setup";
+
         # Unpack everything but the include/ folder
         $this->unpackage("$root/{,.}*", $this->destination, -1,
-            array("$root/setup", "$root/include", "$root/.git*",
-                "*.sw[a-z]","*.md", "*.txt"));
+            $exclusions);
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
             array("*/include/ost-config.php"));
