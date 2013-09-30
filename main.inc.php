@@ -71,7 +71,7 @@
     /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
     #Current version && schema signature (Changes from version to version)
-    define('THIS_VERSION','1.7.0+'); //Shown on admin panel
+    define('THIS_VERSION','1.7-git'); //Shown on admin panel
 
 
     require(INCLUDE_DIR.'class.osticket.php');
