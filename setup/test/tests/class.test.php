@@ -10,6 +10,7 @@ class Test {
         '/include/PasswordHash.php',
         '/include/pear/',
         '/include/Spyc.php',
+        '/setup/cli/stage/',
     );
 
     function Test() {

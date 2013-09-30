@@ -4,25 +4,29 @@ if (php_sapi_name() != 'cli') exit();
 
 require_once "tests/class.test.php";
 
-function get_osticket_root_path() {
-    # Hop up to the root folder
-    $start = dirname(__file__);
-    for (;;) {
-        if (file_exists($start . '/main.inc.php')) break;
-        $start .= '/..';
+if (!function_exists('get_osticket_root_path')) {
+    function get_osticket_root_path() {
+        # Hop up to the root folder
+        $start = dirname(__file__);
+        for (;;) {
+            if (file_exists($start . '/main.inc.php')) break;
+            $start .= '/..';
+        }
+        return realpath($start);
     }
-    return realpath($start);
 }
 $root = get_osticket_root_path();
 
-# Check PHP syntax across all php files
-function glob_recursive($pattern, $flags = 0) {
-    $files = glob($pattern, $flags);
-    foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-        $files = array_merge($files,
-            glob_recursive($dir.'/'.basename($pattern), $flags));
+if (!function_exists('glob_recursive')) {
+    # Check PHP syntax across all php files
+    function glob_recursive($pattern, $flags = 0) {
+        $files = glob($pattern, $flags);
+        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+            $files = array_merge($files,
+                glob_recursive($dir.'/'.basename($pattern), $flags));
+        }
+        return $files;
     }
-    return $files;
 }
 
 $fails = array();
@@ -37,6 +41,7 @@ function show_fails() {
             $script = str_replace($root.'/', '', $script);
             print("$test: $message @ $script:$line\n");
         }
+        return count($fails);
     }
 }
 if (function_exists('pcntl_signal')) {
@@ -44,8 +49,7 @@ if (function_exists('pcntl_signal')) {
     function show_fails_on_ctrlc() {
         while (@ob_end_flush());
         print("\n");
-        show_fails();
-        exit();
+        exit(show_fails());
     }
     pcntl_signal(SIGINT, 'show_fails_on_ctrlc');
 }
@@ -64,4 +68,10 @@ foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
 }
 show_fails();
 
+// If executed directly expose the fail count to a shell script
+global $argv;
+if (!strcasecmp(basename($argv[0]), basename(__file__)))
+    exit(count($fails));
+else
+    return count($fails);
 ?>
