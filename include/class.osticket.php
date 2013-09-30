@@ -288,13 +288,13 @@ class osTicket {
                 $level=3; //Debug
         }
 
-        //Alert admin if enabled...
-        if($alert)
-            $this->alertAdmin($title, $message);
-
         //Logging everything during upgrade.
         if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;
+
+        //Alert admin if enabled...
+        if($alert && $this->getConfig()->getLogLevel() >= $level)
+            $this->alertAdmin($title, $message);
 
         //Save log based on system log level settings.
         $loglevel=array(1=>'Error','Warning','Debug');
