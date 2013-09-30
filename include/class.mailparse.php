@@ -199,23 +199,6 @@ class Mail_Parse {
         return Format::encode($text, $charset, $encoding);
     }
 
-    /**
-     * Decodes filenames given in the content-disposition header according
-     * to RFC5987, such as filename*=utf-8''filename.png. Note that the
-     * language sub-component is defined in RFC5646, and that the filename
-     * is URL encoded (in the charset specified)
-     */
-    function decodeRfc5987($filename) {
-        $match = array();
-        if (preg_match("/([\w!#$%&+^_`{}~-]+)'([\w-]*)'(.*)$/",
-                $filename, $match))
-            // XXX: Currently we don't care about the language component.
-            //      The  encoding hint is sufficient.
-            return self::mime_encode(urldecode($match[3]), $match[1]);
-        else
-            return $filename;
-    }
-
     function getAttachments($part=null){
 
         if($part==null)
@@ -240,7 +223,7 @@ class Mail_Parse {
                 $filename = $part->d_parameters['filename'];
             elseif (isset($part->d_parameters['filename*']))
                 // Support RFC 6266, section 4.3 and RFC, and RFC 5987
-                $filename = self::decodeRfc5987(
+                $filename = Format::decodeRfc5987(
                     $part->d_parameters['filename*']);
 
             // Support attachments that do not specify a content-disposition
@@ -248,7 +231,7 @@ class Mail_Parse {
             elseif (isset($part->ctype_parameters['name']))
                 $filename=$part->ctype_parameters['name'];
             elseif (isset($part->ctype_parameters['name*']))
-                $filename = self::decodeRfc5987(
+                $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
             else
                 // Not an attachment?
