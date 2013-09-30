@@ -28,7 +28,6 @@ class MailFetcher {
     var $srvstr;
 
     var $charset = 'UTF-8';
-    var $encodings =array('UTF-8','WINDOWS-1251', 'ISO-8859-5', 'ISO-8859-1','KOI8-R');
 
     function MailFetcher($email, $charset='UTF-8') {
 
@@ -108,7 +107,7 @@ class MailFetcher {
     }
 
     function getArchiveFolder() {
-        return $this->ht['archive_folder'];
+        return $this->mailbox_encode($this->ht['archive_folder']);
     }
 
     /* Core */
@@ -124,10 +123,19 @@ class MailFetcher {
     /* Default folder is inbox - TODO: provide user an option to fetch from diff folder/label */
     function open($box='INBOX') {
 
-        if($this->mbox)
+        if ($this->mbox)
            $this->close();
 
-        $this->mbox = imap_open($this->srvstr.$box, $this->getUsername(), $this->getPassword());
+        $args = array($this->srvstr.$this->mailbox_encode($box),
+            $this->getUsername(), $this->getPassword());
+
+        // Disable Kerberos and NTLM authentication if it happens to be
+        // supported locally or remotely
+        if (version_compare(PHP_VERSION, '5.3.2', '>='))
+            $args += array(NULL, 0, array(
+                'DISABLE_AUTHENTICATOR' => array('GSSAPI', 'NTLM')));
+
+        $this->mbox = call_user_func_array('imap_open', $args);
 
         return $this->mbox;
     }
@@ -158,7 +166,8 @@ class MailFetcher {
 
         if(!$folder) return false;
 
-        return imap_createmailbox($this->mbox, imap_utf7_encode($this->srvstr.trim($folder)));
+        return imap_createmailbox($this->mbox,
+           $this->srvstr.$this->mailbox_encode(trim($folder)));
     }
 
     /* check if a folder exists - create one if requested */
@@ -196,6 +205,18 @@ class MailFetcher {
     //Convert text to desired encoding..defaults to utf8
     function mime_encode($text, $charset=null, $encoding='utf-8') { //Thank in part to afterburner
         return Format::encode($text, $charset, $encoding);
+    }
+
+    function mailbox_encode($mailbox) {
+        if (!$mailbox)
+            return null;
+        // Properly encode the mailbox to UTF-7, according to rfc2060,
+        // section 5.1.3
+        elseif (function_exists('mb_convert_encoding'))
+            return mb_convert_encoding($mailbox, 'UTF7-IMAP', 'utf-8');
+        else
+            // XXX: This function has some issues on some versions of PHP
+            return imap_utf7_encode($mailbox);
     }
 
     //Generic decoder - resulting text is utf8 encoded -> mirrors imap_utf8
