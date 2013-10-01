@@ -130,4 +130,60 @@ showImagesInline = function(urls, thread_id) {
             e.appendTo(caption);
         }
     });
+
+    var showNonLocalImage = function(div) {
+        var $div = $(div),
+            $img = $div.append($('<img>')
+              .attr('src', $div.data('src'))
+              .attr('alt', $div.attr('alt'))
+              .attr('title', $div.attr('title'))
+              .attr('style', $div.data('style'))
+            );
+        if ($div.attr('width'))
+            $img.width($div.attr('width'));
+        if ($div.attr('height'))
+            $img.height($div.attr('height'));
+    };
+
+    // Optionally show external images
+    $('.thread-entry').each(function(i, te) {
+        var extra = $(te).find('.textra'),
+            imgs = $(te).find('div.non-local-image[data-src]');
+        if (!extra) return;
+        if (!imgs.length) return;
+        extra.append($('<a>')
+          .addClass("action-button show-images")
+          .css({'font-weight':'normal'})
+          .text(' Show Images')
+          .click(function(ev) {
+            imgs.each(function(i, img) {
+              showNonLocalImage(img);
+              $(img).removeClass('non-local-image')
+                // Remove placeholder sizing
+                .css({'display':'inline-block'})
+                .width('auto')
+                .height('auto')
+                .removeAttr('width')
+                .removeAttr('height');
+              extra.find('.show-images').hide();
+            });
+          })
+          .prepend($('<i>')
+            .addClass('icon-picture')
+          )
+        );
+        imgs.each(function(i, img) {
+            var $img = $(img);
+            // Save a copy of the original styling
+            $img.data('style', $img.attr('style'));
+            $img.removeAttr('style');
+            // If the image has a 'height' attribute, use it, otherwise, use
+            // 40px
+            $img.height(($img.attr('height') || '40') + 'px');
+            // Ensure the image placeholder is visible width-wise
+            if (!$img.width())
+                $img.width(($img.attr('width') || '80') + 'px');
+            // TODO: Add a hover-button to show just one image
+        });
+    });
 }

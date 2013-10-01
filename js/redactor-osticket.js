@@ -76,7 +76,6 @@ RedactorPlugins.draft = {
 
         var self = this;
         getConfig().then(function(c) {
-            console.log(c);
             if (c.allow_attachments) {
                 self.opts.clipboardUploadUrl =
                 self.opts.imageUpload =
