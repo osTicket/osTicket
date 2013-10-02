@@ -32,6 +32,17 @@ INSERT INTO `%TABLE_PREFIX%attachment`
 
 DROP TABLE `%TABLE_PREFIX%faq_attachment`;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%draft`;
+CREATE TABLE `%TABLE_PREFIX%draft` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `staff_id` int(11) unsigned NOT NULL,
+  `namespace` varchar(32) NOT NULL DEFAULT '',
+  `body` text NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8;
+
 -- Migrate email templates to HTML
 UPDATE `%TABLE_PREFIX%email_template`
     SET `body` = REPLACE('\n', '<br/>',
