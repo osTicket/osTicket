@@ -1,6 +1,6 @@
 /**
  * @signature ec19794f1fc8d6a54ac217d6e8006a85
- * @version 1.8.0
+ * @version 1.8.0 - HTML ticket thread
  *
  * Migrate to a single attachment table to allow for inline image support
  * with an almost countless number of attachment tables to support what is

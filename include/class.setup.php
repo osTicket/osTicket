@@ -52,7 +52,9 @@ Class SetupWizard {
         # Replace table prefix
         $schema = str_replace('%TABLE_PREFIX%', $prefix, $schema);
         # Split by semicolons - and cleanup
-        if(!($statements = array_filter(array_map('trim', @explode(';', $schema)))))
+        if(!($statements = array_filter(array_map('trim',
+                // Thanks, http://stackoverflow.com/a/3147901
+                preg_split("/;(?=(?:[^']*'[^']*')*[^']*$)/", $schema)))))
             return $this->abort('Error parsing SQL schema', $debug);
 
 
