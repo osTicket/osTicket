@@ -346,8 +346,9 @@ class HtmlHrElement extends HtmlBlockElement {
 
 class HtmlHeadlineElement extends HtmlBlockElement {
     function render($width, $options) {
-        $headline = parent::render($width, $options) . "\n";
         $line = false;
+        if (!($headline = parent::render($width, $options)))
+            return "";
         switch ($this->node->nodeName) {
             case 'h1':
             case 'h2':
@@ -357,9 +358,10 @@ class HtmlHeadlineElement extends HtmlBlockElement {
             case 'h4':
                 $line = '-';
                 break;
+            default:
+                return $headline;
         }
-        if ($line)
-            $headline .= str_repeat($line, strpos($headline, "\n", 1) - 1) . "\n";
+        $headline .= "\n" . str_repeat($line, strpos($headline, "\n", 1) - 1) . "\n";
         return $headline;
     }
 }
