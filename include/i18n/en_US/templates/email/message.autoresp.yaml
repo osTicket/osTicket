@@ -13,7 +13,7 @@ notes: |
     customer web portal and posts a new message there.
 
 subject: |
-    [#%{ticket.number}] Message Received
+    "Message Confirmation"
 body: |
     <h3><strong>Dear %{ticket.name},</strong></h3>
     <p>

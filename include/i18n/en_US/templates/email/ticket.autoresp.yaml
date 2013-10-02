@@ -8,7 +8,7 @@ notes: |
     Sent to a user when a new ticket is created
 
 subject: |
-    Support Ticket Opened [#%{ticket.number}]
+    Support Ticket Opened
 body: |
     <table cellspacing="0">
     <tbody>

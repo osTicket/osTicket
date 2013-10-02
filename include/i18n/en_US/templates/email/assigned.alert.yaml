@@ -13,7 +13,7 @@ notes: |
     member.  Use %{assigner} to distinguish who made the assignment.
 
 subject: |
-    Ticket #%{ticket.number} Assigned to you
+    Ticket Assigned to you
 body: |
     <h3><strong>Hi %{assignee},</strong></h3>
     <p>
