@@ -1,5 +1,5 @@
 /**
- * @signature ec19794f1fc8d6a54ac217d6e8006a85
+ * @signature dad45ca24a3800102f8b92c7279347db
  * @version 1.8.0 - HTML ticket thread
  *
  * Migrate to a single attachment table to allow for inline image support
@@ -134,5 +134,5 @@ UPDATE `%TABLE_PREFIX%ticket_thread`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = 'ec19794f1fc8d6a54ac217d6e8006a85'
+    SET `value` = 'dad45ca24a3800102f8b92c7279347db'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

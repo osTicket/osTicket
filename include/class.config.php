@@ -142,6 +142,10 @@ class OsticketConfig extends Config {
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
         'enable_html_thread' => true,
+        'allow_attachments' =>  true,
+        'allow_email_attachments' => true,
+        'allow_online_attachments' => true,
+        'allow_online_attachments_onlogin' => false,
     );
 
     function OsticketConfig($section=null) {
