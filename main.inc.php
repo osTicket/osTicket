@@ -95,14 +95,16 @@
     elseif(file_exists(ROOT_DIR.'setup/'))
         header('Location: '.ROOT_PATH.'setup/');
 
-    if(!$configfile || !file_exists($configfile)) die('<b>Error loading settings. Contact admin.</b>');
+    if(!$configfile || !file_exists($configfile))
+       Http::response(500, '<b>Error loading settings. Contact admin.</b>');
 
     require($configfile);
     define('CONFIG_FILE',$configfile); //used in admin.php to check perm.
 
     //Die if root path is not defined
     if(!defined('ROOT_PATH') || !ROOT_PATH)
-        die("<b>Fatal Error:</b> unknown root path. Define it in your 'ost-config.php'");
+        Http::response(500, "<b>Fatal Error:</b> unknown root path. Define
+            it in your 'ost-config.php'");
 
    //Path separator
     if(!defined('PATH_SEPARATOR')){
@@ -228,8 +230,7 @@
         $msg=$ferror."\n\n".THISPAGE;
         Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg, sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
-        die("<b>Fatal Error:</b> Contact system administrator.");
-        exit;
+        Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
     }
 
     //Init
