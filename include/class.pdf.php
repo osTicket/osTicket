@@ -91,11 +91,21 @@ class Ticket2PDF extends FPDF
     }
 
     function _utf8($text) {
+        // Assume text is in utf-8 charset
+        $flags = ENT_COMPAT;
+        if (phpversion() >= '5.4.0')
+            $flags |= ENT_HTML401;
 
-        if(function_exists('iconv'))
+        // Assume text in the database is HTML
+        $text = html_entity_decode($text, $flags, 'UTF-8');
+
+        if (function_exists('iconv'))
             return iconv('UTF-8', 'windows-1252', $text);
+        elseif (function_exists('utf8_decode'))
+            return utf8_decode($text);
 
-        return utf8_encode($text);
+        // XXX: FPDF does not support UTF-8 encoding
+        return $text;
     }
 
     function _print() {
