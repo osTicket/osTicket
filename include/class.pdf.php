@@ -48,23 +48,46 @@ class Ticket2PDF extends FPDF
         return $this->ticket;
     }
 
+    function getLogoFile() {
+        global $ost;
+
+        if (!function_exists('imagecreatefromstring')
+                || (!($logo = $ost->getConfig()->getClientLogo()))) {
+            return INCLUDE_DIR.'fpdf/print-logo.png';
+        }
+
+        $tmp = tempnam("", 'pdf') . '.jpg';
+        $img = imagecreatefromstring($logo->getData());
+        // Handle transparent images with white background
+        $img2 = imagecreatetruecolor(imagesx($img), imagesy($img));
+        $white = imagecolorallocate($img2, 255, 255, 255);
+        imagefill($img2, 0, 0, $white);
+        imagecopy($img2, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
+        imagejpeg($img2, $tmp);
+        return $tmp;
+    }
+
 	//report header...most stuff are hard coded for now...
 	function Header() {
         global $cfg;
 
 		//Common header
-        $this->Ln(2);
+        $logo = $this->getLogoFile();
+		$this->Image($logo, null, $this->tMargin, 0, 20);
+        if (strpos($logo, INCLUDE_DIR) === false)
+            unlink($logo);
 		$this->SetFont('Times', 'B', 16);
-		$this->Image(FPDF_DIR . 'print-logo.png', null, 10, 0, 20);
-		$this->SetX(200, 15);
-		$this->Cell(0, 15, $cfg->getTitle(), 0, 1, 'R', 0);
-		//$this->SetY(40);
+		$this->SetY($this->tMargin + 20);
         $this->SetX($this->lMargin);
-        $this->Cell(0, 3, '', "B", 2, 'L');
+        $this->Cell(0, 0, '', "B", 2, 'L');
+		$this->Ln(1);
+        $this->SetFont('Arial', 'B',10);
+        $this->Cell(0, 5, $cfg->getTitle(), 0, 0, 'L');
         $this->SetFont('Arial', 'I',10);
-        $this->Cell(0, 5, 'Generated on '.Format::date($cfg->getDateTimeFormat(), Misc::gmtime(), $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST']), 0, 0, 'L');
-        $this->Cell(0, 5, 'Date & Time based on GMT '.$_SESSION['TZ_OFFSET'], 0, 1, 'R');
-		$this->Ln(10);
+        $this->Cell(0, 5, Format::date($cfg->getDateTimeFormat(), Misc::gmtime(),
+            $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST'])
+            .' GMT '.$_SESSION['TZ_OFFSET'], 0, 1, 'R');
+		$this->Ln(5);
 	}
 
 	//Page footer baby
