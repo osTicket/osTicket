@@ -402,12 +402,19 @@ class AttachmentChunkedData {
     }
 
     function deleteOrphans() {
-
-        $sql = 'DELETE c.* FROM '.FILE_CHUNK_TABLE.' c '
+        $deleted = 0;
+        $sql = 'SELECT c.file_id, c.chunk_id FROM '.FILE_CHUNK_TABLE.' c '
              . ' LEFT JOIN '.FILE_TABLE.' f ON(f.id=c.file_id) '
              . ' WHERE f.id IS NULL';
 
-        return db_query($sql)?db_affected_rows():0;
+        $res = db_query($sql);
+        while (list($file_id, $chunk_id) = db_fetch_row($res)) {
+            db_query('DELETE FROM '.FILE_CHUNK_TABLE
+                .' WHERE file_id='.db_input($file_id)
+                .' AND chunk_id='.db_input($chunk_id));
+            $deleted += db_affected_rows();
+        }
+        return $deleted;
     }
 }
 ?>
