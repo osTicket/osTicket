@@ -201,9 +201,6 @@ class Mail_Parse {
 
     function getAttachments($part=null){
 
-        if($part==null)
-            $part=$this->getStruct();
-
         /* Consider this part as an attachment if
          *   * It has a Content-Disposition header
          *     * AND it is specified as either 'attachment' or 'inline'
@@ -253,6 +250,9 @@ class Mail_Parse {
 
             return array($file);
         }
+
+        if($part==null)
+            $part=$this->getStruct();
 
         $files=array();
         if($part->parts){
