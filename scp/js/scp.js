@@ -295,13 +295,14 @@ $(document).ready(function(){
             });
         },
         onselect: function (obj) {
+            $('#basic-ticket-search').val(obj.value);
             $('#basic-ticket-search').closest('form').submit();
         },
-        property: "value"
+        property: "matches"
     });
 
     /* Typeahead user lookup */
-    $('#email.typeahead').typeahead({
+    $('.email.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
                 $.ajax({
@@ -314,9 +315,9 @@ $(document).ready(function(){
             }
         },
         onselect: function (obj) {
-            var fObj=$('#email.typeahead').closest('form');
+            var fObj=$('.email.typeahead').closest('form');
             if(obj.name)
-                $('#name', fObj).val(obj.name);
+                $('.auto.name', fObj).val(obj.name);
         },
         property: "email"
     });

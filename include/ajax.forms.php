@@ -15,7 +15,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
     function getFormsForHelpTopic($topic_id, $client=false) {
         $topic = Topic::lookup($topic_id);
-        if ($form =DynamicForm::lookup($topic->ht['form_id']))
+        if ($topic->ht['form_id']
+                && ($form = DynamicForm::lookup($topic->ht['form_id'])))
             $form->render(!$client);
     }
 
@@ -36,31 +37,21 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $field->save();
     }
 
-    function _getUserForms() {
-        $static = new Form(array(
-            'name' => new TextboxField(array(
-                'label'=>'Full Name', 'required'=>true, 'configuration'=>array('size'=>40))
-            ),
-            'email' => new TextboxField(array(
-                'label'=>'Default Email', 'required'=>true, 'configuration'=>array(
-                    'validator'=>'email', 'size'=>40))
-            ),
-        ));
-
-        return $static;
-    }
-
     function getUserInfo($user_id) {
         $user = User::lookup($user_id);
-        $static = $this->_getUserForms();
 
         $data = $user->ht;
         $data['email'] = $user->default_email->address;
-        $static->data($data);
 
         $custom = array();
         foreach ($user->getDynamicData() as $cd) {
             $cd->addMissingFields();
+            foreach ($cd->getFields() as $f) {
+                if ($f->get('name') == 'name')
+                    $f->value = $user->getFullName();
+                elseif ($f->get('name') == 'email')
+                    $f->value = $user->getEmail();
+            }
             $custom[] = $cd->getForm();
         }
 
@@ -69,11 +60,10 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
     function saveUserInfo($user_id) {
         $user = User::lookup($user_id);
-        $static = $this->_getUserForms();
-        $valid = $static->isValid();
 
         $custom_data = $user->getDynamicData();
         $custom = array();
+        $valid = true;
         foreach ($custom_data as $cd) {
             $cd->addMissingFields();
             $cf = $custom[] = $cd->getForm();
@@ -85,15 +75,20 @@ class DynamicFormsAjaxAPI extends AjaxController {
             return;
         }
 
-        $data = $static->getClean();
-        $user->name = $data['name'];
-        $user->default_email->address = $data['email'];
-        $user->default_email->save();
-        $user->save();
-
         // Save custom data
-        foreach ($custom_data as $cd)
+        foreach ($custom_data as $cd) {
+            foreach ($cd->getFields() as $f) {
+                if ($f->get('name') == 'name') {
+                    $user->name = $f->getClean();
+                    $user->save();
+                }
+                elseif ($f->get('name') == 'email') {
+                    $user->default_email->address = $f->getClean();
+                    $user->default_email->save();
+                }
+            }
             $cd->save();
+        }
     }
 }
 

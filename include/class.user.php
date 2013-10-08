@@ -79,10 +79,17 @@ class User extends UserModel {
         if (!$user) {
             $user = User::create(array('name'=>$data['name'],
                 'default_email'=>
-                UserEmail::create(array('address'=>$data['email']))
+                    UserEmail::create(array('address'=>$data['email']))
             ));
             $user->save();
             $user->emails->add($user->default_email);
+
+            // Attach initial custom fields
+            $uf = UserForm::getInstance();
+            foreach ($uf->getFields() as $f)
+                if (isset($data[$f->get('name')]))
+                    $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
+            $uf->save();
         }
 
         return $user;
@@ -104,11 +111,9 @@ class User extends UserModel {
         $data = DynamicFormEntry::forClient($this->id);
         if (!$data[0]) {
             $data = array();
-            foreach (UserForm::objects() as $f) {
-                $g = $f->instanciate();
-                $g->setClientId($this->id);
-                $data[] = $g;
-            }
+            $g = UserForm::getInstance();
+            $g->setClientId($this->id);
+            $data[] = $g;
         }
         return $data;
     }
@@ -136,6 +141,18 @@ class PersonsName {
     var $parts;
     var $name;
 
+    static $formats = array(
+        'first' => array("First", 'getFirst'),
+        'last' => array("Last", 'getLast'),
+        'full' => array("First Last", 'getFull'),
+        'legal' => array("First M. Last", 'getLegal'),
+        'lastfirst' => array("Last, First", 'getLastFirst'),
+        'formal' => array("Mr. Last", 'getFormal'),
+        'short' => array("First L.", 'getShort'),
+        'shortformal' => array("F. Last", 'getShortFormal'),
+        'complete' => array("Mr. First M. Last Sr.", 'getComplete'),
+    );
+
     function __construct($name) {
         $this->parts = static::splitName($name);
         $this->name = $name;
@@ -149,6 +166,14 @@ class PersonsName {
         return $this->parts['last'];
     }
 
+    function getMiddle() {
+        return $this->parts['middle'];
+    }
+
+    function getMiddleInitial() {
+        return mb_substr($this->parts['middle'],0,1).'.';
+    }
+
     function getFormal() {
         return trim($this->parts['salutation'].' '.$this->parts['last']);
     }
@@ -157,9 +182,26 @@ class PersonsName {
         return trim($this->parts['first'].' '.$this->parts['last']);
     }
 
+    function getLegal() {
+        $parts = array(
+            $this->parts['first'],
+            mb_substr($this->parts['middle'],0,1),
+            $this->parts['last'],
+        );
+        if ($parts[1]) $parts[1] .= '.';
+        return implode(' ', array_filter($parts));
+    }
+
     function getComplete() {
-        return trim($this->parts['salutation'].' '.$this->parts['first']
-            .' '.$this->parts['last'].' '.$this->parts['suffix']);
+        $parts = array(
+            $this->parts['salutation'],
+            $this->parts['first'],
+            mb_substr($this->parts['middle'],0,1),
+            $this->parts['last'],
+            $this->parts['suffix']
+        );
+        if ($parts[2]) $parts[2] .= '.';
+        return implode(' ', array_filter($parts));
     }
 
     function getLastFirst() {
@@ -169,8 +211,32 @@ class PersonsName {
         return $name;
     }
 
+    function getShort() {
+        return $this->parts['first'].' '.mb_substr($this->parts['last'],0,1).'.';
+    }
+
+    function getShortFormal() {
+        return mb_substr($this->parts['first'],0,1).'. '.$this->parts['last'];
+    }
+
+    function getOriginal() {
+        return $this->name;
+    }
+
+    function asVar() {
+        return $this->__toString();
+    }
+
     function __toString() {
-        return $this->getLastFirst();
+        global $cfg;
+        $format = $cfg->getDefaultNameFormat();
+        list(,$func) = static::$formats[$format];
+        if (!$func) $func = 'getFull';
+        return call_user_func(array($this, $func));
+    }
+
+    static function allFormats() {
+        return static::$formats;
     }
 
     /**
@@ -208,12 +274,19 @@ class PersonsName {
         $start = ($results['salutation']) ? 2 : 1;
         $end = ($results['suffix']) ? $size - 2 : $size - 1;
 
-        $last = '';
+        $middle = array();
         for ($i = $start; $i <= $end; $i++)
         {
-            $last .= ' '.$r[$i];
+            $middle[] = $r[$i];
         }
-        $results['last'] = trim($last);
+        if (count($middle) > 1) {
+            $results['last'] = array_pop($middle);
+            $results['middle'] = implode(' ', $middle);
+        }
+        else {
+            $results['last'] = $middle[0];
+            $results['middle'] = '';
+        }
 
         return $results;
     }

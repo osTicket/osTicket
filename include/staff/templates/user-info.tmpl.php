@@ -18,7 +18,6 @@
     <table width="100%">
     <?php
         echo csrf_token();
-        $static->render();
         foreach ($custom as $form)
             $form->render();
     ?>

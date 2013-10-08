@@ -14,19 +14,6 @@
     // 'private' are not included in the output for clients
     global $thisclient;
     foreach ($form->getFields() as $field) {
-        if ($thisclient) {
-            switch ($field->get('name')) {
-                case 'name':
-                    $field->value = $thisclient->getName();
-                    break;
-                case 'email':
-                    $field->value = $thisclient->getEmail();
-                    break;
-                case 'phone':
-                    $field->value = $thisclient->getPhone();
-                    break;
-            }
-        }
         if ($field->get('private'))
             continue;
         ?>
@@ -36,8 +23,9 @@
             <?php
             }
             else { ?>
-                <td class="<?php if ($field->get('required')) echo 'required'; ?>">
-                <?php echo Format::htmlchars($field->get('label')); ?>:</td><td>
+                <td><label for="<?php echo $field->getFormname(); ?>" class="<?php
+                    if ($field->get('required')) echo 'required'; ?>">
+                <?php echo Format::htmlchars($field->get('label')); ?>:</label></td><td>
             <?php
             }
             $field->render('client'); ?>

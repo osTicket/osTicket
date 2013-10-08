@@ -176,7 +176,7 @@ class Filter {
 
     function addRule($what, $how, $val,$extra=array()) {
 
-        $rule= array_merge($extra,array('w'=>$what, 'h'=>$how, 'v'=>$val));
+        $rule= array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
         $rule['filter_id']=$this->getId();
 
         return FilterRule::create($rule,$errors);               # nolint

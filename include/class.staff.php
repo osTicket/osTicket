@@ -19,6 +19,7 @@ include_once(INCLUDE_DIR.'class.error.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
+include_once(INCLUDE_DIR.'class.user.php');
 
 class Staff {
 
@@ -165,7 +166,7 @@ class Staff {
     }
 
     function getName() {
-        return ucfirst($this->ht['firstname'].' '.$this->ht['lastname']);
+        return new PersonsName($this->ht['firstname'].' '.$this->ht['lastname']);
     }
 
     function getFirstName() {

@@ -69,7 +69,7 @@ if($search) {
     } else {//Deep search!
         $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
-                ." ticket.subject LIKE '%$queryterm%'"
+                ." subject.value LIKE '%$queryterm%'"
                 ." OR thread.body LIKE '%$queryterm%'"
                 .' ) ';
         $deep_search=true;

@@ -9,13 +9,14 @@ if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
 if($_POST) {
     $fields = array('title', 'notes', 'instructions');
     $required = array('subject');
+    $max_sort = 0;
     switch(strtolower($_POST['do'])) {
         case 'update':
             foreach ($fields as $f)
                 if (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
             if ($form->isValid())
-                $form->save();
+                $form->save(true);
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
                 if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
@@ -25,7 +26,7 @@ if($_POST) {
                 }
                 if (isset($_POST["type-$id"]) && $field->isChangeable())
                     $field->set('type', $_POST["type-$id"]);
-                if (isset($_POST["name-$id"]) && $field->isNameEditable())
+                if (isset($_POST["name-$id"]) && !$field->isNameForced())
                     $field->set('name', $_POST["name-$id"]);
                 # TODO: make sure all help topics still have all required fields
                 if (!$field->isRequirementForced())
@@ -39,6 +40,8 @@ if($_POST) {
                 }
                 if ($field->isValid())
                     $field->save();
+                // Keep track of the last sort number
+                $max_sort = max($max_sort, $field->get('sort'));
             }
             break;
         case 'add':
@@ -47,7 +50,30 @@ if($_POST) {
                 'instructions'=>$_POST['instructions'],
                 'notes'=>$_POST['notes']));
             if ($form->isValid())
-                $form->save();
+                $form->save(true);
+            break;
+
+        case 'mass_process':
+            if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
+                $errors['err'] = 'You must select at least one API key';
+            } else {
+                $count = count($_POST['ids']);
+                switch(strtolower($_POST['a'])) {
+                    case 'delete':
+                        $i=0;
+                        foreach($_POST['ids'] as $k=>$v) {
+                            if(($t=DynamicForm::lookup($v)) && $t->delete())
+                                $i++;
+                        }
+                        if ($i && $i==$count)
+                            $msg = 'Selected custom forms deleted successfully';
+                        elseif ($i > 0)
+                            $warn = "$i of $count selected forms deleted";
+                        elseif (!$errors['err'])
+                            $errors['err'] = 'Unable to delete selected custom forms';
+                        break;
+                }
+            }
             break;
     }
 
@@ -57,7 +83,7 @@ if($_POST) {
                 continue;
             $field = DynamicFormField::create(array(
                 'form_id'=>$form->get('id'),
-                'sort'=>$_POST["sort-new-$i"],
+                'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : $max_sort++,
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
                 'name'=>$_POST["name-new-$i"],

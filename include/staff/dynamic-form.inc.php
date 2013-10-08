@@ -20,13 +20,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2>Dynamic Form</h2>
+    <h2>Custom Form</h2>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Dynamic forms are used to allow custom data to be
+                <em>Custom forms are used to allow custom data to be
                 associated with tickets</em>
             </th>
         </tr>
@@ -57,22 +57,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th></th>
             <th>Label</th>
             <th>Type</th>
-            <th>Name</th>
-            <th>Private</th>
+            <th>Internal</th>
             <th>Required</th>
+            <th>Name</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><input type="checkbox" disabled="disabled"/></td>
-            <td>Full Name</td><td>Short Answer</td><td>name</td>
-            <td><input type="checkbox" disabled="disabled"/></td>
-            <td><input type="checkbox" disabled="disabled" checked="checked"/></td></tr>
-        <tr>
-            <td><input type="checkbox" disabled="disabled"/></td>
-            <td>Email Address</td><td>Short Answer</td><td>email</td>
-            <td><input type="checkbox" disabled="disabled"/></td>
-            <td><input type="checkbox" disabled="disabled" checked="checked"/></td></tr>
     <?php
         $uform = UserForm::objects()->all();
         $ftypes = FormField::allTypes();
@@ -80,13 +71,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             if ($f->get('private')) continue;
         ?>
         <tr>
-            <td><input type="checkbox" disabled="disabled"/></td>
+            <td></td>
             <td><?php echo $f->get('label'); ?></td>
             <td><?php $t=FormField::getFieldType($f->get('type')); echo $t[0]; ?></td>
-            <td><?php echo $f->get('name'); ?></td>
             <td><input type="checkbox" disabled="disabled"/></td>
             <td><input type="checkbox" disabled="disabled"
-                <?php echo $f->get('required') ? 'checked="checked"' : ''; ?>/></td></tr>
+                <?php echo $f->get('required') ? 'checked="checked"' : ''; ?>/></td>
+            <td><?php echo $f->get('name'); ?></td>
+            <td><input type="checkbox" disabled="disabled"/></td></tr>
 
         <?php } ?>
     </tbody>
@@ -98,31 +90,25 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <th>Delete</th>
+            <th>Sort</th>
             <th>Label</th>
             <th>Type</th>
-            <th>Name</th>
-            <th>Private</th>
+            <th>Internal</th>
             <th>Required</th>
+            <th>Name</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="sort-">
     <?php if ($form) foreach ($form->getFields() as $f) {
         $id = $f->get('id');
-        $deletable = $f->isDeletable() ? 'disabled="disabled"' : '';
+        $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
         $force_privacy = $f->isPrivacyForced() ? 'disabled="disabled"' : '';
         $force_required = $f->isRequirementForced() ? 'disabled="disabled"' : '';
         $errors = $f->errors(); ?>
         <tr>
-            <td><input type="checkbox" name="delete-<?php echo $id; ?>"
-                    <?php echo $deletable; ?>/>
-                <input type="hidden" name="sort-<?php echo $id; ?>"
-                    value="<?php echo $f->get('sort'); ?>"/>
-                <font class="error"><?php
-                    if ($errors['sort']) echo '<br/>'; echo $errors['sort'];
-                ?></font>
-                </td>
+            <td><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
                 value="<?php echo $f->get('label'); ?>"/></td>
             <td><select name="type-<?php echo $id; ?>" <?php
@@ -140,7 +126,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php } ?>
             </select>
             <?php if ($f->isConfigurable()) { ?>
-                <a class="action-button" style="float:none"
+                <a class="action-button" style="float:none;overflow:inherit"
                     href="ajax.php/form/field-config/<?php
                         echo $f->get('id'); ?>"
                     onclick="javascript:
@@ -150,6 +136,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         return false;
                     "><i class="icon-edit"></i> Config</a>
             <?php } ?></td>
+            <td><input type="checkbox" name="private-<?php echo $id; ?>"
+                <?php if ($f->get('private')) echo 'checked="checked"'; ?>
+                <?php echo $force_privacy ?>/></td>
+            <td><input type="checkbox" name="required-<?php echo $id; ?>"
+                <?php if ($f->get('required')) echo 'checked="checked"'; ?>
+                <?php echo $force_required ?>/>
+            </td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
                     value="<?php echo $f->get('name'); ?>" <?php echo $force_name ?>/>
@@ -157,41 +150,35 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     if ($errors['name']) echo '<br/>'; echo $errors['name'];
                 ?></font>
                 </td>
-            <td><input type="checkbox" name="private-<?php echo $id; ?>"
-                <?php if ($f->get('private')) echo 'checked="checked"'; ?>
-                <?php echo $force_privacy ?>/></td>
-            <td><input type="checkbox" name="required-<?php echo $id; ?>"
-                <?php if ($f->get('required')) echo 'checked="checked"'; ?>
-                <?php echo $force_required ?>/>
-            <?php if (!$f->get('editable')) { ?>
-                <input type="hidden" name="private-<?php echo $id; ?>" value="<?php
-                    echo ($f->get('private')) ? 'on' : ''; ?>" />
-                <input type="hidden" name="required-<?php echo $id; ?>" value="<?php
-                    echo ($f->get('required')) ? 'on' : ''; ?>" />
-            <?php
-            } ?></td>
+            <td><input type="checkbox" name="delete-<?php echo $id; ?>"
+                    <?php echo $deletable; ?>/>
+                <input type="hidden" name="sort-<?php echo $id; ?>"
+                    value="<?php echo $f->get('sort'); ?>"/>
+                </td>
         </tr>
     <?php
     }
     for ($i=0; $i<$newcount; $i++) { ?>
-            <td><em>add</em>
+            <td><em>+</em>
                 <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
             <td><input type="text" size="32" name="label-new-<?php echo $i; ?>"/></td>
             <td><select name="type-new-<?php echo $i; ?>">
                 <?php foreach (FormField::allTypes() as $group=>$types) {
                     ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
-                    foreach ($types as $type=>$nfo) { ?>
+                    foreach ($types as $type=>$nfo) {
+                        if (isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>">
                     <?php echo $nfo[0]; ?></option>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
             </select></td>
-            <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"/></td>
             <td><input type="checkbox" name="private-new-<?php echo $i; ?>"
                 <?php if ($form && $form->get('type') == 'U')
                     echo 'checked="checked"'; ?>/></td>
             <td><input type="checkbox" name="required-new-<?php echo $i; ?>"/></td>
+            <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"/></td>
+            <td></td>
         </tr>
     <?php } ?>
     </tbody>
@@ -208,7 +195,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
     </table>
-<p style="padding-left:225px;">
+<p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>

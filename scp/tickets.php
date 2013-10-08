@@ -483,14 +483,15 @@ if($_POST && !$errors):
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;
-                        # TODO: Save dynamic form(s)
+                        # Save extra dynamic form(s)
                         if (isset($form)) {
                             $form->setTicketId($ticket->getId());
                             $form->save();
-                            $ticket->loadDynamicData();
                         }
-                        if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
+                        if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
+                        else
+                            $ticket->loadDynamicData();
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
                     } elseif(!$errors['err']) {
                         $errors['err']='Unable to create the ticket. Correct the error(s) and try again';

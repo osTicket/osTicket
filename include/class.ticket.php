@@ -84,6 +84,7 @@ class Ticket {
 
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['ticketID'];
+        $this->_answers = array();
 
         $this->loadDynamicData();
 
@@ -105,11 +106,12 @@ class Ticket {
     }
 
     function loadDynamicData() {
-        $this->_answers = array();
-        foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
-            foreach ($form->getAnswers() as $answer)
-                $this->_answers[$answer->getField()->get('name')] =
-                    $answer->getValue();
+        if (!$this->_answers) {
+            foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
+                foreach ($form->getAnswers() as $answer)
+                    $this->_answers[$answer->getField()->get('name')] =
+                        $answer->getValue();
+        }
     }
 
     function reload() {
@@ -1642,6 +1644,9 @@ class Ticket {
         //delete just orphaned ticket thread & associated attachments.
         $this->getThread()->delete();
 
+        foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
+            $form->delete();
+
         return true;
     }
 
@@ -1852,10 +1857,12 @@ class Ticket {
     function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
-        // Drop extra whitespace
-        foreach (array('phone', 'subject') as $f)
-            if (isset($vars[$f]))
-                $vars[$f] = trim($vars[$f]);
+        // Identify the user creating the ticket and unpack user information
+        // fields into local scope for filtering and banning purposes
+        $user_form = UserForm::getInstance();
+        $user_info = $user_form->getClean();
+        if ($user_form->isValid())
+            $vars += $user_info;
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
@@ -1949,18 +1956,20 @@ class Ticket {
                 $errors['duedate']='Due date must be in the future';
         }
 
-        # Identify the user creating the ticket
-        $user_info = UserForm::getStaticForm()->getClean();
         // Data is slightly different between HTTP posts and emails
-        if (isset($vars['emailId']) || !isset($user_info['email']))
+        if ((isset($vars['emailId']) && $vars['emailId'])
+                || !isset($user_info['email']) || !$user_info['email']) {
             $user_info = $vars;
-        elseif (!UserForm::getStaticForm()->isValid())
+        }
+        elseif (!$user_form->isValid()) {
             $errors['user'] = 'Incomplete client information';
-        $user = User::fromForm($user_info);
-        $user_email = UserEmail::ensure($user_info['email']);
+        }
 
         //Any error above is fatal.
         if($errors)  return 0;
+
+        $user = User::fromForm($user_info);
+        $user_email = UserEmail::ensure($user_info['email']);
 
         # Perform ticket filter actions on the new ticket arguments
         if ($ticket_filter) $ticket_filter->apply($vars);

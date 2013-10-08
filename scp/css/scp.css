@@ -581,11 +581,15 @@ div.section-break h3 {
 }
 
 .form_table th h4 {
-    margin:0;
+    margin: -0.3em -0.3em;
     color:#fff;
     background:#929292;
+    padding: 0.3em;
 }
 
+.form_table th em:not(:first-child) {
+    margin-top: 0.6em;
+}
 .form_table th em {
     display:block;
     color:#000;

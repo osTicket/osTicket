@@ -37,6 +37,30 @@ if($_POST) {
             if ($list->isValid())
                 $list->save(true);
             break;
+
+        case 'mass_process':
+            if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
+                $errors['err'] = 'You must select at least one API key';
+            } else {
+                $count = count($_POST['ids']);
+                switch(strtolower($_POST['a'])) {
+                    case 'delete':
+                        $i=0;
+                        foreach($_POST['ids'] as $k=>$v) {
+                            if(($t=DynamicList::lookup($v)) && $t->delete())
+                                $i++;
+                        }
+                        if ($i && $i==$count)
+                            $msg = 'Selected custom lists deleted successfully';
+                        elseif ($i > 0)
+                            $warn = "$i of $count selected lists deleted";
+                        elseif (!$errors['err'])
+                            $errors['err'] = 'Unable to delete selected custom lists'
+                                .' &mdash; they may be in use on a custom form';
+                        break;
+                }
+            }
+            break;
     }
 
     if ($list) {

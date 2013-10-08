@@ -20,18 +20,25 @@
  */
 class Form {
     var $fields = array();
-    var $title = '';
+    var $title = 'Unnamed';
     var $instructions = '';
 
     var $_errors;
+    var $_source = false;
 
     function Form() {
         call_user_func_array(array($this, '__construct'), func_get_args());
     }
-    function __construct($fields=array(), $title=false, $instructions=false) {
+    function __construct($fields=array(), $source=null, $options=array()) {
         $this->fields = $fields;
-        $this->title = $title;
-        $this->instructions = $instructions;
+        foreach ($fields as $f)
+            $f->setForm($this);
+        if (isset($options['title']))
+            $this->title = $options['title'];
+        if (isset($options['instructions']))
+            $this->instructions = $options['instructions'];
+        // Use POST data if source was not specified
+        $this->_source = ($source) ? $source : $_POST;
     }
     function data($source) {
         foreach ($this->fields as $name=>$f)
@@ -44,6 +51,7 @@ class Form {
     }
     function getTitle() { return $this->title; }
     function getInstructions() { return $this->instructions; }
+    function getSource() { return $this->_source; }
 
     function isValid() {
         if (!is_array($this->_errors)) {
@@ -59,8 +67,10 @@ class Form {
     function getClean() {
         if (!$this->_clean) {
             $this->_clean = array();
-            foreach ($this->getFields() as $key=>$field)
-                $this->_clean[$key] = $field->getClean();
+            foreach ($this->getFields() as $key=>$field) {
+                $this->_clean[$key] = $this->_clean[$field->get('name')]
+                    = $field->getClean();
+            }
         }
         return $this->_clean;
     }
@@ -85,6 +95,8 @@ class Form {
 require_once(INCLUDE_DIR . "class.json.php");
 
 class FormField {
+    static $widget = false;
+
     var $ht = array(
         'label' => 'Unlabeled',
         'required' => false,
@@ -92,10 +104,13 @@ class FormField {
         'configuration' => array(),
     );
 
+    var $_form;
     var $_cform;
     var $_clean;
     var $_errors = array();
+    var $_widget;
     var $parent;
+    var $presentation_only = false;
 
     static $types = array(
         'Basic Fields' => array(
@@ -111,9 +126,6 @@ class FormField {
     );
     static $more_types = array();
 
-    function FormField() {
-        call_user_func_array(array($this, '__construct'), func_get_args());
-    }
     function __construct($options=array()) {
         static $uid = 100;
         $this->ht = array_merge($this->ht, $options);
@@ -271,11 +283,14 @@ class FormField {
         $clazz = $type[1];
         $inst = new $clazz($this->ht);
         $inst->parent = $parent;
+        $inst->setForm($this->_form);
         return $inst;
     }
 
     function __call($what, $args) {
         // XXX: Throw exception if $this->parent is not set
+        if (!$this->parent)
+            throw new Exception($what.': Call to undefined function');
         // BEWARE: DynamicFormField has a __call() which will create a new
         //      FormField instance and invoke __call() on it or bounce
         //      immediately back
@@ -290,6 +305,26 @@ class FormField {
             return '-field-id-'.$this->get('id');
         else
             return $this->get('id');
+    }
+
+    function setForm($form) {
+        $this->_form = $form;
+    }
+    function getForm() {
+        return $this->_form;
+    }
+    /**
+     * Returns the data source for this field. If created from a form, the
+     * data source from the form is returned. Otherwise, if the request is a
+     * POST, then _POST is returned.
+     */
+    function getSource() {
+        if ($this->_form)
+            return $this->_form->getSource();
+        elseif ($_SERVER['REQUEST_METHOD'] == 'POST')
+            return $_POST;
+        else
+            return array();
     }
 
     function render($mode=null) {
@@ -363,7 +398,7 @@ class FormField {
      * some static processing will store the data elsewhere.
      */
     function isPresentationOnly() {
-        return false;
+        return $this->presentation_only;
     }
 
     function getConfigurationForm() {
@@ -376,12 +411,17 @@ class FormField {
         return $this->_cform;
     }
 
+    function getWidget() {
+        if (!static::$widget)
+            throw new Exception('Widget not defined for this field');
+        if (!isset($this->_widget))
+            $this->_widget = new static::$widget($this);
+        return $this->_widget;;
+    }
 }
 
 class TextboxField extends FormField {
-    function getWidget() {
-        return new TextboxWidget($this);
-    }
+    static $widget = 'TextboxWidget';
 
     function getConfigurationOptions() {
         return array(
@@ -430,9 +470,8 @@ class TextboxField extends FormField {
 }
 
 class TextareaField extends FormField {
-    function getWidget() {
-        return new TextareaWidget($this);
-    }
+    static $widget = 'TextareaWidget';
+
     function getConfigurationOptions() {
         return array(
             'cols'  =>  new TextboxField(array(
@@ -446,6 +485,8 @@ class TextareaField extends FormField {
 }
 
 class PhoneField extends FormField {
+    static $widget = 'PhoneNumberWidget';
+
     function validateEntry($value) {
         parent::validateEntry($value);
         # Run validator against $this->value for email type
@@ -459,9 +500,6 @@ class PhoneField extends FormField {
                 $this->_errors[] = "Enter a phone number for the extension";
         }
     }
-    function getWidget() {
-        return new PhoneNumberWidget($this);
-    }
 
     function toString($value) {
         list($phone, $ext) = explode("X", $value, 2);
@@ -473,9 +511,7 @@ class PhoneField extends FormField {
 }
 
 class BooleanField extends FormField {
-    function getWidget() {
-        return new CheckboxWidget($this);
-    }
+    static $widget = 'CheckboxWidget';
 
     function getConfigurationOptions() {
         return array(
@@ -500,9 +536,7 @@ class BooleanField extends FormField {
 }
 
 class ChoiceField extends FormField {
-    function getWidget() {
-        return new ChoicesWidget($this);
-    }
+    static $widget = 'ChoicesWidget';
 
     function getConfigurationOptions() {
         return array(
@@ -541,9 +575,7 @@ class ChoiceField extends FormField {
 }
 
 class DatetimeField extends FormField {
-    function getWidget() {
-        return new DatetimePickerWidget($this);
-    }
+    static $widget = 'DatetimePickerWidget';
 
     function to_database($value) {
         // Store time in gmt time, unix epoch format
@@ -617,9 +649,7 @@ class DatetimeField extends FormField {
  * a field to provide a horizontal section break in the display of a form
  */
 class SectionBreakField extends FormField {
-    function getWidget() {
-        return new SectionBreakWidget($this);
-    }
+    static $widget = 'SectionBreakWidget';
 
     function hasData() {
         return false;
@@ -631,9 +661,8 @@ class SectionBreakField extends FormField {
 }
 
 class ThreadEntryField extends FormField {
-    function getWidget() {
-        return new ThreadEntryWidget($this);
-    }
+    static $widget = 'ThreadEntryWidget';
+
     function isChangeable() {
         return false;
     }
@@ -700,24 +729,22 @@ FormField::addFieldTypes('Built-in Lists', function() {
 });
 
 class Widget {
-    function Widget() {
-        # Not called in PHP5
-        call_user_func_array(array(&$this, '__construct'), func_get_args());
-    }
 
     function __construct($field) {
         $this->field = $field;
         $this->name = $field->getFormName();
-        if ($_SERVER['REQUEST_METHOD'] == 'POST')
-            $this->value = $this->getValue();
-        elseif (is_object($field->getAnswer()))
+        $this->value = $this->getValue();
+        if (!isset($this->value) && is_object($field->getAnswer()))
             $this->value = $field->getAnswer()->getValue();
-        if (!$this->value && $field->value)
+        if (!isset($this->value) && $field->value)
             $this->value = $field->value;
     }
 
     function getValue() {
-        return $_POST[$this->name];
+        $data = $this->field->getSource();
+        if (!isset($data[$this->name]))
+            return null;
+        return $data[$this->name];
     }
 }
 
@@ -775,9 +802,13 @@ class PhoneNumberWidget extends Widget {
     }
 
     function getValue() {
-        $ext = $_POST["{$this->name}-ext"];
+        $data = $this->field->getSource();
+        $base = parent::getValue();
+        if ($base === null)
+            return $base;
+        $ext = $data["{$this->name}-ext"];
         if ($ext) $ext = 'X'.$ext;
-        return parent::getValue() . $ext;
+        return $base . $ext;
     }
 }
 
@@ -832,8 +863,9 @@ class CheckboxWidget extends Widget {
     }
 
     function getValue() {
-        if (count($_POST))
-            return @in_array($this->field->get('id'), $_POST[$this->name]);
+        $data = $this->field->getSource();
+        if (count($data))
+            return @in_array($this->field->get('id'), $data[$this->name]);
         return parent::getValue();
     }
 }
@@ -886,9 +918,10 @@ class DatetimePickerWidget extends Widget {
      * time value into a single date and time string value.
      */
     function getValue() {
+        $data = $this->field->getSource();
         $datetime = parent::getValue();
-        if ($datetime && isset($_POST[$this->name . ':time']))
-            $datetime .= ' ' . $_POST[$this->name . ':time'];
+        if ($datetime && isset($data[$this->name . ':time']))
+            $datetime .= ' ' . $data[$this->name . ':time'];
         return $datetime;
     }
 }

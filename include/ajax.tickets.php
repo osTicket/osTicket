@@ -49,9 +49,14 @@ class TicketsAjaxAPI extends AjaxController {
             .' ORDER BY ticket.created LIMIT '.$limit;
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $email)=db_fetch_row($res))
-                $tickets[] = array('id'=>$id, 'email'=>$email, 'value'=>$id, 'info'=>"$id - $email");
+            while(list($id, $email)=db_fetch_row($res)) {
+                $info = "$id - $email";
+                $tickets[] = array('id'=>$id, 'email'=>$email, 'value'=>$id,
+                    'info'=>$info, 'matches'=>$_REQUEST['q']);
+            }
         }
+        if (!$tickets)
+            return self::lookupByEmail();
 
         return $this->json_encode($tickets);
     }
@@ -67,7 +72,11 @@ class TicketsAjaxAPI extends AjaxController {
             .' FROM '.TICKET_TABLE.' ticket'
             .' JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
             .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' WHERE email.address LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' ';
+            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_id = user.id
+                AND entry.object_type=\'U\')
+               LEFT JOIN '.FORM_ANSWER_TABLE.' data ON (data.entry_id = entry.id)'
+            .' WHERE (email.address LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\'
+                OR data.value LIKE \'%'.db_input($_REQUEST['q'], false).'%\')';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
@@ -83,7 +92,8 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($email, $count)=db_fetch_row($res))
-                $tickets[] = array('email'=>$email, 'value'=>$email, 'info'=>"$email ($count)");
+                $tickets[] = array('email'=>$email, 'value'=>$email,
+                    'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
         }
 
         return $this->json_encode($tickets);

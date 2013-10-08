@@ -38,6 +38,13 @@ if($_POST):
                 $errors += $form->errors();
         }
     }
+    // Don't process contact information for logged-in clients
+    if (!$thisclient) {
+        $contact_form = UserForm::getInstance();
+        if (!$contact_form->isValid())
+            $errors += $contact_form->errors();
+    }
+
     if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
@@ -50,6 +57,10 @@ if($_POST):
             $form->setTicketId($ticket->getId());
             $form->save();
             $ticket->loadDynamicData();
+        }
+        if (isset($contact_form)) {
+            $contact_form->setClientId($ticket->getOwnerId());
+            $contact_form->save();
         }
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {

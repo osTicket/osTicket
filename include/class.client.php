@@ -24,6 +24,8 @@ class Client {
     var $username;
     var $email;
 
+    var $_answers;
+
     var $ticket_id;
     var $ticketID;
 
@@ -40,15 +42,10 @@ class Client {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT ticket.ticket_id, ticketID, email.address as email, phone.value as phone '
+        $sql='SELECT ticket.ticket_id, ticketID, email.address as email '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
             .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON
-                    (entry.object_id = ticket.ticket_id AND entry.object_type = "T")'
-            .' LEFT JOIN '.FORM_ANSWER_TABLE.' phone ON phone.entry_id = entry.id'
-            .' LEFT JOIN '.FORM_FIELD_TABLE.' field ON
-                   (phone.field_id = field.id AND field.name="phone")'
             .' WHERE ticketID='.db_input($id);
 
         if($email)
@@ -71,6 +68,14 @@ class Client {
         $this->stats = array();
 
         return($this->id);
+    }
+
+    function loadDynamicData() {
+        $this->_answers = array();
+        foreach (DynamicFormEntry::forClient($this->getId()) as $form)
+            foreach ($form->getAnswers() as $answer)
+                $this->_answers[$answer->getField()->get('name')] =
+                    $answer->getValue();
     }
 
     function reload() {
@@ -98,11 +103,7 @@ class Client {
     }
 
     function getPhone() {
-        return $this->ht['phone'];
-    }
-
-    function getPhoneExt() {
-        return $this->ht['phone_ext'];
+        return $this->_answers['phone'];
     }
 
     function getTicketID() {

@@ -61,8 +61,10 @@ class DynamicForm extends VerySimpleModel {
 
     // Multiple inheritance -- delegate to Form
     function __call($what, $args) {
-        return call_user_func_array(
-            array($this->getForm(), $what), $args);
+        $delegate = array($this->getForm(), $what);
+        if (!is_callable($delegate))
+            throw new Exception($what.': Call to non-existing function');
+        return call_user_func_array($delegate, $args);
     }
 
     function hasField($name) {
@@ -77,9 +79,14 @@ class DynamicForm extends VerySimpleModel {
     function getForm() {
         if (!$this->_form) {
             $fields = $this->getFields();
-            $this->_form = new Form($fields, $this->title, $this->instructions);
+            $this->_form = new Form($fields, false, array(
+                'title'=>$this->title, 'instructions'=>$this->instructions));
         }
         return $this->_form;
+    }
+
+    function isDeletable() {
+        return $this->get('deletable');
     }
 
     function instanciate($sort=1) {
@@ -93,10 +100,17 @@ class DynamicForm extends VerySimpleModel {
         }
     }
 
-    function save() {
+    function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        return parent::save();
+        return parent::save($refetch);
+    }
+
+    function delete() {
+        if (!$this->isDeletable())
+            return false;
+        else
+            return parent::delete();
     }
 
     static function create($ht=false) {
@@ -122,30 +136,28 @@ class UserForm extends DynamicForm {
         return $os->filter(array('type'=>'U'));
     }
 
+    function getFields() {
+        $fields = parent::getFields();
+        foreach ($fields as $f) {
+            if ($f->get('name') == 'email') {
+                $f->getConfiguration();
+                $f->_config['classes'] = 'auto email typeahead';
+                $f->_config['autocomplete'] = false;
+            }
+            elseif ($f->get('name') == 'name') {
+                $f->getConfiguration();
+                $f->_config['classes'] = 'auto name';
+            }
+        }
+        return $fields;
+    }
+
     static function getInstance() {
         if (!isset(static::$instance)) {
             $o = static::objects();
             static::$instance = $o[0]->instanciate();
         }
         return static::$instance;
-    }
-
-    function getStaticForm() {
-        static $form = null;
-        if (!$form)
-            $form = new Form(array(
-            'email' => new TextboxField(array(
-                'id'=>'email', 'label'=>'Email Address', 'required'=>true,
-                'validator' => 'email', 'configuration'=>array(
-                    'autocomplete'=>false, 'classes'=>'typeahead',
-                    'size'=>40)
-            )),
-            'name' => new TextboxField(array(
-                'id'=>'name', 'label'=>'Full Name', 'required'=>true,
-                'configuration' => array('size'=>40),
-            )),
-            ), 'User Information');
-        return $form;
     }
 }
 
@@ -166,7 +178,7 @@ class TicketForm extends DynamicForm {
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Dynamic Fields', function() {
+Filter::addSupportedMatches('Custom Fields', function() {
     $matches = array();
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
@@ -240,7 +252,7 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function isDeletable() {
-        return $this->get('edit_mask') & 1;
+        return ($this->get('edit_mask') & 1) == 0;
     }
     function isNameForced() {
         return $this->get('edit_mask') & 2;
@@ -376,7 +388,8 @@ class DynamicFormEntry extends VerySimpleModel {
         if (!$this->_clean) {
             $this->_clean = array();
             foreach ($this->getFields() as $field)
-                $this->_clean[$field->get('id')] = $field->getClean();
+                $this->_clean[$field->get('id')]
+                    = $this->_clean[$field->get('name')] = $field->getClean();
         }
         return $this->_clean;
     }
@@ -432,10 +445,18 @@ class DynamicFormEntry extends VerySimpleModel {
                 $this->_values[] = $a;
                 $this->_fields[] = $field;
                 // Omit fields without data
-                if ($field->hasData())
+                // For user entries, the name and email fields should not be
+                // saved with the rest of the data
+                if (!($this->object_type == 'U'
+                        && in_array($field->get('name'), array('name','email')))
+                        && $field->hasData())
                     $a->save();
-                unset($this->_form);
+                $this->_form = null;
             }
+            // Sort the form the way it is declared to be sorted
+            usort($this->_fields, function($a, $b) {
+                return $a->get('sort') - $b->get('sort');
+            });
         }
     }
 
@@ -445,6 +466,9 @@ class DynamicFormEntry extends VerySimpleModel {
         parent::save();
         foreach ($this->getAnswers() as $a) {
             $field = $a->getField();
+            if ($this->object_type == 'U'
+                    && in_array($field->get('name'), array('name','email')))
+                continue;
             $val = $field->to_database($field->getClean());
             if (is_array($val)) {
                 $a->set('value', $val[0]);
@@ -458,6 +482,12 @@ class DynamicFormEntry extends VerySimpleModel {
                 $a->save();
         }
         $this->_values = array();
+    }
+
+    function delete() {
+        foreach ($this->getAnswers() as $a)
+            $a->delete();
+        return parent::delete();
     }
 
     static function create($ht=false) {
@@ -596,6 +626,16 @@ class DynamicList extends VerySimpleModel {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);
+    }
+
+    function delete() {
+        $fields = DynamicFormField::objects()->filter(array(
+            'type'=>'list-'.$this->id))->count();
+        if ($fields == 0)
+            return parent::delete();
+        else
+            // Refuse to delete lists that are in use by fields
+            return false;
     }
 
     static function create($ht=false) {

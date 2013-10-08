@@ -4,8 +4,7 @@ $info=array();
 if($thisclient && $thisclient->isValid()) {
     $info=array('name'=>$thisclient->getName(),
                 'email'=>$thisclient->getEmail(),
-                'phone'=>$thisclient->getPhone(),
-                'phone_ext'=>$thisclient->getPhoneExt());
+                'phone'=>$thisclient->getPhone());
 }
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
@@ -40,39 +39,22 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
         </td>
     </tr>
 <?php
-        UserForm::getStaticForm()->render(false, 'Your Information');
+        if (!$thisclient) {
+            UserForm::getInstance()->render(false, 'Your Information');
+        }
+        else { ?>
+            <tr><td colspan="2"><hr /></td></tr>
+        <tr><td>Email:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
+        <tr><td>Client:</td><td><?php echo $thisclient->getName(); ?></td></tr>
+        <?php }
         TicketForm::getInstance()->render(false); ?>
     </tbody>
     <tbody id="dynamic-form">
-        <?php if ($forms) {
-            foreach ($forms as $form) {
-                include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
-            }
+        <?php if ($form) {
+            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>
     </tbody>
     <tbody>
-    <?php
-    if($cfg->allowPriorityChange() && ($priorities=Priority::getPriorities())) { ?>
-    <tr>
-        <td>Ticket Priority:</td>
-        <td>
-            <select id="priority" name="priorityId">
-                <?php
-                    if(!$info['priorityId'])
-                        $info['priorityId'] = $cfg->getDefaultPriorityId(); //System default.
-                    foreach($priorities as $id =>$name) {
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                        $id, ($info['priorityId']==$id)?'selected="selected"':'', $name);
-
-                    }
-                ?>
-            </select>
-            <font class="error">&nbsp;<?php echo $errors['priorityId']; ?></font>
-        </td>
-    </tr>
-    <?php
-    }
-    ?>
     <?php
     if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
         if($_POST && $errors && !$errors['captcha'])
