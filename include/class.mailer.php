@@ -136,12 +136,23 @@ class Mailer {
 
         $mime = new Mail_mime();
 
-        // Make sure nothing unsafe has creeped into the message
-        $message = Format::safe_html($message);
-        $mime->setTXTBody(convert_html_to_text($message));
+        $isHtml = true;
+        // Ensure that the 'text' option / hint is not set to true and that
+        // the message appears to be HTML -- that is, the first
+        // non-whitespace char is a '<' character
+        if (!(isset($options['text']) && $options['text'])
+                && preg_match('/^\s*</', $message)) {
+            // Make sure nothing unsafe has creeped into the message
+            $message = Format::safe_html($message);
+            $mime->setTXTBody(convert_html_to_text($message));
+        }
+        else {
+            $mime->setTXTBody($message);
+            $isHtml = false;
+        }
 
         $domain = 'local';
-        if ($ost->getConfig()->isHtmlThreadEnabled()) {
+        if ($isHtml && $ost->getConfig()->isHtmlThreadEnabled()) {
             // TODO: Lookup helpdesk domain
             $domain = substr(md5($ost->getConfig()->getURL()), -12);
             // Format content-ids with the domain, and add the inline images
