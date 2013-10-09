@@ -195,18 +195,18 @@ $(document).ready(function(){
                     if(canned.response) {
                         if($('#append',fObj).is(':checked') &&  $('#response',fObj).val()) {
                             if (redactor)
-                                redactor('insertHtml', canned.response);
+                                redactor.insertHtml(canned.response);
                             else
                                 box.val(canned.response);
                         }
                         else {
                             if (redactor)
-                                redactor('set', canned.response);
+                                redactor.set(canned.response);
                             else
                                 box.val(canned.response);
                         }
                         if (redactor)
-                            redactor('observeStart');
+                            redactor.observeStart();
                     }
                     //Canned attachments.
                     if(canned.files && $('.canned_attachments',fObj).length) {
