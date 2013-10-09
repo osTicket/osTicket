@@ -90,7 +90,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
         <tr><th colspan="2"><em>New ticket options</em></th></tr>
        <tr>
-           <td><strong>Dynamic Form</strong>:</td>
+           <td><strong>Custom Form</strong>:</td>
            <td><select name="form_id">
                <option value="0">&mdash; No Extra Fields &mdash;</option>
                <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>

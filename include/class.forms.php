@@ -414,9 +414,11 @@ class FormField {
     function getWidget() {
         if (!static::$widget)
             throw new Exception('Widget not defined for this field');
-        if (!isset($this->_widget))
+        if (!isset($this->_widget)) {
             $this->_widget = new static::$widget($this);
-        return $this->_widget;;
+            $this->_widget->parseValue();
+        }
+        return $this->_widget;
     }
 }
 
@@ -479,7 +481,10 @@ class TextareaField extends FormField {
             'rows'  =>  new TextboxField(array(
                 'id'=>2, 'label'=>'Height (rows)', 'required'=>false, 'default'=>4)),
             'length' => new TextboxField(array(
-                'id'=>3, 'label'=>'Max Length', 'required'=>false, 'default'=>30))
+                'id'=>3, 'label'=>'Max Length', 'required'=>false, 'default'=>30)),
+            'html' => new BooleanField(array(
+                'id'=>4, 'label'=>'HTML', 'required'=>false, 'default'=>true,
+                'configuration'=>array('desc'=>'Allow HTML input in this box'))),
         );
     }
 }
@@ -526,8 +531,11 @@ class BooleanField extends FormField {
         return ($value) ? '1' : '0';
     }
 
+    function parse($value) {
+        return $this->to_php($value);
+    }
     function to_php($value) {
-        return ((int)$value) ? true : false;
+        return $value ? true : false;
     }
 
     function toString($value) {
@@ -733,11 +741,14 @@ class Widget {
     function __construct($field) {
         $this->field = $field;
         $this->name = $field->getFormName();
+    }
+
+    function parseValue() {
         $this->value = $this->getValue();
-        if (!isset($this->value) && is_object($field->getAnswer()))
-            $this->value = $field->getAnswer()->getValue();
-        if (!isset($this->value) && $field->value)
-            $this->value = $field->value;
+        if (!isset($this->value) && is_object($this->field->getAnswer()))
+            $this->value = $this->field->getAnswer()->getValue();
+        if (!isset($this->value) && $this->field->value)
+            $this->value = $this->field->value;
     }
 
     function getValue() {
@@ -774,15 +785,18 @@ class TextboxWidget extends Widget {
 class TextareaWidget extends Widget {
     function render() {
         $config = $this->field->getConfiguration();
+        $class = "";
         if (isset($config['rows']))
             $rows = "rows=\"{$config['rows']}\"";
         if (isset($config['cols']))
             $cols = "cols=\"{$config['cols']}\"";
         if (isset($config['length']))
             $maxlength = "maxlength=\"{$config['length']}\"";
+        if (isset($config['html']) && $config['html'])
+            $class = 'class="richtext no-bar small"';
         ?>
-        <span style="display:inline-block">
-        <textarea <?php echo $rows." ".$cols." ".$length; ?>
+        <span style="display:inline-block;width:100%">
+        <textarea <?php echo $rows." ".$cols." ".$length." ".$class; ?>
             name="<?php echo $this->name; ?>"><?php
                 echo Format::htmlchars($this->value);
             ?></textarea>
@@ -937,11 +951,21 @@ class SectionBreakWidget extends Widget {
 }
 
 class ThreadEntryWidget extends Widget {
-    function render($mode=null) {
-        echo '<strong>'.Format::htmlchars($this->field->get('label'));
-        ?></strong>:
-        <br/>
+    function render($client=null) {
+        global $cfg;
+
+        ?><div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
+        echo Format::htmlchars($this->field->get('label'));
+        ?></strong>:</div>
         <textarea name="<?php echo $this->field->get('name'); ?>"
+            placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
+            <?php if (!$client) { ?>
+                data-draft-namespace="ticket.staff"
+            <?php } else { ?>
+                data-draft-namespace="ticket.client"
+                data-draft-object-id="<?php echo substr(session_id(), -12); ?>"
+            <?php } ?>
+            class="richtext draft draft-delete ifhtml"
             cols="21" rows="8" style="width:80%;"><?php echo
             $this->value; ?></textarea>
     <?php

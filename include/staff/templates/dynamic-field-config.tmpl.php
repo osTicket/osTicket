@@ -14,7 +14,7 @@
             });
             return false;
             ">
-        <table>
+        <table width="100%">
         <?php
         echo csrf_token();
         $config = $field->getConfiguration();
@@ -52,6 +52,7 @@
             <?php
         }
         ?>
+        <tr><td colspan="2"><hr/></td></tr>
         <tr><td>
         <label for="hint"
             style="vertical-align:top;padding-top:0.2em">Help Text:</label>

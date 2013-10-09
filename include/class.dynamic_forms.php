@@ -103,6 +103,8 @@ class DynamicForm extends VerySimpleModel {
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
+        if (isset($this->dirty['notes']))
+            $this->notes = Format::sanitize($this->notes);
         return parent::save($refetch);
     }
 
@@ -454,9 +456,10 @@ class DynamicFormEntry extends VerySimpleModel {
                 $this->_form = null;
             }
             // Sort the form the way it is declared to be sorted
-            usort($this->_fields, function($a, $b) {
-                return $a->get('sort') - $b->get('sort');
-            });
+            if ($this->_fields)
+                usort($this->_fields, function($a, $b) {
+                    return $a->get('sort') - $b->get('sort');
+                });
         }
     }
 
@@ -625,6 +628,8 @@ class DynamicList extends VerySimpleModel {
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
+        if (isset($this->dirty['notes']))
+            $this->notes = Format::sanitize($this->notes);
         return parent::save($refetch);
     }
 

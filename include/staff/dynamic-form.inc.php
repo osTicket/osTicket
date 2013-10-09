@@ -2,13 +2,13 @@
 
 $info=array();
 if($form && $_REQUEST['a']!='add') {
-    $title = 'Update dynamic form section';
+    $title = 'Update custom form section';
     $action = 'update';
     $submit_text='Save Changes';
     $info = $form->ht;
     $newcount=2;
 } else {
-    $title = 'Add new dynamic form section';
+    $title = 'Add new custom form section';
     $action = 'add';
     $submit_text='Add Form';
     $newcount=4;
@@ -189,7 +189,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <td colspan="7"><textarea name="notes" rows="6" cols="80" style="width:95%"><?php
+            <td colspan="7"><textarea class="richtext no-bar" name="notes"
+                rows="6" cols="80"><?php
                 echo $info['notes']; ?></textarea>
             </td>
         </tr>

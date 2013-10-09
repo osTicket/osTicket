@@ -1473,3 +1473,7 @@ ul.progress li.no small {color:red;}
     display: block;
     opacity: 0.3;
 }
+
+input[type=text]:disabled, input[type=checkbox]:disabled {
+    background-color: #eee;
+}

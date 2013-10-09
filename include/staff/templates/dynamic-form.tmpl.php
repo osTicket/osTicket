@@ -8,7 +8,7 @@
     foreach ($form->getFields() as $field) {
         ?>
         <tr><?php if ($field->isBlockLevel()) { ?>
-                <td colspan="2" class="<?php if ($field->get('required')) echo 'required'; ?>">
+                <td colspan="2">
                 <?php
             }
             else { ?>
