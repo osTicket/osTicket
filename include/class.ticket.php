@@ -471,7 +471,11 @@ class Ticket {
     }
 
     function getLastMessage() {
-        return Message::lookup($this->getLastMsgId(), $this->getId());
+
+        if($this->getLastMsgId())
+            return Message::lookup($this->getLastMsgId(), $this->getId());
+
+        return Message::lastByTicketId($this->getId());
     }
 
     function getThread() {

@@ -86,6 +86,23 @@ class Format {
         return $text;
     }
 
+    /**
+     * Decodes filenames given in the content-disposition header according
+     * to RFC5987, such as filename*=utf-8''filename.png. Note that the
+     * language sub-component is defined in RFC5646, and that the filename
+     * is URL encoded (in the charset specified)
+     */
+    function decodeRfc5987($filename) {
+        $match = array();
+        if (preg_match("/([\w!#$%&+^_`{}~-]+)'([\w-]*)'(.*)$/",
+                $filename, $match))
+            // XXX: Currently we don't care about the language component.
+            //      The  encoding hint is sufficient.
+            return self::utf8encode(urldecode($match[3]), $match[1]);
+        else
+            return $filename;
+    }
+
 	function phone($phone) {
 
 		$stripped= preg_replace("/[^0-9]/", "", $phone);

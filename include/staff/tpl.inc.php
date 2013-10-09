@@ -29,8 +29,7 @@ if (is_a($template, EmailTemplateGroup)) {
     $msgtemplates=$template->getGroup()->all_names;
     $info=array_merge(array('subject'=>$template->getSubject(), 'body'=>$template->getBody()),$info);
 }
-$info['tpl']=($info['tpl'] && $msgtemplates[$info['tpl']])?$info['tpl']:'ticket.autoresp';
-$tpl=$msgtemplates[$info['tpl']];
+$tpl=$msgtemplates[$selected];
 
 ?>
 <h2>Email Template Message - <span><?php echo $name; ?></span></h2>

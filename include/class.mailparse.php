@@ -201,16 +201,38 @@ class Mail_Parse {
 
     function getAttachments($part=null){
 
-        if($part==null)
-            $part=$this->getStruct();
+        /* Consider this part as an attachment if
+         *   * It has a Content-Disposition header
+         *     * AND it is specified as either 'attachment' or 'inline'
+         *   * The Content-Type header specifies
+         *     * type is image/* or application/*
+         *     * has a name parameter
+         */
+        if($part && (
+                ($part->disposition
+                    && (!strcasecmp($part->disposition,'attachment')
+                        || !strcasecmp($part->disposition,'inline'))
+                )
+                || (!strcasecmp($part->ctype_primary,'image')
+                    || !strcasecmp($part->ctype_primary,'application')))) {
 
-        if($part && $part->disposition
-                && (!strcasecmp($part->disposition,'attachment')
-                    || !strcasecmp($part->disposition,'inline')
-                    || !strcasecmp($part->ctype_primary,'image'))){
+            if (isset($part->d_parameters['filename']))
+                $filename = $part->d_parameters['filename'];
+            elseif (isset($part->d_parameters['filename*']))
+                // Support RFC 6266, section 4.3 and RFC, and RFC 5987
+                $filename = Format::decodeRfc5987(
+                    $part->d_parameters['filename*']);
 
-            if(!($filename=$part->d_parameters['filename']) && $part->d_parameters['filename*'])
-                $filename=$part->d_parameters['filename*']; //Do we need to decode?
+            // Support attachments that do not specify a content-disposition
+            // but do specify a "name" parameter in the content-type header.
+            elseif (isset($part->ctype_parameters['name']))
+                $filename=$part->ctype_parameters['name'];
+            elseif (isset($part->ctype_parameters['name*']))
+                $filename = Format::decodeRfc5987(
+                    $part->ctype_parameters['name*']);
+            else
+                // Not an attachment?
+                return false;
 
             $file=array(
                     'name'  => $filename,
@@ -228,6 +250,9 @@ class Mail_Parse {
 
             return array($file);
         }
+
+        if($part==null)
+            $part=$this->getStruct();
 
         $files=array();
         if($part->parts){

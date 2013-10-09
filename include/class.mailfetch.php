@@ -28,7 +28,6 @@ class MailFetcher {
     var $srvstr;
 
     var $charset = 'UTF-8';
-    var $encodings =array('UTF-8','WINDOWS-1251', 'ISO-8859-5', 'ISO-8859-1','KOI8-R');
 
     function MailFetcher($email, $charset='UTF-8') {
 
@@ -108,7 +107,7 @@ class MailFetcher {
     }
 
     function getArchiveFolder() {
-        return $this->ht['archive_folder'];
+        return $this->mailbox_encode($this->ht['archive_folder']);
     }
 
     /* Core */
@@ -124,10 +123,19 @@ class MailFetcher {
     /* Default folder is inbox - TODO: provide user an option to fetch from diff folder/label */
     function open($box='INBOX') {
 
-        if($this->mbox)
+        if ($this->mbox)
            $this->close();
 
-        $this->mbox = imap_open($this->srvstr.$box, $this->getUsername(), $this->getPassword());
+        $args = array($this->srvstr.$this->mailbox_encode($box),
+            $this->getUsername(), $this->getPassword());
+
+        // Disable Kerberos and NTLM authentication if it happens to be
+        // supported locally or remotely
+        if (version_compare(PHP_VERSION, '5.3.2', '>='))
+            $args += array(NULL, 0, array(
+                'DISABLE_AUTHENTICATOR' => array('GSSAPI', 'NTLM')));
+
+        $this->mbox = call_user_func_array('imap_open', $args);
 
         return $this->mbox;
     }
@@ -158,7 +166,8 @@ class MailFetcher {
 
         if(!$folder) return false;
 
-        return imap_createmailbox($this->mbox, imap_utf7_encode($this->srvstr.trim($folder)));
+        return imap_createmailbox($this->mbox,
+           $this->srvstr.$this->mailbox_encode(trim($folder)));
     }
 
     /* check if a folder exists - create one if requested */
@@ -196,6 +205,18 @@ class MailFetcher {
     //Convert text to desired encoding..defaults to utf8
     function mime_encode($text, $charset=null, $encoding='utf-8') { //Thank in part to afterburner
         return Format::encode($text, $charset, $encoding);
+    }
+
+    function mailbox_encode($mailbox) {
+        if (!$mailbox)
+            return null;
+        // Properly encode the mailbox to UTF-7, according to rfc2060,
+        // section 5.1.3
+        elseif (function_exists('mb_convert_encoding'))
+            return mb_convert_encoding($mailbox, 'UTF7-IMAP', 'utf-8');
+        else
+            // XXX: This function has some issues on some versions of PHP
+            return imap_utf7_encode($mailbox);
     }
 
     //Generic decoder - resulting text is utf8 encoded -> mirrors imap_utf8
@@ -308,6 +329,31 @@ class MailFetcher {
         return $text;
     }
 
+    /**
+     * Searches the attribute list for a possible filename attribute. If
+     * found, the attribute value is returned. If the attribute uses rfc5987
+     * to encode the attribute value, the value is returned properly decoded
+     * if possible
+     *
+     * Attribute Search Preference:
+     *   filename
+     *   filename*
+     *   name
+     *   name*
+     */
+    function findFilename($attributes) {
+        foreach (array('filename', 'name') as $pref) {
+            foreach ($attributes as $a) {
+                if (strtolower($a->attribute) == $pref)
+                    return $a->value;
+                // Allow the RFC5987 specification of the filename
+                elseif (strtolower($a->attribute) == $pref.'*')
+                    return Format::decodeRfc5987($a->value);
+            }
+        }
+        return false;
+    }
+
     /*
      getAttachments
 
@@ -319,23 +365,16 @@ class MailFetcher {
 
         if($part && !$part->parts) {
             //Check if the part is an attachment.
-            $filename = '';
-            if($part->ifdisposition && in_array(strtolower($part->disposition), array('attachment', 'inline'))) {
-                $filename = $part->dparameters[0]->value;
-                //Some inline attachments have multiple parameters.
-                if(count($part->dparameters)>1) {
-                    foreach($part->dparameters as $dparameter) {
-                        if(!in_array(strtoupper($dparameter->attribute), array('FILENAME', 'NAME'))) continue;
-                        $filename = $dparameter->value;
-                        break;
-                    }
-                }
-            } elseif($part->ifparameters && $part->parameters && $part->type > 0) { //inline attachments without disposition.
-                foreach($part->parameters as $parameter) {
-                    if(!in_array(strtoupper($parameter->attribute), array('FILENAME', 'NAME'))) continue;
-                    $filename = $parameter->value;
-                    break;
-                }
+            $filename = false;
+            if ($part->ifdisposition
+                    && in_array(strtolower($part->disposition),
+                        array('attachment', 'inline'))) {
+                $filename = $this->findFilename($part->dparameters);
+            }
+            // Inline attachments without disposition.
+            if (!$filename && $part->ifparameters && $part->parameters
+                    && $part->type > 0) {
+                $filename = $this->findFilename($part->parameters);
             }
 
             if($filename) {
@@ -423,19 +462,27 @@ class MailFetcher {
         $newticket=true;
 
         $errors=array();
+        $seen = false;
 
-        if (($thread = ThreadEntry::lookupByEmailHeaders($vars))
+        if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
                 && ($message = $thread->postEmail($vars))) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
             $ticket = $message->getTicket();
+        } elseif ($seen) {
+            // Already processed, but for some reason (like rejection), no
+            // thread item was created. Ignore the email
+            return true;
         } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
         } else {
             //Report success if the email was absolutely rejected.
-            if(isset($errors['errno']) && $errors['errno'] == 403)
+            if(isset($errors['errno']) && $errors['errno'] == 403) {
+                // Never process this email again!
+                ThreadEntry::logEmailHeaders(0, $vars['mid']);
                 return true;
+            }
 
             # check if it's a bounce!
             if($vars['header'] && TicketFilter::isAutoBounce($vars['header'])) {

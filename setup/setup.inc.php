@@ -15,7 +15,7 @@
 **********************************************************************/
 
 #This  version - changed on every release
-define('THIS_VERSION', '1.7.0+');
+define('THIS_VERSION', '1.7-git');
 
 #inits - error reporting.
 $error_reporting = E_ALL & ~E_NOTICE;

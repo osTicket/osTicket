@@ -150,7 +150,7 @@ class Mailer {
         //Desired encodings...
         $encodings=array(
                 'head_encoding' => 'quoted-printable',
-                'text_encoding' => 'quoted-printable',
+                'text_encoding' => 'base64',
                 'html_encoding' => 'base64',
                 'html_charset'  => 'utf-8',
                 'text_charset'  => 'utf-8',

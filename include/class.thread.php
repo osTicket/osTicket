@@ -528,12 +528,15 @@ Class ThreadEntry {
             'reply_to' => $this,
         );
 
+        if (isset($mailinfo['attachments']))
+            $vars['attachments'] = $mailinfo['attachments'];
+
         $body = $mailinfo['message'];
 
         // Disambiguate if the user happens also to be a staff member of the
         // system. The current ticket owner should _always_ post messages
         // instead of notes or responses
-        if ($mailinfo['email'] == $ticket->getEmail()) {
+        if (strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
             return $ticket->postMessage($vars, 'Email');
         }
@@ -544,7 +547,7 @@ Class ThreadEntry {
             $vars['note'] = $body;
             return $ticket->postNote($vars, $errors, $poster);
         }
-        elseif (Email::lookupByEmail($mailinfo['email'])) {
+        elseif (Email::getIdByEmail($mailinfo['email'])) {
             // Don't process the email -- it came FROM this system
             return true;
         }
@@ -579,17 +582,23 @@ Class ThreadEntry {
         if(!$vars || !$vars['mid'])
             return 0;
 
-        $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
-            .' SET message_id='.db_input($this->getId()) //TODO: change it to thread_id
-            .', email_mid='.db_input($vars['mid']); //TODO: change it to mid.
-        if (isset($vars['header']))
-            $sql .= ', headers='.db_input($vars['header']);
-
         $this->ht['email_mid'] = $vars['mid'];
 
-        return db_query($sql)?db_insert_id():0;
+        $header = false;
+        if (isset($vars['header']))
+            $header = $vars['header'];
+        self::logEmailHeaders($this->getId(), $vars['mid'], $header);
     }
 
+    /* static */
+    function logEmailHeaders($id, $mid, $header=false) {
+        $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
+            .' SET message_id='.db_input($id) //TODO: change it to thread_id
+            .', email_mid='.db_input($mid); //TODO: change it to message_id.
+        if ($header)
+            $sql .= ', headers='.db_input($header);
+        return db_query($sql)?db_insert_id():0;
+    }
 
     /* variables */
 
@@ -640,28 +649,39 @@ Class ThreadEntry {
      *  - "in-reply-to" => Message-Id the email is a direct response to
      *  - "references" => List of Message-Id's the email is in response
      *  - "subject" => Find external ticket number in the subject line
+     *
+     *  seen (by-ref:bool) a flag that will be set if the message-id was
+     *      positively found, indicating that the message-id has been
+     *      previously seen. This is useful if no thread-id is associated
+     *      with the email (if it was rejected for instance).
      */
-    function lookupByEmailHeaders($mailinfo) {
+    function lookupByEmailHeaders($mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        $search = 'SELECT message_id FROM '.TICKET_EMAIL_INFO_TABLE
+        $search = 'SELECT message_id, email_mid FROM '.TICKET_EMAIL_INFO_TABLE
                . ' WHERE email_mid=%s ORDER BY message_id DESC';
 
-        if ($id = db_result(db_query(
-                sprintf($search, db_input($mailinfo['mid'])))))
+        if (list($id, $mid) = db_fetch_row(db_query(
+                sprintf($search, db_input($mailinfo['mid']))))) {
+            $seen = true;
             return ThreadEntry::lookup($id);
+        }
 
         foreach (array('mid', 'in-reply-to', 'references') as $header) {
             $matches = array();
             if (!isset($mailinfo[$header]) || !$mailinfo[$header])
                 continue;
             // Header may have multiple entries (usually separated by
-            // semi-colons (;))
+            // spaces ( )
             elseif (!preg_match_all('/<[^>@]+@[^>]+>/', $mailinfo[$header],
                         $matches))
                 continue;
 
-            foreach ($matches[0] as $mid) {
+            // The References header will have the most recent message-id
+            // (parent) on the far right.
+            // @see rfc 1036, section 2.2.5
+            // @see http://www.jwz.org/doc/threading.html
+            foreach (array_reverse($matches[0]) as $mid) {
                 $res = db_query(sprintf($search, db_input($mid)));
                 while (list($id) = db_fetch_row($res)) {
                     if ($t = ThreadEntry::lookup($id))
@@ -671,11 +691,16 @@ Class ThreadEntry {
         }
 
         // Search for ticket by the [#123456] in the subject line
+        // This is the last resort -  emails must match to avoid message
+        // injection by third-party.
         $subject = $mailinfo['subject'];
         $match = array();
-        if ($subject && preg_match("/\[#([0-9]{1,10})\]/", $subject, $match))
+        if ($subject && $mailinfo['email']
+                && preg_match("/\[#([0-9]{1,10})\]/", $subject, $match)
+                && ($tid = Ticket::getIdByExtId((int)$match[1], $mailinfo['email']))
+                )
             // Return last message for the thread
-            return Message::lastByExtTicketId((int)$match[1]);
+            return Message::lastByTicketId($tid);
 
         return null;
     }
@@ -780,15 +805,16 @@ class Message extends ThreadEntry {
                 )?$m:null;
     }
 
-    function lastByExtTicketId($ticketId) {
-        $sql = 'SELECT thread.id FROM '.TICKET_THREAD_TABLE
-            .' thread JOIN '.TICKET_TABLE.' ticket ON (ticket.ticket_id = thread.ticket_id)
-                WHERE thread_type=\'M\' AND ticket.ticketID = '.db_input($ticketId)
+    function lastByTicketId($ticketId) {
+
+        $sql=' SELECT thread.id FROM '.TICKET_THREAD_TABLE.' thread '
+            .' WHERE thread_type=\'M\' AND thread.ticket_id = '.db_input($ticketId)
             .' ORDER BY thread.id DESC LIMIT 1';
-        if (($res = db_query($sql)) && (list($id) = db_fetch_row($res)))
+
+        if (($res = db_query($sql)) && ($id = db_result($res)))
             return Message::lookup($id);
-        else
-            return null;
+
+        return null;
     }
 }
 

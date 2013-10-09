@@ -17,6 +17,10 @@ function get_osticket_root_path() {
     return realpath($start);
 }
 
+function run_tests($root) {
+    return (require "$root/setup/test/run-tests.php");
+}
+
 # Check PHP syntax across all php files
 function glob_recursive($pattern, $flags = 0) {
     $files = glob($pattern, $flags);
@@ -63,6 +67,10 @@ function package($pattern, $destination, $recurse=false, $exclude=false) {
         }
     }
 }
+
+# Run tests before continuing
+if (run_tests($root) > 0)
+    die("Regression tests failed. Cowardly refusing to package\n");
 
 # Create the stage folder for the install files
 if (!is_dir($stage_path))
