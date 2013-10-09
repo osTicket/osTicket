@@ -15,15 +15,17 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             These items are necessary in order to install and use osTicket.
             <ul class="progress">
                 <li class="<?php echo $installer->check_php()?'yes':'no'; ?>">
-                PHP v4.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
+                PHP v5.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
                 <li class="<?php echo $installer->check_mysql()?'yes':'no'; ?>">
-                MySQL v4.4 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
+                MySQL v5.0 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
             </ul>
             <h3>Recommended:</h3>
             You can use osTicket without these, but you may not be able to use all features.
             <ul class="progress">
                 <li class="<?php echo extension_loaded('gd')?'yes':'no'; ?>">Gdlib extension</li>
                 <li class="<?php echo extension_loaded('imap')?'yes':'no'; ?>">PHP IMAP extension</li>
+                <li class="<?php echo extension_loaded('xml')?'yes':'no'; ?>">PHP XML extension (for HTML email processing, and XML API)</li>
+                <li class="<?php echo extension_loaded('json')?'yes':'no'; ?>">PHP JSON extension (faster performance)</li>
             </ul>
             <div id="bar">
                 <form method="post" action="install.php">

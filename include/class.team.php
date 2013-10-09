@@ -238,7 +238,7 @@ class Team {
         $sql='SET updated=NOW(),isenabled='.db_input($vars['isenabled']).
              ',name='.db_input($vars['name']).
              ',noalerts='.db_input(isset($vars['noalerts'])?$vars['noalerts']:0).
-             ',notes='.db_input($vars['notes']);
+             ',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.TEAM_TABLE.' '.$sql.',lead_id='.db_input($vars['lead_id']).' WHERE team_id='.db_input($id);

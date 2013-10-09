@@ -13,20 +13,47 @@ notes: |
     member.  Use %{assigner} to distinguish who made the assignment.
 
 subject: |
-    Ticket #%{ticket.number} Assigned to you
+    Ticket Assigned to you
 body: |
-    %{assignee},
-
-    Ticket #%{ticket.number} has been assigned to you by %{assigner}
-
-    ----------------------
-
-    %{comments}
-
-    ----------------------
-
-    To view complete details, simply login to the support system.
-
-    %{ticket.staff_link}
-
-    - Your friendly Support Ticket System - powered by osTicket.
+    <h3><strong>Hi %{assignee},</strong></h3>
+    <p>
+        Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> has been
+        assigned to you by %{assigner}
+    </p>
+    <table>
+    <tbody>
+    <tr>
+        <td>
+             <strong>From</strong>:
+        </td>
+        <td>
+             %{ticket.name} &lt;%{ticket.email}&gt;
+        </td>
+    </tr>
+    <tr>
+        <td>
+             <strong>Subject</strong>:
+        </td>
+        <td>
+             %{ticket.subject}
+        </td>
+    </tr>
+    </tbody>
+    </table>
+    <p>
+         %{comments}
+    </p>
+    <hr>
+    <p>
+         <span style="color: rgb(127, 127, 127); font-size: small; ">To
+         view/respond to the ticket, please <a
+         href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+         >login</span></a> to the support ticket system</span>
+    </p>
+    <p>
+         <em>Your friendly Customer Support System</em>
+    </p>
+    <p>
+         <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+         alt="Powered by osTicket" width="146" height="22" style="width: 146px;">
+    </p>

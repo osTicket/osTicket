@@ -25,7 +25,10 @@ $h=trim($_GET['h']);
 if(!$h  || strlen($h)!=64  //32*2
         || !($file=AttachmentFile::lookup(substr($h,0,32))) //first 32 is the file hash.
         || strcasecmp($h, $file->getDownloadHash())) //next 32 is file id + session hash.
-    die('Unknown or invalid file. #'.Format::htmlchars($_GET['h']));
+    Http::response(404, 'Unknown or invalid file');
 
-$file->display();
+if ($_GET['s'] && is_numeric($_GET['s']))
+    $file->display($_GET['s']);
+else
+    $file->display();
 ?>

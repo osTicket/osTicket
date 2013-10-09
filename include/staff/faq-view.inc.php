@@ -6,7 +6,7 @@ $category=$faq->getCategory();
 ?>
 <h2>Frequently Asked Questions</h2>
 <div id="breadcrumbs">
-    <a href="kb.php">All Categories</a> 
+    <a href="kb.php">All Categories</a>
     &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
     <span class="faded">(<?php echo $category->isPublic()?'Public':'Internal'; ?>)</span>
 </div>
@@ -23,12 +23,13 @@ if($thisstaff->canManageFAQ()) {
 &nbsp;
 </div>
 <div class="clear"></div>
-<p>
-<?php echo Format::safe_html($faq->getAnswer()); ?>
-</p>
+<div class="thread-body">
+<?php echo $faq->getAnswer(); ?>
+</div>
+<div class="clear"></div>
 <p>
  <div><span class="faded"><b>Attachments:</b></span> <?php echo $faq->getAttachmentsLinks(); ?></div>
- <div><span class="faded"><b>Help Topics:</b></span> 
+ <div><span class="faded"><b>Help Topics:</b></span>
     <?php echo ($topics=$faq->getHelpTopics())?implode(', ',$topics):' '; ?>
     </div>
 </p>
@@ -63,5 +64,5 @@ if($thisstaff->canManageFAQ()) {
     </form>
    </div>
 <?php
-} 
+}
 ?>

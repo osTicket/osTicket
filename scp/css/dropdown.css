@@ -93,7 +93,6 @@
   border: 1px solid #aaa;
   cursor: pointer;
   font-size: 11px;
-  height: 18px;
   overflow: hidden;
   background-color: #dddddd;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100% #dddddd));
@@ -103,7 +102,7 @@
   background-image: -o-linear-gradient(top, #efefef 0%, #dddddd 100%);
   background-image: linear-gradient(top, #efefef 0%, #dddddd 100%);
   padding: 0 5px;
-  text-decoration: none;
+  text-decoration: none !important;
   line-height:18px;
   float:right;
   margin-left:5px;

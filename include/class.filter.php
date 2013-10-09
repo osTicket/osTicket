@@ -459,7 +459,7 @@ class Filter {
             .',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0)
             .',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0)
             .',canned_response_id='.db_input($vars['canned_response_id'])
-            .',notes='.db_input($vars['notes']);
+            .',notes='.db_input(Format::sanitize($vars['notes']));
 
 
         //Auto assign ID is overloaded...

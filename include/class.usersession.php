@@ -68,23 +68,23 @@ class UserSession {
 
    function isvalidSession($htoken,$maxidletime=0,$checkip=false){
         global $cfg;
-       
+
         $token = rawurldecode($htoken);
-        
+
         #check if we got what we expected....
         if($token && !strstr($token,":"))
             return FALSE;
-        
+
         #get the goodies
         list($hash,$expire,$ip)=explode(":",$token);
-        
+
         #Make sure the session hash is valid
         if((md5($expire . SESSION_SECRET . $this->userID)!=$hash)){
             return FALSE;
         }
         #is it expired??
-        
-        
+
+
         if($maxidletime && ((time()-$expire)>$maxidletime)){
             return FALSE;
         }
@@ -104,7 +104,7 @@ class UserSession {
 }
 
 class ClientSession extends Client {
-    
+
     var $session;
 
     function ClientSession($email, $id){
@@ -117,7 +117,7 @@ class ClientSession extends Client {
 
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
             return false;
-        
+
         return $this->session->isvalidSession($_SESSION['_client']['token'],$cfg->getClientTimeout(),false)?true:false;
     }
 
@@ -134,17 +134,17 @@ class ClientSession extends Client {
     function getSessionToken() {
         return $this->session->sessionToken();
     }
-    
+
     function getIP(){
         return $this->session->getIP();
-    }    
+    }
 }
 
 
 class StaffSession extends Staff {
-    
+
     var $session;
-    
+
     function StaffSession($var){
         parent::Staff($var);
         $this->session= new UserSession($this->getId());
@@ -155,7 +155,7 @@ class StaffSession extends Staff {
 
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
             return false;
-        
+
         return $this->session->isvalidSession($_SESSION['_staff']['token'],$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;
     }
 
@@ -163,7 +163,7 @@ class StaffSession extends Staff {
         global $_SESSION;
         $_SESSION['_staff']['token']=$this->getSessionToken();
     }
-    
+
     function getSession() {
         return $this->session;
     }
@@ -171,11 +171,11 @@ class StaffSession extends Staff {
     function getSessionToken() {
         return $this->session->sessionToken();
     }
-    
+
     function getIP(){
         return $this->session->getIP();
     }
-    
+
 }
 
 ?>

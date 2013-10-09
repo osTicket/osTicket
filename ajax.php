@@ -27,7 +27,13 @@ require_once INCLUDE_DIR.'/class.ajax.php';
 
 $dispatcher = patterns('',
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
-        url_get('^client', 'client')
+        url_get('^client$', 'client')
+    )),
+    url('^/draft/', patterns('ajax.draft.php:DraftAjaxAPI',
+        url_post('^(?P<id>\d+)$', 'updateDraftClient'),
+        url_post('^(?P<id>\d+)/attach$', 'uploadInlineImageClient'),
+        url_get('^(?P<namespace>[\w.]+)$', 'getDraftClient'),
+        url_post('^(?P<namespace>[\w.]+)$', 'createDraftClient')
     ))
 );
 print $dispatcher->resolve($ost->get_path_info());

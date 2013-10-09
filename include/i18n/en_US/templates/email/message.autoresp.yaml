@@ -9,16 +9,27 @@
 ---
 notes: |
     Sent to a user when the user posts a new message to a ticket. This can
-    happen if the users responds to an email from the system or visits the
+    happen if the user responds to an email from the system or visits the
     customer web portal and posts a new message there.
 
 subject: |
-    [#%{ticket.number}] Message Added
+    "Message Confirmation"
 body: |
-    %{ticket.name},
-
-    Your reply to support request #%{ticket.number} has been noted.
-
-    You can view this support request progress online here: %{ticket.client_link}.
-
-    %{signature}
+    <h3><strong>Dear %{ticket.name},</strong></h3>
+    <p>
+        Your reply to support request <a
+        href="%{ticket.client_link}">#%{ticket.number}</a> has been noted
+    </p>
+    <p>
+        %{signature}
+    </p>
+    <hr>
+    <p>
+        <span style="color: rgb(127, 127, 127); font-size: small">You can
+        view this support request's progress <a
+        href="%{ticket.client_link}">online here</a></span>
+    </p>
+    <p>
+        <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+        alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
+    </p>

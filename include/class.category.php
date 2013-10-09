@@ -143,8 +143,8 @@ class Category {
         $sql=' updated=NOW() '.
              ',ispublic='.db_input(isset($vars['ispublic'])?$vars['ispublic']:0).
              ',name='.db_input($vars['name']).
-             ',description='.db_input(Format::safe_html($vars['description'])).
-             ',notes='.db_input($vars['notes']);
+             ',description='.db_input(Format::sanitize($vars['description'])).
+             ',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET '.$sql.' WHERE category_id='.db_input($id);

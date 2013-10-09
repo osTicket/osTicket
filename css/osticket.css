@@ -23,3 +23,23 @@
 }
 
 #loading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
+
+.pull-right {
+    float: right;
+}
+
+.non-local-image {
+    display: inline-block;
+    border: 5px dashed #eee;
+}
+
+.non-local-image:after {
+    background: url(../assets/default/images/logo.png) center left no-repeat;
+    background-size: cover;
+    content: "";
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0.3;
+}

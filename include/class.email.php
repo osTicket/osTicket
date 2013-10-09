@@ -366,7 +366,7 @@ class Email {
              ',smtp_port='.db_input($vars['smtp_port']?$vars['smtp_port']:0).
              ',smtp_auth='.db_input($vars['smtp_auth']).
              ',smtp_spoofing='.db_input(isset($vars['smtp_spoofing'])?1:0).
-             ',notes='.db_input($vars['notes']);
+             ',notes='.db_input(Format::sanitize($vars['notes']));
 
         //Post fetch email handling...
         if($vars['postfetch'] && !strcasecmp($vars['postfetch'],'delete'))

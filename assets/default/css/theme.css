@@ -520,7 +520,7 @@ body {
 #kb-search #breadcrumbs #breadcrumbs a {
   color: #555;
 }
-#ticketForm div,
+#ticketForm div.clear,
 #clientLogin div {
   clear: both;
   padding: 3px 0;
@@ -648,8 +648,8 @@ body {
 #reply h2 {
   margin-bottom: 10px;
 }
-#reply table {
-  width: 800px;
+#reply > table {
+  width: auto;
 }
 #reply table td {
   vertical-align: top;
@@ -783,7 +783,8 @@ a.refresh {
 .infoTable th {
   text-align: left;
 }
-#ticketThread table {
+#ticketThread table.response,
+#ticketThread table.message {
   margin-top: 10px;
   border: 1px solid #aaa;
   border-bottom: 2px solid #aaa;
@@ -798,9 +799,6 @@ a.refresh {
   font-weight: normal;
   color: #888;
   padding-left: 20px;
-}
-#ticketThread table td {
-  padding: 5px;
 }
 #ticketThread .message th {
   background: #d8efff;
@@ -823,4 +821,67 @@ a.refresh {
   line-height: 16px;
   background-position: 0 50%;
   background-repeat: no-repeat;
+}
+/* Inline image hovering with download link */
+.image-hover {
+    display: inline-block;
+    position: relative;
+}
+.image-hover .caption {
+    background-color: rgba(0,0,0,0.5);
+    min-width: 20em;
+    color: white;
+    padding: 1em;
+    display: none;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+.image-hover .caption .filename {
+    display: inline-block;
+    max-width: 60%;
+}
+.ticket-thread-body img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+}
+.action-button {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  color: #777 !important;
+  display: inline-block;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  font-size: 11px;
+  height: 18px;
+  overflow: hidden;
+  background-color: #dddddd;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100% #dddddd));
+  background-image: -webkit-linear-gradient(top, #efefef 0%, #dddddd 100%);
+  background-image: -moz-linear-gradient(top, #efefef 0%, #dddddd 100%);
+  background-image: -ms-linear-gradient(top, #efefef 0%, #dddddd 100%);
+  background-image: -o-linear-gradient(top, #efefef 0%, #dddddd 100%);
+  background-image: linear-gradient(top, #efefef 0%, #dddddd 100%);
+  padding: 0 5px;
+  text-decoration: none;
+  line-height:18px;
+  float:right;
+  margin-left:5px;
+}
+.action-button span,
+.action-button a {
+  color: #777 !important;
+  display: inline-block;
+  float: left;
+}
+.action-button a {
+  color: #777;
+  text-decoration: none;
 }

@@ -251,7 +251,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <textarea name="notes" cols="21" rows="5" style="width: 60%;"><?php echo $info['notes']; ?></textarea>
+                <textarea class="richtext no-bar" name="notes" cols="21"
+                    rows="5" style="width: 60%;"><?php echo $info['notes']; ?></textarea>
             </td>
         </tr>
     </tbody>

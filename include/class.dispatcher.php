@@ -29,7 +29,7 @@ class Dispatcher {
     function resolve($url, $args=null) {
         if ($this->file) { $this->lazy_load(); }
         # Support HTTP method emulation with the _method GET argument
-        if (isset($_GET['_method'])) { 
+        if (isset($_GET['_method'])) {
             $_SERVER['REQUEST_METHOD'] = strtoupper($_GET['_method']);
             unset($_GET['_method']);
         }
@@ -114,15 +114,15 @@ class UrlMatcher {
             # level)
             return $this->func->resolve(
                 substr($url, strlen($this->matches[0])),
-                array_merge(($prev_args) ? $prev_args : array(), 
+                array_merge(($prev_args) ? $prev_args : array(),
                     array_slice($this->matches, 1)));
         } else {
             # Drop the first item of the matches array (which is the whole
             # matched url). Then merge in any initial arguments.
-            array_shift($this->matches);
+            unset($this->matches[0]);
             # Prepend received arguments (from a parent Dispatcher). This is
             # different from the static args, which are postpended
-            if (is_array($prev_args)) 
+            if (is_array($prev_args))
                 $args = array_merge($prev_args, $this->matches);
             else $args = $this->matches;
             # Add in static args specified in the constructor
@@ -135,7 +135,7 @@ class UrlMatcher {
                 $func = array(new $class, $func);
             }
             if (!is_callable($func))
-                Http::response(500, 
+                Http::response(500,
                     'Dispatcher compile error. Function not callable');
             return call_user_func_array($func, $args);
         }
@@ -183,7 +183,7 @@ function url_get($regex, $func, $args=false) {
     return url($regex, $func, $args, "GET");
 }
 
-function url_del($regex, $func, $args=false) {
+function url_delete($regex, $func, $args=false) {
     return url($regex, $func, $args, "DELETE");
 }
 ?>

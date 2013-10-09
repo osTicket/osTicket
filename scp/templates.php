@@ -29,8 +29,10 @@ if($_POST){
             if(!$template){
                 $errors['err']='Unknown or invalid template';
             }elseif($template->update($_POST,$errors)){
-                $template->reload();
                 $msg='Message template updated successfully';
+                // Drop drafts for this template for ALL users
+                Draft::deleteForNamespace('tpl.'.$template->getCodeName()
+                    .'.'.$template->getTplId());
             }elseif(!$errors['err']){
                 $errors['err']='Error updating message template. Try again!';
             }
@@ -41,6 +43,9 @@ if($_POST){
             }elseif($new = EmailTemplate::add($_POST,$errors)){
                 $template = $new;
                 $msg='Message template updated successfully';
+                // Drop drafts for this user for this template
+                Draft::deleteForNamespace('tpl.'.$new->getCodeName()
+                    .$new->getTplId(), $thisstaff->getId());
             }elseif(!$errors['err']){
                 $errors['err']='Error updating message template. Try again!';
             }

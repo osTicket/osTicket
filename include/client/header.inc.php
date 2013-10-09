@@ -13,9 +13,21 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/print.css" media="print">
-    <script src="<?php echo ROOT_PATH; ?>js/jquery-1.7.2.min.js"></script>
+    <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/thread.css" media="screen">
+    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/jquery.multifile.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+    <?php
+    if($ost && ($headers=$ost->getExtraHeaders())) {
+        echo "\n\t".implode("\n\t", $headers)."\n";
+    }
+    ?>
 </head>
 <body>
     <div id="container">

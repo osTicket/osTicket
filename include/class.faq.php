@@ -34,7 +34,8 @@ class FAQ {
         $sql='SELECT faq.*,cat.ispublic, count(attach.file_id) as attachments '
             .' FROM '.FAQ_TABLE.' faq '
             .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id) '
-            .' LEFT JOIN '.FAQ_ATTACHMENT_TABLE.' attach ON(attach.faq_id=faq.faq_id) '
+            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+                 ON(attach.object_id=faq.faq_id AND attach.`type`=\'F\' AND attach.inline=0) '
             .' WHERE faq.faq_id='.db_input($id)
             .' GROUP BY faq.faq_id';
 
@@ -44,7 +45,7 @@ class FAQ {
         $this->ht = db_fetch_array($res);
         $this->ht['id'] = $this->id = $this->ht['faq_id'];
         $this->category = null;
-        $this->attachments = array();
+        $this->attachments = new GenericAttachments($this->id, 'F');
 
         return true;
     }
@@ -58,7 +59,9 @@ class FAQ {
     function getHashtable() { return $this->ht; }
     function getKeywords() { return $this->ht['keywords']; }
     function getQuestion() { return $this->ht['question']; }
-    function getAnswer() { return $this->ht['answer']; }
+    function getAnswer() {
+        return Format::viewableImages($this->ht['answer']);
+    }
     function getNotes() { return $this->ht['notes']; }
     function getNumAttachments() { return $this->ht['attachments']; }
 
@@ -162,47 +165,32 @@ class FAQ {
 
         //Delete removed attachments.
         $keepers = $vars['files']?$vars['files']:array();
-        if(($attachments = $this->getAttachments())) {
+        if(($attachments = $this->attachments->getSeparates())) {
             foreach($attachments as $file) {
                 if($file['id'] && !in_array($file['id'], $keepers))
-                    $this->deleteAttachment($file['id']);
+                    $this->attachments->delete($file['id']);
             }
         }
 
         //Upload new attachments IF any.
         if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-            $this->uploadAttachments($files);
+            $this->attachments->upload($files);
+
+        // Inline images (attached to the draft)
+        $this->attachments->deleteInlines();
+        if (isset($vars['draft_id']) && $vars['draft_id'])
+            if ($draft = Draft::lookup($vars['draft_id']))
+                $this->attachments->upload($draft->getAttachmentIds(), true);
 
         $this->reload();
 
         return true;
     }
 
-
-    function getAttachments() {
-
-        if(!$this->attachments && $this->getNumAttachments()) {
-
-            $sql='SELECT f.id, f.size, f.hash, f.name '
-                .' FROM '.FILE_TABLE.' f '
-                .' INNER JOIN '.FAQ_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
-                .' WHERE a.faq_id='.db_input($this->getId());
-
-            $this->attachments = array();
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($rec=db_fetch_array($res)) {
-                    $rec['key'] =md5($rec['id'].session_id().$rec['hash']);
-                    $this->attachments[] = $rec;
-                }
-            }
-        }
-        return $this->attachments;
-    }
-
     function getAttachmentsLinks($separator=' ',$target='') {
 
         $str='';
-        if(($attachments=$this->getAttachments())) {
+        if(($attachments=$this->attachments->getSeparates())) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
             $hash=$attachment['hash'].md5($attachment['id'].session_id().$attachment['hash']);
@@ -217,46 +205,6 @@ class FAQ {
         return $str;
     }
 
-    function uploadAttachments($files) {
-
-        $i=0;
-        foreach($files as $file) {
-            if(($fileId=is_numeric($file)?$file:AttachmentFile::upload($file)) && is_numeric($fileId)) {
-                $sql ='INSERT INTO '.FAQ_ATTACHMENT_TABLE
-                     .' SET faq_id='.db_input($this->getId()).', file_id='.db_input($fileId);
-                if(db_query($sql)) $i++;
-            }
-        }
-
-        if($i) $this->reload();
-
-        return $i;
-    }
-
-    function deleteAttachment($file_id) {
-        $deleted = 0;
-        $sql='DELETE FROM '.FAQ_ATTACHMENT_TABLE
-            .' WHERE faq_id='.db_input($this->getId())
-            .'   AND file_id='.db_input($file_id);
-        if(db_query($sql) && db_affected_rows()) {
-            $deleted = AttachmentFile::deleteOrphans();
-        }
-        return ($deleted > 0);
-    }
-
-    function deleteAttachments(){
-
-        $deleted=0;
-        $sql='DELETE FROM '.FAQ_ATTACHMENT_TABLE
-            .' WHERE faq_id='.db_input($this->getId());
-        if(db_query($sql) && db_affected_rows()) {
-            $deleted = AttachmentFile::deleteOrphans();
-        }
-
-        return $deleted;
-    }
-
-
     function delete() {
 
         $sql='DELETE FROM '.FAQ_TABLE
@@ -268,7 +216,7 @@ class FAQ {
         //Cleanup help topics.
         db_query('DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE faq_id='.db_input($this->id));
         //Cleanup attachments.
-        $this->deleteAttachments();
+        $this->attachments->deleteAll();
 
         return true;
     }
@@ -283,7 +231,12 @@ class FAQ {
             $faq->updateTopics($vars['topics']);
 
             if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-                $faq->uploadAttachments($files);
+                $faq->attachments->upload($files);
+
+            // Inline images (attached to the draft)
+            if (isset($vars['draft_id']) && $vars['draft_id'])
+                if ($draft = Draft::lookup($vars['draft_id']))
+                    $faq->attachments->upload($draft->getAttachmentIds(), true);
 
             $faq->reload();
         }
@@ -350,10 +303,10 @@ class FAQ {
         //save
         $sql=' updated=NOW() '
             .', question='.db_input($vars['question'])
-            .', answer='.db_input(Format::safe_html($vars['answer']))
+            .', answer='.db_input(Format::sanitize($vars['answer'], false))
             .', category_id='.db_input($vars['category_id'])
             .', ispublished='.db_input(isset($vars['ispublished'])?$vars['ispublished']:0)
-            .', notes='.db_input($vars['notes']);
+            .', notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.FAQ_TABLE.' SET '.$sql.' WHERE faq_id='.db_input($id);

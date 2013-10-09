@@ -14,7 +14,7 @@ if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
     <time>Last updated <?php echo Format::db_daydatetime($category->getUpdateDate()); ?></time>
 </div>
 <div class="cat-desc">
-<?php echo Format::safe_html($category->getDescription()); ?>
+<?php echo Format::display($category->getDescription()); ?>
 </div>
 <?php
 if($thisstaff->canManageFAQ()) {
@@ -31,7 +31,8 @@ if($thisstaff->canManageFAQ()) {
 
 $sql='SELECT faq.faq_id, question, ispublished, count(attach.file_id) as attachments '
     .' FROM '.FAQ_TABLE.' faq '
-    .' LEFT JOIN '.FAQ_ATTACHMENT_TABLE.' attach ON(attach.faq_id=faq.faq_id) '
+    .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+         ON(attach.object_id=faq.faq_id AND attach.type=\'F\' AND attach.inline = 0) '
     .' WHERE faq.category_id='.db_input($category->getId())
     .' GROUP BY faq.faq_id';
 if(($res=db_query($sql)) && db_num_rows($res)) {

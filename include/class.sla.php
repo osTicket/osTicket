@@ -179,7 +179,7 @@ class SLA {
              ',grace_period='.db_input($vars['grace_period']).
              ',disable_overdue_alerts='.db_input(isset($vars['disable_overdue_alerts'])?1:0).
              ',enable_priority_escalation='.db_input(isset($vars['enable_priority_escalation'])?1:0).
-             ',notes='.db_input($vars['notes']);
+             ',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.SLA_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
