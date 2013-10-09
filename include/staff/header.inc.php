@@ -10,16 +10,20 @@
         .tip_shadow { display:block !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" src="../js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script type="text/javascript" src="../js/jquery.multifile.js"></script>
     <script type="text/javascript" src="./js/tips.js"></script>
-    <script type="text/javascript" src="./js/nicEdit.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
     <script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="./js/scp.js"></script>
+    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/thread.css" media="screen">
     <link rel="stylesheet" href="./css/scp.css" media="screen">
+    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
     <link rel="stylesheet" href="./css/typeahead.css" media="screen">
-    <link type="text/css" href="../css/ui-lightness/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+    <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
     <link type="text/css" rel="stylesheet" href="../css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="./css/dropdown.css">
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>

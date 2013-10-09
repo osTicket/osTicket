@@ -159,8 +159,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
             </th>
         </tr>
         <tr>
-            <td colspan=2>
-                <textarea name="note" cols="21" rows="6" style="width:80%;"><?php echo $info['note']; ?></textarea>
+            <td colspan="2">
+                <textarea class="richtext no-bar" name="note" cols="21"
+                    rows="6" style="width:80%;"><?php echo $info['note'];
+                    ?></textarea>
             </td>
         </tr>
     </tbody>

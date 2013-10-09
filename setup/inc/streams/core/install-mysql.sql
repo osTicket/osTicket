@@ -15,6 +15,15 @@ CREATE TABLE `%TABLE_PREFIX%api_key` (
   UNIQUE KEY `apikey` (`apikey`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%attachment`;
+CREATE TABLE `%TABLE_PREFIX%attachment` (
+  `object_id` int(11) unsigned NOT NULL,
+  `type` char(1) NOT NULL,
+  `file_id` int(11) unsigned NOT NULL,
+  `inline` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`object_id`,`file_id`,`type`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   `faq_id` int(10) unsigned NOT NULL auto_increment,
@@ -30,13 +39,6 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   UNIQUE KEY `question` (`question`),
   KEY `category_id` (`category_id`),
   KEY `ispublished` (`ispublished`)
-) DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_attachment`;
-CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_attachment` (
-  `faq_id` int(10) unsigned NOT NULL,
-  `file_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`faq_id`,`file_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_category`;
@@ -160,10 +162,6 @@ INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
   ('core', 'hide_staff_name', '0'),
   ('core', 'overlimit_notice_active', '0'),
   ('core', 'email_attachments', '1'),
-  ('core', 'allow_attachments', '0'),
-  ('core', 'allow_email_attachments', '0'),
-  ('core', 'allow_online_attachments', '0'),
-  ('core', 'allow_online_attachments_onlogin', '0'),
   ('core', 'random_ticket_ids', '1'),
   ('core', 'log_level', '2'),
   ('core', 'log_graceperiod', '12'),
@@ -193,6 +191,17 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   KEY `manager_id` (`manager_id`),
   KEY `autoresp_email_id` (`autoresp_email_id`),
   KEY `tpl_id` (`tpl_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%draft`;
+CREATE TABLE `%TABLE_PREFIX%draft` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `staff_id` int(11) unsigned NOT NULL,
+  `namespace` varchar(32) NOT NULL DEFAULT '',
+  `body` text NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%email`;
@@ -396,13 +405,6 @@ CREATE TABLE `%TABLE_PREFIX%canned_response` (
   UNIQUE KEY `title` (`title`),
   KEY `dept_id` (`dept_id`),
   KEY `active` (`isenabled`)
-) DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%canned_attachment`;
-CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%canned_attachment` (
-  `canned_id` int(10) unsigned NOT NULL,
-  `file_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`canned_id`,`file_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;

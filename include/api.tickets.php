@@ -18,10 +18,12 @@ class TicketApiController extends ApiController {
             "message", "ip", "priorityId"
         );
 
-        if(!strcasecmp($format, 'email'))
+        if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
                 'emailId', 'ticketId', 'reply-to', 'reply-to-name',
                 'in-reply-to', 'references'));
+            $supported['attachments']['*'][] = 'cid';
+        }
 
         return $supported;
     }

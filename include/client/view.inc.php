@@ -71,13 +71,18 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         if($entry['thread_type']=='R' && ($cfg->hideStaffName() || !$entry['staff_id']))
             $poster = ' ';
         ?>
-        <table class="<?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
-            <tr><th><?php echo Format::db_datetime($entry['created']); ?> &nbsp;&nbsp;<span><?php echo $poster; ?></span></th></tr>
-            <tr><td><?php echo Format::display($entry['body']); ?></td></tr>
+        <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
+            <tr><th><?php echo Format::db_datetime($entry['created']); ?> &nbsp;&nbsp;<span class="textra"></span><span><?php echo $poster; ?></span></th></tr>
+            <tr><td class="thread-body"><?php echo Format::viewableImages(Format::display($entry['body'])); ?></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
+                    && ($urls = $tentry->getAttachmentUrls())
                     && ($links=$tentry->getAttachmentsLinks())) { ?>
+                <script type="text/javascript">
+                    $(function() { showImagesInline(<?php echo
+                        JsonDataEncoder::encode($urls); ?>); });
+                </script>
                 <tr><td class="info"><?php echo $links; ?></td></tr>
             <?php
             } ?>
@@ -100,12 +105,9 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     <h2>Post a Reply</h2>
     <input type="hidden" name="id" value="<?php echo $ticket->getExtId(); ?>">
     <input type="hidden" name="a" value="reply">
-    <table border="0" cellspacing="0" cellpadding="3" width="800">
+    <table border="0" cellspacing="0" cellpadding="3" style="width:100%">
         <tr>
-            <td width="160">
-                <label>Message:</label>
-            </td>
-            <td width="640">
+            <td colspan="2">
                 <?php
                 if($ticket->isClosed()) {
                     $msg='<b>Ticket will be reopened on message post</b>';
@@ -113,8 +115,12 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                     $msg='To best assist you, please be specific and detailed';
                 }
                 ?>
-                <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font><br/>
-                <textarea name="message" id="message" cols="50" rows="9" wrap="soft"><?php echo $info['message']; ?></textarea>
+                <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
+                <br/>
+                <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
+                    data-draft-namespace="ticket.client"
+                    data-draft-object-id="<?php echo $ticket->getExtId(); ?>"
+                    class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
             </td>
         </tr>
         <?php

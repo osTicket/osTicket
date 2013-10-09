@@ -15,7 +15,7 @@
 **********************************************************************/
 
 if(!defined('INCLUDE_DIR')) die('!');
-	    
+
 class ConfigAjaxAPI extends AjaxController {
 
     //config info UI might need.
@@ -23,9 +23,11 @@ class ConfigAjaxAPI extends AjaxController {
         global $cfg;
 
         $config=array(
-                      'lock_time'       => ($cfg->getLockTime()*3600),
-                      'max_file_uploads'=> (int) $cfg->getStaffMaxFileUploads()
-                      );
+              'lock_time'       => ($cfg->getLockTime()*3600),
+              'max_file_uploads'=> (int) $cfg->getStaffMaxFileUploads(),
+              'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
+              'allow_attachments' => (bool) $cfg->allowAttachments(),
+        );
         return $this->json_encode($config);
     }
 
@@ -33,10 +35,12 @@ class ConfigAjaxAPI extends AjaxController {
         global $cfg;
 
         $config=array(
-                      'file_types'      => $cfg->getAllowedFileTypes(),
-                      'max_file_size'   => (int) $cfg->getMaxFileSize(),
-                      'max_file_uploads'=> (int) $cfg->getClientMaxFileUploads()
-                      );
+            'allow_attachments' => (bool) $cfg->allowOnlineAttachments,
+            'file_types'      => $cfg->getAllowedFileTypes(),
+            'max_file_size'   => (int) $cfg->getMaxFileSize(),
+            'max_file_uploads'=> (int) $cfg->getClientMaxFileUploads(),
+            'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
+        );
 
         return $this->json_encode($config);
     }

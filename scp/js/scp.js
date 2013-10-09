@@ -190,11 +190,23 @@ $(document).ready(function(){
                 cache: false,
                 success: function(canned){
                     //Canned response.
+                    var box = $('#response',fObj),
+                        redactor = box.data('redactor');
                     if(canned.response) {
-                        if($('#append',fObj).is(':checked') &&  $('#response',fObj).val())
-                            $('#response',fObj).val($('#response',fObj).val()+"\n\n"+canned.response+"\n");
-                        else
-                            $('#response',fObj).val(canned.response);
+                        if($('#append',fObj).is(':checked') &&  $('#response',fObj).val()) {
+                            if (redactor)
+                                redactor.insertHtml(canned.response);
+                            else
+                                box.val(canned.response);
+                        }
+                        else {
+                            if (redactor)
+                                redactor.set(canned.response);
+                            else
+                                box.val(canned.response);
+                        }
+                        if (redactor)
+                            redactor.observeStart();
                     }
                     //Canned attachments.
                     if(canned.files && $('.canned_attachments',fObj).length) {
@@ -249,20 +261,6 @@ $(document).ready(function(){
     /* Get config settings from the backend */
     jQuery.fn.exists = function() { return this.length>0; };
 
-    var getConfig = (function() {
-        var dfd = $.Deferred();
-        return function() {
-            if (!dfd.isResolved())
-                $.ajax({
-                    url: "ajax.php/config/scp",
-                    dataType: 'json',
-                    success: function (json_config) {
-                        dfd.resolve(json_config);
-                    }
-                });
-            return dfd;
-        }
-    })();
     /* Multifile uploads */
     var elems = $('.multifile');
     if (elems.exists()) {
@@ -284,18 +282,6 @@ $(document).ready(function(){
         buttonImage: './images/cal.png',
         showOn:'both'
      });
-
-    /* NicEdit richtext init */
-    var rtes = $('.richtext');
-    var rtes_count = rtes.length;
-    for(i=0;i<rtes_count;i++) {
-        var initial_value = rtes[i].value;
-        rtes[i].id = 'rte-'+i;
-        new nicEditor({iconsPath:'images/nicEditorIcons.gif'}).panelInstance('rte-'+i);
-        if(initial_value=='') {
-            nicEditors.findEditor('rte-'+i).setContent('');
-        }
-    }
 
     /* Typeahead tickets lookup */
     $('#basic-ticket-search').typeahead({
@@ -434,3 +420,19 @@ $(document).ready(function(){
              });
     });
 });
+
+// NOTE: getConfig should be global
+getConfig = (function() {
+    var dfd = $.Deferred();
+    return function() {
+        if (dfd.state() != 'resolved')
+            $.ajax({
+                url: "ajax.php/config/scp",
+                dataType: 'json',
+                success: function (json_config) {
+                    dfd.resolve(json_config);
+                }
+            });
+        return dfd;
+    }
+})();

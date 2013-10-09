@@ -15,15 +15,33 @@ notes: |
 subject: |
     Stale Ticket Alert
 body: |
-    %{recipient},
-
-    A ticket, #%{ticket.number} assigned to you or in your department is
-    seriously overdue.
-
-    %{ticket.staff_link}
-
-    We should all work hard to guarantee that all tickets are being
-    addressed in a timely manner.
-
-    - Your friendly (although with limited patience) Support Ticket System -
-    powered by osTicket.
+    <h3><strong>Hi %{recipient}</strong>,</h3>
+    <p>
+        A ticket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> is
+        seriously overdue.
+    </p>
+    <p>
+        We should all work hard to guarantee that all tickets are being
+        addressed in a timely manner.
+    </p>
+    <p>
+        Signed, %{ticket.dept.manager.name}
+    </p>
+    <p>
+        <em>Your friendly
+        <span style="font-size: small">(although with limited patience)</span><br>
+        </em><em>Support Ticket System</em>
+    </p>
+    <hr>
+    <p>
+        <span style="color: rgb(127, 127, 127); font-size: small;">To
+        view/respond to the ticket, please <a
+        href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+        >login</span></a> to the support ticket system. You're receiving
+        this notice because the ticket is assigned to you either directly or
+        to a team or department of which you're a member.</span>
+    </p>
+    <p>
+        <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+        alt="Powered by osTicket" width="146" height="0" style="width: 146px;">
+    </p>

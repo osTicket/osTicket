@@ -258,6 +258,10 @@ class EmailTemplateGroup {
         if(db_query($sql) && ($num=db_affected_rows())) {
             //isInuse check is enough - but it doesn't hurt make sure deleted tpl is not in-use.
             db_query('UPDATE '.DEPT_TABLE.' SET tpl_id=0 WHERE tpl_id='.db_input($this->getId()));
+            // Drop attachments (images)
+            db_query('DELETE a.* FROM '.ATTACHMENT_TABLE.' a
+                JOIN '.EMAIL_TEMPLATE_TABLE.' t  ON (a.object_id=t.id AND a.type=\'T\')
+                WHERE t.tpl_id='.db_input($this->getId()));
             db_query('DELETE FROM '.EMAIL_TEMPLATE_TABLE
                 .' WHERE tpl_id='.db_input($this->getId()));
         }
@@ -307,7 +311,7 @@ class EmailTemplateGroup {
         $sql=' updated=NOW() '
             .' ,name='.db_input($vars['name'])
             .' ,isactive='.db_input($vars['isactive'])
-            .' ,notes='.db_input($vars['notes']);
+            .' ,notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET '.$sql.' WHERE tpl_id='.db_input($id);
@@ -366,9 +370,9 @@ class EmailTemplate {
         if(!($res=db_query($sql))|| !db_num_rows($res))
             return false;
 
-
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['id'];
+        $this->attachments = new GenericAttachments($this->id, 'T');
 
         return true;
     }
@@ -397,6 +401,9 @@ class EmailTemplate {
         return $this->ht['body'];
     }
 
+    function getBodyWithImages() {
+        return Format::viewableImages($this->getBody());
+    }
     function getCodeName() {
         return $this->ht['code_name'];
     }
@@ -423,6 +430,14 @@ class EmailTemplate {
 
         $this->reload();
 
+        // Inline images (attached to the draft)
+        if (isset($vars['draft_id']) && $vars['draft_id']) {
+            if ($draft = Draft::lookup($vars['draft_id'])) {
+                $this->attachments->deleteInlines();
+                $this->attachments->upload($draft->getAttachmentIds($this->getBody()), true);
+            }
+        }
+
         return true;
     }
 
@@ -437,11 +452,13 @@ class EmailTemplate {
             if (!$vars['tpl_id'])
                 $errors['tpl_id']='Template group required';
             if (!$vars['code_name'])
-                $errprs['code_name']='Code name required';
+                $errors['code_name']='Code name required';
         }
 
         if ($errors)
             return false;
+
+        $vars['body'] = Format::sanitize($vars['body'], false);
 
         if ($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() '
@@ -467,7 +484,12 @@ class EmailTemplate {
     }
 
     function add($vars, &$errors) {
-        return self::lookup(self::create($vars, $errors));
+        $inst = self::lookup(self::create($vars, $errors));
+
+        // Inline images (attached to the draft)
+        $inst->attachments->upload(Draft::getAttachmentIds($inst->getBody()), true);
+
+        return $inst;
     }
 
     function lookupByName($tpl_id, $name, $group=null) {

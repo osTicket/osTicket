@@ -17,6 +17,7 @@ class Page {
 
     var $id;
     var $ht;
+    var $attachments;
 
     function Page($id) {
         $this->id=0;
@@ -40,6 +41,7 @@ class Page {
 
         $this->ht = db_fetch_array($res);
         $this->id = $this->ht['id'];
+        $this->attachments = new GenericAttachments($this->id, 'P');
 
         return true;
     }
@@ -66,6 +68,9 @@ class Page {
 
     function getBody() {
         return $this->ht['body'];
+    }
+    function getBodyWithImages() {
+        return Format::viewableImages($this->getBody());
     }
 
     function getNotes() {
@@ -236,9 +241,9 @@ class Page {
         $sql=' updated=NOW() '
             .', `type`='.db_input($vars['type'])
             .', name='.db_input($vars['name'])
-            .', body='.db_input(Format::safe_html($vars['body']))
+            .', body='.db_input(Format::sanitize($vars['body']))
             .', isactive='.db_input($vars['isactive'] ? 1 : 0)
-            .', notes='.db_input($vars['notes']);
+            .', notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
             $sql='UPDATE '.PAGE_TABLE.' SET '.$sql.' WHERE id='.db_input($id);

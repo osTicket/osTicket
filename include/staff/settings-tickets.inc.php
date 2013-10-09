@@ -153,6 +153,14 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td>Enable HTML Ticket Thread:</td>
+            <td>
+                <input type="checkbox" name="enable_html_thread" <?php
+                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
+                Enable rich text in ticket thread and autoresponse emails
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b>Attachments</b>:  Size and max. uploads setting mainly apply to web tickets.</em>
             </th>

@@ -215,8 +215,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <em><strong>Subject</strong>: Issue summary </em> &nbsp;<font class="error">*&nbsp;<?php echo $errors['subject']; ?></font><br>
                     <input type="text" name="subject" size="60" value="<?php echo $info['subject']; ?>">
                 </div>
-                <div><em><strong>Issue</strong>: Details on the reason(s) for opening the ticket.</em> <font class="error">*&nbsp;<?php echo $errors['issue']; ?></font></div>
-                <textarea name="issue" cols="21" rows="8" style="width:80%;"><?php echo $info['issue']; ?></textarea>
+                <div style="margin-top:0.5em; margin-bottom:0.5em">
+                    <em><strong>Issue</strong></em>
+                    <font class="error">*&nbsp;<?php echo $errors['issue']; ?></font>
+                </div>
+                <textarea class="richtext ifhtml draft draft-delete"
+                    placeholder="Details on the reason(s) for opening the ticket."
+                    data-draft-namespace="ticket.staff" name="issue"
+                    cols="21" rows="8" style="width:80%;"
+                    ><?php echo $info['issue']; ?></textarea>
             </td>
         </tr>
         <?php
@@ -233,7 +240,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <?php
             if(($cannedResponses=Canned::getCannedResponses())) {
                 ?>
-                <div>
+                <div style="margin-top:0.3em;margin-bottom:0.5em">
                     Canned Response:&nbsp;
                     <select id="cannedResp" name="cannedResp">
                         <option value="0" selected="selected">&mdash; Select a canned response &mdash;</option>
@@ -248,7 +255,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 </div>
             <?php
             } ?>
-                <textarea name="response" id="response" cols="21" rows="8" style="width:80%;"><?php echo $info['response']; ?></textarea>
+                <textarea class="richtext ifhtml draft draft-delete"
+                    data-draft-namespace="ticket.staff.response"
+                    placeholder="Intial response for the ticket"
+                    name="response" id="response" cols="21" rows="8"
+                    style="width:80%;"><?php echo $info['response']; ?></textarea>
                 <table border="0" cellspacing="0" cellpadding="2" width="100%">
                 <?php
                 if($cfg->allowAttachments()) { ?>
@@ -260,8 +271,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                                 foreach($info['cannedattachments'] as $k=>$id) {
                                     if(!($file=AttachmentFile::lookup($id))) continue;
                                     $hash=$file->getHash().md5($file->getId().session_id().$file->getHash());
-                                    echo sprintf('<label><input type="checkbox" name="cannedattachments[]" 
-                                            id="f%d" value="%d" checked="checked" 
+                                    echo sprintf('<label><input type="checkbox" name="cannedattachments[]"
+                                            id="f%d" value="%d" checked="checked"
                                             <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',
                                             $file->getId(), $file->getId() , $hash, $file->getName());
                                 }
@@ -313,12 +324,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         ?>
         <tr>
             <th colspan="2">
-                <em><strong>Internal Note</strong>: Optional internal note (recommended on assignment) <font class="error">&nbsp;<?php echo $errors['note']; ?></font></em>
+                <em><strong>Internal Note</strong>
+                <font class="error">&nbsp;<?php echo $errors['note']; ?></font></em>
             </th>
         </tr>
         <tr>
             <td colspan=2>
-                <textarea name="note" cols="21" rows="6" style="width:80%;"><?php echo $info['note']; ?></textarea>
+                <textarea class="richtext ifhtml draft draft-delete"
+                    placeholder="Optional internal note (recommended on assignment)"
+                    data-draft-namespace="ticket.staff.note" name="note"
+                    cols="21" rows="6" style="width:80%;"
+                    ><?php echo $info['note']; ?></textarea>
             </td>
         </tr>
     </tbody>

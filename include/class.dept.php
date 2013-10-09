@@ -380,7 +380,7 @@ class Dept {
             .' ,autoresp_email_id='.db_input(isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0)
             .' ,manager_id='.db_input($vars['manager_id']?$vars['manager_id']:0)
             .' ,dept_name='.db_input(Format::striptags($vars['name']))
-            .' ,dept_signature='.db_input(Format::striptags($vars['signature']))
+            .' ,dept_signature='.db_input(Format::sanitize($vars['signature']))
             .' ,group_membership='.db_input(isset($vars['group_membership'])?1:0)
             .' ,ticket_auto_response='.db_input(isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1)
             .' ,message_auto_response='.db_input(isset($vars['message_auto_response'])?$vars['message_auto_response']:1);

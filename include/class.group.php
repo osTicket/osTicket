@@ -211,8 +211,8 @@ class Group {
             .', can_manage_faq='.db_input($vars['can_manage_faq'])
             .', can_post_ticket_reply='.db_input($vars['can_post_ticket_reply'])
             .', can_view_staff_stats='.db_input($vars['can_view_staff_stats'])
-            .', notes='.db_input($vars['notes']);
-            
+            .', notes='.db_input(Format::sanitize($vars['notes']));
+
         if($id) {
             
             $sql='UPDATE '.GROUP_TABLE.' '.$sql.' WHERE group_id='.db_input($id);

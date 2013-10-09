@@ -19,7 +19,7 @@ if(!defined('INCLUDE_DIR')) die('!');
 class KbaseAjaxAPI extends AjaxController {
 
     function cannedResp($id, $format='') {
-        global $thisstaff, $_GET;
+        global $thisstaff, $cfg;
 
         include_once(INCLUDE_DIR.'class.canned.php');
 
@@ -36,17 +36,26 @@ class KbaseAjaxAPI extends AjaxController {
             case 'json':
                 $resp['id'] = $canned->getId();
                 $resp['ticket'] = $canned->getTitle();
-                $resp['response'] = $ticket?$ticket->replaceVars($canned->getResponse()):$canned->getResponse();
-                $resp['files'] = $canned->getAttachments();
+                $resp['response'] = $ticket
+                    ? $ticket->replaceVars($canned->getResponseWithImages())
+                    : $canned->getResponseWithImages();
+                $resp['files'] = $canned->attachments->getSeparates();
 
+                if (!$cfg->isHtmlThreadEnabled()) {
+                    $resp['response'] = convert_html_to_text($resp['response'], 90);
+                    $resp['files'] += $canned->attachments->getInlines();
+                }
 
                 $response = $this->json_encode($resp);
                 break;
+
             case 'txt':
             default:
                 $response =$ticket?$ticket->replaceVars($canned->getResponse()):$canned->getResponse();
-        }
 
+                if (!$cfg->isHtmlThreadEnabled())
+                    $response = convert_html_to_text($response, 90);
+        }
 
         return $response;
     }
@@ -62,12 +71,13 @@ class KbaseAjaxAPI extends AjaxController {
         //TODO: $fag->getJSON() for json format. (nolint)
         $resp = sprintf(
                 '<div style="width:650px;">
-                 <strong>%s</strong><p>%s</p>
+                 <strong>%s</strong><div class="thread-body">%s</div>
+                 <div class="clear"></div>
                  <div class="faded">Last updated %s</div>
                  <hr>
                  <a href="faq.php?id=%d">View</a> | <a href="faq.php?id=%d">Attachments (%s)</a>',
                 $faq->getQuestion(),
-                Format::safe_html($faq->getAnswer()),
+                $faq->getAnswer(),
                 Format::db_daydatetime($faq->getUpdateDate()),
                 $faq->getId(),
                 $faq->getId(),

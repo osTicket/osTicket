@@ -48,7 +48,7 @@ if (!$page->isActive() || $page->getType() != 'other')
 
 require(CLIENTINC_DIR.'header.inc.php');
 
-print $page->getBody();
+print $page->getBodyWithImages();
 
 require(CLIENTINC_DIR.'footer.inc.php');
 ?>

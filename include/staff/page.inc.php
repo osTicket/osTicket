@@ -13,6 +13,7 @@ if($page && $_REQUEST['a']!='add'){
     $action='update';
     $submit_text='Save Changes';
     $info=$page->getHashtable();
+    $info['body'] = $page->getBodyWithImages();
     $slug = Format::slugify($info['name']);
     $qstr.='&id='.$page->getId();
 }else {
@@ -93,7 +94,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
          <tr>
             <td colspan=2 style="padding-left:3px;">
-                <textarea name="body" cols="21" rows="12" style="width:98%;" class="richtext"><?php echo $info['body']; ?></textarea>
+                <textarea name="body" cols="21" rows="12" style="width:98%;" class="richtext draft"
+                    data-draft-namespace="page" data-draft-object-id="<?php echo $info['id']; ?>"
+                    ><?php echo $info['body']; ?></textarea>
             </td>
         </tr>
         <tr>
@@ -103,7 +106,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <textarea name="notes" cols="21" rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+                <textarea class="richtext no-bar" name="notes" cols="21"
+                    rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
             </td>
         </tr>
     </tbody>

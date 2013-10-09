@@ -232,7 +232,7 @@ class osTicket {
             $email=$this->getConfig()->getDefaultEmail(); //will take the default email.
 
         if($email) {
-            $email->sendAlert($to, $subject, $message);
+            $email->sendAlert($to, $subject, $message, null, array('text'=>true));
         } else {//no luck - try the system mail.
             Mailer::sendmail($to, $subject, $message, sprintf('"osTicket Alerts"<%s>',$to));
         }

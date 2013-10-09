@@ -61,6 +61,14 @@ $dispatcher = patterns('',
         url_get('^lookup', 'lookup'),
         url_get('^search', 'search')
     )),
+    url('^/draft/', patterns('ajax.draft.php:DraftAjaxAPI',
+        url_post('^(?P<id>\d+)$', 'updateDraft'),
+        url_delete('^(?P<id>\d+)$', 'deleteDraft'),
+        url_post('^(?P<id>\d+)/attach$', 'uploadInlineImage'),
+        url_get('^(?P<namespace>[\w.]+)$', 'getDraft'),
+        url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
+        url_get('^images/browse$', 'getFileList')
+    )),
     url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade'))
 );
 

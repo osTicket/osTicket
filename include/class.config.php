@@ -141,6 +141,11 @@ class OsticketConfig extends Config {
     var $defaults = array(
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
+        'enable_html_thread' => true,
+        'allow_attachments' =>  true,
+        'allow_email_attachments' => true,
+        'allow_online_attachments' => true,
+        'allow_online_attachments_onlogin' => false,
     );
 
     function OsticketConfig($section=null) {
@@ -279,6 +284,10 @@ class OsticketConfig extends Config {
 
     function showNotesInline(){
         return $this->get('show_notes_inline');
+    }
+
+    function isHtmlThreadEnabled() {
+        return $this->get('enable_html_thread');
     }
 
     function getClientTimeout() {
@@ -863,6 +872,7 @@ class OsticketConfig extends Config {
             'show_notes_inline'=>isset($vars['show_notes_inline'])?1:0,
             'clickable_urls'=>isset($vars['clickable_urls'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
+            'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_attachments'=>isset($vars['allow_attachments'])?1:0,
             'allowed_filetypes'=>strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))),
             'max_file_size'=>$vars['max_file_size'],

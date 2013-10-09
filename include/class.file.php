@@ -27,10 +27,10 @@ class AttachmentFile {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT id, type, size, name, hash, f.created, '
-            .' count(DISTINCT c.canned_id) as canned, count(DISTINCT t.ticket_id) as tickets '
+        $sql='SELECT id, f.type, size, name, hash, f.created, '
+            .' count(DISTINCT a.object_id) as canned, count(DISTINCT t.ticket_id) as tickets '
             .' FROM '.FILE_TABLE.' f '
-            .' LEFT JOIN '.CANNED_ATTACHMENT_TABLE.' c ON(c.file_id=f.id) '
+            .' LEFT JOIN '.ATTACHMENT_TABLE.' a ON(a.file_id=f.id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' t ON(t.file_id=f.id) '
             .' WHERE f.id='.db_input($id)
             .' GROUP BY f.id';
@@ -154,6 +154,28 @@ class AttachmentFile {
     function display() {
         $this->makeCacheable();
 
+        if ($scale && extension_loaded('gd')) {
+            $image = imagecreatefromstring($this->getData());
+            $width = imagesx($image);
+            if ($scale <= $width) {
+                $height = imagesy($image);
+                if ($width > $height) {
+                    $heightp = $height * (int)$scale / $width;
+                    $widthp = $scale;
+                } else {
+                    $widthp = $width * (int)$scale / $height;
+                    $heightp = $scale;
+                }
+                $thumb = imagecreatetruecolor($widthp, $heightp);
+                $white = imagecolorallocate($thumb, 255,255,255);
+                imagefill($thumb, 0, 0, $white);
+                imagecopyresized($thumb, $image, 0, 0, 0, 0, $widthp,
+                    $heightp, $width, $height);
+                header('Content-Type: image/png');
+                imagepng($thumb);
+                return;
+            }
+        }
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
         $this->sendData();
@@ -234,11 +256,13 @@ class AttachmentFile {
 
         if(!$file['hash'])
             $file['hash']=MD5(MD5($file['data']).time());
+        if (is_callable($file['data']))
+            $file['data'] = $file['data']();
         if(!$file['size'])
             $file['size']=strlen($file['data']);
 
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
-            .',type='.db_input($file['type'])
+            .',type='.db_input(strtolower($file['type']))
             .',size='.db_input($file['size'])
             .',name='.db_input($file['name'])
             .',hash='.db_input($file['hash']);
@@ -273,6 +297,16 @@ class AttachmentFile {
         $id = is_numeric($id)?$id:AttachmentFile::getIdByHash($id);
 
         return ($id && ($file = new AttachmentFile($id)) && $file->getId()==$id)?$file:null;
+    }
+
+    static function create($info, &$errors) {
+        if (isset($info['encoding'])) {
+            switch ($info['encoding']) {
+                case 'base64':
+                    $info['data'] = base64_decode($info['data']);
+            }
+        }
+        return self::save($info);
     }
 
     /*
@@ -332,9 +366,7 @@ class AttachmentFile {
                 .'SELECT DISTINCT(file_id) FROM ('
                     .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
                     .' UNION ALL '
-                    .'SELECT file_id FROM '.CANNED_ATTACHMENT_TABLE
-                    .' UNION ALL '
-                    .'SELECT file_id FROM '.FAQ_ATTACHMENT_TABLE
+                    .'SELECT file_id FROM '.ATTACHMENT_TABLE
                 .') still_loved'
             .') AND `ft` = "T"';
 

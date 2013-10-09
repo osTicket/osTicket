@@ -9,6 +9,9 @@ if($canned && $_REQUEST['a']!='add'){
     $info=$canned->getInfo();
     $info['id']=$canned->getId();
     $qstr.='&id='.$canned->getId();
+    // Replace cid: scheme with downloadable URL for inline images
+    $info['response'] = $canned->getResponseWithImages();
+    $info['notes'] = Format::viewableImages($info['notes']);
 }else {
     $title='Add New Canned Response';
     $action='create';
@@ -70,12 +73,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td colspan=2>
                 <div><b>Title</b><span class="error">*&nbsp;<?php echo $errors['title']; ?></span></div>
                 <input type="text" size="70" name="title" value="<?php echo $info['title']; ?>">
-                <br><br><div><b>Canned Response</b> <font class="error">*&nbsp;<?php echo $errors['response']; ?></font>
-                    &nbsp;&nbsp;&nbsp;(<a class="tip" href="ticket_variables">Supported Variables</a>)</div>
-                <textarea name="response" cols="21" rows="12" style="width: 80%;"><?php echo $info['response']; ?></textarea>
+                <br><br><div style="margin-bottom:0.5em"><b>Canned Response</b> <font class="error">*&nbsp;<?php echo $errors['response']; ?></font>
+                    &nbsp;&nbsp;&nbsp;(<a class="tip" href="ticket_variables">Supported Variables</a>)
+                    </div>
+                <textarea name="response" class="richtext draft draft-delete" cols="21" rows="12"
+                    data-draft-namespace="canned"
+                    data-draft-object-id="<?php if (isset($canned)) echo $canned->getId(); ?>"
+                    style="width:98%;" class="richtext draft"><?php
+                        echo $info['response']; ?></textarea>
                 <br><br><div><b>Canned Attachments</b> (optional) <font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
                 <?php
-                if($canned && ($files=$canned->getAttachments())) {
+                if($canned && ($files=$canned->attachments->getSeparates())) {
                     echo '<div id="canned_attachments"><span class="faded">Uncheck to delete the attachment on submit</span><br>';
                     foreach($files as $file) {
                         $hash=$file['hash'].md5($file['id'].session_id().$file['hash']);
@@ -84,7 +92,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                                       $file['id'], $file['id'], $hash, $file['name']);
                     }
                     echo '</div><br>';
-            
+
                 }
                 //Hardcoded limit... TODO: add a setting on admin panel - what happens on tickets page??
                 if(count($files)<10) {
@@ -92,7 +100,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <div>
                     <input type="file" name="attachments[]" value=""/>
                 </div>
-                <?php 
+                <?php
                 }?>
                 <div class="faded">You can upload up to 10 attachments per canned response.</div>
             </td>
@@ -104,7 +112,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <textarea name="notes" cols="21" rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+                <textarea class="richtext no-bar" name="notes" cols="21"
+                    rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
             </td>
         </tr>
     </tbody>
@@ -116,7 +125,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <?php } ?>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
+    <input type="reset"  name="reset"  value="Reset" onclick="javascript:
+        $(this.form).find('textarea.richtext')
+            .redactor('deleteDraft');
+        location.reload();" />
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="canned.php"'>
 </p>
 </form>

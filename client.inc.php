@@ -63,6 +63,9 @@ if ($_POST  && !$ost->checkCSRFToken()) {
     die('Action denied (400)!');
 }
 
+//Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME]
+$ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'" />');
+
 /* Client specific defaults */
 define('PAGE_LIMIT', DEFAULT_PAGE_LIMIT);
 

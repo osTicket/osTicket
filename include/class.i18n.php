@@ -51,6 +51,7 @@ class Internationalization {
             'team.yaml' =>          'Team', # notrans
             // Note that group requires department
             'group.yaml' =>         'Group', # notrans
+            'file.yaml' =>          'AttachmentFile', # notrans
         );
 
         $errors = array();
@@ -102,20 +103,11 @@ class Internationalization {
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
                 && ($canned = $tpl->getData())) {
             foreach ($canned as $c) {
-                $sql = 'INSERT INTO '.CANNED_TABLE
-                    .' SET title='.db_input($c['title'])
-                    .', lang='.db_input($tpl->getLang())
-                    .', response='.db_input($c['response'])
-                    .', notes='.db_input($c['notes'])
-                    .', created=NOW(), updated=NOW(), isenabled=1';
-                if (db_query($sql) && ($id = db_insert_id())
+                if (($id = Canned::create($c, $errors))
                         && isset($c['attachments'])) {
-                    foreach ($c['attachments'] as $att) {
-                        if ($fileId = AttachmentFile::save($att))
-                            $sql ='INSERT INTO '.CANNED_ATTACHMENT_TABLE
-                                 .' SET canned_id='.db_input($id)
-                                 .', file_id='.db_input($fileId);
-                            db_query($sql);
+                    $premade = Canned::lookup($id);
+                    foreach ($c['attachments'] as $a) {
+                        $premade->attachments->save($a, false);
                     }
                 }
             }
@@ -129,7 +121,10 @@ class Internationalization {
                     && ($t = $tp->getData())) {
                 $t['tpl_id'] = $tpl->getId();
                 $t['code_name'] = $name;
-                EmailTemplate::create($t, $errors);
+                $id = EmailTemplate::create($t, $errors);
+                if ($id && ($template = EmailTemplate::lookup($id))
+                        && ($ids = Draft::getAttachmentIds($t['body'])))
+                    $template->attachments->upload($ids, true);
             }
         }
     }

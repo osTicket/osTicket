@@ -36,6 +36,7 @@ if($_POST):
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
+        Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             if(!$cfg->showRelatedTickets())

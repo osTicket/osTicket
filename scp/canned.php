@@ -37,18 +37,35 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
                 $keepers = $_POST['files']?$_POST['files']:array();
-                $attachments = $canned->getAttachments(); //current list of attachments.
+                $attachments = $canned->attachments->getSeparates(); //current list of attachments.
                 foreach($attachments as $k=>$file) {
                     if($file['id'] && !in_array($file['id'], $keepers)) {
-                        $canned->deleteAttachment($file['id']);
+                        $canned->attachments->delete($file['id']);
                     }
                 }
                 //Upload NEW attachments IF ANY - TODO: validate attachment types??
                 if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-                    $canned->uploadAttachments($files);
+                    $canned->attachments->upload($files);
+
+                // Attach inline attachments from the editor
+                if (isset($_POST['draft_id'])
+                        && ($draft = Draft::lookup($_POST['draft_id']))) {
+                    $canned->attachments->deleteInlines();
+                    $canned->attachments->upload(
+                        $draft->getAttachmentIds($_POST['response']),
+                        true);
+                }
 
                 $canned->reload();
 
+                // XXX: Handle nicely notifying a user that the draft was
+                // deleted | OR | show the draft for the user on the name
+                // page refresh or a nice bar popup immediately with
+                // something like "This page is out-of-date", and allow the
+                // user to voluntarily delete their draft
+                //
+                // Delete drafts for all users for this canned response
+                Draft::deleteForNamespace('canned.'.$canned->getId());
             } elseif(!$errors['err']) {
                 $errors['err']='Error updating canned response. Try again!';
             }
@@ -59,8 +76,16 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 $_REQUEST['a']=null;
                 //Upload attachments
                 if($_FILES['attachments'] && ($c=Canned::lookup($id)) && ($files=AttachmentFile::format($_FILES['attachments'])))
-                    $c->uploadAttachments($files);
+                    $c->attachments->upload($files);
 
+                // Attach inline attachments from the editor
+                if (isset($_POST['draft_id'])
+                        && ($draft = Draft::lookup($_POST['draft_id'])))
+                    $c->attachments->upload(
+                        $draft->getAttachmentIds($_POST['response']), true);
+
+                // Delete this user's drafts for new canned-responses
+                Draft::deleteForNamespace('canned', $thisstaff->getId());
             } elseif(!$errors['err']) {
                 $errors['err']='Unable to add canned response. Correct error(s) below and try again.';
             }
