@@ -45,92 +45,129 @@ CREATE TABLE `%TABLE_PREFIX%draft` (
 
 -- Migrate email templates to HTML
 UPDATE `%TABLE_PREFIX%email_template`
-    SET `body` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `body`))));
+    SET `body` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `body`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 
 -- Migrate notes to HTML
 UPDATE `%TABLE_PREFIX%api_key`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%email`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%email_template_group`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%faq`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%faq_category`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%filter`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%groups`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%help_topic`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%page`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%sla`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%staff`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 UPDATE `%TABLE_PREFIX%team`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 
 -- Migrate canned responses to HTML
 UPDATE `%TABLE_PREFIX%canned_response`
-    SET `notes` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `notes`)))),
-    `response` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;',
-                REPLACE('&', '&amp;', `response`))));
+    SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `notes`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;'),
+    `response` = REPLACE( REPLACE( REPLACE( REPLACE(
+        `response`,
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>'),
+        '&', '&amp;');
 
 -- Migrate ticket-thread to HTML
 -- XXX: Migrate & -> &amp; ? -- the problem is that there's a fix in 1.7.1
 -- that properly encodes these characters, so encoding & would mean possible
 -- double encoding.
 UPDATE `%TABLE_PREFIX%ticket_thread`
-    SET `body` = REPLACE('\n', '<br/>',
-        REPLACE('<', '&lt;',
-            REPLACE('>', '&gt;', `body`)));
+    SET `body` = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( REPLACE(
+        `body`,
+        '\r', ''),
+        '\n ', '\n'),
+        '\n\n\n', '\n\n'),
+        '\n\n\n', '\n\n'),
+        '\n\n\n', '\n\n'),
+        '<', '&lt;'),
+        '>', '&gt;'),
+        '\n', '<br/>');
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
