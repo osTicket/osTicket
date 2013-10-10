@@ -130,12 +130,13 @@ $(function() {
                 'air': el.hasClass('no-bar'),
                 'airButtons': ['formatting', '|', 'bold', 'italic', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
                 'autoresize': !el.hasClass('no-bar'),
-                'minHeight': 150,
+                'minHeight': el.hasClass('small') ? 75 : 150,
                 'focus': false,
                 'plugins': ['fontcolor','fontfamily'],
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes
             };
+        if (el.data('redactor')) return;
         if (el.hasClass('draft')) {
             var reset = $('input[type=reset]', el.closest('form')),
                 draft_saved = $('<span>')
@@ -174,16 +175,20 @@ $(function() {
                 options['draft_object_id'] = el.data('draftObjectId');
         }
         el.redactor(options);
-    }
-    $('.richtext').each(function(i,el) {
-        if ($(el).hasClass('ifhtml'))
-            // Check if html_thread is enabled first
-            getConfig().then(function(c) {
-                if (c.html_thread)
-                    redact(el);
-            });
-        else
-            // Make a rich text editor immediately
-            redact(el);
-    });
+    },
+    findRichtextBoxes = function() {
+        $('.richtext').each(function(i,el) {
+            if ($(el).hasClass('ifhtml'))
+                // Check if html_thread is enabled first
+                getConfig().then(function(c) {
+                    if (c.html_thread)
+                        redact(el);
+                });
+            else
+                // Make a rich text editor immediately
+                redact(el);
+        });
+    };
+    findRichtextBoxes();
+    $('#user-info').ajaxComplete(findRichtextBoxes);
 });

@@ -30,13 +30,38 @@ if($_POST):
             $errors['captcha']='Invalid - try again!';
     }
 
-    if(!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
+    $interest = array('subject');
+    if ($topic = Topic::lookup($vars['topicId'])) {
+        if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
+            $form = $form->instanciate();
+            if (!$form->isValid())
+                $errors += $form->errors();
+        }
+    }
+    // Don't process contact information for logged-in clients
+    if (!$thisclient) {
+        $contact_form = UserForm::getInstance();
+        if (!$contact_form->isValid())
+            $errors += $contact_form->errors();
+    }
+
+    if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
         Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
+        # TODO: Save dynamic form(s)
+        if (isset($form)) {
+            $form->setTicketId($ticket->getId());
+            $form->save();
+            $ticket->loadDynamicData();
+        }
+        if (isset($contact_form)) {
+            $contact_form->setClientId($ticket->getOwnerId());
+            $contact_form->save();
+        }
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             if(!$cfg->showRelatedTickets())

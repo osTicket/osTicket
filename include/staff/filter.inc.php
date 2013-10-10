@@ -125,11 +125,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <select name="rule_w<?php echo $i; ?>">
                         <option value="">&mdash; Select One &dash;</option>
                         <?php
-                        foreach($matches as $k=>$v){
-                            $sel=($info["rule_w$i"]==$k)?'selected="selected"':'';
-                            echo sprintf('<option value="%s" %s>%s</option>',$k,$sel,$v);
-                        }
-                        ?>
+                        foreach ($matches as $group=>$ms) { ?>
+                            <optgroup label="<?php echo $group; ?>"><?php
+                            foreach ($ms as $k=>$v) {
+                                $sel=($info["rule_w$i"]==$k)?'selected="selected"':'';
+                                echo sprintf('<option value="%s" %s>%s</option>',$k,$sel,$v);
+                            } ?>
+                        </optgroup>
+                        <?php } ?>
                     </select>
                     <select name="rule_h<?php echo $i; ?>">
                         <option value="0">&mdash; Select One &dash;</option>

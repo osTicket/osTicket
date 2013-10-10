@@ -31,9 +31,10 @@ class UsersAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
 
-        $sql='SELECT DISTINCT email, name '
-            .' FROM '.TICKET_TABLE
-            .' WHERE email LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' '
+        $sql='SELECT DISTINCT email.address, name '
+            .' FROM '.USER_TABLE.' user '
+            .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
+            .' WHERE email.address LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\' '
             .' ORDER BY created '
             .' LIMIT '.$limit;
            

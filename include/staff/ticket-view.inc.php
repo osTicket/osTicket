@@ -140,32 +140,35 @@ if($ticket->isOverdue())
                 </tr>
             </table>
         </td>
-        <td width="50%">
+        <td width="50%" style="vertical-align:top">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="100">Name:</th>
-                    <td><?php echo Format::htmlchars($ticket->getName()); ?></td>
-                </tr>
-                <tr>
-                    <th>Email:</th>
-                    <td>
-                    <?php
-                        echo $ticket->getEmail();
+                    <th width="100">Client:</th>
+                    <td><a href="ajax.php/form/user-info/<?php
+                            echo $ticket->getOwnerId(); ?>"
+                        onclick="javascript:
+                            $('#overlay').show();
+                            $('#user-info .body').load(this.href);
+                            $('#user-info').show();
+                            return false;
+                            "><i class="icon-user"></i> <?php
+                        echo Format::htmlchars($ticket->getName()); ?></a>
+                        <?php
                         if(($client=$ticket->getClient())) {
-                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&query=%s" title="Related Tickets" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
-                                    urlencode($ticket->getEmail()), $client->getNumTickets());
+                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&ownerId=%d" title="Related Tickets" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
+                                    urlencode($ticket->getOwnerId()), $client->getNumTickets());
                         ?>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
                                     <?php
                                     if(($open=$client->getNumOpenTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&query=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
-                                                $ticket->getEmail(), $open);
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&ownerId=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
+                                                $ticket->getOwnerId(), $open);
                                     if(($closed=$client->getNumClosedTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&query=%s"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
-                                                $ticket->getEmail(), $closed);
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&ownerId=%d"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
+                                                $ticket->getOwnerId(), $closed);
                                     ?>
-                                    <li><a href="tickets.php?a=search&query=<?php echo $ticket->getEmail(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
+                                    <li><a href="tickets.php?a=search&ownerId=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
                                 </u>
                             </div>
                     <?php
@@ -174,8 +177,10 @@ if($ticket->isOverdue())
                     </td>
                 </tr>
                 <tr>
-                    <th>Phone:</th>
-                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
+                    <th>Email:</th>
+                    <td>
+                    <?php echo $ticket->getEmail(); ?>
+                    </td>
                 </tr>
                 <tr>
                     <th>Source:</th>
@@ -184,8 +189,6 @@ if($ticket->isOverdue())
 
                         if($ticket->getIP())
                             echo '&nbsp;&nbsp; <span class="faded">('.$ticket->getIP().')</span>';
-
-
                         ?>
                     </td>
                 </tr>
@@ -263,6 +266,43 @@ if($ticket->isOverdue())
                 </tr>
             </table>
         </td>
+    </tr>
+</table>
+<br>
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+<?php
+$idx = 0;
+foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+    // Skip core fields shown earlier in the ticket view
+    // TODO: Rewrite getAnswers() so that one could write
+    //       ->getAnswers()->filter(not(array('field__name__in'=>
+    //           array('email', ...))));
+    $answers = array_filter($form->getAnswers(), function ($a) {
+        return !in_array($a->getField()->get('name'),
+                array('email','subject','name','priority'));
+        });
+    if (count($answers) == 0)
+        continue;
+    ?>
+        </tr><tr>
+        <td colspan="2">
+            <table cellspacing="0" cellpadding="4" width="100%" border="0">
+            <?php foreach($answers as $a) {
+                if (!$a->toString()) continue; ?>
+                <tr>
+                    <th width="100"><?php
+    echo $a->getField()->get('label');
+                    ?>:</th>
+                    <td><?php
+    echo $a->toString();
+                    ?></td>
+                </tr>
+                <?php } ?>
+            </table>
+        </td>
+    <?php
+    $idx++;
+    } ?>
     </tr>
 </table>
 <div class="clear"></div>
@@ -411,9 +451,9 @@ if(!$cfg->showNotesInline()) { ?>
                 </td>
                 <td width="765">
                     <?php
-                    $to = $ticket->getEmail();
+                    $to = $ticket->getReplyToEmail();
                     if(($name=$ticket->getName()) && !strpos($name,'@'))
-                        $to =sprintf('%s <em>&lt;%s&gt;</em>', $name, $ticket->getEmail());
+                        $to =sprintf('%s <em>&lt;%s&gt;</em>', $name, $to);
                     echo $to;
                     ?>
                     &nbsp;&nbsp;&nbsp;
@@ -784,6 +824,9 @@ if(!$cfg->showNotesInline()) { ?>
     </form>
     <?php
     } ?>
+</div>
+<div style="display:none;" class="dialog" id="user-info">
+    <div class="body"></div>
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3>Ticket Print Options</h3>

@@ -146,6 +146,7 @@ class OsticketConfig extends Config {
         'allow_email_attachments' => true,
         'allow_online_attachments' => true,
         'allow_online_attachments_onlogin' => false,
+        'name_format' =>        'full', # First Last
     );
 
     function OsticketConfig($section=null) {
@@ -324,6 +325,10 @@ class OsticketConfig extends Config {
 
     function getLockTime() {
         return $this->get('autolock_minutes');
+    }
+
+    function getDefaultNameFormat() {
+        return $this->get('name_format');
     }
 
     function getDefaultDeptId() {
@@ -518,11 +523,6 @@ class OsticketConfig extends Config {
     function isEmailPollingEnabled() {
         return ($this->get('enable_mail_polling'));
     }
-
-    function allowPriorityChange() {
-        return ($this->get('allow_priority_change'));
-    }
-
 
     function useEmailPriority() {
         return ($this->get('use_email_priority'));
@@ -768,7 +768,6 @@ class OsticketConfig extends Config {
         $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk URl required');
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk title required');
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Dept. required');
-        $f['default_template_id']=array('type'=>'int',   'required'=>1, 'error'=>'You must select template.');
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         //Date & Time Options
@@ -789,10 +788,10 @@ class OsticketConfig extends Config {
             'helpdesk_title'=>$vars['helpdesk_title'],
             'helpdesk_url'=>$vars['helpdesk_url'],
             'default_dept_id'=>$vars['default_dept_id'],
-            'default_template_id'=>$vars['default_template_id'],
             'max_page_size'=>$vars['max_page_size'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
+            'name_format'=>$vars['name_format'],
             'passwd_reset_period'=>$vars['passwd_reset_period'],
             'staff_max_logins'=>$vars['staff_max_logins'],
             'staff_login_timeout'=>$vars['staff_login_timeout'],
@@ -861,7 +860,6 @@ class OsticketConfig extends Config {
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
-            'allow_priority_change'=>isset($vars['allow_priority_change'])?1:0,
             'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'log_ticket_activity'=>isset($vars['log_ticket_activity'])?1:0,
@@ -889,6 +887,7 @@ class OsticketConfig extends Config {
     function updateEmailsSettings($vars, &$errors) {
 
         $f=array();
+        $f['default_template_id']=array('type'=>'int',   'required'=>1, 'error'=>'You must select template.');
         $f['default_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default email required');
         $f['alert_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
         $f['admin_email']=array('type'=>'email',   'required'=>1, 'error'=>'System admin email required');
@@ -903,6 +902,7 @@ class OsticketConfig extends Config {
             return false;
 
         return $this->updateAll(array(
+            'default_template_id'=>$vars['default_template_id'],
             'default_email_id'=>$vars['default_email_id'],
             'alert_email_id'=>$vars['alert_email_id'],
             'default_smtp_id'=>$vars['default_smtp_id'],

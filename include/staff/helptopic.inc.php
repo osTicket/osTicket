@@ -89,6 +89,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
 
         <tr><th colspan="2"><em>New ticket options</em></th></tr>
+       <tr>
+           <td><strong>Custom Form</strong>:</td>
+           <td><select name="form_id">
+               <option value="0">&mdash; No Extra Fields &mdash;</option>
+               <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>
+                   <option value="<?php echo $group->get('id'); ?>"
+                       <?php if ($group->get('id') == $info['form_id'])
+                            echo 'selected="selected"'; ?>>
+                       <?php echo $group->get('title'); ?>
+                   </option>
+               <?php } ?>
+               </select>
+               <em>Extra information for tickets associated with this help topic</em>
+               &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
+           </td>
+       </tr>
         <tr>
             <td width="180" class="required">
                 Priority:
@@ -217,7 +233,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     this topic (Overrides Dept. settings).
             </td>
         </tr>
-
         <tr>
             <th colspan="2">
                 <em><strong>Admin Notes</strong>: Internal notes about the help topic.&nbsp;</em>

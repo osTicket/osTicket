@@ -20,6 +20,7 @@ require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.filter.php');
 require_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.json.php');
+require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 
 $page='';
@@ -193,12 +194,17 @@ if($_POST && !$errors):
             break;
         case 'edit':
         case 'update':
+            $forms=DynamicFormEntry::forTicket($ticket->getId());
+            foreach ($forms as $form)
+                if (!$form->isValid())
+                    $errors = array_merge($errors, $form->errors());
             if(!$ticket || !$thisstaff->canEditTickets())
                 $errors['err']='Perm. Denied. You are not allowed to edit tickets';
             elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
+                foreach ($forms as $f) $f->save();
                 if(!$ticket->checkStaffAccess($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {
@@ -451,6 +457,22 @@ if($_POST && !$errors):
                 break;
             case 'open':
                 $ticket=null;
+                $interest=array('name','email','subject');
+                if ($topic=Topic::lookup($_POST['topicId'])) {
+                    if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
+                        $form = $form->instanciate();
+                        # Collect name, email, and subject address for banning and such
+                        foreach ($form->getAnswers() as $answer) {
+                            $fname = $answer->getField()->get('name');
+                            if (in_array($fname, $interest))
+                                # XXX: Assigning to _POST not considered great PHP
+                                #      coding style
+                                $_POST[$fname] = $answer->getField()->getClean();
+                        }
+                        if (!$form->isValid())
+                            $errors = array_merge($errors, $form->errors());
+                    }
+                }
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
@@ -461,7 +483,12 @@ if($_POST && !$errors):
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;
-                        if(!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
+                        # Save extra dynamic form(s)
+                        if (isset($form)) {
+                            $form->setTicketId($ticket->getId());
+                            $form->save();
+                        }
+                        if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
                     } elseif(!$errors['err']) {
@@ -555,9 +582,12 @@ if($ticket) {
     $ost->setPageTitle('Ticket #'.$ticket->getNumber());
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
-    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets())
+    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) {
         $inc = 'ticket-edit.inc.php';
-    elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
+        if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
+        // Auto add new fields to the entries
+        foreach ($forms as $f) $f->addMissingFields();
+    } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
         $errors['err'] = 'Internal error: Unable to export the ticket to PDF for print.';
 } else {
     $inc = 'tickets.inc.php';

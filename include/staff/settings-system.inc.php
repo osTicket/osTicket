@@ -54,23 +54,6 @@ $gmtime = Misc::gmtime();
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_dept_id']; ?></font>
             </td>
         </tr>
-        <tr>
-            <td width="220" class="required">Default Email Templates:</td>
-            <td>
-                <select name="default_template_id">
-                    <option value="">&mdash; Select Default Template &mdash;</option>
-                    <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' WHERE isactive=1 ORDER BY name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while (list($id, $name) = db_fetch_row($res)){
-                            $selected = ($config['default_template_id']==$id)?'selected="selected"':''; ?>
-                            <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
-                        <?php
-                        }
-                    } ?>
-                </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_template_id']; ?></font>
-            </td>
-        </tr>
 
         <tr><td>Default Page Size:</td>
             <td>
@@ -109,6 +92,19 @@ $gmtime = Misc::gmtime();
                             After&nbsp;<?php echo $i; ?>&nbsp;<?php echo ($i>1)?'Months':'Month'; ?></option>
                         <?php
                     } ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Default Name Formatting:</td>
+            <td>
+                <select name="name_format">
+<?php foreach (PersonsName::allFormats() as $n=>$f) {
+    list($desc, $func) = $f;
+    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php echo $n; ?>" <?php echo $selected;
+                        ?>><?php echo $desc; ?></option>
+<?php } ?>
                 </select>
             </td>
         </tr>

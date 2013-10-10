@@ -223,10 +223,11 @@ class Topic {
             .',dept_id='.db_input($vars['dept_id'])
             .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
+            .',form_id='.db_input($vars['form_id'])
             .',page_id='.db_input($vars['page_id'])
             .',isactive='.db_input($vars['isactive'])
             .',ispublic='.db_input($vars['ispublic'])
-            .',noautoresp='.db_input(isset($vars['noautoresp'])?1:0)
+            .',noautoresp='.db_input(isset($vars['noautoresp']) && $vars['noautoresp']?1:0)
             .',notes='.db_input(Format::sanitize($vars['notes']));
 
         //Auto assign ID is overloaded...

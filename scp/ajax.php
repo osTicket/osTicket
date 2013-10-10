@@ -45,6 +45,13 @@ $dispatcher = patterns('',
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
         url_get('^scp', 'scp')
     )),
+    url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
+        url_get('^help-topic/(?P<id>\d+)$', 'getFormsForHelpTopic'),
+        url_get('^field-config/(?P<id>\d+)$', 'getFieldConfiguration'),
+        url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration'),
+        url_get('^user-info/(?P<id>\d+)$', 'getUserInfo'),
+        url_post('^user-info/(?P<id>\d+)$', 'saveUserInfo')
+    )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
         url_get('^graph$', 'getPlotData'),

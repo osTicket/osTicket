@@ -15,6 +15,7 @@
 **********************************************************************/
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.topic.php');
+require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 $topic=null;
 if($_REQUEST['id'] && !($topic=Topic::lookup($_REQUEST['id'])))
@@ -94,6 +95,9 @@ if($_POST){
         default:
             $errors['err']='Unknown command/action';
             break;
+    }
+    if ($id or $topic) {
+        if (!$id) $id=$topic->getId();
     }
 }
 

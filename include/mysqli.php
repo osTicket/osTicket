@@ -225,6 +225,11 @@ function db_field_type($res, $col=0) {
     return $res->fetch_field_direct($col); # nolint
 }
 
+function db_prepare($stmt) {
+    global $__db;
+    return $__db->prepare($stmt);
+}
+
 function db_connect_error() {
     global $__db;
     return $__db->connect_error;
