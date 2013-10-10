@@ -109,8 +109,8 @@ class Ticket {
         if (!$this->_answers) {
             foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form)
                 foreach ($form->getAnswers() as $answer)
-                    $this->_answers[$answer->getField()->get('name')] =
-                        $answer->getValue();
+                    $this->_answers[$answer->getField()->get('name')]
+                        = $answer;
         }
     }
 
@@ -290,13 +290,13 @@ class Ticket {
     function getPriorityId() {
         global $cfg;
 
-        if ($a = $this->_answers['priority'])
+        if ($a = $this->_answers['priority']->getValue())
             return $a->getId();
         return $cfg->getDefaultPriorityId();
     }
 
     function getPriority() {
-        if ($a = $this->_answers['priority'])
+        if ($a = $this->_answers['priority']->getValue())
             return $a->getDesc();
         return '...ummm...';
     }
@@ -1095,9 +1095,9 @@ class Ticket {
                 break;
             default:
                 if (isset($this->_answers[$tag]))
-                    # TODO: Use DynamicField to format the value, also,
-                    # private field data should never go external, via
-                    # email, for instance
+                    // The answer object is retrieved here which will
+                    // automatically invoke the toString() method when the
+                    // answer is coerced into text
                     return $this->_answers[$tag];
         }
 

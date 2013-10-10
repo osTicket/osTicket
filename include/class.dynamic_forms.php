@@ -566,6 +566,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     function toString() {
         return $this->getField()->toString($this->getValue());
     }
+
+    function __toString() {
+        return $this->toString();
+    }
 }
 
 /**
