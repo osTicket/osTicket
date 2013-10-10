@@ -107,7 +107,7 @@ class Ticket {
 
     function loadDynamicData() {
         if (!$this->_answers) {
-            foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
+            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form)
                 foreach ($form->getAnswers() as $answer)
                     $this->_answers[$answer->getField()->get('name')] =
                         $answer->getValue();

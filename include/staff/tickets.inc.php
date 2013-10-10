@@ -136,7 +136,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
 }
 
 $sortOptions=array('date'=>'ticket.created','ID'=>'ticketID',
-    'pri'=>'priority_urgency','name'=>'user.name','subj'=>'subject.value',
+    'pri'=>'priority_id','name'=>'user.name','subj'=>'subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept_name');
 
@@ -171,41 +171,38 @@ if(!$order_by ) {
     elseif(!strcasecmp($status,'closed'))
         $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
     elseif($showoverdue) //priority> duedate > age in ASC order.
-        $order_by='priority_urgency ASC, ISNULL(duedate) ASC, duedate ASC, effective_date ASC, ticket.created';
+        $order_by='priority_id, ISNULL(duedate) ASC, duedate ASC, effective_date ASC, ticket.created';
     else //XXX: Add due date here?? No -
-        $order_by='priority_urgency ASC, effective_date DESC, ticket.created';
+        $order_by='priority_id, effective_date DESC, ticket.created';
 }
 
 $order=$order?$order:'DESC';
 if($order_by && strpos($order_by,',') && $order)
     $order_by=preg_replace('/(?<!ASC|DESC),/', " $order,", $order_by);
 
-$sort=$_REQUEST['sort']?strtolower($_REQUEST['sort']):'urgency'; //Urgency is not on display table.
+$sort=$_REQUEST['sort']?strtolower($_REQUEST['sort']):'priority_id'; //Urgency is not on display table.
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
 if($_GET['limit'])
     $qstr.='&limit='.urlencode($_GET['limit']);
 
-$dynfields='(SELECT entry.object_id, value, value_id FROM '.FORM_ANSWER_TABLE.' ans '.
-         'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
-         'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
-         'WHERE field.name = "%1$s" AND entry.object_type="T")';
-$subject_sql=sprintf($dynfields, 'subject');
-$prio_sql=sprintf($dynfields, 'priority');
-
 $qselect ='SELECT DISTINCT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_id,ticket.team_id '
-    .' ,subject.value as subject'
+    .',MAX(IF(field.name = \'subject\', ans.value, NULL)) as `subject`'
+    .',MAX(IF(field.name = \'priority\', ans.value, NULL)) as `priority_desc`'
+    .',MAX(IF(field.name = \'priority\', ans.value_id, NULL)) as `priority_id`'
     .' ,user.name'
     .' ,email.address as email, dept_name '
-         .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created,pri.* ';
+         .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created ';
 
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
        ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id '.
-       ' LEFT JOIN '.$subject_sql.' subject ON subject.object_id = ticket.ticket_id'.
-       ' LEFT JOIN '.$prio_sql.' tprio ON tprio.object_id = ticket.ticket_id';
+       ' LEFT JOIN ost_form_entry entry ON entry.object_type=\'T\'
+             and entry.object_id=ticket.ticket_id'.
+       ' LEFT JOIN ost_form_entry_values ans ON ans.entry_id = entry.id'.
+       ' LEFT JOIN ost_form_field field ON field.id=ans.field_id';
 
 $sjoin='';
 if($search && $deep_search) {
@@ -230,8 +227,7 @@ $qselect.=' ,count(attach.attach_id) as attachments '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
          .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic ';
 
-$qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (tprio.value_id=pri.priority_id) '
-       .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()
+$qfrom.=' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()
                AND tlock.staff_id!='.db_input($thisstaff->getId()).') '
        .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
        .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
@@ -241,6 +237,11 @@ $qfrom.=' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (tprio.value_id=pri.priorit
        .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
        .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) ';
 
+// Fetch priority information
+$res = db_query('select * from '.PRIORITY_TABLE);
+$prios = array();
+while ($row = db_fetch_array($res))
+    $prios[$row['priority_id']] = $row;
 
 $query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
@@ -396,8 +397,8 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
                 } else { ?>
-                <td class="nohover" align="center" style="background-color:<?php echo $row['priority_color']; ?>;">
-                    <?php echo $row['priority_desc']; ?></td>
+                <td class="nohover" align="center" style="background-color:<?php echo $prios[$row['priority_id']]['priority_color']; ?>;">
+                    <?php echo $prios[$row['priority_id']]['priority_desc']; ?></td>
                 <?php
                 }
                 ?>
