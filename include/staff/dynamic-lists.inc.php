@@ -10,7 +10,7 @@ $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = DynamicList::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('lists.php');
-$showing=$pageNav->showing().' dynamic lists';
+$showing=$pageNav->showing().' custom lists';
 ?>
 
 <form action="lists.php" method="POST" name="lists">

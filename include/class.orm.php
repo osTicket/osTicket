@@ -705,7 +705,7 @@ class MySqlCompiler extends SqlCompiler {
         else {
             $b = $this->input($b);
         }
-        return sprintf('%s IN %s', $a, $b);
+        return sprintf('%s IN (%s)', $a, $b);
     }
 
     function compileJoin($tip, $model, $alias, $info) {
@@ -733,7 +733,7 @@ class MySqlCompiler extends SqlCompiler {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params += $q->params;
-            return '(' . (string)$q . ')';
+            return (string)$q;
         }
         else {
             $this->params[] = $what;

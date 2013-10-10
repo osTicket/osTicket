@@ -761,7 +761,7 @@ CREATE TABLE `%TABLE_PREFIX%user` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`)
-);
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
 CREATE TABLE `%TABLE_PREFIX%user_email` (
@@ -769,5 +769,6 @@ CREATE TABLE `%TABLE_PREFIX%user_email` (
   `user_id` int(10) unsigned NOT NULL,
   `address` varchar(128) NOT NULL,
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `address` (`address`)
-);
+  UNIQUE KEY `address` (`address`),
+  KEY `user_email_lookup` (`user_id`)
+) DEFAULT CHARSET=utf8;

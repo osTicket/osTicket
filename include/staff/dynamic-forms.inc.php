@@ -7,7 +7,7 @@
 
 <?php
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$count = DynamicForm::objects()->filter(array('type'=>'G'))->count();
+$count = DynamicForm::objects()->filter(array('type__in'=>array('T','U','G')))->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('forms.php');
 $showing=$pageNav->showing().' forms';

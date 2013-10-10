@@ -1,6 +1,6 @@
 /**
  * @version v1.8.0-dpr1 Dynamic Forms
- * @signature 0000000000000000000000000000000
+ * @signature 17f0cc96b366a747113622fa4780f9bc
  *
  * Adds the database structure for the dynamic forms feature and migrates
  * the database from the legacy <=1.7 format to the new format with the
@@ -51,7 +51,7 @@ CREATE TABLE `%TABLE_PREFIX%form_entry` (
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `ticket_dyn_form_lookup` (`ticket_id`)
+    KEY `entry_lookup` (`object_id`, `object_type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form_entry_values`;
@@ -96,7 +96,7 @@ CREATE TABLE `%TABLE_PREFIX%user` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`)
-);
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
 CREATE TABLE `%TABLE_PREFIX%user_email` (
@@ -104,8 +104,9 @@ CREATE TABLE `%TABLE_PREFIX%user_email` (
   `user_id` int(10) unsigned NOT NULL,
   `address` varchar(128) NOT NULL,
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `address` (`address`)
-);
+  UNIQUE KEY `address` (`address`),
+  KEY `user_email_lookup` (`user_id`)
+) DEFAULT CHARSET=utf8;
 
 ALTER TABLE `%TABLE_PREFIX%filter_rule`
     CHANGE `what` `what` varchar(32) NOT NULL;
@@ -119,5 +120,5 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '00000000000000000000000000000000'
+    SET `value` = '17f0cc96b366a747113622fa4780f9bc'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
