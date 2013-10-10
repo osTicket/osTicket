@@ -136,7 +136,6 @@ $(function() {
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes
             };
-        console.log(el.data('redactor'));
         if (el.data('redactor')) return;
         if (el.hasClass('draft')) {
             var reset = $('input[type=reset]', el.closest('form')),

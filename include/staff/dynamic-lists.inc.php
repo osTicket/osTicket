@@ -2,7 +2,7 @@
  <h2>Custom Lists</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="lists.php?a=add" class="Icon">Add New Custom List</a></b></div>
+ <b><a href="lists.php?a=add" class="Icon list-add">Add New Custom List</a></b></div>
 <div class="clear"></div>
 
 <?php

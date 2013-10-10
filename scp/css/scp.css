@@ -295,6 +295,9 @@ a.newDepartment { background:url(../images/icons/new_department.gif) }
 a.pages { background:url(../images/icons/pages.gif) }
 a.newPage { background:url(../images/icons/new_page.gif) }
 
+a.forms { background:url(../images/icons/icon-form.png); background-size: 16px 16px; }
+a.lists { background:url(../images/icons/icon-list.png); background-size: 16px 16px; }
+
 /* Generic CSS based Icons. use=> <tag class="Icon iconname">text</tag> */
 
 .Icon {
@@ -302,6 +305,8 @@ a.newPage { background:url(../images/icons/new_page.gif) }
     padding-left:20px;
     background-position: left center;
     background-repeat: no-repeat;
+    min-height: 16px;
+    display: inline-block;
 }
 
 
@@ -352,6 +357,8 @@ a.Icon:hover {
 .Icon.alertLog { background:url(../images/icons/log_alert.gif) 0 2px no-repeat; }
 .Icon.errorLog { background:url(../images/icons/log_error.gif) 0 2px no-repeat; }
 
+.Icon.form-add { background:url(../images/icons/icon-form-add.png) 0 0 no-repeat; background-size: 16px 16px; }
+.Icon.list-add { background:url(../images/icons/icon-list-add.png) 0 0 no-repeat; background-size: 16px 16px; }
 
 
 #content {

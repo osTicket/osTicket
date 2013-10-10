@@ -2,7 +2,7 @@
  <h2>Custom Forms</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="forms.php?a=add" class="Icon">Add New Custom Form</a></b></div>
+ <b><a href="forms.php?a=add" class="Icon form-add">Add New Custom Form</a></b></div>
 <div class="clear"></div>
 
 <?php
