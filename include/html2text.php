@@ -361,7 +361,8 @@ class HtmlHeadlineElement extends HtmlBlockElement {
             default:
                 return $headline;
         }
-        $headline .= "\n" . str_repeat($line, strpos($headline, "\n", 1) - 1) . "\n";
+        $length = max(array_map('strlen', explode("\n", $headline)));
+        $headline .= "\n" . str_repeat($line, $length) . "\n";
         return $headline;
     }
 }
