@@ -24,6 +24,8 @@ class Client {
     var $username;
     var $email;
 
+    var $_answers;
+
     var $ticket_id;
     var $ticketID;
 
@@ -40,11 +42,14 @@ class Client {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT ticket_id, ticketID, name, email, phone, phone_ext '
-            .' FROM '.TICKET_TABLE
+        $sql='SELECT ticket.ticket_id, ticketID, email.address as email '
+            .' FROM '.TICKET_TABLE.' ticket '
+            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
             .' WHERE ticketID='.db_input($id);
+
         if($email)
-            $sql.=' AND email='.db_input($email);
+            $sql.=' AND email.address = '.db_input($email);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
@@ -53,13 +58,24 @@ class Client {
         $this->id         = $this->ht['ticketID']; //placeholder
         $this->ticket_id  = $this->ht['ticket_id'];
         $this->ticketID   = $this->ht['ticketID'];
-        $this->fullname   = ucfirst($this->ht['name']);
+
+        $user = User::lookup(array('emails__address'=>$this->ht['email']));
+        $this->fullname   = $user->getFullName();
+
         $this->username   = $this->ht['email'];
         $this->email      = $this->ht['email'];
 
         $this->stats = array();
-      
+
         return($this->id);
+    }
+
+    function loadDynamicData() {
+        $this->_answers = array();
+        foreach (DynamicFormEntry::forClient($this->getId()) as $form)
+            foreach ($form->getAnswers() as $answer)
+                $this->_answers[$answer->getField()->get('name')] =
+                    $answer->getValue();
     }
 
     function reload() {
@@ -87,13 +103,9 @@ class Client {
     }
 
     function getPhone() {
-        return $this->ht['phone'];
+        return $this->_answers['phone'];
     }
 
-    function getPhoneExt() {
-        return $this->ht['phone_ext'];
-    }
-    
     function getTicketID() {
         return $this->ticketID;
     }
@@ -120,9 +132,11 @@ class Client {
 
     /* ------------- Static ---------------*/
     function getLastTicketIdByEmail($email) {
-        $sql='SELECT ticketID FROM '.TICKET_TABLE
-            .' WHERE email='.db_input($email)
-            .' ORDER BY created '
+        $sql='SELECT ticket.ticketID '.TICKET_TABLE.' ticket '
+            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+            .' WHERE email.address = '.db_input($email)
+            .' ORDER BY ticket.created '
             .' LIMIT 1';
         if(($res=db_query($sql)) && db_num_rows($res))
             list($tid) = db_fetch_row($res);
@@ -175,12 +189,12 @@ class Client {
         //See if we can fetch local ticket id associated with the ID given
         if(($ticket=Ticket::lookupByExtId($ticketID, $email)) && $ticket->getId()) {
             //At this point we know the ticket ID is valid.
-            //TODO: 1) Check how old the ticket is...3 months max?? 2) Must be the latest 5 tickets?? 
+            //TODO: 1) Check how old the ticket is...3 months max?? 2) Must be the latest 5 tickets??
             //Check the email given.
 
             # Require auth token for automatic logins (GET METHOD).
             if (!strcasecmp($ticket->getEmail(), $email) && (!$auto_login || $auth === $ticket->getAuthToken())) {
-                    
+
                 //valid match...create session goodies for the client.
                 $user = new ClientSession($email,$ticket->getExtId());
                 $_SESSION['_client'] = array(); //clear.
@@ -193,7 +207,7 @@ class Client {
                 //Log login info...
                 $msg=sprintf('%s/%s logged in [%s]', $ticket->getEmail(), $ticket->getExtId(), $_SERVER['REMOTE_ADDR']);
                 $ost->logDebug('User login', $msg);
-        
+
                 //Regenerate session ID.
                 $sid=session_id(); //Current session id.
                 session_regenerate_id(TRUE); //get new ID.
@@ -202,7 +216,7 @@ class Client {
 
                 return $user;
 
-            } 
+            }
         }
 
         //If we get to this point we know the login failed.

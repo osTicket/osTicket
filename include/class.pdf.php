@@ -109,7 +109,7 @@ class Ticket2PDF extends FPDF
     function WriteText($w, $text, $border) {
 
         $this->SetFont('Times','',11);
-        $this->MultiCell($w, 5, $text, $border, 'L');
+        $this->MultiCell($w, 7, $text, $border, 'L');
 
     }
 
@@ -187,7 +187,7 @@ class Ticket2PDF extends FPDF
         if($ticket->getIP())
             $source.='  ('.$ticket->getIP().')';
         $this->Cell($c, 7, $source, 1, 0, 'L', true);
-        $this->Ln(15);
+        $this->Ln(12);
 
         $this->SetFont('Arial', 'B', 11);
         if($ticket->isOpen()) {
@@ -233,7 +233,30 @@ class Ticket2PDF extends FPDF
         $this->Cell($l, 7, 'Last Message', 1, 0, 'L', true);
         $this->SetFont('');
         $this->Cell($c, 7, Format::db_datetime($ticket->getLastMsgDate()), 1, 1, 'L', true);
-        $this->Ln(5);
+
+        $this->SetFillColor(255, 255, 255);
+        foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+            $idx = 0;
+            foreach ($form->getAnswers() as $a) {
+                if (in_array($a->getField()->get('name'),
+                            array('email','name','subject','phone')))
+                    continue;
+                $this->SetFont('Arial', 'B', 11);
+                if ($idx++ === 0) {
+                    $this->Ln(5);
+                    $this->SetFillColor(244, 250, 255);
+                    $this->Cell(($l+$c)*2, 7, $a->getForm()->get('title'),
+                        1, 0, 'L', true);
+                    $this->Ln(7);
+                    $this->SetFillColor(255, 255, 255);
+                }
+                $this->Cell($l*2, 7, $a->getField()->get('label'), 1, 0, 'L', true);
+                $this->SetFont('');
+                $this->WriteText($c*2, $a->toString(), 1);
+            }
+        }
+        $this->SetFillColor(244, 250, 255);
+        $this->Ln(10);
 
         $this->SetFont('Arial', 'B', 11);
         $this->cMargin = 0;

@@ -77,13 +77,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-                    <td width="180">Web Tickets Priority:</td>
-                    <td>
-                        <input type="checkbox" name="allow_priority_change" value="1" <?php echo $config['allow_priority_change'] ?'checked="checked"':''; ?>>
-                        <em>(Allow user to override/set priority)</em>
-                    </td>
-                </tr>
-                <tr>
                     <td width="180">Emailed Tickets Priority:</td>
                     <td>
                         <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >

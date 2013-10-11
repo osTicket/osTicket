@@ -295,6 +295,9 @@ a.newDepartment { background:url(../images/icons/new_department.gif) }
 a.pages { background:url(../images/icons/pages.gif) }
 a.newPage { background:url(../images/icons/new_page.gif) }
 
+a.forms { background:url(../images/icons/icon-form.png); background-size: 16px 16px; }
+a.lists { background:url(../images/icons/icon-list.png); background-size: 16px 16px; }
+
 /* Generic CSS based Icons. use=> <tag class="Icon iconname">text</tag> */
 
 .Icon {
@@ -302,6 +305,8 @@ a.newPage { background:url(../images/icons/new_page.gif) }
     padding-left:20px;
     background-position: left center;
     background-repeat: no-repeat;
+    min-height: 16px;
+    display: inline-block;
 }
 
 
@@ -352,6 +357,8 @@ a.Icon:hover {
 .Icon.alertLog { background:url(../images/icons/log_alert.gif) 0 2px no-repeat; }
 .Icon.errorLog { background:url(../images/icons/log_error.gif) 0 2px no-repeat; }
 
+.Icon.form-add { background:url(../images/icons/icon-form-add.png) 0 0 no-repeat; background-size: 16px 16px; }
+.Icon.list-add { background:url(../images/icons/icon-list-add.png) 0 0 no-repeat; background-size: 16px 16px; }
 
 
 #content {
@@ -536,6 +543,8 @@ a.print {
 
 .form_table td.multi-line {
     vertical-align:top;
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
 }
 
 .form_table input[type=text], .form_table input[type=password], .form_table textarea {
@@ -565,23 +574,31 @@ a.print {
     border:1px solid #f00;
 }
 
-.form_table th {
+.form_table th, div.section-break {
     text-align:left;
     border:1px solid #ccc;
     background:#eee;
     padding:0;
+    padding:5px;
+}
+
+div.section-break h3 {
+    margin: 0;
+    padding: 0;
 }
 
 .form_table th h4 {
-    margin:0;
-    padding:5px;
+    margin: -0.3em -0.3em;
     color:#fff;
     background:#929292;
+    padding: 0.3em;
 }
 
+.form_table th em:not(:first-child) {
+    margin-top: 0.6em;
+}
 .form_table th em {
     display:block;
-    padding:5px;
     color:#000;
 }
 
@@ -1195,13 +1212,13 @@ time {
     background:#f8f8f8;
     border:2px solid #2a67ac;
     display:none;
-    z-index:1200;
+    z-index:5;
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
 }
 
 .redactor_air {
-    z-index: 1201 !important;
+    z-index: 6 !important;
 }
 
 .dialog#advanced-search {
@@ -1328,6 +1345,14 @@ time {
     background-position:bottom left;
 }
 
+/* Dynamic forms in dialogs */
+.dialog th {
+    background-color: #eee;
+    padding: 0.3em;
+    text-align: left;
+    padding-left: 1em;
+}
+
 #result-count div {
     padding:5px 10px;
     text-align:left;
@@ -1395,7 +1420,7 @@ ul.progress li.no small {color:red;}
     width: 100%;
     height: 100%;
     background: #000;
-    z-index: 1000;
+    z-index: 1;
     -webkit-transform: translate3d(0,0,0);
 }
 
@@ -1454,4 +1479,8 @@ ul.progress li.no small {color:red;}
     height: 100%;
     display: block;
     opacity: 0.3;
+}
+
+input[type=text]:disabled, input[type=checkbox]:disabled {
+    background-color: #eee;
 }

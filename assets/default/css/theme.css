@@ -532,9 +532,11 @@ body {
   width: 140px;
   float: left;
 }
+label.required {
+  font-weight: bold;
+}
 #ticketForm div label.required,
 #clientLogin div label.required {
-  font-weight: bold;
   text-align: left;
 }
 #ticketForm div input,

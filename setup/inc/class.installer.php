@@ -15,7 +15,6 @@
 **********************************************************************/
 require_once INCLUDE_DIR.'class.migrater.php';
 require_once INCLUDE_DIR.'class.setup.php';
-require_once INCLUDE_DIR.'class.i18n.php';
 
 class Installer extends SetupWizard {
 
@@ -111,6 +110,7 @@ class Installer extends SetupWizard {
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('PREFIX',$vars['prefix']); //Table prefix
         Bootstrap::defineTables(PREFIX);
+        Bootstrap::loadCode();
 
         $debug = true; // Change it to false to squelch SQL errors.
 
@@ -141,26 +141,28 @@ class Installer extends SetupWizard {
             }
         }
 
-        // TODO: Use language selected from install worksheet
-        $i18n = new Internationalization('en_US');
-        $i18n->loadDefaultData();
-
-        $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
-        $sla_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
-        $dept_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
-        $template_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
-        $group_id_1 = db_result(db_query($sql, false), 0);
-
-        $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
-        $eastern_timezone = db_result(db_query($sql, false), 0);
-
         if(!$this->errors) {
+            // TODO: Use language selected from install worksheet
+            require_once INCLUDE_DIR.'class.i18n.php';
+
+            $i18n = new Internationalization('en_US');
+            $i18n->loadDefaultData();
+
+            $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
+            $sla_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
+            $dept_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
+            $template_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
+            $group_id_1 = db_result(db_query($sql, false), 0);
+
+            $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
+            $eastern_timezone = db_result(db_query($sql, false), 0);
+
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
                 .", isactive=1, isadmin=1, group_id=$group_id_1, dept_id=$dept_id_1"
@@ -232,25 +234,22 @@ class Installer extends SetupWizard {
             .", autoresp_email_id=$support_email_id";
         db_query($sql, false);
 
-        //Create a ticket to make the system warm and happy.
-        $sql='INSERT INTO '.PREFIX.'ticket SET created=NOW(), status="open", source="Web" '
-            ." ,priority_id=0, dept_id=$dept_id_1, topic_id=0 "
-            .' ,ticketID='.db_input(Misc::randNumber(6))
-            .' ,email="support@osticket.com" '
-            .' ,name="osTicket Support" '
-            .' ,subject="osTicket Installed!"';
-        if(db_query($sql, false) && ($tid=db_insert_id())) {
-            if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
-                $msg='Congratulations and Thank you for choosing osTicket!';
+        global $cfg;
+        $cfg = new OsticketConfig();
 
-            $sql='INSERT INTO '.PREFIX.'ticket_thread SET created=NOW()'
-                .', source="Web" '
-                .', thread_type="M" '
-                .', ticket_id='.db_input($tid)
-                .', title='.db_input('osTicket Installed')
-                .', body='.db_input($msg);
-            db_query($sql, false);
-        }
+        //Create a ticket to make the system warm and happy.
+        if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
+            $msg='Congratulations and Thank you for choosing osTicket!';
+        $errors = array();
+        $tid = Ticket::create(array(
+            'email' =>      'support@osticket.com',
+            'name' =>       'osTicket Support',
+            'subject' =>    'osTicket Installed!',
+            'message' =>    $msg,
+            'source' =>     'email',
+            'deptId' =>     $dept_id_1),
+            $errors,
+            'api', false, false);
         //TODO: create another personalized ticket and assign to admin??
 
         //Log a message.

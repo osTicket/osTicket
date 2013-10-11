@@ -235,7 +235,7 @@ class ApiController {
      * Structure to validate the request against -- must be overridden to be
      * useful
      */
-    function getRequestStructure($format) { return array(); }
+    function getRequestStructure($format, $data=null) { return array(); }
     /**
      * Simple validation that makes sure the keys of a parsed request are
      * expected. It is assumed that the functions actually implementing the
@@ -266,7 +266,7 @@ class ApiController {
     function validate(&$data, $format) {
         return $this->validateRequestStructure(
                 $data,
-                $this->getRequestStructure($format)
+                $this->getRequestStructure($format, $data)
                 );
     }
 

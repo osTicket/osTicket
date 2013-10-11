@@ -52,6 +52,30 @@ if(!$dept || !$dept->isPublic())
             </table>
        </td>
     </tr>
+    <tr>
+<?php
+foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
+    $answers = $form->getAnswers();
+    if ($idx > 0 and $idx % 2 == 0) { ?>
+        </tr><tr>
+    <?php } ?>
+    <td width="50%">
+        <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+    <?php foreach ($answers as $answer) {
+        if (in_array($answer->getField()->get('name'), array('name', 'email', 'subject')))
+            continue;
+        elseif ($answer->getField()->get('private'))
+            continue;
+        ?>
+        <tr>
+        <th width="100"><?php echo $answer->getField()->get('label');
+            ?>:</th>
+        <td><?php echo $answer->toString(); ?></td>
+        </tr>
+    <?php } ?>
+    </table></td>
+<?php } ?>
+</tr>
 </table>
 <br>
 <h2>Subject:<?php echo Format::htmlchars($ticket->getSubject()); ?></h2>

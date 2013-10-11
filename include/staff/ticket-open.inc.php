@@ -13,48 +13,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4>New Ticket</h4>
-                <em><strong>User Information</strong></em>
             </th>
         </tr>
     </thead>
     <tbody>
+        <?php
+        $uf = UserForm::objects();
+        $uf[0]->render();
+        if($cfg->notifyONNewStaffTicket()) {  ?>
         <tr>
-            <td width="160" class="required">
-                Email Address:
-            </td>
+            <td width="160">Alert:</td>
             <td>
-
-                <input type="text" size="50" name="email" id="email" class="typeahead" value="<?php echo $info['email']; ?>"
-                    autocomplete="off" autocorrect="off" autocapitalize="off">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
-            <?php 
-            if($cfg->notifyONNewStaffTicket()) { ?>
-               &nbsp;&nbsp;&nbsp;
-               <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>>Send alert to user.
-            <?php 
-             } ?>
+            <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>>Send alert to user.
             </td>
         </tr>
-        <tr>
-            <td width="160" class="required">
-                Full Name:
-            </td>
-            <td>
-                <input type="text" size="50" name="name" id="name" value="<?php echo $info['name']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="160">
-                Phone Number:
-            </td>
-            <td>
-                <input type="text" size="20" name="phone" id="phone" value="<?php echo $info['phone']; ?>">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['phone']; ?></span>
-                Ext <input type="text" size="6" name="phone_ext" id="phone_ext" value="<?php echo $info['phone_ext']; ?>">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['phone_ext']; ?></span>
-            </td>
-        </tr>
+        <?php } ?>
         <tr>
             <th colspan="2">
                 <em><strong>Ticket Information &amp; Options</strong>:</em>
@@ -99,7 +72,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Help Topic:
             </td>
             <td>
-                <select name="topicId">
+                <select name="topicId" onchange="javascript:
+                        $('#dynamic-form').load(
+                            'ajax.php/form/help-topic/' + this.value);
+                        ">
                     <option value="" selected >&mdash; Select Help Topic &mdash;</option>
                     <?php
                     if($topics=Topic::getHelpTopics()) {
@@ -113,25 +89,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
-        <tr>
-            <td width="160">
-                Priority:
-            </td>
-            <td>
-                <select name="priorityId">
-                    <option value="0" selected >&mdash; System Default &mdash;</option>
-                    <?php
-                    if($priorities=Priority::getPriorities()) {
-                        foreach($priorities as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['priorityId']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['priorityId']; ?></font>
-            </td>
-         </tr>
          <tr>
             <td width="160">
                 SLA Plan:
@@ -203,29 +160,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <?php
-        } ?>
-        <tr>
-            <th colspan="2">
-                <em><strong>Issue</strong>: The user will be able to see the issue summary below and any associated responses.</em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <div>
-                    <em><strong>Subject</strong>: Issue summary </em> &nbsp;<font class="error">*&nbsp;<?php echo $errors['subject']; ?></font><br>
-                    <input type="text" name="subject" size="60" value="<?php echo $info['subject']; ?>">
-                </div>
-                <div style="margin-top:0.5em; margin-bottom:0.5em">
-                    <em><strong>Issue</strong></em>
-                    <font class="error">*&nbsp;<?php echo $errors['issue']; ?></font>
-                </div>
-                <textarea class="richtext ifhtml draft draft-delete"
-                    placeholder="Details on the reason(s) for opening the ticket."
-                    data-draft-namespace="ticket.staff" name="issue"
-                    cols="21" rows="8" style="width:80%;"
-                    ><?php echo $info['issue']; ?></textarea>
-            </td>
-        </tr>
+        }
+        TicketForm::getInstance()->render(true);
+        ?>
+        </tbody>
+        <tbody id="dynamic-form">
+        <?php
+            if ($form) $form->render(true);
+        ?>
+        </tbody>
+        <tbody>
         <?php
         //is the user allowed to post replies??
         if($thisstaff->canPostReply()) {

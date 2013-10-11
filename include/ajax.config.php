@@ -35,7 +35,7 @@ class ConfigAjaxAPI extends AjaxController {
         global $cfg;
 
         $config=array(
-            'allow_attachments' => (bool) $cfg->allowOnlineAttachments,
+            'allow_attachments' => (bool) $cfg->allowOnlineAttachments(),
             'file_types'      => $cfg->getAllowedFileTypes(),
             'max_file_size'   => (int) $cfg->getMaxFileSize(),
             'max_file_uploads'=> (int) $cfg->getClientMaxFileUploads(),

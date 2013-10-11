@@ -18,8 +18,8 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
     $status='open'; //Defaulting to open
 }
 
-$sortOptions=array('id'=>'ticketID', 'name'=>'ticket.name', 'subject'=>'ticket.subject',
-                    'email'=>'ticket.email', 'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
+$sortOptions=array('id'=>'ticketID', 'name'=>'user.name', 'subject'=>'subject.value',
+                    'email'=>'email.address', 'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 //Sorting options...
 $order_by=$order=null;
@@ -38,13 +38,24 @@ if($order_by && strpos($order_by,','))
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
-$qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, dept.ispublic, ticket.subject, ticket.name, ticket.email '.
-           ',dept_name,ticket. status, ticket.source, ticket.created ';
+$qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, '
+    .'dept.ispublic, subject.value as subject, '
+    .'user.name, email.address as email, '
+    .'dept_name,ticket. status, ticket.source, ticket.created ';
+
+$dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
+         'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
+         'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
+         'WHERE field.name = "%1$s" AND entry.object_type="T")';
+$subject_sql = sprintf($dynfields, 'subject');
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
-      .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) ';
+      .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
+      .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
+      .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+      .' LEFT JOIN '.$subject_sql.' subject ON ticket.ticket_id = subject.object_id ';
 
-$qwhere =' WHERE ticket.email='.db_input($thisclient->getEmail());
+$qwhere =' WHERE email.address='.db_input($thisclient->getEmail());
 
 if($status){
     $qwhere.=' AND ticket.status='.db_input($status);
@@ -58,7 +69,7 @@ if($search) {
     } else {//Deep search!
         $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
-                ." ticket.subject LIKE '%$queryterm%'"
+                ." subject.value LIKE '%$queryterm%'"
                 ." OR thread.body LIKE '%$queryterm%'"
                 .' ) ';
         $deep_search=true;

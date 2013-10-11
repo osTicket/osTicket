@@ -49,7 +49,8 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td width="130">%{ticket.id}</td><td>Ticket ID (internal ID)</td></tr>
                     <tr><td>%{ticket.number}</td><td>Ticket number (external ID)</td></tr>
                     <tr><td>%{ticket.email}</td><td>Email address</td></tr>
-                    <tr><td>%{ticket.name}</td><td>Full name</td></tr>
+                    <tr><td>%{ticket.name}</td><td>Full name &mdash;
+                        <em>see name expansion</em></td></tr>
                     <tr><td>%{ticket.subject}</td><td>Subject</td></tr>
                     <tr><td>%{ticket.phone}</td><td>Phone number | ext</td></tr>
                     <tr><td>%{ticket.status}</td><td>Status</td></tr>
@@ -79,6 +80,18 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{url}</td><td>osTicket\'s base url (FQDN)</td></tr>
                     <tr><td>%{reset_link}</td>
                         <td>Reset link used by the password reset feature</td></tr>
+                </table>
+                <table width="100%" border="0" cellspacing=1 cellpadding=1>
+                    <tr><td colspan="2"><b>Name Expansion</b></td></tr>
+                    <tr><td>.first</td><td>First Name</td></tr>
+                    <tr><td>.middle</td><td>Middle Name(s)</td></tr>
+                    <tr><td>.last</td><td>Last Name</td></tr>
+                    <tr><td>.full</td><td>First Last</td></tr>
+                    <tr><td>.legal</td><td>First M. Last</td></tr>
+                    <tr><td>.short</td><td>First L.</td></tr>
+                    <tr><td>.formal</td><td>Mr. Last</td></tr>
+                    <tr><td>.shortformal</td><td>F. Last</td></tr>
+                    <tr><td>.lastfirst</td><td>Last, First</td></tr>
                 </table>
             </td>
         </tr>

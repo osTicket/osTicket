@@ -34,6 +34,9 @@ $dispatcher = patterns('',
         url_post('^(?P<id>\d+)/attach$', 'uploadInlineImageClient'),
         url_get('^(?P<namespace>[\w.]+)$', 'getDraftClient'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraftClient')
+    )),
+    url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
+        url_get('^help-topic/(?P<id>\d+)$', 'getClientFormsForHelpTopic')
     ))
 );
 print $dispatcher->resolve($ost->get_path_info());

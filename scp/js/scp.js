@@ -295,13 +295,14 @@ $(document).ready(function(){
             });
         },
         onselect: function (obj) {
+            $('#basic-ticket-search').val(obj.value);
             $('#basic-ticket-search').closest('form').submit();
         },
-        property: "value"
+        property: "matches"
     });
 
     /* Typeahead user lookup */
-    $('#email.typeahead').typeahead({
+    $('.email.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
                 $.ajax({
@@ -314,9 +315,9 @@ $(document).ready(function(){
             }
         },
         onselect: function (obj) {
-            var fObj=$('#email.typeahead').closest('form');
+            var fObj=$('.email.typeahead').closest('form');
             if(obj.name)
-                $('#name', fObj).val(obj.name);
+                $('.auto.name', fObj).val(obj.name);
         },
         property: "email"
     });
@@ -419,6 +420,24 @@ $(document).ready(function(){
                 $('.buttons', elem).show();
              });
     });
+
+   // Return a helper with preserved width of cells
+   var fixHelper = function(e, ui) {
+      ui.children().each(function() {
+          $(this).width($(this).width());
+      });
+      return ui;
+   };
+   // Sortable tables for dynamic forms objects
+   $('.sortable-rows').sortable({
+       'helper': fixHelper,
+       'stop': function(e, ui) {
+           var attr = ui.item.parent('tbody').data('sort');
+           $('input[name^='+attr+']', ui.item.parent('tbody')).each(function(i, el) {
+               $(el).val(i+1);
+           });
+       }
+   });
 });
 
 // NOTE: getConfig should be global

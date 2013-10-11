@@ -16,6 +16,23 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     </thead>
     <tbody>
         <tr>
+            <td width="180" class="required">Default Email Templates:</td>
+            <td>
+                <select name="default_template_id">
+                    <option value="">&mdash; Select Default Template &mdash;</option>
+                    <?php
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' WHERE isactive=1 ORDER BY name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while (list($id, $name) = db_fetch_row($res)){
+                            $selected = ($config['default_template_id']==$id)?'selected="selected"':''; ?>
+                            <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
+                        <?php
+                        }
+                    } ?>
+                </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_template_id']; ?></font>
+            </td>
+        </tr>
+        <tr>
             <td width="180" class="required">Default System Email:</td>
             <td>
                 <select name="default_email_id">

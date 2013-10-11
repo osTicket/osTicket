@@ -17,7 +17,7 @@
 
 - title: Sample (with variables)
   response: |
-    %{ticket.name},
+    Hi %{ticket.name.first},
 
     Your ticket #%{ticket.number} created on %{ticket.create_date} is in
     %{ticket.dept.name} department.
