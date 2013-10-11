@@ -774,7 +774,7 @@ class Ticket {
                     );
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] ="\n$tag\n\n".$msg['body'];
+                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
                 null, $options);
@@ -906,7 +906,7 @@ class Ticket {
 
             //Reply separator tag.
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] ="\n$tag\n\n".$msg['body'];
+                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
             if (!$message)
                 $message = $this->getLastMessage();
@@ -1434,7 +1434,7 @@ class Ticket {
                 array('response' => $response, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] ="\n$tag\n\n".$msg['body'];
+                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
             $options = array('references' => $response->getEmailMessageId());
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
@@ -1492,7 +1492,7 @@ class Ticket {
                     array('response' => $response, 'signature' => $signature, 'staff' => $thisstaff));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] ="\n$tag\n\n".$msg['body'];
+                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
             $options = array('references' => $response->getEmailMessageId());
             //TODO: setup  5 param (options... e.g mid trackable on replies)
@@ -2179,7 +2179,7 @@ class Ticket {
                     array('message' => $message, 'signature' => $signature));
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
-                $msg['body'] ="\n$tag\n\n".$msg['body'];
+                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
             $references = $ticket->getLastMessage()->getEmailMessageId();
             if (isset($response))
