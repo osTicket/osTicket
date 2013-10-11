@@ -426,7 +426,14 @@ Class ThreadEntry {
         if(!($fileId=is_numeric($file)?$file:AttachmentFile::save($file)))
             return 0;
 
-        $sql ='INSERT INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
+        // TODO: Add a unique index to TICKET_ATTACHMENT_TABLE (file_id,
+        // ticket_id), and remove this block
+        if ($id = db_result(db_query('SELECT attach_id FROM '.TICKET_ATTACHMENT_TABLE
+                .' WHERE file_id='.db_input($fileId).' AND ticket_id='
+                .db_input($this->getTicketId()))))
+            return $id;
+
+        $sql ='INSERT IGNORE INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
              .' ,file_id='.db_input($fileId)
              .' ,ticket_id='.db_input($this->getTicketId())
              .' ,ref_id='.db_input($this->getId())
