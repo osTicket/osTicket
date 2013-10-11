@@ -48,6 +48,7 @@ body: |
     <p>
         <em>Your friendly Customer Support System
         <br/>
-        <a href="http://osticket.com/"><img width="126" height="23"
-            alt="Powered By osTicket" src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>
+        <a href="http://osticket.com/"><img width="126" height="19"
+            style="width: 126px; " alt="Powered By osTicket"
+            src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>
     </p>
