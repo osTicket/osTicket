@@ -79,6 +79,13 @@ class Installer extends SetupWizard {
         if(!$this->errors['username'] && in_array(strtolower($vars['username']),array('admin','admins','username','osticket')))
             $this->errors['username']='Bad username';
 
+        // Support port number specified in the hostname with a colon (:)
+        list($host, $port) = explode(':', $vars['dbhost']);
+        if ($port && (!is_numeric($port) || !((int)$port)))
+            $this->errors['db'] = 'Database port number must be a number';
+        elseif ($port && ($port < 1 || $port > 65535))
+            $this->errors['db'] = 'Invalid database port number';
+
         //MYSQL: Connect to the DB and check the version & database (create database if it doesn't exist!)
         if(!$this->errors) {
             if(!db_connect($vars['dbhost'],$vars['dbuser'],$vars['dbpass']))
