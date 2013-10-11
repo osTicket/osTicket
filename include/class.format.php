@@ -241,7 +241,7 @@ class Format {
 
         $token = $ost->getLinkToken();
         //Not perfect but it works - please help improve it.
-        $text=preg_replace_callback('/(?<!")(((f|ht){1}tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
+        $text=preg_replace_callback('/(?<!"|>)(((f|ht)tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
                 create_function('$matches', # nolint
                     sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";', # nolint
                         $token)),
