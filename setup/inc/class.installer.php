@@ -245,18 +245,11 @@ class Installer extends SetupWizard {
         $cfg = new OsticketConfig();
 
         //Create a ticket to make the system warm and happy.
-        if(!($msg=file_get_contents(INC_DIR.'msg/installed.txt')))
-            $msg='Congratulations and Thank you for choosing osTicket!';
         $errors = array();
-        $tid = Ticket::create(array(
-            'email' =>      'support@osticket.com',
-            'name' =>       'osTicket Support',
-            'subject' =>    'osTicket Installed!',
-            'message' =>    $msg,
-            'source' =>     'email',
-            'deptId' =>     $dept_id_1),
-            $errors,
-            'api', false, false);
+        $ticket_vars = $i18n->getTemplate('templates/ticket/installed.yaml')
+            ->getData();
+        $tid = Ticket::create($ticket_vars, $errors, 'api', false, false);
+
         //TODO: create another personalized ticket and assign to admin??
 
         //Log a message.
