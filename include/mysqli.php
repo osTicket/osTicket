@@ -40,7 +40,16 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     //Connectr
     $start = microtime(true);
-    if(!@$__db->real_connect($host, $user, $passwd)) # nolint
+    $port = 3306;
+    if (strpos($host, ':') !== false) {
+        list($host, $port) = explode(':', $host);
+        // PHP may not honor the port number if connecting to 'localhost'
+        if (!strcasecmp($host, 'localhost'))
+            // XXX: Looks like PHP gethostbyname() is IPv4 only
+            $host = gethostbyname($host);
+        $port = (int) $port;
+    }
+    if (!@$__db->real_connect($host, $user, $passwd, null, $port)) # nolint
         return NULL;
 
     //Select the database, if any.
