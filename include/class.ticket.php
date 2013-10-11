@@ -221,7 +221,7 @@ class Ticket {
     }
 
     function getSubject() {
-        return $this->_answers['subject'];
+        return (string) $this->_answers['subject'];
     }
 
     /* Help topic title  - NOT object -> $topic */
@@ -1098,7 +1098,7 @@ class Ticket {
                     // The answer object is retrieved here which will
                     // automatically invoke the toString() method when the
                     // answer is coerced into text
-                    return $this->_answers[$tag];
+                    return (string)$this->_answers[$tag];
         }
 
         return false;
@@ -2049,6 +2049,7 @@ class Ticket {
         // Save the (common) dynamic form
         $form->setTicketId($id);
         $form->save();
+        $ticket->loadDynamicData();
 
         $dept = $ticket->getDept();
 
