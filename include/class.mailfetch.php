@@ -418,23 +418,24 @@ class MailFetcher {
     function getBody($mid) {
         global $cfg;
 
-        if ($body = $this->getPart($mid,'TEXT/HTML', $this->charset)) {
-            //Convert tags of interest before we striptags
-            //$body=str_replace("</DIV><DIV>", "\n", $body);
-            //$body=str_replace(array("<br>", "<br />", "<BR>", "<BR />"), "\n", $body);
-            $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
-            if (!$cfg->isHtmlThreadEnabled())
-                $body = convert_html_to_text($body);
+        if ($cfg->isHtmlThreadEnabled()) {
+            if ($body=$this->getPart($mid, 'text/html', $this->charset)) {
+                //Cleanup the html.
+                $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
+            }
+            elseif ($body=$this->getPart($mid, 'text/plain', $this->charset)) {
+                $body = Format::htmlchars($body);
+                $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+            }
         }
-        elseif ($body = $this->getPart($mid,'TEXT/PLAIN', $this->charset)) {
-            // Escape anything that looks like HTML chars since what's in
-            // the database will be considered HTML
-            // TODO: Consider the reverse of the above edits (replace \n
-            //       <br/>
-            $body=Format::htmlchars($body);
-            if ($cfg->isHtmlThreadEnabled()) {
-                $body = wordwrap($body, 90);
-                $body = "<div style=\"white-space:pre\">$body</div>";
+        else {
+            if ($body=$this->getPart($mid, 'text/plain', $this->charset)) {
+                //Cleanup the html.
+                $body = Format::htmlchars($body);
+                $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+            }
+            elseif ($body=$this->getPart($mid, 'text/html', $this->charset)) {
+                $body = convert_html_to_text($body, 100);
             }
         }
         return $body;

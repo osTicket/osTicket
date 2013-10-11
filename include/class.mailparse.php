@@ -158,17 +158,25 @@ class Mail_Parse {
 
     function getBody(){
 
-        if ($body=$this->getPart($this->struct,'text/html')) {
-            //Cleanup the html.
-            $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
-            if (!$cfg->isHtmlThreadEnabled()) {
-                $body = convert_html_to_text($body, 120);
+        if ($cfg->isHtmlThreadEnabled()) {
+            if ($body=$this->getPart($this->struct,'text/html')) {
+                //Cleanup the html.
+                $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
+            }
+            elseif ($body=$this->getPart($this->struct,'text/plain')) {
+                $body = Format::htmlchars($body);
                 $body = "<div style=\"white-space:pre-wrap\">$body</div>";
             }
         }
-        elseif ($body=$this->getPart($this->struct,'text/plain')) {
-            $body = Format::htmlchars($body);
-            $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+        else {
+            if ($body=$this->getPart($this->struct,'text/plain')) {
+                //Cleanup the html.
+                $body = Format::htmlchars($body);
+                $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+            }
+            elseif ($body=$this->getPart($this->struct,'text/html')) {
+                $body = convert_html_to_text($body, 100);
+            }
         }
         return $body;
     }
