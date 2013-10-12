@@ -1,4 +1,4 @@
-    <?php if ($form->getTitle()) { ?>
+<?php if ($form->getTitle()) { ?>
     <tr><th colspan="2">
         <em><strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
         <?php echo Format::htmlchars($form->getInstructions()); ?></em>

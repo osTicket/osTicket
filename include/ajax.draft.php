@@ -7,8 +7,9 @@ require_once(INCLUDE_DIR.'class.draft.php');
 class DraftAjaxAPI extends AjaxController {
 
     function _createDraft($vars) {
-        foreach (array('response', 'note', 'answer', 'body', 'message',
-                'issue') as $field) {
+        $field_list = array('response', 'note', 'answer', 'body',
+             'message', 'issue');
+        foreach ($field_list as $field) {
             if (isset($_POST[$field])) {
                 $vars['body'] = urldecode($_POST[$field]);
                 break;
@@ -48,8 +49,9 @@ class DraftAjaxAPI extends AjaxController {
     }
 
     function _updateDraft($draft) {
-        foreach (array('response', 'note', 'answer', 'body', 'message',
-                'issue') as $field) {
+        $field_list = array('response', 'note', 'answer', 'body',
+             'message', 'issue');
+        foreach ($field_list as $field) {
             if (isset($_POST[$field])) {
                 $body = urldecode($_POST[$field]);
                 break;
