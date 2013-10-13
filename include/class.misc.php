@@ -150,4 +150,105 @@ class Misc {
     }
 
 }
+
+class FuzzyHash {
+    var $hashes = array();
+    var $original;
+
+    static function fromText($text) {
+        return self::fromStringAndTokens($text, array(
+            "\n", ">"));
+    }
+
+    static function fromHtml($html) {
+        return self::fromStringAndTokens($text, array(
+            '<br', '<p', '<div', '<blockquote'));
+    }
+
+    static function fromStringAndTokens($text, $tokens, $length=3) {
+        // TODO: Standardize line endings in $text
+        $text = str_replace("\r", "", $text);
+        $sections = preg_split('~'.implode('|', $tokens).'~', $text, -1,
+            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE);
+        $fuzzy = new FuzzyHash();
+        foreach ($sections as $s) {
+            if (isset($bucket))
+                $bucket[0] .= trim($s[0]);
+            else
+                $bucket = array(trim($s[0]), $s[1]);
+            // Ensure that bucket meets minimum length
+            if (strlen($bucket[0]) < $length) continue;
+            $hash = base64_encode(substr(md5($bucket[0], true), -$length));
+            $fuzzy->hashes[] = array($hash, $bucket);
+        }
+        $fuzzy->original = $text;
+        return $fuzzy;
+    }
+
+    function toString() {
+        $hashes = array();
+        foreach ($this->hashes as $info)
+            $hashes[] = $info[0];
+        return implode(':', $hashes);
+    }
+
+    /**
+     * Use the digest (string value) from another fuzzy hash to remove data
+     * from the original text used to create this hash.
+     *
+     * Parameters:
+     * $other - (string) digest value from a FuzzyHash object. @see
+     *      ::toString()
+     * $window - (int|default:0) number of sections to keep from a removed
+     *      section preceeding a kept section. In other words, if text is to
+     *      be removed between two kept sections, keep this number of blocks
+     *      at the end of the section to-be-removed.
+     */
+    function remove($other, $window=0) {
+        $cleaned = array();
+        $foreign = explode(':', $other);
+        foreach ($this->hashes as $info) {
+            list($h, list(, $start)) = $info;
+            if (isset($current))
+                $current['stops'][] = $start;
+            if (in_array($h, $foreign)) {
+                // This hash is in the list (match). Set the stop point at
+                // the first char of the first unwanted block
+                if (!isset($current) || isset($current['keep'])) {
+                    if (isset($current))
+                        $cleaned[] = $current;
+                    $current = array('start'=>$start, 'stops'=>array(),
+                        'drop'=>true);
+                }
+                // Drop all hashes between the current location and the
+                // matched hash from the foreign list
+                while (array_shift($foreign) != $h);
+            }
+            else {
+                // No match. This block was not in the original text
+                if (!isset($current) || isset($current['drop'])) {
+                    if (isset($current))
+                        $cleaned[] = $current;
+                    $current = array('start'=>$start, 'stops'=>array(),
+                        'keep'=>true);
+                }
+            }
+        }
+        $cleaned[] = $current;
+        // Copy the original text to the cleaned
+        $output = '';
+        foreach ($cleaned as $c) {
+            if (isset($c['drop']) && count($c['stops']) > $window)
+                continue;
+            // TODO: If the previous section was 'drop'ed, perhaps start
+            // with the last couple of lines from it before starting this
+            // 'keep'ed section. This can be easily accomplished by changing
+            // the 'start' value with one of the last 'stops' values from
+            // the previous section
+            $output .= substr($this->original, $c['start'],
+                array_pop($c['stops']));
+        }
+        return $output;
+    }
+}
 ?>

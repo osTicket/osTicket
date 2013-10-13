@@ -660,6 +660,12 @@ CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
   KEY `email_mid` (`email_mid`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_hash`;
+CREATE TABLE `%TABLE_PREFIX%ticket_email_hash` (
+  `thread_id` int(11) unsigned NOT NULL,
+  `hash` text,
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
 CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   `ticket_id` int(11) unsigned NOT NULL default '0',
