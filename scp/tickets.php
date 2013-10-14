@@ -181,7 +181,7 @@ if($_POST && !$errors):
 
                 // Cleanup drafts for the ticket. If not closed, only clean
                 // for this staff. Else clean all drafts for the ticket.
-                Draft::deleteForTicket($ticket->getId(),
+                Draft::deleteForNamespace('ticket.%.' . $ticket->getId(),
                     $ticket->isClosed() ? false : $thisstaff->getId());
 
             } else {

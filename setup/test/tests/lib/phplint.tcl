@@ -7,10 +7,10 @@ proc scan file {
     set fd [open $file]
     set infunc 0
     set linenr 0
-    set fnre {(^\s*)((public|private|protected|static)\s*)*function\s+([^(]+)\s*\((.*)\).*}
+    set fnre {(^\s*)((public|private|protected|static)\s*)*function(?=\s|\()\s*([^(]+)?\s*\(((\(\)|[^)])*)\)(\s*use\s*\((.*)\))?}
     while {[gets $fd line] != -1} {
         incr linenr
-        if {[regexp $fnre $line - ind - - - fa]} {
+        if {[regexp $fnre $line - ind - - - fa - - ua]} {
             # If $infunc is true we miss the end of the last function
             # so we analyze it now.
             if {$infunc} {
@@ -24,6 +24,11 @@ proc scan file {
                 # remove optional type spec
                 regsub {^.*\s+} [string trim $arg] {} arg
                 set arg [string trim $arg " $&"]
+                lappend arglist $arg
+            }
+            # Support closure variables
+            foreach arg [split $ua ,] {
+                set arg [string trim $arg " $"]
                 lappend arglist $arg
             }
             set infunc 1
@@ -185,11 +190,15 @@ proc analyze {file arglist body} {
         }
 
         # Check for var accesses
-        set varsimplere {\$[_A-Za-z]+[_A-Za-z0-9]*}
+        set varsimplere {(?:::)?\$[_A-Za-z]+[_A-Za-z0-9]*}
         set l [regexp -all -inline $varsimplere $line]
         foreach a $l {
             set a [string trim $a "=$ "]
             regsub -all {\[.*\]} $a {} a
+            # Skip access to class-static variables
+            if {[string first :: $a] == 0} {
+                continue
+            }
             #puts "access of $a"
             if {![info exists initialized($a)] &&
                 ![info exists ignore($a)]} {
