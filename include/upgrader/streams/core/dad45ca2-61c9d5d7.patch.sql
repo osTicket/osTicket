@@ -1,6 +1,6 @@
 /**
  * @version v1.8.0-dpr1 Dynamic Forms
- * @signature 17f0cc96b366a747113622fa4780f9bc
+ * @signature 61c9d5d71093d3595b3d41855386a905
  *
  * Adds the database structure for the dynamic forms feature and migrates
  * the database from the legacy <=1.7 format to the new format with the
@@ -120,5 +120,5 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '17f0cc96b366a747113622fa4780f9bc'
+    SET `value` = '61c9d5d71093d3595b3d41855386a905'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

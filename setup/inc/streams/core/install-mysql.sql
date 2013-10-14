@@ -211,7 +211,7 @@ CREATE TABLE `%TABLE_PREFIX%form_entry` (
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `entry_lookup` (`object_id`, `object_type`)
+    KEY `entry_lookup` (`object_type`, `object_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form_entry_values`;
