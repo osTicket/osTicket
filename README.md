@@ -16,23 +16,29 @@ osTicket is an attractive alternative to higher-cost and complex customer
 support systems; simple, lightweight, reliable, open source, web-based and
 easy to setup and use. The best part is, it's completely free.
 
-Installation
-------------
+Deployment
+----------
 osTicket now supports bleeding-edge installations. The easiest way to
 install the software and track updates is to clone the public repository.
 Create a folder on you web server (using whatever method makes sense for
 you) and cd into it. Then clone the repository (the folder must be empty!):
 
-    git clone https://github.com/osTicket/osTicket-1.7 .
+    git clone https://github.com/osTicket/osTicket-1.8 .
 
-osTicket uses the git flow development model, so you’ll need to switch to
-the develop branch in order to see the bleeding-edge feature additions.
+And deploy the code into somewhere in your server's www root folder, for
+instance
 
-    git checkout develop
+    cd osTicket-1.8
+    php setup/cli/manage.php deploy --setup /var/www/htdocs/osticket/
 
-Follow the usual install instructions (beginning from Manual Installation
-above), except, don't delete the setup/ folder. For this reason, such an
-installation is not recommended for a public-facing support system.
+Then you can configure your server if necessary to serve that folder, and
+visit the page and install osTicket as usual. Go ahead and even delete
+setup/ folder out of the deployment location when you’re finished. Then,
+later, you can fetch updates and deploy them (from the folder where you
+cloned the git repo into)
+
+    git pull
+    php setup/cli/manage.php deploy -v /var/www/htdocs/osticket/
 
 Upgrading
 ---------
@@ -40,11 +46,12 @@ osTicket supports upgrading from 1.6-rc1 and later versions. As with any
 upgrade, strongly consider a backup of your attachment files, database, and
 osTicket codebase before embarking on an upgrade.
 
-To trigger the update process, fetch the osTicket-1.7 tarball from either
-the osTicket [github](http://github.com/osTicket/osTicket-1.7) page or from
-the osTicket website. Extract the tarball into the folder of your osTicket
-codebase. This can also be accomplished with the zip file, and a FTP client
-can of course be used to upload the new source code to your server.
+To trigger the update process, fetch the osTicket-1.8 tarball from either
+the osTicket [github](http://github.com/osTicket/osTicket-1.8/releases) page
+or from the [osTicket website](http://osticket.com). Extract the tarball
+into the folder of your osTicket codebase. This can also be accomplished
+with the zip file, and a FTP client can of course be used to upload the new
+source code to your server.
 
 Any way you choose your adventure, when you have your codebase upgraded to
 osTicket-1.7, visit the /scp page of you ticketing system. The upgrader will
