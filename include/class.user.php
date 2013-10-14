@@ -107,15 +107,31 @@ class User extends UserModel {
         return new PersonsName($this->name);
     }
 
+    function asVar() {
+        return (string) $this->getName();
+    }
+
+    function getVar($tag) {
+        if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
+            return call_user_func(array($this, 'get'.ucfirst($tag)));
+
+        $tag = strtolower($tag);
+        foreach ($this->getDynamicData() as $e)
+            if ($e->getAnswer($tag))
+                return $e;
+    }
+
     function getDynamicData() {
-        $data = DynamicFormEntry::forClient($this->id);
-        if (!$data[0]) {
-            $data = array();
-            $g = UserForm::getInstance();
-            $g->setClientId($this->id);
-            $data[] = $g;
+        if (!isset($this->_entries)) {
+            $this->_entries = DynamicFormEntry::forClient($this->id);
+            if (!$this->_entries[0]) {
+                $this->_entries = array();
+                $g = UserForm::getInstance();
+                $g->setClientId($this->id);
+                $this->_entries[] = $g;
+            }
         }
-        return $data;
+        return $this->_entries;
     }
 
     function save($refetch=false) {
