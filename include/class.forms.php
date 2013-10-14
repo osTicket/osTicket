@@ -682,6 +682,7 @@ class ThreadEntryField extends FormField {
     }
     function renderExtras($mode=null) {
         if ($mode == 'client')
+            // TODO: Pass errors arrar into showAttachments
             $this->getWidget()->showAttachments();
     }
 }
@@ -785,7 +786,7 @@ class TextboxWidget extends Widget {
 class TextareaWidget extends Widget {
     function render() {
         $config = $this->field->getConfiguration();
-        $class = "";
+        $class = $cols = $rows = $maxlength = "";
         if (isset($config['rows']))
             $rows = "rows=\"{$config['rows']}\"";
         if (isset($config['cols']))
@@ -796,7 +797,7 @@ class TextareaWidget extends Widget {
             $class = 'class="richtext no-bar small"';
         ?>
         <span style="display:inline-block;width:100%">
-        <textarea <?php echo $rows." ".$cols." ".$length." ".$class; ?>
+        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class; ?>
             name="<?php echo $this->name; ?>"><?php
                 echo Format::htmlchars($this->value);
             ?></textarea>
@@ -892,7 +893,7 @@ class DatetimePickerWidget extends Widget {
                     strtotime($this->value));
             if ($config['gmt'])
                 $this->value += 3600 *
-                    $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$time):0);
+                    $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
 
             list($hr, $min) = explode(':', date('H:i', $this->value));
             $this->value = date('m/d/Y', $this->value);
@@ -971,7 +972,7 @@ class ThreadEntryWidget extends Widget {
     <?php
     }
 
-    function showAttachments() {
+    function showAttachments($errors=array()) {
         global $cfg, $thisclient;
 
         if(($cfg->allowOnlineAttachments()

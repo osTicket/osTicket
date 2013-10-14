@@ -299,7 +299,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     }
 
     function count() {
-        $compiler = new $this->compiler();
+        $class = $this->compiler;
+        $compiler = new $class();
         return $compiler->compileCount($this);
     }
 
@@ -309,8 +310,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
     // IteratorAggregate interface
     function getIterator() {
+        $class = $this->iterator;
         if (!isset($this->_iterator))
-            $this->_iterator = new $this->iterator($this);
+            $this->_iterator = new $class($this);
         return $this->_iterator;
     }
 
@@ -341,7 +343,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         if (!$this->ordering && isset($model::$meta['ordering']))
             $this->ordering = $model::$meta['ordering'];
 
-        $compiler = new $this->compiler($options);
+        $class = $this->compiler;
+        $compiler = new $class($options);
         $this->query = $compiler->compileSelect($this);
 
         return $this->query;
@@ -364,7 +367,7 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
 
     function buildModel($row) {
         // TODO: Traverse to foreign keys
-        return new $this->model($row);
+        return new $this->model($row); # nolint
     }
 
     function fillTo($index) {

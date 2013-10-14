@@ -23,7 +23,7 @@
             <?php
             }
             else { ?>
-                <td><label for="<?php echo $field->getFormname(); ?>" class="<?php
+                <td><label for="<?php echo $field->getFormName(); ?>" class="<?php
                     if ($field->get('required')) echo 'required'; ?>">
                 <?php echo Format::htmlchars($field->get('label')); ?>:</label></td><td>
             <?php

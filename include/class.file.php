@@ -151,7 +151,7 @@ class AttachmentFile {
         }
     }
 
-    function display() {
+    function display($scale=false) {
         $this->makeCacheable();
 
         if ($scale && extension_loaded('gd')) {

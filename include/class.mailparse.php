@@ -157,6 +157,7 @@ class Mail_Parse {
     }
 
     function getBody(){
+        global $cfg;
 
         if ($body=$this->getPart($this->struct,'text/html')) {
             //Cleanup the html.
