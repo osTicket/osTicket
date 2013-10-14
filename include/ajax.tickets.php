@@ -204,23 +204,30 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         // Dynamic fields
-        $dynfields='(SELECT entry.object_id, value, value_id FROM '.FORM_ANSWER_TABLE.' ans '.
-             'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
-             'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
-             'WHERE field.name = %1$s AND entry.object_type="T")';
+        $dynfields='(SELECT entry.object_id, %s '.
+             'FROM '.FORM_ANSWER_TABLE.' ans '.
+             'JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
+             'JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
+             'WHERE entry.object_type="T" GROUP BY entry.object_id)';
+        $vals = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
             if ($f->get('name') && isset($req[$f->getFormName()])
                     && ($val = $req[$f->getFormName()])) {
-                $name = 'dyn_'.$f->get('id');
-                $from .= ' LEFT JOIN '.sprintf($dynfields, db_input($f->get('name')))
-                    ." $name ON ($name.object_id = ticket.ticket_id)";
-                $where .= " AND ($name.value_id = ".db_input($val)
-                    . " OR $name.value LIKE '%".db_real_escape($val)."%')";
+                $name = $f->get('name');
+                $vals[] = "MAX(IF(field.name = '$name', ans.value_id, NULL)) as `{$name}_id`"; # nolint
+                $vals[] = "MAX(IF(field.name = '$name', ans.value, NULL)) as `$name`"; # nolint
+                $where .= " AND (dyn.`{$name}_id` = ".db_input($val)
+                    . " OR dyn.`$name` LIKE '%".db_real_escape($val)."%')";
             }
         }
+        if ($vals)
+            $from .= ' LEFT JOIN '.sprintf($dynfields, implode(',', $vals))
+                ." dyn ON (dyn.object_id = ticket.ticket_id)";
 
         $sql="$select $from $where";
         $res = db_query($sql);
+
+        $tickets = array();
         while (list($tickets[]) = db_fetch_row($res));
         $tickets = array_filter($tickets);
 
