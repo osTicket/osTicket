@@ -74,7 +74,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
             <?php
             if($nav && ($navs=$nav->getNavLinks()) && is_array($navs)){
                 foreach($navs as $name =>$nav) {
-                    echo sprintf('<li><a class="%s %s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
+                    echo sprintf('<li><a class="%s %s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),st($nav['desc']),"\n");
                 }
             } ?>
         </ul>
@@ -86,9 +86,9 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
         <div id="content">
 
          <?php if($errors['err']) { ?>
-            <div id="msg_error"><?php echo $errors['err']; ?></div>
+            <div id="msg_error"><?php t($errors['err']); ?></div>
          <?php }elseif($msg) { ?>
-            <div id="msg_notice"><?php echo $msg; ?></div>
+            <div id="msg_notice"><?php t($msg); ?></div>
          <?php }elseif($warn) { ?>
-            <div id="msg_warning"><?php echo $warn; ?></div>
+            <div id="msg_warning"><?php t($warn); ?></div>
          <?php } ?>

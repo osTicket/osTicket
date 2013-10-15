@@ -6,6 +6,8 @@ $this->translations = array(
     ,"Language" => "Sprache"
     ,"de_DE" => "deutsch"
     ,"en_US" => "englisch"
+    ,"Support&nbsp;Center&nbsp;Home" => "Support&nbsp;Center&nbsp;Startseite"
+    ,"Open&nbsp;New&nbsp;Ticket" => "Neues Ticket anlegen"
     //client/login.inc.php
     ,"Check Ticket Status" => "Ticket Status überprüfen"
     ,"To view the status of a ticket, provide us with the login details below."
