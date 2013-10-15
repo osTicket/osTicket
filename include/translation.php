@@ -56,7 +56,7 @@ class localizer
     
     public function __construct()
     {
-        $lang = "en_EN";
+        $lang = "en_US";
         if (isset($_SESSION["lang"]))
         {
             $lang = $_SESSION["lang"];
