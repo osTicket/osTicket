@@ -218,6 +218,9 @@ if(!defined('PATH_SEPARATOR')){
 //Set include paths. Overwrite the default paths.
 ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
 
+//load localizer
+require(INCLUDE_DIR.'translation.php');
+
 require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.misc.php');
 

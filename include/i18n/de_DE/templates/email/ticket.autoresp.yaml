@@ -1,0 +1,78 @@
+#
+# Email template: ticket.autoresp.yaml
+#
+# Sent to a user when a new ticket is created
+#
+---
+notes: |
+    Sent to a user when a new ticket is created
+
+subject: |
+    Support Ticket Opened
+body: |
+    <table cellspacing="0">
+    <tbody>
+    <tr>
+        <td style="vertical-align: middle; border-bottom: 1px solid #ddd; height: 48pt">
+            <span style="color: rgb(127, 127, 127); font-family: Georgia;
+            font-size: 28pt; font-weight: normal; ">We Hear You</span>
+        </td>
+        <td style="border-bottom: 1px solid #ddd;">
+            <img src="cid:6fe1efdea357534d238b86e7860a7c5a" width="94"
+            alt="osTicket Logo (kangaroo)" style="width: 94px; float: right;
+            vertical-align: bottom; " height="53">
+        </td>
+    </tr>
+    <tr>
+        <td style="width:67%; padding-top: 12pt; padding-right: 12pt">
+        <p>
+            Dear %{ticket.name},
+        </p>
+        <p>
+            We received your request and assigned ticket #%{ticket.number}
+        </p>
+        <p>
+            Topic: <strong>%{ticket.topic.name}</strong>
+        </p>
+        <p>
+            Subject: <strong>%{ticket.subject}</strong>
+        </p>
+        <p>
+            Submitted: <strong>%{ticket.create_date}</strong>
+        </p>
+        <p>
+            A representative will follow-up with you as soon as possible. You
+            can <a href="%{ticket.client_link}">view this ticket's progress
+            online</a>.
+        </p>
+        <p>
+            Your Company Name Team,<br>
+            %{signature}
+        </p>
+        </td>
+        <td style="vertical-align: top; padding-top: 12pt;">
+        <p>
+            <span style="color: rgb(127, 127, 127); ">Company Name<br/>
+            %{signature}</span>
+        </p>
+        <p>
+            <span style="color: rgb(127, 127, 127); ">
+            If you wish to send additional comments or information regarding
+            this issue, please don't open a new ticket. Simply</span> <a
+            href="%{ticket.client_link}"><span style="color: rgb(84, 141, 212); "
+            >login</span></a> <span
+            style="color: rgb(127, 127, 127); ">and update the ticket.</span>
+        </p>
+        <p>
+            <span style="color: rgb(127, 127, 127); ">Visit our</span> <a
+            href="%{url}/kb"><span style="color: rgb(84, 141, 212);
+            ">knowledgebase</span></a>
+        </p>
+        </td>
+    </tr>
+    </tbody>
+    </table>
+    <p style="text-align: center;">
+        <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" width="126"
+        height="19" style="width: 126px; " alt="Powered by osTicket">
+    </p>

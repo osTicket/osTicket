@@ -1,0 +1,16 @@
+#
+# Initial teams defined for the system.
+#
+# Fields:
+# isenabled - (bool:1|0) true or false if the team should be initially
+#       enabled
+# noalerts - (bool:1|0)
+# name - Descriptive name for the team
+# notes - Administrative notes (viewable internal only)
+#
+---
+- isenabled: 1
+  noalerts: 0
+  name: Level I Support
+  notes: |
+    Tier 1 support, responsible for the initial iteraction with customers

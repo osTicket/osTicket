@@ -47,16 +47,26 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                  ?>
                 <?php
                 if($cfg->showRelatedTickets()) {?>
-                <a href="<?php echo ROOT_PATH; ?>tickets.php">My Tickets <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
+                <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php t("My Tickets"); ?> <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
                 <?php
                 } ?>
-                <a href="<?php echo ROOT_PATH; ?>logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
+                <a href="<?php echo ROOT_PATH; ?>logout.php?auth=<?php echo $ost->getLinkToken(); ?>"><?php t("Log Out"); ?></a>
              <?php
              }elseif($nav){ ?>
-                 Guest User - <a href="<?php echo ROOT_PATH; ?>login.php">Log In</a>
+                 <?php t("Guest User"); ?> - <a href="<?php echo ROOT_PATH; ?>login.php"><?php t("Log In"); ?></a>
               <?php
              } ?>
             </p>
+                <?php
+                    $languages = localizer::getInstance()->getLanguages();
+                    if (count($languages) > 1): ?>
+                    <p>
+                        <?php t("Language"); ?>:
+                        <?php foreach ($languages as $lang):?>
+                            <a href="<?php echo $_SERVER["URI"]."?lang=$lang"; ?>"><?php t($lang); ?></a>
+                        <?php endforeach; ?>
+                    </p>
+                <?php endif; ?>
         </div>
         <?php
         if($nav){ ?>

@@ -1,0 +1,20 @@
+#
+# Page template: thank-you.yaml
+#
+# The thank-you page is served to the customer portal when a user submites a
+# new ticket via the customer portal.
+#
+%YAML 1.0
+---
+notes: |
+    The thank-you page is served to the customer portal when a user submites
+    a new ticket via the customer portal.
+
+name: Thank You
+body: |
+    <div>%{ticket.name},<br />
+    <p>Thank you for contacting us.</p>
+    <p>A support ticket request #%{ticket.number} has been created and a
+    representative will be getting back to you shortly if necessary.</p>
+    <p>Support Team</p>
+    </div>
