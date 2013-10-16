@@ -161,8 +161,9 @@ class FuzzyHash {
     }
 
     static function fromHtml($html) {
-        return self::fromStringAndTokens($text, array(
-            '<br', '<p', '<div', '<blockquote'));
+        return self::fromStringAndTokens($html, array(
+            //'<br[^>]*>', '<p[^>]*>', '<div[^>]*>', '<blockquote[^>]*>'));
+            '<[^>]+>'));
     }
 
     static function fromStringAndTokens($text, $tokens, $length=3) {
@@ -180,6 +181,7 @@ class FuzzyHash {
             if (strlen($bucket[0]) < $length) continue;
             $hash = base64_encode(substr(md5($bucket[0], true), -$length));
             $fuzzy->hashes[] = array($hash, $bucket);
+            unset($bucket);
         }
         $fuzzy->original = $text;
         return $fuzzy;
@@ -245,10 +247,14 @@ class FuzzyHash {
             // 'keep'ed section. This can be easily accomplished by changing
             // the 'start' value with one of the last 'stops' values from
             // the previous section
-            $output .= substr($this->original, $c['start'],
-                array_pop($c['stops']));
+            if ($c['stops'])
+                $output .= substr($this->original, $c['start'],
+                    array_pop($c['stops']) - $c['start']);
+            else
+                $output .= substr($this->original, $c['start']);
         }
         return $output;
     }
 }
+
 ?>
