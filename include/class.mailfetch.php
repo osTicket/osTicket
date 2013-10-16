@@ -304,12 +304,16 @@ class MailFetcher {
                     $text=$this->decode($text, $struct->encoding);
 
                 $charset=null;
-                if($encoding) { //Convert text to desired mime encoding...
-                    if($struct->ifparameters) {
-                        if(!strcasecmp($struct->parameters[0]->attribute,'CHARSET') && strcasecmp($struct->parameters[0]->value,'US-ASCII'))
-                            $charset=trim($struct->parameters[0]->value);
+                if ($encoding) { //Convert text to desired mime encoding...
+                    if ($struct->ifparameters && $struct->parameters) {
+                        foreach ($struct->parameters as $p) {
+                            if (!strcasecmp($p->attribute, 'charset')) {
+                                $charset = trim($p->value);
+                                break;
+                            }
+                        }
                     }
-                    $text=$this->mime_encode($text, $charset, $encoding);
+                    $text = $this->mime_encode($text, $charset, $encoding);
                 }
                 return $text;
             }

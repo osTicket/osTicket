@@ -43,10 +43,10 @@ class Format {
 
         // Cleanup - incorrect, bogus, or ambiguous charsets
         if($charset && in_array(strtolower(trim($charset)),
-                array('default','x-user-defined','iso')))
+                array('default','x-user-defined','iso','us-ascii')))
             $charset = 'ISO-8859-1';
 
-        if (strcasecmp($charset, $encoding) === 0)
+        if ($charset && strcasecmp($charset, $encoding) === 0)
             return $text;
 
         $original = $text;

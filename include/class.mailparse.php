@@ -177,8 +177,9 @@ class Mail_Parse {
             if($ctype && strcasecmp($ctype,$ctypepart)==0) {
                 $content = $struct->body;
                 //Encode to desired encoding - ONLY if charset is known??
-                if(isset($struct->ctype_parameters['charset']) && strcasecmp($struct->ctype_parameters['charset'], $this->charset))
-                    $content = Format::encode($content, $struct->ctype_parameters['charset'], $this->charset);
+                if (isset($struct->ctype_parameters['charset']))
+                    $content = Format::encode($content,
+                        $struct->ctype_parameters['charset'], $this->charset);
 
                 return $content;
             }
