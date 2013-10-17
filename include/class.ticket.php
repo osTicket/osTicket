@@ -2167,7 +2167,7 @@ class Ticket {
     function checkOverdue() {
 
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
-            .' INNER JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
+            .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
             .' WHERE status=\'open\' AND isoverdue=0 '
             .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
             .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
