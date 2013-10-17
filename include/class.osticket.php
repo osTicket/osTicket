@@ -264,6 +264,10 @@ class osTicket {
         if($alert && !$this->getConfig()->alertONSQLError())
             $alert =false;
 
+        $e = new Exception();
+        $bt = str_replace(ROOT_DIR, '(root)/', $e->getTraceAsString());
+        $error .= "\n\n---- Backtrace ----\n".$bt;
+
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
 

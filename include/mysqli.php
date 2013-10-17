@@ -235,8 +235,15 @@ function db_field_type($res, $col=0) {
 }
 
 function db_prepare($stmt) {
-    global $__db;
-    return $__db->prepare($stmt);
+    global $ost, $__db;
+
+    $res = $__db->prepare($stmt);
+    if (!$res && $ost) {
+        // Include a backtrace in the error email
+        $msg='['.$stmt."]\n\n".db_error();
+        $ost->logDBError('DB Error #'.db_errno(), $msg);
+    }
+    return $res;
 }
 
 function db_connect_error() {
