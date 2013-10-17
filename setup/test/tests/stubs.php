@@ -36,4 +36,8 @@ class DomDocument {
     function loadHTML() {}
 }
 
+class Exception {
+    function getTraceAsString() {}
+}
+
 ?>
