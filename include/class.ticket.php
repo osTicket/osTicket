@@ -1664,6 +1664,7 @@ class Ticket {
             .' ,priority_id='.db_input($vars['priorityId'])
             .' ,topic_id='.db_input($vars['topicId'])
             .' ,sla_id='.db_input($vars['slaId'])
+            .' ,source='.db_input($vars['source'])
             .' ,duedate='.($vars['duedate']?db_input(date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))):'NULL');
 
         if($vars['duedate']) { //We are setting new duedate...
