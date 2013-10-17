@@ -199,10 +199,10 @@ $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
        ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id '.
-       ' LEFT JOIN ost_form_entry entry ON entry.object_type=\'T\'
+       ' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.object_type=\'T\'
              and entry.object_id=ticket.ticket_id'.
-       ' LEFT JOIN ost_form_entry_values ans ON ans.entry_id = entry.id'.
-       ' LEFT JOIN ost_form_field field ON field.id=ans.field_id';
+       ' LEFT JOIN '.FORM_ANSWER_TABLE.' ans ON ans.entry_id = entry.id'.
+       ' LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id';
 
 $sjoin='';
 if($search && $deep_search) {
