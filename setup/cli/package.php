@@ -140,8 +140,10 @@ chdir($stage_path);
 
 // Replace THIS_VERSION in the stage/ folder
 
-shell_exec("find . -name '*.inc.php' -print0 | xargs -0 sed -ri -e \"
+shell_exec("sed -ri -e \"
     s/( *)define\('THIS_VERSION'.*/\\1define('THIS_VERSION', '$version');/
+    \" upload/bootstrap.php");
+shell_exec("find . -name '*.inc.php' -print0 | xargs -0 sed -ri -e \"
     s/( *)ini_set\( *'display_errors'[^)]+\);/\\1ini_set('display_errors', 0);/
     s/( *)ini_set\( *'display_startup_errors'[^)]+\);/\\1ini_set('display_startup_errors', 0);/
     \"");
