@@ -132,16 +132,26 @@ class Mail_Parse {
 
 
     function getFromAddressList(){
-        return Mail_Parse::parseAddressList($this->struct->headers['from']);
+        if (!($header = $this->struct->headers['from']))
+            return null;
+
+        return Mail_Parse::parseAddressList($header);
     }
 
     function getToAddressList(){
-        //Delivered-to incase it was a BBC mail.
-       return Mail_Parse::parseAddressList($this->struct->headers['to']?$this->struct->headers['to']:$this->struct->headers['delivered-to']);
+        // Delivered-to incase it was a BBC mail.
+        if (!($header = $this->struct->headers['to']))
+            if (!($header = $this->struct->headers['delivered-to']))
+                return null;
+
+        return Mail_Parse::parseAddressList($header);
     }
 
     function getCcAddressList(){
-        return $this->struct->headers['cc']?Mail_Parse::parseAddressList($this->struct->headers['cc']):null;
+        if (!($header = $this->struct->headers['cc']))
+            return null;
+
+        return Mail_Parse::parseAddressList($header);
     }
 
     function getMessageId(){
@@ -153,7 +163,10 @@ class Mail_Parse {
     }
 
     function getReplyTo() {
-        return Mail_Parse::parseAddressList($this->struct->headers['reply-to']);
+        if (!($header = $this->struct->headers['reply-to']))
+            return null;
+
+        return Mail_Parse::parseAddressList($header);
     }
 
     function getBody(){
@@ -181,8 +194,9 @@ class Mail_Parse {
             if($ctype && strcasecmp($ctype,$ctypepart)==0) {
                 $content = $struct->body;
                 //Encode to desired encoding - ONLY if charset is known??
-                if(isset($struct->ctype_parameters['charset']) && strcasecmp($struct->ctype_parameters['charset'], $this->charset))
-                    $content = Format::encode($content, $struct->ctype_parameters['charset'], $this->charset);
+                if (isset($struct->ctype_parameters['charset']))
+                    $content = Format::encode($content,
+                        $struct->ctype_parameters['charset'], $this->charset);
 
                 return $content;
             }
@@ -379,7 +393,7 @@ class EmailDataParser {
         $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
         $data['references'] = $parser->struct->headers['references'];
 
-        if ($replyto = $parser->getReplyTo()) {
+        if (($replyto = $parser->getReplyTo()) && !PEAR::isError($replyto)) {
             $replyto = $replyto[0];
             $data['reply-to'] = $replyto->mailbox.'@'.$replyto->host;
             if ($replyto->personal)

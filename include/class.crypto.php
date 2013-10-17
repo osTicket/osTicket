@@ -165,13 +165,17 @@ class Crypto {
     function random($len) {
 
         if(CRYPT_IS_WINDOWS) {
-            if (function_exists('mcrypt_create_iv')
-                    && version_compare(PHP_VERSION, '5.3', '>='))
-                return mcrypt_create_iv($len);
-
             if (function_exists('openssl_random_pseudo_bytes')
                     && version_compare(PHP_VERSION, '5.3.4', '>='))
                 return openssl_random_pseudo_bytes($len);
+
+            // Looks like mcrypt_create_iv with MCRYPT_DEV_RANDOM is still
+            // unreliable on 5.3.6:
+            // https://bugs.php.net/bug.php?id=52523
+            if (function_exists('mcrypt_create_iv')
+                    && version_compare(PHP_VERSION, '5.3.7', '>='))
+                return mcrypt_create_iv($len);
+
         } else {
 
             if (function_exists('openssl_random_pseudo_bytes'))

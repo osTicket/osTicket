@@ -362,13 +362,10 @@ class AttachmentFile {
     /* static */ function deleteOrphans() {
 
         $sql = 'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
-                # DISTINCT implies sort and may not be necessary
-                .'SELECT DISTINCT(file_id) FROM ('
-                    .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
-                    .' UNION ALL '
-                    .'SELECT file_id FROM '.ATTACHMENT_TABLE
-                .') still_loved'
-            .') AND `ft` = "T"';
+                .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
+                .' UNION '
+                .'SELECT file_id FROM '.ATTACHMENT_TABLE
+            .") AND `ft` = 'T'";
 
         db_query($sql);
 
