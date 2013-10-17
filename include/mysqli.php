@@ -38,9 +38,19 @@ function db_connect($host, $user, $passwd, $options = array()) {
     elseif(!$passwd)
         return NULL;
 
-    //Connectr
+    $port = ini_get("mysqli.default_port");
+    if (strpos($host, ':') !== false) {
+        list($host, $port) = explode(':', $host);
+        // PHP may not honor the port number if connecting to 'localhost'
+        if (!strcasecmp($host, 'localhost'))
+            // XXX: Looks like PHP gethostbyname() is IPv4 only
+            $host = gethostbyname($host);
+        $port = (int) $port;
+    }
+
+    // Connect
     $start = microtime(true);
-    if(!@$__db->real_connect($host, $user, $passwd)) # nolint
+    if (!@$__db->real_connect($host, $user, $passwd, null, $port)) # nolint
         return NULL;
 
     //Select the database, if any.
