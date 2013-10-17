@@ -75,6 +75,7 @@
 
 
     require(INCLUDE_DIR.'class.osticket.php');
+    require(INCLUDE_DIR.'class.http.php');
 
     // Determine the path in the URI used as the base of the osTicket
     // installation
@@ -93,7 +94,7 @@
     } elseif(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
         $configfile=INCLUDE_DIR.'ost-config.php';
     elseif(file_exists(ROOT_DIR.'setup/'))
-        header('Location: '.ROOT_PATH.'setup/');
+        Http::redirect(ROOT_PATH.'setup/');
 
     if(!$configfile || !file_exists($configfile))
        Http::response(500, '<b>Error loading settings. Contact admin.</b>');
@@ -126,7 +127,6 @@
     require(INCLUDE_DIR.'class.log.php');
     require(INCLUDE_DIR.'class.crypto.php');
     require(INCLUDE_DIR.'class.timezone.php');
-    require(INCLUDE_DIR.'class.http.php');
     require(INCLUDE_DIR.'class.signal.php');
     require(INCLUDE_DIR.'class.nav.php');
     require(INCLUDE_DIR.'class.page.php');
