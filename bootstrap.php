@@ -127,7 +127,7 @@ class Bootstrap {
                     'Please rename config file include/settings.php to '
                    .'include/ost-config.php to continue!');
         } elseif(file_exists(ROOT_DIR.'setup/'))
-            header('Location: '.ROOT_PATH.'setup/');
+            Http::redirect(ROOT_PATH.'setup/');
 
         if(!$configfile || !file_exists($configfile))
             Http::response(500,'<b>Error loading settings. Contact admin.</b>');
@@ -172,7 +172,6 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');
         require(INCLUDE_DIR.'class.timezone.php');
-        require(INCLUDE_DIR.'class.http.php');
         require(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.nav.php');
         require(INCLUDE_DIR.'class.page.php');
@@ -220,6 +219,7 @@ ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR)
 
 require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.misc.php');
+require(INCLUDE_DIR.'class.http.php');
 
 // Determine the path in the URI used as the base of the osTicket
 // installation
