@@ -38,9 +38,7 @@ function db_connect($host, $user, $passwd, $options = array()) {
     elseif(!$passwd)
         return NULL;
 
-    //Connectr
-    $start = microtime(true);
-    $port = 3306;
+    $port = ini_get("mysqli.default_port");
     if (strpos($host, ':') !== false) {
         list($host, $port) = explode(':', $host);
         // PHP may not honor the port number if connecting to 'localhost'
@@ -49,6 +47,9 @@ function db_connect($host, $user, $passwd, $options = array()) {
             $host = gethostbyname($host);
         $port = (int) $port;
     }
+
+    // Connect
+    $start = microtime(true);
     if (!@$__db->real_connect($host, $user, $passwd, null, $port)) # nolint
         return NULL;
 

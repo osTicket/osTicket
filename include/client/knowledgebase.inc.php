@@ -72,7 +72,10 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     if($_REQUEST['q']) {
         $sql.=" AND (question LIKE ('%".db_input($_REQUEST['q'],false)."%')
                  OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%')
-                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%'))";
+                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 OR cat.name LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 OR cat.description LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 )";
     }
 
     $sql.=' GROUP BY faq.faq_id';

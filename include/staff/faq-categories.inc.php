@@ -56,6 +56,7 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     $sql='SELECT faq.faq_id, question, ispublished, count(attach.file_id) as attachments, count(ft.topic_id) as topics '
         .' FROM '.FAQ_TABLE.' faq '
+        .' LEFT JOIN '.FAQ_CATEGORY.' cat ON(cat.category_id=faq.category_id) '
         .' LEFT JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.faq_id=faq.faq_id) '
         .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
              ON(attach.object_id=faq.faq_id AND attach.type=\'F\' AND attach.inline = 0) '
@@ -68,9 +69,12 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         $sql.=' AND ft.topic_id='.db_input($_REQUEST['topicId']);
 
     if($_REQUEST['q']) {
-        $sql.=" AND question LIKE ('%".db_input($_REQUEST['q'],false)."%')
+        $sql.=" AND (question LIKE ('%".db_input($_REQUEST['q'],false)."%')
                  OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%')
-                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%') ";
+                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 OR cat.name LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 OR cat.description LIKE ('%".db_input($_REQUEST['q'],false)."%')
+                 )";
     }
 
     $sql.=' GROUP BY faq.faq_id';
