@@ -18,15 +18,16 @@ class TicketApiController extends ApiController {
         );
         # Fetch dynamic form field names for the given help topic and add
         # the names to the supported request structure
-        if (isset($data['topicId'])) {
-            $topic=Topic::lookup($data['topicId']);
-            $form=DynamicForm::lookup($topic->ht['form_id']);
+        if (isset($data['topicId'])
+                && ($topic = Topic::lookup($data['topicId']))
+                && ($form = $topic->getForm())) {
             foreach ($form->getDynamicFields() as $field)
                 $supported[] = $field->get('name');
         }
-        $form = TicketForm::lookup()->instanciate();
-        foreach ($form->getDynamicFields() as $field)
-            $supported[] = $field->get('name');
+
+        if(($form = TicketForm::lookup()->instanciate()))
+            foreach ($form->getDynamicFields() as $field)
+                $supported[] = $field->get('name');
 
         if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
