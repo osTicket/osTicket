@@ -25,8 +25,15 @@ class TicketApiController extends ApiController {
                 $supported[] = $field->get('name');
         }
 
-        if(($form = TicketForm::lookup()->instanciate()))
-            foreach ($form->getDynamicFields() as $field)
+        # Ticket form fields
+        # TODO: Support userId for existing user
+        if(($form = TicketForm::getInstance()))
+            foreach ($form->getFields() as $field)
+                $supported[] = $field->get('name');
+
+        # User form fields
+        if(($form = UserForm::getInstance()))
+            foreach ($form->getFields() as $field)
                 $supported[] = $field->get('name');
 
         if(!strcasecmp($format, 'email')) {
