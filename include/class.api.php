@@ -340,6 +340,10 @@ class ApiXmlDataParser extends XmlDataParser {
         }
         unset($value);
 
+        if(isset($current['message']) && $current['message'])
+            $current['message'] = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    Format::htmlchars($current['message']));
+
         return $current;
     }
 }
@@ -394,6 +398,11 @@ class ApiJsonDataParser extends JsonDataParser {
                 $value = $this->fixup($value);
             }
         }
+
+        if(isset($current['message']) && $current['message'])
+            $current['message'] = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    Format::htmlchars($current['message']));
+
         return $current;
     }
 }
