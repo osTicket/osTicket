@@ -318,8 +318,6 @@ class ApiXmlDataParser extends XmlDataParser {
             return $current;
         foreach ($current as $key=>&$value) {
             if ($key == "phone" && is_array($value)) {
-                if (isset($value['ext']))
-                    $current["phone_ext"] = $value["ext"];  # PHP [like] point
                 $value = $value[":text"];
             } else if ($key == "alert") {
                 $value = (bool)$value;
@@ -342,6 +340,10 @@ class ApiXmlDataParser extends XmlDataParser {
         }
         unset($value);
 
+        if(isset($current['message']) && $current['message'])
+            $current['message'] = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    Format::htmlchars($current['message']));
+
         return $current;
     }
 }
@@ -356,8 +358,7 @@ class ApiJsonDataParser extends JsonDataParser {
             return $current;
         foreach ($current as $key=>&$value) {
             if ($key == "phone") {
-                list($value, $current["phone_ext"])
-                    = explode("X", strtoupper($value), 2);
+                $value = strtoupper($value);
             } else if ($key == "alert") {
                 $value = (bool)$value;
             } else if ($key == "autorespond") {
@@ -397,6 +398,11 @@ class ApiJsonDataParser extends JsonDataParser {
                 $value = $this->fixup($value);
             }
         }
+
+        if(isset($current['message']) && $current['message'])
+            $current['message'] = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    Format::htmlchars($current['message']));
+
         return $current;
     }
 }
