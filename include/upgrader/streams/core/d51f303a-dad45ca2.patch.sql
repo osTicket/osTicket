@@ -52,6 +52,9 @@ UPDATE `%TABLE_PREFIX%email_template`
         '\n', '<br/>'),
         '&', '&amp;');
 
+UPDATE `%TABLE_PREFIX%email_template`
+    SET `body` = CONCAT('<div>', `body`, '</div>');
+
 -- Migrate notes to HTML
 UPDATE `%TABLE_PREFIX%api_key`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
