@@ -758,19 +758,10 @@ if(!$cfg->showNotesInline()) { ?>
             <?php
             } ?>
             <tr>
-                <td width="120">
+                <td width="120" style="vertical-align:top">
                     <label for="assignId"><strong>Assignee:</strong></label>
                 </td>
                 <td>
-                    <?php
-                    if($ticket->isAssigned() && $ticket->isOpen()) {
-                        echo sprintf('<span class="faded">Ticket is currently assigned to <b>%s</b></span>',
-                                $ticket->getAssignee());
-                    } else {
-                        echo '<span class="faded">Assigning a closed ticket will <b>reopen</b> it!</span>';
-                    }
-                    ?>
-                    <br>
                     <select id="assignId" name="assignId">
                         <option value="0" selected="selected">&mdash; Select Staff Member OR a Team &mdash;</option>
                         <?php
@@ -807,6 +798,13 @@ if(!$cfg->showNotesInline()) { ?>
                         }
                         ?>
                     </select>&nbsp;<span class='error'>*&nbsp;<?php echo $errors['assignId']; ?></span>
+                    <?php
+                    if($ticket->isAssigned() && $ticket->isOpen()) {
+                        echo sprintf('<div class="faded">Ticket is currently assigned to <b>%s</b></div>',
+                                $ticket->getAssignee());
+                    } elseif ($ticket->isClosed()) { ?>
+                        <div class="faded">Assigning a closed ticket will <b>reopen</b> it!</div>
+                    <?php } ?>
                 </td>
             </tr>
             <tr>
