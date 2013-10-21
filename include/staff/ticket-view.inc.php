@@ -444,12 +444,12 @@ if(!$cfg->showNotesInline()) { ?>
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
         <span class="error"></span>
-        <table border="0" cellspacing="0" cellpadding="3">
+        <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
             <tr>
-                <td width="160">
+                <td width="120">
                     <label><strong>TO:</strong></label>
                 </td>
-                <td width="765">
+                <td>
                     <?php
                     $to = $ticket->getReplyToEmail();
                     if(($name=$ticket->getName()) && !strpos($name,'@'))
@@ -463,14 +463,14 @@ if(!$cfg->showNotesInline()) { ?>
             </tr>
             <?php
             if($errors['response']) {?>
-            <tr><td width="160">&nbsp;</td><td class="error"><?php echo $errors['response']; ?>&nbsp;</td></tr>
+            <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['response']; ?>&nbsp;</td></tr>
             <?php
             }?>
             <tr>
-                <td width="160">
+                <td width="120" style="vertical-align:top">
                     <label><strong>Response:</strong></label>
                 </td>
-                <td width="765">
+                <td>
                     <?php
                     if(($cannedResponses=Canned::responsesByDeptId($ticket->getDeptId()))) {?>
                         <select id="cannedResp" name="cannedResp">
@@ -489,6 +489,7 @@ if(!$cfg->showNotesInline()) { ?>
                     <input type="hidden" name="draft_id" value=""/>
                     <textarea name="response" id="response" cols="50"
                         data-draft-namespace="ticket.response"
+                        placeholder="Start writing your response here. Use canned responses from the drop-down above"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"
                         class="richtext ifhtml draft"><?php
@@ -498,10 +499,10 @@ if(!$cfg->showNotesInline()) { ?>
             <?php
             if($cfg->allowAttachments()) { ?>
             <tr>
-                <td width="160">
+                <td width="120">
                     <label for="attachment">Attachments:</label>
                 </td>
-                <td width="765" id="reply_form_attachments" class="attachments">
+                <td id="reply_form_attachments" class="attachments">
                     <div class="canned_attachments">
                     </div>
                     <div class="uploads">
@@ -514,10 +515,10 @@ if(!$cfg->showNotesInline()) { ?>
             <?php
             }?>
             <tr>
-                <td width="160">
+                <td width="120">
                     <label for="signature" class="left">Signature:</label>
                 </td>
-                <td width="765">
+                <td>
                     <?php
                     $info['signature']=$info['signature']?$info['signature']:$thisstaff->getDefaultSignatureType();
                     ?>
@@ -540,10 +541,10 @@ if(!$cfg->showNotesInline()) { ?>
             <?php
             if($ticket->isClosed() || $thisstaff->canCloseTickets()) { ?>
             <tr>
-                <td width="160">
+                <td width="120">
                     <label><strong>Ticket Status:</strong></label>
                 </td>
-                <td width="765">
+                <td>
                     <?php
                     $statusChecked=isset($info['reply_ticket_status'])?'checked="checked"':'';
                     if($ticket->isClosed()) { ?>
@@ -573,42 +574,45 @@ if(!$cfg->showNotesInline()) { ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
         <input type="hidden" name="a" value="postnote">
-        <table border="0" cellspacing="0" cellpadding="3">
+        <table width="100%" border="0" cellspacing="0" cellpadding="3">
             <?php
             if($errors['postnote']) {?>
             <tr>
-                <td width="160">&nbsp;</td>
+                <td width="120">&nbsp;</td>
                 <td class="error"><?php echo $errors['postnote']; ?></td>
             </tr>
             <?php
             } ?>
             <tr>
-                <td width="160">
-                    <label><strong>Internal Note:</strong></label>
+                <td width="120" style="vertical-align:top">
+                    <label><strong>Internal Note:</strong><span class='error'>&nbsp;*</span></label>
                 </td>
-                <td width="765">
-                    <div><span class="faded">Note details</span>&nbsp;
-                        <span class="error">*&nbsp;<?php echo $errors['note']; ?></span>
+                <td>
+                    <div>
+                        <div class="faded" style="padding-left:0.15em">
+                        Note title - summary of the note (optional)</div>
+                        <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >
+                        <br/>
+                        <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
+                    <br/>
                     <textarea name="note" id="internal_note" cols="80"
+                        placeholder="Note details"
                         rows="9" wrap="soft" data-draft-namespace="ticket.note"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         class="richtext ifhtml draft"><?php echo $info['note'];
-                        ?></textarea><br>
-                    <div>
-                        <span class="faded">Note title - summary of the note (optional)</span>&nbsp;
-                        <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
-                    </div>
-                    <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >
+                        ?></textarea>
+                        <span class="error"><?php echo $errors['note']; ?></span>
+                        <br>
                 </td>
             </tr>
             <?php
             if($cfg->allowAttachments()) { ?>
             <tr>
-                <td width="160">
+                <td width="120">
                     <label for="attachment">Attachments:</label>
                 </td>
-                <td width="765" class="attachments">
+                <td class="attachments">
                     <div class="uploads">
                     </div>
                     <div class="file_input">
@@ -621,10 +625,10 @@ if(!$cfg->showNotesInline()) { ?>
             ?>
             <tr><td colspan="2">&nbsp;</td></tr>
             <tr>
-                <td width="160">
+                <td width="120">
                     <label>Ticket Status:</label>
                 </td>
-                <td width="765">
+                <td>
                     <div class="faded"></div>
                     <select name="state">
                         <option value="" selected="selected">&mdash; unchanged &mdash;</option>
@@ -683,21 +687,21 @@ if(!$cfg->showNotesInline()) { ?>
         <?php csrf_token(); ?>
         <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="transfer">
-        <table border="0" cellspacing="0" cellpadding="3">
+        <table width="100%" border="0" cellspacing="0" cellpadding="3">
             <?php
             if($errors['transfer']) {
                 ?>
             <tr>
-                <td width="160">&nbsp;</td>
+                <td width="120">&nbsp;</td>
                 <td class="error"><?php echo $errors['transfer']; ?></td>
             </tr>
             <?php
             } ?>
             <tr>
-                <td width="160">
+                <td width="120">
                     <label for="deptId"><strong>Department:</strong></label>
                 </td>
-                <td width="765">
+                <td>
                     <?php
                         echo sprintf('<span class="faded">Ticket is currently in <b>%s</b> department.</span>', $ticket->getDeptName());
                     ?>
@@ -717,15 +721,15 @@ if(!$cfg->showNotesInline()) { ?>
                 </td>
             </tr>
             <tr>
-                <td width="160">
-                    <label><strong>Comments:</strong></label>
+                <td width="120" style="vertical-align:top">
+                    <label><strong>Comments:</strong><span class='error'>&nbsp;*</span></label>
                 </td>
-                <td width="765">
-                    <span class="faded">Enter reasons for the transfer.</span>
-                    <span class="error">*&nbsp;<?php echo $errors['transfer_comments']; ?></span><br>
+                <td>
                     <textarea name="transfer_comments" id="transfer_comments"
+                        placeholder="Enter reasons for the transfer"
                         class="richtext ifhtml no-bar" cols="80" rows="7" wrap="soft"><?php
                         echo $info['transfer_comments']; ?></textarea>
+                    <span class="error"><?php echo $errors['transfer_comments']; ?></span>
                 </td>
             </tr>
         </table>
@@ -742,22 +746,22 @@ if(!$cfg->showNotesInline()) { ?>
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="assign">
-        <table border="0" cellspacing="0" cellpadding="3">
+        <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
 
             <?php
             if($errors['assign']) {
                 ?>
             <tr>
-                <td width="160">&nbsp;</td>
+                <td width="120">&nbsp;</td>
                 <td class="error"><?php echo $errors['assign']; ?></td>
             </tr>
             <?php
             } ?>
             <tr>
-                <td width="160">
+                <td width="120">
                     <label for="assignId"><strong>Assignee:</strong></label>
                 </td>
-                <td width="765">
+                <td>
                     <?php
                     if($ticket->isAssigned() && $ticket->isOpen()) {
                         echo sprintf('<span class="faded">Ticket is currently assigned to <b>%s</b></span>',
@@ -806,14 +810,15 @@ if(!$cfg->showNotesInline()) { ?>
                 </td>
             </tr>
             <tr>
-                <td width="160">
-                    <label><strong>Comments:</strong><span class='error'>&nbsp;</span></label>
+                <td width="120" style="vertical-align:top">
+                    <label><strong>Comments:</strong><span class='error'>&nbsp;*</span></label>
                 </td>
-                <td width="765">
-                    <span class="faded">Enter reasons for the assignment or instructions for assignee.</span>
-                    <span class="error">*&nbsp;<?php echo $errors['assign_comments']; ?></span><br>
-                    <textarea name="assign_comments" id="assign_comments" cols="80" rows="7" wrap="soft"
+                <td>
+                    <textarea name="assign_comments" id="assign_comments"
+                        cols="80" rows="7" wrap="soft"
+                        placeholder="Enter reasons for the assignment or instructions for assignee"
                         class="richtext ifhtml no-bar"><?php echo $info['assign_comments']; ?></textarea>
+                    <span class="error"><?php echo $errors['assign_comments']; ?></span><br>
                 </td>
             </tr>
         </table>
