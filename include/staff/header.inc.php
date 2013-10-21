@@ -38,35 +38,43 @@
 <div id="container">
     <?php
     if($ost->getError())
-        echo sprintf('<div id="error_bar">%s</div>', $ost->getError());
+        echo sprintf('<div id="error_bar">%s</div>', st($ost->getError()));
     elseif($ost->getWarning())
-        echo sprintf('<div id="warning_bar">%s</div>', $ost->getWarning());
+        echo sprintf('<div id="warning_bar">%s</div>', st($ost->getWarning()));
     elseif($ost->getNotice())
-        echo sprintf('<div id="notice_bar">%s</div>', $ost->getNotice());
+        echo sprintf('<div id="notice_bar">%s</div>', st($ost->getNotice()));
     ?>
     <div id="header">
-        <a href="index.php" id="logo">osTicket - Customer Support System</a>
-        <p id="info">Welcome, <strong><?php echo $thisstaff->getFirstName(); ?></strong>
+        <a href="index.php" id="logo"><?php t("osTicket - Customer Support System"); ?></a>
+        <p id="info"><?php t("Welcome, <strong>%s</strong>", $thisstaff->getFirstName()); ?>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
-            | <a href="admin.php">Admin Panel</a>
+            | <a href="admin.php"><?php t("Admin Panel"); ?></a>
             <?php }else{ ?>
-            | <a href="index.php">Staff Panel</a>
+            | <a href="index.php"><?php t("Staff Panel"); ?></a>
             <?php } ?>
-            | <a href="profile.php">My Preferences</a>
-            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
+            | <a href="profile.php"><?php t("My Preferences"); ?></a>
+            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>"><?php t("Log Out"); ?></a>
+            <?php
+                $languages = localizer::getInstance()->getLanguages();
+                if (count($languages) > 1): ?>
+                | <?php t("Language"); ?>:
+                    <?php foreach ($languages as $lang):?>
+                        <a href="<?php echo $_SERVER["URI"]."?lang=$lang"; ?>"><?php t($lang); ?></a>
+                    <?php endforeach; ?>
+            <?php endif; ?>
         </p>
     </div>
     <ul id="nav">
         <?php
         if(($tabs=$nav->getTabs()) && is_array($tabs)){
             foreach($tabs as $name =>$tab) {
-                echo sprintf('<li class="%s"><a href="%s">%s</a>',$tab['active']?'active':'inactive',$tab['href'],$tab['desc']);
+                echo sprintf('<li class="%s"><a href="%s">%s</a>',$tab['active']?'active':'inactive',$tab['href'],st($tab['desc']));
                 if(!$tab['active'] && ($subnav=$nav->getSubMenu($name))){
                     echo "<ul>\n";
                     foreach($subnav as $item) {
                         echo sprintf('<li><a class="%s" href="%s" title="%s" >%s</a></li>',
-                                $item['iconclass'],$item['href'],$item['title'],$item['desc']);
+                                $item['iconclass'],$item['href'],$item['title'],st($item['desc']));
                     }
                     echo "\n</ul>\n";
                 }
@@ -92,16 +100,16 @@
                                 )))
                     $class="$class active";
 
-                echo sprintf('<li><a class="%s" href="%s" title="%s" >%s</a></li>',$class,$item['href'],$item['title'],$item['desc']);
+                echo sprintf('<li><a class="%s" href="%s" title="%s" >%s</a></li>',$class,$item['href'],$item['title'],st($item['desc']));
             }
         }
         ?>
     </ul>
     <div id="content">
         <?php if($errors['err']) { ?>
-            <div id="msg_error"><?php echo $errors['err']; ?></div>
+            <div id="msg_error"><?php t($errors['err']); ?></div>
         <?php }elseif($msg) { ?>
-            <div id="msg_notice"><?php echo $msg; ?></div>
+            <div id="msg_notice"><?php t($msg); ?></div>
         <?php }elseif($warn) { ?>
-            <div id="msg_warning"><?php echo $warn; ?></div>
+            <div id="msg_warning"><?php t($warn); ?></div>
         <?php } ?>

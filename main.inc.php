@@ -30,6 +30,9 @@ Bootstrap::croak('Unable to load config info from DB. Get tech support.');
 //Init
 $session = $ost->getSession();
 
+//load localizer
+require(INCLUDE_DIR.'translation.php');
+
 //System defaults we might want to make global//
 #pagenation default - user can override it!
 define('DEFAULT_PAGE_LIMIT', $cfg->getPageSize()?$cfg->getPageSize():25);

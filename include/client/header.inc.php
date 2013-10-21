@@ -47,16 +47,26 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                  ?>
                 <?php
                 if($cfg->showRelatedTickets()) {?>
-                <a href="<?php echo ROOT_PATH; ?>tickets.php">My Tickets <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
+                <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php t("My Tickets"); ?> <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
                 <?php
                 } ?>
-                <a href="<?php echo ROOT_PATH; ?>logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
+                <a href="<?php echo ROOT_PATH; ?>logout.php?auth=<?php echo $ost->getLinkToken(); ?>"><?php t("Log Out"); ?></a>
              <?php
              }elseif($nav){ ?>
-                 Guest User - <a href="<?php echo ROOT_PATH; ?>login.php">Log In</a>
+                 <?php t("Guest User"); ?> - <a href="<?php echo ROOT_PATH; ?>login.php"><?php t("Log In"); ?></a>
               <?php
              } ?>
             </p>
+                <?php
+                    $languages = localizer::getInstance()->getLanguages();
+                    if (count($languages) > 1): ?>
+                    <p>
+                        <?php t("Language"); ?>:
+                        <?php foreach ($languages as $lang):?>
+                            <a href="<?php echo $_SERVER["URI"]."?lang=$lang"; ?>"><?php t($lang); ?></a>
+                        <?php endforeach; ?>
+                    </p>
+                <?php endif; ?>
         </div>
         <?php
         if($nav){ ?>
@@ -64,7 +74,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
             <?php
             if($nav && ($navs=$nav->getNavLinks()) && is_array($navs)){
                 foreach($navs as $name =>$nav) {
-                    echo sprintf('<li><a class="%s %s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
+                    echo sprintf('<li><a class="%s %s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),st($nav['desc']),"\n");
                 }
             } ?>
         </ul>
@@ -76,9 +86,9 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
         <div id="content">
 
          <?php if($errors['err']) { ?>
-            <div id="msg_error"><?php echo $errors['err']; ?></div>
+            <div id="msg_error"><?php t($errors['err']); ?></div>
          <?php }elseif($msg) { ?>
-            <div id="msg_notice"><?php echo $msg; ?></div>
+            <div id="msg_notice"><?php t($msg); ?></div>
          <?php }elseif($warn) { ?>
-            <div id="msg_warning"><?php echo $warn; ?></div>
+            <div id="msg_warning"><?php t($warn); ?></div>
          <?php } ?>

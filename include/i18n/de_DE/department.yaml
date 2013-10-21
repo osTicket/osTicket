@@ -1,0 +1,32 @@
+#
+# Departments defined initially for the system
+#
+# Fields:
+# id - (int:optional) id number in the database
+# name - (string) Short name of the department
+# signature - (string) Descriptive name of the department
+#
+# NOTE: The department listed first by ID# will be the default department
+#
+---
+- id: 1
+  name: Support
+  signature: |
+    Support Dept
+  ispublic: 1
+  sla_id: 0
+  tpl_id: 0
+  # The email_id and autoresonse_emaiL_id are reuired, but will be set to
+  # the default email later in the install process
+  email_id: 0
+  autoresp_email_id: 0
+
+- id: 2
+  name: Billing
+  signature: |
+    Billing Dept
+  ispublic: 1
+  sla_id: 1
+  tpl_id: 0
+  email_id: 0
+  autoresp_email_id: 0

@@ -508,24 +508,24 @@ $stats= $thisstaff->getTicketsStats();
 //Navigation
 $nav->setTabActive('tickets');
 if($cfg->showAnsweredTickets()) {
-    $nav->addSubMenu(array('desc'=>'Open ('.number_format($stats['open']+$stats['answered']).')',
-                            'title'=>'Open Tickets',
+    $nav->addSubMenu(array('desc'=>st('Open (%d)', number_format($stats['open']+$stats['answered'])),
+                            'title'=>st('Open Tickets'),
                             'href'=>'tickets.php',
                             'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
 } else {
 
     if($stats) {
-        $nav->addSubMenu(array('desc'=>'Open ('.number_format($stats['open']).')',
-                               'title'=>'Open Tickets',
+        $nav->addSubMenu(array('desc'=>st('Open (%d)', number_format($stats['open'])),
+                               'title'=>st('Open Tickets'),
                                'href'=>'tickets.php',
                                'iconclass'=>'Ticket'),
                             (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
     }
 
     if($stats['answered']) {
-        $nav->addSubMenu(array('desc'=>'Answered ('.number_format($stats['answered']).')',
-                               'title'=>'Answered Tickets',
+        $nav->addSubMenu(array('desc'=>st('Answered (%d)', number_format($stats['answered'])),
+                               'title'=>st('Answered Tickets'),
                                'href'=>'tickets.php?status=answered',
                                'iconclass'=>'answeredTickets'),
                             ($_REQUEST['status']=='answered'));
@@ -534,18 +534,18 @@ if($cfg->showAnsweredTickets()) {
 
 if($stats['assigned']) {
     if(!$ost->getWarning() && $stats['assigned']>10)
-        $ost->setWarning($stats['assigned'].' tickets assigned to you! Do something about it!');
+        $ost->setWarning(st('%d tickets assigned to you! Do something about it!', $stats['assigned']));
 
-    $nav->addSubMenu(array('desc'=>'My Tickets ('.number_format($stats['assigned']).')',
-                           'title'=>'Assigned Tickets',
+    $nav->addSubMenu(array('desc'=>st('My Tickets (%d)', number_format($stats['assigned'])),
+                           'title'=>st('Assigned Tickets'),
                            'href'=>'tickets.php?status=assigned',
                            'iconclass'=>'assignedTickets'),
                         ($_REQUEST['status']=='assigned'));
 }
 
 if($stats['overdue']) {
-    $nav->addSubMenu(array('desc'=>'Overdue ('.number_format($stats['overdue']).')',
-                           'title'=>'Stale Tickets',
+    $nav->addSubMenu(array('desc'=>st('Overdue (%d)', number_format($stats['overdue'])),
+                           'title'=>st('Stale Tickets'),
                            'href'=>'tickets.php?status=overdue',
                            'iconclass'=>'overdueTickets'),
                         ($_REQUEST['status']=='overdue'));
@@ -555,22 +555,22 @@ if($stats['overdue']) {
 }
 
 if($thisstaff->showAssignedOnly() && $stats['closed']) {
-    $nav->addSubMenu(array('desc'=>'My Closed Tickets ('.number_format($stats['closed']).')',
-                           'title'=>'My Closed Tickets',
+    $nav->addSubMenu(array('desc'=>st('My Closed Tickets (%d)', number_format($stats['closed'])),
+                           'title'=>st('My Closed Tickets'),
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='closed'));
 } else {
 
-    $nav->addSubMenu(array('desc'=>'Closed Tickets ('.number_format($stats['closed']).')',
-                           'title'=>'Closed Tickets',
+    $nav->addSubMenu(array('desc'=>st('Closed Tickets (%d)', number_format($stats['closed'])),
+                           'title'=>st('Closed Tickets'),
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='closed'));
 }
 
 if($thisstaff->canCreateTickets()) {
-    $nav->addSubMenu(array('desc'=>'New Ticket',
+    $nav->addSubMenu(array('desc'=>st('New Ticket'),
                            'href'=>'tickets.php?a=open',
                            'iconclass'=>'newTicket'),
                         ($_REQUEST['a']=='open'));
