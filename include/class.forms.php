@@ -553,6 +553,14 @@ class ChoiceField extends FormField {
         );
     }
 
+    function parse($value) {
+        if (is_numeric($value))
+            return $value;
+        foreach ($this->getChoices() as $k=>$v)
+            if (strcasecmp($value, $v) === 0)
+                return $k;
+    }
+
     function toString($value) {
         $choices = $this->getChoices();
         if (isset($choices[$value]))
