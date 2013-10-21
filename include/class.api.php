@@ -328,12 +328,19 @@ class ApiXmlDataParser extends XmlDataParser {
                     $value = array(
                         "body" => $value,
                         "type" => "text/plain",
-                        # TODO: Get encoding from root <xml> node
+                        # Use encoding from root <xml> node
                     );
                 } else {
                     $value["body"] = $value[":text"];
                     unset($value[":text"]);
                 }
+                if (isset($value['encoding']))
+                    $value['body'] = Format::utf8encode($value['body'], $value['encoding']);
+                if (!isset($value['type']) || $value['type'] != 'text/html')
+                    $value = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                        Format::htmlchars($value['body']));
+                else
+                    $value = $value['body'];
             } else if ($key == "attachments") {
                 if(!isset($value['file'][':text']))
                     $value = $value['file'];
@@ -350,10 +357,6 @@ class ApiXmlDataParser extends XmlDataParser {
             }
         }
         unset($value);
-
-        if(isset($current['message']) && $current['message'])
-            $current['message'] = sprintf('<div style="white-space:pre-wrap">%s</div>',
-                    Format::htmlchars($current['message']));
 
         return $current;
     }

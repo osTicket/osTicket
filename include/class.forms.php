@@ -166,8 +166,8 @@ class FormField {
      */
     function getClean() {
         if (!isset($this->_clean)) {
-            $value = $this->getWidget()->value;
-            $this->_clean = $this->parse($value);
+            $this->_clean = (isset($this->value))
+                ? $this->value : $this->parse($this->getWidget()->value);
             $this->validateEntry($this->_clean);
         }
         return $this->_clean;
