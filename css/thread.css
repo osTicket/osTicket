@@ -410,3 +410,9 @@
   float: none;
   display: table-cell;
 }
+
+/* Additional style for the mighty Microsoft Office emails "standard" style */
+p.MsoNormal, li.MsoNormal, div.MsoNormal,
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+    {margin:0cm;
+    margin-bottom:.0001pt;}
