@@ -47,10 +47,10 @@ CREATE TABLE `%TABLE_PREFIX%draft` (
 UPDATE `%TABLE_PREFIX%email_template`
     SET `body` = REPLACE( REPLACE( REPLACE( REPLACE(
         `body`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 
 UPDATE `%TABLE_PREFIX%email_template`
     SET `body` = CONCAT('<div>', `body`, '</div>');
@@ -59,80 +59,80 @@ UPDATE `%TABLE_PREFIX%email_template`
 UPDATE `%TABLE_PREFIX%api_key`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%email`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%email_template_group`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%faq`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%faq_category`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%filter`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%groups`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%help_topic`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%page`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%sla`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%staff`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 UPDATE `%TABLE_PREFIX%team`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
@@ -145,16 +145,16 @@ UPDATE `%TABLE_PREFIX%team`
 UPDATE `%TABLE_PREFIX%canned_response`
     SET `notes` = REPLACE( REPLACE( REPLACE( REPLACE(
         `notes`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
         '\n', '<br/>'),
-        '&', '&amp;'),
     `response` = REPLACE( REPLACE( REPLACE( REPLACE(
         `response`,
+        '&', '&amp;'),
         '<', '&lt;'),
         '>', '&gt;'),
-        '\n', '<br/>'),
-        '&', '&amp;');
+        '\n', '<br/>');
 
 -- Migrate ticket-thread to HTML
 -- XXX: Migrate & -> &amp; ? -- the problem is that there's a fix in 1.7.1
