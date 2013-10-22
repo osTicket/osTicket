@@ -160,23 +160,29 @@ class Mail_Parse {
 
         if ($cfg->isHtmlThreadEnabled()) {
             if ($body=$this->getPart($this->struct,'text/html')) {
-                //Cleanup the html.
-                $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
+                // Cleanup the html -- Balance html tags & neutralize unsafe tags.
+                $body = (trim($body, " <>br/\t\n\r"))
+                    ? Format::safe_html($body)
+                    : '--';
             }
             elseif ($body=$this->getPart($this->struct,'text/plain')) {
-                $body = Format::htmlchars($body);
-                $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+                $body = trim($body)
+                    ? sprintf('<div style="white-space:pre-wrap">%s</div>',
+                        Format::htmlchars($body))
+                    : '--';
             }
         }
         else {
             if ($body=$this->getPart($this->struct,'text/plain')) {
-                //Cleanup the html.
                 $body = Format::htmlchars($body);
-                $body = "<div style=\"white-space:pre-wrap\">$body</div>";
             }
             elseif ($body=$this->getPart($this->struct,'text/html')) {
                 $body = convert_html_to_text($body, 100);
             }
+            $body = trim($body)
+                ? sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    $body)
+                : '--';
         }
         return $body;
     }

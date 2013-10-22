@@ -27,6 +27,9 @@
 function convert_html_to_text($html, $width=74) {
     $html = fix_newlines($html);
 
+    if (!extension_loaded('xml'))
+        return strip_tags($html);
+
     $doc = new DOMDocument('1.0', 'utf-8');
     if (!@$doc->loadHTML($html))
         return $html;
