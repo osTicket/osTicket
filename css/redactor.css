@@ -82,7 +82,7 @@ body .redactor_box_fullscreen {
 .redactor_editor blockquote,
 .redactor_editor pre {
 	font-size: 15px;
-	line-height: 1.5rem;
+	line-height: 1.25rem;
 }
 
 .redactor_editor,
