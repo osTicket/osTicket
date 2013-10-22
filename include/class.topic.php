@@ -21,6 +21,7 @@ class Topic {
 
     var $parent;
     var $page;
+    var $form;
 
     function Topic($id) {
         $this->id=0;
@@ -44,7 +45,7 @@ class Topic {
         $this->ht = db_fetch_array($res);
         $this->id = $this->ht['topic_id'];
 
-        $this->page = null;
+        $this->page = $this->form = null;
 
 
         return true;
@@ -106,6 +107,17 @@ class Topic {
             $this->page = Page::lookup($this->getPageId());
 
         return $this->page;
+    }
+
+    function getFormId() {
+        return $this->ht['form_id'];
+    }
+
+    function getForm() {
+        if(!$this->form && $this->getFormId())
+            $this->form = DynamicForm::lookup($this->getFormId());
+
+        return $this->form;
     }
 
     function autoRespond() {

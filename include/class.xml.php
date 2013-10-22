@@ -19,7 +19,7 @@
 class XmlDataParser {
 
     function XmlDataParser() {
-        $this->parser = xml_parser_create();
+        $this->parser = xml_parser_create('utf-8');
         xml_set_object($this->parser, $this);
         xml_set_element_handler($this->parser, "startElement", "endElement");
         xml_set_character_data_handler($this->parser, "content");

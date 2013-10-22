@@ -735,7 +735,7 @@ class SelectionField extends FormField {
                 'value'=>$value,
                 'list_id'=>$this->getListId()));
         }
-        return ($item) ? $item : $id;
+        return ($item) ? $item : $value;
     }
 
     function to_database($item) {

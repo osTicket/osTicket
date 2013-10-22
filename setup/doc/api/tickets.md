@@ -17,13 +17,18 @@ request content.
 *   __email__:   *required* Email address of the submitter
 *   __name__:    *required* Name of the submitter
 *   __subject__: *required* Subject of the ticket
-*   __message__: *required* Initial message for the ticket thread
+*   __message__: *required* Initial message for the ticket thread. The
+                message content can be specified using RFC 2397 in the JSON
+                format. The content of the message element should be the
+                message body. Encoding is assumed based on the encoding
+                attributed set in the xml processing instruction.
+    *  __type__:    Content-Type of the message body. Valid values are
+        `text/html` and `text/plain`. If not specified, `text/plain` is
+        assumed
 *   __alert__:       If unset, disable alerts to staff. Default is `true`
 *   __autorespond__: If unset, disable autoresponses. Default is `true`
 *   __ip__:          IP address of the submitter
-*   __phone__:       Phone number of the submitter
-*   __phone_ext__:   Phone number extension -- can also be embedded in *phone*
-*   __priorityId__:  Priority *id* for the new ticket to assume
+*   __priority__:    Priority *id* for the new ticket to assume
 *   __source__:      Source of the ticket, default is `API`
 *   __topicId__:     Help topic *id* associated with the ticket
 *   __attachments__: An array of files to attach to the initial message.
@@ -33,6 +38,47 @@ request content.
                       with the same name are allowable
     *   __type__:     Mime type of the file. Default is `text/plain`
     *   __encoding__: Set to `base64` if content is base64 encoded
+
+### Custom Forms and Fields ###
+
+Fields added to both the common ticket and common client forms can accept
+data via the API as well. The `name` attribute given in form designer is
+used to match up the data in the API request with the field to parse and
+receive the data.
+
+These fields are included with the stock common client form. The `name`
+field can be changed and the field can also be deleted. This section is
+provided as an initial list. The fields supported by your help desk will
+depend on your configuration for the common client and common ticket forms.
+
+*   __phone__:       Phone number of the submitter. If the extension is
+                     included, use a capital 'X' followed by the extension
+*   __notes__:       Internal notes for the client created. These notes are
+                     only visible to authenticated staff members
+
+#### Field Data Processing Rules ####
+
+Some fields have special formatting for inputs. For instance date fields
+must receive the date formatted in Unix epoch time. This processing is
+performed automatically for requests from the web interface. However, in the
+case of the API, the remote requester is required to perform the procecssing
+priori to submitting the request via the API. The sections below outline how
+to format data for custom fields for requests sent via the API.
+
+* __Date Fields__:  Date fields need to be formatted in a format
+        recognizable to PHP's strtotime() function. The best formats are
+        [Unix epoch time](wikipedia.org/wiki/Unix_time), and [ISO 8601]
+        (http://xkcd.com/1179/). If using timezone offset in the date
+        specification, ensure that the _Timezone Aware_ flag is set for the
+        field.
+
+* __Phone number Fields__: If the extension is provided with the phone
+        number, include a capital 'X' between the phone number and phone
+        extension parts of the field.
+
+* __Choice and Selection Fields__: Use either the key specified with the
+        choice field, or the name of the field. For selection fields, do not
+        use anything from the `extra` column of the list designer.
 
 ### XML Payload Example ######
 
@@ -55,8 +101,8 @@ Notice that the phone extension can be sent as the `@ext` attribute of the
     <name>Angry User</name>
     <email>api@osticket.com</email>
     <subject>Testing API</subject>
-    <phone ext="123">318-555-8634</phone>
-    <message><![CDATA[Message content here]]></message>
+    <phone>318-555-8634X123</phone>
+    <message type="text/plain"><![CDATA[Message content here]]></message>
     <attachments>
         <file name="file.txt" type="text/plain"><![CDATA[
             File content is here and is automatically trimmed
@@ -99,7 +145,7 @@ an object or array definition, and newlines are not allowed inside strings.
     "phone": "3185558634X123",
     "subject": "Testing API",
     "ip": "123.211.233.122",
-    "message": "MESSAGE HERE",
+    "message": "data:text/html,MESSAGE <b>HERE</b>",
     "attachments": [
         {"file.txt": "data:text/plain;charset=utf-8,content"},
         {"image.png": "data:image/png;base64,R0lGODdhMAA..."},

@@ -1897,7 +1897,7 @@ class Ticket {
         foreach ($form->getFields() as $field) {
             $fname = $field->get('name');
             if ($fname && isset($vars[$fname]) && !$field->value)
-                $field->value = $vars[$fname];
+                $field->value = $field->parse($vars[$fname]);
         }
 
         // Don't enforce form validation for email

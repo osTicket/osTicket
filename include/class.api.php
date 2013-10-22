@@ -318,13 +318,29 @@ class ApiXmlDataParser extends XmlDataParser {
             return $current;
         foreach ($current as $key=>&$value) {
             if ($key == "phone" && is_array($value)) {
-                if (isset($value['ext']))
-                    $current["phone_ext"] = $value["ext"];  # PHP [like] point
                 $value = $value[":text"];
             } else if ($key == "alert") {
                 $value = (bool)$value;
             } else if ($key == "autorespond") {
                 $value = (bool)$value;
+            } else if ($key == "message") {
+                if (!is_array($value)) {
+                    $value = array(
+                        "body" => $value,
+                        "type" => "text/plain",
+                        # Use encoding from root <xml> node
+                    );
+                } else {
+                    $value["body"] = $value[":text"];
+                    unset($value[":text"]);
+                }
+                if (isset($value['encoding']))
+                    $value['body'] = Format::utf8encode($value['body'], $value['encoding']);
+                if (!isset($value['type']) || $value['type'] != 'text/html')
+                    $value = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                        Format::htmlchars($value['body']));
+                else
+                    $value = $value['body'];
             } else if ($key == "attachments") {
                 if(!isset($value['file'][':text']))
                     $value = $value['file'];
@@ -356,40 +372,29 @@ class ApiJsonDataParser extends JsonDataParser {
             return $current;
         foreach ($current as $key=>&$value) {
             if ($key == "phone") {
-                list($value, $current["phone_ext"])
-                    = explode("X", strtoupper($value), 2);
+                $value = strtoupper($value);
             } else if ($key == "alert") {
                 $value = (bool)$value;
             } else if ($key == "autorespond") {
                 $value = (bool)$value;
+            } elseif ($key == "message") {
+                // Allow message specified in RFC 2397 format
+                $data = Format::parseRfc2397($value, 'utf-8');
+                if (!isset($data['type']) || $data['type'] != 'text/html')
+                    $value = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                        Format::htmlchars($data['data']));
+                else
+                    $value = $data['data'];
             } else if ($key == "attachments") {
                 foreach ($value as &$info) {
                     $data = reset($info);
                     # PHP5: fopen("data://$data[5:]");
-                    if (substr($data, 0, 5) != "data:") {
-                        $info = array(
-                            "data" => $data,
-                            "type" => "text/plain",
-                            "name" => key($info));
-                    } else {
-                        $data = substr($data,5);
-                        list($meta, $contents) = explode(",", $data);
-                        list($type, $extra) = explode(";", $meta);
-                        $info = array(
-                            "data" => $contents,
-                            "type" => ($type) ? $type : "text/plain",
-                            "name" => key($info));
-                        # XXX: Handle decoding here??
-                        if (substr($extra, -6) == "base64")
-                            $info["encoding"] = "base64";
-                        # Handle 'charset' hint in $extra, such as
-                        # data:text/plain;charset=iso-8859-1,Blah
-                        # Convert to utf-8 since it's the encoding scheme
-                        # for the database. Otherwise, assume utf-8
-                        list($param,$charset) = explode('=', $extra);
-                        if ($param == 'charset' && $charset)
-                            $contents = Format::utf8encode($contents, $charset);
-                    }
+                    $contents = Format::parseRfc2397($data, 'utf-8', false);
+                    $info = array(
+                        "data" => $contents['data'],
+                        "type" => $contents['type'],
+                        "name" => key($info),
+                    );
                 }
                 unset($value);
             }
@@ -397,6 +402,7 @@ class ApiJsonDataParser extends JsonDataParser {
                 $value = $this->fixup($value);
             }
         }
+
         return $current;
     }
 }

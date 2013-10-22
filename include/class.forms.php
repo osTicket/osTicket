@@ -166,8 +166,8 @@ class FormField {
      */
     function getClean() {
         if (!isset($this->_clean)) {
-            $value = $this->getWidget()->value;
-            $this->_clean = $this->parse($value);
+            $this->_clean = (isset($this->value))
+                ? $this->value : $this->parse($this->getWidget()->value);
             $this->validateEntry($this->_clean);
         }
         return $this->_clean;
@@ -551,6 +551,14 @@ class ChoiceField extends FormField {
             'choices'  =>  new TextareaField(array(
                 'id'=>1, 'label'=>'Choices', 'required'=>false, 'default'=>'')),
         );
+    }
+
+    function parse($value) {
+        if (is_numeric($value))
+            return $value;
+        foreach ($this->getChoices() as $k=>$v)
+            if (strcasecmp($value, $v) === 0)
+                return $k;
     }
 
     function toString($value) {
