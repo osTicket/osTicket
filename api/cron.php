@@ -19,8 +19,6 @@ require('api.inc.php');
 if (!osTicket::is_cli())
     die('cron.php only supports local cron calls - use http -> api/tasks/cron');
 
-@chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
-require('api.inc.php');
 require_once(INCLUDE_DIR.'api.cron.php');
 LocalCronApiController::call();
 ?>
