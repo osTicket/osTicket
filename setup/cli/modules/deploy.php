@@ -67,8 +67,8 @@ class Deployment extends Unpacker {
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
             array("*/include/ost-config.php"));
-        if (!$options['dry-run'] && !$upgrade
-                 && $include != "{$this->destination}/include")
+        if (!$options['dry-run']
+                && $include != "{$this->destination}/include")
             $this->change_include_dir($include);
     }
 }

@@ -46,8 +46,8 @@ class Unpacker extends Module {
 
     function change_include_dir($include_path) {
         # Read the main.inc.php script
-        $main_inc_php = $this->destination . '/main.inc.php';
-        $lines = explode("\n", file_get_contents($main_inc_php));
+        $bootstrap_php = $this->destination . '/bootstrap.php';
+        $lines = explode("\n", file_get_contents($bootstrap_php));
         # Try and use ROOT_DIR
         if (strpos($include_path, $this->destination) === 0)
             $include_path = "ROOT_DIR . '" .
@@ -57,6 +57,7 @@ class Unpacker extends Module {
         # Find the line that defines INCLUDE_DIR
         $match = array();
         foreach ($lines as &$line) {
+            // TODO: Change THIS_VERSION inline to be current `git describe`
             if (preg_match("/(\s*)define\s*\(\s*'INCLUDE_DIR'/", $line, $match)) {
                 # Replace the definition with the new locatin
                 $line = $match[1] . "define('INCLUDE_DIR', "
@@ -65,7 +66,7 @@ class Unpacker extends Module {
                 break;
             }
         }
-        if (!file_put_contents($main_inc_php, implode("\n", $lines)))
+        if (!file_put_contents($bootstrap_php, implode("\n", $lines)))
             die("Unable to configure location of INCLUDE_DIR in main.inc.php\n");
     }
 
@@ -134,9 +135,9 @@ class Unpacker extends Module {
     }
 
     function get_include_dir() {
-        $main_inc_php = $this->destination . '/main.inc.php';
+        $bootstrap_php = $this->destination . '/bootstrap.php';
         $lines = preg_grep("/define\s*\(\s*'INCLUDE_DIR'/",
-            explode("\n", file_get_contents($main_inc_php)));
+            explode("\n", file_get_contents($bootstrap_php)));
 
         // NOTE: that this won't work for crafty folks who have a define or some
         //       variable in the value of their include path
