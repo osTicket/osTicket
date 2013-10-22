@@ -27,6 +27,14 @@
 function convert_html_to_text($html, $width=74) {
     $html = fix_newlines($html);
 
+    if (!extension_loaded('xml')) {
+        $html = preg_replace(
+           array(':<br ?/?>|</div>:i', ':</p>:i'),
+           array("\n", "\n\n"),
+           $html);
+        return Format::striptags($html);
+    }
+
     $doc = new DOMDocument('1.0', 'utf-8');
     if (!@$doc->loadHTML($html))
         return $html;

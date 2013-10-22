@@ -172,17 +172,31 @@ class Mail_Parse {
     function getBody(){
         global $cfg;
 
-        if ($body=$this->getPart($this->struct,'text/html')) {
-            //Cleanup the html.
-            $body=Format::safe_html($body); //Balance html tags & neutralize unsafe tags.
-            if (!$cfg->isHtmlThreadEnabled()) {
-                $body = convert_html_to_text($body, 120);
-                $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+        if ($cfg->isHtmlThreadEnabled()) {
+            if ($body=$this->getPart($this->struct,'text/html')) {
+                // Cleanup the html -- Balance html tags & neutralize unsafe tags.
+                $body = (trim($body, " <>br/\t\n\r"))
+                    ? Format::safe_html($body)
+                    : '--';
+            }
+            elseif ($body=$this->getPart($this->struct,'text/plain')) {
+                $body = trim($body)
+                    ? sprintf('<div style="white-space:pre-wrap">%s</div>',
+                        Format::htmlchars($body))
+                    : '--';
             }
         }
-        elseif ($body=$this->getPart($this->struct,'text/plain')) {
-            $body = Format::htmlchars($body);
-            $body = "<div style=\"white-space:pre-wrap\">$body</div>";
+        else {
+            if ($body=$this->getPart($this->struct,'text/plain')) {
+                $body = Format::htmlchars($body);
+            }
+            elseif ($body=$this->getPart($this->struct,'text/html')) {
+                $body = convert_html_to_text($body, 100);
+            }
+            $body = trim($body)
+                ? sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    $body)
+                : '--';
         }
         return $body;
     }
