@@ -151,7 +151,7 @@ class Format {
 
         # Try simple html2text  - insert line breaks after new line tags.
         $html = preg_replace(
-                array(':<br ?/?\>:i', ':(</div>)\s*:i', ':(</p>)\s*:i')
+                array(':<br ?/?\>:i', ':(</div>)\s*:i', ':(</p>)\s*:i'),
                 array("\n", "$1\n", "$1\n\n"),
                 $html);
 
