@@ -191,7 +191,7 @@ class Mail_Parse {
                 $body = Format::htmlchars($body);
             }
             elseif ($body=$this->getPart($this->struct,'text/html')) {
-                $body = convert_html_to_text($body, 100);
+                $body = Format::html2text(Format::safe_html($body), 100, false);
             }
             $body = trim($body)
                 ? sprintf('<div style="white-space:pre-wrap">%s</div>',

@@ -137,7 +137,8 @@ class Format {
         return htmLawed($html, $config);
     }
 
-    function html2text($html, $width=74) {
+    function html2text($html, $width=74, $tidy=true) {
+
 
         # Tidy html: decode, balance, sanitize tags
         if($tidy)
