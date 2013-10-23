@@ -42,7 +42,7 @@ class KbaseAjaxAPI extends AjaxController {
                 $resp['files'] = $canned->attachments->getSeparates();
 
                 if (!$cfg->isHtmlThreadEnabled()) {
-                    $resp['response'] = convert_html_to_text($resp['response'], 90);
+                    $resp['response'] = Format::html2text($resp['response'], 90);
                     $resp['files'] += $canned->attachments->getInlines();
                 }
 
@@ -54,7 +54,7 @@ class KbaseAjaxAPI extends AjaxController {
                 $response =$ticket?$ticket->replaceVars($canned->getResponse()):$canned->getResponse();
 
                 if (!$cfg->isHtmlThreadEnabled())
-                    $response = convert_html_to_text($response, 90);
+                    $response = Format::html2text($response, 90);
         }
 
         return $response;

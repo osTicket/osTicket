@@ -441,7 +441,7 @@ class MailFetcher {
                 $body = Format::htmlchars($body);
             }
             elseif ($body=$this->getPart($mid, 'text/html', $this->charset)) {
-                $body = convert_html_to_text(Format::safe_html($body), 100);
+                $body = Format::html2text(Format::safe_html($body), 100, false);
             }
             $body = trim($body)
                 ? sprintf('<div style="white-space:pre-wrap">%s</div>',

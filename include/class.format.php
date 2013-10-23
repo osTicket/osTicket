@@ -128,13 +128,37 @@ class Format {
         return is_array($var)?array_map(array('Format','strip_slashes'),$var):stripslashes($var);
     }
 
-    function wrap($text,$len=75) {
-        return wordwrap($text,$len,"\n",true);
+    function wrap($text, $len=75) {
+        return $len ? wordwrap($text, $len, "\n", true) : $text;
     }
 
     function html($html, $config=array('balance'=>1)) {
         require_once(INCLUDE_DIR.'htmLawed.php');
         return htmLawed($html, $config);
+    }
+
+    function html2text($html, $width=74, $tidy=true) {
+
+
+        # Tidy html: decode, balance, sanitize tags
+        if($tidy)
+            $html = Format::html(Format::htmldecode($html), array('balance' => 1));
+
+        # See if advanced html2text is available (requires xml extension)
+        if (function_exists('convert_html_to_text')
+                && extension_loaded('xml'))
+            return convert_html_to_text($html, $width);
+
+        # Try simple html2text  - insert line breaks after new line tags.
+        $html = preg_replace(
+                array(':<br ?/?\>:i', ':(</div>)\s*:i', ':(</p>)\s*:i')
+                array("\n", "$1\n", "$1\n\n"),
+                $html);
+
+        # Strip tags, decode html chars and wrap resulting text.
+        return Format::wrap(
+                Format::htmldecode( Format::striptags($html, false)),
+                $width);
     }
 
     function safe_html($html) {
