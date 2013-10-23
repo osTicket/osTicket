@@ -11,7 +11,8 @@ $sql='SELECT faq.faq_id, question, count(attach.file_id) as attachments '
     .' FROM '.FAQ_TABLE.' faq '
     .' LEFT JOIN '.FAQ_ATTACHMENT_TABLE.' attach ON(attach.faq_id=faq.faq_id) '
     .' WHERE faq.ispublished=1 AND faq.category_id='.db_input($category->getId())
-    .' GROUP BY faq.faq_id';
+    .' GROUP BY faq.faq_id '
+    .' ORDER BY question';
 if(($res=db_query($sql)) && db_num_rows($res)) {
     echo '
          <h2>Frequently Asked Questions</h2>

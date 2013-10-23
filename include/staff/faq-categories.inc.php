@@ -76,7 +76,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
                  )";
     }
 
-    $sql.=' GROUP BY faq.faq_id';
+    $sql.=' GROUP BY faq.faq_id ORDER BY question';
 
     echo "<div><strong>Search Results</strong></div><div class='clear'></div>";
     if(($res=db_query($sql)) && db_num_rows($res)) {
