@@ -1293,8 +1293,9 @@ class Ticket {
         //Strip quoted reply...on emailed replies
         if(!strcasecmp($origin, 'Email')
                 && $cfg->stripQuotedReply()
-                && ($tag=$cfg->getReplySeparator()) && strpos($vars['message'], $tag))
-            if(list($msg) = split($tag, $vars['message']))
+                && ($tag=$cfg->getReplySeparator())
+                && strpos($vars['message'], $tag))
+            if((list($msg) = explode($tag, $vars['message'], 2)) && trim($msg))
                 $vars['message'] = $msg;
 
         if(isset($vars['ip']))
