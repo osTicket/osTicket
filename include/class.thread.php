@@ -215,6 +215,19 @@ class Thread {
                 && $thread->getId()
                 )?$thread:null;
     }
+
+    function getVar($name) {
+        switch ($name) {
+        case 'original':
+            return Message::firstByTicketId($this->ticket->getId())
+                ->getBody();
+            break;
+        case 'last_message':
+        case 'lastmessage':
+            return $this->ticket->getLastMessage()->getBody();
+            break;
+        }
+    }
 }
 
 
@@ -806,10 +819,18 @@ class Message extends ThreadEntry {
     }
 
     function lastByTicketId($ticketId) {
+        return self::byTicketId($ticketId);
+    }
+
+    function firstByTicketId($ticketId) {
+        return self::byTicketId($ticketId, false);
+    }
+
+    function byTicketId($ticketId, $last=true) {
 
         $sql=' SELECT thread.id FROM '.TICKET_THREAD_TABLE.' thread '
             .' WHERE thread_type=\'M\' AND thread.ticket_id = '.db_input($ticketId)
-            .' ORDER BY thread.id DESC LIMIT 1';
+            .sprintf(' ORDER BY thread.id %s LIMIT 1', $last ? 'DESC' : 'ASC');
 
         if (($res = db_query($sql)) && ($id = db_result($res)))
             return Message::lookup($id);
