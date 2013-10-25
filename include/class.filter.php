@@ -175,11 +175,12 @@ class Filter {
     }
 
     function addRule($what, $how, $val,$extra=array()) {
+        $errors = array();
 
         $rule= array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
         $rule['filter_id']=$this->getId();
 
-        return FilterRule::create($rule,$errors);               # nolint
+        return FilterRule::create($rule,$errors);
     }
 
     function removeRule($what, $how, $val) {
@@ -512,7 +513,8 @@ class Filter {
 
         //Success with update/create...save the rules. We can't recover from any errors at this point.
         # Don't care about errors stashed in $xerrors
-        self::save_rules($id,$vars,$xerrors);               # nolint
+        $xerrors = array();
+        self::save_rules($id,$vars,$xerrors);
 
         return true;
     }

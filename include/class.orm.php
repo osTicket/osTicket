@@ -139,6 +139,7 @@ class VerySimpleModel {
     function delete($pk=false) {
         $table = static::$meta['table'];
         $sql = 'DELETE FROM '.$table;
+        $filter = array();
 
         if (!$pk) $pk = static::$meta['pk'];
         if (!is_array($pk)) $pk=array($pk);
@@ -626,7 +627,7 @@ class SqlCompiler {
     }
 
     function compileWhere($where, $model) {
-        $constrints = array();
+        $constraints = array();
         foreach ($where as $constraint) {
             $filter = array();
             foreach ($constraint as $field=>$value) {

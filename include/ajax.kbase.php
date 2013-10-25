@@ -32,6 +32,7 @@ class KbaseAjaxAPI extends AjaxController {
             $ticket = Ticket::lookup($_GET['tid']);
         }
 
+        $resp = array();
         switch($format) {
             case 'json':
                 $resp['id'] = $canned->getId();

@@ -77,6 +77,7 @@ function db_close() {
 function db_version() {
 
     $version=0;
+    $matches = array();
     if(preg_match('/(\d{1,2}\.\d{1,2}\.\d{1,2})/',
             db_result(db_query('SELECT VERSION()')),
             $matches))                                      # nolint
@@ -165,6 +166,7 @@ function db_fetch_field($res) {
 }
 
 function db_assoc_array($res, $mode=false) {
+    $result = array();
     if($res && db_num_rows($res)) {
         while ($row=db_fetch_array($res, $mode))
             $result[]=$row;

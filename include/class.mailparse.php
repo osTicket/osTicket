@@ -60,7 +60,7 @@ class Mail_Parse {
     }
 
     function splitBodyHeader() {
-
+        $match = array();
         if (preg_match("/^(.*?)\r?\n\r?\n(.*)/s",
                 $this->mime_message,
                 $match)) {                                  # nolint

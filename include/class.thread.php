@@ -403,9 +403,7 @@ Class ThreadEntry {
             return null;
 
         $id=0;
-        if (!$attachment['error'] && ($id=$this->saveAttachment($attachment)))
-            $files[] = $id;
-        else {
+        if ($attachment['error'] || !($id=$this->saveAttachment($attachment))) {
             $error = $attachment['error'];
 
             if(!$error)

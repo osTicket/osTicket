@@ -396,7 +396,7 @@ class ApiJsonDataParser extends JsonDataParser {
                         "name" => key($info),
                     );
                 }
-                unset($value);
+                unset($info);
             }
             if (is_array($value)) {
                 $value = $this->fixup($value);
