@@ -260,8 +260,8 @@ class Format {
         //Wrap long words...
         #$text=preg_replace_callback('/\w{75,}/',
         #    create_function(
-        #        '$matches',                                     # nolint
-        #        'return wordwrap($matches[0],70,"\n",true);'),  # nolint
+        #        '$matches',
+        #        'return wordwrap($matches[0],70,"\n",true);'),
         #    $text);
 
         // Make showing offsite images optional
@@ -295,14 +295,14 @@ class Format {
         $token = $ost->getLinkToken();
         //Not perfect but it works - please help improve it.
         $text=preg_replace_callback('/(?<!"|>)(((f|ht)tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
-                create_function('$matches', # nolint
-                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";', # nolint
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";',
                         $token)),
                 $text);
 
         $text=preg_replace_callback("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
-                create_function('$matches', # nolint
-                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";', # nolint
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";',
                         $token)),
                 $text);
 

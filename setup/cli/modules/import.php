@@ -113,6 +113,7 @@ class Importer extends Module {
         $sql = 'CREATE TABLE `'.TABLE_PREFIX.$info[1].'` (';
         $pk = array();
         $fields = array();
+        $queries = array();
         foreach ($info[2] as $col) {
             $field = "`{$col['Field']}` {$col['Type']}";
             if ($col['Null'] == 'NO')

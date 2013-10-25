@@ -1,5 +1,6 @@
 <?php
 require_once "class.test.php";
+require_once "class.php_analyze.php";
 
 class UnitializedVars extends Test {
     var $name = "Access to unitialized variables";
@@ -7,16 +8,21 @@ class UnitializedVars extends Test {
     function testUnitializedUsage() {
         $scripts = $this->getAllScripts();
         $matches = array();
-        foreach (range(0, count($scripts), 40) as $start) {
-            $slice = array_slice($scripts, $start, 40);
-            ob_start();
-            # XXX: This won't run well on Windoze
-            system(dirname(__file__)."/lib/phplint.tcl ".implode(" ", $slice));
-            $lint_errors = ob_get_clean();
-            preg_match_all("/\* In (.*) line (\d+): access to uninitialized var '([^']+)'/m",
-                    $lint_errors, $matches, PREG_SET_ORDER);
-            foreach ($matches as $match)
-                $this->fail($match[1], $match[2], "'\${$match[3]}'");
+        foreach ($scripts as $s) {
+            $a = new SourceAnalyzer($s);
+            $a->parseFile();
+            foreach ($a->bugs as $bug) {
+                if ($bug['type'] == 'UNDEF_ACCESS') {
+                    list($line, $file) = $bug['line'];
+                    $this->fail($file, $line, "'{$bug['name']}'");
+                }
+                elseif ($bug['type'] == 'MAYBE_UNDEF_ACCESS') {
+                    list($line, $file) = $bug['line'];
+                    $this->warn("Possible access to NULL object @ $file : $line");
+                }
+            }
+            if (!$a->bugs)
+                $this->pass();
         }
     }
 }

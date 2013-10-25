@@ -121,7 +121,9 @@ class VariableReplacer {
     function _parse($text) {
 
         $input = $text;
-        if(!preg_match_all('/'.$this->start_delim.'([A-Za-z_][\w._]+)'.$this->end_delim.'/', $input, $result))
+        $result = array();
+        if(!preg_match_all('/'.$this->start_delim.'([A-Za-z_][\w._]+)'.$this->end_delim.'/',
+                $input, $result))
             return null;
 
         $vars = array();
