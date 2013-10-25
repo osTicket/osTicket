@@ -708,6 +708,8 @@ class DynamicListItem extends VerySimpleModel {
 }
 
 class SelectionField extends FormField {
+    static $widget = 'SelectionWidget';
+
     function getListId() {
         list(,$list_id) = explode('-', $this->get('type'));
         return $list_id;
@@ -717,10 +719,6 @@ class SelectionField extends FormField {
         if (!$this->_list)
             $this->_list = DynamicList::lookup($this->getListId());
         return $this->_list;
-    }
-
-    function getWidget() {
-        return new SelectionWidget($this);
     }
 
     function parse($value) {
