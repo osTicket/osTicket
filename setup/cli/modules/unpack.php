@@ -48,6 +48,7 @@ class Unpacker extends Module {
         # Read the main.inc.php script
         $bootstrap_php = $this->destination . '/bootstrap.php';
         $lines = explode("\n", file_get_contents($bootstrap_php));
+        $include_path = preg_replace('://+:', '/', $include_path);
         # Try and use ROOT_DIR
         if (strpos($include_path, $this->destination) === 0)
             $include_path = "ROOT_DIR . '" .
@@ -141,11 +142,12 @@ class Unpacker extends Module {
 
         // NOTE: that this won't work for crafty folks who have a define or some
         //       variable in the value of their include path
-        if (!defined('ROOT_DIR')) define('ROOT_DIR', $this->destination . '/');
+        if (!defined('ROOT_DIR'))
+            define('ROOT_DIR', rtrim($this->destination, '/').'/');
         foreach ($lines as $line)
             eval($line);
 
-        return INCLUDE_DIR;
+        return rtrim(INCLUDE_DIR, '/').'/';
     }
 
     function run($args, $options) {
