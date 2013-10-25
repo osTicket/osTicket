@@ -568,5 +568,9 @@ $this->outerblocktags = array('DIV','FORM','CENTER','DL','FIELDSET','ARTICLE','A
 $this->innerblocktags = array('P','BLOCKQUOTE','ADDRESS','PRE','H1','H2','H3','H4','H5','H6','DT','DD','CAPTION');
 
 
+// OSTICKET CUSTOM -------------------------------
+// Don't process alpha channels of PNG images
+$this->png_alpha_use_white_matte = true;
+
 
 ?>

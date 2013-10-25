@@ -9859,7 +9859,23 @@ function _getImage(&$file, $firsttime=true, $allowvector=true, $orig_srcpath=fal
 			if ($im) {
 			   $tempfile = _MPDF_TEMP_PATH.'_tempImgPNG'.RAND(1,10000).'.png';
 			   // Alpha channel set
-			   if ($pngalpha) {
+               if ($pngalpha && $this->png_alpha_use_white_matte) {
+				$imgmat = imagecreatetruecolor($w, $h);
+                imagesavealpha($imgmat, false);
+                imageinterlace($imgmat, false);
+                imagefill($imgmat, 0, 0, imagecolorallocate($imgmat, 255, 255, 255));
+                imagecopy($imgmat, $im, 0, 0, 0, 0, $w, $h);
+                ob_start();
+				$check = @imagepng($imgmat);
+                if (!$check) { return $this->_imageError($file, $firsttime, 'Error creating temporary image object whilst using GD library to parse PNG image'); }
+                $this->_tempimg = ob_get_contents();
+                $this->_tempimglnk = 'var:_tempimg';
+                ob_end_clean();
+                $info = $this->_getImage($this->_tempimglnk, false);
+                if (!$info) { return $this->_imageError($file, $firsttime, 'Error parsing temporary file image object created with GD library to parse PNG image'); }
+                imagedestroy($imgmat);
+               }
+               elseif ($pngalpha) {
 				if ($this->PDFA) { $this->Error("PDFA1-b does not permit images with alpha channel transparency (".$file.")."); }
 				$imgalpha = imagecreate($w, $h);
 				// generate gray scale pallete
