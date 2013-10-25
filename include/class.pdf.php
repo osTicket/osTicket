@@ -76,7 +76,7 @@ class Ticket2PDF extends mPDF
 		$this->Image($logo, $this->lMargin, $this->tMargin, 0, 20);
         if (strpos($logo, INCLUDE_DIR) === false)
             unlink($logo);
-		$this->SetFont('Times', 'B', 16);
+		$this->SetFont('Arial', 'B', 16);
 		$this->SetY($this->tMargin + 20);
         $this->SetX($this->lMargin);
         $this->WriteCell(0, 0, '', "B", 2, 'L');
@@ -108,7 +108,7 @@ class Ticket2PDF extends mPDF
 
     function WriteText($w, $text, $border) {
 
-        $this->SetFont('Times','',11);
+        $this->SetFont('Arial','',11);
         $this->MultiCell($w, 7, $text, $border, 'L');
 
     }
@@ -119,7 +119,7 @@ class Ticket2PDF extends mPDF
         $text = &$args[0];
         $self = $this;
         $text = preg_replace_callback('/cid:([\w.-]{32})/',
-            function($match) use ($self) {
+            function($match) use ($self, &$filenumber) {
                 if (!($file = AttachmentFile::lookup($match[1])))
                     return $match[0];
                 $key = "__attached_file_".$filenumber++;
@@ -140,7 +140,10 @@ class Ticket2PDF extends mPDF
         $l = 35;
         $c = $w-$l;
 
-        $this->WriteHtml('', 2, true, false);
+        // Setup HTML writing and load default thread stylesheet
+        $this->WriteHtml(
+            '<style>'.file_get_contents(ROOT_DIR.'css/thread.css')
+            .'</style>', 1, true, false);
 
         $this->SetFont('Arial', 'B', 11);
         $this->cMargin = 0;
@@ -294,12 +297,13 @@ class Ticket2PDF extends mPDF
                 if($entry['attachments']
                         && ($tentry=$ticket->getThreadEntry($entry['id']))
                         && ($attachments = $tentry->getAttachments())) {
+                    $files = array();
                     foreach($attachments as $attachment)
                         $files[]= $attachment['name'];
 
                     $text.="<div>Files Attached: [".implode(', ',$files)."]</div>";
                 }
-                $this->WriteHtml($text, 2, false, false);
+                $this->WriteHtml('<div class="thread-body">'.$text.'</div>', 2, false, false);
                 $this->Ln(5);
             }
         }
