@@ -50,8 +50,7 @@ class Deployment extends Unpacker {
         $include = ($upgrade) ? $this->get_include_dir()
             : ($options['include'] ? $options['include']
                 : "{$this->destination}/include");
-        if (substr($include, -1) !== '/')
-            $include .= '/';
+        $include = rtrim($include, '/').'/';
 
         # Locate the upload folder
         $root = $this->find_root_folder();
