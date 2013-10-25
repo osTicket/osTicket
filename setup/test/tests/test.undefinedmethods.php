@@ -32,7 +32,7 @@ function find_function_calls($scripts) {
         $lineno=0;
         foreach ($lines as $line) {
             $lineno++; $matches=array();
-            preg_match_all('/(?:-[>]|::)([a-zA-Z0-9_]+)\(.*/', $line, $matches,
+            preg_match_all('/^.*\w+(?:-[>]|::)([a-zA-Z0-9_]+)\(.*/', $line, $matches,
                 PREG_SET_ORDER);
             foreach ($matches as $m)
                 if (strpos($m[0], 'nolint') === false)

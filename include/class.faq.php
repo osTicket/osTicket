@@ -112,7 +112,7 @@ class FAQ {
     function setKeywords($words) { $this->ht['keywords'] = $words; }
     function setNotes($text) { $this->ht['notes'] = $text; }
 
-    /* For ->attach() and ->detach(), use $this->attachments() */
+    /* For ->attach() and ->detach(), use $this->attachments() (nolint) */
     function attach($file) { return $this->_attachments->add($file); }
     function detach($file) { return $this->_attachments->remove($file); }
 

@@ -195,7 +195,7 @@ class SourceAnalyzer extends Test {
                 break;
             case T_STATIC:
                 $c = current($this->tokens);
-                // static::func() or static::$var
+                // (nolint) static::func() or static::$var
                 if ($c[0] == T_PAAMAYIM_NEKUDOTAYIM)
                     break;
             case T_GLOBAL:
