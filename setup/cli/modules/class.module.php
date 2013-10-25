@@ -72,10 +72,10 @@ class Option {
         $short = explode(':', $this->short);
         $long = explode(':', $this->long);
         if ($this->nargs === '?')
-            $switches = sprintf('    %s [%3$s], %s[=%3$s]', $short[0], # nolint
+            $switches = sprintf('    %s [%3$s], %s[=%3$s]', $short[0],
                 $long[0], $this->metavar);
         elseif ($this->hasArg())
-            $switches = sprintf('    %s %3$s, %s=%3$s', $short[0], $long[0], # nolint
+            $switches = sprintf('    %s %3$s, %s=%3$s', $short[0], $long[0],
                 $this->metavar);
         else
             $switches = sprintf("    %s, %s", $short[0], $long[0]);
@@ -143,7 +143,7 @@ class Module {
 
         echo "Usage:\n";
         echo "    " . str_replace(
-                array('$script', '$args'), # nolint
+                array('$script', '$args'),
                 array($manager ." ". $this->module_name, implode(' ', array_keys($this->arguments))),
             $this->usage) . "\n";
 

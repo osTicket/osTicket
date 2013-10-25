@@ -627,7 +627,7 @@ class HtmlTable extends HtmlBlockElement {
                 # Stash the computed width so it doesn't need to be
                 # recomputed again below
                 $cell->width = $cwidth;
-                unset($data); # nolint
+                unset($data);
                 $data = explode("\n", $cell->render($cwidth, $options));
                 $heights[$y] = max(count($data), $heights[$y]);
                 $contents[$y][$i] = &$data;
