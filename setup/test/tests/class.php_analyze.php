@@ -1,11 +1,11 @@
 <?php
 require_once('class.test.php');
 
-$super_globals = array_fill_keys(
-    array('$_SERVER', '$_FILES', '$_SESSION', '$_GET', '$_POST',
-        '$_REQUEST', '$_ENV'), 1);
-
 class SourceAnalyzer extends Test {
+    static $super_globals = array(
+        '$_SERVER'=>1, '$_FILES'=>1, '$_SESSION'=>1, '$_GET'=>1,
+        '$_POST'=>1, '$_REQUEST'=>1, '$_ENV'=>1, '$_COOKIE'=>1);
+
     var $bugs = array();
     var $globals = array();
     var $file = '';
@@ -16,7 +16,6 @@ class SourceAnalyzer extends Test {
     }
 
     function parseFile() {
-
         $this->checkVariableUsage(
             array('line'=>array(0, $this->file), 'name'=>'(main)'),
             array(),
@@ -80,8 +79,6 @@ class SourceAnalyzer extends Test {
 
     function checkVariableUsage($function, $scope=array(), $blocks=0,
             $options=array()) {
-        global $super_globals;
-
         // Merge in defaults to the options array
         $options = array_merge(array(
             'allow_this' => false,
@@ -142,7 +139,7 @@ class SourceAnalyzer extends Test {
                         // TODO: Determine if this function is defined in a class
                         break;
                     }
-                    elseif (isset($super_globals[$token[1]]))
+                    elseif (isset(static::$super_globals[$token[1]]))
                         // Super globals are always in scope
                         break;
                     elseif (!isset($function['name']) || $function['name'] == '(main)')

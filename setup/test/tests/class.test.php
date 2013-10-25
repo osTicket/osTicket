@@ -12,6 +12,9 @@ class Test {
         '/include/pear/',
         '/include/Spyc.php',
         '/setup/cli/stage/',
+        '/include/plugins/',
+        '/include/h2o/',
+        '/include/fpdf/',
     );
 
     function Test() {
