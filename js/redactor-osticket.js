@@ -134,7 +134,9 @@ $(function() {
                 'focus': false,
                 'plugins': ['fontcolor','fontfamily'],
                 'imageGetJson': 'ajax.php/draft/images/browse',
-                'syncBeforeCallback': captureImageSizes
+                'syncBeforeCallback': captureImageSizes,
+                'linebreaks': true,
+                'tabFocus': false
             };
         if (el.data('redactor')) return;
         if (el.hasClass('draft')) {

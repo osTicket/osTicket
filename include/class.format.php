@@ -128,8 +128,8 @@ class Format {
         return is_array($var)?array_map(array('Format','strip_slashes'),$var):stripslashes($var);
     }
 
-    function wrap($text,$len=75) {
-        return wordwrap($text,$len,"\n",true);
+    function wrap($text, $len=75) {
+        return $len ? wordwrap($text, $len, "\n", true) : $text;
     }
 
     function html($html, $config=array('balance'=>1)) {
@@ -137,13 +137,64 @@ class Format {
         return htmLawed($html, $config);
     }
 
+    function html2text($html, $width=74, $tidy=true) {
+
+
+        # Tidy html: decode, balance, sanitize tags
+        if($tidy)
+            $html = Format::html(Format::htmldecode($html), array('balance' => 1));
+
+        # See if advanced html2text is available (requires xml extension)
+        if (function_exists('convert_html_to_text')
+                && extension_loaded('xml'))
+            return convert_html_to_text($html, $width);
+
+        # Try simple html2text  - insert line breaks after new line tags.
+        $html = preg_replace(
+                array(':<br ?/?\>:i', ':(</div>)\s*:i', ':(</p>)\s*:i'),
+                array("\n", "$1\n", "$1\n\n"),
+                $html);
+
+        # Strip tags, decode html chars and wrap resulting text.
+        return Format::wrap(
+                Format::htmldecode( Format::striptags($html, false)),
+                $width);
+    }
+
     function safe_html($html) {
+        // Remove HEAD and STYLE sections
+        $html = preg_replace(':<(head|style).+</\1>:is','', $html);
         $config = array(
-                'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
-                'balance' => 1, //balance and close unclosed tags.
-                'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
-                'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data'
-                );
+            'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
+            'balance' => 1, //balance and close unclosed tags.
+            'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
+            'deny_attribute' => 'id',
+            'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
+            'hook_tag' => function ($el, $attributes=0) {
+                static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
+                    'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
+                if (isset($attributes['class'])) {
+                    $classes = explode(' ', $attributes['class']);
+                    foreach ($classes as $i=>$a)
+                        // Unset all unsupported style classes -- anything by M$
+                        if (strpos($a, 'Mso') !== 0)
+                            unset($classes[$i]);
+                    if ($classes)
+                        $attributes['class'] = implode(' ', $classes);
+                    else
+                        unset($attributes['class']);
+                }
+                $at = '';
+                if (is_array($attributes)) {
+                    foreach ($attributes as $k=>$v)
+                        $at .= " $k=\"$v\"";
+                    return "<{$el}{$at}".(isset($eE[$el])?" /":"").">";
+                }
+                else {
+                    return "</{$el}>";
+                }
+            }
+        );
 
         if (!preg_match('/style="[^"]*white-space:\s*pre/i', $html) !== false)
             $config['tidy'] = -1; // Clean extra whitspace
@@ -209,8 +260,8 @@ class Format {
         //Wrap long words...
         #$text=preg_replace_callback('/\w{75,}/',
         #    create_function(
-        #        '$matches',                                     # nolint
-        #        'return wordwrap($matches[0],70,"\n",true);'),  # nolint
+        #        '$matches',
+        #        'return wordwrap($matches[0],70,"\n",true);'),
         #    $text);
 
         // Make showing offsite images optional
@@ -244,14 +295,14 @@ class Format {
         $token = $ost->getLinkToken();
         //Not perfect but it works - please help improve it.
         $text=preg_replace_callback('/(?<!"|>)(((f|ht)tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
-                create_function('$matches', # nolint
-                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";', # nolint
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";',
                         $token)),
                 $text);
 
         $text=preg_replace_callback("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
-                create_function('$matches', # nolint
-                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";', # nolint
+                create_function('$matches',
+                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";',
                         $token)),
                 $text);
 

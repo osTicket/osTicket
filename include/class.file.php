@@ -254,12 +254,14 @@ class AttachmentFile {
 
     function save($file) {
 
-        if(!$file['hash'])
-            $file['hash']=MD5(MD5($file['data']).time());
         if (is_callable($file['data']))
             $file['data'] = $file['data']();
+
+        if(!$file['hash'])
+            $file['hash'] = MD5(MD5($file['data']).time());
+
         if(!$file['size'])
-            $file['size']=strlen($file['data']);
+            $file['size'] = strlen($file['data']);
 
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input(strtolower($file['type']))

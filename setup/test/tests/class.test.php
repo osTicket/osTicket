@@ -2,6 +2,7 @@
 
 class Test {
     var $fails = array();
+    var $warnings = array();
     var $name = "";
 
     var $third_party_paths = array(
@@ -11,6 +12,9 @@ class Test {
         '/include/pear/',
         '/include/Spyc.php',
         '/setup/cli/stage/',
+        '/include/plugins/',
+        '/include/h2o/',
+        '/include/fpdf/',
     );
 
     function Test() {
@@ -57,7 +61,7 @@ class Test {
     }
 
     function warn($message) {
-        $this->fails[] = array(get_class($this), '', '', 'WARNING: '.$message);
+        $this->warnings[] = array(get_class($this), '', '', 'WARNING: '.$message);
         fputs(STDOUT, 'w');
     }
 

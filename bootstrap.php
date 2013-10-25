@@ -43,6 +43,9 @@ class Bootstrap {
                 ini_set('date.timezone', 'America/New_York');
             }
         }
+
+        if (!isset($_SERVER['REMOTE_ADDR']))
+            $_SERVER['REMOTE_ADDR'] = '';
     }
 
     function https() {
