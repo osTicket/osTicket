@@ -161,9 +161,52 @@ class Format {
                 $width);
     }
 
+    static function __html_cleanup($el, $attributes) {
+        static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
+            'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
+        // Clean unexpected class values
+        if (isset($attributes['class'])) {
+            $classes = explode(' ', $attributes['class']);
+            foreach ($classes as $i=>$a)
+                // Unset all unsupported style classes -- anything by M$
+                if (strpos($a, 'Mso') !== 0)
+                    unset($classes[$i]);
+            if ($classes)
+                $attributes['class'] = implode(' ', $classes);
+            else
+                unset($attributes['class']);
+        }
+        // Clean browser-specific style attributes
+        if (isset($attributes['style'])) {
+            $styles = explode(';', $attributes['style']);
+            foreach ($styles as $i=>$s) {
+                list($prop, $val) = explode(':', $s);
+                if (!$val || !$prop || $prop[0] == '-')
+                    unset($styles[$i]);
+            }
+            if ($styles)
+                $attributes['style'] = implode(';', $styles);
+            else
+                unset($attributes['style']);
+        }
+        $at = '';
+        if (is_array($attributes)) {
+            foreach ($attributes as $k=>$v)
+                $at .= " $k=\"$v\"";
+            return "<{$el}{$at}".(isset($eE[$el])?" /":"").">";
+        }
+        else {
+            return "</{$el}>";
+        }
+    }
+
     function safe_html($html) {
         // Remove HEAD and STYLE sections
-        $html = preg_replace(':<(head|style).+</\1>:is','', $html);
+        $html = preg_replace(
+            array(':<(head|style).+</\1>:is',   # <head> and <style> sections
+                  ':<!\[[^]<]+\]>:'),           # <![if !mso]> and friends
+            array('', ''),
+            $html);
         $config = array(
             'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
             'balance' => 1, //balance and close unclosed tags.
@@ -171,30 +214,7 @@ class Format {
             'tidy' => -1,
             'deny_attribute' => 'id',
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
-            'hook_tag' => function ($el, $attributes=0) {
-                static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
-                    'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
-                if (isset($attributes['class'])) {
-                    $classes = explode(' ', $attributes['class']);
-                    foreach ($classes as $i=>$a)
-                        // Unset all unsupported style classes -- anything by M$
-                        if (strpos($a, 'Mso') !== 0)
-                            unset($classes[$i]);
-                    if ($classes)
-                        $attributes['class'] = implode(' ', $classes);
-                    else
-                        unset($attributes['class']);
-                }
-                $at = '';
-                if (is_array($attributes)) {
-                    foreach ($attributes as $k=>$v)
-                        $at .= " $k=\"$v\"";
-                    return "<{$el}{$at}".(isset($eE[$el])?" /":"").">";
-                }
-                else {
-                    return "</{$el}>";
-                }
-            }
+            'hook_tag' => array('Format', '__html_cleanup'),
         );
 
         return Format::html($html, $config);
