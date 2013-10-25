@@ -167,22 +167,24 @@ if($_POST && !$errors):
                     $errors['state'] = "You don't have permission to set the state";
             }
 
-            $wasOpen = ($ticket->isOpen());
-
             $vars = $_POST;
             if($_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
+            $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
+
+                // Cleanup drafts for the ticket. If not closed, only clean
+                // note drafts for this staff. Else clean all drafts for the ticket.
+                Draft::deleteForNamespace(
+                        sprintf('ticket.%s.%d',
+                              $ticket->isClosed() ? '%' : 'note',
+                              $ticket->getId()),
+                        $ticket->isOpen() ? $thisstaff->getId() : false);
 
                 $msg='Internal note posted successfully';
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
-
-                // Cleanup drafts for the ticket. If not closed, only clean
-                // for this staff. Else clean all drafts for the ticket.
-                Draft::deleteForNamespace('ticket.%.' . $ticket->getId(),
-                    $ticket->isClosed() ? false : $thisstaff->getId());
 
             } else {
 
