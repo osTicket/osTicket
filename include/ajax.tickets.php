@@ -214,8 +214,8 @@ class TicketsAjaxAPI extends AjaxController {
             if ($f->get('name') && isset($req[$f->getFormName()])
                     && ($val = $req[$f->getFormName()])) {
                 $name = $f->get('name');
-                $vals[] = "MAX(IF(field.name = '$name', ans.value_id, NULL)) as `{$name}_id`"; # nolint
-                $vals[] = "MAX(IF(field.name = '$name', ans.value, NULL)) as `$name`"; # nolint
+                $vals[] = "MAX(IF(field.name = '$name', ans.value_id, NULL)) as `{$name}_id`";
+                $vals[] = "MAX(IF(field.name = '$name', ans.value, NULL)) as `$name`";
                 $where .= " AND (dyn.`{$name}_id` = ".db_input($val)
                     . " OR dyn.`$name` LIKE '%".db_real_escape($val)."%')";
             }
@@ -236,6 +236,7 @@ class TicketsAjaxAPI extends AjaxController {
 
     function search() {
         $tickets = self::_search($_REQUEST);
+        $result = array();
 
         if (count($tickets)) {
             $uid = md5($_SERVER['QUERY_STRING']);
@@ -414,6 +415,8 @@ class TicketsAjaxAPI extends AjaxController {
             $ticket->getEmail());
         echo '
             </table>';
+
+        $options = array();
         $options[]=array('action'=>'Thread ('.$ticket->getThreadCount().')','url'=>"tickets.php?id=$tid");
         if($ticket->getNumNotes())
             $options[]=array('action'=>'Notes ('.$ticket->getNumNotes().')','url'=>"tickets.php?id=$tid#notes");

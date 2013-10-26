@@ -291,6 +291,7 @@ class Ticket2PDF extends FPDF
                 if($entry['attachments']
                         && ($tentry=$ticket->getThreadEntry($entry['id']))
                         && ($attachments = $tentry->getAttachments())) {
+                    $files = array();
                     foreach($attachments as $attachment)
                         $files[]= $attachment['name'];
 

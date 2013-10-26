@@ -25,8 +25,8 @@
  * @return the HTML converted, as best as possible, to text
  */
 function convert_html_to_text($html, $width=74) {
-    $html = fix_newlines($html);
 
+    $html = fix_newlines($html);
     $doc = new DOMDocument('1.0', 'utf-8');
     if (!@$doc->loadHTML($html))
         return $html;
@@ -151,6 +151,7 @@ class HtmlInlineElement {
     var $children = array();
     var $style = false;
     var $stylesheets = array();
+    var $footnotes = array();
     var $ws = false;
 
     function __construct($node, $parent) {
@@ -199,6 +200,11 @@ class HtmlInlineElement {
                 $output = new PreFormattedText($output . $more);
             elseif (is_string($more))
                 $output .= $more;
+        }
+        if ($this->footnotes) {
+            $output .= "\n\n" . str_repeat('-', $width/2) . "\n";
+            foreach ($this->footnotes as $name=>$content)
+                $output .= "[$name] ".$content."\n";
         }
         return $output;
     }
@@ -252,6 +258,10 @@ class HtmlInlineElement {
 
     function addStylesheet(&$s) {
         $this->stylesheets[] = $s;
+    }
+
+    function addFootNote($name, $content) {
+        $this->footnotes[$name] = $content;
     }
 }
 
@@ -397,7 +407,9 @@ class HtmlImgElement extends HtmlInlineElement {
         $alt = $this->node->getAttribute("alt");
         return "[image:$alt$title] ";
     }
-    function getWeight() { return parent::getWeight() + 4; }
+    function getWeight() {
+        return strlen($this->node->getAttribute("alt")) + 8;
+    }
 }
 
 class HtmlAElement extends HtmlInlineElement {
@@ -410,6 +422,10 @@ class HtmlAElement extends HtmlInlineElement {
             if ($this->node->getAttribute("name") != null) {
                 $output = "[$output]";
             }
+        } elseif (strlen($href) > $width / 2) {
+            $output = "[$output][]";
+            if ($href != $output)
+                $this->getRoot()->addFootnote($output, $href);
         } else {
             if ($href != $output) {
                 $output = "[$output]($href)";
@@ -627,7 +643,7 @@ class HtmlTable extends HtmlBlockElement {
                 # Stash the computed width so it doesn't need to be
                 # recomputed again below
                 $cell->width = $cwidth;
-                unset($data); # nolint
+                unset($data);
                 $data = explode("\n", $cell->render($cwidth, $options));
                 $heights[$y] = max(count($data), $heights[$y]);
                 $contents[$y][$i] = &$data;
@@ -687,7 +703,7 @@ class HtmlTableCell extends HtmlBlockElement {
     }
 
     function getMinWidth() {
-        return parent::getMinWidth() / $this->cols;
+        return max(4, parent::getMinWidth() / $this->cols);
     }
 }
 

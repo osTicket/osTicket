@@ -367,7 +367,7 @@ class osTicket {
          * Secondly, if the directory of main.inc.php is the same as the
          * document root, the the ROOT path truly is '/'
          */
-        if(!$_SERVER['DOCUMENT_ROOT']
+        if(!isset($_SERVER['DOCUMENT_ROOT'])
                 || !strcasecmp($_SERVER['DOCUMENT_ROOT'], $dir))
             return '/';
 
@@ -411,7 +411,9 @@ class osTicket {
     /* returns true if script is being executed via commandline */
     function is_cli() {
         return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')
-                || (!$_SERVER['REQUEST_METHOD'] && !$_SERVER['HTTP_HOST']) //Fallback when php-cgi binary is used via cli
+                || (!isset($_SERVER['REQUEST_METHOD']) &&
+                    !isset($_SERVER['HTTP_HOST']))
+                    //Fallback when php-cgi binary is used via cli
                 );
     }
 

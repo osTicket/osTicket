@@ -76,6 +76,11 @@ if($status) {
     $qwhere.=' AND status='.db_input(strtolower($status));
 }
 
+if (isset($_REQUEST['ownerId'])) {
+    $qwhere .= ' AND ticket.user_id='.db_input($_REQUEST['ownerId']);
+    $qstr .= '&ownerId='.urlencode($_REQUEST['ownerId']);
+}
+
 //Queues: Overloaded sub-statuses  - you've got to just have faith!
 if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
     $results_type='Assigned Tickets';

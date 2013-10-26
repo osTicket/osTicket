@@ -16,7 +16,9 @@ vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
 #Disable direct access.
-if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__))) die('kwaheri rafiki!');
+if(isset($_SERVER['SCRIPT_NAME'])
+        && !strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__)))
+    die('kwaheri rafiki!');
 
 require('bootstrap.php');
 Bootstrap::loadConfig();
