@@ -738,7 +738,7 @@ class Ticket {
             $email =$cfg->getDefaultEmail();
 
         $options = array(
-            'replyto'=>$message->getEmailMessageId(),
+            'inreplyto'=>$message->getEmailMessageId(),
             'references'=>$message->getEmailReferences());
 
         //Send auto response - if enabled.
@@ -889,7 +889,7 @@ class Ticket {
             if (!$message)
                 $message = $this->getLastMessage();
             $options = array(
-                'replyto'=>$message->getEmailMessageId(),
+                'inreplyto'=>$message->getEmailMessageId(),
                 'references'=>$message->getEmailReferences());
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
                 null, $options);
@@ -950,7 +950,7 @@ class Ticket {
             //Send the alerts.
             $sentlist=array();
             $options = array(
-                'replyto'=>$note->getEmailMessageId(),
+                'inreplyto'=>$note->getEmailMessageId(),
                 'references'=>$note->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
@@ -1203,7 +1203,7 @@ class Ticket {
 
             $sentlist=array();
             $options = array(
-                'replyto'=>$note->getEmailMessageId(),
+                'inreplyto'=>$note->getEmailMessageId(),
                 'references'=>$note->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
@@ -1355,7 +1355,7 @@ class Ticket {
 
             $sentlist=array(); //I know it sucks...but..it works.
             $options = array(
-                'replyto'=>$message->getEmailMessageId(),
+                'inreplyto'=>$message->getEmailMessageId(),
                 'references'=>$message->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
@@ -1415,7 +1415,7 @@ class Ticket {
 
             $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
             $options = array(
-                'replyto'=>$response->getEmailMessageId(),
+                'inreplyto'=>$response->getEmailMessageId(),
                 'references'=>$response->getEmailReferences());
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
@@ -1474,7 +1474,7 @@ class Ticket {
             //Set attachments if emailing.
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             $options = array(
-                'replyto' => $response->getEmailMessageId(),
+                'inreplyto' => $response->getEmailMessageId(),
                 'references' => $response->getEmailReferences());
             //TODO: setup  5 param (options... e.g mid trackable on replies)
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
@@ -1588,7 +1588,7 @@ class Ticket {
 
             $attachments = $note->getAttachments();
             $options = array(
-                'replyto'=>$note->getEmailMessageId(),
+                'inreplyto'=>$note->getEmailMessageId(),
                 'references'=>$note->getEmailReferences());
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
