@@ -588,6 +588,9 @@ class HtmlTable extends HtmlBlockElement {
         foreach ($rows as $r)
             $cols = max($cols, count($r));
 
+        if (!$cols)
+            return '';
+
         # Find the largest cells in all columns
         $weights = $mins = array_fill(0, $cols, 0);
         foreach ($rows as $r) {
