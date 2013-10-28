@@ -6,7 +6,7 @@ class SyntaxTest extends Test {
 
     function testCompileErrors() {
         $exit = 0;
-        foreach ($this->getAllScripts() as $s) {
+        foreach ($this->getAllScripts(false) as $s) {
             ob_start();
             system("php -l $s", $exit);
             $line = ob_get_contents();

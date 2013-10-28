@@ -431,7 +431,7 @@ class MailFetcher {
             }
             elseif ($body=$this->getPart($mid, 'text/plain', $this->charset)) {
                 $body = trim($body)
-                    ? sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    ? sprintf('<pre>%s</pre>',
                         Format::htmlchars($body))
                     : '--';
             }
@@ -444,7 +444,7 @@ class MailFetcher {
                 $body = Format::html2text(Format::safe_html($body), 100, false);
             }
             $body = trim($body)
-                ? sprintf('<div style="white-space:pre-wrap">%s</div>',
+                ? sprintf('<pre>%s</pre>',
                     $body)
                 : '--';
         }

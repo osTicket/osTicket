@@ -17,10 +17,14 @@ class UndefinedMethods extends Test {
         }
         foreach (find_function_calls($scripts) as $call) {
             list($file, $no, $line, $func) = $call;
-            if (!in_array($func, $function_defs))
-                $this->fail($file, $no, "$func: Definitely undefined");
-            else
+            if (!in_array($func, $function_defs)) {
+                // We don't ship all of mdpf, so a bit of it looks undefined
+                if (strpos($file, '/mpdf/') === false)
+                    $this->fail($file, $no, "$func: Definitely undefined");
+            }
+            else {
                 $this->pass();
+            }
         }
     }
 }

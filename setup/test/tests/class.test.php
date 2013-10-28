@@ -14,7 +14,7 @@ class Test {
         '/setup/cli/stage/',
         '/include/plugins/',
         '/include/h2o/',
-        '/include/fpdf/',
+        '/include/mpdf/',
     );
 
     function Test() {
