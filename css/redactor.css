@@ -28,6 +28,29 @@ body .redactor_box_fullscreen {
 	padding: 0;
 }
 
+.redactor-link-tooltip {
+	position: absolute;
+	z-index: 3000;
+	padding: 10px;
+	line-height: 1;
+	display: inline-block;
+	background-color: #000;
+	color: #555 !important;
+}
+.redactor-link-tooltip,
+.redactor-link-tooltip a {
+	font-size: 12px;
+	font-family: Arial, Helvetica, Verdana, Tahoma, sans-serif !important;
+}
+.redactor-link-tooltip a {
+	color: #ccc;
+	margin: 0 5px;
+	text-decoration: none;
+}
+.redactor-link-tooltip a:hover {
+	color: #fff;
+}
+
 .redactor_box textarea, .redactor_box textarea:focus {
 	position: relative;
 	z-index: 1004;
@@ -494,9 +517,8 @@ body .redactor_toolbar li a.redactor_btn_pre		 		{ background-position: -875px; 
 	z-index: 2004;
 	padding: 10px;
 	width: 200px;
-	border: 1px solid #ccc;
 	background-color: #fff;
-	box-shadow: 0 2px 4px #ccc;
+	box-shadow: 0 1px 5px #bbb;
 	font-size: 13px;
 	font-family: Helvetica, Arial, Verdana, Tahoma, sans-serif;
 	line-height: 21px;
@@ -537,7 +559,7 @@ body .redactor_toolbar li a.redactor_btn_pre		 		{ background-position: -875px; 
 
 #redactor_modal {
 	position: fixed;
-	top: 30%;
+	top: 50%;
 	left: 50%;
   	z-index: 50001;
 	padding: 0;
@@ -682,37 +704,42 @@ body .redactor_toolbar li a.redactor_btn_pre		 		{ background-position: -875px; 
 	margin-left: 8px;
 	padding: 6px 16px 5px 16px;
 	outline: none;
-	border: 1px solid #ccc;
-	border-bottom-color: #aaa;
-	border-radius: 4px;
-	background-color: #f3f3f3;
-	background-image: -moz-linear-gradient(top, #ffffff, #e1e1e1);
-	background-image: -ms-linear-gradient(top, #ffffff, #e1e1e1);
-	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e1e1e1));
-	background-image: -webkit-linear-gradient(top, #ffffff, #e1e1e1);
-	background-image: -o-linear-gradient(top, #ffffff, #e1e1e1);
-	background-image: linear-gradient(top, #ffffff, #e1e1e1);
-	box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+	border: none;
+	border-radius: 3px;
+	background-color: #ddd;
 	color: #000;
 	text-align: center;
 	text-decoration: none;
-	text-shadow: 0 1px 0px #ffffff;
 	font-weight: normal;
 	font-size: 12px;
 	font-family: Helvetica, Arial, Verdana, Tahoma, sans-serif;
 	line-height: 1;
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e1e1e1', GradientType=0);
 	cursor: pointer;
 }
 .redactor_modal_btn:hover {
-	color: #555;
+	color: #777;
 	background: none;
-	background: #f3f3f3;
+	background: #bbb;
 	text-decoration: none;
-	text-shadow: 0 1px 0px rgba(255, 255, 255, 0.8);
-	filter: none;
 }
-
+.redactor_modal_delete_btn {
+	background: none;
+	color: #fff;
+	background-color: #b52525;
+}
+.redactor_modal_delete_btn:hover {
+	color: rgba(255, 255, 255, .6);
+	background-color: #881b1b;
+}
+.redactor_modal_action_btn {
+	background: none;
+	color: #fff;
+	background-color: #2461b5;
+}
+.redactor_modal_action_btn:hover {
+	color: rgba(255, 255, 255, .6);
+	background-color: #1a4580;
+}
 
 /* Drag and Drop Area */
 .redactor_droparea {
