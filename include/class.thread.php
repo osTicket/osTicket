@@ -334,6 +334,25 @@ Class ThreadEntry {
         return $this->ht['email_mid'];
     }
 
+    function getEmailHeaders() {
+        require_once(INCLUDE_DIR.'class.mailparse.php');
+
+        $sql = 'SELECT headers FROM '.TICKET_EMAIL_INFO_TABLE
+            .' WHERE message_id='.$this->getId();
+        $headers = db_result(db_query($sql));
+        return Mail_Parse::splitHeaders($headers);
+    }
+
+    function getEmailReferences() {
+        if (!isset($this->_references)) {
+            $this->_references = $this->getEmailMessageId();
+            $headers = self::getEmailHeaders();
+            if (isset($headers['References']))
+                $this->_references .= " ".$headers['References'];
+        }
+        return $this->_references;
+    }
+
     function getTicket() {
 
         if(!$this->ticket && $this->getTicketId())

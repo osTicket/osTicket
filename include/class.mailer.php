@@ -124,9 +124,9 @@ class Mailer {
         }
 
         if ($options) {
-            if (isset($options['replyto']))
+            if (isset($options['replyto']) && $options['replyto'])
                 $headers += array('In-Reply-To' => $options['replyto']);
-            if (isset($options['references'])) {
+            if (isset($options['references']) && $options['references']) {
                 if (is_array($options['references']))
                     $headers += array('References' =>
                         implode(' ', $options['references']));
