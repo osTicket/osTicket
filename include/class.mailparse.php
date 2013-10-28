@@ -86,7 +86,7 @@ class Mail_Parse {
             if (substr($headers[$i], 0, 1) == " ") {
                 # Continuation from previous header (runon to next line)
                 $j=$i-1; while (!isset($headers[$j]) && $j>0) $j--;
-                $headers[$j] .= "\n".ltrim($headers[$i]);
+                $headers[$j] .= " ".ltrim($headers[$i]);
                 unset($headers[$i]);
             } elseif (strlen($headers[$i]) == 0) {
                 unset($headers[$i]);
