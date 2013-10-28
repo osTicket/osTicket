@@ -302,7 +302,8 @@ class FormField {
 
     function getFormName() {
         if (is_numeric($this->get('id')))
-            return '-field-id-'.$this->get('id');
+            return substr(md5(
+                session_id() . '-field-id-'.$this->get('id')), -16);
         else
             return $this->get('id');
     }

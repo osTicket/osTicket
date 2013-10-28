@@ -801,14 +801,15 @@ class SelectionWidget extends ChoicesWidget {
         ?>
         <span style="display:inline-block">
         <input type="text" size="30" name="<?php echo $this->name; ?>"
-            value="<?php echo $name; ?>" autocomplete="off" />
+            id="<?php echo $this->name; ?>" value="<?php echo $name; ?>"
+            autocomplete="off" />
         <script type="text/javascript">
         $(function() {
-            $('input[name=<?php echo $this->name; ?>]').typeahead({
+            $('input#<?php echo $this->name; ?>').typeahead({
                 source: <?php echo JsonDataEncoder::encode($source); ?>,
                 property: 'info',
                 onselect: function(item) {
-                    $('input[name="<?php echo $this->name; ?>"]').val(item['value'])
+                    $('input#<?php echo $this->name; ?>').val(item['value'])
                 }
             });
         });
