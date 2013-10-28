@@ -26,7 +26,7 @@ if($_POST):
     } elseif($cfg->isCaptchaEnabled()) {
         if(!$_POST['captcha'])
             $errors['captcha']='Enter text shown on the image';
-        elseif(strcmp($_SESSION['captcha'],md5($_POST['captcha'])))
+        elseif(strcmp($_SESSION['captcha'], md5(strtoupper($_POST['captcha']))))
             $errors['captcha']='Invalid - try again!';
     }
 
