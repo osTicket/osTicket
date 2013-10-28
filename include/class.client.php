@@ -132,7 +132,7 @@ class Client {
 
     /* ------------- Static ---------------*/
     function getLastTicketIdByEmail($email) {
-        $sql='SELECT ticket.ticketID '.TICKET_TABLE.' ticket '
+        $sql='SELECT ticket.ticketID FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
             .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
             .' WHERE email.address = '.db_input($email)
