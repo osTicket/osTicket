@@ -370,7 +370,7 @@ class MailFetcher {
         if($part && !$part->parts) {
             //Check if the part is an attachment.
             $filename = false;
-            if ($part->ifdisposition
+            if ($part->ifdisposition && $part->ifdparameters
                     && in_array(strtolower($part->disposition),
                         array('attachment', 'inline'))) {
                 $filename = $this->findFilename($part->dparameters);
