@@ -290,15 +290,16 @@ class Ticket {
     function getPriorityId() {
         global $cfg;
 
-        if ($a = $this->_answers['priority']->getValue())
-            return $a->getId();
+        if (($a = $this->_answers['priority'])
+                && ($b = $a->getValue()))
+            return $b->getId();
         return $cfg->getDefaultPriorityId();
     }
 
     function getPriority() {
-        if ($a = $this->_answers['priority']->getValue())
-            return $a->getDesc();
-        return '...ummm...';
+        if (($a = $this->_answers['priority']) && ($b = $a->getValue()))
+            return $b->getDesc();
+        return '';
     }
 
     function getPhone() {
