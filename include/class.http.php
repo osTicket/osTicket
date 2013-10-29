@@ -53,6 +53,21 @@ class Http {
         exit;
     }
 
+    function cacheable($etag, $modified, $ttl=3600) {
+        // Thanks, http://stackoverflow.com/a/1583753/1025836
+        $last_modified = Misc::db2gmtime($modified);
+        header("Last-Modified: ".date('D, d M y H:i:s', $last_modified)." GMT", false);
+        header('ETag: "'.$etag.'"');
+        header("Cache-Control: private, max-age=$ttl");
+        header('Expires: ' . gmdate(DATE_RFC822, time() + $ttl)." GMT");
+        header('Pragma: private');
+        if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified ||
+            @trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
+                header("HTTP/1.1 304 Not Modified");
+                exit();
+        }
+    }
+
     function download($filename, $type, $data=null) {
         header('Pragma: public');
         header('Expires: 0');
