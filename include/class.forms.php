@@ -53,12 +53,19 @@ class Form {
     function getInstructions() { return $this->instructions; }
     function getSource() { return $this->_source; }
 
-    function isValid() {
+    /**
+     * Validate the form and indicate if there no errors.
+     *
+     * Parameters:
+     * $filter - (callback) function to receive each field and return
+     *      boolean true if the field's errors are significant
+     */
+    function isValid($include=false) {
         if (!is_array($this->_errors)) {
             $this->_errors = array();
             $this->getClean();
             foreach ($this->getFields() as $field)
-                if ($field->errors())
+                if ($field->errors() && (!$include || $include($field)))
                     $this->_errors[$field->get('id')] = $field->errors();
         }
         return !$this->_errors;

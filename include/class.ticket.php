@@ -1901,7 +1901,20 @@ class Ticket {
         }
 
         // Don't enforce form validation for email
-        if (!$form->isValid() && strtolower($origin) != 'email')
+        $field_filter = function($f) use ($origin) {
+            // Ultimately, only offer validation errors for web for
+            // non-internal fields. For email, no validation can be
+            // performed. For other origins, validate as usual
+            switch (strtolower($origin)) {
+            case 'email':
+                return false;
+            case 'web':
+                return !$f->get('private');
+            default:
+                return true;
+            }
+        };
+        if (!$form->isValid($field_filter))
             $errors += $form->errors();
 
         // Unpack dynamic variables into $vars for filter application
