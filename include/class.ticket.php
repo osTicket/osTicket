@@ -1094,6 +1094,9 @@ class Ticket {
 
                 return $closedate;
                 break;
+            case 'user':
+                return $this->getOwner();
+                break;
             default:
                 if (isset($this->_answers[$tag]))
                     // The answer object is retrieved here which will
