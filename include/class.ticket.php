@@ -287,6 +287,7 @@ class Ticket {
     }
 
     function getUpdateInfo() {
+        global $cfg;
 
         $info=array('name'  =>  $this->getName(),
                     'email' =>  $this->getEmail(),
@@ -297,7 +298,10 @@ class Ticket {
                     'topicId'   =>  $this->getTopicId(),
                     'priorityId'    =>  $this->getPriorityId(),
                     'slaId' =>  $this->getSLAId(),
-                    'duedate'   =>  $this->getDueDate()?(Format::userdate('m/d/Y', Misc::db2gmtime($this->getDueDate()))):'',
+                    'duedate'   =>  $this->getDueDate()
+                        ? Format::userdate($cfg->getDateFormat(),
+                            Misc::db2gmtime($this->getDueDate()))
+                        :'',
                     'time'  =>  $this->getDueDate()?(Format::userdate('G:i', Misc::db2gmtime($this->getDueDate()))):'',
                     );
 
