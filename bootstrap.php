@@ -187,6 +187,33 @@ class Bootstrap {
             require(INCLUDE_DIR.'mysql.php');
     }
 
+    function i18n_prep() {
+        // MPDF requires mbstring functions
+        if (!extension_loaded('mbstring')) {
+            if (function_exists('iconv')) {
+                function mb_strpos($a, $b) { return iconv_strpos($a, $b); }
+                function mb_strlen($str) { return iconv_strlen($str); }
+                function mb_substr($a, $b, $c=null) {
+                    return iconv_substr($a, $b, $c); }
+                function mb_convert_encoding($str, $to, $from='utf-8') {
+                    return iconv($from, $to, $str); }
+            }
+            else {
+                function mb_strpos($a, $b) { return strpos($a, $b); }
+                function mb_strlen($str) { return strlen($str); }
+                function mb_substr($a, $b, $c=null) { return substr($a, $b, $c); }
+                function mb_convert_encoding($str, $to, $from='utf-8') {
+                    return iconv($from, $to, $str); }
+            }
+            function mb_strtoupper($a) { return strtoupper($a); }
+            function mb_strtolower($a) { return strtolower($a); }
+        }
+        else {
+            // Use UTF-8 for all multi-byte string encoding
+            mb_internal_encoding('utf-8');
+        }
+    }
+
     function croak($message) {
         $msg = $message."\n\n".THISPAGE;
         Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
