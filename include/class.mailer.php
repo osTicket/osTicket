@@ -144,7 +144,7 @@ class Mailer {
                 && preg_match('/^\s*</', $message)) {
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??
-            $mime->setTXTBody(Format::html2text($message), 90, false);
+            $mime->setTXTBody(Format::html2text($message, 90, false));
         }
         else {
             $mime->setTXTBody($message);
