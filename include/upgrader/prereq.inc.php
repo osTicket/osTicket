@@ -15,9 +15,9 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             These items are necessary in order to run the latest version of osTicket.
             <ul class="progress">
                 <li class="<?php echo $upgrader->check_php()?'yes':'no'; ?>">
-                PHP v4.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
+                PHP v5.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
                 <li class="<?php echo $upgrader->check_mysql()?'yes':'no'; ?>">
-                MySQL v4.4 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
+                MySQL v5.0 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
             </ul>
             <h3>Highly Recommended:</h3>
             We highly recommend that you follow the steps below.
