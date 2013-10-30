@@ -31,14 +31,30 @@ if($_POST) {
                         $p->disable();
                     }
                 }
+                break;
+            case 'delete':
+                foreach ($_POST['ids'] as $id) {
+                    if ($p = Plugin::lookup($id)) {
+                        var_dump($p);
+                        $p->uninstall();
+                    }
+                }
+                break;
             }
         }
+        break;
+    case 'install':
+        if ($ost->plugins->install($_POST['install_path']))
+            $msg = 'Plugin successfully installed';
+        break;
     }
 }
 
 $page = 'plugins.inc.php';
 if ($plugin)
     $page = 'plugin.inc.php';
+elseif ($_REQUEST['a']=='add')
+    $page = 'plugin-add.inc.php';
 
 $nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');

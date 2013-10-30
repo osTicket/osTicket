@@ -9,12 +9,6 @@ if($plugin && $_REQUEST['a']!='add') {
     $action = 'update';
     $submit_text='Save Changes';
     $info = $plugin->ht;
-    $newcount=2;
-} else {
-    $title = 'Install plugin';
-    $action = 'add';
-    $submit_text='Install';
-    $newcount=4;
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>

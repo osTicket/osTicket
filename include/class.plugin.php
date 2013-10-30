@@ -50,22 +50,24 @@ class PluginConfig extends Config {
      */
     function commit(&$errors=array()) {
         $f = $this->getForm();
+        $commit = false;
         if ($f->isValid()) {
             $config = $f->getClean();
-            $this->pre_save($config, $errors);
+            $commit = $this->pre_save($config, $errors);
         }
         $errors += $f->errors();
-        if (count($errors) === 0)
+        if ($commit && count($errors) === 0)
             return $this->updateAll($config);
         return false;
     }
 
     /**
      * Pre-save hook to check configuration for errors (other than obvious
-     * validation errors) prior to saving
+     * validation errors) prior to saving. Add an error to the errors list
+     * or return boolean FALSE if the config commit should be aborted.
      */
     function pre_save($config, &$errors) {
-        return;
+        return true;
     }
 
     /**
@@ -81,6 +83,7 @@ class PluginConfig extends Config {
 
 class PluginManager {
     static private $plugin_info = array();
+    static private $plugin_list = array();
 
     /**
      * boostrap
@@ -104,14 +107,12 @@ class PluginManager {
      * and active plugins
      */
     static function allInstalled() {
-        static $plugins = null;
-        if ($plugins !== null)
-            return $plugins;
+        if (static::$plugin_list)
+            return static::$plugin_list;
 
-        $plugins = array();
         $sql = 'SELECT * FROM '.PLUGIN_TABLE;
         if (!($res = db_query($sql)))
-            return $plugins;
+            return static::$plugin_list;
 
         $infos = static::allInfos();
         while ($ht = db_fetch_array($res)) {
@@ -121,15 +122,20 @@ class PluginManager {
                 $info = $infos[$ht['install_path']];
                 if ($ht['isactive']) {
                     list($path, $class) = explode(':', $info['plugin']);
-                    require_once(INCLUDE_DIR . '/' . $ht['install_path'] . '/' . $path);
-                    $plugins[$ht['install_path']] = new $class($ht['id']);
+                    if (!$class)
+                        $class = $path;
+                    else
+                        require_once(INCLUDE_DIR . $ht['install_path']
+                            . '/' . $path);
+                    static::$plugin_list[$ht['install_path']]
+                        = new $class($ht['id']);
                 }
                 else {
-                    $plugins[$ht['install_path']] = $ht;
+                    static::$plugin_list[$ht['install_path']] = $ht;
                 }
             }
         }
-        return $plugins;
+        return static::$plugin_list;
     }
 
     static function allActive() {
@@ -193,7 +199,10 @@ class PluginManager {
                 return $ht;
             // Usually this happens when the plugin is being enabled
             list($path, $class) = explode(':', $info['plugin']);
-            require_once(INCLUDE_DIR . $info['install_path'] . '/' . $path);
+            if (!$class)
+                $class = $path;
+            else
+                require_once(INCLUDE_DIR . $info['install_path'] . '/' . $path);
             $instances[$path] = new $class($ht['id']);
         }
         return $instances[$path];
@@ -209,10 +218,14 @@ class PluginManager {
         if (!($info = $this->getInfoForPath($path)))
             return false;
 
-        $sql='INSERT INTO '.PLUGIN_TABLE.'SET installed=NOW() '
+        $sql='INSERT INTO '.PLUGIN_TABLE.' SET installed=NOW() '
             .', install_path='.db_input($path)
             .', name='.db_input($info['name']);
-        return (db_query($sql) && db_affected_rows());
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
+
+        static::$plugin_list = array();
+        return true;
     }
 }
 
@@ -265,11 +278,25 @@ class Plugin {
      * reinstalled, it will have to be reconfigured.
      */
     function uninstall() {
+        if ($this->pre_uninstall() === false)
+            return false;
+
         $sql = 'DELETE FROM '.PLUGIN_TABLE
             .' WHERE id='.db_input($this->getId());
         if (db_query($sql) && db_affected_rows())
             return $this->getConfig()->purge();
         return false;
+    }
+
+    /**
+     * pre_uninstall
+     *
+     * Hook function to veto the uninstallation request. Return boolean
+     * FALSE if the uninstall operation should be aborted.
+     * TODO: Recommend a location to stash an error message if aborting
+     */
+    function pre_uninstall() {
+        return true;
     }
 
     function enable() {

@@ -87,6 +87,7 @@ class Form {
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
                     = $field->getClean();
             }
+            unset($this->_clean[""]);
         }
         return $this->_clean;
     }
