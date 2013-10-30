@@ -42,7 +42,10 @@ class ConfigAjaxAPI extends AjaxController {
             'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
         );
 
-        return $this->json_encode($config);
+        $config = $this->json_encode($config);
+        Http::cacheable(md5($config), $cfg->lastModified());
+
+        return $config;
     }
 }
 ?>

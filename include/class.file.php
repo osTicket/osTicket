@@ -136,19 +136,8 @@ class AttachmentFile {
         return true;
     }
 
-    function makeCacheable($ttl=3600) {
-        // Thanks, http://stackoverflow.com/a/1583753/1025836
-        $last_modified = Misc::db2gmtime($this->lastModified());
-        header("Last-Modified: ".date('D, d M y H:i:s', $last_modified)." GMT", false);
-        header('ETag: "'.$this->getHash().'"');
-        header("Cache-Control: private, max-age=$ttl");
-        header('Expires: ' . gmdate(DATE_RFC822, time() + $ttl)." GMT");
-        header('Pragma: private');
-        if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified ||
-            @trim($_SERVER['HTTP_IF_NONE_MATCH']) == $this->getHash()) {
-                header("HTTP/1.1 304 Not Modified");
-                exit();
-        }
+    function makeCacheable($ttl=86400) {
+        Http::cacheable($this->getHash(), $this->lastModified(), $ttl);
     }
 
     function display($scale=false) {

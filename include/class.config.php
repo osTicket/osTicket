@@ -174,6 +174,11 @@ class OsticketConfig extends Config {
         return true;
     }
 
+    function lastModified() {
+        return max(array_map(array('parent', 'lastModified'),
+            array_keys($this->config)));
+    }
+
     function isHelpDeskOffline() {
         return !$this->isOnline();
     }
