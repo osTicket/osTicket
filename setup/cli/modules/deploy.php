@@ -20,6 +20,10 @@ class Deployment extends Unpacker {
             'action'=>'store_true',
             'help'=>'Deploy the setup folder. Useful for deploying for new
                 installations.');
+        $this->options['clean'] = array('-C','--clean',
+            'action'=>'store_true',
+            'help'=>'Remove files from the destination that are no longer
+                included in this repository');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -32,6 +36,55 @@ class Deployment extends Unpacker {
             $start .= '/..';
         }
         return realpath($start);
+    }
+
+    /**
+     * Removes files from the deployment location that no longer exist in
+     * the local repository
+     */
+    function clean($local, $destination, $recurse=0, $exclude=false) {
+        $dryrun = $this->getOption('dry-run', false);
+        $verbose = $dryrun || $this->getOption('verbose');
+        $destination = rtrim($destination, '/') . '/';
+        $contents = glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT);
+        foreach ($contents as $i=>$file) {
+            if ($this->exclude($exclude, $file))
+                continue;
+            if (is_file($file)) {
+                $ltarget = $local . '/' . basename($file);
+                if (is_file($ltarget))
+                    continue;
+                if ($verbose)
+                    $this->stdout->write("(delete): $file\n");
+                if (!$dryrun)
+                    unlink($file);
+                unset($contents[$i]);
+            }
+            elseif (in_array(basename($file), array('.','..'))) {
+                // Doesn't indicate that the folder has contents
+                unset($contents[$i]);
+            }
+        }
+        if ($recurse) {
+            $folders = glob(dirname($destination).'/'.basename($destination).'/*',
+                GLOB_BRACE|GLOB_ONLYDIR|GLOB_NOSORT);
+            foreach ($folders as $dir) {
+                if (in_array(basename($dir), array('.','..')))
+                    continue;
+                elseif ($this->exclude($exclude, $dir))
+                    continue;
+                $this->clean(
+                    $local.'/'.basename($dir),
+                    $destination.basename($dir),
+                    $recurse - 1, $exclude);
+            }
+        }
+        if (!$contents || !glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT)) {
+            if ($verbose)
+                $this->stdout->write("(delete-folder): $destination\n");
+            if (!$dryrun)
+                rmdir($destination);
+        }
     }
 
     function run($args, $options) {
@@ -69,6 +122,13 @@ class Deployment extends Unpacker {
         if (!$options['dry-run']
                 && $include != "{$this->destination}/include")
             $this->change_include_dir($include);
+
+        if ($options['clean']) {
+            // Clean everything but include folder first
+            $this->clean($root, $this->destination, -1,
+                array($include, "setup/"));
+            $this->clean("$root/include", $include, -1);
+        }
     }
 }
 
