@@ -329,6 +329,7 @@ class Ticket {
     }
 
     function getUpdateInfo() {
+        global $cfg;
 
         $info=array('phone' =>  $this->getPhone(),
                     'phone_ext' =>  $this->getPhoneExt(),
@@ -336,7 +337,10 @@ class Ticket {
                     'topicId'   =>  $this->getTopicId(),
                     'priorityId'    =>  $this->getPriorityId(),
                     'slaId' =>  $this->getSLAId(),
-                    'duedate'   =>  $this->getDueDate()?(Format::userdate('m/d/Y', Misc::db2gmtime($this->getDueDate()))):'',
+                    'duedate'   =>  $this->getDueDate()
+                        ? Format::userdate($cfg->getDateFormat(),
+                            Misc::db2gmtime($this->getDueDate()))
+                        :'',
                     'time'  =>  $this->getDueDate()?(Format::userdate('G:i', Misc::db2gmtime($this->getDueDate()))):'',
                     );
 
@@ -762,7 +766,9 @@ class Ticket {
         if(!$dept || !($email=$dept->getAutoRespEmail()))
             $email =$cfg->getDefaultEmail();
 
-        $options = array('references'=>$message->getEmailMessageId());
+        $options = array(
+            'inreplyto'=>$message->getEmailMessageId(),
+            'references'=>$message->getEmailReferences());
 
         //Send auto response - if enabled.
         if($autorespond && $email && $cfg->autoRespONNewTicket()
@@ -911,7 +917,9 @@ class Ticket {
 
             if (!$message)
                 $message = $this->getLastMessage();
-            $options = array('references' => $message->getEmailMessageId());
+            $options = array(
+                'inreplyto'=>$message->getEmailMessageId(),
+                'references'=>$message->getEmailReferences());
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
                 null, $options);
         }
@@ -970,7 +978,9 @@ class Ticket {
 
             //Send the alerts.
             $sentlist=array();
-            $options = array('references' => $note->getEmailMessageId());
+            $options = array(
+                'inreplyto'=>$note->getEmailMessageId(),
+                'references'=>$note->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
@@ -1231,7 +1241,9 @@ class Ticket {
                 $recipients[]= $manager;
 
             $sentlist=array();
-            $options = array('references' => $note->getEmailMessageId());
+            $options = array(
+                'inreplyto'=>$note->getEmailMessageId(),
+                'references'=>$note->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
@@ -1328,8 +1340,9 @@ class Ticket {
         //Strip quoted reply...on emailed replies
         if(!strcasecmp($origin, 'Email')
                 && $cfg->stripQuotedReply()
-                && ($tag=$cfg->getReplySeparator()) && strpos($vars['message'], $tag))
-            if(list($msg) = split($tag, $vars['message']))
+                && ($tag=$cfg->getReplySeparator())
+                && strpos($vars['message'], $tag))
+            if((list($msg) = explode($tag, $vars['message'], 2)) && trim($msg))
                 $vars['message'] = $msg;
 
         if(isset($vars['ip']))
@@ -1381,7 +1394,9 @@ class Ticket {
                 $recipients[]=$manager;
 
             $sentlist=array(); //I know it sucks...but..it works.
-            $options = array('references'=>$message->getEmailMessageId());
+            $options = array(
+                'inreplyto'=>$message->getEmailMessageId(),
+                'references'=>$message->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
@@ -1440,7 +1455,10 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
-            $options = array('references' => $response->getEmailMessageId());
+            $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
+            $options = array(
+                'inreplyto'=>$response->getEmailMessageId(),
+                'references'=>$response->getEmailReferences());
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
@@ -1498,7 +1516,11 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
-            $options = array('references' => $response->getEmailMessageId());
+            //Set attachments if emailing.
+            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
+            $options = array(
+                'inreplyto' => $response->getEmailMessageId(),
+                'references' => $response->getEmailReferences());
             //TODO: setup  5 param (options... e.g mid trackable on replies)
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
@@ -1611,7 +1633,10 @@ class Ticket {
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
                 $recipients[]=$dept->getManager();
 
-            $options = array('references' => $note->getEmailMessageId());
+            $attachments = $note->getAttachments();
+            $options = array(
+                'inreplyto'=>$note->getEmailMessageId(),
+                'references'=>$note->getEmailReferences());
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff)

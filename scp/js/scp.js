@@ -276,12 +276,29 @@ $(document).ready(function(){
     }
 
     /* Datepicker */
-    $('.dp').datepicker({
-        numberOfMonths: 2,
-        showButtonPanel: true,
-        buttonImage: './images/cal.png',
-        showOn:'both'
-     });
+    getConfig().then(function(c) {
+        var df = c.date_format||'m/d/Y',
+            translation = {
+                'd':'dd',
+                'j':'d',
+                'z':'o',
+                'm':'mm',
+                'F':'MM',
+                'n':'m',
+                'Y':'yy'
+            };
+        // Change PHP formats to datepicker ones
+        $.each(translation, function(php, jqdp) {
+            df = df.replace(php, jqdp);
+        });
+        $('.dp').datepicker({
+            numberOfMonths: 2,
+            showButtonPanel: true,
+            buttonImage: './images/cal.png',
+            showOn:'both',
+            dateFormat: df,
+         });
+    });
 
     /* Typeahead tickets lookup */
     $('#basic-ticket-search').typeahead({
