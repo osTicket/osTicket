@@ -31,7 +31,7 @@ class HelpTipAjaxAPI extends AjaxController {
     }
 
     function getTipsJsonForLang($lang, $namespace) {
-        return $this->getTipJson($namespace, $lang);
+        return $this->getTipsJson($namespace, $lang);
     }
 }
 
