@@ -24,6 +24,7 @@ class ConfigAjaxAPI extends AjaxController {
 
         $config=array(
                       'lock_time'       => ($cfg->getLockTime()*3600),
+                      'date_format'     => ($cfg->getDateFormat()),
                       'max_file_uploads'=> (int) $cfg->getStaffMaxFileUploads()
                       );
         return $this->json_encode($config);
