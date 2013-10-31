@@ -11,9 +11,15 @@ notes: |
 
 name: Thank You
 body: |
-    <div>%{ticket.name},<br />
-    <p>Thank you for contacting us.</p>
-    <p>A support ticket request #%{ticket.number} has been created and a
-    representative will be getting back to you shortly if necessary.</p>
-    <p>Support Team</p>
+    <div>%{ticket.name},
+    <br>
+    <br>
+    Thank you for contacting us.
+    <br>
+    <br>
+    A support ticket request has been created and a representative will be
+    getting back to you shortly if necessary.</p>
+    <br>
+    <br>
+    Support Team
     </div>

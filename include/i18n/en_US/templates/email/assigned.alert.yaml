@@ -14,11 +14,11 @@ notes: |
 subject: |
     Ticket Assigned to you
 body: |
-    <h3><strong>Hi %{assignee},</strong></h3>
-    <p>
-        Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> has been
-        assigned to you by %{assigner}
-    </p>
+    <h3><strong>Hi %{assignee.name.first},</strong></h3>
+    Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> has been
+    assigned to you by %{assigner.name.short}
+    <br>
+    <br>
     <table>
     <tbody>
     <tr>
@@ -39,20 +39,16 @@ body: |
     </tr>
     </tbody>
     </table>
-    <p>
-         %{comments}
-    </p>
+    <br>
+    %{comments}
+    <br>
+    <br>
     <hr>
-    <p>
-         <span style="color: rgb(127, 127, 127); font-size: small; ">To
-         view/respond to the ticket, please <a
-         href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
-         >login</span></a> to the support ticket system</span>
-    </p>
-    <p>
-         <em>Your friendly Customer Support System</em>
-    </p>
-    <p>
-         <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
-         alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
-    </p>
+    <div>To view/respond to the ticket, please <a
+    href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+    >login</span></a> to the support ticket system</div>
+    <em style="font-size: small; ">Your friendly Customer Support
+    System</em>
+    <br>
+    <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+    alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
