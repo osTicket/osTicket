@@ -23,3 +23,7 @@
 }
 
 #loading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
+
+input.dp {
+    width: 10em;
+}

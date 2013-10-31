@@ -299,7 +299,14 @@ $(document).ready(function(){
             buttonImage: './images/cal.png',
             showOn:'both',
             dateFormat: df,
-         });
+        });
+        $(document).on('submit', 'form', function() {
+            $('.dp', $(this)).each(function(i, e) {
+                var $e = $(e),
+                    d = $e.datepicker('getDate');
+                $e.val(d.toJSON().substring(0,10));
+            });
+        });
     });
 
     /* NicEdit richtext init */
