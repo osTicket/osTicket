@@ -98,6 +98,7 @@ RedactorPlugins.draft = {
         var self = this;
         $.ajax('ajax.php/draft/'+this.draft_id, {
             type: 'delete',
+            async: false,
             success: function() {
                 self.opts.autosave = '';
                 self.opts.imageUpload = '';
