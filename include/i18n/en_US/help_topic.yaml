@@ -21,19 +21,34 @@
 - isactive: 1
   ispublic: 1
   dept_id: 1
-  sla_id: 1
   priority_id: 2
-  form_id: 0
-  topic: Support
+  topic: General Inquiry
   notes: |
-    Tickets that primarily concern the support deparment
+    Questions about products or services
 
 - isactive: 1
   ispublic: 1
   dept_id: 1
-  sla_id: 0
-  priority_id: 2
-  form_id: 0
-  topic: Billing
+  priority_id: 1
+  topic: Feedback
   notes: |
-    Tickets that primarily concern the sales and billing deparments
+    Tickets that primarily concern the sales and billing departments
+
+- id: 10
+  isactive: 1
+  ispublic: 1
+  dept_id: 1
+  priority_id: 2
+  topic: Report a Problem
+  notes: |
+    Product, service, or equipment related issues
+
+- pid: 10
+  isactive: 1
+  ispublic: 1
+  dept_id: 1
+  sla_id: 1
+  priority_id: 3
+  topic: Access Issue
+  notes: |
+    Report an inability access a physical or virtual asset

@@ -228,6 +228,10 @@ class Topic {
             $errors['priority_id']='You must select a priority';
 
         if($errors) return false;
+        
+        foreach (array('sla_id','form_id','page_id','pid') as $f)
+            if (!isset($vars[$f]))
+                $vars[$f] = 0;
 
         $sql=' updated=NOW() '
             .',topic='.db_input($vars['topic'])

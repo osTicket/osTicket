@@ -8,25 +8,25 @@
 #
 # NOTE: The department listed first by ID# will be the default department
 #
+# NOTE: ------------------------------------
+# The very first group listed in this document will be the primary
+# department of the initial staff member -- the administrator.
 ---
 - id: 1
   name: Support
   signature: |
-    Support Dept
+    Support Department
   ispublic: 1
-  sla_id: 0
-  tpl_id: 0
-  # The email_id and autoresonse_emaiL_id are reuired, but will be set to
-  # the default email later in the install process
-  email_id: 0
-  autoresp_email_id: 0
 
 - id: 2
-  name: Billing
+  name: Sales
   signature: |
-    Billing Dept
+    Sales and Customer Retention
   ispublic: 1
   sla_id: 1
-  tpl_id: 0
-  email_id: 0
-  autoresp_email_id: 0
+
+- id: 3
+  name: Maintenance
+  signature: |
+    Maintenance Department
+  ispublic: 0
