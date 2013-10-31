@@ -161,7 +161,7 @@ class Format {
                 $width);
     }
 
-    static function __html_cleanup($el, $attributes) {
+    static function __html_cleanup($el, $attributes=0) {
         static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
             'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
         // Clean unexpected class values
