@@ -1404,3 +1404,6 @@ ul.progress li.no small {color:red;}
 
 #loading h4, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
 
+input.dp {
+    width: 10em;
+}

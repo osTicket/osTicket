@@ -2,6 +2,9 @@
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canEditTickets() || !$ticket) die('Access Denied');
 
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
+if ($_POST)
+    $info['duedate'] = Format::date($cfg->getDateFormat(),
+       strtotime($info['duedate']));
 ?>
 <form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
