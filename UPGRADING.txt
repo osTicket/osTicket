@@ -86,5 +86,16 @@ care of:
       scp/js/datepicker.js
       scp/js/tabber.js
 
+    * Removed in v1.7.1
+      include/class.mcrypt.php
+      include/client/thankyou.inc.php
+      include/upgrader/sql/*
+
+    * Removed in v1.7.2
+      include/pear/Crypt/Random.php
+
+    * Removed in v1.7.3
+      include/index.html
+
   * Remove the setup/ folder. This contains code you won't need for a live
     ticketing system.

@@ -1,3 +1,72 @@
+osTicket v1.7.3
+===============
+### Enhancements
+  * Ticket thread items are now available for email templates (#790)
+  * Support MySQL servers on a non-standard port number, which is also not set
+    in the `php.ini` file (#775)
+
+### Bugfixes
+  * Fix email handling where the character set advertised is `us-ascii` but
+    `iso-8859-1` was intended (#770)
+  * Ticket source is now editable (#772, #777)
+  * Email parsing would crash if `Reply-To` header was not found (#780)
+  * CSRF token creation would fail on some Windows installations (#771, #776)
+  * Tickets without an SLA set would never go overdue (#757, #767)
+  * FAQ search now hits category names (#781)
+  * FAQ search hits are sorted by article title now (#786)
+  * Email replies with nothing before the quoted response marker should remain
+    as is (#787)
+  * CAPTCHA responses are now considered case-insensitive (#823)
+  * `References` email header how includes the parent email `Message-Id` (#825)
+  * Email attachment parsing would crash if the `Content-Disposition` header
+    had no parameters (#828)
+  * Date format on the jQuery-UI datepicker is admin configurable now (#829)
+
+### Performance
+  * Scanning deleting orphaned files is much faster (#773, #778)
+
+osTicket v1.7.2
+===============
+### Enhancements
+  * The ticket number is no longer required in the subject line and staff can
+    reply to emails and create an internal note (*released in v1.7.1.2*)
+  * Show customized site logo on PDF output (#763)
+  * Support deployment for initial install with cli deploy script (#750)
+  * Require complete regression test pass before packaging new release (#751)
+  * Die with HTTP/500 for misconfiguration or database connect failure (#762)
+
+### Bug fixes
+  * Detect and import inline attachments without a Content-Disposition header
+    (#737)
+  * Show correct template description *again* (#742, #743)
+  * Import attachments from emails continuing a ticket thread (*regression
+    introduced in v1.7.1.2*) (#745)
+  * Support UTF-8 encoded filenames for fetched emails (#738)
+  * Disable Kerberos and NTLM authentication in mail fetching (#739)
+  * Forbid empty reply-separator setting (#752)
+  * Only email administrators for log messages that would be written to the
+    database (#754)
+  * Emails fetched and rejected by a ticket filter that are not deleted or
+    moved to a folder will not be re-fetched and re-rejected (#755)
+  * Workaround for some mail clients' inability to properly decode
+    quoted-printable encoded emails (#760)
+  * Inline text bodies are incorrectly detected as attachments without a
+    filename (#761)
+  * Properly decode and display some international chars in PDF printing (#765)
+  * Do not double encode XML entities in ticket thread titles (#718, #567)
+  * Display correct template description on edit (#724, #727)
+  * Fix download of attachments with commas (',') in the filename (#702)
+  * Fix incorrect content-type header for CAPTCHA (#699)
+
+### Security
+  * Require email address match if ticket number is matched in subject line and
+    neither references or in-reply-to headers match an existing ticket thread
+    item (*regression introduced in v1.7.1.2*) (#748)
+
+### Performance
+  * Address database performance issue scanning for orphaned file_chunk records
+    (#764)
+
 osTicket v1.7.1
 ===============
 ### Bugfixes
