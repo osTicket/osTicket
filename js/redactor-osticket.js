@@ -122,6 +122,9 @@ $(function() {
                   .attr('height',img.clientHeight);
             html = html.replace(before, img.outerHTML);
         });
+        // Drop the placeholder text if found in the box
+        // DELME: When this is fixed upstream in Redactor
+        html = html.replace(/<span class="redactor_placeholder[^<]+<\/span>/, '');
         return html;
     },
     redact = function(el) {
