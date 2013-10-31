@@ -5,7 +5,6 @@
 # limit is configurable in the Admin Panel, and is defined by the number of
 # tickets open by a particular email address.
 #
-%YAML 1.0
 ---
 notes: |
     Sent to users when they have exceeded the maximum open ticket limit. The

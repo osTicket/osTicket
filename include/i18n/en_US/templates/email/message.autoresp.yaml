@@ -5,7 +5,6 @@
 # happen if the users responds to an email from the system or visits the
 # customer web portal and posts a new message there.
 #
-%YAML 1.0
 ---
 notes: |
     Sent to a user when the user posts a new message to a ticket. This can
@@ -13,7 +12,7 @@ notes: |
     customer web portal and posts a new message there.
 
 subject: |
-    "Message Confirmation"
+    Message Confirmation
 body: |
     <h3><strong>Dear %{ticket.name},</strong></h3>
     <p>

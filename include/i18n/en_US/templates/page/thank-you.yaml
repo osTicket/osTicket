@@ -4,7 +4,6 @@
 # The thank-you page is served to the customer portal when a user submites a
 # new ticket via the customer portal.
 #
-%YAML 1.0
 ---
 notes: |
     The thank-you page is served to the customer portal when a user submites

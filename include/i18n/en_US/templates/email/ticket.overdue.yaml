@@ -5,7 +5,6 @@
 # Overdue tickets occur based on the ticket's due-date as well as the SLA
 # defined for the ticket.
 #
-%YAML 1.0
 ---
 notes: |
     Sent to staff members when a ticket transitions to overdue in the system.

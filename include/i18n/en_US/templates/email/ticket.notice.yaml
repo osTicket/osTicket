@@ -4,7 +4,6 @@
 # Sent to a user when a staff member creates a ticket on the user's behalf.
 # This is most commonly performed when user's call in on the phone.
 #
-%YAML 1.0
 ---
 notes: |
     Sent to a user when a staff member creates a ticket on the user's behalf.

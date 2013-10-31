@@ -4,7 +4,6 @@
 # Sent to staff members when a new internal note is appended to a ticket.
 # Internal notes can only be added by staff members.
 #
-%YAML 1.0
 ---
 notes: |
     Sent to staff members when a new internal note is appended to a ticket.

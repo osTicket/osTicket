@@ -4,7 +4,6 @@
 # The landing page is served on the front page of the customer portal above
 # the two links for creating new tickets and viewing ticket status.
 #
-%YAML 1.0
 ---
 notes: |
     The landing page is served on the front page of the customer portal

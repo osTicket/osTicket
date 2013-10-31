@@ -4,7 +4,6 @@
 # Sent to a user when an automatic canned response is posted to a ticket
 # when it is created
 #
-%YAML 1.0
 ---
 notes: |
     Sent to a user when an automatic canned response is posted to a ticket
