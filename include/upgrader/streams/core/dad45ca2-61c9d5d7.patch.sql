@@ -112,7 +112,7 @@ ALTER TABLE `%TABLE_PREFIX%filter_rule`
     CHANGE `what` `what` varchar(32) NOT NULL;
 
 ALTER TABLE `%TABLE_PREFIX%help_topic`
-    ADD `formset_id` int(11) unsigned NOT NULL default '0' AFTER `sla_id`;
+    ADD `form_id` int(11) unsigned NOT NULL default '0' AFTER `sla_id`;
 
 ALTER TABLE `%TABLE_PREFIX%ticket`
     ADD `user_id` int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `ticket_id`,
