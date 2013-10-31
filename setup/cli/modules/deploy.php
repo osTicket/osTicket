@@ -127,7 +127,9 @@ class Deployment extends Unpacker {
             // Clean everything but include folder first
             $this->clean($root, $this->destination, -1,
                 array($include, "setup/"));
-            $this->clean("$root/include", $include, -1);
+            $this->clean("$root/include", $include, -1,
+                array("ost-config.php","settings.php","plugins/",
+                "*/.htaccess"));
         }
     }
 }
