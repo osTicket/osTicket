@@ -13,9 +13,9 @@ subject: |
     New Ticket Alert
 body: |
     <h2>Hi %{recipient},</h2>
-    <p>
-        New ticket #%{ticket.number} created
-    </p>
+    New ticket #%{ticket.number} created
+    <br>
+    <br>
     <table>
     <tbody>
     <tr>
@@ -36,18 +36,15 @@ body: |
     </tr>
     </tbody>
     </table>
-    <p>
-        %{message}
-    </p>
+    <br>
+    %{message}
+    <br>
+    <br>
     <hr>
-    <p>
-        To view/respond to the ticket, please <a href="%{ticket.staff_link}">login</a>
-        to the support ticket system
-    </p>
-    <p>
-        <em>Your friendly Customer Support System
-        <br/>
-        <a href="http://osticket.com/"><img width="126" height="19"
-            style="width: 126px; " alt="Powered By osTicket"
-            src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>
-    </p>
+    <div>To view or respond to the ticket, please <a
+    href="%{ticket.staff_link}">login</a> to the support ticket system</div>
+    <em style="font-size: small">Your friendly Customer Support System</em>
+    <br>
+    <a href="http://osticket.com/"><img width="126" height="19"
+        style="width: 126px; " alt="Powered By osTicket"
+        src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

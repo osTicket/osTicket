@@ -12,23 +12,21 @@ subject: |
     Ticket #%{ticket.number} transfer - %{ticket.dept.name}
 body: |
     <h3>Hi %{recipient},</h3>
-    <p>
-        Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> has
-        been transferred to the %{ticket.dept.name} department by
-        <strong>%{staff.name}</strong>
-    </p>
+    Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> has been
+    transferred to the %{ticket.dept.name} department by
+    <strong>%{staff.name.short}</strong>
+    <br>
+    <br>
     <blockquote>
         %{comments}
     </blockquote>
     <hr>
-    <p style="font-size:small">
-        To view/respond to the ticket, please <a
-        href="%{ticket.staff_link}">login</a> to the support ticket system.
-    </p>
-    <p>
-        <em>Your friendly Customer Support System
-        <br/>
-        <a href="http://osticket.com/"><img width="126" height="19"
-            alt="Powered By osTicket" style="width: 126px;"
-            src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>
-    </p>
+    <div>To view or respond to the ticket, please <a
+    href="%{ticket.staff_link}">login</a> to the support ticket system.
+    </div>
+    <em style="font-size: small; ">Your friendly Customer Support
+    System</em>
+    <br>
+    <a href="http://osticket.com/"><img width="126" height="19"
+        alt="Powered By osTicket" style="width: 126px;"
+        src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

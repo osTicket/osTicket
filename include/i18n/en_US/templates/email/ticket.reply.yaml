@@ -15,25 +15,25 @@ body: |
     width="113" height="64" style="float: right; width: 113px; margin: 0px 0px 10px 10px;">
     <h3><span style="color: rgb(127, 127, 127); font-weight: normal;
     font-family: Georgia; font-size: 30pt">We're Here For You</span></h3>
-    <p>
-        <strong>Dear %{ticket.name},</strong>
-    </p>
-    <p>
-        %{response}
-    </p>
-    <p>
-        %{signature}
-    </p>
+    <strong>Dear %{ticket.name},</strong>
+    <br>
+    <br>
+    %{response}
+    <br>
+    <br>
+    <div style="color: rgb(127, 127, 127);">
+    Your Company Name Team,<br>
+    %{signature}
+    </div>
     <hr>
-    <p>
-        <span style="color: rgb(127, 127, 127); font-size: small;">
-        We hope this response has sufficiently answered your questions. If
-        not, please do not send another email. Instead, reply to this email
-        or <a href="%{ticket.client_link}" style="color: rgb(84, 141,
-        212);">login to your account</a> for a complete archive of all your
-        support requests and responses.</span>
-    </p>
-    <p style="text-align: center;">
-        <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
-        width="126" height="19" style="width: 126px;">
-    </p>
+    <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;"
+    ><em>We hope this response has sufficiently answered your questions. If
+    not, please do not send another email. Instead, reply to this email or
+    <a href="%{ticket.client_link}" style="color: rgb(84, 141, 212);" >login
+    to your account</a> for a complete archive of all your support requests
+    and responses.</em></div>
+    <div style="text-align: center;">
+        <a href="http://osticket.com/"><img
+        src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
+        width="126" height="19" style="width: 126px;"></a>
+    </div>

@@ -13,10 +13,10 @@ subject: |
     New Internal Note Alert
 body: |
     <h3><strong>Hi %{recipient},</strong></h3>
-    <p>
-        An internal note has been appended to ticket <a
-        href="%{ticket.staff_link}">#%{ticket.number}</a>
-    </p>
+    An internal note has been appended to ticket <a
+    href="%{ticket.staff_link}">#%{ticket.number}</a>
+    <br>
+    <br>
     <table>
     <tbody>
     <tr>
@@ -37,18 +37,17 @@ body: |
     </tr>
     </tbody>
     </table>
-    <p>
-        %{note.message}
-    </p>
+    <br>
+    %{note.message}
+    <br>
+    <br>
     <hr>
-    <p>
-        To view/respond to the ticket, please <a
-        href="%{ticket.staff_link}">login</a> to the support ticket system
-    </p>
-    <p>
-        <em>Your friendly Customer Support System</em>
-    </p>
-    <p style="text-align: center;">
-        <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
-        alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
-    </p>
+    To view/respond to the ticket, please <a
+    href="%{ticket.staff_link}">login</a> to the support ticket system
+    <br>
+    <br>
+    <em style="font-size: small; ">Your friendly Customer Support
+    System</em>
+    <br>
+    <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+    alt="Powered by osTicket" width="126" height="19" style="width: 126px;">

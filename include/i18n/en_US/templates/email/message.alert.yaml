@@ -15,10 +15,10 @@ subject: |
     New Message Alert
 body: |
     <h3><strong>Hi %{recipient},</strong></h3>
-    <p>
-        New message appended to ticket <a
-        href="%{ticket.staff_link}">#%{ticket.number}</a>
-    </p>
+    New message appended to ticket <a
+    href="%{ticket.staff_link}">#%{ticket.number}</a>
+    <br>
+    <br>
     <table>
     <tbody>
     <tr>
@@ -39,20 +39,15 @@ body: |
     </tr>
     </tbody>
     </table>
-    <p>
-         %{message}
-    </p>
+    <br>
+    %{message}
+    <br>
+    <br>
     <hr>
-    <p>
-        <span style="color: rgb(127, 127, 127); font-size: small">To
-        view/respond to the ticket, please <a
-        href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
-        >login</span></a> to the support ticket system</span>
-    </p>
-    <p>
-         <em>Your friendly Customer Support System</em>
-    </p>
-    <p>
-         <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
-         alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
-    </p>
+    <div>To view or respond to the ticket, please <a
+    href="%{ticket.staff_link}"><span style="color: rgb(84, 141, 212);"
+    >login</span></a> to the support ticket system</div>
+    <em style="color: rgb(127,127,127); font-size: small; ">Your friendly
+    Customer Support System</em><br>
+    <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
+    alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
