@@ -2,7 +2,7 @@
 -- 1. Create form entries for each ticket
 INSERT INTO `%TABLE_PREFIX%form_entry` (
     `form_id`, `object_id`, `object_type`, `sort`, `created`, `updated`)
-    SELECT (SELECT id FROM ost_form WHERE `type`='T'),
+    SELECT (SELECT id FROM %TABLE_PREFIX%form WHERE `type`='T'),
         `ticket_id`, 'T', 10, `created`, `updated`
     FROM `%TABLE_PREFIX%ticket`;
 
