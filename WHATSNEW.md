@@ -1,3 +1,27 @@
+osTicket v1.8
+=============
+### Enhancements
+  * Rich text ticket thread (#5)
+  * Custom forms and fields (#2)
+  * Translatable initial data *almost*
+
+### Rich Text Ticket Thread
+As an option, enabled by default, osTicket can now process HTML email and
+allows for rich text markup in most long-answer boxes across the system,
+including staff replies and internal notes posted to the ticket thread. To keep
+the feature consistent throughout, canned responses and email templates also
+sport an HTML theme now.
+
+### Custom Forms and Fields
+The data collected from your users when they fill out the ticket form is now
+customizable. You can now ask any information relevant to your business
+practice, and can customize the type of input show from the user. Currently,
+short and long answer fields, drop-down lists, checkboxes, date and time, and
+phone number fields are available. Each field is configurable and can be setup
+according to your liking. Fields can also be marked as required, whose input is
+required to submit the ticket, and internal, whose input is not visible to the
+end user.
+
 osTicket v1.7.1
 ===============
 ### Bugfixes
