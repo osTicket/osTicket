@@ -134,7 +134,10 @@ class Format {
 
     function html($html, $config=array('balance'=>1)) {
         require_once(INCLUDE_DIR.'htmLawed.php');
-        return htmLawed($html, $config);
+        $spec = false;
+        if (isset($config['spec']))
+            $spec = $config['spec'];
+        return htmLawed($html, $config, $spec);
     }
 
     function html2text($html, $width=74, $tidy=true) {
@@ -215,6 +218,8 @@ class Format {
             'deny_attribute' => 'id',
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
+            'elements' => '*+iframe',
+            'spec' => 'iframe=-*,height,width,type,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder;',
         );
 
         return Format::html($html, $config);
