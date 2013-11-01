@@ -383,8 +383,8 @@ if(!$cfg->showNotesInline()) { ?>
                 <th width="auto" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
-                echo $entry['id']; ?>"><?php
-                echo Format::viewableImages(Format::display($entry['body'])); ?></td></tr>
+                echo $entry['id']; ?>"><div><?php
+                echo Format::viewableImages(Format::display($entry['body'])); ?></div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
