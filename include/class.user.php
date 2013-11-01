@@ -66,6 +66,8 @@ class UserModel extends VerySimpleModel {
 
 class User extends UserModel {
 
+    var $_entries;
+
     function __construct($ht) {
         parent::__construct($ht);
         // TODO: Make this automatic with select_related()
@@ -89,6 +91,7 @@ class User extends UserModel {
             foreach ($uf->getFields() as $f)
                 if (isset($data[$f->get('name')]))
                     $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
+            $uf->setClientId($user->id);
             $uf->save();
         }
 
@@ -123,9 +126,8 @@ class User extends UserModel {
 
     function getDynamicData() {
         if (!isset($this->_entries)) {
-            $this->_entries = DynamicFormEntry::forClient($this->id);
-            if (!$this->_entries[0]) {
-                $this->_entries = array();
+            $this->_entries = DynamicFormEntry::forClient($this->id)->all();
+            if (!$this->_entries) {
                 $g = UserForm::getInstance();
                 $g->setClientId($this->id);
                 $this->_entries[] = $g;
