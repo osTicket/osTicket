@@ -50,3 +50,7 @@ div.section-break {
     padding-top: 0.8em !important;
     border-top: 1px solid #ccc;
 }
+
+input.dp {
+    width: 10em;
+}

@@ -1484,3 +1484,7 @@ ul.progress li.no small {color:red;}
 input[type=text]:disabled, input[type=checkbox]:disabled {
     background-color: #eee;
 }
+
+input.dp {
+    width: 10em;
+}
