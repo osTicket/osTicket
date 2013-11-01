@@ -141,7 +141,7 @@ class Mailer {
         // the message appears to be HTML -- that is, the first
         // non-whitespace char is a '<' character
         if (!(isset($options['text']) && $options['text'])
-                && preg_match('/^\s*</', $message)) {
+                && $cfg->isHtmlThreadEnabled()) {
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??
             $mime->setTXTBody(Format::html2text($message, 90, false));
