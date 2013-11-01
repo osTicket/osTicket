@@ -86,7 +86,7 @@ class Mailer {
     }
 
     function send($to, $subject, $message, $options=null) {
-        global $ost;
+        global $ost, $cfg;
 
         //Get the goodies
         require_once (PEAR_DIR.'Mail.php'); // PEAR Mail package
