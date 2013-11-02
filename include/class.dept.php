@@ -355,7 +355,7 @@ class Dept {
                 && (!$vars['email_id'] || !is_numeric($vars['email_id'])))
             $errors['email_id']='Email selection required';
 
-        if(!is_numeric($vars['tpl_id']))
+        if(isset($vars['tpl_id']) && !is_numeric($vars['tpl_id']))
             $errors['tpl_id']='Template selection required';
 
         if(!$vars['name']) {

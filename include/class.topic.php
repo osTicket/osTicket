@@ -261,6 +261,8 @@ class Topic {
 
             $errors['err']='Unable to update topic. Internal error occurred';
         } else {
+            if (isset($vars['topic_id']))
+                $sql .= ', topic_id='.db_input($vars['topic_id']);
             $sql='INSERT INTO '.TOPIC_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;

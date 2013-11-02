@@ -141,7 +141,7 @@ class Mailer {
         // the message appears to be HTML -- that is, the first
         // non-whitespace char is a '<' character
         if (!(isset($options['text']) && $options['text'])
-                && $cfg->isHtmlThreadEnabled()) {
+                && (!$cfg || $cfg->isHtmlThreadEnabled())) {
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??
             $mime->setTXTBody(Format::html2text($message, 90, false));
@@ -152,7 +152,7 @@ class Mailer {
         }
 
         $domain = 'local';
-        if ($isHtml && $ost->getConfig()->isHtmlThreadEnabled()) {
+        if ($isHtml && $cfg && $cfg->isHtmlThreadEnabled()) {
             // TODO: Lookup helpdesk domain
             $domain = substr(md5($ost->getConfig()->getURL()), -12);
             // Format content-ids with the domain, and add the inline images

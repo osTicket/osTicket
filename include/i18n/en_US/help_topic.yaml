@@ -34,7 +34,7 @@
   notes: |
     Tickets that primarily concern the sales and billing departments
 
-- id: 10
+- topic_id: 10
   isactive: 1
   ispublic: 1
   dept_id: 1
