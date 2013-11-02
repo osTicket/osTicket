@@ -137,8 +137,8 @@ class AttachmentFile {
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        //Delete file data.
-        AttachmentChunkedData::deleteOrphans();
+        if ($bk = $this->open())
+            $bk->unlink();
 
         return true;
     }
@@ -219,7 +219,7 @@ class AttachmentFile {
         $prefix = base64_encode(sha1(microtime(), true));
         $key = str_replace(
             array('=','+','/'),
-            array('','-',','),
+            array('','-','_'),
             substr($prefix, 0, 5) . $sha1);
 
         // The hash is a 32-char value where the first half is from the last
@@ -230,7 +230,7 @@ class AttachmentFile {
         // per char, we should have a total hash strength of 192 bits.
         $hash = str_replace(
             array('=','+','/'),
-            array('','-',','),
+            array('','-','_'),
             substr($sha1, -16) . substr($md5, -16));
 
         return array($key, $hash);
@@ -363,6 +363,9 @@ class AttachmentFile {
         print("Opening source\n");
         $source = $this->open();
         print("Copying data ");
+        // TODO: Make this resumable so that if the file cannot be migrated
+        //      in the max_execution_time, the migration can be continued
+        //      the next time the cron runs
         while ($block = $source->read()) {
             print(".");
             hash_update($before, $block);
@@ -479,19 +482,21 @@ class AttachmentFile {
         // XXX: Allow plugins to define filetypes which do not represent
         //      files attached to tickets or other things in the attachment
         //      table and are not logos
-        $sql = 'DELETE FROM '.FILE_TABLE.' WHERE id NOT IN ('
+        $sql = 'SELECT id FROM '.FILE_TABLE.' WHERE id NOT IN ('
                 .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
                 .' UNION '
                 .'SELECT file_id FROM '.ATTACHMENT_TABLE
             .") AND `ft` NOT IN ('L')";
 
-        db_query($sql);
+        if (!($res = db_query($sql)))
+            return false;
 
-        //Delete orphaned chuncked data!
-        AttachmentChunkedData::deleteOrphans();
+        while (list($id) = db_fetch_row($res))
+            if (($file = self::lookup($id))
+                    && ($bk = $file->open()))
+                $bk->unlink();
 
         return true;
-
     }
 
     /* static */
@@ -587,6 +592,7 @@ class AttachmentStorageBackend {
      * return boolean false when no more chunks are available.
      */
     function read($amount=0, $offset=0) {
+        return false;
     }
 
     /**
@@ -667,24 +673,7 @@ class AttachmentChunkedData extends AttachmentStorageBackend {
             .' WHERE file_id='.db_input($this->file->getId()));
         return db_affected_rows() > 0;
     }
-
-    function deleteOrphans() {
-        $deleted = 0;
-        $sql = 'SELECT c.file_id, c.chunk_id FROM '.FILE_CHUNK_TABLE.' c '
-             . ' LEFT JOIN '.FILE_TABLE.' f ON(f.id=c.file_id) '
-             . ' WHERE f.id IS NULL AND f.`type`=\'T\'';
-
-        $res = db_query($sql);
-        while (list($file_id, $chunk_id) = db_fetch_row($res)) {
-            db_query('DELETE FROM '.FILE_CHUNK_TABLE
-                .' WHERE file_id='.db_input($file_id)
-                .' AND chunk_id='.db_input($chunk_id));
-            $deleted += db_affected_rows();
-        }
-        return $deleted;
-    }
 }
 AttachmentStorageBackend::register('T', 'AttachmentChunkedData');
-Signal::connect('cron', array('AttachmentChunkedData', 'deleteOrphans'));
 
 ?>
