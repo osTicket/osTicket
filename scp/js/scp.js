@@ -115,8 +115,8 @@ $(document).ready(function(){
         });
     }
 
-    $("form#save :input").change(function() {
-        var fObj = $(this).closest('form');
+    var warnOnLeave = function (el) {
+        var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
@@ -124,6 +124,10 @@ $(document).ready(function(){
                 return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
              });
         }
+    };
+
+    $("form#save :input").change(function() {
+        warnOnLeave($(this));
     });
 
     $("form#save :input[type=reset]").click(function() {
@@ -453,6 +457,7 @@ $(document).ready(function(){
        'helper': fixHelper,
        'stop': function(e, ui) {
            var attr = ui.item.parent('tbody').data('sort');
+           warnOnLeave(ui.item);
            $('input[name^='+attr+']', ui.item.parent('tbody')).each(function(i, el) {
                $(el).val(i+1);
            });
