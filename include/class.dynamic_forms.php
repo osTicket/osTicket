@@ -266,6 +266,20 @@ class DynamicFormField extends VerySimpleModel {
         return $this->get('edit_mask') & 8;
     }
 
+    /**
+     * Used when updating the form via the admin panel. This represents
+     * validation on the form field template, not data entered into a form
+     * field of a custom form. The latter would be isValidEntry()
+     */
+    function isValid() {
+        if (count($this->errors()) || !parent::isValid())
+            return false;
+        if ($this->get('required') && !$this->get('name'))
+            $this->addError(
+                "Variable name is required for required fields", "name");
+        return count($this->errors()) == 0;
+    }
+
     function delete() {
         // Don't really delete form fields as that will screw up the data
         // model. Instead, just drop the association with the form which

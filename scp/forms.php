@@ -40,9 +40,14 @@ if($_POST) {
                 }
                 if ($field->isValid())
                     $field->save();
+                else
+                    # notrans (not shown)
+                    $errors["field-$id"] = 'Field has validation errors';
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
+            if ($errors)
+                $errors['err'] = 'Unable to commit form. Check validation errors';
             break;
         case 'add':
             $form = DynamicForm::create(array(
@@ -94,7 +99,8 @@ if($_POST) {
                 $field->save();
         }
         // XXX: Move to an instrumented list that can handle this better
-        $form->_dfields = $form->_fields = null;
+        if (!$errors)
+            $form->_dfields = $form->_fields = null;
     }
 }
 

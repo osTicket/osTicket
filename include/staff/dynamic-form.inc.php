@@ -100,7 +100,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="sort-">
-    <?php if ($form) foreach ($form->getFields() as $f) {
+    <?php if ($form) foreach ($form->getDynamicFields() as $f) {
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
