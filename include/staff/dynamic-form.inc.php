@@ -59,7 +59,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th>Type</th>
             <th>Internal</th>
             <th>Required</th>
-            <th>Name</th>
+            <th>Variable</th>
             <th>Delete</th>
         </tr>
     </thead>
@@ -95,7 +95,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th>Type</th>
             <th>Internal</th>
             <th>Required</th>
-            <th>Name</th>
+            <th>Variable</th>
             <th>Delete</th>
         </tr>
     </thead>
