@@ -103,16 +103,6 @@ $(document).ready(function(){
         return false;
      });
 
-    $(window).scroll(function () {
-        var w = $(window);
-        $('.dialog').each(function() {
-            $(this).css({
-                top  : w.height() / 5 + w.scrollTop(),
-                left : (w.width() - $(this).outerWidth()) / 2
-            });
-        });
-    });
-
     if($.browser.msie) {
         $('.inactive').mouseenter(function() {
             var elem = $(this);
@@ -360,9 +350,9 @@ $(document).ready(function(){
     $('.dialog').each(function() {
         var w = $(window);
         $(this).css({
-            top  : w.height() / 5 + w.scrollTop(),
+            top : (w.innerHeight() / 7),
             left : (w.width() - $(this).outerWidth()) / 2
-        });
+        }).draggable();
     });
 
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
