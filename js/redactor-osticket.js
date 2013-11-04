@@ -182,8 +182,8 @@ $(function() {
         }
         el.redactor(options);
     },
-    findRichtextBoxes = function() {
-        $('.richtext').each(function(i,el) {
+    findRichtextBoxes = function(context) {
+        $('.richtext', context||document).each(function(i,el) {
             if ($(el).hasClass('ifhtml'))
                 // Check if html_thread is enabled first
                 getConfig().then(function(c) {
@@ -196,5 +196,8 @@ $(function() {
         });
     };
     findRichtextBoxes();
-    $('#user-info').ajaxComplete(findRichtextBoxes);
+    $.fn.redactify = function() {
+        this.each(function(i,e) { findRichtextBoxes(e); });
+        return this;
+    }
 });

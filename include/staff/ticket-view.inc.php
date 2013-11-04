@@ -148,7 +148,8 @@ if($ticket->isOverdue())
                             echo $ticket->getOwnerId(); ?>"
                         onclick="javascript:
                             $('#overlay').show();
-                            $('#user-info .body').load(this.href);
+                            $('#user-info .body').load(this.href,
+                                function() { $(this).redactify(); });
                             $('#user-info').show();
                             return false;
                             "><i class="icon-user"></i> <?php
