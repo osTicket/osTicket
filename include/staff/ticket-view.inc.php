@@ -183,6 +183,10 @@ if($ticket->isOverdue())
                     </td>
                 </tr>
                 <tr>
+                    <th>Phone:</th>
+                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
+                </tr>
+                <tr>
                     <th>Source:</th>
                     <td><?php
                         echo Format::htmlchars($ticket->getSource());
