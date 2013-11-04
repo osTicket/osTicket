@@ -18,8 +18,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </thead>
     <tbody>
         <?php
-        $uf = UserForm::objects();
-        $uf[0]->render();
+        $uf = UserForm::getInstance();
+        $uf->render();
         if($cfg->notifyONNewStaffTicket()) {  ?>
         <tr>
             <td width="160">Alert:</td>
