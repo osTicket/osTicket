@@ -500,27 +500,58 @@ class TextareaField extends FormField {
 class PhoneField extends FormField {
     static $widget = 'PhoneNumberWidget';
 
+    function getConfigurationOptions() {
+        return array(
+            'ext' => new BooleanField(array(
+                'label'=>'Extension', 'default'=>true,
+                'configuration'=>array(
+                    'desc'=>'Add a separate field for the extension',
+                ),
+            )),
+            'digits' => new TextboxField(array(
+                'label'=>'Minimum length', 'default'=>7,
+                'hint'=>'Fewest digits allowed in a valid phone number',
+                'configuration'=>array('validator'=>'number', 'size'=>5),
+            )),
+            'format' => new ChoiceField(array(
+                'label'=>'Display format', 'default'=>'us',
+                'choices'=>array(''=>'-- Unformatted --',
+                    'us'=>'United States'),
+            )),
+        );
+    }
+
     function validateEntry($value) {
         parent::validateEntry($value);
+        $config = $this->getConfiguration();
         # Run validator against $this->value for email type
         list($phone, $ext) = explode("X", $value, 2);
-        if ($phone && !Validator::is_phone($phone))
+        if ($phone && (
+                !is_numeric($phone) ||
+                strlen($phone) < $config['digits']))
             $this->_errors[] = "Enter a valid phone number";
-        if ($ext) {
+        if ($ext && $config['ext']) {
             if (!is_numeric($ext))
-                $this->_errors[] = "Enter a valide phone extension";
+                $this->_errors[] = "Enter a valid phone extension";
             elseif (!$phone)
                 $this->_errors[] = "Enter a phone number for the extension";
         }
     }
 
-    function to_database($value) {
-        return preg_replace('/[()+. -]/', '', $value);
+    function parse($value) {
+        // NOTE: Value may have a legitimate 'X' to separate the number and
+        // extension parts. Don't remove the 'X'
+        return preg_replace('/[^\dX]/', '', $value);
     }
 
     function toString($value) {
+        $config = $this->getConfiguration();
         list($phone, $ext) = explode("X", $value, 2);
-        $phone=Format::phone($phone);
+        switch ($config['format']) {
+        case 'us':
+            $phone = Format::phone($phone);
+            break;
+        }
         if ($ext)
             $phone.=" x$ext";
         return $phone;
@@ -569,7 +600,7 @@ class ChoiceField extends FormField {
         if (is_numeric($value))
             return $value;
         foreach ($this->getChoices() as $k=>$v)
-            if (strcasecmp($value, $v) === 0)
+            if (strcasecmp($value, $k) === 0)
                 return $k;
     }
 
@@ -828,12 +859,17 @@ class TextareaWidget extends Widget {
 
 class PhoneNumberWidget extends Widget {
     function render() {
+        $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
         <input type="text" name="<?php echo $this->name; ?>" value="<?php
-            echo $phone; ?>"/> Ext: <input type="text" name="<?php
+        echo $phone; ?>"/><?php
+        // Allow display of extension field even if disabled if the phone
+        // number being edited has an extension
+        if ($ext || $config['ext']) { ?> Ext:
+            <input type="text" name="<?php
             echo $this->name; ?>-ext" value="<?php echo $ext; ?>" size="5"/>
-        <?php
+        <?php }
     }
 
     function getValue() {
@@ -842,6 +878,7 @@ class PhoneNumberWidget extends Widget {
         if ($base === null)
             return $base;
         $ext = $data["{$this->name}-ext"];
+        // NOTE: 'X' is significant. Don't change it
         if ($ext) $ext = 'X'.$ext;
         return $base . $ext;
     }
