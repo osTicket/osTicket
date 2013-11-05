@@ -83,6 +83,7 @@ RedactorPlugins.draft = {
                 self.opts.imageUploadErrorCallback = self.displayError;
             }
         });
+        this.opts.original_autosave = this.opts.autosave;
         this.opts.autosave = 'ajax.php/draft/'+data.draft_id;
     },
 
@@ -95,17 +96,18 @@ RedactorPlugins.draft = {
     },
 
     deleteDraft: function() {
+        if (!this.draft_id)
+            // Nothing to delete
+            return;
         var self = this;
         $.ajax('ajax.php/draft/'+this.draft_id, {
             type: 'delete',
             async: false,
             success: function() {
-                self.opts.autosave = '';
-                self.opts.imageUpload = '';
                 self.draft_id = undefined;
-                clearInterval(self.autosaveInterval);
                 self.hideDraftSaved();
                 self.set('');
+                self.opts.autosave = self.opts.original_autosave;
             }
         });
     },
