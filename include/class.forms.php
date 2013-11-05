@@ -523,6 +523,10 @@ class PhoneField extends FormField {
         }
     }
 
+    function to_database($value) {
+        return preg_replace('/[()+. -]/', '', $value);
+    }
+
     function toString($value) {
         list($phone, $ext) = explode("X", $value, 2);
         $phone=Format::phone($phone);
