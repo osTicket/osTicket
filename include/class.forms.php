@@ -447,13 +447,14 @@ class TextboxField extends FormField {
                     'ip'=>'IP Address', 'number'=>'Number', ''=>'None'))),
             'validator-error' => new TextboxField(array(
                 'id'=>4, 'label'=>'Validation Error', 'default'=>'',
-                'configuration'=>array('size'=>40),
+                'configuration'=>array('size'=>40, 'length'=>60),
                 'hint'=>'Message shown to user if the input does not match the validator')),
         );
     }
 
     function validateEntry($value) {
         parent::validateEntry($value);
+        $config = $this->getConfiguration();
         $validators = array(
             '' =>       null,
             'email' =>  array(array('Validator', 'is_email'),
@@ -467,15 +468,17 @@ class TextboxField extends FormField {
         // Support configuration forms, as well as GUI-based form fields
         $valid = $this->get('validator');
         if (!$valid) {
-            $config = $this->getConfiguration();
             $valid = $config['validator'];
         }
         if (!$value || !isset($validators[$valid]))
             return;
         $func = $validators[$valid];
+        $error = $func[1];
+        if ($config['validator-error'])
+            $error = $config['validator-error'];
         if (is_array($func) && is_callable($func[0]))
             if (!call_user_func($func[0], $value))
-                $this->_errors[] = $func[1];
+                $this->_errors[] = $error;
     }
 }
 
