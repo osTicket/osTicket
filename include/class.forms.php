@@ -903,21 +903,24 @@ class CheckboxWidget extends Widget {
 
 class DatetimePickerWidget extends Widget {
     function render() {
+        global $cfg;
+
         $config = $this->field->getConfiguration();
         if ($this->value) {
             $this->value = (is_int($this->value) ? $this->value :
-                    strtotime($this->value));
+                DateTime::createFromFormat($cfg->getDateFormat(), $this->value)
+                ->format('U'));
             if ($config['gmt'])
                 $this->value += 3600 *
                     $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
 
             list($hr, $min) = explode(':', date('H:i', $this->value));
-            $this->value = date('m/d/Y', $this->value);
+            $this->value = date($cfg->getDateFormat(), $this->value);
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>" size="12"
-            autocomplete="off" />
+            autocomplete="off" class="dp" />
         <script type="text/javascript">
             $(function() {
                 $('input[name="<?php echo $this->name; ?>"]').datepicker({
@@ -932,7 +935,8 @@ class DatetimePickerWidget extends Widget {
                     numberOfMonths: 2,
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
-                    showOn:'both'
+                    showOn:'both',
+                    dateFormat: $.translate_format(<?php echo $cfg->getDateFormat(); ?>),
                 });
             });
         </script>
