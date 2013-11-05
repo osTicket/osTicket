@@ -786,6 +786,9 @@ class TicketFilter {
         if($this->vars['subject'])
             $sql.=" OR (what='subject' AND LOCATE(val, ".db_input($this->vars['subject']).'))';
 
+        # Always include negative-logic rules
+        $sql.=" OR how IN ('dn_contain', 'not_equal')";
+
 
         # Also include filters that do not have any rules concerning either
         # sender-email-addresses or sender-names or subjects
