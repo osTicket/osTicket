@@ -79,11 +79,14 @@ class User extends UserModel {
         // Try and lookup by email address
         $user = User::lookup(array('emails__address'=>$data['email']));
         if (!$user) {
-            $user = User::create(array('name'=>$data['name'],
+            $user = User::create(array(
+                'name'=>$data['name'],
+                'created'=>new SqlFunction('NOW'),
+                'updated'=>new SqlFunction('NOW'),
                 'default_email'=>
                     UserEmail::create(array('address'=>$data['email']))
             ));
-            $user->save();
+            $user->save(true);
             $user->emails->add($user->default_email);
 
             // Attach initial custom fields
@@ -106,6 +109,12 @@ class User extends UserModel {
         return $this->name;
     }
 
+    function getPhoneNumber() {
+        foreach ($this->getDynamicData() as $e)
+            if ($a = $e->getAnswer('phone'))
+                return $a;
+    }
+
     function getName() {
         return new PersonsName($this->name);
     }
@@ -120,8 +129,8 @@ class User extends UserModel {
 
         $tag = strtolower($tag);
         foreach ($this->getDynamicData() as $e)
-            if ($e->getAnswer($tag))
-                return $e;
+            if ($a = $e->getAnswer($tag))
+                return $a;
     }
 
     function getDynamicData() {
@@ -150,6 +159,8 @@ class User extends UserModel {
                 $this->name = $parts[1].' '.$parts[0].' '.$parts[2];
                 break;
         }
+        if (count($this->dirty))
+            $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);
     }
 }

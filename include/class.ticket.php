@@ -303,17 +303,17 @@ class Ticket {
     }
 
     function getPhone() {
-        list($phone, $ext) = explode(" ", $this->_answers['phone'], 2);
+        list($phone, $ext) = $this->getPhoneNumber();
         return $phone;
     }
 
     function getPhoneExt() {
-        list($phone, $ext) = explode(" ", $this->_answers['phone'], 2);
+        list($phone, $ext) = $this->getPhoneNumber();
         return $ext;
     }
 
     function getPhoneNumber() {
-        return $this->_answers['phone'];
+        return (string)$this->getOwner()->getPhoneNumber();
     }
 
     function getSource() {
@@ -1891,8 +1891,7 @@ class Ticket {
         // fields into local scope for filtering and banning purposes
         $user_form = UserForm::getInstance();
         $user_info = $user_form->getClean();
-        if ($user_form->isValid())
-            $vars += $user_info;
+        $vars += $user_info;
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
