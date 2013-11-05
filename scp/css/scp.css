@@ -1204,7 +1204,7 @@ time {
 }
 
 .dialog {
-    position:absolute;
+    position:fixed;
     padding:1em;
     width:500px;
     height:250px;
@@ -1215,6 +1215,8 @@ time {
     z-index:5;
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
+    max-height: 72%;
+    overflow-y: scroll;
 }
 
 .redactor_air {
