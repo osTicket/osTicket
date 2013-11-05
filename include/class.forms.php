@@ -183,6 +183,12 @@ class FormField {
     function errors() {
         return $this->_errors;
     }
+    function addError($message, $field=false) {
+        if ($field)
+            $this->_errors[$field] = $message;
+        else
+            $this->_errors[] = $message;
+    }
 
     function isValidEntry() {
         $this->validateEntry();
