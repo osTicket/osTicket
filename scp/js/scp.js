@@ -459,10 +459,11 @@ $(document).ready(function(){
 
 // NOTE: getConfig should be global
 getConfig = (function() {
-    var dfd = $.Deferred();
+    var dfd = $.Deferred(),
+        requested = null;
     return function() {
-        if (dfd.state() != 'resolved')
-            $.ajax({
+        if (dfd.state() != 'resolved' && !requested)
+            requested = $.ajax({
                 url: "ajax.php/config/scp",
                 dataType: 'json',
                 success: function (json_config) {
