@@ -1,0 +1,23 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> System page
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+helpdesk_status:
+    title: Helpdesk Status
+    content: |
+        Enables the client portal and the staff interface. If this option is
+        disabled, then only staff marked as <b>Admins</b> will be able to
+        access the helpdesk.
+
+helpdesk_url:
+    title: Helpdesk URL
+    content: |
+        This URL is the base of your osTicket installation. It is used in
+        email communication to direct end users back to your helpdesk.

@@ -24,13 +24,16 @@ $gmtime = Misc::gmtime();
                 <input type="radio" name="isonline"  value="1"   <?php echo $config['isonline']?'checked="checked"':''; ?> /><b>Online</b> (Active)
                 <input type="radio" name="isonline"  value="0"   <?php echo !$config['isonline']?'checked="checked"':''; ?> /><b>Offline</b> (Disabled)
                 &nbsp;<font class="error">&nbsp;<?php echo $config['isoffline']?'osTicket offline':''; ?></font>
+                <i class="help-tip icon-question-sign" href="#helpdesk_status"></i>
             </td>
         </tr>
         <tr>
             <td width="220" class="required">Helpdesk URL:</td>
             <td>
                 <input type="text" size="40" name="helpdesk_url" value="<?php echo $config['helpdesk_url']; ?>">
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_url']; ?></font></td>
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_url']; ?></font>
+                <i class="help-tip icon-question-sign" href="#helpdesk_url"></i>
+        </td>
         </tr>
         <tr>
             <td width="220" class="required">Helpdesk Name/Title:</td>

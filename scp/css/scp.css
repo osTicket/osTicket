@@ -960,7 +960,7 @@ h2 .reload {
     height:auto !important;
     height:20px;
     min-height:20px;
-    padding:10px 5px 5px 5px;
+    padding:10px;
     border:1px solid #666;
     background:#fff;
     -moz-border-radius:5px;
@@ -973,8 +973,7 @@ h2 .reload {
     position:absolute;
     top:0;
     left:-1px;
-    width:auto !important;
-    width:300px;
+    min-width:300px;
 }
 
 .tip_content hr {
@@ -1059,6 +1058,22 @@ h2 .reload {
     width:295px;
     text-align:right;
     line-height:24px;
+}
+
+.tip_content h1 {
+    font-size: 13pt;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid #ddd;
+}
+
+i.help-tip {
+    color: #aaa;
+}
+i.help-tip:hover {
+    color: black;
+    cursor: pointer;
 }
 
 /* Knowledgebase */
