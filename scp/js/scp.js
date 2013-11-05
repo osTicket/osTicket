@@ -265,28 +265,31 @@ $(document).ready(function(){
         });
     }
 
-    /* Datepicker */
-    getConfig().then(function(c) {
-        var df = c.date_format||'m/d/Y',
-            translation = {
-                'd':'dd',
-                'j':'d',
-                'z':'o',
-                'm':'mm',
-                'F':'MM',
-                'n':'m',
-                'Y':'yy'
-            };
+    $.translate_format = function(str) {
+        var translation = {
+            'd':'dd',
+            'j':'d',
+            'z':'o',
+            'm':'mm',
+            'F':'MM',
+            'n':'m',
+            'Y':'yy'
+        };
         // Change PHP formats to datepicker ones
         $.each(translation, function(php, jqdp) {
-            df = df.replace(php, jqdp);
+            str = str.replace(php, jqdp);
         });
+        return str;
+    };
+
+    /* Datepicker */
+    getConfig().then(function(c) {
         $('.dp').datepicker({
             numberOfMonths: 2,
             showButtonPanel: true,
             buttonImage: './images/cal.png',
             showOn:'both',
-            dateFormat: df,
+            dateFormat: $.translate_format(c.date_format||'m/d/Y'),
         });
         $(document).on('submit', 'form', function() {
             $('.dp', $(this)).each(function(i, e) {
