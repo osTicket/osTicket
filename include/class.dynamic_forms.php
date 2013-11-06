@@ -132,6 +132,7 @@ class DynamicForm extends VerySimpleModel {
 
 class UserForm extends DynamicForm {
     static $instance;
+    static $form;
 
     static function objects() {
         $os = parent::objects();
@@ -154,11 +155,17 @@ class UserForm extends DynamicForm {
         return $fields;
     }
 
-    static function getInstance() {
-        if (!isset(static::$instance)) {
+    static function getUserForm() {
+        if (!isset(static::$form)) {
             $o = static::objects();
-            static::$instance = $o[0]->instanciate();
+            static::$form = $o[0];
         }
+        return static::$form;
+    }
+
+    static function getInstance() {
+        if (!isset(static::$instance))
+            static::$instance = static::getForm()->instanciate();
         return static::$instance;
     }
 }
