@@ -159,6 +159,17 @@ class User extends UserModel {
                 $this->name = $parts[1].' '.$parts[0].' '.$parts[2];
                 break;
         }
+
+        // Handle email addresses -- use the box name
+        if (Validator::is_email($this->name)) {
+            list($box, $domain) = explode('@', $this->name, 2);
+            if (strpos($box, '.') !== false)
+                $this->name = str_replace('.', ' ', $box);
+            else
+                $this->name = $box;
+            $this->name = mb_convert_case($this->name, MB_CASE_TITLE);
+        }
+
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);

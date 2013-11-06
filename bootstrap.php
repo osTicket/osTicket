@@ -203,15 +203,49 @@ class Bootstrap {
                 function mb_strlen($str) { return strlen($str); }
                 function mb_substr($a, $b, $c=null) { return substr($a, $b, $c); }
                 function mb_convert_encoding($str, $to, $from='utf-8') {
-                    return iconv($from, $to, $str); }
+                    if (strcasecmp($to, $from) == 0)
+                        return $str;
+                    elseif (in_array(strtolower($to), array(
+                            'us-ascii','latin-1','iso-8859-1'))
+                            && function_exists('utf8_encode'))
+                        return utf8_encode($str);
+                    else
+                        return $str;
+                }
             }
-            function mb_strtoupper($a) { return strtoupper($a); }
-            function mb_strtolower($a) { return strtolower($a); }
+            define('LATIN1_UC_CHARS', 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝ');
+            define('LATIN1_LC_CHARS', 'àáâãäåæçèéêëìíîïðñòóôõöøùúûüý');
+            function mb_strtoupper($a) {
+                return strtoupper(strtr($str, LATIN1_LC_CHARS, LATIN1_UC_CHARS));
+            }
+            function mb_strtolower($a) {
+                return strtolower(strtr($str, LATIN1_UC_CHARS, LATIN1_LC_CHARS));
+            }
+            define('MB_CASE_LOWER', 1);
+            define('MB_CASE_UPPER', 2);
+            define('MB_CASE_TITLE', 3);
+            function mb_convert_case($str, $mode) {
+                // XXX: Techincally the calls to strto...() will fail if the
+                //      char is not a single-byte char
+                switch ($mode) {
+                case MB_CASE_LOWER:
+                    return preg_replace_callback('/\p{Lu}+/u',
+                        function($a) { return mb_strtolower($a); }, $str);
+                case MB_CASE_UPPER:
+                    return preg_replace_callback('/\p{Ll}+/u',
+                        function($a) { return mb_strtoupper($a); }, $str);
+                case MB_CASE_TITLE:
+                    return preg_replace_callback('/\b\p{Ll}/u',
+                        function($a) { return mb_strtoupper($a); }, $str);
+                }
+            }
         }
         else {
             // Use UTF-8 for all multi-byte string encoding
             mb_internal_encoding('utf-8');
         }
+        if (extension_loaded('iconv'))
+            iconv_set_encoding('internal_encoding', 'UTF-8');
     }
 
     function croak($message) {
