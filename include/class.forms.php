@@ -660,7 +660,7 @@ class DatetimeField extends FormField {
     function parse($value) {
         if (!$value) return null;
         $config = $this->getConfiguration();
-        return ($config['gmt']) ? Misc::db2gmtime($value) : strtotime($value);
+        return ($config['gmt']) ? Misc::db2gmtime($value) : $value;
     }
 
     function toString($value) {
@@ -986,7 +986,7 @@ class DatetimePickerWidget extends Widget {
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format(<?php echo $cfg->getDateFormat(); ?>),
+                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>'),
                 });
             });
         </script>
@@ -1003,10 +1003,23 @@ class DatetimePickerWidget extends Widget {
      * time value into a single date and time string value.
      */
     function getValue() {
+        global $cfg;
+
         $data = $this->field->getSource();
-        $datetime = parent::getValue();
-        if ($datetime && isset($data[$this->name . ':time']))
-            $datetime .= ' ' . $data[$this->name . ':time'];
+        $config = $this->field->getConfiguration();
+        if ($datetime = parent::getValue()) {
+            $datetime = (is_int($datetime) ? $datetime :
+                (int)DateTime::createFromFormat($cfg->getDateFormat() . ' G:i',
+                    $datetime . ' 00:00')
+                ->format('U'));
+            if (isset($data[$this->name . ':time'])) {
+                list($hr, $min) = explode(':', $data[$this->name . ':time']);
+                $datetime += $hr * 3600 + $min * 60;
+            }
+            if ($config['gmt'])
+                $datetime -= (int) (3600 * $_SESSION['TZ_OFFSET'] +
+                    ($_SESSION['TZ_DST'] ? date('I',$datetime) : 0));
+        }
         return $datetime;
     }
 }
