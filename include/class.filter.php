@@ -258,6 +258,7 @@ class Filter {
             return false;
 
         foreach ($this->getRules() as $rule) {
+            if (!isset($how[$rule['h']])) continue;
             list($func, $pos, $neg) = $how[$rule['h']];
             # TODO: convert $what and $rule['v'] to mb_strtoupper and do
             #       case-sensitive, binary-safe comparisons. Would be really
