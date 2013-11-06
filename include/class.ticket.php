@@ -1891,7 +1891,8 @@ class Ticket {
         // fields into local scope for filtering and banning purposes
         $user_form = UserForm::getInstance();
         $user_info = $user_form->getClean();
-        $vars += $user_info;
+        if ($user_form->isValid())
+            $vars += $user_info;
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
