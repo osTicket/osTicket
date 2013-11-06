@@ -934,6 +934,7 @@ class OsticketConfig extends Config {
     }
 
     function updatePagesSettings($vars, &$errors) {
+        global $ost;
 
         $f=array();
         $f['landing_page_id'] = array('type'=>'int',   'required'=>1, 'error'=>'required');
@@ -951,8 +952,15 @@ class OsticketConfig extends Config {
                 $errors['logo'] = 'Unable to upload logo image. '.$error;
         }
 
+        $company = $ost->company;
+        $company_form = $company->getForm();
+        if (!$company_form->isValid())
+            $errors += $company_form->errors();
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
+
+        $company_form->save();
 
         if (isset($vars['delete-logo']))
             foreach ($vars['delete-logo'] as $id)

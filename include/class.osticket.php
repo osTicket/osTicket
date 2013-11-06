@@ -45,16 +45,20 @@ class osTicket {
     var $config;
     var $session;
     var $csrf;
+    var $company;
 
     function osTicket() {
 
         require_once(INCLUDE_DIR.'class.config.php'); //Config helper
+        require_once(INCLUDE_DIR.'class.company.php');
 
         $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
         $this->config = new OsticketConfig();
 
         $this->csrf = new CSRF('__CSRFToken__');
+
+        $this->company = new Company();
     }
 
     function isSystemOnline() {
@@ -148,7 +152,8 @@ class osTicket {
 
         $replacer = new VariableReplacer();
         $replacer->assign(array_merge($vars,
-                    array('url' => $this->getConfig()->getBaseUrl())
+            array('url' => $this->getConfig()->getBaseUrl(),
+                'company' => $this->company)
                     ));
 
         return $replacer->replaceVars($input);

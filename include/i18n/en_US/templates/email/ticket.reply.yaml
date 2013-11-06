@@ -22,7 +22,7 @@ body: |
     <br>
     <br>
     <div style="color: rgb(127, 127, 127);">
-    Your Company Name Team,<br>
+    Your %{company.name} Team,<br>
     %{signature}
     </div>
     <hr>

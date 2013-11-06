@@ -43,11 +43,11 @@ body: |
             progress online</a>.
             <br>
             <br>
-            Your Company Name Team,<br>
+            Your %{company.name} Team,<br>
             %{signature}
         </td>
         <td style="vertical-align: top; padding-top: 12pt;">
-            <span style="color: rgb(127, 127, 127); ">Company Name<br/>
+            <span style="color: rgb(127, 127, 127); ">%{company.name}<br/>
             %{signature}</span>
             <br>
             <br>

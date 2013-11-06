@@ -2,23 +2,33 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
 $pages = Page::getPages();
 ?>
-<h2>Site Pages</h2>
+<h2>Company Profile</h2>
 <form action="settings.php?t=pages" method="post" id="save"
     enctype="multipart/form-data">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="pages" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <thead><tr>
+        <th colspan="2">
+            <h4>Basic Information</h4>
+        </th>
+    </tr></thead>
+    <tbody>
+    <?php
+        $ost->company->getForm()->render();
+    ?>
+    </tbody>
     <thead>
         <tr>
             <th colspan="2">
-                <h4>Pages</h4>
+                <h4>Site Pages</h4>
                 <em>To edit or add new pages go to <a href="pages.php">Manage > Site Pages</a></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td width="220" class="required">Default Landing Page:</td>
+            <td width="220" class="required">Landing Page:</td>
             <td>
                 <select name="landing_page_id">
                     <option value="">&mdash; Select Landing Page &mdash;</option>
@@ -34,7 +44,7 @@ $pages = Page::getPages();
             </td>
         </tr>
         <tr>
-            <td width="220" class="required">Default Offline Page:</td>
+            <td width="220" class="required">Offline Page:</td>
             <td>
                 <select name="offline_page_id">
                     <option value="">&mdash; Select Offline Page &mdash;</option>
