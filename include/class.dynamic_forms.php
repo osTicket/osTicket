@@ -356,6 +356,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function setAnswer($name, $value, $id=false) {
         foreach ($this->getAnswers() as $ans) {
             if ($ans->getField()->get('name') == $name) {
+                $ans->getField()->reset();
                 $ans->set('value', $value);
                 if ($id !== false)
                     $ans->set('value_id', $id);
@@ -523,6 +524,7 @@ class DynamicFormEntry extends VerySimpleModel {
             $a = DynamicFormEntryAnswer::create(
                 array('field_id'=>$f->get('id')));
             $a->field = $f;
+            $a->field->setAnswer($a);
             $inst->_values[] = $a;
         }
         return $inst;
@@ -569,7 +571,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         if (!isset($this->field)) {
             $f = DynamicFormField::lookup($this->get('field_id'));
             $this->field = $f->getImpl($f);
-            $this->field->answer = $this;
+            $this->field->setAnswer($this);
         }
         return $this->field;
     }

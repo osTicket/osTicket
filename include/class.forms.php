@@ -116,6 +116,7 @@ class FormField {
     var $_clean;
     var $_errors = array();
     var $_widget;
+    var $answer;
     var $parent;
     var $presentation_only = false;
 
@@ -178,6 +179,9 @@ class FormField {
             $this->validateEntry($this->_clean);
         }
         return $this->_clean;
+    }
+    function reset() {
+        $this->_clean = $this->_widget = null;
     }
 
     function errors() {
@@ -312,6 +316,7 @@ class FormField {
     }
 
     function getAnswer() { return $this->answer; }
+    function setAnswer($ans) { $this->answer = $ans; }
 
     function getFormName() {
         if (is_numeric($this->get('id')))
