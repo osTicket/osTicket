@@ -7,7 +7,7 @@
 
 <?php
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$count = DynamicForm::objects()->filter(array('type__in'=>array('T','U','G')))->count();
+$count = DynamicForm::objects()->filter(array('type__in'=>array('G')))->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('forms.php');
 $showing=$pageNav->showing().' forms';
@@ -21,35 +21,35 @@ $showing=$pageNav->showing().' forms';
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>Client Information Form <em>Added to all clients</em></th>
+            <th>Built-in Forms</th>
             <th>Last Updated</th>
         </tr>
     </thead>
     <tbody>
-    <?php foreach (UserForm::objects()->order_by('title')
-                ->limit($pageNav->getLimit())
-                ->offset($pageNav->getStart()) as $form) { ?>
+    <?php
+    foreach (UserForm::objects()->order_by('title') as $form) { ?>
         <tr>
             <td/>
-            <td><a href="?id=<?php echo $form->get('id'); ?>"><?php echo $form->get('title'); ?></a></td>
+            <td><a href="?id=<?php echo $form->get('id'); ?>">
+                <i class="icon-user"></i> <?php echo $form->get('title'); ?></a></td>
             <td><?php echo $form->get('updated'); ?></td>
         </tr>
-    <?php } ?>
-    </tbody>
-    <thead>
-        <tr>
-            <th width="7">&nbsp;</th>
-            <th>Common Ticket Form <em>Added to all tickets</em></th>
-            <th>Last Updated</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php foreach (TicketForm::objects()->order_by('title')
-                ->limit($pageNav->getLimit())
-                ->offset($pageNav->getStart()) as $form) { ?>
+    <?php }
+    foreach (TicketForm::objects()->order_by('title') as $form) { ?>
         <tr>
             <td/>
-            <td><a href="?id=<?php echo $form->get('id'); ?>"><?php echo $form->get('title'); ?></a></td>
+            <td><a href="?id=<?php echo $form->get('id'); ?>">
+                <i class="icon-ticket icon"></i>
+                <?php echo $form->get('title'); ?></a></td>
+            <td><?php echo $form->get('updated'); ?></td>
+        </tr>
+    <?php }
+    foreach (DynamicForm::objects()->filter(array('type'=>'C')) as $form) { ?>
+        <tr>
+            <td/>
+            <td><a href="?id=<?php echo $form->get('id'); ?>">
+                <i class="icon-building icon"></i>
+                <?php echo $form->get('title'); ?></a></td>
             <td><?php echo $form->get('updated'); ?></td>
         </tr>
     <?php } ?>
@@ -59,7 +59,7 @@ $showing=$pageNav->showing().' forms';
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>Title</th>
+            <th>Custom Forms</th>
             <th>Last Updated</th>
         </tr>
     </thead>
@@ -91,7 +91,7 @@ $showing=$pageNav->showing().' forms';
             <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No extra forms defined yet &mdash; add one!';
+                echo 'No extra forms defined yet &mdash; <a href="forms.php?a=add">add one!</a>';
             } ?>
         </td>
      </tr>
