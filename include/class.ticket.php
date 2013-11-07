@@ -2028,7 +2028,7 @@ class Ticket {
         // Intenal mapping magic...see if we need to override anything
         if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff
             $deptId=$deptId?$deptId:$topic->getDeptId();
-            if (!$form->getAnswer('priority'))
+            if (!$form->getAnswer('priority')->getIdValue())
                 $form->setAnswer('priority', null, $topic->getPriorityId());
             if($autorespond) $autorespond=$topic->autoRespond();
             $source=$vars['source']?$vars['source']:'Web';
@@ -2047,14 +2047,14 @@ class Ticket {
 
         }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
             $deptId=$email->getDeptId();
-            if (!$form->getAnswer('priority'))
+            if (!$form->getAnswer('priority')->getIdValue())
                 $form->setAnswer('priority', null, $email->getPriorityId());
             if($autorespond) $autorespond=$email->autoRespond();
             $email=null;
             $source='Email';
         }
         //Last minute checks
-        if (!$form->getAnswer('priority'))
+        if (!$form->getAnswer('priority')->getIdValue())
             $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
         $deptId=$deptId?$deptId:$cfg->getDefaultDeptId();
         $topicId=$vars['topicId']?$vars['topicId']:0;
