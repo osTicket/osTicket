@@ -18,7 +18,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </thead>
     <tbody>
         <?php
-        $uf = UserForm::getInstance();
+        $uf = UserForm::getUserForm();
         $uf->render();
         if($cfg->notifyONNewStaffTicket()) {  ?>
         <tr>
