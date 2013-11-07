@@ -215,10 +215,10 @@ class Bootstrap {
             }
             define('LATIN1_UC_CHARS', 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝ');
             define('LATIN1_LC_CHARS', 'àáâãäåæçèéêëìíîïðñòóôõöøùúûüý');
-            function mb_strtoupper($a) {
+            function mb_strtoupper($str) {
                 return strtoupper(strtr($str, LATIN1_LC_CHARS, LATIN1_UC_CHARS));
             }
-            function mb_strtolower($a) {
+            function mb_strtolower($str) {
                 return strtolower(strtr($str, LATIN1_UC_CHARS, LATIN1_LC_CHARS));
             }
             define('MB_CASE_LOWER', 1);
