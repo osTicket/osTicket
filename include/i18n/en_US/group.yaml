@@ -48,7 +48,7 @@
   can_manage_faq: 1
   can_post_ticket_reply: 1
 
-  depts: [1, 2]
+  depts: [1, 2, 3]
 
 - isactive: 1
   name: Managers
@@ -65,7 +65,7 @@
   can_manage_faq: 1
   can_post_ticket_reply: 1
 
-  depts: [1, 2]
+  depts: [1, 2, 3]
 
 - isactve: 1
   name: Staff
@@ -82,4 +82,4 @@
   can_manage_faq: 0
   can_post_ticket_reply: 1
 
-  depts: [1, 2]
+  depts: [1, 2, 3]
