@@ -165,7 +165,7 @@ class UserForm extends DynamicForm {
 
     static function getInstance() {
         if (!isset(static::$instance))
-            static::$instance = static::getForm()->instanciate();
+            static::$instance = static::getUserForm()->instanciate();
         return static::$instance;
     }
 }
