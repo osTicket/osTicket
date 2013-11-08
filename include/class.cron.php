@@ -35,6 +35,11 @@ class Cron {
         if($ost) $ost->purgeLogs();
     }
 
+    function PurgeDrafts() {
+        require_once(INCLUDE_DIR.'class.draft.php');
+        Draft::cleanup();
+    }
+
     function CleanOrphanedFiles() {
         require_once(INCLUDE_DIR.'class.file.php');
         AttachmentFile::deleteOrphans();
@@ -49,6 +54,7 @@ class Cron {
         self::TicketMonitor();
         self::PurgeLogs();
         self::CleanOrphanedFiles();
+        self::PurgeDrafts();
     }
 }
 ?>
