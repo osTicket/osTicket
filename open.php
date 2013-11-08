@@ -52,16 +52,6 @@ if($_POST):
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
         Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
-        # TODO: Save dynamic form(s)
-        if (isset($form)) {
-            $form->setTicketId($ticket->getId());
-            $form->save();
-            $ticket->loadDynamicData();
-        }
-        if (isset($contact_form)) {
-            $contact_form->setClientId($ticket->getOwnerId());
-            $contact_form->save();
-        }
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             if(!$cfg->showRelatedTickets())
