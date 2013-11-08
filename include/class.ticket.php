@@ -728,6 +728,7 @@ class Ticket {
 
         $this->reload();
         $this->logEvent('closed');
+        $this->deleteDrafts();
 
         return true;
     }
@@ -1676,7 +1677,13 @@ class Ticket {
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             $form->delete();
 
+        $this->deleteDrafts();
+
         return true;
+    }
+
+    function deleteDrafts() {
+        Draft::deleteForNamespace('ticket.%.' . $this->getId());
     }
 
     function update($vars, &$errors) {

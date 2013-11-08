@@ -70,13 +70,13 @@ if($_POST && !$errors):
                 $msg='Reply posted successfully';
                 $ticket->reload();
 
-                // Cleanup drafts for the ticket. If not closed, only clean
-                // for this staff. Else clean all drafts for the ticket.
-                Draft::deleteForNamespace('ticket.%.' . $ticket->getId(),
-                    $ticket->isClosed() ? false : $thisstaff->getId());
-
                 if($ticket->isClosed() && $wasOpen)
                     $ticket=null;
+                else
+                    // Still open -- cleanup response draft for this user
+                    Draft::deleteForNamespace(
+                        'ticket.response.' . $ticket->getId(),
+                        $thisstaff->getId());
 
             } elseif(!$errors['err']) {
                 $errors['err']='Unable to post the reply. Correct the errors below and try again!';
@@ -174,17 +174,13 @@ if($_POST && !$errors):
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 
-                // Cleanup drafts for the ticket. If not closed, only clean
-                // note drafts for this staff. Else clean all drafts for the ticket.
-                Draft::deleteForNamespace(
-                        sprintf('ticket.%s.%d',
-                              $ticket->isClosed() ? '%' : 'note',
-                              $ticket->getId()),
-                        $ticket->isOpen() ? $thisstaff->getId() : false);
-
                 $msg='Internal note posted successfully';
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
+                else
+                    // Ticket is still open -- clear draft for the note
+                    Draft::deleteForNamespace('ticket.note.'.$ticket->getId(),
+                        $thisstaff->getId());
 
             } else {
 

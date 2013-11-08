@@ -149,6 +149,14 @@ class Draft {
             $sql .= ' AND staff_id='.db_input($staff_id);
         return (!db_query($sql) || !db_affected_rows());
     }
+
+    static function cleanup() {
+        // Keep client drafts for two weeks (14 days)
+        $sql = 'DELETE FROM '.DRAFT_TABLE
+            ." WHERE `namespace` LIKE 'ticket.client.%'
+            AND datediff(now(), updated) > 14";
+        return db_query($sql);
+    }
 }
 
 ?>
