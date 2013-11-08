@@ -1889,7 +1889,7 @@ class Ticket {
 
         // Identify the user creating the ticket and unpack user information
         // fields into local scope for filtering and banning purposes
-        $user_form = UserForm::getInstance();
+        $user_form = UserForm::getUserForm();
         $user_info = $user_form->getClean();
         if ($user_form->isValid())
             $vars += $user_info;

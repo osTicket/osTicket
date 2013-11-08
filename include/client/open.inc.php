@@ -40,7 +40,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
     </tr>
 <?php
         if (!$thisclient) {
-            UserForm::getInstance()->render(false, 'Your Information');
+            UserForm::getUserForm()->render(false, 'Your Information');
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
