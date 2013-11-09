@@ -22,7 +22,7 @@ RedactorPlugins.draft = {
         if (this.opts.draft_object_id)
             autosave_url += '.' + this.opts.draft_object_id;
         this.opts.autosave = autosave_url;
-        this.opts.autosaveInterval = 4;
+        this.opts.autosaveInterval = 10;
         this.opts.autosaveCallback = this.setupDraftUpdate;
         this.opts.initCallback = this.recoverDraft;
     },
@@ -33,7 +33,7 @@ RedactorPlugins.draft = {
             statusCode: {
                 200: function(json) {
                     self.draft_id = json.draft_id;
-                    // Relace the current content with the draft, sync, and make
+                    // Replace the current content with the draft, sync, and make
                     // images editable
                     self.setupDraftUpdate(json);
                     if (!json.body) return;
@@ -106,7 +106,7 @@ RedactorPlugins.draft = {
             success: function() {
                 self.draft_id = undefined;
                 self.hideDraftSaved();
-                self.set('');
+                self.set('', false, false);
                 self.opts.autosave = self.opts.original_autosave;
             }
         });
@@ -145,9 +145,17 @@ $(function() {
                 'tabFocus': false
             };
         if (el.data('redactor')) return;
+        var reset = $('input[type=reset]', el.closest('form'));
+        if (reset) {
+            reset.click(function() {
+                if (el.hasClass('draft'))
+                    el.redactor('deleteDraft');
+                else
+                    el.redactor('set', '', false, false);
+            });
+        }
         if (el.hasClass('draft')) {
-            var reset = $('input[type=reset]', el.closest('form')),
-                draft_saved = $('<span>')
+            var draft_saved = $('<span>')
                 .addClass("pull-right draft-saved faded")
                 .css({'position':'relative','top':'-1.8em','right':'1em'})
                 .hide()
@@ -155,14 +163,6 @@ $(function() {
                     .css({'position':'relative', 'top':'0.17em'})
                     .text('Draft Saved'));
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
-            if (reset) {
-                reset.click(function() {
-                    if (el.hasClass('draft'))
-                        el.redactor('deleteDraft');
-                    else
-                        el.redactor('set', '');
-                });
-            }
             if (el.hasClass('draft-delete')) {
                 draft_saved.append($('<span>')
                     .addClass('action-button')
