@@ -200,6 +200,7 @@ var autoLock = {
             type: 'POST',
             url: 'ajax.php/tickets/'+autoLock.tid+'/lock/'+autoLock.lockId+'/release',
             data: 'delete',
+            async: false,
             cache: false,
             success: function(){
 
@@ -257,7 +258,8 @@ var autoLock = {
         clearTimeout(autoLock.timerId);
         autoLock.timerId=setTimeout(function () { autoLock.monitorEvents() },30000);
     }
-}
+};
+$.autoLock = autoLock;
 
 /*
    UI & form events
