@@ -88,14 +88,8 @@ class User extends UserModel {
             ));
             $user->save(true);
             $user->emails->add($user->default_email);
-
             // Attach initial custom fields
-            $uf = UserForm::getInstance();
-            foreach ($uf->getFields() as $f)
-                if (isset($data[$f->get('name')]))
-                    $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
-            $uf->setClientId($user->id);
-            $uf->save();
+            $user->addDynamicData($data);
         }
 
         return $user;
@@ -142,6 +136,18 @@ class User extends UserModel {
                 return $a;
     }
 
+    function addDynamicData($data) {
+
+        $uf = UserForm::getInstance();
+        $uf->setClientId($this->id);
+        foreach ($uf->getFields() as $f)
+            if (isset($data[$f->get('name')]))
+                $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
+        $uf->save();
+
+        return $uf;
+    }
+
     function getDynamicData() {
         if (!isset($this->_entries)) {
             $this->_entries = DynamicFormEntry::forClient($this->id)->all();
@@ -152,6 +158,57 @@ class User extends UserModel {
             }
         }
         return $this->_entries;
+    }
+
+    function updateInfo($source, &$errors) {
+
+        //Get forms and validate
+        $custom_data = $this->getDynamicData();
+        $valid = true;
+        foreach ($custom_data as $cd) {
+            $cd->addMissingFields();
+            $valid &= $cd->isValid();
+        }
+
+        if (!$valid) return false;
+
+        // Save custom data
+        foreach ($custom_data as $cd) {
+            foreach ($cd->getFields() as $f) {
+                if ($f->get('name') == 'name') {
+                    $this->name = $f->getClean();
+                    $this->save();
+                }
+                elseif ($f->get('name') == 'email') {
+                    $this->default_email->address = $f->getClean();
+                    $this->default_email->save();
+                }
+            }
+            $cd->save();
+        }
+
+        return true;
+    }
+
+    function getForms($data=null) {
+
+        $forms = array();
+        foreach ($this->getDynamicData() as $cd) {
+            $cd->addMissingFields();
+            if ($data)
+                $cd->isValid();
+            else {
+                foreach ($cd->getFields() as $f) {
+                    if ($f->get('name') == 'name')
+                        $f->value = $this->getFullName();
+                    elseif ($f->get('name') == 'email')
+                        $f->value = $this->getEmail();
+                }
+            }
+            $forms[] = $cd->getForm();
+        }
+
+        return $forms;
     }
 
     function save($refetch=false) {
@@ -352,3 +409,5 @@ class UserEmail extends UserEmailModel {
         return $email;
     }
 }
+
+?>
