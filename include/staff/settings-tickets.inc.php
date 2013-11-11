@@ -240,14 +240,16 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?> >Email attachments to the user
             </td>
         </tr>
-        <?php if (($bks = AttachmentStorageBackend::allRegistered())
+        <?php if (($bks = FileStorageBackend::allRegistered())
                 && count($bks) > 1) { ?>
         <tr>
             <td width="180">Store Attachments:</td>
             <td><select name="default_storage_bk"><?php
                 foreach ($bks as $char=>$class) {
-                    ?><option value="<?php echo $char; ?>
-                    "><?php echo $class::$desc; ?></option><?php
+                    $selected = $config['default_storage_bk'] == $char
+                        ? 'selected="selected"' : '';
+                    ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
+                    ><?php echo $class::$desc; ?></option><?php
                 } ?>
             </td>
         </tr>

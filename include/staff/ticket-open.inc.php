@@ -278,7 +278,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             if($info['cannedattachments']) {
                                 foreach($info['cannedattachments'] as $k=>$id) {
                                     if(!($file=AttachmentFile::lookup($id))) continue;
-                                    $hash=$file->getHash().md5($file->getId().session_id().$file->getHash());
+                                    $hash=$file->getKey().md5($file->getId().session_id().$file->getKey());
                                     echo sprintf('<label><input type="checkbox" name="cannedattachments[]"
                                             id="f%d" value="%d" checked="checked"
                                             <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',

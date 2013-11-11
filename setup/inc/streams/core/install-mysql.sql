@@ -317,14 +317,17 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%file`;
 CREATE TABLE `%TABLE_PREFIX%file` (
   `id` int(11) NOT NULL auto_increment,
   `ft` CHAR( 1 ) NOT NULL DEFAULT  'T',
+  `bk` CHAR( 1 ) NOT NULL DEFAULT  'D',
   `type` varchar(255) NOT NULL default '',
   `size` varchar(25) NOT NULL default '',
-  `hash` varchar(125) NOT NULL,
+  `key` varchar(125) collate ascii_bin NOT NULL,
+  `signature` varchar(125) collate ascii_bin NOT NULL,
   `name` varchar(255) NOT NULL default '',
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `ft` (`ft`),
-  KEY `hash` (`hash`)
+  KEY `key` (`key`)
+  KEY `signature` (`signature`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file_chunk`;

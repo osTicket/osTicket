@@ -107,7 +107,7 @@ class DraftAjaxAPI extends AjaxController {
             return Http::response(500, 'Unable to attach image');
 
         echo JsonDataEncoder::encode(array(
-            'content_id' => 'cid:'.$f->getHash(),
+            'content_id' => 'cid:'.$f->getKey(),
             'filelink' => sprintf('image.php?h=%s', $f->getDownloadHash())
         ));
     }
