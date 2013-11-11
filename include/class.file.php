@@ -12,6 +12,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once(INCLUDE_DIR.'class.signal.php');
+require_once(INCLUDE_DIR.'class.error.php');
 
 class AttachmentFile {
 
@@ -118,14 +119,24 @@ class AttachmentFile {
             return;
 
         @ini_set('zlib.output_compression', 'Off');
-        $bk->passthru();
+        try {
+            $bk->passthru();
+        }
+        catch (IOException $ex) {
+            Http::response(404, 'File not found');
+        }
     }
 
     function getData() {
         # XXX: This is horrible, and is subject to php's memory
         #      restrictions, etc. Don't use this function!
         ob_start();
-        $this->sendData(false);
+        try {
+            $this->sendData(false);
+        }
+        catch (IOException $ex) {
+            Http::response(404, 'File not found');
+        }
         $data = &ob_get_contents();
         ob_end_clean();
         return $data;
