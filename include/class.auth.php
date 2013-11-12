@@ -43,48 +43,23 @@ class AuthenticationBackend {
     }
 
     /* static */
-    function process($username, $password=null, $backend=null, &$errors) {
-        global $ost;
+    function process($username, $password=null, &$errors) {
+        if (!$username)
+            return false;
+
+        $backend = static::_getAllowedBackends($username);
 
         foreach (static::$registry as $bk) {
             if ($backend && $bk->supportsAuthentication() && $bk::$id != $backend)
                 // User cannot be authenticated against this backend
                 continue;
+            // All backends are queried here, even if they don't support
+            // authentication so that extensions like lockouts and audits
+            // can be supported.
             $result = $bk->authenticate($username, $password);
             if ($result instanceof AuthenticatedUser) {
-                //Log debug info.
-                $ost->logDebug('Staff login',
-                    sprintf("%s logged in [%s], via %s", $result->getUserName(),
-                        $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
-
-                if ($result instanceof Staff) {
-                    $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() '
-                        .' WHERE staff_id='.db_input($result->getId());
-                    db_query($sql);
-                    //Now set session crap and lets roll baby!
-                    $_SESSION['_staff'] = array(); //clear.
-                    $_SESSION['_staff']['userID'] = $username;
-                    $result->refreshSession(); //set the hash.
-
-                    $_SESSION['TZ_OFFSET'] = $result->getTZoffset();
-                    $_SESSION['TZ_DST'] = $result->observeDaylight();
-
-                    $_SESSION['_staff']['backend'] = $bk;
-                }
-
-                //Regenerate session id.
-                $sid = session_id(); //Current id
-                session_regenerate_id(true);
-                // Destroy old session ID - needed for PHP version < 5.1.0
-                // DELME: remove when we move to php 5.3 as min. requirement.
-                if(($session=$ost->getSession()) && is_object($session)
-                        && $sid!=session_id())
-                    $session->destroy($sid);
-
-                Signal::send('auth.login.succeeded', $result);
-
-                $result->cancelResetTokens();
-
+                static::_login($result, $username, $bk);
+                $result->backend = $bk;
                 return $result;
             }
             // TODO: Handle permission denied, for instance
@@ -95,6 +70,83 @@ class AuthenticationBackend {
         }
         $info = array('username'=>$username, 'password'=>$password);
         Signal::send('auth.login.failed', null, $info);
+    }
+
+    function singleSignOn(&$errors) {
+        global $ost;
+
+        foreach (static::$registry as $bk) {
+            // All backends are queried here, even if they don't support
+            // authentication so that extensions like lockouts and audits
+            // can be supported.
+            $result = $bk->signOn();
+            if ($result instanceof AuthenticatedUser) {
+                // Ensure staff members are allowed to be authenticated
+                // against this backend
+                if ($result instanceof Staff
+                        && !static::_isBackendAllowed($result, $bk))
+                    continue;
+                static::_login($result, $result->getUserName(), $bk);
+                $result->backend = $bk;
+                return $result;
+            }
+            // TODO: Handle permission denied, for instance
+            elseif ($result instanceof AccessDenied) {
+                $errors['err'] = $result->reason;
+                break;
+            }
+        }
+    }
+
+    function _isBackendAllowed($staff, $bk) {
+        $sql = 'SELECT backend FROM '.STAFF_TABLE
+            .' WHERE staff_id='.db_input($staff->getId());
+        $backend = db_result(db_query($sql));
+        return !$backend || strcasecmp($bk, $backend) === 0;
+    }
+
+    function _getAllowedBackends($username) {
+        $username = trim($_POST['userid']);
+        $sql = 'SELECT backend FROM '.STAFF_TABLE
+            .' WHERE username='.db_input($username)
+            .' OR email='.db_input($username);
+        return db_result(db_query($sql));
+    }
+
+    function _login($user, $username, $bk) {
+        global $ost;
+
+        if ($user instanceof Staff) {
+            //Log debug info.
+            $ost->logDebug('Staff login',
+                sprintf("%s logged in [%s], via %s", $user->getUserName(),
+                    $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
+
+            $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() '
+                .' WHERE staff_id='.db_input($user->getId());
+            db_query($sql);
+            //Now set session crap and lets roll baby!
+            $_SESSION['_staff'] = array(); //clear.
+            $_SESSION['_staff']['userID'] = $username;
+
+            $user->refreshSession(); //set the hash.
+
+            $_SESSION['TZ_OFFSET'] = $user->getTZoffset();
+            $_SESSION['TZ_DST'] = $user->observeDaylight();
+        }
+
+        //Regenerate session id.
+        $sid = session_id(); //Current id
+        session_regenerate_id(true);
+        // Destroy old session ID - needed for PHP version < 5.1.0
+        // DELME: remove when we move to php 5.3 as min. requirement.
+        if(($session=$ost->getSession()) && is_object($session)
+                && $sid!=session_id())
+            $session->destroy($sid);
+
+        Signal::send('auth.login.succeeded', $user);
+
+        $user->cancelResetTokens();
     }
 
     /**
@@ -142,6 +194,16 @@ class AuthenticationBackend {
     }
 
     function supportsPasswordReset() {
+        return false;
+    }
+
+    /* abstract */
+    function authenticate($username, $password) {
+        return false;
+    }
+
+    /* abstract */
+    function signOn() {
         return false;
     }
 }
