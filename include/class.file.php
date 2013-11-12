@@ -119,9 +119,9 @@ class AttachmentFile {
         return FileStorageBackend::getInstance($this);
     }
 
-    function sendData($redirect=true) {
+    function sendData($redirect=true, $disposition='inline') {
         $bk = $this->open();
-        if ($redirect && $bk->sendRedirectUrl())
+        if ($redirect && $bk->sendRedirectUrl($disposition))
             return;
 
         @ini_set('zlib.output_compression', 'Off');
@@ -213,7 +213,7 @@ class AttachmentFile {
 
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$this->getSize());
-        $this->sendData();
+        $this->sendData(true, 'attachment');
         exit();
     }
 
@@ -336,12 +336,18 @@ class AttachmentFile {
             .',`key`='.db_input($file['key'])
             .',signature='.db_input($file['signature']);
 
-        if (!(db_query($sql) && ($file['id']=db_insert_id())))
+        if (!(db_query($sql) && ($id = db_insert_id())))
             return false;
 
-        $bk = self::getBackendForFile($file);
-        if (isset($file['tmp_file'])) {
-            if (!$bk->upload($file['tmp_file']))
+        if (!($f = AttachmentFile::lookup($id)))
+            return false;
+
+        // Note that this is preferred over $f->open() because the file does
+        // not have a valid backend configured yet. ::getBackendForFile()
+        // will consider the system configuration for storing the file
+        $bk = self::getBackendForFile($f);
+        if (isset($file['tmp_name'])) {
+            if (!$bk->upload($file['tmp_name']))
                 return false;
         }
         elseif (!$bk->write($file['data'])) {
@@ -352,14 +358,14 @@ class AttachmentFile {
         # XXX: ft does not exists during the upgrade when attachments are
         #      migrated! Neither does `bk`
         if ($ft) {
-            $sql .= 'UPDATE '.FILE_TABLE.' SET ft='
-                .db_input(FileStorageBackend::getBkChar($bk))
+            $sql = 'UPDATE '.FILE_TABLE.' SET bk='
+                .db_input($bk->getBkChar())
                 .', ft='.db_input($ft)
-                .' WHERE id='.db_input($file->getId());
+                .' WHERE id='.db_input($f->getId());
             db_query($sql);
         }
 
-        return $file->getId();
+        return $f->getId();
     }
 
     /**
@@ -379,22 +385,17 @@ class AttachmentFile {
 
         // Copy the file to the new backend and hash the contents
         $target = AttachmentStorageBackend::lookup($bk, $this->ht);
-        print("Opening source\n");
         $source = $this->open();
-        print("Copying data ");
         // TODO: Make this resumable so that if the file cannot be migrated
         //      in the max_execution_time, the migration can be continued
         //      the next time the cron runs
         while ($block = $source->read()) {
-            print(".");
             hash_update($before, $block);
             $target->write($block);
         }
-        print(" Done\n");
 
         // Verify that the hash of the target file matches the hash of the
         // source file
-        print("Verifying transferred data\n");
         $target = AttachmentStorageBackend::lookup($bk, $this->ht);
         while ($block = $target->read())
             hash_update($after, $block);
@@ -404,17 +405,27 @@ class AttachmentFile {
             return false;
         }
 
-        print("Updating file meta table\n");
         $sql = 'UPDATE '.FILE_TABLE.' SET bk='
             .db_input($target->getBkChar())
             .' WHERE id='.db_input($this->getId());
         if (!db_query($sql) || db_affected_rows()!=1)
             return false;
 
-        print("Unlinking source data\n");
         return $source->unlink();
     }
 
+    /**
+     * Considers the system's configuration for file storage selection based
+     * on the file information and purpose (FAQ attachment, image, etc).
+     *
+     * Parameters:
+     * $file - (hasharray) file information which would be passed to
+     * ::save() for instance.
+     *
+     * Returns:
+     * Instance<FileStorageBackend> backend selected based on the file
+     * received.
+     */
     static function getBackendForFile($file) {
         global $cfg;
 
@@ -633,7 +644,7 @@ class FileStorageBackend {
      * false to indicate that the read() method should be used to retrieve
      * the data and broker it to the user agent.
      */
-    function sendRedirectUrl() {
+    function sendRedirectUrl($disposition='inline') {
         return false;
     }
 
