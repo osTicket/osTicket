@@ -32,6 +32,8 @@ include_once(INCLUDE_DIR.'class.sla.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.user.php');
+require_once(INCLUDE_DIR.'class.collaborator.php');
+
 
 class Ticket {
 
@@ -64,7 +66,7 @@ class Ticket {
 
         $sql='SELECT  ticket.*, lock_id, dept_name '
             .' ,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
-            .' ,count(attach.attach_id) as attachments '
+            .' ,count(attach.attach_id) as attachments, count(collab.id) as collaborators '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
@@ -72,6 +74,8 @@ class Ticket {
                 .'ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
                 .'ticket.ticket_id=attach.ticket_id) '
+            .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab ON ('
+                .'ticket.ticket_id=collab.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 
@@ -98,6 +102,7 @@ class Ticket {
         $this->stats = null;
         $this->topic = null;
         $this->thread = null;
+        $this->collaborators = null;
 
         //REQUIRED: Preload thread obj - checked on lookup!
         $this->getThread();
@@ -567,7 +572,79 @@ class Ticket {
         return $this->getThread()->getEntries($type, $order);
     }
 
+    //Collaborators
+    function getNumCollaborators() {
+        return $this->ht['collaborators'];
+    }
 
+    function getActiveCollaborators() {
+        return $this->getCollaborators(array('isactive'=>1));
+    }
+
+
+    function getCollaborators($criteria=array()) {
+
+        if($criteria)
+            return Collaborator::forTicket($this->getId(), $criteria);
+
+        if(!$this->collaborators && $this->getNumCollaborators())
+            $this->collaborators = Collaborator::forTicket($this->getId());
+
+        return $this->collaborators;
+    }
+
+    function addCollaborator($user, &$errors) {
+
+        if(!$user) return null;
+
+        $vars = array(
+                'ticketId' => $this->getId(),
+                'userId' => $user->getId());
+        if(!($c=Collaborator::add($vars, $errors)))
+            return null;
+
+        $this->ht['collaborators'] +=1;
+        $this->collaborators = null;
+
+
+        return $c;
+    }
+
+    //XXX: Ugly for now
+    function updateCollaborators($vars, &$errors) {
+
+
+        //Deletes
+        if($vars['del'] && ($ids=array_filter($vars['del']))) {
+            $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
+                .' WHERE ticket_id='.db_input($this->getId())
+                .' AND id IN('.implode(',', db_input($ids)).')';
+            if(db_query($sql))
+                $this->ht['collaborators'] -= db_affected_rows();
+        }
+
+        //statuses
+        $cids = null;
+        if($vars['cid'] && ($cids=array_filter($vars['cid']))) {
+            $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
+                .' SET updated=NOW(), isactive=1 '
+                .' WHERE ticket_id='.db_input($this->getId())
+                .' AND id IN('.implode(',', db_input($cids)).')';
+            db_query($sql);
+        }
+
+        $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
+            .' SET updated=NOW(), isactive=0 '
+            .' WHERE ticket_id='.db_input($this->getId());
+        if($cids)
+            $sql.=' AND id NOT IN('.implode(',', db_input($cids)).')';
+
+        db_query($sql);
+
+        $this->collaborators = null;
+
+        return true;
+    }
 
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
