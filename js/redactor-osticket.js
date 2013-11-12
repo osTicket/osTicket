@@ -125,9 +125,10 @@ $(function() {
                   .attr('height',img.clientHeight);
             html = html.replace(before, img.outerHTML);
         });
-        // Drop the placeholder text if found in the box
+        // Drop <inline> elements if found in the text (shady mojo happening
+        // inside the Redactor editor)
         // DELME: When this is fixed upstream in Redactor
-        html = html.replace(/<span class="redactor_placeholder[^<]+<\/span>/, '');
+        html = html.replace(/<inline /, '<span ').replace(/<\/inline>/, '</span>');
         return html;
     },
     redact = function(el) {
@@ -184,8 +185,8 @@ $(function() {
         }
         el.redactor(options);
     },
-    findRichtextBoxes = function(context) {
-        $('.richtext', context||document).each(function(i,el) {
+    findRichtextBoxes = function() {
+        $('.richtext').each(function(i,el) {
             if ($(el).hasClass('ifhtml'))
                 // Check if html_thread is enabled first
                 getConfig().then(function(c) {
@@ -198,8 +199,5 @@ $(function() {
         });
     };
     findRichtextBoxes();
-    $.fn.redactify = function() {
-        this.each(function(i,e) { findRichtextBoxes(e); });
-        return this;
-    }
+    $(document).ajaxStop(findRichtextBoxes);
 });

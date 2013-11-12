@@ -1245,12 +1245,14 @@ time {
     font-size:20px;
     margin:0;
     padding:0;
-    display:inline-block;
+    position: relative;
 }
 
 .dialog a.close {
+    position: absolute;
     display:inline-block;
-    float:right;
+    right: 1em;
+    top: 1em;
     font-size:16px;
     color:#777;
 }
@@ -1295,6 +1297,10 @@ time {
     text-align:center;
     color:#777;
     font-size:0.75em;
+}
+
+.dialog.draggable h3:hover {
+    cursor: crosshair;
 }
 
 #advanced-search .query input {

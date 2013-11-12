@@ -355,11 +355,12 @@ $(document).ready(function(){
 
     //Dialog
     $('.dialog').each(function() {
-        var w = $(window);
-        $(this).css({
+        var w = $(window), $this=$(this);
+        $this.css({
             top : (w.innerHeight() / 7),
-            left : (w.width() - $(this).outerWidth()) / 2
-        }).draggable();
+            left : (w.width() - $this.outerWidth()) / 2
+        });
+        $this.hasClass('draggable') && $this.draggable({handle:'h3'});
     });
 
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {

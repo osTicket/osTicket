@@ -479,7 +479,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3>Please Confirm</h3>
-    <a class="close" href="">&times;</a>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="close-confirm">
         Are you sure want to <b>close</b> selected open tickets?
@@ -509,7 +509,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 
 <div class="dialog" style="display:none;" id="advanced-search">
     <h3>Advanced Ticket Search</h3>
-    <a class="close" href="">&times;</a>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <form action="tickets.php" method="post" id="search" name="search">
         <input type="hidden" name="a" value="search">
         <fieldset class="query">

@@ -171,7 +171,7 @@ endif;
 
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3>Please Confirm</h3>
-    <a class="close" href="">&times;</a>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong>Are you sure you want to DELETE selected logs?</strong></font>

@@ -164,7 +164,8 @@ body .redactor_box_fullscreen {
 	margin-bottom: 15px !important;
 }
 .redactor_editor blockquote {
-	margin-left: 3em !important;
+	margin-left: 1.5em !important;
+	padding-left: 0 !important;
 	color: #777;
 	font-style: italic !important;
 }

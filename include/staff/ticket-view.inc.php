@@ -148,8 +148,7 @@ if($ticket->isOverdue())
                             echo $ticket->getOwnerId(); ?>"
                         onclick="javascript:
                             $('#overlay').show();
-                            $('#user-info .body').load(this.href,
-                                function() { $(this).redactify(); });
+                            $('#user-info .body').load(this.href);
                             $('#user-info').show();
                             return false;
                             "><i class="icon-user"></i> <?php
@@ -833,12 +832,12 @@ if(!$cfg->showNotesInline()) { ?>
     <?php
     } ?>
 </div>
-<div style="display:none;" class="dialog" id="user-info">
+<div style="display:none;" class="dialog draggable" id="user-info">
     <div class="body"></div>
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3>Ticket Print Options</h3>
-    <a class="close" href="">&times;</a>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="print-form" name="print-form">
         <?php csrf_token(); ?>
@@ -877,7 +876,7 @@ if(!$cfg->showNotesInline()) { ?>
 </div>
 <div style="display:none;" class="dialog" id="ticket-status">
     <h3><?php echo sprintf('%s Ticket #%s', ($ticket->isClosed()?'Reopen':'Close'), $ticket->getNumber()); ?></h3>
-    <a class="close" href="">&times;</a>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <?php echo sprintf('Are you sure you want to <b>%s</b> this ticket?', $ticket->isClosed()?'REOPEN':'CLOSE'); ?>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="status-form" name="status-form">
@@ -908,7 +907,7 @@ if(!$cfg->showNotesInline()) { ?>
 </div>
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3>Please Confirm</h3>
-    <a class="close" href="">&times;</a>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="claim-confirm">
         Are you sure want to <b>claim</b> (self assign) this ticket?
