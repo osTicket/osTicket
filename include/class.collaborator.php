@@ -108,6 +108,25 @@ class Collaborator {
         return false;
     }
 
+    static function forTicket($tid, $criteria=array()) {
+
+        $collaborators = array();
+
+        $sql='SELECT id FROM '.TICKET_COLLABORATOR_TABLE
+            .' WHERE ticket_id='.db_input($tid);
+
+        if(isset($criteria['isactive']))
+            $sql.=' AND isactive='.db_input($criteria['isactive']);
+
+        //TODO: sort by name of the user
+
+        if(($res=db_query($sql)) && db_num_rows($res))
+            while(list($id)=db_fetch_row($res))
+                $collaborators[] = self::lookup($id);
+
+        return $collaborators;
+    }
+
     static function getIdByInfo($info) {
 
         $sql='SELECT id FROM '.TICKET_COLLABORATOR_TABLE
