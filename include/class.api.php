@@ -337,7 +337,7 @@ class ApiXmlDataParser extends XmlDataParser {
                 if (isset($value['encoding']))
                     $value['body'] = Format::utf8encode($value['body'], $value['encoding']);
                 if (!isset($value['type']) || $value['type'] != 'text/html')
-                    $value = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    $value = sprintf('<pre>%s</pre>',
                         Format::htmlchars($value['body']));
                 else
                     $value = $value['body'];
@@ -381,7 +381,7 @@ class ApiJsonDataParser extends JsonDataParser {
                 // Allow message specified in RFC 2397 format
                 $data = Format::parseRfc2397($value, 'utf-8');
                 if (!isset($data['type']) || $data['type'] != 'text/html')
-                    $value = sprintf('<div style="white-space:pre-wrap">%s</div>',
+                    $value = sprintf('<pre>%s</pre>',
                         Format::htmlchars($data['data']));
                 else
                     $value = $data['data'];
