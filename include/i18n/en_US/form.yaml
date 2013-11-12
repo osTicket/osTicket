@@ -144,4 +144,5 @@
         rows: 2
         cols: 40
         html: false
+        maxlength: 100
 
