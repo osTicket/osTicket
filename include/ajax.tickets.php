@@ -448,5 +448,113 @@ class TicketsAjaxAPI extends AjaxController {
 
         return $resp;
     }
+
+    //Collaborators utils
+    function addCollaborator($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+        $errors = $info = array();
+        $user = null;
+        $form = UserForm::getInstance();
+        if ($form->isValid())
+            $user = User::fromForm($form->getClean());
+
+        if ($user && ($c=$ticket->addCollaborator($user, $errors))) {
+            $info +=array('msg' => sprintf('%s added as a collaborator',
+                        $c->getName()));
+            $form = null;
+        } elseif($errors && $errors['err']) {
+            $info +=array('add_error' => $errors['err']);
+        } else {
+            $info +=array('add_error' =>'Errors occurred - try again');
+        }
+
+        return self::_collaborators($ticket, $form, $info);
+    }
+
+    function updateCollaborator($cid) {
+        global $thisstaff;
+
+        if(!($c=Collaborator::lookup($cid))
+                || !($user=$c->getUser())
+                || !($ticket=$c->getTicket())
+                || !$ticket->checkStaffAccess($thisstaff)
+                )
+            Http::response(404, 'Unknown collaborator');
+
+        $errors = array();
+        if(!$user->updateInfo($_POST, $errors))
+            return self::_collaborator($c ,$user->getForms($_POST), $errors);
+
+        $info = array('msg' => sprintf('%s updated successfully',
+                    $c->getName()));
+
+        return self::_collaborators($ticket, null, $info);
+    }
+
+    function viewCollaborator($cid) {
+        global $thisstaff;
+
+        if(!($collaborator=Collaborator::lookup($cid))
+                || !($ticket=$collaborator->getTicket())
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown collaborator');
+
+        return self::_collaborator($collaborator);
+    }
+
+    function showCollaborators($tid) {
+        global $thisstaff;
+
+        if(!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+        return self::_collaborators($ticket);
+    }
+
+
+    function updateCollaborators($tid) {
+        global $thisstaff;
+
+        if(!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+       $errors = $info = array();
+        if ($ticket->updateCollaborators($_POST, $errors)) {
+            $info +=array('msg' => 'Collaborators updated successfully');
+        } elseif($errors && $errors['err']) {
+            $info +=array('error' => $errors['err']);
+        }
+
+        return self::_collaborators($ticket, null, $info);
+    }
+
+
+
+    function _collaborator($collaborator, $form=null, $errors=array()) {
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/collaborator.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+    }
+
+    function _collaborators($ticket, $form=null, $info=array()) {
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/collaborators.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+    }
 }
 ?>

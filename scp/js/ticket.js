@@ -363,6 +363,93 @@ jQuery(function($) {
         return false;
     });
 
+    //Collaborators
+    $(document).on('click', 'a#managecollaborators, a#addcollaborators, a.editcollaborator', function(e) {
+        e.preventDefault();
+        var target = $(this).attr('href').substr(1);
+        $('.dialog.collaborators .body').load('ajax.php/'+target, function () {
+            $('#overlay').show();
+            $('.dialog.collaborators').show();
+         });
+
+        return false;
+     });
+
+    $(document).on('click', 'form.collaborators a#addcollaborator', function (e) {
+        e.preventDefault();
+        $('div#manage_collaborators').hide();
+        $('div#add_collaborator').fadeIn();
+        return false;
+     });
+
+    $(document).on('click', 'form.collaborators a.remove', function (e) {
+        e.preventDefault();
+        var fObj = $(this).closest('form');
+        $('input'+$(this).attr('href'))
+            .val($(this).attr('href').substr(2))
+            .trigger('change');
+        $(this).closest('tr').addClass('strike');
+
+        return false;
+     });
+
+    $(document).on('change', 'form.collaborators input:checkbox, input[name="del[]"]', function (e) {
+       var fObj = $(this).closest('form');
+       $('div#savewarning', fObj).fadeIn();
+       $('input:submit', fObj).css('color', 'red');
+     });
+
+    $(document).on('click', 'form.collaborators input:reset', function(e) {
+        var fObj = $(this).closest('form');
+        fObj.find('input[name="del[]"]').val('');
+        fObj.find('tr').removeClass('strike');
+        $('div#savewarning', fObj).hide();
+        $('input:submit', fObj).removeAttr('style');
+    });
+
+
+    $(document).on('click', 'form.collaborators input.cancel', function (e) {
+        e.preventDefault();
+        var $elem = $(this);
+
+        if($elem.attr('data-href')) {
+            var href = $elem.data('href').substr(1);
+            $('.dialog.collaborators .body').load('ajax.php/'+href, function () {
+                });
+        } else {
+
+            $('div#manage_collaborators').show();
+            $('div#add_collaborator').hide();
+        }
+        return false;
+    });
+
+    $(document).on('change', 'form#reply select#emailreply', function(e) {
+         var $cc = $('form#reply tbody#cc_sec');
+        if($(this).val() == 0)
+            $cc.hide();
+        else
+            $cc.show();
+     });
+
+    $(document).on('submit', 'form.collaborators', function(e) {
+        e.preventDefault();
+        var fObj = $(this);
+        $.ajax({
+                type: "POST",
+                url: 'ajax.php/'+fObj.attr('action').substr(1),
+                data: fObj.serialize(),
+                cache: false,
+                success: function(resp){
+                    $('.dialog.collaborators .body').html(resp);
+                    $('#msg_notice, #msg_error').delay(5000).fadeOut();
+                }
+            })
+            .done(function() { })
+            .fail(function() { });
+        return false;
+    });
+
     var showNonLocalImage = function(div) {
         var $div = $(div),
             $img = $div.append($('<img>')

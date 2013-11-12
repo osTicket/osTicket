@@ -818,6 +818,9 @@ $tcount+= $ticket->getNumNotes();
     <?php
     } ?>
 </div>
+<div style="display:none;width:650px;" class="dialog draggable collaborators">
+    <div class="body"></div>
+</div>
 <div style="display:none;" class="dialog draggable" id="user-info">
     <div class="body"></div>
 </div>
