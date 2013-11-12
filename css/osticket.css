@@ -54,3 +54,16 @@ div.section-break {
 input.dp {
     width: 10em;
 }
+
+/* Custom css for datepicker */
+.ui-datepicker-trigger {
+    display:inline-block;
+    border:0;
+    padding:0;
+    margin-left:2px;
+    position:relative;
+    top:-2px;
+    width:16px;
+    height:16px;
+    background:inherit;
+}

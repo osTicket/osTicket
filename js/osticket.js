@@ -107,6 +107,23 @@ $(document).ready(function(){
             });
         });
     }
+
+    $.translate_format = function(str) {
+        var translation = {
+            'd':'dd',
+            'j':'d',
+            'z':'o',
+            'm':'mm',
+            'F':'MM',
+            'n':'m',
+            'Y':'yy'
+        };
+        // Change PHP formats to datepicker ones
+        $.each(translation, function(php, jqdp) {
+            str = str.replace(php, jqdp);
+        });
+        return str;
+    };
 });
 
 showImagesInline = function(urls, thread_id) {
