@@ -64,6 +64,11 @@ RedactorPlugins.draft = {
     setupDraftUpdate: function(data) {
         this.$box.parent().find('.draft-saved').show();
 
+        // Slight workaround. Signal the 'keyup' event normally signaled
+        // from typing in the <textarea>
+        if ($.autoLock && this.opts.draft_namespace == 'ticket.response')
+            $.autoLock.handleEvent();
+
         if (typeof data != 'object')
             data = $.parseJSON(data);
 
