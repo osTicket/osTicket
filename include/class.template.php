@@ -40,6 +40,9 @@ class EmailTemplateGroup {
         'ticket.reply'=>array(
             'name'=>'Response/Reply Template',
             'desc'=>'Template used on ticket response/reply'),
+        'ticket.activity.notice'=>array(
+            'name'=>'New Activity Notice',
+            'desc'=>'Template used to notify collaborators on ticket activity (e.g CC on reply)'),
         'ticket.alert'=>array(
             'name'=>'New Ticket Alert',
             'desc'=>'Alert sent to staff, if enabled, on new ticket.'),
@@ -204,6 +207,10 @@ class EmailTemplateGroup {
 
     function getReplyMsgTemplate() {
         return $this->getMsgTemplate('ticket.reply');
+    }
+
+    function  getActivityNoticeMsgTemplate() {
+        return $this->getMsgTemplate('ticket.activity.notice');
     }
 
     function getOverlimitMsgTemplate() {
