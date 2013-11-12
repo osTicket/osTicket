@@ -203,6 +203,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </p>
 </form>
 
-<div style="display:none;" class="dialog" id="field-config">
+<div style="display:none;" class="dialog draggable" id="field-config">
     <div class="body"></div>
 </div>

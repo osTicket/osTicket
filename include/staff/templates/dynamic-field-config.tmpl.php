@@ -1,5 +1,5 @@
     <h3>Field Configuration &mdash; <?php echo $field->get('label') ?></h3>
-    <a class="close" href="">&times;</a>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <form method="post" action="ajax.php/form/field-config/<?php
             echo $field->get('id'); ?>" onsubmit="javascript:
