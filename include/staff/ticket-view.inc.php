@@ -504,7 +504,7 @@ if(!$cfg->showNotesInline()) { ?>
             <?php
             if($cfg->allowAttachments()) { ?>
             <tr>
-                <td width="120">
+                <td width="120" style="vertical-align:top">
                     <label for="attachment">Attachments:</label>
                 </td>
                 <td id="reply_form_attachments" class="attachments">

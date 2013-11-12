@@ -1068,10 +1068,13 @@ class ThreadEntryWidget extends Widget {
             || ($cfg->allowAttachmentsOnlogin()
                 && ($thisclient && $thisclient->isValid()))) { ?>
         <hr/>
-        <div><strong>Attachments:</strong></div>
-        <div class="uploads"></div><br>
+        <div><strong style="padding-right:1em;vertical-align:top">Attachments: </strong>
+        <div style="display:inline-block">
+        <div class="uploads" style="display:block"></div>
         <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />
+        </div>
         <font class="error">&nbsp;<?php echo $errors['attachments']; ?></font>
+        <hr/>
         <?php
         }
     }

@@ -114,16 +114,16 @@
             }
 
             $(this).bind('change.multifile', addInput);
-  
+
         });
   };
 
   $.fn.multifile.inputTemplate = function(file) {
-    return $('<label style="padding-right:5px;"><input type="checkbox" name="uploads[]" value="' + file.name + '" checked="checked"> ' + file.name + '</label>');
+    return $('<label style="padding-right:5px;"><input type="checkbox" name="uploads[]" value="' + file.name + '" checked="checked"> ' + file.name + '</label><br/>');
   };
 
   $.fn.multifile.checkFileTypes = function(file, allowedFileTypes) {
-     
+
       //Wildcard.
       if(allowedFileTypes[0]=='.*')
           return true;
