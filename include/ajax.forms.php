@@ -70,6 +70,18 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $valid &= $cd->isValid();
         }
 
+        if ($valid) {
+            foreach ($custom_data as $cd)
+                foreach ($cd->getFields() as $f)
+                    if ($f->get('name') == 'email')
+                        $email = $f;
+            $u = User::lookup(array('emails__address'=>$email->getClean()));
+            if ($u && $u->id != $user_id) {
+                $valid = false;
+                $email->addError('Email is assigned to another user');
+            }
+        }
+
         if (!$valid) {
             include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
             return;
