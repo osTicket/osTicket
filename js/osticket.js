@@ -136,16 +136,23 @@ showImagesInline = function(urls, thread_id) {
             e = $(el);
         if (info) {
             // Add a hover effect with the filename
-            var caption = $('<div class="image-hover">')
+            var timeout, caption = $('<div class="image-hover">');
+            e.wrap(caption).parent()
                 .hover(
-                    function() { $(this).find('.caption').slideDown(250); },
-                    function() { $(this).find('.caption').slideUp(250); }
+                    function() {
+                        var self = this;
+                        timeout = setTimeout(
+                            function() { $(self).find('.caption').slideDown(250); },
+                            500);
+                    },
+                    function() {
+                        clearTimeout(timeout);
+                        $(this).find('.caption').slideUp(250);
+                    }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
                     .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
-                )
-            caption.appendTo(e.parent())
-            e.appendTo(caption);
+                );
         }
     });
 
