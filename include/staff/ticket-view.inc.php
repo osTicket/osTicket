@@ -421,6 +421,37 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             </tbody>
             <?php
+            if(1) { //Make CC optional feature? NO, for now.
+                ?>
+            <tbody id="cc_sec" style="display:<?php echo $emailReply?
+            'table-row-group':'none'; ?>;">
+            <tr>
+                <td width="120">
+                    <label><strong>CC:</strong></label>
+                </td>
+                <td>
+                    <?php
+                    if($ticket->getNumCollaborators()) { ?>
+                        <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                            <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>>
+                       <?php
+                        echo sprintf('<a id="managecollaborators"
+                                href="#tickets/%d/collaborators/manage">Collaborators (%d)</a>',
+                                $ticket->getId(),
+                                $ticket->getNumCollaborators());
+                    } else {
+                        echo sprintf('<div><a id="addcollaborators"
+                                href="#tickets/%d/collaborators/manage" >Add Collaborators</a></div>',
+                                $ticket->getId());
+                    }
+                   ?>
+                </td>
+            </tr>
+            </tbody>
+            <?php
+            } ?>
+            <tbody id="resp_sec">
+            <?php
             if($errors['response']) {?>
             <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['response']; ?>&nbsp;</td></tr>
             <?php
@@ -519,7 +550,7 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <?php
             } ?>
-            </div>
+         </tbody>
         </table>
         <p  style="padding-left:165px;">
             <input class="btn_sm" type="submit" value="Post Reply">
