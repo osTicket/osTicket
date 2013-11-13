@@ -213,6 +213,12 @@ class Installer extends SetupWizard {
 	            if(!db_query($sql, false))
 	                $this->errors['err']='Unable to create config settings (#7)';
 			}
+
+            // Set company name
+            require_once(INCLUDE_DIR.'class.company.php');
+            $company = new Company();
+            $company->getForm()->setAnswer('name', $vars['name']);
+            $company->getForm()->save();
         }
 
         if($this->errors) return false; //Abort on internal errors.
