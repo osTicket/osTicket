@@ -60,7 +60,7 @@ class FAQ {
     function getKeywords() { return $this->ht['keywords']; }
     function getQuestion() { return $this->ht['question']; }
     function getAnswer() {
-        return Format::viewableImages($this->ht['answer']);
+        return Format::viewableImages($this->ht['answer'], ROOT_PATH.'image.php');
     }
     function getNotes() { return $this->ht['notes']; }
     function getNumAttachments() { return $this->ht['attachments']; }
