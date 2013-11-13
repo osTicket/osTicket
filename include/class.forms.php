@@ -606,7 +606,12 @@ class ChoiceField extends FormField {
     function getConfigurationOptions() {
         return array(
             'choices'  =>  new TextareaField(array(
-                'id'=>1, 'label'=>'Choices', 'required'=>false, 'default'=>'')),
+                'id'=>1, 'label'=>'Choices', 'required'=>false, 'default'=>'',
+                'hint'=>'List choices, one per line. To protect against
+                spelling changes, specify key:value names to preserve
+                entries if the list item names change',
+                'configuration'=>array('html'=>false)
+            )),
         );
     }
 

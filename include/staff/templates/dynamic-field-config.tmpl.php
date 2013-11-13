@@ -24,7 +24,7 @@
             else if ($f->get('default'))
                 $f->value = $f->get('default');
             ?>
-            <tr><td>
+            <tr><td class="multi-line">
             <label for="<?php echo $f->getWidget()->name; ?>"
                 style="vertical-align:top;padding-top:0.2em">
                 <?php echo Format::htmlchars($f->get('label')); ?>:</label>
@@ -53,7 +53,7 @@
         }
         ?>
         <tr><td colspan="2"><hr/></td></tr>
-        <tr><td>
+        <tr><td class="multi-line">
         <label for="hint"
             style="vertical-align:top;padding-top:0.2em">Help Text:</label>
         </td><td>

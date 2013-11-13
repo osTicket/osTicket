@@ -541,7 +541,7 @@ a.print {
 }
 
 
-.form_table td.multi-line {
+td.multi-line {
     vertical-align:top;
     padding-top: 0.4em;
     padding-bottom: 0.4em;
