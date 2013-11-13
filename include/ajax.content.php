@@ -21,7 +21,9 @@ class ContentAjaxAPI extends AjaxController {
     function log($id) {
 
         if($id && ($log=Log::lookup($id))) {
-            $content=sprintf('<div style="width:500px;">&nbsp;<strong>%s</strong><br><p>%s</p>
+            $content=sprintf('<div
+                    style="width:500px;">&nbsp;<strong>%s</strong><br><p
+                    style="white-space:pre-line;">%s</p>
                     <hr><strong>Log Date:</strong> <em>%s</em> <strong>IP Address:</strong> <em>%s</em></div>',
                     $log->getTitle(),
                     Format::display(str_replace(',',', ',$log->getText())),
