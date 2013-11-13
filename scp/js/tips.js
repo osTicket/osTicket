@@ -82,7 +82,7 @@ jQuery(function() {
             tip_box = $('<div>')
                 .addClass('tip_box'),
             tip_content = $('<div>')
-                .append('<a href="#" class="tip_close">x</a>')
+                .append('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>')
                 .addClass('tip_content'),
             the_tip = tip_box
                 .append(tip_arrow)
@@ -108,8 +108,24 @@ jQuery(function() {
                 return;
             }
             tip_content.append(
-                $('<h1>').append(section.title))
-                .append(section.content);
+                $('<h1>')
+                    .append('<i class="icon-info-sign faded"> ')
+                    .append(section.title)
+                ).append(section.content);
+            if (section.links) {
+                var links = $('<div class="links">');
+                $.each(section.links, function(i,l) {
+                    var icon = l.href.match(/^http/)
+                        ? 'icon-external-link' : 'icon-share-alt';
+                    links.append($('<div>')
+                        .append($('<a>')
+                            .html(l.title)
+                            .prepend('<i class="'+icon+'"></i> ')
+                            .attr('href', l.href).attr('target','_blank'))
+                    );
+                });
+                tip_content.append(links);
+            }
         });
         $('.tip_shadow', the_tip).css({
             "height":the_tip.height() + 5

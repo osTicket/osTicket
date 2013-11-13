@@ -4,6 +4,10 @@
 # Fields:
 # title - Shown in bold at the top of the popover window
 # content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
 #
 # The key names such as 'helpdesk_name' should not be translated as they
 # must match the HTML #ids put into the page template.
@@ -11,13 +15,74 @@
 ---
 helpdesk_status:
     title: Helpdesk Status
-    content: |
+    content: >
         Enables the client portal and the staff interface. If this option is
         disabled, then only staff marked as <b>Admins</b> will be able to
         access the helpdesk.
 
 helpdesk_url:
     title: Helpdesk URL
-    content: |
+    content: >
         This URL is the base of your osTicket installation. It is used in
         email communication to direct end users back to your helpdesk.
+
+helpdesk_name:
+    title: Helpdesk Name
+    content: >
+        Name that will appear in the browser tab when at your client
+        interface. If your help desk page is bookmarked, this will be the
+        title/name of the site page
+
+default_dept:
+    title: Default Department
+    content: >
+        Determines the default department for tickets submitted that do not
+        have a department auto-assigned by help topic or incoming email
+    links:
+      - title: Manage Departments
+        href: /scp/departments.php
+
+page_size:
+    title: Default Page Size
+    content: >
+        This determines the number of tickets per page on the ticket view
+        (Staff Panel &gt; Tickets). This can be defined in the
+        "My Preferences" for each staff member
+
+log_level:
+    title: Default Log Level
+    content: >
+        Determines the level of issues that will be saved in the system log
+        including, excess log-ins, denied tickets, etc.
+
+log_purge:
+    title: Purge Logs
+    content: >
+        Length, in months, you would like to keep the system log activity
+        for viewing on the System Logs page.
+
+name_format:
+    title: Default Name Format
+    content: >
+        Formatting technique used to format names throughout the system.
+        Email templates will use the format for names of no other format is
+        specified in the place holder.
+
+# Authentication settings
+password_reset:
+    title: Password Expiration Policy
+    content: >
+        Sets the requirement for how often (in months) staff will be
+        required to reset their password.
+
+# Date and time options
+date_and_time:
+    title: Localized Date Formats
+    content: >
+        Set up the format for the client’s Date &amp; Time.  To set time/date
+        for staff, go to Admin Panel &gt; Staff &gt; select staff profile to edit
+    links:
+      - title: PHP date() formats
+        href: "http://php.net/date"
+      - title: Your preferences
+        href: /scp/profile.php

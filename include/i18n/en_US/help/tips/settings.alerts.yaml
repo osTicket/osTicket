@@ -1,0 +1,71 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> System page
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+new_ticket:
+    title: New Ticket Alert
+    content: >
+        Alert sent out to staff members when new tickets are created in the
+        system.
+    links:
+      - title: Default New Ticket Alert Template
+        href: /scp/templates.php?default_for=ticket.alert
+
+new_message:
+    title: New Message Alert
+    content: >
+        Alert sent out when a new message, from the user, is appended to an
+        existing ticket
+    links:
+      - title: Default New Message Alert Template
+        href: /scp/templates.php?default_for=message.alert
+
+new_activity:
+    title: New Internal Note Alert
+    content: >
+        Alert sent out when a new internal note is posted
+    links:
+      - title: Default Ticket Activity Template
+        href: /scp/templates.php?default_for=note.alert
+
+assign_alert:
+    title: Alert on Assignment
+    content: >
+        Alert sent out to staff on ticket assignment
+    links:
+      - title: Default Ticket Assignment Alert Template
+        href: /scp/templates.php?default_for=assigned.alert
+
+transfer_alert:
+    title: Alert on Transfer
+    content: >
+        Alert sent out to staff of the target department on ticket transfer
+    links:
+      - title: Default Ticket Transfer Alert Template
+        href: /scp/templates.php?default_for=transfer.alert
+
+stale_alert:
+    title: Alert on Stale Ticket
+    content: >
+        Alert sent out when a ticket becomes overdue - admin email gets an
+        alert by default
+    links:
+      - title: Default Stale Ticket Alert Template
+        href: /scp/templates.php?default_for=ticket.overdue
+
+meltdowns:
+    title: System Errors
+    content: >
+        Enabled by default. Errors are sent to system admin email
+        (%{config.admin_email})

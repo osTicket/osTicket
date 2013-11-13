@@ -11,7 +11,9 @@
         </tr>
     </thead>
     <tbody>
-        <tr><th><em><b>New Ticket Alert</b>: Alert sent out on new tickets</em></th></tr>
+        <tr><th><em><b>New Ticket Alert</b>:
+            <i class="help-tip icon-question-sign" href="#new_ticket"></i>
+            </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
                 <input type="radio" name="ticket_alert_active"  value="1"   <?php echo $config['ticket_alert_active']?'checked':''; ?> />Enable
@@ -34,7 +36,9 @@
                 <input type="checkbox" name="ticket_alert_dept_members" <?php echo $config['ticket_alert_dept_members']?'checked':''; ?>> Department Members <em>(spammy)</em>
             </td>
         </tr>
-        <tr><th><em><b>New Message Alert</b>: Alert sent out when a new message, from the user, is appended to an existing ticket</em></th></tr>
+        <tr><th><em><b>New Message Alert</b>:
+            <i class="help-tip icon-question-sign" href="#new_message"></i>
+            </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp; 
               <input type="radio" name="message_alert_active"  value="1"   <?php echo $config['message_alert_active']?'checked':''; ?> />Enable
@@ -57,7 +61,9 @@
               <input type="checkbox" name="message_alert_dept_manager" <?php echo $config['message_alert_dept_manager']?'checked':''; ?>> Department Manager <em>(spammy)</em>
             </td>
         </tr>
-        <tr><th><em><b>New Internal Note Alert</b>: Alert sent out when a new internal note is posted.</em></th></tr>
+        <tr><th><em><b>New Internal Note Alert</b>:
+            <i class="help-tip icon-question-sign" href="#new_activity"></i>
+            </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
               <input type="radio" name="note_alert_active"  value="1"   <?php echo $config['note_alert_active']?'checked':''; ?> />Enable
@@ -81,7 +87,9 @@
               <input type="checkbox" name="note_alert_dept_manager" <?php echo $config['note_alert_dept_manager']?'checked':''; ?>> Department Manager <em>(spammy)</em>
             </td>
         </tr>
-        <tr><th><em><b>Ticket Assignment Alert</b>: Alert sent out to staff on ticket assignment.</em></th></tr>
+        <tr><th><em><b>Ticket Assignment Alert</b>:
+            <i class="help-tip icon-question-sign" href="#assign_alert"></i>
+            </em></th></tr>
         <tr>
             <td><em><b>Status: </b></em> &nbsp;
               <input name="assigned_alert_active" value="1" checked="checked" type="radio">Enable
@@ -106,7 +114,9 @@
                 Team Members <em>(spammy)</em>
             </td>
         </tr>
-        <tr><th><em><b>Ticket Transfer Alert</b>: Alert sent out to staff of the target department on ticket transfer.</em></th></tr>
+        <tr><th><em><b>Ticket Transfer Alert</b>:
+            <i class="help-tip icon-question-sign" href="#transfer_alert"></i>
+            </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
               <input type="radio" name="transfer_alert_active"  value="1"   <?php echo $config['transfer_alert_active']?'checked':''; ?> />Enable
@@ -130,7 +140,9 @@
                 Department Members <em>(spammy)</em>
             </td>
         </tr>
-        <tr><th><em><b>Overdue Ticket Alert</b>: Alert sent out when a ticket becomes overdue - admin email gets an alert by default.</em></th></tr>
+        <tr><th><em><b>Overdue Ticket Alert</b>:
+            <i class="help-tip icon-question-sign" href="#stale_alert"></i>
+            </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
               <input type="radio" name="overdue_alert_active"  value="1"   <?php echo $config['overdue_alert_active']?'checked':''; ?> />Enable
@@ -153,7 +165,9 @@
               <input type="checkbox" name="overdue_alert_dept_members" <?php echo $config['overdue_alert_dept_members']?'checked':''; ?>> Department Members <em>(spammy)</em>
             </td>
         </tr>
-        <tr><th><em><b>System Alerts</b>: Enabled by default. Errors are sent to system admin email (<?php echo $cfg->getAdminEmail(); ?>)</em></th></tr>
+        <tr><th><em><b>System Alerts</b>:
+            <i class="help-tip icon-question-sign" href="#meltdowns"></i>
+            </em></th></tr>
         <tr>
             <td>
               <input type="checkbox" name="send_sys_errors" checked="checked" disabled="disabled">System Errors

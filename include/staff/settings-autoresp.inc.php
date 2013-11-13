@@ -18,8 +18,8 @@
             <td>
                 <input type="radio" name="ticket_autoresponder"  value="1"   <?php echo $config['ticket_autoresponder']?'checked="checked"':''; ?> /><b>Enable</b>
                 <input type="radio" name="ticket_autoresponder"  value="0"   <?php echo !$config['ticket_autoresponder']?'checked="checked"':''; ?> />Disable
-                &nbsp;&nbsp;&nbsp;
-                <em>(Autoresponse includes the ticket ID required to check status of the ticket)</em>
+                &nbsp;
+                <i class="help-tip icon-question-sign" href="#new_ticket"></i>
             </td>
         </tr>
         <tr>
@@ -27,8 +27,8 @@
             <td>
                 <input type="radio" name="ticket_notice_active"  value="1"   <?php echo $config['ticket_notice_active']?'checked="checked"':''; ?> /><b>Enable</b>
                 <input type="radio" name="ticket_notice_active"  value="0"   <?php echo !$config['ticket_notice_active']?'checked="checked"':''; ?> />Disable
-                 &nbsp;&nbsp;&nbsp;
-                 <em>(Notice sent when staff creates a ticket on behalf of the user (Staff can override))</em>
+                &nbsp;
+                <i class="help-tip icon-question-sign" href="#new_staff_ticket"></i>
             </td>
         </tr>
         <tr>
@@ -36,8 +36,8 @@
             <td>
                 <input type="radio" name="message_autoresponder"  value="1"   <?php echo $config['message_autoresponder']?'checked="checked"':''; ?> /><b>Enable</b>
                 <input type="radio" name="message_autoresponder"  value="0"   <?php echo !$config['message_autoresponder']?'checked="checked"':''; ?> />Disable
-                &nbsp;&nbsp;&nbsp;
-                <em>(Confirmation notice sent when a new message is appended to an existing ticket)</em>
+                &nbsp;
+                <i class="help-tip icon-question-sign" href="#new_message"></i>
             </td>
         </tr>
         <tr>
@@ -45,8 +45,8 @@
             <td>
                 <input type="radio" name="overlimit_notice_active"  value="1"   <?php echo $config['overlimit_notice_active']?'checked="checked"':''; ?> /><b>Enable</b>
                 <input type="radio" name="overlimit_notice_active"  value="0"   <?php echo !$config['overlimit_notice_active']?'checked="checked"':''; ?> />Disable
-                &nbsp;&nbsp;&nbsp;
-                <em>(Ticket denied notice sent to user on limit violation. Admin gets alerts on ALL denials by default)</em>
+                &nbsp;
+                <i class="help-tip icon-question-sign" href="#overlimit_notice"></i>
             </td>
         </tr>
     </tbody>

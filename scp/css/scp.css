@@ -951,7 +951,7 @@ h2 .reload {
     display:block;
     position:absolute;
     top:5px;
-    left:-11px;
+    left:-12px;
     width:12px;
     z-index:700;
 }
@@ -973,7 +973,18 @@ h2 .reload {
     position:absolute;
     top:0;
     left:-1px;
-    min-width:300px;
+    min-width:400px;
+    line-height: 1.15rem;
+}
+
+.tip_content .links {
+    margin-top: 0.7em;
+    padding-top: 0.4em;
+    border-top: 1px solid #ddd;
+}
+
+.tip_content .links a {
+    color: #548dd4;
 }
 
 .tip_content hr {
@@ -989,9 +1000,8 @@ h2 .reload {
 
 .tip_close {
     position:absolute;
-    left:100%;
-    top:0;
-    margin-left:-12px;
+    top:0.3em;
+    right:0.5em;
 }
 
 .tip_shadow {
@@ -1066,6 +1076,7 @@ h2 .reload {
     margin-bottom: 0.5em;
     padding-bottom: 0.2em;
     border-bottom: 1px solid #ddd;
+    padding-right: 1.5em;
 }
 
 i.help-tip {
