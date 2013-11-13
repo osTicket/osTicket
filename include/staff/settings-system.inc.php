@@ -24,18 +24,23 @@ $gmtime = Misc::gmtime();
                 <input type="radio" name="isonline"  value="1"   <?php echo $config['isonline']?'checked="checked"':''; ?> /><b>Online</b> (Active)
                 <input type="radio" name="isonline"  value="0"   <?php echo !$config['isonline']?'checked="checked"':''; ?> /><b>Offline</b> (Disabled)
                 &nbsp;<font class="error">&nbsp;<?php echo $config['isoffline']?'osTicket offline':''; ?></font>
+                <i class="help-tip icon-question-sign" href="#helpdesk_status"></i>
             </td>
         </tr>
         <tr>
             <td width="220" class="required">Helpdesk URL:</td>
             <td>
                 <input type="text" size="40" name="helpdesk_url" value="<?php echo $config['helpdesk_url']; ?>">
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_url']; ?></font></td>
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_url']; ?></font>
+                <i class="help-tip icon-question-sign" href="#helpdesk_url"></i>
+        </td>
         </tr>
         <tr>
             <td width="220" class="required">Helpdesk Name/Title:</td>
             <td><input type="text" size="40" name="helpdesk_title" value="<?php echo $config['helpdesk_title']; ?>">
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_title']; ?></font></td>
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_title']; ?></font>
+                <i class="help-tip icon-question-sign" href="#helpdesk_name"></i>
+            </td>
         </tr>
         <tr>
             <td width="220" class="required">Default Department:</td>
@@ -52,6 +57,7 @@ $gmtime = Misc::gmtime();
                         }
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_dept_id']; ?></font>
+                <i class="help-tip icon-question-sign" href="#default_dept"></i>
             </td>
         </tr>
 
@@ -66,6 +72,7 @@ $gmtime = Misc::gmtime();
                         <?php
                     } ?>
                 </select>
+                <i class="help-tip icon-question-sign" href="#page_size"></i>
             </td>
         </tr>
         <tr>
@@ -78,6 +85,7 @@ $gmtime = Misc::gmtime();
                     <option value=1 <?php echo $config['log_level'] == 1 ? 'selected="selected"':''; ?>> ERROR</option>
                 </select>
                 <font class="error">&nbsp;<?php echo $errors['log_level']; ?></font>
+                <i class="help-tip icon-question-sign" href="#log_level"></i>
             </td>
         </tr>
         <tr>
@@ -93,6 +101,7 @@ $gmtime = Misc::gmtime();
                         <?php
                     } ?>
                 </select>
+                <i class="help-tip icon-question-sign" href="#purge_logs"></i>
             </td>
         </tr>
         <tr>
@@ -106,6 +115,7 @@ $gmtime = Misc::gmtime();
                         ?>><?php echo $desc; ?></option>
 <?php } ?>
                 </select>
+                <i class="help-tip icon-question-sign" href="#name_format"></i>
             </td>
         </tr>
         <tr>
@@ -124,7 +134,8 @@ $gmtime = Misc::gmtime();
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['passwd_reset_period']; ?></font>
+                <font class="error"><?php echo $errors['passwd_reset_period']; ?></font>
+                <i class="help-tip icon-question-sign" href="#password_reset"></i>
             </td>
         </tr>
         <tr><td>Allow Password Resets:</th>
@@ -201,7 +212,9 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr>
             <th colspan="2">
-                <em><b>Date and Time Options</b>: Please refer to <a href="http://php.net/date" target="_blank">PHP Manual</a> for supported parameters.</em>
+                <em><b>Date and Time Options</b>&nbsp;
+                <i class="help-tip icon-question-sign" href="#date_and_time"></i>
+                </em>
             </th>
         </tr>
         <tr><td width="220" class="required">Time Format:</td>

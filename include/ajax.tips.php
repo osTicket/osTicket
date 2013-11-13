@@ -21,11 +21,23 @@ require_once(INCLUDE_DIR.'class.i18n.php');
 
 class HelpTipAjaxAPI extends AjaxController {
     function getTipsJson($namespace, $lang='en_US') {
+        global $ost;
+
         $i18n = new Internationalization($lang);
         $tips = $i18n->getTemplate("help/tips/$namespace.yaml");
 
         if (!$tips || !($data = $tips->getData()))
             Http::response(404, 'Help content not available');
+
+        // Translate links to the root path of this installation
+        foreach ($data as $tip=>&$info) {
+            $info = $ost->replaceTemplateVariables($info, array(
+                'config'=>$ost->getConfig()));
+            if (isset($info['links']))
+                foreach ($info['links'] as &$l)
+                    if ($l['href'][0] == '/')
+                        $l['href'] = ROOT_PATH.substr($l['href'],1);
+        }
 
         return $this->json_encode($data);
     }

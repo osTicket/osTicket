@@ -733,6 +733,10 @@ class OsticketConfig extends Config {
         return $this->get('upload_dir');
     }
 
+    function getVar($name) {
+        return $this->get($name);
+    }
+
     function updateSettings($vars, &$errors) {
 
         if(!$vars || $errors)

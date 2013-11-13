@@ -1,0 +1,83 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> System page
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+default_templates:
+    title: Default Email Templates
+    content: >
+         Set of templates that will be utilized for Alerts &amp; Notices to
+         staff as well as Auto-Responses to clients during the actions in a
+         ticket’s life cycle. Templates can be created in Admin Panel &gt;
+         Emails &gt; Templates
+    links:
+      - title: Email Templates
+        href: /scp/templates.php
+
+default_email:
+    title: Default System Email
+    content: >
+        Set the system email address that auto-responses that clients will
+        be shown emails are from if not set by Department
+    links:
+      - title: System Email Addresses
+        href: /scp/emails.php
+
+default_alert_email:
+    title: Default Alert Email
+    content: >
+        Set the email address that Alerts &amp; Notices to staff will be
+        shown as received from if no default is set by Department (Admin
+        Panel &gt; Staff &gt; Department) or by Help Topic (Admin Panel &gt;
+        Manage &gt; Help Topic)
+    links:
+      - title: System Email Addresses
+        href: /scp/emails.php
+
+admin_email:
+    title: Administrative Contact
+    content: >
+        Set the address for the Helpdesk Administrator to receive notices of
+        the System Error Log as well as the New Ticket Alerts (if enabled at
+        Admin Panel &gt; Settings &gt; Alerts &amp; Notices &gt; New Ticket
+        Alert)
+    links:
+      - title: Alerts &amp; Notices
+        href: /scp/settings.php?t=alerts
+
+# Incoming emails section
+incoming_email:
+    title: Incoming Email Settings
+    content: >
+        Allow IMAP/POP polling once you have set up the information in
+        emails section of Admin Panel. You can also edit the reply separator
+        text.<br/><br/>
+        <em>For mail polling to work you must set an external cron job or
+        enable auto-cron polling</em>
+
+enable_email_poll:
+    title: Enable Email Polling
+    content: >
+        Allow IMAP/POP polling once you have set up the information in
+        emails section of Admin Panel. You can also edit the reply separator
+        text
+
+enable_autocron_poll:
+    title: Poll Email using Auto-cron
+    content: >
+        <em><b>Not Recommended</b></em><br/><br/>
+        Enables fetching email periodically using the automatic cron system.
+        As admin and staff members interact with the system, the system will
+        periodically run cleanup routines called the auto-cron. This setting
+        enables fetching email during this cleanup.
+

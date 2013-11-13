@@ -22,6 +22,13 @@ if($_REQUEST['tpl_id'] &&
 elseif($_REQUEST['id'] &&
         !($template=EmailTemplate::lookup($_REQUEST['id'])))
     $errors['err']='Unknown or invalid template ID.';
+elseif($_REQUEST['default_for']) {
+    $sql = 'SELECT id FROM '.EMAIL_TEMPLATE_TABLE
+        .' WHERE tpl_id='.db_input($cfg->getDefaultTemplateId())
+        .' AND code_name='.db_input($_REQUEST['default_for']);
+    if ($id = db_result(db_query($sql)))
+        Http::redirect('templates.php?a=manage&id='.db_input($id));
+}
 
 if($_POST){
     switch(strtolower($_POST['do'])){

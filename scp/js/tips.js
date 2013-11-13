@@ -1,10 +1,4 @@
-jQuery(function($) {
-    var tip_timer = 0;
-    var tips = $('.tip');
-    for(i=0;i<tips.length;i++) {
-        tips[i].rel = 'tip-' + i;
-    }
-
+jQuery(function() {
     var showtip = function (url, elem,xoffset) {
 
             var pos = elem.offset();
@@ -28,26 +22,114 @@ jQuery(function($) {
             $('.' + elem.data('id') + ' .tip_shadow').css({
                 "height":$('.' + elem.data('id')).height() + 5
             });
-    };
+    },
+    getHelpTips = (function() {
+        var dfd = $.Deferred(),
+            requested = false,
+            namespace = $('meta[name=tip-namespace]').attr('content');
+        return function() {
+            if (namespace && dfd.state() != 'resolved' && !requested)
+                requested = $.ajax({
+                    url: "ajax.php/help/tips/" + namespace,
+                    dataType: 'json',
+                    success: function (json_config) {
+                        dfd.resolve(json_config);
+                    }
+                });
+            return dfd;
+        }
+    })();
 
     //Generic tip.
-    $('.tip').live('click mouseover', function(e) {
+    $('.tip')
+    .each(function(i, e) {
+        e.rel = 'tip-' + i;
+    })
+    .live('click mouseover', function(e) {
         e.preventDefault();
         var id = this.rel;
         var elem = $(this);
-    
+
         elem.data('id',id);
         elem.data('timer',0);
-        if($('.' + id).length == 0) {
-            if(e.type=='mouseover') {
-                 /* wait about 1 sec - before showing the tip - mouseout kills the timeout*/
-                 elem.data('timer',setTimeout(function() { showtip('ajax.php/content/'+elem.attr('href'),elem);},750))
-            }else{
+        if ($('.' + id).length == 0) {
+            if (e.type=='mouseover') {
+                // wait about 1 sec - before showing the tip - mouseout kills
+                // the timeout
+                elem.data('timer',setTimeout(function() {
+                    showtip('ajax.php/content/'+elem.attr('href'),elem);i
+                },750));
+            } else {
                 showtip('ajax.php/content/'+elem.attr('href'),elem);
             }
         }
-    }).live('mouseout', function(e) {
+    })
+    .live('mouseout', function(e) {
         clearTimeout($(this).data('timer'));
+    });
+
+    $('.help-tip')
+    .live('mouseover click', function(e) {
+        e.preventDefault();
+
+        var elem = $(this),
+            pos = elem.offset(),
+            y_pos = pos.top - 12,
+            x_pos = pos.left + elem.width() + 20,
+            tip_arrow = $('<img>')
+                .attr('src', './images/tip_arrow.png')
+                .addClass('tip_arrow'),
+            tip_box = $('<div>')
+                .addClass('tip_box'),
+            tip_content = $('<div>')
+                .append('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>')
+                .addClass('tip_content'),
+            the_tip = tip_box
+                .append(tip_arrow)
+                .append(tip_content)
+                .css({
+                    "top":y_pos + "px",
+                    "left":x_pos + "px"
+                }),
+            tip_timer = setTimeout(function() {
+                $('.tip_box').remove();
+                $('body').append(the_tip.hide().fadeIn());
+            }, 500);
+
+        elem.live('mouseout', function() {
+            clearTimeout(tip_timer);
+        });
+
+        getHelpTips().then(function(tips) {
+            var section = tips[elem.attr('href').substr(1)];
+            if (!section) {
+                elem.remove();
+                clearTimeout(tip_timer);
+                return;
+            }
+            tip_content.append(
+                $('<h1>')
+                    .append('<i class="icon-info-sign faded"> ')
+                    .append(section.title)
+                ).append(section.content);
+            if (section.links) {
+                var links = $('<div class="links">');
+                $.each(section.links, function(i,l) {
+                    var icon = l.href.match(/^http/)
+                        ? 'icon-external-link' : 'icon-share-alt';
+                    links.append($('<div>')
+                        .append($('<a>')
+                            .html(l.title)
+                            .prepend('<i class="'+icon+'"></i> ')
+                            .attr('href', l.href).attr('target','_blank'))
+                    );
+                });
+                tip_content.append(links);
+            }
+        });
+        $('.tip_shadow', the_tip).css({
+            "height":the_tip.height() + 5
+        });
     });
 
     //faq preview tip
@@ -83,7 +165,7 @@ jQuery(function($) {
         var url = 'ajax.php/tickets/'+vars[1]+'/preview';
         var id='t'+vars[1];
         var xoffset = 80;
-        
+
 
         elem.data('id',id);
         elem.data('timer',0);
@@ -99,9 +181,8 @@ jQuery(function($) {
         clearTimeout($(this).data('timer'));
     });
 
-
-
-    $('body').delegate('.tip_close', 'click', function(e) {
+    $('body')
+    .delegate('.tip_close', 'click', function(e) {
         e.preventDefault();
         $(this).parent().parent().remove();
     });

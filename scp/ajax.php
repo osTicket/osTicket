@@ -79,7 +79,11 @@ $dispatcher = patterns('',
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
     )),
-    url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade'))
+    url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade')),
+    url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
+        url_get('tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
+        url_get('(?P<lang>\w{2}_\w{2})?/tips/(?P<namespace>[\w_.]+)$', 'getTipsForLangJson')
+    ))
 );
 
 # Call the respective function

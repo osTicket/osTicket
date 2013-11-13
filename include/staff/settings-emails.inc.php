@@ -30,6 +30,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                         }
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_template_id']; ?></font>
+                <i class="help-tip icon-question-sign" href="#default_templates"></i>
             </td>
         </tr>
         <tr>
@@ -49,6 +50,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                     } ?>
                  </select>
                  &nbsp;<font class="error">*&nbsp;<?php echo $errors['default_email_id']; ?></font>
+                <i class="help-tip icon-question-sign" href="#default_email"></i>
             </td>
         </tr>
         <tr>
@@ -68,6 +70,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                     } ?>
                  </select>
                  &nbsp;<font class="error">*&nbsp;<?php echo $errors['alert_email_id']; ?></font>
+                <i class="help-tip icon-question-sign" href="#default_alert_email"></i>
             </td>
         </tr>
         <tr>
@@ -75,16 +78,21 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td>
                 <input type="text" size=40 name="admin_email" value="<?php echo $config['admin_email']; ?>">
                     &nbsp;<font class="error">*&nbsp;<?php echo $errors['admin_email']; ?></font>
-                &nbsp;&nbsp;<em>(System administrator's email)</em>
+                <i class="help-tip icon-question-sign" href="#admin_email"></i>
             </td>
         </tr>
-        <tr><th colspan=2><em><strong>Incoming Emails</strong>: For mail fetcher (polling) to work you must set an external cron job or enable auto-cron polling</em></th>
+        <tr><th colspan=2><em><strong>Incoming Emails:</strong>&nbsp;
+            <i class="help-tip icon-question-sign" href="#incoming_email"></i>
+            </em></th>
         <tr>
             <td width="180">Email Polling:</td>
             <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable POP/IMAP polling
-                 &nbsp;&nbsp;
+                &nbsp;
+                <i class="help-tip icon-question-sign" href="#enable_email_poll"></i>
+                &nbsp;
                  <input type="checkbox" name="enable_auto_cron" <?php echo $config['enable_auto_cron']?'checked="checked"':''; ?>>
-                 Poll on auto-cron <em>(Poll based on staff activity - NOT recommended)</em>
+                 Poll on auto-cron&nbsp;
+                <i class="help-tip icon-question-sign" href="#enable_autocron_poll"></i>
             </td>
         </tr>
         <tr>
