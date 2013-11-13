@@ -385,9 +385,11 @@ class Ticket {
     }
 
     function getDept() {
+        global $cfg;
 
-        if(!$this->dept && $this->getDeptId())
-            $this->dept= Dept::lookup($this->getDeptId());
+        if(!$this->dept)
+            if(!($this->dept = Dept::lookup($this->getDeptId())))
+                $this->dept = $cfg->getDefaultDept();
 
         return $this->dept;
     }
@@ -832,22 +834,20 @@ class Ticket {
         /* ------ SEND OUT NEW TICKET AUTORESP && ALERTS ----------*/
 
         $this->reload(); //get the new goodies.
-        $dept= $this->getDept();
-
-        if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
-
-        if(!$tpl) return false;  //bail out...missing stuff.
-
-        if(!$dept || !($email=$dept->getAutoRespEmail()))
-            $email =$cfg->getDefaultEmail();
+        if(!$cfg
+                || !($dept=$this->getDept())
+                || !($tpl = $dept->getTemplate())
+                || !($email=$dept->getAutoRespEmail())) {
+                return false;  //bail out...missing stuff.
+        }
 
         $options = array(
             'inreplyto'=>$message->getEmailMessageId(),
             'references'=>$message->getEmailReferences());
 
         //Send auto response - if enabled.
-        if($autorespond && $email && $cfg->autoRespONNewTicket()
+        if($autorespond
+                && $cfg->autoRespONNewTicket()
                 && $dept->autoRespONNewTicket()
                 &&  ($msg=$tpl->getAutoRespMsgTemplate())) {
 
@@ -863,12 +863,10 @@ class Ticket {
                 null, $options);
         }
 
-        if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
-
         //Send alert to out sleepy & idle staff.
-        if($alertstaff && $email
+        if ($alertstaff
                 && $cfg->alertONNewTicket()
+                && ($email=$cfg->getAlertEmail())
                 && ($msg=$tpl->getNewTicketAlertMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
@@ -912,18 +910,14 @@ class Ticket {
         $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
         $ost->logWarning('Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
 
-        if(!$sendNotice || !$cfg->sendOverLimitNotice()) return true;
+        if(!$sendNotice || !$cfg->sendOverLimitNotice())
+            return true;
 
         //Send notice to user.
-        $dept = $this->getDept();
-
-        if(!$dept || !($tpl=$dept->getTemplate()))
-            $tpl=$cfg->getDefaultTemplate();
-
-        if(!$dept || !($email=$dept->getAutoRespEmail()))
-            $email=$cfg->getDefaultEmail();
-
-        if($tpl && ($msg=$tpl->getOverlimitMsgTemplate()) && $email) {
+        if(($dept = $this->getDept())
+            && ($tpl=$dept->getTemplate())
+            && ($msg=$tpl->getOverlimitMsgTemplate())
+            && ($email=$dept->getAutoRespEmail())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
@@ -971,18 +965,14 @@ class Ticket {
 
 
         if(!$autorespond || !$cfg->autoRespONNewMessage()) return;  //no autoresp or alerts.
-
         $this->reload();
-
-
-        if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl = $cfg->getDefaultTemplate();
-
-        if(!$dept || !($email = $dept->getAutoRespEmail()))
-            $email = $cfg->getDefaultEmail();
+        $dept = $this->getDept();
+        $email = $dept->getAutoRespEmail();
 
         //If enabled...send confirmation to user. ( New Message AutoResponse)
-        if($email && $tpl && ($msg=$tpl->getNewMessageAutorepMsgTemplate())) {
+        if($email
+                && ($tpl=$dept->getTemplate())
+                && ($msg=$tpl->getNewMessageAutorepMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                             array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
@@ -1022,14 +1012,10 @@ class Ticket {
         if(!$alert || !$cfg->alertONAssignment()) return true; //No alerts!
 
         $dept = $this->getDept();
-
-        //Get template.
-        if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl = $cfg->getDefaultTemplate();
-
-        //Email to use!
-        if(!($email=$cfg->getAlertEmail()))
-            $email = $cfg->getDefaultEmail();
+        if(!$dept
+                || !($tpl = $dept->getTemplate())
+                || !($email = $cfg->getAlertEmail()))
+            return true;
 
         //recipients
         $recipients=array();
@@ -1044,7 +1030,7 @@ class Ticket {
         }
 
         //Get the message template
-        if($email && $recipients && $tpl && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
+        if($recipients && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                         array('comments' => $comments,
@@ -1076,20 +1062,15 @@ class Ticket {
             $whine = false;
 
         //check if we need to send alerts.
-        if(!$whine || !$cfg->alertONOverdueTicket())
+        if(!$whine
+                || !$cfg->alertONOverdueTicket()
+                || !($dept = $this->getDept()))
             return true;
 
-        $dept = $this->getDept();
-        //Get department-defined or default template.
-        if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
-
-        //Email to use!
-        if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
-
         //Get the message template
-        if($tpl && ($msg=$tpl->getOverdueAlertMsgTemplate()) && $email) {
+        if(($tpl = $dept->getTemplate())
+                && ($msg=$tpl->getOverdueAlertMsgTemplate())
+                && ($email=$cfg->getAlertEmail())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                 array('comments' => $comments));
@@ -1282,19 +1263,12 @@ class Ticket {
         $this->logEvent('transferred');
 
         //Send out alerts if enabled AND requested
-        if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept())) return true; //no alerts!!
+        if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept()))
+            return true; //no alerts!!
 
-
-         //Get template.
-         if(!($tpl = $dept->getTemplate()))
-             $tpl= $cfg->getDefaultTemplate();
-
-         //Email to use!
-         if(!($email=$cfg->getAlertEmail()))
-             $email =$cfg->getDefaultEmail();
-
-         //Get the message template
-         if($tpl && ($msg=$tpl->getTransferAlertMsgTemplate()) && $email) {
+         if(($email=$cfg->getAlertEmail())
+                     && ($tpl = $dept->getTemplate())
+                     && ($msg=$tpl->getTransferAlertMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                 array('comments' => $comments, 'staff' => $thisstaff));
@@ -1442,17 +1416,22 @@ class Ticket {
 
         $dept = $this->getDept();
 
-        if(!$dept || !($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
 
-        if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
-
+        $variables = array(
+                'message' => $message,
+                'poster' => ($vars['poster'] ? $vars['poster'] : $this->getName())
+                );
+        $options = array(
+                'inreplyto' => $message->getEmailMessageId(),
+                'references' => $message->getEmailReferences());
         //If enabled...send alert to staff (New Message Alert)
-        if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
+        if($cfg->alertONNewMessage()
+                && ($email = $cfg->getAlertEmail())
+                && ($tpl = $dept->getTemplate())
+                && ($msg = $tpl->getNewMessageAlertMsgTemplate())) {
 
             $attachments = $message->getAttachments();
-            $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
+            $msg = $this->replaceVars($msg->asArray(), $variables);
 
             //Build list of recipients and fire the alerts.
             $recipients=array();
@@ -1470,9 +1449,6 @@ class Ticket {
                 $recipients[]=$manager;
 
             $sentlist=array(); //I know it sucks...but..it works.
-            $options = array(
-                'inreplyto'=>$message->getEmailMessageId(),
-                'references'=>$message->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
@@ -1510,13 +1486,9 @@ class Ticket {
 
         $dept = $this->getDept();
 
-        if(!($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
-
-        if(!$dept || !($email=$dept->getEmail()))
-            $email = $cfg->getDefaultEmail();
-
-        if($tpl && ($msg=$tpl->getAutoReplyMsgTemplate()) && $email) {
+        if(($email=$dept->getEmail())
+                && ($tpl = $dept->getTemplate())
+                && ($msg=$tpl->getAutoReplyMsgTemplate())) {
 
             if($dept && $dept->isPublic())
                 $signature=$dept->getSignature();
@@ -1561,41 +1533,37 @@ class Ticket {
             $this->setStatus($vars['reply_ticket_status']);
 
         $this->onResponse(); //do house cleaning..
-        $this->reload();
 
         /* email the user??  - if disabled - the bail out */
         if(!$alert) return $response;
 
         $dept = $this->getDept();
 
-        if(!($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
+        if($thisstaff && $vars['signature']=='mine')
+            $signature=$thisstaff->getSignature();
+        elseif($vars['signature']=='dept' && $dept && $dept->isPublic())
+            $signature=$dept->getSignature();
+        else
+            $signature='';
 
-        if(!$dept || !($email=$dept->getEmail()))
-            $email = $cfg->getDefaultEmail();
+        $variables = array(
+                'response' => $response,
+                'signature' => $signature,
+                'staff' => $thisstaff,
+                'poster' => $thisstaff);
+        $options = array(
+                'inreplyto' => $response->getEmailMessageId(),
+                'references' => $response->getEmailReferences());
 
-        if($tpl && ($msg=$tpl->getReplyMsgTemplate()) && $email) {
+        if(($email=$dept->getEmail())
+                && ($tpl = $dept->getTemplate())
+                && ($msg=$tpl->getReplyMsgTemplate())) {
 
-            if($thisstaff && $vars['signature']=='mine')
-                $signature=$thisstaff->getSignature();
-            elseif($vars['signature']=='dept' && $dept && $dept->isPublic())
-                $signature=$dept->getSignature();
-            else
-                $signature='';
-
-            //Set attachments if emailing.
-            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-
-            $msg = $this->replaceVars($msg->asArray(),
-                    array('response' => $response, 'signature' => $signature, 'staff' => $thisstaff));
+            $msg = $this->replaceVars($msg->asArray(), $variables);
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
-
-            $options = array(
-                'inreplyto' => $response->getEmailMessageId(),
-                'references' => $response->getEmailReferences());
-            //TODO: setup  5 param (options... e.g mid trackable on replies)
+            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
@@ -1673,14 +1641,9 @@ class Ticket {
         if(!$alert || !$cfg->alertONNewNote() || !($dept=$this->getDept()))
             return $note;
 
-        if(!($tpl = $dept->getTemplate()))
-            $tpl= $cfg->getDefaultTemplate();
-
-        if(!($email=$cfg->getAlertEmail()))
-            $email =$cfg->getDefaultEmail();
-
-
-        if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
+        if(($email=$cfg->getAlertEmail())
+                && ($tpl = $dept->getTemplate())
+                && ($msg=$tpl->getNoteAlertMsgTemplate())) {
 
             $attachments = $note->getAttachments();
 
@@ -2278,19 +2241,15 @@ class Ticket {
 
         $ticket->reload();
 
-        if(!$cfg->notifyONNewStaffTicket() || !isset($vars['alertuser']))
+        if(!$cfg->notifyONNewStaffTicket()
+                || !isset($vars['alertuser'])
+                || !($dept=$ticket->getDept()))
             return $ticket; //No alerts.
 
         //Send Notice to user --- if requested AND enabled!!
-
-        $dept=$ticket->getDept();
-        if(!$dept || !($tpl=$dept->getTemplate()))
-            $tpl=$cfg->getDefaultTemplate();
-
-        if(!$dept || !($email=$dept->getEmail()))
-            $email =$cfg->getDefaultEmail();
-
-        if($tpl && ($msg=$tpl->getNewTicketNoticeMsgTemplate()) && $email) {
+        if(($tpl=$dept->getTemplate())
+                && ($msg=$tpl->getNewTicketNoticeMsgTemplate())
+                && ($email=$dept->getEmail())) {
 
             $message = $vars['message'];
             if($response) {
