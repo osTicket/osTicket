@@ -1,4 +1,4 @@
-<h3>User Information &mdash; <?php echo $user->getFullName() ?></h3>
+<h3><?php echo $user->getFullName() ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
 <form method="post" action="ajax.php/form/user-info/<?php

@@ -331,12 +331,10 @@ class Ticket {
     function getUpdateInfo() {
         global $cfg;
 
-        $info=array('phone' =>  $this->getPhone(),
-                    'phone_ext' =>  $this->getPhoneExt(),
-                    'source'    =>  $this->getSource(),
+        $info=array('source'    =>  $this->getSource(),
                     'topicId'   =>  $this->getTopicId(),
-                    'priorityId'    =>  $this->getPriorityId(),
                     'slaId' =>  $this->getSLAId(),
+                    'user_id' => $this->getOwnerId(),
                     'duedate'   =>  $this->getDueDate()
                         ? Format::userdate($cfg->getDateFormat(),
                             Misc::db2gmtime($this->getDueDate()))
@@ -1699,6 +1697,7 @@ class Ticket {
         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
 
         $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
+        $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>'Invalid user-id');
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] = 'Missing or invalid data - check the errors and try again';
@@ -1722,6 +1721,8 @@ class Ticket {
             .' ,source='.db_input($vars['source'])
             .' ,duedate='.($vars['duedate']?db_input(date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))):'NULL');
 
+        if($vars['user_id'])
+            $sql.=', user_id='.db_input($vars['user_id']);
         if($vars['duedate']) { //We are setting new duedate...
             $sql.=' ,isoverdue=0';
         }

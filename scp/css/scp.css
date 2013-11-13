@@ -1246,6 +1246,7 @@ time {
     margin:0;
     padding:0;
     position: relative;
+    padding-right: 3em;
 }
 
 .dialog a.close {
