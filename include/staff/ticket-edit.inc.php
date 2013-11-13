@@ -16,6 +16,29 @@ if ($_POST)
     <tbody>
         <tr>
             <th colspan="2">
+                <em><strong>Client Information</strong>: Currently selected client</em>
+            </th>
+        </tr>
+    <?php
+    $client = User::lookup($info['user_id']);
+    ?>
+    <tr><td>Client:</td><td>
+        <span id="client-info"><?php echo $client->getName(); ?>
+        &lt;<?php echo $client->getEmail(); ?>&gt;</span>
+        <a class="action-button" style="float:none;overflow:inherit"
+            href="ajax.php/users/lookup?id=<?php echo $client->getId(); ?>"
+            onclick="javascript:
+                $('#overlay').show();
+                $('#user-lookup .body').load(this.href);
+                $('#user-lookup').show();
+                return false;
+            "><i class="icon-edit"></i> Change</a>
+        <input type="hidden" name="user_id" id="user_id"
+            value="<?php echo $info['user_id']; ?>" />
+        </td></tr>
+    <tbody>
+        <tr>
+            <th colspan="2">
                 <em><strong>Ticket Information</strong>: Due date overrides SLA's grace period.</em>
             </th>
         </tr>
@@ -119,3 +142,6 @@ if ($_POST)
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>"'>
 </p>
 </form>
+<div style="display:none;" class="dialog draggable" id="user-lookup">
+    <div class="body"></div>
+</div>

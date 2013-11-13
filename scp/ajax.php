@@ -59,7 +59,10 @@ $dispatcher = patterns('',
         url_get('^table/export$', 'downloadTabularData'),
         url_get('^table$', 'getTabularData')
     )),
-    url_get('^/users$', array('ajax.users.php:UsersAjaxAPI', 'search')),
+    url('^/users', patterns('ajax.users.php:UsersAjaxAPI',
+        url_get('^$', 'search'),
+        url_get('^/lookup$', 'getLookupForm')
+    )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/preview', 'previewTicket'),
         url_post('^(?P<tid>\d+)/lock', 'acquireLock'),
