@@ -179,11 +179,14 @@ class TicketForm extends DynamicForm {
     }
 
     static function getInstance() {
-        if (!isset(static::$instance)) {
-            $o = static::objects();
-            static::$instance = $o[0]->instanciate();
-        }
+        if (!isset(static::$instance))
+            static::$instance = static::getNewInstance();
         return static::$instance;
+    }
+
+    static function getNewInstance() {
+        $o = static::objects();
+        return $o[0]->instanciate();
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
@@ -698,7 +701,7 @@ class DynamicList extends VerySimpleModel {
         return $selections;
     }
 }
-FormField::addFieldTypes('Custom Lists', array(DynamicList, 'getSelections'));
+FormField::addFieldTypes('Custom Lists', array('DynamicList', 'getSelections'));
 
 /**
  * Represents a single item in a dynamic list
