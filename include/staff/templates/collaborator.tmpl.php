@@ -1,5 +1,5 @@
 <h3>Update Collaborator: <?php echo $collaborator->getName(); ?></h3>
-<b><a class="close" href="#">&times;</a></b>
+<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <?php
 if($errors && $errors['err']) {
     echo sprintf('<div><p id="msg_error">%s</p></div>', $errors['err']);
