@@ -785,13 +785,17 @@ Class ThreadEntry {
         }
         $vars['body'] = Format::sanitize($vars['body']);
 
+        $poster = $vars['poster'];
+        if ($poster && is_object($poster))
+            $poster = $poster->getName();
+
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
             .' ,body='.db_input($vars['body'])
             .' ,staff_id='.db_input($vars['staffId'])
-            .' ,poster='.db_input($vars['poster'])
+            .' ,poster='.db_input($poster)
             .' ,source='.db_input($vars['source']);
 
         if(isset($vars['pid']))

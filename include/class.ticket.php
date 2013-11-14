@@ -874,9 +874,8 @@ class Ticket {
             $recipients=$sentlist=array();
             //Alert admin??
             if($cfg->alertAdminONNewTicket()) {
-                $alert = str_replace('%{recipient}', 'Admin', $msg['body']);
-                $email->sendAlert($cfg->getAdminEmail(), $msg['subj'],
-                    $alert, null, $options);
+                $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
+                $email->sendAlert($cfg->getAdminEmail(), $alert['subj'], $alert['body'], null, $options);
                 $sentlist[]=$cfg->getAdminEmail();
             }
 
@@ -891,13 +890,10 @@ class Ticket {
 
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
-                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
-                    null, $options);
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
-
-
         }
 
         return true;
@@ -1045,9 +1041,8 @@ class Ticket {
                 'references'=>$note->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
-                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
-                    null, $options);
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1095,9 +1090,8 @@ class Ticket {
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
-                $alert = str_replace("%{recipient}", $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
-                    null);
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1296,9 +1290,8 @@ class Ticket {
                 'references'=>$note->getEmailReferences());
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
-                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
-                    null, $options);
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1451,9 +1444,8 @@ class Ticket {
             $sentlist=array(); //I know it sucks...but..it works.
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
-                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
-                    $attachments, $options);
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], $attachments, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1520,7 +1512,7 @@ class Ticket {
 
 
         if(!$vars['poster'] && $thisstaff)
-            $vars['poster'] = $thisstaff->getName();
+            $vars['poster'] = $thisstaff;
 
         if(!$vars['staffId'] && $thisstaff)
             $vars['staffId'] = $thisstaff->getId();
@@ -1676,9 +1668,8 @@ class Ticket {
                         || in_array($staff->getEmail(), $sentlist) //No duplicates.
                         || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
                     continue;
-                $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, $attachments,
-                    $options);
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], $attachments, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }

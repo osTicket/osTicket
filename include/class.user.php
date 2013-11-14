@@ -329,6 +329,10 @@ class PersonsName {
         return $this->name;
     }
 
+    function getName() {
+        return $this;
+    }
+
     function asVar() {
         return $this->__toString();
     }
