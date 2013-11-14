@@ -276,10 +276,6 @@ class Format {
     function display($text, $inline_images=true) {
         global $cfg;
 
-        //make urls clickable.
-        if($cfg && $cfg->clickableURLS() && $text)
-            $text=Format::clickableurls($text);
-
         //Wrap long words...
         #$text=preg_replace_callback('/\w{75,}/',
         #    create_function(
@@ -296,6 +292,10 @@ class Format {
                     $match[1], $match[2], $match[3]);
             },
             $text);
+
+        //make urls clickable.
+        if($cfg && $cfg->clickableURLS() && $text)
+            $text = Format::clickableurls($text);
 
         if ($inline_images)
             return self::viewableImages($text);
@@ -316,23 +316,69 @@ class Format {
         global $ost;
 
         $token = $ost->getLinkToken();
-        //Not perfect but it works - please help improve it.
-        $text=preg_replace_callback('/(?<!"|>)(((f|ht)tp(s?):\/\/)[-a-zA-Z0-9@:%_\+.~#?&;\/\/=]+)/',
-                create_function('$matches',
-                    sprintf('return "<a href=\"l.php?url=".urlencode($matches[1])."&auth=%s\" target=\"_blank\">".$matches[1]."</a>";',
-                        $token)),
-                $text);
 
-        $text=preg_replace_callback("/(^|[ \\n\\r\\t])(www\.([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+)(\/[^\/ \\n\\r]*)*)/",
-                create_function('$matches',
-                    sprintf('return "<a href=\"l.php?url=".urlencode("http://".$matches[2])."&auth=%s\" target=\"_blank\">".$matches[2]."</a>";',
-                        $token)),
-                $text);
+        // Find all text between tags
+        $text = preg_replace_callback(':^[^<]+|>[^<]+:',
+            function($match) use ($token) {
+                // Scan for things that look like URLs
+                $links = preg_replace_callback(
+                    '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([a-zA-Z0-9_-]+(\.|/|$))+\S*)`',
+                    function ($match) use ($token) {
+                        if (in_array(substr($match[1], -1),
+                                array(',','.','?','!',':',';'))) {
+                            $match[7] = substr($match[1], -1);
+                            $match[1] = substr($match[1], 0, strlen($match[1])-1);
+                        }
+                        return '<a href="l.php?url='.urlencode($match[1])
+                            .sprintf('&auth=%s" target="_blank">', $token)
+                            .$match[1].'</a>'.$match[7];
+                    },
+                    $match[0]);
+                // Now change email addresses to links with mailto: scheme
+                return preg_replace(
+                    '/(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})/',
+                    '<a href="mailto:\\1" target="_blank">\\1</a>', $links);
+            },
+            $text);
 
-        $text=preg_replace("/(^|[ \\n\\r\\t])([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})/",
-            '\\1<a href="mailto:\\2" target="_blank">\\2</a>', $text);
-
-        return $text;
+        // Now change @href and @src attributes to come back through our
+        // system as well
+        $config = array(
+            'hook_tag' => function($e, $a=0) use ($token) {
+                static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
+                    'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
+                if ($e == 'a' && $a) {
+                    if (isset($a['href'])
+                            && strpos($a['href'], 'l.php?') === false)
+                        $a['href'] = 'l.php?url='.urlencode($a['href'])
+                            .'&amp;auth='.$token;
+                    // ALL link targets open in a new tab
+                    $a['target'] = '_blank';
+                }
+                // Images which are external are rewritten to <div
+                // data-src='url...'/>
+                elseif ($e == 'div' && $a && isset($a['data-src']))
+                    $a['data-src'] = 'l.php?url='.urlencode($a['data-src'])
+                        .'&amp;auth='.$token;
+                // URLs for videos need to route too
+                elseif ($e == 'iframe' && $a && isset($a['src']))
+                    $a['src'] = 'l.php?url='.urlencode($a['src'])
+                        .'&amp;auth='.$token;
+                $at = '';
+                if (is_array($a)) {
+                    foreach ($a as $k=>$v)
+                        $at .= " $k=\"$v\"";
+                    return "<{$e}{$at}".(isset($eE[$e])?" /":"").">";
+                }
+                else {
+                    return "</{$e}>";
+                }
+            },
+            'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
+            'elements' => '*+iframe',
+            'spec' => 'div=data-src,width,height',
+        );
+        return Format::html($text, $config);
     }
 
     function stripEmptyLines($string) {
