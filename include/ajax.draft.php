@@ -256,7 +256,7 @@ class DraftAjaxAPI extends AjaxController {
 
         $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft) FROM '.FILE_TABLE
             .' f LEFT JOIN '.ATTACHMENT_TABLE.' a ON (a.file_id = f.id)
-            WHERE (a.`type` IN (\'C\', \'F\', \'T\') OR f.ft = \'L\')
+            WHERE (a.`type` IN (\'C\', \'F\', \'T\', \'P\') OR f.ft = \'L\')
                 AND f.`type` LIKE \'image/%\'';
         if (!($res = db_query($sql)))
             Http::response(500, 'Unable to lookup files');
@@ -267,6 +267,7 @@ class DraftAjaxAPI extends AjaxController {
             'F' => 'FAQ Articles',
             'T' => 'Email Templates',
             'L' => 'Logos',
+            'P' => 'Pages',
         );
         while (list($id, $type) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup($id);

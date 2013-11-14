@@ -9,7 +9,8 @@ $sql='SELECT page.id, page.isactive, page.name, page.created, page.updated, '
      .' WHERE 1 ';
 $sortOptions=array(
         'name'=>'page.name', 'status'=>'page.isactive',
-        'created'=>'page.created', 'updated'=>'page.updated');
+        'created'=>'page.created', 'updated'=>'page.updated',
+        'type'=>'page.type');
 
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
@@ -62,8 +63,9 @@ else
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th width="380"><a <?php echo $name_sort; ?> href="pages.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="120"><a  <?php echo $status_sort; ?> href="pages.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
+            <th width="300"><a <?php echo $name_sort; ?> href="pages.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
+            <th width="90"><a  <?php echo $type_sort; ?> href="pages.php?<?php echo $qstr; ?>&sort=type">Type</a></th>
+            <th width="110"><a  <?php echo $status_sort; ?> href="pages.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="150" nowrap><a  <?php echo $created_sort; ?>href="pages.php?<?php echo $qstr; ?>&sort=created">Date Added</a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="pages.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
         </tr>
@@ -86,6 +88,7 @@ else
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <td>&nbsp;<a href="pages.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
+                <td class="faded"><?php echo $row['type']; ?></td>
                 <td>
                     &nbsp;<?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?>
                     &nbsp;&nbsp;<?php echo $inuse?'<em>(in-use)</em>':''; ?>
