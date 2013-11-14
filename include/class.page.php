@@ -70,7 +70,7 @@ class Page {
         return $this->ht['body'];
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getBody());
+        return Format::viewableImages($this->getBody(), ROOT_PATH.'image.php');
     }
 
     function getNotes() {

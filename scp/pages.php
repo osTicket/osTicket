@@ -28,8 +28,9 @@ if($_POST) {
                 $msg='Page added successfully';
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
-                        && ($draft = Draft::lookup($_POST['draft_id'])))
-                    $c->attachments->upload(
+                        && ($draft = Draft::lookup($_POST['draft_id']))
+                        && ($page = Page::lookup($pageId)))
+                    $page->attachments->upload(
                         $draft->getAttachmentIds($_POST['response']), true);
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
