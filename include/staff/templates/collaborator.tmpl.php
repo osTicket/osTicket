@@ -6,7 +6,7 @@ if($errors && $errors['err']) {
 } ?>
 <hr/>
 <div>
-<div>Please note that updates will be reflected system-wide.</div>
+<div><p id="msg_info"><i class="icon-info-sign"></i> Please note that updates will be reflected system-wide.</p></div>
 <form method="post" class="collaborators" action="#collaborators/<?php echo $collaborator->getId(); ?>">
     <table width="100%">
     <?php
