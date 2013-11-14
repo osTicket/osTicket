@@ -91,19 +91,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td width="180">Show Notes Inline:</td>
-            <td>
-                <input type="checkbox" name="show_notes_inline" value="1" <?php echo $config['show_notes_inline'] ?'checked="checked"':''; ?> >
-                <em>(Show internal notes  inline)</em>
-              </td>
-        </tr>
-        <tr><td>Clickable URLs:</td>
-            <td>
-              <input type="checkbox" name="clickable_urls" <?php echo $config['clickable_urls']?'checked="checked"':''; ?>>
-               <em>(converts URLs in ticket thread to clickable links)</em>
-            </td>
-        </tr>
-        <tr>
             <td>Human Verification:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
@@ -129,13 +116,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td>
                 <input type="checkbox" name="show_answered_tickets" <?php echo $config['show_answered_tickets']?'checked="checked"':''; ?>>
                 Show answered tickets on open queue.
-            </td>
-        </tr>
-        <tr>
-            <td>Ticket Activity Log:</td>
-            <td>
-                <input type="checkbox" name="log_ticket_activity" <?php echo $config['log_ticket_activity']?'checked="checked"':''; ?>>
-                Log ticket activity as internal notes.
             </td>
         </tr>
         <tr>

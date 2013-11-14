@@ -1530,11 +1530,6 @@ class Ticket {
 
     //Activity log - saved as internal notes WHEN enabled!!
     function logActivity($title, $note) {
-        global $cfg;
-
-        if(!$cfg || !$cfg->logTicketActivity())
-            return 0;
-
         return $this->logNote($title, $note, 'SYSTEM', false);
     }
 

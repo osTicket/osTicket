@@ -288,10 +288,6 @@ class OsticketConfig extends Config {
         return $this->get('show_related_tickets');
     }
 
-    function showNotesInline(){
-        return $this->get('show_notes_inline');
-    }
-
     function isHtmlThreadEnabled() {
         return $this->get('enable_html_thread');
     }
@@ -479,14 +475,6 @@ class OsticketConfig extends Config {
 
     function getLogGracePeriod() {
         return $this->get('log_graceperiod');
-    }
-
-    function logTicketActivity() {
-        return $this->get('log_ticket_activity');
-    }
-
-    function clickableURLS() {
-        return ($this->get('clickable_urls'));
     }
 
     function enableStaffIPBinding() {
@@ -691,10 +679,6 @@ class OsticketConfig extends Config {
         return ($this->get('send_login_errors'));
     }
 
-    function alertONMailParseError() {
-        return ($this->get('send_mailparse_errors'));
-    }
-
 
 
     /* Attachments */
@@ -871,13 +855,10 @@ class OsticketConfig extends Config {
             'autolock_minutes'=>$vars['autolock_minutes'],
             'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
-            'log_ticket_activity'=>isset($vars['log_ticket_activity'])?1:0,
             'auto_assign_reopened_tickets'=>isset($vars['auto_assign_reopened_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?1:0,
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?1:0,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
-            'show_notes_inline'=>isset($vars['show_notes_inline'])?1:0,
-            'clickable_urls'=>isset($vars['clickable_urls'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_attachments'=>isset($vars['allow_attachments'])?1:0,

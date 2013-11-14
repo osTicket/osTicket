@@ -274,15 +274,6 @@ class Format {
 
     //Format text for display..
     function display($text, $inline_images=true) {
-        global $cfg;
-
-        //Wrap long words...
-        #$text=preg_replace_callback('/\w{75,}/',
-        #    create_function(
-        #        '$matches',
-        #        'return wordwrap($matches[0],70,"\n",true);'),
-        #    $text);
-
         // Make showing offsite images optional
         $text = preg_replace_callback('/<img ([^>]*)(src="http[^"]+")([^>]*)\/>/',
             function($match) {
@@ -294,8 +285,7 @@ class Format {
             $text);
 
         //make urls clickable.
-        if($cfg && $cfg->clickableURLS() && $text)
-            $text = Format::clickableurls($text);
+        $text = Format::clickableurls($text);
 
         if ($inline_images)
             return self::viewableImages($text);
