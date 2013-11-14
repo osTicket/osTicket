@@ -423,9 +423,9 @@ class HtmlAElement extends HtmlInlineElement {
                 $output = "[$output]";
             }
         } elseif (strlen($href) > $width / 2) {
-            $output = "[$output][]";
             if ($href != $output)
                 $this->getRoot()->addFootnote($output, $href);
+            $output = "[$output]";
         } else {
             if ($href != $output) {
                 $output = "[$output]($href)";
