@@ -198,9 +198,38 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <tr>
             <td width="180">Maximum File Size:</td>
             <td>
-                <input type="text" name="max_file_size" value="<?php echo $config['max_file_size']; ?>"> in bytes.
-                    <em>(System Max. <?php echo Format::file_size(ini_get('upload_max_filesize')); ?>)</em>
-                    <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
+                <select name="max_file_size">
+                    <option value="262144">&mdash; Small &mdash;</option>
+                    <?php $next = 512 << 10;
+                    $max = strtoupper(ini_get('upload_max_filesize'));
+                    $limit = (int) $max;
+                    if (!$limit) $limit = 2 << 20; # 2M default value
+                    elseif (strpos($max, 'K')) $limit <<= 10;
+                    elseif (strpos($max, 'M')) $limit <<= 20;
+                    elseif (strpos($max, 'G')) $limit <<= 30;
+                    while ($next <= $limit) {
+                        // Select the closest, larger value (in case the
+                        // current value is between two)
+                        $diff = $next - $config['max_file_size'];
+                        $selected = ($diff >= 0 && $diff < $next / 2)
+                            ? 'selected="selected"' : ''; ?>
+                        <option value="<?php echo $next; ?>" <?php echo $selected;
+                             ?>><?php echo Format::file_size($next);
+                             ?></option><?php
+                        $next *= 2;
+                    }
+                    // Add extra option if top-limit in php.ini doesn't fall
+                    // at a power of two
+                    if ($next < $limit * 2) {
+                        $selected = ($limit == $config['max_file_size'])
+                            ? 'selected="selected"' : ''; ?>
+                        <option value="<?php echo $limit; ?>" <?php echo $selected;
+                             ?>><?php echo Format::file_size($limit);
+                             ?></option><?php
+                    }
+                    ?>
+                </select>
+                <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
             </td>
         </tr>
         <tr>

@@ -24,10 +24,10 @@ class Format {
             return $bytes;
         if($bytes<1024)
             return $bytes.' bytes';
-        if($bytes <102400)
+        if($bytes < (900<<10))
             return round(($bytes/1024),1).' kb';
 
-        return round(($bytes/1024000),1).' mb';
+        return round(($bytes/1048576),1).' mb';
     }
 
     function file_name($filename) {
