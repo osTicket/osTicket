@@ -934,7 +934,42 @@ class Ticket {
     }
 
     function onResponse() {
-        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1,lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
+        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1, lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
+        $this->reload();
+    }
+
+    function  activityNotice($vars) {
+        global $cfg;
+
+        if (!$vars
+                || !$vars['variables']
+                || !($collaborators=$this->getActiveCollaborators())
+                || !($dept=$this->getDept())
+                || !($tpl=$dept->getTemplate())
+                || !($msg=$tpl->getActivityNoticeMsgTemplate())
+                || !($email=$dept->getEmail()))
+            return;
+
+
+        $msg = $this->replaceVars($msg->asArray(), $vars['variables']);
+
+        if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
+            $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
+
+        $attachments = ($cfg->emailAttachments() && $vars['attachments'])?$vars['attachments']:array();
+        $options = array();
+        if($vars['inreplyto'])
+            $options['inreplyto'] = $vars['inreplyto'];
+        if($vars['references'])
+            $options['references'] = $vars['references'];
+
+        foreach($collaborators as $collaborator) {
+            $msg = $this->replaceVars($msg, array('recipient' => $collaborator));
+            $email->send($collaborator->getEmail(), $msg['subj'], $msg['body'], $attachments,
+                $options);
+        }
+
+        return;
     }
 
     function onMessage($autorespond=true, $message=null) {
@@ -1450,6 +1485,13 @@ class Ticket {
             }
         }
 
+        unset($variables['message']);
+        $variables['message'] = $message->asVar();
+
+        $info = $options + array('variables' => $variables);
+        $this->activityNotice($info);
+
+
         return $message;
     }
 
@@ -1558,6 +1600,13 @@ class Ticket {
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
+        }
+
+        if($vars['emailcollab']) {
+            unset($variables['response']);
+            $variables['message'] = $response->asVar();
+            $info = $options + array('variables' => $variables);
+            $this->activityNotice($info);
         }
 
         return $response;
