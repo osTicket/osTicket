@@ -167,13 +167,13 @@ class Installer extends SetupWizard {
             $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
             $group_id_1 = db_result(db_query($sql, false), 0);
 
-            $sql='SELECT `id` FROM '.PREFIX.'timezone WHERE offset=-5.0 LIMIT 1';
-            $eastern_timezone = db_result(db_query($sql, false), 0);
+            $sql='SELECT `value` FROM '.PREFIX.'config WHERE namespace=\'core\' and `key`=\'default_timezone_id\' LIMIT 1';
+            $default_timezone = db_result(db_query($sql, false), 0);
 
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
-                .", isactive=1, isadmin=1, group_id=$group_id_1, dept_id=$dept_id_1"
-                .", timezone_id=$eastern_timezone, max_page_size=25"
+                .", isactive=1, isadmin=1, group_id='$group_id_1', dept_id='$dept_id_1'"
+                .", timezone_id='$default_timezone', max_page_size=25"
                 .', email='.db_input($vars['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])

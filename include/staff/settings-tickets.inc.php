@@ -91,19 +91,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td width="180">Show Notes Inline:</td>
-            <td>
-                <input type="checkbox" name="show_notes_inline" value="1" <?php echo $config['show_notes_inline'] ?'checked="checked"':''; ?> >
-                <em>(Show internal notes  inline)</em>
-              </td>
-        </tr>
-        <tr><td>Clickable URLs:</td>
-            <td>
-              <input type="checkbox" name="clickable_urls" <?php echo $config['clickable_urls']?'checked="checked"':''; ?>>
-               <em>(converts URLs in ticket thread to clickable links)</em>
-            </td>
-        </tr>
-        <tr>
             <td>Human Verification:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
@@ -129,13 +116,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td>
                 <input type="checkbox" name="show_answered_tickets" <?php echo $config['show_answered_tickets']?'checked="checked"':''; ?>>
                 Show answered tickets on open queue.
-            </td>
-        </tr>
-        <tr>
-            <td>Ticket Activity Log:</td>
-            <td>
-                <input type="checkbox" name="log_ticket_activity" <?php echo $config['log_ticket_activity']?'checked="checked"':''; ?>>
-                Log ticket activity as internal notes.
             </td>
         </tr>
         <tr>
@@ -218,9 +198,38 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <tr>
             <td width="180">Maximum File Size:</td>
             <td>
-                <input type="text" name="max_file_size" value="<?php echo $config['max_file_size']; ?>"> in bytes.
-                    <em>(System Max. <?php echo Format::file_size(ini_get('upload_max_filesize')); ?>)</em>
-                    <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
+                <select name="max_file_size">
+                    <option value="262144">&mdash; Small &mdash;</option>
+                    <?php $next = 512 << 10;
+                    $max = strtoupper(ini_get('upload_max_filesize'));
+                    $limit = (int) $max;
+                    if (!$limit) $limit = 2 << 20; # 2M default value
+                    elseif (strpos($max, 'K')) $limit <<= 10;
+                    elseif (strpos($max, 'M')) $limit <<= 20;
+                    elseif (strpos($max, 'G')) $limit <<= 30;
+                    while ($next <= $limit) {
+                        // Select the closest, larger value (in case the
+                        // current value is between two)
+                        $diff = $next - $config['max_file_size'];
+                        $selected = ($diff >= 0 && $diff < $next / 2)
+                            ? 'selected="selected"' : ''; ?>
+                        <option value="<?php echo $next; ?>" <?php echo $selected;
+                             ?>><?php echo Format::file_size($next);
+                             ?></option><?php
+                        $next *= 2;
+                    }
+                    // Add extra option if top-limit in php.ini doesn't fall
+                    // at a power of two
+                    if ($next < $limit * 2) {
+                        $selected = ($limit == $config['max_file_size'])
+                            ? 'selected="selected"' : ''; ?>
+                        <option value="<?php echo $limit; ?>" <?php echo $selected;
+                             ?>><?php echo Format::file_size($limit);
+                             ?></option><?php
+                    }
+                    ?>
+                </select>
+                <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
             </td>
         </tr>
         <tr>

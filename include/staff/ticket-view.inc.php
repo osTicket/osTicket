@@ -313,67 +313,16 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 <h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
 <?php
 $tcount = $ticket->getThreadCount();
-if($cfg->showNotesInline())
-    $tcount+= $ticket->getNumNotes();
+$tcount+= $ticket->getNumNotes();
 ?>
 <ul id="threads">
     <li><a class="active" id="toggle_ticket_thread" href="#">Ticket Thread (<?php echo $tcount; ?>)</a></li>
-    <?php
-    if(!$cfg->showNotesInline()) {?>
-    <li><a id="toggle_notes" href="#">Internal Notes (<?php echo $ticket->getNumNotes(); ?>)</a></li>
-    <?php
-    }?>
 </ul>
-<?php
-if(!$cfg->showNotesInline()) { ?>
-<div id="ticket_notes">
-    <?php
-    /* Internal Notes */
-    if($ticket->getNumNotes() && ($notes=$ticket->getNotes())) {
-        foreach($notes as $note) {
-
-        ?>
-        <table class="note" cellspacing="0" cellpadding="1" width="940" border="0">
-            <tr>
-                <th width="640">
-                    <?php
-                    echo sprintf('%s <em>posted by <b>%s</b></em>',
-                            $note['title'],
-                            Format::htmlchars($note['poster']));
-                    ?>
-                </th>
-                <th class="date" width="300"><?php echo Format::db_datetime($note['created']); ?></th>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <?php echo Format::display($note['body']); ?>
-                </td>
-            </tr>
-            <?php
-             if($note['attachments']
-                    && ($tentry=$ticket->getThreadEntry($note['id']))
-                    && ($links=$tentry->getAttachmentsLinks())) { ?>
-            <tr>
-                <td class="info" colspan="2"><?php echo $links; ?></td>
-            </tr>
-            <?php
-            }?>
-        </table>
-    <?php
-        }
-    } else {
-        echo "<p>No internal notes found.</p>";
-    }?>
-</div>
-<?php
-} ?>
 <div id="ticket_thread">
     <?php
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     /* -------- Messages & Responses & Notes (if inline)-------------*/
-    $types = array('M', 'R');
-    if($cfg->showNotesInline())
-        $types[] = 'N';
+    $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
        foreach($thread as $entry) {
            if ($entry['body'] == '-')
