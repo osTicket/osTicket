@@ -29,26 +29,24 @@ $showing=$pageNav->showing().' forms';
     <?php
     foreach (UserForm::objects()->order_by('title') as $form) { ?>
         <tr>
-            <td/>
+            <td><i class="icon-user"></i></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>">
-                <i class="icon-user"></i> <?php echo $form->get('title'); ?></a></td>
+                <?php echo $form->get('title'); ?></a>
             <td><?php echo $form->get('updated'); ?></td>
         </tr>
     <?php }
     foreach (TicketForm::objects()->order_by('title') as $form) { ?>
         <tr>
-            <td/>
+            <td><i class="icon-ticket"></i></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>">
-                <i class="icon-ticket icon"></i>
                 <?php echo $form->get('title'); ?></a></td>
             <td><?php echo $form->get('updated'); ?></td>
         </tr>
     <?php }
     foreach (DynamicForm::objects()->filter(array('type'=>'C')) as $form) { ?>
         <tr>
-            <td/>
+            <td><i class="icon-building"></i></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>">
-                <i class="icon-building icon"></i>
                 <?php echo $form->get('title'); ?></a></td>
             <td><?php echo $form->get('updated'); ?></td>
         </tr>
