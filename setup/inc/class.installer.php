@@ -202,7 +202,7 @@ class Installer extends SetupWizard {
             // XXX: Some of this can go to the core install file
 			$defaults = array('isonline'=>'0', 'default_email_id'=>$support_email_id,
 				'alert_email_id'=>$alert_email_id, 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
-				'default_timezone_id'=>$eastern_timezone, 'default_template_id'=>$template_id_1,
+				'default_timezone_id'=>$default_timezone, 'default_template_id'=>$template_id_1,
 				'admin_email'=>db_input($vars['admin_email']),
 				'schema_signature'=>db_input($signature),
 				'helpdesk_url'=>db_input(URL),
