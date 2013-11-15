@@ -66,7 +66,7 @@
         </span>
         </td></tr>
         </table>
-        <hr style="margin-top:3em"/>
+        <hr>
         <p class="full-width">
             <span class="buttons" style="float:left">
                 <input type="reset" value="Reset">
