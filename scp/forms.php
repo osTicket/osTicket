@@ -88,7 +88,7 @@ if($_POST) {
                 continue;
             $field = DynamicFormField::create(array(
                 'form_id'=>$form->get('id'),
-                'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : $max_sort++,
+                'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : ++$max_sort,
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
                 'name'=>$_POST["name-new-$i"],
