@@ -1,5 +1,7 @@
 <h3><?php echo $user->getFullName() ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
+<br>
+<div><p id="msg_info"><i class="icon-info-sign"></i> Please note that updates will be reflected system-wide.</p></div>
 <hr/>
 <form method="post" action="ajax.php/form/user-info/<?php
         echo $user->get('id'); ?>" onsubmit="javascript:
