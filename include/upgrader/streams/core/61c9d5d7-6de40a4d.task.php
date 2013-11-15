@@ -18,4 +18,7 @@ class CompanyFormLoader extends MigrationTask {
         }
     }
 }
+
+return 'CompanyFormLoader';
+
 ?>
