@@ -119,6 +119,15 @@ class User extends UserModel {
         return new PersonsName($this->name);
     }
 
+    function to_json() {
+
+        $info = array(
+                'id'  => $this->getId(),
+                'name' => (string) $this->getName());
+
+        return JsonDataEncoder::encode($info);
+    }
+
     function asVar() {
         return (string) $this->getName();
     }

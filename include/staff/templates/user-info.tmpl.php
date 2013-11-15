@@ -6,13 +6,16 @@
 <form method="post" action="ajax.php/form/user-info/<?php
         echo $user->get('id'); ?>" onsubmit="javascript:
         var form = $(this);
+        var dialog = form.closest('.dialog');
         $.post(this.action, form.serialize(), function(data, status, xhr) {
-            if (!data.length) {
-                form.closest('.dialog').hide();
+            if(xhr && xhr.status == 201) {
+                var user = $.parseJSON(xhr.responseText);
+                $('#user-'+user.id+'-name').html(user.name);
+                $('div.body', dialog).empty();
+                dialog.hide();
                 $('#overlay').hide();
-                location.reload();
             } else {
-                form.closest('.dialog').empty().append(data);
+                $('div.body', dialog).html(data);
             }
         });
         return false;

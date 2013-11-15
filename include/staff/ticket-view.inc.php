@@ -151,8 +151,9 @@ if($ticket->isOverdue())
                             $('#user-info .body').load(this.href);
                             $('#user-info').show();
                             return false;
-                            "><i class="icon-user"></i> <?php
-                        echo Format::htmlchars($ticket->getName()); ?></a>
+                            "><i class="icon-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
+                            ><?php echo Format::htmlchars($ticket->getName());
+                        ?></span></a>
                         <?php
                         if(($client=$ticket->getClient())) {
                             echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&ownerId=%d" title="Related Tickets" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
