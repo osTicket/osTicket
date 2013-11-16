@@ -131,6 +131,11 @@ class Upgrader {
             return $this->getCurrentStream()->getErrors();
     }
 
+    function getUpgradeSummary() {
+        if ($this->getCurrentStream())
+            return $this->getCurrentStream()->getUpgradeSummary();
+    }
+
     function getNextAction() {
         if ($this->getCurrentStream())
             return $this->getCurrentStream()->getNextAction();
@@ -297,6 +302,19 @@ class StreamUpgrader extends SetupWizard {
         if (!isset($info['version']))
             $info['version'] = substr(basename($patch), 9, 8);
         return $info;
+    }
+
+    function getUpgradeSummary() {
+        $summary = '';
+        foreach ($this->getPatches() as $p) {
+            $info = $this->readPatchInfo($p);
+            $summary .= '<div class="patch">' . $info['version'];
+            if (isset($info['title']))
+                $summary .= ': <span class="patch-title">'.$info['title']
+                    .'</span>';
+            $summary .= '</div>';
+        }
+        return $summary;
     }
 
     function getNextAction() {
