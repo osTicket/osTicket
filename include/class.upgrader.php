@@ -314,7 +314,7 @@ class StreamUpgrader extends SetupWizard {
     function getPendingTask() {
 
         $pending=array();
-        if (($task=$this->getTask()) && $task)
+        if (($task=$this->getTask()) && ($task instanceof MigrationTask))
             return ($task->isFinished()) ? 1 : 0;
 
         return false;
