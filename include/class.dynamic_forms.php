@@ -284,6 +284,9 @@ class DynamicFormField extends VerySimpleModel {
     function isValid() {
         if (count($this->errors()) || !parent::isValid())
             return false;
+        if (!$this->get('label'))
+            $this->addError(
+                "Label is required for custom form fields", "label");
         if ($this->get('required') && !$this->get('name'))
             $this->addError(
                 "Variable name is required for required fields", "name");

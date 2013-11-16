@@ -83,9 +83,9 @@ INSERT INTO `%TABLE_PREFIX%form_entry_values` (
             '-', ''),
             '.', ''), 'X', A1.`phone_ext`))
     FROM `%TABLE_PREFIX%ticket` A1
-        INNER JOIN `%TABLE_PREFIX%form` A4 ON (`type`='U')
         INNER JOIN `%TABLE_PREFIX%form_entry` A2 ON (A2.`object_id`
                 = A1.`ticket_id` AND A2.`object_type` = 'U')
+        INNER JOIN `%TABLE_PREFIX%form` A4 ON (A4.`id` = A2.`form_id`)
         INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A2.`form_id`
                 = A4.`id`)
     WHERE A3.`name` = 'phone' AND LENGTH(A1.`phone`)

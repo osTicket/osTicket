@@ -17,6 +17,7 @@ if($_POST) {
                     $form->set($f, $_POST[$f]);
             if ($form->isValid())
                 $form->save(true);
+            $names = array();
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
                 if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
@@ -38,6 +39,10 @@ if($_POST) {
                         $field->set($f, $_POST["$f-$id"]);
                     }
                 }
+                if (in_array($field->get('name'), $names))
+                    $field->addError('Field variable name is not unique', 'name');
+                if ($field->get('name'))
+                    $names[] = $field->get('name');
                 if ($field->isValid())
                     $field->save();
                 else
