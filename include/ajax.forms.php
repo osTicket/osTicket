@@ -101,6 +101,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
             }
             $cd->save();
         }
+
+        return Http::response(201, $user->to_json());
     }
 }
 

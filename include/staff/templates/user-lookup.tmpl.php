@@ -21,7 +21,7 @@
 <input type="hidden" id="user-lookup-id" name="user_id" value=""/>
 <div class="clear"></div>
 </div>
-    <hr style="margin-top:3em"/>
+    <hr>
     <p class="full-width">
         <span class="buttons" style="float:left">
             <input type="button" value="Cancel" class="close">
