@@ -26,6 +26,7 @@ class SourceAnalyzer extends Test {
         $class = array('line'=>$line);
         $token = false;
         $blocks = 0;
+        $func_options = array('allow_this'=>true);
         while (list($i,$token) = each($this->tokens)) {
             switch ($token[0]) {
             case '{':
@@ -42,7 +43,14 @@ class SourceAnalyzer extends Test {
             case T_FUNCTION:
                 $this->traverseFunction(
                     array($token[2], $line[1]),
-                    array('allow_this'=>true));
+                    $func_options);
+                // Continue to reset $func_options
+            case ';':
+                // Reset function options
+                $func_options = array('allow_this'=>true);
+                break;
+            case T_STATIC:
+                $func_options['allow_this'] = false;
                 break;
             case T_VAR:
                 // var $variable
@@ -94,7 +102,7 @@ class SourceAnalyzer extends Test {
                 break;
             case '}':
                 if (--$blocks == 0)
-                    return;
+                    return $scope;
                 break;
             case T_VARIABLE:
                 // Look-ahead for assignment
@@ -285,6 +293,24 @@ class SourceAnalyzer extends Test {
                         break;
                     }
                 }
+                break;
+            case T_CATCH:
+                // catch (Exception $var) {
+                while (list(,$token) = each($this->tokens)) {
+                    if ($token == '{')
+                        break;
+                    elseif ($token[0] == T_VARIABLE)
+                        $variable = $token[1];
+                }
+                $scope[$variable] = 1;
+                $scope = $this->checkVariableUsage($function, $scope, 1,
+                    $options);
+                // Variable is no longer in scope; however, other variables
+                // defined in the catch {} block remain in scope.
+                // (Technically, the variable is in scope, but we will
+                // consider it bad coding practice to deal with an exception
+                // outisde the catch block
+                unset($scope[$variable]);
                 break;
             case T_DOLLAR_OPEN_CURLY_BRACES:
             case T_CURLY_OPEN:
