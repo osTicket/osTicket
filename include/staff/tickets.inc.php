@@ -227,7 +227,9 @@ $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&ord
 $qselect.=' ,count(attach.attach_id) as attachments '
          .' ,count(DISTINCT thread.id) as thread_count '
          .' ,IF(ticket.duedate IS NULL,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)), ticket.duedate) as duedate '
-         .' ,IF(ticket.reopened is NULL,IF(ticket.lastmessage is NULL,ticket.created,ticket.lastmessage),ticket.reopened) as effective_date '
+         .' ,IF(ticket.lastmessage is NULL,IF(ticket.reopened is NULL,ticket.created,ticket.reopened),
+                 IF(ticket.reopened is NOT NULL AND ticket.reopened>ticket.lastmessage,
+                     ticket.reopened, ticket.lastmessage ) ) as effective_date '
          .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
          .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic ';
