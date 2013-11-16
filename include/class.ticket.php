@@ -2212,7 +2212,7 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getNewTicketNoticeMsgTemplate()) && $email) {
 
-            $message = $vars['issue'];
+            $message = $vars['message'];
             if($response)
                 $message.="\n\n".$response->getBody();
 
