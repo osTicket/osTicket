@@ -110,7 +110,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
-                value="<?php echo $f->get('label'); ?>"/></td>
+                value="<?php echo $f->get('label'); ?>"/>
+                <font class="error"><?php
+                    if ($errors['label']) echo '<br/>'; echo $errors['label']; ?>
+            </td>
             <td><select name="type-<?php echo $id; ?>" <?php
                 if (!$f->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
