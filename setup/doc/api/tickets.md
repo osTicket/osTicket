@@ -33,7 +33,7 @@ request content.
 *   __topicId__:     Help topic *id* associated with the ticket
 *   __attachments__: An array of files to attach to the initial message.
                      Each attachment must have some content and also the
-                     following fields:
+                     following fields (_please refer to the format-specific examples below_):
     *   __name__:     *required* name of the file to be attached. Multiple files
                       with the same name are allowable
     *   __type__:     Mime type of the file. Default is `text/plain`
