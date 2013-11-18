@@ -11,10 +11,10 @@ INSERT INTO `%TABLE_PREFIX%form_entry_values` (
     `field_id`, `entry_id`, `value`)
     SELECT A3.`id`, A2.`id`, A1.`subject`
     FROM `%TABLE_PREFIX%ticket` A1
-        INNER JOIN `%TABLE_PREFIX%form` A4 ON (`type`='T')
         INNER JOIN `%TABLE_PREFIX%form_entry` A2 ON (A2.`object_id`
                 = A1.`ticket_id` AND A2.`object_type` = 'T')
-        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A2.`form_id`
+        INNER JOIN `%TABLE_PREFIX%form` A4 ON (A4.`id` = A2.`form_id`)
+        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A3.`form_id`
                 = A4.`id`)
     WHERE A3.`name` = 'subject';
 
@@ -23,10 +23,10 @@ INSERT INTO `%TABLE_PREFIX%form_entry_values` (
     `field_id`, `entry_id`, `value`, `value_id`)
     SELECT A3.`id`, A2.`id`, A5.`priority_desc`, A1.`priority_id`
     FROM `%TABLE_PREFIX%ticket` A1
-        INNER JOIN `%TABLE_PREFIX%form` A4 ON (`type`='T')
         INNER JOIN `%TABLE_PREFIX%form_entry` A2 ON (A2.`object_id`
                 = A1.`ticket_id` AND A2.`object_type` = 'T')
-        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A2.`form_id`
+        INNER JOIN `%TABLE_PREFIX%form` A4 ON (A4.`id` = A2.`form_id`)
+        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A3.`form_id`
                 = A4.`id`)
         INNER JOIN `%TABLE_PREFIX%ticket_priority` A5 ON (A5.`priority_id`
                 = A1.`priority_id`)
@@ -86,7 +86,7 @@ INSERT INTO `%TABLE_PREFIX%form_entry_values` (
         INNER JOIN `%TABLE_PREFIX%form_entry` A2 ON (A2.`object_id`
                 = A1.`ticket_id` AND A2.`object_type` = 'U')
         INNER JOIN `%TABLE_PREFIX%form` A4 ON (A4.`id` = A2.`form_id`)
-        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A2.`form_id`
+        INNER JOIN `%TABLE_PREFIX%form_field` A3 ON (A3.`form_id`
                 = A4.`id`)
     WHERE A3.`name` = 'phone' AND LENGTH(A1.`phone`)
     GROUP BY A3.`id`, A2.`id`;

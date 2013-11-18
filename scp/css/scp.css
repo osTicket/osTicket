@@ -1497,3 +1497,12 @@ input.dp {
 .icon-warning-sign {
     color: #d33;
 }
+
+div.patch {
+    border-bottom: 1px dotted #ccc;
+    padding: 0.1em;
+    margin-left: 1em;
+}
+.patch-title {
+    color: #555;
+}

@@ -13,20 +13,24 @@ if(($mode = $ost->get_var('m', $_GET)) &&  $mode!=$upgrader->getMode()) {
 
 $action=$upgrader->getNextAction();
 ?>
-<h2>osTicket Upgrade</h2>
+    <h2>Migrate to osTicket <?php echo THIS_VERSION; ?></h2>
 <div id="upgrader">
     <div id="main">
             <div id="intro">
              <p>Thank you for taking the time to upgrade your osTicket intallation!</p>
-             <p>Please don't cancel or close the browser; any errors at this stage will be fatal.</p>
+             <p><strong>Please don't cancel or close the browser; any errors
+             at this stage will be fatal.</strong></p>
             </div>
-            <h2 id="task"><?php echo $action ?></h2>
-            <p>The upgrade wizard will now attempt to upgrade your database and core settings!</p>
-            <ul>
-                <li>Database enhancements</li>
-                <li>New and updated features</li>
-                <li>Enhanced settings and security</li>
-            </ul>
+            <h2 id="task">Applying updates to database stream:
+            <?php echo $upgrader->getCurrentStream()->name; ?></h2>
+            <p>In order to upgrade to this version of osTicket, a database
+            migration is required. This upgrader will automatically apply
+            the database patches shipped with osTicket since your last
+            upgrade.</p>
+            <p>The upgrade wizard will now attempt to upgrade your database and core settings!
+            Below is a summary of the database patches to be applied.
+            </p>
+            <?php echo $upgrader->getUpgradeSummary(); ?>
             <div id="bar">
                 <form method="post" action="upgrade.php" id="upgrade">
                     <?php csrf_token(); ?>
