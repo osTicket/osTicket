@@ -30,7 +30,7 @@ if($_POST):
             $errors['captcha']='Invalid - try again!';
     }
 
-    $interest = array('subject');
+    $form = false;
     if ($topic = Topic::lookup($vars['topicId'])) {
         if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
             $form = $form->instanciate();
@@ -52,6 +52,11 @@ if($_POST):
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
         Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
+        // Save the form data from the help-topic form, if any
+        if ($form) {
+            $form->setTicketId($ticket->getId());
+            $form->save();
+        }
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             if(!$cfg->showRelatedTickets())
