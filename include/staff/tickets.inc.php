@@ -140,7 +140,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
         db_input($_SESSION['adv_'.$_REQUEST['advsid']])).')';
 }
 
-$sortOptions=array('date'=>'ticket.created','ID'=>'ticketID',
+$sortOptions=array('date'=>'effective_date','ID'=>'ticketID',
     'pri'=>'priority_id','name'=>'user.name','subj'=>'subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept_name');
@@ -227,7 +227,7 @@ $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&ord
 $qselect.=' ,count(attach.attach_id) as attachments '
          .' ,count(DISTINCT thread.id) as thread_count '
          .' ,IF(ticket.duedate IS NULL,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)), ticket.duedate) as duedate '
-         .' ,IF(ticket.reopened is NULL,IF(ticket.lastmessage is NULL,ticket.created,ticket.lastmessage),ticket.reopened) as effective_date '
+         .' ,GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.reopened, 0), ticket.created) as effective_date '
          .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
          .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic ';
@@ -387,7 +387,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                 <td align="center" title="<?php echo $row['email']; ?>" nowrap>
                   <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview" title="Preview Ticket"
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
-                <td align="center" nowrap><?php echo Format::db_date($row['created']); ?></td>
+                <td align="center" nowrap><?php echo Format::db_date($row['effective_date']); ?></td>
                 <td><a <?php if($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                      &nbsp;
