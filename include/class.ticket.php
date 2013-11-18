@@ -1515,8 +1515,6 @@ class Ticket {
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
-            //Set attachments if emailing.
-            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             $options = array(
                 'inreplyto' => $response->getEmailMessageId(),
                 'references' => $response->getEmailReferences());
