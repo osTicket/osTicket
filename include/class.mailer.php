@@ -78,11 +78,14 @@ class Mailer {
     }
 
     function addAttachment($attachment) {
-        $this->attachments[] = $attachment;
+        // XXX: This looks too assuming; however, the attachment processor
+        // in the ::send() method seems hard coded to expect this format
+        $this->attachments[$attachment['file_id']] = $attachment;
     }
 
     function addAttachments($attachments) {
-        $this->attachments = array_merge($this->attachments, $attachments);
+        foreach ($attachments as $a)
+            $this->addAttachment($a);
     }
 
     function send($to, $subject, $message, $options=null) {
@@ -180,8 +183,6 @@ class Mailer {
                     $mime->addAttachment($file->getData(),
                         $file->getType(), $file->getName(),false);
                 }
-                elseif($attachment['file'] &&  file_exists($attachment['file']) && is_readable($attachment['file']))
-                    $mime->addAttachment($attachment['file'],$attachment['type'],$attachment['name']);
             }
         }
 
