@@ -219,9 +219,28 @@ class MailFetcher {
             return imap_utf7_encode($mailbox);
     }
 
-    //Generic decoder - resulting text is utf8 encoded -> mirrors imap_utf8
+    /**
+     * Mime header value decoder. Usually unicode characters are encoded
+     * according to RFC-2047. This function will decode RFC-2047 encoded
+     * header values as well as detect headers which are not encoded.
+     *
+     * Caveats:
+     * If headers contain non-ascii characters the result of this function
+     * is completely undefined. If osTicket is corrupting your email
+     * headers, your mail software is not encoding the header text
+     * correctly.
+     *
+     * Returns:
+     * Header value, transocded to UTF-8
+     */
     function mime_decode($text, $encoding='utf-8') {
+        // Handle poorly or completely un-encoded header values (
+        if (function_exists('mb_detect_encoding'))
+            if (($src_enc = mb_detect_encoding($text))
+                    && (strcasecmp($src_enc, 'ASCII') !== 0))
+                return Format::encode($text, $src_enc, $encoding);
 
+        // Handle ASCII text and RFC-2047 encoding
         $str = '';
         $parts = imap_mime_header_decode($text);
         foreach ($parts as $part)
