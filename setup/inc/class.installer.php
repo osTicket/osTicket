@@ -199,20 +199,18 @@ class Installer extends SetupWizard {
 
             //Create config settings---default settings!
             //XXX: rename ostversion  helpdesk_* ??
-            // XXX: Some of this can go to the core install file
-			$defaults = array('isonline'=>'0', 'default_email_id'=>$support_email_id,
-				'alert_email_id'=>$alert_email_id, 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
-				'default_timezone_id'=>$default_timezone, 'default_template_id'=>$template_id_1,
-				'admin_email'=>db_input($vars['admin_email']),
-				'schema_signature'=>db_input($signature),
-				'helpdesk_url'=>db_input(URL),
-				'helpdesk_title'=>db_input($vars['name']));
-			foreach ($defaults as $key=>$value) {
-				$sql='UPDATE '.PREFIX.'config SET updated=NOW(), value='.$value
-					.' WHERE namespace="core" AND `key`='.db_input($key);
-	            if(!db_query($sql, false))
-	                $this->errors['err']='Unable to create config settings (#7)';
-			}
+            $defaults = array(
+                'default_email_id'=>$support_email_id,
+                'alert_email_id'=>$alert_email_id,
+                'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
+                'default_template_id'=>$template_id_1,
+                'admin_email'=>$vars['admin_email'],
+                'schema_signature'=>$signature,
+                'helpdesk_url'=>URL,
+                'helpdesk_title'=>$vars['name']);
+            $config = new Config('core');
+            if (!$config->updateAll($defaults))
+                $this->errors['err']='Unable to create config settings (#7)';
 
             // Set company name
             require_once(INCLUDE_DIR.'class.company.php');
