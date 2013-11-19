@@ -148,7 +148,7 @@ class Thread {
 
         // DELME: When HTML / rich-text is supported
         $vars['title'] = Format::htmlchars($vars['title']);
-        $vars['body'] = Format::htmlchars($vars['body']);
+        $vars['note'] = Format::htmlchars($vars['note']);
 
         return Note::create($vars, $errors);
     }
@@ -160,7 +160,7 @@ class Thread {
 
         // DELME: When HTML / rich-text is supported
         $vars['title'] = Format::htmlchars($vars['title']);
-        $vars['body'] = Format::htmlchars($vars['body']);
+        $vars['message'] = Format::htmlchars($vars['message']);
 
         return Message::create($vars, $errors);
     }
@@ -171,7 +171,7 @@ class Thread {
 
         // DELME: When HTML / rich-text is supported
         $vars['title'] = Format::htmlchars($vars['title']);
-        $vars['body'] = Format::htmlchars($vars['body']);
+        $vars['response'] = Format::htmlchars($vars['response']);
 
         return Response::create($vars, $errors);
     }
