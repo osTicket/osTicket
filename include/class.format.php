@@ -207,8 +207,10 @@ class Format {
         // Remove HEAD and STYLE sections
         $html = preg_replace(
             array(':<(head|style).+</\1>:is',   # <head> and <style> sections
-                  ':<!\[[^]<]+\]>:'),           # <![if !mso]> and friends
-            array('', ''),
+                  ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
+                  ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
+            ),
+            array('', '', ''),
             $html);
         $config = array(
             'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
