@@ -187,16 +187,12 @@ class Mail_Parse {
             }
         }
         else {
-            if ($body=$this->getPart($this->struct,'text/plain')) {
-                $body = Format::htmlchars($body);
+            if (!($body=$this->getPart($this->struct,'text/plain'))) {
+                if ($body=$this->getPart($this->struct,'text/html')) {
+                    $body = Format::html2text(Format::safe_html($body), 100, false);
+                }
             }
-            elseif ($body=$this->getPart($this->struct,'text/html')) {
-                $body = Format::html2text(Format::safe_html($body), 100, false);
-            }
-            $body = trim($body)
-                ? sprintf('<pre>%s</pre>',
-                    $body)
-                : '--';
+            $body = trim($body) ? $body : '--';
         }
         return $body;
     }

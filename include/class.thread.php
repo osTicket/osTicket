@@ -776,14 +776,14 @@ Class ThreadEntry {
             unset($a);
         }
 
-        $vars['body'] = Format::sanitize($vars['body'],
-            !$cfg->isHtmlThreadEnabled());
         if (!$cfg->isHtmlThreadEnabled()) {
             // Data in the database is assumed to be HTML, change special
             // plain text XML characters
             $vars['title'] = Format::htmlchars($vars['title']);
-            $vars['body'] = Format::htmlchars($vars['body']);
+            $vars['body'] = sprintf('<pre>%s</pre>',
+                Format::htmlchars($vars['body']));
         }
+        $vars['body'] = Format::sanitize($vars['body']);
 
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
