@@ -310,6 +310,7 @@ class ApiXmlDataParser extends XmlDataParser {
      * XML data types
      */
     function fixup($current) {
+        global $cfg;
 
         if($current['ticket'])
             $current = $current['ticket'];
@@ -336,9 +337,18 @@ class ApiXmlDataParser extends XmlDataParser {
                 }
                 if (isset($value['encoding']))
                     $value['body'] = Format::utf8encode($value['body'], $value['encoding']);
-                if (!isset($value['type']) || $value['type'] != 'text/html')
+                // HTML-ize text if html is enabled
+                if ($cfg->isHtmlThreadEnabled()
+                        && (!isset($value['type'])
+                            || strcasecmp($value['type'], 'text/html')))
                     $value = sprintf('<pre>%s</pre>',
                         Format::htmlchars($value['body']));
+                // Text-ify html if html is disabled
+                elseif (!$cfg->isHtmlThreadEnabled()
+                        && !strcasecmp($value['type'], 'text/html'))
+                    $value = Format::html2text(Format::safe_html(
+                        $value['body']), 100, false);
+                // Noop if they content-type matches the html setting
                 else
                     $value = $value['body'];
             } else if ($key == "attachments") {

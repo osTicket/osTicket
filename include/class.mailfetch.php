@@ -437,16 +437,12 @@ class MailFetcher {
             }
         }
         else {
-            if ($body=$this->getPart($mid, 'text/plain', $this->charset)) {
-                $body = Format::htmlchars($body);
+            if (!($body=$this->getPart($mid, 'text/plain', $this->charset))) {
+                if ($body=$this->getPart($mid, 'text/html', $this->charset)) {
+                    $body = Format::html2text(Format::safe_html($body), 100, false);
+                }
             }
-            elseif ($body=$this->getPart($mid, 'text/html', $this->charset)) {
-                $body = Format::html2text(Format::safe_html($body), 100, false);
-            }
-            $body = trim($body)
-                ? sprintf('<pre>%s</pre>',
-                    $body)
-                : '--';
+            $body = trim($body) ? $body : '--';
         }
         return $body;
     }
