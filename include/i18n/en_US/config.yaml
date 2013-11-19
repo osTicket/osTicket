@@ -8,7 +8,7 @@ core:
     date_format: 'm/d/Y'
     datetime_format: 'm/d/Y g:i a'
     daydatetime_format: 'D, M j Y g:ia'
-    default_timezone_id: 0
+    default_timezone_id: 8
     default_priority_id: 2
     enable_daylight_saving: 0
 
@@ -31,12 +31,7 @@ core:
     max_user_file_uploads: 1
     max_staff_file_uploads: 1
     autolock_minutes: 3
-    alert_email_id: 0
-    default_email_id: 0
-    default_dept_id: 0
-    default_sla_id: 0
     default_priority_id: 2
-    default_template_id: 1
     default_smtp_id: 0
     use_email_priority: 0
     enable_kb: 0
