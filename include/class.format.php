@@ -206,7 +206,7 @@ class Format {
     function safe_html($html) {
         // Remove HEAD and STYLE sections
         $html = preg_replace(
-            array(':<(head|style).+</\1>:is',   # <head> and <style> sections
+            array(':<(head|style|script).+</\1>:is',   # <head> and <style> sections
                   ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
             ),
@@ -217,6 +217,7 @@ class Format {
             'balance' => 1, //balance and close unclosed tags.
             'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
             'tidy' => -1,
+            'keep_bad' => 1,
             'deny_attribute' => 'id',
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
