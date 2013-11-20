@@ -569,8 +569,10 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
 
 if($thisstaff->canCreateTickets()) {
     $nav->addSubMenu(array('desc'=>'New Ticket',
+                           'title' => 'Open New Ticket',
                            'href'=>'tickets.php?a=open',
-                           'iconclass'=>'newTicket'),
+                           'iconclass'=>'newTicket',
+                           'id' => 'new-ticket'),
                         ($_REQUEST['a']=='open'));
 }
 
