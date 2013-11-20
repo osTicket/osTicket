@@ -53,12 +53,10 @@ UPDATE `%TABLE_PREFIX%user_email` A1
 ALTER TABLE `%TABLE_PREFIX%user` DROP INDEX `def_eml_id`;
 
 --      - Update the ticket table
-ALTER TABLE `%TABLE_PREFIX%ticket` ADD KEY `email_lookup` (`email`);
 UPDATE `%TABLE_PREFIX%ticket` A1
     JOIN `%TABLE_PREFIX%user_email` A2 ON A2.`address` = A1.`email`
     SET A1.`user_id` = A2.`user_id`,
         A1.`user_email_id` = A2.`id`;
-ALTER TABLE `%TABLE_PREFIX%ticket` DROP INDEX `email_lookup`;
 
 -- TODO: Move this to a client info dynamic entry
 -- 4. Create form entries for each ticket
