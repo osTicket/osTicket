@@ -503,7 +503,7 @@ class TextareaField extends FormField {
             'rows'  =>  new TextboxField(array(
                 'id'=>2, 'label'=>'Height (rows)', 'required'=>false, 'default'=>4)),
             'length' => new TextboxField(array(
-                'id'=>3, 'label'=>'Max Length', 'required'=>false, 'default'=>30)),
+                'id'=>3, 'label'=>'Max Length', 'required'=>false, 'default'=>0)),
             'html' => new BooleanField(array(
                 'id'=>4, 'label'=>'HTML', 'required'=>false, 'default'=>true,
                 'configuration'=>array('desc'=>'Allow HTML input in this box'))),
@@ -861,7 +861,7 @@ class TextareaWidget extends Widget {
             $rows = "rows=\"{$config['rows']}\"";
         if (isset($config['cols']))
             $cols = "cols=\"{$config['cols']}\"";
-        if (isset($config['length']))
+        if (isset($config['length']) && $config['length'])
             $maxlength = "maxlength=\"{$config['length']}\"";
         if (isset($config['html']) && $config['html'])
             $class = 'class="richtext no-bar small"';
