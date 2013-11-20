@@ -297,7 +297,11 @@ class MailFetcher {
             $struct=@imap_fetchstructure($this->mbox, $mid);
 
         //Match the mime type.
-        if($struct && !$struct->ifdparameters && strcasecmp($mimeType, $this->getMimeType($struct))==0) {
+        if($struct
+                && strcasecmp($mimeType, $this->getMimeType($struct))==0
+                && (!$struct->ifdparameters
+                    || !$this->findFilename($struct->dparameters))) {
+
             $partNumber=$partNumber?$partNumber:1;
             if(($text=imap_fetchbody($this->mbox, $mid, $partNumber))) {
                 if($struct->encoding==3 or $struct->encoding==4) //base64 and qp decode.
