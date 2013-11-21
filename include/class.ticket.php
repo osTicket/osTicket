@@ -2230,7 +2230,7 @@ class Ticket {
             $msg = $ticket->replaceVars($msg->asArray(), array(
                 'message' => $message,
                 'signature' => $signature,
-                'response' => $response->getBody(),
+                'response' => ($response) ? $response->getBody() : '',
             ));
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
