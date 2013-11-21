@@ -679,6 +679,8 @@ class TicketFilter {
         //Extract the vars we care about (fields we filter by!).
         $this->vars = array('body'=>$vars['message']);
         $interest = Filter::getSupportedMatchFields();
+        // emailId is always significant to the filter process
+        $interest[] = 'emailId';
         foreach ($vars as $k=>$v) {
             if (in_array($k, $interest))
                 $this->vars[$k] = trim($v);
