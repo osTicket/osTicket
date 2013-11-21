@@ -49,4 +49,36 @@ class Exception {
     function getTraceAsString() {}
 }
 
+class DateTime {
+    function add() {}
+    static function createFromFormat () {}
+    static function getLastErrors() {}
+    function modify() {}
+    function setDate() {}
+    function setISODate() {}
+    function setTime() {}
+    function setTimestamp() {}
+    function setTimezone() {}
+    function sub() {}
+    function diff() {}
+    function format() {}
+    function getOffset() {}
+    function getTimestamp() {}
+    function getTimezone() {}
+}
+
+class DateInterval {
+    static function createFromDateString() {}
+    function format() {}
+}
+
+class DateTimeZone {
+    function getLocation() {}
+    function getName() {}
+    function getOffset() {}
+    function getTransitions() {}
+    static function listAbbreviations() {}
+    static function listIdentifiers() {}
+}
+
 ?>
