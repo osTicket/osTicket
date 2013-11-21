@@ -180,13 +180,14 @@ class TicketForm extends DynamicForm {
 
     static function getInstance() {
         if (!isset(static::$instance))
-            static::$instance = static::getNewInstance();
+            self::getNewInstance();
         return static::$instance;
     }
 
     static function getNewInstance() {
         $o = static::objects();
-        return $o[0]->instanciate();
+        static::$instance = $o[0]->instanciate();
+        return static::$instance;
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
