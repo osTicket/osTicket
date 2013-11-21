@@ -1019,14 +1019,15 @@ class DatetimePickerWidget extends Widget {
         $config = $this->field->getConfiguration();
         if ($datetime = parent::getValue()) {
             $datetime = (is_int($datetime) ? $datetime :
-                (int)DateTime::createFromFormat($cfg->getDateFormat() . ' G:i',
-                    $datetime . ' 00:00')
-                ->format('U'));
-            if (isset($data[$this->name . ':time'])) {
+                (($dt = DateTime::createFromFormat($cfg->getDateFormat() . ' G:i',
+                        $datetime . ' 00:00'))
+                    ? (int) $dt->format('U') : false)
+            );
+            if ($datetime && isset($data[$this->name . ':time'])) {
                 list($hr, $min) = explode(':', $data[$this->name . ':time']);
                 $datetime += $hr * 3600 + $min * 60;
             }
-            if ($config['gmt'])
+            if ($datetime && $config['gmt'])
                 $datetime -= (int) (3600 * $_SESSION['TZ_OFFSET'] +
                     ($_SESSION['TZ_DST'] ? date('I',$datetime) : 0));
         }
