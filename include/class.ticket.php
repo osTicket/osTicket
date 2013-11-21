@@ -2223,8 +2223,11 @@ class Ticket {
 
             $attachments =($cfg->emailAttachments() && $response)?$response->getAttachments():array();
 
-            $msg = $ticket->replaceVars($msg->asArray(),
-                    array('message' => $message, 'signature' => $signature));
+            $msg = $ticket->replaceVars($msg->asArray(), array(
+                'message' => $message,
+                'signature' => $signature,
+                'response' => $response->getBody(),
+            ));
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
