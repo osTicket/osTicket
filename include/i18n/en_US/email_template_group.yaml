@@ -13,7 +13,8 @@
 # notes - Administrative notes (viewable internally only)
 #
 ---
-- isactive: 1
+- id: 1
+  isactive: 1
   name: osTicket Default Template (HTML)
   notes: |
     Default osTicket templates
