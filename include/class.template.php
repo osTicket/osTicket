@@ -322,6 +322,8 @@ class EmailTemplateGroup {
 
         } else {
 
+            if (isset($vars['id']))
+                $sql .= ', tpl_id='.db_input($vars['id']);
             $sql='INSERT INTO '.EMAIL_TEMPLATE_GRP_TABLE
                 .' SET created=NOW(), '.$sql;
             if(!db_query($sql) || !($new_id=db_insert_id())) {
