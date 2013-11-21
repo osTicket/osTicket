@@ -15,7 +15,7 @@ $category=$faq->getCategory();
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;"></div>
 <div class="clear"></div>
 <p>
-<?php echo Format::safe_html($faq->getAnswer()); ?>
+<?php echo Format::safe_html($faq->getAnswerWithImages()); ?>
 </p>
 <p>
 <?php
