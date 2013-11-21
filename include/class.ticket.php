@@ -2213,8 +2213,10 @@ class Ticket {
         if($tpl && ($msg=$tpl->getNewTicketNoticeMsgTemplate()) && $email) {
 
             $message = $vars['message'];
-            if($response)
-                $message.="\n\n".$response->getBody();
+            if($response) {
+                $message .= ($cfg->isHtmlThreadEnabled()) ? "<br><br>" : "\n\n";
+                $message .= $response->getBody();
+            }
 
             if($vars['signature']=='mine')
                 $signature=$thisstaff->getSignature();
