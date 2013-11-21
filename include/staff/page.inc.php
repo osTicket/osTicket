@@ -13,7 +13,8 @@ if($page && $_REQUEST['a']!='add'){
     $action='update';
     $submit_text='Save Changes';
     $info=$page->getHashtable();
-    $info['body'] = $page->getBodyWithImages();
+    $info['body'] = Format::viewableImages($page->getBody());
+    $info['notes'] = Format::viewableImages($info['notes']);
     $slug = Format::slugify($info['name']);
     $qstr.='&id='.$page->getId();
 }else {
