@@ -202,7 +202,7 @@ class Ticket2PDF extends mPDF
 
             $closedby = 'unknown';
             if(($staff = $ticket->getStaff()))
-                $closedby = $staff->getName();
+                $closedby = (string) $staff->getName();
 
             $this->WriteCell($l, 7, 'Closed By', 1, 0, 'L', true);
             $this->SetFont('');
