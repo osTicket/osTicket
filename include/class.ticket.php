@@ -2012,11 +2012,13 @@ class Ticket {
         //Any error above is fatal.
         if($errors)  return 0;
 
-        $user = User::fromForm($user_info);
-        $user_email = UserEmail::ensure($user_info['email']);
-
         # Perform ticket filter actions on the new ticket arguments
         if ($ticket_filter) $ticket_filter->apply($vars);
+
+        // Allow vars to be changed in ticket filter and applied to the user
+        // account created or detected
+        $user = User::fromForm($vars);
+        $user_email = UserEmail::ensure($vars['email']);
 
         # Some things will need to be unpacked back into the scope of this
         # function
