@@ -9,7 +9,7 @@ if($faq){
     $info=$faq->getHashtable();
     $info['id']=$faq->getId();
     $info['topics']=$faq->getHelpTopicsIds();
-    $info['answer']=$faq->getAnswer();
+    $info['answer']=Format::viewableImages($faq->getAnswer());
     $info['notes']=Format::viewableImages($faq->getNotes());
     $qstr='id='.$faq->getId();
 }else {

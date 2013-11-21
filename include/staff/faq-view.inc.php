@@ -24,7 +24,7 @@ if($thisstaff->canManageFAQ()) {
 </div>
 <div class="clear"></div>
 <div class="thread-body">
-<?php echo $faq->getAnswer(); ?>
+<?php echo $faq->getAnswerWithImages(); ?>
 </div>
 <div class="clear"></div>
 <p>

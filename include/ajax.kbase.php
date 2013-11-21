@@ -78,7 +78,7 @@ class KbaseAjaxAPI extends AjaxController {
                  <hr>
                  <a href="faq.php?id=%d">View</a> | <a href="faq.php?id=%d">Attachments (%s)</a>',
                 $faq->getQuestion(),
-                $faq->getAnswer(),
+                $faq->getAnswerWithImages(),
                 Format::db_daydatetime($faq->getUpdateDate()),
                 $faq->getId(),
                 $faq->getId(),
