@@ -8,8 +8,13 @@ class NewHtmlTemplate extends MigrationTask {
 
         $i18n = new Internationalization('en_US');
         $tpls = $i18n->getTemplate('email_template_group.yaml')->getData();
-        foreach ($tpls as $t)
+        foreach ($tpls as $t) {
+            // If the email template group specifies an id attribute, remove
+            // it for upgrade because we cannot assume that the id slot is
+            // available
+            unset($t['id']);
             EmailTemplateGroup::create($t, $errors);
+        }
 
         $files = $i18n->getTemplate('file.yaml')->getData();
         foreach ($files as $f) {
