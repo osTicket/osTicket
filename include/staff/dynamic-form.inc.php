@@ -106,6 +106,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
         $force_privacy = $f->isPrivacyForced() ? 'disabled="disabled"' : '';
         $force_required = $f->isRequirementForced() ? 'disabled="disabled"' : '';
+        $fi = $f->getImpl();
         $errors = $f->errors(); ?>
         <tr>
             <td><i class="icon-sort"></i></td>
@@ -115,7 +116,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     if ($errors['label']) echo '<br/>'; echo $errors['label']; ?>
             </td>
             <td><select name="type-<?php echo $id; ?>" <?php
-                if (!$f->isChangeable()) echo 'disabled="disabled"'; ?>>
+                if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
                         ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
                         foreach ($types as $type=>$nfo) {
