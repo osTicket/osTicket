@@ -31,16 +31,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
     </thead>
-    <tbody>
+    <tbody style="vertical-align:top">
         <tr>
             <td width="180" class="required">Title:</td>
             <td><input type="text" name="title" size="40" value="<?php
-                echo $info['title']; ?>"/></td>
+                echo $info['title']; ?>"/>
+                <i class="help-tip icon-question-sign" href="#form_title"></i>
+            </td>
         </tr>
         <tr>
             <td width="180">Instructions:</td>
             <td><textarea name="instructions" rows="3" cols="40"><?php
                 echo $info['instructions']; ?></textarea>
+                <i class="help-tip icon-question-sign" href="#form_instructions"></i>
             </td>
         </tr>
     </tbody>
@@ -90,13 +93,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <th>Sort</th>
-            <th>Label</th>
-            <th>Type</th>
-            <th>Internal</th>
-            <th>Required</th>
-            <th>Variable</th>
-            <th>Delete</th>
+            <th nowrap>Sort
+                <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
+            <th nowrap>Label
+                <i class="help-tip icon-question-sign" href="#field_label"></i></th>
+            <th nowrap>Type
+                <i class="help-tip icon-question-sign" href="#field_type"></i></th>
+            <th nowrap>Internal
+                <i class="help-tip icon-question-sign" href="#field_internal"></i></th>
+            <th nowrap>Required
+                <i class="help-tip icon-question-sign" href="#field_required"></i></th>
+            <th nowrap>Variable
+                <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
+            <th nowrap>Delete
+                <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="sort-">
@@ -115,7 +125,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <font class="error"><?php
                     if ($errors['label']) echo '<br/>'; echo $errors['label']; ?>
             </td>
-            <td><select name="type-<?php echo $id; ?>" <?php
+            <td nowrap><select name="type-<?php echo $id; ?>" <?php
                 if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
                         ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
