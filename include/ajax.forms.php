@@ -61,6 +61,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
     function saveUserInfo($user_id) {
         $user = User::lookup($user_id);
 
+        //TODO: Move save user logic to user class.
         $custom_data = $user->getDynamicData();
         $custom = array();
         $valid = true;
@@ -71,38 +72,35 @@ class DynamicFormsAjaxAPI extends AjaxController {
         }
 
         if ($valid) {
-            foreach ($custom_data as $cd)
-                foreach ($cd->getFields() as $f)
-                    if ($f->get('name') == 'email')
-                        $email = $f;
-            $u = User::lookup(array('emails__address'=>$email->getClean()));
-            if ($u && $u->id != $user_id) {
-                $valid = false;
-                $email->addError('Email is assigned to another user');
+            // Make sure email is uniqueue
+            foreach ($custom_data as $cd) {
+                if (($f=$cd->getField('email'))
+                        && ($u=User::lookup(array('emails__address'=>$f->getClean())))
+                        && $u->id != $user_id) {
+                    $valid = false;
+                    $f->addError('Email is assigned to another user');
+                }
+            }
+            // Save custom data
+            if ($valid) {
+                foreach ($custom_data as $cd) {
+                    foreach ($cd->getFields() as $f) {
+                        if ($f->get('name') == 'name') {
+                            $user->name = $f->getClean();
+                            $user->save();
+                        } elseif ($f->get('name') == 'email') {
+                            $user->default_email->address = $f->getClean();
+                            $user->default_email->save();
+                        }
+                    }
+                    $cd->save();
+                }
+                return Http::response(201, $user->to_json());
             }
         }
 
-        if (!$valid) {
-            include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
-            return;
-        }
-
-        // Save custom data
-        foreach ($custom_data as $cd) {
-            foreach ($cd->getFields() as $f) {
-                if ($f->get('name') == 'name') {
-                    $user->name = $f->getClean();
-                    $user->save();
-                }
-                elseif ($f->get('name') == 'email') {
-                    $user->default_email->address = $f->getClean();
-                    $user->default_email->save();
-                }
-            }
-            $cd->save();
-        }
-
-        return Http::response(201, $user->to_json());
+        include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
+        return;
     }
 }
 
