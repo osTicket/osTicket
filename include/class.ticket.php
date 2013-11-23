@@ -195,18 +195,13 @@ class Ticket {
     function getEmail(){
         if ($o = $this->getOwner())
             return $o->getEmail();
+
         return null;
     }
 
     function getReplyToEmail() {
-        if ($this->ht['user_email_id']) {
-            if (!isset($this->reply_email))
-                $this->reply_email = UserEmail::lookup($this->ht['user_email_id']);
-            return $this->reply_email->address;
-        }
-        else {
-            return $this->getEmail();
-        }
+        //TODO: Determine the email to use (once we enable multi-email support)
+        return $this->getEmail();
     }
 
     function getAuthToken() {
@@ -2074,7 +2069,6 @@ class Ticket {
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->id)
-            .' ,user_email_id='.db_input($user_email->id)
             .' ,ticketID='.db_input($extId)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
