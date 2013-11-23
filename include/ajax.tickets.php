@@ -448,5 +448,30 @@ class TicketsAjaxAPI extends AjaxController {
 
         return $resp;
     }
+
+    function changeUserForm($tid) {
+        global $thisstaff;
+
+        if(!$thisstaff
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+
+        $user = $ticket->getOwner();
+
+        $info = array(
+                'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
+                );
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+        return $resp;
+
+    }
+
+
 }
 ?>

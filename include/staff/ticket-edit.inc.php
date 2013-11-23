@@ -20,21 +20,26 @@ if ($_POST)
             </th>
         </tr>
     <?php
-    $client = User::lookup($info['user_id']);
+    if(!$info['user_id'] || !($user = User::lookup($info['user_id'])))
+        $user = $ticket->getUser();
     ?>
     <tr><td>Client:</td><td>
-        <span id="client-info"><?php echo $client->getName(); ?>
-        &lt;<?php echo $client->getEmail(); ?>&gt;</span>
-        <a class="action-button" style="float:none;overflow:inherit"
-            href="ajax.php/users/lookup?id=<?php echo $client->getId(); ?>"
-            onclick="javascript:
-                $('#overlay').show();
-                $('#user-lookup .body').load(this.href);
-                $('#user-lookup').show();
-                return false;
-            "><i class="icon-edit"></i> Change</a>
-        <input type="hidden" name="user_id" id="user_id"
-            value="<?php echo $info['user_id']; ?>" />
+        <div id="client-info">
+            <span id="client-name"><?php echo $user->getName(); ?></span>
+            <span id="client-email">&lt;<?php echo $user->getEmail(); ?>&gt;</span>
+            <a class="action-button" style="float:none;overflow:inherit" href="#"
+                onclick="javascript:
+                    $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/change-user',
+                            function(user) {
+                                $('input#user_id').val(user.id);
+                                $('#user_name').html(user.name);
+                                $('#user_email').html('&lt;'+user.email+'&gt;');
+                    });
+                    return false;
+                "><i class="icon-edit"></i> Change</a>
+            <input type="hidden" name="user_id" id="user_id"
+                value="<?php echo $info['user_id']; ?>" />
+        </div>
         </td></tr>
     <tbody>
         <tr>
