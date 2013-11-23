@@ -20,7 +20,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 include_once(INCLUDE_DIR.'class.ticket.php');
 
 class UsersAjaxAPI extends AjaxController {
-   
+
     /* Assumes search by emal for now */
     function search() {
 
@@ -54,14 +54,51 @@ class UsersAjaxAPI extends AjaxController {
 
     }
 
-    function getLookupForm() {
-        $user_info = array();
-        if ($_REQUEST['id']) {
-            $user = User::lookup($_REQUEST['id']);
-            $user_info += array(
-                'name'=>$user->getName(), 'email'=>$user->getEmail());
-        }
-        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
+    function getUser() {
+
+        if(($user=User::lookup($_REQUEST['id'])))
+           Http::response(201, $user->to_json());
+
+        $info = array('error' =>'Unknown or invalid user');
+
+        return self::_lookupform(null, $info);
     }
+
+    function addUser() {
+
+        $errors = $info = array();
+        $user = null;
+
+        $form = UserForm::getInstance();
+        if ($form->isValid()) {
+            if (($f=$form->getField('email'))
+                    && User::lookup(array('emails__address'=>$f->getClean())))
+                $f->addError('Email is assigned to another user');
+            elseif (($user = User::fromForm($form->getClean())))
+                Http::response(201, $user->to_json());
+        }
+
+        if (!$info || !$info['error'])
+            $info += array('error' =>'Error adding user - try again!');
+
+        return self::_lookupform($form, $info);
+    }
+
+    function getLookupForm() {
+        return self::_lookupform();
+    }
+
+    static function _lookupform($form=null, $info=array()) {
+
+        if (!$info or !$info['title'])
+            $info += array('title' => 'User Lookup');
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+        return $resp;
+    }
+
 }
 ?>
