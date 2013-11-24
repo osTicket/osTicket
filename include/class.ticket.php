@@ -1327,6 +1327,33 @@ class Ticket {
         return $this->unassign();
     }
 
+    //Change ownership
+    function changeOwner($user) {
+        global $thisstaff;
+
+        if (!$user
+                || ($user->getId() == $this->getOwnerId())
+                || !$thisstaff->canEditTickets())
+            return false;
+
+        $sql ='UPDATE '.TICKET_TABLE.' SET updated = NOW() '
+            .', user_id = '.db_input($user->getId())
+            .' WHERE ticket_id = '.db_input($this->getId());
+
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
+
+        $this->ht['user_id'] = $user->getId();
+        $this->user = null;
+
+        $this->logNote('Ticket ownership changed',
+                Format::htmlchars( sprintf('%s changed ticket ownership to %s',
+                    $thisstaff->getName(), $user->getName()))
+                );
+
+        return true;
+    }
+
     //Insert message from client
     function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;

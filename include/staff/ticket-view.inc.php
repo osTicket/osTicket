@@ -67,6 +67,24 @@ if($ticket->isOverdue())
             } ?>
             <?php
             if($thisstaff->canEditTickets()) { ?>
+            <a class="action-button" href="#"
+                onclick="javascript:
+                    $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/change-user',
+                        function(user) {
+                            var cid = <?php echo $ticket->getOwnerId(); ?>;
+                            if(cid!=user.id && $('.dialog#confirm-action #changeuser-confirm').length) {
+                                $('#newuser').html(user.name +' <'+user.email+'>');
+                                $('.dialog#confirm-action #action').val('changeuser');
+                                $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
+                                $('#overlay').show();
+                                $('.dialog#confirm-action .confirm-action').hide();
+                                $('.dialog#confirm-action p#changeuser-confirm')
+                                .show()
+                                .parent('div').show().trigger('click');
+                            }
+                       });
+                    return false;
+                "><i class="icon-edit"></i> Change Owner</a>
                 <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> Edit</a>
             <?php
             } ?>
@@ -880,6 +898,10 @@ $tcount+= $ticket->getNumNotes();
     </p>
     <p class="confirm-action" style="display:none;" id="release-confirm">
         Are you sure want to <b>unassign</b> ticket from <b><?php echo $ticket->getAssigned(); ?></b>?
+    </p>
+    <p class="confirm-action" style="display:none;" id="changeuser-confirm">
+        Are you sure want to <b>change</b> ticket owner to <b><span id="newuser">this guy</span></b>?
+        <br><br><b><?php echo $ticket->getName(); ?></b> will no longer have access to the ticket.
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong>Are you sure you want to DELETE this ticket?</strong></font>

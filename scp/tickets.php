@@ -332,6 +332,17 @@ if($_POST && !$errors):
                         $errors['err']='Unable to remove the email from banlist. Try again.';
                     }
                     break;
+                case 'changeuser':
+                    if (!$thisstaff->canEditTickets()) {
+                        $errors['err'] = 'Perm. Denied. You are not allowed to EDIT tickets!!';
+                    } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
+                        $errors['err'] = 'Unknown user selected!';
+                    } elseif ($ticket->changeOwner($user)) {
+                        $msg = 'Ticket ownership changed to '.$user->getName();
+                    } else {
+                        $errors['err'] = 'Unable to change tiket ownership. Try again';
+                    }
+                    break;
                 case 'delete': // Dude what are you trying to hide? bad customer support??
                     if(!$thisstaff->canDeleteTickets()) {
                         $errors['err']='Perm. Denied. You are not allowed to DELETE tickets!!';
