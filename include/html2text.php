@@ -47,8 +47,9 @@ function convert_html_to_text($html, $width=74) {
     // Add the default stylesheet
     $elements->getRoot()->addStylesheet(
         HtmlStylesheet::fromArray(array(
-            'p' => array('margin-bottom' => 1),
-            'pre' => array('border-width' => 1, 'white-space' => 'pre'),
+            'html' => array('white-space' => 'pre'), # Don't wrap footnotes
+            'p' => array('margin-bottom' => '1em'),
+            'pre' => array('border-width' => '1em', 'white-space' => 'pre'),
         ))
     );
     $options = array();
@@ -93,7 +94,7 @@ function identify_node($node, $parent=null) {
         case "hr":
             return new HtmlHrElement($node, $parent);
         case "br":
-            return "\n";
+            return new HtmlBrElement($node, $parent);
 
         case "style":
             $parent->getRoot()->addStylesheet(new HtmlStylesheet($node));
@@ -189,16 +190,17 @@ class HtmlInlineElement {
         foreach ($this->children as $c) {
             if ($c instanceof DOMText) {
                 // Collapse white-space
+                $more = $c->wholeText;
                 switch ($this->ws) {
-                    case 'pre':
-                    case 'pre-wrap':
-                        $more = $c->wholeText;
-                        break;
-                    case 'nowrap':
-                    case 'pre-line':
-                    case 'normal':
-                    default:
-                        $more = preg_replace('/\s+/m', ' ', $c->wholeText);
+                case 'pre':
+                case 'pre-wrap':
+                    break;
+                case 'nowrap':
+                case 'pre-line':
+                case 'normal':
+                default:
+                    if ($after_block) $more = ltrim($more);
+                    $more = preg_replace('/\s+/m', ' ', $more);
                 }
             }
             elseif ($c instanceof HtmlInlineElement) {
@@ -207,6 +209,7 @@ class HtmlInlineElement {
             else {
                 $more = $c;
             }
+            $after_block = ($c instanceof HtmlBlockElement);
             if ($more instanceof PreFormattedText)
                 $output = new PreFormattedText($output . $more);
             elseif (is_string($more))
@@ -334,14 +337,19 @@ class HtmlBlockElement extends HtmlInlineElement {
                 if ($c instanceof HtmlBlockElement)
                     $this->min_width = max($c->getMinWidth(), $this->min_width);
                 elseif ($c instanceof DomText)
-                    $this->min_width = max(max(array_map('strlen', explode(' ', $c->wholeText))),
-                        $this->min_width);
+                    $this->min_width = max(max(array_map('mb_strwidth',
+                        explode(' ', $c->wholeText))), $this->min_width);
             }
         }
         return $this->min_width;
     }
 }
 
+class HtmlBrElement extends HtmlBlockElement {
+    function render($width, $options) {
+        return "\n";
+    }
+}
 class HtmlUElement extends HtmlInlineElement {
     function render($width, $options) {
         $output = parent::render($width, $options);
@@ -399,7 +407,6 @@ class HtmlBlockquoteElement extends HtmlBlockElement {
 
 class HtmlCiteElement extends HtmlBlockElement {
     function render($width, $options) {
-        $options['trim'] = false;
         $lines = explode("\n", ltrim(parent::render($width-3, $options)));
         $lines[0] = "-- " . $lines[0];
         // Right justification
@@ -434,14 +441,15 @@ class HtmlAElement extends HtmlInlineElement {
             if ($this->node->getAttribute("name") != null) {
                 $output = "[$output]";
             }
+        } elseif (strpos($href, 'mailto:') === 0) {
+            $href = substr($href, 7);
+            $output = (($href != $output) ? "$href " : '') . "<$output>";
         } elseif (mb_strwidth($href) > $width / 2) {
             if ($href != $output)
                 $this->getRoot()->addFootnote($output, $href);
             $output = "[$output]";
-        } else {
-            if ($href != $output) {
-                $output = "[$output]($href)";
-            }
+        } elseif ($href != $output) {
+            $output = "[$output]($href)";
         }
         return $output;
     }
@@ -453,7 +461,6 @@ class HtmlListElement extends HtmlBlockElement {
 
     function render($width, $options) {
         $options['marker'] = $this->marker;
-        $options['trim'] = false;
         return parent::render($width, $options);
     }
 
@@ -494,7 +501,7 @@ class HtmlCodeElement extends HtmlInlineElement {
      function render($width, $options) {
         $content = parent::render($width-2, $options);
         if (strpos($content, "\n"))
-            return "```\n".$content."\n```";
+            return "```\n".trim($content)."\n```\n";
         else
             return "`$content`";
     }
