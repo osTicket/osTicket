@@ -872,8 +872,10 @@ class MysqlExecutor {
         $types = '';
         $ps = array();
         foreach ($params as &$p) {
-            if (is_int($p))
+            if (is_int($p) || is_bool($p))
                 $types .= 'i';
+            elseif (is_float($p))
+                $types .= 'd';
             elseif (is_string($p))
                 $types .= 's';
             // TODO: Emit error if param is null
