@@ -51,8 +51,6 @@ if($_POST) {
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
-            if ($errors)
-                $errors['err'] = 'Unable to commit form. Check validation errors';
             break;
         case 'add':
             $form = DynamicForm::create(array(
@@ -102,11 +100,15 @@ if($_POST) {
             ));
             if ($field->isValid())
                 $field->save();
+            else
+                $errors["new-$i"] = $field->errors();
         }
         // XXX: Move to an instrumented list that can handle this better
         if (!$errors)
             $form->_dfields = $form->_fields = null;
     }
+    if ($errors)
+        $errors['err'] = 'Unable to commit form. Check validation errors';
 }
 
 $page='dynamic-forms.inc.php';
