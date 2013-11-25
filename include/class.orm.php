@@ -206,17 +206,6 @@ class VerySimpleModel {
                 $i->set($field, $value);
         return $i;
     }
-
-    /**
-     * isValid
-     *
-     * Validates the contents of $this->ht before the model should be
-     * committed to the database. This is the validation for the field
-     * template -- edited in the admin panel for a form section.
-     */
-    function isValid() {
-        return true;
-    }
 }
 
 class SqlFunction {

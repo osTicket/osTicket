@@ -23,7 +23,7 @@ class Form {
     var $title = 'Unnamed';
     var $instructions = '';
 
-    var $_errors;
+    var $_errors = null;
     var $_source = false;
 
     function Form() {
@@ -61,7 +61,7 @@ class Form {
      *      boolean true if the field's errors are significant
      */
     function isValid($include=false) {
-        if (!is_array($this->_errors)) {
+        if (!isset($this->_errors)) {
             $this->_errors = array();
             $this->getClean();
             foreach ($this->getFields() as $field)

@@ -1888,12 +1888,28 @@ class Ticket {
     function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
+        // Don't enforce form validation for email
+        $field_filter = function($f) use ($origin) {
+            // Ultimately, only offer validation errors for web for
+            // non-internal fields. For email, no validation can be
+            // performed. For other origins, validate as usual
+            switch (strtolower($origin)) {
+            case 'email':
+                return false;
+            case 'web':
+                return !$f->get('private');
+            default:
+                return true;
+            }
+        };
         // Identify the user creating the ticket and unpack user information
         // fields into local scope for filtering and banning purposes
         $user_form = UserForm::getUserForm();
         $user_info = $user_form->getClean();
-        if ($user_form->isValid())
+        if ($user_form->isValid($field_filter))
             $vars += $user_info;
+        else
+            $errors['user'] = 'Incomplete client information';
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
@@ -1930,20 +1946,6 @@ class Ticket {
                 $field->value = $field->parse($vars[$fname]);
         }
 
-        // Don't enforce form validation for email
-        $field_filter = function($f) use ($origin) {
-            // Ultimately, only offer validation errors for web for
-            // non-internal fields. For email, no validation can be
-            // performed. For other origins, validate as usual
-            switch (strtolower($origin)) {
-            case 'email':
-                return false;
-            case 'web':
-                return !$f->get('private');
-            default:
-                return true;
-            }
-        };
         if (!$form->isValid($field_filter))
             $errors += $form->errors();
 
@@ -2004,9 +2006,6 @@ class Ticket {
         if ((isset($vars['emailId']) && $vars['emailId'])
                 || !isset($user_info['email']) || !$user_info['email']) {
             $user_info = $vars;
-        }
-        elseif (!$user_form->isValid()) {
-            $errors['user'] = 'Incomplete client information';
         }
 
         //Any error above is fatal.
