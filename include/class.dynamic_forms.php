@@ -283,7 +283,7 @@ class DynamicFormField extends VerySimpleModel {
      * field of a custom form. The latter would be isValidEntry()
      */
     function isValid() {
-        if (count($this->errors()) || !parent::isValid())
+        if (count($this->errors()))
             return false;
         if (!$this->get('label'))
             $this->addError(

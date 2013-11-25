@@ -13,8 +13,7 @@ if($_POST) {
             foreach ($fields as $f)
                 if (isset($_POST[$f]))
                     $list->set($f, $_POST[$f]);
-            if ($list->isValid())
-                $list->save(true);
+            $list->save(true);
             foreach ($list->getItems() as $item) {
                 $id = $item->get('id');
                 if ($_POST["delete-$id"] == 'on') {
@@ -24,8 +23,7 @@ if($_POST) {
                 foreach (array('sort','value','extra') as $i)
                     if (isset($_POST["$i-$id"]))
                         $item->set($i, $_POST["$i-$id"]);
-                if ($item->isValid())
-                    $item->save();
+                $item->save();
             }
             break;
         case 'add':

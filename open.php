@@ -38,12 +38,6 @@ if($_POST):
                 $errors += $form->errors();
         }
     }
-    // Don't process contact information for logged-in clients
-    if (!$thisclient) {
-        $contact_form = UserForm::getInstance();
-        if (!$contact_form->isValid())
-            $errors += $contact_form->errors();
-    }
 
     if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
