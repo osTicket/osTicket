@@ -824,9 +824,12 @@ class Widget {
 
     function getValue() {
         $data = $this->field->getSource();
-        if (!isset($data[$this->name]))
-            return null;
-        return $data[$this->name];
+        // Search for HTML form name first
+        if (isset($data[$this->name]))
+            return $data[$this->name];
+        elseif (isset($data[$this->field->get('name')]))
+            return $data[$this->field->get('name')];
+        return null;
     }
 }
 

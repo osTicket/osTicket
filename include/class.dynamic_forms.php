@@ -76,10 +76,10 @@ class DynamicForm extends VerySimpleModel {
     function getTitle() { return $this->get('title'); }
     function getInstructions() { return $this->get('instructions'); }
 
-    function getForm() {
-        if (!$this->_form) {
+    function getForm($source=false) {
+        if (!$this->_form || $source) {
             $fields = $this->getFields();
-            $this->_form = new Form($fields, false, array(
+            $this->_form = new Form($fields, $source, array(
                 'title'=>$this->title, 'instructions'=>$this->instructions));
         }
         return $this->_form;
