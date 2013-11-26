@@ -2,7 +2,7 @@
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Search existing users or add a new user.</p></div>
-<div><input type="text" style="width:100%;" placeholder="Search by email, phone or name" id="user-search"/></div>
+<div style="margin-bottom:10px;"><input type="text" class="search-input" style="width:100%;" placeholder="Search by email, phone or name" id="user-search"/></div>
 <?php
 if ($info['error']) {
     echo sprintf('<p id="msg_error">%s</p>', $info['error']);

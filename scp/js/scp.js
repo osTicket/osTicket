@@ -423,7 +423,7 @@ $(document).ready(function(){
                             if(callback) callback(user);
                         } else {
                             $('div.body', $dialog).html(resp);
-                            $('#msg_notice, #msg_error', $dialog).delay(5000).fadeOut();
+                            $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
                         }
                     }
                 })
