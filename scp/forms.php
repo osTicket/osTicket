@@ -15,8 +15,7 @@ if($_POST) {
             foreach ($fields as $f)
                 if (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
-            if ($form->isValid())
-                $form->save(true);
+            $form->save(true);
             $names = array();
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
@@ -57,8 +56,7 @@ if($_POST) {
                 'title'=>$_POST['title'],
                 'instructions'=>$_POST['instructions'],
                 'notes'=>$_POST['notes']));
-            if ($form->isValid())
-                $form->save(true);
+            $form->save(true);
             break;
 
         case 'mass_process':
