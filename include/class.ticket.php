@@ -200,18 +200,13 @@ class Ticket {
     function getEmail(){
         if ($o = $this->getOwner())
             return $o->getEmail();
+
         return null;
     }
 
     function getReplyToEmail() {
-        if ($this->ht['user_email_id']) {
-            if (!isset($this->reply_email))
-                $this->reply_email = UserEmail::lookup($this->ht['user_email_id']);
-            return $this->reply_email->address;
-        }
-        else {
-            return $this->getEmail();
-        }
+        //TODO: Determine the email to use (once we enable multi-email support)
+        return $this->getEmail();
     }
 
     function getAuthToken() {
@@ -1411,6 +1406,33 @@ class Ticket {
         return $this->unassign();
     }
 
+    //Change ownership
+    function changeOwner($user) {
+        global $thisstaff;
+
+        if (!$user
+                || ($user->getId() == $this->getOwnerId())
+                || !$thisstaff->canEditTickets())
+            return false;
+
+        $sql ='UPDATE '.TICKET_TABLE.' SET updated = NOW() '
+            .', user_id = '.db_input($user->getId())
+            .' WHERE ticket_id = '.db_input($this->getId());
+
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
+
+        $this->ht['user_id'] = $user->getId();
+        $this->user = null;
+
+        $this->logNote('Ticket ownership changed',
+                Format::htmlchars( sprintf('%s changed ticket ownership to %s',
+                    $thisstaff->getName(), $user->getName()))
+                );
+
+        return true;
+    }
+
     //Insert message from client
     function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;
@@ -1982,18 +2004,6 @@ class Ticket {
                 return true;
             }
         };
-        // Identify the user creating the ticket and unpack user information
-        // fields into local scope for filtering and banning purposes
-        if (strtolower($origin) == 'api')
-            $user_form = UserForm::getUserForm()->getForm($vars);
-        else
-            $user_form = UserForm::getUserForm()->getForm($_POST);
-
-        $user_info = $user_form->getClean();
-        if ($user_form->isValid($field_filter))
-            $vars += $user_info;
-        else
-            $errors['user'] = 'Incomplete client information';
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
@@ -2086,22 +2096,28 @@ class Ticket {
                 $errors['duedate']='Due date must be in the future';
         }
 
-        // Data is slightly different between HTTP posts and emails
-        if ((isset($vars['emailId']) && $vars['emailId'])
-                || !isset($user_info['email']) || !$user_info['email']) {
-            $user_info = $vars;
+        if (!$errors) {
+
+            if ($vars['uid'] && ($user = User::lookup($vars['uid']))) {
+                $vars['email'] = $user->getEmail();
+                $vars['name'] = $user->getName();
+            }
+
+            # Perform ticket filter actions on the new ticket arguments
+            if ($ticket_filter) $ticket_filter->apply($vars);
+
+            // Allow vars to be changed in ticket filter and applied to the user
+            // account created or detected
+            if (!$user) {
+                $user_form = UserForm::getUserForm()->getForm($vars);
+                if (!$user_form->isValid($field_filter)
+                        || !($user=User::fromForm($user_form->getClean())))
+                    $errors['user'] = 'Incomplete client information';
+            }
         }
 
         //Any error above is fatal.
         if($errors)  return 0;
-
-        # Perform ticket filter actions on the new ticket arguments
-        if ($ticket_filter) $ticket_filter->apply($vars);
-
-        // Allow vars to be changed in ticket filter and applied to the user
-        // account created or detected
-        $user = User::fromForm($vars);
-        $user_email = UserEmail::ensure($vars['email']);
 
         # Some things will need to be unpacked back into the scope of this
         # function
@@ -2154,7 +2170,6 @@ class Ticket {
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->id)
-            .' ,user_email_id='.db_input($user_email->id)
             .' ,ticketID='.db_input($extId)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
@@ -2253,6 +2268,15 @@ class Ticket {
 
         if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
             $errors['source']='Invalid source - '.Format::htmlchars($vars['source']);
+
+        if (!$vars['uid']) {
+            //Special validation required here
+            if (!$vars['email'] || !Validator::is_email($vars['email']))
+                $errors['email'] = 'Valid email required';
+
+            if (!$vars['name'])
+                $errors['name'] = 'Name required';
+        }
 
         if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
             return false;

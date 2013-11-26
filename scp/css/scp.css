@@ -1277,6 +1277,11 @@ time {
     padding-right: 3em;
 }
 
+.dialog a {
+        color:#184E81;
+}
+
+
 .dialog a.close {
     position: absolute;
     display:inline-block;

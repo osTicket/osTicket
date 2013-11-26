@@ -49,6 +49,13 @@ class Form {
     function getFields() {
         return $this->fields;
     }
+
+    function getField($name) {
+        foreach($this->getFields() as $f)
+            if(!strcasecmp($f->get('name'), $name))
+                return $f;
+    }
+
     function getTitle() { return $this->title; }
     function getInstructions() { return $this->instructions; }
     function getSource() { return $this->_source; }

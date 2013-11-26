@@ -36,29 +36,5 @@ class DynamicFormsAjaxAPI extends AjaxController {
         else
             $field->save();
     }
-
-    function getUserInfo($user_id) {
-
-        if (!($user = User::lookup($user_id)))
-            Http::response(404, 'Unknown user');
-
-        $custom = $user->getForms();
-        include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
-    }
-
-    function saveUserInfo($user_id) {
-
-        $errors = array();
-        if (!($user = User::lookup($user_id)))
-            Http::response(404, 'Unknown user');
-
-        if ($user->updateInfo($_POST, $errors))
-            return Http::response(201, $user->to_json());
-
-        $custom = $user->getForms($_POST);
-        include(STAFFINC_DIR . 'templates/user-info.tmpl.php');
-        return;
-    }
 }
-
 ?>

@@ -345,7 +345,7 @@ jQuery(function($) {
     });
 
     //ticket actions confirmation - Delete + more
-    $('a#ticket-delete, a#ticket-claim, #action-dropdown-more li a').click(function(e) {
+    $('a#ticket-delete, a#ticket-claim, #action-dropdown-more li a:not(.change-user)').click(function(e) {
         e.preventDefault();
         if($('.dialog#confirm-action '+$(this).attr('href')+'-confirm').length) {
             var action = $(this).attr('href').substr(1, $(this).attr('href').length);

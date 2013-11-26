@@ -67,6 +67,7 @@ class UserModel extends VerySimpleModel {
 class User extends UserModel {
 
     var $_entries;
+    var $_forms;
 
     function __construct($ht) {
         parent::__construct($ht);
@@ -113,11 +114,16 @@ class User extends UserModel {
         return new PersonsName($this->name);
     }
 
+    function getUpdateDate() {
+        return $this->updated;
+    }
+
     function to_json() {
 
         $info = array(
                 'id'  => $this->getId(),
-                'name' => (string) $this->getName());
+                'name' => (string) $this->getName(),
+                'email' => (string) $this->getEmail());
 
         return JsonDataEncoder::encode($info);
     }
@@ -160,27 +166,60 @@ class User extends UserModel {
         return $this->_entries;
     }
 
-    function updateInfo($source, &$errors) {
+    function getForms($data=null) {
 
-        //Get forms and validate
-        $custom_data = $this->getDynamicData();
-        $valid = true;
-        foreach ($custom_data as $cd) {
-            $cd->addMissingFields();
-            $valid &= $cd->isValid();
+        if (!isset($this->_forms)) {
+            $this->_forms = array();
+            foreach ($this->getDynamicData() as $cd) {
+                $cd->addMissingFields();
+                if(!$data
+                        && ($form = $cd->getForm())
+                        && $form->get('type') == 'U' ) {
+                    foreach ($cd->getFields() as $f) {
+                        if ($f->get('name') == 'name')
+                            $f->value = $this->getFullName();
+                        elseif ($f->get('name') == 'email')
+                            $f->value = $this->getEmail();
+                    }
+                }
+
+                $this->_forms[] = $cd->getForm();
+            }
         }
 
-        if (!$valid) return false;
+        return $this->_forms;
+    }
 
-        // Save custom data
-        foreach ($custom_data as $cd) {
-            foreach ($cd->getFields() as $f) {
-                if ($f->get('name') == 'name') {
-                    $this->name = $f->getClean();
+    function updateInfo($vars, &$errors) {
+
+        $valid = true;
+        $forms = $this->getForms($vars);
+        foreach ($forms as $cd) {
+            if (!$cd->isValid())
+                $valid = false;
+            if ($cd->get('type') == 'U'
+                        && ($form= $cd->getForm($data))
+                        && ($f=$form->getField('email'))
+                        && $f->getClean()
+                        && ($u=User::lookup(array('emails__address'=>$f->getClean())))
+                        && $u->id != $this->getId()) {
+                $valid = false;
+                $f->addError('Email is assigned to another user');
+            }
+        }
+
+        if (!$valid)
+            return false;
+
+        foreach ($this->getDynamicData() as $cd) {
+            if (($f=$cd->getForm()) && $f->get('type') == 'U') {
+                if (($name = $f->getField('name'))) {
+                    $this->name = $name->getClean();
                     $this->save();
                 }
-                elseif ($f->get('name') == 'email') {
-                    $this->default_email->address = $f->getClean();
+
+                if (($email = $f->getField('email'))) {
+                    $this->default_email->address = $email->getClean();
                     $this->default_email->save();
                 }
             }
@@ -188,27 +227,6 @@ class User extends UserModel {
         }
 
         return true;
-    }
-
-    function getForms($data=null) {
-
-        $forms = array();
-        foreach ($this->getDynamicData() as $cd) {
-            $cd->addMissingFields();
-            if ($data)
-                $cd->isValid();
-            else {
-                foreach ($cd->getFields() as $f) {
-                    if ($f->get('name') == 'name')
-                        $f->value = $this->getFullName();
-                    elseif ($f->get('name') == 'email')
-                        $f->value = $this->getEmail();
-                }
-            }
-            $forms[] = $cd->getForm();
-        }
-
-        return $forms;
     }
 
     function save($refetch=false) {
