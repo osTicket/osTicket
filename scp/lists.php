@@ -32,8 +32,7 @@ if($_POST) {
                 'name_plural'=>$_POST['name_plural'],
                 'sort_mode'=>$_POST['sort_mode'],
                 'notes'=>$_POST['notes']));
-            if ($list->isValid())
-                $list->save(true);
+            $list->save(true);
             break;
 
         case 'mass_process':
@@ -71,8 +70,7 @@ if($_POST) {
                 'value'=>$_POST["value-new-$i"],
                 'extra'=>$_POST["extra-new-$i"]
             ));
-            if ($item->isValid())
-                $item->save();
+            $item->save();
         }
         # Invalidate items cache
         $list->_items = false;
