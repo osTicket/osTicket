@@ -1904,7 +1904,11 @@ class Ticket {
         };
         // Identify the user creating the ticket and unpack user information
         // fields into local scope for filtering and banning purposes
-        $user_form = UserForm::getUserForm();
+        if (strtolower($origin) == 'api')
+            $user_form = UserForm::getUserForm()->getForm($vars);
+        else
+            $user_form = UserForm::getUserForm()->getForm($_POST);
+
         $user_info = $user_form->getClean();
         if ($user_form->isValid($field_filter))
             $vars += $user_info;
