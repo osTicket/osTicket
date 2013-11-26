@@ -404,7 +404,8 @@ $(document).ready(function(){
         $('.dialog#popup .body').load(url, function () {
             $('#overlay').show();
             $('.dialog#popup').show();
-            $(document).on('submit', '.dialog#popup form.user',function(e) {
+            $(document).off('.user');
+            $(document).on('submit.user', '.dialog#popup form.user',function(e) {
                 e.preventDefault();
                 var $form = $(this);
                 var $dialog = $form.closest('.dialog');

@@ -67,28 +67,9 @@ if($ticket->isOverdue())
             } ?>
             <?php
             if($thisstaff->canEditTickets()) { ?>
-            <a class="action-button" href="#"
-                onclick="javascript:
-                    $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/change-user',
-                        function(user) {
-                            var cid = <?php echo $ticket->getOwnerId(); ?>;
-                            if(cid!=user.id && $('.dialog#confirm-action #changeuser-confirm').length) {
-                                $('#newuser').html(user.name +' <'+user.email+'>');
-                                $('.dialog#confirm-action #action').val('changeuser');
-                                $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
-                                $('#overlay').show();
-                                $('.dialog#confirm-action .confirm-action').hide();
-                                $('.dialog#confirm-action p#changeuser-confirm')
-                                .show()
-                                .parent('div').show().trigger('click');
-                            }
-                       });
-                    return false;
-                "><i class="icon-edit"></i> Change Owner</a>
                 <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> Edit</a>
             <?php
             } ?>
-
             <?php
             if($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
                 <a id="ticket-claim" class="action-button" href="#claim"><i class="icon-user"></i> Claim</a>
@@ -101,6 +82,10 @@ if($ticket->isOverdue())
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
+                 if($thisstaff->canEditTickets()) { ?>
+                    <li><a class="change-user" href="#tickets/<?php echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> Change Ticket Owner</a></li>
+                <?php
+                 }
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
 
                     if($ticket->isAssigned()) { ?>
@@ -162,12 +147,15 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100">Client:</th>
-                    <td><a href="ajax.php/form/user-info/<?php
-                            echo $ticket->getOwnerId(); ?>"
+                    <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
                         onclick="javascript:
-                            $('#overlay').show();
-                            $('#user-info .body').load(this.href);
-                            $('#user-info').show();
+                            $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
+                                    function (user) {
+                                        $('#user-'+user.id+'-name').text(user.name);
+                                        $('#user-'+user.id+'-email').text(user.email);
+                                        $('#user-to-name').text(user.name);
+                                        $('#user-to-email').text(user.email);
+                                    });
                             return false;
                             "><i class="icon-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
                             ><?php echo Format::htmlchars($ticket->getName());
@@ -198,7 +186,7 @@ if($ticket->isOverdue())
                 <tr>
                     <th>Email:</th>
                     <td>
-                    <?php echo $ticket->getEmail(); ?>
+                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
                     </td>
                 </tr>
                 <tr>
@@ -423,10 +411,8 @@ $tcount+= $ticket->getNumNotes();
                 </td>
                 <td>
                     <?php
-                    $to = $ticket->getReplyToEmail();
-                    if(($name=$ticket->getName()) && !strpos($name,'@'))
-                        $to =sprintf('%s <em>&lt;%s&gt;</em>', $name, $to);
-                    echo $to;
+                    echo sprintf('<span id="user-to-name">%s</span> <em>&lt;<span id="user-to-email">%s</span>&gt;</em>',
+                                $ticket->getName(), $ticket->getReplyToEmail());
                     ?>
                     &nbsp;&nbsp;&nbsp;
                     <label><input type='checkbox' value='1' name="emailreply" id="remailreply"
@@ -926,3 +912,26 @@ $tcount+= $ticket->getNumNotes();
     <div class="clear"></div>
 </div>
 <script type="text/javascript" src="js/ticket.js"></script>
+<script type="text/javascript">
+$(function() {
+    $(document).on('click', 'a.change-user', function(e) {
+        e.preventDefault();
+        var tid = <?php echo $ticket->getOwnerId(); ?>;
+        var cid = <?php echo $ticket->getOwnerId(); ?>;
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $.userLookup(url, function(user) {
+            if(cid!=user.id
+                    && $('.dialog#confirm-action #changeuser-confirm').length) {
+                $('#newuser').html(user.name +' <'+user.email+'>');
+                $('.dialog#confirm-action #action').val('changeuser');
+                $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
+                $('#overlay').show();
+                $('.dialog#confirm-action .confirm-action').hide();
+                $('.dialog#confirm-action p#changeuser-confirm')
+                .show()
+                .parent('div').show().trigger('click');
+            }
+        });
+    });
+});
+</script>
