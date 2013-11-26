@@ -1924,18 +1924,6 @@ class Ticket {
                 return true;
             }
         };
-        // Identify the user creating the ticket and unpack user information
-        // fields into local scope for filtering and banning purposes
-        if (strtolower($origin) == 'api')
-            $user_form = UserForm::getUserForm()->getForm($vars);
-        else
-            $user_form = UserForm::getUserForm()->getForm($_POST);
-
-        $user_info = $user_form->getClean();
-        if ($user_form->isValid($field_filter))
-            $vars += $user_info;
-        else
-            $errors['user'] = 'Incomplete client information';
 
         //Check for 403
         if ($vars['email']  && Validator::is_email($vars['email'])) {
@@ -2028,22 +2016,28 @@ class Ticket {
                 $errors['duedate']='Due date must be in the future';
         }
 
-        // Data is slightly different between HTTP posts and emails
-        if ((isset($vars['emailId']) && $vars['emailId'])
-                || !isset($user_info['email']) || !$user_info['email']) {
-            $user_info = $vars;
+        if (!$errors) {
+
+            if ($vars['uid'] && ($user = User::lookup($vars['uid']))) {
+                $vars['email'] = $user->getEmail();
+                $vars['name'] = $user->getName();
+            }
+
+            # Perform ticket filter actions on the new ticket arguments
+            if ($ticket_filter) $ticket_filter->apply($vars);
+
+            // Allow vars to be changed in ticket filter and applied to the user
+            // account created or detected
+            if (!$user) {
+                $user_form = UserForm::getUserForm()->getForm($vars);
+                if (!$user_form->isValid($field_filter)
+                        || !($user=User::fromForm($user_form->getClean())))
+                    $errors['user'] = 'Incomplete client information';
+            }
         }
 
         //Any error above is fatal.
         if($errors)  return 0;
-
-        # Perform ticket filter actions on the new ticket arguments
-        if ($ticket_filter) $ticket_filter->apply($vars);
-
-        // Allow vars to be changed in ticket filter and applied to the user
-        // account created or detected
-        $user = User::fromForm($vars);
-        $user_email = UserEmail::ensure($vars['email']);
 
         # Some things will need to be unpacked back into the scope of this
         # function
@@ -2194,6 +2188,15 @@ class Ticket {
 
         if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
             $errors['source']='Invalid source - '.Format::htmlchars($vars['source']);
+
+        if (!$vars['uid']) {
+            //Special validation required here
+            if (!$vars['email'] || !Validator::is_email($vars['email']))
+                $errors['email'] = 'Valid email required';
+
+            if (!$vars['name'])
+                $errors['name'] = 'Name required';
+        }
 
         if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
             return false;

@@ -160,13 +160,13 @@ class User extends UserModel {
         return $this->_entries;
     }
 
-    function getForms($populate=true) {
+    function getForms($data=null) {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
             foreach ($this->getDynamicData() as $cd) {
                 $cd->addMissingFields();
-                if($populate
+                if(!$data
                         && ($form = $cd->getForm())
                         && $form->get('type') == 'U' ) {
                     foreach ($cd->getFields() as $f) {
@@ -187,12 +187,14 @@ class User extends UserModel {
     function updateInfo($vars, &$errors) {
 
         $valid = true;
-        $forms = $this->getForms(false);
+        $forms = $this->getForms($vars);
         foreach ($forms as $cd) {
             if (!$cd->isValid())
                 $valid = false;
-            elseif (($f=$cd->getField('email'))
-                        && $cd->get('type') == 'U'
+            if ($cd->get('type') == 'U'
+                        && ($form= $cd->getForm($data))
+                        && ($f=$form->getField('email'))
+                        && $f->getClean()
                         && ($u=User::lookup(array('emails__address'=>$f->getClean())))
                         && $u->id != $this->getId()) {
                 $valid = false;

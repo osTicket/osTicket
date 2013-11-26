@@ -884,7 +884,7 @@ $tcount+= $ticket->getNumNotes();
     </p>
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
         Are you sure want to <b>change</b> ticket owner to <b><span id="newuser">this guy</span></b>?
-        <br><br><b><?php echo $ticket->getName(); ?></b> will no longer have access to the ticket.
+        <br><br><b><?php echo $ticket->getName(); ?></b> &lt;<?php echo $ticket->getEmail(); ?>&gt; will no longer have access to the ticket.
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong>Are you sure you want to DELETE this ticket?</strong></font>
@@ -919,7 +919,7 @@ $(function() {
         $.userLookup(url, function(user) {
             if(cid!=user.id
                     && $('.dialog#confirm-action #changeuser-confirm').length) {
-                $('#newuser').html(user.name +' <'+user.email+'>');
+                $('#newuser').html(user.name +' &lt;'+user.email+'&gt;');
                 $('.dialog#confirm-action #action').val('changeuser');
                 $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
                 $('#overlay').show();

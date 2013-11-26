@@ -491,10 +491,7 @@ if($_POST && !$errors):
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
                     $vars = $_POST;
-                    if ($user) {
-                        $vars['name'] = $user->getName();
-                        $vars['email'] = $user->getEmail();
-                    }
+                    $vars['uid'] = $user? $user->getId() : 0;
 
                     if($_FILES['attachments'])
                         $vars['files'] = AttachmentFile::format($_FILES['attachments']);
