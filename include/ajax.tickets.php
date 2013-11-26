@@ -448,5 +448,82 @@ class TicketsAjaxAPI extends AjaxController {
 
         return $resp;
     }
+
+    function viewUser($tid) {
+        global $thisstaff;
+
+        if(!$thisstaff
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+
+        if(!($user = $ticket->getOwner()))
+            Http::response(404, 'Unknown user');
+
+
+        $info = array(
+                'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(), $user->getName())
+                );
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+        return $resp;
+
+    }
+
+    function updateUser($tid) {
+
+        global $thisstaff;
+
+        if(!$thisstaff
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff)
+                || ! ($user = $ticket->getOwner()))
+            Http::response(404, 'No such ticket/user');
+
+        $errors = array();
+        if($user->updateInfo($_POST, $errors))
+             Http::response(201, $user->to_json());
+
+        $forms = $user->getForms();
+
+        $info = array(
+                'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(), $user->getName())
+                );
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+        return $resp;
+    }
+
+    function changeUserForm($tid) {
+        global $thisstaff;
+
+        if(!$thisstaff
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+
+        $user = $ticket->getOwner();
+
+        $info = array(
+                'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
+                );
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+        return $resp;
+
+    }
+
+
 }
 ?>

@@ -67,9 +67,12 @@
                 echo sprintf('<li class="%s"><a href="%s">%s</a>',$tab['active']?'active':'inactive',$tab['href'],$tab['desc']);
                 if(!$tab['active'] && ($subnav=$nav->getSubMenu($name))){
                     echo "<ul>\n";
-                    foreach($subnav as $item) {
-                        echo sprintf('<li><a class="%s" href="%s" title="%s" >%s</a></li>',
-                                $item['iconclass'],$item['href'],$item['title'],$item['desc']);
+                    foreach($subnav as $k => $item) {
+                        if (!($id=$item['id']))
+                            $id="nav$k";
+
+                        echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
+                                $item['iconclass'], $item['href'], $item['title'], $id, $item['desc']);
                     }
                     echo "\n</ul>\n";
                 }
@@ -94,8 +97,11 @@
                                     )
                                 )))
                     $class="$class active";
+                if (!($id=$item['id']))
+                    $id="subnav$k";
 
-                echo sprintf('<li><a class="%s" href="%s" title="%s" >%s</a></li>',$class,$item['href'],$item['title'],$item['desc']);
+                echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
+                        $class, $item['href'], $item['title'], $id, $item['desc']);
             }
         }
         ?>

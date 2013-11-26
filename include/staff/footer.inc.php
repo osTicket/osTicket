@@ -17,5 +17,8 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <h4>Please Wait!</h4>
     <p>Please wait... it will take a second!</p>
 </div>
+<div class="dialog" style="display:none;width:650px;" id="popup">
+    <div class="body"></div>
+</div>
 </body>
 </html>

@@ -67,11 +67,16 @@ class DynamicForm extends VerySimpleModel {
         return call_user_func_array($delegate, $args);
     }
 
-    function hasField($name) {
+    function getField($name) {
         foreach ($this->getDynamicFields() as $f)
-            if ($f->get('name') == $name)
-                return true;
+            if (!strcasecmp($f->get('name'), $name))
+                return $f->getImpl();
     }
+
+    function hasField($name) {
+        return ($this->getField($name));
+    }
+
 
     function getTitle() { return $this->get('title'); }
     function getInstructions() { return $this->get('instructions'); }
@@ -404,6 +409,15 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->_fields;
     }
 
+    function getField($name) {
+
+        foreach ($this->getFields() as $field)
+            if (!strcasecmp($field->get('name'), $name))
+                return $field;
+
+        return null;
+    }
+
     /**
      * Validate the form and indicate if there no errors.
      *
@@ -453,8 +467,8 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $user_id;
     }
 
-    function render($staff=true) {
-        return $this->getForm()->render($staff);
+    function render($staff=true, $title=false) {
+        return $this->getForm()->render($staff, $title);
     }
 
     /**

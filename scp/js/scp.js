@@ -390,6 +390,50 @@ $(document).ready(function(){
         $('#advanced-search').show();
     });
 
+
+    $(document).on('click', 'a#new-ticket', function(e) {
+        e.preventDefault();
+        var $elem = $(this);
+        $.userLookup('ajax.php/users/lookup/form', function (user) {
+            window.location.href = $elem.attr('href')+'&uid='+user.id;
+           });
+     });
+
+    $.userLookup = function (url, callback) {
+
+        $('.dialog#popup .body').load(url, function () {
+            $('#overlay').show();
+            $('.dialog#popup').show();
+            $(document).off('.user');
+            $(document).on('submit.user', '.dialog#popup form.user',function(e) {
+                e.preventDefault();
+                var $form = $(this);
+                var $dialog = $form.closest('.dialog');
+                $.ajax({
+                    type:  $form.attr('method'),
+                    url: 'ajax.php/'+$form.attr('action').substr(1),
+                    data: $form.serialize(),
+                    cache: false,
+                    success: function(resp, status, xhr) {
+                        if (xhr && xhr.status == 201) {
+                            var user = $.parseJSON(xhr.responseText);
+                            $('div.body', $dialog).empty();
+                            $dialog.hide();
+                            $('#overlay').hide();
+                            if(callback) callback(user);
+                        } else {
+                            $('div.body', $dialog).html(resp);
+                            $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
+                        }
+                    }
+                })
+                .done(function() { })
+                .fail(function() { });
+                return false;
+            });
+         });
+     };
+
     $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {
             case 'closed':
