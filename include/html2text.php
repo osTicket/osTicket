@@ -186,6 +186,7 @@ class HtmlInlineElement {
 
     function render($width, $options) {
         $output = '';
+        $after_block = false;
         $this->ws = $this->getStyle('white-space', 'normal');
         foreach ($this->children as $c) {
             if ($c instanceof DOMText) {

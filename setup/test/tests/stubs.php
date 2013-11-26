@@ -31,6 +31,7 @@ class ReflectionClass {
 
 class DomNode {
     function hasChildNodes() {}
+    function removeChild() {}
 }
 
 class DomNodeList {
