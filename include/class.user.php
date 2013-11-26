@@ -67,6 +67,7 @@ class UserModel extends VerySimpleModel {
 class User extends UserModel {
 
     var $_entries;
+    var $_forms;
 
     function __construct($ht) {
         parent::__construct($ht);
@@ -119,11 +120,16 @@ class User extends UserModel {
         return new PersonsName($this->name);
     }
 
+    function getUpdateDate() {
+        return $this->updated;
+    }
+
     function to_json() {
 
         $info = array(
                 'id'  => $this->getId(),
-                'name' => (string) $this->getName());
+                'name' => (string) $this->getName(),
+                'email' => (string) $this->getEmail());
 
         return JsonDataEncoder::encode($info);
     }
@@ -152,6 +158,67 @@ class User extends UserModel {
             }
         }
         return $this->_entries;
+    }
+
+    function getForms($populate=true) {
+
+        if (!isset($this->_forms)) {
+            $this->_forms = array();
+            foreach ($this->getDynamicData() as $cd) {
+                $cd->addMissingFields();
+                if($populate
+                        && ($form = $cd->getForm())
+                        && $form->get('type') == 'U' ) {
+                    foreach ($cd->getFields() as $f) {
+                        if ($f->get('name') == 'name')
+                            $f->value = $this->getFullName();
+                        elseif ($f->get('name') == 'email')
+                            $f->value = $this->getEmail();
+                    }
+                }
+
+                $this->_forms[] = $cd->getForm();
+            }
+        }
+
+        return $this->_forms;
+    }
+
+    function updateInfo($vars, &$errors) {
+
+        $valid = true;
+        $forms = $this->getForms(false);
+        foreach ($forms as $cd) {
+            if (!$cd->isValid())
+                $valid = false;
+            elseif (($f=$cd->getField('email'))
+                        && $cd->get('type') == 'U'
+                        && ($u=User::lookup(array('emails__address'=>$f->getClean())))
+                        && $u->id != $this->getId()) {
+                $valid = false;
+                $f->addError('Email is assigned to another user');
+            }
+        }
+
+        if (!$valid)
+            return false;
+
+        foreach ($this->getDynamicData() as $cd) {
+            if (($f=$cd->getForm()) && $f->get('type') == 'U') {
+                if (($name = $f->getField('name'))) {
+                    $this->name = $name->getClean();
+                    $this->save();
+                }
+
+                if (($email = $f->getField('email'))) {
+                    $this->default_email->address = $email->getClean();
+                    $this->default_email->save();
+                }
+            }
+            $cd->save();
+        }
+
+        return true;
     }
 
     function save($refetch=false) {
