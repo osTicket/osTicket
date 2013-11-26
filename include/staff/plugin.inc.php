@@ -2,7 +2,9 @@
 
 $info=array();
 if($plugin && $_REQUEST['a']!='add') {
-    $form = $plugin->getConfig()->getForm();
+    $config = $plugin->getConfig();
+    if ($config)
+        $form = $config->getForm();
     if ($_POST)
         $form->isValid();
     $title = 'Update Plugin';
@@ -24,12 +26,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <tbody>
 <?php
-$form->render();
+if ($form)
+    $form->render();
+else { ?>
+    <tr><th>This plugin has no configurable settings<br>
+        <em>Every plugin should be so easy to use</em></th></tr>
+<?php }
 ?>
     </tbody></table>
 <p class="centered">
+<?php if ($form) { ?>
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
+<?php } ?>
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
 </p>
 </form>

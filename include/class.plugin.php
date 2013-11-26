@@ -323,7 +323,7 @@ class Plugin {
 
     function getConfig() {
         static $config = null;
-        if ($config === null)
+        if ($config === null && $this->config_class)
             $config = new $this->config_class($this->getId());
 
         return $config;
