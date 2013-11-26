@@ -48,9 +48,7 @@ $dispatcher = patterns('',
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getFormsForHelpTopic'),
         url_get('^field-config/(?P<id>\d+)$', 'getFieldConfiguration'),
-        url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration'),
-        url_get('^user-info/(?P<id>\d+)$', 'getUserInfo'),
-        url_post('^user-info/(?P<id>\d+)$', 'saveUserInfo')
+        url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send

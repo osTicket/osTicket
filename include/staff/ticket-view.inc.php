@@ -786,9 +786,6 @@ $tcount+= $ticket->getNumNotes();
     <?php
     } ?>
 </div>
-<div style="display:none;" class="dialog draggable" id="user-info">
-    <div class="body"></div>
-</div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3>Ticket Print Options</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
