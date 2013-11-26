@@ -88,6 +88,21 @@ class UsersAjaxAPI extends AjaxController {
         return self::_lookupform();
     }
 
+    function selectUser($id) {
+
+        if ($id)
+            $user = User::lookup($id);
+
+        $info = array('title' => 'Select User');
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+        return $resp;
+
+    }
+
     static function _lookupform($form=null, $info=array()) {
 
         if (!$info or !$info['title'])

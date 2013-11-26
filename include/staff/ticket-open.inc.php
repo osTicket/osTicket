@@ -17,17 +17,64 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </thead>
     <tbody>
+        <tr>
+            <th colspan="2">
+                <em><strong>Client Information</strong>: </em>
+            </th>
+        </tr>
         <?php
-        $uf = UserForm::getUserForm();
-        $uf->render();
+        if ($user) { ?>
+        <tr><td>Client:</td><td>
+            <div id="client-info">
+                <span id="client-name"><?php echo $user->getName(); ?></span>
+                <span id="client-email">&lt;<?php echo $user->getEmail(); ?>&gt;</span>
+                <a class="action-button" style="float:none;overflow:inherit" href="#"
+                    onclick="javascript:
+                        $.userLookup('ajax.php/users/select/<?php echo $user->getId(); ?>',
+                            function(user) {
+                                $('input#uid').val(user.id);
+                                $('#client-name').html(user.name);
+                                $('#client-email').text('<'+user.email+'>');
+                        });
+                        return false;
+                "><i class="icon-edit"></i> Change</a>
+                <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
+            </div>
+        </td></tr>
+        <?php
+        } else { //Fallback: Just ask for email and name
+            ?>
+        <tr>
+            <td width="160" class="required"> Email Address: </td>
+            <td>
+                <span style="display:inline-block;">
+                    <input type="text" size=45 name="email" id="user-email" value="<?php echo $info['email']; ?>" /> </span>
+                <font class="error">* <?php echo $errors['email']; ?></font>
+            </td>
+        </td>
+        <tr>
+            <td width="160" class="required"> Full Name: </td>
+            <td>
+                <span style="display:inline-block;">
+                    <input type="text" size=45 name="name" id="user-name" value="<?php echo $info['name']; ?>" /> </span>
+                <font class="error">* <?php echo $errors['name']; ?></font>
+            </td>
+        </td>
+        <?php
+        } ?>
+
+        <?php
         if($cfg->notifyONNewStaffTicket()) {  ?>
         <tr>
-            <td width="160">Alert:</td>
+            <td width="160">Ticket Notice:</td>
             <td>
             <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>>Send alert to user.
             </td>
         </tr>
-        <?php } ?>
+        <?php
+        } ?>
+    </tbody>
+    <tbody>
         <tr>
             <th colspan="2">
                 <em><strong>Ticket Information &amp; Options</strong>:</em>
@@ -289,3 +336,26 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="tickets.php"'>
 </p>
 </form>
+<script type="text/javascript">
+$(function() {
+    $('input#user-email').typeahead({
+        source: function (typeahead, query) {
+            $.ajax({
+                url: "ajax.php/users?q="+query,
+                dataType: 'json',
+                success: function (data) {
+                    typeahead.process(data);
+                }
+            });
+        },
+        onselect: function (obj) {
+            $('#uid').val(obj.id);
+            $('#user-name').val(obj.name);
+            $('#user-email').val(obj.email);
+        },
+        property: "/bin/true"
+    });
+
+});
+</script>
+

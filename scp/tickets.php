@@ -24,7 +24,7 @@ require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 
 $page='';
-$ticket=null; //clean start.
+$ticket = $user = null; //clean start.
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
     if(!($ticket=Ticket::lookup($_REQUEST['id'])))
@@ -34,6 +34,11 @@ if($_REQUEST['id']) {
         $ticket=null; //Clear ticket obj.
     }
 }
+
+//Lookup user if id is available.
+if ($_REQUEST['uid'])
+    $user = User::lookup($_REQUEST['uid']);
+
 //At this stage we know the access status. we can process the post.
 if($_POST && !$errors):
 
@@ -486,6 +491,11 @@ if($_POST && !$errors):
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
                     $vars = $_POST;
+                    if ($user) {
+                        $vars['name'] = $user->getName();
+                        $vars['email'] = $user->getEmail();
+                    }
+
                     if($_FILES['attachments'])
                         $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
