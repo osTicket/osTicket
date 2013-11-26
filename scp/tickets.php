@@ -202,7 +202,7 @@ if($_POST && !$errors):
                 if (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
             if(!$ticket || !$thisstaff->canEditTickets())
-                $errors['err']='Perm. Denied. You are not allowed to edit tickets';
+                $errors['err']='Permission Denied. You are not allowed to edit tickets';
             elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
@@ -218,7 +218,7 @@ if($_POST && !$errors):
             switch(strtolower($_POST['do'])):
                 case 'close':
                     if(!$thisstaff->canCloseTickets()) {
-                        $errors['err'] = 'Perm. Denied. You are not allowed to close tickets.';
+                        $errors['err'] = 'Permission Denied. You are not allowed to close tickets.';
                     } elseif($ticket->isClosed()) {
                         $errors['err'] = 'Ticket is already closed!';
                     } elseif($ticket->close()) {
@@ -242,7 +242,7 @@ if($_POST && !$errors):
                 case 'reopen':
                     //if staff can close or create tickets ...then assume they can reopen.
                     if(!$thisstaff->canCloseTickets() && !$thisstaff->canCreateTickets()) {
-                        $errors['err']='Perm. Denied. You are not allowed to reopen tickets.';
+                        $errors['err']='Permission Denied. You are not allowed to reopen tickets.';
                     } elseif($ticket->isOpen()) {
                         $errors['err'] = 'Ticket is already open!';
                     } elseif($ticket->reopen()) {
@@ -271,7 +271,7 @@ if($_POST && !$errors):
                     break;
                 case 'claim':
                     if(!$thisstaff->canAssignTickets()) {
-                        $errors['err'] = 'Perm. Denied. You are not allowed to assign/claim tickets.';
+                        $errors['err'] = 'Permission Denied. You are not allowed to assign/claim tickets.';
                     } elseif(!$ticket->isOpen()) {
                         $errors['err'] = 'Only open tickets can be assigned';
                     } elseif($ticket->isAssigned()) {
@@ -285,7 +285,7 @@ if($_POST && !$errors):
                 case 'overdue':
                     $dept = $ticket->getDept();
                     if(!$dept || !$dept->isManager($thisstaff)) {
-                        $errors['err']='Perm. Denied. You are not allowed to flag tickets overdue';
+                        $errors['err']='Permission Denied. You are not allowed to flag tickets overdue';
                     } elseif($ticket->markOverdue()) {
                         $msg='Ticket flagged as overdue';
                         $ticket->logActivity('Ticket Marked Overdue',($msg.' by '.$thisstaff->getName()));
@@ -296,7 +296,7 @@ if($_POST && !$errors):
                 case 'answered':
                     $dept = $ticket->getDept();
                     if(!$dept || !$dept->isManager($thisstaff)) {
-                        $errors['err']='Perm. Denied. You are not allowed to flag tickets';
+                        $errors['err']='Permission Denied. You are not allowed to flag tickets';
                     } elseif($ticket->markAnswered()) {
                         $msg='Ticket flagged as answered';
                         $ticket->logActivity('Ticket Marked Answered',($msg.' by '.$thisstaff->getName()));
@@ -307,7 +307,7 @@ if($_POST && !$errors):
                 case 'unanswered':
                     $dept = $ticket->getDept();
                     if(!$dept || !$dept->isManager($thisstaff)) {
-                        $errors['err']='Perm. Denied. You are not allowed to flag tickets';
+                        $errors['err']='Permission Denied. You are not allowed to flag tickets';
                     } elseif($ticket->markUnAnswered()) {
                         $msg='Ticket flagged as unanswered';
                         $ticket->logActivity('Ticket Marked Unanswered',($msg.' by '.$thisstaff->getName()));
@@ -317,7 +317,7 @@ if($_POST && !$errors):
                     break;
                 case 'banemail':
                     if(!$thisstaff->canBanEmails()) {
-                        $errors['err']='Perm. Denied. You are not allowed to ban emails';
+                        $errors['err']='Permission Denied. You are not allowed to ban emails';
                     } elseif(BanList::includes($ticket->getEmail())) {
                         $errors['err']='Email already in banlist';
                     } elseif(Banlist::add($ticket->getEmail(),$thisstaff->getName())) {
@@ -328,7 +328,7 @@ if($_POST && !$errors):
                     break;
                 case 'unbanemail':
                     if(!$thisstaff->canBanEmails()) {
-                        $errors['err'] = 'Perm. Denied. You are not allowed to remove emails from banlist.';
+                        $errors['err'] = 'Permission Denied. You are not allowed to remove emails from banlist.';
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = 'Email removed from banlist';
                     } elseif(!BanList::includes($ticket->getEmail())) {
@@ -339,7 +339,7 @@ if($_POST && !$errors):
                     break;
                 case 'changeuser':
                     if (!$thisstaff->canEditTickets()) {
-                        $errors['err'] = 'Perm. Denied. You are not allowed to EDIT tickets!!';
+                        $errors['err'] = 'Permission Denied. You are not allowed to EDIT tickets!!';
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = 'Unknown user selected!';
                     } elseif ($ticket->changeOwner($user)) {
@@ -350,7 +350,7 @@ if($_POST && !$errors):
                     break;
                 case 'delete': // Dude what are you trying to hide? bad customer support??
                     if(!$thisstaff->canDeleteTickets()) {
-                        $errors['err']='Perm. Denied. You are not allowed to DELETE tickets!!';
+                        $errors['err']='Permission Denied. You are not allowed to DELETE tickets!!';
                     } elseif($ticket->delete()) {
                         $msg='Ticket #'.$ticket->getNumber().' deleted successfully';
                         //Log a debug note

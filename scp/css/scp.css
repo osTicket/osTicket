@@ -20,6 +20,10 @@ a {
     width: 100%;
 }
 
+.search-input {
+    height: 20px;
+}
+
 .clear {
     clear:both;
 }
