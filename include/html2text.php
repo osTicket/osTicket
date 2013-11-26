@@ -28,16 +28,28 @@ function convert_html_to_text($html, $width=74) {
 
     $html = fix_newlines($html);
     $doc = new DOMDocument('1.0', 'utf-8');
+    if (strpos($html, '<?xml ') === false)
+        $html = '<?xml encoding="utf-8"?>'.$html; # <?php (4vim)
     if (!@$doc->loadHTML($html))
         return $html;
+
+    // Thanks, http://us3.php.net/manual/en/domdocument.loadhtml.php#95251
+    // dirty fix -- remove the inserted processing instruction
+    foreach ($doc->childNodes as $item) {
+        if ($item->nodeType == XML_PI_NODE) {
+            $doc->removeChild($item); // remove hack
+            break;
+        }
+    }
 
     $elements = identify_node($doc);
 
     // Add the default stylesheet
     $elements->getRoot()->addStylesheet(
         HtmlStylesheet::fromArray(array(
-            'p' => array('margin-bottom' => 1),
-            'pre' => array('border-width' => 1, 'white-space' => 'pre'),
+            'html' => array('white-space' => 'pre'), # Don't wrap footnotes
+            'p' => array('margin-bottom' => '1em'),
+            'pre' => array('border-width' => '1em', 'white-space' => 'pre'),
         ))
     );
     $options = array();
@@ -82,7 +94,7 @@ function identify_node($node, $parent=null) {
         case "hr":
             return new HtmlHrElement($node, $parent);
         case "br":
-            return "\n";
+            return new HtmlBrElement($node, $parent);
 
         case "style":
             $parent->getRoot()->addStylesheet(new HtmlStylesheet($node));
@@ -178,16 +190,17 @@ class HtmlInlineElement {
         foreach ($this->children as $c) {
             if ($c instanceof DOMText) {
                 // Collapse white-space
+                $more = $c->wholeText;
                 switch ($this->ws) {
-                    case 'pre':
-                    case 'pre-wrap':
-                        $more = $c->wholeText;
-                        break;
-                    case 'nowrap':
-                    case 'pre-line':
-                    case 'normal':
-                    default:
-                        $more = preg_replace('/\s+/m', ' ', $c->wholeText);
+                case 'pre':
+                case 'pre-wrap':
+                    break;
+                case 'nowrap':
+                case 'pre-line':
+                case 'normal':
+                default:
+                    if ($after_block) $more = ltrim($more);
+                    $more = preg_replace('/\s+/m', ' ', $more);
                 }
             }
             elseif ($c instanceof HtmlInlineElement) {
@@ -196,6 +209,7 @@ class HtmlInlineElement {
             else {
                 $more = $c;
             }
+            $after_block = ($c instanceof HtmlBlockElement);
             if ($more instanceof PreFormattedText)
                 $output = new PreFormattedText($output . $more);
             elseif (is_string($more))
@@ -216,7 +230,7 @@ class HtmlInlineElement {
                 if ($c instanceof HtmlInlineElement)
                     $this->weight += $c->getWeight();
                 elseif ($c instanceof DomText)
-                    $this->weight += strlen($c->wholeText);
+                    $this->weight += mb_strwidth($c->wholeText);
             }
         }
         return $this->weight;
@@ -281,7 +295,7 @@ class HtmlBlockElement extends HtmlInlineElement {
             return new PreFormattedText("\n" . $output);
 
         $output = trim($output);
-        if (!strlen(trim($output)))
+        if (!strlen($output))
             return "";
 
         // Wordwrap the content to the width
@@ -293,11 +307,12 @@ class HtmlBlockElement extends HtmlInlineElement {
             case 'pre-wrap':
             case 'normal':
             default:
-                $output = wordwrap($output, $width, "\n", true);
+                $output = mb_wordwrap($output, $width, "\n", true);
         }
 
         // Apply stylesheet styles
         // TODO: Padding
+        // TODO: Justification
         // Border
         if ($bw)
             $output = self::borderize($output, $width);
@@ -311,7 +326,7 @@ class HtmlBlockElement extends HtmlInlineElement {
     function borderize($what, $width) {
         $output = ',-'.str_repeat('-', $width)."-.\n";
         foreach (explode("\n", $what) as $l)
-            $output .= '| '.str_pad($l, $width)." |\n";
+            $output .= '| '.mb_str_pad($l, $width)." |\n";
         $output .= '`-'.str_repeat('-', $width)."-'\n";
         return $output;
     }
@@ -322,14 +337,19 @@ class HtmlBlockElement extends HtmlInlineElement {
                 if ($c instanceof HtmlBlockElement)
                     $this->min_width = max($c->getMinWidth(), $this->min_width);
                 elseif ($c instanceof DomText)
-                    $this->min_width = max(max(array_map('strlen', explode(' ', $c->wholeText))),
-                        $this->min_width);
+                    $this->min_width = max(max(array_map('mb_strwidth',
+                        explode(' ', $c->wholeText))), $this->min_width);
             }
         }
         return $this->min_width;
     }
 }
 
+class HtmlBrElement extends HtmlBlockElement {
+    function render($width, $options) {
+        return "\n";
+    }
+}
 class HtmlUElement extends HtmlInlineElement {
     function render($width, $options) {
         $output = parent::render($width, $options);
@@ -371,7 +391,7 @@ class HtmlHeadlineElement extends HtmlBlockElement {
             default:
                 return $headline;
         }
-        $length = max(array_map('strlen', explode("\n", $headline)));
+        $length = max(array_map('mb_strwidth', explode("\n", $headline)));
         $headline .= "\n" . str_repeat($line, $length) . "\n";
         return $headline;
     }
@@ -387,12 +407,11 @@ class HtmlBlockquoteElement extends HtmlBlockElement {
 
 class HtmlCiteElement extends HtmlBlockElement {
     function render($width, $options) {
-        $options['trim'] = false;
         $lines = explode("\n", ltrim(parent::render($width-3, $options)));
         $lines[0] = "-- " . $lines[0];
         // Right justification
         foreach ($lines as &$l)
-            $l = str_pad($l, $width, " ", STR_PAD_LEFT);
+            $l = mb_str_pad($l, $width, " ", STR_PAD_LEFT);
         unset($l);
         return implode("\n", $lines);
     }
@@ -408,7 +427,7 @@ class HtmlImgElement extends HtmlInlineElement {
         return "[image:$alt$title] ";
     }
     function getWeight() {
-        return strlen($this->node->getAttribute("alt")) + 8;
+        return mb_strwidth($this->node->getAttribute("alt")) + 8;
     }
 }
 
@@ -422,14 +441,15 @@ class HtmlAElement extends HtmlInlineElement {
             if ($this->node->getAttribute("name") != null) {
                 $output = "[$output]";
             }
-        } elseif (strlen($href) > $width / 2) {
+        } elseif (strpos($href, 'mailto:') === 0) {
+            $href = substr($href, 7);
+            $output = (($href != $output) ? "$href " : '') . "<$output>";
+        } elseif (mb_strwidth($href) > $width / 2) {
             if ($href != $output)
                 $this->getRoot()->addFootnote($output, $href);
             $output = "[$output]";
-        } else {
-            if ($href != $output) {
-                $output = "[$output]($href)";
-            }
+        } elseif ($href != $output) {
+            $output = "[$output]($href)";
         }
         return $output;
     }
@@ -441,7 +461,6 @@ class HtmlListElement extends HtmlBlockElement {
 
     function render($width, $options) {
         $options['marker'] = $this->marker;
-        $options['trim'] = false;
         return parent::render($width, $options);
     }
 
@@ -471,16 +490,20 @@ class HtmlListItem extends HtmlBlockElement {
 
     function render($width, $options) {
         $prefix = sprintf($options['marker'], $this->number);
-        $lines = explode("\n", trim(parent::render($width-strlen($prefix), $options)));
+        $lines = explode("\n", trim(parent::render($width-mb_strwidth($prefix), $options)));
         $lines[0] = $prefix . $lines[0];
         return new PreFormattedText(
-            implode("\n".str_repeat(" ", strlen($prefix)), $lines)."\n");
+            implode("\n".str_repeat(" ", mb_strwidth($prefix)), $lines)."\n");
     }
 }
 
 class HtmlCodeElement extends HtmlInlineElement {
      function render($width, $options) {
-        return '`'.parent::render($width-2, $options).'`';
+        $content = parent::render($width-2, $options);
+        if (strpos($content, "\n"))
+            return "```\n".trim($content)."\n```\n";
+        else
+            return "`$content`";
     }
 }
 
@@ -672,11 +695,7 @@ class HtmlTable extends HtmlBlockElement {
                 foreach ($r as $x=>$cell) {
                     $content = (isset($contents[$y][$x][$k]))
                         ? $contents[$y][$x][$k] : "";
-                    $pad = $cell->width - mb_strlen($content, 'utf8');
-                    $output .= " ".$content;
-                    if ($pad > 0)
-                        $output .= str_repeat(" ", $pad);
-                    $output .= " |";
+                    $output .= " ".mb_str_pad($content, $cell->width)." |";
                     $x += $cell->cols;
                 }
                 $output .= "\n";
@@ -821,6 +840,41 @@ class PreFormattedText {
     }
 }
 
+if (!function_exists('mb_strwidth')) {
+    function mb_strwidth($string) {
+        return mb_strlen($string);
+    }
+}
+
+// Thanks http://www.php.net/manual/en/function.wordwrap.php#107570
+// @see http://www.tads.org/t3doc/doc/htmltads/linebrk.htm
+//      for some more line breaking characters and rules
+// XXX: This does not wrap Chinese characters well
+// @see http://xml.ascc.net/en/utf-8/faq/zhl10n-faq-xsl.html#qb1
+//      for some more rules concerning Chinese chars
+function mb_wordwrap($string, $width=75, $break="\n", $cut=false) {
+  if ($cut) {
+    // Match anything 1 to $width chars long followed by whitespace or EOS,
+    // otherwise match anything $width chars long
+    $search = '/(.{1,'.$width.'})(?:\s|$|(\p{Ps}))|(.{'.$width.'})/uS';
+    $replace = '$1$3'.$break.'$2';
+  } else {
+    // Anchor the beginning of the pattern with a lookahead
+    // to avoid crazy backtracking when words are longer than $width
+    $pattern = '/(?=[\s\p{Ps}])(.{1,'.$width.'})(?:\s|$|(\p{Ps}))/uS';
+    $replace = '$1'.$break.'$2';
+  }
+  return rtrim(preg_replace($search, $replace, $string), $break);
+}
+
+// Thanks http://www.php.net/manual/en/ref.mbstring.php#90611
+function mb_str_pad($input, $pad_length, $pad_string=" ",
+        $pad_style=STR_PAD_RIGHT) {
+    return str_pad($input,
+        strlen($input)-mb_strwidth($input)+$pad_length, $pad_string,
+        $pad_style);
+}
+
 // Enable use of html2text from command line
 // The syntax is the following: php html2text.php file.html
 
@@ -832,5 +886,9 @@ do {
   $width = 74;
   if (isset($argv[2]))
       $width = (int) $argv[2];
+  elseif (isset($ENV['COLUMNS']))
+      $width = $ENV['COLUMNS'];
+  require_once(dirname(__file__).'/../bootstrap.php');
+  Bootstrap::i18n_prep();
   echo convert_html_to_text (file_get_contents ($file), $width);
 } while (0);
