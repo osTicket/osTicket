@@ -147,7 +147,7 @@ class VerySimpleModel {
         foreach ($pk as $p)
             $filter[] = $p.' = '.db_input($this->get($p));
         $sql .= ' WHERE '.implode(' AND ', $filter).' LIMIT 1';
-        return db_affected_rows(db_query($sql)) == 1;
+        return db_query($sql) && db_affected_rows() == 1;
     }
 
     function save($refetch=false) {
@@ -173,10 +173,8 @@ class VerySimpleModel {
             $sql .= ' WHERE '.implode(' AND ', $filter);
             $sql .= ' LIMIT 1';
         }
-        if (db_affected_rows(db_query($sql)) != 1) {
+        if (!db_query($sql) || db_affected_rows() != 1)
             throw new Exception(db_error());
-            return false;
-        }
         if ($this->__new__) {
             if (count($pk) == 1)
                 $this->ht[$pk[0]] = db_insert_id();
@@ -433,17 +431,22 @@ class FlatArrayIterator extends ModelInstanceIterator {
 class InstrumentedList extends ModelInstanceIterator {
     var $key;
     var $id;
+    var $model;
 
     function __construct($fkey, $queryset=false) {
         list($model, $this->key, $this->id) = $fkey;
         if (!$queryset)
             $queryset = $model::objects()->filter(array($this->key=>$this->id));
         parent::__construct($queryset);
+        $this->model = $model;
         if (!$this->id)
             $this->resource = null;
     }
 
     function add($object) {
+        if (!$object || !$object instanceof $this->model)
+            throw new Exception('Attempting to add invalid object to list');
+
         $object->{$this->key} = $this->id;
         $object->save();
         $this->list[] = $object;

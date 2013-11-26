@@ -60,6 +60,7 @@ function db_connect($host, $user, $passwd, $options = array()) {
     @$__db->query('SET NAMES "utf8"');
     @$__db->query('SET CHARACTER SET "utf8"');
     @$__db->query('SET COLLATION_CONNECTION=utf8_general_ci');
+    $__db->set_charset('utf8');
 
     @db_set_variable('sql_mode', '');
 
