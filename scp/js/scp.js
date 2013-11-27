@@ -400,7 +400,7 @@ $(document).ready(function(){
      });
 
     $.dialog = function (url, code, cb) {
-        console.log(url);
+
         $('.dialog#popup .body').load(url, function () {
             $('#overlay').show();
             $('.dialog#popup').show();
@@ -435,9 +435,9 @@ $(document).ready(function(){
 
     $.userLookup = function (url, cb) {
         $.dialog(url, 201, function (resp) {
-                var user = $.parseJSON(resp);
-                if(cb) cb(user);
-                });
+            var user = $.parseJSON(resp);
+            if(cb) cb(user);
+        });
     };
 
     $('#advanced-search').delegate('#status', 'change', function() {
