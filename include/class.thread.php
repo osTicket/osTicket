@@ -574,6 +574,7 @@ Class ThreadEntry {
             'source' => 'Email',
             'ip' =>     '',
             'reply_to' => $this,
+            'recipients' => $mailinfo['recipients'],
         );
 
         if (isset($mailinfo['attachments']))
@@ -588,6 +589,7 @@ Class ThreadEntry {
             $vars['message'] = $body;
             return $ticket->postMessage($vars, 'Email');
         }
+        // XXX: Consider collaborator role
         elseif ($staff_id = Staff::getIdByEmail($mailinfo['email'])) {
             $vars['staffId'] = $staff_id;
             $poster = Staff::lookup($staff_id);

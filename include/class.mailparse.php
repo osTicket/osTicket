@@ -140,11 +140,15 @@ class Mail_Parse {
 
     function getToAddressList(){
         // Delivered-to incase it was a BBC mail.
-        if (!($header = $this->struct->headers['to']))
-            if (!($header = $this->struct->headers['delivered-to']))
-                return null;
+        $tolist = array();
+        if ($header = $this->struct->headers['to'])
+            $tolist = array_merge($tolist,
+                Mail_Parse::parseAddressList($header));
+        if ($header = $this->struct->headers['delivered-to'])
+            $tolist = array_merge($tolist,
+                Mail_Parse::parseAddressList($header));
 
-        return Mail_Parse::parseAddressList($header);
+        return $tolist ? $tolist : null;
     }
 
     function getCcAddressList(){
