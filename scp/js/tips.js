@@ -74,8 +74,8 @@ jQuery(function() {
 
         var elem = $(this),
             pos = elem.offset(),
-            y_pos = pos.top - 12,
-            x_pos = pos.left + elem.width() + 20,
+            y_pos = pos.top - 8,
+            x_pos = pos.left + elem.width() + 16,
             tip_arrow = $('<img>')
                 .attr('src', './images/tip_arrow.png')
                 .addClass('tip_arrow'),
@@ -85,8 +85,7 @@ jQuery(function() {
                 .append('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>')
                 .addClass('tip_content'),
             the_tip = tip_box
-                .append(tip_arrow)
-                .append(tip_content)
+                .append(tip_content.append(tip_arrow))
                 .css({
                     "top":y_pos + "px",
                     "left":x_pos + "px"
@@ -94,6 +93,12 @@ jQuery(function() {
             tip_timer = setTimeout(function() {
                 $('.tip_box').remove();
                 $('body').append(the_tip.hide().fadeIn());
+                console.log($(window).width(), tip_content.width(), the_tip.position())
+                if ($(window).width() < tip_content.outerWidth() + the_tip.position().left) {
+                    the_tip.css({'left':x_pos-tip_content.outerWidth()-40+'px'});
+                    tip_box.addClass('right');
+                    tip_arrow.addClass('flip-x');
+                }
             }, 500);
 
         elem.live('mouseout', function() {

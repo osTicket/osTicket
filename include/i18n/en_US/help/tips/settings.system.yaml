@@ -65,15 +65,16 @@ name_format:
     title: Default Name Format
     content: >
         Formatting technique used to format names throughout the system.
-        Email templates will use the format for names of no other format is
+        Email templates will use the format for names if no other format is
         specified in the place holder.
 
 # Authentication settings
 password_reset:
     title: Password Expiration Policy
     content: >
-        Sets the requirement for how often (in months) staff will be
-        required to reset their password.
+        Sets how often (in months) staff members will be required to change
+        their password. If disabled (set to "No expiration"), passwords will
+        not expire.
 
 # Date and time options
 date_and_time:

@@ -962,6 +962,21 @@ h2 .reload {
     z-index:700;
 }
 
+.tip_box.right .tip_arrow {
+    top: 5px;
+    right: -12px;
+    left: auto;
+}
+
+.flip-x {
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
 .tip_content {
     height:auto !important;
     height:20px;
@@ -1086,6 +1101,7 @@ h2 .reload {
 }
 
 i.help-tip {
+    vertical-align: inherit;
     color: #aaa;
 }
 i.help-tip:hover {

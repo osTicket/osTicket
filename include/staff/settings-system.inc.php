@@ -123,10 +123,10 @@ $gmtime = Misc::gmtime();
                 <em><b>Authentication Settings</b></em>
             </th>
         </tr>
-        <tr><td>Password Change Policy:</th>
+        <tr><td>Password Expiration Policy:</th>
             <td>
                 <select name="passwd_reset_period">
-                   <option value="0"> &mdash; None &mdash;</option>
+                   <option value="0"> &mdash; No expiration &mdash;</option>
                   <?php
                     for ($i = 1; $i <= 12; $i++) {
                         echo sprintf('<option value="%d" %s>%s%s</option>',
