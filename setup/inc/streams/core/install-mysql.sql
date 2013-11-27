@@ -627,7 +627,8 @@ CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
   `isactive` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `ticket_id` int(11) unsigned NOT NULL DEFAULT '0',
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `role` char(1) NOT NULL DEFAULT 'E',
+  -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
+  `role` char(1) NOT NULL DEFAULT 'M',
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `collab` (`ticket_id`,`user_id`)
