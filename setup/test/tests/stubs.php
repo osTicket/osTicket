@@ -9,6 +9,7 @@ class mysqli {
     function ssl_set() {}
     function real_connect() {}
     function select_db() {}
+    function set_charset() {}
 }
 
 class mysqli_stmt {
