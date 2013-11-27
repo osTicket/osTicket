@@ -594,7 +594,8 @@ class Ticket {
 
     function addCollaborator($user, &$errors) {
 
-        if(!$user) return null;
+        if(!$user || $user->getId()==$this->getOwnerId())
+            return null;
 
         $vars = array(
                 'ticketId' => $this->getId(),
@@ -1443,14 +1444,7 @@ class Ticket {
     function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;
 
-        //Strip quoted reply...on emailed replies
-        if(!strcasecmp($origin, 'Email')
-                && $cfg->stripQuotedReply()
-                && ($tag=$cfg->getReplySeparator())
-                && strpos($vars['message'], $tag))
-            if((list($msg) = explode($tag, $vars['message'], 2)) && trim($msg))
-                $vars['message'] = $msg;
-
+        $vars['origin'] = $origin;
         if(isset($vars['ip']))
             $vars['ip_address'] = $vars['ip'];
         elseif(!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])

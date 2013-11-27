@@ -470,11 +470,15 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         $errors = $info = array();
-        if ($user && ($c=$ticket->addCollaborator($user, $errors))) {
-            $info =array('msg' => sprintf('%s added as a collaborator',
-                        $c->getName()));
-
-            return self::_collaborators($ticket, $info);
+        if ($user) {
+            if ($user->getId() == $ticket->getOwnerId())
+                $errors['err'] = sprintf('Ticket owner, %s, is a collaborator by default!',
+                        $user->getName());
+            elseif (($c=$ticket->addCollaborator($user, $errors))) {
+                $info = array('msg' => sprintf('%s added as a collaborator',
+                            $c->getName()));
+                return self::_collaborators($ticket, $info);
+            }
         }
 
         if($errors && $errors['err']) {
@@ -482,7 +486,6 @@ class TicketsAjaxAPI extends AjaxController {
         } else {
             $info +=array('error' =>'Unable to add collaborator - try again');
         }
-
 
         return self::_addcollaborator($ticket, $user, $form, $info);
     }
