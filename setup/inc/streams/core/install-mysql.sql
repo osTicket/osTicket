@@ -435,6 +435,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `firstname` varchar(32) default NULL,
   `lastname` varchar(32) default NULL,
   `passwd` varchar(128) default NULL,
+  `backend` varchar(32) default NULL,
   `email` varchar(128) default NULL,
   `phone` varchar(24) NOT NULL default '',
   `phone_ext` varchar(6) default NULL,
@@ -674,6 +675,18 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%page` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
+-- Plugins
+DROP TABLE IF EXISTS `%TABLE_PREFIX%plugin`;
+CREATE TABLE `%TABLE_PREFIX%plugin` (
+  `id` int(11) unsigned not null auto_increment,
+  `name` varchar(30) not null,
+  `install_path` varchar(60) not null,
+  `isphar` tinyint(1) not null default 0,
+  `isactive` tinyint(1) not null default 0,
+  `installed` datetime not null,
+  primary key (`id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;

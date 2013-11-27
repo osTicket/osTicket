@@ -23,8 +23,15 @@ $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
 $msg = $msg?$msg:'Authentication Required';
 if($_POST) {
-    //$_SESSION['_staff']=array(); #Uncomment to disable login strikes.
-    if(($user=Staff::login($_POST['userid'], $_POST['passwd'], $errors))){
+    // Lookup support backends for this staff
+    $username = trim($_POST['userid']);
+    $sql = 'SELECT backend FROM '.STAFF_TABLE
+        .' WHERE username='.db_input($username)
+        .' OR email='.db_input($username);
+    $backend = db_result(db_query($sql));
+
+    if ($user = AuthenticationBackend::process($username,
+            $_POST['passwd'], $backend, $errors)) {
         $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
         @header("Location: $dest");
         require_once('index.php'); //Just incase header is messed up.

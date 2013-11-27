@@ -111,6 +111,8 @@ class Bootstrap {
         define('FILTER_TABLE', $prefix.'filter');
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
 
+        define('PLUGIN_TABLE', $prefix.'plugin');
+
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
     }
@@ -169,8 +171,7 @@ class Bootstrap {
 
     function loadCode() {
         #include required files
-        require(INCLUDE_DIR.'class.ostsession.php');
-        require(INCLUDE_DIR.'class.usersession.php');
+        require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');

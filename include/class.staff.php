@@ -20,8 +20,9 @@ include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
+include_once(INCLUDE_DIR.'class.auth.php');
 
-class Staff {
+class Staff extends AuthenticatedUser {
 
     var $ht;
     var $id;
@@ -762,13 +763,17 @@ class Staff {
             $errors['mobile']='Valid number required';
 
         if($vars['passwd1'] || $vars['passwd2'] || !$id) {
-            if(!$vars['passwd1'] && !$id) {
+            if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
+                $errors['passwd2']='Password(s) do not match';
+            }
+            elseif ($vars['backend'] != 'local') {
+                // Password can be omitted
+            }
+            elseif(!$vars['passwd1'] && !$id) {
                 $errors['passwd1']='Temp. password required';
                 $errors['temppasswd']='Required';
             } elseif($vars['passwd1'] && strlen($vars['passwd1'])<6) {
                 $errors['passwd1']='Must be at least 6 characters';
-            } elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
-                $errors['passwd2']='Password(s) do not match';
             }
         }
 
@@ -798,6 +803,7 @@ class Staff {
             .' ,firstname='.db_input($vars['firstname'])
             .' ,lastname='.db_input($vars['lastname'])
             .' ,email='.db_input($vars['email'])
+            .' ,backend='.db_input($vars['backend'])
             .' ,phone="'.db_input(Format::phone($vars['phone']),false).'"'
             .' ,phone_ext='.db_input($vars['phone_ext'])
             .' ,mobile="'.db_input(Format::phone($vars['mobile']),false).'"'

@@ -118,5 +118,26 @@ class UsersAjaxAPI extends AjaxController {
         return $resp;
     }
 
+    function searchStaff() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required for searching');
+        elseif (!$thisstaff->isAdmin())
+            Http::response(403,
+                'Administrative privilege is required for searching');
+        elseif (!isset($_REQUEST['q']))
+            Http::response(400, 'Query argument is required');
+
+        $users = array();
+        foreach (AuthenticationBackend::allRegistered() as $ab) {
+            if (!$ab->supportsSearch())
+                continue;
+
+            foreach ($ab->search($_REQUEST['q']) as $u)
+                $users[] = $u;
+        }
+        return $this->json_encode($users);
+    }
 }
 ?>
