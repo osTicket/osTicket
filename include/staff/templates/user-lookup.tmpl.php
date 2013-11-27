@@ -34,7 +34,7 @@ if ($info['error']) {
     <table width="100%">
     <?php
         if(!$form) $form = UserForm::getInstance();
-        $form->render(true, 'New User Information'); ?>
+        $form->render(true, 'Create New User'); ?>
     </table>
     <hr>
     <p class="full-width">
