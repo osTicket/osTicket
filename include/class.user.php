@@ -76,24 +76,44 @@ class User extends UserModel {
             $this->default_email = UserEmail::lookup($ht['default_email_id']);
     }
 
-    static function fromForm($data=false) {
+    static function fromVars($vars=false) {
         // Try and lookup by email address
-        $user = User::lookup(array('emails__address'=>$data['email']));
+        $user = User::lookup(array('emails__address'=>$vars['email']));
         if (!$user) {
             $user = User::create(array(
-                'name'=>$data['name'],
+                'name'=>$vars['name'],
                 'created'=>new SqlFunction('NOW'),
                 'updated'=>new SqlFunction('NOW'),
                 'default_email'=>
-                    UserEmail::create(array('address'=>$data['email']))
+                    UserEmail::create(array('address'=>$vars['email']))
             ));
             $user->save(true);
             $user->emails->add($user->default_email);
             // Attach initial custom fields
-            $user->addDynamicData($data);
+            $user->addDynamicData($vars);
         }
 
         return $user;
+    }
+
+    static function fromForm($form) {
+
+        if(!$form) return null;
+
+        //Validate the form
+        $valid = true;
+        if (!$form->isValid())
+            $valid  = false;
+
+        //Make sure the email is not in-use
+        if (($field=$form->getField('email'))
+                && $field->getClean()
+                && User::lookup(array('emails__address'=>$field->getClean()))) {
+            $field->addError('Email is assigned to another user');
+            $valid = false;
+        }
+
+        return $valid ? self::fromVars($form->getClean()) : null;
     }
 
     function getEmail() {

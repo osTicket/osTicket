@@ -457,11 +457,13 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
-        $errors = $info = array();
-        $user = null;
-        $form = UserForm::getInstance();
-        if ($form->isValid())
-            $user = User::fromForm($form->getClean());
+        $user = $form = null;
+        if (isset($_POST['id']) && $_POST['id']) { //Existing user/
+            $user =  User::lookup($_POST['id']);
+        } else { //We're creating a new user!
+            $form = UserForm::getUserForm()->getForm($_POST);
+            $user = User::fromForm($form);
+        }
 
         if ($user && ($c=$ticket->addCollaborator($user, $errors))) {
             $info +=array('msg' => sprintf('%s added as a collaborator',
