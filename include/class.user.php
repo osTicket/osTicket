@@ -76,7 +76,7 @@ class User extends UserModel {
             $this->default_email = UserEmail::lookup($ht['default_email_id']);
     }
 
-    static function fromVars($vars=false) {
+    static function fromVars($vars) {
         // Try and lookup by email address
         $user = User::lookup(array('emails__address'=>$vars['email']));
         if (!$user) {

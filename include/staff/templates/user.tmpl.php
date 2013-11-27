@@ -30,7 +30,7 @@ if ($info['error']) {
 <div id="user-form" style="display:<?php echo $forms ? 'block' : 'none'; ?>;">
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Please note that updates will be reflected system-wide.</p></div>
 <?php
-$action = '#users/'.$user->getId();
+$action = $info['action'] ? $info['action'] : ('#users/'.$user->getId());
 if ($ticket && $ticket->getOwnerId() == $user->getId())
     $action = '#tickets/'.$ticket->getId().'/user';
 ?>

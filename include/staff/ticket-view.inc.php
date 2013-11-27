@@ -438,12 +438,12 @@ $tcount+= $ticket->getNumNotes();
                         <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
                             <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>>
                        <?php
-                        echo sprintf('<a id="managecollaborators"
+                        echo sprintf('<a class="collaborators"
                                 href="#tickets/%d/collaborators/manage">Collaborators (%d)</a>',
                                 $ticket->getId(),
                                 $ticket->getNumCollaborators());
                     } else {
-                        echo sprintf('<div><a id="addcollaborators"
+                        echo sprintf('<div><a class="collaborators"
                                 href="#tickets/%d/collaborators/manage" >Add Collaborators</a></div>',
                                 $ticket->getId());
                     }
@@ -820,9 +820,6 @@ $tcount+= $ticket->getNumNotes();
     </form>
     <?php
     } ?>
-</div>
-<div style="display:none;width:650px;" class="dialog draggable collaborators">
-    <div class="body"></div>
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3>Ticket Print Options</h3>

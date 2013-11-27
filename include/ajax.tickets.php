@@ -457,6 +457,10 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
+        //If not a post then assume new collaborator form
+        if(!$_POST)
+            return self::_addcollaborator($ticket);
+
         $user = $form = null;
         if (isset($_POST['id']) && $_POST['id']) { //Existing user/
             $user =  User::lookup($_POST['id']);
@@ -465,17 +469,22 @@ class TicketsAjaxAPI extends AjaxController {
             $user = User::fromForm($form);
         }
 
+        $errors = $info = array();
         if ($user && ($c=$ticket->addCollaborator($user, $errors))) {
-            $info +=array('msg' => sprintf('%s added as a collaborator',
+            $info =array('msg' => sprintf('%s added as a collaborator',
                         $c->getName()));
-            $form = null;
-        } elseif($errors && $errors['err']) {
-            $info +=array('add_error' => $errors['err']);
-        } else {
-            $info +=array('add_error' =>'Errors occurred - try again');
+
+            return self::_collaborators($ticket, $info);
         }
 
-        return self::_collaborators($ticket, $form, $info);
+        if($errors && $errors['err']) {
+            $info +=array('error' => $errors['err']);
+        } else {
+            $info +=array('error' =>'Unable to add collaborator - try again');
+        }
+
+
+        return self::_addcollaborator($ticket, $user, $form, $info);
     }
 
     function updateCollaborator($cid) {
@@ -495,7 +504,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info = array('msg' => sprintf('%s updated successfully',
                     $c->getName()));
 
-        return self::_collaborators($ticket, null, $info);
+        return self::_collaborators($ticket, $info);
     }
 
     function viewCollaborator($cid) {
@@ -516,7 +525,22 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
-        return self::_collaborators($ticket);
+        if($ticket->getCollaborators())
+            return self::_collaborators($ticket);
+
+        return self::_addcollaborator($ticket);
+    }
+
+
+
+    function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
+
+        $info += array(
+                    'title' => sprintf('Ticket #%s: Add a collaborator', $ticket->getNumber()),
+                    'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId())
+                    );
+
+        return self::_userlookup($user, $form, $info);
     }
 
 
@@ -534,22 +558,26 @@ class TicketsAjaxAPI extends AjaxController {
             $info +=array('error' => $errors['err']);
         }
 
-        return self::_collaborators($ticket, null, $info);
+        return self::_collaborators($ticket, $info);
     }
 
 
 
-    function _collaborator($collaborator, $form=null, $errors=array()) {
+    function _collaborator($collaborator, $form=null, $info=array()) {
+
+        $info += array('action' => '#collaborators/'.$collaborator->getId());
+
+        $user = $collaborator->getUser();
 
         ob_start();
-        include(STAFFINC_DIR . 'templates/collaborator.tmpl.php');
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
         $resp = ob_get_contents();
         ob_end_clean();
 
         return $resp;
     }
 
-    function _collaborators($ticket, $form=null, $info=array()) {
+    function _collaborators($ticket, $info=array()) {
 
         ob_start();
         include(STAFFINC_DIR . 'templates/collaborators.tmpl.php');
@@ -625,6 +653,11 @@ class TicketsAjaxAPI extends AjaxController {
         $info = array(
                 'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
                 );
+
+        return self::_userlookup($user, $info);
+    }
+
+    function _userlookup($user, $form, $info) {
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');

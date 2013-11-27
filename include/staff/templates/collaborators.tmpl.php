@@ -7,7 +7,7 @@ if($info && $info['msg']) {
 <hr/>
 <?php
 if(($users=$ticket->getCollaborators())) {?>
-<div id="manage_collaborators" <?php echo $form?  'style="display:none;"' : ''; ?>>
+<div id="manage_collaborators">
 <form method="post" class="collaborators" action="#tickets/<?php echo $ticket->getId(); ?>/collaborators">
     <table border="0" cellspacing="1" cellpadding="1" width="100%">
     <?php
@@ -16,7 +16,7 @@ if(($users=$ticket->getCollaborators())) {?>
         echo sprintf('<tr>
                         <td>
                             <input type="checkbox" name="cid[]" id="c%d" value="%d" %s>
-                            <a class="editcollaborator" href="#collaborators/%d/view">%s</a>
+                            <a class="collaborator" href="#collaborators/%d/view">%s</a>
                             <span class="faded"><em>%s</em></span></td>
                         <td width="10">
                             <input type="hidden" name="del[]" id="d%d" value="">
@@ -35,7 +35,8 @@ if(($users=$ticket->getCollaborators())) {?>
     ?>
     </table>
     <hr style="margin-top:1em"/>
-    <div><a id="addcollaborator" href="#" >Add New Collaborator</a></div>
+    <div><a class="collaborator"
+        href="#tickets/<?php echo $ticket->getId(); ?>/add-collaborator" >Add New Collaborator</a></div>
     <div id="savewarning" style="display:none; padding-top:2px;"><p id="msg_warning">You have made changes that you need to save.</p></div>
     <p class="full-width">
         <span class="buttons" style="float:left">
@@ -50,31 +51,7 @@ if(($users=$ticket->getCollaborators())) {?>
 <div class="clear"></div>
 </div>
 <?php
+} else {
+    echo "Bro, not sure how you got here!";
 }
 ?>
-<div id="add_collaborator" <?php echo ($users && !$form)? 'style="display:none;"' : ''; ?>>
-<?php
-if($info && $info['add_error']) { ?>
-<p id="msg_error"><?php echo $info['add_error']; ?></p>
-<?php
-} ?>
-<div>Please complete the form below to add a new collaborator.</div>
-<form method="post" class="collaborators" action="#tickets/<?php echo $ticket->getId(); ?>/collaborators/add">
-    <table width="100%">
-    <?php
-        if(!$form) $form = UserForm::getInstance();
-        $form->render(); ?>
-    </table>
-    <hr style="margin-top:1em"/>
-    <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
-            <input type="button" name="cancel" class="<?php echo !$users ?  'close': 'cancel'; ?>"  value="Cancel">
-        </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Add">
-        </span>
-     </p>
-</form>
-<div class="clear"></div>
-</div>

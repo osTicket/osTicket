@@ -364,14 +364,11 @@ jQuery(function($) {
     });
 
     //Collaborators
-    $(document).on('click', 'a#managecollaborators, a#addcollaborators, a.editcollaborator', function(e) {
+    $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
         e.preventDefault();
-        var target = $(this).attr('href').substr(1);
-        $('.dialog.collaborators .body').load('ajax.php/'+target, function () {
-            $('#overlay').show();
-            $('.dialog.collaborators').show();
-         });
-
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $.dialog(url, 201, function (resp) {
+            });
         return false;
      });
 
@@ -431,24 +428,6 @@ jQuery(function($) {
         else
             $cc.show();
      });
-
-    $(document).on('submit', 'form.collaborators', function(e) {
-        e.preventDefault();
-        var fObj = $(this);
-        $.ajax({
-                type: "POST",
-                url: 'ajax.php/'+fObj.attr('action').substr(1),
-                data: fObj.serialize(),
-                cache: false,
-                success: function(resp){
-                    $('.dialog.collaborators .body').html(resp);
-                    $('#msg_notice, #msg_error').delay(5000).fadeOut();
-                }
-            })
-            .done(function() { })
-            .fail(function() { });
-        return false;
-    });
 
     var showNonLocalImage = function(div) {
         var $div = $(div),
