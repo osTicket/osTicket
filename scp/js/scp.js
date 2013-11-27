@@ -345,6 +345,26 @@ $(document).ready(function(){
         },
         property: "email"
     });
+    $('.staff-username.typeahead').typeahead({
+        source: function (typeahead, query) {
+            if(query.length > 2) {
+                $.ajax({
+                    url: "ajax.php/users/staff?q="+query,
+                    dataType: 'json',
+                    success: function (data) {
+                        typeahead.process(data);
+                    }
+                });
+            }
+        },
+        onselect: function (obj) {
+            var fObj=$('.staff-username.typeahead').closest('form');
+            $.each(['first','last','email','phone','mobile'], function(i,k) {
+                if (obj[k]) $('.auto.'+k, fObj).val(obj[k]);
+            });
+        },
+        property: "username"
+    });
 
     //Overlay
     $('#overlay').css({

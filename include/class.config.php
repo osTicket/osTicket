@@ -14,8 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once(INCLUDE_DIR.'class.email.php');
-
 class Config {
     var $config = array();
 
@@ -105,7 +103,9 @@ class Config {
     }
 
     function update($key, $value) {
-        if (!isset($this->config[$key]))
+        if (!$key)
+            return false;
+        elseif (!isset($this->config[$key]))
             return $this->create($key, $value);
 
         $setting = &$this->config[$key];

@@ -64,7 +64,8 @@ $dispatcher = patterns('',
         url_get('^/lookup/form$', 'getLookupForm'),
         url_post('^/lookup/form$', 'addUser'),
         url_get('^/select$', 'selectUser'),
-        url_get('^/select/(?P<id>\d+)$', 'selectUser')
+        url_get('^/select/(?P<id>\d+)$', 'selectUser'),
+        url_get('^/staff$', 'searchStaff')
     )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/change-user$', 'changeUserForm'),
@@ -99,6 +100,8 @@ $dispatcher = patterns('',
         url_get('(?P<lang>\w{2}_\w{2})?/tips/(?P<namespace>[\w_.]+)$', 'getTipsForLangJson')
     ))
 );
+
+Signal::send('ajax.scp', $dispatcher);
 
 # Call the respective function
 print $dispatcher->resolve($ost->get_path_info());
