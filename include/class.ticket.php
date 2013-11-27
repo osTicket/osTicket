@@ -813,10 +813,14 @@ class Ticket {
             .' ,isanswered='.db_input($isanswered)
             .' WHERE ticket_id='.db_input($this->getId());
 
-        //TODO: log reopen event here
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
 
         $this->logEvent('reopened', 'closed');
-        return (db_query($sql) && db_affected_rows());
+        $this->ht['status'] = 'open';
+        $this->ht['isanswerd'] = $isanswered;
+
+        return true;
     }
 
     function onNewTicket($message, $autorespond=true, $alertstaff=true) {
@@ -974,7 +978,7 @@ class Ticket {
 
         //auto-assign to closing staff or last respondent
         if(!($staff=$this->getStaff()) || !$staff->isAvailable()) {
-            if($cfg->autoAssignReopenedTickets() && ($lastrep=$this->getLastRespondent()) && $lastrep->isAvailable()) {
+            if(($lastrep=$this->getLastRespondent()) && $lastrep->isAvailable()) {
                 $this->setStaffId($lastrep->getId()); //direct assignment;
             } else {
                 $this->setStaffId(0); //unassign - last respondent is not available.
@@ -1594,6 +1598,10 @@ class Ticket {
         //Set status - if checked.
         if(isset($vars['reply_ticket_status']) && $vars['reply_ticket_status'])
             $this->setStatus($vars['reply_ticket_status']);
+
+        if($thisstaff && $this->isOpen() && !$this->getStaffId()
+                && $cfg->autoClaimTickets())
+            $this->setStaffId($thisstaff->getId()); //direct assignment;
 
         $this->onResponse(); //do house cleaning..
 
