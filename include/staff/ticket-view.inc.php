@@ -430,7 +430,7 @@ $tcount+= $ticket->getNumNotes();
             'table-row-group':'none'; ?>;">
             <tr>
                 <td width="120">
-                    <label><strong>CC:</strong></label>
+                    <label><strong>Recipients:</strong></label>
                 </td>
                 <td>
                     <?php

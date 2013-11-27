@@ -763,6 +763,15 @@ Class ThreadEntry {
         if(!$vars['ticketId'] || !$vars['type'] || !in_array($vars['type'], array('M','R','N')))
             return false;
 
+        //Strip quoted reply...on emailed  messages
+        if($vars['origin']
+                && !strcasecmp($vars['origin'], 'Email')
+                && $cfg->stripQuotedReply()
+                && ($tag=$cfg->getReplySeparator())
+                && strpos($vars['body'], $tag))
+            if((list($msg) = explode($tag, $vars['body'], 2)) && trim($msg))
+                $vars['body'] = $msg;
+
         if (isset($vars['attachments'])) {
             foreach ($vars['attachments'] as &$a) {
                 // Change <img src="cid:"> inside the message to point to
