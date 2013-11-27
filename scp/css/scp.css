@@ -1264,7 +1264,7 @@ time {
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
     max-height: 72%;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .redactor_air {
@@ -1402,6 +1402,7 @@ time {
 }
 
 .dialog input[type=submit]:hover, .dialog input[type=submit]:active,
+.dialog input[type=button]:hover, .dialog input[type=button]:active,
 .dialog input[type=reset]:hover, .dialog input[type=reset]:active {
     background-position:bottom left;
 }

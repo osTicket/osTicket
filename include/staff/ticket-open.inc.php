@@ -26,11 +26,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         if ($user) { ?>
         <tr><td>Client:</td><td>
             <div id="client-info">
+                <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
                 <span id="client-name"><?php echo $user->getName(); ?></span>
                 <span id="client-email">&lt;<?php echo $user->getEmail(); ?>&gt;</span>
                 <a class="action-button" style="float:none;overflow:inherit" href="#"
                     onclick="javascript:
-                        $.userLookup('ajax.php/users/select/<?php echo $user->getId(); ?>',
+                        $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
                             function(user) {
                                 $('input#uid').val(user.id);
                                 $('#client-name').html(user.name);
@@ -38,7 +39,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         });
                         return false;
                 "><i class="icon-edit"></i> Change</a>
-                <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
             </div>
         </td></tr>
         <?php
