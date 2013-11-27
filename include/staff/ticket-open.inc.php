@@ -34,7 +34,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
                             function(user) {
                                 $('input#uid').val(user.id);
-                                $('#client-name').html(user.name);
+                                $('#client-name').text(user.name);
                                 $('#client-email').text('<'+user.email+'>');
                         });
                         return false;

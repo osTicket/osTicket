@@ -32,8 +32,8 @@ if ($_POST)
                     $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/change-user',
                             function(user) {
                                 $('input#user_id').val(user.id);
-                                $('#client-name').html(user.name);
-                                $('#client-email').html('&lt;'+user.email+'&gt;');
+                                $('#client-name').text(user.name);
+                                $('#client-email').text('<'+user.email+'>');
                     });
                     return false;
                 "><i class="icon-edit"></i> Change</a>
