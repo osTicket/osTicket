@@ -35,8 +35,8 @@ class UsersAjaxAPI extends AjaxController {
         $sql='SELECT DISTINCT user.id, email.address, name '
             .' FROM '.USER_TABLE.' user '
             .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
-            .' JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
-               JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
+            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
+               LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
             .' WHERE email.address LIKE \'%'.$escaped.'%\'
                OR user.name LIKE \'%'.$escaped.'%\'
                OR value.value LIKE \'%'.$escaped.'%\'
