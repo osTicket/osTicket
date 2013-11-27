@@ -98,10 +98,12 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td>Reopened Tickets:</td>
+            <td>Claim Tickets:</td>
             <td>
-                <input type="checkbox" name="auto_assign_reopened_tickets" <?php echo $config['auto_assign_reopened_tickets']?'checked="checked"':''; ?>>
-                Auto-assign reopened tickets to the last available respondent.
+                <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
+                Auto-assign unassigned tickets on response
+                <!-- Help Tip:
+                     Reopened tickets are always assigned to the last respondent -->
             </td>
         </tr>
         <tr>

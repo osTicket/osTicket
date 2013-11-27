@@ -147,6 +147,7 @@ class OsticketConfig extends Config {
         'allow_online_attachments' => true,
         'allow_online_attachments_onlogin' => false,
         'name_format' =>        'full', # First Last
+        'auto_claim_tickets'=>  true,
     );
 
     function OsticketConfig($section=null) {
@@ -651,8 +652,8 @@ class OsticketConfig extends Config {
         return ($this->get('overdue_alert_dept_members'));
     }
 
-    function autoAssignReopenedTickets() {
-        return ($this->get('auto_assign_reopened_tickets'));
+    function autoClaimTickets() {
+        return $this->get('auto_claim_tickets');
     }
 
     function showAssignedTickets() {
