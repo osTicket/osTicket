@@ -73,7 +73,7 @@ field_variable:
         <strong>variable</strong> is the name used in this column.<br>
         <br>
         <em>Company information is available via
-        <code>%{company.variable}</code> and user information is available
+        <code>%{</code><code>company.variable}</code> and user information is available
         via <code>%{ticket.user.variable}</code></em>
 
 field_delete:

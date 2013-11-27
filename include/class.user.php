@@ -192,7 +192,7 @@ class User extends UserModel {
             if (!$cd->isValid())
                 $valid = false;
             if ($cd->get('type') == 'U'
-                        && ($form= $cd->getForm($data))
+                        && ($form= $cd->getForm($vars))
                         && ($f=$form->getField('email'))
                         && $f->getClean()
                         && ($u=User::lookup(array('emails__address'=>$f->getClean())))
