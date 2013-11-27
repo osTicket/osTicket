@@ -76,30 +76,44 @@ class User extends UserModel {
             $this->default_email = UserEmail::lookup($ht['default_email_id']);
     }
 
-    static function fromForm($data=false) {
+    static function fromVars($vars) {
         // Try and lookup by email address
-        $user = User::lookup(array('emails__address'=>$data['email']));
+        $user = User::lookup(array('emails__address'=>$vars['email']));
         if (!$user) {
             $user = User::create(array(
-                'name'=>$data['name'],
+                'name'=>$vars['name'],
                 'created'=>new SqlFunction('NOW'),
                 'updated'=>new SqlFunction('NOW'),
                 'default_email'=>
-                    UserEmail::create(array('address'=>$data['email']))
+                    UserEmail::create(array('address'=>$vars['email']))
             ));
             $user->save(true);
             $user->emails->add($user->default_email);
-
             // Attach initial custom fields
-            $uf = UserForm::getInstance();
-            foreach ($uf->getFields() as $f)
-                if (isset($data[$f->get('name')]))
-                    $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
-            $uf->setClientId($user->id);
-            $uf->save();
+            $user->addDynamicData($vars);
         }
 
         return $user;
+    }
+
+    static function fromForm($form) {
+
+        if(!$form) return null;
+
+        //Validate the form
+        $valid = true;
+        if (!$form->isValid())
+            $valid  = false;
+
+        //Make sure the email is not in-use
+        if (($field=$form->getField('email'))
+                && $field->getClean()
+                && User::lookup(array('emails__address'=>$field->getClean()))) {
+            $field->addError('Email is assigned to another user');
+            $valid = false;
+        }
+
+        return $valid ? self::fromVars($form->getClean()) : null;
     }
 
     function getEmail() {
@@ -146,6 +160,18 @@ class User extends UserModel {
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))
                 return $a;
+    }
+
+    function addDynamicData($data) {
+
+        $uf = UserForm::getInstance();
+        $uf->setClientId($this->id);
+        foreach ($uf->getFields() as $f)
+            if (isset($data[$f->get('name')]))
+                $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
+        $uf->save();
+
+        return $uf;
     }
 
     function getDynamicData() {
@@ -341,6 +367,10 @@ class PersonsName {
         return $this->name;
     }
 
+    function getName() {
+        return $this;
+    }
+
     function asVar() {
         return $this->__toString();
     }
@@ -421,3 +451,5 @@ class UserEmail extends UserEmailModel {
         return $email;
     }
 }
+
+?>

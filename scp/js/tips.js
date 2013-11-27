@@ -93,7 +93,6 @@ jQuery(function() {
             tip_timer = setTimeout(function() {
                 $('.tip_box').remove();
                 $('body').append(the_tip.hide().fadeIn());
-                console.log($(window).width(), tip_content.width(), the_tip.position())
                 if ($(window).width() < tip_content.outerWidth() + the_tip.position().left) {
                     the_tip.css({'left':x_pos-tip_content.outerWidth()-40+'px'});
                     tip_box.addClass('right');

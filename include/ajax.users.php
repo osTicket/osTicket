@@ -66,21 +66,9 @@ class UsersAjaxAPI extends AjaxController {
 
     function addUser() {
 
-        $valid = true;
         $form = UserForm::getUserForm()->getForm($_POST);
-        if (!$form->isValid())
-            $valid  = false;
-
-        if (($field=$form->getField('email'))
-                && $field->getClean()
-                && User::lookup(array('emails__address'=>$field->getClean()))) {
-            $field->addError('Email is assigned to another user');
-            $valid = false;
-        }
-
-        if ($valid && ($user = User::fromForm($form->getClean())))
+        if (($user = User::fromForm($form)))
             Http::response(201, $user->to_json());
-
 
         $info = array('error' =>'Error adding user - try again!');
 

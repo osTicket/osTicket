@@ -399,13 +399,13 @@ $(document).ready(function(){
            });
      });
 
-    $.userLookup = function (url, callback) {
+    $.dialog = function (url, code, cb) {
 
         $('.dialog#popup .body').load(url, function () {
             $('#overlay').show();
             $('.dialog#popup').show();
-            $(document).off('.user');
-            $(document).on('submit.user', '.dialog#popup form.user',function(e) {
+            $(document).off('.dialog');
+            $(document).on('submit.dialog', '.dialog#popup form', function(e) {
                 e.preventDefault();
                 var $form = $(this);
                 var $dialog = $form.closest('.dialog');
@@ -415,12 +415,11 @@ $(document).ready(function(){
                     data: $form.serialize(),
                     cache: false,
                     success: function(resp, status, xhr) {
-                        if (xhr && xhr.status == 201) {
-                            var user = $.parseJSON(xhr.responseText);
+                        if (xhr && xhr.status == code) {
                             $('div.body', $dialog).empty();
                             $dialog.hide();
                             $('#overlay').hide();
-                            if(callback) callback(user);
+                            if(cb) cb(xhr.responseText);
                         } else {
                             $('div.body', $dialog).html(resp);
                             $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
@@ -433,6 +432,13 @@ $(document).ready(function(){
             });
          });
      };
+
+    $.userLookup = function (url, cb) {
+        $.dialog(url, 201, function (resp) {
+            var user = $.parseJSON(resp);
+            if(cb) cb(user);
+        });
+    };
 
     $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {

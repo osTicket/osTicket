@@ -405,20 +405,55 @@ $tcount+= $ticket->getNumNotes();
         <input type="hidden" name="a" value="reply">
         <span class="error"></span>
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+           <tbody id="to_sec">
             <tr>
                 <td width="120">
                     <label><strong>TO:</strong></label>
                 </td>
                 <td>
                     <?php
-                    echo sprintf('<span id="user-to-name">%s</span> <em>&lt;<span id="user-to-email">%s</span>&gt;</em>',
-                                $ticket->getName(), $ticket->getReplyToEmail());
+                    $to =sprintf('%s &lt;%s&gt;', $ticket->getName(), $ticket->getReplyToEmail());
+                    $emailReply = (!isset($info['emailreply']) || $info['emailreply']);
                     ?>
-                    &nbsp;&nbsp;&nbsp;
-                    <label><input type='checkbox' value='1' name="emailreply" id="remailreply"
-                        <?php echo ((!$info['emailreply'] && !$errors) || isset($info['emailreply']))?'checked="checked"':''; ?>> Email Reply</label>
+                    <select id="emailreply" name="emailreply">
+                        <option value="1" <?php echo $emailReply ?  'selected="selected"' : ''; ?>><?php echo $to; ?></option>
+                        <option value="0" <?php echo !$emailReply ? 'selected="selected"' : ''; ?>
+                            >&mdash;Do Not Email Reply&mdash;</option>
+                    </select>
                 </td>
             </tr>
+            </tbody>
+            <?php
+            if(1) { //Make CC optional feature? NO, for now.
+                ?>
+            <tbody id="cc_sec" style="display:<?php echo $emailReply?
+            'table-row-group':'none'; ?>;">
+            <tr>
+                <td width="120">
+                    <label><strong>CC:</strong></label>
+                </td>
+                <td>
+                    <?php
+                    if($ticket->getNumCollaborators()) { ?>
+                        <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                            <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>>
+                       <?php
+                        echo sprintf('<a class="collaborators"
+                                href="#tickets/%d/collaborators/manage">Collaborators (%d)</a>',
+                                $ticket->getId(),
+                                $ticket->getNumCollaborators());
+                    } else {
+                        echo sprintf('<div><a class="collaborators"
+                                href="#tickets/%d/collaborators/manage" >Add Collaborators</a></div>',
+                                $ticket->getId());
+                    }
+                   ?>
+                </td>
+            </tr>
+            </tbody>
+            <?php
+            } ?>
+            <tbody id="resp_sec">
             <?php
             if($errors['response']) {?>
             <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['response']; ?>&nbsp;</td></tr>
@@ -518,7 +553,7 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <?php
             } ?>
-            </div>
+         </tbody>
         </table>
         <p  style="padding-left:165px;">
             <input class="btn_sm" type="submit" value="Post Reply">

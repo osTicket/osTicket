@@ -10,7 +10,7 @@ if ($info['error']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
 <div id="selected-user-info" style="display:<?php echo $user ? 'block' :'none'; ?>;margin:5px;">
-<form method="get" class="user" action="#users/lookup">
+<form method="post" class="user" action="<?php echo $info['action'] ?  $info['action'] : '#users/lookup'; ?>">
     <input type="hidden" id="user-id" name="id" value="<?php echo $user ? $user->getId() : 0; ?>"/>
     <i class="icon-user icon-4x pull-left icon-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
@@ -30,7 +30,7 @@ if ($info['error']) {
 </form>
 </div>
 <div id="new-user-form" style="display:<?php echo $user ? 'none' :'block'; ?>;">
-<form method="post" class="user" action="#users/lookup/form">
+<form method="post" class="user" action="<?php echo $info['action'] ?  $info['action'] : '#users/lookup/form'; ?>">
     <table width="100%">
     <?php
         if(!$form) $form = UserForm::getInstance();
