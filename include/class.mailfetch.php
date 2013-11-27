@@ -290,10 +290,10 @@ class MailFetcher {
         if($headerinfo->cc)
             $tolist = array_merge($tolist, $headerinfo->cc);
 
-        $header['collaborators'] = array();
+        $header['recipients'] = array();
         foreach($tolist as $addr) {
             if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
-                $header['collaborators'][] = array(
+                $header['recipients'][] = array(
                         'name' => $this->mime_decode(@$addr->personal),
                         'email' => strtolower($addr->mailbox).'@'.$addr->host);
             } elseif(!$header['emailId']) {
@@ -303,12 +303,12 @@ class MailFetcher {
 
         //BCCed?
         if(!$header['emailId']) {
-            unset($header['collaborators']); //Nuke the recipients - we were bcced
-            if($headerinfo->bcc)
+            unset($header['recipients']); //Nuke the recipients - we were bcced
+            if ($headerinfo->bcc) {
                 foreach($headerinfo->bcc as $addr)
-                    if(!$header['emailId']
-                            && ($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
-                        $header['emailId'] = $emailId;
+                    if (($header['emailId'] = Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
+                        break;
+            }
         }
 
         // Ensure we have a message-id. If unable to read it out of the

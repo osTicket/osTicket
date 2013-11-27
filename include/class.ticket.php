@@ -1456,6 +1456,13 @@ class Ticket {
 
         $this->setLastMsgId($message->getId());
 
+        //Add email recipients as collaborators
+        if($vars['recipients']) {
+            foreach($vars['recipients'] as $recipient)
+                if(($user=User::fromVars($recipient)))
+                    $this->addCollaborator($user, $errors);
+        }
+
         if(!$alerts) return $message; //Our work is done...
 
         $autorespond = true;

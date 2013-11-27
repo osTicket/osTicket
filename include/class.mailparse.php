@@ -386,7 +386,7 @@ class EmailDataParser {
 
         //TO Address:Try to figure out the email address... associated with the incoming email.
         $data['emailId'] = 0;
-        $data['collaborators'] = array();
+        $data['recipients'] = array();
         $tolist = array();
         if(($to = $parser->getToAddressList()))
             $tolist = array_merge($tolist, $to);
@@ -396,7 +396,7 @@ class EmailDataParser {
 
         foreach ($tolist as $addr) {
             if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
-                $data['collaborators'][] = array(
+                $data['recipients'][] = array(
                           'name' => trim(@$addr->personal, '"'),
                           'email' => strtolower($addr->mailbox).'@'.$addr->host);
             } elseif(!$data['emailId']) {
@@ -406,7 +406,7 @@ class EmailDataParser {
 
         //maybe we got BCC'ed??
         if(!$data['emailId']) {
-            unset($data['collaborators']);
+            unset($data['recipients']);
             $emailId =  0;
             if($bcc = $parser->getBccAddressList())
                 foreach ($bcc as $addr) {

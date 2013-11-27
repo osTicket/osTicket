@@ -457,34 +457,23 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
-        //If not a post then assume new collaborator form
-        if(!$_POST)
-            return self::_addcollaborator($ticket);
-
-        $user = $form = null;
-        if (isset($_POST['id']) && $_POST['id']) { //Existing user/
-            $user =  User::lookup($_POST['id']);
-        } else { //We're creating a new user!
-            $form = UserForm::getUserForm()->getForm($_POST);
-            $user = User::fromForm($form);
-        }
-
         $errors = $info = array();
+        $user = null;
+        $form = UserForm::getInstance();
+        if ($form->isValid())
+            $user = User::fromForm($form->getClean());
+
         if ($user && ($c=$ticket->addCollaborator($user, $errors))) {
-            $info =array('msg' => sprintf('%s added as a collaborator',
+            $info +=array('msg' => sprintf('%s added as a collaborator',
                         $c->getName()));
-
-            return self::_collaborators($ticket, $info);
-        }
-
-        if($errors && $errors['err']) {
-            $info +=array('error' => $errors['err']);
+            $form = null;
+        } elseif($errors && $errors['err']) {
+            $info +=array('add_error' => $errors['err']);
         } else {
-            $info +=array('error' =>'Unable to add collaborator - try again');
+            $info +=array('add_error' =>'Errors occurred - try again');
         }
 
-
-        return self::_addcollaborator($ticket, $user, $form, $info);
+        return self::_collaborators($ticket, $form, $info);
     }
 
     function updateCollaborator($cid) {
@@ -504,7 +493,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info = array('msg' => sprintf('%s updated successfully',
                     $c->getName()));
 
-        return self::_collaborators($ticket, $info);
+        return self::_collaborators($ticket, null, $info);
     }
 
     function viewCollaborator($cid) {
@@ -525,22 +514,7 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
-        if($ticket->getCollaborators())
-            return self::_collaborators($ticket);
-
-        return self::_addcollaborator($ticket);
-    }
-
-
-
-    function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
-
-        $info += array(
-                    'title' => sprintf('Ticket #%s: Add a collaborator', $ticket->getNumber()),
-                    'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId())
-                    );
-
-        return self::_userlookup($user, $form, $info);
+        return self::_collaborators($ticket);
     }
 
 
@@ -558,26 +532,22 @@ class TicketsAjaxAPI extends AjaxController {
             $info +=array('error' => $errors['err']);
         }
 
-        return self::_collaborators($ticket, $info);
+        return self::_collaborators($ticket, null, $info);
     }
 
 
 
-    function _collaborator($collaborator, $form=null, $info=array()) {
-
-        $info += array('action' => '#collaborators/'.$collaborator->getId());
-
-        $user = $collaborator->getUser();
+    function _collaborator($collaborator, $form=null, $errors=array()) {
 
         ob_start();
-        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+        include(STAFFINC_DIR . 'templates/collaborator.tmpl.php');
         $resp = ob_get_contents();
         ob_end_clean();
 
         return $resp;
     }
 
-    function _collaborators($ticket, $info=array()) {
+    function _collaborators($ticket, $form=null, $info=array()) {
 
         ob_start();
         include(STAFFINC_DIR . 'templates/collaborators.tmpl.php');
@@ -586,86 +556,5 @@ class TicketsAjaxAPI extends AjaxController {
 
         return $resp;
     }
-
-    function viewUser($tid) {
-        global $thisstaff;
-
-        if(!$thisstaff
-                || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
-            Http::response(404, 'No such ticket');
-
-
-        if(!($user = $ticket->getOwner()))
-            Http::response(404, 'Unknown user');
-
-
-        $info = array(
-                'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(), $user->getName())
-                );
-
-        ob_start();
-        include(STAFFINC_DIR . 'templates/user.tmpl.php');
-        $resp = ob_get_contents();
-        ob_end_clean();
-        return $resp;
-
-    }
-
-    function updateUser($tid) {
-
-        global $thisstaff;
-
-        if(!$thisstaff
-                || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff)
-                || ! ($user = $ticket->getOwner()))
-            Http::response(404, 'No such ticket/user');
-
-        $errors = array();
-        if($user->updateInfo($_POST, $errors))
-             Http::response(201, $user->to_json());
-
-        $forms = $user->getForms();
-
-        $info = array(
-                'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(), $user->getName())
-                );
-
-        ob_start();
-        include(STAFFINC_DIR . 'templates/user.tmpl.php');
-        $resp = ob_get_contents();
-        ob_end_clean();
-        return $resp;
-    }
-
-    function changeUserForm($tid) {
-        global $thisstaff;
-
-        if(!$thisstaff
-                || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
-            Http::response(404, 'No such ticket');
-
-
-        $user = $ticket->getOwner();
-
-        $info = array(
-                'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
-                );
-
-        return self::_userlookup($user, $info);
-    }
-
-    function _userlookup($user, $form, $info) {
-
-        ob_start();
-        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
-        $resp = ob_get_contents();
-        ob_end_clean();
-        return $resp;
-
-    }
-
 }
 ?>
