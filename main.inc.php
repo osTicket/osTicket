@@ -140,7 +140,6 @@
 
     #CURRENT EXECUTING SCRIPT.
     define('THISPAGE', Misc::currentURL());
-    define('THISURI', $_SERVER['REQUEST_URI']);
 
     # This is to support old installations. with no secret salt.
     if(!defined('SECRET_SALT')) define('SECRET_SALT',md5(TABLE_PREFIX.ADMIN_EMAIL));
