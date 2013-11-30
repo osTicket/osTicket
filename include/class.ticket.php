@@ -1797,52 +1797,55 @@ class Ticket {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
-        $where = '1 = 1';
+        $where = array();
+        $where2 = '';
 
         if(($teams=$staff->getTeams()))
-            $where .=' OR ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
+            $where[] = 'ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
 
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
-            $where .=' OR ticket.dept_id IN('.implode(',', db_input($depts)).') ';
+            $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
             $where2 =' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($staff->getId()).') ';
+        $where = implode(' OR ', $where);
+        if ($where) $where = 'AND ( '.$where.' ) ';
 
         $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'WHERE ticket.status = \'open\' '
                 .'AND ticket.isanswered =0 '
-                .'AND ( ' . $where . ' ) ' . $where2 . ' '
+                . $where . $where2
 
                 .'UNION SELECT \'answered\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'WHERE ticket.status = \'open\' '
                 .'AND ticket.isanswered =1 '
-                .'AND ( ' . $where . ' ) '
+                . $where
 
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'WHERE ticket.status = \'open\' '
                 .'AND ticket.isoverdue =1 '
-                .'AND ( ' . $where . ' ) '
+                . $where
 
                 .'UNION SELECT \'assigned\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'WHERE ticket.status = \'open\' '
                 .'AND ticket.staff_id = ' . db_input($staff->getId()) . ' '
-                .'AND ( ' . $where . ' ) '
+                . $where
 
                 .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'WHERE ticket.status = \'closed\' '
-                .'AND ( ' . $where . ' ) ';
+                . $where;
 
         $res = db_query($sql);
-        $returnArray = array();
+        $stats = array();
         while($row = db_fetch_row($res)) {
-            $returnArray[$row[0]] = $row[1];
+            $stats[$row[0]] = $row[1];
         }
-        return $returnArray;
+        return $stats;
     }
 
     /* Quick client's tickets stats
