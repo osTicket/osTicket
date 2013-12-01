@@ -191,24 +191,15 @@ class FuzzyHash {
         $hashes = array();
         foreach ($this->hashes as $info)
             $hashes[] = $info[0];
-        return implode(':', $hashes);
+        return implode('', $hashes);
+    }
+    function __toString() {
+        return $this->toString();
     }
 
-    /**
-     * Use the digest (string value) from another fuzzy hash to remove data
-     * from the original text used to create this hash.
-     *
-     * Parameters:
-     * $other - (string) digest value from a FuzzyHash object. @see
-     *      ::toString()
-     * $window - (int|default:0) number of sections to keep from a removed
-     *      section preceeding a kept section. In other words, if text is to
-     *      be removed between two kept sections, keep this number of blocks
-     *      at the end of the section to-be-removed.
-     */
-    function remove($other, $window=0) {
+    function getSlices($other) {
         $cleaned = array();
-        $foreign = explode(':', $other);
+        $foreign = str_split($other, 4);
         foreach ($this->hashes as $info) {
             list($h, list(, $start)) = $info;
             if (isset($current))
@@ -237,6 +228,40 @@ class FuzzyHash {
             }
         }
         $cleaned[] = $current;
+        return $cleaned;
+    }
+
+    function getScore($other) {
+        $slices = $this->getSlices($other);
+        $matched = 0;
+
+        // For now, we will define the score as the characters matched
+        // divided by the total length of the text.
+        foreach ($slices as $s) {
+            if (isset($s['keep']) && $s['keep']) {
+                if ($s['stops'])
+                    $matched += array_pop($s['stops']) - $s['start'];
+                else
+                    $matched += strlen($this->original) - $s['start'];
+            }
+        }
+        return 1 - ($matched / strlen($this->original));
+    }
+
+    /**
+     * Use the digest (string value) from another fuzzy hash to remove data
+     * from the original text used to create this hash.
+     *
+     * Parameters:
+     * $other - (string) digest value from a FuzzyHash object. @see
+     *      ::toString()
+     * $window - (int|default:0) number of sections to keep from a removed
+     *      section preceeding a kept section. In other words, if text is to
+     *      be removed between two kept sections, keep this number of blocks
+     *      at the end of the section to-be-removed.
+     */
+    function remove($other, $window=0) {
+        $cleaned = $this->getSlices($other);
         // Copy the original text to the cleaned
         $output = '';
         foreach ($cleaned as $c) {
@@ -254,6 +279,73 @@ class FuzzyHash {
                 $output .= substr($this->original, $c['start']);
         }
         return $output;
+    }
+}
+
+/*
+ * Extends the fuzzy hash by creating several different types of FuzzyHash
+ * instances (by breaking the text in different ways). In doing so, the text
+ * can be auto-sensed as text or html (with help for faster processing).
+ *
+ * When this object is converted to a string, all the fuzzy hashes are
+ * represented, so the returned, modified text can be automatically tested
+ * against all fuzzy hashes and match methods to automatically detect the
+ * best match.
+ */
+class SmartFuzzyHash {
+    var $hashes = array();
+
+    # Filter through htmLawed
+    const SCRUB_SAFE_HTML = 1;
+    # Remove auto links like <a href="text">text</a>
+    const SCRUB_AUTO_LINKS = 2;
+
+    function addText($text) {
+        $this->hashes[] = FuzzyHash::fromText($text);
+    }
+
+    function addHtml($html, $scrubMask=-1) {
+        if ($scrubMask & self::SCRUB_SAFE_HTML)
+            $html = Format::safe_html($html);
+
+        $this->hashes[] = FuzzyHash::fromHtml($html);
+
+        // Some mail clients will turn things that look like links into
+        // links. This can cause mismatches and can be easily undone
+        if ($scrubMask & self::SCRUB_AUTO_LINKS) {
+            $T = preg_replace(
+                '`<a href="(mailto:|https?://)?((https?://)?[^"]+)">\2</a>`',
+                '$2', $html);
+            $this->hashes[] = FuzzyHash::fromHtml($T);
+        }
+    }
+
+    static function fromString($repr) {
+    }
+
+    function remove($other, $typeHint=false) {
+        $scores = array();
+        foreach (explode(',', $other) as $l)
+            foreach ($this->hashes as $h)
+                $scores[] = array($h->getScore($l), $h, $l);
+
+        usort($scores, function($a,$b) { return $a[0] - $b[0]; });
+        $best = array_shift($scores);
+
+        $cleaned = $best[1]->remove($best[2]);
+        return $this->clean($cleaned);
+    }
+
+    function clean($what) {
+        // TODO: Get type hint from best score
+        // Sanitize
+        $cleaned = Format::safe_html($what);
+        // Remove trailing breaks
+        $cleaned = preg_replace(
+            array('`<br ?/?>$`', '`<div[^>]*><br ?/?></div>$`'),
+            array('',''),
+            rtrim($cleaned));
+        return $cleaned;
     }
 }
 
