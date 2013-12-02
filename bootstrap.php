@@ -294,7 +294,6 @@ Bootstrap::init();
 
 #CURRENT EXECUTING SCRIPT.
 define('THISPAGE', Misc::currentURL());
-define('THISURI', $_SERVER['REQUEST_URI']);
 
 define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
 define('DEFAULT_PRIORITY_ID',1);
