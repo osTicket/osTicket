@@ -546,6 +546,17 @@ a.print {
     border-bottom:1px solid #ddd;
 }
 
+.form_table.fixed {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+}
+.form_table.fixed td {
+    width: 180px;
+}
+.form_table.fixed td + td {
+    width: auto;
+}
 
 td.multi-line {
     vertical-align:top;
@@ -902,8 +913,8 @@ h2 .reload {
     border-top:none;
 }
 
-#response_options > table {
-    width:928px;
+#response_options > form > table {
+    table-layout: fixed;
 }
 
 #response_options > table td {

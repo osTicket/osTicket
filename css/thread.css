@@ -455,6 +455,7 @@ table.thread-entry {
 .image-hover {
     display: inline-block;
     position: relative;
+    max-width: 100%; /* Ensure image hovered is resized */
 }
 .image-hover .caption {
     background-color: rgba(0,0,0,0.5);
