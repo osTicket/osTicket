@@ -297,16 +297,6 @@ class Ticket {
         return '';
     }
 
-    function getPhone() {
-        list($phone, $ext) = $this->getPhoneNumber();
-        return $phone;
-    }
-
-    function getPhoneExt() {
-        list($phone, $ext) = $this->getPhoneNumber();
-        return $ext;
-    }
-
     function getPhoneNumber() {
         return (string)$this->getOwner()->getPhoneNumber();
     }
@@ -1060,6 +1050,7 @@ class Ticket {
             return call_user_func(array($this, 'get'.ucfirst($tag)));
 
         switch(strtolower($tag)) {
+            case 'phone':
             case 'phone_number':
                 return $this->getPhoneNumber();
                 break;
