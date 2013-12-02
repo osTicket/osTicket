@@ -179,12 +179,16 @@ class FuzzyHash {
                 $bucket = array(trim($s[0]), $s[1]);
             // Ensure that bucket meets minimum length
             if (strlen($bucket[0]) < $length) continue;
-            $hash = base64_encode(substr(md5($bucket[0], true), -$length));
+            $hash = self::hash($bucket[0]);
             $fuzzy->hashes[] = array($hash, $bucket);
             unset($bucket);
         }
         $fuzzy->original = $text;
         return $fuzzy;
+    }
+
+    function hash($what, $length=3) {
+        return base64_encode(substr(md5($what, true), -$length));
     }
 
     function toString() {
@@ -200,24 +204,36 @@ class FuzzyHash {
     function getSlices($other) {
         $cleaned = array();
         $foreign = str_split($other, 4);
-        foreach ($this->hashes as $info) {
-            list($h, list(, $start)) = $info;
+        for ($i=0, $k=count($this->hashes); $i<$k; $i++) {
+            list($h, list($text, $start)) = $this->hashes[$i];
             if (isset($current))
                 $current['stops'][] = $start;
             if (in_array($h, $foreign)) {
+second_chance:
                 // This hash is in the list (match). Set the stop point at
                 // the first char of the first unwanted block
                 if (!isset($current) || isset($current['keep'])) {
                     if (isset($current))
                         $cleaned[] = $current;
                     $current = array('start'=>$start, 'stops'=>array(),
-                        'drop'=>true);
+                        'drop'=>true, 'text'=>$text);
                 }
                 // Drop all hashes between the current location and the
                 // matched hash from the foreign list
                 while (array_shift($foreign) != $h);
             }
             else {
+                // Last chance check. See if adding the next hash bucket
+                // content to this buck would help make a match
+                if (isset($this->hashes[$i+1])) {
+                    list(,list($text2, $start)) = $this->hashes[$i+1];
+                    $h = $this->hash($text . $text2);
+                    if (in_array($h, $foreign)) {
+                        $i++;
+                        $current['stops'][] = $start;
+                        goto second_chance;
+                    }
+                }
                 // No match. This block was not in the original text
                 if (!isset($current) || isset($current['drop'])) {
                     if (isset($current))
@@ -282,6 +298,156 @@ class FuzzyHash {
     }
 }
 
+class HtmlFuzzyHash extends FuzzyHash {
+    var $dom;
+
+    function getTextNodes($node, &$texts=array()) {
+        if ($node->nodeType == XML_TEXT_NODE) {
+            $texts[] = $node;
+        }
+        elseif ($node->hasChildNodes()) {
+            foreach ($node->childNodes as $n)
+                $this->getTextNodes($n, $texts);
+        }
+    }
+
+    function getChunks($html='', $length=8) {
+        if ($this->hashes)
+            return $this->hashes;
+
+        // Find text segments
+        $xpath = new DOMXPath($this->doc);
+        $small = $length >> 1;
+        $bucket = false;
+        //foreach ($xpath->query('//text()') as $node) {
+        $nodes = array();
+        $this->getTextNodes($this->doc, $nodes);
+        foreach ($nodes as $i=>$node) {
+            // Gather multiple adjancent text nodes together if necessary
+            // to ensure that bucket meets minimum length
+            $text = trim($node->wholeText);
+            if (!$text)
+                continue;
+            elseif ($bucket && strlen($text) < $small) {
+                // Redo previous bucket
+                if (strlen($bucket[0]) >= $length)
+                    $redo = array_pop($this->hashes);
+                $bucket[0] .= $text;
+                $bucket[1][] = $node;
+            }
+            elseif ($bucket && strlen($bucket[0]) < $length) {
+                $bucket[0] .= $text;
+                $bucket[1][] = $node;
+            }
+            else
+                $bucket = array($text, array($node));
+
+            if (strlen($bucket[0]) < $length)
+                continue;
+
+            $hash = $this->hash($bucket[0]);
+            //print("$hash => {$bucket[0]}\n");
+            $this->hashes[] = array($hash, $bucket);
+        }
+        return $this->hashes;
+    }
+
+    function _remove($node) {
+        if (is_array($node)) {
+            foreach ($node as $n)
+                $this->_remove($n);
+        }
+        else {
+            $p = $node->parentNode;
+
+            // Drop neighboring <br/> elements
+            $drop = array('img'=>1, 'br'=>1, 'hr'=>1);
+            if ($node->previousSibling) {
+                if (isset($drop[$node->previousSibling->nodeName]))
+                    $p->removeChild($node->previousSibling);
+            }
+            $next = $node->nextSibling;
+            while ($next) {
+                $current = $next;
+                $next = $current->nextSibling;
+                if (isset($drop[$current->nodeName])
+                        // Whitespace DOMText node
+                        || ($current->nodeType == XML_TEXT_NODE && !trim($current->wholeText))) {
+                    $p->removeChild($current);
+                }
+                else
+                    break;
+            }
+            // Drop the text content
+            $p->removeChild($node);
+
+            // Drop elements without any text content
+            while (!trim($p->textContent)) {
+                foreach ($p->childNodes as $n)
+                    $p->removeChild($n);
+                $p = $p->parentNode;
+            }
+        }
+    }
+
+    function remove($other, $window=0) {
+        $cleaned = $this->getSlices($other);
+        // Copy the original text to the cleaned
+        $output = '';
+        foreach ($cleaned as $c) {
+            if (isset($c['drop']) && $c['drop']) {
+                if ($n = $c['start'])
+                    $this->_remove($n);
+                if (isset($c['stops'])) {
+                    // The last stop and the next start will always overlap
+                    array_pop($c['stops']);
+                    $this->_remove($c['stops']);
+                }
+            }
+        }
+
+        // Remove empty nodes
+        $xpath = new DOMXPath($this->doc);
+        static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
+            'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
+        do {
+            $done = true;
+            $nodes = $xpath->query('//*[not(text()) and not(node())]');
+            foreach ($nodes as $n) {
+                if (isset($eE[$n->nodeName]))
+                    continue;
+                $n->parentNode->removeChild($n);
+                $done = false;
+            }
+        } while (!$done);
+
+        return Format::safe_html($this->doc->saveHTML());
+    }
+
+    static function fromHtml($html) {
+        if (!extension_loaded('xml'))
+            return parent::fromHtml($html);
+
+        $fuzzy = new HtmlFuzzyHash();
+        $fuzzy->doc = new DOMDocument('1.0', 'utf-8');
+        $fuzzy->original = $html;
+        if (strpos($html, '<?xml ') === false)
+            $html = '<?xml encoding="utf-8"?>'.$html; # <?php (4vim)
+        if (!@$fuzzy->doc->loadHTML($html))
+            return false;
+
+        foreach ($fuzzy->doc->childNodes as $item) {
+            if ($item->nodeType == XML_PI_NODE) {
+                $fuzzy->doc->removeChild($item); // remove hack
+                break;
+            }
+        }
+
+        $fuzzy->getChunks();
+        return $fuzzy;
+    }
+}
+
 /*
  * Extends the fuzzy hash by creating several different types of FuzzyHash
  * instances (by breaking the text in different ways). In doing so, the text
@@ -309,6 +475,11 @@ class SmartFuzzyHash {
             $html = Format::safe_html($html);
 
         $this->hashes[] = FuzzyHash::fromHtml($html);
+
+        // XXX: This is confusing the engine that will create the source
+        // hashes and the engine that will strip the original content from
+        // the reply. The scrubbing below only needs to be done on the
+        // latter. Otherwise, unnecessary storage will be consumed
 
         // Some mail clients will turn things that look like links into
         // links. This can cause mismatches and can be easily undone
