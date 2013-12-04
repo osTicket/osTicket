@@ -115,7 +115,7 @@ mkdir("$stage_path/scripts/");
 package("setup/scripts/*", "scripts/", -1, "*stage");
 
 # Load the heart of the system
-package("include/{,.}*", "upload/include", -1, array('*ost-config.php', '*.sw[a-z]'));
+package("include/{,.}*", "upload/include", -1, array('*ost-config.php', '*.sw[a-z]','plugins/*'));
 
 # Include the installer
 package("setup/*.{php,txt,html}", "upload/setup", -1, array("*scripts","*test","*stage"));

@@ -345,6 +345,26 @@ $(document).ready(function(){
         },
         property: "email"
     });
+    $('.staff-username.typeahead').typeahead({
+        source: function (typeahead, query) {
+            if(query.length > 2) {
+                $.ajax({
+                    url: "ajax.php/users/staff?q="+query,
+                    dataType: 'json',
+                    success: function (data) {
+                        typeahead.process(data);
+                    }
+                });
+            }
+        },
+        onselect: function (obj) {
+            var fObj=$('.staff-username.typeahead').closest('form');
+            $.each(['first','last','email','phone','mobile'], function(i,k) {
+                if (obj[k]) $('.auto.'+k, fObj).val(obj[k]);
+            });
+        },
+        property: "username"
+    });
 
     //Overlay
     $('#overlay').css({
@@ -399,13 +419,13 @@ $(document).ready(function(){
            });
      });
 
-    $.userLookup = function (url, callback) {
+    $.dialog = function (url, code, cb) {
 
         $('.dialog#popup .body').load(url, function () {
             $('#overlay').show();
             $('.dialog#popup').show();
-            $(document).off('.user');
-            $(document).on('submit.user', '.dialog#popup form.user',function(e) {
+            $(document).off('.dialog');
+            $(document).on('submit.dialog', '.dialog#popup form', function(e) {
                 e.preventDefault();
                 var $form = $(this);
                 var $dialog = $form.closest('.dialog');
@@ -415,12 +435,11 @@ $(document).ready(function(){
                     data: $form.serialize(),
                     cache: false,
                     success: function(resp, status, xhr) {
-                        if (xhr && xhr.status == 201) {
-                            var user = $.parseJSON(xhr.responseText);
+                        if (xhr && xhr.status == code) {
                             $('div.body', $dialog).empty();
                             $dialog.hide();
                             $('#overlay').hide();
-                            if(callback) callback(user);
+                            if(cb) cb(xhr.responseText);
                         } else {
                             $('div.body', $dialog).html(resp);
                             $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
@@ -433,6 +452,13 @@ $(document).ready(function(){
             });
          });
      };
+
+    $.userLookup = function (url, cb) {
+        $.dialog(url, 201, function (resp) {
+            var user = $.parseJSON(resp);
+            if(cb) cb(user);
+        });
+    };
 
     $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {

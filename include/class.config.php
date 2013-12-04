@@ -14,8 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once(INCLUDE_DIR.'class.email.php');
-
 class Config {
     var $config = array();
 
@@ -105,7 +103,9 @@ class Config {
     }
 
     function update($key, $value) {
-        if (!isset($this->config[$key]))
+        if (!$key)
+            return false;
+        elseif (!isset($this->config[$key]))
             return $this->create($key, $value);
 
         $setting = &$this->config[$key];
@@ -352,14 +352,13 @@ class OsticketConfig extends Config {
     function getDefaultEmail() {
 
         if(!$this->defaultEmail && $this->getDefaultEmailId())
-            $this->defaultEmail=Email::lookup($this->getDefaultEmailId());
+            $this->defaultEmail = Email::lookup($this->getDefaultEmailId());
 
         return $this->defaultEmail;
     }
 
     function getDefaultEmailAddress() {
-        $email=$this->getDefaultEmail();
-        return $email?$email->getAddress():null;
+        return ($email=$this->getDefaultEmail()) ? $email->getAddress() : null;
     }
 
     function getDefaultSLAId() {
@@ -369,7 +368,7 @@ class OsticketConfig extends Config {
     function getDefaultSLA() {
 
         if(!$this->defaultSLA && $this->getDefaultSLAId())
-            $this->defaultSLA=SLA::lookup($this->getDefaultSLAId());
+            $this->defaultSLA = SLA::lookup($this->getDefaultSLAId());
 
         return $this->defaultSLA;
     }
@@ -380,15 +379,18 @@ class OsticketConfig extends Config {
 
     function getAlertEmail() {
 
-        if(!$this->alertEmail && $this->get('alert_email_id'))
-            $this->alertEmail= new Email($this->get('alert_email_id'));
+        if(!$this->alertEmail)
+            if(!($this->alertEmail = Email::lookup($this->getAlertEmailId())))
+                $this->alertEmail = $this->getDefaultEmail();
+
         return $this->alertEmail;
     }
 
     function getDefaultSMTPEmail() {
 
         if(!$this->defaultSMTPEmail && $this->get('default_smtp_id'))
-            $this->defaultSMTPEmail= new Email($this->get('default_smtp_id'));
+            $this->defaultSMTPEmail = Email::lookup($this->get('default_smtp_id'));
+
         return $this->defaultSMTPEmail;
     }
 

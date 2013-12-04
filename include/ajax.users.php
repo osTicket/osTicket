@@ -66,21 +66,9 @@ class UsersAjaxAPI extends AjaxController {
 
     function addUser() {
 
-        $valid = true;
         $form = UserForm::getUserForm()->getForm($_POST);
-        if (!$form->isValid())
-            $valid  = false;
-
-        if (($field=$form->getField('email'))
-                && $field->getClean()
-                && User::lookup(array('emails__address'=>$field->getClean()))) {
-            $field->addError('Email is assigned to another user');
-            $valid = false;
-        }
-
-        if ($valid && ($user = User::fromForm($form->getClean())))
+        if (($user = User::fromForm($form)))
             Http::response(201, $user->to_json());
-
 
         $info = array('error' =>'Error adding user - try again!');
 
@@ -118,5 +106,26 @@ class UsersAjaxAPI extends AjaxController {
         return $resp;
     }
 
+    function searchStaff() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required for searching');
+        elseif (!$thisstaff->isAdmin())
+            Http::response(403,
+                'Administrative privilege is required for searching');
+        elseif (!isset($_REQUEST['q']))
+            Http::response(400, 'Query argument is required');
+
+        $users = array();
+        foreach (AuthenticationBackend::allRegistered() as $ab) {
+            if (!$ab->supportsSearch())
+                continue;
+
+            foreach ($ab->search($_REQUEST['q']) as $u)
+                $users[] = $u;
+        }
+        return $this->json_encode($users);
+    }
 }
 ?>

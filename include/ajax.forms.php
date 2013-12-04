@@ -36,7 +36,5 @@ class DynamicFormsAjaxAPI extends AjaxController {
         else
             $field->save();
     }
-
 }
-
 ?>

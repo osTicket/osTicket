@@ -435,6 +435,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `firstname` varchar(32) default NULL,
   `lastname` varchar(32) default NULL,
   `passwd` varchar(128) default NULL,
+  `backend` varchar(32) default NULL,
   `email` varchar(128) default NULL,
   `phone` varchar(24) NOT NULL default '',
   `phone_ext` varchar(6) default NULL,
@@ -621,6 +622,20 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   KEY `pid` (`pid`)
 ) DEFAULT CHARSET=utf8;
 
+CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `isactive` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `ticket_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0',
+  -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
+  `role` char(1) NOT NULL DEFAULT 'M',
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `collab` (`ticket_id`,`user_id`)
+) DEFAULT CHARSET=utf8;
+
+
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%timezone`;
 CREATE TABLE `%TABLE_PREFIX%timezone` (
   `id` int(11) unsigned NOT NULL auto_increment,
@@ -674,6 +689,18 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%page` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
+-- Plugins
+DROP TABLE IF EXISTS `%TABLE_PREFIX%plugin`;
+CREATE TABLE `%TABLE_PREFIX%plugin` (
+  `id` int(11) unsigned not null auto_increment,
+  `name` varchar(30) not null,
+  `install_path` varchar(60) not null,
+  `isphar` tinyint(1) not null default 0,
+  `isactive` tinyint(1) not null default 0,
+  `installed` datetime not null,
+  primary key (`id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;

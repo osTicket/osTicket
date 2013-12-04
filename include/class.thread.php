@@ -574,6 +574,7 @@ Class ThreadEntry {
             'source' => 'Email',
             'ip' =>     '',
             'reply_to' => $this,
+            'recipients' => $mailinfo['recipients'],
         );
 
         if (isset($mailinfo['attachments']))
@@ -588,6 +589,7 @@ Class ThreadEntry {
             $vars['message'] = $body;
             return $ticket->postMessage($vars, 'Email');
         }
+        // XXX: Consider collaborator role
         elseif ($staff_id = Staff::getIdByEmail($mailinfo['email'])) {
             $vars['staffId'] = $staff_id;
             $poster = Staff::lookup($staff_id);
@@ -761,6 +763,15 @@ Class ThreadEntry {
         if(!$vars['ticketId'] || !$vars['type'] || !in_array($vars['type'], array('M','R','N')))
             return false;
 
+        //Strip quoted reply...on emailed  messages
+        if($vars['origin']
+                && !strcasecmp($vars['origin'], 'Email')
+                && $cfg->stripQuotedReply()
+                && ($tag=$cfg->getReplySeparator())
+                && strpos($vars['body'], $tag))
+            if((list($msg) = explode($tag, $vars['body'], 2)) && trim($msg))
+                $vars['body'] = $msg;
+
         if (isset($vars['attachments'])) {
             foreach ($vars['attachments'] as &$a) {
                 // Change <img src="cid:"> inside the message to point to
@@ -785,13 +796,17 @@ Class ThreadEntry {
         }
         $vars['body'] = Format::sanitize($vars['body']);
 
+        $poster = $vars['poster'];
+        if ($poster && is_object($poster))
+            $poster = $poster->getName();
+
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
             .' ,body='.db_input($vars['body'])
             .' ,staff_id='.db_input($vars['staffId'])
-            .' ,poster='.db_input($vars['poster'])
+            .' ,poster='.db_input($poster)
             .' ,source='.db_input($vars['source']);
 
         if(isset($vars['pid']))
