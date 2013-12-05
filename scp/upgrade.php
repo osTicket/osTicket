@@ -35,7 +35,7 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
             }
             break;
         case 'upgrade': //Manual upgrade.... when JS (ajax) is not supported.
-            if($upgrader->getPendingTask()) {
+            if($upgrader->getTask()) {
                 $upgrader->doTask();
             } elseif($ost->isUpgradePending() && $upgrader->isUpgradable()) {
                 $upgrader->upgrade();
