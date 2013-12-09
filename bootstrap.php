@@ -2,7 +2,7 @@
 
 class Bootstrap {
 
-    function init() {
+    static function init() {
         #Disable Globals if enabled....before loading config info
         if(ini_get('register_globals')) {
            ini_set('register_globals',0);
