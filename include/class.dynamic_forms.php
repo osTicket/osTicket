@@ -144,8 +144,8 @@ class UserForm extends DynamicForm {
         return $os->filter(array('type'=>'U'));
     }
 
-    function getFields() {
-        $fields = parent::getFields();
+    function getFields($cache=true) {
+        $fields = parent::getFields($cache);
         foreach ($fields as $f) {
             if ($f->get('name') == 'email') {
                 $f->getConfiguration();
