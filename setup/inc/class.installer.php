@@ -196,7 +196,7 @@ class Installer extends SetupWizard {
 				'alert_email_id'=>$alert_email_id, 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
 				'default_timezone_id'=>$eastern_timezone, 'default_template_id'=>$template_id_1,
 				'admin_email'=>db_input($vars['admin_email']),
-				'schema_signature'=>db_input($signature),
+				'schema_signature'=>db_input($streams['core']),
 				'helpdesk_url'=>db_input(URL),
 				'helpdesk_title'=>db_input($vars['name']));
 			foreach ($defaults as $key=>$value) {
@@ -204,6 +204,16 @@ class Installer extends SetupWizard {
 					.' WHERE namespace="core" AND `key`='.db_input($key);
 	            if(!db_query($sql, false))
 	                $this->errors['err']='Unable to create config settings (#7)';
+			}
+			
+			foreach($streams as $stream=>$signature){
+				if($stream!='core'){
+				    $sql='INSERT INTO '.PREFIX.'config (`namespace`, `key`, `value`, `updated`) '
+				    .'VALUES ('.db_input($stream).', '.db_input('schema_signature')
+				    .', '.db_input($signature).', NOW())';		    
+				    if(!db_query($sql, false))
+	                		$this->errors['err']='Unable to create config settings (#7)';
+				}
 			}
         }
 
