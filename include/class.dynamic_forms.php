@@ -537,7 +537,7 @@ class DynamicFormEntry extends VerySimpleModel {
             if ($field->hasData() && !$field->isPresentationOnly())
                 $a->save();
         }
-        $this->_values = array();
+        $this->_values = null;
     }
 
     function delete() {
