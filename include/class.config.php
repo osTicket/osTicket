@@ -856,7 +856,7 @@ class OsticketConfig extends Config {
             'autolock_minutes'=>$vars['autolock_minutes'],
             'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
-            'auto_assign_reopened_tickets'=>isset($vars['auto_assign_reopened_tickets'])?1:0,
+            'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?1:0,
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?1:0,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
