@@ -749,6 +749,9 @@ class DynamicListItem extends VerySimpleModel {
     function toString() {
         return $this->get('value');
     }
+    function __toString() {
+        return $this->toString();
+    }
 
     function delete() {
         # Don't really delete, just unset the list_id to un-associate it with
