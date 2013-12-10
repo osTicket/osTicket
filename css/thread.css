@@ -396,7 +396,21 @@
 	line-height: 1.25rem;
 }
 
-.thread-body div:not(.caption),
+/* Adjust plain/text messages posted as <pre> in the thread body to show in
+ * a more normal font. Other <pre> elements in the ticket thread body should
+ * be shown with the ususal monospace font
+ */
+.thread-body > div > pre:first-child {
+    font-family: sans-serif;
+}
+
+/* Avoid extra padding at the bottom of the thread body element */
+.thread-body :last-child,
+.thread-body > div {
+    margin-bottom: 0 !important;
+}
+
+.thread-body > div div:not(.caption),
 .thread-body p,
 .thread-body ul,
 .thread-body ol,
@@ -451,6 +465,19 @@ table.thread-entry {
     table-layout: fixed;
 }
 
+table.thread-entry th div span {
+    vertical-align: middle;
+}
+table.thread-entry th div :not(.title) {
+    font-weight: 600;
+}
+table.thread-entry th div .title {
+    font-weight: 400;
+}
+table.thread-entry th .textra {
+    margin-right: 1em;
+    display: inline-block;
+}
 /* Inline image hovering with download link */
 .image-hover {
     display: inline-block;
