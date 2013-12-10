@@ -803,21 +803,6 @@ h2 .reload {
     text-align:right;
 }
 
-#ticket_thread table th.tmeta {
-    font-weight:bold;
-    font-size:10pt;
-    color:#888;
-    text-align:right;
-    padding-right:15px;
-}
-
-#ticket_thread table th span {
-    font-weight:normal;
-    font-size:10pt;
-    color:#888;
-    padding-left:5px;
-}
-
 #ticket_thread > .message th {
     background:#C3D9FF;
 }

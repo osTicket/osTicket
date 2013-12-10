@@ -337,10 +337,20 @@ $tcount+= $ticket->getNumNotes();
            ?>
         <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
-                <th width="auto"><?php echo Format::db_datetime($entry['created']);?></th>
-                <th width="440"><span><?php echo $entry['title']; ?></span></th>
-                <th width="auto" class="textra" style="text-align:right"></th>
-                <th width="auto" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th>
+                <th colspan="4" width="100%">
+                <div>
+                    <span style="display:inline-block"><?php
+                        echo Format::db_datetime($entry['created']);?></span>
+                    <span style="display:inline-block;padding-left:1em" class="faded title"><?php
+                        echo Format::truncate($entry['title'], 100); ?></span>
+                    <span style="float:right;white-space:no-wrap;display:inline-block">
+                        <span style="vertical-align:middle;" class="textra"></span>
+                        <span style="vertical-align:middle;"
+                            class="tmeta faded title"><?php
+                            echo Format::htmlchars($entry['poster']); ?></span>
+                    </span>
+                </div>
+                </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry['id']; ?>"><div><?php
