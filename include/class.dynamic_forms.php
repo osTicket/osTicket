@@ -39,6 +39,7 @@ class DynamicForm extends VerySimpleModel {
 
     var $_form;
     var $_fields;
+    var $_has_data = false;
     var $_dfields;
 
     function getFields($cache=true) {
@@ -83,7 +84,7 @@ class DynamicForm extends VerySimpleModel {
 
     function getForm($source=false) {
         if (!$this->_form || $source) {
-            $fields = $this->getFields(false);
+            $fields = $this->getFields($this->_has_data);
             $this->_form = new Form($fields, $source, array(
                 'title'=>$this->title, 'instructions'=>$this->instructions));
         }
@@ -102,6 +103,7 @@ class DynamicForm extends VerySimpleModel {
     function data($data) {
         if ($data instanceof DynamicFormEntry) {
             $this->_fields = $data->getFields();
+            $this->_has_data = true;
         }
     }
 
