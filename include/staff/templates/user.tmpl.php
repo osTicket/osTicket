@@ -22,7 +22,20 @@ if ($info['error']) {
     <div><b><a href="#" id="edituser"><i class="icon-edit"></i>&nbsp;<?php
     echo $user->getName(); ?></a></b></div>
     <div>&lt;<?php echo $user->getEmail(); ?>&gt;</div>
-    <div><?php echo $user->getPhoneNumber(); ?></div>
+    <table style="margin-top: 1em;">
+<?php foreach ($user->getDynamicData() as $entry) {
+?>
+    <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
+         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+<?php foreach ($entry->getAnswers() as $a) { ?>
+    <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
+         ?>:</td>
+    <td style="border-bottom: 1px dotted #ccc"><?php echo $a->toString(); ?></td>
+    </tr>
+<?php }
+}
+?>
+    </table></div>
     <div class="clear"></div>
     <hr>
     <div class="faded">Last updated <b><?php echo Format::db_datetime($user->getUpdateDate()); ?> </b></div>
