@@ -129,7 +129,8 @@ class User extends UserModel {
         $info = array(
                 'id'  => $this->getId(),
                 'name' => (string) $this->getName(),
-                'email' => (string) $this->getEmail());
+                'email' => (string) $this->getEmail(),
+                'phone' => (string) $this->getPhoneNumber());
 
         return JsonDataEncoder::encode($info);
     }
