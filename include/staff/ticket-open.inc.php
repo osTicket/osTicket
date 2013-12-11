@@ -32,8 +32,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr><td>Client:</td><td>
             <div id="client-info">
                 <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
+            <a href="#" onclick="javascript:
+                $.userLookup('ajax.php/users/<?php echo $user->getId(); ?>/edit',
+                        function (user) {
+                            $('#client-name').text(user.name);
+                            $('#client-email').text(user.email);
+                        });
+                return false;
+                "><i class="icon-user"></i>
                 <span id="client-name"><?php echo $user->getName(); ?></span>
-                <span id="client-email">&lt;<?php echo $user->getEmail(); ?>&gt;</span>
+                &lt;<span id="client-email"><?php echo $user->getEmail(); ?></span>&gt;
+                </a>
                 <a class="action-button" style="float:none;overflow:inherit" href="#"
                     onclick="javascript:
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
