@@ -229,14 +229,11 @@ class Bootstrap {
                 //      char is not a single-byte char
                 switch ($mode) {
                 case MB_CASE_LOWER:
-                    return preg_replace_callback('/\p{Lu}+/u',
-                        function($a) { return mb_strtolower($a); }, $str);
+                    return preg_replace_callback('/\p{Lu}+/u', 'mb_strtolower', $str);
                 case MB_CASE_UPPER:
-                    return preg_replace_callback('/\p{Ll}+/u',
-                        function($a) { return mb_strtoupper($a); }, $str);
+                    return preg_replace_callback('/\p{Ll}+/u', 'mb_strtoupper', $str);
                 case MB_CASE_TITLE:
-                    return preg_replace_callback('/\b\p{Ll}/u',
-                        function($a) { return mb_strtoupper($a); }, $str);
+                    return preg_replace_callback('/\b\p{Ll}/u', 'mb_strtoupper', $str);
                 }
             }
         }
