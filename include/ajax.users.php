@@ -45,6 +45,7 @@ class UsersAjaxAPI extends AjaxController {
 
         if(($res=db_query($sql)) && db_num_rows($res)){
             while(list($id,$email,$name)=db_fetch_row($res)) {
+                $name = Format::htmlchars($name);
                 $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
                     "id" => $id, "/bin/true" => $_REQUEST['q']);
             }

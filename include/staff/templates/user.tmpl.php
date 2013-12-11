@@ -1,6 +1,6 @@
 <?php
 if (!$info['title'])
-    $info['title'] = $user->getName();
+    $info['title'] = Format::htmlchars($user->getName());
 ?>
 <h3><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
@@ -20,7 +20,7 @@ if ($info['error']) {
     <?php
     } ?>
     <div><b><a href="#" id="edituser"><i class="icon-edit"></i>&nbsp;<?php
-    echo $user->getName(); ?></a></b></div>
+    echo Format::htmlchars($user->getName()); ?></a></b></div>
     <div>&lt;<?php echo $user->getEmail(); ?>&gt;</div>
     <table style="margin-top: 1em;">
 <?php foreach ($user->getDynamicData() as $entry) {
@@ -30,7 +30,7 @@ if ($info['error']) {
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>
-    <td style="border-bottom: 1px dotted #ccc"><?php echo $a->toString(); ?></td>
+    <td style="border-bottom: 1px dotted #ccc"><?php echo $a->display(); ?></td>
     </tr>
 <?php }
 }

@@ -33,7 +33,7 @@ if ($_POST)
                         });
                 return false;
                 "><i class="icon-user"></i>
-            <span id="client-name"><?php echo $user->getName(); ?></span>
+            <span id="client-name"><?php echo Format::htmlchars($user->getName()); ?></span>
             &lt;<span id="client-email"><?php echo $user->getEmail(); ?></span>&gt;
             </a>
             <a class="action-button" style="float:none;overflow:inherit" href="#"

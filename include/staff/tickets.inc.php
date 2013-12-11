@@ -367,7 +367,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                     $lc=Format::truncate($row['dept_name'],40);
                 }
                 $tid=$row['ticketID'];
-                $subject = Format::truncate($row['subject'],40);
+                $subject = Format::htmlchars(Format::truncate($row['subject'],40));
                 $threadcount=$row['thread_count'];
                 if(!strcasecmp($row['status'],'open') && !$row['isanswered'] && !$row['lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);

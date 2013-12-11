@@ -287,6 +287,13 @@ class FormField {
         return $value;
     }
 
+    /**
+     * Returns an HTML friendly value for the data in the field.
+     */
+    function display($value) {
+        return Format::htmlchars($this->toString($value));
+    }
+
     function getLabel() { return $this->get('label'); }
 
     /**
@@ -515,6 +522,14 @@ class TextareaField extends FormField {
                 'id'=>4, 'label'=>'HTML', 'required'=>false, 'default'=>true,
                 'configuration'=>array('desc'=>'Allow HTML input in this box'))),
         );
+    }
+
+    function display($value) {
+        $config = $this->getConfiguration();
+        if ($config['html'])
+            return Format::safe_html($value);
+        else
+            return Format::htmlchars($value);
     }
 }
 
