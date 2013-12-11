@@ -211,13 +211,13 @@ class TicketsAjaxAPI extends AjaxController {
              'WHERE entry.object_type="T" GROUP BY entry.object_id)';
         $vals = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
-            if ($f->get('name') && isset($req[$f->getFormName()])
+            if (isset($req[$f->getFormName()])
                     && ($val = $req[$f->getFormName()])) {
-                $name = $f->get('name');
-                $vals[] = "MAX(IF(field.name = '$name', ans.value_id, NULL)) as `{$name}_id`";
-                $vals[] = "MAX(IF(field.name = '$name', ans.value, NULL)) as `$name`";
-                $where .= " AND (dyn.`{$name}_id` = ".db_input($val)
-                    . " OR dyn.`$name` LIKE '%".db_real_escape($val)."%')";
+                $id = $f->get('id');
+                $vals[] = "MAX(IF(field.id = '$id', ans.value_id, NULL)) as `f_{$id}_id`";
+                $vals[] = "MAX(IF(field.id = '$id', ans.value, NULL)) as `f_$id`";
+                $where .= " AND (dyn.`f_{$id}_id` = ".db_input($val)
+                    . " OR dyn.`f_$id` LIKE '%".db_real_escape($val)."%')";
             }
         }
         if ($vals)
