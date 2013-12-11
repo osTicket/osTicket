@@ -35,7 +35,7 @@ if ($info['error']) {
 <?php }
 }
 ?>
-    </table></div>
+    </table>
     <div class="clear"></div>
     <hr>
     <div class="faded">Last updated <b><?php echo Format::db_datetime($user->getUpdateDate()); ?> </b></div>
