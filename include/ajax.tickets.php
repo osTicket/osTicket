@@ -463,8 +463,9 @@ class TicketsAjaxAPI extends AjaxController {
 
 
         $info = array(
-                'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(), $user->getName())
-                );
+            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+                Format::htmlchars($user->getName()))
+            );
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user.tmpl.php');
@@ -491,8 +492,9 @@ class TicketsAjaxAPI extends AjaxController {
         $forms = $user->getForms();
 
         $info = array(
-                'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(), $user->getName())
-                );
+            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+                Format::htmlchars($user->getName()))
+            );
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user.tmpl.php');

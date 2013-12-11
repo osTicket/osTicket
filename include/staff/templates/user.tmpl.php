@@ -1,6 +1,6 @@
 <?php
 if (!$info['title'])
-    $info['title'] = $user->getName();
+    $info['title'] = Format::htmlchars($user->getName());
 ?>
 <h3><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
@@ -20,9 +20,22 @@ if ($info['error']) {
     <?php
     } ?>
     <div><b><a href="#" id="edituser"><i class="icon-edit"></i>&nbsp;<?php
-    echo $user->getName(); ?></a></b></div>
+    echo Format::htmlchars($user->getName()); ?></a></b></div>
     <div>&lt;<?php echo $user->getEmail(); ?>&gt;</div>
-    <div><?php echo $user->getPhoneNumber(); ?></div>
+    <table style="margin-top: 1em;">
+<?php foreach ($user->getDynamicData() as $entry) {
+?>
+    <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
+         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+<?php foreach ($entry->getAnswers() as $a) { ?>
+    <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
+         ?>:</td>
+    <td style="border-bottom: 1px dotted #ccc"><?php echo $a->display(); ?></td>
+    </tr>
+<?php }
+}
+?>
+    </table></div>
     <div class="clear"></div>
     <hr>
     <div class="faded">Last updated <b><?php echo Format::db_datetime($user->getUpdateDate()); ?> </b></div>

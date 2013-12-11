@@ -1,3 +1,4 @@
+<div id="the-lookup-form">
 <h3><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
@@ -15,8 +16,23 @@ if ($info['error']) {
     <i class="icon-user icon-4x pull-left icon-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
         id="unselect-user"  href="#"><i class="icon-remove"></i> Add New User</a>
-    <div><strong id="user-name"><?php echo $user ? $user->getName() : ''; ?></strong></div>
+    <div><strong id="user-name"><?php echo $user ? Format::htmlchars($user->getName()) : ''; ?></strong></div>
     <div>&lt;<span id="user-email"><?php echo $user ? $user->getEmail() : ''; ?></span>&gt;</div>
+<?php if ($user) { ?>
+    <table style="margin-top: 1em;">
+<?php foreach ($user->getDynamicData() as $entry) { ?>
+    <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
+         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+<?php foreach ($entry->getAnswers() as $a) { ?>
+    <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
+         ?>:</td>
+    <td style="border-bottom: 1px dotted #ccc"><?php echo $a->display(); ?></td>
+    </tr>
+<?php }
+}
+?>
+</table>
+<?php } ?>
     <div class="clear"></div>
     <hr>
     <p class="full-width">
@@ -49,6 +65,7 @@ if ($info['error']) {
 </form>
 </div>
 <div class="clear"></div>
+</div>
 <script type="text/javascript">
 $(function() {
     $('#user-search').typeahead({
@@ -62,12 +79,9 @@ $(function() {
             });
         },
         onselect: function (obj) {
-            $('#user-name').text(obj.name);
-            $('#user-email').text(obj.email);
-            $('#user-id').val(obj.id);
-            $('div#selected-user-info').show();
-            $('div#new-user-form').hide();
-            $('#user-search').val('');
+            $('#the-lookup-form').load(
+                "ajax.php/users/select/"+obj.id
+            );
         },
         property: "/bin/true"
     });

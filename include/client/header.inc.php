@@ -43,7 +43,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
             <p>
              <?php
              if($thisclient && is_object($thisclient) && $thisclient->isValid()) {
-                 echo $thisclient->getName().'&nbsp;-&nbsp;';
+                 echo Format::htmlchars($thisclient->getName()).'&nbsp;-&nbsp;';
                  ?>
                 <?php
                 if($cfg->showRelatedTickets()) {?>

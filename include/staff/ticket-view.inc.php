@@ -299,13 +299,13 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
         <td colspan="2">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
             <?php foreach($answers as $a) {
-                if (!$a->toString()) continue; ?>
+                if (!($v = $a->display())) continue; ?>
                 <tr>
                     <th width="100"><?php
     echo $a->getField()->get('label');
                     ?>:</th>
                     <td><?php
-    echo $a->toString();
+    echo $v;
                     ?></td>
                 </tr>
                 <?php } ?>
@@ -422,7 +422,8 @@ $tcount+= $ticket->getNumNotes();
                 <td>
                     <?php
                     echo sprintf('<span id="user-to-name">%s</span> <em>&lt;<span id="user-to-email">%s</span>&gt;</em>',
-                                $ticket->getName(), $ticket->getReplyToEmail());
+                        Format::htmlChars($ticket->getName()),
+                        $ticket->getReplyToEmail());
                     ?>
                     &nbsp;&nbsp;&nbsp;
                     <label><input type='checkbox' value='1' name="emailreply" id="remailreply"
@@ -894,7 +895,7 @@ $tcount+= $ticket->getNumNotes();
     </p>
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
         <p id="msg_warning">
-        <b><?php echo $ticket->getName(); ?></b> &lt;<?php echo $ticket->getEmail(); ?>&gt; will no longer have access to the ticket.
+        <b><?php echo Format::htmlchars($ticket->getName()); ?></b> &lt;<?php echo $ticket->getEmail(); ?>&gt; will no longer have access to the ticket.
         </p>
         Are you sure want to <b>change</b> ticket owner to <b><span id="newuser">this guy</span></b>?
     </p>
