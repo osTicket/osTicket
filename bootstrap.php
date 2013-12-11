@@ -236,6 +236,13 @@ class Bootstrap {
                     return preg_replace_callback('/\b\p{Ll}/u', 'mb_strtoupper', $str);
                 }
             }
+            function mb_internal_encoding($encoding) { return 'UTF-8'; }
+            function mb_regex_encoding($encoding) { return 'UTF-8'; }
+            function mb_substr_count($haystack, $needle) {
+                $matches = array();
+                return preg_match_all('`'.preg_quote($needle).'`u', $haystack,
+                    $matches);
+            }
         }
         else {
             // Use UTF-8 for all multi-byte string encoding
