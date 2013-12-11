@@ -47,7 +47,8 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
     <p class="full-width">
         <span class="buttons" style="float:left">
             <input type="reset" value="Reset">
-            <input type="button" name="cancel" class="<?php echo $user ? 'cancel' : 'close' ?>"  value="Cancel">
+            <input type="button" name="cancel" class="<?php
+    echo ($ticket && $user) ? 'cancel' : 'close' ?>"  value="Cancel">
         </span>
         <span class="buttons" style="float:right">
             <input type="submit" value="Update User">
