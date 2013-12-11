@@ -153,6 +153,7 @@ if($ticket->isOverdue())
                                     function (user) {
                                         $('#user-'+user.id+'-name').text(user.name);
                                         $('#user-'+user.id+'-email').text(user.email);
+                                        $('#user-'+user.id+'-phone').text(user.phone);
                                         $('#user-to-name').text(user.name);
                                         $('#user-to-email').text(user.email);
                                     });
@@ -191,7 +192,9 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th>Phone:</th>
-                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
+                    <td>
+                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-phone"><?php echo $ticket->getPhoneNumber(); ?></span>
+                    </td>
                 </tr>
                 <tr>
                     <th>Source:</th>
