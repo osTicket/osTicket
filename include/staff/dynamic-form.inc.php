@@ -37,6 +37,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td><input type="text" name="title" size="40" value="<?php
                 echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
+                <font class="error"><?php
+                    if ($errors['title']) echo '<br/>'; echo $errors['title']; ?></font>
             </td>
         </tr>
         <tr>
