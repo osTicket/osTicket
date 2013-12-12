@@ -153,6 +153,7 @@ if($ticket->isOverdue())
                                     function (user) {
                                         $('#user-'+user.id+'-name').text(user.name);
                                         $('#user-'+user.id+'-email').text(user.email);
+                                        $('#user-'+user.id+'-phone').text(user.phone);
                                         $('#user-to-name').text(user.name);
                                         $('#user-to-email').text(user.email);
                                     });
@@ -191,7 +192,9 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th>Phone:</th>
-                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
+                    <td>
+                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-phone"><?php echo $ticket->getPhoneNumber(); ?></span>
+                    </td>
                 </tr>
                 <tr>
                     <th>Source:</th>
@@ -299,13 +302,13 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
         <td colspan="2">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
             <?php foreach($answers as $a) {
-                if (!$a->toString()) continue; ?>
+                if (!($v = $a->display())) continue; ?>
                 <tr>
                     <th width="100"><?php
     echo $a->getField()->get('label');
                     ?>:</th>
                     <td><?php
-    echo $a->toString();
+    echo $v;
                     ?></td>
                 </tr>
                 <?php } ?>
@@ -337,10 +340,20 @@ $tcount+= $ticket->getNumNotes();
            ?>
         <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
-                <th width="auto"><?php echo Format::db_datetime($entry['created']);?></th>
-                <th width="440"><span><?php echo $entry['title']; ?></span></th>
-                <th width="auto" class="textra" style="text-align:right"></th>
-                <th width="auto" class="tmeta"><?php echo Format::htmlchars($entry['poster']); ?></th>
+                <th colspan="4" width="100%">
+                <div>
+                    <span style="display:inline-block"><?php
+                        echo Format::db_datetime($entry['created']);?></span>
+                    <span style="display:inline-block;padding-left:1em" class="faded title"><?php
+                        echo Format::truncate($entry['title'], 100); ?></span>
+                    <span style="float:right;white-space:no-wrap;display:inline-block">
+                        <span style="vertical-align:middle;" class="textra"></span>
+                        <span style="vertical-align:middle;"
+                            class="tmeta faded title"><?php
+                            echo Format::htmlchars($entry['poster']); ?></span>
+                    </span>
+                </div>
+                </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry['id']; ?>"><div><?php
@@ -412,6 +425,7 @@ $tcount+= $ticket->getNumNotes();
                 </td>
                 <td>
                     <?php
+                    # XXX: Add user-to-name and user-to-email HTML ID#s
                     $to =sprintf('%s &lt;%s&gt;', $ticket->getName(), $ticket->getReplyToEmail());
                     $emailReply = (!isset($info['emailreply']) || $info['emailreply']);
                     ?>
@@ -918,8 +932,10 @@ $tcount+= $ticket->getNumNotes();
         Are you sure want to <b>unassign</b> ticket from <b><?php echo $ticket->getAssigned(); ?></b>?
     </p>
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
+        <p id="msg_warning">
+        <b><?php echo Format::htmlchars($ticket->getName()); ?></b> &lt;<?php echo $ticket->getEmail(); ?>&gt; will no longer have access to the ticket.
+        </p>
         Are you sure want to <b>change</b> ticket owner to <b><span id="newuser">this guy</span></b>?
-        <br><br><b><?php echo $ticket->getName(); ?></b> &lt;<?php echo $ticket->getEmail(); ?>&gt; will no longer have access to the ticket.
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong>Are you sure you want to DELETE this ticket?</strong></font>

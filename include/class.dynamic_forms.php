@@ -39,10 +39,11 @@ class DynamicForm extends VerySimpleModel {
 
     var $_form;
     var $_fields;
+    var $_has_data = false;
     var $_dfields;
 
-    function getFields() {
-        if (!isset($this->_fields)) {
+    function getFields($cache=true) {
+        if (!isset($this->_fields) || !$cache) {
             $this->_fields = array();
             foreach ($this->getDynamicFields() as $f)
                 // TODO: Index by field name or id
@@ -83,7 +84,7 @@ class DynamicForm extends VerySimpleModel {
 
     function getForm($source=false) {
         if (!$this->_form || $source) {
-            $fields = $this->getFields();
+            $fields = $this->getFields($this->_has_data);
             $this->_form = new Form($fields, $source, array(
                 'title'=>$this->title, 'instructions'=>$this->instructions));
         }
@@ -102,6 +103,7 @@ class DynamicForm extends VerySimpleModel {
     function data($data) {
         if ($data instanceof DynamicFormEntry) {
             $this->_fields = $data->getFields();
+            $this->_has_data = true;
         }
     }
 
@@ -144,8 +146,8 @@ class UserForm extends DynamicForm {
         return $os->filter(array('type'=>'U'));
     }
 
-    function getFields() {
-        $fields = parent::getFields();
+    function getFields($cache=true) {
+        $fields = parent::getFields($cache);
         foreach ($fields as $f) {
             if ($f->get('name') == 'email') {
                 $f->getConfiguration();
@@ -535,7 +537,7 @@ class DynamicFormEntry extends VerySimpleModel {
             if ($field->hasData() && !$field->isPresentationOnly())
                 $a->save();
         }
-        $this->_values = array();
+        $this->_values = null;
     }
 
     function delete() {
@@ -617,6 +619,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 
     function toString() {
         return $this->getField()->toString($this->getValue());
+    }
+
+    function display() {
+        return $this->getField()->display($this->getValue());
     }
 
     function asVar() {

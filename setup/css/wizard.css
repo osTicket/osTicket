@@ -1,3 +1,4 @@
+@import url("../../css/font-awesome.min.css");
 body { background: url('../images/background.jpg?1312906017') top left repeat-x white; font-family: arial, helvetica, sans-serif; font-size: 10pt; color: #000; margin: 0; padding: 0; }
 
 #wizard { background: #fff; width: 800px; margin: 30px auto; padding: 10px; border: 1px solid #2a67ac; border-right: 2px solid #2a67ac; border-bottom: 3px solid #2a67ac; overflow: hidden; margin-bottom:5px;}
@@ -60,13 +61,117 @@ form .row input { background: #fff; height: 22px; padding: 0; line-height: 22px;
 form .row label, form .row span { display: block; float: left; width: 150px; line-height: 24px; }
 form .row span { width: 600px; color: #666666; }
 
-.tip_box { display: block; height: 30px; position: absolute; z-index: 1000; }
+.tip_box {
+    display:block;
+    height:30px;
+    position:absolute;
+    z-index:1000;
+}
 
-.tip_arrow { display: block; position: absolute; top: 5px; left: -11px; width: 12px; z-index: 700; }
+.tip_arrow {
+    display:block;
+    position:absolute;
+    top:5px;
+    left:-12px;
+    width:12px;
+    z-index:700;
+}
 
-.tip_content { height: auto !important; height: 20px; min-height: 20px; padding: 10px 5px 5px 5px; border: 1px solid #666; background: #fff; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; z-index: 500; position: absolute; top: 0; left: -1px; width: 300px; }
+.tip_box.right .tip_arrow {
+    top: 5px;
+    right: -12px;
+    left: auto;
+}
 
-.tip_close { position: absolute; text-decoration: none; left: 100%; top: 0; margin-left: -12px; }
+.flip-x {
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.tip_content {
+    height:auto !important;
+    height:20px;
+    min-height:20px;
+    padding:10px;
+    border:1px solid #666;
+    background:#fff;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    -moz-box-shadow: 3px 3px 3px #666;
+    -webkit-box-shadow: 3px 3px 3px #666;
+    box-shadow: 3px 3px 3px #666;
+    z-index:500;
+    position:absolute;
+    top:0;
+    left:-1px;
+    min-width:300px;
+    line-height: 1.15rem;
+}
+
+.tip_content .links {
+    margin-top: 0.7em;
+    padding-top: 0.4em;
+    border-top: 1px solid #ddd;
+}
+
+.tip_content .links a {
+    color: #548dd4;
+}
+
+.tip_content hr {
+
+    color: #ddd;
+    background-color: #ddd;
+    height: 1px;
+    border: 0;
+    padding: 0;
+    margin: 0.2em 0;
+    width: 100%;
+}
+
+.tip_close {
+    position:absolute;
+    top:0.3em;
+    right:0.5em;
+    text-decoration:none;
+}
+
+.tip_shadow {
+    display:none;
+    background:#000;
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=3,MakeShadow=true,ShadowOpacity=0.60);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Blur(PixelRadius=3,MakeShadow=true,ShadowOpacity=0.60)";
+    zoom: 1;
+    position:absolute;
+    z-index:200;
+    top:0;
+    left:0;
+    width:auto !important;
+    width:310px;
+}
+
+.tip_content h1 {
+    font-size: 13pt;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid #ddd;
+    padding-right: 1.5em;
+}
+
+i.help-tip {
+    vertical-align: inherit;
+    color: #aaa;
+}
+i.help-tip:hover {
+    color: black;
+    cursor: pointer;
+}
 
 #overlay { display: none; position: fixed; background: #000; z-index: 2000; }
 

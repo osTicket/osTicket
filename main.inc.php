@@ -23,8 +23,8 @@ if(isset($_SERVER['SCRIPT_NAME'])
 require('bootstrap.php');
 Bootstrap::loadConfig();
 Bootstrap::defineTables(TABLE_PREFIX);
-Bootstrap::loadCode();
 Bootstrap::i18n_prep();
+Bootstrap::loadCode();
 Bootstrap::connect();
 
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))

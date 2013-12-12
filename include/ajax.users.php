@@ -45,6 +45,7 @@ class UsersAjaxAPI extends AjaxController {
 
         if(($res=db_query($sql)) && db_num_rows($res)){
             while(list($id,$email,$name)=db_fetch_row($res)) {
+                $name = Format::htmlchars($name);
                 $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
                     "id" => $id, "/bin/true" => $_REQUEST['q']);
             }
@@ -54,9 +55,41 @@ class UsersAjaxAPI extends AjaxController {
 
     }
 
-    function getUser() {
+    function editUser($id) {
+        global $thisstaff;
 
-        if(($user=User::lookup($_REQUEST['id'])))
+        if(!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif(!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        $info = array(
+            'title' => sprintf('Update %s', $user->getName())
+        );
+        $forms = $user->getForms();
+
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+    }
+
+    function updateUser($id) {
+        global $thisstaff;
+
+        if(!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif(!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        $errors = array();
+        if($user->updateInfo($_POST, $errors))
+             Http::response(201, $user->to_json());
+
+        $forms = $user->getForms();
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+    }
+
+    function getUser($id=false) {
+
+        if(($user=User::lookup(($id) ? $id : $_REQUEST['id'])))
            Http::response(201, $user->to_json());
 
         $info = array('error' =>'Unknown or invalid user');

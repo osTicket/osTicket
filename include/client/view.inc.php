@@ -39,7 +39,7 @@ if(!$dept || !$dept->isPublic())
            <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                <tr>
                    <th width="100">Name:</th>
-                   <td><?php echo ucfirst($ticket->getName()); ?></td>
+                   <td><?php echo ucfirst(Format::htmlchars($ticket->getName())); ?></td>
                </tr>
                <tr>
                    <th width="100">Email:</th>
@@ -70,7 +70,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
         <tr>
         <th width="100"><?php echo $answer->getField()->get('label');
             ?>:</th>
-        <td><?php echo $answer->toString(); ?></td>
+        <td><?php echo $answer->display(); ?></td>
         </tr>
     <?php } ?>
     </table></td>

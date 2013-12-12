@@ -2,7 +2,7 @@
 
 class Bootstrap {
 
-    function init() {
+    static function init() {
         #Disable Globals if enabled....before loading config info
         if(ini_get('register_globals')) {
            ini_set('register_globals',0);
@@ -218,9 +218,11 @@ class Bootstrap {
             define('LATIN1_UC_CHARS', 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝ');
             define('LATIN1_LC_CHARS', 'àáâãäåæçèéêëìíîïðñòóôõöøùúûüý');
             function mb_strtoupper($str) {
+                if (is_array($str)) $str = $str[0];
                 return strtoupper(strtr($str, LATIN1_LC_CHARS, LATIN1_UC_CHARS));
             }
             function mb_strtolower($str) {
+                if (is_array($str)) $str = $str[0];
                 return strtolower(strtr($str, LATIN1_UC_CHARS, LATIN1_LC_CHARS));
             }
             define('MB_CASE_LOWER', 1);
@@ -231,15 +233,19 @@ class Bootstrap {
                 //      char is not a single-byte char
                 switch ($mode) {
                 case MB_CASE_LOWER:
-                    return preg_replace_callback('/\p{Lu}+/u',
-                        function($a) { return mb_strtolower($a); }, $str);
+                    return preg_replace_callback('/\p{Lu}+/u', 'mb_strtolower', $str);
                 case MB_CASE_UPPER:
-                    return preg_replace_callback('/\p{Ll}+/u',
-                        function($a) { return mb_strtoupper($a); }, $str);
+                    return preg_replace_callback('/\p{Ll}+/u', 'mb_strtoupper', $str);
                 case MB_CASE_TITLE:
-                    return preg_replace_callback('/\b\p{Ll}/u',
-                        function($a) { return mb_strtoupper($a); }, $str);
+                    return preg_replace_callback('/\b\p{Ll}/u', 'mb_strtoupper', $str);
                 }
+            }
+            function mb_internal_encoding($encoding) { return 'UTF-8'; }
+            function mb_regex_encoding($encoding) { return 'UTF-8'; }
+            function mb_substr_count($haystack, $needle) {
+                $matches = array();
+                return preg_match_all('`'.preg_quote($needle).'`u', $haystack,
+                    $matches);
             }
         }
         else {
@@ -296,7 +302,6 @@ Bootstrap::init();
 
 #CURRENT EXECUTING SCRIPT.
 define('THISPAGE', Misc::currentURL());
-define('THISURI', $_SERVER['REQUEST_URI']);
 
 define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
 define('DEFAULT_PRIORITY_ID',1);

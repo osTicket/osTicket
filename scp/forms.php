@@ -8,12 +8,15 @@ if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
 
 if($_POST) {
     $fields = array('title', 'notes', 'instructions');
-    $required = array('subject');
+    $required = array('title');
     $max_sort = 0;
     switch(strtolower($_POST['do'])) {
         case 'update':
             foreach ($fields as $f)
-                if (isset($_POST[$f]))
+                if (in_array($f, $required) && !$_POST[$f])
+                    $errors[$f] = sprintf('%s is required',
+                        mb_convert_case($f, MB_CASE_TITLE));
+                elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
             $form->save(true);
             $names = array();
@@ -107,6 +110,8 @@ if($_POST) {
     }
     if ($errors)
         $errors['err'] = 'Unable to commit form. Check validation errors';
+    else
+        $msg = 'Custom form successfully updated';
 }
 
 $page='dynamic-forms.inc.php';

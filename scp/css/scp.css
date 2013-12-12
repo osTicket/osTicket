@@ -546,6 +546,17 @@ a.print {
     border-bottom:1px solid #ddd;
 }
 
+.form_table.fixed {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+}
+.form_table.fixed td {
+    width: 180px;
+}
+.form_table.fixed td + td {
+    width: auto;
+}
 
 td.multi-line {
     vertical-align:top;
@@ -792,21 +803,6 @@ h2 .reload {
     text-align:right;
 }
 
-#ticket_thread table th.tmeta {
-    font-weight:bold;
-    font-size:10pt;
-    color:#888;
-    text-align:right;
-    padding-right:15px;
-}
-
-#ticket_thread table th span {
-    font-weight:normal;
-    font-size:10pt;
-    color:#888;
-    padding-left:5px;
-}
-
 #ticket_thread > .message th {
     background:#C3D9FF;
 }
@@ -902,8 +898,8 @@ h2 .reload {
     border-top:none;
 }
 
-#response_options > table {
-    width:928px;
+#response_options > form > table {
+    table-layout: fixed;
 }
 
 #response_options > table td {
@@ -1023,6 +1019,7 @@ h2 .reload {
     position:absolute;
     top:0.3em;
     right:0.5em;
+    text-decoration:none;
 }
 
 .tip_shadow {
@@ -1057,7 +1054,6 @@ h2 .reload {
 .tip_menu li a {
     display:block;
     width:auto;
-    _width:0;
     float:left;
     padding:0 10px;
     border-right:1px solid #ddd;

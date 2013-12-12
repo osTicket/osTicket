@@ -205,7 +205,7 @@ class Installer extends SetupWizard {
                 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
                 'default_template_id'=>$template_id_1,
                 'admin_email'=>$vars['admin_email'],
-                'schema_signature'=>$signature,
+                'schema_signature'=>$streams['core'],
                 'helpdesk_url'=>URL,
                 'helpdesk_title'=>$vars['name']);
             $config = new Config('core');
@@ -217,6 +217,14 @@ class Installer extends SetupWizard {
             $company = new Company();
             $company->getForm()->setAnswer('name', $vars['name']);
             $company->getForm()->save();
+
+			foreach ($streams as $stream=>$signature) {
+				if ($stream != 'core') {
+                    $config = new Config($stream);
+                    if (!$config->update('schema_signature', $signature))
+                        $this->errors['err']='Unable to create config settings (#8)';
+				}
+			}
         }
 
         if($this->errors) return false; //Abort on internal errors.

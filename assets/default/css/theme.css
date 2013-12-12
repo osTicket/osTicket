@@ -568,6 +568,15 @@ label.required {
   position: relative;
   top: 6px;
 }
+#ticketForm > table {
+    table-layout: fixed;
+}
+#ticketForm > table td {
+    width: 160px;
+}
+#ticketForm > table td + td {
+    width: auto;
+}
 #ticketForm td textarea,
 #clientLogin td textarea,
 #ticketForm div textarea,

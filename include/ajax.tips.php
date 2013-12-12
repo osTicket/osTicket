@@ -31,8 +31,9 @@ class HelpTipAjaxAPI extends AjaxController {
 
         // Translate links to the root path of this installation
         foreach ($data as $tip=>&$info) {
-            $info = $ost->replaceTemplateVariables($info, array(
-                'config'=>$ost->getConfig()));
+            if ($ost)
+                $info = $ost->replaceTemplateVariables($info, array(
+                    'config'=>$ost->getConfig()));
             if (isset($info['links']))
                 foreach ($info['links'] as &$l)
                     if ($l['href'][0] == '/')

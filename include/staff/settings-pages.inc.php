@@ -15,7 +15,9 @@ $pages = Page::getPages();
     </tr></thead>
     <tbody>
     <?php
-        $ost->company->getForm()->render();
+        $form = $ost->company->getForm();
+        $form->addMissingFields();
+        $form->render();
     ?>
     </tbody>
     <thead>

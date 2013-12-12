@@ -23,7 +23,6 @@ include_once(INCLUDE_DIR.'class.topic.php');
 include_once(INCLUDE_DIR.'class.lock.php');
 include_once(INCLUDE_DIR.'class.file.php');
 include_once(INCLUDE_DIR.'class.attachment.php');
-include_once(INCLUDE_DIR.'class.pdf.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
 include_once(INCLUDE_DIR.'class.variable.php');
@@ -302,16 +301,6 @@ class Ticket {
         if (($a = $this->_answers['priority']) && ($b = $a->getValue()))
             return $b->getDesc();
         return '';
-    }
-
-    function getPhone() {
-        list($phone, $ext) = $this->getPhoneNumber();
-        return $phone;
-    }
-
-    function getPhoneExt() {
-        list($phone, $ext) = $this->getPhoneNumber();
-        return $ext;
     }
 
     function getPhoneNumber() {
@@ -1150,6 +1139,7 @@ class Ticket {
             return call_user_func(array($this, 'get'.ucfirst($tag)));
 
         switch(strtolower($tag)) {
+            case 'phone':
             case 'phone_number':
                 return $this->getPhoneNumber();
                 break;
@@ -1761,6 +1751,7 @@ class Ticket {
 
     //Print ticket... export the ticket thread as PDF.
     function pdfExport($psize='Letter', $notes=false) {
+        require_once(INCLUDE_DIR.'class.pdf.php');
         $pdf = new Ticket2PDF($this, $psize, $notes);
         $name='Ticket-'.$this->getExtId().'.pdf';
         $pdf->Output($name, 'I');
@@ -1931,46 +1922,56 @@ class Ticket {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
-        $sql='SELECT count(open.ticket_id) as open, count(answered.ticket_id) as answered '
-            .' ,count(overdue.ticket_id) as overdue, count(assigned.ticket_id) as assigned, count(closed.ticket_id) as closed '
-            .' FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.TICKET_TABLE.' open
-                ON (open.ticket_id=ticket.ticket_id
-                        AND open.status=\'open\'
-                        AND open.isanswered=0
-                        '.((!($cfg->showAssignedTickets() || $staff->showAssignedTickets()))?
-                        ' AND open.staff_id=0 ':'').') '
-            .' LEFT JOIN '.TICKET_TABLE.' answered
-                ON (answered.ticket_id=ticket.ticket_id
-                        AND answered.status=\'open\'
-                        AND answered.isanswered=1) '
-            .' LEFT JOIN '.TICKET_TABLE.' overdue
-                ON (overdue.ticket_id=ticket.ticket_id
-                        AND overdue.status=\'open\'
-                        AND overdue.isoverdue=1) '
-            .' LEFT JOIN '.TICKET_TABLE.' assigned
-                ON (assigned.ticket_id=ticket.ticket_id
-                        AND assigned.status=\'open\'
-                        AND assigned.staff_id='.db_input($staff->getId()).')'
-            .' LEFT JOIN '.TICKET_TABLE.' closed
-                ON (closed.ticket_id=ticket.ticket_id
-                        AND closed.status=\'closed\' )'
-            .' WHERE (ticket.staff_id='.db_input($staff->getId());
+        $where = array();
+        $where2 = '';
 
         if(($teams=$staff->getTeams()))
-            $sql.=' OR ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
+            $where[] = 'ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
 
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
-            $sql.=' OR ticket.dept_id IN('.implode(',', db_input($depts)).') ';
-
-        $sql.=')';
+            $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
-            $sql.=' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($staff->getId()).') ';
+            $where2 =' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($staff->getId()).') ';
+        $where = implode(' OR ', $where);
+        if ($where) $where = 'AND ( '.$where.' ) ';
 
-        return db_fetch_array(db_query($sql));
+        $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'WHERE ticket.status = \'open\' '
+                .'AND ticket.isanswered =0 '
+                . $where . $where2
+
+                .'UNION SELECT \'answered\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'WHERE ticket.status = \'open\' '
+                .'AND ticket.isanswered =1 '
+                . $where
+
+                .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'WHERE ticket.status = \'open\' '
+                .'AND ticket.isoverdue =1 '
+                . $where
+
+                .'UNION SELECT \'assigned\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'WHERE ticket.status = \'open\' '
+                .'AND ticket.staff_id = ' . db_input($staff->getId()) . ' '
+                . $where
+
+                .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'WHERE ticket.status = \'closed\' '
+                . $where;
+
+        $res = db_query($sql);
+        $stats = array();
+        while($row = db_fetch_row($res)) {
+            $stats[$row[0]] = $row[1];
+        }
+        return $stats;
     }
-
 
     /* Quick client's tickets stats
        @email - valid email.

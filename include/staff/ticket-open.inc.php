@@ -8,8 +8,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
  <h2>Open New Ticket</h2>
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
+    <!-- This looks empty - but beware, with fixed table layout, the user
+         agent will usually only consult the cells in the first row to
+         construct the column widths of the entire toable. Therefore, the
+         first row needs to have two cells -->
+        <tr><td></td><td></td></tr>
         <tr>
             <th colspan="2">
                 <h4>New Ticket</h4>
@@ -27,8 +32,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr><td>Client:</td><td>
             <div id="client-info">
                 <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
+            <a href="#" onclick="javascript:
+                $.userLookup('ajax.php/users/<?php echo $user->getId(); ?>/edit',
+                        function (user) {
+                            $('#client-name').text(user.name);
+                            $('#client-email').text(user.email);
+                        });
+                return false;
+                "><i class="icon-user"></i>
                 <span id="client-name"><?php echo $user->getName(); ?></span>
-                <span id="client-email">&lt;<?php echo $user->getEmail(); ?>&gt;</span>
+                &lt;<span id="client-email"><?php echo $user->getEmail(); ?></span>&gt;
+                </a>
                 <a class="action-button" style="float:none;overflow:inherit" href="#"
                     onclick="javascript:
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),

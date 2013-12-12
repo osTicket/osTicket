@@ -366,8 +366,7 @@ class osTicket {
         return null;
     }
 
-    /* static */
-    function get_root_path($dir) {
+    static function get_root_path($dir) {
 
         /* If run from the commandline, DOCUMENT_ROOT will not be set. It is
          * also likely that the ROOT_PATH will not be necessary, so don't
@@ -398,7 +397,8 @@ class osTicket {
          * the osTicket installation. That is removed from SCRIPT_NAME.
          * What's left is the ROOT_PATH.
          */
-        $frame = array_pop(debug_backtrace(false));
+        $bt = debug_backtrace(false);
+        $frame = array_pop($bt);
         $file = str_replace('\\','/', $frame['file']);
         $path = substr($file, strlen(ROOT_DIR));
         if($path && ($pos=strpos($_SERVER['SCRIPT_NAME'], $path))!==false)
