@@ -80,7 +80,7 @@ class Dept {
         global $cfg;
 
         if(!$this->email)
-            if(!($this->email = Email::lookup($this->getEmailId())))
+            if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
                 $this->email = $cfg->getDefaultEmail();
 
         return $this->email;
