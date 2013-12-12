@@ -103,19 +103,15 @@ class Upgrader {
         return $this->getCurrentStream()->upgrade();
     }
 
-    function check_prereq() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->check_prereq();
+    function __call($what, $args) {
+        if ($this->getCurrentStream()) {
+            $callable = array($this->getCurrentStream(), $what);
+            if (!is_callable($callable))
+                throw new Exception('InternalError: Upgrader method not callable: '
+                    . $what);
+            return call_user_func_array($callable, $args);
+        }
     }
-    function check_php() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->check_php();
-    }
-    function check_mysql() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->check_mysql();
-    }
-
 
     function getTask() {
         if($this->getCurrentStream())
@@ -213,6 +209,9 @@ class StreamUpgrader extends SetupWizard {
         $this->migrater = null;
     }
 
+    function check_prereq() {
+        return (parent::check_prereq() && $this->check_mysql_version());
+    }
     function onError($error) {
         global $ost, $thisstaff;
 

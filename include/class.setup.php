@@ -93,6 +93,10 @@ Class SetupWizard {
         return (extension_loaded('mysqli'));
     }
 
+    function check_mysql_version() {
+        return (version_compare(db_version(), $this->getMySQLVersion())>=0);
+    }
+
     function check_prereq() {
         return ($this->check_php() && $this->check_mysql());
     }

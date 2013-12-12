@@ -17,7 +17,7 @@ if(!defined('SETUPINC')) die('Kwaheri!');
                 <li class="<?php echo $installer->check_php()?'yes':'no'; ?>">
                 PHP v5.3 or greater - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
                 <li class="<?php echo $installer->check_mysql()?'yes':'no'; ?>">
-                MySQL v5.0 or greater - (<small><b><?php echo extension_loaded('mysql')?'module loaded':'missing!'; ?></b></small>)</li>
+                MySQLi extension for PHP - (<small><b><?php echo extension_loaded('mysqli')?'module loaded':'missing!'; ?></b></small>)</li>
             </ul>
             <h3>Recommended:</h3>
             You can use osTicket without these, but you may not be able to use all features.
