@@ -664,12 +664,6 @@ class TicketFilter {
      *   emailId - id of osTicket's system email (for emailed tickets)
      *  ---------------
      *  @see Filter::matches() for a complete list of supported keys
-     *
-     *  IF $vars is not provided, every (active) filter will be fetched from the
-     *  database and matched against the incoming ticket. Otherwise, a subset
-     *  of filters from the database that appear to have rules that
-     *  deal with the data in the incoming ticket (based on $vars) will be considered.
-     *  @see ::quickList() for more information.
      */
     function TicketFilter($origin, $vars=array()) {
 
@@ -697,7 +691,7 @@ class TicketFilter {
         $this->short_list = null;
 
         //Query DB for "possibly" matching filters.
-        $res = $this->vars?$this->quickList():$this->getAllActive();
+        $res = $this->getAllActive();
         if($res) {
             while (list($id) = db_fetch_row($res))
                 array_push($this->filters, new Filter($id));
@@ -770,88 +764,6 @@ class TicketFilter {
         return db_query($sql);
     }
 
-    /**
-     * Fast lookup function to all filters that have at least one rule that
-     * matches the received address or name or is not defined to match based
-     * on an email-address or sender-name. This method is meant to retrieve
-     * all possible filters that could potentially match the given
-     * arguments. This method will request the database to make a first pass
-     * and eliminate the filters from being considered that would never
-     * match the received email.
-     *
-     * Returns an array<Filter::Id> which will need to have their respective
-     * matches() method queried to determine if the Filter actually matches
-     * the email.
-     *
-     * -----> Disclaimer <------------------
-     * It would seem that this would not work; however, bear in mind that
-     * this logic is completely backwards from the database design. Rather
-     * than determining if the email matches the rules, we're determining if
-     * the rules *might* apply to the email. This is a "quick" method,
-     * because it does not request the database to fully verify that the
-     * rule matches the email. Nor does it fetch the rule or filter
-     * information from the database. Whether the filter will completely
-     * match or not is determined in the Filter::matches() method.
-     */
-     function quickList() {
-
-        if(!$this->vars || !$this->vars['email'])
-            return $this->getAllActive();
-
-        $sql='SELECT DISTINCT filter_id FROM '.FILTER_RULE_TABLE.' rule '
-            .' INNER JOIN '.FILTER_TABLE.' filter '
-            .' ON (filter.id=rule.filter_id) '
-            .' WHERE filter.isactive '
-            ."  AND filter.target IN ('Any', ".db_input($this->getTarget()).') ';
-
-        # Filter by system's email-id if specified
-        if($this->vars['emailId'])
-            $sql.=' AND (filter.email_id=0 OR filter.email_id='.db_input($this->vars['emailId']).')';
-
-        # Include rules for sender-email, sender-name and subject as
-        # requested
-        $sql.=" AND ((what='email' AND LOCATE(val, ".db_input($this->vars['email']).'))';
-        if($this->vars['name'])
-            $sql.=" OR (what='name' AND LOCATE(val, ".db_input($this->vars['name']).'))';
-        if($this->vars['subject'])
-            $sql.=" OR (what='subject' AND LOCATE(val, ".db_input($this->vars['subject']).'))';
-
-        # Always include negative-logic rules
-        $sql.=" OR how IN ('dn_contain', 'not_equal')";
-
-
-        # Also include filters that do not have any rules concerning either
-        # sender-email-addresses or sender-names or subjects
-        $sql.=") OR filter.id IN ("
-               ." SELECT filter_id "
-               ." FROM ".FILTER_RULE_TABLE." rule"
-               ." INNER JOIN ".FILTER_TABLE." filter"
-               ." ON (rule.filter_id=filter.id)"
-               ." WHERE filter.isactive"
-               ." AND filter.target IN('Any', ".db_input($this->getTarget()).")"
-               ." GROUP BY filter_id"
-               ." HAVING COUNT(*)-COUNT(NULLIF(what,'email'))=0";
-        if (!$this->vars['name']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'name'))=0";
-        if (!$this->vars['subject']) $sql.=" AND COUNT(*)-COUNT(NULLIF(what,'subject'))=0";
-        # Also include filters that do not have match_all_rules set to and
-        # have at least one rule 'what' type that wasn't considered e.g body
-        $sql.=") OR filter.id IN ("
-               ." SELECT filter_id"
-               ." FROM ".FILTER_RULE_TABLE." rule"
-               ." INNER JOIN ".FILTER_TABLE." filter"
-               ." ON (rule.filter_id=filter.id)"
-               ." WHERE filter.isactive"
-               ." AND filter.target IN ('Any', ".db_input($this->getTarget()).")"
-               ." AND what NOT IN ('email'"
-        # Handle sender-name and subject if specified
-               .((!$this->vars['name'])?",'name'":"")
-               .((!$this->vars['subject'])?",'subject'":"")
-               .") AND filter.match_all_rules = 0 "
-        # Return filters in declared execution order
-            .") ORDER BY filter.execorder";
-
-        return db_query($sql);
-    }
     /**
      * Quick function to determine if the received email-address is
      * indicated by an active email filter to be banned. Returns the id of
