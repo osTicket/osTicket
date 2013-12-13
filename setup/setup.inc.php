@@ -58,10 +58,6 @@ require_once(INCLUDE_DIR.'class.validator.php');
 require_once(INCLUDE_DIR.'class.passwd.php');
 require_once(INCLUDE_DIR.'class.format.php');
 require_once(INCLUDE_DIR.'class.misc.php');
-
-if (extension_loaded('mysqli'))
-    require_once INCLUDE_DIR.'mysqli.php';
-else
-    require(INCLUDE_DIR.'mysql.php');
+require_once INCLUDE_DIR.'mysqli.php';
 
 ?>
