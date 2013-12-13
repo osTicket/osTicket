@@ -51,6 +51,13 @@ class UsersAjaxAPI extends AjaxController {
             }
         }
 
+        foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
+            $name = "{$u['first']} {$u['last']}";
+            $users[] = array('email' => $u['email'], 'name'=>$name,
+                'info' => "{$u['email']} - $name (remote)",
+                'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
+        }
+
         return $this->json_encode($users);
 
     }
@@ -108,6 +115,24 @@ class UsersAjaxAPI extends AjaxController {
         return self::_lookupform($form, $info);
     }
 
+    function addRemoteUser($bk, $id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!$bk || !$id)
+            Http::response(422, 'Backend and user id required');
+        elseif (!($backend = AuthenticationBackend::getBackend($bk)))
+            Http::response(404, 'User not found');
+
+        $user_info = $backend->lookup($id);
+        $form = UserForm::getUserForm()->getForm($user_info);
+        if (!$user_info)
+            $info = array('error' => 'Unable to find user in directory');
+
+        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
+    }
+
     function getLookupForm() {
         return self::_lookupform();
     }
@@ -152,7 +177,7 @@ class UsersAjaxAPI extends AjaxController {
 
         $users = array();
         foreach (AuthenticationBackend::allRegistered() as $ab) {
-            if (!$ab->supportsSearch())
+            if (!$ab instanceof AuthDirectorySearch)
                 continue;
 
             foreach ($ab->search($_REQUEST['q']) as $u)
