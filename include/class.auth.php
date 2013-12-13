@@ -11,6 +11,22 @@ class AuthenticatedUser {
     function getUsername() {}
 }
 
+interface AuthDirectorySearch {
+    /**
+     * Indicates if the backend can be used to search for user information.
+     * Lookup is performed to find user information based on a unique
+     * identifier.
+     */
+    function lookup($id);
+
+    /**
+     * Indicates if the backend supports searching for usernames. This is
+     * distinct from information lookup in that lookup is intended to lookup
+     * information based on a unique identifier
+     */
+    function search($query);
+}
+
 /**
  * Authentication backend
  *
@@ -35,11 +51,16 @@ class AuthenticationBackend {
     static function register($class) {
         if (is_string($class))
             $class = new $class();
-        static::$registry[] = $class;
+        // XXX: Raise error if $class::id is already in the registry
+        static::$registry[$class::$id] = $class;
     }
 
     static function allRegistered() {
         return static::$registry;
+    }
+
+    static function getBackend($id) {
+        return static::$registry[$id];
     }
 
     /* static */
@@ -96,6 +117,16 @@ class AuthenticationBackend {
                 break;
             }
         }
+    }
+
+    static function searchUsers($query) {
+        $users = array();
+        foreach (static::$registry as $bk) {
+            if ($bk instanceof AuthDirectorySearch) {
+                $users += $bk->search($query);
+            }
+        }
+        return $users;
     }
 
     function _isBackendAllowed($staff, $bk) {
@@ -162,24 +193,6 @@ class AuthenticationBackend {
      */
     function supportsAuthentication() {
         return true;
-    }
-
-    /**
-     * Indicates if the backend can be used to search for user information.
-     * Lookup is performed to find user information based on a unique
-     * identifier.
-     */
-    function supportsLookup() {
-        return false;
-    }
-
-    /**
-     * Indicates if the backend supports searching for usernames. This is
-     * distinct from information lookup in that lookup is intended to lookup
-     * information based on a unique identifier
-     */
-    function supportsSearch() {
-        return false;
     }
 
     /**

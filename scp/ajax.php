@@ -67,6 +67,7 @@ $dispatcher = patterns('',
         url_post('^/lookup/form$', 'addUser'),
         url_get('^/select$', 'selectUser'),
         url_get('^/select/(?P<id>\d+)$', 'selectUser'),
+        url_get('^/select/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteUser'),
         url_get('^/staff$', 'searchStaff')
     )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
