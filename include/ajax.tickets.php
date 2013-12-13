@@ -449,6 +449,26 @@ class TicketsAjaxAPI extends AjaxController {
         return $resp;
     }
 
+    function addRemoteCollaborator($tid, $bk, $id) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+        elseif (!$bk || !$id)
+            Http::response(422, 'Backend and user id required');
+        elseif (!($backend = AuthenticationBackend::getBackend($bk)))
+            Http::response(404, 'User not found');
+
+        $user_info = $backend->lookup($id);
+        $form = UserForm::getUserForm()->getForm($user_info);
+        $info = array();
+        if (!$user_info)
+            $info['error'] = 'Unable to find user in directory';
+
+        return self::_addcollaborator($ticket, null, $form, $info);
+    }
+
     //Collaborators utils
     function addCollaborator($tid, $uid=0) {
         global $thisstaff;

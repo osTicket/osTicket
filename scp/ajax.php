@@ -82,6 +82,7 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/collaborators/manage$', 'showCollaborators'),
         url_post('^(?P<tid>\d+)/collaborators$', 'updateCollaborators'),
         url_get('^(?P<tid>\d+)/add-collaborator/(?P<uid>\d+)$', 'addCollaborator'),
+        url_get('^(?P<tid>\d+)/add-collaborator/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteCollaborator'),
         url('^(?P<tid>\d+)/add-collaborator$', 'addCollaborator'),
         url_get('^lookup', 'lookup'),
         url_get('^search', 'search')
