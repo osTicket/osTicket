@@ -192,10 +192,8 @@ $$x=' class="'.strtolower($order).'" ';
 if($_GET['limit'])
     $qstr.='&limit='.urlencode($_GET['limit']);
 
-$qselect ='SELECT DISTINCT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_id,ticket.team_id '
-    .',MAX(IF(field.name = \'subject\', ans.value, NULL)) as `subject`'
-    .',MAX(IF(field.name = \'priority\', ans.value, NULL)) as `priority_desc`'
-    .',MAX(IF(field.name = \'priority\', ans.value_id, NULL)) as `priority_id`'
+$qselect ='SELECT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_id,ticket.team_id '
+    .' ,c_data.*'
     .' ,user.name'
     .' ,email.address as email, dept_name '
          .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created ';
@@ -203,18 +201,13 @@ $qselect ='SELECT DISTINCT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,tick
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
        ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
-       ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id '.
-       ' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.object_type=\'T\'
-             and entry.object_id=ticket.ticket_id'.
-       ' LEFT JOIN '.FORM_ANSWER_TABLE.' ans ON ans.entry_id = entry.id'.
-       ' LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id';
+       ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id ';
 
 $sjoin='';
 if($search && $deep_search) {
     $sjoin=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
 }
 
-$qgroup=' GROUP BY ticket.ticket_id';
 //get ticket count based on the query so far..
 $total=db_count("SELECT count(DISTINCT ticket.ticket_id) $qfrom $sjoin $qwhere");
 //pagenate
@@ -224,18 +217,27 @@ $pageNav=new Pagenate($total,$page,$pagelimit);
 $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 
 //ADD attachment,priorities, lock and other crap
-$qselect.=' ,count(attach.attach_id) as attachments '
-         .' ,count(DISTINCT thread.id) as thread_count '
+$qselect.=' ,attach.attachments '
+         .' ,thread.thread_count '
          .' ,IF(ticket.duedate IS NULL,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)), ticket.duedate) as duedate '
          .' ,CAST(GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.reopened, 0), ticket.created) as datetime) as effective_date '
          .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
          .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic ';
 
-$qfrom.=' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()
+
+$qfrom .= ' LEFT JOIN (SELECT entry.object_id as ticket_id,
+    MAX(IF(field.name = \'subject\', ans.value, NULL)) as `subject`,
+    MAX(IF(field.name = \'priority\', ans.value, NULL)) as `priority_desc`,
+    MAX(IF(field.name = \'priority\', ans.value_id, NULL)) as `priority_id`
+    FROM '.FORM_ENTRY_TABLE.' entry
+    LEFT JOIN '.FORM_ANSWER_TABLE.' ans ON ans.entry_id = entry.id
+    LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id
+    WHERE entry.object_type=\'T\' GROUP BY entry.object_id) c_data ON c_data.ticket_id = ticket.ticket_id '
+    .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON (ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()
                AND tlock.staff_id!='.db_input($thisstaff->getId()).') '
-       .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
-       .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
+       .' LEFT JOIN (select ticket_id, count(attach_id) as attachments FROM '.TICKET_ATTACHMENT_TABLE.' attach  GROUP BY ticket_id) attach ON (ticket.ticket_id=attach.ticket_id) '
+       .' LEFT JOIN (SELECT ticket_id, count(id) as thread_count FROM '.TICKET_THREAD_TABLE.' thread GROUP BY ticket_id) thread ON ( ticket.ticket_id=thread.ticket_id) '
        .' LEFT JOIN '.STAFF_TABLE.' staff ON (ticket.staff_id=staff.staff_id) '
        .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) '
        .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
@@ -248,7 +250,7 @@ $prios = array();
 while ($row = db_fetch_array($res))
     $prios[$row['priority_id']] = $row;
 
-$query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
+$query="$qselect $qfrom $qwhere ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 $hash = md5($query);
 $_SESSION['search_'.$hash] = $query;
