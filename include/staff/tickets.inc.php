@@ -141,7 +141,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
 }
 
 $sortOptions=array('date'=>'effective_date','ID'=>'ticketID',
-    'pri'=>'priority_id','name'=>'user.name','subj'=>'subject',
+    'pri'=>'priority_urgency','name'=>'user.name','subj'=>'subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept_name');
 
@@ -176,16 +176,16 @@ if(!$order_by ) {
     elseif(!strcasecmp($status,'closed'))
         $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
     elseif($showoverdue) //priority> duedate > age in ASC order.
-        $order_by='priority_id, ISNULL(duedate) ASC, duedate ASC, effective_date ASC, ticket.created';
+        $order_by='priority_urgency ASC, ISNULL(duedate) ASC, duedate ASC, effective_date ASC, ticket.created';
     else //XXX: Add due date here?? No -
-        $order_by='priority_id, effective_date DESC, ticket.created';
+        $order_by='priority_urgency ASC, effective_date DESC, ticket.created';
 }
 
 $order=$order?$order:'DESC';
 if($order_by && strpos($order_by,',') && $order)
     $order_by=preg_replace('/(?<!ASC|DESC),/', " $order,", $order_by);
 
-$sort=$_REQUEST['sort']?strtolower($_REQUEST['sort']):'priority_id'; //Urgency is not on display table.
+$sort=$_REQUEST['sort']?strtolower($_REQUEST['sort']):'urgency'; //Urgency is not on display table.
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
@@ -196,7 +196,7 @@ $qselect ='SELECT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_
     .' ,c_data.*'
     .' ,user.name'
     .' ,email.address as email, dept_name '
-         .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created ';
+         .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created,pri.* ';
 
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
@@ -242,13 +242,8 @@ $qfrom .= ' LEFT JOIN (SELECT entry.object_id as ticket_id,
        .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) '
        .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
        .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
-       .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) ';
-
-// Fetch priority information
-$res = db_query('select * from '.PRIORITY_TABLE);
-$prios = array();
-while ($row = db_fetch_array($res))
-    $prios[$row['priority_id']] = $row;
+       .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) '
+       .' LEFT JOIN '.PRIORITY_TABLE.' pri ON (c_data.priority_id = pri.priority_id) ';
 
 $query="$qselect $qfrom $qwhere ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
@@ -404,8 +399,8 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
                 } else { ?>
-                <td class="nohover" align="center" style="background-color:<?php echo $prios[$row['priority_id']]['priority_color']; ?>;">
-                    <?php echo $prios[$row['priority_id']]['priority_desc']; ?></td>
+                <td class="nohover" align="center" style="background-color:<?php echo $row['priority_color']; ?>;">
+                    <?php echo $row['priority_desc']; ?></td>
                 <?php
                 }
                 ?>
