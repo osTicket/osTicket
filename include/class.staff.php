@@ -812,10 +812,10 @@ class Staff extends AuthenticatedUser {
 
         if($vars['passwd1']) {
             $sql.=' ,passwd='.db_input(Passwd::hash($vars['passwd1']));
-        }
 
-        if(isset($vars['change_passwd']))
-            $sql.=' ,change_passwd=1';
+            if(isset($vars['change_passwd']))
+                $sql.=' ,change_passwd=1';
+        }
 
         if($id) {
             $sql='UPDATE '.STAFF_TABLE.' '.$sql.' WHERE staff_id='.db_input($id);
