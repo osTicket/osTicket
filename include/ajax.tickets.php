@@ -450,16 +450,19 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     //Collaborators utils
-    function addCollaborator($tid) {
+    function addCollaborator($tid, $uid=0) {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
+
+        $user = $uid? User::lookup($uid) : null;
+
         //If not a post then assume new collaborator form
         if(!$_POST)
-            return self::_addcollaborator($ticket);
+            return self::_addcollaborator($ticket, $user);
 
         $user = $form = null;
         if (isset($_POST['id']) && $_POST['id']) { //Existing user/
@@ -540,9 +543,9 @@ class TicketsAjaxAPI extends AjaxController {
 
         $info += array(
                     'title' => sprintf('Ticket #%s: Add a collaborator', $ticket->getNumber()),
-                    'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId())
+                    'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId()),
+                    'onselect' => sprintf('ajax.php/tickets/%d/add-collaborator/', $ticket->getId()),
                     );
-
         return self::_userlookup($user, $form, $info);
     }
 
