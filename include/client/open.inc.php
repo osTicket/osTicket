@@ -40,14 +40,18 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
     </tr>
 <?php
         if (!$thisclient) {
-            UserForm::getUserForm()->render(false, 'Your Information');
+            $uform = UserForm::getUserForm()->getForm($_POST);
+            if ($_POST) $uform->isValid();
+            $uform->render(false, 'Your Information');
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
         <tr><td>Email:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
         <tr><td>Client:</td><td><?php echo $thisclient->getName(); ?></td></tr>
         <?php }
-        TicketForm::getInstance()->render(false); ?>
+        $tform = TicketForm::getInstance()->getForm($_POST);
+        if ($_POST) $tform->isValid();
+        $tform->render(false); ?>
     </tbody>
     <tbody id="dynamic-form">
         <?php if ($form) {

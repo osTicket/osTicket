@@ -222,12 +222,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <?php
         }
-        TicketForm::getInstance()->render(true);
+        $tform = TicketForm::getInstance()->getForm($_POST);
+        if ($_POST) $tform->isValid();
+        $tform->render(true);
         ?>
         </tbody>
         <tbody id="dynamic-form">
         <?php
-            if ($form) $form->render(true);
+            if ($form) $form->getForm()->render(true);
         ?>
         </tbody>
         <tbody>
