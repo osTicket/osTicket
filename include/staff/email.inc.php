@@ -123,7 +123,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Username
             </td>
             <td>
-                <input type="text" size="35" name="userid" value="<?php echo $info['userid']; ?>">
+                <input type="text" size="35" name="userid" value="<?php echo $info['userid']; ?>"
+                    autocomplete="off" autocorrect="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['userid']; ?>&nbsp;</span>
             </td>
         </tr>
@@ -132,7 +133,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                Password
             </td>
             <td>
-                <input type="password" size="35" name="passwd" value="<?php echo $info['passwd']; ?>">
+                <input type="password" size="35" name="passwd" value="<?php echo $info['passwd']; ?>"
+                    autocomplete="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd']; ?>&nbsp;</span>
                 <br><em><?php echo $passwdtxt; ?></em>
             </td>
