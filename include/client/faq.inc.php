@@ -29,4 +29,4 @@ if($faq->getNumAttachments()) { ?>
 </div>
 </p>
 <hr>
-<div class="faded">&nbsp;Last updated <?php echo Format::db_daydatetime($category->getUpdateDate()); ?></div>
+<div class="faded">&nbsp;Last updated <?php echo Format::db_date($faq->getUpdateDate()); ?></div>
