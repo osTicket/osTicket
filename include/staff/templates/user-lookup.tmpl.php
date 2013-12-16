@@ -16,7 +16,7 @@ if ($info['error']) {
     <i class="icon-user icon-4x pull-left icon-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
         id="unselect-user"  href="#"><i class="icon-remove"></i> Add New User</a>
-    <div><strong id="user-name"><?php echo $user ? Format::htmlchars($user->getName()) : ''; ?></strong></div>
+    <div><strong id="user-name"><?php echo $user ? Format::htmlchars($user->getName()->getOriginal()) : ''; ?></strong></div>
     <div>&lt;<span id="user-email"><?php echo $user ? $user->getEmail() : ''; ?></span>&gt;</div>
 <?php if ($user) { ?>
     <table style="margin-top: 1em;">
