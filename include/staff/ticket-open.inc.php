@@ -62,7 +62,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td width="160" class="required"> Email Address: </td>
             <td>
                 <span style="display:inline-block;">
-                    <input type="text" size=45 name="email" id="user-email" value="<?php echo $info['email']; ?>" /> </span>
+                    <input type="text" size=45 name="email" id="user-email"
+                        autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
                 <font class="error">* <?php echo $errors['email']; ?></font>
             </td>
         </td>
