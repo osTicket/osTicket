@@ -133,7 +133,7 @@ class AuthenticationBackend {
         $sql = 'SELECT backend FROM '.STAFF_TABLE
             .' WHERE staff_id='.db_input($staff->getId());
         $backend = db_result(db_query($sql));
-        return !$backend || strcasecmp($bk, $backend) === 0;
+        return !$backend || strcasecmp($bk::$id, $backend) === 0;
     }
 
     function _getAllowedBackends($username) {
