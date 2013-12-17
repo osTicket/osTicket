@@ -224,7 +224,7 @@ CREATE TABLE `%TABLE_PREFIX%email_filter_rule` (
 
 -- SYSTEM BAN LIST was the first filter created, with ID of '1'
 INSERT INTO `%TABLE_PREFIX%email_filter_rule` (`filter_id`, `what`, `how`, `val`)
-    SELECT LAST_INSERT_ID(), 'email', 'equals', email FROM `%TABLE_PREFIX%email_banlist`;
+    SELECT LAST_INSERT_ID(), 'email', 'equal', email FROM `%TABLE_PREFIX%email_banlist`;
 
 -- Create table session
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
