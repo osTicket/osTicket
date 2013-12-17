@@ -51,9 +51,12 @@ class Form {
     }
 
     function getField($name) {
-        foreach($this->getFields() as $f)
+        $fields = $this->getFields();
+        foreach($fields as $f)
             if(!strcasecmp($f->get('name'), $name))
                 return $f;
+        if (isset($fields[$name]))
+            return $fields[$name];
     }
 
     function getTitle() { return $this->title; }
