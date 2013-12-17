@@ -40,8 +40,8 @@ if(($users=$ticket->getCollaborators())) {?>
     <div id="savewarning" style="display:none; padding-top:2px;"><p id="msg_warning">You have made changes that you need to save.</p></div>
     <p class="full-width">
         <span class="buttons" style="float:left">
+            <input type="button" value="Cancel" class="close">
             <input type="reset" value="Reset">
-            <input type="button" value="Done" class="close">
         </span>
         <span class="buttons" style="float:right">
             <input type="submit" value="Save Changes">

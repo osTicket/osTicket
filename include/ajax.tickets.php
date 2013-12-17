@@ -554,12 +554,12 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
-       $errors = $info = array();
-        if ($ticket->updateCollaborators($_POST, $errors)) {
-            $info +=array('msg' => 'Collaborators updated successfully');
-        } elseif($errors && $errors['err']) {
+        $errors = $info = array();
+        if ($ticket->updateCollaborators($_POST, $errors))
+            Http::response(201, sprintf('Recipients (%d)', $ticket->getNumCollaborators()));
+
+        if($errors && $errors['err'])
             $info +=array('error' => $errors['err']);
-        }
 
         return self::_collaborators($ticket, $info);
     }
