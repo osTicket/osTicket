@@ -154,8 +154,7 @@ if($ticket->isOverdue())
                                         $('#user-'+user.id+'-name').text(user.name);
                                         $('#user-'+user.id+'-email').text(user.email);
                                         $('#user-'+user.id+'-phone').text(user.phone);
-                                        $('#user-to-name').text(user.name);
-                                        $('#user-to-email').text(user.email);
+                                        $('select#emailreply option[value=1]').text(user.name+' <'+user.email+'>');
                                     });
                             return false;
                             "><i class="icon-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
