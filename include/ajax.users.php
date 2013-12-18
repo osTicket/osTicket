@@ -127,8 +127,9 @@ class UsersAjaxAPI extends AjaxController {
 
         $user_info = $backend->lookup($id);
         $form = UserForm::getUserForm()->getForm($user_info);
+        $info = array('title' => 'Import Remote User');
         if (!$user_info)
-            $info = array('error' => 'Unable to find user in directory');
+            $info['error'] = 'Unable to find user in directory';
 
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
     }
