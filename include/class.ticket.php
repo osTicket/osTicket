@@ -1345,6 +1345,7 @@ class Ticket {
 
         $this->onAssign($staff, $note, $alert);
         $this->logEvent('assigned');
+        $this->getLock()->release();
 
         return true;
     }
