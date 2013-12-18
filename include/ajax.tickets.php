@@ -579,7 +579,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = $info = array();
         if ($ticket->updateCollaborators($_POST, $errors))
-            Http::response(201, sprintf('Recipients (%d)', $ticket->getNumCollaborators()));
+            Http::response(201, sprintf('Recipients (%d)', $ticket->getNumActiveCollaborators()));
 
         if($errors && $errors['err'])
             $info +=array('error' => $errors['err']);

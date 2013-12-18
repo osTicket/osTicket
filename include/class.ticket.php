@@ -565,6 +565,14 @@ class Ticket {
         return $this->ht['collaborators'];
     }
 
+    function getNumActiveCollaborators() {
+
+        if (!isset($this->ht['active_collaborators']))
+            $this->ht['active_collaborators'] = count($this->getActiveCollaborators());
+
+        return $this->ht['active_collaborators'];
+    }
+
     function getActiveCollaborators() {
         return $this->getCollaborators(array('isactive'=>1));
     }
@@ -630,6 +638,7 @@ class Ticket {
 
         db_query($sql);
 
+        unset($this->ht['active_collaborators']);
         $this->collaborators = null;
 
         return true;

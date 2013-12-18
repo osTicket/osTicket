@@ -454,7 +454,7 @@ $tcount+= $ticket->getNumNotes();
                     }
                     $recipients = 'Add Recipients';
                     if ($ticket->getNumCollaborators())
-                        $recipients = sprintf('Recipients (%d)', $ticket->getNumCollaborators());
+                        $recipients = sprintf('Recipients (%d)', $ticket->getNumActiveCollaborators());
 
                     echo sprintf('<span><a class="collaborators"
                             href="#tickets/%d/collaborators/manage"><span id="recipients">%s</span></a></span>',
