@@ -154,8 +154,7 @@ if($ticket->isOverdue())
                                         $('#user-'+user.id+'-name').text(user.name);
                                         $('#user-'+user.id+'-email').text(user.email);
                                         $('#user-'+user.id+'-phone').text(user.phone);
-                                        $('#user-to-name').text(user.name);
-                                        $('#user-to-email').text(user.email);
+                                        $('select#emailreply option[value=1]').text(user.name+' <'+user.email+'>');
                                     });
                             return false;
                             "><i class="icon-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
@@ -440,11 +439,11 @@ $tcount+= $ticket->getNumNotes();
             <?php
             if(1) { //Make CC optional feature? NO, for now.
                 ?>
-            <tbody id="cc_sec" style="display:<?php echo $emailReply?
-            'table-row-group':'none'; ?>;">
-            <tr>
+            <tbody id="cc_sec"
+                style="display:<?php echo $emailReply?  'table-row-group':'none'; ?>;">
+             <tr>
                 <td width="120">
-                    <label><strong>Recipients:</strong></label>
+                    <label><strong>Collaborators:</strong></label>
                 </td>
                 <td>
                     <?php
@@ -452,18 +451,18 @@ $tcount+= $ticket->getNumNotes();
                         <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
                             <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>>
                        <?php
-                        echo sprintf('<a class="collaborators"
-                                href="#tickets/%d/collaborators/manage">Collaborators (%d)</a>',
-                                $ticket->getId(),
-                                $ticket->getNumCollaborators());
-                    } else {
-                        echo sprintf('<div><a class="collaborators"
-                                href="#tickets/%d/collaborators/manage" >Add Collaborators</a></div>',
-                                $ticket->getId());
                     }
+                    $recipients = 'Add Recipients';
+                    if ($ticket->getNumCollaborators())
+                        $recipients = sprintf('Recipients (%d)', $ticket->getNumCollaborators());
+
+                    echo sprintf('<span><a class="collaborators"
+                            href="#tickets/%d/collaborators/manage"><span id="recipients">%s</span></a></span>',
+                            $ticket->getId(),
+                            $recipients);
                    ?>
                 </td>
-            </tr>
+             </tr>
             </tbody>
             <?php
             } ?>
