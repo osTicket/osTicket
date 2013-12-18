@@ -1,4 +1,31 @@
-osTicket v1.8
+osTicket v1.8.0.1
+=================
+### Enhancements
+  * Allow edit of user on the ticket open page (#291)
+  * Display complete contact information to lookup dialog (07ec37d)
+  * Clarify `mysqli` extension requirement on install and upgrade pages (#309,
+    334461e)
+  * Add option to display unprocessed name (original) (#323)
+
+### Bugfixes
+  * Fix parser error for PHP < 5.3 on upgrade and install (1ff1540)
+  * Remove dependency on mbstring (for real this time) (50d3d70)
+  * Fix incorrect advanced search hits on some custom fields (#290)
+  * Custom forms require a title (otherwise you cannot click on them to edit)
+    (#293)
+  * Update client phone number on ticket view page after update (#292)
+  * Fix regression where validation errors were not shown on new ticket form
+    (#303)
+  * Fix bug where client name and email were not filterable for web submissions
+    (#319)
+  * Fix various autocorrect annoyances (#321)
+
+### Performance and Security
+  * Improve performance of ticket filtering on some configurations (#301)
+  * Fix possible cross site scripting (XSS) vulnerability on display of contact
+    information values (#297)
+
+osTicket v1.8.0
 =============
 ### Enhancements
   * Rich text ticket thread (#5)

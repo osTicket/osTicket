@@ -183,10 +183,7 @@ class Bootstrap {
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
         require(INCLUDE_DIR.'class.mailer.php');
-        if (extension_loaded('mysqli'))
-            require_once INCLUDE_DIR.'mysqli.php';
-        else
-            require(INCLUDE_DIR.'mysql.php');
+        require_once INCLUDE_DIR.'mysqli.php';
     }
 
     function i18n_prep() {

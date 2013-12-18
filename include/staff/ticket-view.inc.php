@@ -931,9 +931,10 @@ $tcount+= $ticket->getNumNotes();
         Are you sure want to <b>unassign</b> ticket from <b><?php echo $ticket->getAssigned(); ?></b>?
     </p>
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
-        <p id="msg_warning">
-        <b><?php echo Format::htmlchars($ticket->getName()); ?></b> &lt;<?php echo $ticket->getEmail(); ?>&gt; will no longer have access to the ticket.
-        </p>
+        <span id="msg_warning" style="display:block;vertical-align:top">
+        <b><?php echo Format::htmlchars($ticket->getName()); ?></b> &lt;<?php echo $ticket->getEmail(); ?>&gt;
+        <br> will no longer have access to the ticket.
+        </span>
         Are you sure want to <b>change</b> ticket owner to <b><span id="newuser">this guy</span></b>?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">

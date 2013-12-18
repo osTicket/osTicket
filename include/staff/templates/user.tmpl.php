@@ -20,7 +20,7 @@ if ($info['error']) {
     <?php
     } ?>
     <div><b><a href="#" id="edituser"><i class="icon-edit"></i>&nbsp;<?php
-    echo Format::htmlchars($user->getName()); ?></a></b></div>
+    echo Format::htmlchars($user->getName()->getOriginal()); ?></a></b></div>
     <div>&lt;<?php echo $user->getEmail(); ?>&gt;</div>
     <table style="margin-top: 1em;">
 <?php foreach ($user->getDynamicData() as $entry) {

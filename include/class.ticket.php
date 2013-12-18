@@ -2059,6 +2059,13 @@ class Ticket {
         foreach ($form->getFields() as $f)
             $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
 
+        // Unpack the basic user information
+        $interesting = array('name', 'email');
+        $user_form = UserForm::getUserForm()->getForm($vars);
+        foreach ($user_form->getFields() as $f)
+            if (in_array($f->get('name'), $interesting))
+                $vars[$f->get('name')] = $f->toString($f->getClean());
+
         //Init ticket filters...
         $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected

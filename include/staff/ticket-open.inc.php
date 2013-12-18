@@ -62,7 +62,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td width="160" class="required"> Email Address: </td>
             <td>
                 <span style="display:inline-block;">
-                    <input type="text" size=45 name="email" id="user-email" value="<?php echo $info['email']; ?>" /> </span>
+                    <input type="text" size=45 name="email" id="user-email"
+                        autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
                 <font class="error">* <?php echo $errors['email']; ?></font>
             </td>
         </td>
@@ -222,12 +223,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <?php
         }
-        TicketForm::getInstance()->render(true);
+        $tform = TicketForm::getInstance()->getForm($_POST);
+        if ($_POST) $tform->isValid();
+        $tform->render(true);
         ?>
         </tbody>
         <tbody id="dynamic-form">
         <?php
-            if ($form) $form->render(true);
+            if ($form) $form->getForm()->render(true);
         ?>
         </tbody>
         <tbody>

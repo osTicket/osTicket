@@ -296,6 +296,7 @@ class PersonsName {
         'short' => array("First L.", 'getShort'),
         'shortformal' => array("F. Last", 'getShortFormal'),
         'complete' => array("Mr. First M. Last Sr.", 'getComplete'),
+        'original' => array('-- As Entered --', 'getOriginal'),
     );
 
     function __construct($name) {
@@ -366,6 +367,16 @@ class PersonsName {
 
     function getOriginal() {
         return $this->name;
+    }
+
+    function getInitials() {
+        $names = array($this->parts['first']);
+        $names = array_merge($names, explode(' ', $this->parts['middle']));
+        $names[] = $this->parts['last'];
+        $initials = '';
+        foreach (array_filter($names) as $n)
+            $initials .= mb_substr($n,0,1);
+        return mb_convert_case($initials, MB_CASE_UPPER);
     }
 
     function getName() {

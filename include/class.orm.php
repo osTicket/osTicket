@@ -160,16 +160,18 @@ class VerySimpleModel {
         $filter = $fields = array();
         if (count($this->dirty) === 0)
             return;
-        foreach ($this->dirty as $field=>$old)
-            if ($this->__new__ or !in_array($field, $pk))
+        foreach ($this->dirty as $field=>$old) {
+            if ($this->__new__ or !in_array($field, $pk)) {
                 if (@get_class($this->get($field)) == 'SqlFunction')
                     $fields[] = $field.' = '.$this->get($field)->toSql();
                 else
                     $fields[] = $field.' = '.db_input($this->get($field));
-        foreach ($pk as $p)
-            $filter[] = $p.' = '.db_input($this->get($p));
+            }
+        }
         $sql .= ' SET '.implode(', ', $fields);
         if (!$this->__new__) {
+            foreach ($pk as $p)
+                $filter[] = $p.' = '.db_input($this->get($p));
             $sql .= ' WHERE '.implode(' AND ', $filter);
             $sql .= ' LIMIT 1';
         }
