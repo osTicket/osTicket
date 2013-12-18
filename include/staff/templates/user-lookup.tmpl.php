@@ -80,7 +80,7 @@ $(function() {
         },
         onselect: function (obj) {
             $('#the-lookup-form').load(
-                '<?php echo $info['onselect']? $info['onselect']: "ajax.php/users/select/"; ?>'+obj.id
+                '<?php echo $info['onselect']? $info['onselect']: "ajax.php/users/select/"; ?>'+encodeURIComponent(obj.id)
             );
         },
         property: "/bin/true"
