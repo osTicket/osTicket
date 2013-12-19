@@ -241,7 +241,7 @@ class Page {
         $sql=' updated=NOW() '
             .', `type`='.db_input($vars['type'])
             .', name='.db_input($vars['name'])
-            .', body='.db_input(Format::sanitize($vars['body']))
+            .', body='.db_input(Format::localizeInlineImages($vars['body']))
             .', isactive='.db_input($vars['isactive'] ? 1 : 0)
             .', notes='.db_input(Format::sanitize($vars['notes']));
 
