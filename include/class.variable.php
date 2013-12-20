@@ -63,11 +63,12 @@ class VariableReplacer {
 
         if(!$obj) return "";
 
-        if(!$var && is_callable(array($obj, 'asVar')))
+        if (!$var && method_exists($obj, 'asVar')) //XXX: to_string?
             return call_user_func(array($obj, 'asVar'));
 
         list($v, $part) = explode('.', $var, 2);
-        if($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
+        if ($v && method_exists($obj, 'get'.ucfirst($v))
+                && is_callable(array($obj, 'get'.ucfirst($v)))) {
             $rv = call_user_func(array($obj, 'get'.ucfirst($v)));
             if(!$rv || !is_object($rv))
                 return $rv;
@@ -75,7 +76,7 @@ class VariableReplacer {
             return $this->getVar($rv, $part);
         }
 
-        if(!$var || !is_callable(array($obj, 'getVar')))
+        if (!$var || !method_exists($obj, 'getVar'))
             return "";
 
         $parts = explode('.', $var);
