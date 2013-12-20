@@ -239,5 +239,28 @@ class Client {
 
         return false;
     }
+
+    static function authlogin($auth) {
+        //Expecting authtoken
+        // <user type><id of the user type>x<version id of the algo used>h<hash>
+        $matches = array();
+        $regex='/^(?P<type>\w{1})(?P<id>\d+)x(?P<v>\d+)h(?P<hash>.*)$/i';
+        if (!preg_match($regex, $auth, $matches))
+            return false;
+
+        switch($matches['type']) {
+            case 'c': //Collaborator c<id>x<algo id used>h<hash for algo>
+                if (($c = Collaborator::lookup($matches['id']))
+                        && strcasecmp($c->getAuthToken($matches['v']), $auth)  == 0
+                        )
+                    return $c;
+                break;
+            case 'o': //Ticket owner
+
+                break;
+        }
+
+        return false;
+    }
 }
 ?>

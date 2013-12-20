@@ -22,8 +22,10 @@ if(!$thisclient || !$thisclient->isValid()) {
     // * On login Client::login will redirect the user to tickets.php view.
     // * See TODO above for planned multi-view.
     $user = null;
-    if($_GET['t'] && $_GET['e'] && $_GET['a'])
+    if ($_GET['t'] && $_GET['e'] && $_GET['a'])
         $user = Client::login($_GET['t'], $_GET['e'], $_GET['a'], $errors);
+    elseif ($_GET['auth'])
+        var_dump(Client::authlogin($_GET['auth']));
 
     //XXX: For now we're assuming the user is the ticket owner
     // (multi-view based on auth token will come later).
