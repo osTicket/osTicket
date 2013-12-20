@@ -256,7 +256,7 @@ class TicketsAjaxAPI extends AjaxController {
     function acquireLock($tid) {
         global $cfg,$thisstaff;
 
-        if(!$tid or !is_numeric($tid) or !$thisstaff or !$cfg or !$cfg->getLockTime())
+        if(!$tid || !is_numeric($tid) || !$thisstaff || !$cfg || !$cfg->getLockTime())
             return 0;
 
         if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
@@ -283,10 +283,10 @@ class TicketsAjaxAPI extends AjaxController {
     function renewLock($tid, $id) {
         global $thisstaff;
 
-        if(!$id or !is_numeric($id) or !$thisstaff)
+        if(!$tid || !is_numeric($tid) || !$id || !is_numeric($id) || !$thisstaff)
             return $this->json_encode(array('id'=>0, 'retry'=>true));
 
-        $lock= TicketLock::lookup($id);
+        $lock= TicketLock::lookup($id, $tid);
         if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
             return self::acquireLock($tid); //acquire the lock
 
@@ -302,7 +302,7 @@ class TicketsAjaxAPI extends AjaxController {
     function releaseLock($tid, $id=0) {
         global $thisstaff;
 
-        if($id && is_numeric($id)){ //Lock Id provided!
+        if($tid && is_numeric($tid) && is_numeric($id)){ //Lock Id provided!
 
             $lock = TicketLock::lookup($id, $tid);
             //Already gone?
