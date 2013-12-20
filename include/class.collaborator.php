@@ -46,12 +46,11 @@ class Collaborator {
     function __call($name, $args) {
 
         if(!($user=$this->getUser()) || !method_exists($user, $name))
-            return null;
+            return false;
 
-        if($args)
-            return  call_user_func_array(array($user, $name), $args);
-
-        return call_user_func(array($user, $name));
+        return  $args
+            ? call_user_func_array(array($user, $name), $args)
+            : call_user_func(array($user, $name));
     }
 
     function __toString() {
