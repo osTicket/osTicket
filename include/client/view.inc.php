@@ -15,6 +15,8 @@ if(!$dept || !$dept->isPublic())
             <h1>
                 Ticket #<?php echo $ticket->getNumber(); ?> &nbsp;
                 <a href="view.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
+                <a class="action-button" href="tickets.php?a=edit&id=<?php
+                     echo $ticket->getId(); ?>"><i class="icon-edit"></i> Edit</a>
             </h1>
         </td>
     </tr>
