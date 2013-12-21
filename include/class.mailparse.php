@@ -302,23 +302,22 @@ class Mail_Parse {
         return Mail_Parse::parsePriority($this->getHeader());
     }
 
-    function parsePriority($header=null){
-
-        $priority=0;
-        if($header && ($begin=strpos($header,'X-Priority:'))!==false){
-            $begin+=strlen('X-Priority:');
-            $xpriority=preg_replace("/[^0-9]/", "",substr($header, $begin, strpos($header,"\n",$begin) - $begin));
-            if(!is_numeric($xpriority))
-                $priority=0;
-            elseif($xpriority>4)
-                $priority=1;
-            elseif($xpriority>=3)
-                $priority=2;
-            elseif($xpriority>0)
-                $priority=3;
-        }
-        return $priority;
-    }
+	function parsePriority($header = null) {
+		$priority = 0;
+		
+		if (preg_match ( '/X-Priority/i', $header ) && $xpriority = preg_replace ( "/[^0-9]/", "", $header )){
+			if (! is_numeric ( $xpriority ))
+				$priority = 0;
+			elseif ($xpriority > 4)
+				$priority = 1;
+			elseif ($xpriority >= 3)
+				$priority = 2;
+			elseif ($xpriority > 0)
+				$priority = 3;
+		}
+		
+		return $priority;
+	}
 
     function parseAddressList($address){
         if (!$address)
