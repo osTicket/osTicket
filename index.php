@@ -20,7 +20,7 @@ require(CLIENTINC_DIR.'header.inc.php');
 <div id="landing_page">
     <?php
     if($cfg && ($page = $cfg->getLandingPage()))
-        echo $page->getBody();
+        echo $page->getBodyWithImages();
     else
         echo  '<h1>Welcome to the Support Center</h1>';
     ?>
