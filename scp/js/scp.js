@@ -293,7 +293,7 @@ $(document).ready(function(){
             showButtonPanel: true,
             buttonImage: './images/cal.png',
             showOn:'both',
-            dateFormat: $.translate_format(c.date_format||'m/d/Y'),
+            dateFormat: $.translate_format(c.date_format||'m/d/Y')
         });
         $(document).on('submit', 'form', function() {
             $('.dp', $(this)).each(function(i, e) {
