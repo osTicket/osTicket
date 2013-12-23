@@ -218,7 +218,7 @@ class TicketsAjaxAPI extends AjaxController {
     function renewLock($tid, $id) {
         global $thisstaff;
 
-        if(!$tid || !is_numeric($tid) || !is_numeric($id) || !$thisstaff)
+        if(!$tid || !is_numeric($tid) || !$id || !is_numeric($id) || !$thisstaff)
             return $this->json_encode(array('id'=>0, 'retry'=>true));
 
         $lock= TicketLock::lookup($id, $tid);
