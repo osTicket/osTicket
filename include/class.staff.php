@@ -64,6 +64,7 @@ class Staff {
         $this->teams = $this->ht['teams'] = array();
         $this->group = $this->dept = null;
         $this->departments = $this->stats = array();
+        $this->config = new Config('staff.'.$this->id);
 
         //WE have to patch info here to support upgrading from old versions.
         if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
@@ -90,7 +91,7 @@ class Staff {
     }
 
     function getInfo() {
-        return $this->getHastable();
+        return $this->config->getInfo() + $this->getHastable();
     }
 
     /*compares user password*/
@@ -254,6 +255,17 @@ class Staff {
         return $this->dept;
     }
 
+    function getLanguage() {
+        static $cached = false;
+        if (!$cached) $cached = &$_SESSION['staff:lang'];
+
+        if (!$cached) {
+            $cached = $this->config->get('lang');
+            if (!$cached)
+                $cached = Internationalization::getDefaultLanguage();
+        }
+        return $cached;
+    }
 
     function isManager() {
         return (($dept=$this->getDept()) && $dept->getManagerId()==$this->getId());
@@ -464,6 +476,9 @@ class Staff {
             $errors['default_signature_type'] = "You don't have a signature";
 
         if($errors) return false;
+
+        $this->config->set('lang', $vars['lang']);
+        $_SESSION['staff:lang'] = null;
 
         $sql='UPDATE '.STAFF_TABLE.' SET updated=NOW() '
             .' ,firstname='.db_input($vars['firstname'])
