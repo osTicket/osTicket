@@ -115,7 +115,7 @@ class EmailTemplateGroup {
     }
 
     function getLanguage() {
-        return 'en_US';
+        return $this->ht['lang'];
     }
 
     function isInUse(){
@@ -312,6 +312,10 @@ class EmailTemplateGroup {
             .' ,name='.db_input($vars['name'])
             .' ,isactive='.db_input($vars['isactive'])
             .' ,notes='.db_input(Format::sanitize($vars['notes']));
+
+        if ($vars['lang_id'])
+            // TODO: Validation of lang_id
+            $sql .= ',lang='.db_input($vars['lang_id']);
 
         if($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET '.$sql.' WHERE tpl_id='.db_input($id);

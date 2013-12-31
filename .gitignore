@@ -8,3 +8,6 @@ Vagrantfile
 
 # Staging directory used for packaging script
 stage
+
+# Ignore packaged plugins and language packs
+*.phar

@@ -90,8 +90,8 @@ $dispatcher = patterns('',
     )),
     url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade')),
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
-        url_get('tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
-        url_get('(?P<lang>\w{2}_\w{2})?/tips/(?P<namespace>[\w_.]+)$', 'getTipsForLangJson')
+        url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
+        url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     ))
 );
 
