@@ -728,7 +728,7 @@ Class ThreadEntry {
         $subject = $mailinfo['subject'];
         $match = array();
         if ($subject && $mailinfo['email']
-                && preg_match("/\[#([0-9]{1,10})\]/", $subject, $match)
+                && preg_match("/#[\p{L}-]+?([0-9]{1,10})/u", $subject, $match)
                 && ($tid = Ticket::getIdByExtId((int)$match[1], $mailinfo['email']))
                 )
             // Return last message for the thread
