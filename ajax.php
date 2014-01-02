@@ -39,5 +39,6 @@ $dispatcher = patterns('',
         url_get('^help-topic/(?P<id>\d+)$', 'getClientFormsForHelpTopic')
     ))
 );
+Signal::send('ajax.client', $dispatcher);
 print $dispatcher->resolve($ost->get_path_info());
 ?>
