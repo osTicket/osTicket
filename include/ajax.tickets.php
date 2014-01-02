@@ -207,30 +207,29 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         // Dynamic fields
-        $dynfields='(SELECT entry.object_id, %s '.
-             'FROM '.FORM_ANSWER_TABLE.' ans '.
-             'JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
-             'JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
-             'WHERE entry.object_type="T" GROUP BY entry.object_id)';
-        $vals = array();
+        $cdata_search = false;
         foreach (TicketForm::getInstance()->getFields() as $f) {
             if (isset($req[$f->getFormName()])
                     && ($val = $req[$f->getFormName()])) {
-                $id = $f->get('id');
-                $vals[] = "MAX(IF(field.id = '$id', ans.value_id, NULL)) as `f_{$id}_id`";
-                $vals[] = "MAX(IF(field.id = '$id', ans.value, NULL)) as `f_$id`";
-                $where .= " AND (dyn.`f_{$id}_id` = ".db_input($val)
-                    . " OR dyn.`f_$id` LIKE '%".db_real_escape($val)."%')";
+                $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
+                $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
+                if ($f->getImpl()->hasIdValue() && is_numeric($val))
+                    $cwhere .= " OR cdata.`{$name}_id` = ".db_input($val);
+                $where .= ' AND ('.$cwhere.')';
+                $cdata_search = true;
             }
         }
-        if ($vals)
-            $from .= ' LEFT JOIN '.sprintf($dynfields, implode(',', $vals))
-                ." dyn ON (dyn.object_id = ticket.ticket_id)";
+        if ($cdata_search)
+            $from .= 'LEFT JOIN '.TABLE_PREFIX.'ticket__cdata '
+                    ." cdata ON (cdata.ticket_id = ticket.ticket_id)";
 
         $sections = array();
         foreach ($joins as $j) {
             $sections[] = "$select $from {$j['from']} $where AND ({$j['where']})";
         }
+        if (!$joins)
+            $sections[] = "$select $from $where";
+
         $sql=implode(' union ', $sections);
         $res = db_query($sql);
 

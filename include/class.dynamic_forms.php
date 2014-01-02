@@ -209,13 +209,16 @@ class TicketForm extends DynamicForm {
             if (!$impl->hasData() || $impl->isPresentationOnly())
                 continue;
 
+            $name = ($f->get('name')) ? $f->get('name')
+                : 'field_'.$f->get('id');
+
             $fields[] = sprintf(
                 'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as `%1$s`',
-                $f->get('name'));
+                $name);
             if ($impl->hasIdValue()) {
                 $fields[] = sprintf(
                     'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as `%1$s_id`',
-                    $f->get('name'));
+                    $name);
             }
         }
         return $fields;
@@ -266,11 +269,12 @@ class TicketForm extends DynamicForm {
         // $record[$f] = $answer->value'
         // TicketFormData::objects()->filter(array('ticket_id'=>$a))
         //      ->merge($record);
-        $f = $answer->getField()->get('name');
-        $ids = $answer->getField()->hasIdValue();
-        $fields = sprintf('`%s`=', $f) . db_input($answer->get('value'));
-        if ($answer->getField()->hasIdValue())
-            $fields .= sprintf(',`%s_id`=', $f) . db_input($answer->getIdValue());
+        $f = $answer->getField();
+        $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
+        $ids = $f->hasIdValue();
+        $fields = sprintf('`%s`=', $name) . db_input($answer->get('value'));
+        if ($f->hasIdValue())
+            $fields .= sprintf(',`%s_id`=', $name) . db_input($answer->getIdValue());
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
             .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
             .' ON DUPLICATE KEY UPDATE '.$fields;
@@ -287,6 +291,7 @@ Filter::addSupportedMatches('Custom Fields', function() {
     }
     return $matches;
 });
+// Manage materialized view on custom data updates
 Signal::connect('model.created',
     array('TicketForm', 'updateDynamicDataView'),
     'DynamicFormEntryAnswer');
