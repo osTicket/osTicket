@@ -129,6 +129,9 @@ if($search):
             if (count($tickets))
                 $qwhere .= ' AND ticket.ticket_id IN ('.
                     implode(',',db_input($tickets)).')';
+            else
+                // No hits -- there should be an empty list of results
+                $qwhere .= ' AND false';
         }
    }
 
@@ -261,16 +264,18 @@ while ($row = db_fetch_array($res)) {
 }
 
 // Fetch attachment and thread entry counts
-$counts_sql = 'SELECT ticket.ticket_id, count(attach.attach_id) as attachments,
-    count(DISTINCT thread.id) as thread_count
-    FROM '.TICKET_TABLE.' ticket
-    LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
- .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
- .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
-    GROUP BY ticket.ticket_id';
-$ids_res = db_query($counts_sql);
-while ($row = db_fetch_array($ids_res)) {
-    $results[$row['ticket_id']] += $row;
+if ($results) {
+    $counts_sql = 'SELECT ticket.ticket_id, count(attach.attach_id) as attachments,
+        count(DISTINCT thread.id) as thread_count
+        FROM '.TICKET_TABLE.' ticket
+        LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
+     .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
+     .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
+        GROUP BY ticket.ticket_id';
+    $ids_res = db_query($counts_sql);
+    while ($row = db_fetch_array($ids_res)) {
+        $results[$row['ticket_id']] += $row;
+    }
 }
 
 //YOU BREAK IT YOU FIX IT.
