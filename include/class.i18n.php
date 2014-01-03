@@ -165,6 +165,7 @@ class Internationalization {
                 );
             }
         }
+        usort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
 
         return $installed;
     }
