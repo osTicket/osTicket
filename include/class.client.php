@@ -31,6 +31,8 @@ class Client {
 
     var $ht;
 
+    var $user;
+
 
     function Client($id, $email=null) {
         $this->id =0;
@@ -59,9 +61,8 @@ class Client {
         $this->ticket_id  = $this->ht['ticket_id'];
         $this->ticketID   = $this->ht['ticketID'];
 
-        $user = User::lookup(array('emails__address'=>$this->ht['email']));
-        $this->fullname   = $user->getFullName();
-
+        $this->user = User::lookup(array('emails__address'=>$this->ht['email']));
+        $this->fullname   = $this->user->getFullName();
         $this->username   = $this->ht['email'];
         $this->email      = $this->ht['email'];
 
@@ -239,28 +240,66 @@ class Client {
 
         return false;
     }
+}
 
-    static function authlogin($auth) {
-        //Expecting authtoken
-        // <user type><id of the user type>x<version id of the algo used>h<hash>
-        $matches = array();
-        $regex='/^(?P<type>\w{1})(?P<id>\d+)x(?P<v>\d+)h(?P<hash>.*)$/i';
-        if (!preg_match($regex, $auth, $matches))
+/*
+ * Decorator class for authenticated user
+ *
+ */
+
+class  TicketUser implements AuthenticatedUser {
+
+    protected $backend;
+    protected $user;
+
+    function __construct($user) {
+        $this->user = $user;
+    }
+
+    /*
+     * Delegate calls to the user
+     */
+    function __call($name, $args) {
+
+        if(!$this->user
+                || !is_callable($this->user, $name))
             return false;
 
-        switch($matches['type']) {
-            case 'c': //Collaborator c<id>x<algo id used>h<hash for algo>
-                if (($c = Collaborator::lookup($matches['id']))
-                        && strcasecmp($c->getAuthToken($matches['v']), $auth)  == 0
-                        )
-                    return $c;
-                break;
-            case 'o': //Ticket owner
-
-                break;
-        }
-
-        return false;
+        return  $args
+            ? call_user_func_array(array($this->user, $name), $args)
+            : call_user_func(array($this->user, $name));
     }
+
+    function getId() {
+        //We ONLY care about user ID at the ticket level
+        if ($this->user instanceof Collaborator)
+            return $this->user->getUserId();
+
+        return $this->user->getId();
+    }
+
+    function isOwner() {
+        return  ($this->user && $this->user instanceof Client);
+    }
+
+    function setBackend($bk) {
+        $this->backend = $bk;
+    }
+
+    function getBackend() {
+        return $this->backend;
+    }
+
+    function getUserName() {
+        //XXX: Revisit when real usernames are introduced  or when email
+        // requirement is removed.
+        return $this->user->getEmail();
+    }
+
+    function getRole() {
+        return $this->isOwner() ? 'owner' : 'collaborator';
+    }
+
 }
+
 ?>

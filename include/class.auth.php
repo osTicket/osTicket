@@ -464,4 +464,36 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
     }
 }
 StaffAuthenticationBackend::register(osTicketAuthentication);
+
+class AuthTokenAuthentication extends UserAuthenticationBackend {
+    static $name = "Auth Token Authentication";
+    static $id = "authtoken";
+
+
+    function signOn() {
+
+        if ($_GET['auth'] && ($user=self::__authtoken($_GET['auth'])))
+            return $user;
+
+    }
+
+    static private function __authtoken($token) {
+
+        switch ($token[0]) {
+            case 'c': //Collaborator c+[token]
+                if (($c = Collaborator::lookupByAuthToken($token)))
+                    return new TicketUser($c); //Decorator
+                break;
+            case 'o': //Ticket owner  o+[token]
+                break;
+        }
+    }
+
+    function authenticate($username, $password) {
+        return false;
+    }
+
+}
+UserAuthenticationBackend::register(AuthTokenAuthentication);
+
 ?>

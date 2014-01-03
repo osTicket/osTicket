@@ -22,6 +22,8 @@ class Collaborator {
     var $user;
     var $ticket;
 
+    static private $token_regex = '/^c(?P<id>\d+)x(?P<algo>\d+)h(?P<hash>.*)$/i';
+
     function __construct($id) {
 
         $this->load($id);
@@ -150,6 +152,21 @@ class Collaborator {
         list($id) = db_fetch_row(db_query($sql));
 
         return $id;
+    }
+
+    static function lookupByAuthToken($token) {
+
+        //Expecting well formatted token see getAuthToken routine for details.
+        $matches = array();
+        if (preg_match(static::$token_regex, $token, $matches)
+                && $matches['id']
+                && ($c = self::lookup($matches['id']))
+                && strcasecmp($c->getAuthToken($matches['algo']), $token)  == 0
+                )
+            return $c;
+
+        return null;
+
     }
 
     static function lookup($criteria) {
