@@ -26,7 +26,7 @@ $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest
 if($_POST) {
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
-    if ($user = AuthenticationBackend::process($username,
+    if ($user = StaffAuthenticationBackend::process($username,
             $_POST['passwd'], $errors)) {
         @header("Location: $dest");
         require_once('index.php'); //Just incase header is messed up.
