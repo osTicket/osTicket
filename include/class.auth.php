@@ -332,10 +332,40 @@ class AccessDenied {
  * Simple authentication backend which will lock the login form after a
  * configurable number of attempts
  */
-class AuthLockoutBackend extends AuthenticationBackend {
+abstract class AuthStrikeBackend extends AuthenticationBackend {
 
     function authenticate($username, $password=null) {
-        global $cfg, $ost;
+        return static::authStrike($username, $password);
+    }
+
+    function signOn() {
+        return static::authStrike('Unknown');
+    }
+
+    function login($user, $bk) {
+        return false;
+    }
+
+    function supportsAuthentication() {
+        return false;
+    }
+
+    function getAllowedBackends($userid) {
+        return array();
+    }
+
+    abstract function  authStrike($username, $password=null);
+}
+
+/*
+ * Backend to monitor staff's failed login attempts
+ */
+class StaffAuthStrikeBackend extends  AuthStrikeBackend {
+
+    function authstrike($username, $password=null) {
+        global $ost;
+
+        $cfg = $ost->getConfig();
 
         if($_SESSION['_staff']['laststrike']) {
             if((time()-$_SESSION['_staff']['laststrike'])<$cfg->getStaffLoginTimeout()) {
@@ -369,12 +399,49 @@ class AuthLockoutBackend extends AuthenticationBackend {
             $ost->logWarning('Failed staff login attempt ('.$username.')', $alert, false);
         }
     }
+}
+StaffAuthenticationBackend::register(StaffAuthStrikeBackend);
 
-    function supportsAuthentication() {
-        return false;
+/*
+ * Backend to monitor user's failed login attempts
+ */
+class UserAuthStrikeBackend extends  AuthStrikeBackend {
+
+    function authstrike($username, $password=null) {
+        global $ost;
+
+        $cfg = $ost->getConfig();
+
+        //Check time for last max failed login attempt strike.
+        if($_SESSION['_client']['laststrike']) {
+            if((time()-$_SESSION['_client']['laststrike'])<$cfg->getClientLoginTimeout()) {
+                $_SESSION['_client']['laststrike'] = time(); //renew the strike.
+                return new AccessDenied('You\'ve reached maximum failed login attempts allowed.');
+            } else { //Timeout is over.
+                //Reset the counter for next round of attempts after the timeout.
+                $_SESSION['_client']['laststrike'] = null;
+                $_SESSION['_client']['strikes'] = 0;
+            }
+        }
+
+        $_SESSION['_client']['strikes']+=1;
+        if($_SESSION['_client']['strikes']>$cfg->getClientMaxLogins()) {
+            $_SESSION['_client']['laststrike'] = time();
+            $alert='Excessive login attempts by a user.'."\n".
+                    'Login: '.$username.': '.$password."\n".
+                    'IP: '.$_SERVER['REMOTE_ADDR']."\n".'Time:'.date('M j, Y, g:i a T')."\n\n".
+                    'Attempts #'.$_SESSION['_client']['strikes'];
+            $ost->logError('Excessive login attempts (user)', $alert, ($cfg->alertONLoginError()));
+            return new AccessDenied('Access Denied');
+        } elseif($_SESSION['_client']['strikes']%2==0) { //Log every other failed login attempt as a warning.
+            $alert='Login: '.$username.': '.$password."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
+                   "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_client']['strikes'];
+            $ost->logWarning('Failed login attempt (user)', $alert);
+        }
+
     }
 }
-AuthenticationBackend::register(AuthLockoutBackend);
+UserAuthenticationBackend::register(UserAuthStrikeBackend);
 
 
 class osTicketAuthentication extends StaffAuthenticationBackend {
