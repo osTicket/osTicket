@@ -114,25 +114,39 @@ class PluginManager {
         if (!($res = db_query($sql)))
             return static::$plugin_list;
 
-        $infos = static::allInfos();
         while ($ht = db_fetch_array($res)) {
             // XXX: Only read active plugins here. allInfos() will
             //      read all plugins
-            if (isset($infos[$ht['install_path']])) {
-                $info = $infos[$ht['install_path']];
-                if ($ht['isactive']) {
-                    list($path, $class) = explode(':', $info['plugin']);
-                    if (!$class)
-                        $class = $path;
-                    else
-                        require_once(INCLUDE_DIR . $ht['install_path']
-                            . '/' . $path);
-                    static::$plugin_list[$ht['install_path']]
-                        = new $class($ht['id']);
-                }
-                else {
-                    static::$plugin_list[$ht['install_path']] = $ht;
-                }
+            $info = static::getInfoForPath(
+                INCLUDE_DIR . $ht['install_path'], $ht['isphar']);
+            list($path, $class) = explode(':', $info['plugin']);
+            if (!$class)
+                $class = $path;
+            elseif ($ht['isphar'])
+                require_once('phar://' . INCLUDE_DIR . $ht['install_path']
+                    . '/' . $path);
+            else
+                require_once(INCLUDE_DIR . $ht['install_path']
+                    . '/' . $path);
+            if ($ht['isactive']) {
+                static::$plugin_list[$ht['install_path']]
+                    = new $class($ht['id']);
+            }
+            else {
+                // Get instance without calling the constructor. Thanks
+                // http://stackoverflow.com/a/2556089
+                $a = unserialize(
+                    sprintf(
+                        'O:%d:"%s":0:{}',
+                        strlen($class), $class
+                    )
+                );
+                // Simulate __construct() and load()
+                $a->id = $ht['id'];
+                $a->ht = $ht;
+                $a->info = $info;
+                static::$plugin_list[$ht['install_path']] = &$a;
+                unset($a);
             }
         }
         return static::$plugin_list;
@@ -144,6 +158,10 @@ class PluginManager {
             if ($p instanceof Plugin && $p->isActive())
                 $plugins[] = $p;
         return $plugins;
+    }
+
+    function throwException($errno, $errstr) {
+        throw new RuntimeException($errstr);
     }
 
     /**
@@ -158,34 +176,62 @@ class PluginManager {
      * queried to determine if the plugin is installed
      */
     static function allInfos() {
+        foreach (glob(INCLUDE_DIR . 'plugins/*',
+                GLOB_NOSORT|GLOB_BRACE) as $p) {
+            $is_phar = false;
+            if (substr($p, strlen($p) - 5) == '.phar'
+                    && Phar::isValidPharFilename($p)) {
+                try {
+                // When public key is invalid, openssl throws a
+                // 'supplied key param cannot be coerced into a public key' warning
+                // and phar ignores sig verification.
+                // We need to protect from that by catching the warning
+                // Thanks, https://github.com/koto/phar-util
+                set_error_handler(array('self', 'throwException'));
+                $ph = new Phar($p);
+                restore_error_handler();
+                // Verify the signature
+                $ph->getSignature();
+                $p = 'phar://' . $p;
+                $is_phar = true;
+                } catch (UnexpectedValueException $e) {
+                    // Cannot find signature file
+                } catch (RuntimeException $e) {
+                    // Invalid signature file
+                }
+
+            }
+
+            if (!is_file($p . '/plugin.php'))
+                // Invalid plugin -- must define "/plugin.php"
+                continue;
+
+            // Cache the info into static::$plugin_info
+            static::getInfoForPath($p, $is_phar);
+        }
+        return static::$plugin_info;
+    }
+
+    static function getInfoForPath($path, $is_phar=false) {
         static $defaults = array(
             'include' => 'include/',
             'stream' => false,
         );
 
-        if (static::$plugin_info)
-            return static::$plugin_info;
-
-        foreach (glob(INCLUDE_DIR . 'plugins/*', GLOB_ONLYDIR) as $p) {
-            if (!is_file($p . '/plugin.php'))
-                // Invalid plugin -- must define "/plugin.php"
-                continue;
+        $install_path = str_replace(INCLUDE_DIR, '', $path);
+        $install_path = str_replace('phar://', '', $install_path);
+        if ($is_phar && substr($path, 0, 7) != 'phar://')
+            $path = 'phar://' . $path;
+        if (!isset(static::$plugin_info[$install_path])) {
             // plugin.php is require to return an array of informaiton about
             // the plugin.
-            $info = array_merge($defaults, (include $p . '/plugin.php'));
-            $info['install_path'] = str_replace(INCLUDE_DIR, '', $p);
+            $info = array_merge($defaults, (include $path . '/plugin.php'));
+            $info['install_path'] = $install_path;
 
             // XXX: Ensure 'id' key isset
-            static::$plugin_info[$info['install_path']] = $info;
+            static::$plugin_info[$install_path] = $info;
         }
-        return static::$plugin_info;
-    }
-
-    static function getInfoForPath($path) {
-        $infos = static::allInfos();
-        if (isset($infos[$path]))
-            return $infos[$path];
-        return null;
+        return static::$plugin_info[$install_path];
     }
 
     function getInstance($path) {
@@ -215,17 +261,22 @@ class PluginManager {
      * registered in the plugin registry -- the %plugin table.
      */
     function install($path) {
-        if (!($info = $this->getInfoForPath($path)))
+        $is_phar = substr($path, strlen($path) - 5) == '.phar';
+        if (!($info = $this->getInfoForPath(INCLUDE_DIR . $path, $is_phar)))
             return false;
 
         $sql='INSERT INTO '.PLUGIN_TABLE.' SET installed=NOW() '
             .', install_path='.db_input($path)
-            .', name='.db_input($info['name']);
+            .', name='.db_input($info['name'])
+            .', isphar='.db_input($is_phar);
         if (!db_query($sql) || !db_affected_rows())
             return false;
-
-        static::$plugin_list = array();
+        static::clearCache();
         return true;
+    }
+
+    static function clearCache() {
+        static::$plugin_list = array();
     }
 }
 
@@ -255,7 +306,8 @@ class Plugin {
             `id`='.db_input($this->id);
         if (($res = db_query($sql)) && ($ht=db_fetch_array($res)))
             $this->ht = $ht;
-        $this->info = PluginManager::getInfoForPath($this->ht['install_path']);
+        $this->info = PluginManager::getInfoForPath($this->ht['install_path'],
+            $this->isPhar());
     }
 
     function getId() { return $this->id; }
@@ -283,6 +335,7 @@ class Plugin {
 
         $sql = 'DELETE FROM '.PLUGIN_TABLE
             .' WHERE id='.db_input($this->getId());
+        PluginManager::clearCache();
         if (db_query($sql) && db_affected_rows())
             return $this->getConfig()->purge();
         return false;
@@ -302,12 +355,14 @@ class Plugin {
     function enable() {
         $sql = 'UPDATE '.PLUGIN_TABLE
             .' SET isactive=1 WHERE id='.db_input($this->getId());
+        PluginManager::clearCache();
         return (db_query($sql) && db_affected_rows());
     }
 
     function disable() {
         $sql = 'UPDATE '.PLUGIN_TABLE
             .' SET isactive=0 WHERE id='.db_input($this->getId());
+        PluginManager::clearCache();
         return (db_query($sql) && db_affected_rows());
     }
 

@@ -19,8 +19,8 @@ if($_POST) {
             $count = count($_POST['ids']);
             switch(strtolower($_POST['a'])) {
             case 'enable':
-                foreach ($_POST['ids'] as $path) {
-                    if ($p = $ost->plugins->getInstance($path)) {
+                foreach ($_POST['ids'] as $id) {
+                    if ($p = Plugin::lookup($id)) {
                         $p->enable();
                     }
                 }
@@ -35,7 +35,6 @@ if($_POST) {
             case 'delete':
                 foreach ($_POST['ids'] as $id) {
                     if ($p = Plugin::lookup($id)) {
-                        var_dump($p);
                         $p->uninstall();
                     }
                 }
