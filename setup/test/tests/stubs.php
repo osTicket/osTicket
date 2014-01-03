@@ -45,6 +45,7 @@ class DomElement {
 
 class DomDocument {
     function loadHTML() {}
+    function loadXML() {}
 }
 
 class Exception {
@@ -83,4 +84,12 @@ class DateTimeZone {
     static function listIdentifiers() {}
 }
 
+class Phar {
+    static function isValidPharFilename() {}
+}
+
+class ZipArchive {
+    function statIndex() {}
+    function getFromIndex() {}
+}
 ?>
