@@ -22,7 +22,7 @@ include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
-class Staff extends AuthenticatedUser {
+class Staff implements AuthenticatedUser {
 
     var $ht;
     var $id;
@@ -93,6 +93,20 @@ class Staff extends AuthenticatedUser {
 
     function getInfo() {
         return $this->config->getInfo() + $this->getHastable();
+    }
+
+    // AuthenticatedUser implementation...
+    // TODO: Move to an abstract class that extends Staff
+    function setBackend($bk) {
+
+    }
+
+    function getBackend() {
+
+    }
+
+    function getRole() {
+        return 'staff';
     }
 
     /*compares user password*/

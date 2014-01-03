@@ -2,13 +2,15 @@
 require(INCLUDE_DIR.'class.ostsession.php');
 require(INCLUDE_DIR.'class.usersession.php');
 
-class AuthenticatedUser {
-    // How the user was authenticated
-    var $backend;
+
+interface AuthenticatedUser {
 
     // Get basic information
-    function getId() {}
-    function getUsername() {}
+    function getId();
+    function getUsername();
+    function setBackend($bk);
+    function getBackend();
+    function getRole();
 }
 
 interface AuthDirectorySearch {
