@@ -148,6 +148,7 @@ class OsticketConfig extends Config {
         'allow_online_attachments_onlogin' => false,
         'name_format' =>        'full', # First Last
         'auto_claim_tickets'=>  true,
+        'system_language' =>    'en_US',
     );
 
     function OsticketConfig($section=null) {
@@ -707,6 +708,10 @@ class OsticketConfig extends Config {
 
     function allowEmailAttachments() {
         return ($this->allowAttachments() && $this->get('allow_email_attachments'));
+    }
+
+    function getSystemLanguage() {
+        return $this->get('system_language');
     }
 
     //TODO: change db field to allow_api_attachments - which will include  email/json/xml attachments
