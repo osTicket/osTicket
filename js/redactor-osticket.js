@@ -116,8 +116,7 @@ RedactorPlugins.draft = {
                 self.opts.autosave = self.opts.original_autosave;
             }
         });
-    },
-
+    }
 };
 
 /* Redactor richtext init */

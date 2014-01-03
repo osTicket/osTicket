@@ -293,7 +293,7 @@ $(document).ready(function(){
             showButtonPanel: true,
             buttonImage: './images/cal.png',
             showOn:'both',
-            dateFormat: $.translate_format(c.date_format||'m/d/Y'),
+            dateFormat: $.translate_format(c.date_format||'m/d/Y')
         });
         $(document).on('submit', 'form', function() {
             $('.dp', $(this)).each(function(i, e) {
@@ -419,11 +419,14 @@ $(document).ready(function(){
            });
      });
 
-    $.dialog = function (url, code, cb) {
-
+    $.dialog = function (url, code, cb, options) {
+        options = options||{};
         $('.dialog#popup .body').load(url, function () {
             $('#overlay').show();
-            $('.dialog#popup').show();
+            $('.dialog#popup').show({
+                duration: 0,
+                complete: function() { if (options.onshow) options.onshow(); }
+            });
             $(document).off('.dialog');
             $(document).on('submit.dialog', '.dialog#popup form', function(e) {
                 e.preventDefault();
@@ -451,12 +454,15 @@ $(document).ready(function(){
                 return false;
             });
          });
+        if (options.onload) { options.onload(); }
      };
 
     $.userLookup = function (url, cb) {
         $.dialog(url, 201, function (resp) {
             var user = $.parseJSON(resp);
             if(cb) cb(user);
+        }, {
+            onshow: function() { $('#user-search').focus(); }
         });
     };
 

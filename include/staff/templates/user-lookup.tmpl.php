@@ -89,14 +89,14 @@ $(function() {
     $('a#unselect-user').click( function(e) {
         e.preventDefault();
         $('div#selected-user-info').hide();
-        $('div#new-user-form').fadeIn();
+        $('div#new-user-form').fadeIn({start: function(){ $('#user-search').focus(); }});
         return false;
      });
 
     $(document).on('click', 'form.user input.cancel', function (e) {
         e.preventDefault();
         $('div#new-user-form').hide();
-        $('div#selected-user-info').fadeIn();
+        $('div#selected-user-info').fadeIn({start: function(){ $('#user-search').focus(); }});
         return false;
      });
 });

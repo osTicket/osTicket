@@ -682,7 +682,7 @@ class TicketsAjaxAPI extends AjaxController {
                 'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
                 );
 
-        return self::_userlookup($user, $info);
+        return self::_userlookup($user, null, $info);
     }
 
     function _userlookup($user, $form, $info) {
