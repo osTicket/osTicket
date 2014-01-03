@@ -93,7 +93,7 @@ class Signal {
             list($s, $callable, $check) = $sub;
             if ($s && !is_a($object, $s))
                 continue;
-            elseif ($check && !call_user_func($check, $data))
+            elseif ($check && !call_user_func($check, $object, $data))
                 continue;
             call_user_func($callable, $object, $data);
         }
