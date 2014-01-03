@@ -45,7 +45,12 @@ class Http {
 
 	function redirect($url,$delay=0,$msg='') {
 
-        if(strstr($_SERVER['SERVER_SOFTWARE'], 'IIS')){
+        $iis = strpos($_SERVER['SERVER_SOFTWARE'], 'IIS') !== false;
+        list($name, $version) = explode('/', $_SERVER['SERVER_SOFTWARE']);
+        // Legacy code for older versions of IIS that would not emit the
+        // correct HTTP status and headers when using the `Location`
+        // header alone
+        if ($iis && version_compare($version, '7.0', '<')) {
             header("Refresh: $delay; URL=$url");
         }else{
             header("Location: $url");
