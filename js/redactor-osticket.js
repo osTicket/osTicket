@@ -140,7 +140,12 @@ $(function() {
         var el = $(el),
             options = {
                 'air': el.hasClass('no-bar'),
-                'airButtons': ['formatting', '|', 'bold', 'italic', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
+                'airButtons': ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
+                'buttons': ['html', '|', 'formatting', '|', 'bold',
+                    'italic', 'underline', 'deleted', '|', 'unorderedlist',
+                    'orderedlist', 'outdent', 'indent', '|', 'image', 'video',
+                    'file', 'table', 'link', '|', 'alignment', '|',
+                    'horizontalrule'],
                 'autoresize': !el.hasClass('no-bar'),
                 'minHeight': el.hasClass('small') ? 75 : 150,
                 'focus': false,
