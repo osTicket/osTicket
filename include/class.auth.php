@@ -11,6 +11,7 @@ abstract class AuthenticatedUser {
     abstract function getId();
     abstract function getUsername();
     abstract function getRole();
+    abstract function logOut();
 
     function setAuthKey($key) {
         $this->authkey = $key;
@@ -195,6 +196,7 @@ abstract class AuthenticationBackend {
     abstract static function getUser(); //Validates  authenticated users.
     abstract function getAllowedBackends($userid);
     abstract protected function getAuthKey($user);
+    abstract static function signOut($user);
 }
 
 class RemoteAuthenticationBackend {
@@ -289,6 +291,20 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         return true;
     }
 
+    static function signOut($staff) {
+        global $ost;
+
+        list($id, $auth) = explode(':', $_SESSION['_auth']['staff']['key']);
+        //TODO: Lookup the backed and request logout..
+
+        $_SESSION['_auth']['staff'] = array();
+        $ost->logDebug('Staff logout',
+                sprintf("%s logged out [%s]",
+                    $staff->getUserName(),
+                    $_SERVER['REMOTE_ADDR'])); //Debug.
+
+    }
+
     static function getUser() {
 
         if (!isset($_SESSION['_auth']['staff'])
@@ -370,6 +386,17 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         return true;
     }
 
+    static function signOut($user) {
+        global $ost;
+
+        list($id, $auth) = explode(':', $_SESSION['_auth']['user']['key']);
+        //TODO: Lookup the backed and request logout..
+
+        $_SESSION['_auth']['user'] = array();
+        $ost->logDebug('User logout',
+                sprintf("%s logged out [%s]",
+                    $user->getUserName(), $_SERVER['REMOTE_ADDR']));
+    }
 
     protected function getAuthKey($user) {
         return null;
@@ -424,6 +451,11 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
     function signOn() {
         return static::authStrike('Unknown');
     }
+
+    static function signOut($user) {
+        return false;
+    }
+
 
     function login($user, $bk) {
         return false;

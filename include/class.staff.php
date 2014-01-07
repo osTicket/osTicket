@@ -101,6 +101,10 @@ class Staff extends AuthenticatedUser {
         return 'staff';
     }
 
+    function logOut() {
+        return StaffAuthenticationBackend::signOut($this);
+    }
+
     /*compares user password*/
     function check_passwd($password, $autoupdate=true) {
 

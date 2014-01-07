@@ -43,11 +43,9 @@ require_once(INCLUDE_DIR.'class.dept.php');
 //clear some vars
 $errors=array();
 $msg='';
-$thisclient=$nav=null;
+$nav=null;
 //Make sure the user is valid..before doing anything else.
-if($_SESSION['_client']['userID'] && $_SESSION['_client']['key'])
-    $thisclient = new ClientSession($_SESSION['_client']['userID'],$_SESSION['_client']['key']);
-
+$thisclient = UserAuthenticationBackend::getUser();
 //is the user logged in?
 if($thisclient && $thisclient->getId() && $thisclient->isValid()){
      $thisclient->refreshSession();

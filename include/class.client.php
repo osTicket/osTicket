@@ -292,6 +292,10 @@ class  EndUser extends AuthenticatedUser {
         return $this->isOwner() ? 'owner' : 'collaborator';
     }
 
+    function logOut() {
+        return UserAuthenticationBackend::signOut($this);
+    }
+
 }
 
 ?>

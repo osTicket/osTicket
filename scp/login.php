@@ -35,11 +35,10 @@ if($_POST) {
 
     $msg = $errors['err']?$errors['err']:'Invalid login';
 }
-
 // Consider single sign-on authentication backends
-if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
-    if (($user = AuthenticationBackend::singleSignOn($errors))
-            && ($user instanceof Staff))
+else if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
+    if (($user = StaffAuthenticationBackend::singleSignOn($errors))
+            && ($user instanceof StaffSession))
        @header("Location: $dest");
 }
 
