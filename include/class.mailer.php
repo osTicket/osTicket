@@ -139,12 +139,11 @@ class Mailer {
 
         $mime = new Mail_mime();
 
+        // If the message is not explicitly declared to be a text message,
+        // then assume that it needs html processing to create a valid text
+        // body
         $isHtml = true;
-        // Ensure that the 'text' option / hint is not set to true and that
-        // the message appears to be HTML -- that is, the first
-        // non-whitespace char is a '<' character
-        if (!(isset($options['text']) && $options['text'])
-                && (!$cfg || $cfg->isHtmlThreadEnabled())) {
+        if (!(isset($options['text']) && $options['text'])) {
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??
             $mime->setTXTBody(Format::html2text($message, 90, false));
