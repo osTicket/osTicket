@@ -22,7 +22,7 @@ include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
-class Staff implements AuthenticatedUser {
+class Staff extends AuthenticatedUser {
 
     var $ht;
     var $id;
@@ -97,14 +97,6 @@ class Staff implements AuthenticatedUser {
 
     // AuthenticatedUser implementation...
     // TODO: Move to an abstract class that extends Staff
-    function setBackend($bk) {
-
-    }
-
-    function getBackend() {
-
-    }
-
     function getRole() {
         return 'staff';
     }

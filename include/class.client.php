@@ -247,9 +247,8 @@ class Client {
  *
  */
 
-class  TicketUser implements AuthenticatedUser {
+class  EndUser extends AuthenticatedUser {
 
-    protected $backend;
     protected $user;
 
     function __construct($user) {
@@ -261,8 +260,9 @@ class  TicketUser implements AuthenticatedUser {
      */
     function __call($name, $args) {
 
+
         if(!$this->user
-                || !is_callable($this->user, $name))
+                || !is_callable(array($this->user, $name)))
             return false;
 
         return  $args
@@ -280,14 +280,6 @@ class  TicketUser implements AuthenticatedUser {
 
     function isOwner() {
         return  ($this->user && $this->user instanceof Client);
-    }
-
-    function setBackend($bk) {
-        $this->backend = $bk;
-    }
-
-    function getBackend() {
-        return $this->backend;
     }
 
     function getUserName() {
