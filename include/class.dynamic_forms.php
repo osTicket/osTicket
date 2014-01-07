@@ -18,6 +18,7 @@
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
+require_once(INCLUDE_DIR . 'class.signal.php');
 
 /**
  * Form template, used for designing the custom form and for entering custom
@@ -130,6 +131,7 @@ class DynamicForm extends VerySimpleModel {
             foreach ($ht['fields'] as $f) {
                 $f = DynamicFormField::create($f);
                 $f->form_id = $inst->id;
+                $f->setForm($inst);
                 $f->save();
             }
         }
@@ -196,6 +198,89 @@ class TicketForm extends DynamicForm {
         static::$instance = $o[0]->instanciate();
         return static::$instance;
     }
+
+    // Materialized View for Ticket custom data (MySQL FlexViews would be
+    // nice)
+    //
+    // @see http://code.google.com/p/flexviews/
+    static function getDynamicDataViewFields() {
+        $fields = array();
+        foreach (self::getInstance()->getFields() as $f) {
+            $impl = $f->getImpl();
+            if (!$impl->hasData() || $impl->isPresentationOnly())
+                continue;
+
+            $name = ($f->get('name')) ? $f->get('name')
+                : 'field_'.$f->get('id');
+
+            $fields[] = sprintf(
+                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as `%1$s`',
+                $name);
+            if ($impl->hasIdValue()) {
+                $fields[] = sprintf(
+                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as `%1$s_id`',
+                    $name);
+            }
+        }
+        return $fields;
+    }
+
+    static function ensureDynamicDataView() {
+        $sql = 'SHOW TABLES LIKE \''.TABLE_PREFIX.'ticket__cdata\'';
+        if (!db_num_rows(db_query($sql)))
+            return static::buildDynamicDataView();
+    }
+
+    static function buildDynamicDataView() {
+        // create  table __cdata (primary key (ticket_id)) as select
+        // entry.object_id as ticket_id, MAX(IF(field.name = 'subject',
+        // ans.value, NULL)) as `subject`,MAX(IF(field.name = 'priority',
+        // ans.value, NULL)) as `priority_desc`,MAX(IF(field.name =
+        // 'priority', ans.value_id, NULL)) as `priority_id`
+        // FROM ost_form_entry entry LEFT JOIN ost_form_entry_values ans ON
+        // ans.entry_id = entry.id LEFT JOIN ost_form_field field ON
+        // field.id=ans.field_id
+        // where entry.object_type='T' group by entry.object_id;
+        $fields = static::getDynamicDataViewFields();
+        $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY (ticket_id)) AS
+            SELECT entry.`object_id` AS ticket_id, '.implode(',', $fields)
+         .' FROM ost_form_entry entry
+            JOIN ost_form_entry_values ans ON ans.entry_id = entry.id
+            JOIN ost_form_field field ON field.id=ans.field_id
+            WHERE entry.object_type=\'T\' GROUP BY entry.object_id';
+        db_query($sql);
+    }
+
+    static function dropDynamicDataView() {
+        db_query('DROP TABLE IF EXISTS `'.TABLE_PREFIX.'ticket__cdata`');
+    }
+
+    static function updateDynamicDataView($answer, $data) {
+        // TODO: Detect $data['dirty'] for value and value_id
+        // We're chiefly concerned with Ticket form answers
+        if (!($e = $answer->getEntry()) || $e->get('object_type') != 'T')
+            return;
+
+        // If the `name` column is in the dirty list, we would be renaming a
+        // column. Delete the view instead.
+        if (isset($data['dirty']) && isset($data['dirty']['name']))
+            return self::dropDynamicDataView();
+
+        // $record = array();
+        // $record[$f] = $answer->value'
+        // TicketFormData::objects()->filter(array('ticket_id'=>$a))
+        //      ->merge($record);
+        $f = $answer->getField();
+        $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
+        $ids = $f->hasIdValue();
+        $fields = sprintf('`%s`=', $name) . db_input($answer->get('value'));
+        if ($f->hasIdValue())
+            $fields .= sprintf(',`%s_id`=', $name) . db_input($answer->getIdValue());
+        $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
+            .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
+            .' ON DUPLICATE KEY UPDATE '.$fields;
+        db_query($sql);
+    }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
 Filter::addSupportedMatches('Custom Fields', function() {
@@ -207,6 +292,23 @@ Filter::addSupportedMatches('Custom Fields', function() {
     }
     return $matches;
 });
+// Manage materialized view on custom data updates
+Signal::connect('model.created',
+    array('TicketForm', 'updateDynamicDataView'),
+    'DynamicFormEntryAnswer');
+Signal::connect('model.updated',
+    array('TicketForm', 'updateDynamicDataView'),
+    'DynamicFormEntryAnswer');
+// Recreate the dynamic view after new or removed fields to the ticket
+// details form
+Signal::connect('model.created',
+    array('TicketForm', 'dropDynamicDataView'),
+    'DynamicFormField',
+    function($o) { return $o->getForm()->get('type') == 'T'; });
+Signal::connect('model.deleted',
+    array('TicketForm', 'dropDynamicDataView'),
+    'DynamicFormField',
+    function($o) { return $o->getForm()->get('type') == 'T'; });
 
 require_once(INCLUDE_DIR . "class.json.php");
 
@@ -555,6 +657,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 array('field_id'=>$f->get('id')));
             $a->field = $f;
             $a->field->setAnswer($a);
+            $a->entry = $inst;
             $inst->_values[] = $a;
         }
         return $inst;

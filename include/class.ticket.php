@@ -1486,7 +1486,6 @@ class Ticket {
                 && ($tpl = $dept->getTemplate())
                 && ($msg = $tpl->getNewMessageAlertMsgTemplate())) {
 
-            $attachments = $message->getAttachments();
             $msg = $this->replaceVars($msg->asArray(), $variables);
 
             //Build list of recipients and fire the alerts.
@@ -1508,7 +1507,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], $attachments, $options);
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1556,8 +1555,6 @@ class Ticket {
                 $signature=$dept->getSignature();
             else
                 $signature='';
-
-            $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
 
             $msg = $this->replaceVars($msg->asArray(),
                 array('response' => $response, 'signature' => $signature));
@@ -1718,8 +1715,6 @@ class Ticket {
                 && ($tpl = $dept->getTemplate())
                 && ($msg=$tpl->getNoteAlertMsgTemplate())) {
 
-            $attachments = $note->getAttachments();
-
             $msg = $this->replaceVars($msg->asArray(),
                 array('note' => $note));
 
@@ -1738,7 +1733,6 @@ class Ticket {
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
                 $recipients[]=$dept->getManager();
 
-            $attachments = $note->getAttachments();
             $options = array(
                 'inreplyto'=>$note->getEmailMessageId(),
                 'references'=>$note->getEmailReferences());
@@ -1750,7 +1744,7 @@ class Ticket {
                         || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], $attachments, $options);
+                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }

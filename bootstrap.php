@@ -177,7 +177,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');
         require(INCLUDE_DIR.'class.timezone.php');
-        require(INCLUDE_DIR.'class.signal.php');
+        require_once(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.nav.php');
         require(INCLUDE_DIR.'class.page.php');
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers
