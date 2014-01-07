@@ -1390,7 +1390,6 @@ class Ticket {
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage() && $tpl && $email && ($msg=$tpl->getNewMessageAlertMsgTemplate())) {
 
-            $attachments = $message->getAttachments();
             $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
             //Build list of recipients and fire the alerts.
@@ -1416,7 +1415,7 @@ class Ticket {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
                 $email->sendAlert($staff->getEmail(), $msg['subj'], $alert,
-                    $attachments, $options);
+                    null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1461,8 +1460,6 @@ class Ticket {
                 $signature=$dept->getSignature();
             else
                 $signature='';
-
-            $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
 
             $msg = $this->replaceVars($msg->asArray(),
                 array('response' => $response, 'signature' => $signature));
@@ -1625,8 +1622,6 @@ class Ticket {
 
         if($tpl && ($msg=$tpl->getNoteAlertMsgTemplate()) && $email) {
 
-            $attachments = $note->getAttachments();
-
             $msg = $this->replaceVars($msg->asArray(),
                 array('note' => $note));
 
@@ -1645,7 +1640,6 @@ class Ticket {
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
                 $recipients[]=$dept->getManager();
 
-            $attachments = $note->getAttachments();
             $options = array(
                 'inreplyto'=>$note->getEmailMessageId(),
                 'references'=>$note->getEmailReferences());
@@ -1657,7 +1651,7 @@ class Ticket {
                         || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
                     continue;
                 $alert = str_replace('%{recipient}', $staff->getFirstName(), $msg['body']);
-                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, $attachments,
+                $email->sendAlert($staff->getEmail(), $msg['subj'], $alert, null,
                     $options);
                 $sentlist[] = $staff->getEmail();
             }
