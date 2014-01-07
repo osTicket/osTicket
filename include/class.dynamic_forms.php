@@ -131,6 +131,7 @@ class DynamicForm extends VerySimpleModel {
             foreach ($ht['fields'] as $f) {
                 $f = DynamicFormField::create($f);
                 $f->form_id = $inst->id;
+                $f->setForm($inst);
                 $f->save();
             }
         }
