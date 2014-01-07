@@ -186,8 +186,13 @@ abstract class AuthenticationBackend {
         return null;
     }
 
+    protected function validate($auth) {
+        return null;
+    }
+
     abstract function authenticate($username, $password);
     abstract function login($user, $bk);
+    abstract static function getUser(); //Validates  authenticated users.
     abstract function getAllowedBackends($userid);
     abstract protected function getAuthKey($user);
 }
@@ -284,6 +289,28 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         return true;
     }
 
+    static function getUser() {
+
+        if (!isset($_SESSION['_auth']['staff'])
+                || !$_SESSION['_auth']['staff']['key'])
+            return null;
+
+        list($id, $auth) = explode(':', $_SESSION['_auth']['staff']['key']);
+
+        if (!($bk=static::getBackend($id)) //get the backend
+                || !$bk->supportsAuthentication() //Make sure it can authenticate
+                || !($staff = $bk->validate($auth)) //Get AuthicatedUser
+                || !($staff instanceof Staff)
+                || $staff->getId() != $_SESSION['_auth']['staff']['id'] // check ID
+                )
+            return null;
+
+        $staff->setAuthKey($_SESSION['_auth']['staff']['key']);
+
+
+        return $staff;
+    }
+
     protected function getAuthKey($staff) {
         return null;
     }
@@ -348,6 +375,28 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         return null;
     }
 
+    static function getUser() {
+
+        if (!isset($_SESSION['_auth']['user'])
+                || !$_SESSION['_auth']['user']['key'])
+            return null;
+
+        list($id, $auth) = explode(':', $_SESSION['_auth']['user']['key']);
+        $bk=static::getBackend($id);
+        $user=$bk->validate($auth);
+
+        if (!($bk=static::getBackend($id)) //get the backend
+                || !$bk->supportsAuthentication() //Make sure it can authenticate
+                || !($user=$bk->validate($auth)) //Get AuthicatedUser
+                || !($user instanceof AuthenticatedUser) // Make sure it user
+                || $user->getId() != $_SESSION['_auth']['user']['id'] // check ID
+                )
+            return null;
+
+        $user->setAuthKey($_SESSION['_auth']['user']['key']);
+
+        return $user;
+    }
 }
 
 /**
@@ -378,6 +427,10 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
 
     function login($user, $bk) {
         return false;
+    }
+
+    static function getUser() {
+        return null;
     }
 
     function supportsAuthentication() {
@@ -510,6 +563,12 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
         return $staff->getUsername(); //FIXME:
     }
 
+    protected function validate($authkey) {
+
+        if (($staff = new StaffSession($authkey)) && $staff->getId())
+            return $staff;
+    }
+
 }
 StaffAuthenticationBackend::register(osTicketAuthentication);
 
@@ -554,6 +613,38 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 
         return $authkey;
     }
+
+    protected function validate($authkey) {
+
+        $regex = '/^(?P<type>\w{1})(?P<id>\d+)t(?P<tid>\d+)h(?P<hash>.*)$/i';
+        $matches = array();
+        if (!preg_match($regex, $authkey, $matches))
+            return false;
+
+        $user = null;
+        switch ($matches['type']) {
+            case 'c': //Collaborator
+                if (($c = Collaborator::lookup(
+                                array('userId' => $matches['id'],
+                                      'ticketId' => $matches['tid'])))
+                        && ($c->getTicketId() == $matches['tid']))
+                    $user = new ClientSession($c);
+                break;
+            case 'o': //Ticket owner
+                if (($ticket = Ticket::lookup($matches['tid']))
+                        && ($c = $ticket->getClient())
+                        && ($c->getId() == $matches['id']))
+                    $user = new ClientSession($c);
+                break;
+        }
+
+        if(!$user
+                || strcasecmp(md5($user->getUsername().$this->id), $matches['hash']))
+            return null;
+
+        return $user;
+    }
+
 
     static private function __authtoken($token) {
 
