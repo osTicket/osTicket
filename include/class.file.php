@@ -304,7 +304,7 @@ class AttachmentFile {
         return false;
     }
 
-    function save($file, $ft=false) {
+    function save(&$file, $ft=false) {
 
         if (isset($file['data'])) {
             // Allow a callback function to delay or avoid reading or
@@ -312,8 +312,10 @@ class AttachmentFile {
             if (is_callable($file['data']))
                 $file['data'] = $file['data']();
 
-            list($file['key'], $file['signature'])
-                = static::_getKeyAndHash($file['data']);
+            list($key, $file['signature'])
+                = self::_getKeyAndHash($file['data']);
+            if (!$file['key'])
+                $file['key'] = $key;
 
             if (!isset($file['size']))
                 $file['size'] = strlen($file['data']);
@@ -428,6 +430,9 @@ class AttachmentFile {
      */
     static function getBackendForFile($file) {
         global $cfg;
+
+        if (!$cfg)
+            return new AttachmentChunkedData($file);
 
         $char = $cfg->getDefaultStorageBackendChar();
         return FileStorageBackend::lookup($char, $file);

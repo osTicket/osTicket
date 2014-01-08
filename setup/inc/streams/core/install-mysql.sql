@@ -320,13 +320,13 @@ CREATE TABLE `%TABLE_PREFIX%file` (
   `bk` CHAR( 1 ) NOT NULL DEFAULT  'D',
   `type` varchar(255) NOT NULL default '',
   `size` varchar(25) NOT NULL default '',
-  `key` varchar(125) collate ascii_bin NOT NULL,
+  `key` varchar(125) collate ascii_general_ci NOT NULL,
   `signature` varchar(125) collate ascii_bin NOT NULL,
   `name` varchar(255) NOT NULL default '',
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `ft` (`ft`),
-  KEY `key` (`key`)
+  KEY `key` (`key`),
   KEY `signature` (`signature`)
 ) DEFAULT CHARSET=utf8;
 

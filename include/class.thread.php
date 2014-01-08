@@ -457,13 +457,13 @@ Class ThreadEntry {
         return $uploaded;
     }
 
-    function importAttachments($attachments) {
+    function importAttachments(&$attachments) {
 
         if(!$attachments || !is_array($attachments))
             return null;
 
         $files = array();
-        foreach($attachments as  $attachment)
+        foreach($attachments as &$attachment)
             if(($id=$this->importAttachment($attachment)))
                 $files[] = $id;
 
@@ -471,7 +471,7 @@ Class ThreadEntry {
     }
 
     /* Emailed & API attachments handler */
-    function importAttachment($attachment) {
+    function importAttachment(&$attachment) {
 
         if(!$attachment || !is_array($attachment))
             return null;
@@ -493,7 +493,7 @@ Class ThreadEntry {
     Save attachment to the DB.
     @file is a mixed var - can be ID or file hashtable.
     */
-    function saveAttachment($file) {
+    function saveAttachment(&$file) {
 
         if(!($fileId=is_numeric($file)?$file:AttachmentFile::save($file)))
             return 0;
@@ -850,21 +850,6 @@ Class ThreadEntry {
             if((list($msg) = explode($tag, $vars['body'], 2)) && trim($msg))
                 $vars['body'] = $msg;
 
-        if (isset($vars['attachments'])) {
-            foreach ($vars['attachments'] as &$a) {
-                // Change <img src="cid:"> inside the message to point to
-                // a unique hash-code for the attachment. Since the
-                // content-id will be discarded, only the unique hash-code
-                // will be available to retrieve the image later
-                if ($a['cid']) {
-                    $a['hash'] = Misc::randCode(32);
-                    $vars['body'] = str_replace('src="cid:'.$a['cid'].'"',
-                        'src="cid:'.$a['hash'].'"', $vars['body']);
-                }
-            }
-            unset($a);
-        }
-
         if (!$cfg->isHtmlThreadEnabled()) {
             // Data in the database is assumed to be HTML, change special
             // plain text XML characters
@@ -882,11 +867,15 @@ Class ThreadEntry {
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
-            .' ,body='.db_input($vars['body'])
             .' ,staff_id='.db_input($vars['staffId'])
             .' ,user_id='.db_input($vars['userId'])
             .' ,poster='.db_input($poster)
             .' ,source='.db_input($vars['source']);
+
+        if (!isset($vars['attachments']))
+            // Otherwise, body will be configured in a block below (after
+            // inline attachments are saved and updated in the database)
+            $sql.=' ,body='.db_input($vars['body']);
 
         if(isset($vars['pid']))
             $sql.=' ,pid='.db_input($vars['pid']);
@@ -910,13 +899,29 @@ Class ThreadEntry {
         if($vars['files']) //expects well formatted and VALIDATED files array.
             $entry->uploadFiles($vars['files']);
 
-        //Emailed or API attachments
-        if($vars['attachments'])
-            $entry->importAttachments($vars['attachments']);
-
         //Canned attachments...
         if($vars['cannedattachments'] && is_array($vars['cannedattachments']))
             $entry->saveAttachments($vars['cannedattachments']);
+
+        //Emailed or API attachments
+        if (isset($vars['attachments']) && $vars['attachments']) {
+            $entry->importAttachments($vars['attachments']);
+            foreach ($vars['attachments'] as &$a) {
+                // Change <img src="cid:"> inside the message to point to
+                // a unique hash-code for the attachment. Since the
+                // content-id will be discarded, only the unique hash-code
+                // will be available to retrieve the image later
+                if ($a['cid'] && $a['key']) {
+                    $vars['body'] = str_replace('src="cid:'.$a['cid'].'"',
+                        'src="cid:'.$a['key'].'"', $vars['body']);
+                }
+            }
+            unset($a);
+            $sql = 'UPDATE '.TICKET_THREAD_TABLE.' SET body='.db_input($vars['body'])
+                .' WHERE `id`='.db_input($entry->getId());
+            if (!db_query($sql) || !db_affected_rows())
+                return false;
+        }
 
         // Email message id (required for all thread posts)
         if (!isset($vars['mid']))
