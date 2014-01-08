@@ -244,9 +244,9 @@ class TicketForm extends DynamicForm {
         $fields = static::getDynamicDataViewFields();
         $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY (ticket_id)) AS
             SELECT entry.`object_id` AS ticket_id, '.implode(',', $fields)
-         .' FROM ost_form_entry entry
-            JOIN ost_form_entry_values ans ON ans.entry_id = entry.id
-            JOIN ost_form_field field ON field.id=ans.field_id
+         .' FROM '.FORM_ENTRY_TABLE.' entry
+            JOIN '.FORM_ANSWER_TABLE.' ans ON ans.entry_id = entry.id
+            JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id
             WHERE entry.object_type=\'T\' GROUP BY entry.object_id';
         db_query($sql);
     }
