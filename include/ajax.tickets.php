@@ -211,10 +211,11 @@ class TicketsAjaxAPI extends AjaxController {
         foreach (TicketForm::getInstance()->getFields() as $f) {
             if (isset($req[$f->getFormName()])
                     && ($val = $req[$f->getFormName()])) {
-                $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
-                $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
+                $name = $f->get('name') ? db_real_escape($f->get('name'))
+                    : 'field_'.$f->get('id');
+                $cwhere = "cdata.\"$name\" LIKE '%".db_real_escape($val)."%'";
                 if ($f->getImpl()->hasIdValue() && is_numeric($val))
-                    $cwhere .= " OR cdata.`{$name}_id` = ".db_input($val);
+                    $cwhere .= " OR cdata.\"{$name}_id\" = ".db_input($val);
                 $where .= ' AND ('.$cwhere.')';
                 $cdata_search = true;
             }
