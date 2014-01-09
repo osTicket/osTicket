@@ -26,6 +26,7 @@ Bootstrap::defineTables(TABLE_PREFIX);
 Bootstrap::i18n_prep();
 Bootstrap::loadCode();
 Bootstrap::connect();
+Bootstrap::signals();
 
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
 Bootstrap::croak('Unable to load config info from DB. Get tech support.');

@@ -303,6 +303,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
                     $staff->getUserName(),
                     $_SERVER['REMOTE_ADDR'])); //Debug.
 
+        Signal::send('auth.logout', $staff);
     }
 
     static function getUser() {
