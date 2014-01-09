@@ -15,6 +15,7 @@ if($cfg->getLockTime() && !$ticket->acquireLock($thisstaff->getId(),$cfg->getLoc
 //Get the goodies.
 $dept  = $ticket->getDept();  //Dept
 $staff = $ticket->getStaff(); //Assigned or closed by..
+$user  = $ticket->getOwner(); //Ticket User (EndUser)
 $team  = $ticket->getTeam();  //Assigned team.
 $sla   = $ticket->getSLA();
 $lock  = $ticket->getLock();  //Ticket lock obj
@@ -161,19 +162,19 @@ if($ticket->isOverdue())
                             ><?php echo Format::htmlchars($ticket->getName());
                         ?></span></a>
                         <?php
-                        if(($client=$ticket->getClient())) {
+                        if($user) {
                             echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&ownerId=%d" title="Related Tickets" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
-                                    urlencode($ticket->getOwnerId()), $client->getNumTickets());
+                                    urlencode($user->getId()), $user->getNumTickets());
                         ?>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
                                     <?php
-                                    if(($open=$client->getNumOpenTickets()))
+                                    if(($open=$user->getNumOpenTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=open&ownerId=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
-                                                $ticket->getOwnerId(), $open);
-                                    if(($closed=$client->getNumClosedTickets()))
+                                                $user->getId(), $open);
+                                    if(($closed=$user->getNumClosedTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=closed&ownerId=%d"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
-                                                $ticket->getOwnerId(), $closed);
+                                                $user->getId(), $closed);
                                     ?>
                                     <li><a href="tickets.php?a=search&ownerId=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
                                 </u>

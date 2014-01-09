@@ -138,6 +138,10 @@ class User extends UserModel {
         return $this->updated;
     }
 
+    function getCreateDate() {
+        return $this->created;
+    }
+
     function to_json() {
 
         $info = array(
