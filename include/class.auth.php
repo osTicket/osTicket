@@ -409,8 +409,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             return null;
 
         list($id, $auth) = explode(':', $_SESSION['_auth']['user']['key']);
-        $bk=static::getBackend($id);
-        $user=$bk->validate($auth);
 
         if (!($bk=static::getBackend($id)) //get the backend
                 || !$bk->supportsAuthentication() //Make sure it can authenticate
@@ -604,44 +602,53 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
 }
 StaffAuthenticationBackend::register(osTicketAuthentication);
 
+/*
+ * AuthToken Authentication Backend
+ *
+ * Provides auto-login facility for end users with valid link
+ *
+ * Ticket used to loggin is tracked durring the session this is
+ * important in the future when auto-logins will be
+ * limited to single ticket view.
+ */
 class AuthTokenAuthentication extends UserAuthenticationBackend {
     static $name = "Auth Token Authentication";
     static $id = "authtoken";
 
 
-
     function signOn() {
 
         $user = null;
-        if ($_GET['auth'])
-            $user = self::__authtoken($_GET['auth']);
+        if ($_GET['auth']) {
+            if (($u = TicketUser::lookupByToken($_GET['auth'])))
+                $user = new ClientSession($u);
+        }
         // Support old ticket based tokens.
         elseif ($_GET['t'] && $_GET['e'] && $_GET['a']) {
             if (($ticket = Ticket::lookupByExtId($_GET['t'], $_GET['e']))
                     // Using old ticket auth code algo - hardcoded here because it
                     // will be removed in ticket class in the upcoming rewrite
                     && !strcasecmp($_GET['a'], md5($ticket->getId() .  $_GET['e'] . SECRET_SALT))
-                    && ($client = $ticket->getClient()))
-                $user = new ClientSession($client);
+                    && ($owner = $ticket->getOwner()))
+                $user = new ClientSession($owner);
         }
 
         return $user;
     }
 
+
     protected function getAuthKey($user) {
 
-        if (!$this->supportsAuthentication()
-                || !$user
-                || !($user instanceof EndUser))
+        if (!$this->supportsAuthentication() || !$user)
             return null;
 
         //Generate authkey based the type of ticket user
         // It's required to validate users going forward.
         $authkey = sprintf('%s%dt%dh%s',  //XXX: Placeholder
-                    $user->isOwner() ? 'o':'c',
+                    ($user->isOwner() ? 'o':'c'),
                     $user->getId(),
-                    $user->getTicketID(),
-                    md5($user->getUsername().$this->id));
+                    $user->getTicketId(),
+                    md5($user->getId().$this->id));
 
         return $authkey;
     }
@@ -656,38 +663,26 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         $user = null;
         switch ($matches['type']) {
             case 'c': //Collaborator
-                if (($c = Collaborator::lookup(
-                                array('userId' => $matches['id'],
-                                      'ticketId' => $matches['tid'])))
+                $criteria = array( 'userId' => $matches['id'],
+                        'ticketId' => $matches['tid']);
+                if (($c = Collaborator::lookup($criteria))
                         && ($c->getTicketId() == $matches['tid']))
                     $user = new ClientSession($c);
                 break;
             case 'o': //Ticket owner
                 if (($ticket = Ticket::lookup($matches['tid']))
-                        && ($c = $ticket->getClient())
-                        && ($c->getId() == $matches['id']))
-                    $user = new ClientSession($c);
+                        && ($o = $ticket->getOwner())
+                        && ($o->getId() == $matches['id']))
+                    $user = new ClientSession($o);
                 break;
         }
 
-        if(!$user
-                || strcasecmp(md5($user->getUsername().$this->id), $matches['hash']))
+        //Make sure the authkey matches.
+        if (!$user || strcmp($this->getAuthKey($user), $authkey))
             return null;
 
+
         return $user;
-    }
-
-
-    static private function __authtoken($token) {
-
-        switch ($token[0]) {
-            case 'c': //Collaborator c+[token]
-                if (($c = Collaborator::lookupByAuthToken($token)))
-                    return new ClientSession($c); //Decorator
-                break;
-            case 'o': //Ticket owner  o+[token]
-                break;
-        }
     }
 
     function authenticate($username, $password) {
