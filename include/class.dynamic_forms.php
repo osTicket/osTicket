@@ -210,15 +210,15 @@ class TicketForm extends DynamicForm {
             if (!$impl->hasData() || $impl->isPresentationOnly())
                 continue;
 
-            $name = ($f->get('name')) ? db_real_escape($f->get('name'))
+            $name = ($f->get('name')) ? $f->get('name')
                 : 'field_'.$f->get('id');
 
             $fields[] = sprintf(
-                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as "%1$s"',
+                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as `%1$s`',
                 $name);
             if ($impl->hasIdValue()) {
                 $fields[] = sprintf(
-                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as "%1$s_id"',
+                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as `%1$s_id`',
                     $name);
             }
         }
@@ -270,16 +270,17 @@ class TicketForm extends DynamicForm {
             return;
 
         $f = $answer->getField();
-        $name = $f->get('name') ? db_real_escape($f->get('name'))
+        $name = $f->get('name') ? $f->get('name')
             : 'field_'.$f->get('id');
         $ids = $f->hasIdValue();
-        $fields = sprintf('"%s"=', $name) . db_input($answer->get('value'));
+        $fields = sprintf('`%s`=', $name) . db_input($answer->get('value'));
         if ($f->hasIdValue())
-            $fields .= sprintf(',"%s_id"=', $name) . db_input($answer->getIdValue());
+            $fields .= sprintf(',`%s_id`=', $name) . db_input($answer->getIdValue());
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
             .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        db_query($sql);
+        if (!db_query($sql) || !db_affected_rows())
+            return self::dropDynamicDataView();
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
