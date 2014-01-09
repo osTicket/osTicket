@@ -103,13 +103,13 @@ class UserSession {
 
 }
 
-class ClientSession extends Client {
+class ClientSession extends EndUser {
 
     var $session;
 
-    function ClientSession($email, $id){
-        parent::Client($id, $email);
-        $this->session= new UserSession($email);
+    function __construct($user) {
+        parent::__construct($user);
+        $this->session= new UserSession($user->getUserName());
     }
 
     function isValid(){
@@ -145,13 +145,13 @@ class StaffSession extends Staff {
 
     var $session;
 
-    function StaffSession($var){
-        parent::Staff($var);
+    function __construct($var) {
+        parent::__construct($var);
         $this->session= new UserSession($this->getId());
     }
 
     function isValid(){
-        global $_SESSION,$cfg;
+        global $_SESSION, $cfg;
 
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
             return false;

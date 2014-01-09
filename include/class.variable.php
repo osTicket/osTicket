@@ -67,8 +67,7 @@ class VariableReplacer {
             return call_user_func(array($obj, 'asVar'));
 
         list($v, $part) = explode('.', $var, 2);
-        if ($v && method_exists($obj, 'get'.ucfirst($v))
-                && is_callable(array($obj, 'get'.ucfirst($v)))) {
+        if ($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
             $rv = call_user_func(array($obj, 'get'.ucfirst($v)));
             if(!$rv || !is_object($rv))
                 return $rv;
