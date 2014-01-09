@@ -210,15 +210,15 @@ class TicketForm extends DynamicForm {
             if (!$impl->hasData() || $impl->isPresentationOnly())
                 continue;
 
-            $name = ($f->get('name')) ? $f->get('name')
+            $name = ($f->get('name')) ? db_real_escape($f->get('name'))
                 : 'field_'.$f->get('id');
 
             $fields[] = sprintf(
-                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as `%1$s`',
+                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as "%1$s"',
                 $name);
             if ($impl->hasIdValue()) {
                 $fields[] = sprintf(
-                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as `%1$s_id`',
+                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as "%1$s_id"',
                     $name);
             }
         }
@@ -261,21 +261,21 @@ class TicketForm extends DynamicForm {
         if (!($e = $answer->getEntry()) || $e->get('object_type') != 'T')
             return;
 
-        // If the `name` column is in the dirty list, we would be renaming a
-        // column. Delete the view instead.
-        if (isset($data['dirty']) && isset($data['dirty']['name']))
-            return self::dropDynamicDataView();
-
         // $record = array();
         // $record[$f] = $answer->value'
         // TicketFormData::objects()->filter(array('ticket_id'=>$a))
         //      ->merge($record);
+        $sql = 'SHOW TABLES LIKE \''.TABLE_PREFIX.'ticket__cdata\'';
+        if (!db_num_rows(db_query($sql)))
+            return;
+
         $f = $answer->getField();
-        $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
+        $name = $f->get('name') ? db_real_escape($f->get('name'))
+            : 'field_'.$f->get('id');
         $ids = $f->hasIdValue();
-        $fields = sprintf('`%s`=', $name) . db_input($answer->get('value'));
+        $fields = sprintf('"%s"=', $name) . db_input($answer->get('value'));
         if ($f->hasIdValue())
-            $fields .= sprintf(',`%s_id`=', $name) . db_input($answer->getIdValue());
+            $fields .= sprintf(',"%s_id"=', $name) . db_input($answer->getIdValue());
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
             .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
             .' ON DUPLICATE KEY UPDATE '.$fields;
@@ -309,6 +309,13 @@ Signal::connect('model.deleted',
     array('TicketForm', 'dropDynamicDataView'),
     'DynamicFormField',
     function($o) { return $o->getForm()->get('type') == 'T'; });
+// If the `name` column is in the dirty list, we would be renaming a
+// column. Delete the view instead.
+Signal::connect('model.updated',
+    array('TicketForm', 'dropDynamicDataView'),
+    'DynamicFormField',
+    // TODO: Lookup the dynamic form to verify {type == 'T'}
+    function($o, $d) { return isset($d['dirty']) && isset($d['dirty']['name']); });
 
 require_once(INCLUDE_DIR . "class.json.php");
 

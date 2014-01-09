@@ -123,7 +123,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
-                value="<?php echo $f->get('label'); ?>"/>
+                value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
@@ -161,7 +161,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
-                    value="<?php echo $f->get('name'); ?>" <?php echo $force_name ?>/>
+                    value="<?php echo Format::htmlchars($f->get('name'));
+                    ?>" <?php echo $force_name ?>/>
                 <font class="error"><?php
                     if ($ferrors['name']) echo '<br/>'; echo $ferrors['name'];
                 ?></font>
