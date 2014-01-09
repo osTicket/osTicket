@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkClientAccess($thisclient)) die('Access Denied!');
+if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Access Denied!');
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 
@@ -127,7 +127,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
 <form id="reply" action="tickets.php?id=<?php echo $ticket->getExtId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>
     <h2>Post a Reply</h2>
-    <input type="hidden" name="id" value="<?php echo $ticket->getExtId(); ?>">
+    <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
     <input type="hidden" name="a" value="reply">
     <table border="0" cellspacing="0" cellpadding="3" style="width:100%">
         <tr>

@@ -20,9 +20,9 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
 if($_REQUEST['id']) {
-    if(!($ticket=Ticket::lookupByExtId($_REQUEST['id']))) {
+    if (!($ticket = Ticket::lookup($_REQUEST['id']))) {
         $errors['err']='Unknown or invalid ticket ID.';
-    }elseif(!$ticket->checkClientAccess($thisclient)) {
+    } elseif(!$ticket->checkUserAccess($thisclient)) {
         $errors['err']='Unknown or invalid ticket ID.'; //Using generic message on purpose!
         $ticket=null;
     }
@@ -33,7 +33,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
     $errors=array();
     switch(strtolower($_POST['a'])){
     case 'reply':
-        if(!$ticket->checkClientAccess($thisclient)) //double check perm again!
+        if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
             $errors['err']='Access Denied. Possibly invalid ticket ID';
 
         if(!$_POST['message'])
@@ -66,7 +66,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
     $ticket->reload();
 endif;
 $nav->setActiveNav('tickets');
-if($ticket && $ticket->checkClientAccess($thisclient)) {
+if($ticket && $ticket->checkUserAccess($thisclient)) {
     $inc='view.inc.php';
 } elseif($cfg->showRelatedTickets() && $thisclient->getNumTickets()) {
     $inc='tickets.inc.php';
