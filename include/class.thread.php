@@ -181,7 +181,7 @@ class Thread {
         /* XXX: Leave this out until TICKET_EMAIL_INFO_TABLE has a primary
          *      key
         $sql = 'DELETE mid.* FROM '.TICKET_EMAIL_INFO_TABLE.' mid
-            INNER JOIN '.TICKET_THREAD_TABLE.' thread ON (thread.id = mid.message_id)
+            INNER JOIN '.TICKET_THREAD_TABLE.' thread ON (thread.id = mid.thread_id)
             WHERE thread.ticket_id = '.db_input($this->getTicketId());
         db_query($sql);
          */
@@ -244,7 +244,7 @@ Class ThreadEntry {
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
             .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
-                ON (thread.id=info.message_id) '
+                ON (thread.id=info.thread_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
                         AND thread.id=attach.ref_id
@@ -337,7 +337,7 @@ Class ThreadEntry {
         require_once(INCLUDE_DIR.'class.mailparse.php');
 
         $sql = 'SELECT headers FROM '.TICKET_EMAIL_INFO_TABLE
-            .' WHERE message_id='.$this->getId();
+            .' WHERE thread_id='.$this->getId();
         $headers = db_result(db_query($sql));
         return Mail_Parse::splitHeaders($headers);
     }
@@ -643,7 +643,7 @@ Class ThreadEntry {
     /* static */
     function logEmailHeaders($id, $mid, $header=false) {
         $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
-            .' SET message_id='.db_input($id) //TODO: change it to thread_id
+            .' SET thread_id='.db_input($id)
             .', email_mid='.db_input($mid); //TODO: change it to message_id.
         if ($header)
             $sql .= ', headers='.db_input($header);
@@ -708,8 +708,8 @@ Class ThreadEntry {
     function lookupByEmailHeaders($mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        $search = 'SELECT message_id, email_mid FROM '.TICKET_EMAIL_INFO_TABLE
-               . ' WHERE email_mid=%s ORDER BY message_id DESC';
+        $search = 'SELECT thread_id, email_mid FROM '.TICKET_EMAIL_INFO_TABLE
+               . ' WHERE email_mid=%s ORDER BY thread_id DESC';
 
         if (list($id, $mid) = db_fetch_row(db_query(
                 sprintf($search, db_input($mailinfo['mid']))))) {
