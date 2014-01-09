@@ -159,17 +159,22 @@ class Ticket {
                  || $staff->getId()==$this->getStaffId());
     }
 
-    function checkClientAccess($client) {
+    function checkUserAccess($user) {
         global $cfg;
 
-        if(!is_object($client) && !($client=Client::lookup($client)))
+        if (!$user || !($user instanceof EndUser))
             return false;
 
-        if(!strcasecmp($client->getEmail(), $this->getEmail()))
+        //Ticket Owner
+        if ($user->getId() == $this->getUserId())
             return true;
 
-        return ($cfg && $cfg->showRelatedTickets()
-            && $client->getTicketId()==$this->getExtId());
+        //Collaborator
+        if (!strcasecmp($user->getRole(), 'collaborator')
+                && $user->getTicketId() == $this->getId())
+            return true;
+
+        return false;
     }
 
     //Getters
@@ -190,9 +195,12 @@ class Ticket {
     }
 
     function getOwner() {
-        if (!isset($this->user))
-            $this->user = User::lookup($this->getOwnerId());
-        return $this->user;
+
+        if (!isset($this->owner)
+                && ($u=User::lookup($this->getOwnerId())))
+            $this->owner = new TicketOwner($u, $this);
+
+        return $this->owner;
     }
 
     function getEmail(){
@@ -377,12 +385,16 @@ class Ticket {
         return $this->dept;
     }
 
-    function getClient() {
+    function getUserId() {
+        return $this->getOwnerId();
+    }
 
-        if(!$this->client)
-            $this->client = Client::lookup($this->getExtId(), $this->getEmail());
+    function getUser() {
 
-        return $this->client;
+        if(!isset($this->user) && $this->getOwner())
+            $this->user = new EndUser($this->getOwner());
+
+        return $this->user;
     }
 
     function getStaffId() {
@@ -855,6 +867,7 @@ class Ticket {
 
             $msg = $this->replaceVars($msg->asArray(),
                     array('message' => $message,
+                          'recipient' => $this->getOwner(),
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
 
@@ -923,11 +936,11 @@ class Ticket {
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
         }
 
-        $client= $this->getClient();
+        $user = $this->getOwner();
 
         //Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
         $alert='Max. open tickets reached for '.$this->getEmail()."\n"
-              .'Open ticket: '.$client->getNumOpenTickets()."\n"
+              .'Open ticket: '.$user->getNumOpenTickets()."\n"
               .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
 
         $ost->alertAdmin('Overlimit Notice', $alert);
@@ -1639,7 +1652,8 @@ class Ticket {
                 && ($tpl = $dept->getTemplate())
                 && ($msg=$tpl->getReplyMsgTemplate())) {
 
-            $msg = $this->replaceVars($msg->asArray(), $variables);
+            $msg = $this->replaceVars($msg->asArray(),
+                    $variables + array('recipient' => $this->getOwner()));
 
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
@@ -1996,11 +2010,8 @@ class Ticket {
     /* Quick client's tickets stats
        @email - valid email.
      */
-    function getClientStats($email) {
-
-        if(!$email || !Validator::is_email($email))
-            return null;
-        if (!$user = User::lookup(array('emails__address'=>$email)))
+    function getUserStats($user) {
+        if(!$user || !($user instanceof EndUser))
             return null;
 
         $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
@@ -2050,8 +2061,8 @@ class Ticket {
 
             //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
             if($cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff')
-                    && ($client=Client::lookupByEmail($vars['email']))
-                    && ($openTickets=$client->getNumOpenTickets())
+                    && ($user=TicketUser::lookupByEmail($vars['email']))
+                    && ($openTickets=$user->getNumOpenTickets())
                     && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
 
                 $errors['err']="You've reached the maximum open tickets allowed.";
@@ -2287,8 +2298,8 @@ class Ticket {
 
         /************ check if the user JUST reached the max. open tickets limit **********/
         if($cfg->getMaxOpenTickets()>0
-                    && ($client=$ticket->getClient())
-                    && ($client->getNumOpenTickets()==$cfg->getMaxOpenTickets())) {
+                    && ($user=$ticket->getOwner())
+                    && ($user->getNumOpenTickets()==$cfg->getMaxOpenTickets())) {
             $ticket->onOpenLimit(($autorespond && strcasecmp($origin, 'staff')));
         }
 

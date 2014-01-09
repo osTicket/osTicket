@@ -100,6 +100,14 @@ abstract class TicketUser {
         return $user;
     }
 
+    static function lookupByEmail($email) {
+
+        if (!($user=User::lookup(array('emails__address' => $email))))
+            return null;
+
+        return new EndUser($user);
+    }
+
     function isOwner() {
         return  ($this->user
                     && $this->user->getId() == $this->getTicket()->getOwnerId());
