@@ -118,8 +118,7 @@ class Thread {
             .' FROM '.TICKET_THREAD_TABLE.' thread '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
-                        AND thread.id=attach.ref_id
-                        AND thread.thread_type=attach.ref_type) '
+                        AND thread.id=attach.ref_id) '
             .' WHERE  thread.ticket_id='.db_input($this->getTicketId());
 
         if($type && is_array($type))
@@ -247,8 +246,7 @@ Class ThreadEntry {
                 ON (thread.id=info.thread_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
-                        AND thread.id=attach.ref_id
-                        AND thread.thread_type=attach.ref_type) '
+                        AND thread.id=attach.ref_id) '
             .' WHERE  thread.id='.db_input($id);
 
         if($type)
@@ -466,8 +464,7 @@ Class ThreadEntry {
         $sql ='INSERT IGNORE INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
              .' ,file_id='.db_input($fileId)
              .' ,ticket_id='.db_input($this->getTicketId())
-             .' ,ref_id='.db_input($this->getId())
-             .' ,ref_type='.db_input($this->getType());
+             .' ,ref_id='.db_input($this->getId());
 
         return (db_query($sql) && ($id=db_insert_id()))?$id:0;
     }
@@ -491,8 +488,7 @@ Class ThreadEntry {
             .' FROM '.FILE_TABLE.' f '
             .' INNER JOIN '.TICKET_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
             .' WHERE a.ticket_id='.db_input($this->getTicketId())
-            .' AND a.ref_id='.db_input($this->getId())
-            .' AND a.ref_type='.db_input($this->getType());
+            .' AND a.ref_id='.db_input($this->getId());
 
         $this->attachments = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
