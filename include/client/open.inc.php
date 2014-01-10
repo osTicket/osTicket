@@ -48,15 +48,17 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
             <tr><td colspan="2"><hr /></td></tr>
         <tr><td>Email:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
         <tr><td>Client:</td><td><?php echo $thisclient->getName(); ?></td></tr>
-        <?php }
-        $tform = TicketForm::getInstance()->getForm($_POST);
-        if ($_POST) $tform->isValid();
-        $tform->render(false); ?>
+        <?php } ?>
     </tbody>
     <tbody id="dynamic-form">
         <?php if ($form) {
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>
+    </tbody>
+    <tbody><?php
+        $tform = TicketForm::getInstance()->getForm($_POST);
+        if ($_POST) $tform->isValid();
+        $tform->render(false); ?>
     </tbody>
     <tbody>
     <?php
@@ -79,7 +81,8 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
     <tr><td colspan=2>&nbsp;</td></tr>
     </tbody>
   </table>
-  <p style="padding-left:150px;">
+<hr/>
+  <p style="text-align:center;">
         <input type="submit" value="Create Ticket">
         <input type="reset" value="Reset">
         <input type="button" value="Cancel" onClick='window.location.href="index.php"'>
