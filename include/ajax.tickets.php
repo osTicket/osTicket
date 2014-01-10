@@ -505,6 +505,10 @@ class TicketsAjaxAPI extends AjaxController {
                 $errors['err'] = sprintf('Ticket owner, %s, is a collaborator by default!',
                         $user->getName());
             elseif (($c=$ticket->addCollaborator($user, $errors))) {
+                $note = Format::htmlchars(sprintf('%s <%s> added as a collaborator',
+                            $c->getName(), $c->getEmail()));
+                $ticket->logNote('New Collaborator Added', $note,
+                    $thisstaff, false);
                 $info = array('msg' => sprintf('%s added as a collaborator',
                             $c->getName()));
                 return self::_collaborators($ticket, $info);
@@ -564,7 +568,23 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_addcollaborator($ticket);
     }
 
+    function previewCollaborators($tid) {
+        global $thisstaff;
 
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+        if (!$ticket->getCollaborators())
+            Http::response(404, 'No such ticket');
+
+        ob_start();
+        include STAFFINC_DIR . 'templates/collaborators-preview.tmpl.php';
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+    }
 
     function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
 
@@ -586,7 +606,9 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = $info = array();
         if ($ticket->updateCollaborators($_POST, $errors))
-            Http::response(201, sprintf('Recipients (%d)', $ticket->getNumActiveCollaborators()));
+            Http::response(201, sprintf('Recipients (%d of %d)',
+                        $ticket->getNumActiveCollaborators(),
+                        $ticket->getNumCollaborators()));
 
         if($errors && $errors['err'])
             $info +=array('error' => $errors['err']);

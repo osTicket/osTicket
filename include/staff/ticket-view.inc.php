@@ -446,18 +446,19 @@ $tcount+= $ticket->getNumNotes();
                     <label><strong>Collaborators:</strong></label>
                 </td>
                 <td>
+                    <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                        <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
+                        style="display:<?php echo $ticket->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
+                        >
                     <?php
-                    if($ticket->getNumCollaborators()) { ?>
-                        <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
-                            <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>>
-                       <?php
-                    }
                     $recipients = 'Add Recipients';
                     if ($ticket->getNumCollaborators())
-                        $recipients = sprintf('Recipients (%d)', $ticket->getNumActiveCollaborators());
+                        $recipients = sprintf('Recipients (%d of %d)',
+                                $ticket->getNumActiveCollaborators(),
+                                $ticket->getNumCollaborators());
 
-                    echo sprintf('<span><a class="collaborators"
-                            href="#tickets/%d/collaborators/manage"><span id="recipients">%s</span></a></span>',
+                    echo sprintf('<span><a class="collaborators" id="manageCollab"
+                            href="#tickets/%d/collaborators"><span id="recipients">%s</span></a></span>',
                             $ticket->getId(),
                             $recipients);
                    ?>
