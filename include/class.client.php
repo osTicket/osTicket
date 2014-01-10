@@ -15,7 +15,7 @@
 **********************************************************************/
 abstract class TicketUser {
 
-    static private $token_regex = '/^(?P<type>\w{1})(?P<id>\d+)t(?P<tid>\d+)x(?P<algo>\d+)h(?P<hash>.*)$/i';
+    static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
 
     protected  $user;
 
@@ -44,25 +44,22 @@ abstract class TicketUser {
 
     }
 
-    protected function getAuthToken($type=1) {
+    protected function getAuthToken($algo=1) {
 
-        //Format: // c<id>x<algo id used>h<hash for algo>
-        $authtoken = '';
-        switch($type) {
+        //Format: // <user type><algo id used>x<pack of uid & tid><hash of the algo>
+        $authtoken = sprintf('%s%dx%s',
+                ($this->isOwner() ? 'o' : 'c'),
+                $algo,
+                base64_encode(pack('VV',$this->getId(), $this->getTicketId())));
+
+        switch($algo) {
             case 1:
-                $authtoken = sprintf('%s%dt%dx%dh%s',
-                        ($this->isOwner() ? 'o' : 'c'),
-                        $this->getId(),
-                        $this->getTicketId(),
-                        $type,
-                        substr(base64_encode(md5($this->getId().$this->getTicket()->getCreateDate().$this->getTicketId().SECRET_SALT,
-                                    true)), 16));
+                $authtoken .= substr(base64_encode(
+                            md5($this->getId().$this->getTicket()->getCreateDate().$this->getTicketId().SECRET_SALT, true)), 8);
                 break;
+            default:
+                return null;
         }
-
-        //TODO: Throw an exception
-        if (!$authtoken)
-            return false;
 
         return $authtoken;
     }
@@ -74,17 +71,20 @@ abstract class TicketUser {
         if (!preg_match(static::$token_regex, $token, $matches))
             return null;
 
+        //Unpack the user and ticket ids
+        $matches +=unpack('Vuid/Vtid', base64_decode(substr($matches['hash'], 0, 12)));
+
         $user = null;
         switch ($matches['type']) {
             case 'c': //Collaborator c
-                if (($user = Collaborator::lookup($matches['id']))
+                if (($user = Collaborator::lookup($matches['uid']))
                         && $user->getTicketId() != $matches['tid'])
                     $user = null;
                 break;
             case 'o': //Ticket owner
                 if (($ticket = Ticket::lookup($matches['tid']))) {
                     if (($user = $ticket->getOwner())
-                            && $user->getId() != $matches['id'])
+                            && $user->getId() != $matches['uid'])
                         $user = null;
                 }
                 break;
@@ -94,8 +94,6 @@ abstract class TicketUser {
                 || !$user instanceof TicketUser
                 || strcasecmp($user->getAuthToken($matches['algo']), $token))
             return false;
-
-        var_dump($user);
 
         return $user;
     }

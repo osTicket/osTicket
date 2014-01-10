@@ -97,7 +97,7 @@ abstract class AuthenticationBackend {
         foreach (static::allRegistered() as $bk) {
             if ($backends //Allowed backends
                     && $bk->supportsAuthentication()
-                    && in_array($bk::$id, $backends))
+                    && !in_array($bk::$id, $backends))
                 // User cannot be authenticated against this backend
                 continue;
 
