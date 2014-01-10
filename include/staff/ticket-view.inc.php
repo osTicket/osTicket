@@ -453,10 +453,12 @@ $tcount+= $ticket->getNumNotes();
                     <?php
                     $recipients = 'Add Recipients';
                     if ($ticket->getNumCollaborators())
-                        $recipients = sprintf('Recipients (%d)', $ticket->getNumActiveCollaborators());
+                        $recipients = sprintf('Recipients (%d of %d)',
+                                $ticket->getNumActiveCollaborators(),
+                                $ticket->getNumCollaborators());
 
-                    echo sprintf('<span><a class="collaborators"
-                            href="#tickets/%d/collaborators/manage"><span id="recipients">%s</span></a></span>',
+                    echo sprintf('<span><a class="collaborators" id="manageCollab"
+                            href="#tickets/%d/collaborators"><span id="recipients">%s</span></a></span>',
                             $ticket->getId(),
                             $recipients);
                    ?>
