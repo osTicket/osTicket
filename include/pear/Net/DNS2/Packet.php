@@ -190,7 +190,7 @@ class Net_DNS2_Packet
     /**
      * applies a standard DNS name compression on the given name/offset
      *
-     * This logic was based on the Net::DNS::Packet::dn_comp() function 
+     * This logic was based on the Net::DNS::Packet::dn_comp() function (nolint)
      * by Michanel Fuhr
      *
      * @param string  $name    the name to be compressed
@@ -250,7 +250,7 @@ class Net_DNS2_Packet
     /**
      * applies a standard DNS name compression on the given name/offset
      *
-     * This logic was based on the Net::DNS::Packet::dn_comp() function 
+     * This logic was based on the Net::DNS::Packet::dn_comp() function (nolint)
      * by Michanel Fuhr
      *
      * @param string $name the name to be compressed
@@ -283,7 +283,7 @@ class Net_DNS2_Packet
     /**
      * expands the domain name stored at a given offset in a DNS Packet
      *
-     * This logic was based on the Net::DNS::Packet::dn_expand() function
+     * This logic was based on the Net::DNS::Packet::dn_expand() function (nolint)
      * by Michanel Fuhr
      *
      * @param Net_DNS2_Packet &$packet the DNS packet to look in for the domain name

@@ -35,19 +35,11 @@ foreach ($ost->plugins->allInstalled() as $p) {
                 <?php echo $sel?'checked="checked"':''; ?>></td>
         <td><a href="plugins.php?id=<?php echo $p->getId(); ?>"
             ><?php echo $p->getName(); ?></a></td>
-        <td>Enabled</td>
+        <td><?php echo ($p->isActive())
+            ? 'Enabled' : '<strong>Disabled</strong>'; ?></td>
         <td><?php echo Format::db_datetime($p->getInstallDate()); ?></td>
     </tr>
-    <?php } else {
-        $p = $ost->plugins->getInfoForPath($p['install_path']); ?>
-    <tr>
-        <td><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p['install_path']; ?>"
-                <?php echo $sel?'checked="checked"':''; ?>></td>
-        <td><?php echo $p['name']; ?></td>
-        <td><strong>Disabled</strong></td>
-        <td></td>
-    </tr>
-    <?php } ?>
+    <?php } else {} ?>
 <?php } ?>
     </tbody>
     <tfoot>

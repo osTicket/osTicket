@@ -3,6 +3,7 @@ $title=($cfg && is_object($cfg) && $cfg->getTitle())?$cfg->getTitle():'osTicket 
 header("Content-Type: text/html; charset=UTF-8\r\n");
 ?>
 <!DOCTYPE html>
+<html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">

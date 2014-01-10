@@ -99,6 +99,7 @@ if($_POST) {
                 'private'=>$_POST["private-new-$i"] == 'on' ? 1 : 0,
                 'required'=>$_POST["required-new-$i"] == 'on' ? 1 : 0
             ));
+            $field->setForm($form);
             if ($field->isValid())
                 $field->save();
             else

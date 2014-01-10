@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: Staff Control Panel'; ?></title>

@@ -440,6 +440,14 @@ class FormField {
         return $this->presentation_only;
     }
 
+    /**
+     * Indicates if the field places data in the `value_id` column. This
+     * is currently used by the materialized view system
+     */
+    function hasIdValue() {
+        return false;
+    }
+
     function getConfigurationForm() {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
@@ -806,6 +814,10 @@ class PriorityField extends ChoiceField {
         return $widget;
     }
 
+    function hasIdValue() {
+        return true;
+    }
+
     function getChoices() {
         $this->ht['default'] = 0;
 
@@ -1140,6 +1152,7 @@ class ThreadEntryWidget extends Widget {
         <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />
         </div>
         <font class="error">&nbsp;<?php echo $errors['attachments']; ?></font>
+        </div>
         <hr/>
         <?php
         }

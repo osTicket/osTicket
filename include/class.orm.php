@@ -147,7 +147,10 @@ class VerySimpleModel {
         foreach ($pk as $p)
             $filter[] = $p.' = '.db_input($this->get($p));
         $sql .= ' WHERE '.implode(' AND ', $filter).' LIMIT 1';
-        return db_query($sql) && db_affected_rows() == 1;
+        if (!db_query($sql) || db_affected_rows() != 1)
+            throw new Exception(db_error());
+        Signal::send('model.deleted', $this);
+        return true;
     }
 
     function save($refetch=false) {
@@ -183,6 +186,11 @@ class VerySimpleModel {
             $this->__new__ = false;
             // Setup lists again
             $this->__setupForeignLists();
+            Signal::send('model.created', $this);
+        }
+        else {
+            $data = array('dirty' => $this->dirty);
+            Signal::send('model.updated', $this, $data);
         }
         # Refetch row from database
         # XXX: Too much voodoo

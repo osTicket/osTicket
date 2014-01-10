@@ -227,6 +227,11 @@ class Module {
     function run($args, $options) {
     }
 
+    function fail($message) {
+        $this->stderr->write($message . "\n");
+        die();
+    }
+
     /* static */
     function register($action, $class) {
         global $registered_modules;

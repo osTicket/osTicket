@@ -153,7 +153,10 @@ class UrlMatcher {
     function apply_prefix() {
         if (is_array($this->func)) { list($class, $func) = $this->func; }
         else { $func = $this->func; $class = ""; }
-        $class = $this->prefix . $class;
+        if (is_object($class))
+            return array(false, $this->func);
+        if ($this->prefix)
+            $class = $this->prefix . $class;
 
         if (strpos($class, ":")) {
             list($file, $class) = explode(":", $class, 2);
