@@ -284,7 +284,7 @@ class FormField {
      * $value - PHP value of the field's content
      */
     function toString($value) {
-        return $value;
+        return (string) $value;
     }
 
     /**
