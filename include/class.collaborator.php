@@ -54,6 +54,11 @@ class Collaborator {
         return call_user_func(array($user, $name));
     }
 
+    function __toString() {
+        return Format::htmlchars(sprintf('%s <%s>', $this->getName(),
+                    $this->getEmail()));
+    }
+
     function getId() {
         return $this->ht['id'];
     }
@@ -83,6 +88,15 @@ class Collaborator {
             $this->user = User::lookup($this->getUserId());
 
         return $this->user;
+    }
+
+    function remove() {
+
+        $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
+            .' WHERE id='.db_input($this->getId())
+            .' LIMIT 1';
+
+        return  (db_query($sql) && db_affected_rows());
     }
 
     static function add($info, &$errors) {

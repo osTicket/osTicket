@@ -368,6 +368,7 @@ jQuery(function($) {
         e.preventDefault();
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
         $.dialog(url, 201, function (resp) {
+           $('input#emailcollab').show();
            $('#recipients').text(resp);
             });
         return false;

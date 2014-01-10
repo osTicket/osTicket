@@ -67,16 +67,13 @@ class Ticket {
             .' ,IF(sla.id IS NULL, NULL, '
                 .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(distinct attach.attach_id) as attachments'
-            .' ,count(distinct collab.id) as collaborators '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
-            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON ('
-                .'ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
-                .'ticket.ticket_id=attach.ticket_id) '
-            .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab ON ('
-                .'ticket.ticket_id=collab.ticket_id) '
+            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
+                ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
+            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
+                ON ( ticket.ticket_id=attach.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 
@@ -562,7 +559,7 @@ class Ticket {
 
     //Collaborators
     function getNumCollaborators() {
-        return $this->ht['collaborators'];
+        return count($this->getCollaborators());
     }
 
     function getNumActiveCollaborators() {
@@ -580,10 +577,10 @@ class Ticket {
 
     function getCollaborators($criteria=array()) {
 
-        if($criteria)
+        if ($criteria)
             return Collaborator::forTicket($this->getId(), $criteria);
 
-        if(!$this->collaborators && $this->getNumCollaborators())
+        if (!isset($this->collaborators))
             $this->collaborators = Collaborator::forTicket($this->getId());
 
         return $this->collaborators;
@@ -600,24 +597,29 @@ class Ticket {
         if(!($c=Collaborator::add($vars, $errors)))
             return null;
 
-        $this->ht['collaborators'] +=1;
         $this->collaborators = null;
-
 
         return $c;
     }
 
     //XXX: Ugly for now
     function updateCollaborators($vars, &$errors) {
+        global $thisstaff;
 
+        if (!$thisstaff) return;
 
         //Deletes
         if($vars['del'] && ($ids=array_filter($vars['del']))) {
-            $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
-                .' WHERE ticket_id='.db_input($this->getId())
-                .' AND id IN('.implode(',', db_input($ids)).')';
-            if(db_query($sql))
-                $this->ht['collaborators'] -= db_affected_rows();
+            $collabs = array();
+            foreach ($ids as $k => $cid) {
+                if (($c=Collaborator::lookup($cid))
+                        && $c->getTicketId() == $this->getId()
+                        && $c->remove())
+                     $collabs[] = $c;
+            }
+
+            $this->logNote('Collaborators Removed',
+                    implode("<br>", $collabs), $thisstaff, false);
         }
 
         //statuses
@@ -1456,10 +1458,18 @@ class Ticket {
         $this->setLastMsgId($message->getId());
 
         //Add email recipients as collaborators
-        if($vars['recipients']) {
-            foreach($vars['recipients'] as $recipient)
-                if(($user=User::fromVars($recipient)))
-                    $this->addCollaborator($user, $errors);
+        if ($vars['recipients']) {
+            $collabs = array();
+            foreach ($vars['recipients'] as $recipient) {
+                if (($user=User::fromVars($recipient)))
+                    if ($c=$this->addCollaborator($user, $errors))
+                        $collabs[] = $c;
+            }
+            //TODO: Can collaborators add others?
+            if ($collabs) {
+                $this->logNote('Collaborators CCed by enduser',
+                        implode("<br>", $collabs), 'EndUser', false);
+            }
         }
 
         if(!$alerts) return $message; //Our work is done...

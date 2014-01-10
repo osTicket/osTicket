@@ -160,6 +160,28 @@ jQuery(function() {
         clearTimeout($(this).data('timer'));
     });
 
+
+    $('a#manageCollab').live('mouseover', function(e) {
+        e.preventDefault();
+        var elem = $(this);
+
+        var url = 'ajax.php/'+elem.attr('href').substr(1)+'/preview';
+        var xoffset = 100;
+        elem.data('timer', 0);
+
+        if (e.type=='mouseover') {
+            elem.data('timer',setTimeout(function() { showtip(url, elem, xoffset);},750))
+        } else {
+            showtip(url,elem,xoffset);
+        }
+    }).live('mouseout', function(e) {
+        clearTimeout($(this).data('timer'));
+    }).live('click', function(e) {
+        clearTimeout($(this).data('timer'));
+        $('.tip_box').remove();
+    });
+
+
     //Ticket preview
     $('.ticketPreview').live('mouseover', function(e) {
         e.preventDefault();
