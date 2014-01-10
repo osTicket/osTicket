@@ -85,6 +85,15 @@ class Collaborator {
         return $this->user;
     }
 
+    function remove() {
+
+        $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
+            .' WHERE id='.db_input($this->getId())
+            .' LIMIT 1';
+
+        return  (db_query($sql) && db_affected_rows());
+    }
+
     static function add($info, &$errors) {
 
         if(!$info || !$info['ticketId'] || !$info['userId'])

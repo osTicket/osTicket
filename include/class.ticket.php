@@ -609,15 +609,22 @@ class Ticket {
 
     //XXX: Ugly for now
     function updateCollaborators($vars, &$errors) {
+        global $thisstaff;
 
+        if (!$thisstaff) return;
 
         //Deletes
         if($vars['del'] && ($ids=array_filter($vars['del']))) {
-            $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
-                .' WHERE ticket_id='.db_input($this->getId())
-                .' AND id IN('.implode(',', db_input($ids)).')';
-            if(db_query($sql))
-                $this->ht['collaborators'] -= db_affected_rows();
+            $collabs = array();
+            foreach ($ids as $k => $cid) {
+                if (($c=Collaborator::lookup($cid))
+                        && $c->getTicketId() == $this->getId()
+                        && $c->remove())
+                     $collabs[] = Format::htmlchars(sprintf('%s <%s>', $c->getName(), $c->getEmail()));
+            }
+
+            $this->logNote('Collaborators Removed',
+                    implode("\n", $collabs), $thisstaff, false);
         }
 
         //statuses
@@ -1456,10 +1463,19 @@ class Ticket {
         $this->setLastMsgId($message->getId());
 
         //Add email recipients as collaborators
-        if($vars['recipients']) {
-            foreach($vars['recipients'] as $recipient)
-                if(($user=User::fromVars($recipient)))
-                    $this->addCollaborator($user, $errors);
+        if ($vars['recipients']) {
+            $collabs = array();
+            foreach ($vars['recipients'] as $recipient) {
+                if (($user=User::fromVars($recipient)))
+                    if ($this->addCollaborator($user, $errors))
+                        $collabs[] = Format::htmlchars(sprintf('%s <%s>',
+                                $user->getName(), $user->getEmail()));
+            }
+            //TODO: Can collaborators add others?
+            if ($collabs) {
+                $this->logNote('Collaborators CCed by enduser',
+                        implode("\n", $collabs), 'EndUser', false);
+            }
         }
 
         if(!$alerts) return $message; //Our work is done...

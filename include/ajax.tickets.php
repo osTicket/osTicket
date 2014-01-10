@@ -505,6 +505,10 @@ class TicketsAjaxAPI extends AjaxController {
                 $errors['err'] = sprintf('Ticket owner, %s, is a collaborator by default!',
                         $user->getName());
             elseif (($c=$ticket->addCollaborator($user, $errors))) {
+                $note = Format::htmlchars(sprintf('%s <%s> added as a collaborator',
+                            $c->getName(), $c->getEmail()));
+                $ticket->logNote('New Collaborator Added', $note,
+                    $thisstaff, false);
                 $info = array('msg' => sprintf('%s added as a collaborator',
                             $c->getName()));
                 return self::_collaborators($ticket, $info);
