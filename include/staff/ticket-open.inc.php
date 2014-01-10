@@ -66,7 +66,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
                 <font class="error">* <?php echo $errors['email']; ?></font>
             </td>
-        </td>
+        </tr>
         <tr>
             <td width="160" class="required"> Full Name: </td>
             <td>
@@ -74,7 +74,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <input type="text" size=45 name="name" id="user-name" value="<?php echo $info['name']; ?>" /> </span>
                 <font class="error">* <?php echo $errors['name']; ?></font>
             </td>
-        </td>
+        </tr>
         <?php
         } ?>
 
