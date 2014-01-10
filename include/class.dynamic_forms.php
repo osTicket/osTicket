@@ -904,6 +904,10 @@ class SelectionField extends FormField {
         return ($item) ? $item : $value;
     }
 
+    function hasIdValue() {
+        return true;
+    }
+
     function to_database($item) {
         if ($item instanceof DynamicListItem)
             return array($item->value, $item->id);

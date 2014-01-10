@@ -300,6 +300,15 @@ class FormField {
         return Format::htmlchars($this->toString($value));
     }
 
+    /**
+     * Returns a value suitable for exporting to a foreign system. Mostly
+     * useful for things like dates and phone numbers which should be
+     * formatted using a standard when exported
+     */
+    function export($value) {
+        return $this->toString($value);
+    }
+
     function getLabel() { return $this->get('label'); }
 
     /**
@@ -732,6 +741,16 @@ class DatetimeField extends FormField {
             return Format::userdate($format, $value);
         else
             return Format::date($format, $value);
+    }
+
+    function export($value) {
+        $config = $this->getConfiguration();
+        if (!$value)
+            return '';
+        elseif ($config['gmt'])
+            return Format::userdate('Y-m-d H:i:s', $value);
+        else
+            return Format::date('Y-m-d H:i:s', $value);
     }
 
     function getConfigurationOptions() {
