@@ -54,6 +54,11 @@ class Collaborator {
         return call_user_func(array($user, $name));
     }
 
+    function __toString() {
+        return Format::htmlchars(sprintf('%s <%s>', $this->getName(),
+                    $this->getEmail()));
+    }
+
     function getId() {
         return $this->ht['id'];
     }

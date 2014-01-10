@@ -67,16 +67,13 @@ class Ticket {
             .' ,IF(sla.id IS NULL, NULL, '
                 .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(distinct attach.attach_id) as attachments'
-            .' ,count(distinct collab.id) as collaborators '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
-            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock ON ('
-                .'ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
-                .'ticket.ticket_id=attach.ticket_id) '
-            .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab ON ('
-                .'ticket.ticket_id=collab.ticket_id) '
+            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
+                ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
+            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
+                ON ( ticket.ticket_id=attach.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 
@@ -562,7 +559,7 @@ class Ticket {
 
     //Collaborators
     function getNumCollaborators() {
-        return $this->ht['collaborators'];
+        return count($this->getCollaborators());
     }
 
     function getNumActiveCollaborators() {
@@ -580,10 +577,10 @@ class Ticket {
 
     function getCollaborators($criteria=array()) {
 
-        if($criteria)
+        if ($criteria)
             return Collaborator::forTicket($this->getId(), $criteria);
 
-        if(!$this->collaborators && $this->getNumCollaborators())
+        if (!isset($this->collaborators))
             $this->collaborators = Collaborator::forTicket($this->getId());
 
         return $this->collaborators;
@@ -600,9 +597,7 @@ class Ticket {
         if(!($c=Collaborator::add($vars, $errors)))
             return null;
 
-        $this->ht['collaborators'] +=1;
         $this->collaborators = null;
-
 
         return $c;
     }
@@ -620,11 +615,11 @@ class Ticket {
                 if (($c=Collaborator::lookup($cid))
                         && $c->getTicketId() == $this->getId()
                         && $c->remove())
-                     $collabs[] = Format::htmlchars(sprintf('%s <%s>', $c->getName(), $c->getEmail()));
+                     $collabs[] = $c;
             }
 
             $this->logNote('Collaborators Removed',
-                    implode("\n", $collabs), $thisstaff, false);
+                    implode("<br>", $collabs), $thisstaff, false);
         }
 
         //statuses
@@ -1467,14 +1462,13 @@ class Ticket {
             $collabs = array();
             foreach ($vars['recipients'] as $recipient) {
                 if (($user=User::fromVars($recipient)))
-                    if ($this->addCollaborator($user, $errors))
-                        $collabs[] = Format::htmlchars(sprintf('%s <%s>',
-                                $user->getName(), $user->getEmail()));
+                    if ($c=$this->addCollaborator($user, $errors))
+                        $collabs[] = $c;
             }
             //TODO: Can collaborators add others?
             if ($collabs) {
                 $this->logNote('Collaborators CCed by enduser',
-                        implode("\n", $collabs), 'EndUser', false);
+                        implode("<br>", $collabs), 'EndUser', false);
             }
         }
 
