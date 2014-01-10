@@ -1925,7 +1925,7 @@ class Ticket {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
-        $where = array();
+        $where = array('ticket.staff_id='.db_input($staff->getId()));
         $where2 = '';
 
         if(($teams=$staff->getTeams()))
@@ -1935,7 +1935,7 @@ class Ticket {
             $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
-            $where2 =' AND (ticket.staff_id=0 OR ticket.staff_id='.db_input($staff->getId()).') ';
+            $where2 =' AND ticket.staff_id=0 ';
         $where = implode(' OR ', $where);
         if ($where) $where = 'AND ( '.$where.' ) ';
 
