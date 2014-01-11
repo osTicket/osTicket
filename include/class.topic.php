@@ -224,11 +224,8 @@ class Topic {
         if(!$vars['dept_id'])
             $errors['dept_id']='You must select a department';
 
-        if(!$vars['priority_id'])
-            $errors['priority_id']='You must select a priority';
-
         if($errors) return false;
-        
+
         foreach (array('sla_id','form_id','page_id','pid') as $f)
             if (!isset($vars[$f]))
                 $vars[$f] = 0;
@@ -237,7 +234,8 @@ class Topic {
             .',topic='.db_input($vars['topic'])
             .',topic_pid='.db_input($vars['pid'])
             .',dept_id='.db_input($vars['dept_id'])
-            .',priority_id='.db_input($vars['priority_id'])
+            .',priority_id='.db_input(isset($vars['priority_id'])
+                ? $vars['priority_id'] : 0)
             .',sla_id='.db_input($vars['sla_id'])
             .',form_id='.db_input($vars['form_id'])
             .',page_id='.db_input($vars['page_id'])

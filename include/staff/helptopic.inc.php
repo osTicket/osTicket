@@ -106,12 +106,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
            </td>
        </tr>
         <tr>
-            <td width="180" class="required">
+            <td width="180">
                 Priority:
             </td>
             <td>
                 <select name="priority_id">
-                    <option value="">&mdash; Select Priority &mdash;</option>
+                    <option value="">&mdash; System Default &mdash;</option>
                     <?php
                     $sql='SELECT priority_id,priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -122,7 +122,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['priority_id']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['priority_id']; ?></span>
             </td>
         </tr>
         <tr>
