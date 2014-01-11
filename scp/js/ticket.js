@@ -370,7 +370,10 @@ jQuery(function($) {
         $.dialog(url, 201, function (resp) {
            $('input#emailcollab').show();
            $('#recipients').text(resp);
-            });
+        }, {
+            onshow: function() { $('#user-search').focus(); }
+        });
+;
         return false;
      });
 
