@@ -85,7 +85,7 @@ class Ticket {
         $this->ht = db_fetch_array($res);
 
         $this->id       = $this->ht['ticket_id'];
-        $this->number   = $this->ht['ticketID'];
+        $this->number   = $this->ht['number'];
         $this->_answers = array();
 
         $this->loadDynamicData();
@@ -1894,7 +1894,7 @@ class Ticket {
         $sql ='SELECT ticket.ticket_id FROM '.TICKET_TABLE.' ticket '
              .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
              .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-             .' WHERE ticket.ticketID='.db_input($extId);
+             .' WHERE ticket.`number`='.db_input($extId);
 
         if($email)
             $sql .= ' AND email.address = '.db_input($email);
@@ -1926,7 +1926,7 @@ class Ticket {
         //We can allow collissions...extId and email must be unique ...so same id with diff emails is ok..
         // But for clarity...we are going to make sure it is unique.
         $id=Misc::randNumber(EXT_TICKET_ID_LEN);
-        if(db_num_rows(db_query('SELECT ticket_id FROM '.TICKET_TABLE.' WHERE ticketID='.db_input($id))))
+        if(db_num_rows(db_query('SELECT ticket_id FROM '.TICKET_TABLE.' WHERE `number`='.db_input($id))))
             return Ticket::genExtRandID();
 
         return $id;
@@ -2220,7 +2220,7 @@ class Ticket {
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->id)
-            .' ,ticketID='.db_input($extId)
+            .' ,`number`='.db_input($extId)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
             .' ,ip_address='.db_input($ipaddress)
@@ -2237,9 +2237,9 @@ class Ticket {
         /* -------------------- POST CREATE ------------------------ */
 
         if(!$cfg->useRandomIds()) {
-            //Sequential ticketIDs support really..really suck arse.
+            //Sequential ticket number support really..really suck arse.
             $extId=$id; //To make things really easy we are going to use autoincrement ticket_id.
-            db_query('UPDATE '.TICKET_TABLE.' SET ticketID='.db_input($extId).' WHERE ticket_id='.$id.' LIMIT 1');
+            db_query('UPDATE '.TICKET_TABLE.' SET `number`='.db_input($extId).' WHERE ticket_id='.$id.' LIMIT 1');
             //TODO: RETHING what happens if this fails?? [At the moment on failure random ID is used...making stuff usable]
         }
 

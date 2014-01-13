@@ -18,7 +18,7 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
     $status='open'; //Defaulting to open
 }
 
-$sortOptions=array('id'=>'ticketID', 'subject'=>'subject.value',
+$sortOptions=array('id'=>'`number`', 'subject'=>'subject.value',
                     'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 //Sorting options...
@@ -38,7 +38,7 @@ if($order_by && strpos($order_by,','))
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
-$qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, '
+$qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
     .'dept.ispublic, subject.value as subject,'
     .'dept_name,ticket. status, ticket.source, ticket.created ';
 
@@ -66,7 +66,7 @@ $search=($_REQUEST['a']=='search' && $_REQUEST['q']);
 if($search) {
     $qstr.='&a='.urlencode($_REQUEST['a']).'&q='.urlencode($_REQUEST['q']);
     if(is_numeric($_REQUEST['q'])) {
-        $qwhere.=" AND ticket.ticketID LIKE '$queryterm%'";
+        $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
     } else {//Deep search!
         $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
@@ -153,10 +153,10 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
             if($row['attachments'])
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
 
-            $ticketID=$row['ticketID'];
+            $ticketNumber=$row['number'];
             if($row['isanswered'] && !strcasecmp($row['status'],'open')) {
                 $subject="<b>$subject</b>";
-                $ticketID="<b>$ticketID</b>";
+                $ticketNumber="<b>$ticketNumber</b>";
             }
             $phone=Format::phone($row['phone']);
             if($row['phone_ext'])
@@ -165,7 +165,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
             <tr id="<?php echo $row['ticket_id']; ?>">
                 <td class="centered">
                 <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>"
-                    href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketID; ?></a>
+                    href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo ucfirst($row['status']); ?></td>
