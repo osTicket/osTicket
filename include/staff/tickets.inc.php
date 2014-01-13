@@ -265,11 +265,15 @@ while ($row = db_fetch_array($res)) {
 
 // Fetch attachment and thread entry counts
 if ($results) {
-    $counts_sql = 'SELECT ticket.ticket_id, count(attach.attach_id) as attachments,
-        count(DISTINCT thread.id) as thread_count
+    $counts_sql = 'SELECT ticket.ticket_id,
+        count(DISTINCT attach.attach_id) as attachments,
+        count(DISTINCT thread.id) as thread_count,
+        count(DISTINCT collab.id) as collaborators
         FROM '.TICKET_TABLE.' ticket
         LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
      .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
+     .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+            ON ( ticket.ticket_id=collab.ticket_id) '
      .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
         GROUP BY ticket.ticket_id';
     $ids_res = db_query($counts_sql);
@@ -404,11 +408,17 @@ if ($results) {
                   <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview" title="Preview Ticket"
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
-                <td><a <?php if($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+                <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
-                     &nbsp;
-                     <?php echo ($threadcount>1)?" <small>($threadcount)</small>&nbsp;":''?>
-                     <?php echo $row['attachments']?"<span class='Icon file'>&nbsp;</span>":''; ?>
+                     <?php
+                        if ($threadcount>1)
+                            echo "<small>($threadcount)</small>&nbsp;".'<i
+                                class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
+                        if ($row['collaborators'])
+                            echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
+                        if ($row['attachments'])
+                            echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
+                    ?>
                 </td>
                 <td nowrap>&nbsp;<?php echo Format::truncate($row['name'],22,strpos($row['name'],'@')); ?>&nbsp;</td>
                 <?php
