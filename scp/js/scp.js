@@ -148,7 +148,12 @@ $(document).ready(function(){
      });
 
     $('select#tpl_options').change(function() {
-        $(this).closest('form').submit();
+        var $this = $(this), form = $this.closest('form');
+        if ($this.val() % 1 !== 0) {
+            $('[name="a"]', form).val('implement');
+            $this.attr('name', 'code_name');
+        }
+        form.submit();
      });
 
     $(".clearrule").live('click',function() {
