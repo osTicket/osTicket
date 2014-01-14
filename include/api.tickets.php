@@ -40,7 +40,7 @@ class TicketApiController extends ApiController {
             $supported = array_merge($supported, array('header', 'mid',
                 'emailId', 'ticketId', 'reply-to', 'reply-to-name',
                 'in-reply-to', 'references',
-                'recipients' => array("*" => array("name", "email"))
+                'recipients' => array('*' => array('name', 'email', 'source'))
                 ));
 
             $supported['attachments']['*'][] = 'cid';

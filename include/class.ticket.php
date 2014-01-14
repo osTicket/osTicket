@@ -586,15 +586,15 @@ class Ticket {
         return $this->collaborators;
     }
 
-    function addCollaborator($user, &$errors) {
+    function addCollaborator($user, $vars, &$errors) {
 
-        if(!$user || $user->getId()==$this->getOwnerId())
+        if (!$user || $user->getId()==$this->getOwnerId())
             return null;
 
-        $vars = array(
+        $vars = array_merge(array(
                 'ticketId' => $this->getId(),
-                'userId' => $user->getId());
-        if(!($c=Collaborator::add($vars, $errors)))
+                'userId' => $user->getId()), $vars);
+        if (!($c=Collaborator::add($vars, $errors)))
             return null;
 
         $this->collaborators = null;
@@ -966,8 +966,8 @@ class Ticket {
             $options['references'] = $vars['references'];
 
         foreach($collaborators as $collaborator) {
-            $msg = $this->replaceVars($msg, array('recipient' => $collaborator));
-            $email->send($collaborator->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $notice = $this->replaceVars($msg, array('recipient' => $collaborator));
+            $email->send($collaborator->getEmail(), $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
 
@@ -1459,15 +1459,22 @@ class Ticket {
 
         //Add email recipients as collaborators
         if ($vars['recipients']) {
+            //TODO:  Disable collaborators added by other collaborator
+            //  staff approval will be required.
+            $info = array('isactive' => 1);
             $collabs = array();
             foreach ($vars['recipients'] as $recipient) {
                 if (($user=User::fromVars($recipient)))
-                    if ($c=$this->addCollaborator($user, $errors))
-                        $collabs[] = $c;
+                    if ($c=$this->addCollaborator($user, $info, $errors))
+                        $collabs[] = sprintf('%s%s',
+                                (string) $c,
+                                $recipient['source'] ? " via {$recipient['source']}" : ''
+                                );
             }
             //TODO: Can collaborators add others?
             if ($collabs) {
-                $this->logNote('Collaborators CCed by enduser',
+                //TODO: Change EndUser to name of  user.
+                $this->logNote('Collaborators added by enduser',
                         implode("<br>", $collabs), 'EndUser', false);
             }
         }

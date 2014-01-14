@@ -101,16 +101,17 @@ class Collaborator {
 
     static function add($info, &$errors) {
 
-        if(!$info || !$info['ticketId'] || !$info['userId'])
+        if (!$info || !$info['ticketId'] || !$info['userId'])
             $errors['err'] = 'Invalid or missing information';
-        elseif(($c=self::lookup($info)))
+        elseif (($c=self::lookup($info)))
             $errors['err'] = sprintf('%s is already a collaborator',
                     $c->getName());
 
-        if($errors) return false;
+        if ($errors) return false;
 
         $sql='INSERT INTO '.TICKET_COLLABORATOR_TABLE
-            .' SET isactive=1, updated=NOW() '
+            .' SET updated=NOW() '
+            .' ,isactive='.db_input(isset($info['isactive']) ?  $info['isactive'] : 0)
             .' ,ticket_id='.db_input($info['ticketId'])
             .' ,user_id='.db_input($info['userId']);
 

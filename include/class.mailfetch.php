@@ -286,18 +286,21 @@ class MailFetcher {
         // Put together a list of recipients
         $tolist = array();
         if($headerinfo->to)
-            $tolist = array_merge($tolist, $headerinfo->to);
+            $tolist['to'] = $headerinfo->to;
         if($headerinfo->cc)
-            $tolist = array_merge($tolist, $headerinfo->cc);
+            $tolist['cc'] = $headerinfo->cc;
 
         $header['recipients'] = array();
-        foreach($tolist as $addr) {
-            if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
-                $header['recipients'][] = array(
-                        'name' => $this->mime_decode(@$addr->personal),
-                        'email' => strtolower($addr->mailbox).'@'.$addr->host);
-            } elseif(!$header['emailId']) {
-                $header['emailId'] = $emailId;
+        foreach($tolist as $source => $list) {
+            foreach($list as $addr) {
+                if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    $header['recipients'][] = array(
+                            'source' => "Email ($source)",
+                            'name' => $this->mime_decode(@$addr->personal),
+                            'email' => strtolower($addr->mailbox).'@'.$addr->host);
+                } elseif(!$header['emailId']) {
+                    $header['emailId'] = $emailId;
+                }
             }
         }
 
