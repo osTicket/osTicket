@@ -393,18 +393,21 @@ class EmailDataParser {
         $data['recipients'] = array();
         $tolist = array();
         if(($to = $parser->getToAddressList()))
-            $tolist = array_merge($tolist, $to);
+            $tolist['to'] = $to;
 
         if(($cc = $parser->getCcAddressList()))
-            $tolist = array_merge($tolist, $cc);
+            $tolist['cc'] = $cc;
 
-        foreach ($tolist as $addr) {
-            if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
-                $data['recipients'][] = array(
-                          'name' => trim(@$addr->personal, '"'),
-                          'email' => strtolower($addr->mailbox).'@'.$addr->host);
-            } elseif(!$data['emailId']) {
-                $data['emailId'] = $emailId;
+        foreach ($tolist as $source => $list) {
+            foreach($list as $addr) {
+                if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    $data['recipients'][] = array(
+                        'source' => $source,
+                        'name' => trim(@$addr->personal, '"'),
+                        'email' => strtolower($addr->mailbox).'@'.$addr->host);
+                } elseif(!$data['emailId']) {
+                    $data['emailId'] = $emailId;
+                }
             }
         }
 
@@ -412,8 +415,8 @@ class EmailDataParser {
         if(!$data['emailId']) {
             unset($data['recipients']);
             $emailId =  0;
-            if($bcc = $parser->getBccAddressList())
-                foreach ($bcc as $addr) {
+            if($bcc = $parser->getBccAddressList()) {
+                foreach ($bcc as $addr)
                     if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
                         break;
             }
