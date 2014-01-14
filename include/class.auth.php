@@ -265,9 +265,11 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $authkey = $bk::$id.':'.$authkey;
 
         //Now set session crap and lets roll baby!
-        $_SESSION['_auth']['staff'] = array(); //clear.
-        $_SESSION['_auth']['staff']['id'] = $staff->getId();
-        $_SESSION['_auth']['staff']['key'] =  $authkey;
+        $authsession = &$_SESSION['_auth']['staff'];
+
+        $authsession = array(); //clear.
+        $authsession['id'] = $staff->getId();
+        $authsession['key'] =  $authkey;
 
         $staff->setAuthKey($authkey);
         $staff->refreshSession(); //set the hash.
@@ -360,10 +362,13 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         //Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
+
         //Set the session goodies
-        $_SESSION['_auth']['user'] = array(); //clear.
-        $_SESSION['_auth']['user']['id'] = $user->getId();
-        $_SESSION['_auth']['user']['key'] = $authkey;
+        $authsession = &$_SESSION['_auth']['user'];
+
+        $authsession = array(); //clear.
+        $authsession['id'] = $user->getId();
+        $authsession['key'] = $authkey;
         $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
         $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 
@@ -489,35 +494,37 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
 
         $cfg = $ost->getConfig();
 
-        if($_SESSION['_auth']['staff']['laststrike']) {
-            if((time()-$_SESSION['_auth']['staff']['laststrike'])<$cfg->getStaffLoginTimeout()) {
-                $_SESSION['_auth']['staff']['laststrike'] = time(); //reset timer.
+        $authsession = &$_SESSION['_auth']['staff'];
+
+        if($authsession['laststrike']) {
+            if((time()-$authsession['laststrike'])<$cfg->getStaffLoginTimeout()) {
+                $authsession['laststrike'] = time(); //reset timer.
                 return new AccessDenied('Max. failed login attempts reached');
             } else { //Timeout is over.
                 //Reset the counter for next round of attempts after the timeout.
-                $_SESSION['_auth']['staff']['laststrike']=null;
-                $_SESSION['_auth']['staff']['strikes']=0;
+                $authsession['laststrike']=null;
+                $authsession['strikes']=0;
             }
         }
 
-        $_SESSION['_auth']['staff']['strikes']+=1;
-        if($_SESSION['_auth']['staff']['strikes']>$cfg->getStaffMaxLogins()) {
-            $_SESSION['_auth']['staff']['laststrike']=time();
+        $authsession['strikes']+=1;
+        if($authsession['strikes']>$cfg->getStaffMaxLogins()) {
+            $authsession['laststrike']=time();
             $alert='Excessive login attempts by a staff member?'."\n".
                    'Username: '.$username."\n"
                    .'IP: '.$_SERVER['REMOTE_ADDR']."\n"
                    .'TIME: '.date('M j, Y, g:i a T')."\n\n"
-                   .'Attempts #'.$_SESSION['_auth']['staff']['strikes']."\n"
+                   .'Attempts #'.$authsession['strikes']."\n"
                    .'Timeout: '.($cfg->getStaffLoginTimeout()/60)." minutes \n\n";
             $ost->logWarning('Excessive login attempts ('.$username.')', $alert,
                     $cfg->alertONLoginError());
             return new AccessDenied('Forgot your login info? Contact Admin.');
         //Log every other failed login attempt as a warning.
-        } elseif($_SESSION['_auth']['staff']['strikes']%2==0) {
+        } elseif($authsession['strikes']%2==0) {
             $alert='Username: '.$username."\n"
                     .'IP: '.$_SERVER['REMOTE_ADDR']."\n"
                     .'TIME: '.date('M j, Y, g:i a T')."\n\n"
-                    .'Attempts #'.$_SESSION['_auth']['staff']['strikes'];
+                    .'Attempts #'.$authsession['strikes'];
             $ost->logWarning('Failed staff login attempt ('.$username.')', $alert, false);
         }
     }
@@ -534,31 +541,32 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
 
         $cfg = $ost->getConfig();
 
-        $_SESSION['_auth']['user'] = array();
+        $authsession = &$_SESSION['_auth']['user'];
+
         //Check time for last max failed login attempt strike.
-        if($_SESSION['_auth']['user']['laststrike']) {
-            if((time()-$_SESSION['_auth']['user']['laststrike'])<$cfg->getClientLoginTimeout()) {
-                $_SESSION['_auth']['user']['laststrike'] = time(); //renew the strike.
+        if($authsession['laststrike']) {
+            if((time()-$authsession['laststrike'])<$cfg->getClientLoginTimeout()) {
+                $authsession['laststrike'] = time(); //renew the strike.
                 return new AccessDenied('You\'ve reached maximum failed login attempts allowed.');
             } else { //Timeout is over.
                 //Reset the counter for next round of attempts after the timeout.
-                $_SESSION['_auth']['user']['laststrike'] = null;
-                $_SESSION['_auth']['user']['strikes'] = 0;
+                $authsession['laststrike'] = null;
+                $authsession['strikes'] = 0;
             }
         }
 
-        $_SESSION['_auth']['user']['strikes']+=1;
-        if($_SESSION['_auth']['user']['strikes']>$cfg->getClientMaxLogins()) {
-            $_SESSION['_auth']['user']['laststrike'] = time();
+        $authsession['strikes']+=1;
+        if($authsession['strikes']>$cfg->getClientMaxLogins()) {
+            $authsession['laststrike'] = time();
             $alert='Excessive login attempts by a user.'."\n".
                     'Login: '.$username.': '.$password."\n".
                     'IP: '.$_SERVER['REMOTE_ADDR']."\n".'Time:'.date('M j, Y, g:i a T')."\n\n".
-                    'Attempts #'.$_SESSION['_auth']['user']['strikes'];
+                    'Attempts #'.$authsession['strikes'];
             $ost->logError('Excessive login attempts (user)', $alert, ($cfg->alertONLoginError()));
             return new AccessDenied('Access Denied');
-        } elseif($_SESSION['_auth']['user']['strikes']%2==0) { //Log every other failed login attempt as a warning.
+        } elseif($authsession['strikes']%2==0) { //Log every other failed login attempt as a warning.
             $alert='Login: '.$username.': '.$password."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
-                   "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_auth']['user']['strikes'];
+                   "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$authsession['strikes'];
             $ost->logWarning('Failed login attempt (user)', $alert);
         }
 
