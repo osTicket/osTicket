@@ -966,8 +966,8 @@ class Ticket {
             $options['references'] = $vars['references'];
 
         foreach($collaborators as $collaborator) {
-            $msg = $this->replaceVars($msg, array('recipient' => $collaborator));
-            $email->send($collaborator->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $notice = $this->replaceVars($msg, array('recipient' => $collaborator));
+            $email->send($collaborator->getEmail(), $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
 
