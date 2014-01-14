@@ -176,7 +176,7 @@ class Ticket {
 
     function getAuthToken() {
         # XXX: Support variable email address (for CCs)
-        return md5($this->getId() . $this->getEmail() . SECRET_SALT);
+        return md5($this->getId() . strtolower($this->getEmail()) . SECRET_SALT);
     }
 
     function getName() {
