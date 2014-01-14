@@ -44,24 +44,11 @@ class Collaborator extends TicketUser {
         return $this->load();
     }
 
-<<<<<<< HEAD
-    function __call($name, $args) {
-
-        if(!($user=$this->getUser()) || !method_exists($user, $name))
-            return false;
-
-        return  $args
-            ? call_user_func_array(array($user, $name), $args)
-            : call_user_func(array($user, $name));
-    }
-
     function __toString() {
         return Format::htmlchars(sprintf('%s <%s>', $this->getName(),
                     $this->getEmail()));
     }
 
-=======
->>>>>>> efe5b0f... Make collaborator extends ticket user  - necessary for authtoken support
     function getId() {
         return $this->ht['id'];
     }
