@@ -402,7 +402,7 @@ class EmailDataParser {
             foreach($list as $addr) {
                 if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     $data['recipients'][] = array(
-                        'source' => $source,
+                        'source' => "Email ($source)",
                         'name' => trim(@$addr->personal, '"'),
                         'email' => strtolower($addr->mailbox).'@'.$addr->host);
                 } elseif(!$data['emailId']) {

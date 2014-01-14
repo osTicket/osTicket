@@ -295,7 +295,7 @@ class MailFetcher {
             foreach($list as $addr) {
                 if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     $header['recipients'][] = array(
-                            'source' => $source,
+                            'source' => "Email ($source)",
                             'name' => $this->mime_decode(@$addr->personal),
                             'email' => strtolower($addr->mailbox).'@'.$addr->host);
                 } elseif(!$header['emailId']) {

@@ -1466,9 +1466,9 @@ class Ticket {
             foreach ($vars['recipients'] as $recipient) {
                 if (($user=User::fromVars($recipient)))
                     if ($c=$this->addCollaborator($user, $info, $errors))
-                        $collabs[] = sprintf('%s %s',
+                        $collabs[] = sprintf('%s%s',
                                 (string) $c,
-                                $recipient['source'] ? " ({$recipient['source']}) " : ''
+                                $recipient['source'] ? " via {$recipient['source']}" : ''
                                 );
             }
             //TODO: Can collaborators add others?
