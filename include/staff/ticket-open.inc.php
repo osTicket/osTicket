@@ -221,23 +221,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 </select>&nbsp;<span class='error'>&nbsp;<?php echo $errors['assignId']; ?></span>
             </td>
         </tr>
-        <?php
-        }
-        $tform = TicketForm::getInstance()->getForm($_POST);
-        if ($_POST) $tform->isValid();
-        $tform->render(true);
-        ?>
+        <?php } ?>
         </tbody>
         <tbody id="dynamic-form">
         <?php
             if ($form) $form->getForm()->render(true);
         ?>
         </tbody>
+        <tbody> <?php
+        $tform = TicketForm::getInstance()->getForm($_POST);
+        if ($_POST) $tform->isValid();
+        $tform->render(true);
+        ?>
+        </tbody>
         <tbody>
         <?php
         //is the user allowed to post replies??
-        if($thisstaff->canPostReply()) {
-            ?>
+        if($thisstaff->canPostReply()) { ?>
         <tr>
             <th colspan="2">
                 <em><strong>Response</strong>: Optional response to the above issue.</em>
