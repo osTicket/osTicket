@@ -148,22 +148,6 @@ class UserForm extends DynamicForm {
         return $os->filter(array('type'=>'U'));
     }
 
-    function getFields($cache=true) {
-        $fields = parent::getFields($cache);
-        foreach ($fields as $f) {
-            if ($f->get('name') == 'email') {
-                $f->getConfiguration();
-                $f->_config['classes'] = 'auto email typeahead';
-                $f->_config['autocomplete'] = false;
-            }
-            elseif ($f->get('name') == 'name') {
-                $f->getConfiguration();
-                $f->_config['classes'] = 'auto name';
-            }
-        }
-        return $fields;
-    }
-
     static function getUserForm() {
         if (!isset(static::$form)) {
             $o = static::objects();
