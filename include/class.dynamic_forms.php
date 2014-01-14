@@ -54,10 +54,13 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function getDynamicFields() {
-        if (!isset($this->_dfields))
+        if (!isset($this->_dfields)) {
             $this->_dfields = DynamicFormField::objects()
                 ->filter(array('form_id'=>$this->id))
                 ->all();
+            foreach ($this->_dfields as $f)
+                $f->setForm($this);
+        }
         return $this->_dfields;
     }
 
@@ -146,22 +149,6 @@ class UserForm extends DynamicForm {
     static function objects() {
         $os = parent::objects();
         return $os->filter(array('type'=>'U'));
-    }
-
-    function getFields($cache=true) {
-        $fields = parent::getFields($cache);
-        foreach ($fields as $f) {
-            if ($f->get('name') == 'email') {
-                $f->getConfiguration();
-                $f->_config['classes'] = 'auto email typeahead';
-                $f->_config['autocomplete'] = false;
-            }
-            elseif ($f->get('name') == 'name') {
-                $f->getConfiguration();
-                $f->_config['classes'] = 'auto name';
-            }
-        }
-        return $fields;
     }
 
     static function getUserForm() {

@@ -836,13 +836,18 @@ class PriorityField extends ChoiceField {
     function hasIdValue() {
         return true;
     }
+    function isChangeable() {
+        return $this->getForm()->get('type') != 'T' ||
+            $this->get('name') != 'priority';
+    }
 
     function getChoices() {
-        $this->ht['default'] = 0;
+        global $cfg;
+        $this->ht['default'] = $cfg->getDefaultPriorityId();
 
         $sql = 'SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE
               .' ORDER BY priority_urgency DESC';
-        $choices = array(0 => '&mdash; Default &mdash;');
+        $choices = array();
         if (!($res = db_query($sql)))
             return $choices;
 
@@ -999,13 +1004,16 @@ class ChoicesWidget extends Widget {
         $config = $this->field->getConfiguration();
         // Determine the value for the default (the one listed if nothing is
         // selected)
-        $def_key = $this->field->get('default');
         $choices = $this->field->getChoices();
+        $def_key = $this->field->get('default');
         $have_def = isset($choices[$def_key]);
         if (!$have_def)
             $def_val = 'Select '.$this->field->get('label');
         else
             $def_val = $choices[$def_key];
+        $value = $this->value;
+        if ($value === null && $have_def)
+            $value = $def_key;
         ?> <span style="display:inline-block">
         <select name="<?php echo $this->name; ?>">
             <?php if (!$have_def) { ?>
@@ -1016,7 +1024,7 @@ class ChoicesWidget extends Widget {
                 if (!$have_def && $key == $def_key)
                     continue; ?>
                 <option value="<?php echo $key; ?>" <?php
-                    if ($this->value == $key) echo 'selected="selected"';
+                    if ($value == $key) echo 'selected="selected"';
                 ?>><?php echo $name; ?></option>
             <?php } ?>
         </select>
