@@ -2058,7 +2058,7 @@ class Ticket {
         $source=ucfirst($vars['source']);
         $topic=NULL;
         // Intenal mapping magic...see if we need to override anything
-        if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff
+        if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff or topicId specified in email body
             $deptId=$deptId?$deptId:$topic->getDeptId();
             $priority = $form->getAnswer('priority');
             if (!$priority || !$priority->getIdValue())

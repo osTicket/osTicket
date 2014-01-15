@@ -534,6 +534,33 @@ class MailFetcher {
             }
         }
 
+        // Search for user variable definitions in the email body
+        preg_match_all("/(?<name>[^=\r\n<>]+)=(?<value>[^=\r\n<>]+)/",$vars['message'], $matchedValues,PREG_SET_ORDER);
+        $emailBodyVars=array();
+        foreach ($matchedValues as $item) {
+            $emailBodyVars[$item['name']]=$item['value'];
+        }
+        // the email body variable 'topicId', if present, sets the topic ID
+        // without topic ID we don't do anything
+        if (array_key_exists("topicId", $emailBodyVars)) {
+            $vars['topicId']=$emailBodyVars['topicId'];
+            // If the topic has a dynamic form, search email body variables matching a form variable
+            if ($topic=Topic::lookup($vars['topicId'])) {
+                $vars['source']='Email';
+                if ($form=DynamicForm::lookup($topic->ht['form_id'])) {
+                    $validVars=array();
+                    foreach ($form->getDynamicFields() as $f) {
+                        $formVarName=$f->get('name');
+                        $fieldVarName=$f->getFormName();
+                        if (array_key_exists($formVarName,$emailBodyVars)) {
+                            $emailVars[$formVarName]=$emailBodyVars[$formVarName];
+                        }
+                    }
+                    $sform = $form->instanciate();
+                }
+            }
+        }
+
         $seen = false;
         if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
                 && ($message = $thread->postEmail($vars))) {
@@ -547,6 +574,19 @@ class MailFetcher {
             return true;
         } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
+            // Save extra dynamic form built with user data from email body
+            if (isset($sform)) {
+                $sform->setTicketId($ticket->getId());
+                // Inject values into the form ields (I bet this can be done in a better way)
+                // The problem here is that FormField::getSource returns $_POST which is not applicable for non-POST submits 
+                foreach ($sform->getAnswers() as $a) {
+                    $field = $a->getField();
+                    if (array_key_exists($field->get('name'), $emailVars)) {
+                        $field->_clean = $emailVars[$field->get('name')];
+                    }
+                }
+                $sform->save();
+            }
         } else {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403) {
