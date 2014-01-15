@@ -245,7 +245,7 @@ class TicketForm extends DynamicForm {
     static function updateDynamicDataView($answer, $data) {
         // TODO: Detect $data['dirty'] for value and value_id
         // We're chiefly concerned with Ticket form answers
-        if (!($e = $answer->getEntry()) || $e->get('object_type') != 'T')
+        if (!($e = $answer->getEntry()) || $e->getForm()->get('type') != 'T')
             return;
 
         // $record = array();
