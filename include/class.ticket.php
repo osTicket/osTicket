@@ -98,9 +98,6 @@ class Ticket {
         $this->topic = null;
         $this->thread = null;
 
-        //REQUIRED: Preload thread obj - checked on lookup!
-        $this->getThread();
-
         return true;
     }
 
@@ -1788,8 +1785,7 @@ class Ticket {
         return ($id
                 && is_numeric($id)
                 && ($ticket= new Ticket($id))
-                && $ticket->getId()==$id
-                && $ticket->getThread())
+                && $ticket->getId()==$id)
             ?$ticket:null;
     }
 
