@@ -66,6 +66,14 @@ class UserSession {
       return($token);
    }
 
+   function getLastUpdate($htoken) {
+       if (!$htoken)
+           return 0;
+
+       @list($hash,$expire,$ip)=explode(":",$htoken);
+       return $expire;
+   }
+
    function isvalidSession($htoken,$maxidletime=0,$checkip=false){
         global $cfg;
 
@@ -122,7 +130,10 @@ class ClientSession extends Client {
     }
 
     function refreshSession(){
-        global $_SESSION;
+        $time = $this->session->getLastUpdate($_SESSION['_client']['token']);
+        // Deadband session token updates to once / 30-seconds
+        if (time() - $time < 30)
+            return;
         $_SESSION['_client']['token']=$this->getSessionToken();
         //TODO: separate expire time from hash??
     }
@@ -160,7 +171,11 @@ class StaffSession extends Staff {
     }
 
     function refreshSession(){
-        global $_SESSION;
+        $time = $this->session->getLastUpdate($_SESSION['_staff']['token']);
+        // Deadband session token updates to once / 30-seconds
+        if (time() - $time < 30)
+            return;
+
         $_SESSION['_staff']['token']=$this->getSessionToken();
     }
 

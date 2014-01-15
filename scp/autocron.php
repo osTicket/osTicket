@@ -14,6 +14,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+define('AJAX_REQUEST', 1);
 require('staff.inc.php');
 ignore_user_abort(1);//Leave me a lone bro!
 @set_time_limit(0); //useless when safe_mode is on

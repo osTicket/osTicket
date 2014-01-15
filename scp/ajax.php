@@ -21,6 +21,7 @@ function staffLoginPage($msg='Unauthorized') {
     exit;
 }
 
+define('AJAX_REQUEST', 1);
 require('staff.inc.php');
 
 //Clean house...don't let the world see your crap.

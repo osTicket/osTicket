@@ -18,6 +18,7 @@ class osTicketSession {
 
     var $ttl = SESSION_TTL;
     var $data = '';
+    var $data_hash = '';
     var $id = '';
 
     function osTicketSession($ttl=0){
@@ -87,11 +88,15 @@ class osTicketSession {
                 list($this->data)=db_fetch_row($res);
             $this->id = $id;
         }
+        $this->data_hash = md5($this->data);
         return $this->data;
     }
 
     function write($id, $data){
         global $thisstaff;
+
+        if (md5($data) == $this->data_hash)
+            return;
 
         $ttl = ($this && get_class($this) == 'osTicketSession')
             ? $this->getTTL() : SESSION_TTL;
