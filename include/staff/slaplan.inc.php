@@ -76,6 +76,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
+                Revolving SLA:
+            </td>
+            <td>
+                <input type="checkbox" name="isrevolving" value="1" <?php echo $info['isrevolving']?'checked="checked"':''; ?> >
+                SLA for unanswered tickets is based on last response instead of ticket creation date.
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                 Transient:
             </td>
             <td>

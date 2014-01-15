@@ -76,6 +76,10 @@ class SLA {
     function isActive() {
         return ($this->ht['isactive']);
     }
+    
+    function isRevolving() {
+        return ($this->ht['isrevolving']);
+    }
 
     function isTransient() {
         return $this->getConfig()->get('transient', false);
@@ -132,13 +136,14 @@ class SLA {
     function getSLAs() {
 
         $slas=array();
-        $sql='SELECT id, name, isactive, grace_period FROM '.SLA_TABLE.' ORDER BY name';
+        $sql='SELECT id, name, isactive, isrevolving, grace_period FROM '.SLA_TABLE.' ORDER BY name';
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while($row=db_fetch_array($res))
                 $slas[$row['id']] = sprintf('%s (%d hrs - %s)',
                         $row['name'],
                         $row['grace_period'],
-                        $row['isactive']?'Active':'Disabled');
+                        $row['isactive']?'Active':'Disabled',
+                        $row['isrevolving']?'Revolving':'Standard');
         }
 
         return $slas;
@@ -175,6 +180,7 @@ class SLA {
 
         $sql=' updated=NOW() '.
              ',isactive='.db_input($vars['isactive']).
+             ',isrevolving='.db_input($vars['isrevolving']).
              ',name='.db_input($vars['name']).
              ',grace_period='.db_input($vars['grace_period']).
              ',disable_overdue_alerts='.db_input(isset($vars['disable_overdue_alerts'])?1:0).

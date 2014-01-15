@@ -65,6 +65,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
 CREATE TABLE `%TABLE_PREFIX%sla` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `isactive` tinyint(1) unsigned NOT NULL default '1',
+  `isrevolving` tinyint(1) unsigned NOT NULL default '0',
   `enable_priority_escalation` tinyint(1) unsigned NOT NULL default '1',
   `disable_overdue_alerts` tinyint(1) unsigned NOT NULL default '0',
   `grace_period` int(10) unsigned NOT NULL default '0',
