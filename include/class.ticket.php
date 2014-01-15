@@ -1670,12 +1670,15 @@ class Ticket {
 
     function delete() {
 
+        //delete just orphaned ticket thread & associated attachments.
+        // Fetch thread prior to removing ticket entry
+        $t = $this->getThread();
+
         $sql = 'DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1';
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        //delete just orphaned ticket thread & associated attachments.
-        $this->getThread()->delete();
+        $t->delete();
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             $form->delete();
