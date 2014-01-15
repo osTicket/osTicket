@@ -598,6 +598,23 @@ class Ticket {
         return $this->collaborators;
     }
 
+    //UserList of recipients  (owner + collaborators)
+    function getRecipients() {
+
+        if (!isset($this->recipients)) {
+            $list = new UserList();
+            $list->add($this->getOwner());
+            if ($collabs = $this->getActiveCollaborators()) {
+                foreach ($collabs as $c)
+                    $list->add($c);
+            }
+            $this->recipients = $list;
+        }
+
+        return $this->recipients;
+    }
+
+
     function addCollaborator($user, $vars, &$errors) {
 
         if (!$user || $user->getId()==$this->getOwnerId())
@@ -610,6 +627,7 @@ class Ticket {
             return null;
 
         $this->collaborators = null;
+        $this->recipients = null;
 
         return $c;
     }
@@ -958,13 +976,12 @@ class Ticket {
 
         if (!$vars
                 || !$vars['variables']
-                || !($collaborators=$this->getActiveCollaborators())
+                || !($recipients=$this->getRecipients())
                 || !($dept=$this->getDept())
                 || !($tpl=$dept->getTemplate())
                 || !($msg=$tpl->getActivityNoticeMsgTemplate())
                 || !($email=$dept->getEmail()))
             return;
-
 
         $msg = $this->replaceVars($msg->asArray(), $vars['variables']);
 
@@ -978,9 +995,9 @@ class Ticket {
         if($vars['references'])
             $options['references'] = $vars['references'];
 
-        foreach($collaborators as $collaborator) {
-            $notice = $this->replaceVars($msg, array('recipient' => $collaborator));
-            $email->send($collaborator->getEmail(), $notice['subj'], $notice['body'], $attachments,
+        foreach($recipients as $recipient) {
+            $notice = $this->replaceVars($msg, array('recipient' => $recipient));
+            $email->send($recipient->getEmail(), $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
 

@@ -468,4 +468,55 @@ class UserEmail extends UserEmailModel {
     }
 }
 
+
+/*
+ *  Generic user list.
+ */
+class UserList implements  IteratorAggregate, ArrayAccess {
+    private $users;
+
+    function __construct($list = array()) {
+        $this->users = $list;
+    }
+
+    function add($user) {
+        $this->offsetSet(null, $user);
+    }
+
+    function offsetSet($offset, $value) {
+
+        if (is_null($offset))
+            $this->users[] = $value;
+        else
+            $this->users[$offset] = $value;
+    }
+
+    function offsetExists($offset) {
+        return isset($this->users[$offset]);
+    }
+
+    function offsetUnset($offset) {
+        unset($this->users[$offset]);
+    }
+
+    function offsetGet($offset) {
+        return isset($this->users[$offset]) ? $this->users[$offset] : null;
+    }
+
+    function getIterator() {
+        return new ArrayIterator($this->users);
+    }
+
+    function __toString() {
+
+        $list = array();
+        foreach($this->users as $user) {
+            if (is_object($user))
+                $list [] = $user->getName();
+        }
+
+        return $list ? implode(', ', $list) : '';
+    }
+}
+
 ?>
