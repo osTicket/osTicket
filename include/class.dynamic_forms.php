@@ -303,7 +303,8 @@ Signal::connect('model.updated',
     array('TicketForm', 'dropDynamicDataView'),
     'DynamicFormField',
     // TODO: Lookup the dynamic form to verify {type == 'T'}
-    function($o, $d) { return isset($d['dirty']) && isset($d['dirty']['name']); });
+    function($o, $d) { return isset($d['dirty'])
+        && (isset($d['dirty']['name']) || isset($d['dirty']['type'])); });
 
 require_once(INCLUDE_DIR . "class.json.php");
 
