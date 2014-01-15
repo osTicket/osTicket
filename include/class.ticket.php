@@ -62,7 +62,7 @@ class Ticket {
             return false;
 
         $sql='SELECT  ticket.*, lock_id, dept_name '
-            .' ,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
+            .' ,IF(sla.id IS NULL, NULL, DATE_ADD(IF(sla.isrevolving=1, ticket.lastresponse, ticket.created), INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(attach.attach_id) as attachments '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
@@ -853,6 +853,15 @@ class Ticket {
 
     function onResponse() {
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1,lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
+
+        //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
+        if($this->isOverdue()
+                && $this->getSLA()->isRevolving() //Has revolving SLA
+		&& Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                    ) {
+            $this->clearOverdue();
+        }
+	
     }
 
     function onMessage($autorespond=true, $message=null) {
@@ -2290,8 +2299,8 @@ class Ticket {
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
             .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
             .' WHERE status=\'open\' AND isoverdue=0 '
-            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
-            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
+            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),IF(T2.isrevolving=1, T1.lastresponse, T1.created)))>=T2.grace_period*3600) '
+            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),IF(T2.isrevolving, lastresponse, reopened)))>=T2.grace_period*3600) '
             .' OR (duedate is NOT NULL AND duedate<NOW()) '
             .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
         //echo $sql;
