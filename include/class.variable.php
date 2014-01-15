@@ -63,8 +63,12 @@ class VariableReplacer {
 
         if(!$obj) return "";
 
-        if (!$var && method_exists($obj, 'asVar')) //XXX: to_string?
-            return call_user_func(array($obj, 'asVar'));
+        if (!$var) {
+            if (method_exists($obj, 'asVar'))
+                return call_user_func(array($obj, 'asVar'));
+            elseif (method_exists($obj, '__toString'))
+                return (string) $obj;
+        }
 
         list($v, $part) = explode('.', $var, 2);
         if ($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
