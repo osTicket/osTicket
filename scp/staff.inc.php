@@ -123,7 +123,9 @@ if($ost->isUpgradePending() && !$exempt) {
     $sysnotice.=' <a href="settings.php">Enable</a>.';
 }
 
-$nav = new StaffNav($thisstaff);
+if (!defined('AJAX_REQUEST'))
+    $nav = new StaffNav($thisstaff);
+
 //Check for forced password change.
 if($thisstaff->forcePasswdChange() && !$exempt) {
     # XXX: Call staffLoginPage() for AJAX and API requests _not_ to honor
