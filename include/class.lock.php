@@ -147,11 +147,10 @@ class TicketLock {
         return db_query($sql);
     }
 
-    //Called  via cron 
+    //Called  via cron
     function cleanup() {
         //Cleanup any expired locks.
         db_query('DELETE FROM '.TICKET_LOCK_TABLE.' WHERE expire<NOW()');
-        @db_query('OPTIMIZE TABLE '.TICKET_LOCK_TABLE);
     }
 }
 ?>
