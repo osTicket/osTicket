@@ -224,12 +224,11 @@ class osTicket {
     function alertAdmin($subject, $message, $log=false) {
 
         //Set admin's email address
-        if(!($to=$this->getConfig()->getAdminEmail()))
-            $to=ADMIN_EMAIL;
-
+        if (!($to = $this->getConfig()->getAdminEmail()))
+            $to = ADMIN_EMAIL;
 
         //append URL to the message
-        $message.="\n\n".THISPAGE;
+        $message.="\n\n".$this->getConfig()->getBaseUrl();
 
         //Try getting the alert email.
         $email=null;
