@@ -245,7 +245,10 @@ if($ticket->isOverdue())
                 } ?>
                 <tr>
                     <th>SLA Plan:</th>
-                    <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; none &mdash;</span>'; ?></td>
+                    <td>
+			<?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; none &mdash;</span>'; ?>
+			<?php echo $sla->isRevolving()?' (revolving)':''; ?>
+		    </td>
                 </tr>
                 <?php
                 if($ticket->isOpen()){ ?>

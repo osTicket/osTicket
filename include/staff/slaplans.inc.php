@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
 $sql='SELECT * FROM '.SLA_TABLE.' sla WHERE 1';
-$sortOptions=array('name'=>'sla.name','status'=>'sla.isactive','revolving'=>'sla.isrevolving','period'=>'sla.grace_period','date'=>'sla.created','updated'=>'sla.updated');
+$sortOptions=array('name'=>'sla.name','status'=>'sla.isactive','period'=>'sla.grace_period','date'=>'sla.created','updated'=>'sla.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
@@ -54,9 +54,8 @@ else
     <thead>
         <tr>
             <th width="7">&nbsp;</th>        
-            <th width="300"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="80"><a  <?php echo $revolving_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=revolving">Revolving</a></th>
+            <th width="320"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
+            <th width="100"><a  <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="130"><a  <?php echo $period_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=period">Grace Period (hrs)</a></th>
             <th width="120" nowrap><a  <?php echo $created_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=created">Date Added</a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
@@ -79,7 +78,6 @@ else
                 </td>
                 <td>&nbsp;<a href="slas.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
                 <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
-                <td><?php echo $row['isrevolving']?'Revolving':'Standard'; ?></td>
                 <td style="text-align:right;padding-right:35px;"><?php echo $row['grace_period']; ?>&nbsp;</td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
