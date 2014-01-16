@@ -351,6 +351,37 @@ Class ThreadEntry {
         return $this->_references;
     }
 
+    function getTaggedEmailReferences($prefix, $refId) {
+
+        $ref = "+$prefix".Base32::encode(pack('VV', $this->getId(), $refId));
+
+        $mid = substr_replace($this->getEmailMessageId(),
+                $ref, strpos($this->getEmailMessageId(), '@'), 0);
+
+        //TODO: Confirm how references are ordered on reply - we want the tagged
+        // reference to be processed first.
+
+        return sprintf('%s %s', $this->getEmailReferences(), $mid);
+    }
+
+    function getEmailReferencesForUser($user) {
+        return $this->getTaggedEmailReferences('u', $user->getId());
+    }
+
+    function getEmailReferencesForStaff($staff) {
+        return $this->getTaggedEmailReferences('s', $staff->getId());
+    }
+
+    function getUIDFromEmailReference($ref) {
+
+        $info = unpack('Vtid/Vuid',
+                Base32::decode(strtolower(substr($ref, -13))));
+
+        if ($info && $info['tid'] == $this->getId())
+            return $info['uid'];
+
+    }
+
     function getTicket() {
 
         if(!$this->ticket && $this->getTicketId())
