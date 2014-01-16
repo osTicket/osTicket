@@ -878,11 +878,16 @@ class SelectionField extends FormField {
     }
 
     function parse($value) {
-        return $this->to_php($value);
+        $config = $this->getConfiguration();
+        if (is_int($value) || !$config['typeahead'])
+            return $this->to_php(null, (int) $value);
+        else
+            return $this->to_php($value);
     }
 
     function to_php($value, $id=false) {
-        $item = DynamicListItem::lookup($id ? $id : $value);
+        if ($id && is_int($id))
+            $item = DynamicListItem::lookup($id);
         # Attempt item lookup by name too
         if (!$item) {
             $item = DynamicListItem::lookup(array(
@@ -951,7 +956,7 @@ class SelectionWidget extends ChoicesWidget {
         $source = array();
         foreach ($this->field->getList()->getItems() as $i)
             $source[] = array(
-                'value' => $i->get('value'),
+                'value' => $i->get('value'), 'id' => $i->get('id'),
                 'info' => $i->get('value')." -- ".$i->get('extra'),
             );
         ?>
@@ -959,6 +964,8 @@ class SelectionWidget extends ChoicesWidget {
         <input type="text" size="30" name="<?php echo $this->name; ?>"
             id="<?php echo $this->name; ?>" value="<?php echo $name; ?>"
             autocomplete="off" />
+        <input type="hidden" name="<?php echo $this->name;
+            ?>_id" id="<?php echo $this->name; ?>_id" value="<?php echo $value; ?>"/>
         <script type="text/javascript">
         $(function() {
             $('input#<?php echo $this->name; ?>').typeahead({
@@ -966,12 +973,21 @@ class SelectionWidget extends ChoicesWidget {
                 property: 'info',
                 onselect: function(item) {
                     $('input#<?php echo $this->name; ?>').val(item['value'])
+                    $('input#<?php echo $this->name; ?>_id').val(item['id'])
                 }
             });
         });
         </script>
         </span>
         <?php
+    }
+
+    function getValue() {
+        $data = $this->field->getSource();
+        // Search for HTML form name first
+        if (isset($data[$this->name.'_id']))
+            return (int) $data[$this->name.'_id'];
+        return parent::getValue();
     }
 }
 ?>
