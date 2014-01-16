@@ -56,7 +56,7 @@ else
             <th width="7">&nbsp;</th>        
             <th width="300"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
             <th width="80"><a  <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=revolving">Revolving</a></th>
+            <th width="80"><a  <?php echo $revolving_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=revolving">Revolving</a></th>
             <th width="130"><a  <?php echo $period_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=period">Grace Period (hrs)</a></th>
             <th width="120" nowrap><a  <?php echo $created_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=created">Date Added</a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
