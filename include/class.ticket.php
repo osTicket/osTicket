@@ -62,9 +62,7 @@ class Ticket {
             return false;
 
         $sql='SELECT  ticket.*, lock_id, dept_name '
-            .' ,IF(sla.id IS NULL, NULL, '
-		.'IF(ticket.isanswered=1, NULL, '
-		.'DATE_ADD(IF(sla.isrevolving=1, ticket.lastresponse, ticket.created), INTERVAL sla.grace_period HOUR))) as sla_duedate '
+            .' ,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(attach.attach_id) as attachments '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
@@ -247,7 +245,10 @@ class Ticket {
     }
 
     function getSLADueDate() {
-        return $this->ht['sla_duedate'];
+	if($this->getSLA()->isRevolving())
+	    return date("d-m-Y H:i:s", strtotime($this->ht['lastresponse'])+($this->getSLA()->getGraceperiod()*3600));
+	else
+            return $this->ht['sla_duedate'];
     }
 
     function getEstDueDate() {
@@ -856,14 +857,13 @@ class Ticket {
     function onResponse() {
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1,lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
 
-        //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
+	//Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
-                && $this->getSLA()->isRevolving() //Has revolving SLA
+		&& $this->getSLA()->isRevolving() //Has revolving SLA
 		&& Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
-                    ) {
-            $this->clearOverdue();
-        }
-	
+		) {
+             $this->clearOverdue();
+         }
     }
 
     function onMessage($autorespond=true, $message=null) {
@@ -2301,17 +2301,19 @@ class Ticket {
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
             .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
             .' WHERE status=\'open\' AND isoverdue=0 '
-            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),'
-		.'IF(T2.isrevolving=1 AND T1.isanswered=1, T1.lastresponse, T1.created)))>=T2.grace_period*3600) '
-            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),'
-		.'IF(T2.isrevolving AND isanswered=1, lastresponse, reopened)))>=T2.grace_period*3600) '
+            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
+            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
             .' OR (duedate is NOT NULL AND duedate<NOW()) '
             .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
         //echo $sql;
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
-                if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())
-                    $ticket->logActivity('Ticket Marked Overdue', 'Ticket flagged as overdue by the system.');
+                if($ticket=Ticket::lookup($id))
+		    if(($ticket->getSLA()->isRevolving() && Misc::db2gmtime($ticket->getEstDueDate()) > Misc::gmtime()) || $ticket->ht['isanswered'] )
+			return true;
+		    else
+		        $ticket->markOverdue();
+                    	$ticket->logActivity('Ticket Marked Overdue', 'Ticket flagged as overdue by the system.');
             }
         } else {
             //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.
