@@ -859,11 +859,11 @@ class Ticket {
 
 	//Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
-		&& $this->getSLA()->isRevolving() //Has revolving SLA
-		&& Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
-		) {
+                && $this->getSLA()->isRevolving() //Has revolving SLA
+                && Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                ) {
              $this->clearOverdue();
-         }
+        }
     }
 
     function onMessage($autorespond=true, $message=null) {
