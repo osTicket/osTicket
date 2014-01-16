@@ -971,11 +971,15 @@ class Ticket {
         $this->reload();
     }
 
-    function  activityNotice($vars) {
+    /*
+     * Notify collaborators on response or new message
+     *
+     */
+
+    function  notifyCollaborators($entry) {
         global $cfg;
 
-        if (!$vars
-                || !$vars['variables']
+        if (!$entry instanceof ThreadEntry
                 || !($recipients=$this->getRecipients())
                 || !($dept=$this->getDept())
                 || !($tpl=$dept->getTemplate())
@@ -983,19 +987,28 @@ class Ticket {
                 || !($email=$dept->getEmail()))
             return;
 
-        $msg = $this->replaceVars($msg->asArray(), $vars['variables']);
+        //Who posted the entry?
+        $uid = 0;
+        if ($entry instanceof Message) {
+            $poster = $entry->getUser();
+            $uid = $entry->getUserId();
+        } else
+            $poster = $entry->getStaff();
 
-        if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
+        $vars = array(
+                'message' => (string) $entry,
+                'poster' => $poster? $poster : 'A collaborator');
+
+        $msg = $this->replaceVars($msg->asArray(), $vars);
+
+        if ($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
             $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
-        $attachments = ($cfg->emailAttachments() && $vars['attachments'])?$vars['attachments']:array();
-        $options = array();
-        if($vars['inreplyto'])
-            $options['inreplyto'] = $vars['inreplyto'];
-        if($vars['references'])
-            $options['references'] = $vars['references'];
-
-        foreach($recipients as $recipient) {
+        $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
+        $options = array('inreplyto' => $entry->getEmailMessageId());
+        foreach ($recipients as $recipient) {
+            if ($uid == $recipient->getId()) continue;
+            $options['references'] =  $entry->getEmailReferencesForUser($recipient);
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient->getEmail(), $notice['subj'], $notice['body'], $attachments,
                 $options);
@@ -1004,7 +1017,7 @@ class Ticket {
         return;
     }
 
-    function onMessage($autorespond=true, $message=null) {
+    function onMessage($message, $autorespond=true) {
         global $cfg;
 
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
@@ -1021,13 +1034,18 @@ class Ticket {
         if($this->isClosed()) $this->reopen(); //reopen..
 
        /**********   double check auto-response  ************/
-        if($autorespond && (Email::getIdByEmail($this->getEmail())))
+        if (!($user = $message->getUser()))
             $autorespond=false;
-        elseif($autorespond && ($dept=$this->getDept()))
+        elseif ($autorespond && (Email::getIdByEmail($user->getEmail())))
+            $autorespond=false;
+        elseif ($autorespond && ($dept=$this->getDept()))
             $autorespond=$dept->autoRespONNewMessage();
 
 
-        if(!$autorespond || !$cfg->autoRespONNewMessage()) return;  //no autoresp or alerts.
+        if(!$autorespond
+                || !$cfg->autoRespONNewMessage()
+                || !$message) return;  //no autoresp or alerts.
+
         $this->reload();
         $dept = $this->getDept();
         $email = $dept->getAutoRespEmail();
@@ -1038,18 +1056,18 @@ class Ticket {
                 && ($msg=$tpl->getNewMessageAutorepMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(),
-                            array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
+                            array(
+                                'recipient' => $user,
+                                'signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
             //Reply separator tag.
             if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
-            if (!$message)
-                $message = $this->getLastMessage();
             $options = array(
-                'inreplyto'=>$message->getEmailMessageId(),
-                'references'=>$message->getEmailReferences());
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
+                'inreplyto' => $message->getEmailMessageId(),
+                'references' => $message->getEmailReferencesForUser($user));
+            $email->sendAutoReply($user->getEmail(), $msg['subj'], $msg['body'],
                 null, $options);
         }
     }
@@ -1516,7 +1534,7 @@ class Ticket {
         if ($autorespond && $message->isAutoResponse())
             $autorespond=false;
 
-        $this->onMessage($autorespond, $message); //must be called b4 sending alerts to staff.
+        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
 
         $dept = $this->getDept();
 
@@ -1560,12 +1578,7 @@ class Ticket {
             }
         }
 
-        unset($variables['message']);
-        $variables['message'] = $message->asVar();
-
-        $info = $options + array('variables' => $variables);
-        $this->activityNotice($info);
-
+        $this->notifyCollaborators($message);
 
         return $message;
     }
@@ -1680,12 +1693,8 @@ class Ticket {
                 $options);
         }
 
-        if($vars['emailcollab']) {
-            unset($variables['response']);
-            $variables['message'] = $response->asVar();
-            $info = $options + array('variables' => $variables);
-            $this->activityNotice($info);
-        }
+        if($vars['emailcollab'])
+            $this->notifyCollaborators($response);
 
         return $response;
     }
