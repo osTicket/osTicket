@@ -160,6 +160,7 @@ class Thread {
     function addResponse($vars, &$errors) {
 
         $vars['ticketId'] = $this->getTicketId();
+        $vars['userId'] = 0;
 
         return Response::create($vars, $errors);
     }
@@ -368,6 +369,18 @@ Class ThreadEntry {
             $this->staff = Staff::lookup($this->getStaffId());
 
         return $this->staff;
+    }
+
+    function getUserId() {
+        return $this->ht['user_id'];
+    }
+
+    function getUser() {
+
+        if (!isset($this->user))
+            $this->user = User::lookup($this->getUserId());
+
+        return $this->user;
     }
 
     function getEmailHeader() {
@@ -802,6 +815,7 @@ Class ThreadEntry {
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
             .' ,body='.db_input($vars['body'])
             .' ,staff_id='.db_input($vars['staffId'])
+            .' ,user_id='.db_input($vars['userId'])
             .' ,poster='.db_input($poster)
             .' ,source='.db_input($vars['source']);
 

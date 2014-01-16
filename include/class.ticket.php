@@ -1489,9 +1489,10 @@ class Ticket {
 
         //Add email recipients as collaborators
         if ($vars['recipients']) {
-            //TODO:  Disable collaborators added by other collaborator
-            //  staff approval will be required.
-            $info = array('isactive' => 1);
+            //New collaborators added by other collaborators are disable --
+            // requires staff approval.
+            $info = array(
+                    'isactive' => ($message->getUserId() == $this->getUserId())? 1: 0);
             $collabs = array();
             foreach ($vars['recipients'] as $recipient) {
                 if (($user=User::fromVars($recipient)))
@@ -2270,6 +2271,7 @@ class Ticket {
         //post the message.
         unset($vars['cannedattachments']); //Ticket::open() might have it set as part of  open & respond.
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
+        $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
 
         // Configure service-level-agreement for this ticket
