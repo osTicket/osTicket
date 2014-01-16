@@ -625,14 +625,17 @@ Class ThreadEntry {
         // Disambiguate if the user happens also to be a staff member of the
         // system. The current ticket owner should _always_ post messages
         // instead of notes or responses
-        if (strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
+        if ($mailinfo['userId']
+                || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
+            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
             return $ticket->postMessage($vars, 'Email');
         }
         // XXX: Consider collaborator role
-        elseif ($staff_id = Staff::getIdByEmail($mailinfo['email'])) {
-            $vars['staffId'] = $staff_id;
-            $poster = Staff::lookup($staff_id);
+        elseif ($mailinfo['staffId']
+                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
+            $vars['staffId'] = $mailinfo['staffId'];
+            $poster = Staff::lookup($mailinfo['staffId']);
             $errors = array();
             $vars['note'] = $body;
             return $ticket->postNote($vars, $errors, $poster);
@@ -643,8 +646,11 @@ Class ThreadEntry {
         }
         // TODO: Consider security constraints
         else {
+            //XXX: Are we potentially leaking the email address to
+            // collaborators?
             $vars['message'] = sprintf("Received From: %s\n\n%s",
                 $mailinfo['email'], $body);
+            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             return $ticket->postMessage($vars, 'Email');
         }
         // Currently impossible, but indicate that this thread object could
@@ -692,8 +698,12 @@ Class ThreadEntry {
 
     /* variables */
 
-    function asVar() {
+    function __toString() {
         return $this->getBody();
+    }
+
+    function asVar() {
+        return (string) $this;
     }
 
     function getVar($tag) {
@@ -745,7 +755,7 @@ Class ThreadEntry {
      *      previously seen. This is useful if no thread-id is associated
      *      with the email (if it was rejected for instance).
      */
-    function lookupByEmailHeaders($mailinfo, &$seen=false) {
+    function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
         $search = 'SELECT thread_id, email_mid FROM '.TICKET_EMAIL_INFO_TABLE
@@ -772,10 +782,27 @@ Class ThreadEntry {
             // @see rfc 1036, section 2.2.5
             // @see http://www.jwz.org/doc/threading.html
             foreach (array_reverse($matches[0]) as $mid) {
+                //Try to determine if it's a reply to a tagged email.
+                $ref = null;
+                if (strpos($mid, '+')) {
+                    list($left, $right) = explode('@',$mid);
+                    list($left, $ref) = explode('+', $left);
+                    $mid = "$left@$right";
+                }
                 $res = db_query(sprintf($search, db_input($mid)));
                 while (list($id) = db_fetch_row($res)) {
-                    if ($t = ThreadEntry::lookup($id))
-                        return $t;
+                    if (!($t = ThreadEntry::lookup($id))) continue;
+
+                    //We found a match  - see if we can ID the user.
+                    // XXX: Check access of ref is enough?
+                    if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
+                        if ($ref[0] =='s') //staff
+                            $mailinfo['staffId'] = $uid;
+                        else //user or collaborator.
+                            $mailinfo['userId'] = $uid;
+                    }
+
+                    return $t;
                 }
             }
         }
@@ -785,12 +812,23 @@ Class ThreadEntry {
         // injection by third-party.
         $subject = $mailinfo['subject'];
         $match = array();
-        if ($subject && $mailinfo['email']
+        if ($subject
+                && $mailinfo['email']
                 && preg_match("/#(?:[\p{L}-]+)?([0-9]{1,10})/u", $subject, $match)
-                && ($tid = Ticket::getIdByExtId((int)$match[1], $mailinfo['email']))
-                )
-            // Return last message for the thread
-            return Message::lastByTicketId($tid);
+                //Lookup by ticket number
+                && ($ticket = Ticket::lookupByExtId((int)$match[1]))
+                //Lookup the user using the email address
+                && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
+            //We have a valid ticket and user
+            if ($ticket->getUserId() == $user->getId() //owner
+                    ||  ($c = Collaborator::lookup( // check if collaborator
+                            array('userId' => $user->getId(),
+                                  'ticketId' => $ticket->getId())))) {
+
+                $mailinfo['userId'] = $user->getId();
+                return $ticket->getLastMessage();
+            }
+        }
 
         return null;
     }
