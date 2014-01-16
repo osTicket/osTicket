@@ -87,6 +87,10 @@ RedactorPlugins.draft = {
                 self.opts.imageUpload =
                     'ajax.php/draft/'+data.draft_id+'/attach';
                 self.opts.imageUploadErrorCallback = self.displayError;
+                // XXX: This happens in ::buildBindKeyboard() from
+                // ::buildAfter(). However, the imageUpload option is not
+                // known when the Redactor is init()'d
+                self.$editor.on('drop.redactor', $.proxy(self.buildEventDrop, self));
             }
         });
         this.opts.original_autosave = this.opts.autosave;
