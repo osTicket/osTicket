@@ -464,7 +464,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such ticket');
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
-        elseif (!($backend = AuthenticationBackend::getBackend($bk)))
+        elseif (!($backend = StaffAuthenticationBackend::getBackend($bk)))
             Http::response(404, 'User not found');
 
         $user_info = $backend->lookup($id);

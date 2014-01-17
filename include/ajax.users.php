@@ -51,7 +51,7 @@ class UsersAjaxAPI extends AjaxController {
             }
         }
 
-        foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
+        foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
             $name = "{$u['first']} {$u['last']}";
             $users[] = array('email' => $u['email'], 'name'=>$name,
                 'info' => "{$u['email']} - $name (remote)",
@@ -122,7 +122,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(403, 'Login Required');
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
-        elseif (!($backend = AuthenticationBackend::getBackend($bk)))
+        elseif (!($backend = StaffAuthenticationBackend::getBackend($bk)))
             Http::response(404, 'User not found');
 
         $user_info = $backend->lookup($id);
@@ -177,7 +177,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(400, 'Query argument is required');
 
         $users = array();
-        foreach (AuthenticationBackend::allRegistered() as $ab) {
+        foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
             if (!$ab instanceof AuthDirectorySearch)
                 continue;
 

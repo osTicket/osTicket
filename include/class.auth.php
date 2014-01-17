@@ -156,7 +156,7 @@ abstract class AuthenticationBackend {
 
     static function searchUsers($query) {
         $users = array();
-        foreach (static::$registry as $bk) {
+        foreach (static::allRegistered() as $bk) {
             if ($bk instanceof AuthDirectorySearch) {
                 $users += $bk->search($query);
             }
@@ -631,7 +631,9 @@ StaffAuthenticationBackend::register(osTicketAuthentication);
 class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     static $id = "pwreset.staff";
 
-    function authenticate($username, $password) {}
+    function supportsAuthentication() {
+        return false;
+    }
 
     function signOn($errors=array()) {
         if (!isset($_POST['userid']) || !isset($_POST['token']))
