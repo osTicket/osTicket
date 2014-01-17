@@ -54,7 +54,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                 $msg='Message Posted Successfully';
                 // Cleanup drafts for the ticket. If not closed, only clean
                 // for this staff. Else clean all drafts for the ticket.
-                Draft::deleteForNamespace('ticket.client.' . $ticket->getExtId());
+                Draft::deleteForNamespace('ticket.client.' . $ticket->getId());
             } else {
                 $errors['err']='Unable to post the message. Try again';
             }

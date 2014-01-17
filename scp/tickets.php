@@ -222,7 +222,7 @@ if($_POST && !$errors):
                     } elseif($ticket->isClosed()) {
                         $errors['err'] = 'Ticket is already closed!';
                     } elseif($ticket->close()) {
-                        $msg='Ticket #'.$ticket->getExtId().' status set to CLOSED';
+                        $msg='Ticket #'.$ticket->getNumber().' status set to CLOSED';
                         //Log internal note
                         if($_POST['ticket_status_notes'])
                             $note = $_POST['ticket_status_notes'];

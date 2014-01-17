@@ -634,7 +634,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         }
         // Support old ticket based tokens.
         elseif ($_GET['t'] && $_GET['e'] && $_GET['a']) {
-            if (($ticket = Ticket::lookupByExtId($_GET['t'], $_GET['e']))
+            if (($ticket = Ticket::lookupByNumber($_GET['t'], $_GET['e']))
                     // Using old ticket auth code algo - hardcoded here because it
                     // will be removed in ticket class in the upcoming rewrite
                     && !strcasecmp($_GET['a'], md5($ticket->getId() .  $_GET['e'] . SECRET_SALT))

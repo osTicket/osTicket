@@ -188,10 +188,6 @@ class Ticket {
         return  $this->id;
     }
 
-    function getExtId() {
-        return  $this->getNumber();
-    }
-
     function getNumber() {
         return $this->number;
     }
@@ -1820,7 +1816,7 @@ class Ticket {
     function pdfExport($psize='Letter', $notes=false) {
         require_once(INCLUDE_DIR.'class.pdf.php');
         $pdf = new Ticket2PDF($this, $psize, $notes);
-        $name='Ticket-'.$this->getExtId().'.pdf';
+        $name='Ticket-'.$this->getNumber().'.pdf';
         $pdf->Output($name, 'I');
         //Remember what the user selected - for autoselect on the next print.
         $_SESSION['PAPER_SIZE'] = $psize;
@@ -1919,15 +1915,15 @@ class Ticket {
 
 
    /*============== Static functions. Use Ticket::function(params); =============nolint*/
-    function getIdByExtId($extId, $email=null) {
+    function getIdByNumber($number, $email=null) {
 
-        if(!$extId || !is_numeric($extId))
+        if(!$number)
             return 0;
 
         $sql ='SELECT ticket.ticket_id FROM '.TICKET_TABLE.' ticket '
              .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
              .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-             .' WHERE ticket.`number`='.db_input($extId);
+             .' WHERE ticket.`number`='.db_input($number);
 
         if($email)
             $sql .= ' AND email.address = '.db_input($email);
@@ -1949,20 +1945,20 @@ class Ticket {
             ?$ticket:null;
     }
 
-    function lookupByExtId($id, $email=null) {
-        return self::lookup(self:: getIdByExtId($id, $email));
+    function lookupByNumber($number, $email=null) {
+        return self::lookup(self:: getIdByNumber($number, $email));
     }
 
-    function genExtRandID() {
-        global $cfg;
+    function genRandTicketNumber($len = EXT_TICKET_ID_LEN) {
 
-        //We can allow collissions...extId and email must be unique ...so same id with diff emails is ok..
-        // But for clarity...we are going to make sure it is unique.
-        $id=Misc::randNumber(EXT_TICKET_ID_LEN);
-        if(db_num_rows(db_query('SELECT ticket_id FROM '.TICKET_TABLE.' WHERE `number`='.db_input($id))))
-            return Ticket::genExtRandID();
+        //We can allow collissions...number and email must be unique ...so
+        // same number with diff emails is ok.. But for clarity...we are going to make sure it is unique.
+        $number = Misc::randNumber($len);
+        if(db_num_rows(db_query('SELECT ticket_id FROM '.TICKET_TABLE.'
+                        WHERE `number`='.db_input($number))))
+            return Ticket::genRandTicketNumber($len);
 
-        return $id;
+        return $number;
     }
 
     function getIdByMessageId($mid, $email) {
@@ -2249,11 +2245,11 @@ class Ticket {
         $ipaddress=$vars['ip']?$vars['ip']:$_SERVER['REMOTE_ADDR'];
 
         //We are ready son...hold on to the rails.
-        $extId=Ticket::genExtRandID();
+        $number = Ticket::genRandTicketNumber();
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->id)
-            .' ,`number`='.db_input($extId)
+            .' ,`number`='.db_input($number)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
             .' ,ip_address='.db_input($ipaddress)
@@ -2271,8 +2267,8 @@ class Ticket {
 
         if(!$cfg->useRandomIds()) {
             //Sequential ticket number support really..really suck arse.
-            $extId=$id; //To make things really easy we are going to use autoincrement ticket_id.
-            db_query('UPDATE '.TICKET_TABLE.' SET `number`='.db_input($extId).' WHERE ticket_id='.$id.' LIMIT 1');
+            //To make things really easy we are going to use autoincrement ticket_id.
+            db_query('UPDATE '.TICKET_TABLE.' SET `number`='.db_input($id).' WHERE ticket_id='.$id.' LIMIT 1');
             //TODO: RETHING what happens if this fails?? [At the moment on failure random ID is used...making stuff usable]
         }
 

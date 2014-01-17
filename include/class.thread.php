@@ -816,7 +816,7 @@ Class ThreadEntry {
                 && $mailinfo['email']
                 && preg_match("/#(?:[\p{L}-]+)?([0-9]{1,10})/u", $subject, $match)
                 //Lookup by ticket number
-                && ($ticket = Ticket::lookupByExtId((int)$match[1]))
+                && ($ticket = Ticket::lookupByNumber((int)$match[1]))
                 //Lookup the user using the email address
                 && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
             //We have a valid ticket and user
