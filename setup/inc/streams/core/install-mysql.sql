@@ -609,6 +609,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   `pid` int(11) unsigned NOT NULL default '0',
   `ticket_id` int(11) unsigned NOT NULL default '0',
   `staff_id` int(11) unsigned NOT NULL default '0',
+  `user_id` int(11) unsigned not null default 0,
   `thread_type` enum('M','R','N') NOT NULL,
   `poster` varchar(128) NOT NULL default '',
   `source` varchar(32) NOT NULL default '',

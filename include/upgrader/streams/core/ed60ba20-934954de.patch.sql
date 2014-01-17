@@ -1,6 +1,6 @@
 /**
  * @version v1.8.1
- * @signature 8473721890e9eddb6417076c96b715a1
+ * @signature 934954de8914d9bd2bb8343e805340ae
  * @title Various schema improvements and bug fixes
  *
  */
@@ -46,5 +46,5 @@ ALTER TABLE `%TABLE_PREFIX%ticket_collaborator`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '8473721890e9eddb6417076c96b715a1'
+    SET `value` = '934954de8914d9bd2bb8343e805340ae'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
