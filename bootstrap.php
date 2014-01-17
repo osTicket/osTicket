@@ -48,20 +48,6 @@ class Bootstrap {
             $_SERVER['REMOTE_ADDR'] = '';
     }
 
-    /*
-     * Glue to global signals  we're interested in
-     */
-    static function signals() {
-
-        //Clear upgrader session on logout.
-        Signal::connect('auth.logout', function ($user, $data=null) {
-                    if (!$user) return;
-
-                    if ($user instanceof Staff)
-                        $_SESSION['ost_upgrader'] = null;
-                });
-    }
-
     function https() {
        return
             (isset($_SERVER['HTTPS'])

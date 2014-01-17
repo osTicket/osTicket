@@ -15,11 +15,15 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+
 //Check token: Make sure the user actually clicked on the link to logout.
 if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
     @header('Location: index.php');
 
 $thisstaff->logOut();
+//Clear upgrader session on logout.
+$_SESSION['ost_upgrader'] = null;
+
 @header('Location: login.php');
 require('login.php');
 ?>
