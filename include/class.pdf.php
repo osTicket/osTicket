@@ -14,7 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-define('THIS_DIR', str_replace('\\', '/', realpath(dirname(__FILE__))) . '/'); //Include path..
+define('THIS_DIR', str_replace('\\', '/', Misc::realpath(dirname(__FILE__))) . '/'); //Include path..
 
 require_once(INCLUDE_DIR.'mpdf/mpdf.php');
 
