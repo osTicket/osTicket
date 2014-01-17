@@ -287,7 +287,7 @@ class UserNav {
                                             'title'=>'Show all tickets');
                 } else {
                     $navs['tickets']=array('desc'=>'View&nbsp;Ticket&nbsp;Thread',
-                                           'href'=>sprintf('tickets.php?id=%d',$user->getTicketID()),
+                                           'href'=>sprintf('tickets.php?id=%d',$user->getTicketId()),
                                            'title'=>'View ticket status');
                 }
             } else {

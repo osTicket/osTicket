@@ -13,8 +13,8 @@ if(!$dept || !$dept->isPublic())
     <tr>
         <td colspan="2" width="100%">
             <h1>
-                Ticket #<?php echo $ticket->getExtId(); ?> &nbsp;
-                <a href="view.php?id=<?php echo $ticket->getExtId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
+                Ticket #<?php echo $ticket->getNumber(); ?> &nbsp;
+                <a href="view.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
             </h1>
         </td>
     </tr>

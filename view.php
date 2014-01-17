@@ -23,8 +23,8 @@ if (!$thisclient || !$thisclient->isValid()) {
     // Authenticated user can be of type ticket owner or collaborator
     $errors = array();
     $user =  UserAuthenticationBackend::singleSignOn($errors);
-    if ($user && $user->getTicketID())
-        @header('Location: tickets.php?id='.$user->getTicketID());
+    if ($user && $user->getTicketId())
+        @header('Location: tickets.php?id='.$user->getTicketId());
 }
 //Simply redirecting to tickets.php until multiview is implemented.
 require('tickets.php');

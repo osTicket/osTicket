@@ -23,7 +23,7 @@ if($_REQUEST['id']) {
     if (!($ticket = Ticket::lookup($_REQUEST['id']))) {
         $errors['err']='Unknown or invalid ticket ID.';
     } elseif(!$ticket->checkUserAccess($thisclient)) {
-        $errors['err']='Unknown or invalid ticket ID.'; //Using generic message on purpose!
+        $errors['err']='Unknown or invalid ticket.'; //Using generic message on purpose!
         $ticket=null;
     }
 }

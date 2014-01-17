@@ -4,7 +4,7 @@ $info=array();
 if($thisclient && $thisclient->isValid()) {
     $info=array('name'=>$thisclient->getName(),
                 'email'=>$thisclient->getEmail(),
-                'phone'=>$thisclient->getPhone());
+                'phone'=>$thisclient->getPhoneNumber());
 }
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;

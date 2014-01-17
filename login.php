@@ -25,7 +25,7 @@ if ($_POST) {
     if (($user = UserAuthenticationBackend::process($_POST['lemail'],
                     $_POST['lticket'], $errors))) {
         //XXX: Ticket owner is assumed.
-        @header('Location: tickets.php?id='.$user->getTicketID());
+        @header('Location: tickets.php?id='.$user->getTicketId());
         require_once('tickets.php'); //Just in case of 'header already sent' error.
         exit;
     } elseif(!$errors['err']) {
