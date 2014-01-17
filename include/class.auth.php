@@ -132,8 +132,7 @@ abstract class AuthenticationBackend {
         Signal::send('auth.login.failed', null, $info);
     }
 
-    function singleSignOn(&$errors) {
-        global $ost;
+    function processSignOn(&$errors) {
 
         foreach (static::allRegistered() as $bk) {
             // All backends are queried here, even if they don't support

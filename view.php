@@ -22,7 +22,7 @@ if (!$thisclient || !$thisclient->isValid()) {
     // Try autologin the user
     // Authenticated user can be of type ticket owner or collaborator
     $errors = array();
-    $user =  UserAuthenticationBackend::singleSignOn($errors);
+    $user =  UserAuthenticationBackend::processSignOn($errors);
     if ($user && $user->getTicketId())
         @header('Location: tickets.php?id='.$user->getTicketId());
 }

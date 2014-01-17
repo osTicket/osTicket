@@ -37,7 +37,7 @@ if($_POST) {
 }
 // Consider single sign-on authentication backends
 else if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
-    if (($user = StaffAuthenticationBackend::singleSignOn($errors))
+    if (($user = StaffAuthenticationBackend::processSignOn($errors))
             && ($user instanceof StaffSession))
        @header("Location: $dest");
 }
