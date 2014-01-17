@@ -322,6 +322,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         Signal::send('auth.logout', $staff);
     }
 
+    // Called to get authenticated user (if any)
     static function getUser() {
 
         if (!isset($_SESSION['_auth']['staff'])
@@ -344,8 +345,19 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         return $staff;
     }
 
+    // Generic authentication key for staff's backend is the username
     protected function getAuthKey($staff) {
-        return null;
+
+        if(!($staff instanceof Staff))
+            return null;
+
+        return $staff->getUsername();
+    }
+
+    protected function validate($authkey) {
+
+        if (($staff = new StaffSession($authkey)) && $staff->getId())
+            return $staff;
     }
 }
 
@@ -416,7 +428,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     protected function getAuthKey($user) {
-        return null;
+        return  $user->getUsername();
     }
 
     static function getUser() {
@@ -603,20 +615,6 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
 
             return $user;
         }
-    }
-
-    protected function getAuthKey($staff) {
-
-        if(!($staff instanceof Staff))
-            return null;
-
-        return $staff->getUsername(); //FIXME:
-    }
-
-    protected function validate($authkey) {
-
-        if (($staff = new StaffSession($authkey)) && $staff->getId())
-            return $staff;
     }
 
 }
