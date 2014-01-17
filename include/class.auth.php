@@ -11,14 +11,26 @@ abstract class AuthenticatedUser {
     abstract function getId();
     abstract function getUsername();
     abstract function getRole();
-    abstract function logOut();
 
+    //Backend used to authenticate the user
+    abstract function getAuthBackend();
+
+    //Authentication key
     function setAuthKey($key) {
         $this->authkey = $key;
     }
 
     function getAuthKey() {
         return $this->authkey;
+    }
+
+    // logOut the user
+    function logOut() {
+
+        if ($bk = $this->getAuthBackend())
+            return $bk->signOut($this);
+
+        return false;
     }
 }
 
@@ -293,11 +305,14 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         return true;
     }
 
+    /* Base signOut
+     *
+     * Backend should extend the signout and perform any additional signout
+     * it requires.
+     */
+
     static function signOut($staff) {
         global $ost;
-
-        list($id, $auth) = explode(':', $_SESSION['_auth']['staff']['key']);
-        //TODO: Lookup the backed and request logout..
 
         $_SESSION['_auth']['staff'] = array();
         $ost->logDebug('Staff logout',
@@ -394,9 +409,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
     static function signOut($user) {
         global $ost;
-
-        list($id, $auth) = explode(':', $_SESSION['_auth']['user']['key']);
-        //TODO: Lookup the backed and request logout..
 
         $_SESSION['_auth']['user'] = array();
         $ost->logDebug('User logout',

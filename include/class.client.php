@@ -179,8 +179,9 @@ class  EndUser extends AuthenticatedUser {
         return $this->isOwner() ? 'owner' : 'collaborator';
     }
 
-    function logOut() {
-        return UserAuthenticationBackend::signOut($this);
+    function getAuthBackend() {
+        list($authkey,) = explode(':', $this->getAuthKey());
+        return UserAuthenticationBackend::getBackend($authkey);
     }
 
     function getTicketStats() {

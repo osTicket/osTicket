@@ -105,8 +105,9 @@ class Staff extends AuthenticatedUser {
         return 'staff';
     }
 
-    function logOut() {
-        return StaffAuthenticationBackend::signOut($this);
+    function getAuthBackend() {
+        list($authkey, ) = explode(':', $this->getAuthKey());
+        return StaffAuthenticationBackend::getBackend($authkey);
     }
 
     /*compares user password*/
