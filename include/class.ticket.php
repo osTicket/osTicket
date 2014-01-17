@@ -160,7 +160,6 @@ class Ticket {
     }
 
     function checkUserAccess($user) {
-        global $cfg;
 
         if (!$user || !($user instanceof EndUser))
             return false;
@@ -169,9 +168,16 @@ class Ticket {
         if ($user->getId() == $this->getUserId())
             return true;
 
-        //Collaborator
-        if (!strcasecmp($user->getRole(), 'collaborator')
-                && $user->getTicketId() == $this->getId())
+        //Collaborator?
+        // 1) If the user was authorized via this ticket.
+        if ($user->getTicketId() == $this->getId()
+                && !strcasecmp($user->getRole(), 'collaborator'))
+            return true;
+
+        // 2) Query the database to check for expanded access...
+        if (Collaborator::lookup(array(
+                        'userId' => $user->getId(),
+                        'ticketId' => $this->getId())))
             return true;
 
         return false;
