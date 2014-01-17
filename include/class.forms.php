@@ -224,6 +224,17 @@ class FormField {
         # form
         if ($this->get('required') && !$value && $this->hasData())
             $this->_errors[] = sprintf('%s is a required field', $this->getLabel());
+
+        # Perform declared validators for the field
+        if ($vs = $this->get('validators')) {
+            if (is_array($vs)) {
+                foreach ($vs as $validator)
+                    if (is_callable($validator))
+                        $validator($this, $value);
+            }
+            elseif (is_callable($vs))
+                $vs($this, $value);
+        }
     }
 
     /**
@@ -642,6 +653,16 @@ class ChoiceField extends FormField {
                 entries if the list item names change',
                 'configuration'=>array('html'=>false)
             )),
+            'default' => new TextboxField(array(
+                'id'=>3, 'label'=>'Default', 'required'=>false, 'default'=>'',
+                'hint'=>'(Enter a key). Value selected from the list initially',
+                'configuration'=>array('size'=>20, 'length'=>40),
+            )),
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Text shown in the drop-down select before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
         );
     }
 
@@ -952,9 +973,12 @@ class ChoicesWidget extends Widget {
         // selected)
         $choices = $this->field->getChoices();
         $def_key = $this->field->get('default');
+        if (!$def_key && $config['default'])
+            $def_key = $config['default'];
         $have_def = isset($choices[$def_key]);
         if (!$have_def)
-            $def_val = 'Select '.$this->field->get('label');
+            $def_val = ($config['prompt'])
+               ? $config['prompt'] : 'Select';
         else
             $def_val = $choices[$def_key];
         $value = $this->value;
