@@ -43,6 +43,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
             //Everything checked out...do the magic.
             $vars = array(
                     'userId' => $thisclient->getId(),
+                    'poster' => (string) $thisclient->getName(),
                     'message' => $_POST['message']);
             if($cfg->allowOnlineAttachments() && $_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);

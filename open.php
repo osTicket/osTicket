@@ -20,9 +20,8 @@ $errors=array();
 if($_POST):
     $vars = $_POST;
     $vars['deptId']=$vars['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
-    if($thisclient) {
-        $vars['name']=$thisclient->getName();
-        $vars['email']=$thisclient->getEmail();
+    if ($thisclient) {
+        $vars['uid']=$thisclient->getId();
     } elseif($cfg->isCaptchaEnabled()) {
         if(!$_POST['captcha'])
             $errors['captcha']='Enter text shown on the image';

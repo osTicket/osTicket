@@ -83,8 +83,12 @@ class Staff extends AuthenticatedUser {
         return $this->load();
     }
 
+    function __toString() {
+        return (string) $this->getName();
+    }
+
     function asVar() {
-        return $this->getName();
+        return $this->__toString();
     }
 
     function getHastable() {

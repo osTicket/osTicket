@@ -876,7 +876,7 @@ Class ThreadEntry {
 
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
-            $poster = $poster->getName();
+            $poster = (string) $poster;
 
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
@@ -962,6 +962,11 @@ class Message extends ThreadEntry {
         $vars['type'] = 'M';
         $vars['body'] = $vars['message'];
 
+        if (!$vars['poster']
+                && $vars['userId']
+                && ($user = User::lookup($vars['userId'])))
+            $vars['poster'] = (string) $user->getName();
+
         return ThreadEntry::add($vars);
     }
 
@@ -1027,6 +1032,11 @@ class Response extends ThreadEntry {
         $vars['body'] = $vars['response'];
         if(!$vars['pid'] && $vars['msgId'])
             $vars['pid'] = $vars['msgId'];
+
+        if (!$vars['poster']
+                && $vars['staffId']
+                && ($staff = Staff::lookup($vars['staffId'])))
+            $vars['poster'] = (string) $staff->getName();
 
         return ThreadEntry::add($vars);
     }
