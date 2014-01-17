@@ -345,6 +345,10 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         return $staff;
     }
 
+    function authenticate($username, $password) {
+        return false;
+    }
+
     // Generic authentication key for staff's backend is the username
     protected function getAuthKey($staff) {
 
@@ -416,6 +420,10 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             $session->destroy($sid);
 
         return true;
+    }
+
+    function authenticate($username, $password) {
+        return false;
     }
 
     static function signOut($user) {
@@ -734,10 +742,6 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 
 
         return $user;
-    }
-
-    function authenticate($username, $password) {
-        return false;
     }
 
 }
