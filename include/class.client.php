@@ -50,7 +50,7 @@ abstract class TicketUser {
         $authtoken = sprintf('%s%dx%s',
                 ($this->isOwner() ? 'o' : 'c'),
                 $algo,
-                base64_encode(pack('VV',$this->getId(), $this->getTicketId())));
+                Base32::encode(pack('VV',$this->getId(), $this->getTicketId())));
 
         switch($algo) {
             case 1:
@@ -72,7 +72,8 @@ abstract class TicketUser {
             return null;
 
         //Unpack the user and ticket ids
-        $matches +=unpack('Vuid/Vtid', base64_decode(substr($matches['hash'], 0, 12)));
+        $matches +=unpack('Vuid/Vtid',
+                Base32::decode(strtolower(substr($matches['hash'], 0, 13))));
 
         $user = null;
         switch ($matches['type']) {
