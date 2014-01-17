@@ -27,9 +27,9 @@ body: |
     <hr>
     <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
     <em>You're getting this email because you are a collaborator
-    on ticket <a href="%{ticket.client_link}" style="color: rgb(84, 141, 212);"
+    on ticket <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
     >#%{ticket.number}</a>.  To participate, simply reply to this email
-    or <a href="%{ticket.client_link}" style="color: rgb(84, 141, 212);"
+    or <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
     >click here</a> for a complete archive of the ticket thread.</em>
     </div>
     <div style="text-align: center;"> <a href="http://osticket.com/"><img
