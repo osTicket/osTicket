@@ -47,25 +47,14 @@ if($_POST) {
         case 'newpasswd':
             // TODO: Compare passwords
             $tpl = 'pwreset.login.php';
-            $_config = new Config('pwreset');
-            if (($staff = new StaffSession($_POST['userid'])) &&
-                    !$staff->getId())
-                $msg = 'Invalid user-id given';
-            elseif (!($id = $_config->get($_POST['token']))
-                    || $id != $staff->getId())
-                $msg = 'Invalid reset token';
-            elseif (!($ts = $_config->lastModified($_POST['token']))
-                    && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
-                $msg = 'Invalid reset token';
-            elseif (!$staff->forcePasswdRest())
-                $msg = 'Unable to reset password';
-            else {
+            $errors = array();
+            if ($staff = StaffAuthenticationBackend::processSignOn($errors)) {
                 $info = array('page' => 'index.php');
-                Signal::send('auth.pwreset.login', $staff, $info);
-                Staff::_do_login($staff, $_POST['userid']);
-                $_SESSION['_staff']['reset-token'] = $_POST['token'];
                 header('Location: '.$info['page']);
                 exit();
+            }
+            elseif (isset($errors['msg'])) {
+                $msg = $errors['msg'];
             }
             break;
     }

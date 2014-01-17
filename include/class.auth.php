@@ -119,7 +119,7 @@ abstract class AuthenticationBackend {
             $result = $bk->authenticate($username, $password);
 
             if ($result instanceof AuthenticatedUser
-                    && (static::login($result, $bk)))
+                    && ($bk->login($result, $bk)))
                 return $result;
             // TODO: Handle permission denied, for instance
             elseif ($result instanceof AccessDenied) {
@@ -141,7 +141,7 @@ abstract class AuthenticationBackend {
             $result = $bk->signOn();
             if ($result instanceof AuthenticatedUser) {
                 //Perform further Object specific checks and the actual login
-                if (!static::login($result, $bk))
+                if (!$bk->login($result, $bk))
                     continue;
 
                 return $result;
@@ -619,6 +619,39 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
 
 }
 StaffAuthenticationBackend::register(osTicketAuthentication);
+
+class PasswordResetTokenBackend extends StaffAuthenticationBackend {
+    static $id = "pwreset.staff";
+
+    function authenticate($username, $password) {}
+
+    function signOn($errors=array()) {
+        if (!isset($_POST['userid']) || !isset($_POST['token']))
+            return false;
+        elseif (!($_config = new Config('pwreset')))
+            return false;
+        elseif (($staff = new StaffSession($_POST['userid'])) &&
+                !$staff->getId())
+            $errors['msg'] = 'Invalid user-id given';
+        elseif (!($id = $_config->get($_POST['token']))
+                || $id != $staff->getId())
+            $errors['msg'] = 'Invalid reset token';
+        elseif (!($ts = $_config->lastModified($_POST['token']))
+                && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
+            $errors['msg'] = 'Invalid reset token';
+        elseif (!$staff->forcePasswdRest())
+            $errors['msg'] = 'Unable to reset password';
+        else
+            return $staff;
+    }
+
+    function login($staff, $bk) {
+        $_SESSION['_staff']['reset-token'] = $_POST['token'];
+        Signal::send('auth.pwreset.login', $staff);
+        return parent::login($staff, $bk);
+    }
+}
+StaffAuthenticationBackend::register(PasswordResetTokenBackend);
 
 /*
  * AuthToken Authentication Backend
