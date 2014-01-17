@@ -30,6 +30,17 @@ class UsersAjaxAPI extends AjaxController {
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
+        $emails=array();
+        foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
+            $name = "{$u['first']} {$u['last']}";
+            $users[] = array('email' => $u['email'], 'name'=>$name,
+                'info' => "{$u['email']} - $name (remote)",
+                'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
+            $emails[] = $u['email'];
+        }
+        $remote_emails = ($emails)
+            ? ' OR email.address IN ('.implode(',',db_input(array_filter($emails))).') '
+            : '';
 
         $escaped = db_input(strtolower($_REQUEST['q']), false);
         $sql='SELECT DISTINCT user.id, email.address, name '
@@ -39,26 +50,25 @@ class UsersAjaxAPI extends AjaxController {
                LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
             .' WHERE email.address LIKE \'%'.$escaped.'%\'
                OR user.name LIKE \'%'.$escaped.'%\'
-               OR value.value LIKE \'%'.$escaped.'%\'
-               ORDER BY user.created '
+               OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
+            .' ORDER BY user.created '
             .' LIMIT '.$limit;
 
         if(($res=db_query($sql)) && db_num_rows($res)){
             while(list($id,$email,$name)=db_fetch_row($res)) {
+                foreach ($users as $i=>$u) {
+                    if ($u['email'] == $email) {
+                        unset($users[$i]);
+                        break;
+                    }
+                }
                 $name = Format::htmlchars($name);
                 $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
                     "id" => $id, "/bin/true" => $_REQUEST['q']);
             }
         }
 
-        foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
-            $name = "{$u['first']} {$u['last']}";
-            $users[] = array('email' => $u['email'], 'name'=>$name,
-                'info' => "{$u['email']} - $name (remote)",
-                'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
-        }
-
-        return $this->json_encode($users);
+        return $this->json_encode(array_values($users));
 
     }
 
