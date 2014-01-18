@@ -9,7 +9,7 @@
 # bill be cleaned up shortly after installation (by the autocron).
 #
 ---
-- hash: b56944cb4722cc5cda9d1e23a3ea7fbc
+- key: b56944cb4722cc5cda9d1e23a3ea7fbc
   name: powered-by-osticket.png
   type: image/png
   encoding: base64
@@ -105,7 +105,7 @@
       NQLJLj4m+f1lr/Kfzeo1TMm+prKzxxgz2AeQEd49EE0PDxwVGTx+lDbX4G94cZ021zwTueT9+79q
       vjLYs5AR3j0Seq638S2PileedN26W3OuWb8rz9FmsJfg/wBsHf7rZZG4/wAAAABJRU5ErkJggg==
 
-- hash: 6fe1efdea357534d238b86e7860a7c5a
+- key: 6fe1efdea357534d238b86e7860a7c5a
   name: kangaroo.png
   type: image/png
   encoding: base64

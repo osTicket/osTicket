@@ -149,6 +149,7 @@ class OsticketConfig extends Config {
         'name_format' =>        'full', # First Last
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
+        'default_storage_bk' => 'D',
     );
 
     function OsticketConfig($section=null) {
@@ -725,6 +726,10 @@ class OsticketConfig extends Config {
         return $this->get('upload_dir');
     }
 
+    function getDefaultStorageBackendChar() {
+        return $this->get('default_storage_bk');
+    }
+
     function getVar($name) {
         return $this->get($name);
     }
@@ -854,6 +859,9 @@ class OsticketConfig extends Config {
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
+
+        if (isset($vars['default_storage_bk']))
+            $this->update('default_storage_bk', $vars['default_storage_bk']);
 
         return $this->updateAll(array(
             'random_ticket_ids'=>$vars['random_ticket_ids'],

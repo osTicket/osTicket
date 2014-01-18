@@ -317,14 +317,19 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%file`;
 CREATE TABLE `%TABLE_PREFIX%file` (
   `id` int(11) NOT NULL auto_increment,
   `ft` CHAR( 1 ) NOT NULL DEFAULT  'T',
-  `type` varchar(255) NOT NULL default '',
-  `size` varchar(25) NOT NULL default '',
-  `hash` varchar(125) NOT NULL,
+  `bk` CHAR( 1 ) NOT NULL DEFAULT  'D',
+  -- RFC 4288, Section 4.2 declares max MIMEType at 255 ascii chars
+  `type` varchar(255) collate ascii_general_ci NOT NULL default '',
+  `size` bigint(20) unsigned NOT NULL default 0,
+  `key` varchar(86) collate ascii_general_ci NOT NULL,
+  `signature` varchar(86) collate ascii_bin NOT NULL,
   `name` varchar(255) NOT NULL default '',
+  `attrs` varchar(255),
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `ft` (`ft`),
-  KEY `hash` (`hash`)
+  KEY `key` (`key`),
+  KEY `signature` (`signature`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file_chunk`;

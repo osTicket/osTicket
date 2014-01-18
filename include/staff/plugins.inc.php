@@ -51,7 +51,7 @@ foreach ($ost->plugins->allInstalled() as $p) {
             <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No extra forms defined yet &mdash; add one!';
+                echo 'No plugins installed yet &mdash; <a href="?a=add">add one</a>!';
             } ?>
         </td>
      </tr>
