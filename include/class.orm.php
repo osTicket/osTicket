@@ -693,6 +693,8 @@ class MySqlCompiler extends SqlCompiler {
         'contains' => array('self', '__contains'),
         'gt' => '%1$s > %2$s',
         'lt' => '%1$s < %2$s',
+        'gte' => '%1$s >= %2$s',
+        'lte' => '%1$s <= %2$s',
         'isnull' => '%1$s IS NULL',
         'like' => '%1$s LIKE %2$s',
         'in' => array('self', '__in'),

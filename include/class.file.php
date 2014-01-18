@@ -575,6 +575,10 @@ class FileStorageBackend {
                 return $tc;
     }
 
+    static function isRegistered($type) {
+        return isset(self::$registry[$type]);
+    }
+
     static function lookup($type, $file=null) {
         if (!isset(self::$registry[$type]))
             throw new Exception("No such backend registered");
