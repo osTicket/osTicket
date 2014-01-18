@@ -102,6 +102,24 @@ $info['id']=$staff->getId();
         </tr>
         <tr>
             <td width="180">
+                Preferred Language:
+            </td>
+            <td>
+        <?php
+        $langs = Internationalization::availableLanguages(); ?>
+                <select name="lang">
+                    <option value="">&mdash; Use Browser Preference &mdash;</option>
+<?php foreach($langs as $l) {
+    $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                        ?>><?php echo $l['desc']; ?></option>
+<?php } ?>
+                </select>
+                <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                Daylight Saving:
             </td>
             <td>

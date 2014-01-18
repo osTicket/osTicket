@@ -22,10 +22,12 @@ require_once(INCLUDE_DIR.'class.csrf.php');
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
 $msg = $msg?$msg:'Authentication Required';
+$dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 if($_POST) {
-    //$_SESSION['_staff']=array(); #Uncomment to disable login strikes.
-    if(($user=Staff::login($_POST['userid'], $_POST['passwd'], $errors))){
-        $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
+    // Lookup support backends for this staff
+    $username = trim($_POST['userid']);
+    if ($user = StaffAuthenticationBackend::process($username,
+            $_POST['passwd'], $errors)) {
         @header("Location: $dest");
         require_once('index.php'); //Just incase header is messed up.
         exit;
@@ -33,6 +35,13 @@ if($_POST) {
 
     $msg = $errors['err']?$errors['err']:'Invalid login';
 }
+// Consider single sign-on authentication backends
+else if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
+    if (($user = StaffAuthenticationBackend::processSignOn($errors))
+            && ($user instanceof StaffSession))
+       @header("Location: $dest");
+}
+
 define("OSTSCPINC",TRUE); //Make includes happy!
 include_once(INCLUDE_DIR.'staff/login.tpl.php');
 ?>

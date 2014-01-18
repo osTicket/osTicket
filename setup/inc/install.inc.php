@@ -1,8 +1,8 @@
-<?php 
+<?php
 if(!defined('SETUPINC')) die('Kwaheri!');
-$info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbhost'=>'localhost');
+$info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbhost'=>'localhost','lang_id'=>'en_US');
 ?>
-<div id="main" class="step2">        
+<div id="main" class="step2">
     <h1>osTicket Basic Installation</h1>
             <p>Please fill out the information below to continue your osTicket installation. All fields are required.</p>
             <font class="error"><strong><?php echo $errors['err']; ?></strong></font>
@@ -25,6 +25,19 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                     <input type="text" name="email" size="45" tabindex="2" value="<?php echo $info['email']; ?>">
                     <a class="tip" href="#system_email"><i class="icon-question-sign help-tip"></i></a>
                     <font class="error"><?php echo $errors['email']; ?></font>
+                </div>
+                <div class="row">
+                    <label>Default Language:</label>
+<?php $langs = Internationalization::availableLanguages(); ?>
+                <select name="lang_id">
+<?php foreach($langs as $l) {
+    $selected = ($info['lang_id'] == $l['code']) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                        ?>><?php echo $l['desc']; ?></option>
+<?php } ?>
+                </select>
+                <a class="tip" href="#default_lang"><i class="icon-question-sign help-tip"></i></a>
+                <font class="error">&nbsp;<?php echo $errors['lang_id']; ?></font>
                 </div>
 
                 <h4 class="head admin">Admin User</h4>

@@ -140,15 +140,26 @@ class Mail_Parse {
 
     function getToAddressList(){
         // Delivered-to incase it was a BBC mail.
-        if (!($header = $this->struct->headers['to']))
-            if (!($header = $this->struct->headers['delivered-to']))
-                return null;
+        $tolist = array();
+        if ($header = $this->struct->headers['to'])
+            $tolist = array_merge($tolist,
+                Mail_Parse::parseAddressList($header));
+        if ($header = $this->struct->headers['delivered-to'])
+            $tolist = array_merge($tolist,
+                Mail_Parse::parseAddressList($header));
 
-        return Mail_Parse::parseAddressList($header);
+        return $tolist ? $tolist : null;
     }
 
     function getCcAddressList(){
         if (!($header = $this->struct->headers['cc']))
+            return null;
+
+        return Mail_Parse::parseAddressList($header);
+    }
+
+    function getBccAddressList(){
+        if (!($header = $this->struct->headers['bcc']))
             return null;
 
         return Mail_Parse::parseAddressList($header);
@@ -378,19 +389,38 @@ class EmailDataParser {
         }
 
         //TO Address:Try to figure out the email address... associated with the incoming email.
-        $emailId = 0;
-        if(($tolist = $parser->getToAddressList())) {
-            foreach ($tolist as $toaddr) {
-                if(($emailId=Email::getIdByEmail($toaddr->mailbox.'@'.$toaddr->host)))
-                    break;
+        $data['emailId'] = 0;
+        $data['recipients'] = array();
+        $tolist = array();
+        if(($to = $parser->getToAddressList()))
+            $tolist['to'] = $to;
+
+        if(($cc = $parser->getCcAddressList()))
+            $tolist['cc'] = $cc;
+
+        foreach ($tolist as $source => $list) {
+            foreach($list as $addr) {
+                if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    $data['recipients'][] = array(
+                        'source' => "Email ($source)",
+                        'name' => trim(@$addr->personal, '"'),
+                        'email' => strtolower($addr->mailbox).'@'.$addr->host);
+                } elseif(!$data['emailId']) {
+                    $data['emailId'] = $emailId;
+                }
             }
         }
-        //maybe we got CC'ed??
-        if(!$emailId && ($cclist=$parser->getCcAddressList())) {
-            foreach ($cclist as $ccaddr) {
-                if(($emailId=Email::getIdByEmail($ccaddr->mailbox.'@'.$ccaddr->host)))
-                    break;
+
+        //maybe we got BCC'ed??
+        if(!$data['emailId']) {
+            unset($data['recipients']);
+            $emailId =  0;
+            if($bcc = $parser->getBccAddressList()) {
+                foreach ($bcc as $addr)
+                    if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
+                        break;
             }
+            $data['emailId'] = $emailId;
         }
 
         $data['subject'] = $parser->getSubject();
@@ -398,7 +428,6 @@ class EmailDataParser {
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
-        $data['emailId'] = $emailId;
 
         $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
         $data['references'] = $parser->struct->headers['references'];

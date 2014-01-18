@@ -89,6 +89,7 @@ class Bootstrap {
         define('TICKET_LOCK_TABLE',$prefix.'ticket_lock');
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
         define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
+        define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
 
@@ -110,6 +111,8 @@ class Bootstrap {
 
         define('FILTER_TABLE', $prefix.'filter');
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
+
+        define('PLUGIN_TABLE', $prefix.'plugin');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
@@ -169,8 +172,8 @@ class Bootstrap {
 
     function loadCode() {
         #include required files
-        require(INCLUDE_DIR.'class.ostsession.php');
-        require(INCLUDE_DIR.'class.usersession.php');
+        require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');

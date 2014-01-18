@@ -17,12 +17,12 @@ if($staff && $_REQUEST['a']!='add'){
     $title='Add New Staff';
     $action='create';
     $submit_text='Add Staff';
-    $passwd_text='Temp. password required &nbsp;<span class="error">&nbsp;*</span>';
+    $passwd_text='Temporary password required only for "Local" authenication';
     //Some defaults for new staff.
     $info['change_passwd']=1;
     $info['isactive']=1;
     $info['isvisible']=1;
-    $info['isadmin']=0; 
+    $info['isadmin']=0;
     $qstr.='&a=add';
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -48,7 +48,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Username:
             </td>
             <td>
-                <input type="text" size="30" name="username" value="<?php echo $info['username']; ?>">
+                <input type="text" size="30" class="staff-username typeahead"
+                     name="username" value="<?php echo $info['username']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['username']; ?></span>
             </td>
         </tr>
@@ -58,7 +59,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 First Name:
             </td>
             <td>
-                <input type="text" size="30" name="firstname" value="<?php echo $info['firstname']; ?>">
+                <input type="text" size="30" name="firstname" class="auto first"
+                     value="<?php echo $info['firstname']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['firstname']; ?></span>
             </td>
         </tr>
@@ -67,7 +69,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Last Name:
             </td>
             <td>
-                <input type="text" size="30" name="lastname" value="<?php echo $info['lastname']; ?>">
+                <input type="text" size="30" name="lastname" class="auto last"
+                    value="<?php echo $info['lastname']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['lastname']; ?></span>
             </td>
         </tr>
@@ -76,7 +79,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Email Address:
             </td>
             <td>
-                <input type="text" size="30" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="30" name="email" class="auto email"
+                    value="<?php echo $info['email']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>
@@ -85,7 +89,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Phone Number:
             </td>
             <td>
-                <input type="text" size="18" name="phone" value="<?php echo $info['phone']; ?>">
+                <input type="text" size="18" name="phone" class="auto phone"
+                    value="<?php echo $info['phone']; ?>">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['phone']; ?></span>
                 Ext <input type="text" size="5" name="phone_ext" value="<?php echo $info['phone_ext']; ?>">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['phone_ext']; ?></span>
@@ -96,15 +101,39 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Mobile Number:
             </td>
             <td>
-                <input type="text" size="18" name="mobile" value="<?php echo $info['mobile']; ?>">
+                <input type="text" size="18" name="mobile" class="auto mobile"
+                    value="<?php echo $info['mobile']; ?>">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['mobile']; ?></span>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Account Password</strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span></em>
+                <em><strong>Authentication</strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span></em>
             </th>
         </tr>
+        <tr>
+            <td>Authentication Backend</td>
+            <td>
+            <select name="backend" onchange="javascript:
+                if (this.value != '' && this.value != 'local')
+                    $('#password-fields').hide();
+                else
+                    $('#password-fields').show();
+                ">
+                <option value="">&mdash; Use any available backend &mdash;</option>
+            <?php foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
+                if (!$ab->supportsAuthentication()) continue; ?>
+                <option value="<?php echo $ab::$id; ?>" <?php
+                    if ($info['backend'] == $ab::$id)
+                        echo 'selected="selected"'; ?>><?php
+                    echo $ab::$name; ?></option>
+            <?php } ?>
+            </select>
+            </td>
+        </tr>
+        </tbody>
+        <tbody id="password-fields" style="<?php if ($info['backend'] && $info['backend'] != 'local')
+            echo 'display:none;'; ?>">
         <tr>
             <td width="180">
                 Password:
@@ -133,6 +162,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <strong>Force</strong> password change on next login.
             </td>
         </tr>
+    </tbody>
+    <tbody>
         <tr>
             <th colspan="2">
                 <em><strong>Staff's Signature</strong>: Optional signature used on outgoing emails. &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>

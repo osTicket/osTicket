@@ -16,12 +16,12 @@
 
 class Export {
 
-    /* static */ function dumpQuery($sql, $headers, $how='csv', $filter=false) {
+    static function dumpQuery($sql, $headers, $how='csv', $options=array()) {
         $exporters = array(
             'csv' => CsvResultsExporter,
             'json' => JsonResultsExporter
         );
-        $exp = new $exporters[$how]($sql, $headers, $filter);
+        $exp = new $exporters[$how]($sql, $headers, $options);
         return $exp->dump();
     }
 
@@ -32,13 +32,36 @@ class Export {
     #      SQL is exported, but for something like tickets, we will need to
     #      export attached messages, reponses, and notes, as well as
     #      attachments associated with each, ...
-    /* static */ function dumpTickets($sql, $how='csv') {
+    static function dumpTickets($sql, $how='csv') {
+        // Add custom fields to the $sql statement
+        $cdata = $fields = $select = array();
+        foreach (TicketForm::getInstance()->getFields() as $f) {
+            // Ignore core fields
+            if (in_array($f->get('name'), array('subject','priority')))
+                continue;
+            // Ignore non-data fields
+            elseif (!$f->hasData() || $f->isPresentationOnly())
+                continue;
+
+            $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
+            $key = '__field_'.$f->get('id');
+            // Fetch ID values for ID-based data
+            if ($f->hasIdValue()) {
+                $name .= '_id';
+            }
+            $cdata[$key] = $f->get('label');
+            $fields[$key] = $f;
+            $select[] = "cdata.`$name` AS __field_".$f->get('id');
+        }
+        if ($select)
+            $sql = str_replace(' FROM ', ',' . implode(',', $select) . ' FROM ', $sql);
         return self::dumpQuery($sql,
             array(
-                'ticketID' =>       'Ticket Id',
+                'number' =>       'Ticket Number',
                 'created' =>        'Date',
                 'subject' =>        'Subject',
                 'name' =>           'From',
+                'email' =>          'From Email',
                 'priority_desc' =>  'Priority',
                 'dept_name' =>      'Department',
                 'helptopic' =>      'Help Topic',
@@ -53,8 +76,17 @@ class Export {
                 'team' =>           'Team Assigned',
                 'thread_count' =>   'Thread Count',
                 'attachments' =>    'Attachment Count',
-            ),
-            $how);
+            ) + $cdata,
+            $how,
+            array('modify' => function(&$record, $keys) use ($fields) {
+                foreach ($fields as $k=>$f) {
+                    if (($i = array_search($k, $keys)) !== false) {
+                        $record[$i] = $f->export($f->to_php($record[$i]));
+                    }
+                }
+                return $record;
+            })
+            );
     }
 
     /* static */ function saveTickets($sql, $filename, $how='csv') {
@@ -70,11 +102,12 @@ class Export {
 }
 
 class ResultSetExporter {
-    function ResultSetExporter($sql, $headers, $filter=false) {
+    function ResultSetExporter($sql, $headers, $options=array()) {
         $this->headers = array_values($headers);
         if ($s = strpos(strtoupper($sql), ' LIMIT '))
             $sql = substr($sql, 0, $s);
         # TODO: If $filter, add different LIMIT clause to query
+        $this->options = $options;
         $this->_res = db_query($sql);
         if ($row = db_fetch_array($this->_res)) {
             $query_fields = array_keys($row);
@@ -106,6 +139,10 @@ class ResultSetExporter {
         $record = array();
         foreach ($this->lookups as $idx)
             $record[] = $row[$idx];
+
+        if (isset($this->options['modify']) && is_callable($this->options['modify']))
+            $record = $this->options['modify']($record, $this->keys);
+
         return $record;
     }
 

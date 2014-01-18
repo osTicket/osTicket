@@ -15,6 +15,7 @@
 **********************************************************************/
 require_once INCLUDE_DIR.'class.migrater.php';
 require_once INCLUDE_DIR.'class.setup.php';
+require_once INCLUDE_DIR.'class.i18n.php';
 
 class Installer extends SetupWizard {
 
@@ -147,10 +148,9 @@ class Installer extends SetupWizard {
         }
 
         if(!$this->errors) {
-            // TODO: Use language selected from install worksheet
-            require_once INCLUDE_DIR.'class.i18n.php';
 
-            $i18n = new Internationalization('en_US');
+            // TODO: Use language selected from install worksheet
+            $i18n = new Internationalization($vars['lang_id']);
             $i18n->loadDefaultData();
 
             $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';

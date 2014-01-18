@@ -40,6 +40,9 @@ class EmailTemplateGroup {
         'ticket.reply'=>array(
             'name'=>'Response/Reply Template',
             'desc'=>'Template used on ticket response/reply'),
+        'ticket.activity.notice'=>array(
+            'name'=>'New Activity Notice',
+            'desc'=>'Template used to notify collaborators on ticket activity (e.g CC on reply)'),
         'ticket.alert'=>array(
             'name'=>'New Ticket Alert',
             'desc'=>'Alert sent to staff, if enabled, on new ticket.'),
@@ -115,7 +118,7 @@ class EmailTemplateGroup {
     }
 
     function getLanguage() {
-        return 'en_US';
+        return $this->ht['lang'];
     }
 
     function isInUse(){
@@ -204,6 +207,10 @@ class EmailTemplateGroup {
 
     function getReplyMsgTemplate() {
         return $this->getMsgTemplate('ticket.reply');
+    }
+
+    function  getActivityNoticeMsgTemplate() {
+        return $this->getMsgTemplate('ticket.activity.notice');
     }
 
     function getOverlimitMsgTemplate() {
@@ -312,6 +319,10 @@ class EmailTemplateGroup {
             .' ,name='.db_input($vars['name'])
             .' ,isactive='.db_input($vars['isactive'])
             .' ,notes='.db_input(Format::sanitize($vars['notes']));
+
+        if ($vars['lang_id'])
+            // TODO: Validation of lang_id
+            $sql .= ',lang='.db_input($vars['lang_id']);
 
         if($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET '.$sql.' WHERE tpl_id='.db_input($id);

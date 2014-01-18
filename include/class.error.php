@@ -17,44 +17,42 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Error /* extends Exception */ {
-    var $title = '';
+class Error extends Exception {
+    static $title = '';
+    static $sendAlert = true;
 
-    function Error($message) {
-        call_user_func_array(array($this,'__construct'), func_get_args());
-    }
     function __construct($message) {
         global $ost;
 
         $message = str_replace(ROOT_DIR, '(root)/', $message);
 
         if ($ost->getConfig()->getLogLevel() == 3)
-            $message .= "\n\n" . $this->formatBacktrace(debug_backtrace());
+            $message .= "\n\n" . $this->getBacktrace();
 
-        $ost->logError($this->getTitle(), $message);
+        $ost->logError($this->getTitle(), $message, static::$sendAlert);
     }
 
     function getTitle() {
-        return get_class($this) . ": {$this->title}";
+        return get_class($this) . ': ' . static::$title;
     }
 
-    function formatBacktrace($bt) {
-        $buffer = array();
-        foreach ($bt as $i=>$frame)
-            $buffer[] = sprintf("#%d %s%s%s at [%s:%d]", $i,
-                $frame['class'], $frame['type'], $frame['function'],
-                str_replace(ROOT_DIR, '', $frame['file']), $frame['line']);
-        return implode("\n", $buffer);
+    function getBacktrace() {
+        return str_replace(ROOT_DIR, '(root)/', $this->getTraceAsString());
     }
 }
 
 class InitialDataError extends Error {
-    var $title = 'Problem with install initial data';
+    static $title = 'Problem with install initial data';
 }
 
 function raise_error($message, $class=false) {
     if (!$class) $class = 'Error';
     new $class($message);
+}
+
+// File storage backend exceptions
+class IOException extends Error {
+    static $title = 'Unable to read resource content';
 }
 
 ?>

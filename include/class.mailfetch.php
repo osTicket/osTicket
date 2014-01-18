@@ -269,9 +269,9 @@ class MailFetcher {
 
         $sender=$headerinfo->from[0];
         //Just what we need...
-        $header=array('name'  =>@$sender->personal,
+        $header=array('name'  => $this->mime_decode(@$sender->personal),
                       'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
-                      'subject'=>@$headerinfo->subject,
+                      'subject'=> $this->mime_decode(@$headerinfo->subject),
                       'mid'    => trim(@$headerinfo->message_id),
                       'header' => $this->getHeader($mid),
                       'in-reply-to' => $headerinfo->in_reply_to,
@@ -283,22 +283,36 @@ class MailFetcher {
             $header['reply-to-name'] = $replyto[0]->personal;
         }
 
-        //Try to determine target email - useful when fetched inbox has
-        // aliases that are independent emails within osTicket.
-        $emailId = 0;
+        // Put together a list of recipients
         $tolist = array();
         if($headerinfo->to)
-            $tolist = array_merge($tolist, $headerinfo->to);
+            $tolist['to'] = $headerinfo->to;
         if($headerinfo->cc)
-            $tolist = array_merge($tolist, $headerinfo->cc);
-        if($headerinfo->bcc)
-            $tolist = array_merge($tolist, $headerinfo->bcc);
+            $tolist['cc'] = $headerinfo->cc;
 
-        foreach($tolist as $addr)
-            if(($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
-                break;
+        $header['recipients'] = array();
+        foreach($tolist as $source => $list) {
+            foreach($list as $addr) {
+                if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    $header['recipients'][] = array(
+                            'source' => "Email ($source)",
+                            'name' => $this->mime_decode(@$addr->personal),
+                            'email' => strtolower($addr->mailbox).'@'.$addr->host);
+                } elseif(!$header['emailId']) {
+                    $header['emailId'] = $emailId;
+                }
+            }
+        }
 
-        $header['emailId'] = $emailId;
+        //BCCed?
+        if(!$header['emailId']) {
+            unset($header['recipients']); //Nuke the recipients - we were bcced
+            if ($headerinfo->bcc) {
+                foreach($headerinfo->bcc as $addr)
+                    if (($header['emailId'] = Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
+                        break;
+            }
+        }
 
         // Ensure we have a message-id. If unable to read it out of the
         // email, use the hash of the entire email headers
@@ -485,18 +499,18 @@ class MailFetcher {
         }
 
         $vars = $mailinfo;
-        $vars['name']=$this->mime_decode($mailinfo['name']);
-        $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
-        $vars['message']=Format::stripEmptyLines($this->getBody($mid));
-        $vars['emailId']=$mailinfo['emailId']?$mailinfo['emailId']:$this->getEmailId();
+        $vars['name'] = $mailinfo['name'];
+        $vars['subject'] = $mailinfo['subject'] ? $mailinfo['subject'] : '[No Subject]';
+        $vars['message'] = Format::stripEmptyLines($this->getBody($mid));
+        $vars['emailId'] = $mailinfo['emailId'] ? $mailinfo['emailId'] : $this->getEmailId();
 
         //Missing FROM name  - use email address.
         if(!$vars['name'])
-            $vars['name'] = $vars['email'];
+            list($vars['name']) = explode('@', $vars['email']);
 
         //An email with just attachments can have empty body.
         if(!$vars['message'])
-            $vars['message'] = '-';
+            $vars['message'] = '--';
 
         if($ost->getConfig()->useEmailPriority())
             $vars['priorityId']=$this->getPriority($mid);
@@ -564,6 +578,7 @@ class MailFetcher {
             //TODO: Log error..
             return null;
         }
+
 
         return $ticket;
     }
