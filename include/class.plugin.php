@@ -329,16 +329,18 @@ class Plugin {
      * configuration for the plugin is also removed. If the plugin is
      * reinstalled, it will have to be reconfigured.
      */
-    function uninstall() {
-        if ($this->pre_uninstall() === false)
+    function uninstall(&$errors) {
+        if ($this->pre_uninstall($errors) === false)
             return false;
 
         $sql = 'DELETE FROM '.PLUGIN_TABLE
             .' WHERE id='.db_input($this->getId());
         PluginManager::clearCache();
-        if (db_query($sql) && db_affected_rows())
-            return $this->getConfig()->purge();
-        return false;
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
+
+        $this->getConfig()->purge();
+        return true;
     }
 
     /**
@@ -346,9 +348,8 @@ class Plugin {
      *
      * Hook function to veto the uninstallation request. Return boolean
      * FALSE if the uninstall operation should be aborted.
-     * TODO: Recommend a location to stash an error message if aborting
      */
-    function pre_uninstall() {
+    function pre_uninstall(&$errors) {
         return true;
     }
 
