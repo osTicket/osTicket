@@ -83,8 +83,12 @@ class Staff extends AuthenticatedUser {
         return $this->load();
     }
 
+    function __toString() {
+        return (string) $this->getName();
+    }
+
     function asVar() {
-        return $this->getName();
+        return $this->__toString();
     }
 
     function getHastable() {
@@ -93,6 +97,17 @@ class Staff extends AuthenticatedUser {
 
     function getInfo() {
         return $this->config->getInfo() + $this->getHastable();
+    }
+
+    // AuthenticatedUser implementation...
+    // TODO: Move to an abstract class that extends Staff
+    function getRole() {
+        return 'staff';
+    }
+
+    function getAuthBackend() {
+        list($authkey, ) = explode(':', $this->getAuthKey());
+        return StaffAuthenticationBackend::getBackend($authkey);
     }
 
     /*compares user password*/

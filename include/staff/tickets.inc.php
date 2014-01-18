@@ -115,7 +115,7 @@ if($search):
         $qstr.='&query='.urlencode($searchTerm);
         $queryterm=db_real_escape($searchTerm,false); //escape the term ONLY...no quotes.
         if (is_numeric($searchTerm)) {
-            $qwhere.=" AND ticket.ticketID LIKE '$queryterm%'";
+            $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
         } elseif (strpos($searchTerm,'@') && Validator::is_email($searchTerm)) {
             //pulling all tricks!
             # XXX: What about searching for email addresses in the body of
@@ -143,7 +143,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
         db_input($_SESSION['adv_'.$_REQUEST['advsid']])).')';
 }
 
-$sortOptions=array('date'=>'effective_date','ID'=>'ticketID',
+$sortOptions=array('date'=>'effective_date','ID'=>'`number`',
     'pri'=>'priority_id','name'=>'user.name','subj'=>'subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept_name');
@@ -195,7 +195,7 @@ $$x=' class="'.strtolower($order).'" ';
 if($_GET['limit'])
     $qstr.='&limit='.urlencode($_GET['limit']);
 
-$qselect ='SELECT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_id,ticket.team_id '
+$qselect ='SELECT ticket.ticket_id,lock_id,`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,user.name'
     .' ,email.address as email, dept_name '
          .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created ';
@@ -386,7 +386,7 @@ if ($results) {
                 }else{
                     $lc=Format::truncate($row['dept_name'],40);
                 }
-                $tid=$row['ticketID'];
+                $tid=$row['number'];
                 $subject = Format::htmlchars(Format::truncate($row['subject'],40));
                 $threadcount=$row['thread_count'];
                 if(!strcasecmp($row['status'],'open') && !$row['isanswered'] && !$row['lock_id']) {

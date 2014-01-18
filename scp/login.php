@@ -26,7 +26,7 @@ $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest
 if($_POST) {
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
-    if ($user = AuthenticationBackend::process($username,
+    if ($user = StaffAuthenticationBackend::process($username,
             $_POST['passwd'], $errors)) {
         @header("Location: $dest");
         require_once('index.php'); //Just incase header is messed up.
@@ -35,11 +35,10 @@ if($_POST) {
 
     $msg = $errors['err']?$errors['err']:'Invalid login';
 }
-
 // Consider single sign-on authentication backends
-if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
-    if (($user = AuthenticationBackend::singleSignOn($errors))
-            && ($user instanceof Staff))
+else if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
+    if (($user = StaffAuthenticationBackend::processSignOn($errors))
+            && ($user instanceof StaffSession))
        @header("Location: $dest");
 }
 

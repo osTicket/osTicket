@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkClientAccess($thisclient)) die('Access Denied!');
+if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Access Denied!');
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 
@@ -13,8 +13,8 @@ if(!$dept || !$dept->isPublic())
     <tr>
         <td colspan="2" width="100%">
             <h1>
-                Ticket #<?php echo $ticket->getExtId(); ?> &nbsp;
-                <a href="view.php?id=<?php echo $ticket->getExtId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
+                Ticket #<?php echo $ticket->getNumber(); ?> &nbsp;
+                <a href="view.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
             </h1>
         </td>
     </tr>
@@ -124,10 +124,10 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
 <?php }elseif($warn) { ?>
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php } ?>
-<form id="reply" action="tickets.php?id=<?php echo $ticket->getExtId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
+<form id="reply" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>
     <h2>Post a Reply</h2>
-    <input type="hidden" name="id" value="<?php echo $ticket->getExtId(); ?>">
+    <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
     <input type="hidden" name="a" value="reply">
     <table border="0" cellspacing="0" cellpadding="3" style="width:100%">
         <tr>
@@ -143,7 +143,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                 <br/>
                 <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
                     data-draft-namespace="ticket.client"
-                    data-draft-object-id="<?php echo $ticket->getExtId(); ?>"
+                    data-draft-object-id="<?php echo $ticket->getId(); ?>"
                     class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
             </td>
         </tr>

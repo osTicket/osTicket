@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   `answer` text NOT NULL,
   `keywords` tinytext,
   `notes` text,
-  `created` date NOT NULL,
-  `updated` date NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
   PRIMARY KEY  (`faq_id`),
   UNIQUE KEY `question` (`question`),
   KEY `category_id` (`category_id`),
@@ -506,7 +506,7 @@ CREATE TABLE `%TABLE_PREFIX%team_member` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
   `ticket_id` int(11) unsigned NOT NULL auto_increment,
-  `ticketID` int(11) unsigned NOT NULL default '0',
+  `number` varchar(20),
   `user_id` int(11) unsigned NOT NULL default '0',
   `user_email_id` int(11) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
@@ -514,6 +514,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `topic_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
+  `email_id` int(11) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
   `status` enum('open','closed') NOT NULL default 'open',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
@@ -544,11 +545,10 @@ CREATE TABLE `%TABLE_PREFIX%ticket_attachment` (
   `ticket_id` int(11) unsigned NOT NULL default '0',
   `file_id` int(10) unsigned NOT NULL default '0',
   `ref_id` int(11) unsigned NOT NULL default '0',
-  `ref_type` enum('M','R','N') NOT NULL default 'M',
+  `inline` tinyint(1) NOT NULL default  '0',
   `created` datetime NOT NULL,
   PRIMARY KEY  (`attach_id`),
   KEY `ticket_id` (`ticket_id`),
-  KEY `ref_type` (`ref_type`),
   KEY `ref_id` (`ref_id`),
   KEY `file_id` (`file_id`)
 ) DEFAULT CHARSET=utf8;
@@ -567,10 +567,11 @@ CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
 CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
-  `message_id` int(11) unsigned NOT NULL,
+  `thread_id` int(11) unsigned NOT NULL,
   `email_mid` varchar(255) NOT NULL,
   `headers` text,
-  KEY `message_id` (`email_mid`)
+  PRIMARY KEY (`thread_id`),
+  KEY `email_mid` (`email_mid`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
@@ -608,6 +609,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   `pid` int(11) unsigned NOT NULL default '0',
   `ticket_id` int(11) unsigned NOT NULL default '0',
   `staff_id` int(11) unsigned NOT NULL default '0',
+  `user_id` int(11) unsigned not null default 0,
   `thread_type` enum('M','R','N') NOT NULL,
   `poster` varchar(128) NOT NULL default '',
   `source` varchar(32) NOT NULL default '',
@@ -629,6 +631,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
   -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
   `role` char(1) NOT NULL DEFAULT 'M',
+  `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `collab` (`ticket_id`,`user_id`)

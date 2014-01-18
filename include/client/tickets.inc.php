@@ -18,8 +18,8 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
     $status='open'; //Defaulting to open
 }
 
-$sortOptions=array('id'=>'ticketID', 'name'=>'user.name', 'subject'=>'subject.value',
-                    'email'=>'email.address', 'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
+$sortOptions=array('id'=>'`number`', 'subject'=>'subject.value',
+                    'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 //Sorting options...
 $order_by=$order=null;
@@ -38,9 +38,8 @@ if($order_by && strpos($order_by,','))
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
-$qselect='SELECT ticket.ticket_id,ticket.ticketID,ticket.dept_id,isanswered, '
-    .'dept.ispublic, subject.value as subject, '
-    .'user.name, email.address as email, '
+$qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
+    .'dept.ispublic, subject.value as subject,'
     .'dept_name,ticket. status, ticket.source, ticket.created ';
 
 $dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
@@ -51,11 +50,13 @@ $subject_sql = sprintf($dynfields, 'subject');
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
-      .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
-      .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
+      .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+        ON (collab.ticket_id = ticket.ticket_id
+                AND collab.user_id ='.$thisclient->getId().' )'
       .' LEFT JOIN '.$subject_sql.' subject ON ticket.ticket_id = subject.object_id ';
 
-$qwhere =' WHERE email.address='.db_input($thisclient->getEmail());
+$qwhere = sprintf(' WHERE ( ticket.user_id=%d OR collab.user_id=%d )',
+            $thisclient->getId(), $thisclient->getId());
 
 if($status){
     $qwhere.=' AND ticket.status='.db_input($status);
@@ -65,7 +66,7 @@ $search=($_REQUEST['a']=='search' && $_REQUEST['q']);
 if($search) {
     $qstr.='&a='.urlencode($_REQUEST['a']).'&q='.urlencode($_REQUEST['q']);
     if(is_numeric($_REQUEST['q'])) {
-        $qwhere.=" AND ticket.ticketID LIKE '$queryterm%'";
+        $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
     } else {//Deep search!
         $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
@@ -100,7 +101,7 @@ if($search)
 $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
 
 ?>
-<h1>My Tickets</h1>
+<h1>Tickets</h1>
 <br>
 <form action="tickets.php" method="get" id="ticketSearchForm">
     <input type="hidden" name="a"  value="search">
@@ -152,24 +153,24 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
             if($row['attachments'])
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
 
-            $ticketID=$row['ticketID'];
+            $ticketNumber=$row['number'];
             if($row['isanswered'] && !strcasecmp($row['status'],'open')) {
                 $subject="<b>$subject</b>";
-                $ticketID="<b>$ticketID</b>";
+                $ticketNumber="<b>$ticketNumber</b>";
             }
             $phone=Format::phone($row['phone']);
             if($row['phone_ext'])
                 $phone.=' '.$row['phone_ext'];
             ?>
-            <tr id="<?php echo $row['ticketID']; ?>">
+            <tr id="<?php echo $row['ticket_id']; ?>">
                 <td class="centered">
                 <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>"
-                    href="tickets.php?id=<?php echo $row['ticketID']; ?>"><?php echo $ticketID; ?></a>
+                    href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo ucfirst($row['status']); ?></td>
                 <td>
-                    <a href="tickets.php?id=<?php echo $row['ticketID']; ?>"><?php echo $subject; ?></a>
+                    <a href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
                 <td><?php echo $phone; ?></td>

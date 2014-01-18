@@ -57,7 +57,7 @@ class Export {
             $sql = str_replace(' FROM ', ',' . implode(',', $select) . ' FROM ', $sql);
         return self::dumpQuery($sql,
             array(
-                'ticketID' =>       'Ticket Id',
+                'number' =>       'Ticket Number',
                 'created' =>        'Date',
                 'subject' =>        'Subject',
                 'name' =>           'From',

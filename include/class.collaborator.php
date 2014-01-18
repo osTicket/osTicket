@@ -14,8 +14,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.user.php');
+require_once(INCLUDE_DIR . 'class.client.php');
 
-class Collaborator {
+class Collaborator extends TicketUser {
 
     var $ht;
 
@@ -23,8 +24,8 @@ class Collaborator {
     var $ticket;
 
     function __construct($id) {
-
         $this->load($id);
+        parent::__construct($this->getUser());
     }
 
     function load($id) {
@@ -36,22 +37,11 @@ class Collaborator {
             .' WHERE id='.db_input($id);
 
         $this->ht = db_fetch_array(db_query($sql));
-        $this->ticket = $this->user = null;
+        $this->ticket = null;
     }
 
     function reload() {
         return $this->load();
-    }
-
-    function __call($name, $args) {
-
-        if(!($user=$this->getUser()) || !method_exists($user, $name))
-            return null;
-
-        if($args)
-            return  call_user_func_array(array($user, $name), $args);
-
-        return call_user_func(array($user, $name));
     }
 
     function __toString() {
@@ -65,6 +55,10 @@ class Collaborator {
 
     function isActive() {
         return ($this->ht['isactive']);
+    }
+
+    function getCreateDate() {
+        return $this->ht['created'];
     }
 
     function getTicketId() {
@@ -148,12 +142,11 @@ class Collaborator {
             .' WHERE ticket_id='.db_input($info['ticketId'])
             .' AND user_id='.db_input($info['userId']);
 
-        list($id) = db_fetch_row(db_query($sql));
-
-        return $id;
+        return db_result(db_query($sql));
     }
 
     static function lookup($criteria) {
+
         $id = is_numeric($criteria)
             ? $criteria : self::getIdByInfo($criteria);
 

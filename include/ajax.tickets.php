@@ -31,11 +31,11 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT DISTINCT ticketID, email.address AS email'
+        $sql='SELECT DISTINCT `number`, email.address AS email'
             .' FROM '.TICKET_TABLE.' ticket'
             .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
             .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
+            .' WHERE `number` LIKE \''.db_input($_REQUEST['q'], false).'%\'';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
@@ -464,7 +464,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such ticket');
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
-        elseif (!($backend = AuthenticationBackend::getBackend($bk)))
+        elseif (!($backend = StaffAuthenticationBackend::getBackend($bk)))
             Http::response(404, 'User not found');
 
         $user_info = $backend->lookup($id);

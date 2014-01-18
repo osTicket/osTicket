@@ -19,11 +19,11 @@ body: |
     float: right; margin: 0px 0px 10px 10px;">
     <br>
     <br>
-    <strong>Dear %{ticket.name.first},</strong>
+    <strong>Dear %{recipient.name.first},</strong>
     <br>
     <br>
     Our customer care team has created a ticket, <a
-    href="%{ticket.client_link}">#%{ticket.number}</a> on your behalf, with
+    href="%{recipient.ticket_link}">#%{ticket.number}</a> on your behalf, with
     the following details and summary:
     <br>
     <br>
@@ -36,7 +36,7 @@ body: |
     <br>
     <br>
     If need be, a representative will follow-up with you as soon as
-    possible. You can also <a href="%{ticket.client_link}">view this
+    possible. You can also <a href="%{recipient.ticket_link}">view this
     ticket's progress online</a>.
     <br>
     <br>
@@ -47,7 +47,7 @@ body: |
     <div style="color: rgb(127, 127, 127); font-size: small; "><em>If you
     wish to provide additional comments or information regarding the issue,
     please do not send another email. Instead, reply to this email or <a
-    href="%{ticket.client_link}"><span style="color: rgb(84, 141, 212);"
+    href="%{recipient.ticket_link}"><span style="color: rgb(84, 141, 212);"
     >login to your account</span></a> for a complete archive of all your
     support requests and responses.</em></div>
     <br>

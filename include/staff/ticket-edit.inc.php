@@ -11,7 +11,7 @@ if ($_POST)
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="a" value="edit">
  <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
- <h2>Update Ticket #<?php echo $ticket->getExtId(); ?></h2>
+ <h2>Update Ticket #<?php echo $ticket->getNumber(); ?></h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <tbody>
         <tr>

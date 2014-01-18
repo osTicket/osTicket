@@ -282,12 +282,12 @@ class UserNav {
             $navs['new']=array('desc'=>'Open&nbsp;New&nbsp;Ticket','href'=>'open.php','title'=>'');
             if($user && $user->isValid()) {
                 if($cfg && $cfg->showRelatedTickets()) {
-                    $navs['tickets']=array('desc'=>sprintf('My&nbsp;Tickets&nbsp;(%d)',$user->getNumTickets()),
+                    $navs['tickets']=array('desc'=>sprintf('Tickets&nbsp;(%d)',$user->getNumTickets()),
                                            'href'=>'tickets.php',
                                             'title'=>'Show all tickets');
                 } else {
                     $navs['tickets']=array('desc'=>'View&nbsp;Ticket&nbsp;Thread',
-                                           'href'=>sprintf('tickets.php?id=%d',$user->getTicketID()),
+                                           'href'=>sprintf('tickets.php?id=%d',$user->getTicketId()),
                                            'title'=>'View ticket status');
                 }
             } else {
