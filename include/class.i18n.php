@@ -119,7 +119,7 @@ class Internationalization {
         // Email templates
         // TODO: Lookup tpl_id
         $tpl = EmailTemplateGroup::lookup(1);
-        foreach ($tpl->all_names as $name=>$info) {
+        foreach ($tpl::$all_names as $name=>$info) {
             if (($tp = $this->getTemplate("templates/email/$name.yaml"))
                     && ($t = $tp->getData())) {
                 $t['tpl_id'] = $tpl->getId();
