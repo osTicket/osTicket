@@ -308,9 +308,11 @@ $(document).ready(function(){
     });
 
     /* Typeahead tickets lookup */
+    var last_req;
     $('#basic-ticket-search').typeahead({
         source: function (typeahead, query) {
-            $.ajax({
+            if (last_req) last_req.abort();
+            last_req = $.ajax({
                 url: "ajax.php/tickets/lookup?q="+query,
                 dataType: 'json',
                 success: function (data) {
@@ -329,7 +331,8 @@ $(document).ready(function(){
     $('.email.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
-                $.ajax({
+                if (last_req) last_req.abort();
+                last_req = $.ajax({
                     url: "ajax.php/users?q="+query,
                     dataType: 'json',
                     success: function (data) {
@@ -348,7 +351,8 @@ $(document).ready(function(){
     $('.staff-username.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
-                $.ajax({
+                if (last_req) last_req.abort();
+                last_req = $.ajax({
                     url: "ajax.php/users/staff?q="+query,
                     dataType: 'json',
                     success: function (data) {

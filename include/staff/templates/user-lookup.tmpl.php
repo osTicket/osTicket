@@ -68,9 +68,11 @@ if ($info['error']) {
 </div>
 <script type="text/javascript">
 $(function() {
+    var last_req;
     $('#user-search').typeahead({
         source: function (typeahead, query) {
-            $.ajax({
+            if (last_req) last_req.abort();
+            last_req = $.ajax({
                 url: "ajax.php/users?q="+query,
                 dataType: 'json',
                 success: function (data) {
