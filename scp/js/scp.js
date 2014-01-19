@@ -395,15 +395,6 @@ $(document).ready(function(){
         $('#advanced-search').show();
     });
 
-
-    $(document).on('click', 'a#new-ticket', function(e) {
-        e.preventDefault();
-        var $elem = $(this);
-        $.userLookup('ajax.php/users/lookup/form', function (user) {
-            window.location.href = $elem.attr('href')+'&uid='+user.id;
-           });
-     });
-
     $.userLookup = function (url, callback) {
 
         $('.dialog#popup .body').load(url, function () {

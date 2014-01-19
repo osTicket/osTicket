@@ -24,32 +24,32 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong>Client Information</strong>: </em>
+                <em><strong>User Information</strong>: </em>
             </th>
         </tr>
         <?php
         if ($user) { ?>
-        <tr><td>Client:</td><td>
-            <div id="client-info">
+        <tr><td>User:</td><td>
+            <div id="user-info">
                 <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
             <a href="#" onclick="javascript:
                 $.userLookup('ajax.php/users/<?php echo $user->getId(); ?>/edit',
                         function (user) {
-                            $('#client-name').text(user.name);
-                            $('#client-email').text(user.email);
+                            $('#user-name').text(user.name);
+                            $('#user-email').text(user.email);
                         });
                 return false;
                 "><i class="icon-user"></i>
-                <span id="client-name"><?php echo $user->getName(); ?></span>
-                &lt;<span id="client-email"><?php echo $user->getEmail(); ?></span>&gt;
+                <span id="user-name"><?php echo $user->getName(); ?></span>
+                &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                 </a>
                 <a class="action-button" style="float:none;overflow:inherit" href="#"
                     onclick="javascript:
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
                             function(user) {
                                 $('input#uid').val(user.id);
-                                $('#client-name').text(user.name);
-                                $('#client-email').text('<'+user.email+'>');
+                                $('#user-name').text(user.name);
+                                $('#user-email').text('<'+user.email+'>');
                         });
                         return false;
                 "><i class="icon-edit"></i> Change</a>
@@ -373,6 +373,15 @@ $(function() {
         property: "/bin/true"
     });
 
+   <?php
+    // Popup user lookup on the initial page load (not post) if we don't have a
+    // user selected
+    if (!$_POST && !$user) {?>
+    $.userLookup('ajax.php/users/lookup/form', function (user) {
+        window.location.href = window.location.href+'&uid='+user.id;
+     });
+    <?php
+    } ?>
 });
 </script>
 
