@@ -401,7 +401,10 @@ class osTicket {
         $file = str_replace('\\','/', $frame['file']);
         $path = substr($file, strlen(ROOT_DIR));
         if($path && ($pos=strpos($_SERVER['SCRIPT_NAME'], $path))!==false)
-            return substr($_SERVER['SCRIPT_NAME'], 0, $pos);
+            return ($pos) ? substr($_SERVER['SCRIPT_NAME'], 0, $pos) : '/';
+
+        if (self::is_cli())
+            return '/';
 
         return null;
     }

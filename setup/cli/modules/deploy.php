@@ -35,7 +35,7 @@ class Deployment extends Unpacker {
             if (is_file($start . '/main.inc.php')) break;
             $start .= '/..';
         }
-        return realpath($start);
+        return self::realpath($start);
     }
 
     /**
@@ -92,7 +92,7 @@ class Deployment extends Unpacker {
         if (!is_dir($this->destination))
             if (!@mkdir($this->destination, 0751, true))
                 die("Destination path does not exist and cannot be created");
-        $this->destination = realpath($this->destination).'/';
+        $this->destination = self::realpath($this->destination).'/';
 
         # Determine if this is an upgrade, and if so, where the include/
         # folder is currently located

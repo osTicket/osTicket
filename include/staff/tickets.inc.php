@@ -73,7 +73,7 @@ $qwhere .= ' )';
 
 //STATUS
 if($status) {
-    $qwhere.=' AND status='.db_input(strtolower($status));
+    $qwhere.=' AND ticket.status='.db_input(strtolower($status));
 }
 
 if (isset($_REQUEST['ownerId'])) {

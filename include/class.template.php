@@ -21,47 +21,65 @@ class EmailTemplateGroup {
     var $id;
     var $ht;
     var $_templates;
-    var $all_names=array(
+    static $all_groups = array(
+        'sys' => 'System Management Templates',
+        'ticket.user' => 'End-User Ticket Templates',
+        'ticket.staff' => 'Staff Ticket Templates',
+    );
+    static $all_names=array(
         'ticket.autoresp'=>array(
+            'group'=>'ticket.user',
             'name'=>'New Ticket Auto-response',
             'desc'=>'Autoresponse sent to user, if enabled, on new ticket.'),
         'ticket.autoreply'=>array(
+            'group'=>'ticket.user',
             'name'=>'New Ticket Auto-reply',
             'desc'=>'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.'),
         'message.autoresp'=>array(
+            'group'=>'ticket.user',
             'name'=>'New Message Auto-response',
             'desc'=>'Confirmation sent to user when a new message is appended to an existing ticket.'),
         'ticket.notice'=>array(
+            'group'=>'ticket.user',
             'name'=>'New Ticket Notice',
             'desc'=>'Notice sent to user, if enabled, on new ticket created by staff on their behalf (e.g phone calls).'),
         'ticket.overlimit'=>array(
+            'group'=>'ticket.user',
             'name'=>'Over Limit Notice',
             'desc'=>'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.'),
         'ticket.reply'=>array(
+            'group'=>'ticket.user',
             'name'=>'Response/Reply Template',
             'desc'=>'Template used on ticket response/reply'),
         'ticket.activity.notice'=>array(
             'name'=>'New Activity Notice',
             'desc'=>'Template used to notify collaborators on ticket activity (e.g CC on reply)'),
         'ticket.alert'=>array(
+            'group'=>'ticket.staff',
             'name'=>'New Ticket Alert',
             'desc'=>'Alert sent to staff, if enabled, on new ticket.'),
         'message.alert'=>array(
+            'group'=>'ticket.staff',
             'name'=>'New Message Alert',
             'desc'=>'Alert sent to staff, if enabled, when user replies to an existing ticket.'),
         'note.alert'=>array(
+            'group'=>'ticket.staff',
             'name'=>'Internal Note Alert',
             'desc'=>'Alert sent to selected staff, if enabled, on new internal note.'),
         'assigned.alert'=>array(
+            'group'=>'ticket.staff',
             'name'=>'Ticket Assignment Alert',
             'desc'=>'Alert sent to staff on ticket assignment.'),
         'transfer.alert'=>array(
+            'group'=>'ticket.staff',
             'name'=>'Ticket Transfer Alert',
             'desc'=>'Alert sent to staff on ticket transfer.'),
         'ticket.overdue'=>array(
+            'group'=>'ticket.staff',
             'name'=>'Overdue Ticket Alert',
             'desc'=>'Alert sent to staff on stale or overdue tickets.'),
         'staff.pwreset' => array(
+            'group'=>'sys',
             'name' => 'Staff Password Reset',
             'desc' => 'Notice sent to staff with the password reset link.',
             'default' => 'templates/staff.pwreset.txt'),
@@ -144,7 +162,7 @@ class EmailTemplateGroup {
     }
 
     function getTemplateDescription($name) {
-        return $this->all_names[$name];
+        return static::$all_names[$name];
     }
 
     function getMsgTemplate($name) {
@@ -174,7 +192,7 @@ class EmailTemplateGroup {
     }
 
     function getUndefinedTemplateNames() {
-        $list = $this->all_names;
+        $list = static::$all_names;
         foreach ($this->getTemplates() as $cn=>$tpl)
             unset($list[$cn]);
         return $list;
@@ -419,6 +437,10 @@ class EmailTemplate {
     }
     function getCodeName() {
         return $this->ht['code_name'];
+    }
+
+    function getLastUpdated() {
+        return $this->ht['updated'];
     }
 
     function getTplId() {

@@ -71,39 +71,41 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 echo $info['lang']; ?>
             </td>
         </tr>
-        <tr>
-            <th colspan="2">
-                <em><strong>Template Messages</strong>: Click on the message to edit.&nbsp;
-                    <span class="error">*&nbsp;<?php echo $errors['rules']; ?></span></em>
-            </th>
-        </tr>
         <?php
-         foreach($template->getTemplates() as $tpl){
-             $info = $tpl->getDescription();
+            $current_group = false;
+            $impl = $template->getTemplates();
+            $_tpls = $template::$all_names;
+            $_groups = $template::$all_groups;
+            uasort($_tpls, function($a,$b) {
+                return strcmp($a['group'].$a['name'], $b['group'].$b['name']);
+            });
+         foreach($_tpls as $cn=>$info){
              if (!$info['name'])
                  continue;
-            echo sprintf('<tr><td colspan=2>&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>&nbsp-&nbsp<em>%s</em></td></tr>',
-                    $tpl->getId(),Format::htmlchars($info['name']),
-                    Format::htmlchars($info['desc']));
-         }
-         if (($undef = $template->getUndefinedTemplateNames())) { ?>
+             if (!$current_group || $current_group != $info['group']) {
+                $current_group = $info['group']; ?>
         <tr>
             <th colspan="2">
-                <em><strong>Unimplemented Template Messages</strong>: Click
-                on the message to implement</em>
+            <em><strong><?php echo isset($_groups[$current_group])
+            ? $_groups[$current_group] : $current_group; ?></strong>
+            :: Click on the title to edit.&nbsp;</em>
             </th>
         </tr>
-        <?php
-            foreach($template->getUndefinedTemplateNames() as $cn=>$info){
+<?php } # end if ($current_group)
+            if (isset($impl[$cn])) {
+                echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">Updated %s</span><br/>&nbsp;%s</td></tr>',
+                $impl[$cn]->getId(), Format::htmlchars($info['name']),
+                Format::db_datetime($impl[$cn]->getLastUpdated()),
+                Format::htmlchars($info['desc']));
+            } else {
                 echo sprintf('<tr><td colspan=2>&nbsp;<strong><a
                     href="templates.php?tpl_id=%d&a=implement&code_name=%s"
-                    style="color:red;text-decoration:underline"
-                    >%s</a></strong>&nbsp-&nbsp<em>%s</em></td></tr>',
-                    $template->getId(),$cn,Format::htmlchars($info['name']),
-                    Format::htmlchars($info['desc']));
+                    >%s</a></strong><br/>&nbsp%s</td></tr>',
+                    $template->getid(),$cn,format::htmlchars($info['name']),
+                    format::htmlchars($info['desc']));
             }
-        }
-        }else{ ?>
+         } # endfor
+        } else { ?>
         <tr>
             <td width="180" class="required">
                 Language:

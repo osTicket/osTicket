@@ -15,7 +15,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 ini_set('memory_limit', '256M'); //The concern here is having enough mem for emails with attachments.
-@chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
+@chdir(dirname(__FILE__).'/'); //Change dir.
 require('api.inc.php');
 
 //Only local piping supported via pipe.php

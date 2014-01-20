@@ -13,7 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-@chdir(realpath(dirname(__FILE__)).'/'); //Change dir.
+@chdir(dirname(__FILE__).'/'); //Change dir.
 require('api.inc.php');
 
 if (!osTicket::is_cli())

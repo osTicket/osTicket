@@ -1822,12 +1822,15 @@ class Ticket {
 
     function delete() {
 
+        //delete just orphaned ticket thread & associated attachments.
+        // Fetch thread prior to removing ticket entry
+        $t = $this->getThread();
+
         $sql = 'DELETE FROM '.TICKET_TABLE.' WHERE ticket_id='.$this->getId().' LIMIT 1';
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        //delete just orphaned ticket thread & associated attachments.
-        $this->getThread()->delete();
+        $t->delete();
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             $form->delete();
@@ -2116,11 +2119,17 @@ class Ticket {
             $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
 
         // Unpack the basic user information
-        $interesting = array('name', 'email');
-        $user_form = UserForm::getUserForm()->getForm($vars);
-        foreach ($user_form->getFields() as $f)
-            if (in_array($f->get('name'), $interesting))
-                $vars[$f->get('name')] = $f->toString($f->getClean());
+        if ($vars['uid'] && ($user = User::lookup($vars['uid']))) {
+            $vars['email'] = $user->getEmail();
+            $vars['name'] = $user->getName();
+        }
+        else {
+            $interesting = array('name', 'email');
+            $user_form = UserForm::getUserForm()->getForm($vars);
+            foreach ($user_form->getFields() as $f)
+                if (in_array($f->get('name'), $interesting))
+                    $vars[$f->get('name')] = $f->toString($f->getClean());
+        }
 
         //Init ticket filters...
         $ticket_filter = new TicketFilter($origin, $vars);
@@ -2172,11 +2181,6 @@ class Ticket {
         }
 
         if (!$errors) {
-
-            if ($vars['uid'] && ($user = User::lookup($vars['uid']))) {
-                $vars['email'] = $user->getEmail();
-                $vars['name'] = $user->getName();
-            }
 
             # Perform ticket filter actions on the new ticket arguments
             if ($ticket_filter) $ticket_filter->apply($vars);
