@@ -15,8 +15,10 @@ if(!$dept || !$dept->isPublic())
             <h1>
                 Ticket #<?php echo $ticket->getNumber(); ?> &nbsp;
                 <a href="view.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
+<?php if ($cfg->allowClientUpdates()) { ?>
                 <a class="action-button" href="tickets.php?a=edit&id=<?php
                      echo $ticket->getId(); ?>"><i class="icon-edit"></i> Edit</a>
+<?php } ?>
             </h1>
         </td>
     </tr>

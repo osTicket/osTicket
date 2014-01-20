@@ -150,6 +150,7 @@ class OsticketConfig extends Config {
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
+        'allow_client_updates' => false,
     );
 
     function OsticketConfig($section=null) {
@@ -293,6 +294,10 @@ class OsticketConfig extends Config {
 
     function isHtmlThreadEnabled() {
         return $this->get('enable_html_thread');
+    }
+
+    function allowClientUpdates() {
+        return $this->get('allow_client_updates');
     }
 
     function getClientTimeout() {
@@ -877,6 +882,7 @@ class OsticketConfig extends Config {
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
+            'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'allow_attachments'=>isset($vars['allow_attachments'])?1:0,
             'allowed_filetypes'=>strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))),
             'max_file_size'=>$vars['max_file_size'],

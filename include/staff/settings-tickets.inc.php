@@ -136,6 +136,14 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td>Allow Client Updates:</td>
+            <td>
+                <input type="checkbox" name="allow_client_updates" <?php
+                echo $config['allow_client_updates']?'checked="checked"':''; ?>>
+                Allow clients to update ticket details via the web portal
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b>Attachments</b>:  Size and max. uploads setting mainly apply to web tickets.</em>
             </th>
