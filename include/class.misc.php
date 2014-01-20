@@ -139,5 +139,10 @@ class Misc {
         return $output;
     }
 
+    function realpath($path) {
+        $rp = realpath($path);
+        return $rp ? $rp : $path;
+    }
+
 }
 ?>

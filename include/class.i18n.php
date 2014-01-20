@@ -150,7 +150,7 @@ class DataTemplate {
         foreach ($langs as $l) {
             if (file_exists("{$this->base}/$l/$path")) {
                 $this->lang = $l;
-                $this->filepath = realpath("{$this->base}/$l/$path");
+                $this->filepath = Misc::realpath("{$this->base}/$l/$path");
                 break;
             }
         }

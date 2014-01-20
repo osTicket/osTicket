@@ -41,7 +41,7 @@ class Unpacker extends Module {
             if (is_dir($start . '/upload')) break;
             $start .= '/..';
         }
-        return realpath($start.'/upload');
+        return Misc::realpath($start.'/upload');
     }
 
     function change_include_dir($include_path) {
