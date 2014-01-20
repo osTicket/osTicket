@@ -82,8 +82,11 @@ class EmailTemplateGroup {
         'staff.pwreset' => array(
             'group'=>'sys',
             'name' => 'Staff Password Reset',
-            'desc' => 'Notice sent to staff with the password reset link.',
-            'default' => 'templates/staff.pwreset.txt'),
+            'desc' => 'Notice sent to staff with the password reset link.'),
+        'user.accesslink' => array(
+            'group'=>'sys',
+            'name' => 'User Access Link Recovery',
+            'desc' => 'Notice sent to user on request with ticket access link.'),
         );
 
     function EmailTemplateGroup($id){

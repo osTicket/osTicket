@@ -749,4 +749,38 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 }
 UserAuthenticationBackend::register(AuthTokenAuthentication);
 
+//Simple ticket lookup backend used to recover ticket access link.
+// We're using authentication backend so we can guard aganist brute force
+// attempts (which doesn't buy much since the link is emailed)
+class AccessLinkAuthentication extends UserAuthenticationBackend {
+    static $name = "Ticket Access Link Authentication";
+    static $id = "authlink";
+
+    function authenticate($email, $number) {
+
+        if (!($ticket = Ticket::lookupByNumber($number))
+                || !($user=User::lookup(array('emails__address' =>
+                            $email))))
+            return false;
+
+        //Ticket owner?
+        if ($ticket->getUserId() == $user->getId())
+            $user = $ticket->getOwner();
+        //Collaborator?
+        elseif (!($user = Collaborator::lookup(array('userId' =>
+                            $user->getId(), 'ticketId' =>
+                            $ticket->getId()))))
+            return false; //Bro, we don't know you!
+
+
+        return new ClientSession($user);
+    }
+
+    //We are not actually logging in the user....
+    function login($user, $bk) {
+        return true;
+    }
+
+}
+UserAuthenticationBackend::register(AccessLinkAuthentication);
 ?>

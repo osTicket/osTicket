@@ -44,6 +44,24 @@ abstract class TicketUser {
 
     }
 
+    function sendAccessLink() {
+        global $ost;
+
+        if (!($ticket = $this->getTicket())
+                || !($dept = $ticket->getDept())
+                || !($email = $dept->getAutoRespEmail())
+                || !($tpl = $dept->getTemplate()->getMsgTemplate('user.accesslink')))
+            return;
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $this->getTicket(),
+            'recipient' => $this);
+
+        $msg = $ost->replaceTemplateVariables($tpl->asArray(), $vars);
+        $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+    }
+
     protected function getAuthToken($algo=1) {
 
         //Format: // <user type><algo id used>x<pack of uid & tid><hash of the algo>
