@@ -34,6 +34,10 @@ class Unpacker extends Module {
              main installation path.",
     );
 
+    function realpath($path) {
+        return ($p = realpath($path)) ? $p : $path;
+    }
+
     function find_upload_folder() {
         # Hop up to the root folder
         $start = dirname(__file__);
@@ -41,7 +45,7 @@ class Unpacker extends Module {
             if (is_dir($start . '/upload')) break;
             $start .= '/..';
         }
-        return Misc::realpath($start.'/upload');
+        return self::realpath($start.'/upload');
     }
 
     function change_include_dir($include_path) {
