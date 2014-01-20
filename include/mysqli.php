@@ -160,7 +160,7 @@ function db_result($res, $row=0) {
     return $value;
 }
 
-function db_fetch_array($res, $mode=MYSQL_ASSOC) {
+function db_fetch_array($res, $mode=MYSQLI_ASSOC) {
     return ($res) ? db_output($res->fetch_array($mode)) : NULL;
 }
 
