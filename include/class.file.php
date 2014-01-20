@@ -386,7 +386,7 @@ class AttachmentFile {
         $after = hash_init('sha1');
 
         // Copy the file to the new backend and hash the contents
-        $target = AttachmentStorageBackend::lookup($bk, $this->ht);
+        $target = FileStorageBackend::lookup($bk, $this);
         $source = $this->open();
         // TODO: Make this resumable so that if the file cannot be migrated
         //      in the max_execution_time, the migration can be continued
@@ -398,7 +398,7 @@ class AttachmentFile {
 
         // Verify that the hash of the target file matches the hash of the
         // source file
-        $target = AttachmentStorageBackend::lookup($bk, $this->ht);
+        $target = FileStorageBackend::lookup($bk, $this);
         while ($block = $target->read())
             hash_update($after, $block);
 
@@ -573,6 +573,10 @@ class FileStorageBackend {
         foreach (self::$registry as $tc=>$class)
             if ($this instanceof $class)
                 return $tc;
+    }
+
+    static function isRegistered($type) {
+        return isset(self::$registry[$type]);
     }
 
     static function lookup($type, $file=null) {
