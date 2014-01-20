@@ -1479,11 +1479,20 @@ class Ticket {
 
         $this->ht['user_id'] = $user->getId();
         $this->user = null;
+        $this->collaborators = null;
+        $this->recipients = null;
 
-        $this->logNote('Ticket ownership changed',
-                Format::htmlchars( sprintf('%s changed ticket ownership to %s',
-                    $thisstaff->getName(), $user->getName()))
-                );
+        //Log an internal note
+        $note = sprintf('%s changed ticket ownership to %s',
+                $thisstaff->getName(), $user->getName());
+
+        //Remove the new owner from list of collaborators
+        $c = Collaborator::lookup(array('userId' => $user->getId(),
+                    'ticketId' => $this->getId()));
+        if ($c && $c->remove())
+            $note.= ' (removed as collaborator)';
+
+        $this->logNote('Ticket ownership changed', $note);
 
         return true;
     }

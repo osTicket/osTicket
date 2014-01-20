@@ -54,4 +54,18 @@ if(($users=$ticket->getCollaborators())) {?>
 } else {
     echo "Bro, not sure how you got here!";
 }
+
+if ($_POST && $ticket && $ticket->getNumCollaborators()) {
+    $recipients = sprintf('Recipients (%d of %d)',
+          $ticket->getNumActiveCollaborators(),
+          $ticket->getNumCollaborators());
+    ?>
+    <script type="text/javascript">
+        $(function() {
+            $('#emailcollab').show();
+            $('#recipients').html('<?php echo $recipients; ?>');
+            });
+    </script>
+<?php
+}
 ?>
