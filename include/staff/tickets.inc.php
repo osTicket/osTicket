@@ -76,9 +76,10 @@ if($status) {
     $qwhere.=' AND status='.db_input(strtolower($status));
 }
 
-if (isset($_REQUEST['ownerId'])) {
-    $qwhere .= ' AND ticket.user_id='.db_input($_REQUEST['ownerId']);
-    $qstr .= '&ownerId='.urlencode($_REQUEST['ownerId']);
+if (isset($_REQUEST['uid']) && $_REQUEST['uid']) {
+    $qwhere .= ' AND (ticket.user_id='.db_input($_REQUEST['uid'])
+            .' OR collab.user_id='.db_input($_REQUEST['uid']).') ';
+    $qstr .= '&uid='.urlencode($_REQUEST['uid']);
 }
 
 //Queues: Overloaded sub-statuses  - you've got to just have faith!
@@ -205,9 +206,15 @@ $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id ';
 
+if ($_REQUEST['uid'])
+    $qfrom.=' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+        ON (ticket.ticket_id = collab.ticket_id )';
+
+
 $sjoin='';
+
 if($search && $deep_search) {
-    $sjoin=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
+    $sjoin.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
 }
 
 //get ticket count based on the query so far..
