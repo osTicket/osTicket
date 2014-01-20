@@ -35,6 +35,9 @@ class FileManager extends Module {
         'max-size' => array('-Z', '--max-size', 'metavar'=>'SIZE',
             'help' => 'Search for files smaller than this. k, M, G are welcome'),
 
+        'limit' => array('-L', '--limit', 'metavar'=>'count',
+            'help' => 'Limit search results to this count'),
+
         'to' => array('-m', '--to', 'metavar'=>'BK',
             'help' => 'Target backend for migration. See `backends` action
                 for a list of available backends'),
@@ -62,8 +65,8 @@ class FileManager extends Module {
             $files = FileModel::objects();
             $this->_applyCriteria($options, $files);
             foreach ($files as $f) {
-                printf("% 5d % 8d %s % 12s %s\n", $f->id, $f->size,
-                    $f->created, $f->type, $f->name);
+                printf("% 5d %s % 8d %s % 12s %s\n", $f->id, $f->bk,
+                    $f->size, $f->created, $f->type, $f->name);
             }
             break;
 
@@ -148,6 +151,12 @@ class FileManager extends Module {
                     $qs->filter(array('size__gte'=>$val));
                 else
                     $qs->filter(array('size__lte'=>$val));
+                break;
+
+            case 'limit':
+                if (!is_numeric($val))
+                    $this->fail('Provide an result count number to --limit');
+                $qs->limit($val);
                 break;
             }
         }
