@@ -879,7 +879,9 @@ class SelectionField extends FormField {
 
     function parse($value) {
         $config = $this->getConfiguration();
-        if (is_int($value) || !$config['typeahead'])
+        if (is_int($value))
+            return $this->to_php($this->getWidget()->getEnteredValue(), (int) $value);
+        elseif (!$config['typeahead'])
             return $this->to_php(null, (int) $value);
         else
             return $this->to_php($value);
@@ -889,7 +891,7 @@ class SelectionField extends FormField {
         if ($id && is_int($id))
             $item = DynamicListItem::lookup($id);
         # Attempt item lookup by name too
-        if (!$item) {
+        if (!$item || ($value !== null && $value != $item->get('value'))) {
             $item = DynamicListItem::lookup(array(
                 'value'=>$value,
                 'list_id'=>$this->getListId()));
@@ -908,8 +910,12 @@ class SelectionField extends FormField {
     }
 
     function validateEntry($item) {
+        $config = $this->getConfiguration();
         parent::validateEntry($item);
         if ($item && !$item instanceof DynamicListItem)
+            $this->_errors[] = 'Select a value from the list';
+        elseif ($item && $config['typeahead']
+                && $this->getWidget()->getEnteredValue() != $item->get('value'))
             $this->_errors[] = 'Select a value from the list';
     }
 
@@ -944,10 +950,8 @@ class SelectionWidget extends ChoicesWidget {
         } elseif ($this->value) {
             // Loaded from POST
             $value = $this->value;
-            $name = DynamicListItem::lookup($value);
-            $name = ($name) ? $name->get('value') : $value;
+            $name = $this->getEnteredValue();
         }
-
         if (!$config['typeahead']) {
             $this->value = $value;
             return parent::render();
@@ -987,6 +991,11 @@ class SelectionWidget extends ChoicesWidget {
         // Search for HTML form name first
         if (isset($data[$this->name.'_id']))
             return (int) $data[$this->name.'_id'];
+        return parent::getValue();
+    }
+
+    function getEnteredValue() {
+        // Used to verify typeahead fields
         return parent::getValue();
     }
 }
