@@ -52,8 +52,10 @@ class Staff {
             $sql .= 'staff_id='.db_input($var);
         elseif (Validator::is_email($var))
             $sql .= 'email='.db_input($var);
-        else
+        elseif (is_string($var))
             $sql .= 'username='.db_input($var);
+        else
+            return null;
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
