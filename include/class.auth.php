@@ -749,7 +749,9 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 }
 UserAuthenticationBackend::register(AuthTokenAuthentication);
 
-//Simple ticket lookup backend used to recover ticket access link
+//Simple ticket lookup backend used to recover ticket access link.
+// We're using authentication backend so we can guard aganist brute force
+// attempts (which doesn't buy much since the link is emailed)
 class AccessLinkAuthentication extends UserAuthenticationBackend {
     static $name = "Ticket Access Link Authentication";
     static $id = "authlink";

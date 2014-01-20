@@ -1,0 +1,32 @@
+#
+# Email template: user.accesslink
+#
+# Sent when a user requests an access link to check the status of a ticket
+#
+#
+#
+---
+notes: |
+    Sent when a user requests an access link to check the status of a ticket
+
+subject: |
+    Ticket [#%{ticket.number}] Access Link
+body: |
+    <h3><strong>Hi %{recipient.name.first},</strong></h3>
+    An access link request for ticket #%{ticket.number} has been submitted on your behalf for the
+    helpdesk at %{url}.
+    <br>
+    <br>
+    Follow the link below to check the status of the ticket #%{ticket.number}.
+    <br>
+    <br>
+    <a href="%{recipient.ticket_link}">%{recipient.ticket_link}</a>
+    <br>
+    <br>If you <strong>did not</strong> make the request, please delete
+    and disregard this email. Your account is still secure and no one has
+    been given access to the ticket. Someone could have mistakenly entered
+    your email address.
+    <br>
+    <br>
+    --<br>
+    %{company.name}
