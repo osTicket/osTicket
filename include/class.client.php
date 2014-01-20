@@ -26,10 +26,13 @@ abstract class TicketUser {
     function __call($name, $args) {
         global $cfg;
 
+        $rv = null;
         if($this->user && is_callable(array($this->user, $name)))
-            return  $args
+            $rv = $args
                 ? call_user_func_array(array($this->user, $name), $args)
                 : call_user_func(array($this->user, $name));
+
+        if ($rv) return $rv;
 
         $tag =  substr($name, 3);
         switch (strtolower($tag)) {
