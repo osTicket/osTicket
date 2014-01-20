@@ -11,7 +11,7 @@ notes: |
 subject: |
     Ticket #%{ticket.number} transfer - %{ticket.dept.name}
 body: |
-    <h3>Hi %{recipient},</h3>
+    <h3>Hi %{recipient.name},</h3>
     Ticket <a href="%{ticket.staff_link}">#%{ticket.number}</a> has been
     transferred to the %{ticket.dept.name} department by
     <strong>%{staff.name.short}</strong>
