@@ -52,6 +52,7 @@ class EmailTemplateGroup {
             'name'=>'Response/Reply Template',
             'desc'=>'Template used on ticket response/reply'),
         'ticket.activity.notice'=>array(
+            'group'=>'ticket.user',
             'name'=>'New Activity Notice',
             'desc'=>'Template used to notify collaborators on ticket activity (e.g CC on reply)'),
         'ticket.alert'=>array(
