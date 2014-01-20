@@ -869,7 +869,7 @@ Class ThreadEntry {
             .' ,poster='.db_input($poster)
             .' ,source='.db_input($vars['source']);
 
-        if (!isset($vars['attachments']))
+        if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
             // inline attachments are saved and updated in the database)
             $sql.=' ,body='.db_input($vars['body']);
