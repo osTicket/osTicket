@@ -343,10 +343,10 @@ Class ThreadEntry {
 
     function getEmailReferences() {
         if (!isset($this->_references)) {
-            $this->_references = $this->getEmailMessageId();
             $headers = self::getEmailHeaders();
-            if (isset($headers['References']))
-                $this->_references .= " ".$headers['References'];
+            if (isset($headers['References']) && $headers['References'])
+                $this->_references = $headers['References']." ";
+            $this->_references .= $this->getEmailMessageId();
         }
         return $this->_references;
     }
@@ -357,9 +357,6 @@ Class ThreadEntry {
 
         $mid = substr_replace($this->getEmailMessageId(),
                 $ref, strpos($this->getEmailMessageId(), '@'), 0);
-
-        //TODO: Confirm how references are ordered on reply - we want the tagged
-        // reference to be processed first.
 
         return sprintf('%s %s', $this->getEmailReferences(), $mid);
     }
