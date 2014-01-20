@@ -990,9 +990,13 @@ class Ticket {
         $uid = 0;
         if ($entry instanceof Message) {
             $poster = $entry->getUser();
+            // Skip the person who sent in the message
             $uid = $entry->getUserId();
-        } else
+        } else {
             $poster = $entry->getStaff();
+            // Skip the ticket owner
+            $uid = $this->getUserId();
+        }
 
         $vars = array(
                 'message' => (string) $entry,
