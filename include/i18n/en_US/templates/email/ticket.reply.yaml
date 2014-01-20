@@ -11,13 +11,7 @@ notes: |
 
 subject: "Re: %{ticket.subject}"
 body: |
-    <img src="cid:6fe1efdea357534d238b86e7860a7c5a" alt="osTicket Logo (kangaroo)"
-    width="113" height="64" style="float: right; width: 113px; margin: 0px 0px 10px 10px;">
-    <h3><span style="color: rgb(127, 127, 127); font-weight: normal;
-    font-family: Georgia; font-size: 30pt">We're Here For You</span></h3>
-    <strong>Dear %%{recipient.name},</strong>
-    <br>
-    <br>
+    <h3><strong>Dear %{recipient.name},</strong></h3>
     %{response}
     <br>
     <br>
@@ -32,8 +26,3 @@ body: |
     <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);" >login
     to your account</a> for a complete archive of all your support requests
     and responses.</em></div>
-    <div style="text-align: center;">
-        <a href="http://osticket.com/"><img
-        src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
-        width="126" height="19" style="width: 126px;"></a>
-    </div>

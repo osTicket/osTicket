@@ -26,7 +26,5 @@ body: |
     <hr>
     <div style="color: rgb(127, 127, 127); font-size: small; text-align:
     center"><em>You can view the support request progress <a
-    href="%{recipient.ticket_link}">online here</a></em><br>
-    <a href="http://osticket.com/"><img
-    src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
-    width="126" height="19" style="width: 126px;"></a></div>
+    href="%{recipient.ticket_link}">online here</a></em>
+    </div>

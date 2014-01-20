@@ -12,16 +12,7 @@ notes: |
 subject: |
     %{ticket.subject}
 body: |
-    <span style="color: rgb(127, 127, 127); font-family: Georgia;
-    font-size: 28pt; font-weight: normal;">We're Here For
-    You</span><img src="cid:6fe1efdea357534d238b86e7860a7c5a"
-    width="96" alt="osTicket Logo (kangaroo)" height="54" style="width: 96px;
-    float: right; margin: 0px 0px 10px 10px;">
-    <br>
-    <br>
-    <strong>Dear %{recipient.name.first},</strong>
-    <br>
-    <br>
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
     Our customer care team has created a ticket, <a
     href="%{recipient.ticket_link}">#%{ticket.number}</a> on your behalf, with
     the following details and summary:
@@ -46,12 +37,6 @@ body: |
     <hr>
     <div style="color: rgb(127, 127, 127); font-size: small; "><em>If you
     wish to provide additional comments or information regarding the issue,
-    please do not send another email. Instead, reply to this email or <a
-    href="%{recipient.ticket_link}"><span style="color: rgb(84, 141, 212);"
-    >login to your account</span></a> for a complete archive of all your
-    support requests and responses.</em></div>
-    <br>
-    <div style="text-align: center;">
-        <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" width="126"
-        alt="Powered by osTicket" height="19" style="width: 126px;">
-    </div>
+    please reply to this email or <a href="%{recipient.ticket_link}"><span
+    style="color: rgb(84, 141, 212);" >login to your account</span></a> for
+    a complete archive of your support requests.</em></div>
