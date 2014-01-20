@@ -197,7 +197,7 @@ class Ticket {
 
         if (!isset($this->owner)
                 && ($u=User::lookup($this->getOwnerId())))
-            $this->owner = new TicketOwner($u, $this);
+            $this->owner = new TicketOwner(new EndUser($u), $this);
 
         return $this->owner;
     }
