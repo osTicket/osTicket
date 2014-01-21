@@ -17,6 +17,9 @@ ALTER TABLE `%TABLE_PREFIX%file`
     ADD `attrs` VARCHAR(255) AFTER `name`,
     ADD INDEX (`signature`);
 
+-- Fixup the %_id fields for selection fields in the cdata table
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket__cdata`;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = 'f1ccd3bb620e314b0ae1dbd0a1a99177'
