@@ -636,6 +636,8 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     }
 
     function signOn($errors=array()) {
+        global $ost;
+
         if (!isset($_POST['userid']) || !isset($_POST['token']))
             return false;
         elseif (!($_config = new Config('pwreset')))
