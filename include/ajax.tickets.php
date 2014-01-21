@@ -213,9 +213,10 @@ class TicketsAjaxAPI extends AjaxController {
                     && ($val = $req[$f->getFormName()])) {
                 $name = $f->get('name') ? $f->get('name')
                     : 'field_'.$f->get('id');
-                $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
                 if ($f->getImpl()->hasIdValue() && is_numeric($val))
-                    $cwhere .= " OR cdata.`{$name}_id` = ".db_input($val);
+                    $cwhere = "cdata.`{$name}_id` = ".db_input($val);
+                else
+                    $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
                 $where .= ' AND ('.$cwhere.')';
                 $cdata_search = true;
             }
@@ -232,7 +233,8 @@ class TicketsAjaxAPI extends AjaxController {
             $sections[] = "$select $from $where";
 
         $sql=implode(' union ', $sections);
-        $res = db_query($sql);
+        if (!($res = db_query($sql)))
+            return TicketForm::dropDynamicDataView();
 
         $tickets = array();
         while ($row = db_fetch_row($res))
