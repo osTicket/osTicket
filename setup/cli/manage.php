@@ -46,8 +46,7 @@ class Manager extends Module {
                 if ($val == $action)
                     unset($argv[$idx]);
 
-            foreach (glob(dirname(__file__).'/modules/*.php') as $script)
-                include_once $script;
+            require_once dirname(__file__)."/modules/{$args['action']}.php";
             if (($module = Module::getInstance($action)))
                 return $module->_run($args['action']);
 
