@@ -75,13 +75,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180">
-                Revolving SLA:
+            <td>
+                <strong>Revolving SLA:</strong>
             </td>
             <td>
                 <input type="checkbox" name="revolving" value="1" <?php echo $info['revolving']?'checked="checked"':''; ?> >
                 SLA for unanswered tickets is based on last response instead of ticket creation date.
-            </td>
+                <br/>
+                <input type="checkbox" name="ignore_answered" value="1" <?php echo $info['ignore_answered']?'checked="checked"':''; ?> >
+		Revolving SLA doesn't flag answered tickets as overdue
+	    </td>
         </tr>
         <tr>
             <td width="180">

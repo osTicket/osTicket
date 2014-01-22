@@ -1160,7 +1160,7 @@ class Ticket {
         $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=0, updated=NOW() ';
 
         //clear due date if it's in the past
-        if($this->getDueDate() && Misc::db2gmtime($this->getDueDate()) <= Misc::gmtime())
+        if($this->getEstDueDate() && Misc::db2gmtime($this->getEstDueDate()) <= Misc::gmtime())
             $sql.=', duedate=NULL';
 
         //Clear SLA if est. due date is in the past
@@ -2309,7 +2309,7 @@ class Ticket {
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
                 if($ticket=Ticket::lookup($id))
-		    if(($ticket->getSLA()->isRevolving() && Misc::db2gmtime($ticket->getEstDueDate()) > Misc::gmtime()) || $ticket->ht['isanswered'] )
+		    if( $ticket->getSLA()->isRevolving() && ( Misc::db2gmtime($ticket->getEstDueDate()) > Misc::gmtime() ) || ( $ticket->getSLA()->ignores_answered() && $ticket->ht['isanswered'] ) )
 			return true;
 		    else
 		        $ticket->markOverdue();
