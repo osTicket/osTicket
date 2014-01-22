@@ -157,6 +157,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
+            <td>
+                Hours of Operation:
+            </td>
+            <td>
+                <input type="time" size="5" name="start_time" value="<?php echo $info['start_time']; ?>">
+                Start Time
+                <br/>
+                <input type="time" size="5" name="end_time" value="<?php echo $info['end_time']; ?>">
+                End Time
+            </td>
+        <tr>
             <th colspan="2">
                 <em><strong>Auto Response Settings</strong>: Override global auto-response settings for tickets routed to the Dept.</em>
             </th>
