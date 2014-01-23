@@ -48,8 +48,6 @@ class FileManager extends Module {
 
 
     function run($args, $options) {
-        if (!defined('OST_INSTALLED'))
-            $this->fail('Install your config file into `include/`');
         Bootstrap::connect();
         osTicket::start();
 
