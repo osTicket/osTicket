@@ -286,7 +286,7 @@ class PluginManager {
  * Base class for plugins. Plugins should inherit from this class and define
  * the useful pieces of the
  */
-class Plugin {
+abstract class Plugin {
     /**
      * Configuration manager for the plugin. Should be the name of a class
      * that inherits from PluginConfig. This is abstract and must be defined
@@ -320,6 +320,13 @@ class Plugin {
         return realpath(INCLUDE_DIR . $this->info['install_path'] . '/'
             . $this->info['include_path']) . '/';
     }
+
+    /**
+     * Main interface for plugins. Called at the beginning of every request
+     * for each installed plugin. Plugins should register functionality and
+     * connect to signals, etc.
+     */
+    abstract function bootstrap();
 
     /**
      * uninstall
