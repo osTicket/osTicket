@@ -354,7 +354,7 @@ class AttachmentFile {
             if (!$bk->upload($file['tmp_name']))
                 return false;
         }
-        elseif (!$bk->write($file['data'])) {
+        elseif (!$bk->write($file['data']) || !$bk->flush()) {
             // XXX: Fallthrough to default backend if different?
             return false;
         }
@@ -384,12 +384,24 @@ class AttachmentFile {
      * True if the migration was successful and false otherwise.
      */
     function migrate($bk) {
-        $before = hash_init('sha1');
-        $after = hash_init('sha1');
 
         // Copy the file to the new backend and hash the contents
         $target = FileStorageBackend::lookup($bk, $this);
         $source = $this->open();
+
+        // Initialize hashing algorithm to verify uploaded contents
+        $algos = $target->getNativeHashAlgos();
+        $common_algo = 'sha1';
+        if ($algos && is_array($algos)) {
+            $supported = hash_algos();
+            foreach ($algos as $a) {
+                if (in_array(strtolower($a), $supported)) {
+                    $common_algo = strtolower($a);
+                    break;
+                }
+            }
+        }
+        $before = hash_init($common_algo);
         // TODO: Make this resumable so that if the file cannot be migrated
         //      in the max_execution_time, the migration can be continued
         //      the next time the cron runs
@@ -397,14 +409,20 @@ class AttachmentFile {
             hash_update($before, $block);
             $target->write($block);
         }
+        $target->flush();
 
-        // Verify that the hash of the target file matches the hash of the
-        // source file
-        $target = FileStorageBackend::lookup($bk, $this);
-        while ($block = $target->read())
-            hash_update($after, $block);
+        // Ask the backend to generate its own hash if at all possible
+        if (!($target_hash = $target->getHashDigest($common_algo))) {
+            $after = hash_init($common_algo);
+            // Verify that the hash of the target file matches the hash of
+            // the source file
+            $target = FileStorageBackend::lookup($bk, $this);
+            while ($block = $target->read())
+                hash_update($after, $block);
+            $target_hash = hash_final($after);
+        }
 
-        if (hash_final($before) != hash_final($after)) {
+        if (hash_final($before) != $target_hash) {
             $target->unlink();
             return false;
         }
@@ -619,6 +637,15 @@ class FileStorageBackend {
     }
 
     /**
+     * Called after all the blocks are sent to the ::write() method. This
+     * method should return boolean FALSE if flushing the data was
+     * somehow inhibited.
+     */
+    function flush() {
+        return true;
+    }
+
+    /**
      * Upload a file to the backend. This method is preferred over ::write()
      * for files which are uploaded or are otherwise available out of
      * memory. The backend is encouraged to avoid reading the entire
@@ -663,6 +690,26 @@ class FileStorageBackend {
      * Requests the backend to remove the file contents.
      */
     function unlink() {
+        return false;
+    }
+
+    /**
+     * Fetches a list of hash algorithms that are supported transparently
+     * through the ::write() and ::upload() methods. After writing or
+     * uploading file content, the ::getHashDigest($algo) method can be
+     * called to get a hash of the remote content without fetching the
+     * entire data stream to verify the content locally.
+     */
+    function getNativeHashAlgos() {
+        return array();
+    }
+
+    /**
+     * Returns a hash of the content calculated remotely by the storage
+     * backend. If this method fails, the hash chould be calculated by
+     * downloading the content and hashing locally
+     */
+    function getHashDigest($algo) {
         return false;
     }
 }
