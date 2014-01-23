@@ -144,10 +144,6 @@ class TicketApiController extends ApiController {
     function processEmail() {
 
         $data = $this->getEmailRequest();
-        if($data['ticketId'] && ($ticket=Ticket::lookup($data['ticketId']))) {
-            if(($msgid=$ticket->postMessage($data, 'Email')))
-                return $ticket;
-        }
 
         if (($thread = ThreadEntry::lookupByEmailHeaders($data))
                 && $thread->postEmail($data)) {
