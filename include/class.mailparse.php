@@ -197,7 +197,7 @@ class Mail_Parse {
         return $body;
     }
 
-    function getPart($struct, $ctypepart) {
+    function getPart($struct, $ctypepart, $recurse=-1) {
 
         if($struct && !$struct->parts) {
             $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
@@ -213,9 +213,10 @@ class Mail_Parse {
         }
 
         $data='';
-        if($struct && $struct->parts) {
+        if($struct && $struct->parts && $recurse) {
             foreach($struct->parts as $i=>$part) {
-                if($part && !$part->disposition && ($text=$this->getPart($part,$ctypepart)))
+                if($part && !$part->disposition
+                        && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
                     $data.=$text;
             }
         }

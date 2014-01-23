@@ -311,7 +311,7 @@ class MailFetcher {
     }
 
     //search for specific mime type parts....encoding is the desired encoding.
-    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false) {
+    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
 
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
@@ -345,11 +345,12 @@ class MailFetcher {
 
         //Do recursive search
         $text='';
-        if($struct && $struct->parts) {
+        if($struct && $struct->parts && $recurse) {
             while(list($i, $substruct) = each($struct->parts)) {
                 if($partNumber)
                     $prefix = $partNumber . '.';
-                if(($result=$this->getPart($mid, $mimeType, $encoding, $substruct, $prefix.($i+1))))
+                if (($result=$this->getPart($mid, $mimeType, $encoding,
+                        $substruct, $prefix.($i+1), $recurse-1)))
                     $text.=$result;
             }
         }
