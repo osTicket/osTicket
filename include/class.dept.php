@@ -224,12 +224,21 @@ class Dept {
         return $this->config;
     }
 
+    function hasWorkingHours() {
+        if( $this->startTime() && $this->endTime() ) 
+            return true;
+    }
+
     function startTime() {
         return $this->getConfig()->get('start_time', null);
     }
     
     function endTime() {
         return $this->getConfig()->get('end_time', null);
+    }
+
+    function getWorkDays() {
+        return $this->getConfig()->get('work_days', null);
     }
 
     function getAllowedGroups() {
@@ -278,7 +287,8 @@ class Dept {
 
         $this->getConfig()->set('start_time', isset($vars['start_time']) ? $vars['start_time'] : null);
         $this->getConfig()->set('end_time', isset($vars['end_time']) ? $vars['end_time'] : null);
-
+        $this->getConfig()->set('work_days', !empty($vars['work_days']) ? implode(',', $vars['work_days']) : null);
+        
         return true;
     }
 
@@ -361,6 +371,8 @@ class Dept {
                 isset($vars['start_time']) ? $vars['start_time'] : null);
             $dept->getConfig()->set('end_time',
                 isset($vars['end_time']) ? $vars['end_time'] : null);
+            $dept->getConfig()->set('work_days',
+                isset($vars['work_days']) && !empty($vars['work_days']) ? implode(',', $vars['work_days']) : null);
         return $id;
     }
 

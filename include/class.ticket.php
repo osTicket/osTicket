@@ -244,22 +244,74 @@ class Ticket {
         return $this->ht['duedate'];
     }
 
+    function getWorkingHours($startTime, $endTime, $startDateTime, $endDateTime, $workingDays) {
+        $workdayHours = $endTime - $startTime; 
+        
+        $start = new DateTime($startDateTime);
+        $end = new DateTime($endDateTime);
+        
+        // Calculate the difference between our modified days.
+	$diff = $start->diff($end);
+
+        // Go through each day using the original values, so we can check for weekends.
+        $period = new DatePeriod($start, new DateInterval('P1D'), $end);
+        
+        foreach ($period as $day) {
+            // If it's a weekend day, take it out of our total days in the diff.
+            if (in_array($day->format('w'), array($workingDays))) $diff->d--;
+        }
+
+        // Calculate! Days * Hours in a day + hours + minutes converted to hours.
+        $hours = ($diff->d * $workdayHours) + $diff->h + round($diff->i / 60, 2);	
+        return $hours;
+    }
+
+    //Returns true if SLA says ticket is overdue
+    function checkSLADue() {
+        return $this->getSLAHours() < 0 ? true : false;
+    }
+
+    //returns the number of hours left till SLA is overdue or the number of hours it is overdue
+    function getSLAHours() {
+        $dept = $this->getDept();
+        //Department has hours of operation set
+        if($dept->hasWorkingHours()) {
+            if($this->getSLA()->isRevolving()){
+                //Department SLA is of the revolving type
+                return $this->getSLA()->getGracePeriod() - $this->getWorkingHours($dept->startTime(), $dept->endTime(), $this->ht['lastresponse'], date('Y-m-d H:i:s'), $dept->getWorkDays());
+            }else{
+                //Department SLA is not revolving
+                return $this->getSLA()->getGracePeriod() - $this->getWorkingHours($dept->startTime(), $dept->endTime(), $this->ht['created'], date('Y-m-d H:i:s'), $dept->getWorkDays());
+            }
+        //Department does not have hours of operation set.
+        }else{
+            if($this->getSLA()->isRevolving()){
+                //Department SLA is of the revolving type
+                return $this->getSLA()->getGracePeriod() - $this->getWorkingHours("00:00", "24:00", $this->ht['lastresponse'], date('Y-m-d H:i:s'), "0,1,2,3,4,5,6");
+            }else{
+                //Department SLA is not revolving
+                return $this->getSLA()->getGracePeriod() - $this->getWorkingHours("00:00", "24:00", $this->ht['created'], date('Y-m-d H:i:s'), "0,1,2,3,4,5,6");
+            }
+        }
+    }
+
     function getSLADueDate() {
-	if($this->getSLA()->isRevolving())
-	    return date("d-m-Y H:i:s", strtotime($this->ht['lastresponse'])+($this->getSLA()->getGraceperiod()*3600));
-	else
-            return $this->ht['sla_duedate'];
+            if($this->getSLA()->isRevolving()) {
+	        return date("d-m-Y H:i:s", strtotime($this->ht['lastresponse'])+($this->getSLA()->getGraceperiod()*3600));
+	    }else{
+                return $this->ht['sla_duedate'];
+            }
     }
 
-    function getEstDueDate() {
-
-        //Real due date
-        if(($duedate=$this->getDueDate()))
-            return $duedate;
-
-        //return sla due date (If ANY)
-        return $this->getSLADueDate();
-    }
+//    function getEstDueDate() {
+//
+//        //Real due date
+//        if(($duedate=$this->getDueDate()))
+//            return $duedate;
+//
+//        //return sla due date (If ANY)
+//        return $this->getSLADueDate();
+//    }
 
     function getCloseDate() {
         return $this->ht['closed'];
@@ -857,11 +909,8 @@ class Ticket {
     function onResponse() {
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1,lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
 
-	//Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
-        if($this->isOverdue()
-                && $this->getSLA()->isRevolving() //Has revolving SLA
-                && Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
-                ) {
+	//Clear overdue flag if SLA is revolving..
+        if($this->isOverdue() && $this->getSLA()->isRevolving() && !$this->checkSLADue() ) {
              $this->clearOverdue();
         }
     }
@@ -1080,12 +1129,14 @@ class Ticket {
                 break;
              case 'due_date':
                 $duedate ='';
-                if($this->getEstDueDate())
+                if($this->getDueDate())
                     $duedate = Format::date(
                             $cfg->getDateTimeFormat(),
-                            Misc::db2gmtime($this->getEstDueDate()),
+                            Misc::db2gmtime($this->getDueDate()),
                             $cfg->getTZOffset(),
                             $cfg->observeDaylightSaving());
+                else
+                    $duedate = $this->checkSLADue() ? $this->getSLAHours()." Hours Overdue" : $this->getSLAHours()." Hours Remaining"; 
 
                 return $duedate;
                 break;
@@ -1160,12 +1211,12 @@ class Ticket {
         $sql='UPDATE '.TICKET_TABLE.' SET isoverdue=0, updated=NOW() ';
 
         //clear due date if it's in the past
-        if($this->getEstDueDate() && Misc::db2gmtime($this->getEstDueDate()) <= Misc::gmtime())
+        if($this->getDueDate() && Misc::db2gmtime($this->getDueDate()) <= Misc::gmtime())
             $sql.=', duedate=NULL';
 
         //Clear SLA if est. due date is in the past
-        if($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
-            $sql.=', sla_id=0 ';
+        //if($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
+        //    $sql.=', sla_id=0 ';
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
@@ -1763,8 +1814,8 @@ class Ticket {
 
         //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
-                && (!$this->getEstDueDate() //Duedate + SLA cleared
-                    || Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                && (!$this->getDueDate() //Duedate cleared
+                    || Misc::db2gmtime($this->getDueDate()) > Misc::gmtime() //New due date in the future.
                     )) {
             $this->clearOverdue();
         }
@@ -2309,7 +2360,7 @@ class Ticket {
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
                 if($ticket=Ticket::lookup($id))
-		    if( $ticket->getSLA()->isRevolving() && ( Misc::db2gmtime($ticket->getEstDueDate()) > Misc::gmtime() ) || ( $ticket->getSLA()->ignores_answered() && $ticket->ht['isanswered'] ) )
+		    if( !$ticket->checkSLADue()  || ( $ticket->getSLA()->ignores_answered() && $ticket->ht['isanswered'] ) )
 			return true;
 		    else
 		        $ticket->markOverdue();

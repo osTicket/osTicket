@@ -254,7 +254,7 @@ if($ticket->isOverdue())
                 if($ticket->isOpen()){ ?>
                 <tr>
                     <th>Due Date:</th>
-                    <td><?php echo Format::db_datetime($ticket->getEstDueDate()); ?></td>
+                    <td><?php echo $ticket->getDueDate() ? Format::db_datetime($ticket->getDueDate()) : $ticket->checkSLADue() ? $ticket->getSLAHours()." Hours Overdue" : $ticket->getSLAHours()." Hours Remaining"; ?></td>
                 </tr>
                 <?php
                 }else { ?>

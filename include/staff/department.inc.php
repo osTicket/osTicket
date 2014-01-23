@@ -167,6 +167,28 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="time" size="5" name="end_time" value="<?php echo $info['end_time']; ?>">
                 End Time
             </td>
+        </tr>
+        <tr>
+            <td>
+                Working days:
+            </td>
+            <td>
+                <input type="checkbox" name="work_days[]" <?php echo strstr($info['work_days'], '0') ? 'checked' : ''; ?> value="0">
+                Sunday
+                <input type="checkbox" name="work_days[]" <?php echo strstr($info['work_days'], '1') ? 'checked' : ''; ?> value="1">
+                Monday
+                <input type="checkbox" name="work_days[]" <?php echo strstr($info['work_days'], '2') ? 'checked' : ''; ?> value="2">
+                Tuesday
+                <input type="checkbox" name="work_days[]" <?php echo strstr($info['work_days'], '3') ? 'checked' : ''; ?> value="3">
+                Wednesday
+                <input type="checkbox" name="work_days[]" <?php echo strstr($info['work_days'], '4') ? 'checked' : ''; ?> value="4">
+                Thursday
+                <input type="checkbox" name="work_days[]" <?php echo strstr($info['work_days'], '5') ? 'checked' : ''; ?> value="5">
+                Friday
+                <input type="checkbox" name="work_days[]" <?php echo strstr($info['work_days'], '6') ? 'checked' : ''; ?> value="6">
+                Saturday
+            </td>
+        </tr>
         <tr>
             <th colspan="2">
                 <em><strong>Auto Response Settings</strong>: Override global auto-response settings for tickets routed to the Dept.</em>

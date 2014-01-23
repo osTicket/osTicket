@@ -87,12 +87,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 	    </td>
         </tr>
         <tr>
-            <td width="180">
-                Revolving SLA:
+            <td>
+                Honors Department Hours:
             </td>
             <td>
-                <input type="checkbox" name="revolving" value="1" <?php echo $info['revolving']?'checked="checked"':''; ?> >
-                SLA for unanswered tickets is based on last response instead of ticket creation date.
+                <input type="checkbox" name="open_hours_only" value="1" <?php echo $info['open_hours_only']?'checked="checked"':''; ?> >
+                If department has operating hours set, only count hours during open hours.
             </td>
         </tr>
         <tr>
