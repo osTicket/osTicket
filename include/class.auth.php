@@ -246,7 +246,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             $sql.= ' AND (username='.db_input($userid) .' OR email='.db_input($userid).')';
         }
 
-        if (($res=db_query($sql)) && db_num_rows($res))
+        if (($res=db_query($sql, false)) && db_num_rows($res))
             $backends[] = db_result($res);
 
         return array_filter($backends);
