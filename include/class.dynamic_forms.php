@@ -906,7 +906,8 @@ class SelectionField extends FormField {
     }
 
     function toString($item) {
-        return ($item instanceof DynamicListItem) ? $item->toString() : $item;
+        return ($item instanceof DynamicListItem)
+            ? $item->toString() : (string) $item;
     }
 
     function validateEntry($item) {
