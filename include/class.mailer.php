@@ -109,7 +109,8 @@ class Mailer {
                 'Subject' => $subject,
                 'Date'=> date('D, d M Y H:i:s O'),
                 'Message-ID' => $messageId,
-                'X-Mailer' =>'osTicket Mailer'
+                'X-Mailer' =>'osTicket Mailer',
+                'Return-Path' => $this->getEmail()->getEmail(),
                );
 
         //Set bulk/auto-response headers.
