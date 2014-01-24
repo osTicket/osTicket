@@ -643,24 +643,31 @@ class MailFetcher {
             .' WHERE mail_active=1 '
             .'  AND (mail_errors<='.$MAXERRORS.' OR (TIME_TO_SEC(TIMEDIFF(NOW(), mail_lasterror))>'.($TIMEOUT*60).') )'
             .'  AND (mail_lastfetch IS NULL OR TIME_TO_SEC(TIMEDIFF(NOW(), mail_lastfetch))>mail_fetchfreq*60)'
-            .' ORDER BY mail_lastfetch DESC'
-            .' LIMIT 10'; //Processing up to 10 emails at a time.
+            .' ORDER BY mail_lastfetch ASC';
 
-       // echo $sql;
-        if(!($res=db_query($sql)) || !db_num_rows($res))
+        if (!($res=db_query($sql)) || !db_num_rows($res))
             return;  /* Failed query (get's logged) or nothing to do... */
 
-        //TODO: Lock the table here??
+        //Get max execution time so we can figure out how long we can fetch
+        // take fetching emails.
+        if (!($max_time = ini_get('max_execution_time')))
+            $max_time = 300;
 
-        while(list($emailId, $errors)=db_fetch_row($res)) {
+        //Start time
+        $start_time = Misc::micro_time();
+        while (list($emailId, $errors)=db_fetch_row($res)) {
+            //Break if we're 80% into max execution time
+            if ((Misc::micro_time()-$start_time) > ($max_time*0.80))
+                break;
+
             $fetcher = new MailFetcher($emailId);
-            if($fetcher->connect()) {
+            if ($fetcher->connect()) {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=0, mail_lastfetch=NOW() WHERE email_id='.db_input($emailId));
                 $fetcher->fetchEmails();
                 $fetcher->close();
             } else {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=mail_errors+1, mail_lasterror=NOW() WHERE email_id='.db_input($emailId));
-                if(++$errors>=$MAXERRORS) {
+                if (++$errors>=$MAXERRORS) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
                     $msg="\nosTicket is having trouble fetching emails from the following mail account: \n".
                         "\nUser: ".$fetcher->getUsername().
