@@ -53,8 +53,10 @@ class Staff extends AuthenticatedUser {
             $sql .= 'staff_id='.db_input($var);
         elseif (Validator::is_email($var))
             $sql .= 'email='.db_input($var);
-        else
+        elseif (is_string($var))
             $sql .= 'username='.db_input($var);
+        else
+            return null;
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return NULL;
@@ -748,8 +750,22 @@ class Staff extends AuthenticatedUser {
         if(!($email=$cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
-        $info = array('email' => $email, 'vars' => &$vars);
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
         Signal::send('auth.pwreset.email', $this, $info);
+
+        if ($info['log'])
+            $ost->logWarning('Staff Password Reset', sprintf(
+               'Password reset was attempted for staff member: %s<br><br>
+                Requested-User-Id: %s<br>
+                Source-Ip: %s<br>
+                Email-Sent-To: %s<br>
+                Email-Sent-Via: %s',
+                $this->getName(),
+                $_POST['userid'],
+                $_SERVER['REMOTE_ADDR'],
+                $this->getEmail(),
+                $email->getEmail()
+            ), false);
 
         $msg = $ost->replaceTemplateVariables($template->asArray(), $vars);
 
