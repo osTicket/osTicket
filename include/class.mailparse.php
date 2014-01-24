@@ -169,6 +169,40 @@ class Mail_Parse {
         return Mail_Parse::parseAddressList($header);
     }
 
+    function isBounceNotice() {
+        if (!($body = $this->getPart($this->struct, 'message/delivery-status')))
+            return false;
+
+        $info = self::splitHeaders($body);
+        if (!isset($info['Action']))
+            return false;
+
+        return strcasecmp($info['Action'], 'failed') === 0;
+    }
+
+    function getDeliveryStatusMessage() {
+        $ctype = @strtolower($this->struct->ctype_primary.'/'.$this->struct->ctype_secondary);
+        if ($ctype == 'multipart/report'
+            && isset($this->struct->ctype_parameters['report-type'])
+            && $this->struct->ctype_parameters['report-type'] == 'delivery-status'
+        ) {
+            return sprintf('<pre>%s</pre>',
+                Format::htmlchars(
+                    $this->getPart($this->struct, 'text/plain', 1)
+                ));
+        }
+        return false;
+    }
+
+    function getOriginalMessage() {
+        foreach ($this->struct->parts as $p) {
+            $ctype = $p->ctype_primary.'/'.$p->ctype_secondary;
+            if (strtolower($ctype) === 'message/rfc822')
+                return $p->parts[0];
+        }
+        return null;
+    }
+
     function getBody(){
         global $cfg;
 
@@ -197,7 +231,7 @@ class Mail_Parse {
         return $body;
     }
 
-    function getPart($struct, $ctypepart) {
+    function getPart($struct, $ctypepart, $recurse=-1) {
 
         if($struct && !$struct->parts) {
             $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
@@ -213,9 +247,10 @@ class Mail_Parse {
         }
 
         $data='';
-        if($struct && $struct->parts) {
+        if($struct && $struct->parts && $recurse) {
             foreach($struct->parts as $i=>$part) {
-                if($part && !$part->disposition && ($text=$this->getPart($part,$ctypepart)))
+                if($part && !$part->disposition
+                        && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
                     $data.=$text;
             }
         }
@@ -393,15 +428,26 @@ class EmailDataParser {
             }
         }
 
+        if ($parser->isBounceNotice()) {
+            // Fetch the original References and assign to 'references'
+            if ($msg = $parser->getOriginalMessage())
+                $data['references'] = $msg->headers['references'];
+            // Fetch deliver status report
+            $data['message'] = $parser->getDeliveryStatusMessage();
+            $data['thread-type'] = 'N';
+        }
+        else {
+            // Typical email
+            $data['message'] = Format::stripEmptyLines($parser->getBody());
+            $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
+            $data['references'] = $parser->struct->headers['references'];
+        }
+
         $data['subject'] = $parser->getSubject();
-        $data['message'] = Format::stripEmptyLines($parser->getBody());
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
-
-        $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
-        $data['references'] = $parser->struct->headers['references'];
 
         if (($replyto = $parser->getReplyTo()) && !PEAR::isError($replyto)) {
             $replyto = $replyto[0];

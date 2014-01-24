@@ -311,7 +311,7 @@ class MailFetcher {
     }
 
     //search for specific mime type parts....encoding is the desired encoding.
-    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false) {
+    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
 
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
@@ -345,11 +345,12 @@ class MailFetcher {
 
         //Do recursive search
         $text='';
-        if($struct && $struct->parts) {
+        if($struct && $struct->parts && $recurse) {
             while(list($i, $substruct) = each($struct->parts)) {
                 if($partNumber)
                     $prefix = $partNumber . '.';
-                if(($result=$this->getPart($mid, $mimeType, $encoding, $substruct, $prefix.($i+1))))
+                if (($result=$this->getPart($mid, $mimeType, $encoding,
+                        $substruct, $prefix.($i+1), $recurse-1)))
                     $text.=$result;
             }
         }
@@ -437,6 +438,46 @@ class MailFetcher {
         return imap_fetchheader($this->mbox, $mid,FT_PREFETCHTEXT);
     }
 
+    function isBounceNotice($mid) {
+        if (!($body = $this->getPart($mid, 'message/delivery-status')))
+            return false;
+
+        $info = Mail_Parse::splitHeaders($body);
+        if (!isset($info['Action']))
+            return false;
+
+        return strcasecmp($info['Action'], 'failed') === 0;
+    }
+
+    function getDeliveryStatusMessage($mid) {
+        if (!($struct = @imap_fetchstructure($this->mbox, $mid)))
+            return false;
+
+        $ctype = $this->getMimeType($struct);
+        if (strtolower($ctype) == 'multipart/report') {
+            foreach ($struct->parameters as $p) {
+                if (strtolower($p->attribute) == 'report-type'
+                        && $p->value == 'delivery-status') {
+                    return sprintf('<pre>%s</pre>',
+                        Format::htmlchars(
+                            $this->getPart($mid, 'text/plain', $this->charset, $struct, false, 1)
+                        ));
+                }
+            }
+        }
+        return false;
+    }
+
+    function getOriginalMessage($mid) {
+        if (!($body = $this->getPart($mid, 'message/rfc822')))
+            return null;
+
+        $msg = new Mail_Parse($body);
+        if (!$msg->decode())
+            return null;
+
+        return $msg->struct;
+    }
 
     function getPriority($mid) {
         return Mail_Parse::parsePriority($this->getHeader($mid));
@@ -485,9 +526,22 @@ class MailFetcher {
         }
 
         $vars = $mailinfo;
+        if ($this->isBounceNotice($mid)) {
+            // Fetch the original References and assign to 'references'
+            if ($msg = $this->getOriginalMessage($mid)) {
+                $vars['references'] = $msg->headers['references'];
+                unset($vars['in-reply-to']);
+            }
+            // Fetch deliver status report
+            $vars['message'] = $this->getDeliveryStatusMessage($mid);
+            $vars['thread-type'] = 'N';
+        }
+        else {
+            $vars['message']=Format::stripEmptyLines($this->getBody($mid));
+        }
+
         $vars['name']=$this->mime_decode($mailinfo['name']);
         $vars['subject']=$mailinfo['subject']?$this->mime_decode($mailinfo['subject']):'[No Subject]';
-        $vars['message']=Format::stripEmptyLines($this->getBody($mid));
         $vars['emailId']=$mailinfo['emailId']?$mailinfo['emailId']:$this->getEmailId();
 
         //Missing FROM name  - use email address.
