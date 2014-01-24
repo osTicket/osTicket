@@ -325,7 +325,7 @@ class MailFetcher {
     }
 
     //search for specific mime type parts....encoding is the desired encoding.
-    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false) {
+    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
 
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
@@ -359,11 +359,12 @@ class MailFetcher {
 
         //Do recursive search
         $text='';
-        if($struct && $struct->parts) {
+        if($struct && $struct->parts && $recurse) {
             while(list($i, $substruct) = each($struct->parts)) {
                 if($partNumber)
                     $prefix = $partNumber . '.';
-                if(($result=$this->getPart($mid, $mimeType, $encoding, $substruct, $prefix.($i+1))))
+                if (($result=$this->getPart($mid, $mimeType, $encoding,
+                        $substruct, $prefix.($i+1), $recurse-1)))
                     $text.=$result;
             }
         }
@@ -451,6 +452,46 @@ class MailFetcher {
         return imap_fetchheader($this->mbox, $mid,FT_PREFETCHTEXT);
     }
 
+    function isBounceNotice($mid) {
+        if (!($body = $this->getPart($mid, 'message/delivery-status')))
+            return false;
+
+        $info = Mail_Parse::splitHeaders($body);
+        if (!isset($info['Action']))
+            return false;
+
+        return strcasecmp($info['Action'], 'failed') === 0;
+    }
+
+    function getDeliveryStatusMessage($mid) {
+        if (!($struct = @imap_fetchstructure($this->mbox, $mid)))
+            return false;
+
+        $ctype = $this->getMimeType($struct);
+        if (strtolower($ctype) == 'multipart/report') {
+            foreach ($struct->parameters as $p) {
+                if (strtolower($p->attribute) == 'report-type'
+                        && $p->value == 'delivery-status') {
+                    return sprintf('<pre>%s</pre>',
+                        Format::htmlchars(
+                            $this->getPart($mid, 'text/plain', $this->charset, $struct, false, 1)
+                        ));
+                }
+            }
+        }
+        return false;
+    }
+
+    function getOriginalMessage($mid) {
+        if (!($body = $this->getPart($mid, 'message/rfc822')))
+            return null;
+
+        $msg = new Mail_Parse($body);
+        if (!$msg->decode())
+            return null;
+
+        return $msg->struct;
+    }
 
     function getPriority($mid) {
         return Mail_Parse::parsePriority($this->getHeader($mid));
@@ -501,8 +542,22 @@ class MailFetcher {
         $vars = $mailinfo;
         $vars['name'] = $mailinfo['name'];
         $vars['subject'] = $mailinfo['subject'] ? $mailinfo['subject'] : '[No Subject]';
-        $vars['message'] = Format::stripEmptyLines($this->getBody($mid));
         $vars['emailId'] = $mailinfo['emailId'] ? $mailinfo['emailId'] : $this->getEmailId();
+
+        if ($this->isBounceNotice($mid)) {
+            // Fetch the original References and assign to 'references'
+            if ($msg = $this->getOriginalMessage($mid)) {
+                $vars['references'] = $msg->headers['references'];
+                unset($vars['in-reply-to']);
+            }
+            // Fetch deliver status report
+            $vars['message'] = $this->getDeliveryStatusMessage($mid);
+            $vars['thread-type'] = 'N';
+        }
+        else {
+            $vars['message'] = Format::stripEmptyLines($this->getBody($mid));
+        }
+
 
         //Missing FROM name  - use email address.
         if(!$vars['name'])
@@ -658,24 +713,31 @@ class MailFetcher {
             .' WHERE mail_active=1 '
             .'  AND (mail_errors<='.$MAXERRORS.' OR (TIME_TO_SEC(TIMEDIFF(NOW(), mail_lasterror))>'.($TIMEOUT*60).') )'
             .'  AND (mail_lastfetch IS NULL OR TIME_TO_SEC(TIMEDIFF(NOW(), mail_lastfetch))>mail_fetchfreq*60)'
-            .' ORDER BY mail_lastfetch DESC'
-            .' LIMIT 10'; //Processing up to 10 emails at a time.
+            .' ORDER BY mail_lastfetch ASC';
 
-       // echo $sql;
-        if(!($res=db_query($sql)) || !db_num_rows($res))
+        if (!($res=db_query($sql)) || !db_num_rows($res))
             return;  /* Failed query (get's logged) or nothing to do... */
 
-        //TODO: Lock the table here??
+        //Get max execution time so we can figure out how long we can fetch
+        // take fetching emails.
+        if (!($max_time = ini_get('max_execution_time')))
+            $max_time = 300;
 
-        while(list($emailId, $errors)=db_fetch_row($res)) {
+        //Start time
+        $start_time = Misc::micro_time();
+        while (list($emailId, $errors)=db_fetch_row($res)) {
+            //Break if we're 80% into max execution time
+            if ((Misc::micro_time()-$start_time) > ($max_time*0.80))
+                break;
+
             $fetcher = new MailFetcher($emailId);
-            if($fetcher->connect()) {
+            if ($fetcher->connect()) {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=0, mail_lastfetch=NOW() WHERE email_id='.db_input($emailId));
                 $fetcher->fetchEmails();
                 $fetcher->close();
             } else {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=mail_errors+1, mail_lasterror=NOW() WHERE email_id='.db_input($emailId));
-                if(++$errors>=$MAXERRORS) {
+                if (++$errors>=$MAXERRORS) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
                     $msg="\nosTicket is having trouble fetching emails from the following mail account: \n".
                         "\nUser: ".$fetcher->getUsername().

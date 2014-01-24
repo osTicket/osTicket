@@ -39,7 +39,7 @@ class TicketApiController extends ApiController {
         if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
                 'emailId', 'ticketId', 'reply-to', 'reply-to-name',
-                'in-reply-to', 'references',
+                'in-reply-to', 'references', 'thread-type',
                 'recipients' => array('*' => array('name', 'email', 'source'))
                 ));
 
@@ -147,10 +147,6 @@ class TicketApiController extends ApiController {
     function processEmail() {
 
         $data = $this->getEmailRequest();
-        if($data['ticketId'] && ($ticket=Ticket::lookup($data['ticketId']))) {
-            if(($msgid=$ticket->postMessage($data, 'Email')))
-                return $ticket;
-        }
 
         if (($thread = ThreadEntry::lookupByEmailHeaders($data))
                 && $thread->postEmail($data)) {

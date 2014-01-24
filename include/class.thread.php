@@ -613,6 +613,7 @@ Class ThreadEntry {
             'reply_to' => $this,
             'recipients' => $mailinfo['recipients'],
         );
+        $errors = array();
 
         if (isset($mailinfo['attachments']))
             $vars['attachments'] = $mailinfo['attachments'];
@@ -633,13 +634,21 @@ Class ThreadEntry {
                 || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
             $vars['staffId'] = $mailinfo['staffId'];
             $poster = Staff::lookup($mailinfo['staffId']);
-            $errors = array();
             $vars['note'] = $body;
             return $ticket->postNote($vars, $errors, $poster);
         }
         elseif (Email::getIdByEmail($mailinfo['email'])) {
             // Don't process the email -- it came FROM this system
             return true;
+        }
+        // Support the mail parsing system declaring a thread-type
+        elseif (isset($mailinfo['thread-type'])) {
+            switch ($mailinfo['thread-type']) {
+            case 'N':
+                $vars['note'] = $body;
+                $poster = $mailinfo['email'];
+                return $ticket->postNote($vars, $errors, $poster);
+            }
         }
         // TODO: Consider security constraints
         else {
