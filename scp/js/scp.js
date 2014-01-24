@@ -376,6 +376,13 @@ $(document).ready(function(){
         return false;
     });
 
+    $(document).keydown(function(e) {        
+        if (e.keyCode == 27) {
+            $('div.dialog').hide();
+            $('#overlay').hide();
+        }  
+    });
+
     /* advanced search */
     $('.dialog#advanced-search').css({
         top  : ($(window).height() / 6),
