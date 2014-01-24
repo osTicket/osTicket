@@ -15,6 +15,10 @@ UPDATE `%TABLE_PREFIX%filter_rule`
     SET `how` = 'equal' WHERE `how` IS NULL;
 
 -- [#331](https://github.com/osTicket/osTicket-1.8/issues/331)
+-- Previously there was no primary key on the %ticket_email_info table, so
+-- clean up any junk records before adding one
+DELETE FROM `%TABLE_PREFIX%ticket_email_info` WHERE
+    `message_id` = 0 OR `message_id` IS NULL;
 ALTER TABLE `%TABLE_PREFIX%ticket_email_info`
     CHANGE `message_id` `thread_id` int(11) unsigned NOT NULL,
     ADD PRIMARY KEY (`thread_id`),
