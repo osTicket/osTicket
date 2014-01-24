@@ -27,6 +27,7 @@ class Client {
     var $_answers;
 
     var $ticket_id;
+    var $user_id;
     var $ticketID;
 
     var $ht;
@@ -42,7 +43,7 @@ class Client {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT ticket.ticket_id, ticketID, email.address as email '
+        $sql='SELECT ticket.ticket_id, ticketID, email.address as email, user.id as user_id '
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
             .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
@@ -59,7 +60,8 @@ class Client {
         $this->ticket_id  = $this->ht['ticket_id'];
         $this->ticketID   = $this->ht['ticketID'];
 
-        $user = User::lookup(array('emails__address'=>$this->ht['email']));
+        $user = User::lookup($this->ht['user_id']);
+        $this->user_id    = $this->ht['user_id'];
         $this->fullname   = $user->getFullName();
 
         $this->username   = $this->ht['email'];
@@ -88,6 +90,10 @@ class Client {
 
     function getId() {
         return $this->id;
+    }
+
+    function getUserId() {
+        return $this->user_id;
     }
 
     function getEmail() {
