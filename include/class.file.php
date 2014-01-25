@@ -196,24 +196,13 @@ class AttachmentFile {
     }
 
     function download() {
+        $bk = $this->open();
+        if ($bk->sendRedirectUrl('inline'))
+            return;
         $this->makeCacheable();
-
-        header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
-
-        $filename=basename($this->getName());
-        $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
-        if (false !== strpos($user_agent,'msie') && false !== strpos($user_agent,'win'))
-            header('Content-Disposition: filename='.rawurlencode($filename).';');
-        elseif (false !== strpos($user_agent, 'safari') && false === strpos($user_agent, 'chrome'))
-            // Safari and Safari only can handle the filename as is
-            header('Content-Disposition: filename='.str_replace(',', '', $filename).';');
-        else
-            // Use RFC5987
-            header("Content-Disposition: filename*=UTF-8''".rawurlencode($filename).';' );
-
-        header('Content-Transfer-Encoding: binary');
+        Http::download($this->getName(), $this->getType() ?: 'application/octet-stream');
         header('Content-Length: '.$this->getSize());
-        $this->sendData(true, 'attachment');
+        $this->sendData(false);
         exit();
     }
 
