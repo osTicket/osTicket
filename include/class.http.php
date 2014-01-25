@@ -55,6 +55,9 @@ class Http {
         }else{
             header("Location: $url");
         }
+        print('<html></html>');
+        flush();
+        ob_flush();
         exit;
     }
 
