@@ -2166,6 +2166,11 @@ class Ticket {
         if($autorespond && $dept && !$dept->autoRespONNewTicket())
             $autorespond=false;
 
+        //Don't send alerts to staff when the message is an auto reply
+        //  this is necessary to avoid possible loop (especially on new ticket)
+        if ($alertstaff && $message->isAutoReply())
+            $alertstaff = false;
+
         /***** See if we need to send some alerts ****/
         $ticket->onNewTicket($message, $autorespond, $alertstaff);
 
