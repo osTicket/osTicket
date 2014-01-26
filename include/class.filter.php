@@ -866,6 +866,7 @@ class TicketFilter {
         $bounce_headers = array(
             'From'          => array('<MAILER-DAEMON@MAILER-DAEMON>', 'MAILER-DAEMON', '<>'),
             'Subject'       => array('DELIVERY FAILURE', 'DELIVERY STATUS', 'UNDELIVERABLE:'),
+            'Return-Path'   => '<>',
         );
 
         foreach ($bounce_headers as $header => $find) {

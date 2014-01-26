@@ -377,7 +377,25 @@ Class ThreadEntry {
     }
 
     function isAutoResponse() {
-        return $this->getEmailHeader()?TicketFilter::isAutoResponse($this->getEmailHeader()):false;
+        static $autoresp;
+
+        if (!isset($autoresp))
+            $autoresp = $this->getEmailHeader() ? TicketFilter::isAutoResponse($this->getEmailHeader()) : false;
+
+        return $autoresp;
+    }
+
+    function isAutoBounce() {
+        static $autobounce;
+
+        if (!isset($autobounce))
+            $autobounce = $this->getEmailHeader() ? TicketFilter::isAutoBounce($this->getEmailHeader()) : false;
+
+        return $autobounce;
+    }
+
+    function isAutoReply() {
+        return ($this->isAutoResponse() || $this->isAutoBounce());
     }
 
     //Web uploads - caller is expected to format, validate and set any errors.
