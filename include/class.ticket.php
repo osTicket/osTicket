@@ -1371,7 +1371,7 @@ class Ticket {
         if(!$alerts) return $message; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $message->isAutoResponse())
+        if ($autorespond && $message->isAutoReply())
             $autorespond=false;
 
         $this->onMessage($autorespond, $message); //must be called b4 sending alerts to staff.
@@ -2151,15 +2151,8 @@ class Ticket {
 
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
-        if ($autorespond && $message && $message->isAutoResponse())
+        if ($autorespond && $message && $message->isAutoReply())
             $autorespond=false;
-
-        //Don't auto respond to mailer daemons.
-        if( $autorespond &&
-            (strpos(strtolower($vars['email']),'mailer-daemon@')!==false
-             || strpos(strtolower($vars['email']),'postmaster@')!==false)) {
-            $autorespond=false;
-        }
 
         //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
