@@ -518,6 +518,11 @@ class MailFetcher {
         if(!($mailinfo = $this->getHeaderInfo($mid)))
             return false;
 
+        // TODO: If the content-type of the message is 'message/rfc822',
+        // then this is a message with the forwarded message as the
+        // attachment. Download the body and pass it along to the mail
+        // parsing engine.
+
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...

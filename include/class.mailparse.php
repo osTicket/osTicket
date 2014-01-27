@@ -56,7 +56,18 @@ class Mail_Parse {
         $this->splitBodyHeader();
         $this->struct=Mail_mimeDecode::decode($params);
 
-        return (PEAR::isError($this->struct) || !(count($this->struct->headers)>1))?FALSE:TRUE;
+        if (PEAR::isError($this->struct))
+            return false;
+
+        // Handle wrapped emails when forwarded
+        if ($this->struct && $this->struct->parts) {
+            $outer = $this->struct;
+            $ctype = $outer->ctype_primary.'/'.$outer->ctype_secondary;
+            if (strcasecmp($ctype, 'message/rfc822') === 0)
+                $this->struct = $outer->parts[0];
+        }
+
+        return (count($this->struct->headers) > 1);
     }
 
     function splitBodyHeader() {
