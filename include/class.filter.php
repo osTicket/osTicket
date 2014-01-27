@@ -242,12 +242,14 @@ class Filter {
 
         $how = array(
             # how => array(function, null or === this, null or !== this)
-            'equal'     => array('strcmp', 0),
-            'not_equal' => array('strcmp', null, 0),
-            'contains'  => array('strpos', null, false),
-            'dn_contain'=> array('strpos', false),
-            'starts'    => array('strpos', 0),
-            'ends'      => array('endsWith', true)
+            'equal'     => array('strcasecmp', 0),
+            'not_equal' => array('strcasecmp', null, 0),
+            'contains'  => array('stripos', null, false),
+            'dn_contain'=> array('stripos', false),
+            'starts'    => array('stripos', 0),
+            'ends'      => array('iendsWith', true),
+            'match'     => array('pregMatchB', 1),
+            'not_match' => array('pregMatchB', null, 0),
         );
 
         $match = false;
@@ -260,12 +262,8 @@ class Filter {
         foreach ($this->getRules() as $rule) {
             if (!isset($how[$rule['h']])) continue;
             list($func, $pos, $neg) = $how[$rule['h']];
-            # TODO: convert $what and $rule['v'] to mb_strtoupper and do
-            #       case-sensitive, binary-safe comparisons. Would be really
-            #       nice to do $rule['v'] on the database side for
-            #       performance -- but ::getFlatRules() is a blocker
-            $result = call_user_func($func, strtoupper($what[$rule['w']]),
-                strtoupper($rule['v']));
+
+            $result = call_user_func($func, $what[$rule['w']], $rule['v']);
             if (($pos === null && $result !== $neg) or ($result === $pos)) {
                 # Match.
                 $match = true;
@@ -341,7 +339,9 @@ class Filter {
             'contains'=>    'Contains',
             'dn_contain'=>  'Does Not Contain',
             'starts'=>      'Starts With',
-            'ends'=>        'Ends With'
+            'ends'=>        'Ends With',
+            'match'=>       'Matches Regex',
+            'not_match'=>   'Does Not Match Regex',
         );
     }
 
@@ -404,6 +404,14 @@ class Filter {
         $rules=array();
         for($i=1; $i<=25; $i++) { //Expecting no more than 25 rules...
             if($vars["rule_w$i"] || $vars["rule_h$i"]) {
+                // Check for REGEX compile errors
+                if (in_array($vars["rule_h$i"], array('match','not_match'))) {
+                    $wrapped = "/".$vars["rule_v$i"]."/iu";
+                    if (false === @preg_match($vars["rule_v$i"], ' ')
+                            && (false !== @preg_match($wrapped, ' ')))
+                        $vars["rule_v$i"] = $wrapped;
+                }
+
                 if(!$vars["rule_w$i"] || !in_array($vars["rule_w$i"],$matches))
                     $errors["rule_$i"]='Invalid match selection';
                 elseif(!$vars["rule_h$i"] || !in_array($vars["rule_h$i"],$types))
@@ -414,6 +422,12 @@ class Filter {
                         && $vars["rule_h$i"]=='equal'
                         && !Validator::is_email($vars["rule_v$i"]))
                     $errors["rule_$i"]='Valid email required for the match type';
+                elseif (in_array($vars["rule_h$i"], array('match','not_match'))
+                        && (false === @preg_match($vars["rule_v$i"], ' ')))
+                    $errors["rule_$i"] = sprintf('Regex compile error: (#%s)',
+                        preg_last_error());
+
+
                 else //for everything-else...we assume it's valid.
                     $rules[]=array('what'=>$vars["rule_w$i"],
                         'how'=>$vars["rule_h$i"],'val'=>$vars["rule_v$i"]);
@@ -902,13 +916,17 @@ class TicketFilter {
  * Returns TRUE if the haystack ends with needle and FALSE otherwise.
  * Thanks, http://stackoverflow.com/a/834355
  */
-function endsWith($haystack, $needle)
+function iendsWith($haystack, $needle)
 {
-    $length = strlen($needle);
+    $length = mb_strlen($needle);
     if ($length == 0) {
         return true;
     }
 
-    return (substr($haystack, -$length) === $needle);
+    return (strcasecmp(mb_substr($haystack, -$length), $needle) === 0);
+}
+
+function pregMatchB($subject, $pattern) {
+    return preg_match($pattern, $subject);
 }
 ?>
