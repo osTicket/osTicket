@@ -22,6 +22,24 @@ ALTER TABLE `%TABLE_PREFIX%filter_rule`
 ALTER TABLE `%TABLE_PREFIX%ticket_collaborator`
     CHANGE `isactive` `isactive` tinyint(1) NOT NULL DEFAULT '1';
 
+-- There is no `subject` available in the filter::apply method for anything but email
+UPDATE `%TABLE_PREFIX%filter_rule`
+    SET `what` = CONCAT('field.', (
+        SELECT field.`id` FROM `%TABLE_PREFIX%form_field` field
+        JOIN `%TABLE_PREFIX%form` form ON (field.form_id = form.id)
+        WHERE field.`name` = 'subject' AND form.`type` = 'T'
+        ))
+    WHERE `what` = 'subject';
+
+-- There is no `body` available in the filter::apply method for anything but emails
+UPDATE `%TABLE_PREFIX%filter_rule`
+    SET `what` = CONCAT('field.', (
+        SELECT field.`id` FROM `%TABLE_PREFIX%form_field` field
+        JOIN `%TABLE_PREFIX%form` form ON (field.form_id = form.id)
+        WHERE field.`name` = 'message' AND form.`type` = 'T'
+        ))
+    WHERE `what` = 'body';
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = 'f5692e24c7afba7ab6168dde0b3bb3c8'

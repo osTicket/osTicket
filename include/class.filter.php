@@ -19,11 +19,11 @@ class Filter {
     var $ht;
 
     static $match_types = array(
-        'Basic Fields' => array(
+        'User Information' => array(
             'name'      => 'Name',
             'email'     => 'Email',
-            'subject'   => 'Subject',
-            'body'      => 'Body/Text',
+        ),
+        'Email Meta-Data' => array(
             'reply-to'  => 'Reply-To Email',
             'reply-to-name' => 'Reply-To Name',
         ),
