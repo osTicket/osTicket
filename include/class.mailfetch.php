@@ -522,6 +522,18 @@ class MailFetcher {
         // then this is a message with the forwarded message as the
         // attachment. Download the body and pass it along to the mail
         // parsing engine.
+        $info = Mail_Parse::splitHeaders($mailinfo['header']);
+        if (strtolower($info['Content-Type']) == 'message/rfc822') {
+            if ($wrapped = $this->getPart($mid, 'message/rfc822')) {
+                require_once INCLUDE_DIR.'api.tickets.php';
+                // Simulate piping the contents into the system
+                $api = new TicketApiController();
+                $parser = new EmailDataParser();
+                if ($data = $parser->parse($wrapped))
+                    return $api->processEmail($data);
+            }
+            // If any of this fails, create the ticket as usual
+        }
 
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {

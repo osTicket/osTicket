@@ -141,9 +141,10 @@ class TicketApiController extends ApiController {
         return $ticket;
     }
 
-    function processEmail() {
+    function processEmail($data=false) {
 
-        $data = $this->getEmailRequest();
+        if (!$data)
+            $data = $this->getEmailRequest();
 
         if (($thread = ThreadEntry::lookupByEmailHeaders($data))
                 && $thread->postEmail($data)) {
