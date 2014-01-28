@@ -864,22 +864,26 @@ class TicketFilter {
             $headers = Mail_Parse::splitHeaders($headers);
 
         $bounce_headers = array(
-            'From'          => array('<MAILER-DAEMON@MAILER-DAEMON>', 'MAILER-DAEMON', '<>'),
-            'Subject'       => array('DELIVERY FAILURE', 'DELIVERY STATUS', 'UNDELIVERABLE:'),
-            'Return-Path'   => '<>',
+            'From'  => array('stripos',
+                        array('MAILER-DAEMON', '<>'), null, false),
+            'Subject'   => array('stripos',
+                            array('DELIVERY FAILURE', 'DELIVERY STATUS', 'UNDELIVERABLE:'), 0),
+            'Return-Path'   => array('strcmp', array('<>'), 0),
+            'Content-Type'  => array('stripos', array('report-type=delivery-status'), null, false),
         );
 
         foreach ($bounce_headers as $header => $find) {
             if(!isset($headers[$header])) continue;
 
-            $value = strtoupper($headers[$header]);
+            list($func, $searches, $pos, $neg) = $find;
 
-            if (is_array($find)) {
-                foreach ($find as $f)
-                    if (strpos($value, $f) === 0)
-                        return true;
-            } elseif (strpos($value, $find) === 0) {
-                return true;
+            if(!($value = $headers[$header]) || !is_array($searches))
+                continue;
+
+            foreach ($searches as $f) {
+                $result = call_user_func($func, $value, $f);
+                if (($pos === null && $result !== $neg) or ($result === $pos))
+                    return true;
             }
         }
 
