@@ -56,7 +56,18 @@ class Mail_Parse {
         $this->splitBodyHeader();
         $this->struct=Mail_mimeDecode::decode($params);
 
-        return (PEAR::isError($this->struct) || !(count($this->struct->headers)>1))?FALSE:TRUE;
+        if (PEAR::isError($this->struct))
+            return false;
+
+        // Handle wrapped emails when forwarded
+        if ($this->struct && $this->struct->parts) {
+            $outer = $this->struct;
+            $ctype = $outer->ctype_primary.'/'.$outer->ctype_secondary;
+            if (strcasecmp($ctype, 'message/rfc822') === 0)
+                $this->struct = $outer->parts[0];
+        }
+
+        return (count($this->struct->headers) > 1);
     }
 
     function splitBodyHeader() {
@@ -235,7 +246,10 @@ class Mail_Parse {
 
         if($struct && !$struct->parts) {
             $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
-            if($ctype && strcasecmp($ctype,$ctypepart)==0) {
+            if ($struct->disposition
+                    && (strcasecmp($struct->disposition, 'inline') !== 0))
+                return '';
+            if ($ctype && strcasecmp($ctype,$ctypepart)==0) {
                 $content = $struct->body;
                 //Encode to desired encoding - ONLY if charset is known??
                 if (isset($struct->ctype_parameters['charset']))
@@ -249,8 +263,7 @@ class Mail_Parse {
         $data='';
         if($struct && $struct->parts && $recurse) {
             foreach($struct->parts as $i=>$part) {
-                if($part && !$part->disposition
-                        && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
+                if($part && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
                     $data.=$text;
             }
         }
