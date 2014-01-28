@@ -276,7 +276,7 @@ CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `filter_id` int(10) unsigned NOT NULL default '0',
   `what` varchar(32) NOT NULL,
-  `how` enum('equal','not_equal','contains','dn_contain','starts','ends') NOT NULL,
+  `how` enum('equal','not_equal','contains','dn_contain','starts','ends','match','not_match') NOT NULL,
   `val` varchar(255) NOT NULL,
   `isactive` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `notes` tinytext NOT NULL,
@@ -572,10 +572,11 @@ CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
 CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
+  `id` int(11) unsigned NOT NULL auto_increment,
   `thread_id` int(11) unsigned NOT NULL,
   `email_mid` varchar(255) NOT NULL,
   `headers` text,
-  PRIMARY KEY (`thread_id`),
+  PRIMARY KEY (`id`),
   KEY `email_mid` (`email_mid`)
 ) DEFAULT CHARSET=utf8;
 
@@ -631,7 +632,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
 
 CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `isactive` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `isactive` tinyint(1) NOT NULL DEFAULT '1',
   `ticket_id` int(11) unsigned NOT NULL DEFAULT '0',
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
   -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
