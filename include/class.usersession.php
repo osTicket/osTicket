@@ -117,6 +117,7 @@ class ClientSession extends EndUser {
 
     function __construct($user) {
         parent::__construct($user);
+        // XXX: Change the key to user-id
         $this->session= new UserSession($user->getUserName());
     }
 
