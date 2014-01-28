@@ -117,7 +117,7 @@ class ClientSession extends Client {
 
     function ClientSession($email, $id){
         parent::Client($id, $email);
-        $this->session= new UserSession($email);
+        $this->session= new UserSession(strtolower($email));
     }
 
     function isValid(){
