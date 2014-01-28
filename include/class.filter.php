@@ -818,7 +818,7 @@ class TicketFilter {
      *    http://msdn.microsoft.com/en-us/library/ee219609(v=exchg.80).aspx
      */
     /* static */
-    function isAutoResponse($headers) {
+    function isAutoReply($headers) {
 
         if($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
@@ -852,13 +852,13 @@ class TicketFilter {
         }
 
         # Bounces also counts as auto-responses.
-        if(self::isAutoBounce($headers))
+        if(self::isBounce($headers))
             return true;
 
         return false;
     }
 
-    function isAutoBounce($headers) {
+    function isBounce($headers) {
 
         if($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);

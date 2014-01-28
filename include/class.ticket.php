@@ -783,7 +783,7 @@ class Ticket {
 
             $recipients=$sentlist=array();
             //Exclude the auto responding email just incase it's from staff member.
-            if ($message->isAutoResponse())
+            if ($message->isAutoReply())
                 $sentlist[] = $this->getEmail();
 
             //Alert admin??
@@ -1375,7 +1375,7 @@ class Ticket {
         if(!$alerts) return $message; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $message->isAutoReply())
+        if ($autorespond && $message->isBounceOrAutoReply())
             $autorespond=false;
 
         $this->onMessage($autorespond, $message); //must be called b4 sending alerts to staff.
@@ -2172,7 +2172,7 @@ class Ticket {
 
         //Don't send alerts to staff when the message is a bounce
         //  this is necessary to avoid possible loop (especially on new ticket)
-        if ($alertstaff && $message->isAutoBounce())
+        if ($alertstaff && $message->isBounce())
             $alertstaff = false;
 
         /***** See if we need to send some alerts ****/
