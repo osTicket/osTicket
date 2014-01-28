@@ -654,7 +654,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such ticket');
 
 
-        if(!($user = $ticket->getOwner()))
+        if(!($user = User::lookup($ticket->getOwnerId())))
             Http::response(404, 'Unknown user');
 
 
@@ -678,7 +678,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffAccess($thisstaff)
-                || ! ($user = $ticket->getOwner()))
+                || !($user = User::lookup($ticket->getOwnerId())))
             Http::response(404, 'No such ticket/user');
 
         $errors = array();
@@ -708,7 +708,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such ticket');
 
 
-        $user = $ticket->getOwner();
+        $user = User::lookup($ticket->getOwnerId());
 
         $info = array(
                 'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
