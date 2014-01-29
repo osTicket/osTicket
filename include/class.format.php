@@ -313,23 +313,25 @@ class Format {
         $text = preg_replace_callback(':^[^<]+|>[^<]+:',
             function($match) use ($token) {
                 // Scan for things that look like URLs
-                $links = preg_replace_callback(
-                    '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([-+~%/.\w]+)(?:[-?#+=&;%@.\w]*)?)`',
+                return preg_replace_callback(
+                    '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([-+~%/.\w]+)(?:[-?#+=&;%@.\w]*)?)'
+                   .'|(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})`',
                     function ($match) use ($token) {
-                        if (in_array(substr($match[1], -1),
-                                array('.','?','-',':',';'))) {
-                            $match[7] = substr($match[1], -1);
-                            $match[1] = substr($match[1], 0, strlen($match[1])-1);
+                        if ($match[1]) {
+                            if (in_array(substr($match[1], -1),
+                                    array('.','?','-',':',';'))) {
+                                $match[9] = substr($match[1], -1);
+                                $match[1] = substr($match[1], 0, strlen($match[1])-1);
+                            }
+                            return '<a href="l.php?url='.urlencode($match[1])
+                                .sprintf('&auth=%s" target="_blank">', $token)
+                                .$match[1].'</a>'.$match[9];
+                        } elseif ($match[6]) {
+                            return sprintf('<a href="mailto:%1$s" target="_blank">%1$s</a>',
+                                $match[6]);
                         }
-                        return '<a href="l.php?url='.urlencode($match[1])
-                            .sprintf('&auth=%s" target="_blank">', $token)
-                            .$match[1].'</a>'.$match[7];
                     },
                     $match[0]);
-                // Now change email addresses to links with mailto: scheme
-                return preg_replace(
-                    '/(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})/',
-                    '<a href="mailto:\\1" target="_blank">\\1</a>', $links);
             },
             $text);
 
@@ -341,6 +343,7 @@ class Format {
                     'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
                 if ($e == 'a' && $a) {
                     if (isset($a['href'])
+                            && strpos($a['href'], 'mailto:') !== 0
                             && strpos($a['href'], 'l.php?') === false)
                         $a['href'] = 'l.php?url='.urlencode($a['href'])
                             .'&amp;auth='.$token;
