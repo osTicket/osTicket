@@ -904,6 +904,10 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
             $recipients=$sentlist=array();
+            //Exclude the auto responding email just incase it's from staff member.
+            if ($message->isAutoReply())
+                $sentlist[] = $this->getEmail();
+
             //Alert admin??
             if($cfg->alertAdminONNewTicket()) {
                 $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
@@ -1543,7 +1547,7 @@ class Ticket {
         if(!$alerts) return $message; //Our work is done...
 
         $autorespond = true;
-        if ($autorespond && $message->isAutoResponse())
+        if ($autorespond && $message->isBounceOrAutoReply())
             $autorespond=false;
 
         $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
@@ -2314,15 +2318,8 @@ class Ticket {
 
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
-        if ($autorespond && $message && $message->isAutoResponse())
-            $autorespond=false;
-
-        //Don't auto respond to mailer daemons.
-        if( $autorespond &&
-            (strpos(strtolower($vars['email']),'mailer-daemon@')!==false
-             || strpos(strtolower($vars['email']),'postmaster@')!==false)) {
-            $autorespond=false;
-        }
+        if ($autorespond && $message->isAutoReply())
+            $autorespond = false;
 
         //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
@@ -2335,6 +2332,11 @@ class Ticket {
         // XXX: Dept. setting doesn't affect canned responses.
         if($autorespond && $dept && !$dept->autoRespONNewTicket())
             $autorespond=false;
+
+        //Don't send alerts to staff when the message is a bounce
+        //  this is necessary to avoid possible loop (especially on new ticket)
+        if ($alertstaff && $message->isBounce())
+            $alertstaff = false;
 
         /***** See if we need to send some alerts ****/
         $ticket->onNewTicket($message, $autorespond, $alertstaff);

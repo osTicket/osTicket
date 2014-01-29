@@ -641,12 +641,6 @@ class MailFetcher {
                 return true;
             }
 
-            # check if it's a bounce!
-            if($vars['header'] && TicketFilter::isAutoBounce($vars['header'])) {
-                $ost->logWarning('Bounced email', $vars['message'], false);
-                return true;
-            }
-
             //TODO: Log error..
             return null;
         }

@@ -107,7 +107,7 @@ class Mail_Parse {
         foreach ($headers as $hdr) {
             list($name, $val) = explode(": ", $hdr, 2);
             # Create list of values if header is specified more than once
-            if ($array[$name] && $as_array) {
+            if (isset($array[$name]) && $as_array) {
                 if (is_array($array[$name])) $array[$name][] = $val;
                 else $array[$name] = array($array[$name], $val);
             } else {
