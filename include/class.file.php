@@ -322,7 +322,7 @@ class AttachmentFile {
         }
 
         // Check and see if the file is already on record
-        $sql = 'SELECT id, key FROM '.FILE_TABLE
+        $sql = 'SELECT id, `key` FROM '.FILE_TABLE
             .' WHERE signature='.db_input($file['signature'])
             .' AND size='.db_input($file['size']);
 
