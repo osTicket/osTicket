@@ -322,14 +322,16 @@ class AttachmentFile {
         }
 
         // Check and see if the file is already on record
-        $sql = 'SELECT id FROM '.FILE_TABLE
+        $sql = 'SELECT id, key FROM '.FILE_TABLE
             .' WHERE signature='.db_input($file['signature'])
             .' AND size='.db_input($file['size']);
 
         // If the record exists in the database already, a file with the
         // same hash and size is already on file -- just return its ID
-        if ($id = db_result(db_query($sql)))
+        if (list($id, $key) = db_fetch_row(db_query($sql))) {
+            $file['key'] = $key;
             return $id;
+        }
 
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input(strtolower($file['type']))
