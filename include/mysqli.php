@@ -125,7 +125,13 @@ function db_create_database($database, $charset='utf8',
 function db_query($query, $logError=true) {
     global $ost, $__db;
 
-    $res = $__db->query($query);
+    $tries = 3;
+    do {
+        $res = $__db->query($query);
+        // Retry the query due to deadlock error (#1213)
+        // TODO: Consider retry on #1205 (lock wait timeout exceeded)
+        // TODO: Log warning
+    } while (!$res && --$tries && $__db->errno == 1213);
 
     if(!$res && $logError && $ost) { //error reporting
         $msg='['.$query.']'."\n\n".db_error();
