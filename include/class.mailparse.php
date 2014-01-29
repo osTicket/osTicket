@@ -351,21 +351,23 @@ class Mail_Parse {
     }
 
     function parsePriority($header=null){
-
-        $priority=0;
-        if($header && ($begin=strpos($header,'X-Priority:'))!==false){
-            $begin+=strlen('X-Priority:');
-            $xpriority=preg_replace("/[^0-9]/", "",substr($header, $begin, strpos($header,"\n",$begin) - $begin));
-            if(!is_numeric($xpriority))
-                $priority=0;
-            elseif($xpriority>4)
-                $priority=1;
-            elseif($xpriority>=3)
-                $priority=2;
-            elseif($xpriority>0)
-                $priority=3;
-        }
-        return $priority;
+		if (! $header)
+			return 0;
+			// Get the number of characters before the start of the header we are after.
+		if (! $start_of_p_header = strpos ( $header, 'X-Priority' ))
+			return 0;
+			
+			// From start of the priority header, capture a single char 12 characters from left,
+			// "X-Priority: + space" is 12 characters.
+			// compare as integer (+0 is faster than intVal)
+		$x = substr ( $header, ($start_of_p_header + 12), 1 ) + 0;
+		if ($x > 4)
+			return 1;
+		if ($x > 2)
+			return 2;
+		if ($x > 0)
+			return 3;
+		return 0;
     }
 
     function parseAddressList($address){
