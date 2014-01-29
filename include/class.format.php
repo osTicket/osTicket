@@ -314,10 +314,10 @@ class Format {
             function($match) use ($token) {
                 // Scan for things that look like URLs
                 $links = preg_replace_callback(
-                    '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([a-zA-Z0-9_-]+(\.|/|$))+\S*)`',
+                    '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([-+~%/.\w]+)(?:[-?#+=&;%@.\w]*)?)`',
                     function ($match) use ($token) {
                         if (in_array(substr($match[1], -1),
-                                array(',','.','?','!',':',';'))) {
+                                array('.','?','-',':',';'))) {
                             $match[7] = substr($match[1], -1);
                             $match[1] = substr($match[1], 0, strlen($match[1])-1);
                         }
