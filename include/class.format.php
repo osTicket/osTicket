@@ -318,10 +318,13 @@ class Format {
                    .'|(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})`',
                     function ($match) use ($token) {
                         if ($match[1]) {
-                            if (in_array(substr($match[1], -1),
+                            while (in_array(substr($match[1], -1),
                                     array('.','?','-',':',';'))) {
-                                $match[9] = substr($match[1], -1);
+                                $match[9] = substr($match[1], -1) . $match[9];
                                 $match[1] = substr($match[1], 0, strlen($match[1])-1);
+                            }
+                            if (strpos($match[2], '//') === false) {
+                                $match[1] = 'http://' . $match[1];
                             }
                             return '<a href="l.php?url='.urlencode($match[1])
                                 .sprintf('&auth=%s" target="_blank">', $token)
