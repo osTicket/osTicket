@@ -126,8 +126,9 @@ $(function() {
             // TODO: Rewrite the entire <img> tag. Otherwise the @width
             // and @height attributes will begin to accumulate
             before = img.outerHTML;
-            $(img).attr('width', img.clientWidth)
-                  .attr('height',img.clientHeight);
+            if (img.clientWidth && img.clientHeight)
+                $(img).attr('width', img.clientWidth)
+                      .attr('height',img.clientHeight);
             html = html.replace(before, img.outerHTML);
         });
         // Drop <inline> elements if found in the text (shady mojo happening
