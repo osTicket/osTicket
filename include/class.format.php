@@ -30,10 +30,6 @@ class Format {
         return round(($bytes/1048576),1).' mb';
     }
 
-    function file_name($filename) {
-        return preg_replace('/\s+/', '_', $filename);
-    }
-
     /* encode text into desired encoding - taking into accout charset when available. */
     function encode($text, $charset=null, $encoding='utf-8') {
 
@@ -385,10 +381,6 @@ class Format {
         return preg_replace("/\n{3,}/", "\n\n", $string);
     }
 
-
-    function linebreaks($string) {
-        return urldecode(ereg_replace("%0D", " ", urlencode($string)));
-    }
 
     function viewableImages($html, $script='image.php') {
         return preg_replace_callback('/"cid:([\\w.-]{32})"/',
