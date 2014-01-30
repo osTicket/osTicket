@@ -149,7 +149,7 @@ class Format {
 
         # See if advanced html2text is available (requires xml extension)
         if (function_exists('convert_html_to_text')
-                && extension_loaded('xml'))
+                && extension_loaded('dom'))
             return convert_html_to_text($html, $width);
 
         # Try simple html2text  - insert line breaks after new line tags.

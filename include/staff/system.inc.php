@@ -31,7 +31,11 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
             <tr><td><i class="icon icon-<?php
                     echo extension_loaded('xml')?'check':'warning-sign'; ?>"></i></td>
                 <td>xml</td>
-                <td>Used for HTML email processing and XML API</td></tr>
+                <td>XML API</td></tr>
+            <tr><td><i class="icon icon-<?php
+                    echo extension_loaded('dom')?'check':'warning-sign'; ?>"></i></td>
+                <td>xml-dom</td>
+                <td>Used for HTML email processing</td></tr>
             <tr><td><i class="icon icon-<?php
                     echo extension_loaded('json')?'check':'warning-sign'; ?>"></i></td>
                 <td>json</td>
