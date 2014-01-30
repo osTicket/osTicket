@@ -871,12 +871,17 @@ Class ThreadEntry {
                 && $cfg->stripQuotedReply()
                 && ($tag=$cfg->getReplySeparator())
                 && strpos($vars['body'], $tag))
+            // TODO: Move this to the ThreadBody class
             if((list($msg) = explode($tag, $vars['body'], 2)) && trim($msg))
                 $vars['body'] = $msg;
 
-        if (!$cfg->isHtmlThreadEnabled()) {
+        if ($vars['body'] instanceof ThreadBody) {
+            $vars['body'] = $vars['body']->convertTo('html');
+        }
+        elseif (!$cfg->isHtmlThreadEnabled()) {
             // Data in the database is assumed to be HTML, change special
             // plain text XML characters
+            // XXX: Why isn't `title` always scrubbed?
             $vars['title'] = Format::htmlchars($vars['title']);
             $vars['body'] = sprintf('<pre>%s</pre>',
                 Format::htmlchars($vars['body']));
@@ -1121,6 +1126,51 @@ class Note extends ThreadEntry {
                 && ($n = new Note($id, $tid))
                 && $n->getId()==$id
                 )?$n:null;
+    }
+}
+
+class ThreadBody /* extends SplString */ {
+
+    private static $types = array('text', 'html');
+
+    var $body;
+    var $type;
+
+    function __construct($body, $type='text') {
+        $type = strtolower($type);
+        if (!in_array($type, static::$types))
+            throw new Exception($type.': Unsupported ThreadBody type');
+        $this->body = $text;
+        $this->type = $type;
+    }
+
+    function convertTo($type) {
+        if ($type === $this->type)
+            return $this;
+
+        $conv = $this->type . ':' . strtolower($type);
+        switch ($conv) {
+        case 'text:html':
+            return new ThreadBody(sprintf('<pre>%s</pre>',
+                Format::htmlchars($this->body)), $type);
+        case 'html:text':
+            return new ThreadBody(Format::html2text($this->body), $type);
+        }
+    }
+
+    function __toString() {
+        return $this->body;
+    }
+}
+
+class TextThreadBody extends ThreadBody {
+    function __construct($body) {
+        parent::__construct($body, 'text');
+    }
+}
+class HtmlThreadBody extends ThreadBody {
+    function __construct($body) {
+        parent::__contruct($body, 'html');
     }
 }
 ?>
