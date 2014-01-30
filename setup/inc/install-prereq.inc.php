@@ -24,7 +24,8 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <ul class="progress">
                 <li class="<?php echo extension_loaded('gd')?'yes':'no'; ?>">Gdlib extension</li>
                 <li class="<?php echo extension_loaded('imap')?'yes':'no'; ?>">PHP IMAP extension. <em>Required for mail fetching</em></li>
-                <li class="<?php echo extension_loaded('xml')?'yes':'no'; ?>">PHP XML extension (for HTML email processing, and XML API)</li>
+                <li class="<?php echo extension_loaded('xml') ?'yes':'no'; ?>">PHP XML extension (for XML API)</li>
+                <li class="<?php echo extension_loaded('dom') ?'yes':'no'; ?>">PHP XML-DOM extension (for HTML email processing)</li>
                 <li class="<?php echo extension_loaded('json')?'yes':'no'; ?>">PHP JSON extension (faster performance)</li>
                 <li class="<?php echo extension_loaded('gettext')?'yes':'no'; ?>">Gettext is used for translations (faster performance)</li>
                 <li class="<?php echo extension_loaded('mbstring')?'yes':'no'; ?>">Mbstring is <b>strongly</b> recommended for all installations</li>
