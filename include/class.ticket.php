@@ -1752,11 +1752,19 @@ class Ticket {
     function logNote($title, $note, $poster='SYSTEM', $alert=true) {
 
         $errors = array();
+        //Unless specified otherwise, assume HTML
+        if ($note && is_string($note))
+            $note = new HtmlThreadBody($note);
+
         return $this->postNote(
-                array('title' => $title, 'note' => $note),
+                array(
+                    'title' => $title,
+                    'note' => $note,
+                ),
                 $errors,
                 $poster,
-                $alert);
+                $alert
+        );
     }
 
     function postNote($vars, &$errors, $poster, $alert=true) {
@@ -2164,7 +2172,7 @@ class Ticket {
 
         $id=0;
         $fields=array();
-        $fields['message']  = array('type'=>'text',     'required'=>1, 'error'=>'Message required');
+        $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>'Message required');
         switch (strtolower($origin)) {
             case 'web':
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Select help topic');

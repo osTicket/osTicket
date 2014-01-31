@@ -865,23 +865,17 @@ Class ThreadEntry {
         if(!$vars['ticketId'] || !$vars['type'] || !in_array($vars['type'], array('M','R','N')))
             return false;
 
-        //Strip quoted reply...on emailed  messages
-        if($vars['origin']
-                && !strcasecmp($vars['origin'], 'Email')
-                && $cfg->stripQuotedReply()
-                && ($tag=$cfg->getReplySeparator())
-                && strpos($vars['body'], $tag))
-            if((list($msg) = explode($tag, $vars['body'], 2)) && trim($msg))
-                $vars['body'] = $msg;
 
-        if (!$cfg->isHtmlThreadEnabled()) {
-            // Data in the database is assumed to be HTML, change special
-            // plain text XML characters
-            $vars['title'] = Format::htmlchars($vars['title']);
-            $vars['body'] = sprintf('<pre>%s</pre>',
-                Format::htmlchars($vars['body']));
+        if (!$vars['body'] instanceof ThreadBody) {
+            if ($cfg->isHtmlThreadEnabled())
+                $vars['body'] = new HtmlThreadBody($vars['body']);
+            else
+                $vars['body'] = new TextThreadBody($vars['body']);
         }
-        $vars['body'] = Format::sanitize($vars['body']);
+
+        if (!($body = Format::sanitize(
+                        (string) $vars['body']->convertTo('html'))))
+            $body = '-'; //Special tag used to signify empty message as stored.
 
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
@@ -899,7 +893,7 @@ Class ThreadEntry {
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
             // inline attachments are saved and updated in the database)
-            $sql.=' ,body='.db_input($vars['body']);
+            $sql.=' ,body='.db_input($body);
 
         if(isset($vars['pid']))
             $sql.=' ,pid='.db_input($vars['pid']);
@@ -936,12 +930,12 @@ Class ThreadEntry {
                 // content-id will be discarded, only the unique hash-code
                 // will be available to retrieve the image later
                 if ($a['cid'] && $a['key']) {
-                    $vars['body'] = str_replace('src="cid:'.$a['cid'].'"',
-                        'src="cid:'.$a['key'].'"', $vars['body']);
+                    $body = str_replace('src="cid:'.$a['cid'].'"',
+                        'src="cid:'.$a['key'].'"', $body);
                 }
             }
             unset($a);
-            $sql = 'UPDATE '.TICKET_THREAD_TABLE.' SET body='.db_input($vars['body'])
+            $sql = 'UPDATE '.TICKET_THREAD_TABLE.' SET body='.db_input($body)
                 .' WHERE `id`='.db_input($entry->getId());
             if (!db_query($sql) || !db_affected_rows())
                 return false;
@@ -954,7 +948,7 @@ Class ThreadEntry {
         $entry->saveEmailInfo($vars);
 
         // Inline images (attached to the draft)
-        $entry->saveAttachments(Draft::getAttachmentIds($vars['body']));
+        $entry->saveAttachments(Draft::getAttachmentIds($body));
 
         return $entry;
     }
@@ -1121,6 +1115,63 @@ class Note extends ThreadEntry {
                 && ($n = new Note($id, $tid))
                 && $n->getId()==$id
                 )?$n:null;
+    }
+}
+
+class ThreadBody /* extends SplString */ {
+
+    static $types = array('text', 'html');
+
+    var $body;
+    var $type;
+
+    function __construct($body, $type='text') {
+        $type = strtolower($type);
+        if (!in_array($type, static::$types))
+            throw new Exception($type.': Unsupported ThreadBody type');
+        $this->body = (string) $body;
+        $this->type = $type;
+    }
+
+    function convertTo($type) {
+        if ($type === $this->type)
+            return $this;
+
+        $conv = $this->type . ':' . strtolower($type);
+        switch ($conv) {
+        case 'text:html':
+            return new ThreadBody(sprintf('<pre>%s</pre>',
+                Format::htmlchars($this->body)), $type);
+        case 'html:text':
+            return new ThreadBody(Format::html2text((string) $this), $type);
+        }
+    }
+
+    function stripQuotedReply($tag) {
+
+        //Strip quoted reply...on emailed  messages
+        if (!$tag || strpos($this->body, $tag) === false)
+            return;
+
+        if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg))
+            $this->body = $msg;
+
+    }
+
+    function __toString() {
+        return $this->body;
+    }
+}
+
+class TextThreadBody extends ThreadBody {
+    function __construct($body) {
+        parent::__construct(Format::stripEmptyLines($body), 'text');
+    }
+}
+class HtmlThreadBody extends ThreadBody {
+    function __construct($body) {
+        $body = trim($body, " <>br/\t\n\r") ? Format::safe_html($body) : '';
+        parent::__construct($body, 'html');
     }
 }
 ?>

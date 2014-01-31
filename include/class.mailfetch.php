@@ -472,10 +472,8 @@ class MailFetcher {
             foreach ($struct->parameters as $p) {
                 if (strtolower($p->attribute) == 'report-type'
                         && $p->value == 'delivery-status') {
-                    return sprintf('<pre>%s</pre>',
-                        Format::htmlchars(
-                            $this->getPart($mid, 'text/plain', $this->charset, $struct, false, 1)
-                        ));
+                    return new TextThreadBody( $this->getPart(
+                                $mid, 'text/plain', $this->charset, $struct, false, 1));
                 }
             }
         }
@@ -501,27 +499,23 @@ class MailFetcher {
         global $cfg;
 
         if ($cfg->isHtmlThreadEnabled()) {
-            if ($body=$this->getPart($mid, 'text/html', $this->charset)) {
-                //Cleanup the html.
-                $body = (trim($body, " <>br/\t\n\r"))
-                    ? Format::safe_html($body)
-                    : '--';
-            }
-            elseif ($body=$this->getPart($mid, 'text/plain', $this->charset)) {
-                $body = trim($body)
-                    ? sprintf('<pre>%s</pre>',
-                        Format::htmlchars($body))
-                    : '--';
-            }
+            if ($html=$this->getPart($mid, 'text/html', $this->charset))
+                $body = new HtmlThreadBody($html);
+            elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
+                $body = new TextThreadBody($text);
         }
-        else {
-            if (!($body=$this->getPart($mid, 'text/plain', $this->charset))) {
-                if ($body=$this->getPart($mid, 'text/html', $this->charset)) {
-                    $body = Format::html2text(Format::safe_html($body), 100, false);
-                }
-            }
-            $body = trim($body) ? $body : '--';
-        }
+        elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
+            $body = new TextThreadBody($text);
+        elseif ($html=$this->getPart($mid, 'text/html', $this->charset))
+            $body = new TextThreadBody(
+                    Format::html2text(Format::safe_html($html),
+                        100, false));
+        else
+            $body = new TextThreadBody('');
+
+        if ($cfg->stripQuotedReply())
+            $body->stripQuotedReply($cfg->getReplySeparator());
+
         return $body;
     }
 
@@ -572,7 +566,7 @@ class MailFetcher {
             $vars['thread-type'] = 'N';
         }
         else {
-            $vars['message'] = Format::stripEmptyLines($this->getBody($mid));
+            $vars['message'] = $this->getBody($mid);
         }
 
 
