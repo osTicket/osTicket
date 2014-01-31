@@ -1131,7 +1131,7 @@ class Note extends ThreadEntry {
 
 class ThreadBody /* extends SplString */ {
 
-    private static $types = array('text', 'html');
+    static $types = array('text', 'html');
 
     var $body;
     var $type;
@@ -1140,7 +1140,7 @@ class ThreadBody /* extends SplString */ {
         $type = strtolower($type);
         if (!in_array($type, static::$types))
             throw new Exception($type.': Unsupported ThreadBody type');
-        $this->body = $text;
+        $this->body = (string) $body;
         $this->type = $type;
     }
 
@@ -1154,8 +1154,19 @@ class ThreadBody /* extends SplString */ {
             return new ThreadBody(sprintf('<pre>%s</pre>',
                 Format::htmlchars($this->body)), $type);
         case 'html:text':
-            return new ThreadBody(Format::html2text($this->body), $type);
+            return new ThreadBody(Format::html2text((string) $this), $type);
         }
+    }
+
+    function stripQuotedReply($tag) {
+
+        //Strip quoted reply...on emailed  messages
+        if (!$tag || strpos($this->body, $tag) === false)
+            return;
+
+        if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg))
+            $this->body = $msg;
+
     }
 
     function __toString() {
@@ -1165,12 +1176,13 @@ class ThreadBody /* extends SplString */ {
 
 class TextThreadBody extends ThreadBody {
     function __construct($body) {
-        parent::__construct($body, 'text');
+        parent::__construct(Format::stripEmptyLines($body), 'text');
     }
 }
 class HtmlThreadBody extends ThreadBody {
     function __construct($body) {
-        parent::__contruct($body, 'html');
+        $body = trim($body, " <>br/\t\n\r") ? Format::safe_html($body) : '';
+        parent::__construct($body, 'html');
     }
 }
 ?>
