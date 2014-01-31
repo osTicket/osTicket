@@ -113,18 +113,25 @@ class Mailer {
                 'Return-Path' => $this->getEmail()->getEmail(),
                );
 
-        //Set bulk/auto-response headers.
-        if($options && ($options['autoreply'] or $options['bulk'])) {
-            $headers+= array(
-                    'X-Autoreply' => 'yes',
-                    'X-Auto-Response-Suppress' => 'ALL, AutoReply',
-                    'Auto-Submitted' => 'auto-replied');
 
-            if($options['bulk'])
-                $headers+= array('Precedence' => 'bulk');
-            else
-                $headers+= array('Precedence' => 'auto_reply');
+        //Bulk.
+        if (isset($options['bulk']) && $options['bulk'])
+            $headers+= array('Precedence' => 'bulk');
+
+        //Auto-reply - mark as autoreply and supress all auto-replies
+        if (isset($options['autoreply']) && $options['autoreply']) {
+            $headers+= array(
+                    'Precedence' => 'auto_reply',
+                    'X-Autoreply' => 'yes',
+                    'X-Auto-Response-Suppress' => 'DR, RN, OOF, AutoReply',
+                    'Auto-Submitted' => 'auto-replied');
         }
+
+        //Notice (sort of automated - but we don't want auto-replies back
+        if (isset($options['notice']) && $options['notice'])
+            $headers+= array(
+                    'X-Auto-Response-Suppress' => 'OOF, AutoReply',
+                    'Auto-Submitted' => 'auto-generated');
 
         if ($options) {
             if (isset($options['inreplyto']) && $options['inreplyto'])
