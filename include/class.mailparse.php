@@ -229,27 +229,23 @@ class Mail_Parse {
         global $cfg;
 
         if ($cfg->isHtmlThreadEnabled()) {
-            if ($body=$this->getPart($this->struct,'text/html')) {
-                // Cleanup the html -- Balance html tags & neutralize unsafe tags.
-                $body = (trim($body, " <>br/\t\n\r"))
-                    ? Format::safe_html($body)
-                    : '--';
-            }
-            elseif ($body=$this->getPart($this->struct,'text/plain')) {
-                $body = trim($body)
-                    ? sprintf('<pre>%s</pre>',
-                        Format::htmlchars($body))
-                    : '--';
-            }
+            if ($html=$this->getPart($this->struct,'text/html'))
+                $body = new HtmlThreadBody($html);
+            elseif ($text=$this->getPart($this->struct,'text/plain'))
+                $body = new TextThreadBody($text);
         }
-        else {
-            if (!($body=$this->getPart($this->struct,'text/plain'))) {
-                if ($body=$this->getPart($this->struct,'text/html')) {
-                    $body = Format::html2text(Format::safe_html($body), 100, false);
-                }
-            }
-            $body = trim($body) ? $body : '--';
-        }
+        elseif ($text=$this->getPart($this->struct,'text/plain'))
+            $body = new TextThreadBody($text);
+        elseif ($html=$this->getPart($this->struct,'text/html'))
+            $body = new TextThreadBody(
+                    Format::html2text(Format::safe_html($html),
+                        100, false));
+        else
+            $body = new TextThreadBody('');
+
+        if ($cfg->stripQuotedReply())
+            $body->stripQuotedReply($cfg->getReplySeparator());
+
         return $body;
     }
 
@@ -481,7 +477,7 @@ class EmailDataParser {
         }
         else {
             // Typical email
-            $data['message'] = Format::stripEmptyLines($parser->getBody());
+            $data['message'] = $parser->getBody();
             $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
             $data['references'] = $parser->struct->headers['references'];
         }
