@@ -160,7 +160,7 @@ class Email {
     }
 
     function sendAlert($to, $subject, $message, $attachments=null, $options=array()) {
-        $options+= array('bulk' => true);
+        $options+= array('notice' => true);
         return $this->send($to, $subject, $message, $attachments, $options);
     }
 
