@@ -401,10 +401,8 @@ class ApiJsonDataParser extends JsonDataParser {
                 }
                 unset($info);
             }
-            if (is_array($value)) {
-                $value = $this->fixup($value);
-            }
         }
+        unset($value);
 
         return $current;
     }
