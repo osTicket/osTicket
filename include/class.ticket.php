@@ -1752,11 +1752,19 @@ class Ticket {
     function logNote($title, $note, $poster='SYSTEM', $alert=true) {
 
         $errors = array();
+        //Unless specified otherwise, assume HTML
+        if ($note && is_string($note))
+            $note = new HtmlThreadBody($note);
+
         return $this->postNote(
-                array('title' => $title, 'note' => $note),
+                array(
+                    'title' => $title,
+                    'note' => $note,
+                ),
                 $errors,
                 $poster,
-                $alert);
+                $alert
+        );
     }
 
     function postNote($vars, &$errors, $poster, $alert=true) {
