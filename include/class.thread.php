@@ -873,7 +873,9 @@ Class ThreadEntry {
                 $vars['body'] = new TextThreadBody($vars['body']);
         }
 
-        $body = Format::sanitize((string) $vars['body']->convertTo('html'));
+        if (!($body = Format::sanitize(
+                        (string) $vars['body']->convertTo('html'))))
+            $body = '-'; //Special tag used to signify empty message as stored.
 
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
