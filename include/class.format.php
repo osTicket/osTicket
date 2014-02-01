@@ -465,7 +465,7 @@ class Format {
             'F' => '%B',
             'm' => '%m',
             'M' => '%b',
-            
+
             'o' => '%G',
             'Y' => '%Y',
             'y' => '%y',
@@ -498,13 +498,16 @@ class Format {
     }
 
     function date($format, $gmtimestamp, $offset=0, $daylight=false){
+        static $locale_set = false;
+        if (!$locale_set)
+            $locale_set = Internationalization::setLocale();
 
         if(!$gmtimestamp || !is_numeric($gmtimestamp))
             return "";
 
         $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
 
-        return strftime(self::__date_fmt_to_strftime($format), 
+        return strftime(self::__date_fmt_to_strftime($format),
             $gmtimestamp + ($offset*3600));
     }
 
