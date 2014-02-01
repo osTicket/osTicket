@@ -255,6 +255,20 @@ class Internationalization {
 
         return $best_match_langcode;
     }
+
+    static function setLocale($code=false) {
+        global $thisstaff, $cfg;
+
+        if (!$code) {
+            if ($thisstaff)
+                $code = $thisstaff->getLanguage();
+            elseif ($cfg)
+                $code = $cfg->getSystemLanguage();
+        }
+        if ($code) {
+            setlocale(LC_TIME, $code);
+        }
+    }
 }
 
 class DataTemplate {

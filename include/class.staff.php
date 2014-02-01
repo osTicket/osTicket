@@ -274,8 +274,7 @@ class Staff extends AuthenticatedUser {
     }
 
     function getLanguage() {
-        static $cached = false;
-        if (!$cached) $cached = &$_SESSION['staff:lang'];
+        $cached = &$_SESSION['staff:lang'];
 
         if (!$cached) {
             $cached = $this->config->get('lang');

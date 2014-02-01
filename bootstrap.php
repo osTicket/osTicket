@@ -252,6 +252,8 @@ class Bootstrap {
         }
         if (extension_loaded('iconv'))
             iconv_set_encoding('internal_encoding', 'UTF-8');
+
+        Internationalization::setLocale();
     }
 
     function croak($message) {
