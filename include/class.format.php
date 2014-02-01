@@ -484,8 +484,6 @@ class Format {
 
             'r' => '%c',
             'U' => '%s',
-
-            '%' => '%%'
         );
         return preg_replace_callback(
             '`(?!<%)'.implode('|', array_keys($conv)).'`',
