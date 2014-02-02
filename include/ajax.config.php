@@ -31,9 +31,10 @@ class ConfigAjaxAPI extends AjaxController {
               'lang'            => $thisstaff->getLanguage(),
         );
         $config = $this->json_encode($config);
-        # Cacheable for 5 minutes
+        # Cacheable for 2 minutes
         Http::cacheable(md5($config), $cfg->lastModified(), 120);
         header('Content-Type: application/json; charset=UTF-8');
+
         return $config;
     }
 
@@ -51,6 +52,7 @@ class ConfigAjaxAPI extends AjaxController {
 
         $config = $this->json_encode($config);
         Http::cacheable(md5($config), $cfg->lastModified());
+        header('Content-Type: application/json; charset=UTF-8');
 
         return $config;
     }
