@@ -32,6 +32,11 @@ if ($.support.pjax) {
   })
 }
 </script>
+<?php
+if ($thisstaff && $thisstaff->getLanguage() != 'en_US') { ?>
+    <script type="text/javascript" src="ajax.php/i18n/<?php
+        echo $thisstaff->getLanguage(); ?>/redactor"></script>
+<?php } ?>
 </body>
 </html>
 <?php } # endif X_PJAX ?>

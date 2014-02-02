@@ -258,7 +258,11 @@ $(function() {
             options['plugins'].push('draft');
             options.draftDelete = el.hasClass('draft-delete');
         }
-        el.redactor(options);
+        getConfig().then(function(c) {
+            if (c.lang && c.lang.toLowerCase() != 'en_us')
+                options['lang'] = c.lang.toLowerCase();
+            el.redactor(options);
+        });
     },
     findRichtextBoxes = function() {
         $('.richtext').each(function(i,el) {
