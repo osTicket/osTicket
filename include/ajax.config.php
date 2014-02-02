@@ -47,6 +47,7 @@ class ConfigAjaxAPI extends AjaxController {
 
         $config = $this->json_encode($config);
         Http::cacheable(md5($config), $cfg->lastModified());
+        header('Content-Type: application/json; charset=UTF-8');
 
         return $config;
     }
