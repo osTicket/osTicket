@@ -194,7 +194,11 @@ $(function() {
             if (el.data('draftObjectId'))
                 options['draft_object_id'] = el.data('draftObjectId');
         }
-        el.redactor(options);
+        getConfig().then(function(c) {
+            if (c.lang && c.lang.toLowerCase() != 'en_us')
+                options['lang'] = c.lang.toLowerCase();
+            el.redactor(options);
+        });
     },
     findRichtextBoxes = function() {
         $('.richtext').each(function(i,el) {

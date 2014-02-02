@@ -321,6 +321,14 @@ class DataTemplate {
         return $this->data;
     }
 
+    function getRawData() {
+        if (!isset($this->data) && $this->filepath)
+            return file_get_contents($this->filepath);
+            // TODO: If there was a parsing error, attempt to try the next
+            //       language in the list of requested languages
+        return false;
+    }
+
     function getLang() {
         return $this->lang;
     }

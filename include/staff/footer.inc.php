@@ -20,5 +20,16 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <div class="dialog" style="display:none;width:650px;" id="popup">
     <div class="body"></div>
 </div>
+    <script type="text/javascript" src="../js/jquery.multifile.js"></script>
+    <script type="text/javascript" src="./js/tips.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
+<?php
+if ($thisstaff && $thisstaff->getLanguage() != 'en_US') { ?>
+    <script type="text/javascript" src="ajax.php/i18n/<?php
+        echo $thisstaff->getLanguage(); ?>/redactor"></script>
+<?php } ?>
 </body>
 </html>
