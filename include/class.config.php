@@ -175,7 +175,7 @@ class OsticketConfig extends Config {
         return true;
     }
 
-    function lastModified() {
+    function lastModified($key=false) {
         return max(array_map(array('parent', 'lastModified'),
             array_keys($this->config)));
     }
