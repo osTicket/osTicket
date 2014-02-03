@@ -15,6 +15,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     }
 }
 
+if ($_POST)
+    $info['duedate'] = Format::date($cfg->getDateFormat(),
+       strtotime($info['duedate']));
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>

@@ -16,7 +16,7 @@ elseif ($cfg && $cfg->getSystemLanguage())
     $lang = $cfg->getSystemLanguage();
 if ($lang && $lang != 'en_US') { ?>
     <script type="text/javascript" src="ajax.php/i18n/<?php
-        echo $thisclient->getLanguage(); ?>/redactor"></script>
+        echo $lang; ?>/js"></script>
 <?php } ?>
 </body>
 </html>

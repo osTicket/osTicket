@@ -1155,7 +1155,7 @@ class DatetimePickerWidget extends Widget {
                     $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
 
             list($hr, $min) = explode(':', date('H:i', $this->value));
-            $this->value = date($cfg->getDateFormat(), $this->value);
+            $this->value = Format::date($cfg->getDateFormat(), $this->value);
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
@@ -1176,7 +1176,7 @@ class DatetimePickerWidget extends Widget {
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>'),
+                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>')
                 });
             });
         </script>

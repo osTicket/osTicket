@@ -23,8 +23,9 @@ class i18nAjaxAPI extends AjaxController {
 
         $i18n = new Internationalization($lang);
         switch ($key) {
-        case 'redactor':
-            $data = $i18n->getTemplate('redactor.js')->getRawData();
+        case 'js':
+            $data = $i18n->getTemplate('js/redactor.js')->getRawData();
+            $data .= $i18n->getTemplate('js/jquery.ui.datepicker.js')->getRawData();
             header('Content-Type: text/javascript; charset=UTF-8');
             break;
         default:
