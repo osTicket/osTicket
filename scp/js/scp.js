@@ -548,6 +548,18 @@ $(document).ready(function(){
            });
        }
    });
+
+   //Tabs
+   $(document).on('click.tab', 'ul.tabs li a', function(e) {
+        e.preventDefault();
+        if ($('.tab_content'+$(this).attr('href')).length) {
+            $('ul.tabs li a').removeClass('active');
+            $(this).addClass('active');
+            $('.tab_content').hide();
+            $('.tab_content'+$(this).attr('href')).show();
+        }
+    });
+
 });
 
 // NOTE: getConfig should be global

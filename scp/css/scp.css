@@ -842,8 +842,8 @@ h2 .reload {
     padding:0 10px;
 }
 
-#response_options ul.tabs {
-    padding:4px 0 0 190px;
+ul.tabs {
+    padding:4px 0 0 20px;
     margin:0;
     text-align:center;
     height:29px;
@@ -851,14 +851,19 @@ h2 .reload {
     background:#eef3f8;
 }
 
-#response_options ul.tabs li {
+#response_options ul.tabs {
+    padding-left:190px;
+}
+
+
+ul.tabs li {
     margin:0;
     padding:0;
     display:inline;
     list-style:none;
 }
 
-#response_options ul.tabs li a {
+ul.tabs li a {
     width:130px;
     font-weight:bold;
     padding:5px;
@@ -882,7 +887,7 @@ h2 .reload {
     background-repeat:no-repeat;
 }
 
-#response_options ul.tabs li a.active {
+ul.tabs li a.active {
     height:18px;
     color:#184E81;
     background-color:#f9f9f9;
@@ -1256,7 +1261,7 @@ time {
     background:#f8f8f8;
     border:2px solid #2a67ac;
     display:none;
-    z-index:5;
+    z-index:2000;
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
     max-height: 72%;
