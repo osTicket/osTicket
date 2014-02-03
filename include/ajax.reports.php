@@ -37,17 +37,7 @@ class OverviewReportAjaxAPI extends AjaxController {
     function getData() {
         global $thisstaff;
 
-        if(($start = $this->get('start', 'last month'))) {
-            $stop = $this->get('stop', 'now');
-            if (substr($stop, 0, 1) == '+')
-                $stop = $start . $stop;
-        } else {
-            $start = 'last month';
-            $stop = 'now';
-        }
-
-        $start = 'FROM_UNIXTIME('.strtotime($start).')';
-        $stop = 'FROM_UNIXTIME('.strtotime($stop).')';
+        list($start, $stop) = $this->_getDateRange();
 
         $groups = array(
             "dept" => array(
@@ -172,26 +162,38 @@ class OverviewReportAjaxAPI extends AjaxController {
             'text/csv', $csv);
     }
 
-    function getPlotData() {
-
+    function _getDateRange() {
+        global $cfg;
 
         if(($start = $this->get('start', 'last month'))) {
-            $stop = $this->get('stop', 'now');
-            if (substr($stop, 0, 1) == '+')
-                $stop = $start . $stop;
+            $stop = $this->get('period', 'now');
         } else {
             $start = 'last month';
-            $stop = 'now';
+            $stop = $this->get('period', 'now');
         }
 
-        $start = strtotime($start);
-        $stop = strtotime($stop);
+        if ($start != 'last month')
+            $start = DateTime::createFromFormat($cfg->getDateFormat(),
+                $start)->format('U');
+        else
+            $start = strtotime($start);
+
+        if (substr($stop, 0, 1) == '+')
+            $stop = strftime('%Y-%m-%d ', $start) . $stop;
+
+        $start = 'FROM_UNIXTIME('.$start.')';
+        $stop = 'FROM_UNIXTIME('.strtotime($stop).')';
+
+        return array($start, $stop);
+    }
+
+    function getPlotData() {
+        list($start, $stop) = $this->_getDateRange();
 
         # Fetch all types of events over the timeframe
         $res = db_query('SELECT DISTINCT(state) FROM '.TICKET_EVENT_TABLE
-            .' WHERE timestamp BETWEEN FROM_UNIXTIME('.db_input($start)
-                .') AND FROM_UNIXTIME('.db_input($stop)
-                .') ORDER BY 1');
+            .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
+                .' ORDER BY 1');
         $events = array();
         while ($row = db_fetch_row($res)) $events[] = $row[0];
 
@@ -200,9 +202,8 @@ class OverviewReportAjaxAPI extends AjaxController {
         $res = db_query('SELECT state, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
                 .'COUNT(ticket_id)'
             .' FROM '.TICKET_EVENT_TABLE
-            .' WHERE timestamp BETWEEN FROM_UNIXTIME('.db_input($start)
-                .') AND FROM_UNIXTIME('.db_input($stop)
-            .') AND NOT annulled'
+            .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
+            .' AND NOT annulled'
             .' GROUP BY state, DATE_FORMAT(timestamp, \'%Y-%m-%d\')'
             .' ORDER BY 2, 1');
         # Initialize array of plot values
