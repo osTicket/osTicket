@@ -28,7 +28,7 @@
             }
             foreach ($field->errors() as $e) { ?>
                 <br />
-                <font class="error"><?php echo $e; ?></font>
+                <font class="error"><?php echo Format::htmlchars($e); ?></font>
             <?php } ?>
             </td>
         </tr>
