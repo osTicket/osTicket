@@ -29,7 +29,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <?php
 if ($thisstaff && $thisstaff->getLanguage() != 'en_US') { ?>
     <script type="text/javascript" src="ajax.php/i18n/<?php
-        echo $thisstaff->getLanguage(); ?>/redactor"></script>
+        echo $thisstaff->getLanguage(); ?>/js"></script>
 <?php } ?>
 </body>
 </html>

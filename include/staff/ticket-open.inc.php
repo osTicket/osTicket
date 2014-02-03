@@ -2,6 +2,9 @@
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die('Access Denied');
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+if ($_POST)
+    $info['duedate'] = Format::date($cfg->getDateFormat(),
+       strtotime($info['duedate']));
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>

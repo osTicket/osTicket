@@ -14,7 +14,7 @@
 <?php
 if ($cfg && $cfg->getSystemLanguage() != 'en_US') { ?>
     <script type="text/javascript" src="ajax.php/i18n/<?php
-        echo $cfg->getSystemLanguage(); ?>/redactor"></script>
+        echo $cfg->getSystemLanguage(); ?>/js"></script>
 <?php } ?>
 </body>
 </html>
