@@ -463,9 +463,6 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
-        if (!$ticket->getCollaborators())
-            Http::response(404, 'No such ticket');
-
         ob_start();
         include STAFFINC_DIR . 'templates/collaborators-preview.tmpl.php';
         $resp = ob_get_contents();
