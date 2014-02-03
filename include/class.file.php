@@ -394,7 +394,7 @@ class AttachmentFile {
         // TODO: Make this resumable so that if the file cannot be migrated
         //      in the max_execution_time, the migration can be continued
         //      the next time the cron runs
-        while ($block = $source->read()) {
+        while ($block = $source->read($target->getBlockSize())) {
             hash_update($before, $block);
             $target->write($block);
         }
@@ -561,6 +561,7 @@ class FileStorageBackend {
     var $meta;
     static $desc = false;
     static $registry;
+    static $blocksize = 131072;
 
     /**
      * All storage backends should call this function during the request
@@ -602,6 +603,14 @@ class FileStorageBackend {
 
         $class = self::$registry[$file->getBackend()];
         return new $class($file);
+    }
+
+    /**
+     * Returns the optimal block size for the backend. When migrating, this
+     * size blocks would be best for sending to the ::write() method
+     */
+    function getBlockSize() {
+        return static::$blocksize;
     }
 
     /**
@@ -712,10 +721,12 @@ class FileStorageBackend {
 define('CHUNK_SIZE', 500*1024); # Beware if you change this...
 class AttachmentChunkedData extends FileStorageBackend {
     static $desc = "In the database";
+    static $blocksize = CHUNK_SIZE;
 
     function __construct($file) {
         $this->file = $file;
-        $this->_pos = 0;
+        $this->_chunk = 0;
+        $this->_buffer = false;
     }
 
     function length() {
@@ -725,12 +736,19 @@ class AttachmentChunkedData extends FileStorageBackend {
         return $length;
     }
 
-    function read() {
+    function read($amount=CHUNK_SIZE, $offset=0) {
         # Read requested length of data from attachment chunks
-        list($buffer) = @db_fetch_row(db_query(
-            'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
-            .db_input($this->file->getId()).' AND chunk_id='.$this->_pos++));
-        return $buffer;
+        while (strlen($this->_buffer) < $amount + $offset) {
+            list($buf) = @db_fetch_row(db_query(
+                'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
+                .db_input($this->file->getId()).' AND chunk_id='.$this->_chunk++));
+            if (!$buf)
+                break;
+            $this->_buffer .= $buf;
+        }
+        $chunk = substr($this->_buffer, $offset, $amount);
+        $this->_buffer = substr($this->_buffer, $offset + $amount);
+        return $chunk;
     }
 
     function write($what, $chunk_size=CHUNK_SIZE) {
@@ -740,12 +758,12 @@ class AttachmentChunkedData extends FileStorageBackend {
             if (!$block) break;
             if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
                     .' SET filedata=0x'.bin2hex($block).', file_id='
-                    .db_input($this->file->getId()).', chunk_id='.db_input($this->_pos++)))
+                    .db_input($this->file->getId()).', chunk_id='.db_input($this->_chunk++)))
                 return false;
             $offset += strlen($block);
         }
 
-        return $this->_pos;
+        return $this->_chunk;
     }
 
     function unlink() {
