@@ -560,6 +560,19 @@ $(document).ready(function(){
         }
     });
 
+    //Collaborators
+    $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $.dialog(url, 201, function (resp) {
+           $('input#emailcollab').show();
+           $('#recipients').text(resp);
+           $('.tip_box').remove();
+        }, {
+            onshow: function() { $('#user-search').focus(); }
+        });
+        return false;
+     });
 });
 
 // NOTE: getConfig should be global

@@ -459,7 +459,7 @@ $tcount+= $ticket->getNumNotes();
                                 $ticket->getNumActiveCollaborators(),
                                 $ticket->getNumCollaborators());
 
-                    echo sprintf('<span><a class="collaborators" id="manageCollab"
+                    echo sprintf('<span><a class="collaborators preview"
                             href="#tickets/%d/collaborators"><span id="recipients">%s</span></a></span>',
                             $ticket->getId(),
                             $recipients);

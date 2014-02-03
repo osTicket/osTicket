@@ -161,7 +161,7 @@ jQuery(function() {
     });
 
 
-    $('a#manageCollab').live('mouseover', function(e) {
+    $('a.collaborators.preview').live('mouseover', function(e) {
         e.preventDefault();
         var elem = $(this);
 

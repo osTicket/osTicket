@@ -363,69 +363,6 @@ jQuery(function($) {
         return false;
     });
 
-    //Collaborators
-    $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
-        e.preventDefault();
-        var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, 201, function (resp) {
-           $('input#emailcollab').show();
-           $('#recipients').text(resp);
-        }, {
-            onshow: function() { $('#user-search').focus(); }
-        });
-;
-        return false;
-     });
-
-    $(document).on('click', 'form.collaborators a#addcollaborator', function (e) {
-        e.preventDefault();
-        $('div#manage_collaborators').hide();
-        $('div#add_collaborator').fadeIn();
-        return false;
-     });
-
-    $(document).on('click', 'form.collaborators a.remove', function (e) {
-        e.preventDefault();
-        var fObj = $(this).closest('form');
-        $('input'+$(this).attr('href'))
-            .val($(this).attr('href').substr(2))
-            .trigger('change');
-        $(this).closest('tr').addClass('strike');
-
-        return false;
-     });
-
-    $(document).on('change', 'form.collaborators input:checkbox, input[name="del[]"]', function (e) {
-       var fObj = $(this).closest('form');
-       $('div#savewarning', fObj).fadeIn();
-       $('input:submit', fObj).css('color', 'red');
-     });
-
-    $(document).on('click', 'form.collaborators input:reset', function(e) {
-        var fObj = $(this).closest('form');
-        fObj.find('input[name="del[]"]').val('');
-        fObj.find('tr').removeClass('strike');
-        $('div#savewarning', fObj).hide();
-        $('input:submit', fObj).removeAttr('style');
-    });
-
-
-    $(document).on('click', 'form.collaborators input.cancel', function (e) {
-        e.preventDefault();
-        var $elem = $(this);
-
-        if($elem.attr('data-href')) {
-            var href = $elem.data('href').substr(1);
-            $('.dialog.collaborators .body').load('ajax.php/'+href, function () {
-                });
-        } else {
-
-            $('div#manage_collaborators').show();
-            $('div#add_collaborator').hide();
-        }
-        return false;
-    });
-
     $(document).on('change', 'form#reply select#emailreply', function(e) {
          var $cc = $('form#reply tbody#cc_sec');
         if($(this).val() == 0)
