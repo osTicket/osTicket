@@ -196,24 +196,13 @@ class AttachmentFile {
     }
 
     function download() {
+        $bk = $this->open();
+        if ($bk->sendRedirectUrl('inline'))
+            return;
         $this->makeCacheable();
-
-        header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
-
-        $filename=basename($this->getName());
-        $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
-        if (false !== strpos($user_agent,'msie') && false !== strpos($user_agent,'win'))
-            header('Content-Disposition: filename='.rawurlencode($filename).';');
-        elseif (false !== strpos($user_agent, 'safari') && false === strpos($user_agent, 'chrome'))
-            // Safari and Safari only can handle the filename as is
-            header('Content-Disposition: filename='.str_replace(',', '', $filename).';');
-        else
-            // Use RFC5987
-            header("Content-Disposition: filename*=UTF-8''".rawurlencode($filename).';' );
-
-        header('Content-Transfer-Encoding: binary');
+        Http::download($this->getName(), $this->getType() ?: 'application/octet-stream');
         header('Content-Length: '.$this->getSize());
-        $this->sendData(true, 'attachment');
+        $this->sendData(false);
         exit();
     }
 
@@ -354,7 +343,7 @@ class AttachmentFile {
             if (!$bk->upload($file['tmp_name']))
                 return false;
         }
-        elseif (!$bk->write($file['data'])) {
+        elseif (!$bk->write($file['data']) || !$bk->flush()) {
             // XXX: Fallthrough to default backend if different?
             return false;
         }
@@ -384,27 +373,45 @@ class AttachmentFile {
      * True if the migration was successful and false otherwise.
      */
     function migrate($bk) {
-        $before = hash_init('sha1');
-        $after = hash_init('sha1');
 
         // Copy the file to the new backend and hash the contents
         $target = FileStorageBackend::lookup($bk, $this);
         $source = $this->open();
+
+        // Initialize hashing algorithm to verify uploaded contents
+        $algos = $target->getNativeHashAlgos();
+        $common_algo = 'sha1';
+        if ($algos && is_array($algos)) {
+            $supported = hash_algos();
+            foreach ($algos as $a) {
+                if (in_array(strtolower($a), $supported)) {
+                    $common_algo = strtolower($a);
+                    break;
+                }
+            }
+        }
+        $before = hash_init($common_algo);
         // TODO: Make this resumable so that if the file cannot be migrated
         //      in the max_execution_time, the migration can be continued
         //      the next time the cron runs
-        while ($block = $source->read()) {
+        while ($block = $source->read($target->getBlockSize())) {
             hash_update($before, $block);
             $target->write($block);
         }
+        $target->flush();
 
-        // Verify that the hash of the target file matches the hash of the
-        // source file
-        $target = FileStorageBackend::lookup($bk, $this);
-        while ($block = $target->read())
-            hash_update($after, $block);
+        // Ask the backend to generate its own hash if at all possible
+        if (!($target_hash = $target->getHashDigest($common_algo))) {
+            $after = hash_init($common_algo);
+            // Verify that the hash of the target file matches the hash of
+            // the source file
+            $target = FileStorageBackend::lookup($bk, $this);
+            while ($block = $target->read())
+                hash_update($after, $block);
+            $target_hash = hash_final($after);
+        }
 
-        if (hash_final($before) != hash_final($after)) {
+        if (hash_final($before) != $target_hash) {
             $target->unlink();
             return false;
         }
@@ -554,6 +561,7 @@ class FileStorageBackend {
     var $meta;
     static $desc = false;
     static $registry;
+    static $blocksize = 131072;
 
     /**
      * All storage backends should call this function during the request
@@ -598,6 +606,14 @@ class FileStorageBackend {
     }
 
     /**
+     * Returns the optimal block size for the backend. When migrating, this
+     * size blocks would be best for sending to the ::write() method
+     */
+    function getBlockSize() {
+        return static::$blocksize;
+    }
+
+    /**
      * Create an instance of the storage backend linking the related file.
      * Information about the file metadata is accessible via the received
      * filed object.
@@ -616,6 +632,15 @@ class FileStorageBackend {
      */
     function write($data) {
         return false;
+    }
+
+    /**
+     * Called after all the blocks are sent to the ::write() method. This
+     * method should return boolean FALSE if flushing the data was
+     * somehow inhibited.
+     */
+    function flush() {
+        return true;
     }
 
     /**
@@ -665,6 +690,26 @@ class FileStorageBackend {
     function unlink() {
         return false;
     }
+
+    /**
+     * Fetches a list of hash algorithms that are supported transparently
+     * through the ::write() and ::upload() methods. After writing or
+     * uploading file content, the ::getHashDigest($algo) method can be
+     * called to get a hash of the remote content without fetching the
+     * entire data stream to verify the content locally.
+     */
+    function getNativeHashAlgos() {
+        return array();
+    }
+
+    /**
+     * Returns a hash of the content calculated remotely by the storage
+     * backend. If this method fails, the hash chould be calculated by
+     * downloading the content and hashing locally
+     */
+    function getHashDigest($algo) {
+        return false;
+    }
 }
 
 
@@ -676,10 +721,12 @@ class FileStorageBackend {
 define('CHUNK_SIZE', 500*1024); # Beware if you change this...
 class AttachmentChunkedData extends FileStorageBackend {
     static $desc = "In the database";
+    static $blocksize = CHUNK_SIZE;
 
     function __construct($file) {
         $this->file = $file;
-        $this->_pos = 0;
+        $this->_chunk = 0;
+        $this->_buffer = false;
     }
 
     function length() {
@@ -689,12 +736,19 @@ class AttachmentChunkedData extends FileStorageBackend {
         return $length;
     }
 
-    function read() {
+    function read($amount=CHUNK_SIZE, $offset=0) {
         # Read requested length of data from attachment chunks
-        list($buffer) = @db_fetch_row(db_query(
-            'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
-            .db_input($this->file->getId()).' AND chunk_id='.$this->_pos++));
-        return $buffer;
+        while (strlen($this->_buffer) < $amount + $offset) {
+            list($buf) = @db_fetch_row(db_query(
+                'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
+                .db_input($this->file->getId()).' AND chunk_id='.$this->_chunk++));
+            if (!$buf)
+                break;
+            $this->_buffer .= $buf;
+        }
+        $chunk = substr($this->_buffer, $offset, $amount);
+        $this->_buffer = substr($this->_buffer, $offset + $amount);
+        return $chunk;
     }
 
     function write($what, $chunk_size=CHUNK_SIZE) {
@@ -704,12 +758,12 @@ class AttachmentChunkedData extends FileStorageBackend {
             if (!$block) break;
             if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
                     .' SET filedata=0x'.bin2hex($block).', file_id='
-                    .db_input($this->file->getId()).', chunk_id='.db_input($this->_pos++)))
+                    .db_input($this->file->getId()).', chunk_id='.db_input($this->_chunk++)))
                 return false;
             $offset += strlen($block);
         }
 
-        return $this->_pos;
+        return $this->_chunk;
     }
 
     function unlink() {
