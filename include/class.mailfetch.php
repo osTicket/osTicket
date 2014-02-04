@@ -306,7 +306,6 @@ class MailFetcher {
 
         //BCCed?
         if(!$header['emailId']) {
-            unset($header['recipients']); //Nuke the recipients - we were bcced
             if ($headerinfo->bcc) {
                 foreach($headerinfo->bcc as $addr)
                     if (($header['emailId'] = Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))

@@ -466,7 +466,6 @@ class EmailDataParser {
 
         //maybe we got BCC'ed??
         if(!$data['emailId']) {
-            unset($data['recipients']);
             $emailId =  0;
             if($bcc = $parser->getBccAddressList()) {
                 foreach ($bcc as $addr)
