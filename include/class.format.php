@@ -486,7 +486,7 @@ class Format {
             'U' => '%s',
         );
         return preg_replace_callback(
-            '`(?!<%)'.implode('|', array_keys($conv)).'`',
+            '`(?<!%)('.implode('|', array_keys($conv)).')`',
             function($m) use ($conv) { return $conv[$m[0]]; },
             $fmt);
     }
