@@ -2433,11 +2433,15 @@ class Ticket {
 
             $attachments =($cfg->emailAttachments() && $response)?$response->getAttachments():array();
 
-            $msg = $ticket->replaceVars($msg->asArray(), array(
-                'message' => $message,
-                'signature' => $signature,
-                'response' => ($response) ? $response->getBody() : '',
-            ));
+            $msg = $ticket->replaceVars($msg->asArray(),
+                    array(
+                        'message'   => $message,
+                        'signature' => $signature,
+                        'response'  => ($response) ? $response->getBody() : '',
+                        'recipient' => $ticket->getOwner(), //End user
+                        'staff'     => $thisstaff,
+                        )
+                    );
 
             if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
                 $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
