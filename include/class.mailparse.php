@@ -53,18 +53,27 @@ class Mail_Parse {
                         'include_bodies'=> $this->include_bodies,
                         'decode_headers'=> $this->decode_headers,
                         'decode_bodies' => $this->decode_bodies);
-        $this->splitBodyHeader();
+
         $this->struct=Mail_mimeDecode::decode($params);
 
         if (PEAR::isError($this->struct))
             return false;
 
+        $this->splitBodyHeader();
+
         // Handle wrapped emails when forwarded
         if ($this->struct && $this->struct->parts) {
             $outer = $this->struct;
             $ctype = $outer->ctype_primary.'/'.$outer->ctype_secondary;
-            if (strcasecmp($ctype, 'message/rfc822') === 0)
+            if (strcasecmp($ctype, 'message/rfc822') === 0) {
                 $this->struct = $outer->parts[0];
+                // Use headers of the wrapped message
+                $headers = array();
+                foreach ($this->struct->headers as $h=>$v)
+                    $headers[mb_convert_case($h, MB_CASE_TITLE)] = $v;
+                $this->header = Format::array_implode(
+                     ": ", "\n", $headers);
+            }
         }
 
         return (count($this->struct->headers) > 1);
