@@ -31,7 +31,7 @@ echo '<ul class="tabs">';
 
 echo '
         <li><a id="preview_tab" href="#preview" class="active"
-            ><i class="icon-list-alt"></i>&nbsp;Ticket Preview</a></li>';
+            ><i class="icon-list-alt"></i>&nbsp;Ticket Summary</a></li>';
 if ($ticket->getNumCollaborators()) {
 echo sprintf('
         <li><a id="collab_tab" href="#collab"
