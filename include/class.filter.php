@@ -26,6 +26,7 @@ class Filter {
         'Email Meta-Data' => array(
             'reply-to'  => 'Reply-To Email',
             'reply-to-name' => 'Reply-To Name',
+            'addressee' => 'Addressee (To and Cc)',
         ),
     );
 
@@ -692,6 +693,13 @@ class TicketFilter {
         foreach ($vars as $k=>$v) {
             if (in_array($k, $interest))
                 $this->vars[$k] = trim($v);
+        }
+        if (isset($vars['recipients'])) {
+            foreach ($vars['recipients'] as $r) {
+                $this->vars['addressee'][] = $r['name'];
+                $this->vars['addressee'][] = $r['email'];
+            }
+            $this->vars['addressee'] = implode(' ', $this->vars['addressee']);
         }
 
          //Init filters.
