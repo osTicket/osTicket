@@ -21,6 +21,10 @@ if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
     @header('Location: index.php');
 
 $thisstaff->logOut();
+
+//Clear any ticket locks the staff has.
+TicketLock::removeStaffLocks($thisstaff->getId());
+
 //Clear upgrader session on logout.
 $_SESSION['ost_upgrader'] = null;
 
