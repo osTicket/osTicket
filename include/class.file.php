@@ -200,7 +200,8 @@ class AttachmentFile {
         if ($bk->sendRedirectUrl('inline'))
             return;
         $this->makeCacheable();
-        Http::download($this->getName(), $this->getType() ?: 'application/octet-stream');
+        Http::download($this->getName(), $this->getType() ?: 'application/octet-stream',
+            null, 'inline');
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
