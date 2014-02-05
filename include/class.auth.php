@@ -550,8 +550,8 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
             $ost->logWarning('Excessive login attempts ('.$username.')', $alert,
                     $cfg->alertONLoginError());
             return new AccessDenied('Forgot your login info? Contact Admin.');
-        //Log every other failed login attempt as a warning.
-        } elseif($authsession['strikes']%2==0) {
+        //Log every other third failed login attempt as a warning.
+        } elseif($authsession['strikes']%3==0) {
             $alert='Username: '.$username."\n"
                     .'IP: '.$_SERVER['REMOTE_ADDR']."\n"
                     .'TIME: '.date('M j, Y, g:i a T')."\n\n"
@@ -595,7 +595,7 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                     'Attempts #'.$authsession['strikes'];
             $ost->logError('Excessive login attempts (user)', $alert, ($cfg->alertONLoginError()));
             return new AccessDenied('Access Denied');
-        } elseif($authsession['strikes']%2==0) { //Log every other failed login attempt as a warning.
+        } elseif($authsession['strikes']%3==0) { //Log every other third failed login attempt as a warning.
             $alert='Login: '.$username.': '.$password."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
                    "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$authsession['strikes'];
             $ost->logWarning('Failed login attempt (user)', $alert);
