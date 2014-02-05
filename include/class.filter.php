@@ -694,7 +694,7 @@ class TicketFilter {
             if (in_array($k, $interest))
                 $this->vars[$k] = trim($v);
         }
-        if (isset($vars['recipients'])) {
+        if (isset($vars['recipients']) && $vars['recipients']) {
             foreach ($vars['recipients'] as $r) {
                 $this->vars['addressee'][] = $r['name'];
                 $this->vars['addressee'][] = $r['email'];
