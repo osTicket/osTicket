@@ -383,7 +383,7 @@ class Format {
 
 
     function viewableImages($html, $script='image.php') {
-        return preg_replace_callback('/"cid:([\w.-_]{32})"/',
+        return preg_replace_callback('/"cid:([\w._-]{32})"/',
         function($match) use ($script) {
             $hash = $match[1];
             if (!($file = AttachmentFile::lookup($hash)))
