@@ -66,7 +66,20 @@ class Mail_Parse {
             $outer = $this->struct;
             $ctype = $outer->ctype_primary.'/'.$outer->ctype_secondary;
             if (strcasecmp($ctype, 'message/rfc822') === 0) {
+                // Capture Delivered-To header from the outer mail
+                $dt = $this->struct->headers['delivered-to'];
+                // Capture Message-Id from outer mail
+                $mid = $this->struct->headers['message-id'];
+
                 $this->struct = $outer->parts[0];
+
+                // Add (clobber) delivered to header from the outer mail
+                if ($dt)
+                    $this->struct->headers['delivered-to'] = $dt;
+                // Ensure the nested mail has a Message-Id
+                if (!isset($this->struct->headers['message-id']))
+                    $this->struct->headers['message-id'] = $mid;
+
                 // Use headers of the wrapped message
                 $headers = array();
                 foreach ($this->struct->headers as $h=>$v)
@@ -186,7 +199,9 @@ class Mail_Parse {
     }
 
     function getMessageId(){
-        return $this->struct->headers['message-id'];
+        if (!($mid = $this->struct->headers['message-id']))
+            $mid = sprintf('<%s@local>', md5($this->getHeader()));
+        return $mid;
     }
 
     function getSubject(){

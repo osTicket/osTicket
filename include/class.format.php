@@ -42,9 +42,6 @@ class Format {
                 array('default','x-user-defined','iso','us-ascii')))
             $charset = 'ISO-8859-1';
 
-        if ($charset && strcasecmp($charset, $encoding) === 0)
-            return $text;
-
         $original = $text;
         if(function_exists('iconv') && $charset)
             $text = iconv($charset, $encoding.'//IGNORE', $text);
