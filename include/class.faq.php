@@ -195,7 +195,7 @@ class FAQ {
         if(($attachments=$this->attachments->getSeparates())) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
-            $hash=$attachment['hash'].md5($attachment['id'].session_id().$attachment['hash']);
+            $hash=$attachment['key'].md5($attachment['id'].session_id().strtolower($attachment['key']));
             if($attachment['size'])
                 $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
 

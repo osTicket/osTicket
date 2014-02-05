@@ -112,7 +112,8 @@ class AttachmentFile {
      * download this file
      */
     function getDownloadHash() {
-        return strtolower($this->getKey() . md5($this->getId().session_id().$this->getKey()));
+        return strtolower($this->getKey()
+            . md5($this->getId().session_id().strtolower($this->getKey())));
     }
 
     function open() {
@@ -200,7 +201,8 @@ class AttachmentFile {
         if ($bk->sendRedirectUrl('inline'))
             return;
         $this->makeCacheable();
-        Http::download($this->getName(), $this->getType() ?: 'application/octet-stream');
+        Http::download($this->getName(), $this->getType() ?: 'application/octet-stream',
+            null, 'inline');
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();

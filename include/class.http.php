@@ -95,14 +95,15 @@ class Http {
             return "filename*=UTF-8''".rawurlencode($filename);
     }
 
-    function download($filename, $type, $data=null) {
+    function download($filename, $type, $data=null, $disposition='attachment') {
         header('Pragma: private');
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: private');
         header('Content-Type: '.$type);
-        header('Content-Disposition: attachment; %s;',
-            self::getDispositionFilename(basename($filename)));
+        header(sprintf('Content-Disposition: %s; %s',
+            $disposition,
+            self::getDispositionFilename(basename($filename))));
         header('Content-Transfer-Encoding: binary');
         if ($data !== null) {
             header('Content-Length: '.strlen($data));
