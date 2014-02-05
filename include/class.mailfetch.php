@@ -573,10 +573,6 @@ class MailFetcher {
         if(!$vars['name'])
             list($vars['name']) = explode('@', $vars['email']);
 
-        //An email with just attachments can have empty body.
-        if(!$vars['message'])
-            $vars['message'] = '--';
-
         if($ost->getConfig()->useEmailPriority())
             $vars['priorityId']=$this->getPriority($mid);
 
