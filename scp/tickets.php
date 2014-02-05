@@ -71,7 +71,7 @@ if($_POST && !$errors):
             if(!$errors && $_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
-            if(!$errors && ($response=$ticket->postReply($vars, $errors, isset($_POST['emailreply'])))) {
+            if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg='Reply posted successfully';
                 $ticket->reload();
 
