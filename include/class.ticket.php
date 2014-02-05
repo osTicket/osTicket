@@ -1521,8 +1521,10 @@ class Ticket {
 
         $this->setLastMsgId($message->getId());
 
-        //Add email recipients as collaborators
-        if ($vars['recipients']) {
+        //Add email recipients as collaborators...
+        if ($vars['recipients']
+                //Only add if we have a matched local address
+                && $vars['emailId']) {
             //New collaborators added by other collaborators are disable --
             // requires staff approval.
             $info = array(
@@ -2279,6 +2281,9 @@ class Ticket {
             .' ,topic_id='.db_input($topicId)
             .' ,ip_address='.db_input($ipaddress)
             .' ,source='.db_input($source);
+
+        if (isset($vars['emailId']) && $vars['emailId'])
+            $sql.=', email_id='.db_input($vars['emailId']);
 
         //Make sure the origin is staff - avoid firebug hack!
         if($vars['duedate'] && !strcasecmp($origin,'staff'))
