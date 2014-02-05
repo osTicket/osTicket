@@ -112,7 +112,8 @@ class AttachmentFile {
      * download this file
      */
     function getDownloadHash() {
-        return strtolower($this->getKey() . md5($this->getId().session_id().$this->getKey()));
+        return strtolower($this->getKey()
+            . md5($this->getId().session_id().strtolower($this->getKey())));
     }
 
     function open() {
