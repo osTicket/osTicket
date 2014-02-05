@@ -548,6 +548,31 @@ $(document).ready(function(){
            });
        }
    });
+
+   //Tabs
+   $(document).on('click.tab', 'ul.tabs li a', function(e) {
+        e.preventDefault();
+        if ($('.tab_content'+$(this).attr('href')).length) {
+            $('ul.tabs li a').removeClass('active');
+            $(this).addClass('active');
+            $('.tab_content').hide();
+            $('.tab_content'+$(this).attr('href')).show();
+        }
+    });
+
+    //Collaborators
+    $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $.dialog(url, 201, function (resp) {
+           $('input#emailcollab').show();
+           $('#recipients').text(resp);
+           $('.tip_box').remove();
+        }, {
+            onshow: function() { $('#user-search').focus(); }
+        });
+        return false;
+     });
 });
 
 // NOTE: getConfig should be global

@@ -12,17 +12,33 @@ if (($users=$ticket->getCollaborators())) {?>
                 $user->getEmail());
     }
 }  else {
-    echo "Bro, not sure how you got here!";
+    echo "<strong>Ticket doesn't have collaborators.</strong>";
 }?>
 </table>
 <?php
 $options = array();
-//TODO: Add options to manage collaborators
+
+$options[] = sprintf(
+        '<a class="collaborators" id="managecollab" href="#tickets/%d/collaborators">%s</a>',
+        $ticket->getId(),
+        $ticket->getNumCollaborators()
+        ? 'Manage Collaborators' : 'Add Collaborator'
+        );
+
 if ($options) {
     echo '<ul class="tip_menu">';
     foreach($options as $option)
-        echo sprintf('<li><a href="%s">%s</a></li>', $option['url'], $option['action']);
+        echo sprintf('<li>%s</li>', $option);
     echo '</ul>';
 }
 ?>
 </div>
+<script type="text/javascript">
+$(function() {
+    $(document).on('click', 'a#managecollab', function (e) {
+        e.preventDefault();
+        $('.tip_box').remove();
+        return false;
+    });
+});
+</script>
