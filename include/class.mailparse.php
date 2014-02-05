@@ -402,6 +402,10 @@ class Mail_Parse {
     function parseAddressList($address){
         if (!$address)
             return false;
+        // Delivered-To may appear more than once in the email headers
+        if (is_array($address))
+            $address = implode(', ', $address);
+
         return Mail_RFC822::parseAddressList($address, null, null,false);
     }
 
