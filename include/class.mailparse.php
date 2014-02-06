@@ -171,16 +171,19 @@ class Mail_Parse {
         return Mail_Parse::parseAddressList($header);
     }
 
+    function getDeliveredTOAddressList() {
+        if (!($header = $this->struct->headers['delivered-to']))
+            return null;
+
+        return Mail_Parse::parseAddressList($header);
+    }
+
     function getToAddressList(){
         // Delivered-to incase it was a BBC mail.
         $tolist = array();
         if ($header = $this->struct->headers['to'])
             $tolist = array_merge($tolist,
                 Mail_Parse::parseAddressList($header));
-        if ($header = $this->struct->headers['delivered-to'])
-            $tolist = array_merge($tolist,
-                Mail_Parse::parseAddressList($header));
-
         return $tolist ? $tolist : null;
     }
 
@@ -464,15 +467,21 @@ class EmailDataParser {
         $data['emailId'] = 0;
         $data['recipients'] = array();
         $tolist = array();
-        if(($to = $parser->getToAddressList()))
+        if (($to = $parser->getToAddressList()))
             $tolist['to'] = $to;
 
-        if(($cc = $parser->getCcAddressList()))
+        if (($cc = $parser->getCcAddressList()))
             $tolist['cc'] = $cc;
+
+        if (($dt = $parser->getDeliveredToAddressList()))
+            $tolist['dt'] = $dt;
 
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {
-                if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    //Skip virtual Delivered-To addresses
+                    if ($source == 'dt') continue;
+
                     $data['recipients'][] = array(
                         'source' => "Email ($source)",
                         'name' => trim(@$addr->personal, '"'),
