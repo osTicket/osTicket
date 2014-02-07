@@ -110,26 +110,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="160" class="required">
-                Department:
-            </td>
-            <td>
-                <select name="deptId">
-                    <option value="" selected >&mdash; Select Department &mdash;</option>
-                    <?php
-                    if($depts=Dept::getDepartments()) {
-                        foreach($depts as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['deptId']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['deptId']; ?></font>
-            </td>
-        </tr>
-
-        <tr>
-            <td width="160" class="required">
                 Help Topic:
             </td>
             <td>
@@ -150,6 +130,26 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
+        <tr>
+            <td width="160">
+                Department:
+            </td>
+            <td>
+                <select name="deptId">
+                    <option value="" selected >&mdash; Select Department &mdash;</option>
+                    <?php
+                    if($depts=Dept::getDepartments()) {
+                        foreach($depts as $id =>$name) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, ($info['deptId']==$id)?'selected="selected"':'',$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<font class="error"><?php echo $errors['deptId']; ?></font>
+            </td>
+        </tr>
+
          <tr>
             <td width="160">
                 SLA Plan:
