@@ -117,12 +117,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#dynamic-form').load(
                             'ajax.php/form/help-topic/' + this.value);
                         ">
-                    <option value="" selected >&mdash; Select Help Topic &mdash;</option>
                     <?php
-                    if($topics=Topic::getHelpTopics()) {
+                    if ($topics=Topic::getHelpTopics()) {
+                        if (count($topics) == 1)
+                            $selected = 'selected="selected"';
+                        else { ?>
+                <option value="" selected >&mdash; Select Help Topic &mdash;</option>
+<?php                   }
                         foreach($topics as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['topicId']==$id)?'selected="selected"':'',$name);
+                            echo sprintf('<option value="%d" %s %s>%s</option>',
+                                $id, ($info['topicId']==$id)?'selected="selected"':'',
+                                $selected, $name);
+                        }
+                        if (count($topics) == 1 && !$form) {
+                            $T = Topic::lookup($id);
+                            $form = DynamicForm::lookup($T->ht['form_id']);
                         }
                     }
                     ?>
