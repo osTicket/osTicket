@@ -171,7 +171,7 @@ class Mail_Parse {
         return Mail_Parse::parseAddressList($header);
     }
 
-    function getDeliveredTOAddressList() {
+    function getDeliveredToAddressList() {
         if (!($header = $this->struct->headers['delivered-to']))
             return null;
 
@@ -463,7 +463,12 @@ class EmailDataParser {
                 $data['name'] = $data['email'];
         }
 
-        //TO Address:Try to figure out the email address... associated with the incoming email.
+        /* Scan through the list of addressees (via To, Cc, and Delivered-To headers), and identify
+         * how the mail arrived at the system. One of the mails should be in the system email list.
+         * The recipient list (without the Delivered-To addressees) will be made available to the
+         * ticket filtering system. However, addresses in the Delivered-To header should never be
+         * considered for the collaborator list.
+         */
         $data['emailId'] = 0;
         $data['recipients'] = array();
         $tolist = array();
@@ -474,13 +479,13 @@ class EmailDataParser {
             $tolist['cc'] = $cc;
 
         if (($dt = $parser->getDeliveredToAddressList()))
-            $tolist['dt'] = $dt;
+            $tolist['delivered-to'] = $dt;
 
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
-                    if ($source == 'dt') continue;
+                    if ($source == 'delivered-to') continue;
 
                     $data['recipients'][] = array(
                         'source' => "Email ($source)",
@@ -491,6 +496,22 @@ class EmailDataParser {
                 }
             }
         }
+
+        /*
+         * In the event that the mail was delivered to the system although none of the system
+         * mail addresses are in the addressee lists, be careful not to include the addressee
+         * in the collaborator list. Therefore, the delivered-to addressees should be flagged so they
+         * are not added to the collaborator list in the ticket creation process.
+         */
+        if ($tolist['delivered-to']) {
+            foreach ($tolist['delivered-to'] as $addr) {
+                foreach ($data['recipients'] as $i=>$r) {
+                    if (strcasecmp($r['email'], $addr->mailbox.'@'.$addr->host) === 0)
+                        $data['recipients'][$i]['source'] = 'delivered-to';
+                }
+            }
+        }
+
 
         //maybe we got BCC'ed??
         if(!$data['emailId']) {
