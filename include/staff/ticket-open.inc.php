@@ -101,8 +101,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="source">
-                    <option value="" selected >&mdash; Select Source &mdash;</option>
-                    <option value="Phone" <?php echo ($info['source']=='Phone')?'selected="selected"':''; ?>>Phone</option>
+                    <option value="Phone" <?php echo ($info['source']=='Phone')?'selected="selected"':''; ?> selected="selected">Phone</option>
                     <option value="Email" <?php echo ($info['source']=='Email')?'selected="selected"':''; ?>>Email</option>
                     <option value="Other" <?php echo ($info['source']=='Other')?'selected="selected"':''; ?>>Other</option>
                 </select>
@@ -111,6 +110,37 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="160" class="required">
+                Help Topic:
+            </td>
+            <td>
+                <select name="topicId" onchange="javascript:
+                        $('#dynamic-form').load(
+                            'ajax.php/form/help-topic/' + this.value);
+                        ">
+                    <?php
+                    if ($topics=Topic::getHelpTopics()) {
+                        if (count($topics) == 1)
+                            $selected = 'selected="selected"';
+                        else { ?>
+                <option value="" selected >&mdash; Select Help Topic &mdash;</option>
+<?php                   }
+                        foreach($topics as $id =>$name) {
+                            echo sprintf('<option value="%d" %s %s>%s</option>',
+                                $id, ($info['topicId']==$id)?'selected="selected"':'',
+                                $selected, $name);
+                        }
+                        if (count($topics) == 1 && !$form) {
+                            $T = Topic::lookup($id);
+                            $form = DynamicForm::lookup($T->ht['form_id']);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="160">
                 Department:
             </td>
             <td>
@@ -125,32 +155,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['deptId']; ?></font>
+                &nbsp;<font class="error"><?php echo $errors['deptId']; ?></font>
             </td>
         </tr>
 
-        <tr>
-            <td width="160" class="required">
-                Help Topic:
-            </td>
-            <td>
-                <select name="topicId" onchange="javascript:
-                        $('#dynamic-form').load(
-                            'ajax.php/form/help-topic/' + this.value);
-                        ">
-                    <option value="" selected >&mdash; Select Help Topic &mdash;</option>
-                    <?php
-                    if($topics=Topic::getHelpTopics()) {
-                        foreach($topics as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['topicId']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
-            </td>
-        </tr>
          <tr>
             <td width="160">
                 SLA Plan:

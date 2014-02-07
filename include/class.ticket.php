@@ -2009,7 +2009,7 @@ class Ticket {
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Select help topic');
                 break;
             case 'staff':
-                $fields['deptId']   = array('type'=>'int',  'required'=>1, 'error'=>'Dept. required');
+                $fields['deptId']   = array('type'=>'int',  'required'=>0, 'error'=>'Dept. required');
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Topic required');
                 $fields['duedate']  = array('type'=>'date', 'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
             case 'api':
