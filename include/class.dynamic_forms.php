@@ -926,7 +926,13 @@ class SelectionField extends FormField {
                 'id'=>1, 'label'=>'Widget', 'required'=>false,
                 'default'=>false,
                 'choices'=>array(false=>'Drop Down', true=>'Typeahead'),
-                'hint'=>'Typeahead will work better for large lists')),
+                'hint'=>'Typeahead will work better for large lists'
+            )),
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Text shown in the drop-down select before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
         );
     }
 

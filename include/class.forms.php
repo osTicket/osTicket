@@ -493,6 +493,11 @@ class TextboxField extends FormField {
                 'id'=>4, 'label'=>'Validation Error', 'default'=>'',
                 'configuration'=>array('size'=>40, 'length'=>60),
                 'hint'=>'Message shown to user if the input does not match the validator')),
+            'placeholder' => new TextboxField(array(
+                'id'=>5, 'label'=>'Placeholder', 'required'=>false, 'default'=>'',
+                'hint'=>'Text shown in before any input from the user',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
         );
     }
 
@@ -540,6 +545,11 @@ class TextareaField extends FormField {
             'html' => new BooleanField(array(
                 'id'=>4, 'label'=>'HTML', 'required'=>false, 'default'=>true,
                 'configuration'=>array('desc'=>'Allow HTML input in this box'))),
+            'placeholder' => new TextboxField(array(
+                'id'=>5, 'label'=>'Placeholder', 'required'=>false, 'default'=>'',
+                'hint'=>'Text shown in before any input from the user',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
         );
     }
 
@@ -858,7 +868,13 @@ class PriorityField extends ChoiceField {
     }
 
     function getConfigurationOptions() {
-        return array();
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Text shown in the drop-down select before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
     }
 }
 FormField::addFieldTypes('Built-in Lists', function() {
@@ -907,8 +923,9 @@ class TextboxWidget extends Widget {
         ?>
         <span style="display:inline-block">
         <input type="text" id="<?php echo $this->name; ?>"
-            <?php echo $size . " " . $maxlength; ?>
-            <?php echo $classes.' '.$autocomplete; ?>
+            <?php echo $size . " " . $maxlength
+                .' '.$classes.' '.$autocomplete
+                .' placeholder="'.$config['placeholder'].'"'; ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         </span>
@@ -930,7 +947,8 @@ class TextareaWidget extends Widget {
             $class = 'class="richtext no-bar small"';
         ?>
         <span style="display:inline-block;width:100%">
-        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class; ?>
+        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
+                .' placeholder="'.$config['placeholder'].'"'; ?>
             name="<?php echo $this->name; ?>"><?php
                 echo Format::htmlchars($this->value);
             ?></textarea>
