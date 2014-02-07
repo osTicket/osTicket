@@ -670,7 +670,7 @@ class ChoiceField extends FormField {
             )),
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Text shown in the drop-down select before a value is selected',
+                'hint'=>'Leading text shown before a value is selected',
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -871,7 +871,7 @@ class PriorityField extends ChoiceField {
         return array(
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Text shown in the drop-down select before a value is selected',
+                'hint'=>'Leading text shown before a value is selected',
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );

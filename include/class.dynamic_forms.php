@@ -930,7 +930,7 @@ class SelectionField extends FormField {
             )),
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Text shown in the drop-down select before a value is selected',
+                'hint'=>'Leading text shown before a value is selected',
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -974,7 +974,8 @@ class SelectionWidget extends ChoicesWidget {
         <span style="display:inline-block">
         <input type="text" size="30" name="<?php echo $this->name; ?>"
             id="<?php echo $this->name; ?>" value="<?php echo $name; ?>"
-            autocomplete="off" />
+            placeholder="<?php echo $config['prompt'];
+            ?>" autocomplete="off" />
         <input type="hidden" name="<?php echo $this->name;
             ?>_id" id="<?php echo $this->name; ?>_id" value="<?php echo $value; ?>"/>
         <script type="text/javascript">
