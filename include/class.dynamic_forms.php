@@ -941,7 +941,7 @@ class SelectionField extends FormField {
 }
 
 class SelectionWidget extends ChoicesWidget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         $value = false;
         if ($this->value instanceof DynamicListItem) {
@@ -953,9 +953,9 @@ class SelectionWidget extends ChoicesWidget {
             $value = $this->value;
             $name = $this->getEnteredValue();
         }
-        if (!$config['typeahead']) {
+        if (!$config['typeahead'] || $mode=='search') {
             $this->value = $value;
-            return parent::render();
+            return parent::render($mode);
         }
 
         $source = array();

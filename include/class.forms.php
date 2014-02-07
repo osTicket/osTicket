@@ -967,20 +967,27 @@ class PhoneNumberWidget extends Widget {
 }
 
 class ChoicesWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         // Determine the value for the default (the one listed if nothing is
         // selected)
         $choices = $this->field->getChoices();
-        $def_key = $this->field->get('default');
-        if (!$def_key && $config['default'])
-            $def_key = $config['default'];
-        $have_def = isset($choices[$def_key]);
-        if (!$have_def)
+        // We don't consider the 'default' when rendering in 'search' mode
+        $have_def = false;
+        if ($mode != 'search') {
+            $def_key = $this->field->get('default');
+            if (!$def_key && $config['default'])
+                $def_key = $config['default'];
+            $have_def = isset($choices[$def_key]);
+            if (!$have_def)
+                $def_val = ($config['prompt'])
+                   ? $config['prompt'] : 'Select';
+            else
+                $def_val = $choices[$def_key];
+        } else {
             $def_val = ($config['prompt'])
-               ? $config['prompt'] : 'Select';
-        else
-            $def_val = $choices[$def_key];
+                ? $config['prompt'] : 'Select';
+        }
         $value = $this->value;
         if ($value === null && $have_def)
             $value = $def_key;
