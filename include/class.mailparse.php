@@ -188,14 +188,14 @@ class Mail_Parse {
     }
 
     function getCcAddressList(){
-        if (!($header = $this->struct->headers['cc']))
+        if (!($header = @$this->struct->headers['cc']))
             return null;
 
         return Mail_Parse::parseAddressList($header);
     }
 
     function getBccAddressList(){
-        if (!($header = $this->struct->headers['bcc']))
+        if (!($header = @$this->struct->headers['bcc']))
             return null;
 
         return Mail_Parse::parseAddressList($header);
@@ -212,7 +212,7 @@ class Mail_Parse {
     }
 
     function getReplyTo() {
-        if (!($header = $this->struct->headers['reply-to']))
+        if (!($header = @$this->struct->headers['reply-to']))
             return null;
 
         return Mail_Parse::parseAddressList($header);
@@ -255,7 +255,7 @@ class Mail_Parse {
     function getBody(){
         global $cfg;
 
-        if ($cfg->isHtmlThreadEnabled()) {
+        if ($cfg && $cfg->isHtmlThreadEnabled()) {
             if ($html=$this->getPart($this->struct,'text/html'))
                 $body = new HtmlThreadBody($html);
             elseif ($text=$this->getPart($this->struct,'text/plain'))
@@ -270,7 +270,7 @@ class Mail_Parse {
         else
             $body = new TextThreadBody('');
 
-        if ($cfg->stripQuotedReply())
+        if ($cfg && $cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());
 
         return $body;
@@ -278,9 +278,9 @@ class Mail_Parse {
 
     function getPart($struct, $ctypepart, $recurse=-1) {
 
-        if($struct && !$struct->parts) {
+        if($struct && !@$struct->parts) {
             $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
-            if ($struct->disposition
+            if (@$struct->disposition
                     && (strcasecmp($struct->disposition, 'inline') !== 0))
                 return '';
             if ($ctype && strcasecmp($ctype,$ctypepart)==0) {
@@ -295,7 +295,7 @@ class Mail_Parse {
         }
 
         $data='';
-        if($struct && $struct->parts && $recurse) {
+        if($struct && @$struct->parts && $recurse) {
             foreach($struct->parts as $i=>$part) {
                 if($part && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
                     $data.=$text;
@@ -535,8 +535,8 @@ class EmailDataParser {
         else {
             // Typical email
             $data['message'] = $parser->getBody();
-            $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
-            $data['references'] = $parser->struct->headers['references'];
+            $data['in-reply-to'] = @$parser->struct->headers['in-reply-to'];
+            $data['references'] = @$parser->struct->headers['references'];
         }
 
         $data['subject'] = $parser->getSubject();
