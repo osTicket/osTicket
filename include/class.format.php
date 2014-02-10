@@ -34,21 +34,24 @@ class Format {
     function encode($text, $charset=null, $encoding='utf-8') {
 
         //Try auto-detecting charset/encoding
-        if(!$charset && function_exists('mb_detect_encoding'))
+        if (!$charset && function_exists('mb_detect_encoding'))
             $charset = mb_detect_encoding($text);
 
         // Cleanup - incorrect, bogus, or ambiguous charsets
-        if($charset && in_array(strtolower(trim($charset)),
+        // ISO-8859-1 is assumed for empty charset.
+        if (!$charset || in_array(strtolower(trim($charset)),
                 array('default','x-user-defined','iso','us-ascii')))
             $charset = 'ISO-8859-1';
 
         $original = $text;
-        if(function_exists('iconv') && $charset)
+        if (function_exists('iconv'))
             $text = iconv($charset, $encoding.'//IGNORE', $text);
-        elseif(function_exists('mb_convert_encoding') && $charset && $encoding)
+        elseif (function_exists('mb_convert_encoding'))
             $text = mb_convert_encoding($text, $encoding, $charset);
-        elseif(!strcasecmp($encoding, 'utf-8')) //forced blind utf8 encoding.
-            $text = function_exists('imap_utf8')?imap_utf8($text):utf8_encode($text);
+        elseif (!strcasecmp($encoding, 'utf-8')
+                && function_exists('utf8_encode')
+                && !strcasecmp($charset, 'ISO-8859-1'))
+            $text = utf8_encode($text);
 
         // If $text is false, then we have a (likely) invalid charset, use
         // the original text and assume 8-bit (latin-1 / iso-8859-1)
@@ -176,7 +179,7 @@ class Format {
         if (isset($attributes['style'])) {
             $styles = explode(';', $attributes['style']);
             foreach ($styles as $i=>$s) {
-                list($prop, $val) = explode(':', $s);
+                @list($prop, $val) = explode(':', $s);
                 if (!$val || !$prop || $prop[0] == '-')
                     unset($styles[$i]);
             }
