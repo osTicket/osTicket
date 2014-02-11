@@ -46,6 +46,8 @@ class Mail_Parse {
         //Desired charset
         if($charset)
             $this->charset = $charset;
+
+        $this->notes = array();
     }
 
     function decode() {
@@ -95,10 +97,17 @@ class Mail_Parse {
         foreach ($this->struct->parts as $i=>$part) {
             if (!$part->parts && $part->ctype_primary == 'application'
                     && $part->ctype_secondary == 'ms-tnef') {
-                $tnef = new TnefStreamParser($part->body);
-                $this->tnef = $tnef->getMessage();
-                // No longer considered an attachment
-                unset($this->struct->parts[$i]);
+                try {
+                    $tnef = new TnefStreamParser($part->body);
+                    $this->tnef = $tnef->getMessage();
+                    // No longer considered an attachment
+                    unset($this->struct->parts[$i]);
+                }
+                catch (TnefException $ex) {
+                    // TNEF will remain an attachment
+                    $this->notes[] = 'TNEF parsing exception: '
+                        .$ex->getMessage();
+                }
             }
         }
 

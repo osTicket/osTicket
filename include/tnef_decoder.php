@@ -5,6 +5,11 @@
     Parser library and data objects for Microsoft TNEF (Transport Neutral
     Encapsulation Format) encoded email attachments.
 
+    Jared Hancock <jared@osticket.com>
+    Peter Rotich <peter@osticket.com>
+    Copyright (c)  2006-2014 osTicket
+    http://www.osticket.com
+
     This algorithm based on a similar project; however the original code did
     not process the HTML body of the message, nor did it properly handle the
     Microsoft Unicode encoding found in the attributes.
@@ -24,11 +29,6 @@
      * @author  Jan Schneider <jan@horde.org>
      * @author  Michael Slusarz <slusarz@horde.org>
      * @package Horde_Compress
-
-    Jared Hancock <jared@osticket.com>
-    Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2013 osTicket
-    http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
     See LICENSE.TXT for details.
@@ -52,7 +52,14 @@ class TnefStreamReader implements Iterator {
     var $streams = array();
     var $current = true;
 
-    function __construct($stream) {
+    var $options = array(
+        'checksum' => true,
+    );
+
+    function __construct($stream, $options=array()) {
+        if (is_array($options))
+            $this->options += $options;
+
         $this->push($stream);
 
         // Read header
@@ -102,11 +109,12 @@ class TnefStreamReader implements Iterator {
         return $value;
     }
 
-
     function check($block) {
-        $bytes = unpack('*bb', $block['data']);
-        $sum = array_sum($bytes);
-        return $block['checksum'] == ($sum % 65535);
+        $sum = 0;
+        for ($i=0, $k=strlen($block['data']); $i < $k; $i++)
+            $sum += ord($block['data'][$i]);
+        if ($block['checksum'] != ($sum % 65536))
+            throw new TnefException('Corrupted block. Invalid checksum');
     }
 
     function next() {
@@ -122,6 +130,9 @@ class TnefStreamReader implements Iterator {
             'data' => $this->_getx($length),
             'checksum' => $this->_geti(16)
         );
+
+        if ($this->options['checksum'])
+            $this->check($this->current);
     }
 
     function current() {
