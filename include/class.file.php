@@ -252,6 +252,20 @@ class AttachmentFile {
         if(!$file['size'])
             $file['size'] = strlen($file['data']);
 
+        if (!$file['type']) {
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            if ($file['data'])
+                $type = $finfo->buffer($file['data']);
+            elseif ($file['tmp_name'])
+                $type = $finfo->file($file['tmp_name']);
+
+            if ($type)
+                $file['type'] = $type;
+            else
+                $file['type'] = 'application/octet-stream';
+        }
+
+
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input(strtolower($file['type']))
             .',size='.db_input($file['size'])
