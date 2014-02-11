@@ -109,8 +109,8 @@ class Ticket {
         if (!$this->_answers) {
             foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form)
                 foreach ($form->getAnswers() as $answer)
-                    $this->_answers[$answer->getField()->get('name')]
-                        = $answer;
+                    if ($tag = mb_strtolower($answer->getField()->get('name')))
+                        $this->_answers[$tag] = $answer;
         }
     }
 
@@ -1252,6 +1252,7 @@ class Ticket {
                 return $this->getOwner();
                 break;
             default:
+                $tag = mb_strtolower($tag);
                 if (isset($this->_answers[$tag]))
                     // The answer object is retrieved here which will
                     // automatically invoke the toString() method when the
@@ -2184,7 +2185,7 @@ class Ticket {
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Select help topic');
                 break;
             case 'staff':
-                $fields['deptId']   = array('type'=>'int',  'required'=>1, 'error'=>'Dept. required');
+                $fields['deptId']   = array('type'=>'int',  'required'=>0, 'error'=>'Dept. required');
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Topic required');
                 $fields['duedate']  = array('type'=>'date', 'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
             case 'api':

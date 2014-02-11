@@ -509,6 +509,11 @@ class TextboxField extends FormField {
                 'id'=>4, 'label'=>'Validation Error', 'default'=>'',
                 'configuration'=>array('size'=>40, 'length'=>60),
                 'hint'=>'Message shown to user if the input does not match the validator')),
+            'placeholder' => new TextboxField(array(
+                'id'=>5, 'label'=>'Placeholder', 'required'=>false, 'default'=>'',
+                'hint'=>'Text shown in before any input from the user',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
         );
     }
 
@@ -568,6 +573,11 @@ class TextareaField extends FormField {
             'html' => new BooleanField(array(
                 'id'=>4, 'label'=>'HTML', 'required'=>false, 'default'=>true,
                 'configuration'=>array('desc'=>'Allow HTML input in this box'))),
+            'placeholder' => new TextboxField(array(
+                'id'=>5, 'label'=>'Placeholder', 'required'=>false, 'default'=>'',
+                'hint'=>'Text shown in before any input from the user',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
         );
     }
 
@@ -688,7 +698,7 @@ class ChoiceField extends FormField {
             )),
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Text shown in the drop-down select before a value is selected',
+                'hint'=>'Leading text shown before a value is selected',
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -896,7 +906,13 @@ class PriorityField extends ChoiceField {
     }
 
     function getConfigurationOptions() {
-        return array();
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Leading text shown before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
     }
 }
 FormField::addFieldTypes('Built-in Lists', function() {
@@ -949,7 +965,8 @@ class TextboxWidget extends Widget {
         <input type="<?php echo static::$input_type; ?>"
             id="<?php echo $this->name; ?>"
             <?php echo $size . " " . $maxlength; ?>
-            <?php echo $classes.' '.$autocomplete; ?>
+            <?php echo $classes.' '.$autocomplete
+                .' placeholder="'.$config['placeholder'].'"'; ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         </span>
@@ -984,7 +1001,8 @@ class TextareaWidget extends Widget {
             $class = 'class="richtext no-bar small"';
         ?>
         <span style="display:inline-block;width:100%">
-        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class; ?>
+        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
+                .' placeholder="'.$config['placeholder'].'"'; ?>
             name="<?php echo $this->name; ?>"><?php
                 echo Format::htmlchars($this->value);
             ?></textarea>
@@ -1021,20 +1039,27 @@ class PhoneNumberWidget extends Widget {
 }
 
 class ChoicesWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         // Determine the value for the default (the one listed if nothing is
         // selected)
         $choices = $this->field->getChoices();
-        $def_key = $this->field->get('default');
-        if (!$def_key && $config['default'])
-            $def_key = $config['default'];
-        $have_def = isset($choices[$def_key]);
-        if (!$have_def)
+        // We don't consider the 'default' when rendering in 'search' mode
+        $have_def = false;
+        if ($mode != 'search') {
+            $def_key = $this->field->get('default');
+            if (!$def_key && $config['default'])
+                $def_key = $config['default'];
+            $have_def = isset($choices[$def_key]);
+            if (!$have_def)
+                $def_val = ($config['prompt'])
+                   ? $config['prompt'] : 'Select';
+            else
+                $def_val = $choices[$def_key];
+        } else {
             $def_val = ($config['prompt'])
-               ? $config['prompt'] : 'Select';
-        else
-            $def_val = $choices[$def_key];
+                ? $config['prompt'] : 'Select';
+        }
         $value = $this->value;
         if ($value === null && $have_def)
             $value = $def_key;

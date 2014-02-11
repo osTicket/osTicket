@@ -930,7 +930,13 @@ class SelectionField extends FormField {
                 'id'=>1, 'label'=>'Widget', 'required'=>false,
                 'default'=>false,
                 'choices'=>array(false=>'Drop Down', true=>'Typeahead'),
-                'hint'=>'Typeahead will work better for large lists')),
+                'hint'=>'Typeahead will work better for large lists'
+            )),
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Leading text shown before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
         );
     }
 
@@ -945,7 +951,7 @@ class SelectionField extends FormField {
 }
 
 class SelectionWidget extends ChoicesWidget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         $value = false;
         if ($this->value instanceof DynamicListItem) {
@@ -957,9 +963,9 @@ class SelectionWidget extends ChoicesWidget {
             $value = $this->value;
             $name = $this->getEnteredValue();
         }
-        if (!$config['typeahead']) {
+        if (!$config['typeahead'] || $mode=='search') {
             $this->value = $value;
-            return parent::render();
+            return parent::render($mode);
         }
 
         $source = array();
@@ -972,7 +978,8 @@ class SelectionWidget extends ChoicesWidget {
         <span style="display:inline-block">
         <input type="text" size="30" name="<?php echo $this->name; ?>"
             id="<?php echo $this->name; ?>" value="<?php echo $name; ?>"
-            autocomplete="off" />
+            placeholder="<?php echo $config['prompt'];
+            ?>" autocomplete="off" />
         <input type="hidden" name="<?php echo $this->name;
             ?>_id" id="<?php echo $this->name; ?>_id" value="<?php echo $value; ?>"/>
         <script type="text/javascript">

@@ -634,7 +634,8 @@ if ($results) {
             elseif (!$f->hasData())
                 continue;
             ?><label><?php echo $f->getLabel(); ?>:</label>
-                <div style="display:inline-block;width: 12.5em;"><?php $f->render(); ?></div>
+                <div style="display:inline-block;width: 12.5em;"><?php
+                     $f->render('search'); ?></div>
         <?php } ?>
         </fieldset>
         <p>
