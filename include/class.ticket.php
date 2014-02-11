@@ -1531,6 +1531,10 @@ class Ticket {
                     'isactive' => ($message->getUserId() == $this->getUserId())? 1: 0);
             $collabs = array();
             foreach ($vars['recipients'] as $recipient) {
+                // Skip virtual delivered-to addresses
+                if (strcasecmp($recipient['source'], 'delivered-to') === 0)
+                    continue;
+
                 if (($user=User::fromVars($recipient)))
                     if ($c=$this->addCollaborator($user, $info, $errors))
                         $collabs[] = sprintf('%s%s',

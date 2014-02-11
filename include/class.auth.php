@@ -560,7 +560,7 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
         }
     }
 }
-StaffAuthenticationBackend::register(StaffAuthStrikeBackend);
+StaffAuthenticationBackend::register('StaffAuthStrikeBackend');
 
 /*
  * Backend to monitor user's failed login attempts
@@ -603,7 +603,7 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
 
     }
 }
-UserAuthenticationBackend::register(UserAuthStrikeBackend);
+UserAuthenticationBackend::register('UserAuthStrikeBackend');
 
 
 class osTicketAuthentication extends StaffAuthenticationBackend {
@@ -626,7 +626,7 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
     }
 
 }
-StaffAuthenticationBackend::register(osTicketAuthentication);
+StaffAuthenticationBackend::register('osTicketAuthentication');
 
 class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     static $id = "pwreset.staff";
@@ -663,7 +663,7 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
         return parent::login($staff, $bk);
     }
 }
-StaffAuthenticationBackend::register(PasswordResetTokenBackend);
+StaffAuthenticationBackend::register('PasswordResetTokenBackend');
 
 /*
  * AuthToken Authentication Backend
@@ -749,7 +749,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
     }
 
 }
-UserAuthenticationBackend::register(AuthTokenAuthentication);
+UserAuthenticationBackend::register('AuthTokenAuthentication');
 
 //Simple ticket lookup backend used to recover ticket access link.
 // We're using authentication backend so we can guard aganist brute force
@@ -784,5 +784,5 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
     }
 
 }
-UserAuthenticationBackend::register(AccessLinkAuthentication);
+UserAuthenticationBackend::register('AccessLinkAuthentication');
 ?>
