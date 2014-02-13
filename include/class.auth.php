@@ -314,6 +314,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         global $ost;
 
         $_SESSION['_auth']['staff'] = array();
+        unset($_SESSION[':token']['staff']);
         $ost->logDebug('Staff logout',
                 sprintf("%s logged out [%s]",
                     $staff->getUserName(),
@@ -430,6 +431,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         global $ost;
 
         $_SESSION['_auth']['user'] = array();
+        unset($_SESSION[':token']['client']);
         $ost->logDebug('User logout',
                 sprintf("%s logged out [%s]",
                     $user->getUserName(), $_SERVER['REMOTE_ADDR']));
