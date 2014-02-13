@@ -164,30 +164,15 @@ class Mail_Parse {
 
 
     function getFromAddressList(){
-        if (!($header = $this->struct->headers['from']))
-            return null;
-
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($this->struct->headers['from']);
     }
 
     function getToAddressList(){
-        // Delivered-to incase it was a BBC mail.
-        $addrs = array();
-        if ($header = $this->struct->headers['to'])
-            $addrs = Mail_Parse::parseAddressList($header);
-
-        if ($header = $this->struct->headers['delivered-to'])
-            $addrs = array_merge($addrs,
-                Mail_Parse::parseAddressList($header));
-
-        return $addrs;
-    }
-
-    function getCcAddressList(){
-        if (!($header = $this->struct->headers['cc']))
-            return null;
-
-        return Mail_Parse::parseAddressList($header);
+        return array_merge(
+            Mail_Parse::parseAddressList($this->struct->headers['to']),
+            Mail_Parse::parseAddressList($this->struct->headers['delivered-to']),
+			Mail_Parse::parseAddressList($this->struct->headers['cc'])
+        );
     }
 
     function getMessageId(){
@@ -201,10 +186,7 @@ class Mail_Parse {
     }
 
     function getReplyTo() {
-        if (!($header = $this->struct->headers['reply-to']))
-            return null;
-
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($this->struct->headers['reply-to']);
     }
 
     function isBounceNotice() {
@@ -397,12 +379,17 @@ class Mail_Parse {
 
     function parseAddressList($address){
         if (!$address)
-            return false;
+            return array();
+
         // Delivered-To may appear more than once in the email headers
         if (is_array($address))
             $address = implode(', ', $address);
 
-        return Mail_RFC822::parseAddressList($address, null, null,false);
+        $parsed = Mail_RFC822::parseAddressList($address, null, null,false);
+
+        if(PEAR::isError($parsed))
+            return array();
+        return $parsed;
     }
 
     function parse($rawemail) {
@@ -437,7 +424,7 @@ class EmailDataParser {
 
         $data =array();
         //FROM address: who sent the email.
-        if(($fromlist = $parser->getFromAddressList()) && !PEAR::isError($fromlist)) {
+        if(($fromlist = $parser->getFromAddressList())) {
             $from=$fromlist[0]; //Default.
             foreach($fromlist as $fromobj) {
                 if(!Validator::is_email($fromobj->mailbox.'@'.$fromobj->host)) continue;
@@ -464,13 +451,6 @@ class EmailDataParser {
                     break;
             }
         }
-        //maybe we got CC'ed??
-        if(!$emailId && ($cclist=$parser->getCcAddressList())) {
-            foreach ($cclist as $ccaddr) {
-                if(($emailId=Email::getIdByEmail($ccaddr->mailbox.'@'.$ccaddr->host)))
-                    break;
-            }
-        }
 
         if ($parser->isBounceNotice()) {
             // Fetch the original References and assign to 'references'
@@ -493,7 +473,7 @@ class EmailDataParser {
         $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
 
-        if (($replyto = $parser->getReplyTo()) && !PEAR::isError($replyto)) {
+        if (($replyto = $parser->getReplyTo())) {
             $replyto = $replyto[0];
             $data['reply-to'] = $replyto->mailbox.'@'.$replyto->host;
             if ($replyto->personal)
