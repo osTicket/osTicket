@@ -100,6 +100,18 @@ abstract class AuthenticationBackend {
             return $backends[$id];
     }
 
+    /*
+     * Allow the backend to do login audit depending on the result
+     * This is mainly used to track failed login attempts
+     */
+    static function authAudit($result, $credentials=null) {
+
+        if (!$result) return;
+
+        foreach (static::allRegistered() as $bk)
+            $bk->audit($result, $credentials);
+    }
+
     static function process($username, $password=null, &$errors) {
 
         if (!$username)
@@ -117,22 +129,32 @@ abstract class AuthenticationBackend {
             // authentication so that extensions like lockouts and audits
             // can be supported.
             $result = $bk->authenticate($username, $password);
-
             if ($result instanceof AuthenticatedUser
                     && ($bk->login($result, $bk)))
                 return $result;
-            // TODO: Handle permission denied, for instance
             elseif ($result instanceof AccessDenied) {
-                $errors['err'] = $result->reason;
                 break;
             }
         }
 
-        $info = array('username'=>$username, 'password'=>$password);
+        if (!$result)
+            $result = new  AccessDenied('Access denied');
+
+        if ($result && $result instanceof AccessDenied)
+            $errors['err'] = $result->reason;
+
+        $info = array('username' => $username, 'password' => $password);
         Signal::send('auth.login.failed', null, $info);
+        self::authAudit($result, $info);
     }
 
-    function processSignOn(&$errors) {
+    /*
+     *  Attempt to process non-interactive sign-on e.g  HTTP-Passthrough
+     *
+     * $forcedAuth - indicate if authentication is required.
+     *
+     */
+    function processSignOn(&$errors, $forcedAuth=true) {
 
         foreach (static::allRegistered() as $bk) {
             // All backends are queried here, even if they don't support
@@ -146,12 +168,18 @@ abstract class AuthenticationBackend {
 
                 return $result;
             }
-            // TODO: Handle permission denied, for instance
             elseif ($result instanceof AccessDenied) {
-                $errors['err'] = $result->reason;
                 break;
             }
         }
+
+        if (!$result && $forcedAuth)
+            $result = new  AccessDenied('Unknown user');
+
+        if ($result && $result instanceof AccessDenied)
+            $errors['err'] = $result->reason;
+
+        self::authAudit($result);
     }
 
     static function searchUsers($query) {
@@ -199,6 +227,10 @@ abstract class AuthenticationBackend {
     }
 
     protected function validate($auth) {
+        return null;
+    }
+
+    protected function audit($result, $credentials) {
         return null;
     }
 
@@ -465,9 +497,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
  * This will be an exception in later versions of PHP
  */
 class AccessDenied {
-    function AccessDenied() {
-        call_user_func_array(array($this, '__construct'), func_get_args());
-    }
     function __construct($reason) {
         $this->reason = $reason;
     }
@@ -480,11 +509,11 @@ class AccessDenied {
 abstract class AuthStrikeBackend extends AuthenticationBackend {
 
     function authenticate($username, $password=null) {
-        return static::authStrike($username, $password);
+        return static::authTimeout();
     }
 
     function signOn() {
-        return static::authStrike('Unknown');
+        return static::authTimeout();
     }
 
     static function signOut($user) {
@@ -512,7 +541,17 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
         return null;
     }
 
-    abstract function  authStrike($username, $password=null);
+    //Provides audit facility for logins attempts
+    function audit($result, $credentials) {
+
+        //Count failed login attempts as a strike.
+        if ($result instanceof AccessDenied)
+            return static::authStrike($credentials);
+
+    }
+
+    abstract function authStrike($credentials);
+    abstract function authTimeout();
 }
 
 /*
@@ -520,23 +559,35 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
  */
 class StaffAuthStrikeBackend extends  AuthStrikeBackend {
 
-    function authstrike($username, $password=null) {
+    function authTimeout() {
+        global $ost;
+
+        $cfg = $ost->getConfig();
+
+        $authsession = &$_SESSION['_auth']['staff'];
+        if (!$authsession['laststrike'])
+            return;
+
+        //Veto login due to excessive login attempts.
+        if((time()-$authsession['laststrike'])<$cfg->getStaffLoginTimeout()) {
+            $authsession['laststrike'] = time(); //reset timer.
+            return new AccessDenied('Max. failed login attempts reached');
+        }
+
+        //Timeout is over.
+        //Reset the counter for next round of attempts after the timeout.
+        $authsession['laststrike']=null;
+        $authsession['strikes']=0;
+    }
+
+    function authstrike($credentials) {
         global $ost;
 
         $cfg = $ost->getConfig();
 
         $authsession = &$_SESSION['_auth']['staff'];
 
-        if($authsession['laststrike']) {
-            if((time()-$authsession['laststrike'])<$cfg->getStaffLoginTimeout()) {
-                $authsession['laststrike'] = time(); //reset timer.
-                return new AccessDenied('Max. failed login attempts reached');
-            } else { //Timeout is over.
-                //Reset the counter for next round of attempts after the timeout.
-                $authsession['laststrike']=null;
-                $authsession['strikes']=0;
-            }
-        }
+        $username = $credentials['username'];
 
         $authsession['strikes']+=1;
         if($authsession['strikes']>$cfg->getStaffMaxLogins()) {
@@ -567,24 +618,36 @@ StaffAuthenticationBackend::register(StaffAuthStrikeBackend);
  */
 class UserAuthStrikeBackend extends  AuthStrikeBackend {
 
-    function authstrike($username, $password=null) {
+    function authTimeout() {
+        global $ost;
+
+        $cfg = $ost->getConfig();
+
+        $authsession = &$_SESSION['_auth']['user'];
+        if (!$authsession['laststrike'])
+            return;
+
+        //Veto login due to excessive login attempts.
+        if ((time()-$authsession['laststrike']) < $cfg->getStaffLoginTimeout()) {
+            $authsession['laststrike'] = time(); //reset timer.
+            return new AccessDenied("You've reached maximum failed login attempts allowed.");
+        }
+
+        //Timeout is over.
+        //Reset the counter for next round of attempts after the timeout.
+        $authsession['laststrike']=null;
+        $authsession['strikes']=0;
+    }
+
+    function authstrike($credentials) {
         global $ost;
 
         $cfg = $ost->getConfig();
 
         $authsession = &$_SESSION['_auth']['user'];
 
-        //Check time for last max failed login attempt strike.
-        if($authsession['laststrike']) {
-            if((time()-$authsession['laststrike'])<$cfg->getClientLoginTimeout()) {
-                $authsession['laststrike'] = time(); //renew the strike.
-                return new AccessDenied('You\'ve reached maximum failed login attempts allowed.');
-            } else { //Timeout is over.
-                //Reset the counter for next round of attempts after the timeout.
-                $authsession['laststrike'] = null;
-                $authsession['strikes'] = 0;
-            }
-        }
+        $username = $credentials['username'];
+        $password = $credentials['password'];
 
         $authsession['strikes']+=1;
         if($authsession['strikes']>$cfg->getClientMaxLogins()) {
