@@ -209,7 +209,7 @@ class Client {
                 $_SESSION['_client']['token'] = $user->getSessionToken();
                 $_SESSION['TZ_OFFSET'] = $cfg->getTZoffset();
                 $_SESSION['TZ_DST'] = $cfg->observeDaylightSaving();
-                $user->refreshSession(); //set the hash.
+                $user->refreshSession(true); //set the hash.
                 //Log login info...
                 $msg=sprintf('%s/%s logged in [%s]', $ticket->getEmail(), $ticket->getExtId(), $_SERVER['REMOTE_ADDR']);
                 $ost->logDebug('User login', $msg);

@@ -660,7 +660,7 @@ class Staff {
         //Now set session crap and lets roll baby!
         $_SESSION['_staff'] = array(); //clear.
         $_SESSION['_staff']['userID'] = $user->getId();
-        $user->refreshSession(); //set the hash.
+        $user->refreshSession(true); //set the hash.
         $_SESSION['TZ_OFFSET'] = $user->getTZoffset();
         $_SESSION['TZ_DST'] = $user->observeDaylight();
 
