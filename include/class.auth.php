@@ -315,7 +315,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $authsession['key'] =  $authkey;
 
         $staff->setAuthKey($authkey);
-        $staff->refreshSession(); //set the hash.
+        $staff->refreshSession(true); //set the hash.
 
         $_SESSION['TZ_OFFSET'] = $staff->getTZoffset();
         $_SESSION['TZ_DST'] = $staff->observeDaylight();
@@ -439,7 +439,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         // XXX: encrypt to hide the bk??
         $user->setAuthKey($authkey);
 
-        $user->refreshSession(); //set the hash.
+        $user->refreshSession(true); //set the hash.
 
         //Log login info...
         $msg=sprintf('%s (%s) logged in [%s]',
