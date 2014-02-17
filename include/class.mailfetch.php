@@ -290,16 +290,36 @@ class MailFetcher {
         if($headerinfo->cc)
             $tolist['cc'] = $headerinfo->cc;
 
+        //Add delivered-to address to list.
+        if (stripos($header['header'], 'delivered-to:') !==false
+                && ($dt = Mail_Parse::findHeaderEntry($header['header'], 'delivered-to'))) {
+            if (($delivered_to = Mail_Parse::parseAddressList($dt)))
+                $tolist['delivered-to'] = $delivered_to;
+        }
+
         $header['recipients'] = array();
         foreach($tolist as $source => $list) {
             foreach($list as $addr) {
-                if(!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    //Skip virtual Delivered-To addresses
+                    if ($source == 'delivered-to') continue;
+
                     $header['recipients'][] = array(
                             'source' => "Email ($source)",
                             'name' => $this->mime_decode(@$addr->personal),
                             'email' => strtolower($addr->mailbox).'@'.$addr->host);
                 } elseif(!$header['emailId']) {
                     $header['emailId'] = $emailId;
+                }
+            }
+        }
+
+        //See if any of the recipients is a delivered to address
+        if ($tolist['delivered-to']) {
+            foreach ($tolist['delivered-to'] as $addr) {
+                foreach ($header['recipients'] as $i => $r) {
+                    if (strcasecmp($r['email'], $addr->mailbox.'@'.$addr->host) === 0)
+                        $header['recipients'][$i]['source'] = 'delivered-to';
                 }
             }
         }
