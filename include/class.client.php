@@ -241,7 +241,5 @@ class  EndUser extends AuthenticatedUser {
 
         return db_fetch_array(db_query($sql));
     }
-
-
 }
 ?>

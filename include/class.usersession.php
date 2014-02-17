@@ -132,11 +132,13 @@ class ClientSession extends EndUser {
         return $this->session->isvalidSession($this->token,$cfg->getClientTimeout(),false)?true:false;
     }
 
-    function refreshSession(){
+    function refreshSession($force=false){
+
         $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
-        if (time() - $time < 30)
+        if (!$force && time() - $time < 30)
             return;
+
         $this->token = $this->getSessionToken();
         //TODO: separate expire time from hash??
     }
@@ -175,10 +177,10 @@ class StaffSession extends Staff {
         return $this->session->isvalidSession($this->token,$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;
     }
 
-    function refreshSession(){
+    function refreshSession($force=false){
         $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
-        if (time() - $time < 30)
+        if (!$force && time() - $time < 30)
             return;
 
         $this->token=$this->getSessionToken();
