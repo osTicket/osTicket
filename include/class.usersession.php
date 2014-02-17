@@ -133,7 +133,6 @@ class ClientSession extends EndUser {
     }
 
     function refreshSession($force=false){
-
         $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
         if (!$force && time() - $time < 30)
