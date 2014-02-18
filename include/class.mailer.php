@@ -206,20 +206,37 @@ class Mailer {
         $body = $mime->get($encodings);
         //encode the headers.
         $headers = $mime->headers($headers, true);
+
+        // Cache smtp connections made during this request
+        static $smtp_connections = array();
         if(($smtp=$this->getSMTPInfo())) { //Send via SMTP
-            $mail = mail::factory('smtp',
-                    array ('host' => $smtp['host'],
-                           'port' => $smtp['port'],
-                           'auth' => $smtp['auth'],
-                           'username' => $smtp['username'],
-                           'password' => $smtp['password'],
-                           'timeout'  => 20,
-                           'debug' => false,
-                           ));
+            $key = sprintf("%s:%s:%s", $smtp['host'], $smtp['port'],
+                $smtp['username']);
+            if (!isset($smtp_connections[$key])) {
+                $mail = mail::factory('smtp', array(
+                    'host' => $smtp['host'],
+                    'port' => $smtp['port'],
+                    'auth' => $smtp['auth'],
+                    'username' => $smtp['username'],
+                    'password' => $smtp['password'],
+                    'timeout'  => 20,
+                    'debug' => false,
+                    'persist' => true,
+                ));
+                if ($mail->connect())
+                    $smtp_connections[$key] = $mail;
+            }
+            else {
+                // Use persistent connection
+                $mail = $smtp_connections[$key];
+            }
 
             $result = $mail->send($to, $headers, $body);
             if(!PEAR::isError($result))
                 return $messageId;
+
+            // Force reconnect on next ->send()
+            unset($smtp_connections[$key]);
 
             $alert=sprintf("Unable to email via SMTP:%s:%d [%s]\n\n%s\n",
                     $smtp['host'], $smtp['port'], $smtp['username'], $result->getMessage());
