@@ -370,7 +370,8 @@ class Mail_Parse {
                     'type'  => strtolower($part->ctype_primary.'/'.$part->ctype_secondary),
                     );
 
-            if ($part->ctype_parameters['charset'])
+            if ($part->ctype_parameters['charset']
+                    && 0 === strcasecmp($part->ctype_primary, 'text'))
                 $file['data'] = $this->mime_encode($part->body,
                     $part->ctype_parameters['charset']);
             else
