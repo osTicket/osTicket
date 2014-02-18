@@ -2234,6 +2234,10 @@ class Ticket {
         # function
         if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
 
+        # Apply filter-specific priority
+        if ($vars['priorityId'])
+            $form->setAnswer('priority', null, $vars['priorityId']);
+
         // OK...just do it.
         $deptId=$vars['deptId']; //pre-selected Dept if any.
         $source=ucfirst($vars['source']);

@@ -36,7 +36,10 @@ if($_POST) {
     switch ($_POST['do']) {
         case 'sendmail':
             if (($staff=Staff::lookup($_POST['userid']))) {
-                if (!$staff->sendResetEmail()) {
+                if (!$staff->hasPassword()) {
+                    $msg = 'Unable to reset password. Contact your administrator';
+                }
+                elseif (!$staff->sendResetEmail()) {
                     $tpl = 'pwreset.sent.php';
                 }
             }

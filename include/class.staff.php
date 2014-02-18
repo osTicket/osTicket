@@ -137,6 +137,10 @@ class Staff extends AuthenticatedUser {
         return $this->check_passwd($password, false);
     }
 
+    function hasPassword() {
+        return (bool) $this->ht['passwd'];
+    }
+
     function forcePasswdRest() {
         return db_query('UPDATE '.STAFF_TABLE.' SET change_passwd=1 WHERE staff_id='.db_input($this->getId()));
     }
@@ -862,6 +866,8 @@ class Staff extends AuthenticatedUser {
             if(isset($vars['change_passwd']))
                 $sql.=' ,change_passwd=1';
         }
+        elseif (!isset($vars['change_passwd']))
+            $sql .= ' ,change_passwd=0';
 
         if($id) {
             $sql='UPDATE '.STAFF_TABLE.' '.$sql.' WHERE staff_id='.db_input($id);

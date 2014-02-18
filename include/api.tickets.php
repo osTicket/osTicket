@@ -72,6 +72,15 @@ class TicketApiController extends ApiController {
                     if(!($attachment['data'] = base64_decode($attachment['data'], true)))
                         $attachment['error'] = sprintf('%s: Poorly encoded base64 data', Format::htmlchars($attachment['name']));
                 }
+                if (!$attachment['error']
+                        && ($size = $ost->getConfig()->getMaxFileSize())
+                        && ($fsize = $attachment['size'] ?: strlen($attachment['data']))
+                        && $fsize > $size) {
+                    $attachment['error'] = sprintf('File %s (%s) is too big. Maximum of %s allowed',
+                            Format::htmlchars($attachment['name']),
+                            Format::file_size($fsize),
+                            Format::file_size($size));
+                }
             }
             unset($attachment);
         }

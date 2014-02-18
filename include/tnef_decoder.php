@@ -110,10 +110,13 @@ class TnefStreamReader implements Iterator {
     }
 
     function check($block) {
-        $sum = 0;
-        for ($i=0, $k=strlen($block['data']); $i < $k; $i++)
-            $sum += ord($block['data'][$i]);
-        if ($block['checksum'] != ($sum % 65536))
+        $sum = 0; $bytes = strlen($block['data']); $bs = 1024;
+        for ($i=0; $i < $bytes; $i+=$bs) {
+            $b = unpack('C*', substr($block['data'], $i, min($bs, $bytes-$i)));
+            $sum += array_sum($b);
+            $sum = $sum % 65536;
+        }
+        if ($block['checksum'] != $sum)
             throw new TnefException('Corrupted block. Invalid checksum');
     }
 
