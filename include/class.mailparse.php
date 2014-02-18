@@ -140,9 +140,9 @@ class Mail_Parse {
     }
 
     /* static */
-    function findHeaderEntry($headers, $name) {
+    function findHeaderEntry($headers, $name, $allEntries=false) {
         if (!is_array($headers))
-            $headers = self::splitHeaders($headers);
+            $headers = self::splitHeaders($headers, $allEntries);
         foreach ($headers as $key=>$val)
             if (strcasecmp($key, $name) === 0)
                 return $val;

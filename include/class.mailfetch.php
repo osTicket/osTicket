@@ -292,7 +292,8 @@ class MailFetcher {
 
         //Add delivered-to address to list.
         if (stripos($header['header'], 'delivered-to:') !==false
-                && ($dt = Mail_Parse::findHeaderEntry($header['header'], 'delivered-to'))) {
+                && ($dt = Mail_Parse::findHeaderEntry($header['header'],
+                     'delivered-to', true))) {
             if (($delivered_to = Mail_Parse::parseAddressList($dt)))
                 $tolist['delivered-to'] = $delivered_to;
         }
