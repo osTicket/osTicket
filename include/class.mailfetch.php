@@ -586,14 +586,18 @@ class MailFetcher {
                 && ($attachments = $this->getAttachments($struct))) {
             foreach ($attachments as $i=>$info) {
                 if (0 === strcasecmp('application/ms-tnef', $info['type'])) {
-                    $data = $this->decode(imap_fetchbody($self->mbox,
-                        $mid, $info['index']), $info['encoding']);
-                    $tnef = new TnefStreamParser($data);
-                    $this->tnef = $tnef->getMessage();
-                    // No longer considered an attachment
-                    unset($attachments[$i]);
-                    // There should only be one of these
-                    break;
+                    try {
+                        $data = $this->decode(imap_fetchbody($this->mbox,
+                            $mid, $info['index']), $info['encoding']);
+                        $tnef = new TnefStreamParser($data);
+                        $this->tnef = $tnef->getMessage();
+                        // No longer considered an attachment
+                        unset($attachments[$i]);
+                        // There should only be one of these
+                        break;
+                    } catch (TnefException $ex) {
+                        // Noop -- winmail.dat remains an attachment
+                    }
                 }
             }
         }
@@ -652,7 +656,7 @@ class MailFetcher {
                 if(!$ost->isFileTypeAllowed($file)) {
                     $file['error'] = 'Invalid file type (ext) for '.Format::htmlchars($file['name']);
                 }
-                else {
+                elseif (!$file['data']) {
                     // only fetch the body if necessary
                     $self = $this;
                     $file['data'] = function() use ($self, $mid, $a) {
