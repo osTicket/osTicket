@@ -26,7 +26,11 @@ class osTicketSession {
         if(!$this->ttl)
             $this->ttl=SESSION_TTL;
 
+        // Set osTicket specific session name.
         session_name('OSTSESSID');
+
+        // Forced cleanup on shutdown
+        register_shutdown_function('session_write_close');
 
         if (OsticketConfig::getDBVersion())
             return session_start();
@@ -56,8 +60,6 @@ class osTicketSession {
             array(&$this, 'destroy'),
             array(&$this, 'gc')
         );
-        //Forced cleanup.
-        register_shutdown_function('session_write_close');
 
         //Start the session.
         session_start();
