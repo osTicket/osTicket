@@ -20,6 +20,7 @@ require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.email.php');
 require_once(INCLUDE_DIR.'class.filter.php');
 require_once(INCLUDE_DIR.'html2text.php');
+require_once(INCLUDE_DIR.'tnef_decoder.php');
 
 class MailFetcher {
 
@@ -29,6 +30,8 @@ class MailFetcher {
     var $srvstr;
 
     var $charset = 'UTF-8';
+
+    var $tnef = false;
 
     function MailFetcher($email, $charset='UTF-8') {
 
@@ -343,6 +346,10 @@ class MailFetcher {
             }
         }
 
+        if ($this->tnef && !strcasecmp($mimeType, 'text/html')
+                && ($content = $this->tnef->getBody('text/html', $encoding)))
+            return $content;
+
         //Do recursive search
         $text='';
         if($struct && $struct->parts && $recurse) {
@@ -480,6 +487,10 @@ class MailFetcher {
     }
 
     function getPriority($mid) {
+        if ($this->tnef && isset($this->tnef->Importance))
+            // PidTagImportance is 0, 1, or 2
+            // http://msdn.microsoft.com/en-us/library/ee237166(v=exchg.80).aspx
+            return $this->tnef->Importance + 1;
         return Mail_Parse::parsePriority($this->getHeader($mid));
     }
 
@@ -542,6 +553,23 @@ class MailFetcher {
 	        return true; //Report success (moved or delete)
         }
 
+        // Parse MS TNEF emails
+        if (($struct = imap_fetchstructure($this->mbox, $mid))
+                && ($attachments = $this->getAttachments($struct))) {
+            foreach ($attachments as $i=>$info) {
+                if (0 === strcasecmp('application/ms-tnef', $info['type'])) {
+                    $data = $this->decode(imap_fetchbody($self->mbox,
+                        $mid, $info['index']), $info['encoding']);
+                    $tnef = new TnefStreamParser($data);
+                    $this->tnef = $tnef->getMessage();
+                    // No longer considered an attachment
+                    unset($attachments[$i]);
+                    // There should only be one of these
+                    break;
+                }
+            }
+        }
+
         $vars = $mailinfo;
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
@@ -579,10 +607,18 @@ class MailFetcher {
         $seen = false;
 
         // Fetch attachments if any.
-        if($ost->getConfig()->allowEmailAttachments()
-                && ($struct = imap_fetchstructure($this->mbox, $mid))
-                && ($attachments=$this->getAttachments($struct))) {
-
+        if($ost->getConfig()->allowEmailAttachments()) {
+            // Include TNEF attachments in the attachments list
+            if ($this->tnef) {
+                foreach ($this->tnef->attachments as $at) {
+                    $attachments[] = array(
+                        'cid' => @$at->AttachContentId ?: false,
+                        'data' => $at->Data,
+                        'type' => @$at->AttachMimeTag ?: false,
+                        'name' => $at->getName(),
+                    );
+                }
+            }
             $vars['attachments'] = array();
             foreach($attachments as $a ) {
                 $file = array('name' => $a['name'], 'type' => $a['type']);

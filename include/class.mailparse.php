@@ -393,7 +393,6 @@ class Mail_Parse {
                     'data' => $at->Data,
                     'type' => @$at->AttachMimeTag ?: false,
                     'name' => $at->getName(),
-                    'encoding' => @$at->AttachEncoding ?: false,
                 );
             }
             return $files;
