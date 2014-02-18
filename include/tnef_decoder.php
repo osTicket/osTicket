@@ -209,6 +209,7 @@ class TnefAttribute {
     const AttributeReadOnly = 0x10f6;
     const CreationTime = 0x3007;
     const LastModificationTime = 0x3008;
+    const AttachDataBinary = 0x3701;
     const AttachEncoding = 0x3702;
     const AttachExtension = 0x3703;
     const AttachFilename = 0x3704;
@@ -553,6 +554,13 @@ class TnefAttachment extends AbstractTnefObject {
 
     function _setData($data) {
         $this->Data = $data;
+    }
+
+    function getData() {
+        if (isset($this->Data))
+            return $this->Data;
+        elseif (isset($this->AttachDataBinary))
+            return $this->AttachDataBinary;
     }
 
     function _setRenderingData($data) {

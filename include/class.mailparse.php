@@ -390,7 +390,7 @@ class Mail_Parse {
             foreach ($this->tnef->attachments as $at) {
                 $files[] = array(
                     'cid' => @$at->AttachContentId ?: false,
-                    'data' => $at->Data,
+                    'data' => $at->getData(),
                     'type' => @$at->AttachMimeTag ?: false,
                     'name' => $at->getName(),
                 );

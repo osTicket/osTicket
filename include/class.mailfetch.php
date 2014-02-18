@@ -617,7 +617,7 @@ class MailFetcher {
                 foreach ($this->tnef->attachments as $at) {
                     $attachments[] = array(
                         'cid' => @$at->AttachContentId ?: false,
-                        'data' => $at->Data,
+                        'data' => $at,
                         'type' => @$at->AttachMimeTag ?: false,
                         'name' => $at->getName(),
                     );
@@ -631,7 +631,10 @@ class MailFetcher {
                 if(!$ost->isFileTypeAllowed($file)) {
                     $file['error'] = 'Invalid file type (ext) for '.Format::htmlchars($file['name']);
                 }
-                elseif (!$file['data']) {
+                elseif (@$a['data'] instanceof TnefAttachment) {
+                    $file['data'] = $a['data']->getData();
+                }
+                else {
                     // only fetch the body if necessary
                     $self = $this;
                     $file['data'] = function() use ($self, $mid, $a) {
