@@ -25,8 +25,11 @@ $thisstaff->logOut();
 //Clear any ticket locks the staff has.
 TicketLock::removeStaffLocks($thisstaff->getId());
 
-//Clear upgrader session on logout.
-$_SESSION['ost_upgrader'] = null;
+//Destroy session on logout.
+// TODO: Stop doing this starting with 1.9 - separate session data per
+// app/panel.
+session_unset();
+session_destroy();
 
 @header('Location: login.php');
 require('login.php');
