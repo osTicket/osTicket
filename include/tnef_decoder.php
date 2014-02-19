@@ -215,6 +215,7 @@ class TnefAttribute {
     const AttachFilename = 0x3704;
     const AttachLongFilename = 0x3707;
     const AttachPathname = 0x3708;
+    const AttachTransportName = 0x370c;
     const AttachMimeTag = 0x370e;    # Mime content-type
     const AttachContentId = 0x3712;
     const AttachmentCharset = 0x371b;
@@ -486,7 +487,7 @@ class TnefStreamParser {
                     new TnefAttributeStreamReader($info['data']));
                 break;
             case self::attAttachTransportFilename:
-                $attach->_setFilename($info['data']);
+                $attach->_setFilename(rtrim($info['data'], "\x00"));
                 break;
             case self::attAttachData:
                 $attach->_setData($info['data']);
@@ -576,6 +577,8 @@ class TnefAttachment extends AbstractTnefObject {
             return basename($this->AttachLongFilename);
         elseif (isset($this->AttachFilename))
             return $this->AttachFilename;
+        elseif (isset($this->AttachTransportName))
+            return $this->AttachTransportName;
         else
             return $this->TransportFilename;
     }
