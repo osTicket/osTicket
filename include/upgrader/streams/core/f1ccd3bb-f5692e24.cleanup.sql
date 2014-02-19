@@ -16,3 +16,6 @@
 ALTER TABLE `%TABLE_PREFIX%ticket_email_info`
     ADD `id` int(11) unsigned not null auto_increment FIRST,
     ADD PRIMARY KEY (`id`);
+
+-- Drop the CDATA table, if any
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket__cdata`;
