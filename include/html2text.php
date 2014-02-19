@@ -277,7 +277,7 @@ class HtmlInlineElement {
     }
 
     function addFootNote($name, $content) {
-        $this->footnotes[$name] = $content;
+        $this->footnotes[$content] = $content;
         return count($this->footnotes);
     }
 }
