@@ -236,7 +236,7 @@ class TnefAttribute {
     const ReceivedRepresentingSimpleDisplayName = 0x4034;
     const CreatorSimpleDisplayName = 0x4038;
     const LastModifierSimpleDisplayName = 0x4039;
-    const ContentFilterSpmnConfidenceLevel = 0x4076;
+    const ContentFilterSpamConfidenceLevel = 0x4076;
     const MessageEditorFormat = 0x5909;
 
     static function getName($code) {

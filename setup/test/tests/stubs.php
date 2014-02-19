@@ -28,6 +28,7 @@ class mysqli_stmt {
 
 class ReflectionClass {
     function getMethods() {}
+    function getConstants() {}
 }
 
 class DomNode {
@@ -83,4 +84,8 @@ class DateTimeZone {
     static function listIdentifiers() {}
 }
 
+class finfo {
+    function file() {}
+    function buffer() {}
+}
 ?>
