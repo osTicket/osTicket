@@ -377,7 +377,8 @@ class Mail_Parse {
                     'type'  => strtolower($part->ctype_primary.'/'.$part->ctype_secondary),
                     );
 
-            if ($part->ctype_parameters['charset'])
+            if ($part->ctype_parameters['charset']
+                    && 0 === strcasecmp($part->ctype_primary, 'text'))
                 $file['data'] = $this->mime_encode($part->body,
                     $part->ctype_parameters['charset']);
             else
@@ -397,7 +398,7 @@ class Mail_Parse {
             foreach ($this->tnef->attachments as $at) {
                 $files[] = array(
                     'cid' => @$at->AttachContentId ?: false,
-                    'data' => $at->Data,
+                    'data' => $at->getData(),
                     'type' => @$at->AttachMimeTag ?: false,
                     'name' => $at->getName(),
                 );

@@ -209,11 +209,13 @@ class TnefAttribute {
     const AttributeReadOnly = 0x10f6;
     const CreationTime = 0x3007;
     const LastModificationTime = 0x3008;
+    const AttachDataBinary = 0x3701;
     const AttachEncoding = 0x3702;
     const AttachExtension = 0x3703;
     const AttachFilename = 0x3704;
     const AttachLongFilename = 0x3707;
     const AttachPathname = 0x3708;
+    const AttachTransportName = 0x370c;
     const AttachMimeTag = 0x370e;    # Mime content-type
     const AttachContentId = 0x3712;
     const AttachmentCharset = 0x371b;
@@ -234,7 +236,7 @@ class TnefAttribute {
     const ReceivedRepresentingSimpleDisplayName = 0x4034;
     const CreatorSimpleDisplayName = 0x4038;
     const LastModifierSimpleDisplayName = 0x4039;
-    const ContentFilterSpmnConfidenceLevel = 0x4076;
+    const ContentFilterSpamConfidenceLevel = 0x4076;
     const MessageEditorFormat = 0x5909;
 
     static function getName($code) {
@@ -485,7 +487,7 @@ class TnefStreamParser {
                     new TnefAttributeStreamReader($info['data']));
                 break;
             case self::attAttachTransportFilename:
-                $attach->_setFilename($info['data']);
+                $attach->_setFilename(rtrim($info['data'], "\x00"));
                 break;
             case self::attAttachData:
                 $attach->_setData($info['data']);
@@ -555,6 +557,13 @@ class TnefAttachment extends AbstractTnefObject {
         $this->Data = $data;
     }
 
+    function getData() {
+        if (isset($this->Data))
+            return $this->Data;
+        elseif (isset($this->AttachDataBinary))
+            return $this->AttachDataBinary;
+    }
+
     function _setRenderingData($data) {
         // Pass
     }
@@ -568,6 +577,8 @@ class TnefAttachment extends AbstractTnefObject {
             return basename($this->AttachLongFilename);
         elseif (isset($this->AttachFilename))
             return $this->AttachFilename;
+        elseif (isset($this->AttachTransportName))
+            return $this->AttachTransportName;
         else
             return $this->TransportFilename;
     }

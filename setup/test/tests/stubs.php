@@ -28,6 +28,7 @@ class mysqli_stmt {
 
 class ReflectionClass {
     function getMethods() {}
+    function getConstants() {}
 }
 
 class DomNode {
@@ -91,5 +92,10 @@ class Phar {
 class ZipArchive {
     function statIndex() {}
     function getFromIndex() {}
+}
+
+class finfo {
+    function file() {}
+    function buffer() {}
 }
 ?>
