@@ -101,7 +101,7 @@ class Mailer {
 
         /* Message ID - generated for each outgoing email */
         $messageId = sprintf('<%s-%s>', Misc::randCode(16),
-                ($this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer'));
+            ($this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer'));
 
         $headers = array (
                 'From' => $this->getFromAddress(),
@@ -151,10 +151,17 @@ class Mailer {
         // then assume that it needs html processing to create a valid text
         // body
         $isHtml = true;
+        $mid_token = (isset($options['thread']))
+            ? $options['thread']->asMessageId($to) : '';
         if (!(isset($options['text']) && $options['text'])) {
+            if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
+                $message = "<div style=\"display:none\" data-mid=\"$mid_token\">$tag</div>"
+                    .$message;
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??
-            $mime->setTXTBody(Format::html2text($message, 90, false));
+            $txtbody = rtrim(Format::html2text($message, 90, false))
+                . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
+            $mime->setTXTBody($txtbody);
         }
         else {
             $mime->setTXTBody($message);

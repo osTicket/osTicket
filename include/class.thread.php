@@ -178,13 +178,11 @@ class Thread {
 
     function delete() {
 
-        /* XXX: Leave this out until TICKET_EMAIL_INFO_TABLE has a primary
-         *      key
-        $sql = 'DELETE mid.* FROM '.TICKET_EMAIL_INFO_TABLE.' mid
+        $sql = 'UPDATE '.TICKET_EMAIL_INFO_TABLE.' mid
             INNER JOIN '.TICKET_THREAD_TABLE.' thread ON (thread.id = mid.thread_id)
-            WHERE thread.ticket_id = '.db_input($this->getTicketId());
+            SET mid.headers = null WHERE thread.ticket_id = '
+            .db_input($this->getTicketId());
         db_query($sql);
-         */
 
         $res=db_query('DELETE FROM '.TICKET_THREAD_TABLE.' WHERE ticket_id='.db_input($this->getTicketId()));
         if(!$res || !db_affected_rows())
@@ -854,7 +852,65 @@ Class ThreadEntry {
             }
         }
 
+        // Search for the message-id token in the body
+        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+                $mailinfo['message'], $match))
+            if ($thread = ThreadEntry::lookupByMessageId($match[1]))
+                   return $thread;
+
         return null;
+    }
+
+    /**
+     * Find a thread entry from a message-id created from the
+     * ::asMessageId() method
+     */
+    function lookupByMessageId($mid, $from) {
+        $mid = trim($mid, '<>');
+        list($ver, $ids, $mails) = explode('$', $mid, 3);
+
+        // Current version is <null>
+        if ($ver !== '')
+            return false;
+
+        $ids = @unpack('Vthread', base64_decode($ids));
+        if (!$ids || !$ids['thread'])
+            return false;
+
+        $thread = ThreadEntry::lookup($ids['thread']);
+        if (!$thread)
+            return false;
+
+        if (0 === strcasecmp($thread->asMessageId($from, $vers), $mid))
+            return $thread;
+    }
+
+    /**
+     * Get an email message-id that can be used to represent this thread
+     * entry. The same message-id can be passed to ::lookupByMessageId() to
+     * find this thread entry
+     *
+     * Formats:
+     * Initial (version <null>)
+     * <$:b32(thread-id)$:md5(to-addr.ticket-num.ticket-id)@:md5(url)>
+     *      thread-id - thread-id, little-endian INT, packed
+     *      :b32() - base32 encoded
+     *      to-addr - individual email recipient
+     *      ticket-num - external ticket number
+     *      ticket-id - internal ticket id
+     *      :md5() - last 10 hex chars of MD5 sum
+     *      url - helpdesk URL
+     */
+    function asMessageId($to, $version=false) {
+        global $ost;
+
+        $domain = md5($ost->getConfig()->getURL());
+        $ticket = $this->getTicket();
+        return sprintf('$%s$%s@%s',
+            base64_encode(pack('V', $this->getId())),
+            substr(md5($to . $ticket->getNumber() . $ticket->getId()), -10),
+            substr($domain, -10)
+        );
     }
 
     //new entry ... we're trusting the caller to check validity of the data.

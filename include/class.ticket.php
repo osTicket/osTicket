@@ -874,7 +874,8 @@ class Ticket {
 
         $options = array(
             'inreplyto'=>$message->getEmailMessageId(),
-            'references'=>$message->getEmailReferences());
+            'references'=>$message->getEmailReferences(),
+            'thread'=>$message);
 
         //Send auto response - if enabled.
         if($autorespond
@@ -887,9 +888,6 @@ class Ticket {
                           'recipient' => $this->getOwner(),
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
-
-            if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
 
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
                 null, $options);
@@ -1067,13 +1065,10 @@ class Ticket {
                                 'recipient' => $user,
                                 'signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
-            //Reply separator tag.
-            if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
-
             $options = array(
-                'inreplyto' => $message->getEmailMessageId(),
-                'references' => $message->getEmailReferencesForUser($user));
+                'inreplyto'=>$message->getEmailMessageId(),
+                'references' => $message->getEmailReferencesForUser($user),
+                'thread'=>$message);
             $email->sendAutoReply($user->getEmail(), $msg['subj'], $msg['body'],
                 null, $options);
         }
@@ -1130,7 +1125,8 @@ class Ticket {
             $sentlist=array();
             $options = array(
                 'inreplyto'=>$note->getEmailMessageId(),
-                'references'=>$note->getEmailReferences());
+                'references'=>$note->getEmailReferences(),
+                'thread'=>$note);
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -1381,7 +1377,8 @@ class Ticket {
             $sentlist=array();
             $options = array(
                 'inreplyto'=>$note->getEmailMessageId(),
-                'references'=>$note->getEmailReferences());
+                'references'=>$note->getEmailReferences(),
+                'thread'=>$note);
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -1568,7 +1565,8 @@ class Ticket {
                 );
         $options = array(
                 'inreplyto' => $message->getEmailMessageId(),
-                'references' => $message->getEmailReferences());
+                'references' => $message->getEmailReferences(),
+                'thread'=>$message);
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage()
                 && ($email = $cfg->getAlertEmail())
@@ -1643,13 +1641,11 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(),
                 array('response' => $response, 'signature' => $signature));
 
-            if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
-
             $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
             $options = array(
                 'inreplyto'=>$response->getEmailMessageId(),
-                'references'=>$response->getEmailReferences());
+                'references'=>$response->getEmailReferences(),
+                'thread'=>$response);
             $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
@@ -1700,7 +1696,8 @@ class Ticket {
                 'poster' => $thisstaff);
         $options = array(
                 'inreplyto' => $response->getEmailMessageId(),
-                'references' => $response->getEmailReferences());
+                'references' => $response->getEmailReferences(),
+                'thread'=>$response);
 
         if(($email=$dept->getEmail())
                 && ($tpl = $dept->getTemplate())
@@ -1709,8 +1706,6 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(),
                     $variables + array('recipient' => $this->getOwner()));
 
-            if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
@@ -1824,7 +1819,8 @@ class Ticket {
 
             $options = array(
                 'inreplyto'=>$note->getEmailMessageId(),
-                'references'=>$note->getEmailReferences());
+                'references'=>$note->getEmailReferences(),
+                'thread'=>$note);
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff)
@@ -2457,13 +2453,13 @@ class Ticket {
                         )
                     );
 
-            if($cfg->stripQuotedReply() && ($tag=trim($cfg->getReplySeparator())))
-                $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
-
             $references = $ticket->getLastMessage()->getEmailMessageId();
             if (isset($response))
                 $references = array($response->getEmailMessageId(), $references);
-            $options = array('references' => $references);
+            $options = array(
+                'references' => $references,
+                'thread'=>$this->getLastMessage()
+            );
             $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
