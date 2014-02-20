@@ -38,8 +38,8 @@ class UsersAjaxAPI extends AjaxController {
                 'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
             $emails[] = $u['email'];
         }
-        $remote_emails = ($emails)
-            ? ' OR email.address IN ('.implode(',',db_input(array_filter($emails))).') '
+        $remote_emails = ($emails = array_filter($emails))
+            ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
             : '';
 
         $escaped = db_input(strtolower($_REQUEST['q']), false);
