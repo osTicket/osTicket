@@ -1680,6 +1680,9 @@ class Ticket {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
 
         $this->onResponse(); //do house cleaning..
+        
+        if($vars['emailcollab'])
+            $this->notifyCollaborators($response);
 
         /* email the user??  - if disabled - the bail out */
         if(!$alert) return $response;
@@ -1715,9 +1718,6 @@ class Ticket {
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
-
-        if($vars['emailcollab'])
-            $this->notifyCollaborators($response);
 
         return $response;
     }
