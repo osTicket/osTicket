@@ -354,13 +354,26 @@ class AttachmentFile {
         // Note that this is preferred over $f->open() because the file does
         // not have a valid backend configured yet. ::getBackendForFile()
         // will consider the system configuration for storing the file
-        $bk = self::getBackendForFile($f);
-        if (isset($file['tmp_name'])) {
-            if (!$bk->upload($file['tmp_name']))
-                return false;
+        $bks = array(self::getBackendForFile($f));
+        if (!$bks[0]->getBkChar() !== 'D')
+            $bks[] = new AttachmentChunkedData($f);
+
+        // Consider the selected backen first and then save to database
+        // otherwise.
+        $succeeded = false;
+        foreach ($bks as $bk) {
+            if (isset($file['tmp_name'])) {
+                if ($bk->upload($file['tmp_name'])) {
+                    $succeeded = true; break;
+                }
+            }
+            elseif ($bk->write($file['data']) && $bk->flush()) {
+                $succeeded = true; break;
+            }
+            // Fallthrough to default backend if different?
         }
-        elseif (!$bk->write($file['data']) || !$bk->flush()) {
-            // XXX: Fallthrough to default backend if different?
+        if (!$succeeded) {
+            // Unable to save data (weird)
             return false;
         }
 
