@@ -1116,14 +1116,13 @@ class DatetimePickerWidget extends Widget {
         $config = $this->field->getConfiguration();
         if ($this->value) {
             $this->value = (is_int($this->value) ? $this->value :
-                DateTime::createFromFormat($cfg->getDateFormat(), $this->value)
-                ->format('U'));
+                strtotime($this->value));
             if ($config['gmt'])
                 $this->value += 3600 *
                     $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
 
             list($hr, $min) = explode(':', date('H:i', $this->value));
-            $this->value = date($cfg->getDateFormat(), $this->value);
+            $this->value = Format::date($cfg->getDateFormat(), $this->value);
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
@@ -1144,7 +1143,6 @@ class DatetimePickerWidget extends Widget {
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>'),
                 });
             });
         </script>
@@ -1162,15 +1160,13 @@ class DatetimePickerWidget extends Widget {
      */
     function getValue() {
         global $cfg;
+        Internationalization::setLocale();
 
         $data = $this->field->getSource();
         $config = $this->field->getConfiguration();
         if ($datetime = parent::getValue()) {
-            $datetime = (is_int($datetime) ? $datetime :
-                (($dt = DateTime::createFromFormat($cfg->getDateFormat() . ' G:i',
-                        $datetime . ' 00:00'))
-                    ? (int) $dt->format('U') : false)
-            );
+            $datetime = is_int($datetime) ? $datetime :
+                strtotime($datetime);
             if ($datetime && isset($data[$this->name . ':time'])) {
                 list($hr, $min) = explode(':', $data[$this->name . ':time']);
                 $datetime += $hr * 3600 + $min * 60;

@@ -26,8 +26,6 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
     <script src="<?php echo ROOT_PATH; ?>js/jquery.multifile.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
     <script src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";

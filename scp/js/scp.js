@@ -274,23 +274,6 @@ $(document).ready(function(){
         });
     }
 
-    $.translate_format = function(str) {
-        var translation = {
-            'd':'dd',
-            'j':'d',
-            'z':'o',
-            'm':'mm',
-            'F':'MM',
-            'n':'m',
-            'Y':'yy'
-        };
-        // Change PHP formats to datepicker ones
-        $.each(translation, function(php, jqdp) {
-            str = str.replace(php, jqdp);
-        });
-        return str;
-    };
-
     /* Datepicker */
     getConfig().then(function(c) {
         $('.dp').datepicker({
@@ -298,7 +281,6 @@ $(document).ready(function(){
             showButtonPanel: true,
             buttonImage: './images/cal.png',
             showOn:'both',
-            dateFormat: $.translate_format(c.date_format||'m/d/Y')
         });
         $(document).on('submit', 'form', function() {
             $('.dp', $(this)).each(function(i, e) {

@@ -255,6 +255,33 @@ class Internationalization {
 
         return $best_match_langcode;
     }
+
+    /**
+     * Setup the locale for the request.
+     *
+     * References:
+     * http://demo.icu-project.org/icu-bin/locexp?d_=en
+     */
+    static function setLocale($code=false) {
+        global $thisstaff, $cfg;
+
+        if (!$code) {
+            if ($thisstaff)
+                $code = $thisstaff->getLanguage();
+            elseif ($cfg)
+                $code = $cfg->getSystemLanguage();
+        }
+        if ($code) {
+            $langs = (include I18N_DIR . 'langs.php');
+            if (isset($langs[$code]['locales']))
+                return setlocale(LC_TIME, $langs[$code]['locales'][0].'.UTF8');
+
+            if (strpos($code, "_") === false)
+                $code = $code."_".strtoupper($code);
+            return setlocale(LC_TIME, $code.'.UTF8', $langs[$code]['name'].'.UTF8',
+                $code.'@euro');
+        }
+    }
 }
 
 class DataTemplate {
@@ -292,6 +319,14 @@ class DataTemplate {
             // TODO: If there was a parsing error, attempt to try the next
             //       language in the list of requested languages
         return $this->data;
+    }
+
+    function getRawData() {
+        if (!isset($this->data) && $this->filepath)
+            return file_get_contents($this->filepath);
+            // TODO: If there was a parsing error, attempt to try the next
+            //       language in the list of requested languages
+        return false;
     }
 
     function getLang() {

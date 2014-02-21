@@ -450,18 +450,63 @@ class Format {
         return Format::userdate($cfg->getDayDateTimeFormat(), Misc::db2gmtime($time));
     }
 
+    function __date_fmt_to_strftime($fmt) {
+        static $conv = array(
+            'd' => '%d',
+            'D' => '%a',
+            'j' => '%e',
+            'l' => '%A',
+            'N' => '%u',
+            'w' => '%w',
+            'z' => '%j',
+
+            'W' => '%V',
+
+            'F' => '%B',
+            'm' => '%m',
+            'M' => '%b',
+
+            'o' => '%G',
+            'Y' => '%Y',
+            'y' => '%y',
+
+            'a' => '%P',
+            'A' => '%p',
+            'g' => '%l',
+            'G' => '%k',
+            'h' => '%I',
+            'H' => '%H',
+            'i' => '%M',
+            's' => '%S',
+
+            'O' => '%z',
+            'T' => '%Z',
+
+            'r' => '%c',
+            'U' => '%s',
+        );
+        return preg_replace_callback(
+            '`(?!<%)'.implode('|', array_keys($conv)).'`',
+            function($m) use ($conv) { return $conv[$m[0]]; },
+            $fmt);
+    }
+
     function userdate($format, $gmtime) {
         return Format::date($format, $gmtime, $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST']);
     }
 
     function date($format, $gmtimestamp, $offset=0, $daylight=false){
+        static $locale_set = false;
+        if (!$locale_set)
+            $locale_set = Internationalization::setLocale();
 
         if(!$gmtimestamp || !is_numeric($gmtimestamp))
             return "";
 
         $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
 
-        return date($format, ($gmtimestamp+ ($offset*3600)));
+        return strftime(self::__date_fmt_to_strftime($format),
+            $gmtimestamp + ($offset*3600));
     }
 
     // Thanks, http://stackoverflow.com/a/2955878/1025836

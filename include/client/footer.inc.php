@@ -8,6 +8,13 @@
 <div id="loading">
     <h4>Please Wait!</h4>
     <p>Please wait... it will take a second!</p>
-</div>    
+</div>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+<?php
+if ($cfg && $cfg->getSystemLanguage() != 'en_US') { ?>
+    <script type="text/javascript" src="ajax.php/i18n/<?php
+        echo $cfg->getSystemLanguage(); ?>/js"></script>
+<?php } ?>
 </body>
-</html>  
+</html>

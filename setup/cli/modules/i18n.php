@@ -121,8 +121,39 @@ class i18n_Compiler extends Module {
         }
 
         // TODO: Add i18n extras (like fonts)
+        // Redactor language pack
+        list($code, $js) = $this->_http_get(
+            'http://imperavi.com/webdownload/redactor/lang/?lang='
+            .strtolower($lang));
+        if ($code == 200)
+            $phar->addFromString('js/redactor.js', $js);
+        else
+            $this->stderr->write("Unable to fetch Redactor language file\n");
+
+        // JQuery UI Datepicker
+        // http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-de.js
+        $langs = array($lang);
+        if (strpos($lang, '_') !== false) {
+            @list($short) = explode('_', $lang);
+            $langs[] = $short;
+        }
+        foreach ($langs as $l) {
+            list($code, $js) = $this->_http_get(
+                'http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-'
+                    .str_replace('_','-',$l).'.js');
+            if ($code == 200)
+                break;
+        }
+        if ($code == 200)
+            $phar->addFromString('js/jquery.ui.datepicker.js', $js);
+        else
+            $this->stderr->write(str_replace('_','-',$lang)
+                .": Unable to fetch jQuery UI Datepicker locale file\n");
 
         // TODO: Sign files
+
+        // Use a very small stub
+        $phar->setStub('<?php __HALT_COMPILER(); ?>'); # <?php # 4vim
     }
 }
 
