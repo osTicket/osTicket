@@ -618,6 +618,19 @@ Class ThreadEntry {
             // Reporting success so the email can be moved or deleted.
             return true;
 
+        // Mail sent by this system will have a message-id format of
+        // <code-random-mailbox@domain.tld>
+        // where code is a predictable string based on the SECRET_SALT of
+        // this osTicket installation. If this incoming mail matches the
+        // code, then it very likely originated from this system and looped
+        @list($code) = explode('-', $mailinfo['mid'], 2);
+        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
+            // This mail was sent by this system. It was received due to
+            // some kind of mail delivery loop. It should not be considered
+            // a response to an existing thread entry
+            return true;
+        }
+
         $vars = array(
             'mid' =>    $mailinfo['mid'],
             'header' => $mailinfo['header'],

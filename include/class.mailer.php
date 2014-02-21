@@ -100,7 +100,9 @@ class Mailer {
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
 
         /* Message ID - generated for each outgoing email */
-        $messageId = sprintf('<%s-%s>', Misc::randCode(16),
+        $messageId = sprintf('<%s-%s-%s>',
+            substr(md5('mail'.SECRET_SALT), -9),
+            Misc::randCode(9),
             ($this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer'));
 
         $headers = array (
