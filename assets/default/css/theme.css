@@ -395,14 +395,14 @@ body {
   background: url('../images/poweredby.png') top left no-repeat;
 }
 #landing_page #new_ticket {
-  margin-top: 40px;
+  margin-top: 10px;
   width: 295px;
   padding-left: 75px;
   float: left;
   background: url('../images/new_ticket_icon.png') top left no-repeat;
 }
 #landing_page #check_status {
-  margin-top: 40px;
+  margin-top: 10px;
   width: 295px;
   padding-left: 75px;
   float: right;
@@ -869,4 +869,28 @@ a.refresh {
 .action-button a {
   color: #777;
   text-decoration: none;
+}
+#openticks {
+  padding:5px;
+  background:#BFBFBF;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 3px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
+}
+
+#openticks-a {
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #BFBFBF;
+  text-align:center;
+  vertical-align:middle;
+  padding-bottom:4px;
+}
+
+#openticks-b {
+  text-align:center;
+  vertical-align:middle;
+  padding-bottom:4px;
 }

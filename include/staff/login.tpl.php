@@ -12,7 +12,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
             <input type="text" name="userid" id="name" value="<?php echo $info['userid']; ?>" placeholder="username" autocorrect="off" autocapitalize="off">
             <input type="password" name="passwd" id="pass" placeholder="password" autocorrect="off" autocapitalize="off">
         </fieldset>
-        <?php if ($_SESSION['_staff']['strikes'] > 1 && $cfg->allowPasswordReset()) { ?>
+        <?php if ($_SESSION['_auth']['staff']['strikes'] > '1' && $cfg->allowPasswordReset()) { ?>
         <h3 style="display:inline"><a href="pwreset.php">Forgot my password</a></h3>
         <?php } ?>
         <input class="submit" type="submit" name="submit" value="Log In">
