@@ -569,9 +569,6 @@ class MailFetcher {
         if (!isset($body))
             $body = new TextThreadBody('');
 
-        if ($cfg->stripQuotedReply())
-            $body->stripQuotedReply($cfg->getReplySeparator());
-
         return $body;
     }
 

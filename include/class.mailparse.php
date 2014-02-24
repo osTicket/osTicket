@@ -318,9 +318,6 @@ class Mail_Parse {
         if (!isset($body))
             $body = new TextThreadBody('');
 
-        if ($cfg && $cfg->stripQuotedReply())
-            $body->stripQuotedReply($cfg->getReplySeparator());
-
         return $body;
     }
 

@@ -491,9 +491,6 @@ class SmartFuzzyHash {
         }
     }
 
-    static function fromString($repr) {
-    }
-
     function remove($other, $typeHint=false) {
         $scores = array();
         foreach (explode(',', $other) as $l)
@@ -513,7 +510,7 @@ class SmartFuzzyHash {
         $cleaned = Format::safe_html($what);
         // Remove trailing breaks
         $cleaned = preg_replace(
-            array('`<br ?/?>$`', '`<div[^>]*><br ?/?></div>$`'),
+            array('`<br ?/?>$`', '`<div[^>]*><br ?/?></div>$`'), # <?php
             array('',''),
             rtrim($cleaned));
         return $cleaned;
