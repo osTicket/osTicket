@@ -113,9 +113,17 @@ class Thread {
         if(!$order || !in_array($order, array('DESC','ASC')))
             $order='ASC';
 
-        $sql='SELECT thread.* '
+        $sql='SELECT thread.*
+               , COALESCE(user.name,
+                    IF(staff.staff_id,
+                        CONCAT_WS(" ", staff.firstname, staff.lastname),
+                        NULL)) as name '
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
+            .' LEFT JOIN '.USER_TABLE.' user
+                ON (thread.user_id=user.id) '
+            .' LEFT JOIN '.STAFF_TABLE.' staff
+                ON (thread.staff_id=staff.staff_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
                         AND thread.id=attach.ref_id) '

@@ -351,7 +351,7 @@ $tcount+= $ticket->getNumNotes();
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
-                            echo Format::htmlchars($entry['poster']); ?></span>
+                            echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
                     </span>
                 </div>
                 </th>
