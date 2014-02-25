@@ -8,12 +8,22 @@ if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
 
 if($_POST) {
     $fields = array('name', 'name_plural', 'sort_mode', 'notes');
+    $required = array('name');
     switch(strtolower($_POST['do'])) {
         case 'update':
             foreach ($fields as $f)
-                if (isset($_POST[$f]))
+                if (in_array($f, $required) && !$_POST[$f])
+                    $errors[$f] = sprintf('%s is required',
+                        mb_convert_case($f, MB_CASE_TITLE));
+                elseif (isset($_POST[$f]))
                     $list->set($f, $_POST[$f]);
-            $list->save(true);
+            if ($errors)
+                $errors['err'] = 'Unable to update custom list. Correct any error(s) below and try again.';
+            elseif ($list->save(true))
+                $msg = 'Custom list updated successfully';
+            else
+                $errors['err'] = 'Unable to update custom list. Unknown internal error';
+
             foreach ($list->getItems() as $item) {
                 $id = $item->get('id');
                 if ($_POST["delete-$id"] == 'on') {
@@ -27,12 +37,23 @@ if($_POST) {
             }
             break;
         case 'add':
+            foreach ($fields as $f)
+                if (in_array($f, $required) && !$_POST[$f])
+                    $errors[$f] = sprintf('%s is required',
+                        mb_convert_case($f, MB_CASE_TITLE));
             $list = DynamicList::create(array(
                 'name'=>$_POST['name'],
                 'name_plural'=>$_POST['name_plural'],
                 'sort_mode'=>$_POST['sort_mode'],
                 'notes'=>$_POST['notes']));
-            $list->save(true);
+
+            if ($errors)
+                $errors['err'] = 'Unable to create custom list. Correct any error(s) below and try again.';
+            elseif ($list->save(true))
+                $msg = 'Custom list added successfully';
+            else
+                $errors['err'] = 'Unable to create custom list. Unknown internal error';
+
             break;
 
         case 'mass_process':

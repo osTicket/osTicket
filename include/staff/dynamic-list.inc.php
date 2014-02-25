@@ -1,7 +1,7 @@
 <?php
 
 $info=array();
-if($list && $_REQUEST['a']!='add') {
+if($list && !$errors) {
     $title = 'Update custom list';
     $action = 'update';
     $submit_text='Save Changes';
@@ -19,6 +19,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <form action="?" method="post" id="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
+    <input type="hidden" name="a" value="<?php echo $_REQUEST['a']; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
     <h2>Custom List</h2>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -33,7 +34,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <td width="180" class="required">Name:</td>
-            <td><input size="50" type="text" name="name" value="<?php echo $info['name']; ?>"/></td>
+            <td><input size="50" type="text" name="name" value="<?php echo $info['name']; ?>"/>
+            <span class="error">*<br/><?php echo $errors['name']; ?></td>
         </tr>
         <tr>
             <td width="180">Plural Name:</td>

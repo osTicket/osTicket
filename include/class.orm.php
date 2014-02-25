@@ -162,7 +162,7 @@ class VerySimpleModel {
             $sql = 'UPDATE '.static::$meta['table'];
         $filter = $fields = array();
         if (count($this->dirty) === 0)
-            return;
+            return true;
         foreach ($this->dirty as $field=>$old) {
             if ($this->__new__ or !in_array($field, $pk)) {
                 if (@get_class($this->get($field)) == 'SqlFunction')
