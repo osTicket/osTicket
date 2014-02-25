@@ -291,7 +291,7 @@ class Ticket2PDF extends mPDF
                 $this->WriteCell($w/2, 7, Format::db_datetime($entry['created']), 'LTB', 0, 'L', true);
                 $this->SetFont('Arial', '', 10);
                 $this->WriteCell($w, 7, Format::truncate($entry['title'], 50), 'TB', 0, 'L', true);
-                $this->WriteCell($w/2, 7, $entry['poster'], 'TBR', 1, 'L', true);
+                $this->WriteCell($w/2, 7, $entry['name'] ?: $entry['poster'], 'TBR', 1, 'L', true);
                 $this->SetFont('');
                 $text= $entry['body'];
                 if($entry['attachments']

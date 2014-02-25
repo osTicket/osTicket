@@ -569,16 +569,23 @@ class Staff extends AuthenticatedUser {
     function delete() {
         global $thisstaff;
 
-        if(!$thisstaff || !($id=$this->getId()) || $id==$thisstaff->getId())
+        if (!$thisstaff || $this->getId() == $thisstaff->getId())
             return 0;
 
-        $sql='DELETE FROM '.STAFF_TABLE.' WHERE staff_id='.db_input($id).' LIMIT 1';
+        $sql='DELETE FROM '.STAFF_TABLE
+            .' WHERE staff_id = '.db_input($this->getId()).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
             // DO SOME HOUSE CLEANING
             //Move remove any ticket assignments...TODO: send alert to Dept. manager?
-            db_query('UPDATE '.TICKET_TABLE.' SET staff_id=0 WHERE status=\'open\' AND staff_id='.db_input($id));
+            db_query('UPDATE '.TICKET_TABLE.' SET staff_id=0 WHERE staff_id='.db_input($this->getId()));
+
+            //Update the poster and clear staff_id on ticket thread table.
+            db_query('UPDATE '.TICKET_THREAD_TABLE
+                    .' SET staff_id=0, poster= '.db_input($this->getName()->getOriginal())
+                    .' WHERE staff_id='.db_input($this->getId()));
+
             //Cleanup Team membership table.
-            db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($id));
+            db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($this->getId()));
         }
 
         Signal::send('model.deleted', $this);
