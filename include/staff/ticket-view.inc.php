@@ -494,10 +494,23 @@ $tcount+= $ticket->getNumNotes();
                         <label><input type='checkbox' value='1' name="append" id="append" checked="checked"> Append</label>
                         <br>
                     <?php
-                    }?>
+                    }
+                    $signature = '';
+                    switch ($thisstaff->getDefaultSignatureType()) {
+                    case 'dept':
+                        if ($dept && $dept->canAppendSignature())
+                           $signature = $dept->getSignature();
+                       break;
+                    case 'mine':
+                        $signature = $thisstaff->getSignature();
+                        break;
+                    } ?>
                     <input type="hidden" name="draft_id" value=""/>
                     <textarea name="response" id="response" cols="50"
                         data-draft-namespace="ticket.response"
+                        data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
+                        data-signature="<?php
+                            echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                         placeholder="Start writing your response here. Use canned responses from the drop-down above"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"

@@ -41,7 +41,8 @@ $dispatcher = patterns('',
     )),
     url('^/content/', patterns('ajax.content.php:ContentAjaxAPI',
         url_get('^log/(?P<id>\d+)', 'log'),
-        url_get('^ticket_variables', 'ticket_variables')
+        url_get('^ticket_variables', 'ticket_variables'),
+        url_get('^signature/(?P<type>\w+)(?:/(?P<id>\d+))?$', 'getSignature')
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
         url_get('^scp', 'scp')

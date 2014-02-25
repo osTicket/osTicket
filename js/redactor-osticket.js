@@ -119,6 +119,33 @@ RedactorPlugins.draft = {
     }
 };
 
+RedactorPlugins.signature = {
+    init: function() {
+        var $el = $(this.$element.get(0));
+        if ($el.data('signatureField')) {
+            var $sig = $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
+                    .on('change', false, false, $.proxy(this.updateSignature, this)),
+                sel = $('input:checked[name='+$el.data('signatureField')+']', $el.closest('form'));
+            this.$signatureBox = $('<div class="redactor_editor selected-signature"></div>')
+                .html($el.data('signature'))
+                .appendTo(this.$box);
+        }
+    },
+    updateSignature: function(e) {
+        var $el = $(this.$element.get(0));
+            selected = e.target,
+            type = $(selected).val(),
+            url = 'ajax.php/content/signature/' + type;
+        e.preventDefault && e.preventDefault();
+        if (type == 'dept' && $el.data('deptId'))
+            url += '/' + $el.data('deptId');
+        else if (type == 'none')
+           return this.$signatureBox.empty().hide();
+
+        this.$signatureBox.load(url).show();
+    }
+};
+
 /* Redactor richtext init */
 $(function() {
     var captureImageSizes = function(html) {
@@ -150,7 +177,7 @@ $(function() {
                 'autoresize': !el.hasClass('no-bar'),
                 'minHeight': el.hasClass('small') ? 75 : 150,
                 'focus': false,
-                'plugins': ['fontcolor','fontfamily'],
+                'plugins': ['fontcolor','fontfamily', 'signature'],
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
