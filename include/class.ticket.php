@@ -1525,7 +1525,7 @@ class Ticket {
         //Add email recipients as collaborators...
         if ($vars['recipients']
                 //Only add if we have a matched local address
-                && $vars['emailId']) {
+                && $vars['to-email-id']) {
             //New collaborators added by other collaborators are disable --
             // requires staff approval.
             $info = array(

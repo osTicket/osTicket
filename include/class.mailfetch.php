@@ -604,8 +604,9 @@ class MailFetcher {
 
         $vars = $mailinfo;
         $vars['name'] = $mailinfo['name'];
-        $vars['subject'] = $mailinfo['subject'] ? $mailinfo['subject'] : '[No Subject]';
-        $vars['emailId'] = $mailinfo['emailId'] ? $mailinfo['emailId'] : $this->getEmailId();
+        $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
+        $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
+        $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'

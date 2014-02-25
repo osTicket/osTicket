@@ -596,6 +596,7 @@ class EmailDataParser {
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
+        $data['to-email-id'] = $data['emailId'];
 
         if (($replyto = $parser->getReplyTo())) {
             $replyto = $replyto[0];
