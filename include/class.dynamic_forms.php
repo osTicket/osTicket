@@ -948,6 +948,13 @@ class SelectionField extends FormField {
         }
         return $this->_choices;
     }
+
+    function export($value) {
+        if ($value && is_numeric($value)
+                && ($item = DynamicListItem::lookup($value)))
+            return $item->toString();
+        return $value;
+    }
 }
 
 class SelectionWidget extends ChoicesWidget {
