@@ -979,7 +979,7 @@ class Ticket {
      *
      */
 
-    function  notifyCollaborators($entry) {
+    function  notifyCollaborators($entry, $vars = array()) {
         global $cfg;
 
         if (!$entry instanceof ThreadEntry
@@ -1002,9 +1002,11 @@ class Ticket {
             $uid = $this->getUserId();
         }
 
-        $vars = array(
-                'message' => (string) $entry,
-                'poster' => $poster? $poster : 'A collaborator');
+        $vars = array_merge($vars, array(
+                    'message' => (string) $entry,
+                    'poster' => $poster? $poster : 'A collaborator',
+                    )
+                );
 
         $msg = $this->replaceVars($msg->asArray(), $vars);
 
@@ -1601,7 +1603,7 @@ class Ticket {
             }
         }
 
-        $this->notifyCollaborators($message);
+        $this->notifyCollaborators($message, array('signature' => ''));
 
         return $message;
     }
@@ -1717,7 +1719,8 @@ class Ticket {
         }
 
         if($vars['emailcollab'])
-            $this->notifyCollaborators($response);
+            $this->notifyCollaborators($response,
+                    array('signature' => $signature));
 
         return $response;
     }
