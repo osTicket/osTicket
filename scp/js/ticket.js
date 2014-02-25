@@ -430,7 +430,8 @@ showImagesInline = function(urls, thread_id) {
             e = $(el);
         if (info) {
             // Add a hover effect with the filename
-            var timeout, caption = $('<div class="image-hover">');
+            var timeout, caption = $('<div class="image-hover">')
+                .css({'float',e.css('float')});
             e.wrap(caption).parent()
                 .hover(
                     function() {
