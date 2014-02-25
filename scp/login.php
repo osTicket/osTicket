@@ -23,6 +23,7 @@ $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
 $msg = $msg?$msg:'Authentication Required';
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
+$show_reset = false;
 if($_POST) {
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
@@ -34,6 +35,7 @@ if($_POST) {
     }
 
     $msg = $errors['err']?$errors['err']:'Invalid login';
+    $show_reset = true;
 }
 // Consider single sign-on authentication backends
 else if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
