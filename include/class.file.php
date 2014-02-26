@@ -343,6 +343,7 @@ class AttachmentFile {
             .',size='.db_input($file['size'])
             .',name='.db_input($file['name'])
             .',`key`='.db_input($file['key'])
+            .',ft='.db_input($ft ?: 'T')
             .',signature='.db_input($file['signature']);
 
         if (!(db_query($sql) && ($id = db_insert_id())))
@@ -364,15 +365,9 @@ class AttachmentFile {
             return false;
         }
 
-        # XXX: ft does not exists during the upgrade when attachments are
-        #      migrated! Neither does `bk`
-        if ($ft) {
-            $sql = 'UPDATE '.FILE_TABLE.' SET bk='
-                .db_input($bk->getBkChar())
-                .', ft='.db_input($ft)
-                .' WHERE id='.db_input($f->getId());
-            db_query($sql);
-        }
+        $sql = 'UPDATE '.FILE_TABLE.' SET bk='.db_input($bk->getBkChar())
+            .' WHERE id='.db_input($f->getId());
+        db_query($sql);
 
         return $f->getId();
     }
