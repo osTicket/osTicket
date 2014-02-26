@@ -295,7 +295,7 @@ class AttachmentFile {
         return false;
     }
 
-    function save(&$file, $ft=false) {
+    function save(&$file, $ft='T') {
 
         if (isset($file['data'])) {
             // Allow a callback function to delay or avoid reading or

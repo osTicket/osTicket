@@ -108,7 +108,7 @@ class AttachmentMigrater extends MigrationTask {
         }
         # TODO: Add extension-based mime-type lookup
 
-        if (!($fileId = AttachmentFile::save($info))) {
+        if (!($fileId = AttachmentFile::save($info, false))) {
             return $this->skip($info['attachId'],
                 sprintf('%s: Unable to migrate attachment', $info['path']));
         }
