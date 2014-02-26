@@ -60,7 +60,11 @@ class Company {
     }
 
     function __toString() {
-        return $this->getName();
+        try {
+            if ($name = $this->getForm()->getAnswer('name'))
+                return $name->display();
+        } catch (Exception $e) {}
+        return '';
     }
 
     /**
