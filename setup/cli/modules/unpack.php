@@ -72,7 +72,7 @@ class Unpacker extends Module {
             }
         }
         if (!file_put_contents($bootstrap_php, implode("\n", $lines)))
-            die("Unable to configure location of INCLUDE_DIR in main.inc.php\n");
+            die("Unable to configure location of INCLUDE_DIR in bootstrap.php\n");
     }
 
     function exclude($pattern, $match) {
