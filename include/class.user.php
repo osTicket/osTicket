@@ -85,7 +85,7 @@ class User extends UserModel {
                 'created'=>new SqlFunction('NOW'),
                 'updated'=>new SqlFunction('NOW'),
                 'default_email'=>
-                    UserEmail::create(array('address'=>$data['email']))
+                    UserEmail::create(array('address'=>(string) $data['email']))
             ));
             $user->save(true);
             $user->emails->add($user->default_email);
