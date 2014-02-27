@@ -143,8 +143,8 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
         db_input($_SESSION['adv_'.$_REQUEST['advsid']])).')';
 }
 
-$sortOptions=array('date'=>'effective_date','ID'=>'ticketID',
-    'pri'=>'priority_urgency','name'=>'user.name','subj'=>'subject',
+$sortOptions=array('date'=>'effective_date','ID'=>'ticket.ticketID',
+    'pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept_name');
 
@@ -179,16 +179,16 @@ if(!$order_by ) {
     elseif(!strcasecmp($status,'closed'))
         $order_by='ticket.closed, ticket.created'; //No priority sorting for closed tickets.
     elseif($showoverdue) //priority> duedate > age in ASC order.
-        $order_by='priority_urgency ASC, ISNULL(duedate) ASC, duedate ASC, effective_date ASC, ticket.created';
+        $order_by='pri.priority_urgency ASC, ISNULL(ticket.duedate) ASC, ticket.duedate ASC, effective_date ASC, ticket.created';
     else //XXX: Add due date here?? No -
-        $order_by='priority_urgency ASC, effective_date DESC, ticket.created';
+        $order_by='pri.priority_urgency ASC, effective_date DESC, ticket.created';
 }
 
 $order=$order?$order:'DESC';
 if($order_by && strpos($order_by,',') && $order)
     $order_by=preg_replace('/(?<!ASC|DESC),/', " $order,", $order_by);
 
-$sort=$_REQUEST['sort']?strtolower($_REQUEST['sort']):'priority_urgency'; //Urgency is not on display table.
+$sort=$_REQUEST['sort']?strtolower($_REQUEST['sort']):'pri.priority_urgency'; //Urgency is not on display table.
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
