@@ -123,24 +123,37 @@ RedactorPlugins.signature = {
     init: function() {
         var $el = $(this.$element.get(0));
         if ($el.data('signatureField')) {
-            var $sig = $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
-                    .on('change', false, false, $.proxy(this.updateSignature, this)),
-                sel = $('input:checked[name='+$el.data('signatureField')+']', $el.closest('form'));
             this.$signatureBox = $('<div class="redactor_editor selected-signature"></div>')
                 .html($el.data('signature'))
                 .appendTo(this.$box);
+            $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
+                .on('change', false, false, $.proxy(this.updateSignature, this))
+            if ($el.data('deptField'))
+                $(':input[name='+$el.data('deptField')+']', $el.closest('form'))
+                    .on('change', false, false, $.proxy(this.updateSignature, this))
         }
     },
     updateSignature: function(e) {
         var $el = $(this.$element.get(0));
             selected = e.target,
             type = $(selected).val(),
-            url = 'ajax.php/content/signature/' + type;
+            dept = $(':input[name='+$el.data('deptField')+']', $el.closest('form')).val(),
+            url = 'ajax.php/content/signature/';
         e.preventDefault && e.preventDefault();
         if (type == 'dept' && $el.data('deptId'))
-            url += '/' + $el.data('deptId');
+            url += 'dept/' + $el.data('deptId');
+        else if ((type == 'dept' || (type % 1 === 0)) && $el.data('deptField')) {
+            if (type && type % 1 === 0)
+                url += 'dept/' + type
+            else if (type == 'dept' && dept)
+                url += 'dept/' + dept
+            else
+                return this.$signatureBox.empty().hide();
+        }
         else if (type == 'none')
            return this.$signatureBox.empty().hide();
+        else
+            url += type
 
         this.$signatureBox.load(url).show();
     }
