@@ -99,7 +99,7 @@ class Deployment extends Unpacker {
         $upgrade = file_exists("{$this->destination}/main.inc.php");
 
         # Get the current value of the INCLUDE_DIR before overwriting
-        # main.inc.php
+        # bootstrap.php
         $include = ($upgrade) ? $this->get_include_dir()
             : ($options['include'] ? $options['include']
                 : rtrim($this->destination, '/')."/include");
