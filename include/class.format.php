@@ -202,8 +202,9 @@ class Format {
             array(':<(head|style|script).+</\1>:is',   # <head> and <style> sections
                   ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
+                  ':<\?[^>]+>:',                # <?xml version="1.0" ... >
             ),
-            array('', '', ''),
+            array('', '', '', ''),
             $html);
         $config = array(
             'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
