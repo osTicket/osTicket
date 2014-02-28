@@ -1534,3 +1534,14 @@ div.patch {
 .patch-title {
     color: #555;
 }
+
+div.redactor_editor.selected-signature {
+    opacity: 0.5;
+    border-top: 1px dotted #aaa;
+    padding-top: 0.1em !important;
+    background-color: #f9f9f9 !important;
+}
+.selected-signature:empty {
+    border-top: none;
+    display: none;
+}

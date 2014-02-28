@@ -102,5 +102,28 @@ class ContentAjaxAPI extends AjaxController {
 
         return $content;
     }
+
+    function getSignature($type, $id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+
+        switch ($type) {
+        case 'none':
+            break;
+        case 'mine':
+            echo Format::viewableImages($thisstaff->getSignature());
+            break;
+        case 'dept':
+            if (!($dept = Dept::lookup($id)))
+                Http::response(404, 'No such department');
+            echo Format::viewableImages($dept->getSignature());
+            break;
+        default:
+            Http::response(400, 'Unknown signature type');
+            break;
+        }
+    }
 }
 ?>
