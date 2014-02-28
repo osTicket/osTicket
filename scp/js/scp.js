@@ -196,7 +196,7 @@ $(document).ready(function(){
                             if (redactor)
                                 redactor.insertHtml(canned.response);
                             else
-                                box.val(canned.response);
+                                box.val(box.val() + canned.response);
                         }
                         else {
                             if (redactor)

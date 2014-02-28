@@ -119,8 +119,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['sla_id']; ?></span>
             </td>
         </tr>
-        <?php
-        if($dept && $dept->getNumUsers()){ ?>
         <tr>
             <td width="180" class="required">
                 Manager:
@@ -128,12 +126,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <select name="manager_id">
                     <option value="0">&mdash; None &mdash;</option>
-                    <option value="0" disabled="disabled">Select Department Manager (Optional)</option>
                     <?php
                     $sql='SELECT staff_id,CONCAT_WS(", ",lastname, firstname) as name '
                         .' FROM '.STAFF_TABLE.' staff '
                         .' ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
+                    if(($res=db_query($sql)) && db_num_rows($res)) {
                         while(list($id,$name)=db_fetch_row($res)){
                             $selected=($info['manager_id'] && $id==$info['manager_id'])?'selected="selected"':'';
                             echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
@@ -144,9 +141,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['manager_id']; ?></span>
             </td>
         </tr>
-        <?php
-        } ?>
-
         <tr>
             <td width="180">
                 Group Membership:

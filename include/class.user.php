@@ -84,8 +84,9 @@ class User extends UserModel {
                 'name'=>$vars['name'],
                 'created'=>new SqlFunction('NOW'),
                 'updated'=>new SqlFunction('NOW'),
-                'default_email'=>
-                    UserEmail::create(array('address'=>$vars['email']))
+                //XXX: Do plain create once the cause
+                // of the detached emails is fixed.
+                'default_email' => UserEmail::ensure($vars['email'])
             ));
             $user->save(true);
             $user->emails->add($user->default_email);

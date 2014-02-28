@@ -239,7 +239,7 @@ function db_input($var, $quote=true) {
 
     if(is_array($var))
         return array_map('db_input', $var, array_fill(0, count($var), $quote));
-    elseif($var && preg_match("/^\d+(\.\d+)?$/", $var))
+    elseif($var && preg_match("/^(?:\d+\.\d+|[1-9]\d*)$/S", $var))
         return $var;
 
     return db_real_escape($var, $quote);
