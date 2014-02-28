@@ -638,6 +638,7 @@ Class ThreadEntry {
             'ip' =>     '',
             'reply_to' => $this,
             'recipients' => $mailinfo['recipients'],
+            'to-email-id' => $mailinfo['to-email-id'],
         );
         $errors = array();
 
