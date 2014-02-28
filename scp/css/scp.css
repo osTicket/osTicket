@@ -1535,13 +1535,16 @@ div.patch {
     color: #555;
 }
 
-div.redactor_editor.selected-signature {
-    opacity: 0.5;
+div.selected-signature {
     border-top: 1px dotted #aaa;
-    padding-top: 0.1em !important;
-    background-color: #f9f9f9 !important;
+    padding: 0.3em 10px 5px;
+    background-color: #f9f9f9;
+    height: 2.5em;
+    overflow-y: hidden;
+    box-shadow: inset 0px -5px 5px -5px rgba(206, 199, 182, 1.0);
+    font-size: 15px;
+    line-height: 1.25rem;
 }
-.selected-signature:empty {
-    border-top: none;
-    display: none;
+div.selected-signature .inner {
+    opacity: 0.5;
 }

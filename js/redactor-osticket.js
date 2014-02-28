@@ -123,39 +123,61 @@ RedactorPlugins.signature = {
     init: function() {
         var $el = $(this.$element.get(0));
         if ($el.data('signatureField')) {
-            this.$signatureBox = $('<div class="redactor_editor selected-signature"></div>')
-                .html($el.data('signature'))
+            this.$signatureBox = $('<div class="selected-signature"></div>')
+                .append($('<div class="inner"></div>')
+                    .html($el.data('signature'))
+                )
                 .appendTo(this.$box);
             $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
                 .on('change', false, false, $.proxy(this.updateSignature, this))
             if ($el.data('deptField'))
                 $(':input[name='+$el.data('deptField')+']', $el.closest('form'))
                     .on('change', false, false, $.proxy(this.updateSignature, this))
+            // Expand on hover
+            var outer = this.$signatureBox,
+                inner = $('.inner', this.$signatureBox).get(0),
+                originalHeight = outer.height(),
+                hoverTimeout = undefined,
+                originalShadow = this.$signatureBox.css('box-shadow');
+            this.$signatureBox.hover(function() {
+                hoverTimeout = setTimeout($.proxy(function() {
+                    originalHeight = outer.height()
+                    $(this).animate({
+                        'height': inner.offsetHeight
+                    }, 'fast');
+                    $(this).css('box-shadow', 'none', 'important');
+                }, this), 250);
+            }, function() {
+                clearTimeout(hoverTimeout);
+                $(this).stop().animate({
+                    'height': Math.min(inner.offsetHeight, originalHeight)
+                }, 'fast');
+                $(this).css('box-shadow', originalShadow);
+            });
         }
     },
     updateSignature: function(e) {
         var $el = $(this.$element.get(0));
-            selected = e.target,
-            type = $(selected).val(),
+            selected = $(':input:checked[name='+$el.data('signatureField')+']', $el.closest('form')).val(),
+            type = $(e.target).val(),
             dept = $(':input[name='+$el.data('deptField')+']', $el.closest('form')).val(),
-            url = 'ajax.php/content/signature/';
+            url = 'ajax.php/content/signature/',
+            inner = $('.inner', this.$signatureBox);
         e.preventDefault && e.preventDefault();
-        if (type == 'dept' && $el.data('deptId'))
+        if (selected == 'dept' && $el.data('deptId'))
             url += 'dept/' + $el.data('deptId');
-        else if ((type == 'dept' || (type % 1 === 0)) && $el.data('deptField')) {
-            if (type && type % 1 === 0)
-                url += 'dept/' + type
-            else if (type == 'dept' && dept)
+        else if (selected == 'dept' && $el.data('deptField')) {
+            if (dept)
                 url += 'dept/' + dept
             else
-                return this.$signatureBox.empty().hide();
+                return inner.empty().parent().hide();
         }
         else if (type == 'none')
-           return this.$signatureBox.empty().hide();
+           return inner.empty().parent().hide();
         else
-            url += type
+            url += selected
 
-        this.$signatureBox.load(url).show();
+        inner.load(url).parent().show();
     }
 };
 
