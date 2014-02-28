@@ -99,10 +99,10 @@ class Deployment extends Unpacker {
         $upgrade = file_exists("{$this->destination}/main.inc.php");
 
         # Get the current value of the INCLUDE_DIR before overwriting
-        # main.inc.php
+        # bootstrap.php
         $include = ($upgrade) ? $this->get_include_dir()
             : ($options['include'] ? $options['include']
-                : "{$this->destination}/include");
+                : rtrim($this->destination, '/')."/include");
         $include = rtrim($include, '/').'/';
 
         # Locate the upload folder
@@ -119,9 +119,11 @@ class Deployment extends Unpacker {
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
             array("*/include/ost-config.php"));
-        if (!$options['dry-run']
-                && $include != "{$this->destination}/include")
-            $this->change_include_dir($include);
+        if (!$options['dry-run']) {
+            if ($include != "{$this->destination}/include/")
+                $this->change_include_dir($include);
+            $this->touch_version();
+        }
 
         if ($options['clean']) {
             // Clean everything but include folder first
@@ -131,6 +133,30 @@ class Deployment extends Unpacker {
                 array("ost-config.php","settings.php","plugins/",
                 "*/.htaccess"));
         }
+    }
+
+    function touch_version($version=false) {
+        if (!$version)
+            $version = exec('git describe');
+        if (!$version)
+            return false;
+
+        $bootstrap_php = $this->destination . '/bootstrap.php';
+        $lines = explode("\n", file_get_contents($bootstrap_php));
+        # Find the line that defines INCLUDE_DIR
+        $match = array();
+        foreach ($lines as &$line) {
+            // TODO: Change THIS_VERSION inline to be current `git describe`
+            if (preg_match("/(\s*)define\s*\(\s*'THIS_VERSION'/", $line, $match)) {
+                # Replace the definition with the new locatin
+                $line = $match[1] . "define('THIS_VERSION', '"
+                    . $version
+                    . "'); // Set by installer";
+                break;
+            }
+        }
+        if (!file_put_contents($bootstrap_php, implode("\n", $lines)))
+            die("Unable to write version information to bootstrap.php\n");
     }
 }
 
