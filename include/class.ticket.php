@@ -1837,11 +1837,12 @@ class Ticket {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
-        $where = array('ticket.staff_id='.db_input($staff->getId()));
+        $where = array('(ticket.staff_id='.db_input($staff->getId()) .' AND ticket.status="open")');
         $where2 = '';
 
         if(($teams=$staff->getTeams()))
-            $where[] = 'ticket.team_id IN('.implode(',', db_input(array_filter($teams))).')';
+            $where[] = ' ( ticket.team_id IN('.implode(',', db_input(array_filter($teams)))
+                        .') AND ticket.status="open")';
 
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
             $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
