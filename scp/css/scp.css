@@ -546,15 +546,15 @@ a.print {
     border-bottom:1px solid #ddd;
 }
 
-.form_table.fixed {
+table.fixed {
     table-layout: fixed;
     border-collapse: collapse;
     width: 100%;
 }
-.form_table.fixed td {
+table.fixed td {
     width: 180px;
 }
-.form_table.fixed td + td {
+table.fixed td + td {
     width: auto;
 }
 
