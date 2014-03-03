@@ -882,8 +882,22 @@ Class ThreadEntry {
                 $vars['body'] = new TextThreadBody($vars['body']);
         }
 
+        // Drop stripped images. NOTE: This should be done before
+        // ->convert() because the strippedImages list will not propagate to
+        // the newly converted thread body
+        if ($vars['attachments']) {
+            foreach ($body->getStrippedImages() as $cid) {
+                foreach ($vars['attachments'] as $i=>$a) {
+                    if (@$a['cid'] && $a['cid'] == $cid) {
+                        // Inline referenced attachment was stripped
+                        unset($vars['attachments']);
+                    }
+                }
+            }
+        }
+
         if (!($body = Format::sanitize(
-                        (string) $vars['body']->convertTo('html'))))
+                (string) $vars['body']->convertTo('html'))))
             $body = '-'; //Special tag used to signify empty message as stored.
 
         $poster = $vars['poster'];
@@ -933,7 +947,7 @@ Class ThreadEntry {
         //Emailed or API attachments
         if (isset($vars['attachments']) && $vars['attachments']) {
             $entry->importAttachments($vars['attachments']);
-            foreach ($vars['attachments'] as &$a) {
+            foreach ($vars['attachments'] as $a) {
                 // Change <img src="cid:"> inside the message to point to
                 // a unique hash-code for the attachment. Since the
                 // content-id will be discarded, only the unique hash-code
@@ -943,7 +957,6 @@ Class ThreadEntry {
                         'src="cid:'.$a['key'].'"', $body);
                 }
             }
-            unset($a);
             $sql = 'UPDATE '.TICKET_THREAD_TABLE.' SET body='.db_input($body)
                 .' WHERE `id`='.db_input($entry->getId());
             if (!db_query($sql) || !db_affected_rows())
@@ -1133,6 +1146,7 @@ class ThreadBody /* extends SplString */ {
 
     var $body;
     var $type;
+    var $stripped_images = array();
 
     function __construct($body, $type='text') {
         $type = strtolower($type);
@@ -1162,9 +1176,27 @@ class ThreadBody /* extends SplString */ {
         if (!$tag || strpos($this->body, $tag) === false)
             return;
 
-        if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg))
+        // Capture a list of inline images
+        $images_before = $images_after = array();
+        preg_match_all('/src="cid:([\w_-]+)"/', $this->body, $images_before,
+            PREG_SET_ORDER);
+
+        // Strip the quoted part of the body
+        if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg)) {
             $this->body = $msg;
 
+            // Capture a list of dropped inline images
+            if ($images_before) {
+                preg_match_all('/src="cid:([\w_-]+)"/', $this->body,
+                    $images_after, PREG_SET_ORDER);
+                $this->stripped_images = array_diff($images_before,
+                    $images_after);
+            }
+        }
+    }
+
+    function getStrippedImages() {
+        return $this->stripped_images;
     }
 
     function __toString() {
