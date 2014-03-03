@@ -10,7 +10,7 @@ notes: |
     This is most commonly performed when user's call in on the phone.
 
 subject: |
-    %{ticket.subject}
+    %{ticket.subject} [#%{ticket.number}]
 body: |
     <h3><strong>Dear %{recipient.name.first},</strong></h3>
     Our customer care team has created a ticket, <a
