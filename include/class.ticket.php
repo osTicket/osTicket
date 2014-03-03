@@ -879,16 +879,26 @@ class Ticket {
 
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
 
-        //auto-assign to closing staff or last respondent
-        if(!($staff=$this->getStaff()) || !$staff->isAvailable()) {
-            if(($lastrep=$this->getLastRespondent()) && $lastrep->isAvailable()) {
+        // Auto-assign to closing staff or last respondent
+        // If the ticket is closed and auto-claim is not enabled then put the
+        // ticket back to unassigned pool.
+        if ($this->isClosed() && !$cfg->autoClaimTickets()) {
+            $this->setStaffId(0);
+        } elseif(!($staff=$this->getStaff()) || !$staff->isAvailable()) {
+            // Ticket has no assigned staff -  if auto-claim is enabled then
+            // try assigning it to the last respondent (if available)
+            // otherwise leave the ticket unassigned.
+            if ($cfg->autoClaimTickets() //Auto claim is enabled.
+                    && ($lastrep=$this->getLastRespondent())
+                    && $lastrep->isAvailable()) {
                 $this->setStaffId($lastrep->getId()); //direct assignment;
             } else {
                 $this->setStaffId(0); //unassign - last respondent is not available.
             }
         }
 
-        if($this->isClosed()) $this->reopen(); //reopen..
+        // Reopen  if closed.
+        if($this->isClosed()) $this->reopen();
 
        /**********   double check auto-response  ************/
         if($autorespond && (Email::getIdByEmail($this->getEmail())))
