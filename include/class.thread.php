@@ -1189,8 +1189,8 @@ class ThreadBody /* extends SplString */ {
             if ($images_before) {
                 preg_match_all('/src="cid:([\w_-]+)"/', $this->body,
                     $images_after, PREG_SET_ORDER);
-                $this->stripped_images = array_diff($images_before,
-                    $images_after);
+                $this->stripped_images = array_diff($images_before[1],
+                    $images_after[1]);
             }
         }
     }
