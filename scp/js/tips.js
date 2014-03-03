@@ -183,7 +183,7 @@ jQuery(function() {
 
 
     //Ticket preview
-    $('.ticketPreview').live('mouseover click', function(e) {
+    $('.ticketPreview').live('mouseover', function(e) {
         e.preventDefault();
         var elem = $(this);
 
