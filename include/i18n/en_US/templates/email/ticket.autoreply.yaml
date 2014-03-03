@@ -12,7 +12,7 @@ notes: |
     Available variables for replacement: %{ticket.*}, %{response}
 
 subject: |
-    Support Ticket Opened
+    Re: %{ticket.subject} [#%{ticket.number}]
 body: |
     <h3><strong>Dear %{recipient.name.first},</strong></h3>
     A request for support has been created and assigned ticket <a

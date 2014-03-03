@@ -8,7 +8,7 @@ notes: |
     Sent to a user when a new ticket is created
 
 subject: |
-    Support Ticket Opened
+    Support Ticket Opened [#%{ticket.number}]
 body: |
     <h3><strong>Dear %{recipient.name.first},</strong></h3>
     Our customer care team has created a ticket,
@@ -16,7 +16,7 @@ body: |
     with the following details and summary: <br>
     <br>
     Subject: <strong>%{ticket.subject}</strong><br>
-    Submitted:<strong> <strong>%{ticket.create_date}</strong></strong>
+    Submitted: <strong>%{ticket.create_date}</strong>
     <br>
     <br>
     %{message}
