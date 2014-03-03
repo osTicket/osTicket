@@ -121,7 +121,22 @@ function db_create_database($database, $charset='utf8',
             $database, $charset, $collate));
 }
 
-// execute sql query
+/**
+ * Function: db_query
+ * Execute sql query
+ *
+ * Parameters:
+ * $query - (string) SQL query (with parameters)
+ * $logError - (mixed):
+ *      - (bool) true or false if error should be logged and alert email sent
+ *      - (callable) to receive error number and return true or false if
+ *      error should be logged and alert email sent. The callable is only
+ *      invoked if the query fails.
+ *
+ * Returns:
+ * (mixed) MysqliResource if SELECT query succeeds, true if an INSERT,
+ * UPDATE, or DELETE succeeds, false or null if the query fails.
+ */
 function db_query($query, $logError=true) {
     global $ost, $__db;
 
@@ -134,6 +149,10 @@ function db_query($query, $logError=true) {
     } while (!$res && --$tries && $__db->errno == 1213);
 
     if(!$res && $logError && $ost) { //error reporting
+        // Allow $logError() callback to determine if logging is necessary
+        if (is_callable($logError) && !($logError($__db->errno)))
+            return $res;
+
         $msg='['.$query.']'."\n\n".db_error();
         $ost->logDBError('DB Error #'.db_errno(), $msg);
         //echo $msg; #uncomment during debuging or dev.

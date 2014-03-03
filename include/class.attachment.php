@@ -128,7 +128,10 @@ class GenericAttachments {
                     .',object_id='.db_input($this->getId())
                     .',file_id='.db_input($fileId)
                     .',inline='.db_input($inline ? 1 : 0);
-                if (db_query($sql))
+                // File may already be associated with the draft (in the
+                // event it was deleted and re-added)
+                if (db_query($sql, function($errno) { return $errno != 1062; })
+                        || db_errno() == 1062)
                     $i[] = $fileId;
             }
         }
