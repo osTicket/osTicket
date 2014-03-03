@@ -886,7 +886,7 @@ Class ThreadEntry {
         // ->convert() because the strippedImages list will not propagate to
         // the newly converted thread body
         if ($vars['attachments']) {
-            foreach ($body->getStrippedImages() as $cid) {
+            foreach ($vars['body']->getStrippedImages() as $cid) {
                 foreach ($vars['attachments'] as $i=>$a) {
                     if (@$a['cid'] && $a['cid'] == $cid) {
                         // Inline referenced attachment was stripped
@@ -1178,8 +1178,8 @@ class ThreadBody /* extends SplString */ {
 
         // Capture a list of inline images
         $images_before = $images_after = array();
-        preg_match_all('/src="cid:([\w_-]+)"/', $this->body, $images_before,
-            PREG_SET_ORDER);
+        preg_match_all('/src="cid:([\w_-]+)(?:@|")/', $this->body, $images_before,
+            PREG_PATTERN_ORDER);
 
         // Strip the quoted part of the body
         if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg)) {
@@ -1187,8 +1187,8 @@ class ThreadBody /* extends SplString */ {
 
             // Capture a list of dropped inline images
             if ($images_before) {
-                preg_match_all('/src="cid:([\w_-]+)"/', $this->body,
-                    $images_after, PREG_SET_ORDER);
+                preg_match_all('/src="cid:([\w_-]+)(?:@|")/', $this->body,
+                    $images_after, PREG_PATTERN_ORDER);
                 $this->stripped_images = array_diff($images_before[1],
                     $images_after[1]);
             }

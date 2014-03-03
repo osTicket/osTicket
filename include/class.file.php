@@ -94,7 +94,7 @@ class AttachmentFile {
     }
 
     function getKey() {
-        return $this->ht['key'];
+        return strtolower($this->ht['key']);
     }
 
     function getSignature() {
