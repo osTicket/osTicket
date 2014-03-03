@@ -354,19 +354,16 @@ class osTicket {
     }
 
     function get_path_info() {
-        if(isset($_SERVER['PATH_INFO']))
-            return $_SERVER['PATH_INFO'];
+        static $sources = array('PATH_INFO', 'REDIRECT_PATH_INFO',
+            'REDIRECT_REDIRECT_PATH_INFO', 'ORIG_PATH_INFO');
 
-        if(isset($_SERVER['ORIG_PATH_INFO']))
-            return $_SERVER['ORIG_PATH_INFO'];
+        // Cloudflare (or other services) will send REDIRECT_PATH_INFO
+        // instead of PATH_INFO or ORIG_PATH_INFO
+        foreach ($sources as $s)
+            if (isset($_SERVER[$s]))
+                return $_SERVER[$s];
 
-        // Cloudflare (or other services) will send
-        // REDIRECT_PATH_INFO instead of PATH_INFO
-        // or ORIG_PATH_INFO
-        if(isset($_SERVER['REDIRECT_PATH_INFO']))
-            return $_SERVER['REDIRECT_PATH_INFO'];
-
-        //TODO: conruct possible path info.
+        // TODO: conruct possible path info.
 
         return null;
     }
