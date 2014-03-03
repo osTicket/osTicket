@@ -47,7 +47,7 @@ if ($info['error']) {
 </div>
 <div id="new-user-form" style="display:<?php echo $user ? 'none' :'block'; ?>;">
 <form method="post" class="user" action="#users/lookup/form">
-    <table width="100%">
+    <table width="100%" class="fixed">
     <?php
         if(!$form) $form = UserForm::getInstance();
         $form->render(true, 'Create New User'); ?>
