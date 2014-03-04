@@ -151,9 +151,24 @@ class Ticket {
         if(!is_object($staff) && !($staff=Staff::lookup($staff)))
             return false;
 
-        return ((!$staff->showAssignedOnly() && $staff->canAccessDept($this->getDeptId()))
-                 || ($this->getTeamId() && $staff->isTeamMember($this->getTeamId()))
-                 || $staff->getId()==$this->getStaffId());
+        // Staff has access to the department.
+        if (!$staff->showAssignedOnly()
+                && $staff->canAccessDept($this->getDeptId()))
+            return true;
+
+        // Only consider assignment if the ticket is open
+        if (!$this->isOpen())
+            return false;
+
+        // Check ticket access based on direct or team assignment
+        if ($staff->getId() == $this->getStaffId()
+                || ($this->getTeamId()
+                    && $staff->isTeamMember($this->getTeamId())
+        ))
+            return true;
+
+        // No access bro!
+        return false;
     }
 
     function checkUserAccess($user) {
