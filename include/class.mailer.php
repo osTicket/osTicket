@@ -175,7 +175,7 @@ class Mailer {
                         return $match[0];
                     $mime->addHTMLImage($file->getData(),
                         $file->getType(), $file->getName(), false,
-                        $file->getKey().'@'.$domain);
+                        $match[1].'@'.$domain);
                     // Don't re-attach the image below
                     unset($self->attachments[$file->getId()]);
                     return $match[0].'@'.$domain;
