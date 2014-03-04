@@ -15,7 +15,7 @@ if($sla && $_REQUEST['a']!='add'){
     $submit_text='Add Plan';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['enable_priority_escalation']=isset($info['enable_priority_escalation'])?$info['enable_priority_escalation']:1;
-    $info['disable_overdue_alerts']=isset($info['disable_overdue_alerts'])?$info['disable_overdue_alerts']:1;
+    $info['disable_overdue_alerts']=isset($info['disable_overdue_alerts'])?$info['disable_overdue_alerts']:0;
     $qstr.='&a='.urlencode($_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
