@@ -50,6 +50,11 @@ function convert_html_to_text($html, $width=74) {
             'html' => array('white-space' => 'pre'), # Don't wrap footnotes
             'p' => array('margin-bottom' => '1em'),
             'pre' => array('white-space' => 'pre'),
+            'u' => array('text-decoration' => 'underline'),
+            'a' => array('text-decoration' => 'underline'),
+            'b' => array('text-transform' => 'uppercase'),
+            'strong' => array('text-transform' => 'uppercase'),
+            'h4' => array('text-transform' => 'uppercase'),
         ))
     );
     $options = array();
@@ -129,13 +134,6 @@ function identify_node($node, $parent=null) {
         case "a":
             return new HtmlAElement($node, $parent);
 
-        case "b":
-        case "strong":
-            return new HtmlBElement($node, $parent);
-
-        case "u":
-            return new HtmlUElement($node, $parent);
-
         case "ol":
             return new HtmlListElement($node, $parent);
         case "ul":
@@ -152,8 +150,8 @@ function identify_node($node, $parent=null) {
 
         default:
             // print out contents of unknown tags
-            if ($node->hasChildNodes() && $node->childNodes->length == 1)
-                return identify_node($node->childNodes->item(0), $parent);
+            //if ($node->hasChildNodes() && $node->childNodes->length == 1)
+            //    return identify_node($node->childNodes->item(0), $parent);
 
             return new HtmlInlineElement($node, $parent);
     }
@@ -188,6 +186,19 @@ class HtmlInlineElement {
         $output = '';
         $after_block = false;
         $this->ws = $this->getStyle('white-space', 'normal');
+        // Direction
+        $dir = $this->node->getAttribute('dir');
+        // Ensure we have a value, but don't a control char unless direction
+        // is declared
+        $this->dir = $dir ?: 'left';
+        switch (strtolower($dir)) {
+        case 'ltr':
+            $output .= "\xE2\x80\x8E"; # LEFT-TO-RIGHT MARK
+            break;
+        case 'rtl':
+            $output .= "\xE2\x80\x8F"; # RIGHT-TO-LEFT MARK
+            break;
+        }
         foreach ($this->children as $c) {
             if ($c instanceof DOMText) {
                 // Collapse white-space
@@ -216,6 +227,20 @@ class HtmlInlineElement {
             elseif (is_string($more))
                 $output .= $more;
         }
+        switch ($this->getStyle('text-transform', 'none')) {
+        case 'uppercase':
+            $output = mb_strtoupper($output);
+            break;
+        }
+        switch ($this->getStyle('text-decoration', 'none')) {
+        case 'underline':
+            // Remove diacritics and underline chars which do not go below
+            // the baseline
+            if (class_exists('Normalizer'))
+                $output = Normalizer::normalize($output, Normalizer::FORM_D);
+            $output = preg_replace("/[a-fhik-or-xzA-PR-Z0-9#]/u", "$0\xcc\xb2", $output);
+            break;
+        }
         if ($this->footnotes) {
             $output .= "\n\n" . str_repeat('-', $width/2) . "\n";
             $id = 1;
@@ -232,7 +257,7 @@ class HtmlInlineElement {
                 if ($c instanceof HtmlInlineElement)
                     $this->weight += $c->getWeight();
                 elseif ($c instanceof DomText)
-                    $this->weight += mb_strwidth($c->wholeText);
+                    $this->weight += mb_strwidth2($c->wholeText);
             }
         }
         return $this->weight;
@@ -240,7 +265,7 @@ class HtmlInlineElement {
 
     function getStyle($property, $default=null, $tag=false, $classes=false) {
         if ($this->style && $this->style->has($property))
-            return $this->style->get($property);
+            return $this->style->get($property, $default);
 
         if ($tag === false)
             $tag = $this->node->nodeName;
@@ -315,15 +340,39 @@ class HtmlBlockElement extends HtmlInlineElement {
 
         // Apply stylesheet styles
         // TODO: Padding
-        // TODO: Justification
+
+        // Justification
+        static $aligns = array(
+            'left' => STR_PAD_RIGHT,
+            'right' => STR_PAD_LEFT,
+            'center' => STR_PAD_BOTH,
+        );
+        $talign = $this->getStyle('text-align', 'none');
+        if (isset($aligns[$talign])) {
+            // Explode lines, justify, implode again
+            $output = array_map(function($l) use ($talign, $aligns, $width) {
+                return mb_str_pad($l, $width, ' ', $aligns[$talign]);
+            }, explode("\n", $output)
+            );
+            $output = implode("\n", $output);
+        }
+
         // Border
         if ($bw)
             $output = self::borderize($output, $width);
+
         // Margin
         $mb = $this->getStyle('margin-bottom', 0);
         $output .= str_repeat("\n", (int)$mb);
 
-        return "\n" . $output;
+        // Add leading newline if not preceed by <br/>
+        if (!($pn = $this->node->previousSibling)
+            || !in_array(strtolower($pn->nodeName), array('br','hr'))
+        ) {
+            $output = "\n" . $output;
+        }
+
+        return $output;
     }
 
     function borderize($what, $width) {
@@ -340,7 +389,7 @@ class HtmlBlockElement extends HtmlInlineElement {
                 if ($c instanceof HtmlBlockElement)
                     $this->min_width = max($c->getMinWidth(), $this->min_width);
                 elseif ($c instanceof DomText)
-                    $this->min_width = max(max(array_map('mb_strwidth',
+                    $this->min_width = max(max(array_map('mb_strwidth2',
                         explode(' ', $c->wholeText))), $this->min_width);
             }
         }
@@ -353,25 +402,10 @@ class HtmlBrElement extends HtmlBlockElement {
         return "\n";
     }
 }
-class HtmlUElement extends HtmlInlineElement {
-    function render($width, $options) {
-        $output = parent::render($width, $options);
-        return "_".str_replace(" ", "_", $output)."_";
-    }
-    function getWeight() { return parent::getWeight() + 2; }
-}
-
-class HtmlBElement extends HtmlInlineElement {
-    function render($width, $options) {
-        $output = parent::render($width, $options);
-        return "*".$output."*";
-    }
-    function getWeight() { return parent::getWeight() + 2; }
-}
 
 class HtmlHrElement extends HtmlBlockElement {
     function render($width, $options) {
-        return "\n".str_repeat('-', $width)."\n";
+        return "\n".str_repeat("\xE2\x94\x80", $width)."\n";
     }
     function getWeight() { return 1; }
     function getMinWidth() { return 0; }
@@ -384,17 +418,18 @@ class HtmlHeadlineElement extends HtmlBlockElement {
             return "";
         switch ($this->node->nodeName) {
             case 'h1':
+                $line = "\xE2\x95\x90"; # U+2505
+                break;
             case 'h2':
-                $line = '=';
+                $line = "\xE2\x94\x81"; # U+2501
                 break;
             case 'h3':
-            case 'h4':
-                $line = '-';
+                $line = "\xE2\x94\x80"; # U+2500
                 break;
             default:
                 return $headline;
         }
-        $length = max(array_map('mb_strwidth', explode("\n", $headline)));
+        $length = max(array_map('mb_strwidth2', explode("\n", $headline)));
         $headline .= "\n" . str_repeat($line, $length) . "\n";
         return $headline;
     }
@@ -430,7 +465,7 @@ class HtmlImgElement extends HtmlInlineElement {
         return "[image:$alt$title] ";
     }
     function getWeight() {
-        return mb_strwidth($this->node->getAttribute("alt")) + 8;
+        return mb_strwidth2($this->node->getAttribute("alt")) + 8;
     }
 }
 
@@ -447,8 +482,8 @@ class HtmlAElement extends HtmlInlineElement {
         } elseif (strpos($href, 'mailto:') === 0) {
             $href = substr($href, 7);
             $output = (($href != $output) ? "$href " : '') . "<$output>";
-        } elseif (mb_strwidth($href) > $width / 2) {
-            if (mb_strwidth($output) > $width / 2) {
+        } elseif (mb_strwidth2($href) > $width / 2) {
+            if (mb_strwidth2($output) > $width / 2) {
                 // Parse URL and use relative path part
                 if ($PU = parse_url($output))
                     $output = $PU['host'] . $PU['path'];
@@ -498,10 +533,10 @@ class HtmlListItem extends HtmlBlockElement {
 
     function render($width, $options) {
         $prefix = sprintf($options['marker'], $this->number);
-        $lines = explode("\n", trim(parent::render($width-mb_strwidth($prefix), $options)));
+        $lines = explode("\n", trim(parent::render($width-mb_strwidth2($prefix), $options)));
         $lines[0] = $prefix . $lines[0];
         return new PreFormattedText(
-            implode("\n".str_repeat(" ", mb_strwidth($prefix)), $lines)."\n");
+            implode("\n".str_repeat(" ", mb_strwidth2($prefix)), $lines)."\n");
     }
 }
 
@@ -852,6 +887,10 @@ if (!function_exists('mb_strwidth')) {
     function mb_strwidth($string) {
         return mb_strlen($string);
     }
+}
+function mb_strwidth2($string) {
+    $junk = array();
+    return mb_strwidth($string) - preg_match_all("/\p{M}/u", $string, $junk);
 }
 
 // Thanks http://www.php.net/manual/en/function.wordwrap.php#107570
