@@ -121,13 +121,16 @@ RedactorPlugins.draft = {
 
 RedactorPlugins.signature = {
     init: function() {
-        var $el = $(this.$element.get(0));
+        var $el = $(this.$element.get(0)),
+            inner = $('<div class="inner"></div>');
         if ($el.data('signatureField')) {
             this.$signatureBox = $('<div class="selected-signature"></div>')
-                .append($('<div class="inner"></div>')
-                    .html($el.data('signature'))
-                )
+                .append(inner)
                 .appendTo(this.$box);
+            if ($el.data('signature'))
+                inner.html($el.data('signature'));
+            else
+                this.$signatureBox.hide();
             $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
                 .on('change', false, false, $.proxy(this.updateSignature, this))
             if ($el.data('deptField'))
@@ -141,7 +144,7 @@ RedactorPlugins.signature = {
                 originalShadow = this.$signatureBox.css('box-shadow');
             this.$signatureBox.hover(function() {
                 hoverTimeout = setTimeout($.proxy(function() {
-                    originalHeight = outer.height()
+                    originalHeight = Math.max(originalHeight, outer.height());
                     $(this).animate({
                         'height': inner.offsetHeight
                     }, 'fast');
