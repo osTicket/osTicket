@@ -56,7 +56,7 @@ class Ticket2PDF extends mPDF
             return INCLUDE_DIR.'fpdf/print-logo.png';
         }
 
-        $tmp = tempnam("", 'pdf') . '.jpg';
+        $tmp = tempnam(sys_get_temp_dir(), 'pdf') . '.jpg';
         $img = imagecreatefromstring($logo->getData());
         // Handle transparent images with white background
         $img2 = imagecreatetruecolor(imagesx($img), imagesy($img));
