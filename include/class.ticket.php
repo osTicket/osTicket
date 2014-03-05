@@ -2137,32 +2137,6 @@ class Ticket {
             }
         };
 
-        //Check for 403
-        if ($vars['email']  && Validator::is_email($vars['email'])) {
-
-            //Make sure the email address is not banned
-            if(TicketFilter::isBanned($vars['email'])) {
-                $errors['err']='Ticket denied. Error #403';
-                $errors['errno'] = 403;
-                $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
-                return 0;
-            }
-
-            //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
-            if($cfg->getMaxOpenTickets()>0 && strcasecmp($origin,'staff')
-                    && ($user=TicketUser::lookupByEmail($vars['email']))
-                    && ($openTickets=$user->getNumOpenTickets())
-                    && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
-
-                $errors['err']="You've reached the maximum open tickets allowed.";
-                $ost->logWarning('Ticket denied -'.$vars['email'],
-                        sprintf('Max open tickets (%d) reached for %s ',
-                            $cfg->getMaxOpenTickets(), $vars['email']));
-
-                return 0;
-            }
-        }
-
         // Create and verify the dynamic form entry for the new ticket
         $form = TicketForm::getNewInstance();
         // If submitting via email, ensure we have a subject and such
@@ -2192,13 +2166,46 @@ class Ticket {
                     $vars[$f->get('name')] = $f->toString($f->getClean());
         }
 
+
+        //Check for 403
+        if ($vars['email']
+                && Validator::is_email($vars['email'])) {
+
+            //Make sure the email address is not banned
+            if (TicketFilter::isBanned($vars['email'])) {
+                $errors = array(
+                        'errno' => 403,
+                        'err' => 'This help desk is for use by authorized
+                        users only');
+                $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
+                return 0;
+            }
+
+            //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
+            if ($cfg->getMaxOpenTickets() > 0
+                    && strcasecmp($origin, 'staff')
+                    && ($_user=TicketUser::lookupByEmail($vars['email']))
+                    && ($openTickets=$_user->getNumOpenTickets())
+                    && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
+
+                $errors = array('err' => "You've reached the maximum open tickets allowed.");
+                $ost->logWarning('Ticket denied -'.$vars['email'],
+                        sprintf('Max open tickets (%d) reached for %s ',
+                            $cfg->getMaxOpenTickets(), $vars['email']));
+
+                return 0;
+            }
+        }
+
         //Init ticket filters...
         $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected
         if($ticket_filter
                 && ($filter=$ticket_filter->shouldReject())) {
-            $errors['err']='Ticket denied. Error #403';
-            $errors['errno'] = 403;
+            $errors = array(
+                    'errno' => 403,
+                    'err' => "This help desk is for use by authorized users
+                    only");
             $ost->logWarning('Ticket denied',
                     sprintf('Ticket rejected ( %s) by filter "%s"',
                         $vars['email'], $filter->getName()));
