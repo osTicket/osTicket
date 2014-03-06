@@ -365,15 +365,13 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         list($id, $auth) = explode(':', $_SESSION['_auth']['staff']['key']);
 
         if (!($bk=static::getBackend($id)) //get the backend
-                || !$bk->supportsAuthentication() //Make sure it can authenticate
                 || !($staff = $bk->validate($auth)) //Get AuthicatedUser
                 || !($staff instanceof Staff)
                 || $staff->getId() != $_SESSION['_auth']['staff']['id'] // check ID
-                )
+        )
             return null;
 
         $staff->setAuthKey($_SESSION['_auth']['staff']['key']);
-
 
         return $staff;
     }
