@@ -29,7 +29,8 @@ if($_POST) {
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,
             $_POST['passwd'], $errors)) {
-        @header("Location: $dest");
+        session_write_close();
+        Http::redirect($dest);
         require_once('index.php'); //Just incase header is messed up.
         exit;
     }
