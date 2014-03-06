@@ -320,15 +320,6 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $_SESSION['TZ_OFFSET'] = $staff->getTZoffset();
         $_SESSION['TZ_DST'] = $staff->observeDaylight();
 
-        //Regenerate session id.
-        $sid = session_id(); //Current id
-        session_regenerate_id(true);
-        // Destroy old session ID - needed for PHP version < 5.1.0
-        // DELME: remove when we move to php 5.3 as min. requirement.
-        if(($session=$ost->getSession()) && is_object($session)
-                && $sid!=session_id())
-            $session->destroy($sid);
-
         Signal::send('auth.login.succeeded', $staff);
 
         $staff->cancelResetTokens();
@@ -365,15 +356,13 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         list($id, $auth) = explode(':', $_SESSION['_auth']['staff']['key']);
 
         if (!($bk=static::getBackend($id)) //get the backend
-                || !$bk->supportsAuthentication() //Make sure it can authenticate
                 || !($staff = $bk->validate($auth)) //Get AuthicatedUser
                 || !($staff instanceof Staff)
                 || $staff->getId() != $_SESSION['_auth']['staff']['id'] // check ID
-                )
+        )
             return null;
 
         $staff->setAuthKey($_SESSION['_auth']['staff']['key']);
-
 
         return $staff;
     }
@@ -445,12 +434,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $msg=sprintf('%s (%s) logged in [%s]',
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug('User login', $msg);
-
-        //Regenerate session ID.
-        $sid=session_id(); //Current session id.
-        session_regenerate_id(TRUE); //get new ID.
-        if(($session=$ost->getSession()) && is_object($session) && $sid!=session_id())
-            $session->destroy($sid);
 
         return true;
     }

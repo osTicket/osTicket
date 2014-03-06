@@ -16,16 +16,13 @@
 **********************************************************************/
 require_once('client.inc.php');
 
+// Try autologin the user
+// Authenticated user can be of type ticket owner or collaborator
+$errors = array();
+$user =  UserAuthenticationBackend::processSignOn($errors);
+if ($user && $user->getTicketId())
+    Http::redirect('tickets.php?id='.$user->getTicketId());
 
-//If the user is NOT logged in - try auto-login (if params exists).
-if (!$thisclient || !$thisclient->isValid()) {
-    // Try autologin the user
-    // Authenticated user can be of type ticket owner or collaborator
-    $errors = array();
-    $user =  UserAuthenticationBackend::processSignOn($errors);
-    if ($user && $user->getTicketId())
-        @header('Location: tickets.php?id='.$user->getTicketId());
-}
 //Simply redirecting to tickets.php until multiview is implemented.
 require('tickets.php');
 ?>
