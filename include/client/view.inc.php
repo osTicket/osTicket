@@ -31,7 +31,7 @@ if(!$dept || !$dept->isPublic())
                 </tr>
                 <tr>
                     <th>Department:</th>
-                    <td><?php echo Format::htmlchars($dept->getName()); ?></td>
+                    <td><?php echo Format::htmlchars($dept instanceof Dept ? $dept->getName() : ''); ?></td>
                 </tr>
                 <tr>
                     <th>Create Date:</th>
