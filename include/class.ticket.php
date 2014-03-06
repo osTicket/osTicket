@@ -2271,7 +2271,7 @@ class Ticket {
             if (!$user) {
                 $user_form = UserForm::getUserForm()->getForm($vars);
                 if (!$user_form->isValid($field_filter('user'))
-                        || !($user=User::fromForm($user_form->getClean())))
+                        || !($user=User::fromVars($user_form->getClean())))
                     $errors['user'] = 'Incomplete client information';
             }
         }
