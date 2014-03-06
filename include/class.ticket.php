@@ -1760,13 +1760,19 @@ class Ticket {
             $vars['note']=sprintf('Ticket Updated by %s', $thisstaff->getName());
 
         $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
+
+        // Decide if we need to keep the just selected SLA
+        $keepSLA = ($this->getSLAId() != $vars['slaId']);
+
+        // Reload the ticket so we can do further checking
         $this->reload();
 
         // Reselect SLA if transient
-        if(!$this->getSLAId() || $this->getSLA()->isTransient())
+        if (!$keepSLA
+                && (!$this->getSLA() || $this->getSLA()->isTransient()))
             $this->selectSLAId();
 
-        //Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
+        // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
                 && (!$this->getEstDueDate() //Duedate + SLA cleared
                     || Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
