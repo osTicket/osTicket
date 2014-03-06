@@ -1871,7 +1871,13 @@ class Ticket {
 
     //Print ticket... export the ticket thread as PDF.
     function pdfExport($psize='Letter', $notes=false) {
+        global $thisstaff;
+
         require_once(INCLUDE_DIR.'class.pdf.php');
+        if (!is_string($psize))
+            if (!$thisstaff || !($psize = $thisstaff->getDefaultPaperSize()))
+                $psize = 'Letter';
+
         $pdf = new Ticket2PDF($this, $psize, $notes);
         $name='Ticket-'.$this->getNumber().'.pdf';
         $pdf->Output($name, 'I');
@@ -2123,18 +2129,25 @@ class Ticket {
         global $ost, $cfg, $thisclient, $_FILES;
 
         // Don't enforce form validation for email
-        $field_filter = function($f) use ($origin) {
-            // Ultimately, only offer validation errors for web for
-            // non-internal fields. For email, no validation can be
-            // performed. For other origins, validate as usual
-            switch (strtolower($origin)) {
-            case 'email':
-                return false;
-            case 'web':
-                return !$f->get('private');
-            default:
-                return true;
-            }
+        $field_filter = function($type) use ($origin) {
+            return function($f) use ($origin, $type) {
+                // Ultimately, only offer validation errors for web for
+                // non-internal fields. For email, no validation can be
+                // performed. For other origins, validate as usual
+                switch (strtolower($origin)) {
+                case 'email':
+                    return false;
+                case 'staff':
+                    // Required 'Contact Information' fields aren't required
+                    // when staff open tickets
+                    return $type != 'user'
+                        || in_array($f->get('name'), array('name','email'));
+                case 'web':
+                    return !$f->get('private');
+                default:
+                    return true;
+                }
+            };
         };
 
         // Create and verify the dynamic form entry for the new ticket
@@ -2146,7 +2159,7 @@ class Ticket {
                 $field->value = $field->parse($vars[$fname]);
         }
 
-        if (!$form->isValid($field_filter))
+        if (!$form->isValid($field_filter('ticket')))
             $errors += $form->errors();
 
         // Unpack dynamic variables into $vars for filter application
@@ -2257,8 +2270,8 @@ class Ticket {
             // account created or detected
             if (!$user) {
                 $user_form = UserForm::getUserForm()->getForm($vars);
-                if (!$user_form->isValid($field_filter)
-                        || !($user=User::fromVars($user_form->getClean())))
+                if (!$user_form->isValid($field_filter('user'))
+                        || !($user=User::fromForm($user_form->getClean())))
                     $errors['user'] = 'Incomplete client information';
             }
         }
