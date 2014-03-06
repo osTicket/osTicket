@@ -729,7 +729,8 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function __toString() {
-        return $this->toString();
+        $v = $this->toString();
+        return is_string($v) ? $v : (string) $this->getValue();
     }
 }
 
