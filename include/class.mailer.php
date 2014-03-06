@@ -162,10 +162,14 @@ class Mailer {
             $isHtml = false;
         }
 
-        $domain = 'local';
         if ($isHtml && $cfg && $cfg->isHtmlThreadEnabled()) {
-            // TODO: Lookup helpdesk domain
-            $domain = substr(md5($ost->getConfig()->getURL()), -12);
+            // Pick a domain compatible with pear Mail_Mime
+            $matches = array();
+            if (preg_match('#(@[0-9a-zA-Z\-\.]+)#', $this->getFromAddress(), $matches)) {
+                $domain = $matches[1];
+            } else {
+                $domain = '@localhost';
+            }
             // Format content-ids with the domain, and add the inline images
             // to the email attachment list
             $self = $this;
@@ -175,10 +179,10 @@ class Mailer {
                         return $match[0];
                     $mime->addHTMLImage($file->getData(),
                         $file->getType(), $file->getName(), false,
-                        $match[1].'@'.$domain);
+                        $match[1].$domain);
                     // Don't re-attach the image below
                     unset($self->attachments[$file->getId()]);
-                    return $match[0].'@'.$domain;
+                    return $match[0].$domain;
                 }, $message);
             // Add an HTML body
             $mime->setHTMLBody($message);
