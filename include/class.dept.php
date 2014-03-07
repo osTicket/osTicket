@@ -152,9 +152,11 @@ class Dept {
 
     function getAutoRespEmail() {
 
-        if (!$this->autorespEmail && $this->ht['autoresp_email_id'])
-            if (!($this->autorespEmail = Email::lookup($this->ht['autoresp_email_id'])))
+        if (!$this->autorespEmail) {
+            if (!$this->ht['autoresp_email_id']
+                    || !($this->autorespEmail = Email::lookup($this->ht['autoresp_email_id'])))
                 $this->autorespEmail = $this->getEmail();
+        }
 
         return $this->autorespEmail;
     }
