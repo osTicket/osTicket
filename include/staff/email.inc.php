@@ -69,9 +69,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="priority_id">
-                    <option value="">&mdash; Select Priority &mdash;</option>
+                    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
                     <?php
-                    $sql='SELECT priority_id,priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
+                    $sql='SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while(list($id,$name)=db_fetch_row($res)){
                             $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
@@ -89,9 +89,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="dept_id">
-                    <option value="">&mdash; Select Department &mdash;</option>
+                    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
+                    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while(list($id,$name)=db_fetch_row($res)){
                             $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
