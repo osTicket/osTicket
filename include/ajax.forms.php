@@ -36,5 +36,19 @@ class DynamicFormsAjaxAPI extends AjaxController {
         else
             $field->save();
     }
+
+    function deleteAnswer($entry_id, $field_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+
+        $ent = DynamicFormEntryAnswer::lookup(array(
+            'entry_id'=>$entry_id, 'field_id'=>$field_id));
+        if (!$ent)
+            Http::response(404, 'Answer not found');
+
+        $ent->delete();
+    }
 }
 ?>

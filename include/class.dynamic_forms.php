@@ -592,11 +592,15 @@ class DynamicFormEntry extends VerySimpleModel {
      * entry.
      */
     function addMissingFields() {
+        // Track deletions
+        foreach ($this->getAnswers() as $answer)
+            $answer->deleted = true;
+
         foreach ($this->getForm()->getDynamicFields() as $field) {
             $found = false;
             foreach ($this->getAnswers() as $answer) {
                 if ($answer->get('field_id') == $field->get('id')) {
-                    $found = true; break;
+                    $answer->deleted = false; $found = true; break;
                 }
             }
             if (!$found && ($field = $field->getImpl($field))
@@ -605,6 +609,7 @@ class DynamicFormEntry extends VerySimpleModel {
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
                 $a->field = $field;
                 $a->entry = $this;
+                $a->deleted = false;
                 // Add to list of answers
                 $this->_values[] = $a;
                 $this->_fields[] = $field;
@@ -710,6 +715,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     var $field;
     var $form;
     var $entry;
+    var $deleted = false;
     var $_value;
 
     function getEntry() {
@@ -740,6 +746,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 
     function getIdValue() {
         return $this->get('value_id');
+    }
+
+    function isDeleted() {
+        return $this->deleted;
     }
 
     function toString() {
