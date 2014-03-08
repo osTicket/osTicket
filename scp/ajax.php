@@ -118,7 +118,9 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/add-collaborator/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteCollaborator'),
         url('^(?P<tid>\d+)/add-collaborator$', 'addCollaborator'),
         url_get('^lookup', 'lookup'),
-        url_get('^search', 'search')
+        url_get('^search', 'search'),
+        url_get('^(?P<tid>\d+)/forms/manage$', 'manageForms'),
+        url_post('^(?P<tid>\d+)/forms/manage$', 'updateForms')
     )),
     url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),

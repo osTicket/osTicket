@@ -107,9 +107,14 @@ if($ticket->isOverdue())
                         <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> Mark as Answered</a></li>
                     <?php
                     }
-                }
+                } ?>
+                <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
+                    ?>/forms/manage" onclick="javascript:
+                    $.dialog($(this).attr('href').substr(1), 201);
+                    return false"
+                    ><i class="icon-paste"></i> Manage Forms</a></li>
 
-                if($thisstaff->canBanEmails()) {
+<?php           if($thisstaff->canBanEmails()) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
