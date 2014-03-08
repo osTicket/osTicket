@@ -55,6 +55,10 @@ function convert_html_to_text($html, $width=74) {
             'b' => array('text-transform' => 'uppercase'),
             'strong' => array('text-transform' => 'uppercase'),
             'h4' => array('text-transform' => 'uppercase'),
+
+            // Crazy M$ styles
+            '.MsoNormal' => array('margin' => 0, 'margin-bottom' => 0.0001),
+            '.MsoPlainText' => array('margin' => 0, 'margin-bottom' => 0.0001),
         ))
     );
     $options = array();
@@ -188,9 +192,9 @@ class HtmlInlineElement {
         $this->ws = $this->getStyle('white-space', 'normal');
         // Direction
         $dir = $this->node->getAttribute('dir');
-        // Ensure we have a value, but don't a control char unless direction
-        // is declared
-        $this->dir = $dir ?: 'left';
+        // Ensure we have a value, but don't emit a control char unless
+        // direction is declared
+        $this->dir = $dir ?: 'ltr';
         switch (strtolower($dir)) {
         case 'ltr':
             $output .= "\xE2\x80\x8E"; # LEFT-TO-RIGHT MARK
@@ -234,7 +238,7 @@ class HtmlInlineElement {
         }
         switch ($this->getStyle('text-decoration', 'none')) {
         case 'underline':
-            // Remove diacritics and underline chars which do not go below
+            // Split diacritics and underline chars which do not go below
             // the baseline
             if (class_exists('Normalizer'))
                 $output = Normalizer::normalize($output, Normalizer::FORM_D);
@@ -903,7 +907,8 @@ function mb_wordwrap($string, $width=75, $break="\n", $cut=false) {
   if ($cut) {
     // Match anything 1 to $width chars long followed by whitespace or EOS,
     // otherwise match anything $width chars long
-    $search = '/(.{1,'.$width.'})(?:\s|$|(\p{Ps}))|(.{'.$width.'})/uS';
+    $search = '/((?>[^\n\p{M}]\p{M}*){1,'.$width.'})(?:[ \n]|$|(\p{Ps}))|((?>[^\n\p{M}]\p{M}*){'
+          .$width.'})/uS'; # <?php
     $replace = '$1$3'.$break.'$2';
   } else {
     // Anchor the beginning of the pattern with a lookahead
@@ -917,8 +922,9 @@ function mb_wordwrap($string, $width=75, $break="\n", $cut=false) {
 // Thanks http://www.php.net/manual/en/ref.mbstring.php#90611
 function mb_str_pad($input, $pad_length, $pad_string=" ",
         $pad_style=STR_PAD_RIGHT) {
+    $marks = preg_match_all('/\p{M}/u', $input, $match);
     return str_pad($input,
-        strlen($input)-mb_strwidth($input)+$pad_length, $pad_string,
+        strlen($input)-mb_strwidth($input)+$marks+$pad_length, $pad_string,
         $pad_style);
 }
 
