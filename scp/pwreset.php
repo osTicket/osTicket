@@ -53,8 +53,7 @@ if($_POST) {
             $errors = array();
             if ($staff = StaffAuthenticationBackend::processSignOn($errors)) {
                 $info = array('page' => 'index.php');
-                header('Location: '.$info['page']);
-                exit();
+                Http::redirect($info['page']);
             }
             elseif (isset($errors['msg'])) {
                 $msg = $errors['msg'];
