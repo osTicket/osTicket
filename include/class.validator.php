@@ -173,7 +173,7 @@ class Validator {
     function is_username($username, &$error='') {
         if (strlen($username)<2)
             $error = 'At least two (2) characters';
-        elseif (!preg_match('/^[\p{L}._-]+$/u', $username))
+        elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))
             $error = 'Username contains invalid characters';
         return $error == '';
     }
