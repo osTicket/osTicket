@@ -322,8 +322,6 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
         Signal::send('auth.login.succeeded', $staff);
 
-        $staff->cancelResetTokens();
-
         return true;
     }
 
