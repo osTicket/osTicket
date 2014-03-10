@@ -300,7 +300,7 @@ $(document).ready(function(){
             showOn:'both',
             dateFormat: $.translate_format(c.date_format||'m/d/Y')
         });
-        $(document).on('submit', 'form', function() {
+        /*$(document).on('submit', 'form', function() {
             $('.dp', $(this)).each(function(i, e) {
                 var $e = $(e),
                     d = $e.datepicker('getDate'),
@@ -309,7 +309,7 @@ $(document).ready(function(){
                     year = d.getFullYear();
                 $e.val(year+'-'+month+'-'+day);
             });
-        });
+        });*/
     });
 
     /* Typeahead tickets lookup */
