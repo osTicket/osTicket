@@ -617,6 +617,7 @@ class MailFetcher {
             // Fetch deliver status report
             $vars['message'] = $this->getDeliveryStatusMessage($mid);
             $vars['thread-type'] = 'N';
+            $data['flags']['bounce'] = true;
         }
         else {
             $vars['message'] = $this->getBody($mid);
