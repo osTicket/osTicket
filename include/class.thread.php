@@ -600,6 +600,8 @@ Class ThreadEntry {
      *      - body - (string) email message body (decoded)
      */
     function postEmail($mailinfo) {
+        global $ost;
+
         // +==================+===================+=============+
         // | Orig Thread-Type | Reply Thread-Type | Requires    |
         // +==================+===================+=============+
@@ -628,6 +630,15 @@ Class ThreadEntry {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
+            if ($ost) $ost->log(LOG_ERR, 'Email loop detected', sprintf(
+               'It appears as though &lt;%s&gt; is being used as a forwarded or
+                fetched email account and is also being used as a user /
+                system account. Please correct the loop or seek technical
+                assistance.', $mailinfo['email']),
+                // This is quite intentional -- don't continue the loop
+                false,
+                // Force the message, even if logging is disabled
+                true);
             return true;
         }
 
