@@ -370,7 +370,10 @@ Class ThreadEntry {
     }
 
     function getEmailReferencesForUser($user) {
-        return $this->getTaggedEmailReferences('u', $user->getId());
+        return $this->getTaggedEmailReferences('u',
+            ($user instanceof Collaborator)
+                ? $user->getUserId()
+                : $user->getId());
     }
 
     function getEmailReferencesForStaff($staff) {
