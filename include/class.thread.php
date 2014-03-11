@@ -917,7 +917,7 @@ Class ThreadEntry {
         if (!$thread)
             return false;
 
-        if (0 === strcasecmp($thread->asMessageId($from, $vers), $mid))
+        if (0 === strcasecmp($thread->asMessageId($from, $ver), $mid))
             return $thread;
     }
 
