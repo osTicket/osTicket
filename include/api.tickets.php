@@ -158,11 +158,15 @@ class TicketApiController extends ApiController {
         if (!$data)
             $data = $this->getEmailRequest();
 
-        if (($thread = ThreadEntry::lookupByEmailHeaders($data))
-                && $thread->postEmail($data)) {
+        $seen = false;
+        if (($thread = ThreadEntry::lookupByEmailHeaders($data, $seen))
+                && !$seen && $thread->postEmail($data)) {
             return $thread->getTicket();
         }
-        return $this->createTicket($data);
+        elseif (!$seen) {
+            return $this->createTicket($data);
+        }
+        return null;
     }
 
 }
