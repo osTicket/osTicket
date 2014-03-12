@@ -2429,7 +2429,8 @@ class Ticket {
         return $ticket;
     }
 
-    function open($vars, &$errors) {
+    /* routine used by staff to open a new ticket */
+    static function open($vars, &$errors) {
         global $thisstaff, $cfg;
 
         if(!$thisstaff || !$thisstaff->canCreateTickets()) return false;
@@ -2513,7 +2514,7 @@ class Ticket {
                 $references = array($response->getEmailMessageId(), $references);
             $options = array(
                 'references' => $references,
-                'thread'=>$this->getLastMessage()
+                'thread' => $ticket->getLastMessage()
             );
             $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
