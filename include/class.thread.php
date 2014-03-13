@@ -240,7 +240,7 @@ Class ThreadEntry {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT thread.*, info.email_mid '
+        $sql='SELECT thread.*, info.email_mid, info.headers '
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
             .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
@@ -333,21 +333,21 @@ Class ThreadEntry {
         return $this->ht['email_mid'];
     }
 
-    function getEmailHeaders() {
+    function getEmailHeaderArray() {
         require_once(INCLUDE_DIR.'class.mailparse.php');
 
-        $sql = 'SELECT headers FROM '.TICKET_EMAIL_INFO_TABLE
-            .' WHERE message_id='.$this->getId();
-        $headers = db_result(db_query($sql));
-        return Mail_Parse::splitHeaders($headers);
+        if (!isset($this->ht['@headers']))
+            $this->ht['@headers'] = Mail_Parse::splitHeaders($this->ht['headers']);
+
+        return $this->ht['@headers'];
     }
 
     function getEmailReferences() {
         if (!isset($this->_references)) {
-            $this->_references = $this->getEmailMessageId();
-            $headers = self::getEmailHeaders();
-            if (isset($headers['References']))
-                $this->_references .= " ".$headers['References'];
+            $headers = self::getEmailHeaderArray();
+            if (isset($headers['References']) && $headers['References'])
+                $this->_references = $headers['References']." ";
+            $this->_references .= $this->getEmailMessageId();
         }
         return $this->_references;
     }
@@ -379,8 +379,8 @@ Class ThreadEntry {
     function isAutoReply() {
 
         if (!isset($this->is_autoreply))
-            $this->is_autoreply = $this->getEmailHeader()
-                ?  TicketFilter::isAutoReply($this->getEmailHeader()) : false;
+            $this->is_autoreply = $this->getEmailHeaderArray()
+                ?  TicketFilter::isAutoReply($this->getEmailHeaderArray()) : false;
 
         return $this->is_autoreply;
     }
@@ -388,8 +388,8 @@ Class ThreadEntry {
     function isBounce() {
 
         if (!isset($this->is_bounce))
-            $this->is_bounce = $this->getEmailHeader()
-                ? TicketFilter::isBounce($this->getEmailHeader()) : false;
+            $this->is_bounce = $this->getEmailHeaderArray()
+                ? TicketFilter::isBounce($this->getEmailHeaderArray()) : false;
 
         return $this->is_bounce;
     }
