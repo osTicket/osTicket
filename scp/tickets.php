@@ -484,9 +484,6 @@ if($_POST && !$errors):
                     $vars = $_POST;
                     $vars['uid'] = $user? $user->getId() : 0;
 
-                    if($_FILES['attachments'])
-                        $vars['files'] = AttachmentFile::format($_FILES['attachments']);
-
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;

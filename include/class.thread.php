@@ -523,10 +523,10 @@ Class ThreadEntry {
             return 0;
 
         // TODO: Add a unique index to TICKET_ATTACHMENT_TABLE (file_id,
-        // ticket_id), and remove this block
+        // ref_id), and remove this block
         if ($id = db_result(db_query('SELECT attach_id FROM '.TICKET_ATTACHMENT_TABLE
-                .' WHERE file_id='.db_input($fileId).' AND ticket_id='
-                .db_input($this->getTicketId()))))
+                .' WHERE file_id='.db_input($fileId).' AND ref_id='
+                .db_input($this->getId()))))
             return $id;
 
         $sql ='INSERT IGNORE INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
