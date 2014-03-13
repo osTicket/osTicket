@@ -617,6 +617,10 @@ class MailFetcher {
             // Fetch deliver status report
             $vars['message'] = $this->getDeliveryStatusMessage($mid);
             $vars['thread-type'] = 'N';
+            $vars['flags']['bounce'] = true;
+        }
+        elseif (TicketFilter::isBounce($info)) {
+            $vars['flags']['bounce'] = true;
         }
         else {
             $vars['message'] = $this->getBody($mid);
