@@ -532,12 +532,14 @@ class EmailDataParser {
             // Fetch deliver status report
             $data['message'] = $parser->getDeliveryStatusMessage();
             $data['thread-type'] = 'N';
+            $data['flags']['bounce'] = true;
         }
         else {
             // Typical email
             $data['message'] = Format::stripEmptyLines($parser->getBody());
             $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
             $data['references'] = $parser->struct->headers['references'];
+            $data['flags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
         $data['subject'] = $parser->getSubject();
