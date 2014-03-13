@@ -2244,6 +2244,11 @@ class Ticket {
         // post response - if any
         $response = null;
         if($vars['response'] && $thisstaff->canPostReply()) {
+
+            // unpack any uploaded files into vars.
+            if ($_FILES['attachments'])
+                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+
             $vars['response'] = $ticket->replaceVars($vars['response']);
             if(($response=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
