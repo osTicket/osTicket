@@ -137,6 +137,9 @@ class Validator {
     /*** Functions below can be called directly without class instance.
          Validator::func(var..);  (nolint) ***/
     function is_email($email) {
+        if (strpos($email, '@') === false)
+            return false;
+
         require_once PEAR_DIR.'Mail/RFC822.php';
         return !PEAR::isError(Mail_RFC822::parseAddressList($email));
     }
