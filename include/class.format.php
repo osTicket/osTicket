@@ -199,7 +199,7 @@ class Format {
     function safe_html($html) {
         // Remove HEAD and STYLE sections
         $html = preg_replace(
-            array(':<(head|style|script).+</\1>:is',   # <head> and <style> sections
+            array(':<(head|style|script).+?</\1>:is', # <head> and <style> sections
                   ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
