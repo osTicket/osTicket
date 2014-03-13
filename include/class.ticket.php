@@ -1577,9 +1577,10 @@ class Ticket {
 
         if(!$alerts) return $message; //Our work is done...
 
-        $autorespond = true;
-        if ($autorespond && $message->isBounceOrAutoReply())
-            $autorespond=false;
+        // Do not auto-respond to bounces and other auto-replies
+        $autorespond = isset($vars['flags']) ? !$vars['flags']['bounce'] : true;
+        if ($autorespond && $message->isAutoReply())
+            $autorespond = false;
 
         $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
 
@@ -1812,6 +1813,10 @@ class Ticket {
 
         if(!($note=$this->getThread()->addNote($vars, $errors)))
             return null;
+
+        if (isset($vars['flags']) && $vars['flags']['bounce'])
+            // No alerts for bounce emails
+            $alert = false;
 
         //Set state: Error on state change not critical!
         if(isset($vars['state']) && $vars['state']) {
@@ -2391,6 +2396,8 @@ class Ticket {
 
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
+        if (isset($vars['flags']) && $vars['flags']['bounce'])
+            $autorespond = false;
         if ($autorespond && $message->isAutoReply())
             $autorespond = false;
 
@@ -2455,6 +2462,11 @@ class Ticket {
         // post response - if any
         $response = null;
         if($vars['response'] && $thisstaff->canPostReply()) {
+
+            // unpack any uploaded files into vars.
+            if ($_FILES['attachments'])
+                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+
             $vars['response'] = $ticket->replaceVars($vars['response']);
             if(($response=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
