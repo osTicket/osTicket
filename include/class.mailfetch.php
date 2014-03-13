@@ -676,7 +676,7 @@ class MailFetcher {
 
         $seen = false;
         if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
-                && ($message = $thread->postEmail($vars))) {
+                && !$seen && ($message = $thread->postEmail($vars))) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
