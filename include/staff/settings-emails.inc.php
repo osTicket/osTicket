@@ -109,6 +109,21 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['reply_separator']; ?></font>
             </td>
         </tr>
+        <tr>
+            <td width="180">Emailed Tickets Priority:</td>
+            <td>
+                <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
+                <em>(Use email priority when available)</em>
+                <i class="help-tip icon-question-sign" href="#use_email_priority"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">Accept Email Collaborators:</td>
+            <td><input type="checkbox" name="add_email_collabs" <?php
+    echo $config['add_email_collabs'] ? 'checked="checked"' : ''; ?>/>
+            Automatically add collaborators from email fields&nbsp;
+            <i class="help-tip icon-question-sign" href="#add_email_collabs"></i>
+        </tr>
         <tr><th colspan=2><em><strong>Outgoing Emails</strong>: Default email only applies to outgoing emails without SMTP setting.</em></th></tr>
         <tr><td width="180">Default Outgoing Email:</td>
             <td>
