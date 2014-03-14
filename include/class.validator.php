@@ -140,7 +140,8 @@ class Validator {
         if (strpos($email, '@') === false)
             return false;
 
-        require_once PEAR_DIR.'Mail/RFC822.php';
+        require_once 'Mail/RFC822.php';
+        require_once 'PEAR.php';
         return !PEAR::isError(Mail_RFC822::parseAddressList($email));
     }
     function is_phone($phone) {
