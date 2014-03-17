@@ -1024,7 +1024,8 @@ class Ticket {
         $msg = $this->replaceVars($msg->asArray(), $vars);
 
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
-        $options = array('inreplyto' => $entry->getEmailMessageId());
+        $options = array('inreplyto' => $entry->getEmailMessageId(),
+                         'thread' => $entry);
         foreach ($recipients as $recipient) {
             if ($uid == $recipient->getId()) continue;
             $options['references'] =  $entry->getEmailReferencesForUser($recipient);
