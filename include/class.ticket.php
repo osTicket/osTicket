@@ -1023,9 +1023,6 @@ class Ticket {
 
         $msg = $this->replaceVars($msg->asArray(), $vars);
 
-        if ($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-            $msg['body'] = "<p style=\"display:none\">$tag<p>".$msg['body'];
-
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
         $options = array('inreplyto' => $entry->getEmailMessageId());
         foreach ($recipients as $recipient) {
