@@ -200,10 +200,10 @@ class Email {
    function getIdByEmail($email) {
 
         $sql='SELECT email_id FROM '.EMAIL_TABLE.' WHERE email='.db_input($email);
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
+        if(!($res=db_query($sql)) || !db_num_rows($res))
+            return false;
 
-        return $id;
+        return db_result($res);
     }
 
     function lookup($var) {
