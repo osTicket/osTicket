@@ -61,6 +61,7 @@ class Installer extends SetupWizard {
         $f['dbuser']        = array('type'=>'string',   'required'=>1, 'error'=>'Username required');
         $f['dbpass']        = array('type'=>'string',   'required'=>1, 'error'=>'password required');
 
+        $vars = array_map('trim', $vars);
 
         if(!Validator::process($f,$vars,$this->errors) && !$this->errors['err'])
             $this->errors['err']='Missing or invalid data - correct the errors and try again.';

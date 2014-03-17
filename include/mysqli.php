@@ -40,6 +40,9 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     $port = ini_get("mysqli.default_port");
     $socket = ini_get("mysqli.default_socket");
+    $persistent = stripos($host, 'p:') === 0;
+    if ($persistent)
+        $host = substr($host, 2);
     if (strpos($host, ':') !== false) {
         list($host, $portspec) = explode(':', $host);
         // PHP may not honor the port number if connecting to 'localhost'
@@ -53,6 +56,9 @@ function db_connect($host, $user, $passwd, $options = array()) {
             $socket = $portspec;
         }
     }
+
+    if ($persistent)
+        $host = 'p:' . $host;
 
     // Connect
     $start = microtime(true);
