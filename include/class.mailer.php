@@ -157,8 +157,9 @@ class Mailer {
         $mid_token = (isset($options['thread']))
             ? $options['thread']->asMessageId($to) : '';
         if (!(isset($options['text']) && $options['text'])) {
-            if($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator()))
-                $message = "<div style=\"display:none\" data-mid=\"$mid_token\">$tag</div>"
+            if ($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator())
+                    && (!isset($options['reply-tag']) || $options['reply-tag']))
+                $message = "<div style=\"display:none\" data-mid=\"$mid_token\">$tag<br/><br/></div
                     .$message;
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??

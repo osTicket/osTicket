@@ -36,7 +36,8 @@ if($_POST){
 
     if(!$errors && $email){
         if($email->send($_POST['email'],$_POST['subj'],
-                Format::sanitize($_POST['message']))) {
+                Format::sanitize($_POST['message']),
+                null, array('reply-tag'=>false))) {
             $msg='Test email sent successfully to '.Format::htmlchars($_POST['email']);
             Draft::deleteForNamespace('email.diag');
         }
