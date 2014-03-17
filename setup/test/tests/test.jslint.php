@@ -22,4 +22,3 @@ class JsSyntaxTest extends Test {
 
 return 'JsSyntaxTest';
 ?>
-
