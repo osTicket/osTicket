@@ -51,7 +51,8 @@ $info['id']=$staff->getId();
                 Email Address:
             </td>
             <td>
-                <input type="text" size="34" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="34" name="email" value="<?php echo
+                $info['email']; ?>" autocomplete="off">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>
@@ -197,7 +198,8 @@ $info['id']=$staff->getId();
                 Current Password:
             </td>
             <td>
-                <input type="password" size="18" name="cpasswd" value="<?php echo $info['cpasswd']; ?>">
+                <input type="password" size="18" name="cpasswd" value="<?php
+                echo $info['cpasswd']; ?>" autocomplete="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['cpasswd']; ?></span>
             </td>
         </tr>
@@ -207,7 +209,8 @@ $info['id']=$staff->getId();
                 New Password:
             </td>
             <td>
-                <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
+                <input type="password" size="18" name="passwd1" value="<?php
+                echo $info['passwd1']; ?>" autocomplete="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd1']; ?></span>
             </td>
         </tr>
@@ -216,7 +219,8 @@ $info['id']=$staff->getId();
                 Confirm New Password:
             </td>
             <td>
-                <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
+                <input type="password" size="18" name="passwd2" value="<?php
+                echo $info['passwd2']; ?>" autocomplete="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
             </td>
         </tr>

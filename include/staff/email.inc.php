@@ -50,7 +50,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Email Address
             </td>
             <td>
-                <input type="text" size="35" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="35" name="email" value="<?php echo
+                $info['email']; ?>" autocomplete="off">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>

@@ -110,7 +110,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Password:
             </td>
             <td>
-                <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
+                <input type="password" size="18" name="passwd1" value="<?php
+                echo $info['passwd1']; ?>" autocomplete="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd1']; ?></span>
             </td>
         </tr>
@@ -119,7 +120,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Confirm Password:
             </td>
             <td>
-                <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
+                <input type="password" size="18" name="passwd2" value="<?php
+                echo $info['passwd2']; ?>" autocomplete="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
             </td>
         </tr>
