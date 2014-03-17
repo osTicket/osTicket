@@ -1548,6 +1548,7 @@ class Ticket {
 
         //Add email recipients as collaborators...
         if ($vars['recipients']
+                && (strtolower($origin) != 'email' || ($cfg && $cfg->addCollabsViaEmail()))
                 //Only add if we have a matched local address
                 && $vars['to-email-id']) {
             //New collaborators added by other collaborators are disable --
@@ -1583,6 +1584,9 @@ class Ticket {
             $autorespond = false;
 
         $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
+
+        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
+            $this->notifyCollaborators($message, array('signature' => ''));
 
         $dept = $this->getDept();
 
@@ -1626,8 +1630,6 @@ class Ticket {
                 $sentlist[] = $staff->getEmail();
             }
         }
-
-        $this->notifyCollaborators($message, array('signature' => ''));
 
         return $message;
     }

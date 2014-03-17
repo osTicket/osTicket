@@ -16,36 +16,45 @@
         <tr>
             <td width="160">New Ticket:</td>
             <td>
-                <input type="radio" name="ticket_autoresponder"  value="1"   <?php echo $config['ticket_autoresponder']?'checked="checked"':''; ?> /><b>Enable</b>
-                <input type="radio" name="ticket_autoresponder"  value="0"   <?php echo !$config['ticket_autoresponder']?'checked="checked"':''; ?> />Disable
-                &nbsp;
+                <input type="checkbox" name="ticket_autoresponder" <?php
+echo $config['ticket_autoresponder'] ? 'checked="checked"' : ''; ?>/>
+                Ticket Owner&nbsp;
                 <i class="help-tip icon-question-sign" href="#new_ticket"></i>
             </td>
         </tr>
         <tr>
-            <td width="160">New Ticket by staff:</td>
+            <td width="160">New Ticket by Staff:</td>
             <td>
-                <input type="radio" name="ticket_notice_active"  value="1"   <?php echo $config['ticket_notice_active']?'checked="checked"':''; ?> /><b>Enable</b>
-                <input type="radio" name="ticket_notice_active"  value="0"   <?php echo !$config['ticket_notice_active']?'checked="checked"':''; ?> />Disable
-                &nbsp;
+                <input type="checkbox" name="ticket_notice_active" <?php
+echo $config['ticket_notice_active'] ? 'checked="checked"' : ''; ?>/>
+                Ticket Owner&nbsp;
                 <i class="help-tip icon-question-sign" href="#new_staff_ticket"></i>
             </td>
         </tr>
         <tr>
-            <td width="160">New Message:</td>
+            <td width="160" rowspan="2">New Message:</td>
             <td>
-                <input type="radio" name="message_autoresponder"  value="1"   <?php echo $config['message_autoresponder']?'checked="checked"':''; ?> /><b>Enable</b>
-                <input type="radio" name="message_autoresponder"  value="0"   <?php echo !$config['message_autoresponder']?'checked="checked"':''; ?> />Disable
-                &nbsp;
+                <input type="checkbox" name="message_autoresponder" <?php
+echo $config['message_autoresponder'] ? 'checked="checked"' : ''; ?>/>
+                Submitter: Send receipt confirmation&nbsp;
                 <i class="help-tip icon-question-sign" href="#new_message"></i>
             </td>
         </tr>
         <tr>
-            <td width="160">Overlimit notice:</td>
             <td>
-                <input type="radio" name="overlimit_notice_active"  value="1"   <?php echo $config['overlimit_notice_active']?'checked="checked"':''; ?> /><b>Enable</b>
-                <input type="radio" name="overlimit_notice_active"  value="0"   <?php echo !$config['overlimit_notice_active']?'checked="checked"':''; ?> />Disable
-                &nbsp;
+                <input type="checkbox" name="message_autoresponder_collabs" <?php
+echo $config['message_autoresponder_collabs'] ? 'checked="checked"' : ''; ?>/>
+                Participants: Send new activity notice&nbsp;
+                <i class="help-tip icon-question-sign" href="#collaborators"></i>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td width="160">Overlimit Notice:</td>
+            <td>
+                <input type="checkbox" name="overlimit_notice_active" <?php
+echo $config['overlimit_notice_active'] ? 'checked="checked"' : ''; ?>/>
+                Ticket Submitter&nbsp;
                 <i class="help-tip icon-question-sign" href="#overlimit_notice"></i>
             </td>
         </tr>

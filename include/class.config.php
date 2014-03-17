@@ -151,6 +151,8 @@ class OsticketConfig extends Config {
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
         'allow_client_updates' => false,
+        'message_autoresponder_collabs' => true,
+        'add_email_collabs' => true,
     );
 
     function OsticketConfig($section=null) {
@@ -531,6 +533,10 @@ class OsticketConfig extends Config {
         return ($this->get('use_email_priority'));
     }
 
+    function addCollabsViaEmail() {
+        return ($this->get('add_email_collabs'));
+    }
+
     function getAdminEmail() {
          return $this->get('admin_email');
     }
@@ -558,6 +564,10 @@ class OsticketConfig extends Config {
 
     function autoRespONNewMessage() {
         return ($this->get('message_autoresponder'));
+    }
+
+    function notifyCollabsONNewMessage() {
+        return ($this->get('message_autoresponder_collabs'));
     }
 
     function notifyONNewStaffTicket() {
@@ -874,7 +884,6 @@ class OsticketConfig extends Config {
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
-            'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?1:0,
@@ -922,6 +931,8 @@ class OsticketConfig extends Config {
             'enable_auto_cron'=>isset($vars['enable_auto_cron'])?1:0,
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
+            'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
+            'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
          ));
     }
@@ -992,6 +1003,7 @@ class OsticketConfig extends Config {
         return $this->updateAll(array(
             'ticket_autoresponder'=>$vars['ticket_autoresponder'],
             'message_autoresponder'=>$vars['message_autoresponder'],
+            'message_autoresponder_collabs'=>$vars['message_autoresponder_collabs'],
             'ticket_notice_active'=>$vars['ticket_notice_active'],
             'overlimit_notice_active'=>$vars['overlimit_notice_active'],
         ));

@@ -77,13 +77,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-                    <td width="180">Emailed Tickets Priority:</td>
-                    <td>
-                        <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
-                        <em>(Use email priority when available)</em>
-            </td>
-        </tr>
-        <tr>
             <td width="180">Show Related Tickets:</td>
             <td>
                 <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >

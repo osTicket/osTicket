@@ -34,17 +34,28 @@ new_staff_ticket:
 new_message:
     title: New Message Confirmation
     content: >
-        Confirmation notice sent when a new message is appended to an
-        existing ticket
+        Send a confirmation receipt to the message submitter when a new
+        message is appended to an existing ticket.
     links:
       - title: Default New Message Confirmation Template
         href: /scp/templates.php?default_for=message.autoresp
 
+collaborators:
+    title: New Activity Notice
+    content: >
+        Broadcast messages received from message submitter to all other
+        participants on the ticket.
+
 overlimit_notice:
     title: Overlimit Notice
     content: >
-        Ticket denied notice sent to user on limit violation. Admin gets
-        alerts on <em>ALL</em> denials by default
+        Send ticket denied notice to <offending> user when the <em>maximum
+        open tickets</em> limit is reached. Admin gets alerts on
+        <em>ALL</em> denials by default
     links:
       - title: Default Overlimit Notice Template
         href: /scp/templates.php?default_for=ticket.overlimit
+
+      - title: Set <em>Maximum Open Tickets</em>
+        href: /scp/settings?t=tickets
+

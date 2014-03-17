@@ -81,3 +81,19 @@ enable_autocron_poll:
         periodically run cleanup routines called the auto-cron. This setting
         enables fetching email during this cleanup.
 
+use_email_priority:
+    title: Honor Email Priority
+    content: >
+        Honor the priority flag set in incoming email. If enabled, the
+        priority of new tickets will be set by the priority of the email
+        used to create them, if available.
+
+add_email_collabs:
+    title: Email Collaborators
+    content: >
+        Add participants included in the <code><strong>To</strong></code> and
+        <code><strong>Cc</strong></code> fields of email as ticket
+        collaborators<br>
+        <br>
+        <em>Collaborators can always be added manually by staff members when
+        viewing a ticket.</em>
