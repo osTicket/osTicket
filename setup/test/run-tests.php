@@ -16,6 +16,9 @@ if (!function_exists('get_osticket_root_path')) {
     }
 }
 $root = get_osticket_root_path();
+define('INCLUDE_DIR', "$root/include/");
+define('PEAR_DIR', INCLUDE_DIR."pear/");
+ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
 
 if (!function_exists('glob_recursive')) {
     # Check PHP syntax across all php files
