@@ -871,26 +871,53 @@ a.refresh {
   text-decoration: none;
 }
 #openticks {
-  padding:5px;
+  padding:3px;
   background:#BFBFBF;
   -moz-border-radius: 5px;
   border-radius: 5px;
   -moz-box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow: 3px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-#openticks-a {
+#openticks-pri {
+  width: 43px;
   border-right-style: solid;
   border-right-width: 1px;
   border-right-color: #BFBFBF;
   text-align:center;
   vertical-align:middle;
   padding-bottom:4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-#openticks-b {
+#openticks-a {
+  width:223px;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #BFBFBF;
   text-align:center;
   vertical-align:middle;
   padding-bottom:4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#openticks-b {
+  width:  140px;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #BFBFBF;
+  text-align:center;
+  vertical-align:middle;
+  padding-bottom:4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
