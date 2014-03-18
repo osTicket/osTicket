@@ -94,19 +94,21 @@ class Mail_Parse {
         }
 
         // Look for application/tnef attachment and process it
-        foreach ($this->struct->parts as $i=>$part) {
-            if (!$part->parts && $part->ctype_primary == 'application'
-                    && $part->ctype_secondary == 'ms-tnef') {
-                try {
-                    $tnef = new TnefStreamParser($part->body);
-                    $this->tnef = $tnef->getMessage();
-                    // No longer considered an attachment
-                    unset($this->struct->parts[$i]);
-                }
-                catch (TnefException $ex) {
-                    // TNEF will remain an attachment
-                    $this->notes[] = 'TNEF parsing exception: '
-                        .$ex->getMessage();
+        if ($this->struct && $this->struct->parts) {
+            foreach ($this->struct->parts as $i=>$part) {
+                if (!@$part->parts && $part->ctype_primary == 'application'
+                        && $part->ctype_secondary == 'ms-tnef') {
+                    try {
+                        $tnef = new TnefStreamParser($part->body);
+                        $this->tnef = $tnef->getMessage();
+                        // No longer considered an attachment
+                        unset($this->struct->parts[$i]);
+                    }
+                    catch (TnefException $ex) {
+                        // TNEF will remain an attachment
+                        $this->notes[] = 'TNEF parsing exception: '
+                            .$ex->getMessage();
+                    }
                 }
             }
         }
@@ -489,6 +491,12 @@ class EmailDataParser {
             return $this->err('Email parse failed ['.$parser->getError().']');
 
         $data =array();
+        $data['emailId'] = 0;
+        $data['subject'] = $parser->getSubject();
+        $data['header'] = $parser->getHeader();
+        $data['mid'] = $parser->getMessageId();
+        $data['priorityId'] = $parser->getPriority();
+
         //FROM address: who sent the email.
         if(($fromlist = $parser->getFromAddressList())) {
             $from=$fromlist[0]; //Default.
@@ -542,10 +550,6 @@ class EmailDataParser {
             $data['flags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
-        $data['subject'] = $parser->getSubject();
-        $data['header'] = $parser->getHeader();
-        $data['mid'] = $parser->getMessageId();
-        $data['priorityId'] = $parser->getPriority();
         $data['emailId'] = $emailId;
 
         if (($replyto = $parser->getReplyTo())) {

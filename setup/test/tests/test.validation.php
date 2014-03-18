@@ -33,11 +33,12 @@ class TestValidation extends Test {
         $this->assert(Validator::is_email('jared_12@domain.tld'));
         $this->assert(Validator::is_email('jared-12@domain.tld'));
 
-        // Very likely illegal
+        // Illegal or unsupported
         $this->assert(!Validator::is_email('jared r@domain.tld'));
-        $this->assert(Validator::is_email('jared@host'));
+        $this->assert(!Validator::is_email('jared'));
 
         // Odd cases, but legal
+        $this->assert(Validator::is_email('jared@host'));
         $this->assert(Validator::is_email('jared@[127.0.0.1]'));
         $this->assert(Validator::is_email('jared@[ipv6:::1]'));
         $this->assert(Validator::is_email('*@domain.tld'));
