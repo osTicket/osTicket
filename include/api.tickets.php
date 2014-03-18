@@ -39,6 +39,7 @@ class TicketApiController extends ApiController {
         if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
                 'emailId', 'ticketId', 'reply-to', 'reply-to-name',
+                'flags' => array('bounce', 'auto-reply'),
                 'in-reply-to', 'references', 'thread-type'));
             $supported['attachments']['*'][] = 'cid';
         }
