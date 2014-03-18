@@ -12,20 +12,11 @@ notes: |
     Available variables for replacement: %{ticket.*}, %{response}
 
 subject: |
-    Support Ticket Opened
+    Re: %{ticket.subject} [#%{ticket.number}]
 body: |
-    <span style="color: rgb(127, 127, 127); font-family: Georgia;
-    font-size: 28pt; font-weight: normal;">We Hear You</span><img
-    src="cid:6fe1efdea357534d238b86e7860a7c5a" width="96"
-    alt="osTicket Logo (kangaroo)" height="54" style="width: 96px;
-    float: right; margin: 0px 0px 10px 10px;">
-    <br>
-    <br>
-    <strong>Dear %{ticket.name.first},</strong>
-    <br>
-    <br>
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
     A request for support has been created and assigned ticket <a
-    href="%{ticket.client_link}">#%{ticket.number}</a> with the following
+    href="%{recipient.ticket_link}">#%{ticket.number}</a> with the following
     automatic reply
     <br>
     <br>
@@ -40,14 +31,9 @@ body: |
     <div style="color: rgb(127, 127, 127);">Your %{company.name} Team,<br>
     %{signature}</div>
     <hr>
-    <div style="color: rgb(127, 127, 127); font-size: small; text-align:
-    center;"><em>We hope this response has sufficiently answered your questions.
-    If not, please do not send another email. Instead, reply to this email
-    or <a href="%{ticket.client_link}"><span style="color: rgb(84, 141,
-    212);" >login to your account</span></a> for a complete archive of all
-    your support requests and responses.</em></div>
-    <div style="text-align: center;">
-         <a href="http://osticket.com/"><img
-         src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" width="126" alt="Powered
-         by osTicket" height="19" style="width: 126px;"/></a>
-    </div>
+    <div style="color: rgb(127, 127, 127); font-size: small;"><em>We hope
+    this response has sufficiently answered your questions.  If you wish to
+    provide additional comments or informatione, please reply to this email
+    or <a href="%{recipient.ticket_link}"><span
+    style="color: rgb(84, 141, 212);" >login to your account</span></a> for
+    a complete archive of your support requests.</em></div>

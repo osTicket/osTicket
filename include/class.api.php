@@ -337,20 +337,12 @@ class ApiXmlDataParser extends XmlDataParser {
                 }
                 if (isset($value['encoding']))
                     $value['body'] = Format::utf8encode($value['body'], $value['encoding']);
-                // HTML-ize text if html is enabled
-                if ($cfg->isHtmlThreadEnabled()
-                        && (!isset($value['type'])
-                            || strcasecmp($value['type'], 'text/html')))
-                    $value = sprintf('<pre>%s</pre>',
-                        Format::htmlchars($value['body']));
-                // Text-ify html if html is disabled
-                elseif (!$cfg->isHtmlThreadEnabled()
-                        && !strcasecmp($value['type'], 'text/html'))
-                    $value = Format::html2text(Format::safe_html(
-                        $value['body']), 100, false);
-                // Noop if they content-type matches the html setting
+
+                if (!strcasecmp($value['type'], 'text/html'))
+                    $value = new HtmlThreadBody($value['body']);
                 else
-                    $value = $value['body'];
+                    $value = new TextThreadBody($value['body']);
+
             } else if ($key == "attachments") {
                 if(!isset($value['file'][':text']))
                     $value = $value['file'];
@@ -390,11 +382,12 @@ class ApiJsonDataParser extends JsonDataParser {
             } elseif ($key == "message") {
                 // Allow message specified in RFC 2397 format
                 $data = Format::parseRfc2397($value, 'utf-8');
-                if (!isset($data['type']) || $data['type'] != 'text/html')
-                    $value = sprintf('<pre>%s</pre>',
-                        Format::htmlchars($data['data']));
+
+                if (isset($data['type']) && $data['type'] == 'text/html')
+                    $value = new HtmlThreadBody($data['data']);
                 else
-                    $value = $data['data'];
+                    $value = new TextThreadBody($data['data']);
+
             } else if ($key == "attachments") {
                 foreach ($value as &$info) {
                     $data = reset($info);
@@ -408,10 +401,8 @@ class ApiJsonDataParser extends JsonDataParser {
                 }
                 unset($info);
             }
-            if (is_array($value)) {
-                $value = $this->fixup($value);
-            }
         }
+        unset($value);
 
         return $current;
     }
@@ -431,9 +422,6 @@ class ApiEmailDataParser extends EmailDataParser {
         if(!$data) return $data;
 
         $data['source'] = 'Email';
-
-        if(!$data['message'])
-            $data['message'] = '--';
 
         if(!$data['subject'])
             $data['subject'] = '[No Subject]';

@@ -271,7 +271,7 @@ class TicketForm extends DynamicForm {
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Custom Fields', function() {
+Filter::addSupportedMatches('Ticket Data', function() {
     $matches = array();
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
@@ -900,6 +900,10 @@ class SelectionField extends FormField {
         return ($item) ? $item : $value;
     }
 
+    function hasIdValue() {
+        return true;
+    }
+
     function to_database($item) {
         if ($item instanceof DynamicListItem)
             return array($item->value, $item->id);
@@ -944,6 +948,13 @@ class SelectionField extends FormField {
                 $this->_choices[$i->get('id')] = $i->get('value');
         }
         return $this->_choices;
+    }
+
+    function export($value) {
+        if ($value && is_numeric($value)
+                && ($item = DynamicListItem::lookup($value)))
+            return $item->toString();
+        return $value;
     }
 }
 

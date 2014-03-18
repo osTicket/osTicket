@@ -38,8 +38,11 @@ class TicketApiController extends ApiController {
 
         if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
-                'emailId', 'ticketId', 'reply-to', 'reply-to-name',
-                'in-reply-to', 'references', 'thread-type'));
+                'emailId', 'to-email-id', 'ticketId', 'reply-to', 'reply-to-name',
+                'in-reply-to', 'references', 'thread-type',
+                'recipients' => array('*' => array('name', 'email', 'source'))
+                ));
+
             $supported['attachments']['*'][] = 'cid';
         }
 
@@ -103,7 +106,7 @@ class TicketApiController extends ApiController {
         if(!$ticket)
             return $this->exerr(500, "Unable to create new ticket: unknown error");
 
-        $this->response(201, $ticket->getExtId());
+        $this->response(201, $ticket->getNumber());
     }
 
     /* private helper functions */

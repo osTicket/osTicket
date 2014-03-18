@@ -86,7 +86,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="tpl_id">
-                    <option value="0">&mdash; System default &mdash;</option>
+                    <option value="0">&mdash; System Default &mdash;</option>
                     <?php
                     $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl WHERE isactive=1 ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -106,7 +106,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="sla_id">
-                    <option value="0">&mdash; System default &mdash;</option>
+                    <option value="0">&mdash; System Default &mdash;</option>
                     <?php
                     if($slas=SLA::getSLAs()) {
                         foreach($slas as $id =>$name) {
@@ -176,12 +176,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Auto Response Email:
+                Auto-Response Email:
             </td>
             <td>
                 <select name="autoresp_email_id">
-                    <option value=""  disabled="disabled">Select Outgoing  Email</option>
-                    <option value="0">&mdash; Department Email (Above) &mdash;</option>
+                    <option value="0" selected="selected">&mdash; Department Email &mdash;</option>
                     <?php
                     $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){

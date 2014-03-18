@@ -11,7 +11,7 @@ if ($info['error']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
 <div id="selected-user-info" style="display:<?php echo $user ? 'block' :'none'; ?>;margin:5px;">
-<form method="get" class="user" action="#users/lookup">
+<form method="post" class="user" action="<?php echo $info['action'] ?  $info['action'] : '#users/lookup'; ?>">
     <input type="hidden" id="user-id" name="id" value="<?php echo $user ? $user->getId() : 0; ?>"/>
     <i class="icon-user icon-4x pull-left icon-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
@@ -46,7 +46,7 @@ if ($info['error']) {
 </form>
 </div>
 <div id="new-user-form" style="display:<?php echo $user ? 'none' :'block'; ?>;">
-<form method="post" class="user" action="#users/lookup/form">
+<form method="post" class="user" action="<?php echo $info['action'] ?: '#users/lookup/form'; ?>">
     <table width="100%" class="fixed">
     <?php
         if(!$form) $form = UserForm::getInstance();
@@ -68,9 +68,11 @@ if ($info['error']) {
 </div>
 <script type="text/javascript">
 $(function() {
+    var last_req;
     $('#user-search').typeahead({
         source: function (typeahead, query) {
-            $.ajax({
+            if (last_req) last_req.abort();
+            last_req = $.ajax({
                 url: "ajax.php/users?q="+query,
                 dataType: 'json',
                 success: function (data) {
@@ -80,7 +82,7 @@ $(function() {
         },
         onselect: function (obj) {
             $('#the-lookup-form').load(
-                "ajax.php/users/select/"+obj.id
+                '<?php echo $info['onselect']? $info['onselect']: "ajax.php/users/select/"; ?>'+encodeURIComponent(obj.id)
             );
         },
         property: "/bin/true"
@@ -89,14 +91,14 @@ $(function() {
     $('a#unselect-user').click( function(e) {
         e.preventDefault();
         $('div#selected-user-info').hide();
-        $('div#new-user-form').fadeIn();
+        $('div#new-user-form').fadeIn({start: function(){ $('#user-search').focus(); }});
         return false;
      });
 
     $(document).on('click', 'form.user input.cancel', function (e) {
         e.preventDefault();
         $('div#new-user-form').hide();
-        $('div#selected-user-info').fadeIn();
+        $('div#selected-user-info').fadeIn({start: function(){ $('#user-search').focus(); }});
         return false;
      });
 });

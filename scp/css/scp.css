@@ -842,23 +842,29 @@ h2 .reload {
     padding:0 10px;
 }
 
-#response_options ul.tabs {
-    padding:4px 0 0 190px;
+ul.tabs {
+    padding:4px 0 0 20px;
     margin:0;
+    margin-bottom: 5px;
     text-align:center;
     height:29px;
     border-bottom:1px solid #aaa;
     background:#eef3f8;
 }
 
-#response_options ul.tabs li {
+#response_options ul.tabs {
+    padding-left:190px;
+}
+
+
+ul.tabs li {
     margin:0;
     padding:0;
     display:inline;
     list-style:none;
 }
 
-#response_options ul.tabs li a {
+ul.tabs li a {
     width:130px;
     font-weight:bold;
     padding:5px;
@@ -882,7 +888,7 @@ h2 .reload {
     background-repeat:no-repeat;
 }
 
-#response_options ul.tabs li a.active {
+ul.tabs li a.active {
     height:18px;
     color:#184E81;
     background-color:#f9f9f9;
@@ -946,7 +952,7 @@ h2 .reload {
     display:block;
     height:30px;
     position:absolute;
-    z-index:1000;
+    z-index:3;
 }
 
 .tip_arrow {
@@ -955,7 +961,7 @@ h2 .reload {
     top:5px;
     left:-12px;
     width:12px;
-    z-index:700;
+    z-index:4;
 }
 
 .tip_box.right .tip_arrow {
@@ -986,7 +992,7 @@ h2 .reload {
     -moz-box-shadow: 3px 3px 3px #666;
     -webkit-box-shadow: 3px 3px 3px #666;
     box-shadow: 3px 3px 3px #666;
-    z-index:500;
+    z-index:3;
     position:absolute;
     top:0;
     left:-1px;
@@ -1256,7 +1262,7 @@ time {
     background:#f8f8f8;
     border:2px solid #2a67ac;
     display:none;
-    z-index:5;
+    z-index:6;
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
     max-height: 72%;
@@ -1264,7 +1270,7 @@ time {
 }
 
 .redactor_air {
-    z-index: 6 !important;
+    z-index: 7 !important;
 }
 
 .dialog#advanced-search {
@@ -1479,7 +1485,7 @@ ul.progress li.no small {color:red;}
     width: 100%;
     height: 100%;
     background: #000;
-    z-index: 1;
+    z-index: 5;
     -webkit-transform: translate3d(0,0,0);
 }
 
@@ -1527,4 +1533,18 @@ div.patch {
 }
 .patch-title {
     color: #555;
+}
+
+div.selected-signature {
+    border-top: 1px dotted #aaa;
+    padding: 0.3em 10px 5px;
+    background-color: #f9f9f9;
+    height: 2.5em;
+    overflow-y: hidden;
+    box-shadow: inset 0px -5px 5px -5px rgba(206, 199, 182, 1.0);
+    font-size: 15px;
+    line-height: 1.25rem;
+}
+div.selected-signature .inner {
+    opacity: 0.5;
 }

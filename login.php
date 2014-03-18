@@ -2,7 +2,10 @@
 /*********************************************************************
     login.php
 
-    Client Login
+    User access link recovery
+
+    TODO: This is a temp. fix to allow for collaboration in lieu of real
+    username and password coming in 1.8.2
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
@@ -21,21 +24,26 @@ define('OSTCLIENTINC',TRUE); //make includes happy
 require_once(INCLUDE_DIR.'class.client.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
-if($_POST) {
-
-    if(($user=Client::login(trim($_POST['lticket']), trim($_POST['lemail']), null, $errors))) {
-        //XXX: Ticket owner is assumed.
-        @header('Location: tickets.php?id='.$user->getTicketID());
-        require_once('tickets.php'); //Just in case of 'header already sent' error.
-        exit;
+$inc = 'login.inc.php';
+if ($_POST) {
+    if (!$_POST['lticket'] || !Validator::is_email($_POST['lemail']))
+        $errors['err'] = 'Valid email address and ticket number required';
+    elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
+                    $_POST['lticket'], $errors))) {
+        //We're using authentication backend so we can guard aganist brute
+        // force attempts (which doesn't buy much since the link is emailed)
+        $user->sendAccessLink();
+        $msg = sprintf("%s - access link sent to your email!",
+            $user->getName()->getFirst());
+        $_POST = null;
     } elseif(!$errors['err']) {
-        $errors['err'] = 'Authentication error - try again!';
+        $errors['err'] = 'Invalid email or ticket number - try again!';
     }
 }
 
 $nav = new UserNav();
 $nav->setActiveNav('status');
-require(CLIENTINC_DIR.'header.inc.php');
-require(CLIENTINC_DIR.'login.inc.php');
-require(CLIENTINC_DIR.'footer.inc.php');
+require CLIENTINC_DIR.'header.inc.php';
+require CLIENTINC_DIR.$inc;
+require CLIENTINC_DIR.'footer.inc.php';
 ?>

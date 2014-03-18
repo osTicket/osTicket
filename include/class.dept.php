@@ -77,9 +77,11 @@ class Dept {
     }
 
     function getEmail() {
+        global $cfg;
 
-        if(!$this->email && $this->getEmailId())
-            $this->email=Email::lookup($this->getEmailId());
+        if(!$this->email)
+            if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
+                $this->email = $cfg->getDefaultEmail();
 
         return $this->email;
     }
@@ -138,19 +140,23 @@ class Dept {
     }
 
     function getTemplate() {
+        global $cfg;
 
-        if(!$this->template && $this->getTemplateId())
-            $this->template = EmailTemplateGroup::lookup($this->getTemplateId());
+        if (!$this->template) {
+            if (!($this->template = EmailTemplateGroup::lookup($this->getTemplateId())))
+                $this->template = $cfg->getDefaultTemplate();
+        }
 
         return $this->template;
     }
 
     function getAutoRespEmail() {
 
-        if(!$this->autorespEmail && $this->ht['autoresp_email_id'] && ($email=Email::lookup($this->ht['autoresp_email_id'])))
-            $this->autorespEmail=$email;
-        else // Defualt to dept email if autoresp is not specified or deleted.
-            $this->autorespEmail=$this->getEmail();
+        if (!$this->autorespEmail) {
+            if (!$this->ht['autoresp_email_id']
+                    || !($this->autorespEmail = Email::lookup($this->ht['autoresp_email_id'])))
+                $this->autorespEmail = $this->getEmail();
+        }
 
         return $this->autorespEmail;
     }

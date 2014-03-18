@@ -121,7 +121,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         for($i=1; $i<=$n; $i++){ ?>
         <tr id="r<?php echo $i; ?>">
             <td colspan="2">
-                <div  style="width:700px; float:left;">
+                <div>
                     <select name="rule_w<?php echo $i; ?>">
                         <option value="">&mdash; Select One &dash;</option>
                         <?php
@@ -143,15 +143,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         }
                         ?>
                     </select>
-                    <input type="text" size="30" name="rule_v<?php echo $i; ?>" value="<?php echo $info["rule_v$i"]; ?>">
+                    <input type="text" size="60" name="rule_v<?php echo $i; ?>" value="<?php echo $info["rule_v$i"]; ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors["rule_$i"]; ?></span>
-                </div>
                 <?php
                 if($info["rule_w$i"] || $info["rule_h$i"] || $info["rule_v$i"]){ ?>
                 <div style="float:right;text-align:right;padding-right:20px;"><a href="#" class="clearrule">(clear)</a></div>
                 <?php
                 } ?>
-                <div class="clear"></div>
+                </div>
             </td>
         </tr>
         <?php

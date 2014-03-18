@@ -55,6 +55,9 @@ class Http {
         }else{
             header("Location: $url");
         }
+        print('<html></html>');
+        flush();
+        ob_flush();
         exit;
     }
 
@@ -73,20 +76,34 @@ class Http {
         }
     }
 
-    function download($filename, $type, $data=null) {
-        header('Pragma: public');
+    /**
+     * Creates the filename=... part of the Content-Disposition header. This
+     * is browser dependent, so the user agent is inspected to determine the
+     * best encoding format for the filename
+     */
+    function getDispositionFilename($filename) {
+        $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
+        if (false !== strpos($user_agent,'msie')
+                && false !== strpos($user_agent,'win'))
+            return 'filename='.rawurlencode($filename);
+        elseif (false !== strpos($user_agent, 'safari')
+                && false === strpos($user_agent, 'chrome'))
+            // Safari and Safari only can handle the filename as is
+            return 'filename='.str_replace(',', '', $filename);
+        else
+            // Use RFC5987
+            return "filename*=UTF-8''".rawurlencode($filename);
+    }
+
+    function download($filename, $type, $data=null, $disposition='attachment') {
+        header('Pragma: private');
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Cache-Control: public');
+        header('Cache-Control: private');
         header('Content-Type: '.$type);
-        $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
-        if (strpos($user_agent,'msie') !== false
-                && strpos($user_agent,'win') !== false) {
-            header('Content-Disposition: filename="'.basename($filename).'";');
-        } else {
-            header('Content-Disposition: attachment; filename="'
-                .basename($filename).'"');
-        }
+        header(sprintf('Content-Disposition: %s; %s',
+            $disposition,
+            self::getDispositionFilename(basename($filename))));
         header('Content-Transfer-Encoding: binary');
         if ($data !== null) {
             header('Content-Length: '.strlen($data));

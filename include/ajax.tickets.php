@@ -31,11 +31,11 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT DISTINCT ticketID, email.address AS email'
+        $sql='SELECT DISTINCT `number`, email.address AS email'
             .' FROM '.TICKET_TABLE.' ticket'
             .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
             .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' WHERE ticketID LIKE \''.db_input($_REQUEST['q'], false).'%\'';
+            .' WHERE `number` LIKE \''.db_input($_REQUEST['q'], false).'%\'';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
@@ -337,123 +337,192 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$thisstaff || !($ticket=Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'No such ticket');
 
-        $staff=$ticket->getStaff();
-        $lock=$ticket->getLock();
-        $error=$msg=$warn=null;
+        ob_start();
+        include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
+        $resp = ob_get_contents();
+        ob_end_clean();
 
-        if($lock && $lock->getStaffId()==$thisstaff->getId())
-            $warn.='&nbsp;<span class="Icon lockedTicket">Ticket is locked by '.$lock->getStaffName().'</span>';
-        elseif($ticket->isOverdue())
-            $warn.='&nbsp;<span class="Icon overdueTicket">Marked overdue!</span>';
+        return $resp;
+    }
+
+    function addRemoteCollaborator($tid, $bk, $id) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+        elseif (!$bk || !$id)
+            Http::response(422, 'Backend and user id required');
+        elseif (!($backend = StaffAuthenticationBackend::getBackend($bk)))
+            Http::response(404, 'User not found');
+
+        $user_info = $backend->lookup($id);
+        $form = UserForm::getUserForm()->getForm($user_info);
+        $info = array();
+        if (!$user_info)
+            $info['error'] = 'Unable to find user in directory';
+
+        return self::_addcollaborator($ticket, null, $form, $info);
+    }
+
+    //Collaborators utils
+    function addCollaborator($tid, $uid=0) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+
+        $user = $uid? User::lookup($uid) : null;
+
+        //If not a post then assume new collaborator form
+        if(!$_POST)
+            return self::_addcollaborator($ticket, $user);
+
+        $user = $form = null;
+        if (isset($_POST['id']) && $_POST['id']) { //Existing user/
+            $user =  User::lookup($_POST['id']);
+        } else { //We're creating a new user!
+            $form = UserForm::getUserForm()->getForm($_POST);
+            $user = User::fromForm($form);
+        }
+
+        $errors = $info = array();
+        if ($user) {
+            if ($user->getId() == $ticket->getOwnerId())
+                $errors['err'] = sprintf('Ticket owner, %s, is a collaborator by default!',
+                        $user->getName());
+            elseif (($c=$ticket->addCollaborator($user,
+                            array('isactive'=>1), $errors))) {
+                $note = Format::htmlchars(sprintf('%s <%s> added as a collaborator',
+                            $c->getName(), $c->getEmail()));
+                $ticket->logNote('New Collaborator Added', $note,
+                    $thisstaff, false);
+                $info = array('msg' => sprintf('%s added as a collaborator',
+                            $c->getName()));
+                return self::_collaborators($ticket, $info);
+            }
+        }
+
+        if($errors && $errors['err']) {
+            $info +=array('error' => $errors['err']);
+        } else {
+            $info +=array('error' =>'Unable to add collaborator - try again');
+        }
+
+        return self::_addcollaborator($ticket, $user, $form, $info);
+    }
+
+    function updateCollaborator($cid) {
+        global $thisstaff;
+
+        if(!($c=Collaborator::lookup($cid))
+                || !($user=$c->getUser())
+                || !($ticket=$c->getTicket())
+                || !$ticket->checkStaffAccess($thisstaff)
+                )
+            Http::response(404, 'Unknown collaborator');
+
+        $errors = array();
+        if(!$user->updateInfo($_POST, $errors))
+            return self::_collaborator($c ,$user->getForms($_POST), $errors);
+
+        $info = array('msg' => sprintf('%s updated successfully',
+                    $c->getName()));
+
+        return self::_collaborators($ticket, $info);
+    }
+
+    function viewCollaborator($cid) {
+        global $thisstaff;
+
+        if(!($collaborator=Collaborator::lookup($cid))
+                || !($ticket=$collaborator->getTicket())
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown collaborator');
+
+        return self::_collaborator($collaborator);
+    }
+
+    function showCollaborators($tid) {
+        global $thisstaff;
+
+        if(!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
+
+        if($ticket->getCollaborators())
+            return self::_collaborators($ticket);
+
+        return self::_addcollaborator($ticket);
+    }
+
+    function previewCollaborators($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
 
         ob_start();
-        echo sprintf(
-                '<div style="width:500px; padding: 2px 2px 0 5px;">
-                 <h2>%s</h2><br>',Format::htmlchars($ticket->getSubject()));
+        include STAFFINC_DIR . 'templates/collaborators-preview.tmpl.php';
+        $resp = ob_get_contents();
+        ob_end_clean();
 
-        if($error)
-            echo sprintf('<div id="msg_error">%s</div>',$error);
-        elseif($msg)
-            echo sprintf('<div id="msg_notice">%s</div>',$msg);
-        elseif($warn)
-            echo sprintf('<div id="msg_warning">%s</div>',$warn);
+        return $resp;
+    }
 
-        echo '<table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
+    function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
 
-        $ticket_state=sprintf('<span>%s</span>',ucfirst($ticket->getStatus()));
-        if($ticket->isOpen()) {
-            if($ticket->isOverdue())
-                $ticket_state.=' &mdash; <span>Overdue</span>';
-            else
-                $ticket_state.=sprintf(' &mdash; <span>%s</span>',$ticket->getPriority());
-        }
-
-        echo sprintf('
-                <tr>
-                    <th width="100">Ticket State:</th>
-                    <td>%s</td>
-                </tr>
-                <tr>
-                    <th>Create Date:</th>
-                    <td>%s</td>
-                </tr>',$ticket_state,
-                Format::db_datetime($ticket->getCreateDate()));
-        if($ticket->isClosed()) {
-            echo sprintf('
-                    <tr>
-                        <th>Close Date:</th>
-                        <td>%s   <span class="faded">by %s</span></td>
-                    </tr>',
-                    Format::db_datetime($ticket->getCloseDate()),
-                    ($staff?$staff->getName():'staff')
+        $info += array(
+                    'title' => sprintf('Ticket #%s: Add a collaborator', $ticket->getNumber()),
+                    'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId()),
+                    'onselect' => sprintf('ajax.php/tickets/%d/add-collaborator/', $ticket->getId()),
                     );
-        } elseif($ticket->getEstDueDate()) {
-            echo sprintf('
-                    <tr>
-                        <th>Due Date:</th>
-                        <td>%s</td>
-                    </tr>',
-                    Format::db_datetime($ticket->getEstDueDate()));
-        }
-        echo '</table>';
+        return self::_userlookup($user, $form, $info);
+    }
 
 
-        echo '<hr>
-            <table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
-        if($ticket->isOpen()) {
-            echo sprintf('
-                    <tr>
-                        <th width="100">Assigned To:</th>
-                        <td>%s</td>
-                    </tr>',$ticket->isAssigned()?implode('/', $ticket->getAssignees()):' <span class="faded">&mdash; Unassigned &mdash;</span>');
-        }
-        echo sprintf(
-            '   <tr>
-                    <th width="100">Department:</th>
-                    <td>%s</td>
-                </tr>
-                <tr>
-                    <th>Help Topic:</th>
-                    <td>%s</td>
-                </tr>
-                <tr>
-                    <th>From:</th>
-                    <td>%s <span class="faded">%s</span></td>
-                </tr>',
-            Format::htmlchars($ticket->getDeptName()),
-            Format::htmlchars($ticket->getHelpTopic()),
-            Format::htmlchars($ticket->getName()),
-            $ticket->getEmail());
-        echo '
-            </table>';
+    function updateCollaborators($tid) {
+        global $thisstaff;
 
-        $options = array();
-        $options[]=array('action'=>'Thread ('.$ticket->getThreadCount().')','url'=>"tickets.php?id=$tid");
-        if($ticket->getNumNotes())
-            $options[]=array('action'=>'Notes ('.$ticket->getNumNotes().')','url'=>"tickets.php?id=$tid#notes");
+        if(!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'No such ticket');
 
-        if($ticket->isOpen())
-            $options[]=array('action'=>'Reply','url'=>"tickets.php?id=$tid#reply");
+        $errors = $info = array();
+        if ($ticket->updateCollaborators($_POST, $errors))
+            Http::response(201, sprintf('Recipients (%d of %d)',
+                        $ticket->getNumActiveCollaborators(),
+                        $ticket->getNumCollaborators()));
 
-        if($thisstaff->canAssignTickets())
-            $options[]=array('action'=>($ticket->isAssigned()?'Reassign':'Assign'),'url'=>"tickets.php?id=$tid#assign");
+        if($errors && $errors['err'])
+            $info +=array('error' => $errors['err']);
 
-        if($thisstaff->canTransferTickets())
-            $options[]=array('action'=>'Transfer','url'=>"tickets.php?id=$tid#transfer");
+        return self::_collaborators($ticket, $info);
+    }
 
-        $options[]=array('action'=>'Post Note','url'=>"tickets.php?id=$tid#note");
 
-        if($thisstaff->canEditTickets())
-            $options[]=array('action'=>'Edit Ticket','url'=>"tickets.php?id=$tid&a=edit");
 
-        if($options) {
-            echo '<ul class="tip_menu">';
-            foreach($options as $option)
-                echo sprintf('<li><a href="%s">%s</a></li>',$option['url'],$option['action']);
-            echo '</ul>';
-        }
+    function _collaborator($collaborator, $form=null, $info=array()) {
 
-        echo '</div>';
+        $info += array('action' => '#collaborators/'.$collaborator->getId());
+
+        $user = $collaborator->getUser();
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+    }
+
+    function _collaborators($ticket, $info=array()) {
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/collaborators.tmpl.php');
         $resp = ob_get_contents();
         ob_end_clean();
 
@@ -469,7 +538,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such ticket');
 
 
-        if(!($user = $ticket->getOwner()))
+        if(!($user = User::lookup($ticket->getOwnerId())))
             Http::response(404, 'Unknown user');
 
 
@@ -493,7 +562,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffAccess($thisstaff)
-                || ! ($user = $ticket->getOwner()))
+                || !($user = User::lookup($ticket->getOwnerId())))
             Http::response(404, 'No such ticket/user');
 
         $errors = array();
@@ -523,11 +592,16 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such ticket');
 
 
-        $user = $ticket->getOwner();
+        $user = User::lookup($ticket->getOwnerId());
 
         $info = array(
                 'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
                 );
+
+        return self::_userlookup($user, null, $info);
+    }
+
+    function _userlookup($user, $form, $info) {
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
@@ -536,7 +610,6 @@ class TicketsAjaxAPI extends AjaxController {
         return $resp;
 
     }
-
 
 }
 ?>

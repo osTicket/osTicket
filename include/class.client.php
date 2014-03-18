@@ -2,10 +2,7 @@
 /*********************************************************************
     class.client.php
 
-    Handles everything about client
-
-    XXX: Please note that osTicket uses email address and ticket ID to authenticate the user*!
-          Client is modeled on the info of the ticket used to login .
+    Handles everything about EndUser
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
@@ -16,112 +13,204 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+abstract class TicketUser {
 
-class Client {
+    static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
 
-    var $id;
-    var $fullname;
-    var $username;
-    var $email;
+    protected  $user;
 
-    var $_answers;
-
-    var $ticket_id;
-    var $user_id;
-    var $ticketID;
-
-    var $ht;
-
-
-    function Client($id, $email=null) {
-        $this->id =0;
-        $this->load($id,$email);
+    function __construct($user) {
+        $this->user = $user;
     }
 
-    function load($id=0, $email=null) {
+    function __call($name, $args) {
+        global $cfg;
 
-        if(!$id && !($id=$this->getId()))
+        $rv = null;
+        if($this->user && is_callable(array($this->user, $name)))
+            $rv = $args
+                ? call_user_func_array(array($this->user, $name), $args)
+                : call_user_func(array($this->user, $name));
+
+        if ($rv) return $rv;
+
+        $tag =  substr($name, 3);
+        switch (strtolower($tag)) {
+            case 'ticket_link':
+                return sprintf('%s/view.php?auth=%s',
+                        $cfg->getBaseUrl(),
+                        urlencode($this->getAuthToken()));
+                break;
+        }
+
+        return false;
+
+    }
+
+    function sendAccessLink() {
+        global $ost;
+
+        if (!($ticket = $this->getTicket())
+                || !($dept = $ticket->getDept())
+                || !($email = $dept->getAutoRespEmail())
+                || !($tpl = $dept->getTemplate()->getMsgTemplate('user.accesslink')))
+            return;
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $this->getTicket(),
+            'recipient' => $this);
+
+        $msg = $ost->replaceTemplateVariables($tpl->asArray(), $vars);
+        $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+    }
+
+    protected function getAuthToken($algo=1) {
+
+        //Format: // <user type><algo id used>x<pack of uid & tid><hash of the algo>
+        $authtoken = sprintf('%s%dx%s',
+                ($this->isOwner() ? 'o' : 'c'),
+                $algo,
+                Base32::encode(pack('VV',$this->getId(), $this->getTicketId())));
+
+        switch($algo) {
+            case 1:
+                $authtoken .= substr(base64_encode(
+                            md5($this->getId().$this->getTicket()->getCreateDate().$this->getTicketId().SECRET_SALT, true)), 8);
+                break;
+            default:
+                return null;
+        }
+
+        return $authtoken;
+    }
+
+    static function lookupByToken($token) {
+
+        //Expecting well formatted token see getAuthToken routine for details.
+        $matches = array();
+        if (!preg_match(static::$token_regex, $token, $matches))
+            return null;
+
+        //Unpack the user and ticket ids
+        $matches +=unpack('Vuid/Vtid',
+                Base32::decode(strtolower(substr($matches['hash'], 0, 13))));
+
+        $user = null;
+        switch ($matches['type']) {
+            case 'c': //Collaborator c
+                if (($user = Collaborator::lookup($matches['uid']))
+                        && $user->getTicketId() != $matches['tid'])
+                    $user = null;
+                break;
+            case 'o': //Ticket owner
+                if (($ticket = Ticket::lookup($matches['tid']))) {
+                    if (($user = $ticket->getOwner())
+                            && $user->getId() != $matches['uid'])
+                        $user = null;
+                }
+                break;
+        }
+
+        if (!$user
+                || !$user instanceof TicketUser
+                || strcasecmp($user->getAuthToken($matches['algo']), $token))
             return false;
 
-        $sql='SELECT ticket.ticket_id, ticketID, email.address as email, user.id as user_id '
-            .' FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
-            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' WHERE ticketID='.db_input($id);
-
-        if($email)
-            $sql.=' AND email.address = '.db_input($email);
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return NULL;
-
-        $this->ht = db_fetch_array($res);
-        $this->id         = $this->ht['ticketID']; //placeholder
-        $this->ticket_id  = $this->ht['ticket_id'];
-        $this->ticketID   = $this->ht['ticketID'];
-
-        $user = User::lookup($this->ht['user_id']);
-        $this->user_id    = $this->ht['user_id'];
-        $this->fullname   = $user->getFullName();
-
-        $this->username   = $this->ht['email'];
-        $this->email      = $this->ht['email'];
-
-        $this->stats = array();
-
-        return($this->id);
+        return $user;
     }
 
-    function loadDynamicData() {
-        $this->_answers = array();
-        foreach (DynamicFormEntry::forClient($this->getId()) as $form)
-            foreach ($form->getAnswers() as $answer)
-                $this->_answers[$answer->getField()->get('name')] =
-                    $answer->getValue();
+    static function lookupByEmail($email) {
+
+        if (!($user=User::lookup(array('emails__address' => $email))))
+            return null;
+
+        return new EndUser($user);
     }
 
-    function reload() {
-        return $this->load();
+    function isOwner() {
+        return  ($this->user
+                    && $this->user->getId() == $this->getTicket()->getOwnerId());
     }
 
-    function isClient() {
-        return TRUE;
+    abstract function getTicketId();
+    abstract function getTicket();
+}
+
+class TicketOwner extends  TicketUser {
+
+    protected $ticket;
+
+    function __construct($user, $ticket) {
+        parent::__construct($user);
+        $this->ticket = $ticket;
+    }
+
+    function getTicket() {
+        return $this->ticket;
+    }
+
+    function getTicketId() {
+        return $this->ticket->getId();
+    }
+}
+
+/*
+ * Decorator class for authenticated user
+ *
+ */
+
+class  EndUser extends AuthenticatedUser {
+
+    protected $user;
+
+    function __construct($user) {
+        $this->user = $user;
+    }
+
+    /*
+     * Delegate calls to the user
+     */
+    function __call($name, $args) {
+
+        if(!$this->user
+                || !is_callable(array($this->user, $name)))
+            return false;
+
+        return  $args
+            ? call_user_func_array(array($this->user, $name), $args)
+            : call_user_func(array($this->user, $name));
     }
 
     function getId() {
-        return $this->id;
-    }
+        //We ONLY care about user ID at the ticket level
+        if ($this->user instanceof Collaborator)
+            return $this->user->getUserId();
 
-    function getUserId() {
-        return $this->user_id;
-    }
-
-    function getEmail() {
-        return $this->email;
+        return $this->user->getId();
     }
 
     function getUserName() {
-        return $this->username;
+        //XXX: Revisit when real usernames are introduced  or when email
+        // requirement is removed.
+        return $this->user->getEmail();
     }
 
-    function getName() {
-        return $this->fullname;
+    function getRole() {
+        return $this->isOwner() ? 'owner' : 'collaborator';
     }
 
-    function getPhone() {
-        return $this->_answers['phone'];
-    }
-
-    function getTicketID() {
-        return $this->ticketID;
+    function getAuthBackend() {
+        list($authkey,) = explode(':', $this->getAuthKey());
+        return UserAuthenticationBackend::getBackend($authkey);
     }
 
     function getTicketStats() {
 
-        if(!$this->stats['tickets'])
-            $this->stats['tickets'] = Ticket::getClientStats($this->getEmail());
+        if (!isset($this->ht['stats']))
+            $this->ht['stats'] = $this->getStats();
 
-        return $this->stats['tickets'];
+        return $this->ht['stats'];
     }
 
     function getNumTickets() {
@@ -136,114 +225,21 @@ class Client {
         return ($stats=$this->getTicketStats())?$stats['closed']:0;
     }
 
-    /* ------------- Static ---------------*/
-    function getLastTicketIdByEmail($email) {
-        $sql='SELECT ticket.ticketID FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
-            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' WHERE email.address = '.db_input($email)
-            .' ORDER BY ticket.created '
-            .' LIMIT 1';
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($tid) = db_fetch_row($res);
+    private function getStats() {
 
-        return $tid;
-    }
+        $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
+            .' FROM '.TICKET_TABLE.' ticket '
+            .' LEFT JOIN '.TICKET_TABLE.' open
+                ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\') '
+            .' LEFT JOIN '.TICKET_TABLE.' closed
+                ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\')'
+            .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+                ON (collab.ticket_id=ticket.ticket_id
+                    AND collab.user_id = '.db_input($this->getId()).' )'
+            .' WHERE ticket.user_id = '.db_input($this->getId())
+            .' OR collab.user_id = '.db_input($this->getId());
 
-    function lookup($id, $email=null) {
-        return ($id && is_numeric($id) && ($c=new Client($id,$email)) && $c->getId()==$id)?$c:null;
-    }
-
-    function lookupByEmail($email) {
-        return (($id=self::getLastTicketIdByEmail($email)))?self::lookup($id, $email):null;
-    }
-
-    /* static */ function login($ticketID, $email, $auth=null, &$errors=array()) {
-        global $ost;
-
-
-        $cfg = $ost->getConfig();
-        $auth = trim($auth);
-        $email = trim($email);
-        $ticketID = trim($ticketID);
-
-        # Only consider auth token for GET requests, and for GET requests,
-        # REQUIRE the auth token
-        $auto_login = ($_SERVER['REQUEST_METHOD'] == 'GET');
-
-        //Check time for last max failed login attempt strike.
-        if($_SESSION['_client']['laststrike']) {
-            if((time()-$_SESSION['_client']['laststrike'])<$cfg->getClientLoginTimeout()) {
-                $errors['login'] = 'Excessive failed login attempts';
-                $errors['err'] = 'You\'ve reached maximum failed login attempts allowed. Try again later or <a href="open.php">open a new ticket</a>';
-                $_SESSION['_client']['laststrike'] = time(); //renew the strike.
-            } else { //Timeout is over.
-                //Reset the counter for next round of attempts after the timeout.
-                $_SESSION['_client']['laststrike'] = null;
-                $_SESSION['_client']['strikes'] = 0;
-            }
-        }
-
-        if($auto_login && !$auth)
-            $errors['login'] = 'Invalid method';
-        elseif(!$ticketID || !Validator::is_email($email))
-            $errors['login'] = 'Valid email and ticket number required';
-
-        //Bail out on error.
-        if($errors) return false;
-
-        //See if we can fetch local ticket id associated with the ID given
-        if(($ticket=Ticket::lookupByExtId($ticketID, $email)) && $ticket->getId()) {
-            //At this point we know the ticket ID is valid.
-            //TODO: 1) Check how old the ticket is...3 months max?? 2) Must be the latest 5 tickets??
-            //Check the email given.
-
-            # Require auth token for automatic logins (GET METHOD).
-            if (!strcasecmp($ticket->getEmail(), $email) && (!$auto_login || $auth === $ticket->getAuthToken())) {
-
-                //valid match...create session goodies for the client.
-                $user = new ClientSession($email,$ticket->getExtId());
-                $_SESSION['_client'] = array(); //clear.
-                $_SESSION['_client']['userID'] = $ticket->getEmail(); //Email
-                $_SESSION['_client']['key'] = $ticket->getExtId(); //Ticket ID --acts as password when used with email. See above.
-                $_SESSION['_client']['token'] = $user->getSessionToken();
-                $_SESSION['TZ_OFFSET'] = $cfg->getTZoffset();
-                $_SESSION['TZ_DST'] = $cfg->observeDaylightSaving();
-                $user->refreshSession(true); //set the hash.
-                //Log login info...
-                $msg=sprintf('%s/%s logged in [%s]', $ticket->getEmail(), $ticket->getExtId(), $_SERVER['REMOTE_ADDR']);
-                $ost->logDebug('User login', $msg);
-
-                //Regenerate session ID.
-                $sid=session_id(); //Current session id.
-                session_regenerate_id(TRUE); //get new ID.
-                if(($session=$ost->getSession()) && is_object($session) && $sid!=session_id())
-                    $session->destroy($sid);
-
-                return $user;
-
-            }
-        }
-
-        //If we get to this point we know the login failed.
-        $errors['login'] = 'Invalid login';
-        $_SESSION['_client']['strikes']+=1;
-        if(!$errors && $_SESSION['_client']['strikes']>$cfg->getClientMaxLogins()) {
-            $errors['login'] = 'Access Denied';
-            $errors['err'] = 'Forgot your login info? Please <a href="open.php">open a new ticket</a>.';
-            $_SESSION['_client']['laststrike'] = time();
-            $alert='Excessive login attempts by a user.'."\n".
-                    'Email: '.$email."\n".'Ticket#: '.$ticketID."\n".
-                    'IP: '.$_SERVER['REMOTE_ADDR']."\n".'Time:'.date('M j, Y, g:i a T')."\n\n".
-                    'Attempts #'.$_SESSION['_client']['strikes'];
-            $ost->logError('Excessive login attempts (user)', $alert, ($cfg->alertONLoginError()));
-        } elseif($_SESSION['_client']['strikes']%2==0) { //Log every other failed login attempt as a warning.
-            $alert='Email: '.$email."\n".'Ticket #: '.$ticketID."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
-                   "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_client']['strikes'];
-            $ost->logWarning('Failed login attempt (user)', $alert);
-        }
-
-        return false;
+        return db_fetch_array(db_query($sql));
     }
 }
 ?>

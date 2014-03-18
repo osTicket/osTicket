@@ -47,12 +47,24 @@ class Company {
         }
     }
 
-    function asVar() {
+    function getInfo() {
+        return $this->getForm()->getClean();
+    }
+
+    function getName() {
         return $this->getVar('name');
     }
 
-    function getInfo() {
-        return $this->getForm()->getClean();
+    function asVar() {
+        return $this->getName();
+    }
+
+    function __toString() {
+        try {
+            if ($name = $this->getForm()->getAnswer('name'))
+                return $name->display();
+        } catch (Exception $e) {}
+        return '';
     }
 
     /**

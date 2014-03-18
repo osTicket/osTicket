@@ -90,14 +90,14 @@ class osTicketSession {
                 list($this->data)=db_fetch_row($res);
             $this->id = $id;
         }
-        $this->data_hash = md5($this->data);
+        $this->data_hash = md5($id.$this->data);
         return $this->data;
     }
 
     function write($id, $data){
         global $thisstaff;
 
-        if (md5($data) == $this->data_hash)
+        if (md5($id.$data) == $this->data_hash)
             return;
 
         $ttl = ($this && get_class($this) == 'osTicketSession')

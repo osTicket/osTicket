@@ -15,6 +15,7 @@ if($template && $_REQUEST['a']!='add'){
     $action='add';
     $submit_text='Add Template';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
+    $info['lang_id'] = $cfg->getSystemLanguage();
     $qstr.='&a='.urlencode($_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -54,19 +55,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
             </td>
         </tr>
+        <?php
+        if($template){ ?>
         <tr>
             <td width="180" class="required">
                 Language:
             </td>
             <td>
-                <select name="lang_id">
-                    <option value="en" selected="selected">English (US)</option>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['lang_id']; ?></span>
+                <?php
+            $langs = Internationalization::availableLanguages();
+            $lang = strtolower($info['lang']);
+            if (isset($langs[$lang]))
+                echo $langs[$lang]['desc'];
+            else
+                echo $info['lang']; ?>
             </td>
         </tr>
         <?php
-        if($template){
             $current_group = false;
             $impl = $template->getTemplates();
             $_tpls = $template::$all_names;
@@ -101,6 +106,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             }
          } # endfor
         } else { ?>
+        <tr>
+            <td width="180" class="required">
+                Language:
+            </td>
+            <td>
+        <?php
+        $langs = Internationalization::availableLanguages(); ?>
+                <select name="lang_id">
+<?php foreach($langs as $l) {
+    $selected = ($info['lang_id'] == $l['code']) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                        ?>><?php echo $l['desc']; ?></option>
+<?php } ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['lang_id']; ?></span>
+            </td>
+        </tr>
         <tr>
             <td width="180" class="required">
                 Template To Clone:

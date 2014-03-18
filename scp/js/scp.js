@@ -313,9 +313,11 @@ $(document).ready(function(){
     });
 
     /* Typeahead tickets lookup */
+    var last_req;
     $('#basic-ticket-search').typeahead({
         source: function (typeahead, query) {
-            $.ajax({
+            if (last_req) last_req.abort();
+            last_req = $.ajax({
                 url: "ajax.php/tickets/lookup?q="+query,
                 dataType: 'json',
                 success: function (data) {
@@ -334,7 +336,8 @@ $(document).ready(function(){
     $('.email.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
-                $.ajax({
+                if (last_req) last_req.abort();
+                last_req = $.ajax({
                     url: "ajax.php/users?q="+query,
                     dataType: 'json',
                     success: function (data) {
@@ -349,6 +352,27 @@ $(document).ready(function(){
                 $('.auto.name', fObj).val(obj.name);
         },
         property: "email"
+    });
+    $('.staff-username.typeahead').typeahead({
+        source: function (typeahead, query) {
+            if(query.length > 2) {
+                if (last_req) last_req.abort();
+                last_req = $.ajax({
+                    url: "ajax.php/users/staff?q="+query,
+                    dataType: 'json',
+                    success: function (data) {
+                        typeahead.process(data);
+                    }
+                });
+            }
+        },
+        onselect: function (obj) {
+            var fObj=$('.staff-username.typeahead').closest('form');
+            $.each(['first','last','email','phone','mobile'], function(i,k) {
+                if (obj[k]) $('.auto.'+k, fObj).val(obj[k]);
+            });
+        },
+        property: "username"
     });
 
     //Overlay
@@ -407,13 +431,17 @@ $(document).ready(function(){
         $('#advanced-search').show();
     });
 
-    $.userLookup = function (url, callback) {
+    $.dialog = function (url, code, cb, options) {
+        options = options||{};
 
         $('.dialog#popup .body').load(url, function () {
             $('#overlay').show();
-            $('.dialog#popup').show();
-            $(document).off('.user');
-            $(document).on('submit.user', '.dialog#popup form.user',function(e) {
+            $('.dialog#popup').show({
+                duration: 0,
+                complete: function() { if (options.onshow) options.onshow(); }
+            });
+            $(document).off('.dialog');
+            $(document).on('submit.dialog', '.dialog#popup form', function(e) {
                 e.preventDefault();
                 var $form = $(this);
                 var $dialog = $form.closest('.dialog');
@@ -423,12 +451,11 @@ $(document).ready(function(){
                     data: $form.serialize(),
                     cache: false,
                     success: function(resp, status, xhr) {
-                        if (xhr && xhr.status == 201) {
-                            var user = $.parseJSON(xhr.responseText);
+                        if (xhr && xhr.status == code) {
                             $('div.body', $dialog).empty();
                             $dialog.hide();
                             $('#overlay').hide();
-                            if(callback) callback(user);
+                            if(cb) cb(xhr.responseText);
                         } else {
                             $('div.body', $dialog).html(resp);
                             $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
@@ -440,7 +467,17 @@ $(document).ready(function(){
                 return false;
             });
          });
+        if (options.onload) { options.onload(); }
      };
+
+    $.userLookup = function (url, cb) {
+        $.dialog(url, 201, function (resp) {
+            var user = $.parseJSON(resp);
+            if(cb) cb(user);
+        }, {
+            onshow: function() { $('#user-search').focus(); }
+        });
+    };
 
     $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {
@@ -516,6 +553,31 @@ $(document).ready(function(){
            });
        }
    });
+
+   //Tabs
+   $(document).on('click.tab', 'ul.tabs li a', function(e) {
+        e.preventDefault();
+        if ($('.tab_content'+$(this).attr('href')).length) {
+            $('ul.tabs li a').removeClass('active');
+            $(this).addClass('active');
+            $('.tab_content').hide();
+            $('.tab_content'+$(this).attr('href')).show();
+        }
+    });
+
+    //Collaborators
+    $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $.dialog(url, 201, function (resp) {
+           $('input#emailcollab').show();
+           $('#recipients').text(resp);
+           $('.tip_box').remove();
+        }, {
+            onshow: function() { $('#user-search').focus(); }
+        });
+        return false;
+     });
 });
 
 // NOTE: getConfig should be global

@@ -15,6 +15,7 @@ if($cfg->getLockTime() && !$ticket->acquireLock($thisstaff->getId(),$cfg->getLoc
 //Get the goodies.
 $dept  = $ticket->getDept();  //Dept
 $staff = $ticket->getStaff(); //Assigned or closed by..
+$user  = $ticket->getOwner(); //Ticket User (EndUser)
 $team  = $ticket->getTeam();  //Assigned team.
 $sla   = $ticket->getSLA();
 $lock  = $ticket->getLock();  //Ticket lock obj
@@ -40,7 +41,8 @@ if($ticket->isOverdue())
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
         <td width="50%" class="has_bottom_border">
-             <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><i class="icon-refresh"></i> Ticket #<?php echo $ticket->getExtId(); ?></a></h2>
+             <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
+             title="Reload"><i class="icon-refresh"></i> Ticket #<?php echo $ticket->getNumber(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
             <?php
@@ -154,29 +156,28 @@ if($ticket->isOverdue())
                                         $('#user-'+user.id+'-name').text(user.name);
                                         $('#user-'+user.id+'-email').text(user.email);
                                         $('#user-'+user.id+'-phone').text(user.phone);
-                                        $('#user-to-name').text(user.name);
-                                        $('#user-to-email').text(user.email);
+                                        $('select#emailreply option[value=1]').text(user.name+' <'+user.email+'>');
                                     });
                             return false;
                             "><i class="icon-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
                             ><?php echo Format::htmlchars($ticket->getName());
                         ?></span></a>
                         <?php
-                        if(($client=$ticket->getClient())) {
-                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&ownerId=%d" title="Related Tickets" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
-                                    urlencode($ticket->getOwnerId()), $client->getNumTickets());
+                        if($user) {
+                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&uid=%d" title="Related Tickets" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
+                                    urlencode($user->getId()), $user->getNumTickets());
                         ?>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
                                     <?php
-                                    if(($open=$client->getNumOpenTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&ownerId=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
-                                                $ticket->getOwnerId(), $open);
-                                    if(($closed=$client->getNumClosedTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&ownerId=%d"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
-                                                $ticket->getOwnerId(), $closed);
+                                    if(($open=$user->getNumOpenTickets()))
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
+                                                $user->getId(), $open);
+                                    if(($closed=$user->getNumClosedTickets()))
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
+                                                $user->getId(), $closed);
                                     ?>
-                                    <li><a href="tickets.php?a=search&ownerId=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
+                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
                                 </u>
                             </div>
                     <?php
@@ -350,7 +351,7 @@ $tcount+= $ticket->getNumNotes();
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
-                            echo Format::htmlchars($entry['poster']); ?></span>
+                            echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
                     </span>
                 </div>
                 </th>
@@ -418,21 +419,57 @@ $tcount+= $ticket->getNumNotes();
         <input type="hidden" name="a" value="reply">
         <span class="error"></span>
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+           <tbody id="to_sec">
             <tr>
                 <td width="120">
                     <label><strong>TO:</strong></label>
                 </td>
                 <td>
                     <?php
-                    echo sprintf('<span id="user-to-name">%s</span> <em>&lt;<span id="user-to-email">%s</span>&gt;</em>',
-                        Format::htmlChars($ticket->getName()),
-                        $ticket->getReplyToEmail());
+                    # XXX: Add user-to-name and user-to-email HTML ID#s
+                    $to =sprintf('%s &lt;%s&gt;', $ticket->getName(), $ticket->getReplyToEmail());
+                    $emailReply = (!isset($info['emailreply']) || $info['emailreply']);
                     ?>
-                    &nbsp;&nbsp;&nbsp;
-                    <label><input type='checkbox' value='1' name="emailreply" id="remailreply"
-                        <?php echo ((!$info['emailreply'] && !$errors) || isset($info['emailreply']))?'checked="checked"':''; ?>> Email Reply</label>
+                    <select id="emailreply" name="emailreply">
+                        <option value="1" <?php echo $emailReply ?  'selected="selected"' : ''; ?>><?php echo $to; ?></option>
+                        <option value="0" <?php echo !$emailReply ? 'selected="selected"' : ''; ?>
+                            >&mdash;Do Not Email Reply&mdash;</option>
+                    </select>
                 </td>
             </tr>
+            </tbody>
+            <?php
+            if(1) { //Make CC optional feature? NO, for now.
+                ?>
+            <tbody id="cc_sec"
+                style="display:<?php echo $emailReply?  'table-row-group':'none'; ?>;">
+             <tr>
+                <td width="120">
+                    <label><strong>Collaborators:</strong></label>
+                </td>
+                <td>
+                    <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                        <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
+                        style="display:<?php echo $ticket->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
+                        >
+                    <?php
+                    $recipients = 'Add Recipients';
+                    if ($ticket->getNumCollaborators())
+                        $recipients = sprintf('Recipients (%d of %d)',
+                                $ticket->getNumActiveCollaborators(),
+                                $ticket->getNumCollaborators());
+
+                    echo sprintf('<span><a class="collaborators preview"
+                            href="#tickets/%d/collaborators"><span id="recipients">%s</span></a></span>',
+                            $ticket->getId(),
+                            $recipients);
+                   ?>
+                </td>
+             </tr>
+            </tbody>
+            <?php
+            } ?>
+            <tbody id="resp_sec">
             <?php
             if($errors['response']) {?>
             <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['response']; ?>&nbsp;</td></tr>
@@ -457,10 +494,23 @@ $tcount+= $ticket->getNumNotes();
                         <label><input type='checkbox' value='1' name="append" id="append" checked="checked"> Append</label>
                         <br>
                     <?php
-                    }?>
+                    }
+                    $signature = '';
+                    switch ($thisstaff->getDefaultSignatureType()) {
+                    case 'dept':
+                        if ($dept && $dept->canAppendSignature())
+                           $signature = $dept->getSignature();
+                       break;
+                    case 'mine':
+                        $signature = $thisstaff->getSignature();
+                        break;
+                    } ?>
                     <input type="hidden" name="draft_id" value=""/>
                     <textarea name="response" id="response" cols="50"
                         data-draft-namespace="ticket.response"
+                        data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
+                        data-signature="<?php
+                            echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                         placeholder="Start writing your response here. Use canned responses from the drop-down above"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"
@@ -532,7 +582,7 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <?php
             } ?>
-            </div>
+         </tbody>
         </table>
         <p  style="padding-left:165px;">
             <input class="btn_sm" type="submit" value="Post Reply">

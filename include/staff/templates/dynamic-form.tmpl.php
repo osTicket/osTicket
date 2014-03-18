@@ -13,7 +13,7 @@
                 <?php
             }
             else { ?>
-                <td class="multi-line <?php if ($field->get('required')) echo 'required'; ?>">
+                <td class="multi-line <?php if ($field->get('required')) echo 'required'; ?>" style="min-width:120px;">
                 <?php echo Format::htmlchars($field->get('label')); ?>:</td>
                 <td><?php
             }
@@ -29,7 +29,7 @@
             }
             foreach ($field->errors() as $e) { ?>
                 <br />
-                <font class="error"><?php echo $e; ?></font>
+                <font class="error"><?php echo Format::htmlchars($e); ?></font>
             <?php } ?>
             </td>
         </tr>

@@ -86,7 +86,7 @@ class Attachment {
     function getIdByFileHash($hash, $tid=0) {
         $sql='SELECT attach_id FROM '.TICKET_ATTACHMENT_TABLE.' a '
             .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
-            .' WHERE f.hash='.db_input($hash);
+            .' WHERE f.`key`='.db_input($hash);
         if($tid)
             $sql.=' AND a.ticket_id='.db_input($tid);
 
@@ -128,7 +128,10 @@ class GenericAttachments {
                     .',object_id='.db_input($this->getId())
                     .',file_id='.db_input($fileId)
                     .',inline='.db_input($inline ? 1 : 0);
-                if (db_query($sql))
+                // File may already be associated with the draft (in the
+                // event it was deleted and re-added)
+                if (db_query($sql, function($errno) { return $errno != 1062; })
+                        || db_errno() == 1062)
                     $i[] = $fileId;
             }
         }
@@ -157,7 +160,7 @@ class GenericAttachments {
     function _getList($separate=false, $inlines=false) {
         if(!isset($this->attachments)) {
             $this->attachments = array();
-            $sql='SELECT f.id, f.size, f.hash, f.name, a.inline '
+            $sql='SELECT f.id, f.size, f.`key`, f.name, a.inline '
                 .' FROM '.FILE_TABLE.' f '
                 .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
                 .' WHERE a.`type`='.db_input($this->getType())
@@ -171,7 +174,6 @@ class GenericAttachments {
         $attachments = array();
         foreach ($this->attachments as $a) {
             if ($a['inline'] != $separate || $a['inline'] == $inlines) {
-                $a['key'] = md5($a['id'].session_id().$a['hash']);
                 $a['file_id'] = $a['id'];
                 $attachments[] = $a;
             }

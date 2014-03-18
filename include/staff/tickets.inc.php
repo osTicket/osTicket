@@ -78,9 +78,10 @@ if($status) {
     $qwhere.=' AND ticket.status='.db_input(strtolower($status));
 }
 
-if (isset($_REQUEST['ownerId'])) {
-    $qwhere .= ' AND ticket.user_id='.db_input($_REQUEST['ownerId']);
-    $qstr .= '&ownerId='.urlencode($_REQUEST['ownerId']);
+if (isset($_REQUEST['uid']) && $_REQUEST['uid']) {
+    $qwhere .= ' AND (ticket.user_id='.db_input($_REQUEST['uid'])
+            .' OR collab.user_id='.db_input($_REQUEST['uid']).') ';
+    $qstr .= '&uid='.urlencode($_REQUEST['uid']);
 }
 
 //Queues: Overloaded sub-statuses  - you've got to just have faith!
@@ -117,7 +118,7 @@ if($search):
         $qstr.='&query='.urlencode($searchTerm);
         $queryterm=db_real_escape($searchTerm,false); //escape the term ONLY...no quotes.
         if (is_numeric($searchTerm)) {
-            $qwhere.=" AND ticket.ticketID LIKE '$queryterm%'";
+            $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
         } elseif (strpos($searchTerm,'@') && Validator::is_email($searchTerm)) {
             //pulling all tricks!
             # XXX: What about searching for email addresses in the body of
@@ -145,7 +146,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
         db_input($_SESSION['adv_'.$_REQUEST['advsid']])).')';
 }
 
-$sortOptions=array('date'=>'effective_date','ID'=>'ticket.ticketID',
+$sortOptions=array('date'=>'effective_date','ID'=>'ticket.`number`',
     'pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept_name');
@@ -197,7 +198,7 @@ $$x=' class="'.strtolower($order).'" ';
 if($_GET['limit'])
     $qstr.='&limit='.urlencode($_GET['limit']);
 
-$qselect ='SELECT ticket.ticket_id,lock_id,ticketID,ticket.dept_id,ticket.staff_id,ticket.team_id '
+$qselect ='SELECT ticket.ticket_id,lock_id,`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,user.name'
     .' ,email.address as email, dept_name '
          .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created ';
@@ -207,9 +208,15 @@ $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id ';
 
+if ($_REQUEST['uid'])
+    $qfrom.=' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+        ON (ticket.ticket_id = collab.ticket_id )';
+
+
 $sjoin='';
+
 if($search && $deep_search) {
-    $sjoin=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
+    $sjoin.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )';
 }
 
 //get ticket count based on the query so far..
@@ -262,11 +269,15 @@ while ($row = db_fetch_array($res)) {
 
 // Fetch attachment and thread entry counts
 if ($results) {
-    $counts_sql = 'SELECT ticket.ticket_id, count(attach.attach_id) as attachments,
-        count(DISTINCT thread.id) as thread_count
+    $counts_sql = 'SELECT ticket.ticket_id,
+        count(DISTINCT attach.attach_id) as attachments,
+        count(DISTINCT thread.id) as thread_count,
+        count(DISTINCT collab.id) as collaborators
         FROM '.TICKET_TABLE.' ticket
         LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
      .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
+     .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+            ON ( ticket.ticket_id=collab.ticket_id) '
      .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
         GROUP BY ticket.ticket_id';
     $ids_res = db_query($counts_sql);
@@ -379,7 +390,7 @@ if ($results) {
                 }else{
                     $lc=Format::truncate($row['dept_name'],40);
                 }
-                $tid=$row['ticketID'];
+                $tid=$row['number'];
                 $subject = Format::htmlchars(Format::truncate($row['subject'],40));
                 $threadcount=$row['thread_count'];
                 if(!strcasecmp($row['status'],'open') && !$row['isanswered'] && !$row['lock_id']) {
@@ -401,11 +412,17 @@ if ($results) {
                   <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview" title="Preview Ticket"
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
-                <td><a <?php if($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+                <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
-                     &nbsp;
-                     <?php echo ($threadcount>1)?" <small>($threadcount)</small>&nbsp;":''?>
-                     <?php echo $row['attachments']?"<span class='Icon file'>&nbsp;</span>":''; ?>
+                     <?php
+                        if ($threadcount>1)
+                            echo "<small>($threadcount)</small>&nbsp;".'<i
+                                class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
+                        if ($row['collaborators'])
+                            echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
+                        if ($row['attachments'])
+                            echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
+                    ?>
                 </td>
                 <td nowrap>&nbsp;<?php echo Format::truncate($row['name'],22,strpos($row['name'],'@')); ?>&nbsp;</td>
                 <?php

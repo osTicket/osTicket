@@ -113,13 +113,20 @@ class Thread {
         if(!$order || !in_array($order, array('DESC','ASC')))
             $order='ASC';
 
-        $sql='SELECT thread.* '
+        $sql='SELECT thread.*
+               , COALESCE(user.name,
+                    IF(staff.staff_id,
+                        CONCAT_WS(" ", staff.firstname, staff.lastname),
+                        NULL)) as name '
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
+            .' LEFT JOIN '.USER_TABLE.' user
+                ON (thread.user_id=user.id) '
+            .' LEFT JOIN '.STAFF_TABLE.' staff
+                ON (thread.staff_id=staff.staff_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
-                        AND thread.id=attach.ref_id
-                        AND thread.thread_type=attach.ref_type) '
+                        AND thread.id=attach.ref_id) '
             .' WHERE  thread.ticket_id='.db_input($this->getTicketId());
 
         if($type && is_array($type))
@@ -161,6 +168,7 @@ class Thread {
     function addResponse($vars, &$errors) {
 
         $vars['ticketId'] = $this->getTicketId();
+        $vars['userId'] = 0;
 
         return Response::create($vars, $errors);
     }
@@ -178,13 +186,11 @@ class Thread {
 
     function delete() {
 
-        /* XXX: Leave this out until TICKET_EMAIL_INFO_TABLE has a primary
-         *      key
-        $sql = 'DELETE mid.* FROM '.TICKET_EMAIL_INFO_TABLE.' mid
-            INNER JOIN '.TICKET_THREAD_TABLE.' thread ON (thread.id = mid.message_id)
-            WHERE thread.ticket_id = '.db_input($this->getTicketId());
+        $sql = 'UPDATE '.TICKET_EMAIL_INFO_TABLE.' mid
+            INNER JOIN '.TICKET_THREAD_TABLE.' thread ON (thread.id = mid.thread_id)
+            SET mid.headers = null WHERE thread.ticket_id = '
+            .db_input($this->getTicketId());
         db_query($sql);
-         */
 
         $res=db_query('DELETE FROM '.TICKET_THREAD_TABLE.' WHERE ticket_id='.db_input($this->getTicketId()));
         if(!$res || !db_affected_rows())
@@ -244,11 +250,10 @@ Class ThreadEntry {
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
             .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
-                ON (thread.id=info.message_id) '
+                ON (thread.id=info.thread_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
-                        AND thread.id=attach.ref_id
-                        AND thread.thread_type=attach.ref_type) '
+                        AND thread.id=attach.ref_id) '
             .' WHERE  thread.id='.db_input($id);
 
         if($type)
@@ -352,6 +357,37 @@ Class ThreadEntry {
         return $this->_references;
     }
 
+    function getTaggedEmailReferences($prefix, $refId) {
+
+        $ref = "+$prefix".Base32::encode(pack('VV', $this->getId(), $refId));
+
+        $mid = substr_replace($this->getEmailMessageId(),
+                $ref, strpos($this->getEmailMessageId(), '@'), 0);
+
+        return sprintf('%s %s', $this->getEmailReferences(), $mid);
+    }
+
+    function getEmailReferencesForUser($user) {
+        return $this->getTaggedEmailReferences('u',
+            ($user instanceof Collaborator)
+                ? $user->getUserId()
+                : $user->getId());
+    }
+
+    function getEmailReferencesForStaff($staff) {
+        return $this->getTaggedEmailReferences('s', $staff->getId());
+    }
+
+    function getUIDFromEmailReference($ref) {
+
+        $info = unpack('Vtid/Vuid',
+                Base32::decode(strtolower(substr($ref, -13))));
+
+        if ($info && $info['tid'] == $this->getId())
+            return $info['uid'];
+
+    }
+
     function getTicket() {
 
         if(!$this->ticket && $this->getTicketId())
@@ -370,6 +406,18 @@ Class ThreadEntry {
             $this->staff = Staff::lookup($this->getStaffId());
 
         return $this->staff;
+    }
+
+    function getUserId() {
+        return $this->ht['user_id'];
+    }
+
+    function getUser() {
+
+        if (!isset($this->user))
+            $this->user = User::lookup($this->getUserId());
+
+        return $this->user;
     }
 
     function getEmailHeader() {
@@ -433,13 +481,13 @@ Class ThreadEntry {
         return $uploaded;
     }
 
-    function importAttachments($attachments) {
+    function importAttachments(&$attachments) {
 
         if(!$attachments || !is_array($attachments))
             return null;
 
         $files = array();
-        foreach($attachments as  $attachment)
+        foreach($attachments as &$attachment)
             if(($id=$this->importAttachment($attachment)))
                 $files[] = $id;
 
@@ -447,7 +495,7 @@ Class ThreadEntry {
     }
 
     /* Emailed & API attachments handler */
-    function importAttachment($attachment) {
+    function importAttachment(&$attachment) {
 
         if(!$attachment || !is_array($attachment))
             return null;
@@ -469,7 +517,7 @@ Class ThreadEntry {
     Save attachment to the DB.
     @file is a mixed var - can be ID or file hashtable.
     */
-    function saveAttachment($file) {
+    function saveAttachment(&$file) {
 
         if(!($fileId=is_numeric($file)?$file:AttachmentFile::save($file)))
             return 0;
@@ -484,8 +532,7 @@ Class ThreadEntry {
         $sql ='INSERT IGNORE INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
              .' ,file_id='.db_input($fileId)
              .' ,ticket_id='.db_input($this->getTicketId())
-             .' ,ref_id='.db_input($this->getId())
-             .' ,ref_type='.db_input($this->getType());
+             .' ,ref_id='.db_input($this->getId());
 
         return (db_query($sql) && ($id=db_insert_id()))?$id:0;
     }
@@ -505,12 +552,11 @@ Class ThreadEntry {
             return $this->attachments;
 
         //XXX: inner join the file table instead?
-        $sql='SELECT a.attach_id, f.id as file_id, f.size, f.hash as file_hash, f.name '
+        $sql='SELECT a.attach_id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.name '
             .' FROM '.FILE_TABLE.' f '
             .' INNER JOIN '.TICKET_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
             .' WHERE a.ticket_id='.db_input($this->getTicketId())
-            .' AND a.ref_id='.db_input($this->getId())
-            .' AND a.ref_type='.db_input($this->getType());
+            .' AND a.ref_id='.db_input($this->getId());
 
         $this->attachments = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -565,6 +611,8 @@ Class ThreadEntry {
      *      - body - (string) email message body (decoded)
      */
     function postEmail($mailinfo) {
+        global $ost;
+
         // +==================+===================+=============+
         // | Orig Thread-Type | Reply Thread-Type | Requires    |
         // +==================+===================+=============+
@@ -583,6 +631,28 @@ Class ThreadEntry {
             // Reporting success so the email can be moved or deleted.
             return true;
 
+        // Mail sent by this system will have a message-id format of
+        // <code-random-mailbox@domain.tld>
+        // where code is a predictable string based on the SECRET_SALT of
+        // this osTicket installation. If this incoming mail matches the
+        // code, then it very likely originated from this system and looped
+        @list($code) = explode('-', $mailinfo['mid'], 2);
+        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
+            // This mail was sent by this system. It was received due to
+            // some kind of mail delivery loop. It should not be considered
+            // a response to an existing thread entry
+            if ($ost) $ost->log(LOG_ERR, 'Email loop detected', sprintf(
+               'It appears as though &lt;%s&gt; is being used as a forwarded or
+                fetched email account and is also being used as a user /
+                system account. Please correct the loop or seek technical
+                assistance.', $mailinfo['email']),
+                // This is quite intentional -- don't continue the loop
+                false,
+                // Force the message, even if logging is disabled
+                true);
+            return true;
+        }
+
         $vars = array(
             'mid' =>    $mailinfo['mid'],
             'header' => $mailinfo['header'],
@@ -592,6 +662,8 @@ Class ThreadEntry {
             'source' => 'Email',
             'ip' =>     '',
             'reply_to' => $this,
+            'recipients' => $mailinfo['recipients'],
+            'to-email-id' => $mailinfo['to-email-id'],
         );
         $errors = array();
 
@@ -603,13 +675,17 @@ Class ThreadEntry {
         // Disambiguate if the user happens also to be a staff member of the
         // system. The current ticket owner should _always_ post messages
         // instead of notes or responses
-        if (strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
+        if ($mailinfo['userId']
+                || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
+            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
             return $ticket->postMessage($vars, 'Email');
         }
-        elseif ($staff_id = Staff::getIdByEmail($mailinfo['email'])) {
-            $vars['staffId'] = $staff_id;
-            $poster = Staff::lookup($staff_id);
+        // XXX: Consider collaborator role
+        elseif ($mailinfo['staffId']
+                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
+            $vars['staffId'] = $mailinfo['staffId'];
+            $poster = Staff::lookup($mailinfo['staffId']);
             $vars['note'] = $body;
             return $ticket->postNote($vars, $errors, $poster);
         }
@@ -628,8 +704,11 @@ Class ThreadEntry {
         }
         // TODO: Consider security constraints
         else {
+            //XXX: Are we potentially leaking the email address to
+            // collaborators?
             $vars['message'] = sprintf("Received From: %s\n\n%s",
                 $mailinfo['email'], $body);
+            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             return $ticket->postMessage($vars, 'Email');
         }
         // Currently impossible, but indicate that this thread object could
@@ -668,7 +747,7 @@ Class ThreadEntry {
     /* static */
     function logEmailHeaders($id, $mid, $header=false) {
         $sql='INSERT INTO '.TICKET_EMAIL_INFO_TABLE
-            .' SET message_id='.db_input($id) //TODO: change it to thread_id
+            .' SET thread_id='.db_input($id)
             .', email_mid='.db_input($mid); //TODO: change it to message_id.
         if ($header)
             $sql .= ', headers='.db_input($header);
@@ -677,8 +756,12 @@ Class ThreadEntry {
 
     /* variables */
 
-    function asVar() {
+    function __toString() {
         return $this->getBody();
+    }
+
+    function asVar() {
+        return (string) $this;
     }
 
     function getVar($tag) {
@@ -730,11 +813,11 @@ Class ThreadEntry {
      *      previously seen. This is useful if no thread-id is associated
      *      with the email (if it was rejected for instance).
      */
-    function lookupByEmailHeaders($mailinfo, &$seen=false) {
+    function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        $search = 'SELECT message_id, email_mid FROM '.TICKET_EMAIL_INFO_TABLE
-               . ' WHERE email_mid=%s ORDER BY message_id DESC';
+        $search = 'SELECT thread_id, email_mid FROM '.TICKET_EMAIL_INFO_TABLE
+               . ' WHERE email_mid=%s ORDER BY thread_id DESC';
 
         if (list($id, $mid) = db_fetch_row(db_query(
                 sprintf($search, db_input($mailinfo['mid']))))) {
@@ -757,10 +840,27 @@ Class ThreadEntry {
             // @see rfc 1036, section 2.2.5
             // @see http://www.jwz.org/doc/threading.html
             foreach (array_reverse($matches[0]) as $mid) {
+                //Try to determine if it's a reply to a tagged email.
+                $ref = null;
+                if (strpos($mid, '+')) {
+                    list($left, $right) = explode('@',$mid);
+                    list($left, $ref) = explode('+', $left);
+                    $mid = "$left@$right";
+                }
                 $res = db_query(sprintf($search, db_input($mid)));
                 while (list($id) = db_fetch_row($res)) {
-                    if ($t = ThreadEntry::lookup($id))
-                        return $t;
+                    if (!($t = ThreadEntry::lookup($id))) continue;
+
+                    //We found a match  - see if we can ID the user.
+                    // XXX: Check access of ref is enough?
+                    if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
+                        if ($ref[0] =='s') //staff
+                            $mailinfo['staffId'] = $uid;
+                        else //user or collaborator.
+                            $mailinfo['userId'] = $uid;
+                    }
+
+                    return $t;
                 }
             }
         }
@@ -770,14 +870,83 @@ Class ThreadEntry {
         // injection by third-party.
         $subject = $mailinfo['subject'];
         $match = array();
-        if ($subject && $mailinfo['email']
+        if ($subject
+                && $mailinfo['email']
                 && preg_match("/#(?:[\p{L}-]+)?([0-9]{1,10})/u", $subject, $match)
-                && ($tid = Ticket::getIdByExtId((int)$match[1], $mailinfo['email']))
-                )
-            // Return last message for the thread
-            return Message::lastByTicketId($tid);
+                //Lookup by ticket number
+                && ($ticket = Ticket::lookupByNumber((int)$match[1]))
+                //Lookup the user using the email address
+                && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
+            //We have a valid ticket and user
+            if ($ticket->getUserId() == $user->getId() //owner
+                    ||  ($c = Collaborator::lookup( // check if collaborator
+                            array('userId' => $user->getId(),
+                                  'ticketId' => $ticket->getId())))) {
+
+                $mailinfo['userId'] = $user->getId();
+                return $ticket->getLastMessage();
+            }
+        }
+
+        // Search for the message-id token in the body
+        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+                $mailinfo['message'], $match))
+            if ($thread = ThreadEntry::lookupByMessageId($match[1]))
+                   return $thread;
 
         return null;
+    }
+
+    /**
+     * Find a thread entry from a message-id created from the
+     * ::asMessageId() method
+     */
+    function lookupByMessageId($mid, $from) {
+        $mid = trim($mid, '<>');
+        list($ver, $ids, $mails) = explode('$', $mid, 3);
+
+        // Current version is <null>
+        if ($ver !== '')
+            return false;
+
+        $ids = @unpack('Vthread', base64_decode($ids));
+        if (!$ids || !$ids['thread'])
+            return false;
+
+        $thread = ThreadEntry::lookup($ids['thread']);
+        if (!$thread)
+            return false;
+
+        if (0 === strcasecmp($thread->asMessageId($from, $ver), $mid))
+            return $thread;
+    }
+
+    /**
+     * Get an email message-id that can be used to represent this thread
+     * entry. The same message-id can be passed to ::lookupByMessageId() to
+     * find this thread entry
+     *
+     * Formats:
+     * Initial (version <null>)
+     * <$:b32(thread-id)$:md5(to-addr.ticket-num.ticket-id)@:md5(url)>
+     *      thread-id - thread-id, little-endian INT, packed
+     *      :b32() - base32 encoded
+     *      to-addr - individual email recipient
+     *      ticket-num - external ticket number
+     *      ticket-id - internal ticket id
+     *      :md5() - last 10 hex chars of MD5 sum
+     *      url - helpdesk URL
+     */
+    function asMessageId($to, $version=false) {
+        global $ost;
+
+        $domain = md5($ost->getConfig()->getURL());
+        $ticket = $this->getTicket();
+        return sprintf('$%s$%s@%s',
+            base64_encode(pack('V', $this->getId())),
+            substr(md5($to . $ticket->getNumber() . $ticket->getId()), -10),
+            substr($domain, -10)
+        );
     }
 
     //new entry ... we're trusting the caller to check validity of the data.
@@ -788,38 +957,49 @@ Class ThreadEntry {
         if(!$vars['ticketId'] || !$vars['type'] || !in_array($vars['type'], array('M','R','N')))
             return false;
 
-        if (isset($vars['attachments'])) {
-            foreach ($vars['attachments'] as &$a) {
-                // Change <img src="cid:"> inside the message to point to
-                // a unique hash-code for the attachment. Since the
-                // content-id will be discarded, only the unique hash-code
-                // will be available to retrieve the image later
-                if ($a['cid']) {
-                    $a['hash'] = Misc::randCode(32);
-                    $vars['body'] = str_replace('src="cid:'.$a['cid'].'"',
-                        'src="cid:'.$a['hash'].'"', $vars['body']);
-                }
-            }
-            unset($a);
+
+        if (!$vars['body'] instanceof ThreadBody) {
+            if ($cfg->isHtmlThreadEnabled())
+                $vars['body'] = new HtmlThreadBody($vars['body']);
+            else
+                $vars['body'] = new TextThreadBody($vars['body']);
         }
 
-        if (!$cfg->isHtmlThreadEnabled()) {
-            // Data in the database is assumed to be HTML, change special
-            // plain text XML characters
-            $vars['title'] = Format::htmlchars($vars['title']);
-            $vars['body'] = sprintf('<pre>%s</pre>',
-                Format::htmlchars($vars['body']));
+        // Drop stripped images. NOTE: This should be done before
+        // ->convert() because the strippedImages list will not propagate to
+        // the newly converted thread body
+        if ($vars['attachments']) {
+            foreach ($vars['body']->getStrippedImages() as $cid) {
+                foreach ($vars['attachments'] as $i=>$a) {
+                    if (@$a['cid'] && $a['cid'] == $cid) {
+                        // Inline referenced attachment was stripped
+                        unset($vars['attachments']);
+                    }
+                }
+            }
         }
-        $vars['body'] = Format::sanitize($vars['body']);
+
+        if (!($body = Format::sanitize(
+                (string) $vars['body']->convertTo('html'))))
+            $body = '-'; //Special tag used to signify empty message as stored.
+
+        $poster = $vars['poster'];
+        if ($poster && is_object($poster))
+            $poster = (string) $poster;
 
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
-            .' ,body='.db_input($vars['body'])
             .' ,staff_id='.db_input($vars['staffId'])
-            .' ,poster='.db_input($vars['poster'])
+            .' ,user_id='.db_input($vars['userId'])
+            .' ,poster='.db_input($poster)
             .' ,source='.db_input($vars['source']);
+
+        if (!isset($vars['attachments']) || !$vars['attachments'])
+            // Otherwise, body will be configured in a block below (after
+            // inline attachments are saved and updated in the database)
+            $sql.=' ,body='.db_input($body);
 
         if(isset($vars['pid']))
             $sql.=' ,pid='.db_input($vars['pid']);
@@ -843,13 +1023,28 @@ Class ThreadEntry {
         if($vars['files']) //expects well formatted and VALIDATED files array.
             $entry->uploadFiles($vars['files']);
 
-        //Emailed or API attachments
-        if($vars['attachments'])
-            $entry->importAttachments($vars['attachments']);
-
         //Canned attachments...
         if($vars['cannedattachments'] && is_array($vars['cannedattachments']))
             $entry->saveAttachments($vars['cannedattachments']);
+
+        //Emailed or API attachments
+        if (isset($vars['attachments']) && $vars['attachments']) {
+            $entry->importAttachments($vars['attachments']);
+            foreach ($vars['attachments'] as $a) {
+                // Change <img src="cid:"> inside the message to point to
+                // a unique hash-code for the attachment. Since the
+                // content-id will be discarded, only the unique hash-code
+                // will be available to retrieve the image later
+                if ($a['cid'] && $a['key']) {
+                    $body = str_replace('src="cid:'.$a['cid'].'"',
+                        'src="cid:'.$a['key'].'"', $body);
+                }
+            }
+            $sql = 'UPDATE '.TICKET_THREAD_TABLE.' SET body='.db_input($body)
+                .' WHERE `id`='.db_input($entry->getId());
+            if (!db_query($sql) || !db_affected_rows())
+                return false;
+        }
 
         // Email message id (required for all thread posts)
         if (!isset($vars['mid']))
@@ -858,7 +1053,7 @@ Class ThreadEntry {
         $entry->saveEmailInfo($vars);
 
         // Inline images (attached to the draft)
-        $entry->saveAttachments(Draft::getAttachmentIds($vars['body']));
+        $entry->saveAttachments(Draft::getAttachmentIds($body));
 
         return $entry;
     }
@@ -894,6 +1089,11 @@ class Message extends ThreadEntry {
 
         $vars['type'] = 'M';
         $vars['body'] = $vars['message'];
+
+        if (!$vars['poster']
+                && $vars['userId']
+                && ($user = User::lookup($vars['userId'])))
+            $vars['poster'] = (string) $user->getName();
 
         return ThreadEntry::add($vars);
     }
@@ -961,6 +1161,11 @@ class Response extends ThreadEntry {
         if(!$vars['pid'] && $vars['msgId'])
             $vars['pid'] = $vars['msgId'];
 
+        if (!$vars['poster']
+                && $vars['staffId']
+                && ($staff = Staff::lookup($vars['staffId'])))
+            $vars['poster'] = (string) $staff->getName();
+
         return ThreadEntry::add($vars);
     }
 
@@ -1015,6 +1220,82 @@ class Note extends ThreadEntry {
                 && ($n = new Note($id, $tid))
                 && $n->getId()==$id
                 )?$n:null;
+    }
+}
+
+class ThreadBody /* extends SplString */ {
+
+    static $types = array('text', 'html');
+
+    var $body;
+    var $type;
+    var $stripped_images = array();
+
+    function __construct($body, $type='text') {
+        $type = strtolower($type);
+        if (!in_array($type, static::$types))
+            throw new Exception($type.': Unsupported ThreadBody type');
+        $this->body = (string) $body;
+        $this->type = $type;
+    }
+
+    function convertTo($type) {
+        if ($type === $this->type)
+            return $this;
+
+        $conv = $this->type . ':' . strtolower($type);
+        switch ($conv) {
+        case 'text:html':
+            return new ThreadBody(sprintf('<pre>%s</pre>',
+                Format::htmlchars($this->body)), $type);
+        case 'html:text':
+            return new ThreadBody(Format::html2text((string) $this), $type);
+        }
+    }
+
+    function stripQuotedReply($tag) {
+
+        //Strip quoted reply...on emailed  messages
+        if (!$tag || strpos($this->body, $tag) === false)
+            return;
+
+        // Capture a list of inline images
+        $images_before = $images_after = array();
+        preg_match_all('/src="cid:([\w_-]+)(?:@|")/', $this->body, $images_before,
+            PREG_PATTERN_ORDER);
+
+        // Strip the quoted part of the body
+        if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg)) {
+            $this->body = $msg;
+
+            // Capture a list of dropped inline images
+            if ($images_before) {
+                preg_match_all('/src="cid:([\w_-]+)(?:@|")/', $this->body,
+                    $images_after, PREG_PATTERN_ORDER);
+                $this->stripped_images = array_diff($images_before[1],
+                    $images_after[1]);
+            }
+        }
+    }
+
+    function getStrippedImages() {
+        return $this->stripped_images;
+    }
+
+    function __toString() {
+        return $this->body;
+    }
+}
+
+class TextThreadBody extends ThreadBody {
+    function __construct($body) {
+        parent::__construct(Format::stripEmptyLines($body), 'text');
+    }
+}
+class HtmlThreadBody extends ThreadBody {
+    function __construct($body) {
+        $body = trim($body, " <>br/\t\n\r") ? Format::safe_html($body) : '';
+        parent::__construct($body, 'html');
     }
 }
 ?>

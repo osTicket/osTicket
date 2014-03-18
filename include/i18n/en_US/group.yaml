@@ -67,7 +67,7 @@
 
   depts: [1, 2, 3]
 
-- isactve: 1
+- isactive: 1
   name: Staff
   notes: |
     Lowly staff members

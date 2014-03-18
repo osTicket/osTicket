@@ -58,6 +58,7 @@ class Mail_Parse {
                         'include_bodies'=> $this->include_bodies,
                         'decode_headers'=> $this->decode_headers,
                         'decode_bodies' => $this->decode_bodies);
+
         $this->struct=Mail_mimeDecode::decode($params);
 
         if (PEAR::isError($this->struct))
@@ -164,9 +165,9 @@ class Mail_Parse {
     }
 
     /* static */
-    function findHeaderEntry($headers, $name) {
+    function findHeaderEntry($headers, $name, $allEntries=false) {
         if (!is_array($headers))
-            $headers = self::splitHeaders($headers);
+            $headers = self::splitHeaders($headers, $allEntries);
         foreach ($headers as $key=>$val)
             if (strcasecmp($key, $name) === 0)
                 return $val;
@@ -195,21 +196,31 @@ class Mail_Parse {
         return Mail_Parse::parseAddressList($header);
     }
 
+    function getDeliveredToAddressList() {
+        if (!($header = $this->struct->headers['delivered-to']))
+            return null;
+
+        return Mail_Parse::parseAddressList($header);
+    }
+
     function getToAddressList(){
         // Delivered-to incase it was a BBC mail.
-        $addrs = array();
+        $tolist = array();
         if ($header = $this->struct->headers['to'])
-            $addrs = Mail_Parse::parseAddressList($header);
-
-        if ($header = $this->struct->headers['delivered-to'])
-            $addrs = array_merge($addrs,
+            $tolist = array_merge($tolist,
                 Mail_Parse::parseAddressList($header));
-
-        return $addrs;
+        return $tolist ? $tolist : null;
     }
 
     function getCcAddressList(){
-        if (!($header = $this->struct->headers['cc']))
+        if (!($header = @$this->struct->headers['cc']))
+            return null;
+
+        return Mail_Parse::parseAddressList($header);
+    }
+
+    function getBccAddressList(){
+        if (!($header = @$this->struct->headers['bcc']))
             return null;
 
         return Mail_Parse::parseAddressList($header);
@@ -226,7 +237,7 @@ class Mail_Parse {
     }
 
     function getReplyTo() {
-        if (!($header = $this->struct->headers['reply-to']))
+        if (!($header = @$this->struct->headers['reply-to']))
             return null;
 
         return Mail_Parse::parseAddressList($header);
@@ -269,36 +280,32 @@ class Mail_Parse {
     function getBody(){
         global $cfg;
 
-        if ($cfg->isHtmlThreadEnabled()) {
-            if ($body=$this->getPart($this->struct,'text/html')) {
-                // Cleanup the html -- Balance html tags & neutralize unsafe tags.
-                $body = (trim($body, " <>br/\t\n\r"))
-                    ? Format::safe_html($body)
-                    : '--';
-            }
-            elseif ($body=$this->getPart($this->struct,'text/plain')) {
-                $body = trim($body)
-                    ? sprintf('<pre>%s</pre>',
-                        Format::htmlchars($body))
-                    : '--';
-            }
+        if ($cfg && $cfg->isHtmlThreadEnabled()) {
+            if ($html=$this->getPart($this->struct,'text/html'))
+                $body = new HtmlThreadBody($html);
+            elseif ($text=$this->getPart($this->struct,'text/plain'))
+                $body = new TextThreadBody($text);
         }
-        else {
-            if (!($body=$this->getPart($this->struct,'text/plain'))) {
-                if ($body=$this->getPart($this->struct,'text/html')) {
-                    $body = Format::html2text(Format::safe_html($body), 100, false);
-                }
-            }
-            $body = trim($body) ? $body : '--';
-        }
+        elseif ($text=$this->getPart($this->struct,'text/plain'))
+            $body = new TextThreadBody($text);
+        elseif ($html=$this->getPart($this->struct,'text/html'))
+            $body = new TextThreadBody(
+                    Format::html2text(Format::safe_html($html),
+                        100, false));
+        else
+            $body = new TextThreadBody('');
+
+        if ($cfg && $cfg->stripQuotedReply())
+            $body->stripQuotedReply($cfg->getReplySeparator());
+
         return $body;
     }
 
     function getPart($struct, $ctypepart, $recurse=-1) {
 
-        if($struct && !$struct->parts) {
+        if($struct && !@$struct->parts) {
             $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
-            if ($struct->disposition
+            if (@$struct->disposition
                     && (strcasecmp($struct->disposition, 'inline') !== 0))
                 return '';
             if ($ctype && strcasecmp($ctype,$ctypepart)==0) {
@@ -317,7 +324,7 @@ class Mail_Parse {
             return $content;
 
         $data='';
-        if($struct && $struct->parts && $recurse) {
+        if($struct && @$struct->parts && $recurse) {
             foreach($struct->parts as $i=>$part) {
                 if($part && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
                     $data.=$text;
@@ -492,6 +499,7 @@ class EmailDataParser {
 
         $data =array();
         $data['emailId'] = 0;
+        $data['recipients'] = array();
         $data['subject'] = $parser->getSubject();
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
@@ -517,20 +525,64 @@ class EmailDataParser {
                 $data['name'] = $data['email'];
         }
 
-        //TO Address:Try to figure out the email address... associated with the incoming email.
-        $emailId = 0;
-        if(($tolist = $parser->getToAddressList())) {
-            foreach ($tolist as $toaddr) {
-                if(($emailId=Email::getIdByEmail($toaddr->mailbox.'@'.$toaddr->host)))
-                    break;
+        /* Scan through the list of addressees (via To, Cc, and Delivered-To headers), and identify
+         * how the mail arrived at the system. One of the mails should be in the system email list.
+         * The recipient list (without the Delivered-To addressees) will be made available to the
+         * ticket filtering system. However, addresses in the Delivered-To header should never be
+         * considered for the collaborator list.
+         */
+
+        $tolist = array();
+        if (($to = $parser->getToAddressList()))
+            $tolist['to'] = $to;
+
+        if (($cc = $parser->getCcAddressList()))
+            $tolist['cc'] = $cc;
+
+        if (($dt = $parser->getDeliveredToAddressList()))
+            $tolist['delivered-to'] = $dt;
+
+        foreach ($tolist as $source => $list) {
+            foreach($list as $addr) {
+                if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    //Skip virtual Delivered-To addresses
+                    if ($source == 'delivered-to') continue;
+
+                    $data['recipients'][] = array(
+                        'source' => "Email ($source)",
+                        'name' => trim(@$addr->personal, '"'),
+                        'email' => strtolower($addr->mailbox).'@'.$addr->host);
+                } elseif(!$data['emailId']) {
+                    $data['emailId'] = $emailId;
+                }
             }
         }
-        //maybe we got CC'ed??
-        if(!$emailId && ($cclist=$parser->getCcAddressList())) {
-            foreach ($cclist as $ccaddr) {
-                if(($emailId=Email::getIdByEmail($ccaddr->mailbox.'@'.$ccaddr->host)))
-                    break;
+
+        /*
+         * In the event that the mail was delivered to the system although none of the system
+         * mail addresses are in the addressee lists, be careful not to include the addressee
+         * in the collaborator list. Therefore, the delivered-to addressees should be flagged so they
+         * are not added to the collaborator list in the ticket creation process.
+         */
+        if ($tolist['delivered-to']) {
+            foreach ($tolist['delivered-to'] as $addr) {
+                foreach ($data['recipients'] as $i=>$r) {
+                    if (strcasecmp($r['email'], $addr->mailbox.'@'.$addr->host) === 0)
+                        $data['recipients'][$i]['source'] = 'delivered-to';
+                }
             }
+        }
+
+
+        //maybe we got BCC'ed??
+        if(!$data['emailId']) {
+            $emailId =  0;
+            if($bcc = $parser->getBccAddressList()) {
+                foreach ($bcc as $addr)
+                    if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
+                        break;
+            }
+            $data['emailId'] = $emailId;
         }
 
         if ($parser->isBounceNotice()) {
@@ -544,13 +596,13 @@ class EmailDataParser {
         }
         else {
             // Typical email
-            $data['message'] = Format::stripEmptyLines($parser->getBody());
-            $data['in-reply-to'] = $parser->struct->headers['in-reply-to'];
-            $data['references'] = $parser->struct->headers['references'];
+            $data['message'] = $parser->getBody();
+            $data['in-reply-to'] = @$parser->struct->headers['in-reply-to'];
+            $data['references'] = @$parser->struct->headers['references'];
             $data['flags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
-        $data['emailId'] = $emailId;
+        $data['to-email-id'] = $data['emailId'];
 
         if (($replyto = $parser->getReplyTo())) {
             $replyto = $replyto[0];

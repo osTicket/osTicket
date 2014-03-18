@@ -46,6 +46,7 @@ class DomElement {
 
 class DomDocument {
     function loadHTML() {}
+    function loadXML() {}
 }
 
 class Exception {
@@ -82,6 +83,15 @@ class DateTimeZone {
     function getTransitions() {}
     static function listAbbreviations() {}
     static function listIdentifiers() {}
+}
+
+class Phar {
+    static function isValidPharFilename() {}
+}
+
+class ZipArchive {
+    function statIndex() {}
+    function getFromIndex() {}
 }
 
 class finfo {

@@ -111,13 +111,16 @@ class UserSession {
 
 }
 
-class ClientSession extends Client {
+class ClientSession extends EndUser {
 
     var $session;
+    var $token;
 
-    function ClientSession($email, $id){
-        parent::Client($id, $email);
-        $this->session= new UserSession(strtolower($email));
+    function __construct($user) {
+        parent::__construct($user);
+        $this->token = &$_SESSION[':token']['client'];
+        // XXX: Change the key to user-id
+        $this->session= new UserSession($user->getUserName());
     }
 
     function isValid(){
@@ -126,15 +129,16 @@ class ClientSession extends Client {
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
             return false;
 
-        return $this->session->isvalidSession($_SESSION['_client']['token'],$cfg->getClientTimeout(),false)?true:false;
+        return $this->session->isvalidSession($this->token,$cfg->getClientTimeout(),false)?true:false;
     }
 
     function refreshSession($force=false){
-        $time = $this->session->getLastUpdate($_SESSION['_client']['token']);
+        $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
         if (!$force && time() - $time < 30)
             return;
-        $_SESSION['_client']['token']=$this->getSessionToken();
+
+        $this->token = $this->getSessionToken();
         //TODO: separate expire time from hash??
     }
 
@@ -155,28 +159,30 @@ class ClientSession extends Client {
 class StaffSession extends Staff {
 
     var $session;
+    var $token;
 
-    function StaffSession($var){
-        parent::Staff($var);
+    function __construct($var) {
+        parent::__construct($var);
+        $this->token = &$_SESSION[':token']['staff'];
         $this->session= new UserSession($this->getId());
     }
 
     function isValid(){
-        global $_SESSION,$cfg;
+        global $_SESSION, $cfg;
 
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
             return false;
 
-        return $this->session->isvalidSession($_SESSION['_staff']['token'],$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;
+        return $this->session->isvalidSession($this->token,$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;
     }
 
     function refreshSession($force=false){
-        $time = $this->session->getLastUpdate($_SESSION['_staff']['token']);
+        $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
         if (!$force && time() - $time < 30)
             return;
 
-        $_SESSION['_staff']['token']=$this->getSessionToken();
+        $this->token=$this->getSessionToken();
     }
 
     function getSession() {

@@ -8,66 +8,33 @@ notes: |
     Sent to a user when a new ticket is created
 
 subject: |
-    Support Ticket Opened
+    Support Ticket Opened [#%{ticket.number}]
 body: |
-    <table cellspacing="0">
-    <tbody>
-    <tr>
-        <td style="vertical-align: middle; border-bottom: 1px solid #ddd; height: 48pt">
-            <span style="color: rgb(127, 127, 127); font-family: Georgia;
-            font-size: 28pt; font-weight: normal; ">We Hear You</span>
-        </td>
-        <td style="border-bottom: 1px solid #ddd;">
-            <img src="cid:6fe1efdea357534d238b86e7860a7c5a" width="94"
-            alt="osTicket Logo (kangaroo)" style="width: 94px; float: right;
-            vertical-align: bottom; " height="53">
-        </td>
-    </tr>
-    <tr>
-        <td style="width:67%; padding-top: 12pt; padding-right: 12pt">
-            Dear %{ticket.name.first},
-            <br>
-            <br>
-            We received your request and assigned ticket #%{ticket.number}
-            <br>
-            <br>
-            Topic: <strong>%{ticket.topic.name}</strong>
-            <br>
-            Subject: <strong>%{ticket.subject}</strong>
-            <br>
-            Submitted: <strong>%{ticket.create_date}</strong>
-            <br>
-            <br>
-            A representative will follow-up with you as soon as possible.
-            You can <a href="%{ticket.client_link}">view this ticket's
-            progress online</a>.
-            <br>
-            <br>
-            Your %{company.name} Team,<br>
-            %{signature}
-        </td>
-        <td style="vertical-align: top; padding-top: 12pt;">
-            <span style="color: rgb(127, 127, 127); ">%{company.name}<br/>
-            %{signature}</span>
-            <br>
-            <br>
-            <span style="color: rgb(127, 127, 127); "> If you wish to send
-            additional comments or information regarding this issue, please
-            don't open a new ticket. Simply</span> <a
-            href="%{ticket.client_link}"><span style="color: rgb(84, 141, 212);"
-            >login</span></a> <span style="color: rgb(127, 127, 127);"
-            >and update the ticket.</span>
-            <br>
-            <br>
-            <span style="color: rgb(127, 127, 127); ">Visit our</span> <a
-            href="%{url}/kb"><span style="color: rgb(84, 141, 212);
-            ">knowledgebase</span></a>
-        </td>
-    </tr>
-    </tbody>
-    </table>
-    <div style="text-align: center;">
-        <a href="http://osticket.com/"><img
-        src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" width="126" height="19"
-        style="width: 126px; " alt="Powered by osTicket"></a>
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
+    Our customer care team has created a ticket,
+    <a href="%{recipient.ticket_link}">#%{ticket.number}</a> on your behalf,
+    with the following details and summary: <br>
+    <br>
+    Subject: <strong>%{ticket.subject}</strong><br>
+    Submitted: <strong>%{ticket.create_date}</strong>
+    <br>
+    <br>
+    %{message}
+    <br>
+    <br>
+    A representative will follow-up with you as soon as possible. You can
+    <a href="%{recipient.ticket_link}">view this ticket's progress
+    online</a>.
+    <br>
+    <br>
+    <div style="color: rgb(127, 127, 127)">
+    Your %{company.name} Team,
+    <br>
+    %{signature}
     </div>
+    <hr>
+    <div style="color: rgb(127, 127, 127); font-size: small; "><em>If you
+    wish to provide additional comments or information regarding the issue,
+    please reply to this email or <a href="%{recipient.ticket_link}"><span
+    style="color: rgb(84, 141, 212);" >login to your account</span></a> for
+    a complete archive of your support requests.</em></div>

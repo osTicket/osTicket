@@ -20,8 +20,8 @@ $errors=array();
 if($_POST):
     $vars = $_POST;
     $vars['deptId']=$vars['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
-    if($thisclient) {
-        $vars['uid'] = $thisclient->getUserId();
+    if ($thisclient) {
+        $vars['uid']=$thisclient->getId();
     } elseif($cfg->isCaptchaEnabled()) {
         if(!$_POST['captcha'])
             $errors['captcha']='Enter text shown on the image';
@@ -53,11 +53,9 @@ if($_POST):
         }
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
-            if(!$cfg->showRelatedTickets())
-                $_SESSION['_client']['key']= $ticket->getExtId(); //Resetting login Key to the current ticket!
             session_write_close();
             session_regenerate_id();
-            @header('Location: tickets.php?id='.$ticket->getExtId());
+            @header('Location: tickets.php?id='.$ticket->getId());
         }
     }else{
         $errors['err']=$errors['err']?$errors['err']:'Unable to create a ticket. Please correct errors below and try again!';

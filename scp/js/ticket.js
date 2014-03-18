@@ -363,6 +363,14 @@ jQuery(function($) {
         return false;
     });
 
+    $(document).on('change', 'form#reply select#emailreply', function(e) {
+         var $cc = $('form#reply tbody#cc_sec');
+        if($(this).val() == 0)
+            $cc.hide();
+        else
+            $cc.show();
+     });
+
     var showNonLocalImage = function(div) {
         var $div = $(div),
             $img = $div.append($('<img>')
@@ -425,13 +433,13 @@ showImagesInline = function(urls, thread_id) {
         ? '.thread-body img[data-cid]'
         : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
     $(selector).each(function(i, el) {
-        var cid = $(el).data('cid'),
+        var cid = $(el).data('cid').toLowerCase(),
             info = urls[cid],
             e = $(el);
         if (info) {
             // Add a hover effect with the filename
             var timeout, caption = $('<div class="image-hover">')
-                .css('float',e.css('float'));
+                .css({'float':e.css('float')});
             e.wrap(caption).parent()
                 .hover(
                     function() {

@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   `answer` text NOT NULL,
   `keywords` tinytext,
   `notes` text,
-  `created` date NOT NULL,
-  `updated` date NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
   PRIMARY KEY  (`faq_id`),
   UNIQUE KEY `question` (`question`),
   KEY `category_id` (`category_id`),
@@ -276,7 +276,7 @@ CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `filter_id` int(10) unsigned NOT NULL default '0',
   `what` varchar(32) NOT NULL,
-  `how` enum('equal','not_equal','contains','dn_contain','starts','ends') NOT NULL,
+  `how` enum('equal','not_equal','contains','dn_contain','starts','ends','match','not_match') NOT NULL,
   `val` varchar(255) NOT NULL,
   `isactive` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `notes` tinytext NOT NULL,
@@ -317,14 +317,19 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%file`;
 CREATE TABLE `%TABLE_PREFIX%file` (
   `id` int(11) NOT NULL auto_increment,
   `ft` CHAR( 1 ) NOT NULL DEFAULT  'T',
-  `type` varchar(255) NOT NULL default '',
-  `size` varchar(25) NOT NULL default '',
-  `hash` varchar(125) NOT NULL,
+  `bk` CHAR( 1 ) NOT NULL DEFAULT  'D',
+  -- RFC 4288, Section 4.2 declares max MIMEType at 255 ascii chars
+  `type` varchar(255) collate ascii_general_ci NOT NULL default '',
+  `size` bigint(20) unsigned NOT NULL default 0,
+  `key` varchar(86) collate ascii_general_ci NOT NULL,
+  `signature` varchar(86) collate ascii_bin NOT NULL,
   `name` varchar(255) NOT NULL default '',
+  `attrs` varchar(255),
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `ft` (`ft`),
-  KEY `hash` (`hash`)
+  KEY `key` (`key`),
+  KEY `signature` (`signature`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file_chunk`;
@@ -435,6 +440,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `firstname` varchar(32) default NULL,
   `lastname` varchar(32) default NULL,
   `passwd` varchar(128) default NULL,
+  `backend` varchar(32) default NULL,
   `email` varchar(128) default NULL,
   `phone` varchar(24) NOT NULL default '',
   `phone_ext` varchar(6) default NULL,
@@ -505,7 +511,7 @@ CREATE TABLE `%TABLE_PREFIX%team_member` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
   `ticket_id` int(11) unsigned NOT NULL auto_increment,
-  `ticketID` int(11) unsigned NOT NULL default '0',
+  `number` varchar(20),
   `user_id` int(11) unsigned NOT NULL default '0',
   `user_email_id` int(11) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
@@ -513,6 +519,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `topic_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
+  `email_id` int(11) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
   `status` enum('open','closed') NOT NULL default 'open',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
@@ -543,11 +550,10 @@ CREATE TABLE `%TABLE_PREFIX%ticket_attachment` (
   `ticket_id` int(11) unsigned NOT NULL default '0',
   `file_id` int(10) unsigned NOT NULL default '0',
   `ref_id` int(11) unsigned NOT NULL default '0',
-  `ref_type` enum('M','R','N') NOT NULL default 'M',
+  `inline` tinyint(1) NOT NULL default  '0',
   `created` datetime NOT NULL,
   PRIMARY KEY  (`attach_id`),
   KEY `ticket_id` (`ticket_id`),
-  KEY `ref_type` (`ref_type`),
   KEY `ref_id` (`ref_id`),
   KEY `file_id` (`file_id`)
 ) DEFAULT CHARSET=utf8;
@@ -566,10 +572,12 @@ CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
 CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
-  `message_id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `thread_id` int(11) unsigned NOT NULL,
   `email_mid` varchar(255) NOT NULL,
   `headers` text,
-  KEY `message_id` (`email_mid`)
+  PRIMARY KEY (`id`),
+  KEY `email_mid` (`email_mid`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
@@ -607,6 +615,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   `pid` int(11) unsigned NOT NULL default '0',
   `ticket_id` int(11) unsigned NOT NULL default '0',
   `staff_id` int(11) unsigned NOT NULL default '0',
+  `user_id` int(11) unsigned not null default 0,
   `thread_type` enum('M','R','N') NOT NULL,
   `poster` varchar(128) NOT NULL default '',
   `source` varchar(32) NOT NULL default '',
@@ -620,6 +629,21 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   KEY `staff_id` (`staff_id`),
   KEY `pid` (`pid`)
 ) DEFAULT CHARSET=utf8;
+
+CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `isactive` tinyint(1) NOT NULL DEFAULT '1',
+  `ticket_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0',
+  -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
+  `role` char(1) NOT NULL DEFAULT 'M',
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `collab` (`ticket_id`,`user_id`)
+) DEFAULT CHARSET=utf8;
+
+
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%timezone`;
 CREATE TABLE `%TABLE_PREFIX%timezone` (
@@ -674,6 +698,18 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%page` (
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
+-- Plugins
+DROP TABLE IF EXISTS `%TABLE_PREFIX%plugin`;
+CREATE TABLE `%TABLE_PREFIX%plugin` (
+  `id` int(11) unsigned not null auto_increment,
+  `name` varchar(30) not null,
+  `install_path` varchar(60) not null,
+  `isphar` tinyint(1) not null default 0,
+  `isactive` tinyint(1) not null default 0,
+  `installed` datetime not null,
+  primary key (`id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;

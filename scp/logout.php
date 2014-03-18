@@ -15,16 +15,22 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+
 //Check token: Make sure the user actually clicked on the link to logout.
 if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
     @header('Location: index.php');
 
-$ost->logDebug('Staff logout',
-        sprintf("%s logged out [%s]", 
-            $thisstaff->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
-$_SESSION['_staff']=array();
+$thisstaff->logOut();
+
+//Clear any ticket locks the staff has.
+TicketLock::removeStaffLocks($thisstaff->getId());
+
+//Destroy session on logout.
+// TODO: Stop doing this starting with 1.9 - separate session data per
+// app/panel.
 session_unset();
 session_destroy();
+
 @header('Location: login.php');
 require('login.php');
 ?>

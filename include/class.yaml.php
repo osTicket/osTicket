@@ -37,6 +37,6 @@ class YamlDataParser {
 }
 
 class YamlParserError extends Error {
-    var $title = 'Error parsing YAML document';
+    static $title = 'Error parsing YAML document';
 }
 ?>

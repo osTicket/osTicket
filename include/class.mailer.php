@@ -100,19 +100,22 @@ class Mailer {
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
 
         /* Message ID - generated for each outgoing email */
-        $messageId = sprintf('<%s-%s>', Misc::randCode(16),
-                ($this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer'));
+        $messageId = sprintf('<%s-%s-%s>',
+            substr(md5('mail'.SECRET_SALT), -9),
+            Misc::randCode(9),
+            ($this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer'));
 
         $headers = array (
-                'From' => $this->getFromAddress(),
-                'To' => $to,
-                'Subject' => $subject,
-                'Date'=> date('D, d M Y H:i:s O'),
-                'Message-ID' => $messageId,
-                'X-Mailer' =>'osTicket Mailer',
-                'Return-Path' => $this->getEmail()->getEmail(),
-               );
+            'From' => $this->getFromAddress(),
+            'To' => $to,
+            'Subject' => $subject,
+            'Date'=> date('D, d M Y H:i:s O'),
+            'Message-ID' => $messageId,
+            'X-Mailer' =>'osTicket Mailer',
+        );
 
+        if ($this->getEmail() instanceof Email)
+            $headers['Return-Path'] = $this->getEmail()->getEmail();
 
         //Bulk.
         if (isset($options['bulk']) && $options['bulk'])
@@ -151,10 +154,18 @@ class Mailer {
         // then assume that it needs html processing to create a valid text
         // body
         $isHtml = true;
+        $mid_token = (isset($options['thread']))
+            ? $options['thread']->asMessageId($to) : '';
         if (!(isset($options['text']) && $options['text'])) {
+            if ($cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator())
+                    && (!isset($options['reply-tag']) || $options['reply-tag']))
+                $message = "<div style=\"display:none\"
+                    data-mid=\"$mid_token\">$tag<br/><br/></div>$message";
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??
-            $mime->setTXTBody(Format::html2text($message, 90, false));
+            $txtbody = rtrim(Format::html2text($message, 90, false))
+                . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
+            $mime->setTXTBody($txtbody);
         }
         else {
             $mime->setTXTBody($message);

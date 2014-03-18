@@ -16,7 +16,6 @@
 **********************************************************************/
 require_once INCLUDE_DIR.'class.error.php';
 require_once INCLUDE_DIR.'class.yaml.php';
-require_once INCLUDE_DIR.'class.config.php';
 
 class Internationalization {
 
@@ -43,7 +42,6 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'email_template_group.yaml' => 'EmailTemplateGroup',
             'department.yaml' =>    'Dept',
             'sla.yaml' =>           'SLA',
             'form.yaml' =>          'DynamicForm',
@@ -77,6 +75,7 @@ class Internationalization {
         }
 
         // Configuration
+        require_once INCLUDE_DIR.'class.config.php';
         if (($tpl = $this->getTemplate('config.yaml'))
                 && ($data = $tpl->getData())) {
             foreach ($data as $section=>$items) {
@@ -101,6 +100,8 @@ class Internationalization {
             if (db_query($sql) && ($id = db_insert_id()))
                 $_config->set("{$type}_page_id", $id);
         }
+        // Default Language
+        $_config->set('system_language', $this->langs[0]);
 
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
@@ -118,6 +119,13 @@ class Internationalization {
 
         // Email templates
         // TODO: Lookup tpl_id
+        if ($objects = $this->getTemplate('email_template_group.yaml')->getData()) {
+            foreach ($objects as $o) {
+                $o['lang_id'] = $this->langs[0];
+                $tpl = EmailTemplateGroup::create($o, $errors);
+            }
+        }
+        // This shouldn't be necessary
         $tpl = EmailTemplateGroup::lookup(1);
         foreach ($tpl::$all_names as $name=>$info) {
             if (($tp = $this->getTemplate("templates/email/$name.yaml"))
@@ -130,6 +138,122 @@ class Internationalization {
                     $template->attachments->upload($ids, true);
             }
         }
+    }
+
+    static function availableLanguages($base=I18N_DIR) {
+        $langs = (include I18N_DIR . 'langs.php');
+
+        // Consider all subdirectories and .phar files in the base dir
+        $dirs = glob(I18N_DIR . '*', GLOB_ONLYDIR | GLOB_NOSORT);
+        $phars = glob(I18N_DIR . '*.phar', GLOB_NOSORT);
+
+        $installed = array();
+        foreach (array_merge($dirs, $phars) as $f) {
+            $base = basename($f, '.phar');
+            @list($code, $locale) = explode('_', $base);
+            if (isset($langs[$code])) {
+                $installed[strtolower($base)] =
+                    $langs[$code] + array(
+                    'lang' => $code,
+                    'locale' => $locale,
+                    'path' => $f,
+                    'code' => $base,
+                    'desc' => sprintf("%s%s (%s)",
+                        $langs[$code]['nativeName'],
+                        $locale ? sprintf(' - %s', $locale) : '',
+                        $langs[$code]['name']),
+                );
+            }
+        }
+        usort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
+
+        return $installed;
+    }
+
+    // TODO: Move this to the REQUEST class or some middleware when that
+    // exists.
+    // Algorithm borrowed from Drupal 7 (locale.inc)
+    static function getDefaultLanguage() {
+        global $cfg;
+
+        if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
+            return $cfg->getSystemLanguage();
+
+        $languages = self::availableLanguages();
+
+        // The Accept-Language header contains information about the
+        // language preferences configured in the user's browser / operating
+        // system. RFC 2616 (section 14.4) defines the Accept-Language
+        // header as follows:
+        //   Accept-Language = "Accept-Language" ":"
+        //                  1#( language-range [ ";" "q" "=" qvalue ] )
+        //   language-range  = ( ( 1*8ALPHA *( "-" 1*8ALPHA ) ) | "*" )
+        // Samples: "hu, en-us;q=0.66, en;q=0.33", "hu,en-us;q=0.5"
+        $browser_langcodes = array();
+        $matches = array();
+        if (preg_match_all('@(?<=[, ]|^)([a-zA-Z-]+|\*)(?:;q=([0-9.]+))?(?:$|\s*,\s*)@',
+            trim($_SERVER['HTTP_ACCEPT_LANGUAGE']), $matches, PREG_SET_ORDER)) {
+          foreach ($matches as $match) {
+            // We can safely use strtolower() here, tags are ASCII.
+            // RFC2616 mandates that the decimal part is no more than three
+            // digits, so we multiply the qvalue by 1000 to avoid floating
+            // point comparisons.
+            $langcode = strtolower($match[1]);
+            $qvalue = isset($match[2]) ? (float) $match[2] : 1;
+            $browser_langcodes[$langcode] = (int) ($qvalue * 1000);
+          }
+        }
+
+        // We should take pristine values from the HTTP headers, but
+        // Internet Explorer from version 7 sends only specific language
+        // tags (eg. fr-CA) without the corresponding generic tag (fr)
+        // unless explicitly configured. In that case, we assume that the
+        // lowest value of the specific tags is the value of the generic
+        // language to be as close to the HTTP 1.1 spec as possible.
+        //
+        // References:
+        // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
+        // http://blogs.msdn.com/b/ie/archive/2006/10/17/accept-language-header-for-internet-explorer-7.aspx
+        asort($browser_langcodes);
+        foreach ($browser_langcodes as $langcode => $qvalue) {
+          $generic_tag = strtok($langcode, '-');
+          if (!isset($browser_langcodes[$generic_tag])) {
+            $browser_langcodes[$generic_tag] = $qvalue;
+          }
+        }
+
+        // Find the enabled language with the greatest qvalue, following the rules
+        // of RFC 2616 (section 14.4). If several languages have the same qvalue,
+        // prefer the one with the greatest weight.
+        $best_match_langcode = FALSE;
+        $max_qvalue = 0;
+        foreach ($languages as $langcode => $language) {
+          // Language tags are case insensitive (RFC2616, sec 3.10).
+          // We use _ as the location separator
+          $langcode = str_replace('_','-',strtolower($langcode));
+
+          // If nothing matches below, the default qvalue is the one of the wildcard
+          // language, if set, or is 0 (which will never match).
+          $qvalue = isset($browser_langcodes['*']) ? $browser_langcodes['*'] : 0;
+
+          // Find the longest possible prefix of the browser-supplied language
+          // ('the language-range') that matches this site language ('the language tag').
+          $prefix = $langcode;
+          do {
+            if (isset($browser_langcodes[$prefix])) {
+              $qvalue = $browser_langcodes[$prefix];
+              break;
+            }
+          } while ($prefix = substr($prefix, 0, strrpos($prefix, '-')));
+
+          // Find the best match.
+          if ($qvalue > $max_qvalue) {
+            $best_match_langcode = $language['code'];
+            $max_qvalue = $qvalue;
+          }
+        }
+
+        return $best_match_langcode;
     }
 }
 
@@ -151,6 +275,12 @@ class DataTemplate {
             if (file_exists("{$this->base}/$l/$path")) {
                 $this->lang = $l;
                 $this->filepath = Misc::realpath("{$this->base}/$l/$path");
+                break;
+            }
+            elseif (Phar::isValidPharFilename("{$this->base}/$l.phar")
+                    && file_exists("phar://{$this->base}/$l.phar/$path")) {
+                $this->lang = $l;
+                $this->filepath = "phar://{$this->base}/$l.phar/$path";
                 break;
             }
         }

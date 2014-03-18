@@ -160,6 +160,28 @@ jQuery(function() {
         clearTimeout($(this).data('timer'));
     });
 
+
+    $('a.collaborators.preview').live('mouseover', function(e) {
+        e.preventDefault();
+        var elem = $(this);
+
+        var url = 'ajax.php/'+elem.attr('href').substr(1)+'/preview';
+        var xoffset = 100;
+        elem.data('timer', 0);
+
+        if (e.type=='mouseover') {
+            elem.data('timer',setTimeout(function() { showtip(url, elem, xoffset);},750))
+        } else {
+            showtip(url,elem,xoffset);
+        }
+    }).live('mouseout', function(e) {
+        clearTimeout($(this).data('timer'));
+    }).live('click', function(e) {
+        clearTimeout($(this).data('timer'));
+        $('.tip_box').remove();
+    });
+
+
     //Ticket preview
     $('.ticketPreview').live('mouseover', function(e) {
         e.preventDefault();
@@ -170,18 +192,19 @@ jQuery(function() {
         var id='t'+vars[1];
         var xoffset = 80;
 
-
-        elem.data('id',id);
-        elem.data('timer',0);
-        if($('.' + id).length == 0) {
+        elem.data('timer', 0);
+        if(!elem.data('id')) {
+            elem.data('id', id);
             if(e.type=='mouseover') {
                  /* wait about 1 sec - before showing the tip - mouseout kills the timeout*/
                  elem.data('timer',setTimeout(function() { showtip(url,elem,xoffset);},750))
             }else{
+                clearTimeout(elem.data('timer'));
                 showtip(url,elem,xoffset);
             }
         }
     }).live('mouseout', function(e) {
+        $(this).data('id', 0);
         clearTimeout($(this).data('timer'));
     });
 

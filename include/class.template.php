@@ -51,6 +51,10 @@ class EmailTemplateGroup {
             'group'=>'ticket.user',
             'name'=>'Response/Reply Template',
             'desc'=>'Template used on ticket response/reply'),
+        'ticket.activity.notice'=>array(
+            'group'=>'ticket.user',
+            'name'=>'New Activity Notice',
+            'desc'=>'Template used to notify collaborators on ticket activity (e.g CC on reply)'),
         'ticket.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>'New Ticket Alert',
@@ -78,8 +82,11 @@ class EmailTemplateGroup {
         'staff.pwreset' => array(
             'group'=>'sys',
             'name' => 'Staff Password Reset',
-            'desc' => 'Notice sent to staff with the password reset link.',
-            'default' => 'templates/staff.pwreset.txt'),
+            'desc' => 'Notice sent to staff with the password reset link.'),
+        'user.accesslink' => array(
+            'group'=>'sys',
+            'name' => 'User Access Link Recovery',
+            'desc' => 'Notice sent to user on request with ticket access link.'),
         );
 
     function EmailTemplateGroup($id){
@@ -133,7 +140,7 @@ class EmailTemplateGroup {
     }
 
     function getLanguage() {
-        return 'en_US';
+        return $this->ht['lang'];
     }
 
     function isInUse(){
@@ -222,6 +229,10 @@ class EmailTemplateGroup {
 
     function getReplyMsgTemplate() {
         return $this->getMsgTemplate('ticket.reply');
+    }
+
+    function  getActivityNoticeMsgTemplate() {
+        return $this->getMsgTemplate('ticket.activity.notice');
     }
 
     function getOverlimitMsgTemplate() {
@@ -330,6 +341,10 @@ class EmailTemplateGroup {
             .' ,name='.db_input($vars['name'])
             .' ,isactive='.db_input($vars['isactive'])
             .' ,notes='.db_input(Format::sanitize($vars['notes']));
+
+        if ($vars['lang_id'])
+            // TODO: Validation of lang_id
+            $sql .= ',lang='.db_input($vars['lang_id']);
 
         if($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET '.$sql.' WHERE tpl_id='.db_input($id);

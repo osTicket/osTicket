@@ -61,6 +61,10 @@ class Validator {
                 $this->errors[$k]=$field['error'];
                 continue;
             }
+
+            //We don't care about the type.
+            if ($field['type'] == '*') continue;
+
             //Do the actual validation based on the type.
             switch(strtolower($field['type'])):
             case 'integer':
@@ -73,7 +77,7 @@ class Validator {
             case 'double':
                 if(!is_numeric($this->input[$k]))
                     $this->errors[$k]=$field['error'];
-            break;
+                break;
             case 'text':
             case 'string':
                 if(!is_string($this->input[$k]))
@@ -84,9 +88,9 @@ class Validator {
                     $this->errors[$k]=$field['error'];
                 break;
             case 'radio':
-            if(!isset($this->input[$k]))
-               $this->errors[$k]=$field['error'];
-            break;
+                if(!isset($this->input[$k]))
+                    $this->errors[$k]=$field['error'];
+                break;
             case 'date': //TODO...make sure it is really in GNU date format..
                 if(strtotime($this->input[$k])===false)
                     $this->errors[$k]=$field['error'];

@@ -77,13 +77,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-                    <td width="180">Emailed Tickets Priority:</td>
-                    <td>
-                        <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
-                        <em>(Use email priority when available)</em>
-            </td>
-        </tr>
-        <tr>
             <td width="180">Show Related Tickets:</td>
             <td>
                 <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >
@@ -133,6 +126,14 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <input type="checkbox" name="enable_html_thread" <?php
                 echo $config['enable_html_thread']?'checked="checked"':''; ?>>
                 Enable rich text in ticket thread and autoresponse emails
+            </td>
+        </tr>
+        <tr>
+            <td>Allow Client Updates:</td>
+            <td>
+                <input type="checkbox" name="allow_client_updates" <?php
+                echo $config['allow_client_updates']?'checked="checked"':''; ?>>
+                Allow clients to update ticket details via the web portal
             </td>
         </tr>
         <tr>
@@ -240,6 +241,20 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?> >Email attachments to the user
             </td>
         </tr>
+        <?php if (($bks = FileStorageBackend::allRegistered())
+                && count($bks) > 1) { ?>
+        <tr>
+            <td width="180">Store Attachments:</td>
+            <td><select name="default_storage_bk"><?php
+                foreach ($bks as $char=>$class) {
+                    $selected = $config['default_storage_bk'] == $char
+                        ? 'selected="selected"' : '';
+                    ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
+                    ><?php echo $class::$desc; ?></option><?php
+                } ?>
+            </td>
+        </tr>
+        <?php } ?>
         <tr>
             <th colspan="2">
                 <em><strong>Accepted File Types</strong>: Limit the type of files users are allowed to submit.

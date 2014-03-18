@@ -157,8 +157,18 @@ class Module {
         if ($this->arguments) {
             echo "\nArguments:\n";
             foreach ($this->arguments as $name=>$help)
+                $extra = '';
+                if (is_array($help)) {
+                    if (isset($help['options']) && is_array($help['options'])) {
+                        foreach($help['options'] as $op=>$desc)
+                            $extra .= wordwrap(
+                                "\n        $op - $desc", 76, "\n            ");
+                    }
+                    $help = $help['help'];
+                }
                 echo $name . "\n    " . wordwrap(
-                    preg_replace('/\s+/', ' ', $help), 76, "\n    ");
+                    preg_replace('/\s+/', ' ', $help), 76, "\n    ")
+                        .$extra."\n";
         }
 
         if ($this->epilog) {
@@ -198,6 +208,10 @@ class Module {
         foreach (array_keys($this->arguments) as $idx=>$name)
             if (!isset($this->_args[$idx]))
                 $this->optionError($name . " is a required argument");
+            elseif (is_array($this->arguments[$name])
+                    && isset($this->arguments[$name]['options'])
+                    && !isset($this->arguments[$name]['options'][$this->_args[$idx]]))
+                $this->optionError($name . " does not support such a value");
             else
                 $this->_args[$name] = &$this->_args[$idx];
 
@@ -225,6 +239,11 @@ class Module {
 
     /* abstract */
     function run($args, $options) {
+    }
+
+    function fail($message) {
+        $this->stderr->write($message . "\n");
+        die();
     }
 
     /* static */

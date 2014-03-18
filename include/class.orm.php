@@ -162,7 +162,7 @@ class VerySimpleModel {
             $sql = 'UPDATE '.static::$meta['table'];
         $filter = $fields = array();
         if (count($this->dirty) === 0)
-            return;
+            return true;
         foreach ($this->dirty as $field=>$old) {
             if ($this->__new__ or !in_array($field, $pk)) {
                 if (@get_class($this->get($field)) == 'SqlFunction')
@@ -693,6 +693,8 @@ class MySqlCompiler extends SqlCompiler {
         'contains' => array('self', '__contains'),
         'gt' => '%1$s > %2$s',
         'lt' => '%1$s < %2$s',
+        'gte' => '%1$s >= %2$s',
+        'lte' => '%1$s <= %2$s',
         'isnull' => '%1$s IS NULL',
         'like' => '%1$s LIKE %2$s',
         'in' => array('self', '__in'),

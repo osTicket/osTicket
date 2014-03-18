@@ -23,8 +23,8 @@ require_once INCLUDE_DIR.'/class.ajax.php';
 
 $dispatcher = patterns('',
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
-        url_get('tips/(?P<namespace>[\w_]+)$', 'getTipsJson'),
-        url_get('(?P<lang>\w{2}_\w{2})?/tips/(?P<namespace>[\w_]+)$', 'getTipsForLangJson')
+        url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
+        url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     ))
 );
 print $dispatcher->resolve(Osticket::get_path_info());

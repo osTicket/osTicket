@@ -270,9 +270,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <label><input type='checkbox' value='1' name="append" id="append" checked="checked">Append</label>
                 </div>
             <?php
-            } ?>
+            }
+                $signature = '';
+                if ($thisstaff->getDefaultSignatureType() == 'mine')
+                    $signature = $thisstaff->getSignature(); ?>
                 <textarea class="richtext ifhtml draft draft-delete"
                     data-draft-namespace="ticket.staff.response"
+                    data-signature="<?php
+                        echo Format::htmlchars(Format::viewableImages($signature)); ?>"
+                    data-signature-field="signature" data-dept-field="deptId"
                     placeholder="Intial response for the ticket"
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;"><?php echo $info['response']; ?></textarea>
@@ -286,7 +292,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             if($info['cannedattachments']) {
                                 foreach($info['cannedattachments'] as $k=>$id) {
                                     if(!($file=AttachmentFile::lookup($id))) continue;
-                                    $hash=$file->getHash().md5($file->getId().session_id().$file->getHash());
+                                    $hash=$file->getKey().md5($file->getId().session_id().$file->getKey());
                                     echo sprintf('<label><input type="checkbox" name="cannedattachments[]"
                                             id="f%d" value="%d" checked="checked"
                                             <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',

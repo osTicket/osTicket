@@ -20,6 +20,16 @@ system_email:
         <p>Default email address e.g support@yourcompany.com - you can add
         more later!</p>
 
+default_lang:
+    title: Default System Language
+    content: |
+        <p>Initial data for this language will be installed into the
+        database. For instance email templates and default system pages will
+        be installed for this language.</p>
+    links:
+      - title: osTicket Language Packs
+        href: http://osticket.com/download?product=langs
+
 first_name:
     title: First Name
     content: |

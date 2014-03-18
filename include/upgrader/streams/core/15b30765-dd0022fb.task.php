@@ -108,7 +108,7 @@ class AttachmentMigrater extends MigrationTask {
         }
         # TODO: Add extension-based mime-type lookup
 
-        if (!($fileId = AttachmentFile::save($info))) {
+        if (!($fileId = $this->saveAttachment($info))) {
             return $this->skip($info['attachId'],
                 sprintf('%s: Unable to migrate attachment', $info['path']));
         }
@@ -226,6 +226,47 @@ class AttachmentMigrater extends MigrationTask {
     }
     function getErrors() {
         return $this->errorList;
+    }
+
+    // This is the AttachmentFile::save() method from osTicket 1.7.6. It's
+    // been ported here so that further changes to the %file table and the
+    // AttachmentFile::save() method do not affect upgrades from osTicket
+    // 1.6 to osTicket 1.8 and beyond.
+    function saveAttachment($file) {
+
+        if(!$file['hash'])
+            $file['hash']=MD5(md5_file($file['path']).time());
+        $file['data'] = file_get_contents($file['path']);
+        if(!$file['size'])
+            $file['size']=strlen($file['data']);
+
+        $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
+            .',type='.db_input($file['type'])
+            .',size='.db_input($file['size'])
+            .',name='.db_input($file['name'])
+            .',hash='.db_input($file['hash']);
+
+        if (!(db_query($sql) && ($id=db_insert_id())))
+            return false;
+
+        $f = new CompatAttachmentFile($id);
+        $bk = new AttachmentChunkedData($f);
+        if (!$bk->write($file['data']))
+            return false;
+
+        return $id;
+    }
+}
+
+class CompatAttachmentFile {
+    var $id;
+
+    function __construct($id) {
+        $this->id = $id;
+    }
+
+    function getId() {
+        return $this->id;
     }
 }
 

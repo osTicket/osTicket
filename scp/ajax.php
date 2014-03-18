@@ -41,7 +41,8 @@ $dispatcher = patterns('',
     )),
     url('^/content/', patterns('ajax.content.php:ContentAjaxAPI',
         url_get('^log/(?P<id>\d+)', 'log'),
-        url_get('^ticket_variables', 'ticket_variables')
+        url_get('^ticket_variables', 'ticket_variables'),
+        url_get('^signature/(?P<type>\w+)(?:/(?P<id>\d+))?$', 'getSignature')
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
         url_get('^scp', 'scp')
@@ -63,11 +64,13 @@ $dispatcher = patterns('',
         url_get('^/(?P<id>\d+)$', 'getUser'),
         url_post('^/(?P<id>\d+)$', 'updateUser'),
         url_get('^/(?P<id>\d+)/edit$', 'editUser'),
-        url_get('^/lookup$', 'getUser'),
+        url('^/lookup$', 'getUser'),
         url_get('^/lookup/form$', 'getLookupForm'),
         url_post('^/lookup/form$', 'addUser'),
         url_get('^/select$', 'selectUser'),
-        url_get('^/select/(?P<id>\d+)$', 'selectUser')
+        url_get('^/select/(?P<id>\d+)$', 'selectUser'),
+        url_get('^/select/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteUser'),
+        url_get('^/staff$', 'searchStaff')
     )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/change-user$', 'changeUserForm'),
@@ -78,8 +81,18 @@ $dispatcher = patterns('',
         url_post('^(?P<tid>\d+)/lock$', 'acquireLock'),
         url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/renew', 'renewLock'),
         url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/release', 'releaseLock'),
+        url_get('^(?P<tid>\d+)/collaborators/preview$', 'previewCollaborators'),
+        url_get('^(?P<tid>\d+)/collaborators$', 'showCollaborators'),
+        url_post('^(?P<tid>\d+)/collaborators$', 'updateCollaborators'),
+        url_get('^(?P<tid>\d+)/add-collaborator/(?P<uid>\d+)$', 'addCollaborator'),
+        url_get('^(?P<tid>\d+)/add-collaborator/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteCollaborator'),
+        url('^(?P<tid>\d+)/add-collaborator$', 'addCollaborator'),
         url_get('^lookup', 'lookup'),
         url_get('^search', 'search')
+    )),
+    url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
+        url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),
+        url_post('^(?P<cid>\d+)$', 'updateCollaborator')
     )),
     url('^/draft/', patterns('ajax.draft.php:DraftAjaxAPI',
         url_post('^(?P<id>\d+)$', 'updateDraft'),
@@ -91,10 +104,12 @@ $dispatcher = patterns('',
     )),
     url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade')),
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
-        url_get('tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
-        url_get('(?P<lang>\w{2}_\w{2})?/tips/(?P<namespace>[\w_.]+)$', 'getTipsForLangJson')
+        url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
+        url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     ))
 );
+
+Signal::send('ajax.scp', $dispatcher);
 
 # Call the respective function
 print $dispatcher->resolve($ost->get_path_info());
