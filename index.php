@@ -43,12 +43,26 @@ require(CLIENTINC_DIR.'header.inc.php');
     </div>
 </div>
 <div class="clear"></div>
-<?php
-if($cfg && $cfg->isKnowledgebaseEnabled()){
-    //FIXME: provide ability to feature or select random FAQs ??
-?>
-<p>Be sure to browse our <a href="kb/index.php">Frequently Asked Questions (FAQs)</a>, before opening a ticket.</p>
+
+<?php 
+	if($cfg && $cfg->isKnowledgebaseEnabled()){ $displayfaq = '1'; }
+	else { $displayfaq = '0'; }
+	if ($ost->getConfig()->clientDisplayOpen()) { $displayopen = '1'; }
+	else { $displayopen = '0'; }
+	
+	if ($displayopen == '1' && $displayfaq == '1') { ?>
+		<p>Be sure to browse both our <a href="kb/index.php">Frequently Asked Questions (FAQs)</a>, and the open tickets below before opening a ticket.  Thank you.
+		<div id="openticks"><?php include('display_open_topics.php'); ?></div>
+		</p>
+	<?php }
+	else {
+		if($displayfaq == '1') { ?>
+			<p>Be sure to browse our <a href="kb/index.php">Frequently Asked Questions (FAQs)</a> before opening a ticket.  Thank you.
+		<?php }
+		if($displayopen == '1') { ?>
+			<div id="openticks"><?php include('display_open_topics.php'); ?></div>
+		<?php } 	
+	} ?>
+
 </div>
-<?php
-} ?>
 <?php require(CLIENTINC_DIR.'footer.inc.php'); ?>
