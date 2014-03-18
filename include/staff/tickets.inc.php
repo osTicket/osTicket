@@ -90,13 +90,13 @@ if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
     $qwhere.=' AND ticket.staff_id='.db_input($staffId);
     $showassigned=false; //My tickets...already assigned to the staff.
 }elseif($showoverdue) { //overdue
-    $qwhere.=' AND isoverdue=1 ';
+    $qwhere.=' AND ticket.isoverdue=1 ';
 }elseif($showanswered) { ////Answered
-    $qwhere.=' AND isanswered=1 ';
+    $qwhere.=' AND ticket.isanswered=1 ';
 }elseif(!strcasecmp($status, 'open') && !$search) { //Open queue (on search OPEN means all open tickets - regardless of state).
     //Showing answered tickets on open queue??
     if(!$cfg->showAnsweredTickets())
-        $qwhere.=' AND isanswered=0 ';
+        $qwhere.=' AND ticket.isanswered=0 ';
 
     /* Showing assigned tickets on open queue?
        Don't confuse it with show assigned To column -> F'it it's confusing - just trust me!
@@ -149,7 +149,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
 $sortOptions=array('date'=>'effective_date','ID'=>'ticket.`number`',
     'pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
-    'dept'=>'dept_name');
+    'dept'=>'dept.dept_name');
 
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
@@ -198,10 +198,10 @@ $$x=' class="'.strtolower($order).'" ';
 if($_GET['limit'])
     $qstr.='&limit='.urlencode($_GET['limit']);
 
-$qselect ='SELECT ticket.ticket_id,lock_id,`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
+$qselect ='SELECT ticket.ticket_id,tlock.lock_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,user.name'
-    .' ,email.address as email, dept_name '
-         .' ,ticket.status,ticket.source,isoverdue,isanswered,ticket.created ';
+    .' ,email.address as email, dept.dept_name '
+         .' ,ticket.status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created ';
 
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
