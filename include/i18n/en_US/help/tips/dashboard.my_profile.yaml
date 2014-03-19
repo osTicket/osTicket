@@ -1,0 +1,123 @@
+#
+# This is popup help messages for the Staff Panel -> Dashboard -> My Profile
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+my_account_profile_table_:
+    title: My Account Profile (Table)
+    content: >
+        
+contact_information:
+    title: Contact Information
+    content: >
+        
+username:
+    title: Username
+    content: >
+        Only those Agents with Admin status may change a username. If you are an
+        Agent with Admin privileges, you can accomplish this under the <span
+        class='doc-desc-title'>Agent</span> (Staff)<span class='doc-desc-title'>
+       </span> tab in the Admin Panel. (To change a username, including your own,
+        see, Admin Panel -> Agent (Staff) -> Agent (Staff) Members).
+        
+first_name:
+    title: First Name
+    content: >
+        
+last_name:
+    title: Last Name
+    content: >
+        
+email_address:
+    title: Email Address
+    content: >
+        
+phone_number:
+    title: Phone Number
+    content: >
+        
+mobile_number:
+    title: Mobile Number
+    content: >
+        
+preferences:
+    title: Preferences
+    content: >
+        
+time_zone:
+    title: Time Zone
+    content: >
+        
+daylight_saving:
+    title: Daylight Saving
+    content: >
+        
+maximum_page_size:
+    title: Maximum Page Size
+    content: >
+        
+auto_refresh_rate:
+    title: Auto Refresh Rate
+    content: >
+        
+default_signature:
+    title: Default Signature
+    content: >
+        
+default_paper_size:
+    title: Default Paper Size
+    content: >
+        
+show_assigned_tickets:
+    title: Show Assigned Tickets
+    content: >
+        If enabled, your name will be hidden from the Open Tickets queue for those
+        tickets which you have been assigned. Upon hiding, the Department name to
+        which you belong will replace where your name is normally displayed.
+        
+password:
+    title: Password
+    content: >
+        
+current_password:
+    title: Current Password
+    content: >
+        
+new_password:
+    title: New Password
+    content: >
+        
+confirm_new_password:
+    title: Confirm New Password
+    content: >
+        
+signature:
+    title: Signature
+    content: >
+        What you create here will be an optional Signature that perhaps appears at
+        the end of your Ticket Responses. Whether this Signature appears, or not,
+        depends on the Email Template that will be used in a Ticket Response. (To
+        create Email Templates, see Admin Panel -> Emails -> Templates ).
+        
+save_changes_button_:
+    title: Save Changes (Button)
+    content: >
+        
+reset_changes_button_:
+    title: Reset Changes (Button)
+    content: >
+        
+cancel_changes_button_:
+    title: Cancel Changes (Button)
+    content: >
+        

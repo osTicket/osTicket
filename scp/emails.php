@@ -78,10 +78,14 @@ if($_POST){
 }
 
 $page='emails.inc.php';
-if($email || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'emails.emails';
+if($email || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='email.inc.php';
+    $tip_namespace = 'emails.addnew_email';
+}
 
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

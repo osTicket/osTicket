@@ -41,7 +41,7 @@ else
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>FAQ Categories</h2>
+ <h2>FAQ Categories&nbsp;<i class="help-tip icon-question-sign" href="#faq_categories"></i></h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
     <b><a href="categories.php?a=add" class="Icon newCategory">Add New Category</a></b></div>

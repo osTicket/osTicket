@@ -1,0 +1,62 @@
+#
+# This is popup help messages for the Admin Panel -> Staff -> Teams
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+add_new_team:
+    title: Add New Team
+    content: >
+        
+teams_table_:
+    title: Teams (Table)
+    content: >
+        
+showing_teams:
+    title: Showing...teams
+    content: >
+        
+team_name:
+    title: Team Name
+    content: >
+        
+status:
+    title: Status
+    content: >
+        
+members:
+    title: Members
+    content: >
+        
+team_lead:
+    title: Team Lead
+    content: >
+        
+created:
+    title: Created
+    content: >
+        
+last_updated:
+    title: Last Updated
+    content: >
+        
+enable_button_:
+    title: Enable (Button)
+    content: >
+        
+disable_button_:
+    title: Disable (Button)
+    content: >
+        
+delete_button_:
+    title: Delete (Button)
+    content: >

@@ -1,0 +1,121 @@
+#
+# This is popup help messages for the Admin Panel -> Emails -> Add New Email
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+email_information_settings:
+    title: Email Information &amp; Settings
+    content: >
+        
+email_address:
+    title: Email Address
+    content: >
+        
+email_name:
+    title: Email Name
+    content: >
+        
+setting:
+    title: Setting
+    content: >
+        
+login_information:
+    title: Login Information
+    content: >
+        While this is optional, it is required if IMAP/POP or SMTP (with
+        authorization) are enabled.
+        
+username:
+    title: Username
+    content: >
+        
+password:
+    title: Password
+    content: >
+        
+mail_account:
+    title: Mail Account
+    content: >
+        
+status:
+    title: Status
+    content: >
+        
+host:
+    title: Host
+    content: >
+        
+port:
+    title: Port
+    content: >
+        
+protocol:
+    title: Protocol
+    content: >
+        
+encryption:
+    title: Encryption
+    content: >
+        
+fetch_frequency:
+    title: Fetch Frequency
+    content: >
+        
+emails_per_fetch:
+    title: Emails Per Fetch
+    content: >
+        
+fetched_emails:
+    title: Fetched Emails
+    content: >
+        
+smtp_settings:
+    title: SMTP Settings
+    content: >
+        
+status:
+    title: Status
+    content: >
+        
+smtp_host:
+    title: SMTP Host
+    content: >
+        
+smtp_port:
+    title: SMTP Port
+    content: >
+        
+authentication_required_:
+    title: Authentication Required?
+    content: >
+        
+allow_header_spoofing_:
+    title: Allow Header Spoofing?
+    content: >
+        
+internal_notes:
+    title: Internal Notes
+    content: >
+        
+submit_button_:
+    title: Submit (Button)
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >
+        

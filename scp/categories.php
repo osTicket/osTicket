@@ -104,10 +104,14 @@ if($_POST){
 }
 
 $page='categories.inc.php';
-if($category || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'knowledgebase.categories';
+if($category || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='category.inc.php';
+    $tip_namespace = 'knowledgebase.addnew_category';
+}
 
 $nav->setTabActive('kbase');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

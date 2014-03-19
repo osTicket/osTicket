@@ -1,0 +1,51 @@
+#
+# This is popup help messages for the Staff Panel -> Tickets -> User Look Up (Prompt)
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+search_by_email_phone_or_name:
+    title: Search by email, phone or name
+    content: >
+        
+create_new_user:
+    title: Create New User
+    content: >
+        
+email_address:
+    title: Email Address
+    content: >
+        
+full_name:
+    title: Full Name
+    content: >
+        
+phone_number:
+    title: Phone Number
+    content: >
+        
+internal_notes:
+    title: Internal Notes
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >
+        
+add_user_button_:
+    title: Add User (Button)
+    content: >
+        

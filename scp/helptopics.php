@@ -102,10 +102,14 @@ if($_POST){
 }
 
 $page='helptopics.inc.php';
-if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'manage.help_topics';
+if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='helptopic.inc.php';
+    $tip_namespace = 'manage.addnew_help_topic';
+}
 
 $nav->setTabActive('manage');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');
