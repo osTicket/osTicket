@@ -163,6 +163,7 @@ class TicketOwner extends  TicketUser {
 class  EndUser extends AuthenticatedUser {
 
     protected $user;
+    protected $_account = false;
 
     function __construct($user) {
         $this->user = $user;
@@ -228,11 +229,12 @@ class  EndUser extends AuthenticatedUser {
         return ($stats=$this->getTicketStats())?$stats['closed']:0;
     }
 
-    function hasAccount() {
-    }
-
     function getAccount() {
-        return ClientAccount::lookup(array('user_id'=>$this->getId()));
+        if ($this->_account === false)
+            $this->_account =
+                ClientAccount::lookup(array('user_id'=>$this->getId()));
+
+        return $this->_account;
     }
 
     private function getStats() {
@@ -269,9 +271,15 @@ class ClientAccountModel extends VerySimpleModel {
 
 class ClientAccount extends ClientAccountModel {
     var $_options = null;
+    var $timezone;
 
     const LOCKED = 0x0001;
     const PASSWD_RESET_REQUIRED = 0x0002;
+
+    function __onload() {
+        if ($this->get('timezone_id'))
+            $this->timezone = Timezone::getOffsetById($this->ht['timezone_id']);
+    }
 
     function checkPassword($password, $autoupdate=true) {
 
@@ -293,9 +301,74 @@ class ClientAccount extends ClientAccountModel {
         return true;
     }
 
+    function hasCurrentPassword($password) {
+        return $this->checkPassword($password, false);
+    }
+
     function forcePasswdReset() {
         $this->set('status', $this->get('status') | self::PASSWD_RESET_REQUIRED);
         $this->save();
+    }
+
+    function cancelResetTokens() {
+        // TODO: Drop password-reset tokens from the config table for
+        //       this user id
+        $sql = 'DELETE FROM '.CONFIG_TABLE.' WHERE `namespace`="pwreset"
+            AND `value`='.db_input($this->getId());
+        db_query($sql, false);
+        unset($_SESSION['_client']['reset-token']);
+    }
+
+    function getInfo() {
+        $base = $this->ht;
+        $base['tz_offset'] = $this->timezone;
+        return $base;
+    }
+
+    function update($vars, &$errors) {
+        if($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
+
+            if(!$vars['passwd1'])
+                $errors['passwd1']='New password required';
+            elseif($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1']='Must be at least 6 characters';
+            elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2']='Password(s) do not match';
+
+            if (($rtoken = $_SESSION['_client']['reset-token'])) {
+                $_config = new Config('pwreset');
+                if ($_config->get($rtoken) != $this->getId())
+                    $errors['err'] =
+                        'Invalid reset token. Logout and try again';
+                elseif (!($ts = $_config->lastModified($rtoken))
+                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
+                    $errors['err'] =
+                        'Invalid reset token. Logout and try again';
+            }
+            elseif(!$vars['cpasswd'])
+                $errors['cpasswd']='Current password required';
+            elseif(!$this->hasCurrentPassword($vars['cpasswd']))
+                $errors['cpasswd']='Invalid current password!';
+            elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
+                $errors['passwd1']='New password MUST be different from the current password!';
+        }
+
+        if(!$vars['timezone_id'])
+            $errors['timezone_id']='Time zone required';
+
+        if($errors) return false;
+
+        $this->set('timezone_id', $vars['timezone_id']);
+        $this->set('dst',isset($vars['dst'])?1:0);
+
+        if ($vars['passwd1']) {
+            $this->set('passwd', Passwd::hash($vars['passwd1']));
+            $info = array('password' => $vars['passwd1']);
+            Signal::send('auth.pwchange', $this, $info);
+            $this->cancelResetTokens();
+        }
+
+        return $this->save();
     }
 }
 
