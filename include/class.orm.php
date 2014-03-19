@@ -97,6 +97,8 @@ class VerySimpleModel {
         }
     }
 
+    function __onload() {}
+
     static function _inspect() {
         if (!static::$meta['table'])
             throw new OrmConfigurationError(
@@ -366,7 +368,9 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
 
     function buildModel($row) {
         // TODO: Traverse to foreign keys
-        return new $this->model($row); # nolint
+        $model = new $this->model($row); # nolint
+        $model->__onload();
+        return $model;
     }
 
     function fillTo($index) {
