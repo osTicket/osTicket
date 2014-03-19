@@ -541,7 +541,8 @@ class MailFetcher {
             $body = new TextThreadBody(
                     Format::html2text(Format::safe_html($html),
                         100, false));
-        else
+
+        if (!isset($body))
             $body = new TextThreadBody('');
 
         if ($cfg->stripQuotedReply())
