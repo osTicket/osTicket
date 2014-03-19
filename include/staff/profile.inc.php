@@ -25,7 +25,7 @@ $info['id']=$staff->getId();
             <td width="180" class="required">
                 Username:
             </td>
-            <td><b><?php echo $staff->getUserName(); ?></b></td>
+            <td><b><?php echo $staff->getUserName(); ?></b>&nbsp;<i class="help-tip icon-question-sign" href="#username"></i></td>
         </tr>
 
         <tr>
@@ -197,7 +197,7 @@ $info['id']=$staff->getId();
             <td>Show Assigned Tickets:</td>
             <td>
                 <input type="checkbox" name="show_assigned_tickets" <?php echo $info['show_assigned_tickets']?'checked="checked"':''; ?>>
-                <em>Show assigned tickets on open queue.</em>
+                <em>Show assigned tickets on open queue.&nbsp;<i class="help-tip icon-question-sign" href="#show_assigned_tickets"></i></em>
             </td>
         </tr>
         <tr>
@@ -237,7 +237,7 @@ $info['id']=$staff->getId();
         <tr>
             <th colspan="2">
                 <em><strong>Signature</strong>: Optional signature used on outgoing emails.
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#signature"></i></em>
             </th>
         </tr>
         <tr>

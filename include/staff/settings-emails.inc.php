@@ -30,7 +30,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                         }
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_template_id']; ?></font>
-                <i class="help-tip icon-question-sign" href="#default_templates"></i>
+                <i class="help-tip icon-question-sign" href="#default_email_templates"></i>
             </td>
         </tr>
         <tr>
@@ -50,7 +50,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                     } ?>
                  </select>
                  &nbsp;<font class="error">*&nbsp;<?php echo $errors['default_email_id']; ?></font>
-                <i class="help-tip icon-question-sign" href="#default_email"></i>
+                <i class="help-tip icon-question-sign" href="#default_system_email"></i>
             </td>
         </tr>
         <tr>
@@ -78,17 +78,17 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td>
                 <input type="text" size=40 name="admin_email" value="<?php echo $config['admin_email']; ?>">
                     &nbsp;<font class="error">*&nbsp;<?php echo $errors['admin_email']; ?></font>
-                <i class="help-tip icon-question-sign" href="#admin_email"></i>
+                <i class="help-tip icon-question-sign" href="#admins_email_address"></i>
             </td>
         </tr>
         <tr><th colspan=2><em><strong>Incoming Emails:</strong>&nbsp;
-            <i class="help-tip icon-question-sign" href="#incoming_email"></i>
+            <i class="help-tip icon-question-sign" href="#incoming_emails"></i>
             </em></th>
         <tr>
             <td width="180">Email Polling:</td>
             <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable POP/IMAP polling
                 &nbsp;
-                <i class="help-tip icon-question-sign" href="#enable_email_poll"></i>
+                <i class="help-tip icon-question-sign" href="#email_polling"></i>
                 &nbsp;
                  <input type="checkbox" name="enable_auto_cron" <?php echo $config['enable_auto_cron']?'checked="checked"':''; ?>>
                  Poll on auto-cron&nbsp;
@@ -114,7 +114,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td>
                 <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
                 <em>(Use email priority when available)</em>
-                <i class="help-tip icon-question-sign" href="#use_email_priority"></i>
+                <i class="help-tip icon-question-sign" href="#emailed_tickets_priority"></i>
             </td>
         </tr>
         <tr>
@@ -128,7 +128,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td><input type="checkbox" name="add_email_collabs" <?php
     echo $config['add_email_collabs'] ? 'checked="checked"' : ''; ?>/>
             Automatically add collaborators from email fields&nbsp;
-            <i class="help-tip icon-question-sign" href="#add_email_collabs"></i>
+            <i class="help-tip icon-question-sign" href="#accept_email_collaborators"></i>
         </tr>
         <tr><th colspan=2><em><strong>Outgoing Emails</strong>: Default email only applies to outgoing emails without SMTP setting.</em></th></tr>
         <tr><td width="180">Default Outgoing Email:</td>

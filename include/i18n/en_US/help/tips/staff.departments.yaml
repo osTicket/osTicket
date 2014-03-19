@@ -1,0 +1,53 @@
+#
+# This is popup help messages for the Admin Panel -> Staff -> Departments
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+department_table_:
+    title: Department (Table)
+    content: >
+        
+showing_department:
+    title: Showing...department
+    content: >
+        Be sure to check the <span class='doc-desc-title'>Page</span> section below
+        to ensure that there are not more pages displaying more <span
+        class='doc-desc-title'>Departments.</span>
+        
+name:
+    title: Name
+    content: >
+        
+type:
+    title: Type
+    content: >
+        If the Department’s Type is Private, then that Department only handles
+        matters pertinent among other Agents.
+        
+users:
+    title: Users
+    content: >
+        
+email_address:
+    title: Email Address
+    content: >
+        
+dept_manager:
+    title: Dept. Manager
+    content: >
+        You may commission an Agent as a Department Manager by first adding that
+        Agent to the Department, and then choose that Agent as Manager by editing
+        the Department. (To add an Agent to a Department, see Admin Panel -> Staff
+        -> Staff Members; Select the Agent whose account you would like to edit. To
+        commission an Agent as a Department Manager, simply click the Department
+        name below that you would like to edit). 

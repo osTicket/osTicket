@@ -1,0 +1,117 @@
+#
+# This is popup help messages for the Admin Panel -> Staff -> Add New Department -> Department Form
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+add_new_department:
+    title: Add New Department
+    content: >
+        
+department_information:
+    title: Department Information
+    content: >
+        
+name:
+    title: Name
+    content: >
+        
+type:
+    title: Type
+    content: >
+        Select Private if the Department will only be pertinent to matters among
+        other Agents. Additionally, when labelled as Private, the Email Signature
+        will not display in replies.
+        
+email:
+    title: Email
+    content: >
+        Email Address assigned to this Department. When Tickets are assigned to
+        this Department, for example, it is this Email Address from whom the Client
+        will receive an Auto-Response Email. 
+        
+template:
+    title: Template
+    content: >
+        Template Set used for Auto-Responses, Alerts &amp; Notices for all Tickets
+        associated with this Department. 
+        
+sla:
+    title: SLA
+    content: >
+        Service Level Agreement  for all tickets transferred to Department or
+        auto-assigned by Help Topic. (To create or edit a SLA Plan, see Admin Panel
+        -> Manage -> SLA Plans).
+        
+group_membership:
+    title: Group Membership
+    content: >
+        You may optionally choose to extend membership access to Groups (to whom
+        Alerts and Notices will be sent). (To edit Groups, see Admin Panel ->
+        Agents (Staff) -> Groups).
+        
+auto_response_settings:
+    title: Auto-Response Settings
+    content: >
+        This allows you to disable New Ticket Auto-Response to Clients and/or New
+        Message Auto-Response to users when creating a ticket in this department. 
+        
+new_ticket:
+    title: New Ticket
+    content: >
+        Click the checkbox if do not want an Email automatically sent to the Client
+        when a New Ticket is Opened.
+        
+new_message:
+    title: New Message
+    content: >
+        Click the checkbox if do not want an Email automatically sent when a New
+        Message is received.
+        
+auto_response_email:
+    title: Auto Response Email
+    content: >
+        If you would like Department Email to send Auto-Responses from a different
+        Address from that noted above, then choose the differing Email Address
+        here. 
+        
+department_access:
+    title: Department Access
+    content: >
+        Department Manager and Primary Members will always have access independent
+        of group selection or assignment. To commission an Agent as a Department
+        Manager, you must first add that Agent to the Department by editing that
+        Agent’s Account. (To edit an Agent’s Account, see Admin Panel -> Agent 
+        (Staff) Members -> Choose the Agent to Edit).
+        
+department_signature:
+    title: Department Signature
+    content: >
+        Signature is made available as a choice, for Public Departments, on Ticket
+        Reply. What you create here will be an optional Signature that perhaps
+        appears at the end of the Agent’s Ticket Responses. Whether this signature
+        appears or not depends on the Email Template that will be used in a Ticket
+        Response. (To create email templates, see Admin Panel -> Emails ->
+        Templates ).
+        
+create_department_button_:
+    title: Create Department (Button)
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >
+        

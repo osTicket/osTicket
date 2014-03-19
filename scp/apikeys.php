@@ -94,10 +94,15 @@ if($_POST){
 }
 
 $page='apikeys.inc.php';
-if($api || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
-    $page='apikey.inc.php';
+$tip_namespace = 'manage.api_keys';
+
+if($api || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+    $page = 'apikey.inc.php';
+    $tip_namespace = 'manage.addnew_api';
+}
 
 $nav->setTabActive('manage');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

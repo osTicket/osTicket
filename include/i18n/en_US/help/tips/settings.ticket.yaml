@@ -1,0 +1,151 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> Tickets
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+global_ticket_settings_options:
+    title: Global Ticket Settings &amp; Options
+    content: >
+        These settings are <span class='doc-desc-title'>global,</span> in that they
+        apply until they are overridden by other possible system settings (e.g., a
+        Department’s SLA Plan overrides the Global Default SLA Plan set below).
+        
+ticket_ids:
+    title: Ticket IDs
+    content: >
+        Choose between Random (Recommended) or Sequential numbers for tickets.
+        
+default_sla:
+    title: Default SLA
+    content: >
+        Default SLA Plan to dictate how long a Ticket can remain Open before it is
+        rendered Overdue. (To create more SLA Plans, see Admin Panel -> Manage -⁠>
+        SLA Plans).
+        
+default_priority:
+    title: Default Priority
+    content: >
+        Choose between Low, Normal, High &amp; Emergency for all tickets not
+        auto-assigned to a Help Topic or Department 
+        
+maximum_open_tickets:
+    title: Maximum Open Tickets
+    content: >
+        Enter the maximum Open Tickets a Client is permitted to have
+        simultaneously. This will help protect against spam and enable email flood
+        control. If you prefer to remove this limitation on Clients however,  enter
+        0 for unlimited.
+        
+ticket_auto_lock_priority:
+    title: Ticket Auto-lock Priority
+    content: >
+        Minutes to lock a ticket on activity - enter 0 to disable locking
+        
+email_ticket_priority:
+    title: Email Ticket Priority
+    content: >
+        Use email priority assigned by addressee’s mail service
+        
+show_related_tickets:
+    title: Show Related Tickets
+    content: >
+        Show all related tickets on user login - otherwise access is restricted to
+        one ticket view per login
+        
+human_verification:
+    title: Human Verification
+    content: >
+        Enable CAPTCHA on new web tickets. CAPTCHA is a type of challenge-response
+        test that typically only humans can pass. It displays a picture with text
+        inside of it so a bot/spider cannot readily read the text like a human can.
+        When the Client enters the text, it will check whether the Client’s input
+        matches  the text inside the image. GDLib is a software graphics library
+        that is required to run CAPTCHA. If you are using osTicket as a
+        SupportSystem.com customer, you do not need to worry about installing
+        GDLib. We have everything set up for you. Just enable CAPTCHA!  
+        
+claim_tickets:
+    title: Claim Tickets
+    content: >
+        Not every ticket is immediately assigned to an Agent depending on System
+        Settings. However, when an eligible Agent responds to the Client for the
+        first time, that Agent will then be immediately assigned that Ticket if the
+        <span class='doc-desc-title'>Claim Tickets</span> feature is enabled.
+        
+assigned_tickets:
+    title: Assigned Tickets
+    content: >
+        If enabled, this will permit any Agent to see tickets that are assigned to
+        another specific Agent other than himself/herself. 
+        
+answered_tickets:
+    title: Answered Tickets
+    content: >
+        Show tickets that have been answered by staff  in open queue. If not check,
+        answered tickets will show up in a separate column until user responds,
+        thereby moving it to the opened queue. 
+        
+staff_identity_masking:
+    title: Staff Identity Masking
+    content: >
+        If enabled, this will hide the Agent’s name from the Client during any
+        communication.
+        
+enable_html_ticket_thread:
+    title: Enable HTML Ticket Thread
+    content: >
+        If enabled, this will permit the use of rich text formatting between
+        Clients and Agents and Auto-Response emails. 
+        
+attachments:
+    title: Attachments
+    content: >
+        
+allow_attachments:
+    title: Allow Attachments
+    content: >
+        
+emailed_api_attachments:
+    title: Emailed/API Attachments
+    content: >
+        
+online_web_attachments:
+    title: Online/Web Attachments
+    content: >
+        
+max_user_file_uploads:
+    title: Max. User File Uploads
+    content: >
+        
+max_staff_file_uploads:
+    title: Max. Staff File Uploads
+    content: >
+        
+maximum_file_size:
+    title: Maximum File Size
+    content: >
+        
+ticket_response_files:
+    title: Ticket Response Files
+    content: >
+        If enabled, any attachments an Agent may attach to a Ticket response will
+        be also included in the Client’s email.
+        
+accepted_file_types:
+    title: Accepted File Types
+    content: >
+        
+_textarea_:
+    title: (Textarea)
+    content: >
+        

@@ -36,7 +36,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="2">
-                <em>Category information: Public categories are published if it has published FAQ articles.</em>
+                <em>Category information&nbsp;<i class="help-tip icon-question-sign" href="#category_information"></i></em>
             </th>
         </tr>
         <tr>

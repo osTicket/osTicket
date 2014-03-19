@@ -1,0 +1,27 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> Help Topics
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+help_topics_table_:
+    title: Help Topics (Table)
+    content: >
+        Your Help Topics help guide what information is gathered from a Client and
+        how that Client is handled by your Company. The Help Topics are specific to
+        a Department and can include Custom Forms. 
+        
+showing_help_topics:
+    title: Showing...Help Topics
+    content: >
+        Be sure to check the Page section below to ensure that there are not more
+        pages displaying existing Help Topics.

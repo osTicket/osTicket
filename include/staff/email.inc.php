@@ -135,7 +135,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Login Information:</strong>: Optional BUT required when IMAP/POP or SMTP (with auth.) are enabled.</em>
+                <em><strong>Login Information:</strong>&nbsp;<i class="help-tip icon-question-sign" href="#login_information"></i></em>
             </th>
         </tr>
         <tr>
