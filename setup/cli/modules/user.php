@@ -26,7 +26,6 @@ class UserManager extends Module {
     function run($args, $options) {
 
         Bootstrap::connect();
-        osTicket::start();
 
         switch ($args['action']) {
             case 'import':
@@ -35,15 +34,33 @@ class UserManager extends Module {
                 elseif (!($this->stream = fopen($options['file'], 'rb')))
                     $this->fail("Unable to open input file [{$options['file']}]");
 
-                while (($data = fgetcsv($this->stream, 1000, ",")) !== FALSE)
-                    if (!User::fromVars(array('name' => $data[0], 'email' => $data[1])))
+                //Read the header (if any)
+                if (($data = fgetcsv($this->stream, 1000, ","))) {
+                    if (Validator::is_email($data[1]))
+                        fseek($this->stream, 0); // We don't have an header!
+                    else;
+                    // TODO: process the header here to figure out the columns
+                    // for now we're assuming Name, Email
+                }
+
+                while (($data = fgetcsv($this->stream, 1000, ",")) !== FALSE) {
+                    if (!$data[0])
+                        $this->stderr->write('Invalid data or format: Name
+                                required');
+                    elseif (!Validator::is_email($data[1]))
+                        $this->stderr->write('Invalid data or format: Valid
+                                email required');
+                    elseif (!User::fromVars(array('name' => $data[0], 'email' => $data[1])))
                         $this->stderr->write('Unable to import user: '.print_r($data, true));
+                }
+
                 break;
             case 'export':
                 $stream = $options['file'] ?: 'php://stdout';
                 if (!($this->stream = fopen($stream, 'c')))
                     $this->fail("Unable to open output file [{$options['file']}]");
 
+                fputcsv($this->stream, array('Name', 'Email'));
                 foreach (User::objects() as $user)
                     fputcsv($this->stream,
                             array((string) $user->getName(), $user->getEmail()));
