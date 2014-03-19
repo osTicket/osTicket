@@ -1,0 +1,61 @@
+#
+# This is popup help messages for the Admin Panel -> Emails -> Diagnostics
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+test_outgoing_email_form_:
+    title: Test Outgoing Email (Form)
+    content: >
+        The email’s delivery depends on your server settings (php.ini) and/or SMTP
+        configuration.
+        
+from:
+    title: From
+    content: >
+        
+to:
+    title: To
+    content: >
+        
+subject:
+    title: Subject
+    content: >
+        
+message:
+    title: Message
+    content: >
+        
+draft_saved:
+    title: Draft Saved
+    content: >
+        
+trash_button_image_:
+    title: Trash (Button Image)
+    content: >
+        
+message_body_task_bar_:
+    title: Message Body (Task Bar)
+    content: >
+        
+send_message_button_:
+    title: Send Message (Button)
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >
+        

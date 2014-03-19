@@ -42,7 +42,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#name"></i>
             </td>
         </tr>
         <tr>
@@ -52,7 +52,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" size="10" name="grace_period" value="<?php echo $info['grace_period']; ?>">
                 <em>( in hours )</em>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['grace_period']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['grace_period']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#grace_period"></i>
             </td>
         </tr>
         <tr>
@@ -71,7 +71,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="enable_priority_escalation" value="1" <?php echo $info['enable_priority_escalation']?'checked="checked"':''; ?> >
-                    <strong>Enable</strong> priority escalation on overdue tickets.
+                    <strong>Enable</strong> priority escalation on overdue tickets.&nbsp;<i class="help-tip icon-question-sign" href="#priority_escalation"></i>
             </td>
         </tr>
         <tr>
@@ -81,7 +81,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="checkbox" name="transient" value="1" <?php echo $info['transient']?'checked="checked"':''; ?> >
                 SLA can be overridden on ticket transfer or help topic
-                change
+                change&nbsp;<i class="help-tip icon-question-sign" href="#transient"></i>
             </td>
         </tr>
         <tr>
@@ -96,7 +96,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>
+                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
             </th>
         </tr>
         <tr>

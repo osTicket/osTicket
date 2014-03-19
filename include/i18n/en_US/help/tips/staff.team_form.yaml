@@ -1,0 +1,56 @@
+#
+# This is popup help messages for the Admin Panel -> Staff ->  Team Form
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+add_new_team:
+    title: Add New Team
+    content: >
+        
+team_information:
+    title: Team Information
+    content: >
+        
+name:
+    title: Name
+    content: >
+        
+status:
+    title: Status
+    content: >
+        
+team_lead:
+    title: Team Lead
+    content: >
+        
+assignment_alerts:
+    title: Assignment Alerts
+    content: >
+        
+admin_notes:
+    title: Admin Notes
+    content: >
+        These notes are only visible to those whose account type is ‘<span
+        class='doc-desc-title'>Admin</span>.’
+        
+create_team_button_:
+    title: Create Team (Button)
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >

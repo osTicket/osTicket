@@ -31,7 +31,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Help Topic Information</em>
+                <em>Help Topic Information&nbsp;<i class="help-tip icon-question-sign" href="#help_topic_information"></i></em>
             </th>
         </tr>
     </thead>
@@ -42,7 +42,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="30" name="topic" value="<?php echo $info['topic']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['topic']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['topic']; ?></span> <i class="help-tip icon-question-sign" href="#topic"></i>
             </td>
         </tr>
         <tr>
@@ -52,7 +52,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>>Active
                 <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
-                &nbsp;<span class="error">*&nbsp;</span>
+                &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
         <tr>
@@ -62,7 +62,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>>Public
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>>Private/Internal
-                &nbsp;<span class="error">*&nbsp;</span>
+                &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
         <tr>
@@ -83,7 +83,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         }
                     }
                     ?>
-                </select> (<em>optional</em>)
+                </select> (<em>optional</em>) <i class="help-tip icon-question-sign" href="#parent_topic"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
         </tr>
@@ -102,7 +102,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                <?php } ?>
                </select>
                <em>Extra information for tickets associated with this help topic</em>
-               &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
+               &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span> <i class="help-tip icon-question-sign" href="#custom_form"></i>
            </td>
        </tr>
         <tr>
@@ -122,7 +122,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['priority_id']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['priority_id']; ?></span><i class="help-tip icon-question-sign" href="#priority"></i>
             </td>
         </tr>
         <tr>
@@ -142,7 +142,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span> <i class="help-tip icon-question-sign" href="#department"></i>
             </td>
         </tr>
         <tr>
@@ -162,7 +162,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                <em>(Overrides department's SLA)</em>
+                <em>(Overrides department's SLA)</em> <i class="help-tip icon-question-sign" href="#sla_plan"></i>
             </td>
         </tr>
         <tr>
@@ -182,7 +182,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>&nbsp;<font class="error"><?php echo $errors['page_id']; ?></font>
-                <em>(Overrides global setting. Applies to web tickets only.)</em>
+                <em>(Overrides global setting. Applies to web tickets only.)</em> <i class="help-tip icon-question-sign" href="#thank_you_page"></i>
             </td>
         </tr>
         <tr>
@@ -220,7 +220,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span> <i class="help-tip icon-question-sign" href="#auto_assign_to"></i>
             </td>
         </tr>
         <tr>
@@ -230,12 +230,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
                     <strong>Disable</strong> new ticket auto-response for
-                    this topic (Overrides Dept. settings).
+                    this topic (Overrides Dept. settings). <i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes about the help topic.&nbsp;</em>
+                <em><strong>Admin Notes</strong>: Internal notes about the help topic.&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
             </th>
         </tr>
         <tr>

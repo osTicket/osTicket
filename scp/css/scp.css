@@ -1111,6 +1111,15 @@ i.help-tip:hover {
     cursor: pointer;
 }
 
+caption > i.help-tip {
+    color: white;
+}
+
+h2 > i.help-tip {
+    vertical-align: baseline;
+    font-size: 11pt;
+}
+
 /* Knowledgebase */
 /* Knowledgebase */
 #kb {

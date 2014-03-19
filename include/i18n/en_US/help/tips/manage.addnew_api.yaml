@@ -1,0 +1,50 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> Add New API Key
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+status:
+    title: Status
+    content: >
+        
+ip_address:
+    title: IP Address
+    content: >
+        
+services:
+    title: Services
+    content: >
+        
+can_create_tickets:
+    title: Can Create Tickets
+    content: >
+        Define various options (XML/JSON/Email) and how they will affect the user
+        experience.
+        
+can_execute_cron:
+    title: Can Execute Cron
+    content: >
+        Define Cron.
+        
+add_key_button_:
+    title: Add Key (Button)
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >
+        

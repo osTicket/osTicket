@@ -1,0 +1,64 @@
+#
+# This is popup help messages for the Staff Panel -> Tickets -> Closed Tickets
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+search_field:
+    title: Search Field
+    content: >
+        
+advanced:
+    title: Advanced
+    content: >
+        
+refresh_button_:
+    title: Refresh (Button)
+    content: >
+        
+closed_tickets_table:
+    title: Closed Tickets Table
+    content: >
+        All tickets that have been set to closed.
+        
+ticket:
+    title: Ticket
+    content: >
+        
+date:
+    title: Date
+    content: >
+        
+subject:
+    title: Subject
+    content: >
+        
+from:
+    title: From
+    content: >
+        
+priority:
+    title: Priority
+    content: >
+        
+closed_by:
+    title: Closed By
+    content: >
+        
+reopen_button_:
+    title: Reopen (Button)
+    content: >
+        
+delete_button_:
+    title: Delete (Button)
+    content: >
+        

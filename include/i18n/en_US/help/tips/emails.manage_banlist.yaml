@@ -1,0 +1,48 @@
+#
+# This is popup help messages for the Admin Panel -> Emails -> Manage Email Ban List
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+add_new_email_address_to_ban_list:
+    title: Add New Email Address to Ban List
+    content: >
+        This form is accessed by clicking Ban New Email in the Banlist Section (To
+        get to Banlist, Admin Panel -> Emails -> Banlist).
+        
+filter_name:
+    title: Filter Name
+    content: >
+        
+ban_status:
+    title: Ban Status
+    content: >
+        
+email_address:
+    title: Email Address
+    content: >
+        
+internal_notes:
+    title: Internal Notes
+    content: >
+        
+add_button_:
+    title: Add (Button)
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >

@@ -1,0 +1,213 @@
+#
+# This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+add_new_agent:
+    title: Add New Agent
+    content: >
+        This form is accessed from the Add New Staff hyperlink (To access this
+        form, see Admin Panel -> Staff -> Staff Members).
+        
+agent_staff_information:
+    title: Agent (Staff) Information
+    content: >
+        <span class='doc-desc-title'>Username</span>, <span
+        class='doc-desc-title'>First</span> &amp; <span class='doc-desc-title'>Last
+        Name</span>, <span class='doc-desc-title'>Email Address</span> (Required).
+        Optionally, <span class='doc-desc-title'>phone numbers</span> can be set
+        here also.
+        
+username:
+    title: Username
+    content: >
+        Please choose an <span class='doc-desc-title'>agent</span> <span
+        class='doc-desc-title'>username</span> that is unique to your osTicket
+        setup.
+        
+first_name:
+    title: First Name
+    content: >
+        The full name will generally be visible to any <span
+        class='doc-desc-title'>agent</span>/<span
+        class='doc-desc-title'>administrator</span> you create on your osTicket
+        setup. However, you can choose to hide all <span
+        class='doc-desc-title'>agent</span> names inside of ticket responses (Admin
+        Panel -> Settings -> Tickets -> Hide staff’s name on responses).
+        Establishing a privacy policy is the responsibility of primary <span
+        class='doc-desc-title'>administrator</span> of an osTicket setup. To view
+        SupportSystem.com’s privacy policy, see here 
+        (http://supportsystem.com/privacy).
+        
+last_name:
+    title: Last Name
+    content: >
+        The full name will generally be visible to any <span
+        class='doc-desc-title'>agent</span>/<span
+        class='doc-desc-title'>administrator</span> you create on your osTicket
+        setup. However, you can choose to hide all <span
+        class='doc-desc-title'>agent</span> names inside of ticket responses (Admin
+        Panel -> Settings -> Tickets -> Hide staff’s name on responses).
+        Establishing a privacy policy is the responsibility of the primary
+        administrator of an osTicket setup. To view  SupportSystem.com’s privacy
+        policy, see here (http://supportsystem.com/privacy).
+        
+email_address:
+    title: Email Address
+    content: >
+        This is the Agent’s email that will receive relevant notifications to that
+        Agent.
+        
+phone_number_mobile_number:
+    title: Phone Number/Mobile Number
+    content: >
+        
+mobile_number:
+    title: Mobile Number
+    content: >
+        
+account_password:
+    title: Account Password
+    content: >
+        You, as an <span class='doc-desc-title'>administrator</span>, may change an
+        Agent’s Password. You may optionally require the Agent to set their own
+        Password on next login.
+        
+password:
+    title: Password
+    content: >
+        
+confirm_password:
+    title: Confirm Password
+    content: >
+        
+forced_password_change:
+    title: Forced Password Change
+    content: >
+        Enable this if you would like to force the new Agent to create their own
+        password that would be more memorable to him/her (recommended).
+        
+agent_s_signature:
+    title: Agent’s Signature
+    content: >
+        What you create here will be an optional signature that perhaps appears at
+        the end of the agent’s ticket responses. Whether this signature appears or
+        not depends on the email template that will be used in a ticket response. 
+        (To create email templates, see Admin Panel -> Emails -> Templates ).
+        
+account_status_settings:
+    title: Account Status &amp; Settings
+    content: >
+        Activate or lock an agent’s account, assign agent to a group and/or
+        department, specify the agent’s time zone, limit agent’s access to only
+        assigned tickets &amp; place on vacation when agent is out.
+        
+account_status:
+    title: Account Status
+    content: >
+        If you change the <span class='doc-desc-title'>agent</span>’s status to
+        Locked, then he/she will not be able to login. If you change the <span
+        class='doc-desc-title'>agent</span>’s status to Vacation Mode, the agent
+        will be able to login but will not receive any of his normal notifications.
+        Also, he will not be able to have tickets assigned to him.  
+        
+assigned_group:
+    title: Assigned Group
+    content: >
+        The Group that you choose in which this <span
+        class='doc-desc-title'>agent</span> will belong will dictate what level of
+        control the agent has within your osTicket setup. The difference between
+        Teams and Groups is that Groups will dictate level of control and a Team is
+        simply a collection of users with a common purpose (To add/edit groups and
+        their controls,  see  Admin Panel -> Agents [Old: Staff] -> Groups).
+        
+primary_department:
+    title: Primary Department
+    content: >
+        Choose the department in which you would like this Agent to be primarily
+        active. This is necessary if you wish to commission this <span
+        class='doc-desc-title'>Agent</span> as the <span
+        class='doc-desc-title'>Department Manager</span>. (To commission an Agent
+        as Department Manager, see Admin Panel -> Staff -> Departments).
+        
+time_zone:
+    title: Time Zone
+    content: >
+        
+daylight_saving:
+    title: Daylight Saving
+    content: >
+        Enable this feature if you would like Daylight Savings to automatically
+        come into play for this Agent’s timestamp.
+        
+limited_access:
+    title: Limited Access
+    content: >
+        Would you like to limit this <span class='doc-desc-title'>Agent</span>’s
+        access to only those tickets which he/she is assigned?
+        
+directory_listing:
+    title: Directory Listing
+    content: >
+        Would you like this <span class='doc-desc-title'>Agent</span> to be listed
+        in the <span class='doc-desc-title'>Agent Directory</span>? (To visit the
+        <span class='doc-desc-title'>Agent Directory</span>, see Agent (Staff)
+        Panel -> Dashboard -> Agent (Staff) Directory).
+        
+vacation_mode:
+    title: Vacation Mode
+    content: >
+        If you change the <span class='doc-desc-title'>agent</span>’s status to
+        Vacation Mode, the agent will be able to login but will not receive any of
+        his normal notifications. Also, he will not be able to have tickets
+        assigned to him. 
+        
+administrative_roles:
+    title: Administrative Roles
+    content: >
+        All active <span class='doc-desc-title'>agents</span> have access to the
+        <span class='doc-desc-title'>Staff Panel</span> by default.
+        
+account_administrator:
+    title: Account Administrator
+    content: >
+        Will this <span class='doc-desc-title'>Agent</span> need to manage other
+        <span class='doc-desc-title'>agents</span>, <span
+        class='doc-desc-title'>account settings</span> and/or <span
+        class='doc-desc-title'>billing information</span>.
+        
+helpdesk_administrator:
+    title: Helpdesk Administrator
+    content: >
+        Ability to manage <span class='doc-desc-title'>helpdesk</span> settings and
+        staff's access
+        
+admin_notes:
+    title: Admin Notes
+    content: >
+        These are notes about the agent whose account you are currently editing.
+        But, don’t worry! These notes are only visible to those whose account type
+        is ‘<span class='doc-desc-title'>Admin</span>.’
+        
+add_agent_button_:
+    title: Add Agent (Button)
+    content: >
+        
+reset_button_:
+    title: Reset (Button)
+    content: >
+        
+cancel_button_:
+    title: Cancel (Button)
+    content: >
+        

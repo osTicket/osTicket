@@ -617,6 +617,7 @@ if($ticket) {
         $ost->addExtraHeader('<meta http-equiv="refresh" content="'.($min*60).'" />');
 }
 
+$ost->addExtraHeader('<meta name="tip-namespace" content="tickets.open" />');
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');
