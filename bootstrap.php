@@ -70,6 +70,7 @@ class Bootstrap {
         define('ATTACHMENT_TABLE',$prefix.'attachment');
         define('USER_TABLE',$prefix.'user');
         define('USER_EMAIL_TABLE',$prefix.'user_email');
+        define('USER_ACCOUNT_TABLE',$prefix.'user_account');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');

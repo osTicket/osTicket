@@ -1,26 +1,24 @@
 <?php
 if(!defined('OSTCLIENTINC')) die('Access Denied');
 
-$email=Format::input($_POST['lemail']?$_POST['lemail']:$_GET['e']);
-$ticketid=Format::input($_POST['lticket']?$_POST['lticket']:$_GET['t']);
+$email=Format::input($_POST['luser']?:$_GET['e']);
+$passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
 ?>
-<h1>Check Ticket Status</h1>
-<p>Please provide us with your email address and a ticket number, and an access
-link will be emailed to you.</p>
+<h1>Sign In</h1>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <br>
     <div>
-        <label for="email">E-Mail Address:</label>
-        <input id="email" type="text" name="lemail" size="30" value="<?php echo $email; ?>">
+        <label for="username">Username:</label>
+        <input id="username" type="text" name="luser" size="30" value="<?php echo $email; ?>">
     </div>
     <div>
-        <label for="ticketno">Ticket Number:</label>
-        <input id="ticketno" type="text" name="lticket" size="16" value="<?php echo $ticketid; ?>"></td>
+        <label for="passwd">Password:</label>
+        <input id="passwd" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
     </div>
     <p>
-        <input class="btn" type="submit" value="Email Access Link">
+        <input class="btn" type="submit" value="Sign In">
     </p>
 </form>
 <br>

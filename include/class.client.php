@@ -187,7 +187,10 @@ class  EndUser extends AuthenticatedUser {
         if ($this->user instanceof Collaborator)
             return $this->user->getUserId();
 
-        return $this->user->getId();
+        elseif ($this->user)
+            return $this->user->getId();
+
+        return false;
     }
 
     function getUserName() {
@@ -225,6 +228,13 @@ class  EndUser extends AuthenticatedUser {
         return ($stats=$this->getTicketStats())?$stats['closed']:0;
     }
 
+    function hasAccount() {
+    }
+
+    function getAccount() {
+        return ClientAccount::lookup(array('user_id'=>$this->getId()));
+    }
+
     private function getStats() {
 
         $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
@@ -242,4 +252,51 @@ class  EndUser extends AuthenticatedUser {
         return db_fetch_array(db_query($sql));
     }
 }
+
+require_once INCLUDE_DIR.'class.orm.php';
+class ClientAccountModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => USER_ACCOUNT_TABLE,
+        'pk' => 'id',
+        'joins' => array(
+            'user' => array(
+                'null' => false,
+                'constraint' => array('user_id' => 'UserModel.id')
+            ),
+        ),
+    );
+}
+
+class ClientAccount extends ClientAccountModel {
+    var $_options = null;
+
+    const LOCKED = 0x0001;
+    const PASSWD_RESET_REQUIRED = 0x0002;
+
+    function checkPassword($password, $autoupdate=true) {
+
+        /*bcrypt based password match*/
+        if(Passwd::cmp($password, $this->get('passwd')))
+            return true;
+
+        //Fall back to MD5
+        if(!$password || strcmp($this->get('passwd'), MD5($password)))
+            return false;
+
+        //Password is a MD5 hash: rehash it (if enabled) otherwise force passwd change.
+        if ($autoupdate)
+            $this->set('passwd', Passwd::hash($password));
+
+        if (!$autoupdate || !$this->save())
+            $this->forcePasswdReset();
+
+        return true;
+    }
+
+    function forcePasswdReset() {
+        $this->set('status', $this->get('status') | self::PASSWD_RESET_REQUIRED);
+        $this->save();
+    }
+}
+
 ?>
