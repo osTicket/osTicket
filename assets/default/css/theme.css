@@ -634,7 +634,7 @@ label.required {
 }
 #clientLogin p {
   clear: both;
-  text-align: center;
+  text-align: right;
 }
 #clientLogin strong {
   font-size: 11px;

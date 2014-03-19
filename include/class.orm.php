@@ -113,7 +113,8 @@ class VerySimpleModel {
                     $constraint[$field] = "$model.$foreign";
                 }
                 $j['constraint'] = $constraint;
-                $j['list'] = true;
+                if (!isset($j['list']))
+                    $j['list'] = true;
             }
             // XXX: Make this better (ie. composite keys)
             $keys = array_keys($j['constraint']);
