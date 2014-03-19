@@ -277,8 +277,11 @@ class ClientAccount extends ClientAccountModel {
     const PASSWD_RESET_REQUIRED = 0x0002;
 
     function __onload() {
-        if ($this->get('timezone_id'))
+        if ($this->get('timezone_id')) {
             $this->timezone = Timezone::getOffsetById($this->ht['timezone_id']);
+            $_SESSION['TZ_OFFSET'] = $this->timezone;
+            $_SESSION['TZ_DST'] = $this->get('dst');
+        }
     }
 
     function checkPassword($password, $autoupdate=true) {

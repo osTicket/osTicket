@@ -419,8 +419,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $authsession = array(); //clear.
         $authsession['id'] = $user->getId();
         $authsession['key'] = $authkey;
-        $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
-        $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 
         //The backend used decides the format of the auth key.
         // XXX: encrypt to hide the bk??
