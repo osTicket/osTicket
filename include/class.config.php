@@ -800,9 +800,6 @@ class OsticketConfig extends Config {
         $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Datetime format required');
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Day, Datetime format required');
         $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Timezone required');
-        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
-            'error'=>'Valid password reset window required');
-
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -829,6 +826,9 @@ class OsticketConfig extends Config {
         $f=array();
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
+            'error'=>'Valid password reset window required');
+
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
