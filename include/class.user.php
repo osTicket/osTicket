@@ -36,6 +36,10 @@ class UserModel extends VerySimpleModel {
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
             ),
+            'account' => array(
+                'list' => false,
+                'reverse' => 'ClientAccountModel.user',
+            ),
             'default_email' => array(
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')

@@ -97,6 +97,8 @@ class VerySimpleModel {
         }
     }
 
+    function __onload() {}
+
     static function _inspect() {
         if (!static::$meta['table'])
             throw new OrmConfigurationError(
@@ -113,7 +115,8 @@ class VerySimpleModel {
                     $constraint[$field] = "$model.$foreign";
                 }
                 $j['constraint'] = $constraint;
-                $j['list'] = true;
+                if (!isset($j['list']))
+                    $j['list'] = true;
             }
             // XXX: Make this better (ie. composite keys)
             $keys = array_keys($j['constraint']);
@@ -365,7 +368,9 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
 
     function buildModel($row) {
         // TODO: Traverse to foreign keys
-        return new $this->model($row); # nolint
+        $model = new $this->model($row); # nolint
+        $model->__onload();
+        return $model;
     }
 
     function fillTo($index) {
