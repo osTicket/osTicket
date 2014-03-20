@@ -7,6 +7,7 @@ $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
 <h1>Sign In</h1>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
+    <div style="width:50%;display:inline-block">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <br>
     <div>
@@ -20,6 +21,7 @@ $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
     <p>
         <input class="btn" type="submit" value="Sign In">
     </p>
+</div>
 </form>
 <br>
 <p>

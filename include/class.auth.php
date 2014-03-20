@@ -805,35 +805,24 @@ class osTicketClientAuthentication extends UserAuthenticationBackend {
     static $id = "client";
 
     function authenticate($username, $password) {
-        if (!($user = self::_identify($authkey)))
+        if (!($acct = ClientAccount::lookupByUsername($username)))
             return;
 
-        if (($client = new ClientSession(new EndUser($user)))
+        if (($client = new ClientSession(new EndUser($acct->getUser())))
             && $client->getId()
-            && ($acct = $client->getAccount())
             && $acct->checkPassword($password)
         ) {
             return $client;
         }
     }
 
-    protected function validate($authkey) {
-        if (!($user = self::_identify($authkey)))
+    protected function validate($username) {
+        if (!($acct = ClientAccount::lookupByUsername($username)))
             return;
 
-        if (($client = new ClientSession(new EndUser($user))) && $client->getId())
+        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
             return $client;
     }
-
-    protected function _identify($username) {
-        if (strpos($authkey, '@') !== false)
-            $user = User::lookup(array('emails__address'=>$authkey));
-        else
-            $user = User::lookup(array('account__username'=>$authkey));
-
-        return $user;
-    }
-
 }
 UserAuthenticationBackend::register('osTicketClientAuthentication');
 
