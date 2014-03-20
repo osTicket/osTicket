@@ -145,7 +145,7 @@ class Internationalization {
 
         // Consider all subdirectories and .phar files in the base dir
         $dirs = glob(I18N_DIR . '*', GLOB_ONLYDIR | GLOB_NOSORT);
-        $phars = glob(I18N_DIR . '*.phar', GLOB_NOSORT);
+        $phars = glob(I18N_DIR . '*.phar', GLOB_NOSORT) ?: array();
 
         $installed = array();
         foreach (array_merge($dirs, $phars) as $f) {
