@@ -292,6 +292,10 @@ class User extends UserModel {
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);
     }
+
+    function delete() {
+        return parent::delete() && $this->default_email->delete();
+    }
 }
 User::_inspect();
 

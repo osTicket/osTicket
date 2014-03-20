@@ -241,6 +241,10 @@ class OsticketConfig extends Config {
         return $this->get('db_tz_offset');
     }
 
+    function getDefaultTimezoneId() {
+        return $this->get('default_timezone_id');
+    }
+
     /* Date & Time Formats */
     function observeDaylightSaving() {
         return ($this->get('enable_daylight_saving'));
@@ -521,6 +525,15 @@ class OsticketConfig extends Config {
 
     function isClientLoginRequired() {
         return $this->get('clients_only');
+    }
+
+    function isClientRegistrationEnabled() {
+        return in_array($this->getClientRegistrationMode(),
+            array('public', 'auto'));
+    }
+
+    function getClientRegistrationMode() {
+        return $this->get('client_registration');
     }
 
     function isCaptchaEnabled() {

@@ -420,12 +420,14 @@ class ClientAccount extends ClientAccountModel {
                     $errors['err'] =
                         'Invalid reset token. Logout and try again';
             }
-            elseif (!$vars['cpasswd'])
-                $errors['cpasswd']='Current password required';
-            elseif (!$this->hasCurrentPassword($vars['cpasswd']))
-                $errors['cpasswd']='Invalid current password!';
-            elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                $errors['passwd1']='New password MUST be different from the current password!';
+            elseif ($this->get('passwd')) {
+                if (!$vars['cpasswd'])
+                    $errors['cpasswd']='Current password required';
+                elseif (!$this->hasCurrentPassword($vars['cpasswd']))
+                    $errors['cpasswd']='Invalid current password!';
+                elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
+                    $errors['passwd1']='New password MUST be different from the current password!';
+            }
         }
 
         if (!$vars['timezone_id'])
@@ -445,6 +447,10 @@ class ClientAccount extends ClientAccountModel {
         }
 
         return $this->save();
+    }
+
+    static function createForUser($user) {
+        return static::create(array('user_id'=>$user->getId()));
     }
 
     static function lookupByUsername($username) {

@@ -7,7 +7,8 @@ $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
 <h1>Sign In</h1>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
-    <div style="width:50%;display:inline-block">
+<div style="display:table-row">
+    <div style="width:40%;display:table-cell">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <br>
     <div>
@@ -21,9 +22,17 @@ $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
     <p>
         <input class="btn" type="submit" value="Sign In">
     </p>
+    </div>
+<?php if ($cfg && $cfg->isClientRegistrationEnabled()) { ?>
+    <div style="display:table-cell;box-shadow: -9px 0 15px -12px rgba(0,0,0,0.3);padding-left: 2em;">
+        Not yet registered? <a href="account.php?do=create">Create an account</a>
+    </div>
+<?php } ?>
 </div>
 </form>
 <br>
 <p>
+<?php if ($cfg && !$cfg->isClientLoginRequired()) { ?>
 If this is your first time contacting us or you've lost the ticket number, please <a href="open.php">open a new ticket</a>.
+<?php } ?>
 </p>
