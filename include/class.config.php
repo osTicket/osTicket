@@ -153,6 +153,8 @@ class OsticketConfig extends Config {
         'allow_client_updates' => false,
         'message_autoresponder_collabs' => true,
         'add_email_collabs' => true,
+        'clients_only' => false,
+        'client_registration' => 'closed',
     );
 
     function OsticketConfig($section=null) {
@@ -767,7 +769,10 @@ class OsticketConfig extends Config {
             case 'pages':
                 return $this->updatePagesSettings($vars, $errors);
                 break;
-           case 'autoresp':
+            case 'access':
+                return $this->updateAccessSettings($vars, $errors);
+                break;
+            case 'autoresp':
                 return $this->updateAutoresponderSettings($vars, $errors);
                 break;
             case 'alerts':
@@ -789,8 +794,6 @@ class OsticketConfig extends Config {
         $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk URl required');
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk title required');
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Dept. required');
-        $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
-        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>'Time format required');
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>'Date format required');
@@ -813,6 +816,24 @@ class OsticketConfig extends Config {
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
             'name_format'=>$vars['name_format'],
+            'time_format'=>$vars['time_format'],
+            'date_format'=>$vars['date_format'],
+            'datetime_format'=>$vars['datetime_format'],
+            'daydatetime_format'=>$vars['daydatetime_format'],
+            'default_timezone_id'=>$vars['default_timezone_id'],
+            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+        ));
+    }
+
+    function updateAccessSettings($vars, &$errors) {
+        $f=array();
+        $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+
+        if(!Validator::process($f, $vars, $errors) || $errors)
+            return false;
+
+        return $this->updateAll(array(
             'passwd_reset_period'=>$vars['passwd_reset_period'],
             'staff_max_logins'=>$vars['staff_max_logins'],
             'staff_login_timeout'=>$vars['staff_login_timeout'],
@@ -823,18 +844,12 @@ class OsticketConfig extends Config {
             'client_session_timeout'=>$vars['client_session_timeout'],
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
-            'time_format'=>$vars['time_format'],
-            'date_format'=>$vars['date_format'],
-            'datetime_format'=>$vars['datetime_format'],
-            'daydatetime_format'=>$vars['daydatetime_format'],
-            'default_timezone_id'=>$vars['default_timezone_id'],
-            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+            'clients_only'=>isset($vars['clients_only'])?1:0,
+            'client_registration'=>$vars['client_registration'],
         ));
     }
 
     function updateTicketsSettings($vars, &$errors) {
-
-
         $f=array();
         $f['default_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');

@@ -68,14 +68,6 @@ name_format:
         Email templates will use the format for names if no other format is
         specified in the place holder.
 
-# Authentication settings
-password_reset:
-    title: Password Expiration Policy
-    content: >
-        Sets how often (in months) staff members will be required to change
-        their password. If disabled (set to "No expiration"), passwords will
-        not expire.
-
 # Date and time options
 date_and_time:
     title: Localized Date Formats
