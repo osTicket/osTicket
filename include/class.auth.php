@@ -322,6 +322,9 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
         Signal::send('auth.login.succeeded', $staff);
 
+        if ($bk->supportsAuthentication())
+            $staff->cancelResetTokens();
+
         return true;
     }
 
@@ -430,6 +433,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $msg=sprintf('%s (%s) logged in [%s]',
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug('User login', $msg);
+
+        if ($bk->supportsAuthentication() && ($acct=$user->getAccount()))
+            $acct->cancelResetTokens();
 
         return true;
     }
