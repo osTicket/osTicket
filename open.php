@@ -76,6 +76,8 @@ if($ticket
                     array_fill(0, 3, 'XXXXXX'),
                     $page->getBody()
                     )));
+} elseif ($cfg->isClientLoginRequired() && !$thisclient) {
+    require(CLIENTINC_DIR.'login.inc.php');
 } else {
     require(CLIENTINC_DIR.'open.inc.php');
 }
