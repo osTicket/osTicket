@@ -38,7 +38,7 @@ class UserModel extends VerySimpleModel {
             ),
             'account' => array(
                 'list' => false,
-                'reverse' => 'ClientAccountModel.user',
+                'reverse' => 'ClientAccount.user',
             ),
             'default_email' => array(
                 'null' => true,
@@ -145,6 +145,10 @@ class User extends UserModel {
 
     function getCreateDate() {
         return $this->created;
+    }
+
+    function getAccount() {
+        return $this->account;
     }
 
     function to_json() {

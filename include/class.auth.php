@@ -461,7 +461,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         list($id, $auth) = explode(':', $_SESSION['_auth']['user']['key']);
 
         if (!($bk=static::getBackend($id)) //get the backend
-                || !$bk->supportsAuthentication() //Make sure it can authenticate
                 || !($user=$bk->validate($auth)) //Get AuthicatedUser
                 || !($user instanceof AuthenticatedUser) // Make sure it user
                 || $user->getId() != $_SESSION['_auth']['user']['id'] // check ID
@@ -800,12 +799,7 @@ class osTicketClientAuthentication extends UserAuthenticationBackend {
     static $id = "client";
 
     function authenticate($username, $password) {
-        if (strpos($username, '@') !== false)
-            $user = User::lookup(array('emails__address'=>$username));
-        else
-            $user = User::lookup(array('account__username'=>$username));
-
-        if (!$user)
+        if (!($user = self::_identify($authkey)))
             return;
 
         if (($client = new ClientSession(new EndUser($user)))
@@ -818,18 +812,68 @@ class osTicketClientAuthentication extends UserAuthenticationBackend {
     }
 
     protected function validate($authkey) {
-        if (strpos($authkey, '@') !== false)
-            $user = User::lookup(array('emails__address'=>$authkey));
-        else
-            $user = User::lookup(array('account__authkey'=>$authkey));
-
-        if (!$user)
+        if (!($user = self::_identify($authkey)))
             return;
 
         if (($client = new ClientSession(new EndUser($user))) && $client->getId())
             return $client;
     }
 
+    protected function _identify($username) {
+        if (strpos($authkey, '@') !== false)
+            $user = User::lookup(array('emails__address'=>$authkey));
+        else
+            $user = User::lookup(array('account__username'=>$authkey));
+
+        return $user;
+    }
+
 }
 UserAuthenticationBackend::register('osTicketClientAuthentication');
+
+class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
+    static $id = "pwreset.client";
+
+    function supportsAuthentication() {
+        return false;
+    }
+
+    function signOn($errors=array()) {
+        global $ost;
+
+        if (!isset($_POST['userid']) || !isset($_POST['token']))
+            return false;
+        elseif (!($_config = new Config('pwreset')))
+            return false;
+        elseif (!($acct = ClientAccount::lookupByUsername($_POST['userid']))
+                || !$acct->getId()
+                || !($client = new ClientSession(new EndUser($acct->getUser()))))
+            $errors['msg'] = 'Invalid user-id given';
+        elseif (!($id = $_config->get($_POST['token']))
+                || $id != $client->getId())
+            $errors['msg'] = 'Invalid reset token';
+        elseif (!($ts = $_config->lastModified($_POST['token']))
+                && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
+            $errors['msg'] = 'Invalid reset token';
+        elseif (!$acct->forcePasswdReset())
+            $errors['msg'] = 'Unable to reset password';
+        else
+            return $client;
+    }
+
+    function login($client, $bk) {
+        $_SESSION['_client']['reset-token'] = $_POST['token'];
+        Signal::send('auth.pwreset.login', $client);
+        return parent::login($client, $bk);
+    }
+
+    protected function validate($authkey) {
+        if (!($acct = ClientAccount::lookupByUsername($authkey)))
+            return;
+
+        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
+            return $client;
+    }
+}
+UserAuthenticationBackend::register('ClientPasswordResetTokenBackend');
 ?>

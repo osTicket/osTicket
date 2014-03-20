@@ -259,7 +259,7 @@ require_once INCLUDE_DIR.'class.orm.php';
 class ClientAccountModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_ACCOUNT_TABLE,
-        'pk' => 'id',
+        'pk' => array('id'),
         'joins' => array(
             'user' => array(
                 'null' => false,
@@ -273,8 +273,9 @@ class ClientAccount extends ClientAccountModel {
     var $_options = null;
     var $timezone;
 
-    const LOCKED = 0x0001;
-    const PASSWD_RESET_REQUIRED = 0x0002;
+    const CONFIRMED             = 0x0001;
+    const LOCKED                = 0x0002;
+    const PASSWD_RESET_REQUIRED = 0x0004;
 
     function __onload() {
         if ($this->get('timezone_id')) {
@@ -282,6 +283,14 @@ class ClientAccount extends ClientAccountModel {
             $_SESSION['TZ_OFFSET'] = $this->timezone;
             $_SESSION['TZ_DST'] = $this->get('dst');
         }
+    }
+
+    function getId() {
+        return $this->get('id');
+    }
+
+    function getUserId() {
+        return $this->get('user_id');
     }
 
     function checkPassword($password, $autoupdate=true) {
@@ -308,17 +317,73 @@ class ClientAccount extends ClientAccountModel {
         return $this->checkPassword($password, false);
     }
 
+    function hasPassword() {
+        return (bool) $this->get('passwd');
+    }
+
+    function sendResetEmail() {
+        global $ost, $cfg;
+
+        $tpl= $ost->getConfig()->getDefaultTemplate();
+
+        $token = Misc::randCode(48); // 290-bits
+        if (!($template = $tpl->getMsgTemplate('staff.pwreset')))
+            return new Error('Unable to retrieve password reset email template');
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'token' => $token,
+            'client' => $this,
+            'reset_link' => sprintf(
+                "%s/pwreset.php?token=%s",
+                $ost->getConfig()->getBaseUrl(),
+                $token),
+        );
+
+        if(!($email=$cfg->getAlertEmail()))
+            $email = $cfg->getDefaultEmail();
+
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        Signal::send('auth.pwreset.email', $this, $info);
+
+        $msg = $ost->replaceTemplateVariables($template->asArray(), $vars);
+
+        $_config = new Config('pwreset');
+        $_config->set($vars['token'], $this->user->getId());
+
+        $email->send($this->user->default_email->get('address'),
+            $msg['subj'], $msg['body']);
+    }
+
     function forcePasswdReset() {
-        $this->set('status', $this->get('status') | self::PASSWD_RESET_REQUIRED);
-        $this->save();
+        $this->_setStatus(self::PASSWD_RESET_REQUIRED);
+        return $this->save();
+    }
+
+    function _getStatus($flag) {
+        return 0 !== ($this->get('status') & $flag);
+    }
+
+    function _clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    function _setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isPasswdResetForced() {
+        return $this->_getStatus(self::PASSWD_RESET_REQUIRED);
     }
 
     function cancelResetTokens() {
         // TODO: Drop password-reset tokens from the config table for
         //       this user id
         $sql = 'DELETE FROM '.CONFIG_TABLE.' WHERE `namespace`="pwreset"
-            AND `value`='.db_input($this->getId());
-        db_query($sql, false);
+            AND `key`='.db_input($this->getUserId());
+        if (!db_query($sql, false))
+            return false;
+
         unset($_SESSION['_client']['reset-token']);
     }
 
@@ -328,19 +393,26 @@ class ClientAccount extends ClientAccountModel {
         return $base;
     }
 
-    function update($vars, &$errors) {
-        if($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
+    function getUser() {
+        $user = User::lookup($this->get('user_id'));
+        $user->set('account', $this);
+        return $user;
+    }
 
-            if(!$vars['passwd1'])
+    function update($vars, &$errors) {
+        $rtoken = $_SESSION['_client']['reset-token'];
+        if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
+
+            if (!$vars['passwd1'])
                 $errors['passwd1']='New password required';
-            elseif($vars['passwd1'] && strlen($vars['passwd1'])<6)
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
                 $errors['passwd1']='Must be at least 6 characters';
-            elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']='Password(s) do not match';
 
-            if (($rtoken = $_SESSION['_client']['reset-token'])) {
+            if ($rtoken) {
                 $_config = new Config('pwreset');
-                if ($_config->get($rtoken) != $this->getId())
+                if ($_config->get($rtoken) != $this->getUserId())
                     $errors['err'] =
                         'Invalid reset token. Logout and try again';
                 elseif (!($ts = $_config->lastModified($rtoken))
@@ -348,31 +420,42 @@ class ClientAccount extends ClientAccountModel {
                     $errors['err'] =
                         'Invalid reset token. Logout and try again';
             }
-            elseif(!$vars['cpasswd'])
+            elseif (!$vars['cpasswd'])
                 $errors['cpasswd']='Current password required';
-            elseif(!$this->hasCurrentPassword($vars['cpasswd']))
+            elseif (!$this->hasCurrentPassword($vars['cpasswd']))
                 $errors['cpasswd']='Invalid current password!';
-            elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
+            elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
                 $errors['passwd1']='New password MUST be different from the current password!';
         }
 
-        if(!$vars['timezone_id'])
+        if (!$vars['timezone_id'])
             $errors['timezone_id']='Time zone required';
 
-        if($errors) return false;
+        if ($errors) return false;
 
         $this->set('timezone_id', $vars['timezone_id']);
-        $this->set('dst',isset($vars['dst'])?1:0);
+        $this->set('dst', isset($vars['dst']) ? 1 : 0);
 
         if ($vars['passwd1']) {
             $this->set('passwd', Passwd::hash($vars['passwd1']));
             $info = array('password' => $vars['passwd1']);
             Signal::send('auth.pwchange', $this, $info);
             $this->cancelResetTokens();
+            $this->_clearStatus(self::PASSWD_RESET_REQUIRED);
         }
 
         return $this->save();
     }
+
+    static function lookupByUsername($username) {
+        if (strpos($username, '@') !== false)
+            $user = self::lookup(array('user__emails__address'=>$username));
+        else
+            $user = self::lookup(array('username'=>$username));
+
+        return $user;
+    }
 }
+ClientAccount::_inspect();
 
 ?>
