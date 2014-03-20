@@ -349,10 +349,13 @@ class MailFetcher {
 
     //search for specific mime type parts....encoding is the desired encoding.
     function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
-
+        global $ost;
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
 
+        if(!$ost->getConfig()->readIntoAttachedRfc822Messages() && strcasecmp('message/rfc822', $this->getMimeType($struct))==0){
+            return '';
+        }
         //Match the mime type.
         if($struct
                 && strcasecmp($mimeType, $this->getMimeType($struct))==0
@@ -432,8 +435,10 @@ class MailFetcher {
 
      */
     function getAttachments($part, $index=0) {
-
-        if($part && !$part->parts) {
+        global $ost;
+        $mime=$this->getMimeType($part);
+        $attachRfc822 = !$ost->getConfig()->readIntoAttachedRfc822Messages() && strcasecmp('message/rfc822',$mime ) == 0;
+        if($part && (!$part->parts || $$attachRfc822)) {
             //Check if the part is an attachment.
             $filename = false;
             if ($part->ifdisposition && $part->ifdparameters
@@ -445,6 +450,21 @@ class MailFetcher {
             if (!$filename && $part->ifparameters && $part->parameters
                     && $part->type > 0) {
                 $filename = $this->findFilename($part->parameters);
+            }
+            if (!$filename && strcasecmp('message/rfc822',$mime ) == 0
+                    && $part->type > 0
+                ) {
+                $headers = imap_rfc822_parse_headers(imap_fetchbody($this->mbox, 1, '3'));
+                    if ($headers) {
+                        if($headers->Subject)
+                            $subject = $headers->Subject;
+                        if($headers->message_id)
+                            $subject = $headers->message_id;
+                        if($subject)
+                            $filename = $subject.".eml";
+                    }else{
+                        $filename = "es_noname.eml";
+                    }
             }
 
             $content_id = ($part->ifid)

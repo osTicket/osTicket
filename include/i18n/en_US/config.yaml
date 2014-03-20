@@ -44,6 +44,7 @@ core:
     send_login_errors: 1
     save_email_headers: 1
     strip_quoted_reply: 1
+    read_info_attached_rfc822: 1
     ticket_autoresponder: 0
     message_autoresponder: 0
     ticket_notice_active: 1

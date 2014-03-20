@@ -549,6 +549,10 @@ class OsticketConfig extends Config {
         return ($this->get('strip_quoted_reply'));
     }
 
+    function readIntoAttachedRfc822Messages() {
+        return ($this->get('read_info_attached_rfc822'));
+    }
+
     function saveEmailHeaders() {
         return true; //No longer an option...hint: big plans for headers coming!!
     }

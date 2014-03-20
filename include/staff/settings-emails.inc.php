@@ -104,6 +104,14 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             </td>
         </tr>
         <tr>
+            <td width="180">Read into inline messages:</td>
+            <td>
+                <input type="checkbox" name="attach_inline_rfc822" <?php echo $config['read_info_attached_rfc822'] ? 'checked="checked"':''; ?>>
+                <em>(Read into attach RFC8222 email messages, otherwise attached as [subject].eml)</em>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['read_info_attached_rfc822']; ?></font>
+            </td>
+        </tr>
+        <tr>
             <td width="180">Reply Separator Tag:</td>
             <td><input type="text" name="reply_separator" value="<?php echo $config['reply_separator']; ?>">
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['reply_separator']; ?></font>
