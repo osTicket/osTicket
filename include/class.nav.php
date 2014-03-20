@@ -200,6 +200,7 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>'System','href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>'Tickets','href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
                     $subnav[]=array('desc'=>'Emails','href'=>'settings.php?t=emails','iconclass'=>'email-settings');
+                    $subnav[]=array('desc'=>'Access','href'=>'settings.php?t=access','iconclass'=>'users');
                     $subnav[]=array('desc'=>'Knowledgebase','href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
                     $subnav[]=array('desc'=>'Autoresponder','href'=>'settings.php?t=autoresp','iconclass'=>'email-autoresponders');
                     $subnav[]=array('desc'=>'Alerts&nbsp;&amp;&nbsp;Notices','href'=>'settings.php?t=alerts','iconclass'=>'alert-settings');
