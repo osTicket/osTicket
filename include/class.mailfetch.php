@@ -534,6 +534,8 @@ class MailFetcher {
                 $body = new HtmlThreadBody($html);
             elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
                 $body = new TextThreadBody($text);
+            else
+                $body = new TextThreadBody('');
         }
         elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
             $body = new TextThreadBody($text);
