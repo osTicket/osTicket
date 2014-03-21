@@ -421,6 +421,16 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   KEY `page_id` (`page_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%organization`;
+CREATE TABLE `%TABLE_PREFIX%organization` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL DEFAULT '',
+  `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `created` timestamp NULL DEFAULT NULL,
+  `updated` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%canned_response`;
 CREATE TABLE `%TABLE_PREFIX%canned_response` (
   `canned_id` int(10) unsigned NOT NULL auto_increment,
@@ -711,7 +721,7 @@ INSERT INTO `%TABLE_PREFIX%timezone` (`id`, `offset`, `timezone`) VALUES
 -- pages
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%content` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `content_id` int(10) unsigned NOT NULL,
+  `content_id` int(10) unsigned NOT NULL default '0',
   `isactive` tinyint(1) unsigned NOT NULL default '0',
   `type` varchar(32) NOT NULL default 'other',
   `name` varchar(255) NOT NULL,
@@ -732,6 +742,7 @@ CREATE TABLE `%TABLE_PREFIX%plugin` (
   `install_path` varchar(60) not null,
   `isphar` tinyint(1) not null default 0,
   `isactive` tinyint(1) not null default 0,
+  `version` varchar(64),
   `installed` datetime not null,
   primary key (`id`)
 ) DEFAULT CHARSET=utf8;
@@ -769,6 +780,6 @@ CREATE TABLE `%TABLE_PREFIX%user_account` (
   `passwd` varchar(128) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,
   `backend` varchar(32) DEFAULT NULL,
   `registered` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
 ) DEFAULT CHARSET=utf8;
