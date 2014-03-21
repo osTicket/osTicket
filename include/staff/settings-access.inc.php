@@ -95,6 +95,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         <tr><td>Registration Method:</td>
             <td><select name="client_registration">
 <?php foreach (array(
+    'disabled' => 'Disabled — All users are guests',
     'public' => 'Public — Anyone can register',
     'auto' => 'Automatic — Create new accounts for all new tickets',
     'closed' => 'Private — Only staff can register clients',)
