@@ -494,7 +494,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function getForm() {
         if (!isset($this->_form)) {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
-            if ($this->id)
+            if (isset($this->id))
                 $this->_form->data($this);
         }
         return $this->_form;
