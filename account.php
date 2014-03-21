@@ -20,12 +20,26 @@ require 'client.inc.php';
 
 $inc = 'register.inc.php';
 
+$errors = array();
+
 if (!$cfg || !$cfg->isClientRegistrationEnabled()) {
     Http::redirect('index.php');
 }
 
+elseif ($thisclient) {
+    $inc = 'profile.inc.php';
+    $user = User::lookup($thisclient->getId());
+}
+
+if ($user && $_POST) {
+    if ($acct = $thisclient->getAccount()) {
+       $acct->update($_POST, $errors);
+    }
+    if (!$errors && $user->updateInfo($_POST, $errors))
+        Http::redirect('tickets.php');
+}
+
 elseif ($_POST) {
-    $errors = array();
     $user_form = UserForm::getUserForm()->getForm($_POST);
     if (!$user_form->isValid(function($f) { return !$f->get('internal'); }))
         $errors['err'] = 'Incomplete client information';
