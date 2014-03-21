@@ -131,6 +131,17 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable).
             </td>
         </tr>
+        <tr>
+            <th colspan="2">
+                <em><b>Authentication and Registration Templates</b></em>
+            </th>
+        </tr>
+        <tr>
+            <td>New Registration Email</td>
+            <td><a href="ajax.php/content/new-registration/manage"
+                onclick="javascript:
+                    $.dialog($(this).attr('href'), 200);
+                    return false;">Manage</a></td>
 </tbody>
 </table>
 <p style="text-align:center">

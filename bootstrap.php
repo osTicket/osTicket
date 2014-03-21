@@ -63,7 +63,7 @@ class Bootstrap {
         define('CONFIG_TABLE',$prefix.'config');
 
         define('CANNED_TABLE',$prefix.'canned_response');
-        define('PAGE_TABLE', $prefix.'page');
+        define('PAGE_TABLE', $prefix.'content');
         define('FILE_TABLE',$prefix.'file');
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
 

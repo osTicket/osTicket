@@ -19,13 +19,13 @@ class Page {
     var $ht;
     var $attachments;
 
-    function Page($id) {
+    function Page($id, $lang=false) {
         $this->id=0;
         $this->ht = array();
-        $this->load($id);
+        $this->load($id, $lang);
     }
 
-    function load($id=0) {
+    function load($id=0, $lang=false) {
 
         if(!$id && !($id=$this->getId()))
             return false;
@@ -33,7 +33,8 @@ class Page {
         $sql='SELECT page.*, count(topic.page_id) as topics '
             .' FROM '.PAGE_TABLE.' page '
             .' LEFT JOIN '.TOPIC_TABLE. ' topic ON(topic.page_id=page.id) '
-            .' WHERE page.id='.db_input($id)
+            . ' WHERE page.content_id='.db_input($id)
+            . ($lang ? ' AND lang='.db_input($lang) : '')
             .' GROUP By page.id';
 
         if (!($res=db_query($sql)) || !db_num_rows($res))
@@ -195,10 +196,25 @@ class Page {
         return self::getActivePages(array('type' => 'thank-you'));
     }
 
-    function getIdByName($name) {
+    function getIdByName($name, $lang=false) {
 
         $id = 0;
         $sql = ' SELECT id FROM '.PAGE_TABLE.' WHERE name='.db_input($name);
+        if ($lang)
+            $sql .= ' AND lang='.db_input($lang);
+
+        if(($res=db_query($sql)) && db_num_rows($res))
+            list($id) = db_fetch_row($res);
+
+        return $id;
+    }
+
+    function getIdByType($type, $lang=false) {
+        $id = 0;
+        $sql = ' SELECT id FROM '.PAGE_TABLE.' WHERE `type`='.db_input($type);
+        if ($lang)
+            $sql .= ' AND lang='.db_input($lang);
+
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id) = db_fetch_row($res);
 
@@ -224,8 +240,6 @@ class Page {
 
         if(!$vars['type'])
             $errors['type'] = 'Type required';
-        elseif(!in_array($vars['type'], array('landing', 'offline', 'thank-you', 'other')))
-            $errors['type'] = 'Invalid selection';
 
         if(!$vars['name'])
             $errors['name'] = 'Name required';
@@ -254,10 +268,13 @@ class Page {
 
         } else {
             $sql='INSERT INTO '.PAGE_TABLE.' SET '.$sql.', created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
+            if (!db_query($sql) || !($id=db_insert_id())) {
+                $errors['err']='Unable to create page. Internal error';
+                return false;
+            }
 
-            $errors['err']='Unable to create page. Internal error';
+            // TODO: Update `content_id`
+            return $id;
         }
 
         return false;
