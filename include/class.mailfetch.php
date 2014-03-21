@@ -438,7 +438,7 @@ class MailFetcher {
         global $ost;
         $mime=$this->getMimeType($part);
         $attachRfc822 = !$ost->getConfig()->readIntoAttachedRfc822Messages() && strcasecmp('message/rfc822',$mime ) == 0;
-        if($part && (!$part->parts || $$attachRfc822)) {
+        if($part && (!$part->parts || $attachRfc822)) {
             //Check if the part is an attachment.
             $filename = false;
             if ($part->ifdisposition && $part->ifdparameters
