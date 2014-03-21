@@ -85,9 +85,12 @@ class Internationalization {
             }
         }
 
-        // Pages
+        // Pages and content
         $_config = new OsticketConfig();
-        foreach (array('landing','thank-you','offline') as $type) {
+        foreach (array('landing','thank-you','offline',
+                'registration-staff', 'pwreset-staff', 'banner-staff',
+                'registration-client', 'pwreset-client', 'banner-client',
+                'access-link') as $type) {
             $tpl = $this->getTemplate("templates/page/{$type}.yaml");
             if (!($page = $tpl->getData()))
                 continue;

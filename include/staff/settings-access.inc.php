@@ -137,12 +137,24 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <em><b>Authentication and Registration Templates</b></em>
             </th>
         </tr>
+<?php foreach (array(
+    'pwreset-staff' => 'Password Reset for Staff',
+    'staff-banner' => 'Login banner for Staff',
+    'registration-staff' => 'New Staff Account',
+
+    'pwreset-client' => 'Password Reset for Clients',
+    'registration-client' => 'Account Registration Email',
+    'registration-policy' => 'Client Registration Policy',
+    ) as $content => $title) { ?>
         <tr>
-            <td>New Registration Email</td>
-            <td><a href="ajax.php/content/new-registration/manage"
+        <td><?php echo $title; ?></td>
+            <td><a href="ajax.php/content/<?php echo $content; ?>/manage"
                 onclick="javascript:
                     $.dialog($(this).attr('href'), 200);
-                    return false;">Manage</a></td>
+                    return false;">Manage</a>
+            </td>
+        </tr>
+<?php } ?>
 </tbody>
 </table>
 <p style="text-align:center">

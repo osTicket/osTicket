@@ -3,8 +3,12 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 
 $email=Format::input($_POST['luser']?:$_GET['e']);
 $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
+
+$content = Page::lookup(Page::getIdByType('registration-policy'));
+
 ?>
-<h1>Sign In</h1>
+<h1><?php echo Format::display($content->getName()); ?></h1>
+<p><?php echo Format::viewableImages($content->getBody()); ?></p>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">

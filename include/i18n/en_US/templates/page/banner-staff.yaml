@@ -1,0 +1,9 @@
+#
+# banner-staff.yaml
+#
+# This is the initial message and banner shown on the staff login page
+---
+notes: >
+    This is the initial message and banner shown on the staff login page
+name: "Authentication Required"
+body: ""
