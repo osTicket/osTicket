@@ -550,7 +550,7 @@ class OsticketConfig extends Config {
     }
 
     function readIntoAttachedRfc822Messages() {
-        return ($this->get('read_info_attached_rfc822'));
+        return ($this->get('read_into_attached_rfc822'));
     }
 
     function saveEmailHeaders() {

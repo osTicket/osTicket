@@ -106,9 +106,9 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         <tr>
             <td width="180">Read into inline messages:</td>
             <td>
-                <input type="checkbox" name="attach_inline_rfc822" <?php echo $config['read_info_attached_rfc822'] ? 'checked="checked"':''; ?>>
+                <input type="checkbox" name="attach_inline_rfc822" <?php echo $config['read_into_attached_rfc822'] ? 'checked="checked"':''; ?>>
                 <em>(Read into attach RFC8222 email messages, otherwise attached as [subject].eml)</em>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['read_info_attached_rfc822']; ?></font>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['read_into_attached_rfc822']; ?></font>
             </td>
         </tr>
         <tr>
