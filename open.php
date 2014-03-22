@@ -17,7 +17,7 @@ require('client.inc.php');
 define('SOURCE','Web'); //Ticket source.
 $ticket = null;
 $errors=array();
-if($_POST):
+if ($_POST) {
     $vars = $_POST;
     $vars['deptId']=$vars['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
     if ($thisclient) {
@@ -60,10 +60,14 @@ if($_POST):
     }else{
         $errors['err']=$errors['err']?$errors['err']:'Unable to create a ticket. Please correct errors below and try again!';
     }
-endif;
+}
 
 //page
 $nav->setActiveNav('new');
+if ($cfg->isClientLoginRequired() && !$thisclient) {
+    require_once 'secure.inc.php';
+}
+
 require(CLIENTINC_DIR.'header.inc.php');
 if($ticket
         && (
@@ -76,9 +80,8 @@ if($ticket
                     array_fill(0, 3, 'XXXXXX'),
                     $page->getBody()
                     )));
-} elseif ($cfg->isClientLoginRequired() && !$thisclient) {
-    require(CLIENTINC_DIR.'login.inc.php');
-} else {
+}
+else {
     require(CLIENTINC_DIR.'open.inc.php');
 }
 require(CLIENTINC_DIR.'footer.inc.php');

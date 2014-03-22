@@ -12,7 +12,7 @@ $content = Page::lookup(Page::getIdByType('registration-policy'));
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">
-    <div style="width:40%;display:table-cell">
+    <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding-left: 2em;">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <br>
     <div>
@@ -27,11 +27,11 @@ $content = Page::lookup(Page::getIdByType('registration-policy'));
         <input class="btn" type="submit" value="Sign In">
     </p>
     </div>
+    <div style="display:table-cell;padding-left: 2em;">
 <?php if ($cfg && $cfg->isClientRegistrationEnabled()) { ?>
-    <div style="display:table-cell;box-shadow: -9px 0 15px -12px rgba(0,0,0,0.3);padding-left: 2em;">
         Not yet registered? <a href="account.php?do=create">Create an account</a>
-    </div>
 <?php } ?>
+    </div>
 </div>
 </form>
 <br>
