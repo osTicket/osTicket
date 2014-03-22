@@ -137,24 +137,28 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <em><b>Authentication and Registration Templates</b></em>
             </th>
         </tr>
-<?php foreach (array(
-    'pwreset-staff' => 'Password Reset for Staff',
-    'staff-banner' => 'Login banner for Staff',
-    'registration-staff' => 'New Staff Account',
-
-    'pwreset-client' => 'Password Reset for Clients',
-    'registration-client' => 'Account Registration Email',
-    'registration-policy' => 'Client Registration Policy',
-    ) as $content => $title) { ?>
-        <tr>
-        <td><?php echo $title; ?></td>
-            <td><a href="ajax.php/content/<?php echo $content; ?>/manage"
-                onclick="javascript:
-                    $.dialog($(this).attr('href'), 200);
-                    return false;">Manage</a>
-            </td>
-        </tr>
-<?php } ?>
+<?php $manage_content = function($title, $content) {
+    ?><a href="#ajax.php/content/<?php echo $content; ?>/manage"
+    onclick="javascript:
+        $.dialog($(this).attr('href').substr(1), 200);
+        return false;"><?php echo Format::htmlchars($title); ?></a><?php
+}; ?>
+        <tr><td>Password Reset Emails</td>
+            <td><?php $manage_content('Staff Members', 'pwreset-staff'); ?>
+            &mdash; <?php $manage_content('Clients', 'pwreset-client'); ?>
+            &mdash; <?php $manage_content('Guess Ticket Access', 'access-link'); ?>
+        </td></tr>
+        <tr><td>Sign-In Pages</td>
+            <td><?php $manage_content('Staff Login Banner', 'staff-banner'); ?>
+            &mdash; <?php $manage_content('Client Sign-In Page', 'registration-policy'); ?>
+        <tr><td>Client Account Registration</td>
+            <td><?php $manage_content('Please Confirm Email Address Page', 'registration-confirm'); ?>
+            &mdash; <?php $manage_content('Confirmation Email', 'registration-client'); ?>
+            &mdash; <?php $manage_content('Account Confirmed Page', 'registration-thanks'); ?>
+        </td></tr>
+        <tr><td>Staff Account Registration</td>
+            <td><?php $manage_content('Staff Welcome Email', 'registration-staff'); ?>
+        </td></tr>
 </tbody>
 </table>
 <p style="text-align:center">
