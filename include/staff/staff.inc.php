@@ -25,6 +25,8 @@ if($staff && $_REQUEST['a']!='add'){
     $info['isactive']=1;
     $info['isvisible']=1;
     $info['isadmin']=0;
+    $info['timezone_id'] = $cfg->getDefaultTimezoneId();
+    $info['daylight_saving'] = $cfg->observeDaylightSaving();
     $qstr.='&a=add';
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
