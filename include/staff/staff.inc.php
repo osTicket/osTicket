@@ -12,6 +12,7 @@ if($staff && $_REQUEST['a']!='add'){
     $info=$staff->getInfo();
     $info['id']=$staff->getId();
     $info['teams'] = $staff->getTeams();
+    $info['signature'] = Format::viewableImages($info['signature']);
     $qstr.='&id='.$staff->getId();
 }else {
     $title='Add New Staff';
