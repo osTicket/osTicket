@@ -27,7 +27,8 @@ if (!$cfg || !$cfg->isClientRegistrationEnabled()) {
 }
 
 elseif ($thisclient) {
-    $inc = 'profile.inc.php';
+    $inc = isset($_GET['confirmed'])
+        ? 'registration.confirmed.inc.php' : 'profile.inc.php';
     $user = User::lookup($thisclient->getId());
 }
 
@@ -61,6 +62,7 @@ elseif ($_POST) {
         switch ($_POST['do']) {
         case 'create':
             $inc = 'register.confirm.inc.php';
+            $acct->sendResetEmail('registration-client');
         }
     }
 

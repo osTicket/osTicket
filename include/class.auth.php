@@ -871,4 +871,39 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
     }
 }
 UserAuthenticationBackend::register('ClientPasswordResetTokenBackend');
+
+class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
+    static $id = "confirm.client";
+
+    function supportsAuthentication() {
+        return false;
+    }
+
+    function signOn($errors=array()) {
+        global $ost;
+
+        if (!isset($_GET['token']))
+            return false;
+        elseif (!($_config = new Config('pwreset')))
+            return false;
+        elseif (!($id = $_config->get($_GET['token'])))
+            return false;
+        elseif (!($acct = ClientAccount::lookup(array('user_id'=>$id)))
+                || !$acct->getId()
+                || $id != $acct->getUserId()
+                || !($client = new ClientSession(new EndUser($acct->getUser()))))
+            return false;
+        else
+            return $client;
+    }
+
+    protected function validate($authkey) {
+        if (!($acct = ClientAccount::lookupByUsername($authkey)))
+            return;
+
+        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
+            return $client;
+    }
+}
+UserAuthenticationBackend::register('ClientAcctConfirmationTokenBackend');
 ?>

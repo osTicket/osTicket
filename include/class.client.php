@@ -321,43 +321,68 @@ class ClientAccount extends ClientAccountModel {
         return (bool) $this->get('passwd');
     }
 
-    function sendResetEmail() {
+    function sendResetEmail($template='pwreset-client') {
         global $ost, $cfg;
 
-        $tpl= $ost->getConfig()->getDefaultTemplate();
-
         $token = Misc::randCode(48); // 290-bits
-        if (!($template = $tpl->getMsgTemplate('staff.pwreset')))
+
+        $email = $cfg->getDefaultEmail();
+        $content = Page::lookup(Page::getIdByType($template));
+
+        if (!$email ||  !$content)
             return new Error('Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'token' => $token,
-            'client' => $this,
-            'reset_link' => sprintf(
+            'recipient' => $this->getUser(),
+            'link' => sprintf(
                 "%s/pwreset.php?token=%s",
                 $ost->getConfig()->getBaseUrl(),
                 $token),
         );
-
-        if(!($email=$cfg->getAlertEmail()))
-            $email = $cfg->getDefaultEmail();
+        $vars['reset_link'] = &$vars['link'];
 
         $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
         Signal::send('auth.pwreset.email', $this, $info);
 
-        $msg = $ost->replaceTemplateVariables($template->asArray(), $vars);
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
+        ), $vars);
 
         $_config = new Config('pwreset');
         $_config->set($vars['token'], $this->user->getId());
 
         $email->send($this->user->default_email->get('address'),
-            $msg['subj'], $msg['body']);
+            Format::striptags($msg['subj']), $msg['body']);
+    }
+
+    function confirm() {
+        $this->_setStatus(self::CONFIRMED);
+        return $this->save();
+    }
+
+    function isConfirmed() {
+        return $this->_getStatus(self::CONFIRMED);
+    }
+
+    function lock() {
+        $this->_setStatus(self::LOCKED);
+        $this->save();
+    }
+
+    function isLocked() {
+        return $this->_getStatus(self::LOCKED);
     }
 
     function forcePasswdReset() {
         $this->_setStatus(self::PASSWD_RESET_REQUIRED);
         return $this->save();
+    }
+
+    function isPasswdResetForced() {
+        return $this->_getStatus(self::PASSWD_RESET_REQUIRED);
     }
 
     function _getStatus($flag) {
@@ -370,10 +395,6 @@ class ClientAccount extends ClientAccountModel {
 
     function _setStatus($flag) {
         return $this->set('status', $this->get('status') | $flag);
-    }
-
-    function isPasswdResetForced() {
-        return $this->_getStatus(self::PASSWD_RESET_REQUIRED);
     }
 
     function cancelResetTokens() {

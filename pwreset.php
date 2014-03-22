@@ -27,8 +27,6 @@ if($_POST) {
                 $banner = 'Unable to verify username '
                     .Format::htmlchars($_POST['userid']);
             break;
-        case 'create_account':
-            break;
         case 'reset':
             $inc = 'pwreset.login.php';
             $errors = array();
@@ -45,8 +43,20 @@ elseif ($_GET['token']) {
     $banner = 'Re-enter your username or email';
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
-            && ($acct = ClientAccount::lookup(array('user_id'=>$id))))
-        $inc = 'pwreset.login.php';
+            && ($acct = ClientAccount::lookup(array('user_id'=>$id)))) {
+        if (!$acct->isConfirmed()) {
+            $inc = 'register.confirmed.inc.php';
+            $acct->confirm();
+            // TODO: Log the user in
+            if ($client = UserAuthenticationBackend::processSignOn($errors)) {
+                $acct->cancelResetTokens();
+                Http::redirect('account.php?confirmed');
+            }
+        }
+        else {
+            $inc = 'pwreset.login.php';
+        }
+    }
     elseif ($id && ($user = User::lookup($id)))
         $inc = 'pwreset.create.php';
     else

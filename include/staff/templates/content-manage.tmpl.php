@@ -4,10 +4,13 @@
 <form method="post" action="#content/<?php echo $content->getId(); ?>">
     <input type="text" style="width: 100%; font-size: 14pt" name="name" value="<?php
         echo Format::htmlchars($content->getName()); ?>" />
-    <div style="margin-top: 5px"></div>
+    <div style="margin-top: 5px">
     <textarea class="richtext no-bar" name="body"><?php
     echo Format::viewableImages($content->getBody());
 ?></textarea>
+    </div>
+    <div id="msg_info" style="margin-top:7px"><?php
+echo $content->getNotes(); ?></div>
     <hr/>
     <p class="full-width">
         <span class="buttons" style="float:left">
