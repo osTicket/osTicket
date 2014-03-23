@@ -18,6 +18,7 @@ abstract class TicketUser {
     static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
 
     protected  $user;
+    protected $_guest = false;
 
     function __construct($user) {
         $this->user = $user;
@@ -135,6 +136,14 @@ abstract class TicketUser {
     function isOwner() {
         return  ($this->user
                     && $this->user->getId() == $this->getTicket()->getOwnerId());
+    }
+
+    function flagGuest() {
+        $this->_guest = true;
+    }
+
+    function isGuest() {
+        return $this->_guest;
     }
 
     abstract function getTicketId();

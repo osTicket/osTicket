@@ -16,6 +16,10 @@
 **********************************************************************/
 require('secure.inc.php');
 if(!is_object($thisclient) || !$thisclient->isValid()) die('Access denied'); //Double check again.
+
+if ($thisclient->isGuest())
+    $_REQUEST['id'] = $thisclient->getTicketId();
+
 require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;

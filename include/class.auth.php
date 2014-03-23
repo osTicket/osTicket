@@ -793,6 +793,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         if (!$user || strcmp($this->getAuthKey($user), $authkey))
             return null;
 
+        $user->flagGuest();
 
         return $user;
     }

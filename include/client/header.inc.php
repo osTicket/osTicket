@@ -43,7 +43,8 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                 style="height: 5em"></a>
             <p>
              <?php
-             if($thisclient && is_object($thisclient) && $thisclient->isValid()) {
+                if ($thisclient && is_object($thisclient) && $thisclient->isValid()
+                    && !$thisclient->isGuest()) {
                  echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
                  ?>
                 <a href="<?php echo ROOT_PATH; ?>account.php">Profile</a> |
