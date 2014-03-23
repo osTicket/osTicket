@@ -27,9 +27,18 @@ if (!$cfg || !$cfg->isClientRegistrationEnabled()) {
 }
 
 elseif ($thisclient) {
-    $inc = isset($_GET['confirmed'])
-        ? 'registration.confirmed.inc.php' : 'profile.inc.php';
-    $user = User::lookup($thisclient->getId());
+    // Guest registering for an account
+    if ($thisclient->isGuest()) {
+        foreach ($thisclient->getForms() as $f)
+            if ($f->get('type') == 'U')
+                $user_form = $f;
+    }
+    // Existing client (with an account) updating profile
+    else {
+        $user = User::lookup($thisclient->getId());
+        $inc = isset($_GET['confirmed'])
+            ? 'registration.confirmed.inc.php' : 'profile.inc.php';
+    }
 }
 
 if ($user && $_POST) {
@@ -49,8 +58,17 @@ elseif ($_POST) {
     elseif ($_POST['passwd2'] != $_POST['passwd1'])
         $errors['passwd1'] = 'Passwords do not match';
 
-    elseif (!($user=User::fromForm($user_form)))
+    // XXX: The email will always be in use already if a guest is logged in
+    // and is registering for an account. Instead,
+    elseif (!($user = $thisclient ?: User::fromForm($user_form)))
         $errors['err'] = 'Unable to register account. See messages below';
+    elseif (($addr = $user_form->getField('email')->getClean())
+            && ClientAccount::lookupByUsername($addr)) {
+        $user_form->getField('email')->addError(
+            'Email already registered. Would you like to <a href="login.php?e='
+            .urlencode($addr).'" style="color:inherit"><strong>sign in</strong></a>?');
+        $errors['err'] = 'Unable to register account. See messages below';
+    }
     else {
         if (!($acct = ClientAccount::createForUser($user)))
             $errors['err'] = 'Internal error. Unable to create new account';
@@ -66,7 +84,7 @@ elseif ($_POST) {
         }
     }
 
-    if ($errors && $user)
+    if ($errors && $user && $user != $thisclient)
         $user->delete();
 }
 

@@ -8,7 +8,18 @@ $dept = $ticket->getDept();
 if(!$dept || !$dept->isPublic())
     $dept = $cfg->getDefaultDept();
 
-?>
+if ($thisclient && $thisclient->isGuest()
+    && $cfg->isClientRegistrationEnabled()) { ?>
+
+<div id="msg_info">
+    <i class="icon-compass icon-2x pull-left"></i>
+    <strong>Looking for your other tickets?</strong></br>
+    <a href="account.php?do=create">Register for an account</a>
+    or <a href="login.php">sign in</a>
+    for the best experience on our help desk.</div>
+
+<?php } ?>
+
 <table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
     <tr>
         <td colspan="2" width="100%">
