@@ -141,7 +141,8 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     ?><a href="#ajax.php/content/<?php echo $content; ?>/manage"
     onclick="javascript:
         $.dialog($(this).attr('href').substr(1), 200);
-        return false;"><?php echo Format::htmlchars($title); ?></a><?php
+        return false;"><i class="icon-file-text"></i> <?php
+        echo Format::htmlchars($title); ?></a><?php
 }; ?>
         <tr><td>Password Reset Emails</td>
             <td><?php $manage_content('Staff Members', 'pwreset-staff'); ?>

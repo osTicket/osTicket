@@ -51,9 +51,8 @@ abstract class TicketUser {
         global $ost;
 
         if (!($ticket = $this->getTicket())
-                || !($dept = $ticket->getDept())
-                || !($email = $dept->getAutoRespEmail())
-                || !($tpl = $dept->getTemplate()->getMsgTemplate('user.accesslink')))
+                || !($email = $ost->getConfig()->getDefaultEmail())
+                || !($content = Page::lookup(Page::getIdByType('access-link'))))
             return;
 
         $vars = array(
@@ -61,8 +60,13 @@ abstract class TicketUser {
             'ticket' => $this->getTicket(),
             'recipient' => $this);
 
-        $msg = $ost->replaceTemplateVariables($tpl->asArray(), $vars);
-        $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
+        ), $vars);
+
+        $email->send($this->getEmail(), Format::striptags($msg['subj']),
+            $msg['body']);
     }
 
     protected function getAuthToken($algo=1) {
