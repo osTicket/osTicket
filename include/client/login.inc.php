@@ -4,7 +4,7 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 $email=Format::input($_POST['luser']?:$_GET['e']);
 $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
 
-$content = Page::lookup(Page::getIdByType('registration-policy'));
+$content = Page::lookup(Page::getIdByType('banner-client'));
 
 ?>
 <h1><?php echo Format::display($content->getName()); ?></h1>

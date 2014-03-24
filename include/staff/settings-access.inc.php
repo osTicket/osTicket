@@ -150,6 +150,8 @@ while (list($type, $id, $notes, $name, $u) = db_fetch_row($res))
 
 $manage_content = function($title, $content) use ($contents) {
     list($id, $name, $notes, $upd) = $contents[$content];
+    $notes = explode('. ', $notes);
+    $notes = $notes[0];
     ?><tr><td colspan="2">
     <a href="#ajax.php/content/<?php echo $id; ?>/manage"
     onclick="javascript:
@@ -157,7 +159,8 @@ $manage_content = function($title, $content) use ($contents) {
     return false;"><i class="icon-file-text pull-left icon-2x"
         style="color:#bbb;"></i> <?php
     echo Format::htmlchars($title); ?></a><br/>
-        <span class="faded"><?php echo Format::display($notes); ?>
+        <span class="faded" style="display:inline-block;width:90%"><?php
+        echo Format::display($notes); ?>
     <em>(Last Updated <?php echo Format::db_datetime($upd); ?>)</em></span></td></tr><?php
 }; ?>
         <tr>
@@ -173,8 +176,8 @@ $manage_content = function($title, $content) use ($contents) {
                 <em><b>Sign-In Pages</b></em>
             </th>
         </tr>
-        <?php $manage_content('Staff Login Banner', 'staff-banner'); ?>
-        <?php $manage_content('Client Sign-In Page', 'registration-policy'); ?>
+        <?php $manage_content('Staff Login Banner', 'banner-staff'); ?>
+        <?php $manage_content('Client Sign-In Page', 'banner-client'); ?>
         <tr>
             <th colspan="2">
                 <em><b>Client Account Registration</b></em>

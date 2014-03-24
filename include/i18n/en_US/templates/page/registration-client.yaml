@@ -9,7 +9,7 @@
 notes: >
     Confirmation email sent to clients when accounts are created for them by
     staff or via the client portal. This email serves as an email address
-    verification.
+    verification. Please use %{link} somewhere in the body.
 name: "Welcome to %{company.name}"
 body: >
     <h3><strong>Hi %{user.name.first},</strong></h3> We've created an

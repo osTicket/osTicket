@@ -1,7 +1,7 @@
 /**
  * @version v1.8.2
  * @signature 4323a6a81c35efbf7722b7fc4e475440
- * @title Add client accounts table
+ * @title Add client login feature
  *
  */
 
@@ -53,7 +53,7 @@ ALTER TABLE `%TABLE_PREFIX%help_topic`
 RENAME TABLE `%TABLE_PREFIX%page` TO `%TABLE_PREFIX%content`;
 ALTER TABLE `%TABLE_PREFIX%content`
   CHANGE `type` `type` varchar(32) NOT NULL default 'other',
-  ADD `content_id` int(10) unsigned NOT NULL default 0;
+  ADD `content_id` int(10) unsigned NOT NULL default 0 AFTER `id`;
 
 UPDATE `%TABLE_PREFIX%content`
   SET `content_id` = `id`;
@@ -90,8 +90,8 @@ DELETE FROM `%TABLE_PREFIX%config` where `namespace`='core'
 
 -- Transfer access link template
 INSERT INTO `%TABLE_PREFIX%content`
-    (`name`, `body`, `type`, `isactive`)
-    SELECT A1.`subject`, A1.`body`, 'access-link', 1
+    (`name`, `body`, `type`, `isactive`, `created`, `updated`)
+    SELECT A1.`subject`, A1.`body`, 'access-link', 1, A1.`created`, A1.`updated`
     FROM `%TABLE_PREFIX%email_template` A1
     WHERE A1.`tpl_id` = (SELECT `value` FROM `%TABLE_PREFIX%config` A3
         WHERE A3.`key` = 'default_template_id' and `namespace` = 'core')
@@ -102,8 +102,8 @@ UPDATE `%TABLE_PREFIX%content` SET `content_id` = LAST_INSERT_ID()
 
 -- Transfer staff password reset link
 INSERT INTO `%TABLE_PREFIX%content`
-    (`name`, `body`, `type`, `isactive`)
-    SELECT A1.`subject`, A1.`body`, 'pwreset-staff', 1
+    (`name`, `body`, `type`, `isactive`, `created`, `updated`)
+    SELECT A1.`subject`, A1.`body`, 'pwreset-staff', 1, A1.`created`, A1.`updated`
     FROM `%TABLE_PREFIX%email_template` A1
     WHERE A1.`tpl_id` = (SELECT `value` FROM `%TABLE_PREFIX%config` A3
         WHERE A3.`key` = 'default_template_id' and `namespace` = 'core')
