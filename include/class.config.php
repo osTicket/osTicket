@@ -155,6 +155,7 @@ class OsticketConfig extends Config {
         'add_email_collabs' => true,
         'clients_only' => false,
         'client_registration' => 'closed',
+        'accept_unregistered_email' => true,
     );
 
     function OsticketConfig($section=null) {
@@ -546,6 +547,10 @@ class OsticketConfig extends Config {
 
     function useEmailPriority() {
         return ($this->get('use_email_priority'));
+    }
+
+    function acceptUnregisteredEmail() {
+        return $this->get('accept_unregistered_email');
     }
 
     function addCollabsViaEmail() {
@@ -960,6 +965,7 @@ class OsticketConfig extends Config {
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
             'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
+            'accept_unregistered_email'=>isset($vars['accept_unregistered_email'])?1:0,
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
          ));

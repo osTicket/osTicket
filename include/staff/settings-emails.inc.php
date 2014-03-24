@@ -118,6 +118,12 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             </td>
         </tr>
         <tr>
+            <td width="180">Accept Unregistered Email:</td>
+            <td><input type="checkbox" name="accept_unregistered_email" <?php
+    echo $config['accept_unregistered_email'] ? 'checked="checked"' : ''; ?>/>
+            Allow emailed tickets from clients without an account
+        </tr>
+        <tr>
             <td width="180">Accept Email Collaborators:</td>
             <td><input type="checkbox" name="add_email_collabs" <?php
     echo $config['add_email_collabs'] ? 'checked="checked"' : ''; ?>/>

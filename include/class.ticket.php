@@ -2157,6 +2157,14 @@ class Ticket {
             };
         };
 
+        $reject_ticket = function($message) use (&$errors) {
+            $errors = array(
+                'errno' => 403,
+                'err' => 'This help desk is for use by authorized users only');
+            $ost->logWarning('Ticket Denied', $message);
+            return 0;
+        };
+
         // Create and verify the dynamic form entry for the new ticket
         $form = TicketForm::getNewInstance();
         // If submitting via email, ensure we have a subject and such
@@ -2193,12 +2201,7 @@ class Ticket {
 
             //Make sure the email address is not banned
             if (TicketFilter::isBanned($vars['email'])) {
-                $errors = array(
-                        'errno' => 403,
-                        'err' => 'This help desk is for use by authorized
-                        users only');
-                $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
-                return 0;
+                return $reject_ticket('Banned email - '.$vars['email']);
             }
 
             //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
@@ -2220,17 +2223,11 @@ class Ticket {
         //Init ticket filters...
         $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected
-        if($ticket_filter
+        if ($ticket_filter
                 && ($filter=$ticket_filter->shouldReject())) {
-            $errors = array(
-                    'errno' => 403,
-                    'err' => "This help desk is for use by authorized users
-                    only");
-            $ost->logWarning('Ticket denied',
-                    sprintf('Ticket rejected ( %s) by filter "%s"',
-                        $vars['email'], $filter->getName()));
-
-            return 0;
+            return $reject_ticket(
+                sprintf('Ticket rejected ( %s) by filter "%s"',
+                    $vars['email'], $filter->getName()));
         }
 
         $id=0;
@@ -2281,10 +2278,18 @@ class Ticket {
                         || !($user=User::fromVars($user_form->getClean())))
                     $errors['user'] = 'Incomplete client information';
             }
+
+            // Reject emails if not from registered clients (if configured)
+            if (!$cfg->acceptUnregisteredEmail() && !$user->getAccount()) {
+                return $reject_ticket(
+                    sprintf('Ticket rejected (%s) (unregistered client)',
+                        $vars['email']));
+            }
         }
 
-        //Any error above is fatal.
-        if($errors)  return 0;
+        // Any error above is fatal.
+        if ($errors)
+            return 0;
 
         # Some things will need to be unpacked back into the scope of this
         # function
