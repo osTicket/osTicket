@@ -32,6 +32,7 @@ elseif ($thisclient) {
         foreach ($thisclient->getForms() as $f)
             if ($f->get('type') == 'U')
                 $user_form = $f;
+        $user_form->getField('email')->configure('disabled', true);
     }
     // Existing client (with an account) updating profile
     else {

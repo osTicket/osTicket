@@ -478,6 +478,11 @@ class FormField {
         return $this->_cform;
     }
 
+    function configure($prop, $value) {
+        $this->getConfiguration();
+        $this->_config[$prop] = $value;
+    }
+
     function getWidget() {
         if (!static::$widget)
             throw new Exception('Widget not defined for this field');
@@ -960,12 +965,14 @@ class TextboxWidget extends Widget {
             $classes = 'class="'.$config['classes'].'"';
         if (isset($config['autocomplete']))
             $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
+        if (isset($config['disabled']))
+            $disabled = 'disabled="disabled"';
         ?>
         <span style="display:inline-block">
         <input type="<?php echo static::$input_type; ?>"
             id="<?php echo $this->name; ?>"
-            <?php echo $size . " " . $maxlength; ?>
-            <?php echo $classes.' '.$autocomplete
+            <?php echo implode(' ', array_filter(array(
+                $size, $maxlength, $classes, $autocomplete, $disabled)))
                 .' placeholder="'.$config['placeholder'].'"'; ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
