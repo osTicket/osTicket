@@ -97,7 +97,6 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 <?php foreach (array(
     'disabled' => 'Disabled — All users are guests',
     'public' => 'Public — Anyone can register',
-    'auto' => 'Automatic — Create new accounts for all new tickets',
     'closed' => 'Private — Only staff can register clients',)
     as $key=>$val) { ?>
         <option value="<?php echo $key; ?>" <?php

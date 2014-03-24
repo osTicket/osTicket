@@ -64,8 +64,14 @@ if ($_POST) {
 
 //page
 $nav->setActiveNav('new');
-if ($cfg->isClientLoginRequired() && !$thisclient) {
-    require_once 'secure.inc.php';
+if ($cfg->isClientLoginRequired()) {
+    if (!$thisclient) {
+        require_once 'secure.inc.php';
+    }
+    elseif ($thisclient->isGuest()) {
+        require_once 'login.php';
+        exit();
+    }
 }
 
 require(CLIENTINC_DIR.'header.inc.php');
