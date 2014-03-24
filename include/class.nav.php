@@ -280,7 +280,13 @@ class UserNav {
             if($cfg && $cfg->isKnowledgebaseEnabled())
                 $navs['kb']=array('desc'=>'Knowledgebase','href'=>'kb/index.php','title'=>'');
 
-            $navs['new']=array('desc'=>'Open&nbsp;New&nbsp;Ticket','href'=>'open.php','title'=>'');
+            // Show the "Open New Ticket" link unless BOTH client
+            // registration is disabled and client login is required for new
+            // tickets. In such a case, creating a ticket would not be
+            // possible for web clients.
+            if ($cfg->getClientRegistrationMode() != 'disabled'
+                    || !$cfg->isClientLoginRequired())
+                $navs['new']=array('desc'=>'Open&nbsp;New&nbsp;Ticket','href'=>'open.php','title'=>'');
             if($user && $user->isValid()) {
                 if(!$user->isGuest()) {
                     $navs['tickets']=array('desc'=>sprintf('Tickets&nbsp;(%d)',$user->getNumTickets()),
