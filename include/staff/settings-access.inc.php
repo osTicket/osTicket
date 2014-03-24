@@ -131,34 +131,64 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable).
             </td>
         </tr>
+    </tbody>
+    <thead>
+        <tr>
+            <th colspan="2">
+                <h4>Authentication and Registration Templates</h4>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+<?php
+$res = db_query('select distinct(`type`), content_id, notes, name, updated from '
+    .PAGE_TABLE
+    .' where isactive=1 group by `type`');
+$contents = array();
+while (list($type, $id, $notes, $name, $u) = db_fetch_row($res))
+    $contents[$type] = array($id, $name, $notes, $u);
+
+$manage_content = function($title, $content) use ($contents) {
+    list($id, $name, $notes, $upd) = $contents[$content];
+    ?><tr><td colspan="2">
+    <a href="#ajax.php/content/<?php echo $id; ?>/manage"
+    onclick="javascript:
+        $.dialog($(this).attr('href').substr(1), 200);
+    return false;"><i class="icon-file-text pull-left icon-2x"
+        style="color:#bbb;"></i> <?php
+    echo Format::htmlchars($title); ?></a><br/>
+        <span class="faded"><?php echo Format::display($notes); ?>
+    <em>(Last Updated <?php echo Format::db_datetime($upd); ?>)</em></span></td></tr><?php
+}; ?>
         <tr>
             <th colspan="2">
                 <em><b>Authentication and Registration Templates</b></em>
             </th>
         </tr>
-<?php $manage_content = function($title, $content) {
-    ?><a href="#ajax.php/content/<?php echo $content; ?>/manage"
-    onclick="javascript:
-        $.dialog($(this).attr('href').substr(1), 200);
-        return false;"><i class="icon-file-text"></i> <?php
-        echo Format::htmlchars($title); ?></a><?php
-}; ?>
-        <tr><td>Password Reset Emails</td>
-            <td><?php $manage_content('Staff Members', 'pwreset-staff'); ?>
-            &mdash; <?php $manage_content('Clients', 'pwreset-client'); ?>
-            &mdash; <?php $manage_content('Guess Ticket Access', 'access-link'); ?>
-        </td></tr>
-        <tr><td>Sign-In Pages</td>
-            <td><?php $manage_content('Staff Login Banner', 'staff-banner'); ?>
-            &mdash; <?php $manage_content('Client Sign-In Page', 'registration-policy'); ?>
-        <tr><td>Client Account Registration</td>
-            <td><?php $manage_content('Please Confirm Email Address Page', 'registration-confirm'); ?>
-            &mdash; <?php $manage_content('Confirmation Email', 'registration-client'); ?>
-            &mdash; <?php $manage_content('Account Confirmed Page', 'registration-thanks'); ?>
-        </td></tr>
-        <tr><td>Staff Account Registration</td>
-            <td><?php $manage_content('Staff Welcome Email', 'registration-staff'); ?>
-        </td></tr>
+        <?php $manage_content('Staff Members', 'pwreset-staff'); ?>
+        <?php $manage_content('Clients', 'pwreset-client'); ?>
+        <?php $manage_content('Guess Ticket Access', 'access-link'); ?>
+        <tr>
+            <th colspan="2">
+                <em><b>Sign-In Pages</b></em>
+            </th>
+        </tr>
+        <?php $manage_content('Staff Login Banner', 'staff-banner'); ?>
+        <?php $manage_content('Client Sign-In Page', 'registration-policy'); ?>
+        <tr>
+            <th colspan="2">
+                <em><b>Client Account Registration</b></em>
+            </th>
+        </tr>
+        <?php $manage_content('Please Confirm Email Address Page', 'registration-confirm'); ?>
+        <?php $manage_content('Confirmation Email', 'registration-client'); ?>
+        <?php $manage_content('Account Confirmed Page', 'registration-thanks'); ?>
+        <tr>
+            <th colspan="2">
+                <em><b>Staff Account Registration</b></em>
+            </th>
+        </tr>
+        <?php $manage_content('Staff Welcome Email', 'registration-staff'); ?>
 </tbody>
 </table>
 <p style="text-align:center">

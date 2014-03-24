@@ -133,7 +133,7 @@ class ContentAjaxAPI extends AjaxController {
             Http::response(403, 'Login Required');
 
         $content = Page::lookup($id, $lang);
-        include STAFFINC_DIR . 'templates/content-manage.tmpl';
+        include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
     function manageNamedContent($type, $lang=false) {
