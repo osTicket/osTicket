@@ -102,7 +102,7 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
     }
     else
         $inc='view.inc.php';
-} elseif($cfg->showRelatedTickets() && $thisclient->getNumTickets()) {
+} elseif($thisclient->getNumTickets()) {
     $inc='tickets.inc.php';
 } else {
     $nav->setActiveNav('new');

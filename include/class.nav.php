@@ -282,7 +282,7 @@ class UserNav {
 
             $navs['new']=array('desc'=>'Open&nbsp;New&nbsp;Ticket','href'=>'open.php','title'=>'');
             if($user && $user->isValid()) {
-                if(!$user->isGuest() && $cfg && $cfg->showRelatedTickets()) {
+                if(!$user->isGuest()) {
                     $navs['tickets']=array('desc'=>sprintf('Tickets&nbsp;(%d)',$user->getNumTickets()),
                                            'href'=>'tickets.php',
                                             'title'=>'Show all tickets');

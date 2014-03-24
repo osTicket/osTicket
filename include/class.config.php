@@ -296,10 +296,6 @@ class OsticketConfig extends Config {
         return $this->get('passwd_reset_period');
     }
 
-    function showRelatedTickets() {
-        return $this->get('show_related_tickets');
-    }
-
     function isHtmlThreadEnabled() {
         return $this->get('enable_html_thread');
     }

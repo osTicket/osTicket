@@ -85,6 +85,9 @@ CREATE TABLE `%TABLE_PREFIX%organization` (
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 
+DELETE FROM `%TABLE_PREFIX%config` where `namespace`='core'
+    AND `key` = 'show_related_tickets';
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '4323a6a81c35efbf7722b7fc4e475440'

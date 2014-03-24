@@ -48,11 +48,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                  echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
                  ?>
                 <a href="<?php echo ROOT_PATH; ?>account.php">Profile</a> |
-                <?php
-                if($cfg->showRelatedTickets()) {?>
                 <a href="<?php echo ROOT_PATH; ?>tickets.php">Tickets <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
-                <?php
-                } ?>
                 <a href="<?php echo ROOT_PATH; ?>logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
              <?php
              }elseif($nav){ ?>
