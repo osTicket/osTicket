@@ -19,7 +19,7 @@ if(!defined('INCLUDE_DIR')) die('Fatal Error. Kwaheri!');
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
-$content = Page::lookup(Page::getIdByType('staff-banner'));
+$content = Page::lookup(Page::getIdByType('banner-staff'));
 
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
