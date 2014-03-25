@@ -29,6 +29,7 @@ if ($cfg->getClientRegistrationMode() == 'disabled')
 else
     $inc = 'login.inc.php';
 
+$suggest_pwreset = false;
 if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
         $errors['err'] = 'Valid username or email address is required';
@@ -36,8 +37,9 @@ if ($_POST && isset($_POST['luser'])) {
             $_POST['lpasswd'], $errors))) {
         Http::redirect($_SESSION['_client']['auth']['dest'] ?: 'tickets.php');
     } elseif(!$errors['err']) {
-        $errors['err'] = 'Invalid email or ticket number - try again!';
+        $errors['err'] = 'Invalid username or password - try again!';
     }
+    $suggest_pwreset = true;
 }
 elseif ($_POST && isset($_POST['lticket'])) {
     if (!Validator::is_email($_POST['lemail']))

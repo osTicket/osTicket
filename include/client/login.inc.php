@@ -25,6 +25,9 @@ $content = Page::lookup(Page::getIdByType('banner-client'));
     </div>
     <p>
         <input class="btn" type="submit" value="Sign In">
+<?php if ($suggest_pwreset) { ?>
+        <a style="padding-top:4px;display:inline-block;" href="pwreset.php">Forgot My Password</a>
+<?php } ?>
     </p>
     </div>
     <div style="display:table-cell;padding-left: 2em;">

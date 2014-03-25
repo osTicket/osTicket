@@ -637,13 +637,11 @@ label.required {
 }
 #clientLogin p {
   clear: both;
-  text-align: right;
 }
 #clientLogin strong {
   font-size: 11px;
   color: #d00;
   display: block;
-  padding-left: 140px;
 }
 #clientLogin #email {
   width: 250px;
