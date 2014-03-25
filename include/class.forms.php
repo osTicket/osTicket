@@ -937,7 +937,7 @@ class Widget {
         $this->value = $this->getValue();
         if (!isset($this->value) && is_object($this->field->getAnswer()))
             $this->value = $this->field->getAnswer()->getValue();
-        if (!isset($this->value) && $this->field->value)
+        if (!isset($this->value) && isset($this->field->value))
             $this->value = $this->field->value;
     }
 
