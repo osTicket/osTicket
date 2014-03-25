@@ -492,6 +492,14 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         return $user;
     }
+
+    protected function validate($username) {
+        if (!($acct = ClientAccount::lookupByUsername($username)))
+            return;
+
+        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
+            return $client;
+    }
 }
 
 /**
@@ -861,18 +869,11 @@ class osTicketClientAuthentication extends UserAuthenticationBackend {
             return;
 
         if (($client = new ClientSession(new EndUser($acct->getUser())))
-            && $client->getId()
-            && $acct->checkPassword($password)
-        ) {
-            return $client;
-        }
-    }
-
-    protected function validate($username) {
-        if (!($acct = ClientAccount::lookupByUsername($username)))
-            return;
-
-        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
+                && !$client->getId())
+            return false;
+        elseif (!$acct->checkPassword($password))
+            return false;
+        else
             return $client;
     }
 }
@@ -913,14 +914,6 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
         Signal::send('auth.pwreset.login', $client);
         return parent::login($client, $bk);
     }
-
-    protected function validate($authkey) {
-        if (!($acct = ClientAccount::lookupByUsername($authkey)))
-            return;
-
-        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
-            return $client;
-    }
 }
 UserAuthenticationBackend::register('ClientPasswordResetTokenBackend');
 
@@ -946,14 +939,6 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
             return false;
         else
-            return $client;
-    }
-
-    protected function validate($authkey) {
-        if (!($acct = ClientAccount::lookupByUsername($authkey)))
-            return;
-
-        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
             return $client;
     }
 }

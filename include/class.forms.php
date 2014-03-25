@@ -1097,6 +1097,8 @@ class CheckboxWidget extends Widget {
 
     function render() {
         $config = $this->field->getConfiguration();
+        if (!isset($this->value))
+            $this->value = $this->field->get('default');
         ?>
         <input type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
