@@ -59,6 +59,7 @@ abstract class TicketUser {
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'ticket' => $this->getTicket(),
+            'user' => $this,
             'recipient' => $this);
 
         $msg = $ost->replaceTemplateVariables(array(
@@ -348,6 +349,7 @@ class ClientAccount extends ClientAccountModel {
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'token' => $token,
+            'user' => $this->getUser(),
             'recipient' => $this->getUser(),
             'link' => sprintf(
                 "%s/pwreset.php?token=%s",

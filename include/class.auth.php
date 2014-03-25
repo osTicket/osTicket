@@ -128,17 +128,23 @@ abstract class AuthenticationBackend {
             // All backends are queried here, even if they don't support
             // authentication so that extensions like lockouts and audits
             // can be supported.
-            $result = $bk->authenticate($username, $password);
-            if ($result instanceof AuthenticatedUser
-                    && ($bk->login($result, $bk)))
-                return $result;
-            elseif ($result instanceof AccessDenied) {
+            try {
+                $result = $bk->authenticate($username, $password);
+                if ($result instanceof AuthenticatedUser
+                        && ($bk->login($result, $bk)))
+                    return $result;
+                elseif ($result instanceof AccessDenied) {
+                    break;
+                }
+            }
+            catch (AccessDenied $e) {
+                $result = $e;
                 break;
             }
         }
 
         if (!$result)
-            $result = new  AccessDenied('Access denied');
+            $result = new AccessDenied('Access denied');
 
         if ($result && $result instanceof AccessDenied)
             $errors['err'] = $result->reason;
@@ -413,6 +419,15 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 || !($authkey = $bk->getAuthKey($user)))
             return false;
 
+        $acct = $user->getAccount();
+
+        if ($acct) {
+            if (!$acct->isConfirmed())
+                throw new AccessDenied('Account confirmation required');
+            elseif ($acct->isLocked())
+                throw new AccessDenied('Account is administratively locked');
+        }
+
         //Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
 
@@ -482,9 +497,10 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 /**
  * This will be an exception in later versions of PHP
  */
-class AccessDenied {
+class AccessDenied extends Exception {
     function __construct($reason) {
         $this->reason = $reason;
+        parent::__construct($reason);
     }
 }
 
