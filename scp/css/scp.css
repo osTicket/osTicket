@@ -1359,6 +1359,12 @@ time {
     font-size:0.75em;
 }
 
+.dialog ul.tabs, .dialog ul.tabs * {
+    box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+}
+
 .dialog.draggable h3:hover {
     cursor: crosshair;
 }
