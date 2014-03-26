@@ -223,11 +223,36 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
     </table>
-<p class="centered">
+<p class="centered" id="actions">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
 </p>
+
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3><i class="icon-trash"></i> Delete Existing Data?</h3>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="submit-confirm">
+        Would you also like to remove data currently entered for this field?
+        <em>If you say no, you will have the option to delete the the data when editing it</em>
+        <br><br>Deleted data CANNOT be recovered.
+        <hr>
+        <input type="checkbox" name="delete-data" />
+        Remove all data entered for this field
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Save Changes!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>
 </form>
 
 <div style="display:none;" class="dialog draggable" id="field-config">
