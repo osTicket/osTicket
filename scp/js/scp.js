@@ -562,7 +562,7 @@ $(document).ready(function(){
    $(document).on('click.tab', 'ul.tabs li a', function(e) {
         e.preventDefault();
         if ($('.tab_content'+$(this).attr('href')).length) {
-            $('ul.tabs li a').removeClass('active');
+            $('ul.tabs li a', $(this).closest('ul').parent()).removeClass('active');
             $(this).addClass('active');
             $('.tab_content').hide();
             $('.tab_content'+$(this).attr('href')).show();
