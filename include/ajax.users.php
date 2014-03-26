@@ -22,7 +22,7 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 class UsersAjaxAPI extends AjaxController {
 
     /* Assumes search by emal for now */
-    function search() {
+    function search($type = null) {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, 'Query argument is required');
@@ -31,40 +31,46 @@ class UsersAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
         $emails=array();
-        foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
-            $name = "{$u['first']} {$u['last']}";
-            $users[] = array('email' => $u['email'], 'name'=>$name,
-                'info' => "{$u['email']} - $name (remote)",
-                'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
-            $emails[] = $u['email'];
+
+        if (!$type || !strcasecmp($type, 'remote')) {
+            foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
+                $name = "{$u['first']} {$u['last']}";
+                $users[] = array('email' => $u['email'], 'name'=>$name,
+                    'info' => "{$u['email']} - $name (remote)",
+                    'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
+                $emails[] = $u['email'];
+            }
         }
-        $remote_emails = ($emails = array_filter($emails))
-            ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
-            : '';
 
-        $escaped = db_input(strtolower($_REQUEST['q']), false);
-        $sql='SELECT DISTINCT user.id, email.address, name '
-            .' FROM '.USER_TABLE.' user '
-            .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
-               LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
-            .' WHERE email.address LIKE \'%'.$escaped.'%\'
-               OR user.name LIKE \'%'.$escaped.'%\'
-               OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
-            .' ORDER BY user.created '
-            .' LIMIT '.$limit;
+        if (!$type || !strcasecmp($type, 'local')) {
+            $remote_emails = ($emails = array_filter($emails))
+                ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
+                : '';
 
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id,$email,$name)=db_fetch_row($res)) {
-                foreach ($users as $i=>$u) {
-                    if ($u['email'] == $email) {
-                        unset($users[$i]);
-                        break;
+            $escaped = db_input(strtolower($_REQUEST['q']), false);
+            $sql='SELECT DISTINCT user.id, email.address, name '
+                .' FROM '.USER_TABLE.' user '
+                .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
+                .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
+                   LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
+                .' WHERE email.address LIKE \'%'.$escaped.'%\'
+                   OR user.name LIKE \'%'.$escaped.'%\'
+                   OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
+                .' ORDER BY user.created '
+                .' LIMIT '.$limit;
+
+            if(($res=db_query($sql)) && db_num_rows($res)){
+                while(list($id,$email,$name)=db_fetch_row($res)) {
+                    foreach ($users as $i=>$u) {
+                        if ($u['email'] == $email) {
+                            unset($users[$i]);
+                            break;
+                        }
                     }
+                    $name = Format::htmlchars($name);
+                    $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
+                        "id" => $id, "/bin/true" => $_REQUEST['q']);
                 }
-                $name = Format::htmlchars($name);
-                $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
-                    "id" => $id, "/bin/true" => $_REQUEST['q']);
             }
         }
 
