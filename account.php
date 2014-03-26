@@ -55,15 +55,13 @@ elseif ($_POST) {
     $user_form = UserForm::getUserForm()->getForm($_POST);
     if (!$user_form->isValid(function($f) { return !$f->get('internal'); }))
         $errors['err'] = 'Incomplete client information';
-    elseif (!$_POST['passwd1'])
+    elseif (!$_POST['backend'] && !$_POST['passwd1'])
         $errors['passwd1'] = 'New password required';
-    elseif ($_POST['passwd2'] != $_POST['passwd1'])
+    elseif (!$_POST['backend'] && $_POST['passwd2'] != $_POST['passwd1'])
         $errors['passwd1'] = 'Passwords do not match';
 
     // XXX: The email will always be in use already if a guest is logged in
     // and is registering for an account. Instead,
-    elseif (!($user = $thisclient ?: User::fromForm($user_form)))
-        $errors['err'] = 'Unable to register account. See messages below';
     elseif (($addr = $user_form->getField('email')->getClean())
             && ClientAccount::lookupByUsername($addr)) {
         $user_form->getField('email')->addError(
@@ -71,6 +69,12 @@ elseif ($_POST) {
             .urlencode($addr).'" style="color:inherit"><strong>sign in</strong></a>?');
         $errors['err'] = 'Unable to register account. See messages below';
     }
+    // Users created from ClientCreateRequest
+    elseif (isset($_POST['backend']) && !($user = User::fromVars($user_form->getClean())))
+        $errors['err'] = 'Unable to create local account. See messages below';
+    // New users and users registering from a ticket access link
+    elseif (!$user && !($user = $thisclient ?: User::fromForm($user_form)))
+        $errors['err'] = 'Unable to register account. See messages below';
     else {
         if (!($acct = ClientAccount::createForUser($user)))
             $errors['err'] = 'Internal error. Unable to create new account';
@@ -84,6 +88,18 @@ elseif ($_POST) {
             $content = Page::lookup(Page::getIdByType('registration-confirm'));
             $inc = 'register.confirm.inc.php';
             $acct->sendResetEmail('registration-client');
+            break;
+        case 'import':
+            foreach (UserAuthenticationBackend::allRegistered() as $bk) {
+                if ($bk::$id == $_POST['backend']) {
+                    $cl = new ClientSession(new EndUser($user));
+                    $acct->confirm();
+                    if ($user = $bk->login($cl, $bk))
+                        Http::redirect('tickets.php');
+                    break;
+                }
+            }
+            break;
         }
     }
 

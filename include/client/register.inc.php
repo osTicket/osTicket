@@ -1,18 +1,31 @@
 <?php
-$info = $_POST ?: array(
-    'timezone_id' => $cfg->getDefaultTimezoneId(),
-    'dst' => $cfg->observeDaylightSaving(),
-);
+$info = $_POST;
+if (!isset($info['timezone_id']))
+    $info += array(
+        'timezone_id' => $cfg->getDefaultTimezoneId(),
+        'dst' => $cfg->observeDaylightSaving(),
+        'backend' => null,
+    );
+if (isset($user) && $user instanceof ClientCreateRequest) {
+    $bk = $user->getBackend();
+    $info = array_merge($info, array(
+        'backend' => $bk::$id,
+        'username' => $user->getUsername(),
+    ));
+}
+
 ?>
 <h1>Account Registration</h1>
 <p>
-Use the forms below to update the information we have on file for your
-account
+Use the forms below to create or update the information we have on file for
+your account
 </p>
 <form action="account.php" method="post">
   <?php csrf_token(); ?>
-  <input type="hidden" name="do" value="<?php echo $_REQUEST['do'] ?: 'create'; ?>" />
+  <input type="hidden" name="do" value="<?php echo $_REQUEST['do']
+    ?: ($info['backend'] ? 'import' :'create'); ?>" />
 <table width="800" class="padded">
+<tbody>
 <?php
     $cf = $user_form ?: UserForm::getInstance();
     $cf->render(false);
@@ -54,6 +67,23 @@ account
         <div><hr><h3>Access Credentials</h3></div>
     </td>
 </tr>
+<?php if ($info['backend']) { ?>
+<tr>
+    <td width="180">
+        Login With:
+    </td>
+    <td>
+        <input type="hidden" name="backend" value="<?php echo $info['backend']; ?>"/>
+        <input type="hidden" name="username" value="<?php echo $info['username']; ?>"/>
+<?php foreach (UserAuthenticationBackend::allRegistered() as $bk) {
+    if ($bk::$id == $info['backend']) {
+        echo $bk::$name;
+        break;
+    }
+} ?>
+    </td>
+</tr>
+<?php } else { ?>
 <tr>
     <td width="180">
         Create a Password:
@@ -72,6 +102,8 @@ account
         &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
     </td>
 </tr>
+<?php } ?>
+</tbody>
 </table>
 <hr>
 <p style="text-align: center;">

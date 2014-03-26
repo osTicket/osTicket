@@ -51,6 +51,44 @@ interface AuthDirectorySearch {
 }
 
 /**
+ * Class: ClientCreateRequest
+ *
+ * Simple container to represent a remote authentication success for a
+ * client which should be imported into the local database. The class will
+ * provide access to the backend that authenticated the user, the username
+ * that the user entered when logging in, and any other information about
+ * the user that the backend was able to lookup. Generally, this extra
+ * information would be the same information retrieved from calling the
+ * AuthDirectorySearch::lookup() method.
+ */
+class ClientCreateRequest {
+
+    var $backend;
+    var $username;
+    var $info;
+
+    function __construct($backend, $username, $info=array()) {
+        $this->backend = $backend;
+        $this->username = $username;
+        $this->info = $info;
+    }
+
+    function getBackend() {
+        return $this->backend;
+    }
+    function setBackend($what) {
+        $this->backend = $what;
+    }
+
+    function getUsername() {
+        return $this->username;
+    }
+    function getInfo() {
+        return $this->info;
+    }
+}
+
+/**
  * Authentication backend
  *
  * Authentication provides the basis of abstracting the link between the
@@ -132,6 +170,9 @@ abstract class AuthenticationBackend {
                 $result = $bk->authenticate($username, $password);
                 if ($result instanceof AuthenticatedUser
                         && ($bk->login($result, $bk)))
+                    return $result;
+                elseif ($result instanceof ClientCreateRequest
+                        && $bk instanceof UserAuthenticationBackend)
                     return $result;
                 elseif ($result instanceof AccessDenied) {
                     break;
@@ -407,8 +448,20 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function getAllowedBackends($userid) {
-        // White listing backends for specific user not supported.
-        return array();
+        $backends = array();
+        $sql = 'SELECT A1.backend FROM '.USER_ACCOUNT_TABLE
+              .' A1 INNER JOIN '.USER_EMAIL_TABLE.' A2 ON (A2.user_id = A1.user_id)'
+              .' WHERE backend IS NOT NULL '
+              .' AND (A1.username='.db_input($userid)
+                  .' OR A2.`address`='.db_input($userid).')';
+
+        if (!($res=db_query($sql, false)))
+            return $backends;
+
+        while (list($bk) = db_fetch_row($res))
+            $backends[] = $bk;
+
+        return array_filter($backends);
     }
 
     function login($user, $bk) {

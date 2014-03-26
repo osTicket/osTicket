@@ -474,6 +474,12 @@ class ClientAccount extends ClientAccountModel {
         $this->set('timezone_id', $vars['timezone_id']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
 
+        if ($vars['backend']) {
+            $this->set('backend', $vars['backend']);
+            if ($vars['username'])
+                $this->set('username', $vars['username']);
+        }
+
         if ($vars['passwd1']) {
             $this->set('passwd', Passwd::hash($vars['passwd1']));
             $info = array('password' => $vars['passwd1']);

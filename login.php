@@ -35,7 +35,21 @@ if ($_POST && isset($_POST['luser'])) {
         $errors['err'] = 'Valid username or email address is required';
     elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
             $_POST['lpasswd'], $errors))) {
-        Http::redirect($_SESSION['_client']['auth']['dest'] ?: 'tickets.php');
+        if ($user instanceof ClientCreateRequest) {
+            if ($cfg && $cfg->isClientRegistrationEnabled()) {
+                $inc = 'register.inc.php';
+                $user_form = UserForm::getUserForm()->getForm($user->getInfo());
+            }
+            else {
+                $errors['err'] = 'Access Denied. Contact your help desk
+                    administrator to have an account registered for you';
+                // fall through to show login page again
+            }
+        }
+        else {
+            Http::redirect($_SESSION['_client']['auth']['dest']
+                ?: 'tickets.php');
+        }
     } elseif(!$errors['err']) {
         $errors['err'] = 'Invalid username or password - try again!';
     }
