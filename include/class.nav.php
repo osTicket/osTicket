@@ -96,9 +96,10 @@ class StaffNav {
 
         if(!$this->tabs) {
             $this->tabs=array();
-            $this->tabs['dashboard']=array('desc'=>'Dashboard','href'=>'dashboard.php','title'=>'Staff Dashboard');
-            $this->tabs['tickets']=array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
-            $this->tabs['kbase']=array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
+            $this->tabs['dashboard'] = array('desc'=>'Dashboard','href'=>'dashboard.php','title'=>'Staff Dashboard');
+            $this->tabs['users'] = array('desc' => 'Users', 'href' => 'users.php', 'title' => 'User Directory');
+            $this->tabs['tickets'] = array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
+            $this->tabs['kbase'] = array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
         }
 
         return $this->tabs;
@@ -133,6 +134,10 @@ class StaffNav {
                     $subnav[]=array('desc'=>'Dashboard','href'=>'dashboard.php','iconclass'=>'logs');
                     $subnav[]=array('desc'=>'Staff&nbsp;Directory','href'=>'directory.php','iconclass'=>'teams');
                     $subnav[]=array('desc'=>'My&nbsp;Profile','href'=>'profile.php','iconclass'=>'users');
+                    break;
+                case 'users':
+                    $subnav[] = array('desc' => 'User&nbsp;Directory', 'href' => 'users.php', 'iconclass' => 'teams');
+                    $subnav[] = array('desc' => 'Organizations', 'href' => 'orgs.php', 'iconclass' => 'departments');
                     break;
                 case 'kbase':
                     $subnav[]=array('desc'=>'FAQs','href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
