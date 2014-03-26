@@ -110,6 +110,91 @@ class UsersAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/user.tmpl.php');
     }
 
+    function register($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        $errors = $info = array();
+        if ($_POST) {
+            // Register user on post
+            if ($user->getAccount())
+                $info['error'] = 'User already registered';
+            elseif ($user->register($_POST, $errors))
+                Http::response(201, 'Account created successfully');
+
+            // Unable to create user.
+            $info = Format::htmlchars($_POST);
+            if ($errors['err'])
+                $info['error'] = $errors['err'];
+            else
+                $info['error'] = 'Unable to register user - try again!';
+        }
+
+        include(STAFFINC_DIR . 'templates/user-register.tmpl.php');
+    }
+
+    function manage($id, $target) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        if (!($account = $user->getAccount()))
+            return self::register($id);
+
+        $errors = array();
+        $info = $account->getInfo();
+
+        if ($_POST) {
+            if ($account->update($_POST, $errors))
+                Http::response(201, 'Account updated successfully');
+
+            // Unable to update account
+            $info = Format::htmlchars($_POST);
+
+            if ($errors['err'])
+                $info['error'] = $errors['err'];
+            else
+                $info['error'] = 'Unable to update account - try again!';
+        }
+
+        $info['_target'] = $target;
+
+        include(STAFFINC_DIR . 'templates/user-account.tmpl.php');
+    }
+
+    function delete($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        //Switch to end user so we can get ticket stats
+        // fixme: use orm to get ticket count at the user model level.
+        $user = new EndUser($user);
+
+        $info = array();
+        if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
+
+            if ($user->getNumTickets())
+                $info['error'] = 'You cannot delete a user with tickets!';
+            elseif ($user->delete())
+                 Http::response(204, 'User deleted successfully');
+            else
+                $info['error'] = 'Unable to delete user - try again!';
+        }
+
+        include(STAFFINC_DIR . 'templates/user-delete.tmpl.php');
+    }
+
     function getUser($id=false) {
 
         if(($user=User::lookup(($id) ? $id : $_REQUEST['id'])))
@@ -122,11 +207,19 @@ class UsersAjaxAPI extends AjaxController {
 
     function addUser() {
 
-        $form = UserForm::getUserForm()->getForm($_POST);
-        if (($user = User::fromForm($form)))
-            Http::response(201, $user->to_json());
+        $info = array();
 
-        $info = array('error' =>'Error adding user - try again!');
+        if ($_POST) {
+
+            $form = UserForm::getUserForm()->getForm($_POST);
+            if (($user = User::fromForm($form)))
+                Http::response(201, $user->to_json());
+
+            $info = array('error' =>'Error adding user - try again!');
+        } else {
+            $info['lookuptype'] = remote;
+            $info['title'] = 'Add New User';
+        }
 
         return self::_lookupform($form, $info);
     }
