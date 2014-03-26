@@ -3,7 +3,11 @@
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Search existing users or add a new user.</p></div>
-<div style="margin-bottom:10px;"><input type="text" class="search-input" style="width:100%;" placeholder="Search by email, phone or name" id="user-search" autocorrect="off" autocomplete="off"/></div>
+<div style="margin-bottom:10px;">
+    <input type="text" class="search-input" style="width:100%;"
+    placeholder="Search by email, phone or name" id="user-search"
+    autocorrect="off" autocomplete="off"/>
+</div>
 <?php
 if ($info['error']) {
     echo sprintf('<p id="msg_error">%s</p>', $info['error']);
@@ -73,7 +77,8 @@ $(function() {
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
             last_req = $.ajax({
-                url: "ajax.php/users?q="+query,
+                url: "ajax.php/users<?php
+                    echo $info['lookuptype'] ? "/{$info['lookuptype']}" : '' ?>?q="+query,
                 dataType: 'json',
                 success: function (data) {
                     typeahead.process(data);
