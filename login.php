@@ -26,15 +26,11 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 
 $inc = 'login.inc.php';
 if ($_POST) {
-    if (!$_POST['lticket'] || !Validator::is_email($_POST['lemail']))
-        $errors['err'] = 'Valid email address and ticket number required';
-    elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
-                    $_POST['lticket'], $errors))) {
-        //We're using authentication backend so we can guard aganist brute
-        // force attempts (which doesn't buy much since the link is emailed)
-        $user->sendAccessLink();
-        $msg = sprintf("%s - access link sent to your email!",
-            $user->getName()->getFirst());
+    if (!$_POST['luser'])
+        $errors['err'] = 'Valid username or email address is required';
+    elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
+            $_POST['lpasswd'], $errors))) {
+        Http::redirect('tickets.php');
         $_POST = null;
     } elseif(!$errors['err']) {
         $errors['err'] = 'Invalid email or ticket number - try again!';

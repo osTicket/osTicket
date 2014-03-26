@@ -431,8 +431,11 @@ $(document).ready(function(){
         $('#advanced-search').show();
     });
 
-    $.dialog = function (url, code, cb, options) {
+    $.dialog = function (url, codes, cb, options) {
         options = options||{};
+
+        if (codes && !$.isArray(codes))
+            codes = [codes];
 
         $('.dialog#popup .body').load(url, function () {
             $('#overlay').show();
@@ -451,11 +454,12 @@ $(document).ready(function(){
                     data: $form.serialize(),
                     cache: false,
                     success: function(resp, status, xhr) {
-                        if (xhr && xhr.status == code) {
+                        if (xhr && xhr.status && codes
+                            && $.inArray(xhr.status, codes) != -1) {
                             $('div.body', $dialog).empty();
                             $dialog.hide();
                             $('#overlay').hide();
-                            if(cb) cb(xhr.responseText);
+                            if(cb) cb(xhr);
                         } else {
                             $('div.body', $dialog).html(resp);
                             $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
@@ -471,9 +475,9 @@ $(document).ready(function(){
      };
 
     $.userLookup = function (url, cb) {
-        $.dialog(url, 201, function (resp) {
-            var user = $.parseJSON(resp);
-            if(cb) cb(user);
+        $.dialog(url, 201, function (xhr) {
+            var user = $.parseJSON(xhr.responseText);
+            if (cb) cb(user);
         }, {
             onshow: function() { $('#user-search').focus(); }
         });
@@ -558,7 +562,7 @@ $(document).ready(function(){
    $(document).on('click.tab', 'ul.tabs li a', function(e) {
         e.preventDefault();
         if ($('.tab_content'+$(this).attr('href')).length) {
-            $('ul.tabs li a').removeClass('active');
+            $('ul.tabs li a', $(this).closest('ul').parent()).removeClass('active');
             $(this).addClass('active');
             $('.tab_content').hide();
             $('.tab_content'+$(this).attr('href')).show();
@@ -569,9 +573,9 @@ $(document).ready(function(){
     $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
         e.preventDefault();
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, 201, function (resp) {
+        $.dialog(url, 201, function (xhr) {
            $('input#emailcollab').show();
-           $('#recipients').text(resp);
+           $('#recipients').text(xhr.responseText);
            $('.tip_box').remove();
         }, {
             onshow: function() { $('#user-search').focus(); }

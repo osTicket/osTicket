@@ -36,6 +36,10 @@ class UserModel extends VerySimpleModel {
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
             ),
+            'account' => array(
+                'list' => false,
+                'reverse' => 'UserAccountModel.user',
+            ),
             'default_email' => array(
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
@@ -68,6 +72,8 @@ class User extends UserModel {
 
     var $_entries;
     var $_forms;
+
+    var $_account;
 
     function __construct($ht) {
         parent::__construct($ht);
@@ -186,9 +192,11 @@ class User extends UserModel {
             if (!$this->_entries) {
                 $g = UserForm::getInstance();
                 $g->setClientId($this->id);
+                $g->save();
                 $this->_entries[] = $g;
             }
         }
+
         return $this->_entries;
     }
 
@@ -215,6 +223,67 @@ class User extends UserModel {
 
         return $this->_forms;
     }
+
+
+    function getAccount() {
+        // XXX: return $this->account;
+
+        if (!isset($this->_account))
+            $this->_account = UserAccount::lookup(array('user_id'=>$this->getId()));
+
+        return $this->_account;
+    }
+
+    function getAccountStatus() {
+
+        if ($this->getAccount())
+            return (string) $this->getAccount()->getStatus();
+
+        return 'Unregistered';
+    }
+
+    function register($vars, &$errors) {
+
+        // user already registered?
+        if ($this->getAccount())
+            return true;
+
+        //Require temp password.
+        if (!isset($vars['sendemail'])) {
+            if (!$vars['passwd1'])
+                $errors['passwd1'] = 'Temp. password required';
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1'] = 'Must be at least 6 characters';
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2'] = 'Password(s) do not match';
+        }
+
+        if ($errors) return false;
+
+        $account = UserAccount::create(array('user_id' => $this->getId()));
+        if (!$account)
+            return false;
+
+        $account->set('dst', isset($vars['dst'])?1:0);
+        $account->set('timezone_id', $vars['timezone_id']);
+
+        if ($vars['username'] && strcasecmp($vars['username'], $this->getEmail()))
+            $account->set('username', $vars['username']);
+
+        if (!$vars['sendemail'])
+            $account->set('passwd', Password::hash($vars['passwd1']));
+        //TODO: else $account->sendActivationEmail();
+
+        $account->save(true);
+
+        return $account;
+    }
+
+    //TODO: Add organization support
+    function getOrg() {
+        return '';
+    }
+
 
     function updateInfo($vars, &$errors) {
 
@@ -280,9 +349,20 @@ class User extends UserModel {
             $this->name = mb_convert_case($this->name, MB_CASE_TITLE);
         }
 
-        if (count($this->dirty))
+        if (count($this->dirty)) //XXX: doesn't work??
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);
+    }
+
+    function delete() {
+        //TODO:  See about deleting other associated models.
+
+        // Delete email
+        if ($this->default_email)
+            $this->default_email->delete();
+
+        // Delete user
+        return parent::delete();
     }
 }
 User::_inspect();
@@ -467,6 +547,100 @@ class UserEmail extends UserEmailModel {
         }
         return $email;
     }
+}
+
+
+class UserAccountModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => USER_ACCOUNT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'user' => array(
+                'null' => false,
+                'constraint' => array('user_id' => 'UserModel.id')
+            ),
+        ),
+    );
+}
+
+class UserAccount extends UserAccountModel {
+    var $_options = null;
+    var $timezone;
+
+    const CONFIRMED             = 0x0001;
+    const LOCKED                = 0x0002;
+    const PASSWD_RESET_REQUIRED = 0x0004;
+
+    private function hasStatus($flag) {
+        return 0 !== ($this->get('status') & $flag);
+    }
+
+    private function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    private function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function getStatus() {
+        return $this->get('status');
+    }
+
+    function getInfo() {
+        return $this->ht;
+    }
+
+    function __toString() {
+        return (string) $this->getStatus();
+    }
+
+    /*
+     * This assumes the staff is doing the update
+     */
+    function update($vars, &$errors) {
+        global $thisstaff;
+
+
+        if (!$thisstaff) {
+            $errors['err'] = 'Access Denied';
+            return false;
+        }
+
+        // TODO: Make sure the username is unique
+
+        if (!$vars['timezone_id'])
+            $errors['timezone_id'] = 'Time zone required';
+
+        // Changing password?
+        if ($vars['passwd1'] || $vars['passwd2']) {
+            if (!$vars['passwd1'])
+                $errors['passwd1'] = 'New password required';
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1'] = 'Must be at least 6 characters';
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2'] = 'Password(s) do not match';
+        }
+
+        if ($errors) return false;
+
+        $this->set('timezone_id', $vars['timezone_id']);
+        $this->set('dst', isset($vars['dst']) ? 1 : 0);
+
+        // Make sure the username is not an email.
+        if ($vars['username'] && Validator::is_email($vars['username']))
+             $vars['username'] = '';
+
+        $this->set('username', $vars['username']);
+
+        if ($vars['passwd1']) {
+            $this->set('passwd', Passwd::hash($vars['passwd']));
+            $this->setStatus(self::CONFIRMED);
+        }
+
+        return $this->save(true);
+    }
+
 }
 
 

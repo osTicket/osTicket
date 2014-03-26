@@ -419,8 +419,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $authsession = array(); //clear.
         $authsession['id'] = $user->getId();
         $authsession['key'] = $authkey;
-        $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
-        $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 
         //The backend used decides the format of the auth key.
         // XXX: encrypt to hide the bk??
@@ -797,38 +795,41 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 }
 UserAuthenticationBackend::register('AuthTokenAuthentication');
 
-//Simple ticket lookup backend used to recover ticket access link.
-// We're using authentication backend so we can guard aganist brute force
-// attempts (which doesn't buy much since the link is emailed)
-class AccessLinkAuthentication extends UserAuthenticationBackend {
-    static $name = "Ticket Access Link Authentication";
-    static $id = "authlink";
+class osTicketClientAuthentication extends UserAuthenticationBackend {
+    static $name = "Local Client Authentication";
+    static $id = "client";
 
-    function authenticate($email, $number) {
+    function authenticate($username, $password) {
+        if (strpos($username, '@') !== false)
+            $user = User::lookup(array('emails__address'=>$username));
+        else
+            $user = User::lookup(array('account__username'=>$username));
 
-        if (!($ticket = Ticket::lookupByNumber($number))
-                || !($user=User::lookup(array('emails__address' =>
-                            $email))))
-            return false;
+        if (!$user)
+            return;
 
-        //Ticket owner?
-        if ($ticket->getUserId() == $user->getId())
-            $user = $ticket->getOwner();
-        //Collaborator?
-        elseif (!($user = Collaborator::lookup(array('userId' =>
-                            $user->getId(), 'ticketId' =>
-                            $ticket->getId()))))
-            return false; //Bro, we don't know you!
-
-
-        return new ClientSession($user);
+        if (($client = new ClientSession(new EndUser($user)))
+            && $client->getId()
+            && ($acct = $client->getAccount())
+            && $acct->checkPassword($password)
+        ) {
+            return $client;
+        }
     }
 
-    //We are not actually logging in the user....
-    function login($user, $bk) {
-        return true;
+    protected function validate($authkey) {
+        if (strpos($authkey, '@') !== false)
+            $user = User::lookup(array('emails__address'=>$authkey));
+        else
+            $user = User::lookup(array('account__authkey'=>$authkey));
+
+        if (!$user)
+            return;
+
+        if (($client = new ClientSession(new EndUser($user))) && $client->getId())
+            return $client;
     }
 
 }
-UserAuthenticationBackend::register('AccessLinkAuthentication');
+UserAuthenticationBackend::register('osTicketClientAuthentication');
 ?>

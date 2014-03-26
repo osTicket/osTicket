@@ -634,7 +634,7 @@ label.required {
 }
 #clientLogin p {
   clear: both;
-  text-align: center;
+  text-align: right;
 }
 #clientLogin strong {
   font-size: 11px;
@@ -869,4 +869,9 @@ a.refresh {
 .action-button a {
   color: #777;
   text-decoration: none;
+}
+table.padded tr > td,
+table.padded tr > th {
+  height: 20px;
+  padding-bottom: 5px;
 }
