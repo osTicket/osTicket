@@ -41,6 +41,12 @@ if ($_POST) {
                 $errors['err'] = 'Unable to add user. Correct any error(s) below and try again.';
             }
             break;
+        case 'confirmlink':
+            $errors['err'] = "Send Confirmation Link: Coming soon!";
+            break;
+        case 'pwreset':
+            $errors['err'] = "Send Password Reset Link: Coming soon!";
+            break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
                 $errors['err'] = 'You must select at least one user member.';
