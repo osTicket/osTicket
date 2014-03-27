@@ -96,9 +96,10 @@ class StaffNav {
 
         if(!$this->tabs) {
             $this->tabs=array();
-            $this->tabs['dashboard']=array('desc'=>'Dashboard','href'=>'dashboard.php','title'=>'Staff Dashboard');
-            $this->tabs['tickets']=array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
-            $this->tabs['kbase']=array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
+            $this->tabs['dashboard'] = array('desc'=>'Dashboard','href'=>'dashboard.php','title'=>'Staff Dashboard');
+            $this->tabs['users'] = array('desc' => 'Users', 'href' => 'users.php', 'title' => 'User Directory');
+            $this->tabs['tickets'] = array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
+            $this->tabs['kbase'] = array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
         }
 
         return $this->tabs;
@@ -133,6 +134,10 @@ class StaffNav {
                     $subnav[]=array('desc'=>'Dashboard','href'=>'dashboard.php','iconclass'=>'logs');
                     $subnav[]=array('desc'=>'Staff&nbsp;Directory','href'=>'directory.php','iconclass'=>'teams');
                     $subnav[]=array('desc'=>'My&nbsp;Profile','href'=>'profile.php','iconclass'=>'users');
+                    break;
+                case 'users':
+                    $subnav[] = array('desc' => 'User&nbsp;Directory', 'href' => 'users.php', 'iconclass' => 'teams');
+                    $subnav[] = array('desc' => 'Organizations', 'href' => 'orgs.php', 'iconclass' => 'departments');
                     break;
                 case 'kbase':
                     $subnav[]=array('desc'=>'FAQs','href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
@@ -200,6 +205,7 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>'System','href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>'Tickets','href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
                     $subnav[]=array('desc'=>'Emails','href'=>'settings.php?t=emails','iconclass'=>'email-settings');
+                    $subnav[]=array('desc'=>'Access','href'=>'settings.php?t=access','iconclass'=>'users');
                     $subnav[]=array('desc'=>'Knowledgebase','href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
                     $subnav[]=array('desc'=>'Autoresponder','href'=>'settings.php?t=autoresp','iconclass'=>'email-autoresponders');
                     $subnav[]=array('desc'=>'Alerts&nbsp;&amp;&nbsp;Notices','href'=>'settings.php?t=alerts','iconclass'=>'alert-settings');

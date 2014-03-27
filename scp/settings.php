@@ -24,6 +24,8 @@ $settingOptions=array(
         array('Email Settings', 'settings.email'),
     'pages' =>
         array('Site Pages', 'settings.pages'),
+    'access' =>
+        array('Access Control', 'settings.access'),
     'kb' =>
         array('Knowledgebase Settings', 'settings.kb'),
     'autoresp' =>
