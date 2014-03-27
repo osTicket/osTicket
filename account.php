@@ -53,6 +53,10 @@ if ($user && $_POST) {
 
 elseif ($_POST) {
     $user_form = UserForm::getUserForm()->getForm($_POST);
+    $user_form->getField('email')->configure('disabled', true);
+    if ($thisclient)
+        $user_form->getField('email')->value = $thisclient->getEmail();
+
     if (!$user_form->isValid(function($f) { return !$f->get('internal'); }))
         $errors['err'] = 'Incomplete client information';
     elseif (!$_POST['backend'] && !$_POST['passwd1'])
