@@ -103,6 +103,24 @@ $(document).ready(function(){
         return false;
      });
 
+    $('a.confirm-action').click(function(e) {
+        $dialog = $('.dialog#confirm-action');
+        if ($($(this).attr('href')+'-confirm', $dialog).length) {
+            e.preventDefault();
+            var action = $(this).attr('href').substr(1, $(this).attr('href').length);
+
+            $('input#action', $dialog).val(action);
+            $('#overlay').show();
+            $('.confirm-action', $dialog).hide();
+            $('p'+$(this).attr('href')+'-confirm', $dialog)
+            .show()
+            .parent('div').show().trigger('click');
+
+            return false;
+        }
+     });
+
+
     if($.browser.msie) {
         $('.inactive').mouseenter(function() {
             var elem = $(this);
