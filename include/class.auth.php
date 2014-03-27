@@ -523,7 +523,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     protected function getAuthKey($user) {
-        return  $user->getUsername();
+        return  $user->getId();
     }
 
     static function getUser() {
@@ -546,12 +546,13 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         return $user;
     }
 
-    protected function validate($username) {
-        if (!($acct = ClientAccount::lookupByUsername($username)))
-            return;
+    protected function validate($userid) {
+        if (!($user = User::lookup($userid)))
+            return false;
+        elseif (!$user->getAccount())
+            return false;
 
-        if (($client = new ClientSession(new EndUser($acct->getUser()))) && $client->getId())
-            return $client;
+        return new ClientSession(new EndUser($user));
     }
 }
 
