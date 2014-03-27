@@ -10,7 +10,7 @@ link will be emailed to you.</p>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">
-    <div style="display:table-cell;width:40%">
+    <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding-right: 2em;">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <br>
     <div>
@@ -25,7 +25,16 @@ link will be emailed to you.</p>
         <input class="btn" type="submit" value="Email Access Link">
     </p>
     </div>
-    <div style="display:table-cell"></div>
+    <div style="display:table-cell;padding-left: 2em;padding-right:90px;">
+<?php if ($cfg && $cfg->getClientRegistrationMode() !== 'disabled') { ?>
+        Have an account with us?
+        <a href="login.php?do=create">Sign In</a> <?php
+    if ($cfg->isClientRegistrationEnabled()) { ?>
+        or <a href="login.php?do=create">register for an account</a> <?php
+    } ?> to access all your tickets.
+<?php
+} ?>
+    </div>
 </div>
 </form>
 <br>

@@ -448,7 +448,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function getAllowedBackends($userid) {
-        $backends = array();
+        $backends = array('authlink');
         $sql = 'SELECT A1.backend FROM '.USER_ACCOUNT_TABLE
               .' A1 INNER JOIN '.USER_EMAIL_TABLE.' A2 ON (A2.user_id = A1.user_id)'
               .' WHERE backend IS NOT NULL '
@@ -888,19 +888,17 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
     function authenticate($email, $number) {
 
         if (!($ticket = Ticket::lookupByNumber($number))
-                || !($user=User::lookup(array('emails__address' =>
-                            $email))))
+                || !($user=User::lookup(array('emails__address' => $email))))
             return false;
 
-        //Ticket owner?
+        // Ticket owner?
         if ($ticket->getUserId() == $user->getId())
             $user = $ticket->getOwner();
-        //Collaborator?
-        elseif (!($user = Collaborator::lookup(array('userId' =>
-                            $user->getId(), 'ticketId' =>
-                            $ticket->getId()))))
+        // Collaborator?
+        elseif (!($user = Collaborator::lookup(array(
+                'userId' => $user->getId(),
+                'ticketId' => $ticket->getId()))))
             return false; //Bro, we don't know you!
-
 
         return new ClientSession($user);
     }

@@ -56,7 +56,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                     Guest User | <?php
                 }
                 if ($cfg->getClientRegistrationMode() != 'disabled') { ?>
-                    <a href="<?php echo ROOT_PATH; ?>login.php">Log In</a>
+                    <a href="<?php echo ROOT_PATH; ?>login.php">Sign In</a>
 <?php
                 }
             } ?>

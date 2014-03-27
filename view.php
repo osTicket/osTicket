@@ -19,13 +19,15 @@ require_once('client.inc.php');
 // Try autologin the user
 // Authenticated user can be of type ticket owner or collaborator
 $errors = array();
-$user =  UserAuthenticationBackend::processSignOn($errors);
+$user =  UserAuthenticationBackend::processSignOn($errors, false);
 if ($user && $user->getTicketId())
     Http::redirect('tickets.php?id='.$user->getTicketId());
 
 $nav = new UserNav();
 $nav->setActiveNav('status');
 
-//Simply redirecting to tickets.php until multiview is implemented.
-require('tickets.php');
+$inc = 'accesslink.inc.php';
+require CLIENTINC_DIR.'header.inc.php';
+require CLIENTINC_DIR.$inc;
+require CLIENTINC_DIR.'footer.inc.php';
 ?>

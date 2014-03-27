@@ -32,6 +32,9 @@ if($_REQUEST['id']) {
     }
 }
 
+if (!$ticket && $thisclient->isGuest())
+    Http::redirect('view.php');
+
 //Process post...depends on $ticket object above.
 if($_POST && is_object($ticket) && $ticket->getId()):
     $errors=array();

@@ -24,7 +24,8 @@ define('OSTCLIENTINC',TRUE); //make includes happy
 require_once(INCLUDE_DIR.'class.client.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
-if ($cfg->getClientRegistrationMode() == 'disabled')
+if ($cfg->getClientRegistrationMode() == 'disabled'
+        || isset($_POST['lticket']))
     $inc = 'accesslink.inc.php';
 else
     $inc = 'login.inc.php';
