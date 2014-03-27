@@ -9,10 +9,14 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
              title="Reload"><i class="icon-refresh"></i> <?php echo $user->getName(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
+           <?php
+            if ($user->getAccount()) { ?>
             <span class="action-button" data-dropdown="#action-dropdown-more">
                 <span ><i class="icon-cog"></i> More</span>
                 <i class="icon-caret-down"></i>
             </span>
+            <?php
+            } ?>
             <a id="user-delete" class="action-button user-action"
             href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i> Delete User</a>
             <?php
@@ -27,12 +31,13 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
             } ?>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
+                <li><a class="confirm-action" href="#confirmlink"><i
+                class="icon-lock"></i> Send Confirmation Link</a></li>
+                <li><a class="confirm-action" href="#pwreset"><i
+                class="icon-lock"></i> Send Password Reset Link</a></li>
                 <li><a class="user-action"
                     href="#users/<?php echo $user->getId(); ?>/manage/access"><i
                 class="icon-lock"></i> Manage Account Access</a></li>
-                <li><a class="user-action"
-                    href="#users/<?php echo $user->getId(); ?>/manage/access"><i
-                class="icon-lock"></i> Change Account Password</a></li>
               </ul>
             </div>
         </td>
@@ -242,6 +247,39 @@ if ($results) { ?>
 </form>
 <?php
  } ?>
+</div>
+
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="banemail-confirm">
+        Are you sure want to <b>ban</b> <?php echo $user->getEmail(); ?>? <br><br>
+        New tickets from the email address will be auto-rejected.
+    </p>
+    <p class="confirm-action" style="display:none;" id="confirmlink-confirm">
+        Are you sure want to send <b>Account Activation Link</b> to <em><?php echo $user->getEmail()?></em>?
+    </p>
+    <p class="confirm-action" style="display:none;" id="pwreset-confirm">
+        Are you sure want to send <b>Password Reset Link</b> to <em><?php echo $user->getEmail()?></em>?
+    </p>
+    <div>Please confirm to continue.</div>
+    <form action="users.php?id=<?php echo $user->getId(); ?>" method="post" id="confirm-form" name="confirm-form">
+        <?php csrf_token(); ?>
+        <input type="hidden" name="id" value="<?php echo $user->getId(); ?>">
+        <input type="hidden" name="a" value="process">
+        <input type="hidden" name="do" id="action" value="">
+        <hr style="margin-top:1em"/>
+        <p class="full-width">
+            <span class="buttons" style="float:left">
+                <input type="button" value="Cancel" class="close">
+            </span>
+            <span class="buttons" style="float:right">
+                <input type="submit" value="OK">
+            </span>
+         </p>
+    </form>
+    <div class="clear"></div>
 </div>
 
 <script type="text/javascript">
