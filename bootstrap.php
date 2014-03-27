@@ -174,6 +174,7 @@ class Bootstrap {
     function loadCode() {
         #include required files
         require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');

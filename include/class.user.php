@@ -149,10 +149,6 @@ class User extends UserModel {
         return $this->created;
     }
 
-    function getAccount() {
-        return $this->account;
-    }
-
     function to_json() {
 
         $info = array(
@@ -227,7 +223,6 @@ class User extends UserModel {
 
         return $this->_forms;
     }
-
 
     function getAccount() {
         // XXX: return $this->account;
@@ -369,7 +364,6 @@ class User extends UserModel {
         return parent::delete();
     }
 }
-User::_inspect();
 
 class PersonsName {
     var $parts;
@@ -569,22 +563,52 @@ class UserAccountModel extends VerySimpleModel {
 
 class UserAccount extends UserAccountModel {
     var $_options = null;
-    var $timezone;
 
     const CONFIRMED             = 0x0001;
     const LOCKED                = 0x0002;
     const PASSWD_RESET_REQUIRED = 0x0004;
 
-    private function hasStatus($flag) {
+    protected function hasStatus($flag) {
         return 0 !== ($this->get('status') & $flag);
     }
 
-    private function clearStatus($flag) {
+    protected function clearStatus($flag) {
         return $this->set('status', $this->get('status') & ~$flag);
     }
 
-    private function setStatus($flag) {
+    protected function setStatus($flag) {
         return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function confirm() {
+        $this->setStatus(self::CONFIRMED);
+        return $this->save();
+    }
+
+    function isConfirmed() {
+        return $this->hasStatus(self::CONFIRMED);
+    }
+
+    function lock() {
+        $this->setStatus(self::LOCKED);
+        $this->save();
+    }
+
+    function isLocked() {
+        return $this->hasStatus(self::LOCKED);
+    }
+
+    function forcePasswdReset() {
+        $this->setStatus(self::PASSWD_RESET_REQUIRED);
+        return $this->save();
+    }
+
+    function isPasswdResetForced() {
+        return $this->hasStatus(self::PASSWD_RESET_REQUIRED);
+    }
+
+    function hasPassword() {
+        return (bool) $this->get('passwd');
     }
 
     function getStatus() {
@@ -594,6 +618,67 @@ class UserAccount extends UserAccountModel {
     function getInfo() {
         return $this->ht;
     }
+
+    function getId() {
+        return $this->get('id');
+    }
+
+    function getUserId() {
+        return $this->get('user_id');
+    }
+
+    function getUser() {
+        $user = User::lookup($this->getUserId());
+        $user->set('account', $this);
+        return $user;
+    }
+
+    function sendResetEmail() {
+        return static::sendUnlockEmail('pwreset-client');
+    }
+
+    function sendConfirmEmail() {
+        return static::sendUnlockEmail('registration-confirm');
+    }
+
+    protected function sendUnlockEmail($template) {
+        global $ost, $cfg;
+
+        $token = Misc::randCode(48); // 290-bits
+
+        $email = $cfg->getDefaultEmail();
+        $content = Page::lookup(Page::getIdByType($template));
+
+        if (!$email ||  !$content)
+            return new Error('Unable to retrieve password reset email template');
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'token' => $token,
+            'user' => $this->getUser(),
+            'recipient' => $this->getUser(),
+            'link' => sprintf(
+                "%s/pwreset.php?token=%s",
+                $ost->getConfig()->getBaseUrl(),
+                $token),
+        );
+        $vars['reset_link'] = &$vars['link'];
+
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        Signal::send('auth.pwreset.email', $this, $info);
+
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
+        ), $vars);
+
+        $_config = new Config('pwreset');
+        $_config->set($vars['token'], $this->user->getId());
+
+        $email->send($this->user->default_email->get('address'),
+            Format::striptags($msg['subj']), $msg['body']);
+    }
+
 
     function __toString() {
         return (string) $this->getStatus();
@@ -645,6 +730,18 @@ class UserAccount extends UserAccountModel {
         return $this->save(true);
     }
 
+    static function createForUser($user) {
+        return static::create(array('user_id'=>$user->getId()));
+    }
+
+    static function lookupByUsername($username) {
+        if (strpos($username, '@') !== false)
+            $user = static::lookup(array('user__emails__address'=>$username));
+        else
+            $user = static::lookup(array('username'=>$username));
+
+        return $user;
+    }
 }
 
 
@@ -697,5 +794,6 @@ class UserList implements  IteratorAggregate, ArrayAccess {
         return $list ? implode(', ', $list) : '';
     }
 }
+User::_inspect();
 
 ?>
