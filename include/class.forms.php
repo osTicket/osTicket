@@ -99,11 +99,11 @@ class Form {
         return $this->_errors;
     }
 
-    function render($staff=true, $title=false, $instructions=false) {
+    function render($staff=true, $title=false, $options=array()) {
         if ($title)
             $this->title = $title;
-        if ($instructions)
-            $this->instructions = $instructions;
+        if (isset($options['instructions']))
+            $this->instructions = $options['instructions'];
         $form = $this;
         if ($staff)
             include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');

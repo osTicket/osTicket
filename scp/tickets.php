@@ -198,16 +198,30 @@ if($_POST && !$errors):
         case 'edit':
         case 'update':
             $forms=DynamicFormEntry::forTicket($ticket->getId());
-            foreach ($forms as $form)
-                if (!$form->isValid())
+            foreach ($forms as $form) {
+                // Don't validate deleted forms
+                if (!in_array($form->getId(), $_POST['forms']))
+                    continue;
+                elseif (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
+            }
             if(!$ticket || !$thisstaff->canEditTickets())
                 $errors['err']='Permission Denied. You are not allowed to edit tickets';
             elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
-                foreach ($forms as $f) $f->save();
+                foreach ($forms as $f) {
+                    // Drop deleted forms
+                    $idx = array_search($f->getId(), $_POST['forms']);
+                    if ($idx === false) {
+                        $f->delete();
+                    }
+                    else {
+                        $f->set('sort', $idx);
+                        $f->save();
+                    }
+                }
                 if(!$ticket->checkStaffAccess($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {

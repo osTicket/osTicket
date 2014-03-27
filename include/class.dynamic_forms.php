@@ -457,6 +457,10 @@ class DynamicFormEntry extends VerySimpleModel {
     var $_errors = false;
     var $_clean = false;
 
+    function getId() {
+        return $this->get('id');
+    }
+
     function getAnswers() {
         if (!isset($this->_values)) {
             $this->_values = DynamicFormEntryAnswer::objects()
@@ -579,8 +583,8 @@ class DynamicFormEntry extends VerySimpleModel {
             ->filter(array('object_id'=>$org_id, 'object_type'=>'O'));
     }
 
-    function render($staff=true, $title=false) {
-        return $this->getForm()->render($staff, $title);
+    function render($staff=true, $title=false, $options=array()) {
+        return $this->getForm()->render($staff, $title, $options);
     }
 
     /**

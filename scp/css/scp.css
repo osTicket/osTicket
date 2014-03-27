@@ -1592,7 +1592,7 @@ div.selected-signature .inner {
 .sortable-row-item {
     border: 1px solid rgba(0, 0, 0, 0.7);
     padding: 9px;
-    cursor: crosshair;
+    cursor: move;
     position: relative;
 }
 .sortable-row-item:hover {

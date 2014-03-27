@@ -1,8 +1,35 @@
-<tr><td style="width:150px"></td><td></td></tr>
+<?php
+// If the form was removed using the trashcan option, and there was some
+// other validation error, don't render the deleted form the second time
+if (isset($options['entry']) && $options['mode'] == 'edit'
+    && $_POST
+    && ($_POST['forms'] && !in_array($options['entry']->getId(), $_POST['forms']))
+)
+    return;
+?>
+<tbody>
+<?php
+// Keep up with the entry id in a hidden field to decide what to add and
+// delete when the parent form is submitted
+if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
+    <input type="hidden" name="forms[]" value="<?php
+        echo $options['entry']->getId(); ?>" />
+<?php } ?>
 <?php if ($form->getTitle()) { ?>
     <tr><th colspan="2">
         <em><strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
-        <?php echo Format::htmlchars($form->getInstructions()); ?></em>
+        <?php echo Format::htmlchars($form->getInstructions()); ?>
+<?php if ($options['mode'] == 'edit') { ?>
+        <div class="pull-right">
+    <?php if ($options['entry']
+                && $options['entry']->getForm()->get('type') == 'G') { ?>
+            <a href="#" title="Delete Entry" onclick="javascript:
+                $(this).closest('tbody').remove();
+                return false;"><i class="icon-trash"></i></a>&nbsp;
+    <?php } ?>
+            <i class="icon-sort" title="Drag to Sort"></i>
+        </div>
+<?php } ?></em>
     </th></tr>
     <?php
     }
@@ -13,7 +40,9 @@
                 <?php
             }
             else { ?>
-                <td class="multi-line <?php if ($field->get('required')) echo 'required'; ?>" style="min-width:120px;">
+                <td class="multi-line <?php if ($field->get('required')) echo 'required';
+                ?>" style="min-width:120px;" <?php if ($options['width'])
+                    echo "width=\"{$options['width']}\""; ?>>
                 <?php echo Format::htmlchars($field->get('label')); ?>:</td>
                 <td><div style="position:relative"><?php
             }
@@ -49,6 +78,5 @@
             <?php } ?>
             </div></td>
         </tr>
-        <?php
-    }
-?>
+    <?php } ?>
+</tbody>
