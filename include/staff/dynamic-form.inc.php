@@ -16,7 +16,7 @@ if($form && $_REQUEST['a']!='add') {
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form action="?id=<?php echo urlencode($_REQUEST['id']); ?>" method="post" id="save">
+<form id="manage-form" action="?id=<?php echo urlencode($_REQUEST['id']); ?>" method="post">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
@@ -167,7 +167,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     if ($ferrors['name']) echo '<br/>'; echo $ferrors['name'];
                 ?></font>
                 </td>
-            <td><input type="checkbox" name="delete-<?php echo $id; ?>"
+            <td><input class="delete-box" type="checkbox" name="delete-<?php echo $id; ?>"
+                    data-field-label="<?php echo $f->get('label'); ?>"
+                    data-field-id="<?php echo $id; ?>"
                     <?php echo $deletable; ?>/>
                 <input type="hidden" name="sort-<?php echo $id; ?>"
                     value="<?php echo $f->get('sort'); ?>"/>
@@ -223,32 +225,33 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
     </table>
-<p class="centered" id="actions">
+<p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
 </p>
 
-<div style="display:none;" class="dialog" id="confirm-action">
-    <h3><i class="icon-trash"></i> Delete Existing Data?</h3>
+<div style="display:none;" class="draggable dialog" id="delete-confirm">
+    <h3><i class="icon-trash"></i> Remove Existing Data?</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <p class="confirm-action" style="display:none;" id="submit-confirm">
+    <p>
+        <strong>You are about to delete <span id="deleted-count"></span> fields.</strong>
         Would you also like to remove data currently entered for this field?
-        <em>If you say no, you will have the option to delete the the data when editing it</em>
-        <br><br>Deleted data CANNOT be recovered.
-        <hr>
-        <input type="checkbox" name="delete-data" />
-        Remove all data entered for this field
+        <em>If you opt not to remove the data now, you will have the option
+        to delete the the data when editing it</em>
+    </p><p style="color:red">
+        Deleted data CANNOT be recovered.
     </p>
-    <div>Please confirm to continue.</div>
+    <hr>
+    <div id="deleted-fields"></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
             <input type="button" value="No, Cancel" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Save Changes!" class="confirm">
+            <input type="submit" value="Continue" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
@@ -258,3 +261,32 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <div style="display:none;" class="dialog draggable" id="field-config">
     <div class="body"></div>
 </div>
+
+<script type="text/javascript">
+$('#manage-form').on('submit.inline', function() {
+    var formObj = this, deleted = $('input.delete-box:checked', this);
+    if (deleted.length) {
+        $('#overlay').show();
+        $('#deleted-fields').empty();
+        deleted.each(function(i, e) {
+            $('#deleted-fields').append($('<p></p>')
+                .append($('<input/>').attr({type:'checkbox',name:'delete-data-'
+                    + $(e).data('fieldId')})
+                ).append($('<strong>').html(
+                    'Remove all data entered for <u>' + $(e).data('fieldLabel') + '</u>'
+                ))
+            );
+        });
+        $('#delete-confirm').show().delegate('input.confirm', 'click.confirm', function() {
+            $('.dialog#delete-confirm').hide();
+            $(formObj).unbind('submit.inline');
+            $(window).unbind('beforeunload');
+            $('#loading').show();
+        })
+        return false;
+    }
+    // TODO: Popup the 'please wait' dialog
+    $(window).unbind('beforeunload');
+    $('#loading').show();
+});
+</script>
