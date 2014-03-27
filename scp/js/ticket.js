@@ -336,30 +336,11 @@ jQuery(function($) {
         return false;
     });
 
-    //ticket status (close & reopen)
+    //ticket status (close & reopen) xxx: move to backend ticket-action
     $('a#ticket-close, a#ticket-reopen').click(function(e) {
         e.preventDefault();
         $('#overlay').show();
         $('.dialog#ticket-status').show();
-        return false;
-    });
-
-    //ticket actions confirmation - Delete + more
-    $('a#ticket-delete, a#ticket-claim, #action-dropdown-more li a:not(.change-user)').click(function(e) {
-        e.preventDefault();
-        if($('.dialog#confirm-action '+$(this).attr('href')+'-confirm').length) {
-            var action = $(this).attr('href').substr(1, $(this).attr('href').length);
-            $('.dialog#confirm-action #action').val(action);
-            $('#overlay').show();
-            $('.dialog#confirm-action .confirm-action').hide();
-            $('.dialog#confirm-action p'+$(this).attr('href')+'-confirm')
-            .show()
-            .parent('div').show().trigger('click');
-
-        } else {
-            alert('Unknown action '+$(this).attr('href')+'- get technical help.');
-        }
-
         return false;
     });
 
