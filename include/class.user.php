@@ -235,10 +235,16 @@ class User extends UserModel {
 
     function getAccountStatus() {
 
-        if ($this->getAccount())
-            return (string) $this->getAccount()->getStatus();
+        if (!($account=$this->getAccount()))
+            return 'Guest';
 
-        return 'Unregistered';
+        if ($account->isLocked())
+            return 'Locked (Administrative)';
+
+        if (!$account->isConfirmed())
+            return 'Locked (Pending Activation)';
+
+        return 'Active';
     }
 
     function register($vars, &$errors) {
@@ -247,35 +253,7 @@ class User extends UserModel {
         if ($this->getAccount())
             return true;
 
-        //Require temp password.
-        if (!isset($vars['sendemail'])) {
-            if (!$vars['passwd1'])
-                $errors['passwd1'] = 'Temp. password required';
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = 'Must be at least 6 characters';
-            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = 'Password(s) do not match';
-        }
-
-        if ($errors) return false;
-
-        $account = UserAccount::create(array('user_id' => $this->getId()));
-        if (!$account)
-            return false;
-
-        $account->set('dst', isset($vars['dst'])?1:0);
-        $account->set('timezone_id', $vars['timezone_id']);
-
-        if ($vars['username'] && strcasecmp($vars['username'], $this->getEmail()))
-            $account->set('username', $vars['username']);
-
-        if (!$vars['sendemail'])
-            $account->set('passwd', Password::hash($vars['passwd1']));
-        //TODO: else $account->sendActivationEmail();
-
-        $account->save(true);
-
-        return $account;
+        return UserAccount::register($this, $vars, $errors);
     }
 
     //TODO: Add organization support
@@ -563,6 +541,7 @@ class UserAccountModel extends VerySimpleModel {
 
 class UserAccount extends UserAccountModel {
     var $_options = null;
+    var $_user;
 
     const CONFIRMED             = 0x0001;
     const LOCKED                = 0x0002;
@@ -628,17 +607,20 @@ class UserAccount extends UserAccountModel {
     }
 
     function getUser() {
-        $user = User::lookup($this->getUserId());
-        $user->set('account', $this);
-        return $user;
+
+        if (!isset($this->_user)) {
+            if ($this->_user = User::lookup($this->getUserId()))
+                $this->_user->set('account', $this);
+        }
+        return $this->_user;
     }
 
     function sendResetEmail() {
-        return static::sendUnlockEmail('pwreset-client');
+        return static::sendUnlockEmail('pwreset-client') === true;
     }
 
     function sendConfirmEmail() {
-        return static::sendUnlockEmail('registration-confirm');
+        return static::sendUnlockEmail('registration-client') === true;
     }
 
     protected function sendUnlockEmail($template) {
@@ -650,7 +632,7 @@ class UserAccount extends UserAccountModel {
         $content = Page::lookup(Page::getIdByType($template));
 
         if (!$email ||  !$content)
-            return new Error('Unable to retrieve password reset email template');
+            return new Error($template.': Unable to retrieve template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
@@ -673,10 +655,12 @@ class UserAccount extends UserAccountModel {
         ), $vars);
 
         $_config = new Config('pwreset');
-        $_config->set($vars['token'], $this->user->getId());
+        $_config->set($vars['token'], $this->getUser()->getId());
 
-        $email->send($this->user->default_email->get('address'),
+        $email->send($this->getUser()->getEmail(),
             Format::striptags($msg['subj']), $msg['body']);
+
+        return true;
     }
 
 
@@ -704,7 +688,7 @@ class UserAccount extends UserAccountModel {
         // Changing password?
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
-                $errors['passwd1'] = 'New password required';
+                $errors['passwd1'] = 'Password required';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
                 $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
@@ -727,6 +711,17 @@ class UserAccount extends UserAccountModel {
             $this->setStatus(self::CONFIRMED);
         }
 
+        // Set flags
+        if ($vars['pwreset-flag'])
+            $this->setStatus(self::PASSWD_RESET_REQUIRED);
+        else
+            $this->clearStatus(self::PASSWD_RESET_REQUIRED);
+
+        if ($vars['locked-flag'])
+            $this->setStatus(self::LOCKED);
+        else
+            $this->clearStatus(self::LOCKED);
+
         return $this->save(true);
     }
 
@@ -742,6 +737,47 @@ class UserAccount extends UserAccountModel {
 
         return $user;
     }
+
+    static function  register($user, $vars, &$errors) {
+
+        if (!$user || !$vars)
+            return false;
+
+        //Require temp password.
+        if (!isset($vars['sendemail'])) {
+            if (!$vars['passwd1'])
+                $errors['passwd1'] = 'Temp. password required';
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1'] = 'Must be at least 6 characters';
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2'] = 'Password(s) do not match';
+        }
+
+        if ($errors) return false;
+
+        $account = UserAccount::create(array('user_id' => $user->getId()));
+        if (!$account)
+            return false;
+
+        $account->set('dst', isset($vars['dst'])?1:0);
+        $account->set('timezone_id', $vars['timezone_id']);
+
+        if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))
+            $account->set('username', $vars['username']);
+
+        if ($vars['passwd1'] && !$vars['sendemail']) {
+            $account->set('passwd', Password::hash($vars['passwd1']));
+            $account->setStatus(self::CONFIRMED);
+        }
+
+        $account->save(true);
+
+        if ($vars['sendemail'])
+            $account->sendConfirmEmail();
+
+        return $account;
+    }
+
 }
 
 

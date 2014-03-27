@@ -96,6 +96,10 @@ if ($info['error']) {
                 <th colspan="2"><em><strong>Account Access</strong></em></th>
             </tr>
             <tr>
+                <td width="180"> Status: </td>
+                <td> <?php echo $user->getAccountStatus(); ?> </td>
+            </tr>
+            <tr>
                 <td width="180">
                     Username:
                 </td>
@@ -130,8 +134,15 @@ if ($info['error']) {
             </tr>
             <tr>
                 <td colspan="2">
-                   <div><input type="checkbox" name="flags[]" value="locked"> Locked (reason here) </div>
-                   <div><input type="checkbox" name="flags[]" value="locked"> Require Password Reset</div>
+                <?php
+                  echo sprintf('<div><input type="checkbox" name="locked-flag" %s
+                       value="1"> Administratively Locked</div>',
+                       $account->isLocked() ?  'checked="checked"' : ''
+                       );
+                  ?>
+                   <div><input type="checkbox" name="pwreset-flag" value="1" <?php
+                    echo $account->isPasswdResetForced() ?
+                    'checked="checked"' : ''; ?>> Password Reset Required</div>
                 </td>
             </tr>
         </tbody>

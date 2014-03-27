@@ -42,10 +42,22 @@ if ($_POST) {
             }
             break;
         case 'confirmlink':
-            $errors['err'] = "Send Confirmation Link: Coming soon!";
+            if (!$user || !$user->getAccount())
+                $errors['err'] = 'Unknown or invalid user account';
+            elseif ($user->getAccount()->isConfirmed())
+                $errors['err'] = 'Account is already confirmed';
+            elseif ($user->getAccount()->sendConfirmEmail())
+                $msg = 'Account activation email sent to '.$user->getEmail();
+            else
+                $errors['err'] = 'Unable to send account activation email - try again!';
             break;
         case 'pwreset':
-            $errors['err'] = "Send Password Reset Link: Coming soon!";
+            if (!$user || !$user->getAccount())
+                $errors['err'] = 'Unknown or invalid user account';
+            elseif ($user->getAccount()->sendResetEmail())
+                $msg = 'Account password reset email sent to '.$user->getEmail();
+            else
+                $errors['err'] = 'Unable to send account password reset email - try again!';
             break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {

@@ -1,10 +1,18 @@
 <?php
+global $cfg;
+
 if (!$info['title'])
     $info['title'] = 'Register: '.Format::htmlchars($user->getName());
 
-// TODO: Set defaults
 if (!$_POST) {
+
     $info['sendemail'] = true; // send email confirmation.
+
+    if (!isset($info['timezone_id']))
+        $info['timezone_id'] = $cfg->getDefaultTimezoneId();
+
+    if (!isset($info['dst']))
+        $info['dst'] = $cfg->observeDaylightSaving();
 }
 
 ?>
@@ -83,11 +91,12 @@ $user->getName()->getOriginal(); ?></b>.</p></div>
                 <td>
                     <select name="timezone_id" id="timezone_id">
                         <?php
-                        $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
+                        $sql='SELECT id, offset, timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
                         if(($res=db_query($sql)) && db_num_rows($res)){
-                            while(list($id,$offset, $tz)=db_fetch_row($res)){
-                                $sel=($info['timezone_id']==$id)?'selected="selected"':'';
-                                echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
+                            while(list($id, $offset, $tz) = db_fetch_row($res)) {
+                                $sel=($info['timezone_id']==$id) ? 'selected="selected"' : '';
+                                echo sprintf('<option value="%d" %s>GMT %s - %s</option>',
+                                        $id, $sel, $offset, $tz);
                             }
                         }
                         ?>

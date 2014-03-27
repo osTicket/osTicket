@@ -137,7 +137,7 @@ class UsersAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/user-register.tmpl.php');
     }
 
-    function manage($id, $target) {
+    function manage($id, $target=null) {
         global $thisstaff;
 
         if (!$thisstaff)

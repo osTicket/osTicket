@@ -31,13 +31,24 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
             } ?>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
-                <li><a class="confirm-action" href="#confirmlink"><i
-                class="icon-lock"></i> Send Confirmation Link</a></li>
-                <li><a class="confirm-action" href="#pwreset"><i
-                class="icon-lock"></i> Send Password Reset Link</a></li>
-                <li><a class="user-action"
-                    href="#users/<?php echo $user->getId(); ?>/manage/access"><i
-                class="icon-lock"></i> Manage Account Access</a></li>
+                <?php
+                if ($user->getAccount()) {
+                    if (!$user->getAccount()->isConfirmed()) {
+                        ?>
+                    <li><a class="confirm-action" href="#confirmlink"><i
+                        class="icon-envelope"></i> Send Activation Email</a></li>
+                    <?php
+                    } else { ?>
+                    <li><a class="confirm-action" href="#pwreset"><i
+                        class="icon-envelope"></i> Send Password Reset Email</a></li>
+                    <?php
+                    } ?>
+                    <li><a class="user-action"
+                        href="#users/<?php echo $user->getId(); ?>/manage/access"><i
+                        class="icon-lock"></i> Manage Account Access</a></li>
+                <?php
+
+                } ?>
               </ul>
             </div>
         </td>
