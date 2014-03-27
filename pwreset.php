@@ -49,7 +49,14 @@ elseif ($_GET['token']) {
             $acct->confirm();
             // TODO: Log the user in
             if ($client = UserAuthenticationBackend::processSignOn($errors)) {
-                $acct->cancelResetTokens();
+                if ($acct->hasPassword() && !$acct->get('backend')) {
+                    $acct->cancelResetTokens();
+                }
+                // No password setup yet -- force one to be created
+                else {
+                    $_SESSION['_client']['reset-token'] = $_GET['token'];
+                    $acct->forcePasswdReset();
+                }
                 Http::redirect('account.php?confirmed');
             }
         }
