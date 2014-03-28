@@ -1114,14 +1114,22 @@ ul.tabs li a.active {
 i.help-tip {
     vertical-align: inherit;
     color: #aaa;
+    opacity: 0.8;
 }
 i.help-tip:hover {
-    color: black;
+    color: orange !important;
     cursor: pointer;
+    opacity: 1;
 }
 
 caption > i.help-tip {
     color: white;
+    opacity: 0.2;
+}
+caption:hover > i.help-tip {
+    color: orange;
+    color: #ffc20f;
+    opacity: 1;
 }
 
 h2 > i.help-tip {
@@ -1759,4 +1767,21 @@ table.custom-info tr {
 }
 table.custom-info td {
     border-bottom: 1px dotted rgba(0,0,0,0.3);
+}
+
+.doc-desc-title {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+.doc-desc-option {
+    font-style: italic;
+}
+
+.form_table tr:hover i.help-tip {
+    opacity: 1;
+    color: #ffc20f;
+}
+
+.form_table tr i.help-tip {
+    opacity: 0.2;
 }
