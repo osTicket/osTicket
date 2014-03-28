@@ -16,36 +16,7 @@
 search_by_email_phone_or_name:
     title: Search by email, phone or name
     content: >
-        
+
 create_new_user:
     title: Create New User
     content: >
-        
-email_address:
-    title: Email Address
-    content: >
-        
-full_name:
-    title: Full Name
-    content: >
-        
-phone_number:
-    title: Phone Number
-    content: >
-        
-internal_notes:
-    title: Internal Notes
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
-    content: >
-        
-add_user_button_:
-    title: Add User (Button)
-    content: >
-        

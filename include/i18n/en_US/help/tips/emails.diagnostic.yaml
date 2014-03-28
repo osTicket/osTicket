@@ -13,49 +13,24 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-test_outgoing_email_form_:
-    title: Test Outgoing Email (Form)
+test_outgoing_email:
+    title: Test Outgoing Email
     content: >
         The email’s delivery depends on your server settings (php.ini) and/or SMTP
         configuration.
-        
+
 from:
     title: From
     content: >
-        
+
 to:
     title: To
     content: >
-        
+
 subject:
     title: Subject
     content: >
-        
+
 message:
     title: Message
     content: >
-        
-draft_saved:
-    title: Draft Saved
-    content: >
-        
-trash_button_image_:
-    title: Trash (Button Image)
-    content: >
-        
-message_body_task_bar_:
-    title: Message Body (Task Bar)
-    content: >
-        
-send_message_button_:
-    title: Send Message (Button)
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
-    content: >
-        

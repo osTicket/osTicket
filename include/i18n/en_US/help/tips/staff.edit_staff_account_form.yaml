@@ -16,12 +16,12 @@
 update_staff:
     title: Update Staff
     content: >
-        This form is accessed by clicking the Username of an agent in the Agent 
+        This form is accessed by clicking the Username of an agent in the Agent
         (Staff) Members Table (To get here, see Admin Panel -> Staff -> Staff
         Members).
-        
+
 assigned_teams:
     title: Assigned Teams
     content: >
         Assign agent to as many teams as necessary.
-        
+

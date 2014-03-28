@@ -16,44 +16,32 @@
 ban_new_email:
     title: Ban New Email
     content: >
-        
-banned_email_addresses_table_:
-    title: Banned Email Addresses (Table)
+
+banned_email_addresses:
+    title: Banned Email Addresses
     content: >
-        
+        (Offer an intro to email address banning here.)
+
 query_search:
     title: Query Search
     content: >
-        
+
 showing_:
     title: Showing…
     content: >
-        
+
 email_address:
     title: Email Address
     content: >
-        
+
 ban_status:
     title: Ban Status
     content: >
-        
+
 date_added:
     title: Date Added
     content: >
-        
+
 last_updated:
     title: Last Updated
     content: >
-        
-enable_button_:
-    title: Enable (Button)
-    content: >
-        
-disable_button_:
-    title: Disable (Button)
-    content: >
-        
-delete_button_:
-    title: Delete (Button)
-    content: >
-        

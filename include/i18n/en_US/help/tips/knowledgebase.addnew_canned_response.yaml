@@ -13,63 +13,34 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-canned_response_table_:
-    title: Canned Response (Table)
+canned_response:
+    title: Canned Response
     content: >
-        
+
 canned_response_settings:
     title: Canned Response Settings
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 department:
     title: Department
     content: >
-        
+
 canned_response:
     title: Canned Response
     content: >
-        
+
 title:
     title: Title
     content: >
-        
+
 canned_response:
     title: Canned Response
     content: >
-        
-canned_response_task_bar_:
-    title: Canned Response (Task Bar)
-    content: >
-        
-draft_saved:
-    title: Draft Saved
-    content: >
-        
-trash_button_:
-    title: Trash (Button)
-    content: >
-        
+
 canned_attachments:
     title: Canned Attachments
     content: >
-        
-internal_notes:
-    title: Internal Notes
-    content: >
-        
-add_response_button_:
-    title: Add Response (Button)
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
-    content: >
-        

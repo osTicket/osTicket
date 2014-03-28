@@ -16,27 +16,19 @@
 add_new_api_key:
     title: Add New API Key
     content: >
-        
-api_keys_table_:
-    title: API Keys (Table)
+
+api_keys_table:
+    title: API Keys
     content: >
-        
+
 api_key:
     title: API Key
     content: >
-        
-ip_addr_:
-    title: IP Addr.
+
+ip_addr:
+    title: IP Address
     content: >
-        
+
 status:
     title: Status
-    content: >
-        
-date_added:
-    title: Date Added
-    content: >
-        
-last_updated:
-    title: Last Updated
     content: >

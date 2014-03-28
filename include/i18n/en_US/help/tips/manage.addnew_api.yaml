@@ -16,35 +16,25 @@
 status:
     title: Status
     content: >
-        
+
 ip_address:
     title: IP Address
     content: >
-        
+
 services:
     title: Services
     content: >
-        
+
 can_create_tickets:
     title: Can Create Tickets
     content: >
         Define various options (XML/JSON/Email) and how they will affect the user
         experience.
-        
+
 can_execute_cron:
     title: Can Execute Cron
     content: >
-        Define Cron.
-        
-add_key_button_:
-    title: Add Key (Button)
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
-    content: >
-        
+        <span class="doc-tip-title">Cron</span> is a techincal reference to
+        scheduled tasks. Allowing cron execution via the API enables usage
+        of the <cron>rcron.php</cron> script packaged in the
+        <code>scripts/</code> folder with the system.

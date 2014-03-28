@@ -16,48 +16,31 @@
 add_new_group:
     title: Add New Group
     content: >
-        
-user_groups_table_:
-    title: User Groups (Table)
+
+user_groups:
+    title: User Groups
     content: >
-        
-showing_groups:
-    title: Showing...groups
-    content: >
-        
+
 group_name:
     title: Group Name
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 members:
     title: Members
     content: >
-        
+
 departments:
     title: Departments
     content: >
-        
+
 created_on:
     title: Created On
     content: >
-        
+
 last_updated:
     title: Last Updated
     content: >
-        
-enable_button_:
-    title: Enable (Button)
-    content: >
-        
-disable_button_:
-    title: Disable (Button)
-    content: >
-        
-delete_button_:
-    title: Delete (Button)
-    content: >
-        
