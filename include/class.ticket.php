@@ -303,16 +303,6 @@ class Ticket {
             }
     }
 
-//    function getEstDueDate() {
-//
-//        //Real due date
-//        if(($duedate=$this->getDueDate()))
-//            return $duedate;
-//
-//        //return sla due date (If ANY)
-//        return $this->getSLADueDate();
-//    }
-
     function getCloseDate() {
         return $this->ht['closed'];
     }
@@ -1213,10 +1203,6 @@ class Ticket {
         //clear due date if it's in the past
         if($this->getDueDate() && Misc::db2gmtime($this->getDueDate()) <= Misc::gmtime())
             $sql.=', duedate=NULL';
-
-        //Clear SLA if est. due date is in the past
-        //if($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
-        //    $sql.=', sla_id=0 ';
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
 
