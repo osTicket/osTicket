@@ -13,8 +13,8 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-email_templates_table_:
-    title: Email Templates (Table)
+email_templates:
+    title: Email Templates
     content: >
         Templates are used as auto-responses for various actions that can take
         place during a  Ticket’s lifetime. Alerts are sent to Agents as assigned by
@@ -22,45 +22,24 @@ email_templates_table_:
         for the customer or user who created the Ticket. You can create your own
         set of Templates for each Department and customize each message. We highly
         suggest you copy the Default Templates to create a new set for editing. To
-        do this, click <span class='doc-desc-title'>Add New Template</span>, then
+        do this, click <span class="doc-desc-title">Add New Template</span>, then
         select the Default Template from the drop-down list next to <span
-        class='doc-desc-title'>Template to Clone</span>.
-        
+        class="doc-desc-title">Template to Clone</span>.
+
 showing_templates:
     title: Showing…Templates
     content: >
         Be sure to check the Page section below to ensure that there are not more
         pages displaying more Agent (Staff) Members.
-        
+
 name:
     title: Name
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 in_use:
     title: In-Use
     content: >
-        
-date_added:
-    title: Date Added
-    content: >
-        
-last_updated:
-    title: Last Updated
-    content: >
-        
-enable_button_:
-    title: Enable (Button)
-    content: >
-        
-disable_button_:
-    title: Disable (Button)
-    content: >
-        
-delete_button_:
-    title: Delete (Button)
-    content: >
-        

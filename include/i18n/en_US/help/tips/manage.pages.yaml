@@ -16,43 +16,19 @@
 add_new_page:
     title: Add New Page
     content: >
-        
-site_pages_table_:
-    title: Site Pages (Table)
+
+site_pages:
+    title: Site Pages
     content: >
-        
-showing_:
-    title: Showing…
-    content: >
-        
+
 name:
     title: Name
     content: >
-        
+
 type:
     title: Type
     content: >
-        
+
 status:
     title: Status
-    content: >
-        
-date_added:
-    title: Date Added
-    content: >
-        
-last_updated:
-    title: Last Updated
-    content: >
-        
-enable_button_:
-    title: Enable (Button)
-    content: >
-        
-disable_button_:
-    title: Disable (Button)
-    content: >
-        
-delete_button_:
-    title: Delete (Button)
     content: >

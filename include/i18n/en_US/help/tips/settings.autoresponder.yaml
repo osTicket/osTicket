@@ -22,7 +22,7 @@ new_ticket:
     links:
       - title: Default New Ticket Autoresponse Template
         href: /scp/templates.php?default_for=ticket.autoresp
-        
+
 new_ticket_by_staff:
     title: New Ticket by Staff
     content: >
@@ -31,7 +31,7 @@ new_ticket_by_staff:
     links:
       - title: Default New Ticket by Staff Autoresponse Template
         href: /scp/templates.php?default_for=ticket.notice
-        
+
 new_message_for_submitter:
     title: New Message for Submitter
     content: >
@@ -40,13 +40,16 @@ new_message_for_submitter:
     links:
       - title: Default New Message Confirmation Template
         href: /scp/templates.php?default_for=message.autoresp
-        
+
 new_message_for_participants:
     title: New Message for Participants
     content: >
         Broadcast messages received from message submitter to all other
         participants on the ticket.
-        
+    links:
+      - title: Default New Activity Template
+        href: /scp/templates.php?default_for=ticket.activity.notice
+
 overlimit_notice:
     title: Overlimit Notice
     content: >

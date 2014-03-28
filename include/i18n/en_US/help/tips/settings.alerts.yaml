@@ -13,6 +13,15 @@
 # must match the HTML #ids put into the page template.
 #
 ---
+page_title:
+    title: Alerts and Notices
+    content: >
+        Alerts and Notices are automated messages sent to staff members
+        related to ticket events. The following table allows you to
+        configure which events should trigger automated notifications, and,
+        for those which are enabled, which staff members should be included
+        on the automated notifications.
+
 new_ticket_alert:
     title: New Ticket Alert
     content: >

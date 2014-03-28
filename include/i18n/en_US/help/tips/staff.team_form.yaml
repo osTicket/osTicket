@@ -16,41 +16,23 @@
 add_new_team:
     title: Add New Team
     content: >
-        
+
 team_information:
     title: Team Information
     content: >
-        
+
 name:
     title: Name
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 team_lead:
     title: Team Lead
     content: >
-        
+
 assignment_alerts:
     title: Assignment Alerts
-    content: >
-        
-admin_notes:
-    title: Admin Notes
-    content: >
-        These notes are only visible to those whose account type is ‘<span
-        class='doc-desc-title'>Admin</span>.’
-        
-create_team_button_:
-    title: Create Team (Button)
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
     content: >

@@ -16,42 +16,25 @@
 add_new_response:
     title: Add New Response
     content: >
-        
-canned_responses_table:
-    title: Canned Responses (Table)
+
+canned_responses:
+    title: Canned Responses
     content: >
         Create responses to your more frequently asked questions to expedite
         customer support. You can also upload attachments to Canned Responses.
-        
+
 showing_premade_responses:
     title: Showing… Premade Responses
     content: >
-        
+
 title:
     title: Title
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 department:
     title: Department
     content: >
-        
-last_updated:
-    title: Last Updated
-    content: >
-        
-enable_button_:
-    title: Enable (Button)
-    content: >
-        
-disable_button_:
-    title: Disable (Button)
-    content: >
-        
-delete_button_:
-    title: Delete (Button)
-    content: >
-        

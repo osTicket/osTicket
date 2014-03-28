@@ -20,49 +20,32 @@ custom_lists:
         options from which a Client can select in your Custom Forms. If you would
         like to use this custom list as a target in your Ticket Filters, be sure to
         add this list to your Ticket Details form.
-        
+
 name:
     title: Name
     content: >
-        
+
 plural_name:
     title: Plural Name
     content: >
-        
+
 sort_order:
     title: Sort Order
     content: >
-        
+
 list_s_initial_items:
     title: List’s Initial Items
     content: >
-        
+
 value:
     title: Value
     content: >
-        
+
 extra:
     title: Extra
     content: >
-        Abbreviations and such.
-        
-delete:
-    title: Delete
-    content: >
-        
-internal_notes:
-    title: Internal Notes
-    content: >
-        
-add_form_button_:
-    title: Add Form (Button)
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
-    content: >
-        
+        Abbreviations and such. If you happen to use internal codes for the
+        items in this list, those codes and abbreviations can be entered in
+        this column. If the custom list is rendered as a <span class="doc-desc-option">
+        TypeAhead</span>, these abbreviations can be used to search for the
+        custom list items.

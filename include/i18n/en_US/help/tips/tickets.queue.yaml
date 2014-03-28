@@ -16,63 +16,67 @@
 search_field:
     title: Search Field
     content: >
-        
+
 advanced:
     title: Advanced
     content: >
         Will allow you to narrow down your search parameters. Once you have
         selected your advanced search criteria and run the search, you can export
         the data at the bottom of the tickets page.
-        
+
 refresh_button_:
     title: Refresh (Button)
     content: >
-        
+
 open_tickets_table:
     title: Open Tickets Table
     content: >
         All tickets currently opened and requiring attention
-        
+
 ticket:
     title: Ticket
     content: >
-        
+
 date:
     title: Date
     content: >
-        
+
 subject:
     title: Subject
     content: >
-        
+
 from:
     title: From
     content: >
-        
+
 priority:
     title: Priority
     content: >
-        
+
 assigned_to:
     title: Assigned To
     content: >
-        
+
 export:
     title: Export
     content: >
         This will export your data currently in view in a printable HTML format.
-        You may select, then copy and paste this into your favorite word processor 
+        You may select, then copy and paste this into your favorite word processor
         (e.g., Microsoft Word).
-        
-overdue_button_:
-    title: Overdue (Button)
+
+advanced_search_dialog:
+    title: Advanced Search
     content: >
-        
-close_button_:
-    title: Close (Button)
+
+
+adv_keyword:
+    title: Keyword Search
     content: >
-        
-delete_button_:
-    title: Delete (Button)
+        Find hits based on the subject and message bodies of the ticket
+        thread as well as all textual content associated with custom fields
+        for the users and the tickets.
+
+adv_date_range:
+    title: Search by Date Range
     content: >
-        
+        Definition here

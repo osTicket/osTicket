@@ -13,23 +13,19 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-_text_input_:
-    title: (Text Input)
+search_box:
+    title: Search for Articles
     content: >
-        
-categories_drop_down_:
-    title: Categories (Drop Down)
+
+category_select:
+    title: Category Filter
     content: >
-        
-help_topics_drop_down_:
-    title: Help Topics (Drop Down)
+
+help_topic_select:
+    title: Help Topic Filter
     content: >
-        
-search_button_:
-    title: Search (Button)
-    content: >
-        
+
 resulted_listings:
     title: Resulted Listings
     content: >
-        
+
