@@ -768,6 +768,8 @@ class UserAccount extends UserAccountModel {
         if ($vars['passwd1'] && !$vars['sendemail']) {
             $account->set('passwd', Password::hash($vars['passwd1']));
             $account->setStatus(self::CONFIRMED);
+            if ($vars['pwreset-flag'])
+                $account->setStatus(self::PASSWD_RESET_REQUIRED);
         }
 
         $account->save(true);

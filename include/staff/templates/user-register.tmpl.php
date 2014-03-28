@@ -47,7 +47,7 @@ $user->getName()->getOriginal(); ?></b>.</p></div>
                 <td>
                   <input type="checkbox" id="sendemail" name="sendemail" value="1"
                     <?php echo $info['sendemail'] ? 'checked="checked"' : ''; ?> >
-                    Send account confirmation email to user.
+                    Send account activation email to <?php echo $user->getEmail(); ?>.
                 </td>
             </tr>
             <tr>
@@ -80,6 +80,15 @@ $user->getName()->getOriginal(); ?></b>.</p></div>
                 <td>
                     <input type="password" size="35" name="passwd2" value="<?php echo $info['passwd2']; ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Password Change:
+                </td>
+                <td colspan=2>
+                    <input type="checkbox" name="pwreset-flag" value="1" <?php
+                        echo $info['pwreset-flag'] ?  'checked="checked"' : ''; ?>> Require password change on login
                 </td>
             </tr>
         </tbody>
