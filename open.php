@@ -79,13 +79,9 @@ if($ticket
         && (
             (($topic = $ticket->getTopic()) && ($page = $topic->getPage()))
             || ($page = $cfg->getThankYouPage())
-            )) { //Thank the user and promise speedy resolution!
-    //Hide ticket number -  it should only be delivered via email for security reasons.
-    echo Format::safe_html($ticket->replaceVars(str_replace(
-                    array('%{ticket.number}', '%{ticket.extId}', '%{ticket}'), //ticket number vars.
-                    array_fill(0, 3, 'XXXXXX'),
-                    $page->getBody()
-                    )));
+        )) {
+    //Thank the user and promise speedy resolution!
+    echo Format::display($ticket->replaceVars($page->getBody()));
 }
 else {
     require(CLIENTINC_DIR.'open.inc.php');
