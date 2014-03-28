@@ -13,35 +13,28 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-department_table_:
-    title: Department (Table)
+department:
+    title: Department
     content: >
-        
-showing_department:
-    title: Showing...department
-    content: >
-        Be sure to check the <span class='doc-desc-title'>Page</span> section below
-        to ensure that there are not more pages displaying more <span
-        class='doc-desc-title'>Departments.</span>
-        
+
 name:
     title: Name
     content: >
-        
+
 type:
     title: Type
     content: >
         If the Department’s Type is Private, then that Department only handles
         matters pertinent among other Agents.
-        
+
 users:
     title: Users
     content: >
-        
+
 email_address:
     title: Email Address
     content: >
-        
+
 dept_manager:
     title: Dept. Manager
     content: >
@@ -50,4 +43,4 @@ dept_manager:
         the Department. (To add an Agent to a Department, see Admin Panel -> Staff
         -> Staff Members; Select the Agent whose account you would like to edit. To
         commission an Agent as a Department Manager, simply click the Department
-        name below that you would like to edit). 
+        name below that you would like to edit).

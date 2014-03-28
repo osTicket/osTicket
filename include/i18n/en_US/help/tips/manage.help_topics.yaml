@@ -13,15 +13,9 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-help_topics_table_:
-    title: Help Topics (Table)
+help_topics:
+    title: Help Topics
     content: >
         Your Help Topics help guide what information is gathered from a Client and
         how that Client is handled by your Company. The Help Topics are specific to
-        a Department and can include Custom Forms. 
-        
-showing_help_topics:
-    title: Showing...Help Topics
-    content: >
-        Be sure to check the Page section below to ensure that there are not more
-        pages displaying existing Help Topics.
+        a Department and can include Custom Forms.

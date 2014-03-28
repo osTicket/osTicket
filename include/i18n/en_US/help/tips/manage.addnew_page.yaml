@@ -16,43 +16,19 @@
 page_information:
     title: Page Information
     content: >
-        
+
 name:
     title: Name
     content: >
-        
+
 type:
     title: Type
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 page_body:
     title: Page Body
     content: >
-        
-page_body_task_menu_:
-    title: Page Body (Task Menu)
-    content: >
-        Be sure to define what each icon’s function is.
-        
-admin_notes:
-    title: Admin Notes
-    content: >
-        These notes are only visible to those whose account type is ‘<span
-        class='doc-desc-title'>Admin</span>.’
-        
-add_page_button_:
-    title: Add Page (Button)
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
-    content: >
-        

@@ -16,36 +16,28 @@
 add_new_agent:
     title: Add New Agent
     content: >
-        
-agents_table_:
-    title: Agents (Table)
+
+agents:
+    title: Agents
     content: >
-        
-apply_filtering_criteria_dropdown_fields_apply_button_:
-    title: Apply Filtering Criteria (Dropdown Fields &amp; Apply Button)
-    content: >
-        
-showing_:
-    title: Showing…
-    content: >
-        
+
 name:
     title: Name
     content: >
-        
+
 username:
     title: Username
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 created:
     title: Created
     content: >
-        
+
 last_login:
     title: Last Login
     content: >
-        
+

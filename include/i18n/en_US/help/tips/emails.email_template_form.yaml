@@ -16,27 +16,27 @@
 add_new_template:
     title: Add New Template
     content: >
-        
+
 template_information:
     title: Template Information
     content: >
-        
+
 name:
     title: Name
     content: >
-        
+
 status:
     title: Status
     content: >
         If disabled, the Template will not be visible as an option when
         creating/editing a Department.
-        
+
 language:
     title: Language
     content: >
         As our translation endeavors grow in development, more options will become
         available.
-        
+
 template_to_clone:
     title: Template to Clone
     content: >
@@ -46,21 +46,9 @@ template_to_clone:
         the relevant event that triggers them. By cloning Template Sets, you are
         able to create Templates that only differ minimally without having to
         recreate the details they have in common.
-        
+
 admin_notes:
     title: Admin Notes
     content: >
         These notes are only visible to those whose account type is <span
-        class='doc-desc-title'>Admin</span>.
-        
-add_template_button_:
-    title: Add Template (Button)
-    content: >
-        
-reset_button_:
-    title: Reset (Button)
-    content: >
-        
-cancel_button_:
-    title: Cancel (Button)
-    content: >
+        class="doc-desc-title">Admin</span>.

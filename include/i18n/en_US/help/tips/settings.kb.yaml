@@ -16,16 +16,22 @@
 knowledge_base_settings:
     title: Knowledge Base Settings
     content: >
-        
+
 knowledge_base_status:
     title: Knowledge Base Status
     content: >
-        To edit the content of your Knowledge Base, see Agent (Staff) Panel ->
-        Knowledgebase.
-        
+        Enable this setting to allow your clients self-service access to
+        your public knowledge base articles.
+    links:
+      - title: View and edit the content of your Knowledge Base
+        href: /scp/kb.php
+
 canned_responses:
     title: Canned Responses
     content: >
-        If enabled, this will permit the use of Canned Responses within Ticket
-        Replies. (To add or edit Canned Responses, see Agent (Staff) Panel ->
-        Knowledgebase).
+        Enable this setting to allow agents to configure and use <span
+        class="doc-desc-title">Canned Responses</span> when replying to
+        tickets.
+    links:
+      - title: Manage Canned Responses for Agents
+        href: /scp/canned.php

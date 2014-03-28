@@ -17,35 +17,19 @@ add_new_email:
     title: Add New Email
     content: >
         Custom lists are used to provide drop-down lists for custom forms.
-        
-email_addresses_table_:
-    title: Email Addresses (Table)
+
+email_addresses:
+    title: Email Addresses
     content: >
-        
-showing_emails:
-    title: Showing…Emails
-    content: >
-        
+
 email:
     title: Email
     content: >
-        
+
 priority:
     title: Priority
     content: >
-        
+
 department:
     title: Department
-    content: >
-        
-created:
-    title: Created
-    content: >
-        
-last_updated:
-    title: Last Updated
-    content: >
-        
-delete_email_s_button_:
-    title: Delete Email(s) (Button)
     content: >

@@ -16,47 +16,27 @@
 add_new_team:
     title: Add New Team
     content: >
-        
-teams_table_:
-    title: Teams (Table)
+
+teams:
+    title: Teams
     content: >
-        
-showing_teams:
-    title: Showing...teams
-    content: >
-        
+
 team_name:
     title: Team Name
     content: >
-        
+
 status:
     title: Status
     content: >
-        
+
 members:
     title: Members
     content: >
-        
+
 team_lead:
     title: Team Lead
     content: >
-        
+
 created:
     title: Created
-    content: >
-        
-last_updated:
-    title: Last Updated
-    content: >
-        
-enable_button_:
-    title: Enable (Button)
-    content: >
-        
-disable_button_:
-    title: Disable (Button)
-    content: >
-        
-delete_button_:
-    title: Delete (Button)
     content: >

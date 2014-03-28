@@ -17,8 +17,7 @@ faq_categories:
     title: FAQ Categories
     content: >
         Categories must first be created before any FAQs can be published.
-        
+
 setting:
     title: Setting
     content: >
-        
