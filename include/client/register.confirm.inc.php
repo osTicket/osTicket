@@ -1,7 +1,9 @@
-<?php if ($content) { ?>
-<h1><?php echo Format::display($content->getName()); ?></h1>
+<?php if ($content) {
+    list($title, $body) = $ost->replaceTemplateVariables(
+        array($content->getName(), $content->getBody())); ?>
+<h1><?php echo Format::display($title); ?></h1>
 <p><?php
-echo Format::display($content->getBody()); ?>
+echo Format::display($body); ?>
 </p>
 <?php } else { ?>
 <h1>Account Registration</h1>

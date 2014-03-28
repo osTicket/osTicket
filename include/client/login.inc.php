@@ -6,9 +6,18 @@ $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
 
 $content = Page::lookup(Page::getIdByType('banner-client'));
 
+if ($content) {
+    list($title, $body) = $ost->replaceTemplateVariables(
+        array($content->getName(), $content->getBody()));
+} else {
+    $title = 'Sign In';
+    $body = 'To better serve you, we encourage our clients to register for
+        an account and verify the email address we have on record.';
+}
+
 ?>
-<h1><?php echo Format::display($content->getName()); ?></h1>
-<p><?php echo Format::viewableImages($content->getBody()); ?></p>
+<h1><?php echo Format::display($title); ?></h1>
+<p><?php echo Format::display($body); ?></p>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">

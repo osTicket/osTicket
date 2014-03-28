@@ -21,7 +21,7 @@ body: >
     Follow the link below to login to the help desk and change your
     password.<br />
     <br />
-    <a href="%{reset_link}">%{reset_link}</a><br />
+    <a href="%{link}">%{link}</a><br />
     <br />
     <em style="font-size: small">Your friendly Customer Support System</em>
     <br />
