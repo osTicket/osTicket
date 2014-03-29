@@ -789,6 +789,7 @@ class DynamicList extends VerySimpleModel {
     );
 
     var $_items;
+    var $_form;
 
     function getSortModes() {
         return array(
@@ -829,6 +830,14 @@ class DynamicList extends VerySimpleModel {
     function getItemCount() {
         return DynamicListItem::objects()->filter(array('list_id'=>$this->id))
             ->count();
+    }
+
+    function getConfigurationForm() {
+        if (!$this->_form) {
+            $this->_form = DynamicForm::lookup(
+                array('type'=>'L'.$this->get('id')));
+        }
+        return $this->_form;
     }
 
     function save($refetch=false) {
@@ -891,6 +900,49 @@ class DynamicListItem extends VerySimpleModel {
             ),
         ),
     );
+
+    var $_config;
+    var $_form;
+
+    function getConfiguration() {
+        if (!$this->_config) {
+            $this->_config = $this->get('configuration');
+            if (is_string($this->_config))
+                $this->_config = JsonDataParser::parse($this->_config);
+            elseif (!$this->_config)
+                $this->_config = array();
+        }
+        return $this->_config;
+    }
+
+    function setConfiguration(&$errors=array()) {
+        $config = array();
+        foreach ($this->getConfigurationForm()->getFields() as $field) {
+            $config[$field->get('id')] = $field->to_database($field->getClean());
+            $errors = array_merge($errors, $field->errors());
+        }
+        if (count($errors) === 0)
+            $this->set('configuration', JsonDataEncoder::encode($config));
+
+        return count($errors) === 0;
+    }
+
+    function getConfigurationForm() {
+        if (!$this->_form) {
+            $this->_form = DynamicForm::lookup(
+                array('type'=>'L'.$this->get('list_id')));
+        }
+        return $this->_form;
+    }
+
+
+    function getVar($name) {
+        $config = $this->getConfiguration();
+        foreach ($this->getConfigurationForm()->getFields() as $field) {
+            if (strcasecmp($field->get('name'), $name) === 0)
+                return $config[$field->get('id')];
+        }
+    }
 
     function toString() {
         return $this->get('value');

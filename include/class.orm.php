@@ -309,6 +309,11 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this->getIterator()->asArray();
     }
 
+    function one() {
+        $this->limit(1);
+        return $this[0];
+    }
+
     function count() {
         $class = $this->compiler;
         $compiler = new $class();

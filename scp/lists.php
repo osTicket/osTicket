@@ -6,6 +6,10 @@ $list=null;
 if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
     $errors['err']='Unknown or invalid dynamic list ID.';
 
+if ($list) {
+    $form = DynamicForm::lookup(array('type'=>'L'.$_REQUEST['id']));
+}
+
 if($_POST) {
     $fields = array('name', 'name_plural', 'sort_mode', 'notes');
     $required = array('name');
@@ -35,6 +39,39 @@ if($_POST) {
                         $item->set($i, $_POST["$i-$id"]);
                 $item->save();
             }
+
+            $names = array();
+            foreach ($form->getDynamicFields() as $field) {
+                $id = $field->get('id');
+                if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
+                    $field->delete();
+                    // Don't bother updating the field
+                    continue;
+                }
+                if (isset($_POST["type-$id"]) && $field->isChangeable())
+                    $field->set('type', $_POST["type-$id"]);
+                if (isset($_POST["name-$id"]) && !$field->isNameForced())
+                    $field->set('name', $_POST["name-$id"]);
+                # TODO: make sure all help topics still have all required fields
+                foreach (array('sort','label') as $f) {
+                    if (isset($_POST["$f-$id"])) {
+                        $field->set($f, $_POST["$f-$id"]);
+                    }
+                }
+                if (in_array($field->get('name'), $names))
+                    $field->addError('Field variable name is not unique', 'name');
+                if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
+                    $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
+                if ($field->get('name'))
+                    $names[] = $field->get('name');
+                if ($field->isValid())
+                    $field->save();
+                else
+                    # notrans (not shown)
+                    $errors["field-$id"] = 'Field has validation errors';
+                // Keep track of the last sort number
+                $max_sort = max($max_sort, $field->get('sort'));
+            }
             break;
         case 'add':
             foreach ($fields as $f)
@@ -53,7 +90,6 @@ if($_POST) {
                 $msg = 'Custom list added successfully';
             else
                 $errors['err'] = 'Unable to create custom list. Unknown internal error';
-
             break;
 
         case 'mass_process':
@@ -95,6 +131,28 @@ if($_POST) {
         }
         # Invalidate items cache
         $list->_items = false;
+    }
+
+    if ($form) {
+        for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
+            if (!$_POST["label-new-$i"])
+                continue;
+            $field = DynamicFormField::create(array(
+                'form_id'=>$form->get('id'),
+                'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : ++$max_sort,
+                'label'=>$_POST["label-new-$i"],
+                'type'=>$_POST["type-new-$i"],
+                'name'=>$_POST["name-new-$i"],
+            ));
+            $field->setForm($form);
+            if ($field->isValid())
+                $field->save();
+            else
+                $errors["new-$i"] = $field->errors();
+        }
+        // XXX: Move to an instrumented list that can handle this better
+        if (!$errors)
+            $form->_dfields = $form->_fields = null;
     }
 }
 

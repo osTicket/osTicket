@@ -56,6 +56,10 @@ $dispatcher = patterns('',
         url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration'),
         url_delete('^answer/(?P<entry>\d+)/(?P<field>\d+)$', 'deleteAnswer')
     )),
+    url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
+        url_get('^item/(?P<id>\d+)/properties$', 'getListItemProperties'),
+        url_post('^item/(?P<id>\d+)/properties$', 'saveListItemProperties')
+    )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
         url_get('^graph$', 'getPlotData'),

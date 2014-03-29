@@ -100,6 +100,8 @@ class StaffNav {
             $this->tabs['users'] = array('desc' => 'Users', 'href' => 'users.php', 'title' => 'User Directory');
             $this->tabs['tickets'] = array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
             $this->tabs['kbase'] = array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
+            // TODO: If at least one app is installed
+            $this->tabs['apps']=array('desc'=>'Applications','href'=>'apps.php','title'=>'Applications');
         }
 
         return $this->tabs;
@@ -148,6 +150,9 @@ class StaffNav {
                             $subnav[]=array('desc'=>'Canned&nbsp;Responses','href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
+                case 'apps':
+                    $subnav[]=array('desc'=>'Equipment', 'href'=>'apps?a=equipment','iconclass'=>'icon-bug');
+                    break;
             }
             if($subnav)
                 $submenus[$this->getPanel().'.'.strtolower($k)]=$subnav;
