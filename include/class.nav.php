@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once(INCLUDE_DIR.'class.app.php');
 
 class StaffNav {
     var $tabs=array();
@@ -41,6 +42,10 @@ class StaffNav {
 
     function isStaffPanel() {
         return (!$this->isAdminPanel());
+    }
+
+    function getRegisteredApps() {
+        return Application::getStaffApps();
     }
 
     function setTabActive($tab, $menu=''){
@@ -100,8 +105,8 @@ class StaffNav {
             $this->tabs['users'] = array('desc' => 'Users', 'href' => 'users.php', 'title' => 'User Directory');
             $this->tabs['tickets'] = array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
             $this->tabs['kbase'] = array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
-            // TODO: If at least one app is installed
-            $this->tabs['apps']=array('desc'=>'Applications','href'=>'apps.php','title'=>'Applications');
+            if (count($this->getRegisteredApps()))
+                $this->tabs['apps']=array('desc'=>'Applications','href'=>'apps.php','title'=>'Applications');
         }
 
         return $this->tabs;
@@ -151,7 +156,8 @@ class StaffNav {
                     }
                    break;
                 case 'apps':
-                    $subnav[]=array('desc'=>'Equipment', 'href'=>'apps?a=equipment','iconclass'=>'icon-bug');
+                    foreach ($this->getRegisteredApps() as $app)
+                        $subnav[] = $app;
                     break;
             }
             if($subnav)
@@ -178,6 +184,10 @@ class AdminNav extends StaffNav{
         parent::StaffNav($staff, 'admin');
     }
 
+    function getRegisteredApps() {
+        return Application::getAdminApps();
+    }
+
     function getTabs(){
 
 
@@ -189,6 +199,8 @@ class AdminNav extends StaffNav{
             $tabs['manage']=array('desc'=>'Manage','href'=>'helptopics.php','title'=>'Manage Options');
             $tabs['emails']=array('desc'=>'Emails','href'=>'emails.php','title'=>'Email Settings');
             $tabs['staff']=array('desc'=>'Staff','href'=>'staff.php','title'=>'Manage Staff');
+            if (count($this->getRegisteredApps()))
+                $tabs['apps']=array('desc'=>'Applications','href'=>'apps.php','title'=>'Applications');
             $this->tabs=$tabs;
         }
 
@@ -239,6 +251,10 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>'Groups','href'=>'groups.php','iconclass'=>'groups');
                     $subnav[]=array('desc'=>'Departments','href'=>'departments.php','iconclass'=>'departments');
                     break;
+                case 'apps':
+                    foreach ($this->getRegisteredApps() as $app)
+                        $subnav[] = $app;
+                    break;
             }
             if($subnav)
                 $submenus[$this->getPanel().'.'.strtolower($k)]=$subnav;
@@ -261,6 +277,10 @@ class UserNav {
         $this->navs=$this->getNavs();
         if($active)
             $this->setActiveNav($active);
+    }
+
+    function getRegisteredApps() {
+        return Application::getClientApps();
     }
 
     function setActiveNav($nav){
