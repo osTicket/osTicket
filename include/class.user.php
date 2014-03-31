@@ -547,7 +547,8 @@ class UserAccount extends UserAccountModel {
 
     const CONFIRMED             = 0x0001;
     const LOCKED                = 0x0002;
-    const PASSWD_RESET_REQUIRED = 0x0004;
+    const REQUIRE_PASSWD_RESET  = 0x0004;
+    const FORBID_PASSWD_RESET   = 0x0008;
 
     protected function hasStatus($flag) {
         return 0 !== ($this->get('status') & $flag);
@@ -580,12 +581,16 @@ class UserAccount extends UserAccountModel {
     }
 
     function forcePasswdReset() {
-        $this->setStatus(self::PASSWD_RESET_REQUIRED);
+        $this->setStatus(self::REQUIRE_PASSWD_RESET);
         return $this->save();
     }
 
     function isPasswdResetForced() {
-        return $this->hasStatus(self::PASSWD_RESET_REQUIRED);
+        return $this->hasStatus(self::REQUIRE_PASSWD_RESET);
+    }
+
+    function isPasswdResetEnabled() {
+        return !$this->hasStatus(self::FORBID_PASSWD_RESET);
     }
 
     function hasPassword() {
@@ -737,15 +742,16 @@ class UserAccount extends UserAccountModel {
         }
 
         // Set flags
-        if ($vars['pwreset-flag'])
-            $this->setStatus(self::PASSWD_RESET_REQUIRED);
-        else
-            $this->clearStatus(self::PASSWD_RESET_REQUIRED);
-
-        if ($vars['locked-flag'])
-            $this->setStatus(self::LOCKED);
-        else
-            $this->clearStatus(self::LOCKED);
+        foreach (array(
+                'pwreset-flag'=>        self::REQUIRE_PASSWD_RESET,
+                'locked-flag'=>         self::LOCKED,
+                'forbid-pwchange-flag'=> self::FORBID_PASSWD_RESET
+        ) as $ck=>$flag) {
+            if ($vars[$ck])
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
 
         return $this->save(true);
     }
@@ -794,7 +800,7 @@ class UserAccount extends UserAccountModel {
             $account->set('passwd', Password::hash($vars['passwd1']));
             $account->setStatus(self::CONFIRMED);
             if ($vars['pwreset-flag'])
-                $account->setStatus(self::PASSWD_RESET_REQUIRED);
+                $account->setStatus(self::REQUIRE_PASSWD_RESET);
         }
 
         $account->save(true);
