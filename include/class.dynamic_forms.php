@@ -918,7 +918,8 @@ class DynamicListItem extends VerySimpleModel {
     function setConfiguration(&$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm()->getFields() as $field) {
-            $config[$field->get('id')] = $field->to_database($field->getClean());
+            $val = $field->to_database($field->getClean());
+            $config[$field->get('id')] = is_array($val) ? $val[1] : $val;
             $errors = array_merge($errors, $field->errors());
         }
         if (count($errors) === 0)
@@ -934,7 +935,6 @@ class DynamicListItem extends VerySimpleModel {
         }
         return $this->_form;
     }
-
 
     function getVar($name) {
         $config = $this->getConfiguration();

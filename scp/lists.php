@@ -41,6 +41,13 @@ if($_POST) {
             }
 
             $names = array();
+            if (!$form) {
+                $form = DynamicForm::create(array(
+                    'type'=>'L'.$_REQUEST['id'],
+                    'title'=>$_POST['name'] . ' Properties'
+                ));
+                $form->save(true);
+            }
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
                 if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
@@ -84,12 +91,20 @@ if($_POST) {
                 'sort_mode'=>$_POST['sort_mode'],
                 'notes'=>$_POST['notes']));
 
+            $form = DynamicForm::create(array(
+                'title'=>$_POST['name'] . ' Properties'
+            ));
+
             if ($errors)
                 $errors['err'] = 'Unable to create custom list. Correct any error(s) below and try again.';
-            elseif ($list->save(true))
-                $msg = 'Custom list added successfully';
+            elseif (!$list->save(true))
+                $errors['err'] = 'Unable to create custom list: Unknown internal error';
+
+            $form->set('type', 'L'.$list->get('id'));
+            if (!$errors && !$form->save(true))
+                $errors['err'] = 'Unable to create properties for custom list: Unknown internal error';
             else
-                $errors['err'] = 'Unable to create custom list. Unknown internal error';
+                $msg = 'Custom list added successfully';
             break;
 
         case 'mass_process':
