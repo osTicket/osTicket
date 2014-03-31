@@ -96,7 +96,7 @@ INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form`;
 CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
-    `type` char(1) NOT NULL DEFAULT 'G',
+    `type` varchar(8) NOT NULL DEFAULT 'G',
     `deletable` tinyint(1) NOT NULL DEFAULT 1,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
@@ -167,6 +167,7 @@ CREATE TABLE `%TABLE_PREFIX%list_items` (
     -- extra value such as abbreviation
     `extra` varchar(255),
     `sort` int(11) NOT NULL DEFAULT 1,
+    `properties` text,
     PRIMARY KEY (`id`),
     KEY `list_item_lookup` (`list_id`)
 ) DEFAULT CHARSET=utf8;

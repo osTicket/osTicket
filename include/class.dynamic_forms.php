@@ -906,7 +906,7 @@ class DynamicListItem extends VerySimpleModel {
 
     function getConfiguration() {
         if (!$this->_config) {
-            $this->_config = $this->get('configuration');
+            $this->_config = $this->get('properties');
             if (is_string($this->_config))
                 $this->_config = JsonDataParser::parse($this->_config);
             elseif (!$this->_config)
@@ -922,7 +922,7 @@ class DynamicListItem extends VerySimpleModel {
             $errors = array_merge($errors, $field->errors());
         }
         if (count($errors) === 0)
-            $this->set('configuration', JsonDataEncoder::encode($config));
+            $this->set('properties', JsonDataEncoder::encode($config));
 
         return count($errors) === 0;
     }
