@@ -41,13 +41,30 @@ $user->getName()->getOriginal(); ?></b>.</p></div>
                 </th>
             </tr>
             <tr>
-                <td width="180">
-                    Status:
-                </td>
+                <td>Authentication Sources:</td>
                 <td>
-                  <input type="checkbox" id="sendemail" name="sendemail" value="1"
-                    <?php echo $info['sendemail'] ? 'checked="checked"' : ''; ?> >
-                    Send account activation email to <?php echo $user->getEmail(); ?>.
+            <select name="backend" id="backend-selection" onchange="javascript:
+                if (this.value != '' && this.value != 'client') {
+                    $('#activation').hide();
+                    $('#password').hide();
+                }
+                else {
+                    $('#activation').show();
+                    if ($('#sendemail').is(':checked'))
+                        $('#password').hide();
+                    else
+                        $('#password').show();
+                }
+                ">
+                <option value="">&mdash; Use any available backend &mdash;</option>
+            <?php foreach (UserAuthenticationBackend::allRegistered() as $ab) {
+                if (!$ab->supportsInteractiveAuthentication()) continue; ?>
+                <option value="<?php echo $ab::$id; ?>" <?php
+                    if ($info['backend'] == $ab::$id)
+                        echo 'selected="selected"'; ?>><?php
+                    echo $ab::$name; ?></option>
+            <?php } ?>
+            </select>
                 </td>
             </tr>
             <tr>
@@ -57,6 +74,18 @@ $user->getName()->getOriginal(); ?></b>.</p></div>
                 <td>
                     <input type="text" size="35" name="username" value="<?php echo $info['username'] ?: $user->getEmail(); ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors['username']; ?></span>
+                </td>
+            </tr>
+        </tbody>
+        <tbody id="activation">
+            <tr>
+                <td width="180">
+                    Status:
+                </td>
+                <td>
+                  <input type="checkbox" id="sendemail" name="sendemail" value="1"
+                    <?php echo $info['sendemail'] ? 'checked="checked"' : ''; ?> >
+                    Send account activation email to <?php echo $user->getEmail(); ?>.
                 </td>
             </tr>
         </tbody>
@@ -89,6 +118,9 @@ $user->getName()->getOriginal(); ?></b>.</p></div>
                 <td colspan=2>
                     <input type="checkbox" name="pwreset-flag" value="1" <?php
                         echo $info['pwreset-flag'] ?  'checked="checked"' : ''; ?>> Require password change on login
+                    <br/>
+                    <input type="checkbox" name="forbid-pwreset-flag" value="1" <?php
+                        echo $info['forbid-pwreset-flag'] ?  'checked="checked"' : ''; ?>> User cannot change password
                 </td>
             </tr>
         </tbody>

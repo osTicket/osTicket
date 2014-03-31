@@ -769,13 +769,14 @@ class UserAccount extends UserAccountModel {
         return $user;
     }
 
-    static function  register($user, $vars, &$errors) {
+    static function register($user, $vars, &$errors) {
 
         if (!$user || !$vars)
             return false;
 
         //Require temp password.
-        if (!isset($vars['sendemail'])) {
+        if ((!$vars['backend'] || $vars['backend'] != 'client')
+                && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = 'Temp. password required';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
@@ -792,15 +793,18 @@ class UserAccount extends UserAccountModel {
 
         $account->set('dst', isset($vars['dst'])?1:0);
         $account->set('timezone_id', $vars['timezone_id']);
+        $account->set('backend', $vars['backend']);
 
         if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))
             $account->set('username', $vars['username']);
 
         if ($vars['passwd1'] && !$vars['sendemail']) {
-            $account->set('passwd', Password::hash($vars['passwd1']));
+            $account->set('passwd', Passwd::hash($vars['passwd1']));
             $account->setStatus(self::CONFIRMED);
             if ($vars['pwreset-flag'])
                 $account->setStatus(self::REQUIRE_PASSWD_RESET);
+            if ($vars['forbid-pwreset-flag'])
+                $account->setStatus(self::FORBID_PASSWD_RESET);
         }
 
         $account->save(true);
