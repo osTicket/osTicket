@@ -82,16 +82,14 @@ class VariableReplacer {
         if (!$var || !method_exists($obj, 'getVar'))
             return "";
 
-        $parts = explode('.', $var);
-        if(($rv = call_user_func(array($obj, 'getVar'), $parts[0]))===false)
+        list($tag, $remainder) = explode('.', $var, 2);
+        if(($rv = call_user_func(array($obj, 'getVar'), $tag))===false)
             return "";
 
         if(!is_object($rv))
             return $rv;
 
-        list(, $part) = explode('.', $var, 2);
-
-        return $this->getVar($rv, $part);
+        return $this->getVar($rv, $remainder);
     }
 
     function replaceVars($input) {
