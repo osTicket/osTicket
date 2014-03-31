@@ -663,7 +663,6 @@ class UserAccount extends UserAccountModel {
         return true;
     }
 
-
     function __toString() {
         return (string) $this->getStatus();
     }
@@ -688,7 +687,7 @@ class UserAccount extends UserAccountModel {
         // Changing password?
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
-                $errors['passwd1'] = 'Password required';
+                $errors['passwd1'] = 'New password required';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
                 $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
