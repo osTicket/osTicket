@@ -973,7 +973,7 @@ Class ThreadEntry {
                 foreach ($vars['attachments'] as $i=>$a) {
                     if (@$a['cid'] && $a['cid'] == $cid) {
                         // Inline referenced attachment was stripped
-                        unset($vars['attachments']);
+                        unset($vars['attachments'][$i]);
                     }
                 }
             }
