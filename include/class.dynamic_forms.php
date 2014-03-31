@@ -36,6 +36,7 @@ class DynamicForm extends VerySimpleModel {
     static $types = array(
         'T' => 'Ticket Information',
         'U' => 'User Information',
+        'O' => 'Organization Information',
     );
 
     var $_form;
@@ -562,9 +563,19 @@ class DynamicFormEntry extends VerySimpleModel {
         return DynamicFormEntry::objects()
             ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
     }
+
     function setClientId($user_id) {
         $this->object_type = 'U';
         $this->object_id = $user_id;
+    }
+
+    function setObjectId($object_id) {
+        $this->object_id = $object_id;
+    }
+
+    function forOrganization($org_id) {
+        return DynamicFormEntry::objects()
+            ->filter(array('object_id'=>$org_id, 'object_type'=>'O'));
     }
 
     function render($staff=true, $title=false) {

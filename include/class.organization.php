@@ -39,6 +39,8 @@ class OrganizationModel extends VerySimpleModel {
 }
 
 class Organization extends OrganizationModel {
+    var $_entries;
+    var $_forms;
 
     function __construct($ht) {
         parent::__construct($ht);
@@ -55,6 +57,53 @@ class Organization extends OrganizationModel {
 
     function getCreateDate() {
         return $this->created;
+    }
+
+    function addDynamicData($data) {
+
+        $of = OrganizationForm::getInstance($this->id);
+        foreach ($of->getFields() as $f)
+            if (isset($data[$f->get('name')]))
+                $of->setAnswer($f->get('name'), $data[$f->get('name')]);
+
+        $of->save();
+
+        return $of;
+    }
+
+    function getDynamicData() {
+        if (!isset($this->_entries)) {
+            $this->_entries = DynamicFormEntry::forOrganization($this->id)->all();
+            if (!$this->_entries) {
+                $g = OrganizationForm::getInstance($this->id);
+                $g->save();
+                $this->_entries[] = $g;
+            }
+        }
+
+        return $this->_entries;
+    }
+
+    function getForms($data=null) {
+
+        if (!isset($this->_forms)) {
+            $this->_forms = array();
+            foreach ($this->getDynamicData() as $cd) {
+                $cd->addMissingFields();
+                if(!$data
+                        && ($form = $cd->getForm())
+                        && $form->get('type') == 'O' ) {
+                    foreach ($cd->getFields() as $f) {
+                        if ($f->get('name') == 'name')
+                            $f->value = $this->getName();
+                    }
+                }
+
+                $this->_forms[] = $cd->getForm();
+            }
+        }
+
+        return $this->_forms;
     }
 
     function to_json() {
@@ -111,6 +160,59 @@ class Organization extends OrganizationModel {
     }
 
 }
+
+class OragnizationForm extends DynamicForm {
+    static $instance;
+    static $form;
+
+    static function objects() {
+        $os = parent::objects();
+        return $os->filter(array('type'=>'O'));
+    }
+
+    static function getDefaultForm() {
+        if (!isset(static::$form)) {
+            if ($o = static::objects())
+                static::$form = $o[0];
+            else //TODO: Remove the code below and move it to task??
+                static::$form = self::__loadDefaultForm();
+        }
+
+        return static::$form;
+    }
+
+    static function getInstance($object_id=0) {
+        if (!isset(static::$instance))
+            static::$instance = static::getDefaultForm()->instanciate();
+
+        static::$instance->object_type = 'O';
+
+        if ($object_id)
+            static::$instance->object_id = $object_id;
+
+        return static::$instance;
+    }
+
+    static function __loadDefaultForm() {
+        require_once(INCLUDE_DIR.'class.i18n.php');
+
+        $i18n = new Internationalization();
+        $tpl = $i18n->getTemplate('form.yaml');
+        foreach ($tpl->getData() as $f) {
+            if ($f['type'] == 'O') {
+                $form = DynamicForm::create($f);
+                $form->save();
+                break;
+            }
+        }
+
+        $o =static::objects();
+
+        return $o[0];
+    }
+
+}
+
 //Organization::_inspect();
 
 ?>
