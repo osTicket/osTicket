@@ -1278,7 +1278,7 @@ class Ticket {
                     // The answer object is retrieved here which will
                     // automatically invoke the toString() method when the
                     // answer is coerced into text
-                    return (string)$this->_answers[$tag];
+                    return $this->_answers[$tag];
         }
 
         return false;

@@ -765,7 +765,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function asVar() {
-        return $this->toString();
+        return (is_object($this->getValue()))
+            ? $this->getValue() : $this->toString();
+    }
+
+    function getVar($tag) {
+        if (is_object($this->getValue()) && method_exists($this->getValue(), 'getVar'))
+            return $this->getValue()->getVar($tag);
     }
 
     function __toString() {
@@ -938,14 +944,19 @@ class DynamicListItem extends VerySimpleModel {
 
     function getVar($name) {
         $config = $this->getConfiguration();
+        $name = mb_strtolower($name);
         foreach ($this->getConfigurationForm()->getFields() as $field) {
-            if (strcasecmp($field->get('name'), $name) === 0)
+            if (mb_strtolower($field->get('name')) == $name)
                 return $config[$field->get('id')];
         }
     }
 
     function toString() {
         return $this->get('value');
+    }
+
+    function __toString() {
+        return $this->toString();
     }
 
     function delete() {
