@@ -334,6 +334,19 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $ex->affected_rows();
     }
 
+    function update(array $what) {
+        $class = $this->compiler;
+        $compiler = new $class;
+        $ex = $compiler->compileBulkUpdate($this, $what);
+        $ex->execute();
+        return $ex->affected_rows();
+    }
+
+    function __clone() {
+        unset($this->_iterator);
+        unset($this->query);
+    }
+
     // IteratorAggregate interface
     function getIterator() {
         $class = $this->iterator;
@@ -414,6 +427,10 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
         return $this->cache;
+    }
+
+    function objects() {
+        return clone $this->queryset;
     }
 
     // Iterator interface
@@ -894,6 +911,19 @@ class MySqlCompiler extends SqlCompiler {
         $joins = $this->getJoins();
         $sql = 'DELETE '.$this->quote($table).'.* FROM '
             .$this->quote($table).$joins.$where;
+        return new MysqlExecutor($sql, $this->params);
+    }
+
+    function compileBulkUpdate($queryset, array $what) {
+        $model = $queryset->model;
+        $table = $model::$meta['table'];
+        $set = array();
+        foreach ($what as $field=>$value)
+            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
+        $set = implode(', ', $set);
+        $where = $this->getWhereClause($queryset);
+        $joins = $this->getJoins();
+        $sql = 'UPDATE '.$this->quote($table).' SET '.$set.$joins.$where;
         return new MysqlExecutor($sql, $this->params);
     }
 
