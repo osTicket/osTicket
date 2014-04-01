@@ -52,7 +52,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
                 <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
         <?php
@@ -141,13 +141,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span>
-                 <em>(select an existing template to copy and edit it thereafter)</em>
+                 <em>(select an existing template to copy and edit it thereafter)&nbsp;<i class="help-tip icon-question-sign" href="#template_to_clone"></i></em>
             </td>
         </tr>
         <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>
+                <em><strong>Admin Notes </strong>: Internal notes.&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
             </th>
         </tr>
         <tr>

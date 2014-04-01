@@ -12,7 +12,7 @@ $gmtime = Misc::gmtime();
         <tr>
             <th colspan="2">
                 <h4>System Settings &amp; Preferences</h4>
-                <em><b>General Settings</b>: Offline mode will disable client interface and only allow admins to login to Staff Control Panel</em>
+                <em><b>General Settings</b>: Offline mode will disable client interface and only allow admins to login to Staff Control Panel.</em>
             </th>
         </tr>
     </thead>
@@ -39,7 +39,7 @@ $gmtime = Misc::gmtime();
             <td width="220" class="required">Helpdesk Name/Title:</td>
             <td><input type="text" size="40" name="helpdesk_title" value="<?php echo $config['helpdesk_title']; ?>">
                 &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_title']; ?></font>
-                <i class="help-tip icon-question-sign" href="#helpdesk_name"></i>
+                <i class="help-tip icon-question-sign" href="#helpdesk_name_title"></i>
             </td>
         </tr>
         <tr>
@@ -57,7 +57,7 @@ $gmtime = Misc::gmtime();
                         }
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_dept_id']; ?></font>
-                <i class="help-tip icon-question-sign" href="#default_dept"></i>
+                <i class="help-tip icon-question-sign" href="#default_department"></i>
             </td>
         </tr>
 
@@ -72,7 +72,7 @@ $gmtime = Misc::gmtime();
                         <?php
                     } ?>
                 </select>
-                <i class="help-tip icon-question-sign" href="#page_size"></i>
+                <i class="help-tip icon-question-sign" href="#default_page_size"></i>
             </td>
         </tr>
         <tr>
@@ -85,7 +85,7 @@ $gmtime = Misc::gmtime();
                     <option value=1 <?php echo $config['log_level'] == 1 ? 'selected="selected"':''; ?>> ERROR</option>
                 </select>
                 <font class="error">&nbsp;<?php echo $errors['log_level']; ?></font>
-                <i class="help-tip icon-question-sign" href="#log_level"></i>
+                <i class="help-tip icon-question-sign" href="#default_log_level"></i>
             </td>
         </tr>
         <tr>
@@ -115,7 +115,7 @@ $gmtime = Misc::gmtime();
                         ?>><?php echo $desc; ?></option>
 <?php } ?>
                 </select>
-                <i class="help-tip icon-question-sign" href="#name_format"></i>
+                <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
             </td>
         </tr>
         <tr>
@@ -135,14 +135,14 @@ $gmtime = Misc::gmtime();
                     ?>
                 </select>
                 <font class="error"><?php echo $errors['passwd_reset_period']; ?></font>
-                <i class="help-tip icon-question-sign" href="#password_reset"></i>
+                <i class="help-tip icon-question-sign" href="#password_expiration_policy"></i>
             </td>
         </tr>
         <tr><td>Allow Password Resets:</th>
             <td>
               <input type="checkbox" name="allow_pw_reset" <?php echo $config['allow_pw_reset']?'checked="checked"':''; ?>>
               <em>Enables the <u>Forgot my password</u> link on the staff
-              control panel</em>
+              control panel.</em> <i class="help-tip icon-question-sign" href="#allow_password_resets"></i>
             </td>
         </tr>
         <tr><td>Password Reset Window:</th>
@@ -150,7 +150,7 @@ $gmtime = Misc::gmtime();
               <input type="text" name="pw_reset_window" size="6" value="<?php
                     echo $config['pw_reset_window']; ?>">
                 Maximum time <em>in minutes</em> a password reset token can
-                be valid.
+                be valid. <i class="help-tip icon-question-sign" href="#password_reset_window"></i>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['pw_reset_window']; ?></font>
             </td>
         </tr>
@@ -175,7 +175,7 @@ $gmtime = Misc::gmtime();
         <tr><td>Staff Session Timeout:</td>
             <td>
               <input type="text" name="staff_session_timeout" size=6 value="<?php echo $config['staff_session_timeout']; ?>">
-                Maximum idle time in minutes before a staff member must log in again (enter 0 to disable).
+                Maximum idle time in minutes before a staff member must log in again (enter 0 to disable). <i class="help-tip icon-question-sign" href="#staff_session_timeout"></i>
             </td>
         </tr>
         <tr><td>Client Excessive Logins:</td>
@@ -201,19 +201,19 @@ $gmtime = Misc::gmtime();
         <tr><td>Client Session Timeout:</td>
             <td>
               <input type="text" name="client_session_timeout" size=6 value="<?php echo $config['client_session_timeout']; ?>">
-                &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable).
+                &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable). <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
             </td>
         </tr>
         <tr><td>Bind Staff Session to IP:</td>
             <td>
               <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
-              <em>(binds staff session to originating IP address upon login)</em>
+              <i class="help-tip icon-question-sign" href="#bind_staff_session_to_ip"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
                 <em><b>Date and Time Options</b>&nbsp;
-                <i class="help-tip icon-question-sign" href="#date_and_time"></i>
+                <i class="help-tip icon-question-sign" href="#date_time_options"></i>
                 </em>
             </th>
         </tr>

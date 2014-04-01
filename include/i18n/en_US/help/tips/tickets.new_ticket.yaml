@@ -1,0 +1,111 @@
+#
+# This is popup help messages for the Staff Panel -> Tickets -> New Ticket
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+new_ticket:
+    title: New Ticket
+    content: >
+
+user_information:
+    title: User Information
+    content: >
+
+email_address:
+    title: Email Address
+    content: >
+
+full_name:
+    title: Full Name
+    content: >
+
+ticket_notice:
+    title: Ticket Notice
+    content: >
+
+ticket_information_options:
+    title: Ticket Information &amp; Options
+    content: >
+
+ticket_source:
+    title: Ticket Source
+    content: >
+
+help_topic:
+    title: Help Topic
+    content: >
+
+department:
+    title: Department
+    content: >
+
+sla_plan:
+    title: SLA Plan
+    content: >
+
+due_date:
+    title: Due Date
+    content: >
+
+assign_to:
+    title: Assign To
+    content: >
+
+ticket_details:
+    title: Ticket Details
+    content: >
+
+issue_summary:
+    title: Issue Summary
+    content: >
+
+issue_details:
+    title: Issue Details
+    content: >
+
+priority_level:
+    title: Priority Level
+    content: >
+
+response:
+    title: Response
+    content: >
+
+canned_response:
+    title: Canned Response
+    content: >
+        Include comments about the Append checkbox here too
+
+initial_response_for_the_ticket:
+    title: Initial Response for the Ticket
+    content: >
+
+attachments:
+    title: Attachments
+    content: >
+
+ticket_status:
+    title: Ticket Status
+    content: >
+
+signature:
+    title: Signature
+    content: >
+
+response:
+    title: Response
+    content: >
+
+internal_note:
+    title: Internal Note
+    content: >

@@ -49,6 +49,7 @@ if($_POST){
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />');
 require(STAFFINC_DIR.'header.inc.php');
 ?>
 <form action="emailtest.php" method="post" id="save">

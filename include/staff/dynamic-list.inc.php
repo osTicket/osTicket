@@ -27,7 +27,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Custom lists are used to provide drop-down lists for custom forms</em>
+                <em>Custom lists are used to provide drop-down lists for custom forms. &nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
             </th>
         </tr>
     </thead>

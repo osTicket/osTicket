@@ -28,7 +28,7 @@ echo $config['ticket_autoresponder'] ? 'checked="checked"' : ''; ?>/>
                 <input type="checkbox" name="ticket_notice_active" <?php
 echo $config['ticket_notice_active'] ? 'checked="checked"' : ''; ?>/>
                 Ticket Owner&nbsp;
-                <i class="help-tip icon-question-sign" href="#new_staff_ticket"></i>
+                <i class="help-tip icon-question-sign" href="#new_ticket_by_staff"></i>
             </td>
         </tr>
         <tr>
@@ -37,7 +37,7 @@ echo $config['ticket_notice_active'] ? 'checked="checked"' : ''; ?>/>
                 <input type="checkbox" name="message_autoresponder" <?php
 echo $config['message_autoresponder'] ? 'checked="checked"' : ''; ?>/>
                 Submitter: Send receipt confirmation&nbsp;
-                <i class="help-tip icon-question-sign" href="#new_message"></i>
+                <i class="help-tip icon-question-sign" href="#new_message_for_submitter"></i>
             </td>
         </tr>
         <tr>
@@ -45,7 +45,7 @@ echo $config['message_autoresponder'] ? 'checked="checked"' : ''; ?>/>
                 <input type="checkbox" name="message_autoresponder_collabs" <?php
 echo $config['message_autoresponder_collabs'] ? 'checked="checked"' : ''; ?>/>
                 Participants: Send new activity notice&nbsp;
-                <i class="help-tip icon-question-sign" href="#collaborators"></i>
+                <i class="help-tip icon-question-sign" href="#new_message_for_participants"></i>
                 </div>
             </td>
         </tr>

@@ -1,0 +1,106 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> Add New Help Topic
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+help_topic_information:
+    title: Help Topic Information
+    content: >
+        Your Help Topics help guide what information is gathered from a Client and
+        how that Client is handled by your Company. The Help Topics are specific to
+        a Department and can include Custom Forms.
+
+topic:
+    title: Topic
+    content: >
+        Choose a Topic Label by which you want this Help Topic to be recognized.
+
+status:
+    title: Status
+    content: >
+        If disabled, this Help Topic will not be able to be selected by Clients in
+        the Client Interface.
+
+type:
+    title: Type
+    content: >
+        If a Topic is labelled as Private, it will only be available for Agents to
+        choose when an Agent opens a new Ticket under the Staff Panel.
+
+parent_topic:
+    title: Parent Topic
+    content: >
+        Do you want the New Topic to be treated as a subtopic? If so, then choose a
+        Parent Topic under which your New Topic will belong.
+
+new_ticket_options:
+    title: New Ticket Options
+    content: >
+
+custom_form:
+    title: Custom Form
+    content: >
+        Custom Forms will help you acquire more specific information from Client’s
+        that are relevant to specific Departments and/or Help Topics. (To create a
+        Custom Form, see Admin Panel -> Manage -> Forms).
+
+priority:
+    title: Priority
+    content: >
+        New Tickets created related to the New Topic will be labeled as having what
+        priority level?
+
+department:
+    title: Department
+    content: >
+        If a Client chooses this New Topic as relevant to their situation, to what
+        Department do you want their Ticket to be routed?
+
+sla_plan:
+    title: SLA Plan
+    content: >
+        Each Department has a default SLA plan for their Tickets. However, if your
+        New Topic is a special case requiring different time constraints, you can
+        override the Departments default SLA Plan by choosing an SLA Plan here. (To
+        create/edit SLA Plans, see Admin Plans -> Manage -> SLA Plans).
+
+thank_you_page:
+    title: Thank-You Page
+    content: >
+        Choose the Thank-You Page to which a Client is directed after opening a
+        Ticket. (To Create/Edit your Thank-You Pages, see Admin Panel -> Manage ->
+        Pages).
+
+auto_assign_to:
+    title: Auto-assign to…
+    content: >
+        You may optionally choose to what Agent or Team the Tickets characterized
+        by this New Topic will be sent. (To manage Teams, see Admin Panel -> Agent
+        (Staff) Members -> Teams).
+
+ticket_auto_response:
+    title: Ticket Auto-response
+    content: >
+        If enabled, this will prevent any Alert sent out to notify any Agent of the
+        New Ticket. Therefore, this overrides any setting of the Department to
+        which the Ticket belongs.
+
+admin_notes:
+    title: Admin Notes
+    content: >
+        These notes are only visible to those whose account type is ‘<span
+        class='doc-desc-title'>Admin</span>.’
+
+add_topic:
+    title: Add Topic
+    content: >

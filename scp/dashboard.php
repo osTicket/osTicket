@@ -15,6 +15,7 @@
 **********************************************************************/
 require('staff.inc.php');
 $nav->setTabActive('dashboard');
+$ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.dashboard" />');
 require(STAFFINC_DIR.'header.inc.php');
 ?>
 
@@ -28,11 +29,11 @@ require(STAFFINC_DIR.'header.inc.php');
 <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 <link rel="stylesheet" type="text/css" href="css/dashboard.css"/>
 
-<h2>Ticket Activity</h2>
+<h2>Ticket Activity&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
 <p>Select the starting time and period for the system activity graph</p>
 <form class="well form-inline" id="timeframe-form">
     <label>
-        Report timeframe:
+        <i class="help-tip icon-question-sign" href="#report_timeframe"></i>&nbsp;&nbsp;Report timeframe:
         <input type="text" class="dp input-medium search-query"
             name="start" placeholder="Last month"/>
     </label>
@@ -56,7 +57,7 @@ require(STAFFINC_DIR.'header.inc.php');
 </div>
 
 <hr/>
-<h2>Statistics</h2>
+<h2>Statistics&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
 <p>Statistics of tickets organized by department, help topic, and staff.</p>
 <ul class="nav nav-tabs" id="tabular-navigation"></ul>
 
