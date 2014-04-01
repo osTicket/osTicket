@@ -501,6 +501,15 @@ $(document).ready(function(){
         });
     };
 
+    $.orgLookup = function (url, cb) {
+        $.dialog(url, 201, function (xhr) {
+            var org = $.parseJSON(xhr.responseText);
+            if (cb) cb(org);
+        }, {
+            onshow: function() { $('#org-search').focus(); }
+        });
+    };
+
     $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {
             case 'closed':

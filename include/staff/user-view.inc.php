@@ -1,6 +1,10 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path');
 
+$account = $user->getAccount();
+$org = $account ? $account->getOrganization() : null;
+
+
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
@@ -10,7 +14,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
         </td>
         <td width="50%" class="right_align has_bottom_border">
            <?php
-            if ($user->getAccount()) { ?>
+            if ($account) { ?>
             <span class="action-button" data-dropdown="#action-dropdown-more">
                 <span ><i class="icon-cog"></i> More</span>
                 <i class="icon-caret-down"></i>
@@ -20,7 +24,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
             <a id="user-delete" class="action-button user-action"
             href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i> Delete User</a>
             <?php
-            if ($user->getAccount()) { ?>
+            if ($account) { ?>
             <a id="user-manage" class="action-button user-action"
             href="#users/<?php echo $user->getId(); ?>/manage"><i class="icon-edit"></i> Manage Account</a>
             <?php
@@ -32,8 +36,8 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
-                if ($user->getAccount()) {
-                    if (!$user->getAccount()->isConfirmed()) {
+                if ($account) {
+                    if (!$account->isConfirmed()) {
                         ?>
                     <li><a class="confirm-action" href="#confirmlink"><i
                         class="icon-envelope"></i> Send Activation Email</a></li>
@@ -73,10 +77,22 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
                     </td>
                 </tr>
                 <tr>
-                    <th>Company:</th>
+                    <th>Organization:</th>
                     <td>
-                        <span id="user-<?php echo $user->getId();
-                        ?>-org"><?php echo $user->getOrg(); ?></span>
+                        <span id="user-<?php echo $user->getId(); ?>-org">
+                        <?php
+                            if ($org)
+                                echo sprintf('<a href="#users/%d/org"
+                                        class="user-action">%s</a>',
+                                        $user->getId(), $org->getName());
+                            elseif ($account)
+                                echo sprintf('<a href="#users/%d/org"
+                                        class="user-action">Add Organization</a>',
+                                        $user->getId());
+                            else
+                                echo '&nbsp;';
+                        ?>
+                        </span>
                     </td>
                 </tr>
             </table>

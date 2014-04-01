@@ -543,6 +543,7 @@ class UserAccountModel extends VerySimpleModel {
 class UserAccount extends UserAccountModel {
     var $_options = null;
     var $_user;
+    var $_org;
 
     const CONFIRMED             = 0x0001;
     const LOCKED                = 0x0002;
@@ -615,6 +616,30 @@ class UserAccount extends UserAccountModel {
         }
         return $this->_user;
     }
+
+    function getOrgId() {
+         return $this->get('org_id');
+    }
+
+    function getOrganization() {
+
+        if (!isset($this->_org))
+            $this->_org = Organization::lookup($this->getOrgId());
+
+        return $this->_org;
+    }
+
+    function setOrganization($org) {
+        if (!$org instanceof Organization)
+            return false;
+
+        $this->set('org_id', $org->getId());
+        $this->_org = null;
+        $this->save();
+
+        return true;
+   }
+
 
     function sendResetEmail() {
         return static::sendUnlockEmail('pwreset-client') === true;
