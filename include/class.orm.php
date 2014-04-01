@@ -57,6 +57,9 @@ class VerySimpleModel {
         return array_key_exists($field, $this->ht)
             || isset(static::$meta['joins'][$field]);
     }
+    function __unset($field) {
+        unset($this->ht[$field]);
+    }
 
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
@@ -354,7 +357,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     }
 
     function __toString() {
-        return (string)$this->getQuery();
+        return (string) $this->getQuery();
     }
 
     function getQuery($options=array()) {
@@ -382,6 +385,7 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     var $queryset;
 
     function __construct($queryset=false) {
+        $this->queryset = $queryset;
         if ($queryset) {
             $this->model = $queryset->model;
             $this->resource = $queryset->getQuery();
@@ -490,6 +494,13 @@ class InstrumentedList extends ModelInstanceIterator {
     }
     function remove($object) {
         $object->delete();
+    }
+
+    function update(array $what) {
+        return $this->queryset->update($what);
+    }
+    function reset() {
+        $this->cache = array();
     }
 
     function offsetUnset($a) {
