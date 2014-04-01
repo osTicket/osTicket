@@ -51,24 +51,19 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 <div class="clear"></div>
 <ul class="tabs">
     <li><a class="active" id="users_tab" href="#users"><i
-    class="icon-list-alt"></i>&nbsp;Users</a></li>
+    class="icon-user"></i>&nbsp;Users</a></li>
+    <li><a id="tickets_tab" href="#tickets"><i
+    class="icon-list-alt"></i>&nbsp;Tickets</a></li>
 </ul>
-<div id="users">
-<div style="width:700px; float:left;">
-   <?php
-    if ($results) {
-        echo  sprintf('<strong>Showing 1 - %d of %s</strong>',
-            count($results), count($results));
-    } else {
-        echo 'Organization does not have users';
-    }
-   ?>
+<div class="tab_content" id="users">
+<?php
+include STAFFINC_DIR . 'templates/users.tmpl.php';
+?>
 </div>
-<div style="float:right;text-align:right;padding-right:5px;">
-    <b><a class="Icon newStaff" href="users.php?a=open&oid=<?php echo
-    $org->getId(); ?>"> Add New User</a></b>
-</div>
-<br/>
+<div class="tab_content" id="tickets"  style="display:none;">
+<?php
+include STAFFINC_DIR . 'templates/tickets.tmpl.php';
+?>
 </div>
 
 <script type="text/javascript">
