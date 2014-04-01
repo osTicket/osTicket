@@ -231,7 +231,7 @@ $(document).ready(function(){
                             if(!$('.canned_attachments #f'+j.id,fObj).length) {
                                 var file='<span><label><input type="checkbox" name="cannedattachments[]" value="' + j.id+'" id="f'+j.id+'" checked="checked">';
                                     file+= ' '+ j.name + '</label>';
-                                    file+= ' (<a href="file.php?h=' + j.hash + j.key+ '">view</a>) </span>';
+                                    file+= ' (<a href="file.php?h=' + j.key + j.hash + '">view</a>) </span>';
                                 $('.canned_attachments', fObj).append(file);
                             }
 

@@ -144,7 +144,7 @@ class osTicket {
         $allowed = array_map('trim', explode(',', strtolower($allowedFileTypes)));
         $filename = is_array($file)?$file['name']:$file;
 
-        $ext = strtolower(preg_replace("/.*\.(.{3,4})$/", "$1", $filename));
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
         //TODO: Check MIME type - file ext. shouldn't be solely trusted.
 

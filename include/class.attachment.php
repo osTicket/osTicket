@@ -175,6 +175,7 @@ class GenericAttachments {
         foreach ($this->attachments as $a) {
             if ($a['inline'] != $separate || $a['inline'] == $inlines) {
                 $a['file_id'] = $a['id'];
+                $a['hash'] = md5($a['file_id'].session_id().strtolower($a['key']));
                 $attachments[] = $a;
             }
         }
