@@ -13,6 +13,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.orm.php');
+require_once(INCLUDE_DIR . 'class.forms.php');
+require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
 
 class OrganizationModel extends VerySimpleModel {
     static $meta = array(
@@ -125,6 +127,41 @@ class Organization extends OrganizationModel {
         return parent::delete();
     }
 
+
+    function update($vars, &$errors) {
+
+        $valid = true;
+        $forms = $this->getForms($vars);
+        foreach ($forms as $cd) {
+            if (!$cd->isValid())
+                $valid = false;
+            if ($cd->get('type') == 'O'
+                        && ($form= $cd->getForm($vars))
+                        && ($f=$form->getField('name'))
+                        && $f->getClean()
+                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
+                        && $o->id != $this->getId()) {
+                $valid = false;
+                $f->addError('Organization with the same name already exists');
+            }
+        }
+
+        if (!$valid)
+            return false;
+
+        foreach ($this->getDynamicData() as $cd) {
+            if (($f=$cd->getForm())
+                    && ($f->get('type') == 'O')
+                    && ($name = $f->getField('name'))) {
+                    $this->name = $name->getClean();
+                    $this->save();
+                }
+            $cd->save();
+        }
+
+        return true;
+    }
+
     static function fromVars($vars) {
 
         if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
@@ -134,6 +171,7 @@ class Organization extends OrganizationModel {
                 'updated' => new SqlFunction('NOW'),
             ));
             $org->save(true);
+            $org->addDynamicData($vars);
         }
 
         return $org;
@@ -161,7 +199,7 @@ class Organization extends OrganizationModel {
 
 }
 
-class OragnizationForm extends DynamicForm {
+class OrganizationForm extends DynamicForm {
     static $instance;
     static $form;
 
@@ -172,7 +210,7 @@ class OragnizationForm extends DynamicForm {
 
     static function getDefaultForm() {
         if (!isset(static::$form)) {
-            if ($o = static::objects())
+            if (($o = static::objects()) && $o[0])
                 static::$form = $o[0];
             else //TODO: Remove the code below and move it to task??
                 static::$form = self::__loadDefaultForm();

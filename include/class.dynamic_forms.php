@@ -18,6 +18,7 @@
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
+require_once(INCLUDE_DIR . 'class.filter.php');
 require_once(INCLUDE_DIR . 'class.signal.php');
 
 /**
@@ -607,14 +608,23 @@ class DynamicFormEntry extends VerySimpleModel {
                 // Add to list of answers
                 $this->_values[] = $a;
                 $this->_fields[] = $field;
+                $this->_form = null;
+
                 // Omit fields without data
                 // For user entries, the name and email fields should not be
                 // saved with the rest of the data
-                if (!($this->object_type == 'U'
+                if ($this->object_type == 'U'
                         && in_array($field->get('name'), array('name','email')))
-                        && $field->hasData())
-                    $a->save();
-                $this->_form = null;
+                    continue;
+
+                if ($this->object_type == 'O'
+                        && in_array($field->get('name'), array('name')))
+                    continue;
+
+                if (!$field->hasData())
+                    continue;
+
+                $a->save();
             }
             // Sort the form the way it is declared to be sorted
             if ($this->_fields)
@@ -634,6 +644,11 @@ class DynamicFormEntry extends VerySimpleModel {
             if ($this->object_type == 'U'
                     && in_array($field->get('name'), array('name','email')))
                 continue;
+
+            if ($this->object_type == 'O'
+                    && in_array($field->get('name'), array('name')))
+                continue;
+
             $val = $field->to_database($field->getClean());
             if (is_array($val)) {
                 $a->set('value', $val[0]);
