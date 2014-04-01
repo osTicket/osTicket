@@ -12,6 +12,7 @@ if($staff && $_REQUEST['a']!='add'){
     $info=$staff->getInfo();
     $info['id']=$staff->getId();
     $info['teams'] = $staff->getTeams();
+    $info['signature'] = Format::viewableImages($info['signature']);
     $qstr.='&id='.$staff->getId();
 }else {
     $title='Add New Staff';
@@ -20,9 +21,12 @@ if($staff && $_REQUEST['a']!='add'){
     $passwd_text='Temporary password required only for "Local" authenication';
     //Some defaults for new staff.
     $info['change_passwd']=1;
+    $info['welcome_email']=1;
     $info['isactive']=1;
     $info['isvisible']=1;
     $info['isadmin']=0;
+    $info['timezone_id'] = $cfg->getDefaultTimezoneId();
+    $info['daylight_saving'] = $cfg->observeDaylightSaving();
     $qstr.='&a=add';
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -106,6 +110,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['mobile']; ?></span>
             </td>
         </tr>
+<?php if (!$staff) { ?>
+        <tr>
+            <td width="180">Welcome Email</td>
+            <td><input type="checkbox" name="welcome_email" id="welcome-email" <?php
+                if ($info['welcome_email']) echo 'checked="checked"';
+                ?> onchange="javascript:
+                var sbk = $('#backend-selection');
+                if ($(this).is(':checked'))
+                    $('#password-fields').hide();
+                else if (sbk.val() == '' || sbk.val() == 'local')
+                    $('#password-fields').show();
+                " />
+                Send staff welcome email with account access link
+            </td>
+        </tr>
+<?php } ?>
         <tr>
             <th colspan="2">
                 <em><strong>Authentication</strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span></em>
@@ -114,10 +134,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td>Authentication Backend</td>
             <td>
-            <select name="backend" onchange="javascript:
+            <select name="backend" id="backend-selection" onchange="javascript:
                 if (this.value != '' && this.value != 'local')
                     $('#password-fields').hide();
-                else
+                else if (!$('#welcome-email').is(':checked'))
                     $('#password-fields').show();
                 ">
                 <option value="">&mdash; Use any available backend &mdash;</option>
@@ -131,8 +151,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </select>
             </td>
         </tr>
-        </tbody>
-        <tbody id="password-fields" style="<?php if ($info['backend'] && $info['backend'] != 'local')
+    </tbody>
+    <tbody id="password-fields" style="<?php
+        if ($info['welcome_email'] || ($info['backend'] && $info['backend'] != 'local'))
             echo 'display:none;'; ?>">
         <tr>
             <td width="180">

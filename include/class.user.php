@@ -36,6 +36,10 @@ class UserModel extends VerySimpleModel {
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
             ),
+            'account' => array(
+                'list' => false,
+                'reverse' => 'ClientAccount.user',
+            ),
             'default_email' => array(
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
@@ -141,6 +145,10 @@ class User extends UserModel {
 
     function getCreateDate() {
         return $this->created;
+    }
+
+    function getAccount() {
+        return $this->account;
     }
 
     function to_json() {
@@ -283,6 +291,10 @@ class User extends UserModel {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);
+    }
+
+    function delete() {
+        return parent::delete() && $this->default_email->delete();
     }
 }
 User::_inspect();

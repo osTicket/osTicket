@@ -219,6 +219,7 @@ h2 {
   border: 1px solid #a00;
   background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0;
 }
+#msg_info { margin: 0; padding: 5px; margin-bottom: 10px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
 .warning {
   background: #ffc;
   font-style: italic;
@@ -626,21 +627,21 @@ label.required {
   text-align: left;
 }
 #clientLogin {
-  width: 400px;
+    display: block;
   margin-top: 20px;
-  padding: 10px 100px 10px 10px;
+  padding: 20px;
   border: 1px solid #ccc;
-  background: url('../images/lock.png?1319655200') 440px 50% no-repeat #f6f6f6;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+  background: url('../images/lock.png?1319655200') 95% 50% no-repeat #f6f6f6;
 }
 #clientLogin p {
   clear: both;
-  text-align: center;
 }
 #clientLogin strong {
   font-size: 11px;
   color: #d00;
   display: block;
-  padding-left: 140px;
 }
 #clientLogin #email {
   width: 250px;
@@ -869,4 +870,9 @@ a.refresh {
 .action-button a {
   color: #777;
   text-decoration: none;
+}
+table.padded tr > td,
+table.padded tr > th {
+  height: 20px;
+  padding-bottom: 5px;
 }

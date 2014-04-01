@@ -19,9 +19,11 @@ if(!defined('INCLUDE_DIR')) die('Fatal Error. Kwaheri!');
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
+$content = Page::lookup(Page::getIdByType('banner-staff'));
+
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
-$msg = $msg?$msg:'Authentication Required';
+$msg = $msg ?: $content->getName();
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
 if($_POST) {

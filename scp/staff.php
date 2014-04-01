@@ -31,7 +31,7 @@ if($_POST){
             break;
         case 'create':
             if(($id=Staff::create($_POST,$errors))){
-                $msg=Format::htmlchars($_POST['name']).' added successfully';
+                $msg=Format::htmlchars($_POST['firstname']).' added successfully';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err']='Unable to add staff. Correct any error(s) below and try again.';

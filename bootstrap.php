@@ -63,13 +63,14 @@ class Bootstrap {
         define('CONFIG_TABLE',$prefix.'config');
 
         define('CANNED_TABLE',$prefix.'canned_response');
-        define('PAGE_TABLE', $prefix.'page');
+        define('PAGE_TABLE', $prefix.'content');
         define('FILE_TABLE',$prefix.'file');
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
 
         define('ATTACHMENT_TABLE',$prefix.'attachment');
         define('USER_TABLE',$prefix.'user');
         define('USER_EMAIL_TABLE',$prefix.'user_email');
+        define('USER_ACCOUNT_TABLE',$prefix.'user_account');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');

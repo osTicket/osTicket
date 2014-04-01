@@ -24,13 +24,44 @@ define('OSTCLIENTINC',TRUE); //make includes happy
 require_once(INCLUDE_DIR.'class.client.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
-$inc = 'login.inc.php';
-if ($_POST) {
-    if (!$_POST['lticket'] || !Validator::is_email($_POST['lemail']))
+if ($cfg->getClientRegistrationMode() == 'disabled'
+        || isset($_POST['lticket']))
+    $inc = 'accesslink.inc.php';
+else
+    $inc = 'login.inc.php';
+
+$suggest_pwreset = false;
+if ($_POST && isset($_POST['luser'])) {
+    if (!$_POST['luser'])
+        $errors['err'] = 'Valid username or email address is required';
+    elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
+            $_POST['lpasswd'], $errors))) {
+        if ($user instanceof ClientCreateRequest) {
+            if ($cfg && $cfg->isClientRegistrationEnabled()) {
+                $inc = 'register.inc.php';
+                $user_form = UserForm::getUserForm()->getForm($user->getInfo());
+            }
+            else {
+                $errors['err'] = 'Access Denied. Contact your help desk
+                    administrator to have an account registered for you';
+                // fall through to show login page again
+            }
+        }
+        else {
+            Http::redirect($_SESSION['_client']['auth']['dest']
+                ?: 'tickets.php');
+        }
+    } elseif(!$errors['err']) {
+        $errors['err'] = 'Invalid username or password - try again!';
+    }
+    $suggest_pwreset = true;
+}
+elseif ($_POST && isset($_POST['lticket'])) {
+    if (!Validator::is_email($_POST['lemail']))
         $errors['err'] = 'Valid email address and ticket number required';
     elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
-                    $_POST['lticket'], $errors))) {
-        //We're using authentication backend so we can guard aganist brute
+            $_POST['lticket'], $errors))) {
+        // We're using authentication backend so we can guard aganist brute
         // force attempts (which doesn't buy much since the link is emailed)
         $user->sendAccessLink();
         $msg = sprintf("%s - access link sent to your email!",
@@ -41,8 +72,10 @@ if ($_POST) {
     }
 }
 
-$nav = new UserNav();
-$nav->setActiveNav('status');
+if (!$nav) {
+    $nav = new UserNav();
+    $nav->setActiveNav('status');
+}
 require CLIENTINC_DIR.'header.inc.php';
 require CLIENTINC_DIR.$inc;
 require CLIENTINC_DIR.'footer.inc.php';

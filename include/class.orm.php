@@ -16,6 +16,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+class OrmException extends Exception {}
+
 class VerySimpleModel {
     static $meta = array(
         'table' => false,
@@ -46,6 +48,13 @@ class VerySimpleModel {
             $v = $this->ht[$field] = $class::lookup($this->ht[$j['local']]);
             return $v;
         }
+        throw new OrmException(sprintf('%s: %s: Field not defined',
+            get_class($this), $field));
+    }
+
+    function __isset($field) {
+        return array_key_exists($field, $this->ht)
+            || isset(static::$meta['joins'][$field]);
     }
 
     function set($field, $value) {
@@ -86,7 +95,8 @@ class VerySimpleModel {
         // Construct related lists
         if (isset(static::$meta['joins'])) {
             foreach (static::$meta['joins'] as $name => $j) {
-                if (isset($j['list']) && $j['list']) {
+                if (isset($this->{$j['local']})
+                        && isset($j['list']) && $j['list']) {
                     $fkey = $j['fkey'];
                     $this->{$name} = new InstrumentedList(
                         // Send Model, Foriegn-Field, Local-Id
@@ -96,6 +106,8 @@ class VerySimpleModel {
             }
         }
     }
+
+    function __onload() {}
 
     static function _inspect() {
         if (!static::$meta['table'])
@@ -113,7 +125,8 @@ class VerySimpleModel {
                     $constraint[$field] = "$model.$foreign";
                 }
                 $j['constraint'] = $constraint;
-                $j['list'] = true;
+                if (!isset($j['list']))
+                    $j['list'] = true;
             }
             // XXX: Make this better (ie. composite keys)
             $keys = array_keys($j['constraint']);
@@ -365,7 +378,9 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
 
     function buildModel($row) {
         // TODO: Traverse to foreign keys
-        return new $this->model($row); # nolint
+        $model = new $this->model($row); # nolint
+        $model->__onload();
+        return $model;
     }
 
     function fillTo($index) {

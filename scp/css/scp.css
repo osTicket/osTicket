@@ -12,6 +12,10 @@ a {
     text-decoration:none;
 }
 
+.form_table a:hover {
+    text-decoration: underline;
+}
+
 .centered {
     text-align:center;
 }
@@ -544,6 +548,7 @@ a.print {
 
 .form_table td {
     border-bottom:1px solid #ddd;
+    height: 20px;
 }
 
 table.fixed {

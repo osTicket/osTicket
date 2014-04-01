@@ -73,9 +73,9 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function getField($name) {
-        foreach ($this->getDynamicFields() as $f)
+        foreach ($this->getFields() as $f)
             if (!strcasecmp($f->get('name'), $name))
-                return $f->getImpl();
+                return $f;
     }
 
     function hasField($name) {
@@ -494,7 +494,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function getForm() {
         if (!isset($this->_form)) {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
-            if ($this->id)
+            if (isset($this->id))
                 $this->_form->data($this);
         }
         return $this->_form;

@@ -56,7 +56,7 @@ if($thisclient && $thisclient->getId() && $thisclient->isValid()){
 /******* CSRF Protectin *************/
 // Enforce CSRF protection for POSTS
 if ($_POST  && !$ost->checkCSRFToken()) {
-    @header('Location: index.php');
+    Http::redirect('index.php');
     //just incase redirect fails
     die('Action denied (400)!');
 }
@@ -68,4 +68,13 @@ $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'"
 define('PAGE_LIMIT', DEFAULT_PAGE_LIMIT);
 
 $nav = new UserNav($thisclient, 'home');
+
+$exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.php', 'logs.php', 'upgrade.php'));
+
+if (!$exempt && $thisclient && ($acct = $thisclient->getAccount())
+        && $acct->isPasswdResetForced()) {
+    $warn = 'Password change required to continue';
+    require('profile.php'); //profile.php must request this file as require_once to avoid problems.
+    exit;
+}
 ?>
