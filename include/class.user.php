@@ -451,7 +451,7 @@ class PersonsName {
 
     function __toString() {
         global $cfg;
-        $format = $cfg->getDefaultNameFormat();
+        $format = $cfg ? $cfg->getDefaultNameFormat() : 'original';
         list(,$func) = static::$formats[$format];
         if (!$func) $func = 'getFull';
         return call_user_func(array($this, $func));
