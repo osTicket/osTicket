@@ -4,7 +4,6 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
 $account = $user->getAccount();
 $org = $account ? $account->getOrganization() : null;
 
-
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>

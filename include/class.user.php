@@ -15,7 +15,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.orm.php');
-require_once(INCLUDE_DIR . 'class.organization.php');
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -29,6 +28,30 @@ class UserEmailModel extends VerySimpleModel {
     );
 }
 
+class TicketModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_TABLE,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'UserModel.id')
+            )
+        )
+    );
+
+    function getId() {
+        return $this->ticket_id;
+    }
+
+    function delete() {
+
+        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
+            return true;
+
+        return false;
+    }
+}
+
 class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
@@ -36,6 +59,9 @@ class UserModel extends VerySimpleModel {
         'joins' => array(
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
+            ),
+            'tickets' => array(
+                'reverse' => 'TicketModel.user',
             ),
             'account' => array(
                 'list' => false,
@@ -49,6 +75,9 @@ class UserModel extends VerySimpleModel {
     );
 
     var $emails;
+    var $tickets;
+    var $account;
+
 
     static function objects() {
         $qs = parent::objects();
@@ -257,12 +286,6 @@ class User extends UserModel {
         return UserAccount::register($this, $vars, $errors);
     }
 
-    //TODO: Add organization support
-    function getOrg() {
-        return '';
-    }
-
-
     function updateInfo($vars, &$errors) {
 
         $valid = true;
@@ -333,11 +356,17 @@ class User extends UserModel {
     }
 
     function delete() {
-        //TODO:  See about deleting other associated models.
+        // TODO: Refuse to delete user with tickets
+        // Re-enable it once orm support resetting intrumented list
+        if (0 && $this->tickets->count())
+            return false;
 
-        // Delete email
-        if ($this->default_email)
-            $this->default_email->delete();
+        // Delete account record (if any)
+        if ($this->getAccount())
+            $this->getAccount()->delete();
+
+        // Delete emails.
+        $this->emails->expunge();
 
         // Delete user
         return parent::delete();
@@ -535,6 +564,9 @@ class UserAccountModel extends VerySimpleModel {
             'user' => array(
                 'null' => false,
                 'constraint' => array('user_id' => 'UserModel.id')
+            ),
+            'org' => array(
+                'constraint' => array('org_id' => 'OrganizationModel.id')
             ),
         ),
     );
@@ -867,6 +899,7 @@ class UserList implements  IteratorAggregate, ArrayAccess {
         return $list ? implode(', ', $list) : '';
     }
 }
+require_once(INCLUDE_DIR . 'class.organization.php');
 User::_inspect();
 
 ?>

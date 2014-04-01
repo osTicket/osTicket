@@ -177,18 +177,22 @@ class UsersAjaxAPI extends AjaxController {
         elseif (!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
-        //Switch to end user so we can get ticket stats
-        // fixme: use orm to get ticket count at the user model level.
-        $user = new EndUser($user);
-
         $info = array();
-        if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
+        if ($_POST) {
+            if ($user->tickets->count()) {
+                if (!$thisstaff->canDeleteTickets()) {
+                    $info['error'] = 'You do not have permission to delete a user with tickets!';
+                } elseif ($_POST['deletetickets']) {
+                    foreach($user->tickets as $ticket)
+                        $ticket->delete();
+                } else {
+                    $info['error'] = 'You cannot delete a user with tickets!';
+                }
+            }
 
-            if ($user->getNumTickets())
-                $info['error'] = 'You cannot delete a user with tickets!';
-            elseif ($user->delete())
+            if (!$info['error'] && $user->delete())
                  Http::response(204, 'User deleted successfully');
-            else
+            elseif (!$info['error'])
                 $info['error'] = 'Unable to delete user - try again!';
         }
 

@@ -47,20 +47,21 @@ if ($info['error']) {
     </table>
     <div class="clear"></div>
     <hr>
+    <form method="post" class="user"
+        action="#users/<?php echo $user->getId(); ?>/delete">
+        <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
+
     <?php
-    if ($user->getNumTickets()) {
+    if (($num=$user->tickets->count())) {
         echo sprintf('<div><input type="checkbox" name="deletetickets" value="1" >
             <strong>Delete <a href="tickets.php?a=search&uid=%d" target="_blank">%d
             %s</a> and any associated attachments and data.</strong></div><hr>',
             $user->getId(),
-            $user->getNumTickets(),
-            ($user->getNumTickets() >1) ? 'tickets' : 'ticket'
+            $num,
+            ($num >1) ? 'tickets' : 'ticket'
             );
     }
     ?>
-    <form method="delete" class="user"
-        action="#users/<?php echo $user->getId(); ?>/delete">
-        <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
         <p class="full-width">
         <span class="buttons" style="float:left">
             <input type="reset" value="Reset">
