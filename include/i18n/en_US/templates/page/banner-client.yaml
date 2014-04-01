@@ -5,9 +5,8 @@
 # your clients about your login and registration policies.
 ---
 notes: >
-    This forms the header on the staff login page. It can be useful to
-    inform your clients about your login and registration policies.
+    This composes the header on the Client Log In page. It can be useful to
+    inform your Clients about your log in and registration policies.
 name: "Sign in to %{company.name}"
 body: >
-    To better serve you, we encourage our clients to register for an account
-    and verify the email address we have on record.
+    To better serve you, we encourage our Clients to register for an account.

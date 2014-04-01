@@ -7,9 +7,9 @@
 #
 ---
 notes: >
-    Confirmation email sent to clients when accounts are created for them by
-    staff or via the client portal. This email serves as an email address
-    verification. Please use %{link} somewhere in the body.
+    This template defines the email sent to Clients when their account has been
+    created in the Client Portal or by an Agent on their behalf. This email serves as
+    an email address verification. Please use %{link} somewhere in the body.
 name: "Welcome to %{company.name}"
 body: >
     <h3><strong>Hi %{recipient.name.first},</strong></h3> We've created an

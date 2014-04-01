@@ -6,8 +6,9 @@
 #
 ---
 notes: |
-    The landing page is served on the front page of the customer portal
-    above the two links for creating new tickets and viewing ticket status.
+    The Landing Page refers to the content on the  of the Customer Portal's
+    intial view. The template modifies the content seen above the two links
+    <strong>Open a New Ticket</strong> and <strong>Check Ticket Status</strong>.
 
 name: Landing
 body: |

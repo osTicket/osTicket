@@ -5,8 +5,8 @@
 # link on the login page
 ---
 notes: >
-    Template of the email sent to clients when using the Forgot My Password
-    link on the login page
+    This template defines the email sent to Clients who select the <strong>Forgot My 
+    Password</strong> link on the Client Log In page.
 name: "%{company.name} Help Desk Access"
 body: >
     <h3><strong>Hi %{user.name.first},</strong></h3>

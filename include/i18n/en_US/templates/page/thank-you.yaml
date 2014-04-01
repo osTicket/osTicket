@@ -6,8 +6,8 @@
 #
 ---
 notes: |
-    The thank-you page is served to the customer portal when a user submites
-    a new ticket via the customer portal.
+    This template defines the content displayed on the Thank-You page after a 
+    Client submits a new ticket in the Client Portal.
 
 name: Thank You
 body: |

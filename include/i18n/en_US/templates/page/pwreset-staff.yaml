@@ -5,8 +5,8 @@
 # Password link
 ---
 notes: >
-    Template of the email sent to staff members when using the Forgot My
-    Password link
+    This template defines the email sent to Staff who select the <strong>Forgot My 
+    Password</strong> link on the Staff Control Panel Log In page.
 name: "osTicket Staff Password Reset"
 body: >
     <h3><strong>Hi %{staff.name.first},</strong></h3>
