@@ -17,6 +17,7 @@
 **********************************************************************/
 
 class OrmException extends Exception {}
+class OrmConfigurationException extends Exception {}
 
 class VerySimpleModel {
     static $meta = array(
@@ -111,7 +112,7 @@ class VerySimpleModel {
 
     static function _inspect() {
         if (!static::$meta['table'])
-            throw new OrmConfigurationError(
+            throw new OrmConfigurationException(
                 'Model does not define meta.table', get_called_class());
 
         // Break down foreign-key metadata
@@ -120,6 +121,9 @@ class VerySimpleModel {
                 list($model, $key) = explode('.', $j['reverse']);
                 $info = $model::$meta['joins'][$key];
                 $constraint = array();
+                if (!is_array($info['constraint']))
+                    throw new OrmConfigurationException(
+                        $j['reverse'].': Reverse does not specify any constraints');
                 foreach ($info['constraint'] as $foreign => $local) {
                     list(,$field) = explode('.', $local);
                     $constraint[$field] = "$model.$foreign";
