@@ -973,9 +973,20 @@ Class ThreadEntry {
                 foreach ($vars['attachments'] as $i=>$a) {
                     if (@$a['cid'] && $a['cid'] == $cid) {
                         // Inline referenced attachment was stripped
-                        unset($vars['attachments']);
+                        unset($vars['attachments'][$i]);
                     }
                 }
+            }
+        }
+
+        // Handle extracted embedded images (<img src="data:base64,..." />).
+        // The extraction has already been performed in the ThreadBody
+        // class. Here they should simply be added to the attachments list
+        if ($atts = $vars['body']->getEmbeddedHtmlImages()) {
+            if (!is_array($vars['attachments']))
+                $vars['attachments'] = array();
+            foreach ($atts as $info) {
+                $vars['attachments'][] = $info;
             }
         }
 
@@ -1230,6 +1241,7 @@ class ThreadBody /* extends SplString */ {
     var $body;
     var $type;
     var $stripped_images = array();
+    var $embedded_images = array();
 
     function __construct($body, $type='text') {
         $type = strtolower($type);
@@ -1282,6 +1294,10 @@ class ThreadBody /* extends SplString */ {
         return $this->stripped_images;
     }
 
+    function getEmbeddedHtmlImages() {
+        return $this->embedded_images;
+    }
+
     function __toString() {
         return $this->body;
     }
@@ -1294,8 +1310,22 @@ class TextThreadBody extends ThreadBody {
 }
 class HtmlThreadBody extends ThreadBody {
     function __construct($body) {
+        $body = $this->extractEmbeddedHtmlImages($body);
         $body = trim($body, " <>br/\t\n\r") ? Format::safe_html($body) : '';
         parent::__construct($body, 'html');
+    }
+
+    function extractEmbeddedHtmlImages($body) {
+        $self = $this;
+        return preg_replace_callback('/src="(data:[^"]+)"/',
+        function ($m) use ($self) {
+            $info = Format::parseRfc2397($m[1], false, false);
+            $info['cid'] = 'img'.Misc::randCode(12);
+            list(,$type) = explode('/', $info['type'], 2);
+            $info['name'] = 'image'.Misc::randCode(4).'.'.$type;
+            $self->embedded_images[] = $info;
+            return 'src="cid:'.$info['cid'].'"';
+        }, $body);
     }
 }
 ?>
