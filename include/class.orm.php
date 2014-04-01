@@ -52,6 +52,11 @@ class VerySimpleModel {
         // Update of foreign-key by assignment to model instance
         if (isset(static::$meta['joins'][$field])) {
             $j = static::$meta['joins'][$field];
+            if ($j['list'] && ($value instanceof InstrumentedList)) {
+                // Magic list property
+                $this->ht[$field] = $value;
+                return;
+            }
             // XXX: Ensure $value instanceof $j['fkey'][0]
             if ($value->__new__)
                 $value->save();
@@ -86,11 +91,12 @@ class VerySimpleModel {
         // Construct related lists
         if (isset(static::$meta['joins'])) {
             foreach (static::$meta['joins'] as $name => $j) {
-                if (isset($j['list']) && $j['list']) {
+                if (isset($this->ht[$j['local']])
+                        && isset($j['list']) && $j['list']) {
                     $fkey = $j['fkey'];
-                    $this->{$name} = new InstrumentedList(
+                    $this->set($name, new InstrumentedList(
                         // Send Model, Foriegn-Field, Local-Id
-                        array($fkey[0], $fkey[1], $this->{$j['local']})
+                        array($fkey[0], $fkey[1], $this->get($j['local'])))
                     );
                 }
             }
