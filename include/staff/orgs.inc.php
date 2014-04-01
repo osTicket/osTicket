@@ -121,11 +121,7 @@ else
             <?php
             } //end of while.
         endif; ?>
-    <tfoot>
-     <tr>
-        <td colspan="5"> &nbsp; </td>
-     </tr>
-    </tfoot>
+    </tbody>
 </table>
 <?php
 if($res && $num): //Show options..
