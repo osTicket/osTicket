@@ -50,6 +50,7 @@ if ($acct = $thisclient->getAccount()) {
         <em>(Current Time: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
     </td>
 </tr>
+<?php if ($acct->isPasswdResetEnabled()) { ?>
 <tr>
     <td colspan=2">
         <div><hr><h3>Access Credentials</h3></div>
@@ -84,6 +85,7 @@ if ($acct = $thisclient->getAccount()) {
         &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
     </td>
 </tr>
+<?php } ?>
 <?php } ?>
 </table>
 <hr>

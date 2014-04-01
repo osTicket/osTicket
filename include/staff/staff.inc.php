@@ -142,7 +142,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 ">
                 <option value="">&mdash; Use any available backend &mdash;</option>
             <?php foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
-                if (!$ab->supportsAuthentication()) continue; ?>
+                if (!$ab->supportsInteractiveAuthentication()) continue; ?>
                 <option value="<?php echo $ab::$id; ?>" <?php
                     if ($info['backend'] == $ab::$id)
                         echo 'selected="selected"'; ?>><?php

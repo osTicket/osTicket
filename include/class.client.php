@@ -306,12 +306,6 @@ class ClientAccount extends UserAccount {
         unset($_SESSION['_client']['reset-token']);
     }
 
-    function getInfo() {
-        $base = parent::getInfo();
-        $base['tz_offset'] = $this->timezone;
-        return $base;
-    }
-
     function update($vars, &$errors) {
         $rtoken = $_SESSION['_client']['reset-token'];
         if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
@@ -362,7 +356,7 @@ class ClientAccount extends UserAccount {
             $info = array('password' => $vars['passwd1']);
             Signal::send('auth.pwchange', $this, $info);
             $this->cancelResetTokens();
-            $this->_clearStatus(self::PASSWD_RESET_REQUIRED);
+            $this->clearStatus(self::REQUIRE_PASSWD_RESET);
         }
 
         return $this->save();

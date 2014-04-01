@@ -158,7 +158,7 @@ abstract class AuthenticationBackend {
         $backends =  static::getAllowedBackends($username);
         foreach (static::allRegistered() as $bk) {
             if ($backends //Allowed backends
-                    && $bk->supportsAuthentication()
+                    && $bk->supportsInteractiveAuthentication()
                     && !in_array($bk::$id, $backends))
                 // User cannot be authenticated against this backend
                 continue;
@@ -250,7 +250,7 @@ abstract class AuthenticationBackend {
      * Indicates if the backed supports authentication. Useful if the
      * backend is used for logging or lockout only
      */
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return true;
     }
 
@@ -369,7 +369,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
         Signal::send('auth.login.succeeded', $staff);
 
-        if ($bk->supportsAuthentication())
+        if ($bk->supportsInteractiveAuthentication())
             $staff->cancelResetTokens();
 
         return true;
@@ -507,7 +507,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug('User login', $msg);
 
-        if ($bk->supportsAuthentication() && ($acct=$user->getAccount()))
+        if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
 
         return true;
@@ -598,7 +598,7 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
         return null;
     }
 
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return false;
     }
 
@@ -763,7 +763,7 @@ StaffAuthenticationBackend::register('osTicketAuthentication');
 class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     static $id = "pwreset.staff";
 
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return false;
     }
 
@@ -831,9 +831,13 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         return $user;
     }
 
+    function supportsInteractiveAuthentication() {
+        return false;
+    }
+
     protected function getAuthKey($user) {
 
-        if (!$this->supportsAuthentication() || !$user)
+        if (!$user)
             return null;
 
         //Generate authkey based the type of ticket user
@@ -912,7 +916,9 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
     function login($user, $bk) {
         return true;
     }
-
+    function supportsInteractiveAuthentication() {
+        return false;
+    }
 }
 UserAuthenticationBackend::register('AccessLinkAuthentication');
 
@@ -938,7 +944,7 @@ UserAuthenticationBackend::register('osTicketClientAuthentication');
 class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
     static $id = "pwreset.client";
 
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return false;
     }
 
@@ -976,7 +982,7 @@ UserAuthenticationBackend::register('ClientPasswordResetTokenBackend');
 class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
     static $id = "confirm.client";
 
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return false;
     }
 

@@ -547,7 +547,8 @@ class UserAccount extends UserAccountModel {
 
     const CONFIRMED             = 0x0001;
     const LOCKED                = 0x0002;
-    const PASSWD_RESET_REQUIRED = 0x0004;
+    const REQUIRE_PASSWD_RESET  = 0x0004;
+    const FORBID_PASSWD_RESET   = 0x0008;
 
     protected function hasStatus($flag) {
         return 0 !== ($this->get('status') & $flag);
@@ -580,12 +581,16 @@ class UserAccount extends UserAccountModel {
     }
 
     function forcePasswdReset() {
-        $this->setStatus(self::PASSWD_RESET_REQUIRED);
+        $this->setStatus(self::REQUIRE_PASSWD_RESET);
         return $this->save();
     }
 
     function isPasswdResetForced() {
-        return $this->hasStatus(self::PASSWD_RESET_REQUIRED);
+        return $this->hasStatus(self::REQUIRE_PASSWD_RESET);
+    }
+
+    function isPasswdResetEnabled() {
+        return !$this->hasStatus(self::FORBID_PASSWD_RESET);
     }
 
     function hasPassword() {
@@ -737,15 +742,16 @@ class UserAccount extends UserAccountModel {
         }
 
         // Set flags
-        if ($vars['pwreset-flag'])
-            $this->setStatus(self::PASSWD_RESET_REQUIRED);
-        else
-            $this->clearStatus(self::PASSWD_RESET_REQUIRED);
-
-        if ($vars['locked-flag'])
-            $this->setStatus(self::LOCKED);
-        else
-            $this->clearStatus(self::LOCKED);
+        foreach (array(
+                'pwreset-flag'=>        self::REQUIRE_PASSWD_RESET,
+                'locked-flag'=>         self::LOCKED,
+                'forbid-pwchange-flag'=> self::FORBID_PASSWD_RESET
+        ) as $ck=>$flag) {
+            if ($vars[$ck])
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
 
         return $this->save(true);
     }
@@ -763,13 +769,14 @@ class UserAccount extends UserAccountModel {
         return $user;
     }
 
-    static function  register($user, $vars, &$errors) {
+    static function register($user, $vars, &$errors) {
 
         if (!$user || !$vars)
             return false;
 
         //Require temp password.
-        if (!isset($vars['sendemail'])) {
+        if ((!$vars['backend'] || $vars['backend'] != 'client')
+                && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = 'Temp. password required';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
@@ -786,15 +793,18 @@ class UserAccount extends UserAccountModel {
 
         $account->set('dst', isset($vars['dst'])?1:0);
         $account->set('timezone_id', $vars['timezone_id']);
+        $account->set('backend', $vars['backend']);
 
         if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))
             $account->set('username', $vars['username']);
 
         if ($vars['passwd1'] && !$vars['sendemail']) {
-            $account->set('passwd', Password::hash($vars['passwd1']));
+            $account->set('passwd', Passwd::hash($vars['passwd1']));
             $account->setStatus(self::CONFIRMED);
             if ($vars['pwreset-flag'])
-                $account->setStatus(self::PASSWD_RESET_REQUIRED);
+                $account->setStatus(self::REQUIRE_PASSWD_RESET);
+            if ($vars['forbid-pwreset-flag'])
+                $account->setStatus(self::FORBID_PASSWD_RESET);
         }
 
         $account->save(true);
