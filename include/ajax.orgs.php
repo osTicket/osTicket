@@ -88,11 +88,10 @@ class OrgsAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Login Required');
         elseif (!($org = Organization::lookup($id)))
-            Http::response(404, 'Unknown user');
+            Http::response(404, 'Unknown organization');
 
         $info = array();
         if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
-
             if ($org->delete())
                  Http::response(204, 'Organization deleted successfully');
             else

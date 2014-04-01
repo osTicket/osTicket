@@ -124,9 +124,9 @@ class Organization extends OrganizationModel {
     }
 
     function delete() {
+        //TODO: delete  or reset intrumented list.
         return parent::delete();
     }
-
 
     function update($vars, &$errors) {
 
