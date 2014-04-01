@@ -295,5 +295,55 @@ class UsersAjaxAPI extends AjaxController {
         }
         return $this->json_encode($users);
     }
+
+    function updateOrg($id, $orgId = 0) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id))
+                || !($account=$user->getAccount()))
+            Http::response(404, 'Unknown user account');
+
+        $info['title'] = 'Organization for '.$user->getName();
+        $info['action'] = '#users/'.$user->getId().'/org';
+        $info['onselect'] = 'ajax.php/users/'.$user->getId().'/org';
+
+        if ($_POST) {
+            if ($_POST['orgid']) { //Existing org.
+                if (!($org = Organization::lookup($_POST['orgid'])))
+                    $info['error'] = 'Unknown organization selected';
+            } else { //Creating new org.
+                $form = OrganizationForm::getDefaultForm()->getForm($_POST);
+                if (!($org = Organization::fromForm($form)))
+                    $info['error'] = 'Unable to create organization - try again!';
+            }
+
+            if ($org && $account->setOrganization($org))
+                Http::response(201, $org->to_json());
+
+            $info['error'] = 'Unable to user account - try again!';
+
+        } elseif ($orgId)
+            $org = Organization::lookup($orgId);
+        elseif ($org = $account->getOrganization()) {
+            $info['title'] =  $org->getName();
+            $info['action'] = $info['onselect'] = '';
+            $tmpl = 'org.tmpl.php';
+        }
+
+        if ($org && $account->getOrgId() && $org->getId() != $account->getOrgId())
+            $info['warning'] = 'Are you sure you want to change user\'s organization?';
+
+        $tmpl = $tmpl ?: 'org-lookup.tmpl.php';
+
+        ob_start();
+        include(STAFFINC_DIR . "templates/$tmpl");
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+    }
+
 }
 ?>

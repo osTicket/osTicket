@@ -82,6 +82,8 @@ $dispatcher = patterns('',
         url_delete('^/(?P<id>\d+)/delete$', 'delete'),
         url_get('^/(?P<id>\d+)/manage(?:/(?P<target>\w+))?$', 'manage'),
         url_post('^/(?P<id>\d+)/manage(?:/(?P<target>\w+))?$', 'manage'),
+        url_get('^/(?P<id>\d+)/org(?:/(?P<orgid>\d+))?$', 'updateOrg'),
+        url_post('^/(?P<id>\d+)/org$', 'updateOrg'),
         url_get('^/staff$', 'searchStaff')
     )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
