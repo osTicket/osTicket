@@ -53,7 +53,8 @@ $dispatcher = patterns('',
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getFormsForHelpTopic'),
         url_get('^field-config/(?P<id>\d+)$', 'getFieldConfiguration'),
-        url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration')
+        url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration'),
+        url_delete('^answer/(?P<entry>\d+)/(?P<field>\d+)$', 'deleteAnswer')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
@@ -117,7 +118,9 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/add-collaborator/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteCollaborator'),
         url('^(?P<tid>\d+)/add-collaborator$', 'addCollaborator'),
         url_get('^lookup', 'lookup'),
-        url_get('^search', 'search')
+        url_get('^search', 'search'),
+        url_get('^(?P<tid>\d+)/forms/manage$', 'manageForms'),
+        url_post('^(?P<tid>\d+)/forms/manage$', 'updateForms')
     )),
     url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),

@@ -457,6 +457,10 @@ class DynamicFormEntry extends VerySimpleModel {
     var $_errors = false;
     var $_clean = false;
 
+    function getId() {
+        return $this->get('id');
+    }
+
     function getAnswers() {
         if (!isset($this->_values)) {
             $this->_values = DynamicFormEntryAnswer::objects()
@@ -579,8 +583,8 @@ class DynamicFormEntry extends VerySimpleModel {
             ->filter(array('object_id'=>$org_id, 'object_type'=>'O'));
     }
 
-    function render($staff=true, $title=false) {
-        return $this->getForm()->render($staff, $title);
+    function render($staff=true, $title=false, $options=array()) {
+        return $this->getForm()->render($staff, $title, $options);
     }
 
     /**
@@ -592,11 +596,15 @@ class DynamicFormEntry extends VerySimpleModel {
      * entry.
      */
     function addMissingFields() {
+        // Track deletions
+        foreach ($this->getAnswers() as $answer)
+            $answer->deleted = true;
+
         foreach ($this->getForm()->getDynamicFields() as $field) {
             $found = false;
             foreach ($this->getAnswers() as $answer) {
                 if ($answer->get('field_id') == $field->get('id')) {
-                    $found = true; break;
+                    $answer->deleted = false; $found = true; break;
                 }
             }
             if (!$found && ($field = $field->getImpl($field))
@@ -605,6 +613,7 @@ class DynamicFormEntry extends VerySimpleModel {
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
                 $a->field = $field;
                 $a->entry = $this;
+                $a->deleted = false;
                 // Add to list of answers
                 $this->_values[] = $a;
                 $this->_fields[] = $field;
@@ -710,6 +719,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     var $field;
     var $form;
     var $entry;
+    var $deleted = false;
     var $_value;
 
     function getEntry() {
@@ -740,6 +750,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 
     function getIdValue() {
         return $this->get('value_id');
+    }
+
+    function isDeleted() {
+        return $this->deleted;
     }
 
     function toString() {

@@ -319,6 +319,14 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this->count() > 0;
     }
 
+    function delete() {
+        $class = $this->compiler;
+        $compiler = new $class();
+        $ex = $compiler->compileDelete($this);
+        $ex->execute();
+        return $ex->affected_rows();
+    }
+
     // IteratorAggregate interface
     function getIterator() {
         $class = $this->iterator;
@@ -863,7 +871,28 @@ class MySqlCompiler extends SqlCompiler {
     function compileInsert() {
     }
 
-    function compileDelete() {
+    function compileDelete($queryset) {
+        $model = $queryset->model;
+        $table = $model::$meta['table'];
+        $where_pos = array();
+        $where_neg = array();
+        $joins = array();
+        foreach ($queryset->constraints as $where) {
+            $where_pos[] = $this->compileWhere($where, $model);
+        }
+        foreach ($queryset->exclusions as $where) {
+            $where_neg[] = $this->compileWhere($where, $model);
+        }
+
+        $where = '';
+        if ($where_pos || $where_neg) {
+            $where = ' WHERE '.implode(' AND ', $where_pos)
+                .implode(' AND NOT ', $where_neg);
+        }
+        $joins = $this->getJoins();
+        $sql = 'DELETE '.$this->quote($table).'.* FROM '
+            .$this->quote($table).$joins.$where;
+        return new MysqlExecutor($sql, $this->params);
     }
 
     // Returns meta data about the table used to build queries
@@ -885,14 +914,18 @@ class MysqlExecutor {
     }
 
     function _prepare() {
+        $this->execute();
+        $this->_setup_output();
+        $this->stmt->store_result();
+    }
+
+    function execute() {
         if (!($this->stmt = db_prepare($this->sql)))
             throw new Exception('Unable to prepare query: '.db_error()
                 .' '.$this->sql);
         if (count($this->params))
             $this->_bind($this->params);
-        $this->stmt->execute();
-        $this->_setup_output();
-        $this->stmt->store_result();
+        return $this->stmt->execute();
     }
 
     function _bind($params) {
@@ -995,6 +1028,14 @@ class MysqlExecutor {
 
         $this->stmt->close();
         $this->stmt = null;
+    }
+
+    function affected_rows() {
+        return $this->stmt->affected_rows;
+    }
+
+    function insert_id() {
+        return $this->stmt->insert_id;
     }
 
     function __toString() {
