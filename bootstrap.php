@@ -72,6 +72,8 @@ class Bootstrap {
         define('USER_EMAIL_TABLE',$prefix.'user_email');
         define('USER_ACCOUNT_TABLE',$prefix.'user_account');
 
+        define('ORGANIZATION_TABLE', $prefix.'organization');
+
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');
         define('TEAM_MEMBER_TABLE',$prefix.'team_member');
@@ -174,6 +176,7 @@ class Bootstrap {
     function loadCode() {
         #include required files
         require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');

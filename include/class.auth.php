@@ -497,6 +497,11 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         $user->refreshSession(true); //set the hash.
 
+        if (($acct = $user->getAccount()) && ($tid = $acct->get('timezone_id'))) {
+            $_SESSION['TZ_OFFSET'] = Timezone::getOffsetById($tid);
+            $_SESSION['TZ_DST'] = $acct->get('dst');
+        }
+
         //Log login info...
         $msg=sprintf('%s (%s) logged in [%s]',
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);

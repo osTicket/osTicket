@@ -22,7 +22,7 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 class UsersAjaxAPI extends AjaxController {
 
     /* Assumes search by emal for now */
-    function search() {
+    function search($type = null) {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, 'Query argument is required');
@@ -31,40 +31,46 @@ class UsersAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
         $emails=array();
-        foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
-            $name = "{$u['first']} {$u['last']}";
-            $users[] = array('email' => $u['email'], 'name'=>$name,
-                'info' => "{$u['email']} - $name (remote)",
-                'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
-            $emails[] = $u['email'];
+
+        if (!$type || !strcasecmp($type, 'remote')) {
+            foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
+                $name = "{$u['first']} {$u['last']}";
+                $users[] = array('email' => $u['email'], 'name'=>$name,
+                    'info' => "{$u['email']} - $name (remote)",
+                    'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
+                $emails[] = $u['email'];
+            }
         }
-        $remote_emails = ($emails = array_filter($emails))
-            ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
-            : '';
 
-        $escaped = db_input(strtolower($_REQUEST['q']), false);
-        $sql='SELECT DISTINCT user.id, email.address, name '
-            .' FROM '.USER_TABLE.' user '
-            .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
-               LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
-            .' WHERE email.address LIKE \'%'.$escaped.'%\'
-               OR user.name LIKE \'%'.$escaped.'%\'
-               OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
-            .' ORDER BY user.created '
-            .' LIMIT '.$limit;
+        if (!$type || !strcasecmp($type, 'local')) {
+            $remote_emails = ($emails = array_filter($emails))
+                ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
+                : '';
 
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id,$email,$name)=db_fetch_row($res)) {
-                foreach ($users as $i=>$u) {
-                    if ($u['email'] == $email) {
-                        unset($users[$i]);
-                        break;
+            $escaped = db_input(strtolower($_REQUEST['q']), false);
+            $sql='SELECT DISTINCT user.id, email.address, name '
+                .' FROM '.USER_TABLE.' user '
+                .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
+                .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
+                   LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
+                .' WHERE email.address LIKE \'%'.$escaped.'%\'
+                   OR user.name LIKE \'%'.$escaped.'%\'
+                   OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
+                .' ORDER BY user.created '
+                .' LIMIT '.$limit;
+
+            if(($res=db_query($sql)) && db_num_rows($res)){
+                while(list($id,$email,$name)=db_fetch_row($res)) {
+                    foreach ($users as $i=>$u) {
+                        if ($u['email'] == $email) {
+                            unset($users[$i]);
+                            break;
+                        }
                     }
+                    $name = Format::htmlchars($name);
+                    $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
+                        "id" => $id, "/bin/true" => $_REQUEST['q']);
                 }
-                $name = Format::htmlchars($name);
-                $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
-                    "id" => $id, "/bin/true" => $_REQUEST['q']);
             }
         }
 
@@ -104,6 +110,91 @@ class UsersAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/user.tmpl.php');
     }
 
+    function register($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        $errors = $info = array();
+        if ($_POST) {
+            // Register user on post
+            if ($user->getAccount())
+                $info['error'] = 'User already registered';
+            elseif ($user->register($_POST, $errors))
+                Http::response(201, 'Account created successfully');
+
+            // Unable to create user.
+            $info = Format::htmlchars($_POST);
+            if ($errors['err'])
+                $info['error'] = $errors['err'];
+            else
+                $info['error'] = 'Unable to register user - try again!';
+        }
+
+        include(STAFFINC_DIR . 'templates/user-register.tmpl.php');
+    }
+
+    function manage($id, $target=null) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        if (!($account = $user->getAccount()))
+            return self::register($id);
+
+        $errors = array();
+        $info = $account->getInfo();
+
+        if ($_POST) {
+            if ($account->update($_POST, $errors))
+                Http::response(201, 'Account updated successfully');
+
+            // Unable to update account
+            $info = Format::htmlchars($_POST);
+
+            if ($errors['err'])
+                $info['error'] = $errors['err'];
+            else
+                $info['error'] = 'Unable to update account - try again!';
+        }
+
+        $info['_target'] = $target;
+
+        include(STAFFINC_DIR . 'templates/user-account.tmpl.php');
+    }
+
+    function delete($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        //Switch to end user so we can get ticket stats
+        // fixme: use orm to get ticket count at the user model level.
+        $user = new EndUser($user);
+
+        $info = array();
+        if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
+
+            if ($user->getNumTickets())
+                $info['error'] = 'You cannot delete a user with tickets!';
+            elseif ($user->delete())
+                 Http::response(204, 'User deleted successfully');
+            else
+                $info['error'] = 'Unable to delete user - try again!';
+        }
+
+        include(STAFFINC_DIR . 'templates/user-delete.tmpl.php');
+    }
+
     function getUser($id=false) {
 
         if(($user=User::lookup(($id) ? $id : $_REQUEST['id'])))
@@ -116,11 +207,19 @@ class UsersAjaxAPI extends AjaxController {
 
     function addUser() {
 
-        $form = UserForm::getUserForm()->getForm($_POST);
-        if (($user = User::fromForm($form)))
-            Http::response(201, $user->to_json());
+        $info = array();
 
-        $info = array('error' =>'Error adding user - try again!');
+        if ($_POST) {
+
+            $form = UserForm::getUserForm()->getForm($_POST);
+            if (($user = User::fromForm($form)))
+                Http::response(201, $user->to_json());
+
+            $info = array('error' =>'Error adding user - try again!');
+        } else {
+            $info['lookuptype'] = remote;
+            $info['title'] = 'Add New User';
+        }
 
         return self::_lookupform($form, $info);
     }
@@ -196,5 +295,55 @@ class UsersAjaxAPI extends AjaxController {
         }
         return $this->json_encode($users);
     }
+
+    function updateOrg($id, $orgId = 0) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($user = User::lookup($id))
+                || !($account=$user->getAccount()))
+            Http::response(404, 'Unknown user account');
+
+        $info['title'] = 'Organization for '.$user->getName();
+        $info['action'] = '#users/'.$user->getId().'/org';
+        $info['onselect'] = 'ajax.php/users/'.$user->getId().'/org';
+
+        if ($_POST) {
+            if ($_POST['orgid']) { //Existing org.
+                if (!($org = Organization::lookup($_POST['orgid'])))
+                    $info['error'] = 'Unknown organization selected';
+            } else { //Creating new org.
+                $form = OrganizationForm::getDefaultForm()->getForm($_POST);
+                if (!($org = Organization::fromForm($form)))
+                    $info['error'] = 'Unable to create organization - try again!';
+            }
+
+            if ($org && $account->setOrganization($org))
+                Http::response(201, $org->to_json());
+
+            $info['error'] = 'Unable to user account - try again!';
+
+        } elseif ($orgId)
+            $org = Organization::lookup($orgId);
+        elseif ($org = $account->getOrganization()) {
+            $info['title'] =  $org->getName();
+            $info['action'] = $info['onselect'] = '';
+            $tmpl = 'org.tmpl.php';
+        }
+
+        if ($org && $account->getOrgId() && $org->getId() != $account->getOrgId())
+            $info['warning'] = 'Are you sure you want to change user\'s organization?';
+
+        $tmpl = $tmpl ?: 'org-lookup.tmpl.php';
+
+        ob_start();
+        include(STAFFINC_DIR . "templates/$tmpl");
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+    }
+
 }
 ?>

@@ -269,43 +269,7 @@ class  EndUser extends AuthenticatedUser {
     }
 }
 
-require_once INCLUDE_DIR.'class.orm.php';
-class ClientAccountModel extends VerySimpleModel {
-    static $meta = array(
-        'table' => USER_ACCOUNT_TABLE,
-        'pk' => array('id'),
-        'joins' => array(
-            'user' => array(
-                'null' => false,
-                'constraint' => array('user_id' => 'UserModel.id')
-            ),
-        ),
-    );
-}
-
-class ClientAccount extends ClientAccountModel {
-    var $_options = null;
-    var $timezone;
-
-    const CONFIRMED             = 0x0001;
-    const LOCKED                = 0x0002;
-    const PASSWD_RESET_REQUIRED = 0x0004;
-
-    function __onload() {
-        if ($this->get('timezone_id')) {
-            $this->timezone = Timezone::getOffsetById($this->ht['timezone_id']);
-            $_SESSION['TZ_OFFSET'] = $this->timezone;
-            $_SESSION['TZ_DST'] = $this->get('dst');
-        }
-    }
-
-    function getId() {
-        return $this->get('id');
-    }
-
-    function getUserId() {
-        return $this->get('user_id');
-    }
+class ClientAccount extends UserAccount {
 
     function checkPassword($password, $autoupdate=true) {
 
@@ -331,87 +295,6 @@ class ClientAccount extends ClientAccountModel {
         return $this->checkPassword($password, false);
     }
 
-    function hasPassword() {
-        return (bool) $this->get('passwd');
-    }
-
-    function sendResetEmail($template='pwreset-client') {
-        global $ost, $cfg;
-
-        $token = Misc::randCode(48); // 290-bits
-
-        $email = $cfg->getDefaultEmail();
-        $content = Page::lookup(Page::getIdByType($template));
-
-        if (!$email ||  !$content)
-            return new Error('Unable to retrieve password reset email template');
-
-        $vars = array(
-            'url' => $ost->getConfig()->getBaseUrl(),
-            'token' => $token,
-            'user' => $this->getUser(),
-            'recipient' => $this->getUser(),
-            'link' => sprintf(
-                "%s/pwreset.php?token=%s",
-                $ost->getConfig()->getBaseUrl(),
-                $token),
-        );
-        $vars['reset_link'] = &$vars['link'];
-
-        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
-        Signal::send('auth.pwreset.email', $this, $info);
-
-        $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getName(),
-            'body' => $content->getBody(),
-        ), $vars);
-
-        $_config = new Config('pwreset');
-        $_config->set($vars['token'], $this->user->getId());
-
-        $email->send($this->user->default_email->get('address'),
-            Format::striptags($msg['subj']), $msg['body']);
-    }
-
-    function confirm() {
-        $this->_setStatus(self::CONFIRMED);
-        return $this->save();
-    }
-
-    function isConfirmed() {
-        return $this->_getStatus(self::CONFIRMED);
-    }
-
-    function lock() {
-        $this->_setStatus(self::LOCKED);
-        $this->save();
-    }
-
-    function isLocked() {
-        return $this->_getStatus(self::LOCKED);
-    }
-
-    function forcePasswdReset() {
-        $this->_setStatus(self::PASSWD_RESET_REQUIRED);
-        return $this->save();
-    }
-
-    function isPasswdResetForced() {
-        return $this->_getStatus(self::PASSWD_RESET_REQUIRED);
-    }
-
-    function _getStatus($flag) {
-        return 0 !== ($this->get('status') & $flag);
-    }
-
-    function _clearStatus($flag) {
-        return $this->set('status', $this->get('status') & ~$flag);
-    }
-
-    function _setStatus($flag) {
-        return $this->set('status', $this->get('status') | $flag);
-    }
-
     function cancelResetTokens() {
         // TODO: Drop password-reset tokens from the config table for
         //       this user id
@@ -424,15 +307,9 @@ class ClientAccount extends ClientAccountModel {
     }
 
     function getInfo() {
-        $base = $this->ht;
+        $base = parent::getInfo();
         $base['tz_offset'] = $this->timezone;
         return $base;
-    }
-
-    function getUser() {
-        $user = User::lookup($this->get('user_id'));
-        $user->set('account', $this);
-        return $user;
     }
 
     function update($vars, &$errors) {
@@ -490,20 +367,6 @@ class ClientAccount extends ClientAccountModel {
 
         return $this->save();
     }
-
-    static function createForUser($user) {
-        return static::create(array('user_id'=>$user->getId()));
-    }
-
-    static function lookupByUsername($username) {
-        if (strpos($username, '@') !== false)
-            $user = self::lookup(array('user__emails__address'=>$username));
-        else
-            $user = self::lookup(array('username'=>$username));
-
-        return $user;
-    }
 }
-ClientAccount::_inspect();
 
 ?>
