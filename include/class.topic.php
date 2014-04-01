@@ -273,4 +273,4 @@ class Topic {
 }
 
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Help Topics', array('topicId' => 'Topic ID'));
+Filter::addSupportedMatches('Help Topic', array('topicId' => 'Topic ID'));
