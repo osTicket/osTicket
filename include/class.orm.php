@@ -46,7 +46,8 @@ class VerySimpleModel {
             // TODO: Support instrumented lists and such
             $j = static::$meta['joins'][$field];
             $class = $j['fkey'][0];
-            $v = $this->ht[$field] = $class::lookup($this->ht[$j['local']]);
+            $v = $this->ht[$field] = $class::lookup(
+                array($j['fkey'][1] => $this->ht[$j['local']]));
             return $v;
         }
         throw new OrmException(sprintf('%s: %s: Field not defined',
