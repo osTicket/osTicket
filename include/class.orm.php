@@ -242,7 +242,7 @@ class SqlFunction {
         $this->args = array_slice(func_get_args(), 1);
     }
 
-    function toSql() {
+    function toSql($compiler=false) {
         $args = (count($this->args)) ? implode(',', db_input($this->args)) : "";
         return sprintf('%s(%s)', $this->func, $args);
     }
@@ -329,7 +329,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     function delete() {
         $class = $this->compiler;
         $compiler = new $class();
-        $ex = $compiler->compileDelete($this);
+        $ex = $compiler->compileBulkDelete($this);
         $ex->execute();
         return $ex->affected_rows();
     }
@@ -666,7 +666,7 @@ class SqlCompiler {
         return $alias;
     }
 
-    function compileWhere($where, $model) {
+    function compileConstraints($where, $model) {
         $constraints = array();
         foreach ($where as $constraint) {
             $filter = array();
@@ -775,11 +775,14 @@ class MySqlCompiler extends SqlCompiler {
             .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
     }
 
-    function input($what) {
+    function input(&$what) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params += $q->params;
             return (string)$q;
+        }
+        elseif ($what instanceof SqlFunction) {
+            return $val->toSql($this);
         }
         else {
             $this->params[] = $what;
@@ -791,17 +794,22 @@ class MySqlCompiler extends SqlCompiler {
         return "`$what`";
     }
 
-    function compileCount($queryset) {
+    /**
+     * getWhereClause
+     *
+     * This builds the WHERE ... part of a DML statement. This should be
+     * called before ::getJoins(), because it may add joins into the
+     * statement based on the relationships used in the where clause
+     */
+    protected function getWhereClause($queryset) {
         $model = $queryset->model;
-        $table = $model::$meta['table'];
         $where_pos = array();
         $where_neg = array();
-        $joins = array();
         foreach ($queryset->constraints as $where) {
-            $where_pos[] = $this->compileWhere($where, $model);
+            $where_pos[] = $this->compileConstraints($where, $model);
         }
         foreach ($queryset->exclusions as $where) {
-            $where_neg[] = $this->compileWhere($where, $model);
+            $where_neg[] = $this->compileConstraints($where, $model);
         }
 
         $where = '';
@@ -809,6 +817,13 @@ class MySqlCompiler extends SqlCompiler {
             $where = ' WHERE '.implode(' AND ', $where_pos)
                 .implode(' AND NOT ', $where_neg);
         }
+        return $where;
+    }
+
+    function compileCount($queryset) {
+        $model = $queryset->model;
+        $table = $model::$meta['table'];
+        $where = $this->getWhereClause($queryset);
         $joins = $this->getJoins();
         $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
         $exec = new MysqlExecutor($sql, $this->params);
@@ -818,21 +833,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileSelect($queryset) {
         $model = $queryset->model;
-        $where_pos = array();
-        $where_neg = array();
-        $joins = array();
-        foreach ($queryset->constraints as $where) {
-            $where_pos[] = $this->compileWhere($where, $model);
-        }
-        foreach ($queryset->exclusions as $where) {
-            $where_neg[] = $this->compileWhere($where, $model);
-        }
-
-        $where = '';
-        if ($where_pos || $where_neg) {
-            $where = ' WHERE '.implode(' AND ', $where_pos)
-                .implode(' AND NOT ', $where_neg);
-        }
+        $where = $this->getWhereClause($queryset);
 
         $sort = '';
         if ($queryset->ordering && !isset($this->options['nosort'])) {
@@ -886,24 +887,10 @@ class MySqlCompiler extends SqlCompiler {
     function compileInsert() {
     }
 
-    function compileDelete($queryset) {
+    function compileBulkDelete($queryset) {
         $model = $queryset->model;
         $table = $model::$meta['table'];
-        $where_pos = array();
-        $where_neg = array();
-        $joins = array();
-        foreach ($queryset->constraints as $where) {
-            $where_pos[] = $this->compileWhere($where, $model);
-        }
-        foreach ($queryset->exclusions as $where) {
-            $where_neg[] = $this->compileWhere($where, $model);
-        }
-
-        $where = '';
-        if ($where_pos || $where_neg) {
-            $where = ' WHERE '.implode(' AND ', $where_pos)
-                .implode(' AND NOT ', $where_neg);
-        }
+        $where = $this->getWhereClause($queryset);
         $joins = $this->getJoins();
         $sql = 'DELETE '.$this->quote($table).'.* FROM '
             .$this->quote($table).$joins.$where;
