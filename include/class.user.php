@@ -74,11 +74,6 @@ class UserModel extends VerySimpleModel {
         )
     );
 
-    var $emails;
-    var $tickets;
-    var $account;
-
-
     static function objects() {
         $qs = parent::objects();
         #$qs->select_related('default_email');
@@ -255,12 +250,7 @@ class User extends UserModel {
     }
 
     function getAccount() {
-        // XXX: return $this->account;
-
-        if (!isset($this->_account))
-            $this->_account = UserAccount::lookup(array('user_id'=>$this->getId()));
-
-        return $this->_account;
+        return $this->account;
     }
 
     function getAccountStatus() {
@@ -356,9 +346,9 @@ class User extends UserModel {
     }
 
     function delete() {
-        // TODO: Refuse to delete user with tickets
-        // Re-enable it once orm support resetting intrumented list
-        if (0 && $this->tickets->count())
+
+        // Refuse to delete a user with tickets
+        if ($this->tickets->count())
             return false;
 
         // Delete account record (if any)
