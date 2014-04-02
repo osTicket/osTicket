@@ -485,13 +485,6 @@ if($_POST && !$errors):
                 break;
             case 'open':
                 $ticket=null;
-                if ($topic=Topic::lookup($_POST['topicId'])) {
-                    if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
-                        $form = $form->instanciate();
-                        if (!$form->getForm()->isValid())
-                            $errors = array_merge($errors, $form->getForm()->errors());
-                    }
-                }
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
@@ -501,11 +494,6 @@ if($_POST && !$errors):
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;
-                        # Save extra dynamic form(s)
-                        if (isset($form)) {
-                            $form->setTicketId($ticket->getId());
-                            $form->save();
-                        }
                         if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
