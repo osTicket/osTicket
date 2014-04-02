@@ -99,7 +99,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
         </tr>
     </thead>
-    <tbody class="sortable-rows" data-sort="sort-">
+    <tbody class="sortable-rows" data-sort="prop-sort-">
     <?php if ($form) foreach ($form->getDynamicFields() as $f) {
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
@@ -108,7 +108,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $ferrors = $f->errors(); ?>
         <tr>
             <td><i class="icon-sort"></i></td>
-            <td><input type="text" size="32" name="label-<?php echo $id; ?>"
+            <td><input type="text" size="32" name="prop-label-<?php echo $id; ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
@@ -148,7 +148,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 </td>
             <td><input type="checkbox" name="delete-<?php echo $id; ?>"
                     <?php echo $deletable; ?>/>
-                <input type="hidden" name="sort-<?php echo $id; ?>"
+                <input type="hidden" name="prop-sort-<?php echo $id; ?>"
                     value="<?php echo $f->get('sort'); ?>"/>
                 </td>
         </tr>
@@ -156,10 +156,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     }
     for ($i=0; $i<$newcount; $i++) { ?>
             <td><em>+</em>
-                <input type="hidden" name="sort-new-<?php echo $i; ?>"
-                    value="<?php echo $info["sort-new-$i"]; ?>"/></td>
-            <td><input type="text" size="32" name="label-new-<?php echo $i; ?>"
-                value="<?php echo $info["label-new-$i"]; ?>"/></td>
+                <input type="hidden" name="prop-sort-new-<?php echo $i; ?>"
+                    value="<?php echo $info["prop-sort-new-$i"]; ?>"/></td>
+            <td><input type="text" size="32" name="prop-label-new-<?php echo $i; ?>"
+                value="<?php echo $info["prop-label-new-$i"]; ?>"/></td>
             <td><select name="type-new-<?php echo $i; ?>">
                 <?php foreach (FormField::allTypes() as $group=>$types) {
                     ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php

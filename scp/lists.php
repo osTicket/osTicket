@@ -61,8 +61,8 @@ if($_POST) {
                     $field->set('name', $_POST["name-$id"]);
                 # TODO: make sure all help topics still have all required fields
                 foreach (array('sort','label') as $f) {
-                    if (isset($_POST["$f-$id"])) {
-                        $field->set($f, $_POST["$f-$id"]);
+                    if (isset($_POST["prop-$f-$id"])) {
+                        $field->set($f, $_POST["prop-$f-$id"]);
                     }
                 }
                 if (in_array($field->get('name'), $names))
@@ -133,7 +133,7 @@ if($_POST) {
     }
 
     if ($list) {
-        for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
+        for ($i=0; isset($_POST["prop-sort-new-$i"]); $i++) {
             if (!$_POST["value-new-$i"])
                 continue;
             $item = DynamicListItem::create(array(
@@ -149,13 +149,14 @@ if($_POST) {
     }
 
     if ($form) {
-        for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
-            if (!$_POST["label-new-$i"])
+        for ($i=0; isset($_POST["prop-sort-new-$i"]); $i++) {
+            if (!$_POST["prop-label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
                 'form_id'=>$form->get('id'),
-                'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : ++$max_sort,
-                'label'=>$_POST["label-new-$i"],
+                'sort'=>$_POST["prop-sort-new-$i"]
+                    ? $_POST["prop-sort-new-$i"] : ++$max_sort,
+                'label'=>$_POST["prop-label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
                 'name'=>$_POST["name-new-$i"],
             ));
