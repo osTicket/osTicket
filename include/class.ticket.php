@@ -2308,9 +2308,30 @@ class Ticket {
         if ($vars['priorityId'])
             $form->setAnswer('priority', null, $vars['priorityId']);
 
+        // If the filter specifies a help topic which has a form associated,
+        // and there was previously either no help topic set or the help
+        // topic did not have a form, there's no need to add it now as (1)
+        // validation is closed, (2) there may be a form already associated
+        // and filled out from the original  help topic, and (3) staff
+        // members can always add more forms now
+
         // OK...just do it.
         $deptId = $vars['deptId']; //pre-selected Dept if any.
         $source = ucfirst($vars['source']);
+
+        // Apply email settings for emailed tickets. Email settings should
+        // trump help topic settins if the email has an associated help
+        // topic
+        if ($vars['emailId'] && ($email=Email::lookup($vars['emailId']))) {
+            $deptId = $deptId ?: $email->getDeptId();
+            $priority = $form->getAnswer('priority');
+            if (!$priority || !$priority->getIdValue())
+                $form->setAnswer('priority', null, $email->getPriorityId());
+            if ($autorespond)
+                $autorespond = $email->autoRespond();
+            $email = null;
+            $source = 'Email';
+        }
 
         // Intenal mapping magic...see if we need to override anything
         if (isset($topic)) {
@@ -2335,18 +2356,7 @@ class Ticket {
                 $vars['slaId'] = $topic->getSLAId();
         }
 
-        // Apply email settings for emailed tickets
-        if ($vars['emailId'] && ($email=Email::lookup($vars['emailId']))) {
-            $deptId = $deptId ?: $email->getDeptId();
-            $priority = $form->getAnswer('priority');
-            if (!$priority || !$priority->getIdValue())
-                $form->setAnswer('priority', null, $email->getPriorityId());
-            if ($autorespond)
-                $autorespond = $email->autoRespond();
-            $email = null;
-            $source = 'Email';
-        }
-        //Last minute checks
+        // Last minute checks
         $priority = $form->getAnswer('priority');
         if (!$priority || !$priority->getIdValue())
             $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
