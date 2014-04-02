@@ -19,7 +19,6 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.email.php');
 require_once(INCLUDE_DIR.'class.filter.php');
-require_once(INCLUDE_DIR.'html2text.php');
 require_once(INCLUDE_DIR.'tnef_decoder.php');
 
 class MailFetcher {
@@ -441,7 +440,8 @@ class MailFetcher {
                         array('attachment', 'inline'))) {
                 $filename = $this->findFilename($part->dparameters);
             }
-            // Inline attachments without disposition.
+            // Inline attachments without disposition. NOTE that elseif is
+            // not utilized here b/c ::findFilename may return null
             if (!$filename && $part->ifparameters && $part->parameters
                     && $part->type > 0) {
                 $filename = $this->findFilename($part->parameters);
@@ -449,6 +449,13 @@ class MailFetcher {
 
             $content_id = ($part->ifid)
                 ? rtrim(ltrim($part->id, '<'), '>') : false;
+
+            // Some mail clients / servers (like Lotus Notes / Domino) will
+            // send images without a filename. For such a case, generate a
+            // random filename for the image
+            if (!$filename && $content_id && $part->type == 5) {
+                $filename = 'image-'.Misc::randCode(4).'.'.strtolower($part->subtype);
+            }
 
             if($filename) {
                 return array(
