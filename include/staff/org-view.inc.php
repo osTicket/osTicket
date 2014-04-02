@@ -16,10 +16,10 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 </table>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
-        <td width="50">
+        <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="100">Name:</th>
+                    <th width="150">Name:</th>
                     <td><b><a href="#orgs/<?php echo $org->getId();
                     ?>/edit" class="org-action"><i
                     class="icon-edit"></i>&nbsp;<?php echo
@@ -27,16 +27,15 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                     ?></a></td>
                 </tr>
                 <tr>
-                    <th>Users:</th>
-                    <td> {num-here}
-                    </td>
+                    <th>Account Manager:</th>
+                    <td>&nbsp; </td>
                 </tr>
             </table>
         </td>
         <td width="50%" style="vertical-align:top">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th>Created:</th>
+                    <th width="150">Created:</th>
                     <td><?php echo Format::db_datetime($org->getCreateDate()); ?></td>
                 </tr>
                 <tr>

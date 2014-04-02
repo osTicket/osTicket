@@ -59,10 +59,10 @@ $org = $account ? $account->getOrganization() : null;
 </table>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
-        <td width="50">
+        <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="100">Name:</th>
+                    <th width="150">Name:</th>
                     <td><b><a href="#users/<?php echo $user->getId();
                     ?>/edit" class="user-action"><i
                     class="icon-edit"></i>&nbsp;<?php echo
@@ -99,7 +99,7 @@ $org = $account ? $account->getOrganization() : null;
         <td width="50%" style="vertical-align:top">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th>Status:</th>
+                    <th width="150">Status:</th>
                     <td> <span id="user-<?php echo $user->getId();
                     ?>-status"><?php echo $user->getAccountStatus(); ?></span></td>
                 </tr>
