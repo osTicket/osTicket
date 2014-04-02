@@ -193,9 +193,6 @@ $info['id']=$staff->getId();
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['default_paper_size']; ?></span>
             </td>
         </tr>
-        <?php
-        //Show an option to show assigned tickets to admins & managers.
-        if($staff->isAdmin() || $staff->isManager()){ ?>
         <tr>
             <td>Show Assigned Tickets:</td>
             <td>
@@ -203,7 +200,6 @@ $info['id']=$staff->getId();
                 <em>Show assigned tickets on open queue.</em>
             </td>
         </tr>
-        <?php } ?>
         <tr>
             <th colspan="2">
                 <em><strong>Password</strong>: To reset your password, provide your current password and a new password below.&nbsp;<span class="error">&nbsp;<?php echo $errors['passwd']; ?></span></em>
