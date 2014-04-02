@@ -396,8 +396,7 @@ class Staff extends AuthenticatedUser {
     }
 
     function showAssignedTickets() {
-        return ($this->ht['show_assigned_tickets']
-                && ($this->isAdmin() || $this->isManager()));
+        return ($this->ht['show_assigned_tickets']);
     }
 
     function getTeams() {
