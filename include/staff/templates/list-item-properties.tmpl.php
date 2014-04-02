@@ -13,7 +13,8 @@
                 }
             });
             return false;">
-        <table width="100%">
+        <table width="100%" class="fixed">
+        <tr><td style="width:120px"></td><td></td></tr>
         <?php
         echo csrf_token();
         $config = $item->getConfiguration();
@@ -29,7 +30,7 @@
                 style="vertical-align:top;padding-top:0.2em">
                 <?php echo Format::htmlchars($f->get('label')); ?>:</label>
             </td><td>
-            <span style="display:inline-block">
+            <span style="display:inline-block;width:100%">
             <?php
             $f->render();
             if ($f->get('required')) { ?>
