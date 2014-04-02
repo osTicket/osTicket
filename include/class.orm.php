@@ -536,7 +536,8 @@ class InstrumentedList extends ModelInstanceIterator {
         return $this->queryset->exists();
     }
     function expunge() {
-        return $this->queryset->delete();
+        if ($this->queryset->delete())
+            $this->reset();
     }
     function update(array $what) {
         return $this->queryset->update($what);
