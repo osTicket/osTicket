@@ -2230,6 +2230,14 @@ class Ticket {
                     $vars['email'], $filter->getName()));
         }
 
+        if ($vars['topicId'] && ($topic=Topic::lookup($vars['topicId']))) {
+            if ($topic_form = DynamicForm::lookup($topic->ht['form_id'])) {
+                $topic_form = $topic_form->instanciate();
+                if (!$topic_form->getForm()->isValid($field_filter('topic')))
+                    $errors = array_merge($errors, $topic_form->getForm()->errors());
+            }
+        }
+
         $id=0;
         $fields=array();
         $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>'Message required');
@@ -2293,24 +2301,26 @@ class Ticket {
 
         # Some things will need to be unpacked back into the scope of this
         # function
-        if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
+        if (isset($vars['autorespond']))
+            $autorespond = $vars['autorespond'];
 
         # Apply filter-specific priority
         if ($vars['priorityId'])
             $form->setAnswer('priority', null, $vars['priorityId']);
 
         // OK...just do it.
-        $deptId=$vars['deptId']; //pre-selected Dept if any.
-        $source=ucfirst($vars['source']);
-        $topic=NULL;
+        $deptId = $vars['deptId']; //pre-selected Dept if any.
+        $source = ucfirst($vars['source']);
+
         // Intenal mapping magic...see if we need to override anything
-        if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff
-            $deptId=$deptId?$deptId:$topic->getDeptId();
+        if (isset($topic)) {
+            $deptId = $deptId ?: $topic->getDeptId();
             $priority = $form->getAnswer('priority');
             if (!$priority || !$priority->getIdValue())
                 $form->setAnswer('priority', null, $topic->getPriorityId());
-            if($autorespond) $autorespond=$topic->autoRespond();
-            $source=$vars['source']?$vars['source']:'Web';
+            if ($autorespond)
+                $autorespond = $topic->autoRespond();
+            $source = $vars['source'] ?: 'Web';
 
             //Auto assignment.
             if (!isset($vars['staffId']) && $topic->getStaffId())
@@ -2319,27 +2329,30 @@ class Ticket {
                 $vars['teamId'] = $topic->getTeamId();
 
             //set default sla.
-            if(isset($vars['slaId']))
-                $vars['slaId'] = $vars['slaId']?$vars['slaId']:$cfg->getDefaultSLAId();
-            elseif($topic && $topic->getSLAId())
+            if (isset($vars['slaId']))
+                $vars['slaId'] = $vars['slaId'] ?: $cfg->getDefaultSLAId();
+            elseif ($topic && $topic->getSLAId())
                 $vars['slaId'] = $topic->getSLAId();
+        }
 
-        }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
-            $deptId=$email->getDeptId();
+        // Apply email settings for emailed tickets
+        if ($vars['emailId'] && ($email=Email::lookup($vars['emailId']))) {
+            $deptId = $deptId ?: $email->getDeptId();
             $priority = $form->getAnswer('priority');
             if (!$priority || !$priority->getIdValue())
                 $form->setAnswer('priority', null, $email->getPriorityId());
-            if($autorespond) $autorespond=$email->autoRespond();
-            $email=null;
-            $source='Email';
+            if ($autorespond)
+                $autorespond = $email->autoRespond();
+            $email = null;
+            $source = 'Email';
         }
         //Last minute checks
         $priority = $form->getAnswer('priority');
         if (!$priority || !$priority->getIdValue())
             $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
-        $deptId=$deptId?$deptId:$cfg->getDefaultDeptId();
-        $topicId=$vars['topicId']?$vars['topicId']:0;
-        $ipaddress=$vars['ip']?$vars['ip']:$_SERVER['REMOTE_ADDR'];
+        $deptId = $deptId ?: $cfg->getDefaultDeptId();
+        $topicId = $vars['topicId'] ?: 0;
+        $ipaddress = $vars['ip'] ?: $_SERVER['REMOTE_ADDR'];
 
         //We are ready son...hold on to the rails.
         $number = Ticket::genRandTicketNumber();
@@ -2375,6 +2388,13 @@ class Ticket {
         // Save the (common) dynamic form
         $form->setTicketId($id);
         $form->save();
+
+        // Save the form data from the help-topic form, if any
+        if ($topic_form) {
+            $topic_form->setTicketId($id);
+            $topic_form->save();
+        }
+
         $ticket->loadDynamicData();
 
         $dept = $ticket->getDept();

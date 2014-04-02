@@ -29,16 +29,6 @@ if ($_POST) {
             $errors['captcha']='Invalid - try again!';
     }
 
-    $form = false;
-    if ($topic = Topic::lookup($vars['topicId'])) {
-        if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
-            $form = $form->instanciate();
-            // Don't require internal fields (they're not shown)
-            if (!$form->isValid(function($f) { return !$f->get('private'); }))
-                $errors += $form->errors();
-        }
-    }
-
     if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
@@ -46,11 +36,6 @@ if ($_POST) {
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
         Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
-        // Save the form data from the help-topic form, if any
-        if ($form) {
-            $form->setTicketId($ticket->getId());
-            $form->save();
-        }
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             session_write_close();
