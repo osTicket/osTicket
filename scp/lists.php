@@ -28,7 +28,7 @@ if($_POST) {
             else
                 $errors['err'] = 'Unable to update custom list. Unknown internal error';
 
-            foreach ($list->getItems() as $item) {
+            foreach ($list->getAllItems() as $item) {
                 $id = $item->get('id');
                 if ($_POST["delete-$id"] == 'on') {
                     $item->delete();
@@ -37,6 +37,12 @@ if($_POST) {
                 foreach (array('sort','value','extra') as $i)
                     if (isset($_POST["$i-$id"]))
                         $item->set($i, $_POST["$i-$id"]);
+
+                if ($_POST["disable-$id"] == 'on')
+                    $item->disable();
+                else
+                    $item->enable();
+
                 $item->save();
             }
 

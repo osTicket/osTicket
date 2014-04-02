@@ -198,7 +198,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         else $showing = 'Add a few initial items to the list';
     ?>
         <tr>
-            <th colspan="4">
+            <th colspan="5">
                 <em><?php echo $showing; ?></em>
             </th>
         </tr>
@@ -206,6 +206,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th></th>
             <th>Value</th>
             <th>Extra <em style="display:inline">&mdash; abbreviations and such</em></th>
+            <th>Disabled</th>
             <th>Delete</th>
         </tr>
     </thead>
@@ -216,9 +217,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $icon = ($info['sort_mode'] == 'SortCol')
             ? '<i class="icon-sort"></i>&nbsp;' : '';
         if ($list) {
-        foreach ($list->getItems() as $i) {
+        foreach ($list->getAllItems() as $i) {
             $id = $i->get('id'); ?>
-        <tr>
+        <tr class="<?php if (!$i->isEnabled()) echo 'disabled'; ?>">
             <td><?php echo $icon; ?>
                 <input type="hidden" name="sort-<?php echo $id; ?>"
                 value="<?php echo $i->get('sort'); ?>"/></td>
@@ -238,6 +239,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td><input type="text" size="30" name="extra-<?php echo $id; ?>"
                 value="<?php echo $i->get('extra'); ?>"/></td>
             <td>
+                <input type="checkbox" name="disable-<?php echo $id; ?>" <?php
+                if (!$i->isEnabled()) echo 'checked="checked"'; ?>/></td>
+            <td>
                 <input type="checkbox" name="delete-<?php echo $id; ?>"/></td>
         </tr>
     <?php }
@@ -248,6 +252,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
             <td><input type="text" size="40" name="value-new-<?php echo $i; ?>"/></td>
             <td><input type="text" size="30" name="extra-new-<?php echo $i; ?>"/></td>
+            <td></td>
             <td></td>
         </tr>
     <?php } ?>

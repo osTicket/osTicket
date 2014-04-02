@@ -820,10 +820,17 @@ class DynamicList extends VerySimpleModel {
             return $this->get('name') . 's';
     }
 
+    function getAllItems() {
+         return DynamicListItem::objects()->filter(
+                array('list_id'=>$this->get('id')))
+                ->order_by($this->getListOrderBy());
+    }
+
     function getItems($limit=false, $offset=false) {
         if (!$this->_items) {
             $this->_items = DynamicListItem::objects()->filter(
-                    array('list_id'=>$this->get('id')))
+                array('list_id'=>$this->get('id'),
+                      'status__hasbit'=>DynamicListItem::ENABLED))
                 ->order_by($this->getListOrderBy());
             if ($limit)
                 $this->_items->limit($limit);
@@ -909,6 +916,31 @@ class DynamicListItem extends VerySimpleModel {
 
     var $_config;
     var $_form;
+
+    const ENABLED               = 0x0001;
+
+    protected function hasStatus($flag) {
+        return 0 !== ($this->get('status') & $flag);
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isEnabled() {
+        return $this->hasStatus(self::ENABLED);
+    }
+
+    function enable() {
+        $this->setStatus(self::ENABLED);
+    }
+    function disable() {
+        $this->clearStatus(self::ENABLED);
+    }
 
     function getConfiguration() {
         if (!$this->_config) {
@@ -1049,6 +1081,10 @@ class SelectionField extends FormField {
             $this->_choices = array();
             foreach ($this->getList()->getItems() as $i)
                 $this->_choices[$i->get('id')] = $i->get('value');
+            if ($this->value && !isset($this->_choices[$this->value])) {
+                $v = DynamicListItem::lookup($this->value);
+                $this->_choices[$v->get('id')] = $v->get('value').' (Disabled)';
+            }
         }
         return $this->_choices;
     }
