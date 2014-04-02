@@ -1,6 +1,6 @@
 /**
  * @version v1.8.2
- * @signature 0217a4299f37124fb4fb352635bae1b4
+ * @signature 4323a6a81c35efbf7722b7fc4e475440
  * @title Add client login feature
  *
  */
@@ -116,13 +116,7 @@ UPDATE `%TABLE_PREFIX%content` SET `content_id` = LAST_INSERT_ID()
 DELETE FROM `%TABLE_PREFIX%email_template`
     WHERE `code_name` IN ('staff.pwreset', 'user.accesslink');
 
-ALTER TABLE `%TABLE_PREFIX%form`
-    CHANGE `type` `type` varchar(8) NOT NULL DEFAULT 'G';
-
-ALTER TABLE `%TABLE_PREFIX%list_items`
-    ADD `properties` text AFTER `sort`;
-
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '0217a4299f37124fb4fb352635bae1b4'
+    SET `value` = '4323a6a81c35efbf7722b7fc4e475440'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
