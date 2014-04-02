@@ -322,6 +322,11 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this->getIterator()->asArray();
     }
 
+    function one() {
+        $this->limit(1);
+        return $this[0];
+    }
+
     function count() {
         $class = $this->compiler;
         $compiler = new $class();
@@ -774,6 +779,7 @@ class MySqlCompiler extends SqlCompiler {
         'lte' => '%1$s <= %2$s',
         'isnull' => '%1$s IS NULL',
         'like' => '%1$s LIKE %2$s',
+        'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
     );
 

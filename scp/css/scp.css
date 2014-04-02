@@ -1629,3 +1629,9 @@ div.selected-signature .inner {
     background: #fc9f41; /* Old browsers */
     color: rgba(255,255,255,0.8) !important;
 }
+
+tr.disabled td,
+tr.disabled th {
+    opacity: 0.6;
+    background: #f5f5f5;
+}

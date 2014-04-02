@@ -765,7 +765,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function asVar() {
-        return $this->toString();
+        return (is_object($this->getValue()))
+            ? $this->getValue() : $this->toString();
+    }
+
+    function getVar($tag) {
+        if (is_object($this->getValue()) && method_exists($this->getValue(), 'getVar'))
+            return $this->getValue()->getVar($tag);
     }
 
     function __toString() {
@@ -789,6 +795,7 @@ class DynamicList extends VerySimpleModel {
     );
 
     var $_items;
+    var $_form;
 
     function getSortModes() {
         return array(
@@ -813,10 +820,17 @@ class DynamicList extends VerySimpleModel {
             return $this->get('name') . 's';
     }
 
+    function getAllItems() {
+         return DynamicListItem::objects()->filter(
+                array('list_id'=>$this->get('id')))
+                ->order_by($this->getListOrderBy());
+    }
+
     function getItems($limit=false, $offset=false) {
         if (!$this->_items) {
             $this->_items = DynamicListItem::objects()->filter(
-                    array('list_id'=>$this->get('id')))
+                array('list_id'=>$this->get('id'),
+                      'status__hasbit'=>DynamicListItem::ENABLED))
                 ->order_by($this->getListOrderBy());
             if ($limit)
                 $this->_items->limit($limit);
@@ -829,6 +843,14 @@ class DynamicList extends VerySimpleModel {
     function getItemCount() {
         return DynamicListItem::objects()->filter(array('list_id'=>$this->id))
             ->count();
+    }
+
+    function getConfigurationForm() {
+        if (!$this->_form) {
+            $this->_form = DynamicForm::lookup(
+                array('type'=>'L'.$this->get('id')));
+        }
+        return $this->_form;
     }
 
     function save($refetch=false) {
@@ -892,8 +914,81 @@ class DynamicListItem extends VerySimpleModel {
         ),
     );
 
+    var $_config;
+    var $_form;
+
+    const ENABLED               = 0x0001;
+
+    protected function hasStatus($flag) {
+        return 0 !== ($this->get('status') & $flag);
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isEnabled() {
+        return $this->hasStatus(self::ENABLED);
+    }
+
+    function enable() {
+        $this->setStatus(self::ENABLED);
+    }
+    function disable() {
+        $this->clearStatus(self::ENABLED);
+    }
+
+    function getConfiguration() {
+        if (!$this->_config) {
+            $this->_config = $this->get('properties');
+            if (is_string($this->_config))
+                $this->_config = JsonDataParser::parse($this->_config);
+            elseif (!$this->_config)
+                $this->_config = array();
+        }
+        return $this->_config;
+    }
+
+    function setConfiguration(&$errors=array()) {
+        $config = array();
+        foreach ($this->getConfigurationForm()->getFields() as $field) {
+            $val = $field->to_database($field->getClean());
+            $config[$field->get('id')] = is_array($val) ? $val[1] : $val;
+            $errors = array_merge($errors, $field->errors());
+        }
+        if (count($errors) === 0)
+            $this->set('properties', JsonDataEncoder::encode($config));
+
+        return count($errors) === 0;
+    }
+
+    function getConfigurationForm() {
+        if (!$this->_form) {
+            $this->_form = DynamicForm::lookup(
+                array('type'=>'L'.$this->get('list_id')));
+        }
+        return $this->_form;
+    }
+
+    function getVar($name) {
+        $config = $this->getConfiguration();
+        $name = mb_strtolower($name);
+        foreach ($this->getConfigurationForm()->getFields() as $field) {
+            if (mb_strtolower($field->get('name')) == $name)
+                return $config[$field->get('id')];
+        }
+    }
+
     function toString() {
         return $this->get('value');
+    }
+
+    function __toString() {
+        return $this->toString();
     }
 
     function delete() {
@@ -986,6 +1081,10 @@ class SelectionField extends FormField {
             $this->_choices = array();
             foreach ($this->getList()->getItems() as $i)
                 $this->_choices[$i->get('id')] = $i->get('value');
+            if ($this->value && !isset($this->_choices[$this->value])) {
+                $v = DynamicListItem::lookup($this->value);
+                $this->_choices[$v->get('id')] = $v->get('value').' (Disabled)';
+            }
         }
         return $this->_choices;
     }

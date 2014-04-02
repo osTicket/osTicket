@@ -96,7 +96,7 @@ INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form`;
 CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
-    `type` char(1) NOT NULL DEFAULT 'G',
+    `type` varchar(8) NOT NULL DEFAULT 'G',
     `deletable` tinyint(1) NOT NULL DEFAULT 1,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
@@ -163,10 +163,12 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%list_items`;
 CREATE TABLE `%TABLE_PREFIX%list_items` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `list_id` int(11),
+    `status` int(11) unsigned NOT NULL DEFAULT 1,
     `value` varchar(255) NOT NULL,
     -- extra value such as abbreviation
     `extra` varchar(255),
     `sort` int(11) NOT NULL DEFAULT 1,
+    `properties` text,
     PRIMARY KEY (`id`),
     KEY `list_item_lookup` (`list_id`)
 ) DEFAULT CHARSET=utf8;
@@ -268,6 +270,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `execorder` int(10) unsigned NOT NULL default '99',
   `isactive` tinyint(1) unsigned NOT NULL default '1',
+  `status` int(11) unsigned NOT NULL DEFAULT '0',
   `match_all_rules` tinyint(1) unsigned NOT NULL default '0',
   `stop_onmatch` tinyint(1) unsigned NOT NULL default '0',
   `reject_ticket` tinyint(1) unsigned NOT NULL default '0',
@@ -282,6 +285,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `sla_id` int(10) unsigned NOT NULL default '0',
   `form_id` int(11) unsigned NOT NULL default '0',
   `topic_id` int(11) unsigned NOT NULL default '0',
+  `ext_id` varchar(11),
   `target` ENUM(  'Any',  'Web',  'Email',  'API' ) NOT NULL DEFAULT  'Any',
   `name` varchar(32) NOT NULL default '',
   `notes` text,
@@ -426,6 +430,9 @@ CREATE TABLE `%TABLE_PREFIX%organization` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL DEFAULT '',
   `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` int(11) unsigned NOT NULL DEFAULT '0',
+  `domain` varchar(128) NOT NULL DEFAULT '',
+  `extra` text,
   `created` timestamp NULL DEFAULT NULL,
   `updated` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -446,6 +453,20 @@ CREATE TABLE `%TABLE_PREFIX%canned_response` (
   UNIQUE KEY `title` (`title`),
   KEY `dept_id` (`dept_id`),
   KEY `active` (`isenabled`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%note`;
+CREATE TABLE `%TABLE_PREFIX%note` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `pid` int(11) unsigned,
+  `staff_id` int(11) unsigned NOT NULL DEFAULT 0,
+  `ext_id` varchar(10),
+  `body` text,
+  `status` int(11) unsigned NOT NULL DEFAULT 0,
+  `sort` int(11) unsigned NOT NULL DEFAULT 0,
+  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
