@@ -23,24 +23,15 @@ class OrganizationModel extends VerySimpleModel {
         'pk' => array('id'),
         'joins' => array(
             'users' => array(
-                'reverse' => 'UserAccountModel.org',
+                'reverse' => 'UserAccount.org',
             ),
         )
     );
 
-    var $users;
-
     function getId() {
         return $this->id;
     }
-}
 
-class Organization extends OrganizationModel {
-    var $_entries;
-    var $_forms;
-
-
-    //XXX: Shouldn't getName use magic get method to figure this out?
     function getName() {
         return $this->name;
     }
@@ -52,6 +43,11 @@ class Organization extends OrganizationModel {
     function getCreateDate() {
         return $this->created;
     }
+}
+
+class Organization extends OrganizationModel {
+    var $_entries;
+    var $_forms;
 
     function addDynamicData($data) {
 
@@ -113,11 +109,6 @@ class Organization extends OrganizationModel {
 
     function __toString() {
         return (string) $this->getName();
-    }
-
-    function delete() {
-        //TODO: delete  or reset intrumented list.
-        return parent::delete();
     }
 
     function update($vars, &$errors) {
@@ -242,7 +233,5 @@ class OrganizationForm extends DynamicForm {
     }
 
 }
-
 Organization::_inspect();
-
 ?>
