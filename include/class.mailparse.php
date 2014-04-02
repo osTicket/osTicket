@@ -359,10 +359,19 @@ class Mail_Parse {
             // Support attachments that do not specify a content-disposition
             // but do specify a "name" parameter in the content-type header.
             elseif (isset($part->ctype_parameters['name']))
-                $filename=$part->ctype_parameters['name'];
+                $filename = $part->ctype_parameters['name'];
             elseif (isset($part->ctype_parameters['name*']))
                 $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
+
+            // Some mail clients / servers (like Lotus Notes / Domino) will
+            // send images without a filename. For such a case, generate a
+            // random filename for the image
+            elseif (isset($part->headers['content-id'])
+                    && $part->headers['content-id']
+                    && 0 === strcasecmp($part->ctype_primary, 'image'))
+                $filename = 'image-'.Misc::randCode(4).'.'
+                    .strtolower($part->ctype_secondary);
             else
                 // Not an attachment?
                 return false;
