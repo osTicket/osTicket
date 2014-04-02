@@ -62,10 +62,11 @@ if($_POST) {
     }
 }
 elseif ($_GET['token']) {
-    $msg = 'Re-enter your username or email';
+    $msg = 'Please enter your username or email';
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
             && ($staff = Staff::lookup($id)))
+        // TODO: Detect staff confirmation (for welcome email)
         $tpl = 'pwreset.login.php';
     else
         header('Location: index.php');

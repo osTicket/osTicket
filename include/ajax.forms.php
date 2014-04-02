@@ -36,5 +36,36 @@ class DynamicFormsAjaxAPI extends AjaxController {
         else
             $field->save();
     }
+
+    function deleteAnswer($entry_id, $field_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+
+        $ent = DynamicFormEntryAnswer::lookup(array(
+            'entry_id'=>$entry_id, 'field_id'=>$field_id));
+        if (!$ent)
+            Http::response(404, 'Answer not found');
+
+        $ent->delete();
+    }
+
+    function getListItemProperties($item_id) {
+        if (!($item = DynamicListItem::lookup($item_id)))
+            Http::response(404, 'No such list item');
+
+        include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+    }
+
+    function saveListItemProperties($item_id) {
+        if (!($item = DynamicListItem::lookup($item_id)))
+            Http::response(404, 'No such list item');
+
+        if (!$item->setConfiguration())
+            include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+        else
+            $item->save();
+    }
 }
 ?>

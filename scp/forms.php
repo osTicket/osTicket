@@ -23,6 +23,11 @@ if($_POST) {
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
                 if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
+                    if ($_POST["delete-data-$id"]) {
+                        DynamicFormEntryAnswer::objects()
+                            ->filter(array('field_id'=>$id))
+                            ->delete();
+                    }
                     $field->delete();
                     // Don't bother updating the field
                     continue;

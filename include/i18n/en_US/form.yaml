@@ -146,3 +146,26 @@
         html: false
         maxlength: 100
 
+- type: O # notrans
+  title: Organization Information
+  instructions: Details on user organization
+  deletable: false
+  fields:
+    - type: text # notrans
+      name: name # notrans
+      label: Name
+      required: true
+      sort: 1
+      edit_mask: 15
+      configuration:
+        size: 40
+        length: 64
+
+    - type: memo # notrans
+      name: notes
+      label: Internal Notes
+      required: false
+      sort: 2
+      configuration:
+        rows: 4
+        cols: 40

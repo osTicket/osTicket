@@ -123,6 +123,10 @@ class Filter {
         return $this->ht['canned_response_id'];
     }
 
+    function getHelpTopic() {
+        return $this->ht['topic_id'];
+    }
+
     function stopOnMatch() {
         return ($this->ht['stop_on_match']);
     }
@@ -309,6 +313,10 @@ class Filter {
         # Use canned response.
         if ($this->getCannedResponse())
             $ticket['cannedResponseId'] = $this->getCannedResponse();
+
+        # Apply help topic
+        if ($this->getHelpTopic())
+            $ticket['topicId'] = $this->getHelpTopic();
     }
     /* static */ function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
@@ -498,6 +506,7 @@ class Filter {
             .',dept_id='.db_input($vars['dept_id'])
             .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
+            .',topic_id='.db_input($vars['topic_id'])
             .',match_all_rules='.db_input($vars['match_all_rules'])
             .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
             .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)

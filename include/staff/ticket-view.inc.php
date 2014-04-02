@@ -54,7 +54,7 @@ if($ticket->isOverdue())
             <?php
             } ?>
             <?php if($thisstaff->canDeleteTickets()) { ?>
-                <a id="ticket-delete" class="action-button" href="#delete"><i class="icon-trash"></i> Delete</a>
+                <a id="ticket-delete" class="action-button confirm-action" href="#delete"><i class="icon-trash"></i> Delete</a>
             <?php } ?>
             <?php
             if($thisstaff->canCloseTickets()) {
@@ -74,7 +74,7 @@ if($ticket->isOverdue())
             } ?>
             <?php
             if($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
-                <a id="ticket-claim" class="action-button" href="#claim"><i class="icon-user"></i> Claim</a>
+                <a id="ticket-claim" class="action-button confirm-action" href="#claim"><i class="icon-user"></i> Claim</a>
 
             <?php
             }?>
@@ -91,30 +91,37 @@ if($ticket->isOverdue())
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
 
                     if($ticket->isAssigned()) { ?>
-                        <li><a id="ticket-release" href="#release"><i class="icon-user"></i> Release (unassign) Ticket</a></li>
+                        <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="icon-user"></i> Release (unassign) Ticket</a></li>
                     <?php
                     }
 
                     if(!$ticket->isOverdue()) { ?>
-                        <li><a id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> Mark as Overdue</a></li>
+                        <li><a class="confirm-action" id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> Mark as Overdue</a></li>
                     <?php
                     }
 
                     if($ticket->isAnswered()) { ?>
-                        <li><a id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> Mark as Unanswered</a></li>
+                        <li><a class="confirm-action" id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> Mark as Unanswered</a></li>
                     <?php
                     } else { ?>
-                        <li><a id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> Mark as Answered</a></li>
+                        <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> Mark as Answered</a></li>
                     <?php
                     }
-                }
+                } ?>
+                <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
+                    ?>/forms/manage" onclick="javascript:
+                    $.dialog($(this).attr('href').substr(1), 201);
+                    return false"
+                    ><i class="icon-paste"></i> Manage Forms</a></li>
 
-                if($thisstaff->canBanEmails()) {
+<?php           if($thisstaff->canBanEmails()) {
                      if(!$emailBanned) {?>
-                        <li><a id="ticket-banemail" href="#banemail"><i class="icon-ban-circle"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
+                        <li><a class="confirm-action" id="ticket-banemail"
+                            href="#banemail"><i class="icon-ban-circle"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
                 <?php
                      } elseif($unbannable) { ?>
-                        <li><a id="ticket-banemail" href="#unbanemail"><i class="icon-undo"></i> Unban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
+                        <li><a  class="confirm-action" id="ticket-banemail"
+                            href="#unbanemail"><i class="icon-undo"></i> Unban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
                     <?php
                      }
                 }?>
@@ -125,7 +132,7 @@ if($ticket->isOverdue())
 </table>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
-        <td width="50">
+        <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100">Status:</th>

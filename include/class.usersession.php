@@ -120,7 +120,7 @@ class ClientSession extends EndUser {
         parent::__construct($user);
         $this->token = &$_SESSION[':token']['client'];
         // XXX: Change the key to user-id
-        $this->session= new UserSession($user->getUserName());
+        $this->session= new UserSession($user->getId());
     }
 
     function isValid(){

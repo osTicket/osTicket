@@ -125,5 +125,44 @@ class ContentAjaxAPI extends AjaxController {
             break;
         }
     }
+
+    function manageContent($id, $lang=false) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+
+        $content = Page::lookup($id, $lang);
+        include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
+    }
+
+    function manageNamedContent($type, $lang=false) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+
+        $content = Page::lookup(Page::getIdByType($type, $lang));
+        include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
+    }
+
+    function updateContent($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!$_POST['name'] || !$_POST['body'])
+            Http::response(422, 'Please submit name and body');
+        elseif (!($content = Page::lookup($id)))
+            Http::response(404, 'No such content');
+
+        $vars = array_merge($content->getHashtable(), $_POST);
+        if (!$content->save($id, $vars, $errors)) {
+            if ($errors['err'])
+                Http::response(422, $errors['err']);
+            else
+                Http::response(500, 'Unable to update content: '.print_r($errors, true));
+        }
+    }
 }
 ?>

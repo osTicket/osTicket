@@ -319,6 +319,26 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
+            <td width="180">
+                Help Topic
+            </td>
+            <td>
+                <select name="topic_id">
+                    <option value="0" selected="selected">&mdash; Unchanged &mdash;</option>
+                    <?php
+                    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE.' T ORDER by topic';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$name)=db_fetch_row($res)){
+                            $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['topic_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>
             </th>
