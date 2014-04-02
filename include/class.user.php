@@ -15,7 +15,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.orm.php');
-require_once(INCLUDE_DIR . 'class.organization.php');
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -29,6 +28,30 @@ class UserEmailModel extends VerySimpleModel {
     );
 }
 
+class TicketModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_TABLE,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'UserModel.id')
+            )
+        )
+    );
+
+    function getId() {
+        return $this->ticket_id;
+    }
+
+    function delete() {
+
+        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
+            return true;
+
+        return false;
+    }
+}
+
 class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
@@ -36,6 +59,9 @@ class UserModel extends VerySimpleModel {
         'joins' => array(
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
+            ),
+            'tickets' => array(
+                'reverse' => 'TicketModel.user',
             ),
             'account' => array(
                 'list' => false,
@@ -47,14 +73,6 @@ class UserModel extends VerySimpleModel {
             ),
         )
     );
-
-    var $emails;
-
-    static function objects() {
-        $qs = parent::objects();
-        #$qs->select_related('default_email');
-        return $qs;
-    }
 
     function getId() {
         return $this->id;
@@ -73,15 +91,6 @@ class User extends UserModel {
 
     var $_entries;
     var $_forms;
-
-    var $_account;
-
-    function __construct($ht) {
-        parent::__construct($ht);
-        // TODO: Make this automatic with select_related()
-        if (isset($ht['default_email_id']))
-            $this->default_email = UserEmail::lookup($ht['default_email_id']);
-    }
 
     static function fromVars($vars) {
         // Try and lookup by email address
@@ -226,12 +235,7 @@ class User extends UserModel {
     }
 
     function getAccount() {
-        // XXX: return $this->account;
-
-        if (!isset($this->_account))
-            $this->_account = UserAccount::lookup(array('user_id'=>$this->getId()));
-
-        return $this->_account;
+        return $this->account;
     }
 
     function getAccountStatus() {
@@ -256,12 +260,6 @@ class User extends UserModel {
 
         return UserAccount::register($this, $vars, $errors);
     }
-
-    //TODO: Add organization support
-    function getOrg() {
-        return '';
-    }
-
 
     function updateInfo($vars, &$errors) {
 
@@ -333,11 +331,17 @@ class User extends UserModel {
     }
 
     function delete() {
-        //TODO:  See about deleting other associated models.
 
-        // Delete email
-        if ($this->default_email)
-            $this->default_email->delete();
+        // Refuse to delete a user with tickets
+        if ($this->tickets->count())
+            return false;
+
+        // Delete account record (if any)
+        if ($this->getAccount())
+            $this->getAccount()->delete();
+
+        // Delete emails.
+        $this->emails->expunge();
 
         // Delete user
         return parent::delete();
@@ -534,16 +538,13 @@ class UserAccountModel extends VerySimpleModel {
         'joins' => array(
             'user' => array(
                 'null' => false,
-                'constraint' => array('user_id' => 'UserModel.id')
+                'constraint' => array('user_id' => 'User.id')
+            ),
+            'org' => array(
+                'constraint' => array('org_id' => 'Organization.id')
             ),
         ),
     );
-}
-
-class UserAccount extends UserAccountModel {
-    var $_options = null;
-    var $_user;
-    var $_org;
 
     const CONFIRMED             = 0x0001;
     const LOCKED                = 0x0002;
@@ -593,10 +594,6 @@ class UserAccount extends UserAccountModel {
         return !$this->hasStatus(self::FORBID_PASSWD_RESET);
     }
 
-    function hasPassword() {
-        return (bool) $this->get('passwd');
-    }
-
     function getStatus() {
         return $this->get('status');
     }
@@ -614,12 +611,8 @@ class UserAccount extends UserAccountModel {
     }
 
     function getUser() {
-
-        if (!isset($this->_user)) {
-            if ($this->_user = User::lookup($this->getUserId()))
-                $this->_user->set('account', $this);
-        }
-        return $this->_user;
+        $this->user->set('account', $this);
+        return $this->user;
     }
 
     function getOrgId() {
@@ -627,24 +620,26 @@ class UserAccount extends UserAccountModel {
     }
 
     function getOrganization() {
-
-        if (!isset($this->_org))
-            $this->_org = Organization::lookup($this->getOrgId());
-
-        return $this->_org;
+        return $this->org;
     }
 
     function setOrganization($org) {
         if (!$org instanceof Organization)
             return false;
 
-        $this->set('org_id', $org->getId());
-        $this->_org = null;
+        $this->set('org', $org);
         $this->save();
 
         return true;
-   }
+    }
 
+}
+
+class UserAccount extends UserAccountModel {
+
+    function hasPassword() {
+        return (bool) $this->get('passwd');
+    }
 
     function sendResetEmail() {
         return static::sendUnlockEmail('pwreset-client') === true;
@@ -867,6 +862,7 @@ class UserList implements  IteratorAggregate, ArrayAccess {
         return $list ? implode(', ', $list) : '';
     }
 }
+require_once(INCLUDE_DIR . 'class.organization.php');
 User::_inspect();
-
+UserAccount::_inspect();
 ?>

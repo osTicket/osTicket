@@ -37,6 +37,13 @@ if ($info['error']) {
 ?>
     </table>
     <div class="clear"></div>
+    <?php
+    if (($users=$org->users->count())) { ?>
+    <hr>
+    <div>&nbsp;<strong><?php echo sprintf('%d %s', $users, $users>1 ? 'users' : 'user');
+        ?> assigned to this organization will be orphaned.</strong></div>
+    <?php
+    } ?>
     <hr>
     <form method="delete" class="org"
         action="#orgs/<?php echo $org->getId(); ?>/delete">

@@ -15,6 +15,7 @@
 require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
 require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
+require_once(INCLUDE_DIR . 'class.user.php');
 
 class OrganizationModel extends VerySimpleModel {
     static $meta = array(
@@ -22,33 +23,15 @@ class OrganizationModel extends VerySimpleModel {
         'pk' => array('id'),
         'joins' => array(
             'users' => array(
-                'reverse' => 'UserAccountModel.org',
+                'reverse' => 'UserAccount.org',
             ),
         )
     );
 
-    var $users;
-
-    static function objects() {
-        $qs = parent::objects();
-
-        return $qs;
-    }
-
     function getId() {
         return $this->id;
     }
-}
 
-class Organization extends OrganizationModel {
-    var $_entries;
-    var $_forms;
-
-    function __construct($ht) {
-        parent::__construct($ht);
-    }
-
-    //XXX: Shouldn't getName use magic get method to figure this out?
     function getName() {
         return $this->name;
     }
@@ -60,6 +43,11 @@ class Organization extends OrganizationModel {
     function getCreateDate() {
         return $this->created;
     }
+}
+
+class Organization extends OrganizationModel {
+    var $_entries;
+    var $_forms;
 
     function addDynamicData($data) {
 
@@ -121,11 +109,6 @@ class Organization extends OrganizationModel {
 
     function __toString() {
         return (string) $this->getName();
-    }
-
-    function delete() {
-        //TODO: delete  or reset intrumented list.
-        return parent::delete();
     }
 
     function update($vars, &$errors) {
@@ -250,7 +233,5 @@ class OrganizationForm extends DynamicForm {
     }
 
 }
-
-//Organization::_inspect();
-
+Organization::_inspect();
 ?>
