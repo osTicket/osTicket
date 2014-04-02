@@ -828,7 +828,7 @@ class MySqlCompiler extends SqlCompiler {
             return (string)$q;
         }
         elseif ($what instanceof SqlFunction) {
-            return $val->toSql($this);
+            return $what->toSql($this);
         }
         else {
             $this->params[] = $what;

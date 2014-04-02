@@ -2157,7 +2157,7 @@ class Ticket {
             };
         };
 
-        $reject_ticket = function($message) use (&$errors) {
+        $reject_ticket = function($message) use (&$errors, $ost) {
             $errors = array(
                 'errno' => 403,
                 'err' => 'This help desk is for use by authorized users only');

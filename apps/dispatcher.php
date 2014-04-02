@@ -25,8 +25,7 @@ require('client.inc.php');
 if(!defined('INCLUDE_DIR'))	Http::response(500, 'Server configuration error');
 require_once INCLUDE_DIR.'/class.dispatcher.php';
 
-$dispatcher = patterns('',
-);
+$dispatcher = new Dispatcher();
 
 Signal::send('ajax.client', $dispatcher);
 print $dispatcher->resolve($ost->get_path_info());

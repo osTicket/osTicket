@@ -13,6 +13,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR.'class.user.php';
+
 abstract class TicketUser {
 
     static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
@@ -307,6 +309,8 @@ class ClientAccount extends UserAccount {
     }
 
     function update($vars, &$errors) {
+        global $cfg;
+
         $rtoken = $_SESSION['_client']['reset-token'];
         if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
 

@@ -309,6 +309,7 @@ class UsersAjaxAPI extends AjaxController {
                 || !($account=$user->getAccount()))
             Http::response(404, 'Unknown user account');
 
+        $info = array();
         $info['title'] = 'Organization for '.$user->getName();
         $info['action'] = '#users/'.$user->getId().'/org';
         $info['onselect'] = 'ajax.php/users/'.$user->getId().'/org';

@@ -32,8 +32,7 @@ ini_set('display_startup_errors','0');
 if(!defined('INCLUDE_DIR'))	Http::response(500, 'Server configuration error');
 
 require_once INCLUDE_DIR.'/class.dispatcher.php';
-$dispatcher = patterns('',
-);
+$dispatcher = new Dispatcher();
 
 Signal::send('apps.scp', $dispatcher);
 

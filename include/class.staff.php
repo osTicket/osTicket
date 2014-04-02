@@ -789,7 +789,7 @@ class Staff extends AuthenticatedUser {
         $_config = new Config('pwreset');
         $_config->set($vars['token'], $this->getId());
 
-        $email->send($this->getEmail(), Format::stripTags($msg['subj']),
+        $email->send($this->getEmail(), Format::striptags($msg['subj']),
             $msg['body']);
     }
 

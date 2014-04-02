@@ -157,6 +157,7 @@ class ContentAjaxAPI extends AjaxController {
             Http::response(404, 'No such content');
 
         $vars = array_merge($content->getHashtable(), $_POST);
+        $errors = array();
         if (!$content->save($id, $vars, $errors)) {
             if ($errors['err'])
                 Http::response(422, $errors['err']);
