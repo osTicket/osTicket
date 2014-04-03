@@ -301,19 +301,19 @@ class Format {
     }
 
     //make urls clickable. Mainly for display
-    function clickableurls($text) {
+    function clickableurls($text, $trampoline=true) {
         global $ost;
 
         $token = $ost->getLinkToken();
 
         // Find all text between tags
         $text = preg_replace_callback(':^[^<]+|>[^<]+:',
-            function($match) use ($token) {
+            function($match) use ($token, $trampoline) {
                 // Scan for things that look like URLs
                 return preg_replace_callback(
                     '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([-+~%/.\w]+)(?:[-?#+=&;%@.\w]*)?)'
                    .'|(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})`',
-                    function ($match) use ($token) {
+                    function ($match) use ($token, $trampoline) {
                         if ($match[1]) {
                             while (in_array(substr($match[1], -1),
                                     array('.','?','-',':',';'))) {
@@ -323,9 +323,13 @@ class Format {
                             if (strpos($match[2], '//') === false) {
                                 $match[1] = 'http://' . $match[1];
                             }
-                            return '<a href="l.php?url='.urlencode($match[1])
-                                .sprintf('&auth=%s" target="_blank">', $token)
-                                .$match[1].'</a>'.$match[9];
+                            if ($trampoline)
+                                return '<a href="l.php?url='.urlencode($match[1])
+                                    .sprintf('&auth=%s" target="_blank">', $token)
+                                    .$match[1].'</a>'.$match[9];
+                            else
+                                return sprintf('<a href="%s">%s</a>%s',
+                                    $match[1], $match[1], $match[9]);
                         } elseif ($match[6]) {
                             return sprintf('<a href="mailto:%1$s" target="_blank">%1$s</a>',
                                 $match[6]);

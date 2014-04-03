@@ -1272,15 +1272,20 @@ class ThreadBody /* extends SplString */ {
         return !$this->body || $this->body == '-';
     }
 
-    function display() {
+    function display($output=false) {
         if ($this->isEmpty())
             return '(empty)';
 
         switch (strtolower($this->type)) {
-            case 'text':
-                return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
-            case 'html':
+        case 'text':
+            return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
+        case 'html':
+            switch ($output) {
+            case 'pdf':
+                return Format::clickableurls($this->body, false);
+            default:
                 return Format::display($this->body);
+            }
         }
     }
 
