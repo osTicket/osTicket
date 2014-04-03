@@ -532,6 +532,7 @@ Class ThreadEntry {
         $sql ='INSERT IGNORE INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
              .' ,file_id='.db_input($fileId)
              .' ,ticket_id='.db_input($this->getTicketId())
+             .' ,inline='.db_input($file['inline'] ? 1 : 0)
              .' ,ref_id='.db_input($this->getId());
 
         return (db_query($sql) && ($id=db_insert_id()))?$id:0;
@@ -552,7 +553,7 @@ Class ThreadEntry {
             return $this->attachments;
 
         //XXX: inner join the file table instead?
-        $sql='SELECT a.attach_id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.name '
+        $sql='SELECT a.attach_id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.name, a.inline '
             .' FROM '.FILE_TABLE.' f '
             .' INNER JOIN '.TICKET_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
             .' WHERE a.ticket_id='.db_input($this->getTicketId())
@@ -583,6 +584,8 @@ Class ThreadEntry {
 
         $str='';
         foreach($this->getAttachments() as $attachment ) {
+            if ($attachment['inline'])
+                continue;
             /* The hash can be changed  but must match validation in @file */
             $hash=md5($attachment['file_id'].session_id().$attachment['file_hash']);
             $size = '';
@@ -1040,6 +1043,11 @@ Class ThreadEntry {
 
         //Emailed or API attachments
         if (isset($vars['attachments']) && $vars['attachments']) {
+            foreach ($vars['attachments'] as &$a)
+                if (isset($a['cid']) && strpos($body, 'cid:'.$a['cid']) !== false)
+                    $a['inline'] = true;
+            unset($a);
+
             $entry->importAttachments($vars['attachments']);
             foreach ($vars['attachments'] as $a) {
                 // Change <img src="cid:"> inside the message to point to
