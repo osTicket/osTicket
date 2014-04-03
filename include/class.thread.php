@@ -314,9 +314,16 @@ Class ThreadEntry {
     function setBody($body) {
         global $cfg;
 
+        if (!$body instanceof ThreadBody) {
+            if ($cfg->isHtmlThreadEnabled())
+                $body = new HtmlThreadBody($body);
+            else
+                $body = new TextThreadBody($body);
+        }
+
         $sql='UPDATE '.TICKET_THREAD_TABLE.' SET updated=NOW()'
-            .',body='.db_input(Format::sanitize($body,
-                !$cfg->isHtmlThreadEnabled()))
+            .',format='.db_input($body->getType())
+            .',body='.db_input((string) $body)
             .' WHERE id='.db_input($this->getId());
         return db_query($sql) && db_affected_rows();
     }
