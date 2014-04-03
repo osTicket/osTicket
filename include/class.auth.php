@@ -448,7 +448,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function getAllowedBackends($userid) {
-        $backends = array('authtoken');
+        $backends = array();
         $sql = 'SELECT A1.backend FROM '.USER_ACCOUNT_TABLE
               .' A1 INNER JOIN '.USER_EMAIL_TABLE.' A2 ON (A2.user_id = A1.user_id)'
               .' WHERE backend IS NOT NULL '
