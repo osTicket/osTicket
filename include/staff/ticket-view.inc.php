@@ -362,7 +362,7 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry['id']; ?>"><div><?php
-                echo $entry['body']->display(); ?></div></td></tr>
+                echo $entry['body']->toHtml(); ?></div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry = $ticket->getThreadEntry($entry['id']))

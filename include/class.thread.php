@@ -140,7 +140,7 @@ class Thread {
         $entries = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while($rec=db_fetch_array($res)) {
-                $rec['body'] = new ThreadBody($rec['body'], $rec['format']);
+                $rec['body'] = ThreadBody::fromFormattedText($rec['body'], $rec['format']);
                 $entries[] = $rec;
             }
         }
@@ -308,7 +308,7 @@ Class ThreadEntry {
     }
 
     function getBody() {
-        return $this->ht['body'];
+        return ThreadBody::fromFormattedText($this->ht['body'], $this->ht['format']);
     }
 
     function setBody($body) {
@@ -770,7 +770,7 @@ Class ThreadEntry {
     /* variables */
 
     function __toString() {
-        return $this->getBody();
+        return (string) $this->getBody();
     }
 
     function asVar() {
@@ -1002,7 +1002,7 @@ Class ThreadEntry {
             }
         }
 
-        if (!($body = (string) $vars['body']))
+        if (!($body = $vars['body']->getClean()))
             $body = '-'; //Special tag used to signify empty message as stored.
 
         $poster = $vars['poster'];
@@ -1259,34 +1259,21 @@ class ThreadBody /* extends SplString */ {
     var $type;
     var $stripped_images = array();
     var $embedded_images = array();
+    var $options = array(
+        'strip-embedded' => true
+    );
 
-    function __construct($body, $type='text') {
+    function __construct($body, $type='text', $options=array()) {
         $type = strtolower($type);
         if (!in_array($type, static::$types))
             throw new Exception($type.': Unsupported ThreadBody type');
         $this->body = (string) $body;
         $this->type = $type;
+        $this->options = array_merge($this->options, $options);
     }
 
     function isEmpty() {
         return !$this->body || $this->body == '-';
-    }
-
-    function display($output=false) {
-        if ($this->isEmpty())
-            return '(empty)';
-
-        switch (strtolower($this->type)) {
-        case 'text':
-            return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
-        case 'html':
-            switch ($output) {
-            case 'pdf':
-                return Format::clickableurls($this->body, false);
-            default:
-                return Format::display($this->body);
-            }
-        }
     }
 
     function convertTo($type) {
@@ -1340,21 +1327,58 @@ class ThreadBody /* extends SplString */ {
         return $this->type;
     }
 
+    function getClean() {
+        return trim($this->body);
+    }
+
     function __toString() {
-        return $this->body;
+        return $this->display();
+    }
+
+    function toHtml() {
+        return $this->display('html');
+    }
+
+    static function fromFormattedText($text, $format=false) {
+        switch ($format) {
+        case 'text':
+            return new TextThreadBody($text);
+        case 'html':
+            return new HtmlThreadBody($text, array('strip-embedded'=>false));
+        default:
+            return new ThreadBody($text);
+        }
     }
 }
 
 class TextThreadBody extends ThreadBody {
-    function __construct($body) {
-        parent::__construct(Format::stripEmptyLines($body), 'text');
+    function __construct($body, $options=array()) {
+        parent::__construct($body, 'text', $options);
+    }
+
+    function getClean() {
+        return Format::stripEmptyLines($this->body);
+    }
+
+    function display($output=false) {
+        if ($this->isEmpty())
+            return '(empty)';
+
+        switch ($output) {
+        case 'html':
+            return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
+        case 'pdf':
+            return nl2br($this->body);
+        default:
+            return '<pre>'.$this->body.'</pre>';
+        }
     }
 }
 class HtmlThreadBody extends ThreadBody {
-    function __construct($body) {
-        $body = $this->extractEmbeddedHtmlImages($body);
-        $body = trim($body, " <>br/\t\n\r") ? Format::safe_html($body) : '';
-        parent::__construct($body, 'html');
+    function __construct($body, $options=array()) {
+        parent::__construct($body, 'html', $options);
+        if ($this->options['strip-embedded'])
+            $this->body = $this->extractEmbeddedHtmlImages($this->body);
     }
 
     function extractEmbeddedHtmlImages($body) {
@@ -1370,8 +1394,20 @@ class HtmlThreadBody extends ThreadBody {
         }, $body);
     }
 
-    function __toString() {
-        return Format::sanitize($this->body);
+    function getClean() {
+        return trim($body, " <>br/\t\n\r") ? Format::sanitize($body) : '';
+    }
+
+    function display($output=false) {
+        if ($this->isEmpty())
+            return '(empty)';
+
+        switch ($output) {
+        case 'pdf':
+            return Format::clickableurls($this->body, false);
+        default:
+            return Format::display($this->body);
+        }
     }
 }
 ?>
