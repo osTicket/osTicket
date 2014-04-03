@@ -45,6 +45,7 @@ if($_POST) {
 }
 elseif ($_GET['token']) {
     $banner = 'Re-enter your username or email';
+    $inc = 'pwreset.login.php';
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
             && ($acct = ClientAccount::lookup(array('user_id'=>$id)))) {
@@ -63,9 +64,6 @@ elseif ($_GET['token']) {
                 }
                 Http::redirect('account.php?confirmed');
             }
-        }
-        else {
-            $inc = 'pwreset.login.php';
         }
     }
     elseif ($id && ($user = User::lookup($id)))
