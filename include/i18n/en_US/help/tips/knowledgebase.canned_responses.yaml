@@ -21,7 +21,8 @@ canned_responses:
     title: Canned Responses
     content: >
         Create responses to your more frequently asked questions to expedite
-        customer support. You can also upload attachments to Canned Responses.
+        Client support. You can also upload attachments to <span 
+        class="doc-desc-title">Canned Responses</span>.
 
 showing_premade_responses:
     title: Showing… Premade Responses

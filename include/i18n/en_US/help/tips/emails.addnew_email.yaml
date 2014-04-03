@@ -29,12 +29,6 @@ setting:
     title: Setting
     content: >
 
-login_information:
-    title: Login Information
-    content: >
-        While this is optional, it is required if IMAP/POP or SMTP (with
-        authorization) are enabled.
-
 username:
     title: Username
     content: >
@@ -43,10 +37,19 @@ password:
     title: Password
     content: >
 
+login_information:
+    title: Login Information
+    content: >
+        While this is optional, it is required if IMAP/POP or SMTP (with
+        authorization) are enabled.
+
 mail_account:
     title: Mail Account
     content: >
-
+        Optional setting for fetching incoming emails. Mail fetching must be enabled with autocron active or external cron setup.
+    links:
+      - title: Manage <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> settings.
+        href: /scp/settings.php?t=emails
 status:
     title: Status
     content: >
@@ -82,6 +85,8 @@ fetched_emails:
 smtp_settings:
     title: SMTP Settings
     content: >
+        When enabled, the <span class="doc-desc-title">email account</span> will use 
+        the SMTP server instead of internal PHP mail() function for outgoing emails.
 
 status:
     title: Status

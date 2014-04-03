@@ -13,6 +13,12 @@
 # must match the HTML #ids put into the page template.
 #
 ---
+general_settings:
+    title: General Settings
+    content: >
+        Offline mode will disable client interface and only allow admins to login to 
+        Staff Control Panel.
+
 helpdesk_status:
     title: Helpdesk Status
     content: >
@@ -86,3 +92,6 @@ date_time_options:
         change how these appear by following the PHP date format characters. The
         following examples are not realtime; they simply display the format for the
         values in the text input fields to their left.
+    links:
+      - title: See the PHP Date Formatting Table
+        href: http://www.php.net/manual/en/function.date.php

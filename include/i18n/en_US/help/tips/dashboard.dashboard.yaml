@@ -22,7 +22,7 @@ ticket_activity:
         broad overview of the whole system’s data (i.e., population). However, you
         may navigate through the <span class="doc-desc-title">Statistics
         </span> table below to focus on a narrower subject of interest (e.g.,
-        Department, Topics, or Staff. Additionally, you may export any data
+        Department, Topics, or Staff). Additionally, you may export any data
         currently displayed in the <span class="doc-desc-title">Statistics
         </span> table.
 
@@ -30,7 +30,7 @@ report_timeframe:
     title: Report timeframe
     content: >
         Choose a start date for the desired data sample using the date picker.
-        Then, choose the length of time from that date (i.e., the end date) to
+        Then, choose the length of time from that date to
         define the end date for your data sample.
 
 statistics:

@@ -69,26 +69,24 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td>Ticket Auto-lock Time:</td>
+            <td>Agent Collision Avoidance Duration:</td>
             <td>
                 <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
-                <font class="error"><?php echo $errors['autolock_minutes']; ?></font> <i class="help-tip icon-question-sign" href="#ticket_auto_lock_priority"></i>
+                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>&nbsp;minutes&nbsp;<i class="help-tip icon-question-sign" href="#agent_collision_avoidance"></i>
             </td>
         </tr>
         <tr>
             <td>Human Verification:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
-                Enable CAPTCHA on new web tickets.<em>(requires GDLib)</em> &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font><br/> <i class="help-tip icon-question-sign" href="#human_verification"></i>
+                Enable CAPTCHA on new web tickets.<em>(requires GDLib)</em> &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>&nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
             </td>
         </tr>
         <tr>
             <td>Claim Tickets:</td>
             <td>
                 <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
-                Auto-assign unassigned tickets on response <i class="help-tip icon-question-sign" href="#claim_tickets"></i>
-                <!-- Help Tip:
-                     Reopened tickets are always assigned to the last respondent -->
+                &nbsp;Enable&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
             </td>
         </tr>
         <tr>

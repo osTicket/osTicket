@@ -27,7 +27,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Canned Response</h2>
+ <h2>Canned Response&nbsp;<i class="help-tip icon-question-sign" href="#canned_response"></i></h2>
  <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr><td></td><td></td></tr> <!-- For fixed table layout -->
@@ -42,9 +42,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td width="180" class="required">Status:</td>
             <td>
-                <input type="radio" name="isenabled" value="1" <?php echo $info['isenabled']?'checked="checked"':''; ?>>Active
-                <input type="radio" name="isenabled" value="0" <?php echo !$info['isenabled']?'checked="checked"':''; ?>>Disabled
+                <label><input type="radio" name="isenabled" value="1" <?php echo $info['isenabled']?'checked="checked"':''; ?>>&nbsp;Active&nbsp;</label>
+                <label><input type="radio" name="isenabled" value="0" <?php echo !$info['isenabled']?'checked="checked"':''; ?>>&nbsp;Disabled&nbsp;</label>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isenabled']; ?></span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
         <tr>
@@ -82,7 +83,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     data-draft-object-id="<?php if (isset($canned)) echo $canned->getId(); ?>"
                     style="width:98%;" class="richtext draft"><?php
                         echo $info['response']; ?></textarea>
-                <br><br><div><b>Canned Attachments</b> (optional) <font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
+                <br><br><div><b>Canned Attachments</b> (optional) &nbsp;<i class="help-tip icon-question-sign" href="#canned_attachments"></i><font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
                 <?php
                 if($canned && ($files=$canned->attachments->getSeparates())) {
                     echo '<div id="canned_attachments"><span class="faded">Uncheck to delete the attachment on submit</span><br>';

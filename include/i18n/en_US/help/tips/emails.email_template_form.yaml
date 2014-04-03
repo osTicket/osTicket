@@ -28,8 +28,8 @@ name:
 status:
     title: Status
     content: >
-        If disabled, the Template will not be visible as an option when
-        creating/editing a Department.
+        Enable this template so that it will be visible as an option when
+        creating/editing a <span class="doc-desc-title">Department</span>.
 
 language:
     title: Language
@@ -40,12 +40,13 @@ language:
 template_to_clone:
     title: Template to Clone
     content: >
-        If this is your first time creating a new Email Template, simply choose the
-        Default Template in the list to clone. Each Template contains a set of
-        customized Alerts, Responses, Notices, etc. that are utilized depending on
-        the relevant event that triggers them. By cloning Template Sets, you are
-        able to create Templates that only differ minimally without having to
-        recreate the details they have in common.
+        Choose the <span class="doc-desc-opt">Default Template</span> to clone
+        if this is your first time creating an <span class="doc-desc-title">Email Template</span>. Each Template 
+        contains a set of customized Alerts, Responses, Notices, etc. that are utilized 
+        depending on the relevant event that triggers them. By cloning <span 
+        class="doc-desc-title">Template Sets</span>, you are able to create <span 
+        class="doc-desc-title">Templates</span> that only differ minimally without 
+        having to recreate the details they have in common.
 
 admin_notes:
     title: Admin Notes

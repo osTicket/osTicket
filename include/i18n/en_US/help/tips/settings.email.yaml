@@ -37,8 +37,8 @@ default_system_email:
 default_alert_email:
     title: Default Alert Email
     content: >
-        Choose an Email Address from which <span class="doc-desc-title">Alerts &amp;
-        Notices</span> are sent to Agents. Note, however, that if the <span
+        Choose an Email Address from which Agents are sent <span class="doc-desc-title">Alerts &amp;
+        Notices</span>. Note, however, that if the <span
         class="doc-desc-title">Department</span> or <span
         class="doc-desc-title">Help Topic</span> sets its own <span
         class="doc-desc-title">Default Email Address</span>, that <span
@@ -72,33 +72,37 @@ strip_quoted_reply:
     content: >
         If enabled, this will remove any preceding correspondences duplicated
         between response communication. Thereby, the Agent &amp; Client, when viewing
-        the Ticket, will not see any one preceding message duplicated. Note, this
-        will not actually delete preceding communication; it will only hide it from
-        the Agent &amp; Client.
+        the Ticket, will not see any one preceding message duplicated. <br /><br />
+        <strong>Note:</strong> this will not actually delete preceding communication; it will only hide it from
+        the Agent &amp; Client. Furthermore, this feature is relationally dependent
+        on the <span class="doc-desc-title">Reply Separator Tag</span> below.
 
 reply_separator_tag:
     title: Reply Separator Tag
     content: >
         This is the string that will tell the engine that anything below this line
         is old correspondence. This way the engine knows to remove it from the
-        Client or Agent’s sight. Note, this is only relevant if <span
+        Client or Agent’s sight. <br /><br />
+        <strong>Note:</strong> this is only relevant if <span
         class="doc-desc-title">Strip Quoted Reply</span> is enabled above.
 
 emailed_tickets_priority:
     title: Emailed Tickets Priority
     content: >
-        Enable this to use <span class="doc-desc-title">Email priority</span> when
-        available which honor the priority flag set in incoming email. If enabled,
-        the priority of new tickets will be set by the priority of the email used
-        to create them, if available.
+        Choose whether you would like the priority option of the email service 
+        (e.g., Yahoo, Gmail, etc.) to dictate the new ticket’s priority status. This 
+        setting can be overridden by a <span class="doc-desc-title">Ticket 
+        Filter</span>.
+    links:
+      - title: Create &amp; Manage Ticket Filters
+        href: /scp/filters.php
 
 accept_email_collaborators:
     title: Accept Email Collaborators
     content: >
-        Add participants included in the <code><span
-        class="doc-desc-title">To</span></code> and <code><span
-        class="doc-desc-title">CC</span></code> fields of email as ticket
-        collaborators.<br><br>
+        Add participants included in the <code><strong>To</strong></code> 
+        and <code><strong>CC</strong></code> fields of email as ticket
+        collaborators.<br /><br />
          <em>Collaborators can always be added manually by staff members when
         viewing a ticket.</em>
 

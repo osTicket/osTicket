@@ -125,17 +125,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Auto-response
+                Auto-Response
             </td>
             <td>
-                <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
+                <label><input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
                 <strong>Disable</strong> new ticket auto-response for this
-                email. Override global and dept. settings.
+                email. Override global and dept. settings.</label>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Login Information:</strong>&nbsp;<i class="help-tip icon-question-sign" href="#login_information"></i></em>
+                <em><strong>Login Information</strong>&nbsp;<i class="help-tip icon-question-sign" href="#login_information"></i></em>
             </th>
         </tr>
         <tr>
@@ -161,14 +161,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Mail Account</strong>: Optional setting for fetching incoming emails. Mail fetching must be enabled with autocron active or external cron setup. &nbsp;<font class="error">&nbsp;<?php echo $errors['mail']; ?></font></em>
+                <em><strong>Mail Account</strong>&nbsp;<i class="help-tip icon-question-sign" href="#mail_account"></i>&nbsp;<font class="error">&nbsp;<?php echo $errors['mail']; ?></font></em>
             </th>
         </tr>
         <tr><td>Status</td>
             <td>
-                <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> /><strong>Enable</strong></label>
+                <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> />&nbsp;Enable</label>
                 &nbsp;&nbsp;
-                <label><input type="radio" name="mail_active"  value="0"   <?php echo !$info['mail_active']?'checked="checked"':''; ?> />Disable</label>
+                <label><input type="radio" name="mail_active"  value="0"   <?php echo !$info['mail_active']?'checked="checked"':''; ?> />&nbsp;Disable</label>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_active']; ?></font>
             </td>
         </tr>
@@ -216,26 +216,28 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr><td valign="top">Fetched Emails</td>
              <td>
-                <input type="radio" name="postfetch" value="archive" <?php echo ($info['postfetch']=='archive')? 'checked="checked"': ''; ?> >
-                 Move to: <input type="text" name="mail_archivefolder" size="20" value="<?php echo $info['mail_archivefolder']; ?>"/> folder.
+                <label><input type="radio" name="postfetch" value="archive" <?php echo ($info['postfetch']=='archive')? 'checked="checked"': ''; ?> >
+                 Move to: <input type="text" name="mail_archivefolder" size="20" value="<?php echo $info['mail_archivefolder']; ?>"/> folder.</label>
                     &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_folder']; ?></font>
-                <input type="radio" name="postfetch" value="delete" <?php echo ($info['postfetch']=='delete')? 'checked="checked"': ''; ?> >
-                Delete fetched emails
-                <input type="radio" name="postfetch" value="" <?php echo (isset($info['postfetch']) && !$info['postfetch'])? 'checked="checked"': ''; ?> >
-                 Do nothing (Not recommended)
-              <br><em>Moving fetched emails to a backup folder is highly recommended.</em> &nbsp;<font class="error"><?php echo $errors['postfetch']; ?></font>
+                <label><input type="radio" name="postfetch" value="delete" <?php echo ($info['postfetch']=='delete')? 'checked="checked"': ''; ?> >
+                &nbsp;Delete fetched emails&nbsp;</label>
+                &nbsp;
+                <label><input type="radio" name="postfetch" value="" <?php echo (isset($info['postfetch']) && !$info['postfetch'])? 'checked="checked"': ''; ?> >
+                 &nbsp;Do nothing (Not recommended)&nbsp;</label>
+              <br /><em>Moving fetched emails to a backup folder is highly recommended.</em> &nbsp;<font class="error"><?php echo $errors['postfetch']; ?></font>
             </td>
         </tr>
 
         <tr>
             <th colspan="2">
-                <em><strong>SMTP Settings</strong>: When enabled the <b>email account</b> will use SMTP server instead of internal PHP mail() function for outgoing emails. &nbsp;<font class="error">&nbsp;<?php echo $errors['smtp']; ?></font></em>
+                <em><strong>SMTP Settings</strong>&nbsp;<i class="help-tip icon-question-sign" href="#smtp_settings"></i>&nbsp;<font class="error">&nbsp;<?php echo $errors['smtp']; ?></font></em>
             </th>
         </tr>
         <tr><td>Status</td>
             <td>
-                <label><input type="radio" name="smtp_active"  value="1"   <?php echo $info['smtp_active']?'checked':''; ?> />Enable</label>
-                <label><input type="radio" name="smtp_active"  value="0"   <?php echo !$info['smtp_active']?'checked':''; ?> />Disable</label>
+                <label><input type="radio" name="smtp_active"  value="1"   <?php echo $info['smtp_active']?'checked':''; ?> />&nbsp;Enable</label>
+                &nbsp;
+                <label><input type="radio" name="smtp_active"  value="0"   <?php echo !$info['smtp_active']?'checked':''; ?> />&nbsp;Disable</label>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['smtp_active']; ?></font>
             </td>
         </tr>
@@ -249,21 +251,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['smtp_port']; ?></font>
             </td>
         </tr>
-        <tr><td>Authentication Required?</td>
+        <tr><td>Authentication Required</td>
             <td>
 
                  <label><input type="radio" name="smtp_auth"  value="1"
-                    <?php echo $info['smtp_auth']?'checked':''; ?> />Yes</label>
+                    <?php echo $info['smtp_auth']?'checked':''; ?> />&nbsp;Yes</label>
+                 &nbsp;
                  <label><input type="radio" name="smtp_auth"  value="0"
-                    <?php echo !$info['smtp_auth']?'checked':''; ?> />NO</label>
+                    <?php echo !$info['smtp_auth']?'checked':''; ?> />&nbsp;No</label>
                 <font class="error">&nbsp;<?php echo $errors['smtp_auth']; ?></font>
             </td>
         </tr>
         <tr>
-            <td>Allow Header Spoofing?</td>
+            <td>Allow Header Spoofing</td>
             <td>
-                <input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
-                Allow email header spoofing <em>(only applies to emails being sent through this account)</em>
+                <label><input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
+                Allow email header spoofing <em>(only applies to emails being sent through this account)</em></label>
             </td>
         </tr>
         <tr>
