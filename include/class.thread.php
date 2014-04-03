@@ -138,9 +138,12 @@ class Thread {
              .' ORDER BY thread.created '.$order;
 
         $entries = array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec=db_fetch_array($res))
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while($rec=db_fetch_array($res)) {
+                $rec['body'] = new ThreadBody($rec['body'], $rec['format']);
                 $entries[] = $rec;
+            }
+        }
 
         return $entries;
     }
@@ -969,9 +972,7 @@ Class ThreadEntry {
                 $vars['body'] = new TextThreadBody($vars['body']);
         }
 
-        // Drop stripped images. NOTE: This should be done before
-        // ->convert() because the strippedImages list will not propagate to
-        // the newly converted thread body
+        // Drop stripped images
         if ($vars['attachments']) {
             foreach ($vars['body']->getStrippedImages() as $cid) {
                 foreach ($vars['attachments'] as $i=>$a) {
@@ -994,8 +995,7 @@ Class ThreadEntry {
             }
         }
 
-        if (!($body = Format::sanitize(
-                (string) $vars['body']->convertTo('html'))))
+        if (!($body = (string) $vars['body']))
             $body = '-'; //Special tag used to signify empty message as stored.
 
         $poster = $vars['poster'];
@@ -1006,6 +1006,7 @@ Class ThreadEntry {
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
+            .' ,format='.db_input($vars['body']->getType())
             .' ,staff_id='.db_input($vars['staffId'])
             .' ,user_id='.db_input($vars['userId'])
             .' ,poster='.db_input($poster)
@@ -1260,6 +1261,22 @@ class ThreadBody /* extends SplString */ {
         $this->type = $type;
     }
 
+    function isEmpty() {
+        return !$this->body || $this->body == '-';
+    }
+
+    function display() {
+        if ($this->isEmpty())
+            return '(empty)';
+
+        switch (strtolower($this->type)) {
+            case 'text':
+                return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
+            case 'html':
+                return Format::display($this->body);
+        }
+    }
+
     function convertTo($type) {
         if ($type === $this->type)
             return $this;
@@ -1307,6 +1324,10 @@ class ThreadBody /* extends SplString */ {
         return $this->embedded_images;
     }
 
+    function getType() {
+        return $this->type;
+    }
+
     function __toString() {
         return $this->body;
     }
@@ -1335,6 +1356,10 @@ class HtmlThreadBody extends ThreadBody {
             $self->embedded_images[] = $info;
             return 'src="cid:'.$info['cid'].'"';
         }, $body);
+    }
+
+    function __toString() {
+        return Format::sanitize($this->body);
     }
 }
 ?>

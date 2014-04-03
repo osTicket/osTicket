@@ -101,8 +101,6 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     $threadType=array('M' => 'message', 'R' => 'response');
     foreach($thread as $entry) {
-        if ($entry['body'] == '-')
-            $entry['body'] = '(EMPTY)';
 
         //Making sure internal notes are not displayed due to backend MISTAKES!
         if(!$threadType[$entry['thread_type']]) continue;
@@ -112,7 +110,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         ?>
         <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><?php echo Format::db_datetime($entry['created']); ?> &nbsp;&nbsp;<span class="textra"></span><span><?php echo $poster; ?></span></th></tr>
-            <tr><td class="thread-body"><div><?php echo Format::viewableImages(Format::display($entry['body'])); ?></div></td></tr>
+            <tr><td class="thread-body"><div><?php echo $entry['body']->display(); ?></div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
