@@ -299,9 +299,11 @@ class Ticket2PDF extends mPDF
                         && ($attachments = $tentry->getAttachments())) {
                     $files = array();
                     foreach($attachments as $attachment)
-                        $files[]= $attachment['name'];
+                        if (!$attachment['inline'])
+                            $files[]= $attachment['name'];
 
-                    $text.="<div>Files Attached: [".implode(', ',$files)."]</div>";
+                    if ($files)
+                        $text.="<div>Files Attached: [".implode(', ',$files)."]</div>";
                 }
                 $this->WriteHtml('<div class="thread-body">'.$text.'</div>', 2, false, false);
                 $this->Ln(5);
