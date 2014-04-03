@@ -92,7 +92,7 @@ else
     $showing='No staff members found!';
 ?>
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?>&nbsp;<i class="help-tip icon-question-sign" href="#showing"></i></caption>
+    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="160"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name">Name</a></th>

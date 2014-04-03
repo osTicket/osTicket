@@ -18,6 +18,9 @@ test_outgoing_email:
     content: >
         The email’s delivery depends on your server settings (php.ini) and/or SMTP
         configuration.
+    links:
+      - title: Select an email to configure SMTP (Outgoing) Settings
+        href: /scp/emails.php
 
 from:
     title: From

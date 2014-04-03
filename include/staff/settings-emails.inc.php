@@ -99,21 +99,20 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td width="180">Strip Quoted Reply:</td>
             <td>
                 <input type="checkbox" name="strip_quoted_reply" <?php echo $config['strip_quoted_reply'] ? 'checked="checked"':''; ?>>
-                <em>(depends on the reply separator tag set below)</em>
+                &nbsp;Enable&nbsp;<i class="help-tip icon-question-sign" href="#strip_quoted_reply"></i>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['strip_quoted_reply']; ?></font>
             </td>
         </tr>
         <tr>
             <td width="180">Reply Separator Tag:</td>
             <td><input type="text" name="reply_separator" value="<?php echo $config['reply_separator']; ?>">
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['reply_separator']; ?></font>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['reply_separator']; ?></font>&nbsp;<i class="help-tip icon-question-sign" href="#reply_separator_tag"></i>
             </td>
         </tr>
         <tr>
             <td width="180">Emailed Tickets Priority:</td>
             <td>
-                <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
-                <em>(Use email priority when available)</em>
+                <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >&nbsp;Enable&nbsp;
                 <i class="help-tip icon-question-sign" href="#emailed_tickets_priority"></i>
             </td>
         </tr>

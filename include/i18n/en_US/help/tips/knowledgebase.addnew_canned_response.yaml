@@ -16,6 +16,15 @@
 canned_response:
     title: Canned Response
     content: >
+        Create a <span class="doc-desc-title">Canned Response</span> that can 
+        be included in a ticket response. In fact, you may include as many 
+        <span class="doc-desc-title">Canned Responses</span> as you would like
+        in a ticket response. It can also be included in the <span 
+        class="doc-desc-title">Ticket Auto-Response</span> setup by a <span 
+        class="doc-desc-title">Ticket Filter</span>.
+    links:
+      - title: Setup a Ticket Filter
+        href: /scp/filters.php
 
 canned_response_settings:
     title: Canned Response Settings
@@ -24,23 +33,20 @@ canned_response_settings:
 status:
     title: Status
     content: >
-
+        Disable your new <span class="doc-desc-title">Canned Response</span>
+        if you do not want it to be available to Agents immediately upon creation.
+        
 department:
     title: Department
-    content: >
-
-canned_response:
-    title: Canned Response
     content: >
 
 title:
     title: Title
     content: >
 
-canned_response:
-    title: Canned Response
-    content: >
-
 canned_attachments:
     title: Canned Attachments
     content: >
+        Attach a file  that you would like to be automatically included
+        in the ticket response that utilizes the new <span class="doc-desc-title">
+        Canned Response</span>.

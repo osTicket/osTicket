@@ -83,16 +83,16 @@ else
     $showing='No logs found!';
 ?>
 
-<h2>System Logs</h2>
+<h2>System Logs&nbsp;<i class="help-tip icon-question-sign" href="#system_logs"></i></h2>
 <div id='filter' >
  <form action="logs.php" method="get">
     <div style="padding-left:2px;">
-        <b>Date Span</b>:
+        <b>Date Span</b>&nbsp;<i class="help-tip icon-question-sign" href="#date_span"></i>
         &nbsp;From&nbsp;<input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp; to &nbsp;&nbsp;
             <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp;
-            &nbsp;Type:
+            &nbsp;Type&nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
             <select name='type'>
                 <option value="" selected>All</option>
                 <option value="Error" <?php echo ($type=='Error')?'selected="selected"':''; ?>>Errors</option>

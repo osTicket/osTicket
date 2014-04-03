@@ -16,7 +16,8 @@
 faq_categories:
     title: FAQ Categories
     content: >
-        Categories must first be created before any FAQs can be published.
+        Categories must first be created before any <span class="doc-desc-title">
+        FAQs</span> can be published.
 
 setting:
     title: Setting

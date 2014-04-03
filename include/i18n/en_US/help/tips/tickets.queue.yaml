@@ -20,13 +20,9 @@ search_field:
 advanced:
     title: Advanced
     content: >
-        Will allow you to narrow down your search parameters. Once you have
-        selected your advanced search criteria and run the search, you can export
-        the data at the bottom of the tickets page.
-
-refresh_button_:
-    title: Refresh (Button)
-    content: >
+        Narrow down your search parameters. Once you have selected your advanced
+        search criteria and run the search, you can <span class="doc-desc-title">Export
+        </span> the data at the bottom of the tickets page.
 
 open_tickets_table:
     title: Open Tickets Table
@@ -60,9 +56,9 @@ assigned_to:
 export:
     title: Export
     content: >
-        This will export your data currently in view in a printable HTML format.
-        You may select, then copy and paste this into your favorite word processor
-        (e.g., Microsoft Word).
+        Export your data currently in view in a CSV file.
+        CSV files may be opened with any spreadsheet software
+        (i.e., Microsoft Excel, Apple Pages, OpenOffice, etc.).
 
 advanced_search_dialog:
     title: Advanced Search

@@ -13,6 +13,18 @@
 # must match the HTML #ids put into the page template.
 #
 ---
+page_header:
+    title: Frequently Asked Questions
+    content: >
+        You must first create <span class="doc-desc-title">Categories</span> 
+        before any <span class="doc-desc-title">FAQs</span> can be published.
+        It is also recommended that you create <span class="doc-desc-title">Help 
+        Topics</span> before adding <span class="doc-desc-title">FAQs</span>.
+    links:
+      - title: Create Categories
+        href: /scp/categories.php
+      - title: Create Help Topics
+        href: /scp/helptopics.php
 search_box:
     title: Search for Articles
     content: >
@@ -29,3 +41,8 @@ resulted_listings:
     title: Resulted Listings
     content: >
 
+listed_categories:
+    title: Adding FAQs&hellip;
+    content: >
+        Select one of your categories below to add
+        <span class="doc-desc-title">FAQs</span> within it.
