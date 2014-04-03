@@ -91,7 +91,7 @@ elseif ($_POST) {
         case 'create':
             $content = Page::lookup(Page::getIdByType('registration-confirm'));
             $inc = 'register.confirm.inc.php';
-            $acct->sendResetEmail('registration-client');
+            $acct->sendConfirmEmail();
             break;
         case 'import':
             foreach (UserAuthenticationBackend::allRegistered() as $bk) {
