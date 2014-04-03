@@ -118,13 +118,14 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
                     && ($urls = $tentry->getAttachmentUrls())
                     && ($links=$tentry->getAttachmentsLinks())) { ?>
+                <tr><td class="info"><?php echo $links; ?></td></tr>
+<?php       }
+            if ($urls) { ?>
                 <script type="text/javascript">
                     $(function() { showImagesInline(<?php echo
                         JsonDataEncoder::encode($urls); ?>); });
                 </script>
-                <tr><td class="info"><?php echo $links; ?></td></tr>
-            <?php
-            } ?>
+<?php       } ?>
         </table>
     <?php
     }

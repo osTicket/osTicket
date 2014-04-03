@@ -368,18 +368,20 @@ $tcount+= $ticket->getNumNotes();
                 echo Format::viewableImages(Format::display($entry['body'])); ?></div></td></tr>
             <?php
             if($entry['attachments']
-                    && ($tentry=$ticket->getThreadEntry($entry['id']))
+                    && ($tentry = $ticket->getThreadEntry($entry['id']))
                     && ($urls = $tentry->getAttachmentUrls())
-                    && ($links=$tentry->getAttachmentsLinks())) {?>
+                    && ($links = $tentry->getAttachmentsLinks())) {?>
             <tr>
-                <td class="info" colspan="4"><?php echo $links; ?></td>
+                <td class="info" colspan="4"><?php echo $tentry->getAttachmentsLinks(); ?></td>
+            </tr> <?php
+            }
+            if ($urls) { ?>
                 <script type="text/javascript">
                     $(function() { showImagesInline(<?php echo
                         JsonDataEncoder::encode($urls); ?>); });
                 </script>
-            </tr>
-            <?php
-            }?>
+<?php
+            } ?>
         </table>
         <?php
         if($entry['thread_type']=='M')
