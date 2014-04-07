@@ -40,6 +40,26 @@ ALTER TABLE `%TABLE_PREFIX%faq_category`
   CHANGE `created` `created` datetime NOT NULL,
   CHANGE `updated` `updated` datetime NOT NULL;
 
+-- There was a major goof for osTicket 1.8.0 where the installer created a
+-- `form_id` column in the `%filter` table; however, the upgrader neglected
+-- to add the column. Therefore, users who have upgraded from a version
+-- previous to 1.8.0 will not have the `form_id` column in their database
+-- whereas users who installed osTicket >= v1.8.0 and upgraded will have the
+-- column. Since MySQL has no concept of `ADD COLUMN IF NOT EXISTS`, this
+-- dynamic query will assist with adding the column if it doesn't exist.
+SET @s = (SELECT IF(
+    (SELECT COUNT(*)
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_name = '%TABLE_PREFIX%filter'
+        AND table_schema = DATABASE()
+        AND column_name = 'form_id'
+    ) > 0,
+    "SELECT 1",
+    "ALTER TABLE `%TABLE_PREFIX%filter` ADD `form_id` int(11) unsigned NOT NULL default '0' AFTER `sla_id`"
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+
 ALTER TABLE `%TABLE_PREFIX%filter`
   ADD `topic_id` int(11) unsigned NOT NULL default '0' AFTER `form_id`;
 
