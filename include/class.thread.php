@@ -532,7 +532,7 @@ Class ThreadEntry {
         $sql ='INSERT IGNORE INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
              .' ,file_id='.db_input($fileId)
              .' ,ticket_id='.db_input($this->getTicketId())
-             .' ,inline='.db_input($file['inline'] ? 1 : 0)
+             .' ,inline='.db_input(@$file['inline'] ? 1 : 0)
              .' ,ref_id='.db_input($this->getId());
 
         return (db_query($sql) && ($id=db_insert_id()))?$id:0;
