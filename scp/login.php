@@ -23,7 +23,7 @@ $content = Page::lookup(Page::getIdByType('banner-staff'));
 
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
-$msg = $msg ?: $content->getName();
+$msg = $msg ?: ($content ? $content->getName() : 'Authentication Required');
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
 if($_POST) {
