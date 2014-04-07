@@ -894,8 +894,9 @@ Class ThreadEntry {
         // Search for the message-id token in the body
         if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match))
-            if ($thread = ThreadEntry::lookupByMessageId($match[1]))
-                   return $thread;
+            if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
+                    $mailinfo['email']))
+                return $thread;
 
         return null;
     }
@@ -904,7 +905,7 @@ Class ThreadEntry {
      * Find a thread entry from a message-id created from the
      * ::asMessageId() method
      */
-    function lookupByMessageId($mid, $from) {
+    function lookupByRefMessageId($mid, $from) {
         $mid = trim($mid, '<>');
         list($ver, $ids, $mails) = explode('$', $mid, 3);
 
@@ -926,8 +927,8 @@ Class ThreadEntry {
 
     /**
      * Get an email message-id that can be used to represent this thread
-     * entry. The same message-id can be passed to ::lookupByMessageId() to
-     * find this thread entry
+     * entry. The same message-id can be passed to ::lookupByRefMessageId()
+     * to find this thread entry
      *
      * Formats:
      * Initial (version <null>)
