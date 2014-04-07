@@ -10,7 +10,7 @@ notes: >
     for them in the staff control panel
 name: "Welcome to osTicket"
 body: >
-    <h3><strong>Hi %{user.name.first},</strong></h3>
+    <h3><strong>Hi %{recipient.name.first},</strong></h3>
     We've created an account for you at our help desk at %{url}.<br />
     <br />
     Please follow the link below to confirm your account and gain access to
