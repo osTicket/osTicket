@@ -265,7 +265,7 @@ $.autoLock = autoLock;
    UI & form events
 */
 
-jQuery(function($) {
+var ticket_onload = function($) {
     $('#response_options form').hide();
     $('#ticket_notes').hide();
     if(location.hash != "" && $('#response_options '+location.hash).length) {
@@ -407,7 +407,9 @@ jQuery(function($) {
             // TODO: Add a hover-button to show just one image
         });
     });
-});
+};
+$(ticket_onload);
+$(document).on('pjax:success', function() { ticket_onload(jQuery); });
 
 showImagesInline = function(urls, thread_id) {
     var selector = (thread_id == undefined)
