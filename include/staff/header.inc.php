@@ -113,7 +113,11 @@
         }
         ?>
     </ul>
-    <div id="content" data-pjax-container>
+    <div id="content">
+<?php } elseif ($pjax = $ost->getExtraPjax()) { # endif X_PJAX ?>
+    <script type="text/javascript">
+    <?php foreach ($pjax as $s) echo $s.";"; ?>
+    </script>
 <?php } # endif X_PJAX ?>
         <?php if($errors['err']) { ?>
             <div id="msg_error"><?php echo $errors['err']; ?></div>
