@@ -136,6 +136,25 @@ UPDATE `%TABLE_PREFIX%content` SET `content_id` = LAST_INSERT_ID()
 DELETE FROM `%TABLE_PREFIX%email_template`
     WHERE `code_name` IN ('staff.pwreset', 'user.accesslink');
 
+-- The original patch for d51f303a-dad45ca2.patch.sql migrated all the
+-- thread entries from text to html. Now that the format column exists in
+-- the ticket_thread table, we opted to retroactively add the format column
+-- to the dad45ca2 patch. Therefore, anyone upgrading from osTicket < 1.8.0
+-- to v1.8.2 and further will alreay have a `format` column when they arrive
+-- at this patch. In such a case, we'll just change the default to 'html'
+SET @s = (SELECT IF(
+    (SELECT COUNT(*)
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_name = '%TABLE_PREFIX%ticket_thread'
+        AND table_schema = DATABASE()
+        AND column_name = 'format'
+    ) > 0,
+    "ALTER TABLE `%TABLE_PREFIX%ticket_thread` CHANGE `format` `format` varchar(16) NOT NULL default 'html'",
+    "ALTER TABLE `%TABLE_PREFIX%ticket_thread` ADD `format` varchar(16) NOT NULL default 'html' AFTER `body`"
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '4323a6a81c35efbf7722b7fc4e475440'
