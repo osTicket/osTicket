@@ -112,7 +112,9 @@ $dispatcher = patterns('',
         url('^/(?P<id>\d+)/import-users$', 'importUsers'),
         url_get('^/(?P<id>\d+)/delete$', 'delete'),
         url_delete('^/(?P<id>\d+)/delete$', 'delete'),
-        url_post('^/(?P<id>\d+)/note$', 'createNote')
+        url_post('^/(?P<id>\d+)/note$', 'createNote'),
+        url_get('^/(?P<id>\d+)/forms/manage$', 'manageForms'),
+        url_post('^/(?P<id>\d+)/forms/manage$', 'updateForms')
     )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/change-user$', 'changeUserForm'),

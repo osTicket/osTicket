@@ -5,11 +5,11 @@ Sort the forms on this ticket by click and dragging on them. Use the box
 below the forms list to add new forms to the ticket.
 <br/>
 <br/>
-<form method="post" action="#tickets/<?php echo $ticket_id; ?>/forms/manage">
+<form method="post" action="<?php echo $info['action']; ?>">
 <div id="ticket-entries">
 <?php
 $current_list = array();
-foreach (DynamicFormEntry::forTicket($ticket_id) as $e) { ?>
+foreach ($forms as $e) { ?>
 <div class="sortable-row-item" data-id="<?php echo $e->get('id'); ?>">
     <input type="hidden" name="forms[]" value="<?php echo $e->get('form_id'); ?>" />
     <i class="icon-reorder"></i> <?php echo $e->getForm()->getTitle();

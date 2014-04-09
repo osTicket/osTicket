@@ -613,6 +613,8 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function manageForms($ticket_id) {
+        $forms = DynamicFormEntry::forTicket($ticket_id);
+        $info = array('action' => '#tickets/'.Format::htmlchars($ticket_id).'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
 
