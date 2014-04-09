@@ -634,7 +634,13 @@ getConfig = (function() {
     }
 })();
 
-$(document).on('pjax:start', function() { clearInterval(window.ticket_refresh); });
+$(document).on('pjax:start', function() {
+    clearInterval(window.ticket_refresh);
+    $('#loading').show().css({opacity:0.7});
+});
+$(document).on('pjax:complete', function() {
+    $('#loading').hide().css({opacity:1});
+});
 $(document).on('click', 'a', function() {
     var ul = $(this).closest('ul');
     if (ul.is('#sub_nav')) {
