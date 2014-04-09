@@ -116,7 +116,7 @@
     <div id="content">
 <?php } elseif ($pjax = $ost->getExtraPjax()) { # endif X_PJAX ?>
     <script type="text/javascript">
-    <?php foreach ($pjax as $s) echo $s.";"; ?>
+    <?php foreach (array_filter($pjax) as $s) echo $s.";"; ?>
     </script>
 <?php } # endif X_PJAX ?>
         <?php if($errors['err']) { ?>

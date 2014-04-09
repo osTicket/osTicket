@@ -982,7 +982,6 @@ $tcount+= $ticket->getNumNotes();
     </form>
     <div class="clear"></div>
 </div>
-<script type="text/javascript" src="js/ticket.js"></script>
 <script type="text/javascript">
 $(function() {
     $(document).on('click', 'a.change-user', function(e) {
