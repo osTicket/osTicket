@@ -617,8 +617,7 @@ if($ticket) {
     //set refresh rate if the user has it configured
     if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate()))
         $ost->addExtraHeader('',
-            "clearInterval(window.ticket_refresh);
-             window.ticket_refresh = setTimeout(function() { $.pjax({url: document.location.href, container:'#content'});},"
+            "window.ticket_refresh = setTimeout(function() { $.pjax({url: document.location.href, container:'#content'});},"
             .($min*60000).");");
 }
 

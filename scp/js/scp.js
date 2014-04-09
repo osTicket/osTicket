@@ -623,8 +623,20 @@ getConfig = (function() {
                 dataType: 'json',
                 success: function (json_config) {
                     dfd.resolve(json_config);
+                },
+                error: function() {
+                    requested = null;
                 }
             });
         return dfd;
     }
 })();
+
+$(document).on('pjax:start', function() { clearInterval(window.ticket_refresh); });
+$(document).on('click', 'a', function() {
+    var ul = $(this).closest('ul');
+    if (ul.is('#sub_nav')) {
+        $('a.active', ul).removeClass('active');
+        $(this).addClass('active');
+    }
+});
