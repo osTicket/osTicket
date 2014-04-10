@@ -44,6 +44,18 @@ class OrganizationModel extends VerySimpleModel {
         return $this->staff_id;
     }
 
+    function autoAddCollabs() {
+        return $this->check(self::COLLAB_ALL_MEMBERS | self::COLLAB_PRIMARY_CONTACT);
+    }
+
+    function autoAddPrimaryContactsAsCollabs() {
+        return $this->check(self::COLLAB_PRIMARY_CONTACT);
+    }
+
+    function autoAddMembersAsCollabs() {
+        return $this->check(self::COLLAB_ALL_MEMBERS);
+    }
+
     function getUpdateDate() {
         return $this->updated;
     }

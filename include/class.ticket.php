@@ -2415,6 +2415,28 @@ class Ticket {
 
         $dept = $ticket->getDept();
 
+        // Add organizational collaborators
+        if ($org && $org->autoAddCollabs()) {
+            $pris = $org->autoAddPrimaryContactsAsCollabs();
+            $members = $org->autoAddMembersAsCollabs();
+            $settings = array('isactive' => true);
+            $collabs = array();
+            foreach ($org->allMembers() as $u) {
+                if ($members || ($pris && $u->isPrimaryContact())) {
+                    if ($c = $this->addCollaborator($u, $settings, $errors)) {
+                        $collabs[] = (string) $c;
+                    }
+                }
+            }
+            //TODO: Can collaborators add others?
+            if ($collabs) {
+                //TODO: Change EndUser to name of  user.
+                $this->logNote(sprintf('Collaborators for %s organization added',
+                        $org->getName()),
+                    implode("<br>", $collabs), $org->getName(), false);
+            }
+        }
+
         //post the message.
         unset($vars['cannedattachments']); //Ticket::open() might have it set as part of  open & respond.
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
