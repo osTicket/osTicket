@@ -2333,6 +2333,12 @@ class Ticket {
             $source = 'Email';
         }
 
+        // Auto assignment to organization account manager
+        if (($org = $user->getOrganization()) && $org->getAccountManagerId()) {
+            if (!isset($vars['staffId']))
+                $vars['staffId'] = $org->getAccountManagerId();
+        }
+
         // Intenal mapping magic...see if we need to override anything
         if (isset($topic)) {
             $deptId = $deptId ?: $topic->getDeptId();

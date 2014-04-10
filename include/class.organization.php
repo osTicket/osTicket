@@ -40,6 +40,10 @@ class OrganizationModel extends VerySimpleModel {
         return $this->name;
     }
 
+    function getAccountManagerId() {
+        return $this->staff_id;
+    }
+
     function getUpdateDate() {
         return $this->updated;
     }
