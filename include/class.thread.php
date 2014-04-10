@@ -1274,7 +1274,7 @@ class ThreadBody /* extends SplString */ {
 
         // Capture a list of inline images
         $images_before = $images_after = array();
-        preg_match_all('/src="cid:([\w_-]+)(?:@|")/', $this->body, $images_before,
+        preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body, $images_before,
             PREG_PATTERN_ORDER);
 
         // Strip the quoted part of the body
@@ -1283,10 +1283,10 @@ class ThreadBody /* extends SplString */ {
 
             // Capture a list of dropped inline images
             if ($images_before) {
-                preg_match_all('/src="cid:([\w_-]+)(?:@|")/', $this->body,
+                preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body,
                     $images_after, PREG_PATTERN_ORDER);
-                $this->stripped_images = array_diff($images_before[1],
-                    $images_after[1]);
+                $this->stripped_images = array_diff($images_before[2],
+                    $images_after[2]);
             }
         }
     }
