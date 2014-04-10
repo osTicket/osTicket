@@ -637,6 +637,11 @@ getConfig = (function() {
 $(document).on('pjax:start', function() {
     clearInterval(window.ticket_refresh);
     $('#loading').show().css({opacity:0.7});
+    // Clear all timeouts
+    var id = window.setTimeout(function() {}, 0);
+    while (id--) {
+      window.clearTimeout(id);
+    }
 });
 $(document).on('pjax:complete', function() {
     $('#loading').hide().css({opacity:1});
