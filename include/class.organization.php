@@ -23,7 +23,7 @@ class OrganizationModel extends VerySimpleModel {
         'pk' => array('id'),
         'joins' => array(
             'users' => array(
-                'reverse' => 'UserAccount.org',
+                'reverse' => 'User.org',
             ),
         )
     );
