@@ -2,6 +2,8 @@
 <h3><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
+<?php
+if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Search existing users or add a new user.</p></div>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
@@ -9,6 +11,8 @@
     autocorrect="off" autocomplete="off"/>
 </div>
 <?php
+}
+
 if ($info['error']) {
     echo sprintf('<p id="msg_error">%s</p>', $info['error']);
 } elseif ($info['msg']) {
@@ -78,7 +82,7 @@ $(function() {
             if (last_req) last_req.abort();
             last_req = $.ajax({
                 url: "ajax.php/users<?php
-                    echo $info['lookuptype'] ? "/{$info['lookuptype']}" : '' ?>?q="+query,
+                    echo $info['lookup'] ? "/{$info['lookup']}" : '' ?>?q="+query,
                 dataType: 'json',
                 success: function (data) {
                     typeahead.process(data);

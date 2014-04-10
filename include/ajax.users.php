@@ -33,7 +33,7 @@ class UsersAjaxAPI extends AjaxController {
         $emails=array();
 
         if (!$type || !strcasecmp($type, 'remote')) {
-            foreach (StaffAuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
+            foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
                 $name = "{$u['first']} {$u['last']}";
                 $users[] = array('email' => $u['email'], 'name'=>$name,
                     'info' => "{$u['email']} - $name (remote)",
@@ -213,16 +213,17 @@ class UsersAjaxAPI extends AjaxController {
 
         $info = array();
 
-        if ($_POST) {
+        $info['title'] = 'Add New User';
 
+        if (!AuthenticationBackend::getSearchDirectories())
+            $info['lookup'] = 'local';
+
+        if ($_POST) {
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form)))
                 Http::response(201, $user->to_json());
 
-            $info = array('error' =>'Error adding user - try again!');
-        } else {
-            $info['lookuptype'] = remote;
-            $info['title'] = 'Add New User';
+            $info['error'] = 'Error adding user - try again!';
         }
 
         return self::_lookupform($form, $info);
@@ -235,10 +236,10 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(403, 'Login Required');
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
-        elseif (!($backend = StaffAuthenticationBackend::getBackend($bk)))
+        elseif (!($backend = AuthenticationBackend::getSearchDirectoryBackend($bk))
+                || !($user_info = $backend->lookup($id)))
             Http::response(404, 'User not found');
 
-        $user_info = $backend->lookup($id);
         $form = UserForm::getUserForm()->getForm($user_info);
         $info = array('title' => 'Import Remote User');
         if (!$user_info)
@@ -290,13 +291,11 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(400, 'Query argument is required');
 
         $users = array();
-        foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
-            if (!$ab instanceof AuthDirectorySearch)
-                continue;
-
+        foreach (AuthenticationBackend::searchDirectories() as $ab) {
             foreach ($ab->search($_REQUEST['q']) as $u)
                 $users[] = $u;
         }
+
         return $this->json_encode($users);
     }
 
