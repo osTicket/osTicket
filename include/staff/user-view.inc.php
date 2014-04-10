@@ -2,7 +2,8 @@
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path');
 
 $account = $user->getAccount();
-$org = $account ? $account->getOrganization() : null;
+$org = $user->getOrganization();
+
 
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
@@ -84,12 +85,10 @@ $org = $account ? $account->getOrganization() : null;
                                 echo sprintf('<a href="#users/%d/org"
                                         class="user-action">%s</a>',
                                         $user->getId(), $org->getName());
-                            elseif ($account)
+                            else
                                 echo sprintf('<a href="#users/%d/org"
                                         class="user-action">Add Organization</a>',
                                         $user->getId());
-                            else
-                                echo '&nbsp;';
                         ?>
                         </span>
                     </td>

@@ -13,7 +13,7 @@ ALTER TABLE `%TABLE_PREFIX%list_items`
     ADD `properties` text AFTER `sort`;
 
 ALTER TABLE `%TABLE_PREFIX%organization`
-    ADD `status` int(11) NOT NULL DEFAULT 0 AFTER `staff_id`,
+    ADD `status` int(11) unsigned NOT NULL DEFAULT 0 AFTER `staff_id`,
     ADD `domain` varchar(128) NOT NULL DEFAULT '' AFTER `status`,
     ADD `extra` text AFTER `domain`;
 

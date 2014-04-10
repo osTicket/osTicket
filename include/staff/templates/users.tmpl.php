@@ -1,14 +1,11 @@
 <?php
-
 $qstr='';
 $select = 'SELECT user.*, email.address as email ';
 
 $from = 'FROM '.USER_TABLE.' user '
-      . 'LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (user.id = account.user_id) '
       . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) ';
 
-$where='WHERE account.org_id='.db_input($org->getId());
-
+$where = ' WHERE user.org_id='.db_input($org->getId());
 
 $sortOptions = array('name' => 'user.name',
                      'email' => 'email.address',
@@ -53,7 +50,7 @@ $res = db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing .= $pageNav->showing();
 else
-    $showing .= 'No users found!';
+    $showing .= "This organization doesn't have any users yet";
 
 ?>
 <div style="width:700px; float:left;"><b><?php echo $showing; ?></b></div>
@@ -61,6 +58,8 @@ else
     <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user">Add New User</a></b></div>
 <div class="clear"></div>
 <br/>
+<?php
+if ($num) { ?>
 <form action="users.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
@@ -111,6 +110,8 @@ if($res && $num): //Show options..
 endif;
 ?>
 </form>
+<?php
+} ?>
 
 <script type="text/javascript">
 $(function() {

@@ -67,6 +67,9 @@ class UserModel extends VerySimpleModel {
                 'list' => false,
                 'reverse' => 'UserAccount.user',
             ),
+            'org' => array(
+                'constraint' => array('org_id' => 'Organization.id')
+            ),
             'default_email' => array(
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
@@ -84,6 +87,28 @@ class UserModel extends VerySimpleModel {
 
     function getDefaultEmail() {
         return $this->default_email;
+    }
+
+    function getAccount() {
+        return $this->account;
+    }
+
+    function getOrgId() {
+         return $this->get('org_id');
+    }
+
+    function getOrganization() {
+        return $this->org;
+    }
+
+    function setOrganization($org) {
+        if (!$org instanceof Organization)
+            return false;
+
+        $this->set('org', $org);
+        $this->save();
+
+        return true;
     }
 }
 
@@ -232,10 +257,6 @@ class User extends UserModel {
         }
 
         return $this->_forms;
-    }
-
-    function getAccount() {
-        return $this->account;
     }
 
     function getAccountStatus() {
@@ -534,9 +555,6 @@ class UserAccountModel extends VerySimpleModel {
                 'null' => false,
                 'constraint' => array('user_id' => 'User.id')
             ),
-            'org' => array(
-                'constraint' => array('org_id' => 'Organization.id')
-            ),
         ),
     );
 
@@ -609,25 +627,6 @@ class UserAccountModel extends VerySimpleModel {
         $this->user->set('account', $this);
         return $this->user;
     }
-
-    function getOrgId() {
-         return $this->get('org_id');
-    }
-
-    function getOrganization() {
-        return $this->org;
-    }
-
-    function setOrganization($org) {
-        if (!$org instanceof Organization)
-            return false;
-
-        $this->set('org', $org);
-        $this->save();
-
-        return true;
-    }
-
 }
 
 class UserAccount extends UserAccountModel {
