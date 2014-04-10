@@ -1281,6 +1281,9 @@ time {
 .redactor_air {
     z-index: 7 !important;
 }
+.redactor_editor {
+    font-size: 11pt;
+}
 
 .dialog#advanced-search {
     width:640px !important;

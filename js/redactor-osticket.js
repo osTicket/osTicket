@@ -223,7 +223,8 @@ $(function() {
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
-                'tabFocus': false
+                'tabFocus': false,
+                'toolbarFixedBox': true
             };
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
