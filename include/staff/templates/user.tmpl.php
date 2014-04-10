@@ -22,6 +22,11 @@ if ($info['error']) {
     <div><b><a href="#" id="edituser"><i class="icon-edit"></i>&nbsp;<?php
     echo Format::htmlchars($user->getName()->getOriginal()); ?></a></b></div>
     <div>&lt;<?php echo $user->getEmail(); ?>&gt;</div>
+    <?php
+    if (($org=$user->getOrganization())) { ?>
+    <div><?php echo $org->getName(); ?></div>
+    <?php
+    } ?>
     <table style="margin-top: 1em;">
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>

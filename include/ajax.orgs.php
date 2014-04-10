@@ -101,6 +101,57 @@ class OrgsAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/org-delete.tmpl.php');
     }
 
+    function addUser($id, $userId=0) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($org = Organization::lookup($id)))
+            Http::response(404, 'Unknown organization');
+
+        $info = array();
+        $info['title'] = 'Add User';
+        $info['action'] = '#orgs/'.$org->getId().'/add-user';
+        $info['onselect'] = 'ajax.php/orgs/'.$org->getId().'/add-user/';
+
+        $info['lookup'] = false;
+        if (AuthenticationBackend::getSearchDirectories())
+            $info['lookup'] = 'remote';
+
+        if ($_POST) {
+            if ($_POST['id']) { //Existing useer
+                if (!($user = User::lookup($_POST['id'])))
+                    $info['error'] = 'Unknown user selected';
+                elseif ($user->getOrgId() == $org->getId())
+                    $info['error'] = sprintf('%s already belongs to the organization',
+                            Format::htmlchars($user->getName()));
+            } else { //Creating new  user
+                $form = UserForm::getUserForm()->getForm($_POST);
+                if (!($user = User::fromForm($form)))
+                    $info['error'] = 'Error adding user - try again!';
+            }
+
+            if (!$info['error'] && $user && $user->setOrganization($org))
+                Http::response(201, $user->to_json());
+            elseif (!$info['error'])
+                $info['error'] = 'Unable to add user to the organization - try again';
+
+        } elseif ($userId) //Selected local user
+            $user = User::lookup($userId);
+
+        if ($user && $user->getOrgId()) {
+            if ($user->getOrgId() == $org->getId())
+                $info['warn'] = 'User already belongs to this organization!';
+            else
+                $info['warn'] = "Are you sure you want to change the user's organization?";
+        }
+
+        ob_start();
+        include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
+        $resp = ob_get_contents();
+        ob_end_clean();
+        return $resp;
+    }
 
     function addOrg() {
 

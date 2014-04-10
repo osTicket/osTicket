@@ -103,6 +103,8 @@ $dispatcher = patterns('',
         url_post('^/add$', 'addOrg'),
         url_get('^/select$', 'selectOrg'),
         url_get('^/select/(?P<id>\d+)$', 'selectOrg'),
+        url_get('^/(?P<id>\d+)/add-user(?:/(?P<userid>\d+))?$', 'addUser'),
+        url_post('^/(?P<id>\d+)/add-user$', 'addUser'),
         url_get('^/(?P<id>\d+)/delete$', 'delete'),
         url_delete('^/(?P<id>\d+)/delete$', 'delete')
     )),

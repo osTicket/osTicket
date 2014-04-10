@@ -15,6 +15,8 @@ if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
 
 if ($info['error']) {
     echo sprintf('<p id="msg_error">%s</p>', $info['error']);
+} elseif ($info['warn']) {
+    echo sprintf('<p id="msg_warning">%s</p>', $info['warn']);
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
@@ -24,9 +26,14 @@ if ($info['error']) {
     <i class="icon-user icon-4x pull-left icon-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
         id="unselect-user"  href="#"><i class="icon-remove"></i> Add New User</a>
-    <div><strong id="user-name"><?php echo $user ? Format::htmlchars($user->getName()->getOriginal()) : ''; ?></strong></div>
-    <div>&lt;<span id="user-email"><?php echo $user ? $user->getEmail() : ''; ?></span>&gt;</div>
 <?php if ($user) { ?>
+    <div><strong id="user-name"><?php echo Format::htmlchars($user->getName()->getOriginal()); ?></strong></div>
+    <div>&lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;</div>
+    <?php
+    if ($org=$user->getOrganization()) { ?>
+    <div><span id="user-org"><?php echo $org->getName(); ?></span></div>
+    <?php
+    } ?>
     <table style="margin-top: 1em;">
 <?php foreach ($user->getDynamicData() as $entry) { ?>
     <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
@@ -99,6 +106,7 @@ $(function() {
 
     $('a#unselect-user').click( function(e) {
         e.preventDefault();
+        $("#msg_error, #msg_notice, #msg_warning").fadeOut();
         $('div#selected-user-info').hide();
         $('div#new-user-form').fadeIn({start: function(){ $('#user-search').focus(); }});
         return false;

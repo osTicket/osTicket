@@ -117,8 +117,8 @@ endif;
 $(function() {
     $(document).on('click', 'a.add-user', function(e) {
         e.preventDefault();
-        $.userLookup('ajax.php/users/add', function (user) {
-            window.location.href = 'users.php?id='+user.id;
+        $.userLookup('ajax.php/orgs/<?php echo $org->getId(); ?>/add-user', function (user) {
+            window.location.href = 'orgs.php?id=<?php echo $org->getId(); ?>'
          });
 
         return false;
