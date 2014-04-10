@@ -77,6 +77,8 @@ class UserModel extends VerySimpleModel {
         )
     );
 
+    const PRIMARY_ORG_CONTACT   = 0x0001;
+
     function getId() {
         return $this->id;
     }
@@ -109,6 +111,29 @@ class UserModel extends VerySimpleModel {
         $this->save();
 
         return true;
+    }
+
+    protected function hasStatus($flag) {
+        return $this->get('status') & $flag !== 0;
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isPrimaryContact() {
+        return $this->hasStatus(User::PRIMARY_ORG_CONTACT);
+    }
+
+    function setPrimaryContact($flag) {
+        if ($flag)
+            $this->setStatus(User::PRIMARY_ORG_CONTACT);
+        else
+            $this->clearStatus(User::PRIMARY_ORG_CONTACT);
     }
 }
 

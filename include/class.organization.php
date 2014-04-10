@@ -28,6 +28,10 @@ class OrganizationModel extends VerySimpleModel {
         )
     );
 
+    const COLLAB_ALL_MEMBERS =      0x0001;
+    const COLLAB_PRIMARY_CONTACT =  0x0002;
+    const ASSIGN_AGENT_MANAGER =    0x0004;
+
     function getId() {
         return $this->id;
     }
@@ -42,6 +46,22 @@ class OrganizationModel extends VerySimpleModel {
 
     function getCreateDate() {
         return $this->created;
+    }
+
+    function check($flag) {
+        return 0 !== ($this->status & $flag);
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function allMembers() {
+        return $this->users;
     }
 }
 
@@ -96,6 +116,19 @@ class Organization extends OrganizationModel {
         return $this->_forms;
     }
 
+    function getInfo() {
+        $base = $this->ht;
+        foreach (array(
+                'collab-all-flag' => Organization::COLLAB_ALL_MEMBERS,
+                'collab-pc-flag' => Organization::COLLAB_PRIMARY_CONTACT,
+                'assign-am-flag' => Organization::ASSIGN_AGENT_MANAGER,
+        ) as $ck=>$flag) {
+            if ($this->check($flag))
+                $base[$ck] = true;
+        }
+        return $base;
+    }
+
     function to_json() {
 
         $info = array(
@@ -129,7 +162,18 @@ class Organization extends OrganizationModel {
             }
         }
 
-        if (!$valid)
+        if ($vars['domain']) {
+            foreach (explode(',', $vars['domain']) as $d) {
+                if (!Validator::is_email('test' . trim($d))) {
+                    $errors['domain'] = 'Enter a valid email domain, like @domain.com';
+                }
+            }
+        }
+
+        if ($vars['staff_id'] && (!$staff = Staff::lookup($vars['staff_id'])))
+            $errors['staff_id'] = 'Select a staff member from the list';
+
+        if (!$valid || $errors)
             return false;
 
         foreach ($this->getDynamicData() as $cd) {
@@ -142,7 +186,29 @@ class Organization extends OrganizationModel {
             $cd->save();
         }
 
-        return true;
+        // Set flags
+        foreach (array(
+                'collab-all-flag' => Organization::COLLAB_ALL_MEMBERS,
+                'collab-pc-flag' => Organization::COLLAB_PRIMARY_CONTACT,
+                'assign-am-flag' => Organization::ASSIGN_AGENT_MANAGER,
+        ) as $ck=>$flag) {
+            if ($vars[$ck])
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
+
+        // Set staff and primary contacts
+        $this->set('domain', $vars['domain']);
+        $this->set('staff_id', $staff ? $staff->getId() : 0);
+        if ($vars['contacts'] && is_array($vars['contacts'])) {
+            foreach ($this->allMembers() as $u) {
+                $u->setPrimaryContact(array_search($u->id, $vars['contacts']) !== false);
+                $u->save();
+            }
+        }
+
+        return $this->save();
     }
 
     static function fromVars($vars) {
