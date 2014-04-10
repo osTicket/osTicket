@@ -25,11 +25,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <ul class="tabs">
     <li><a href="#definition" class="active">
-        <i class="icon-plus"></i> Definition</a></li>
+        <i class="fa fa-plus"></i> Definition</a></li>
     <li><a href="#items">
-        <i class="icon-list"></i> Items</a></li>
+        <i class="fa fa-list"></i> Items</a></li>
     <li><a href="#properties">
-        <i class="icon-asterisk"></i> Properties</a></li>
+        <i class="fa fa-asterisk"></i> Properties</a></li>
 </ul>
 
 <div id="definition" class="tab_content">
@@ -88,15 +88,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th nowrap>Sort
-                <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_sort"></i></th>
             <th nowrap>Label
-                <i class="help-tip icon-question-sign" href="#field_label"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_label"></i></th>
             <th nowrap>Type
-                <i class="help-tip icon-question-sign" href="#field_type"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_type"></i></th>
             <th nowrap>Variable
-                <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_variable"></i></th>
             <th nowrap>Delete
-                <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_delete"></i></th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="prop-sort-">
@@ -107,7 +107,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
-            <td><i class="icon-sort"></i></td>
+            <td><i class="fa fa-sort"></i></td>
             <td><input type="text" size="32" name="prop-label-<?php echo $id; ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
@@ -136,7 +136,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#field-config .body').load(this.href);
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Config</a>
+                    "><i class="fa fa-edit"></i> Config</a>
             <?php } ?></td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
@@ -215,7 +215,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             class="sortable-rows" data-sort="sort-"<?php } ?>>
         <?php if ($list)
         $icon = ($info['sort_mode'] == 'SortCol')
-            ? '<i class="icon-sort"></i>&nbsp;' : '';
+            ? '<i class="fa fa-sort"></i>&nbsp;' : '';
         if ($list) {
         foreach ($list->getAllItems() as $i) {
             $id = $i->get('id'); ?>
@@ -234,7 +234,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#field-config .body').load(this.href);
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Properties</a>
+                    "><i class="fa fa-edit"></i> Properties</a>
                 <?php } ?></td>
             <td><input type="text" size="30" name="extra-<?php echo $id; ?>"
                 value="<?php echo $i->get('extra'); ?>"/></td>

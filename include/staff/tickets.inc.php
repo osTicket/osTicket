@@ -417,11 +417,11 @@ if ($results) {
                      <?php
                         if ($threadcount>1)
                             echo "<small>($threadcount)</small>&nbsp;".'<i
-                                class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
+                                class="fa fa-fw fa-comments-o"></i>&nbsp;';
                         if ($row['collaborators'])
-                            echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
+                            echo '<i class="fa fa-fw fa-group faded"></i>&nbsp;';
                         if ($row['attachments'])
-                            echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
+                            echo '<i class="fa fa-fw fa-paperclip"></i>&nbsp;';
                     ?>
                 </td>
                 <td nowrap>&nbsp;<?php echo Format::truncate($row['name'],22,strpos($row['name'],'@')); ?>&nbsp;</td>
@@ -509,7 +509,7 @@ if ($results) {
 
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3>Please Confirm</h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="close-confirm">
         Are you sure want to <b>close</b> selected open tickets?
@@ -539,7 +539,7 @@ if ($results) {
 
 <div class="dialog" style="display:none;" id="advanced-search">
     <h3>Advanced Ticket Search</h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <form action="tickets.php" method="post" id="search" name="search">
         <input type="hidden" name="a" value="search">
         <fieldset class="query">

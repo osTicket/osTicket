@@ -1,5 +1,5 @@
-<h3><i class="icon-paste"></i> Manage Forms</i></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<h3><i class="fa fa-paste"></i> Manage Forms</i></h3>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <hr/>
 Sort the forms on this ticket by click and dragging on them. Use the box
 below the forms list to add new forms to the ticket.
@@ -12,25 +12,25 @@ $current_list = array();
 foreach (DynamicFormEntry::forTicket($ticket_id) as $e) { ?>
 <div class="sortable-row-item" data-id="<?php echo $e->get('id'); ?>">
     <input type="hidden" name="forms[]" value="<?php echo $e->get('form_id'); ?>" />
-    <i class="icon-reorder"></i> <?php echo $e->getForm()->getTitle();
+    <i class="fa fa-bars"></i> <?php echo $e->getForm()->getTitle();
     $current_list[] = $e->get('form_id');
     if ($e->getForm()->get('type') == 'G') { ?>
-    <div class="delete"><a href="#"><i class="icon-trash"></i></a></div>
+    <div class="delete"><a href="#"><i class="fa fa-trash-o"></i></a></div>
     <?php } ?>
 </div>
 <?php } ?>
 </div>
 <hr/>
-<i class="icon-plus"></i>&nbsp;
+<i class="fa fa-plus"></i>&nbsp;
 <select name="new-form" onchange="javascript:
     var $sel = $(this).find('option:selected');
     $('#ticket-entries').append($('<div></div>').addClass('sortable-row-item')
         .text(' '+$sel.text())
         .data('id', $sel.val())
-        .prepend($('<i>').addClass('icon-reorder'))
+        .prepend($('<i>').addClass('fa fa-bars'))
         .append($('<input/>').attr({name:'forms[]', type:'hidden'}).val($sel.val()))
         .append($('<div></div>').addClass('delete')
-            .append($('<a href=\'#\'>').append($('<i>').addClass('icon-trash')))
+            .append($('<a href=\'#\'>').append($('<i>').addClass('fa fa-trash-o')))
         )
     );
     $sel.prop('disabled',true);">

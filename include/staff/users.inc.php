@@ -125,7 +125,7 @@ else
                     &nbsp;
                     <?php
                     if ($row['tickets'])
-                         echo sprintf('<i class="icon-fixed-width icon-file-text-alt"></i>
+                         echo sprintf('<i class="fa fa-fw fa-file-text-o"></i>
                              <small>(%d)</small>', $row['tickets']);
                     ?>
                 </td>

@@ -10,9 +10,9 @@ if ($info['search'] === false)
 ?>
 <div id="the-lookup-form">
 <h3><?php echo $info['title']; ?></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <hr/>
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo $msg_info; ?></p></div>
+<div><p id="msg_info"><i class="fa fa-info-circle"></i>&nbsp; <?php echo $msg_info; ?></p></div>
 <?php
 if ($info['search'] !== false) { ?>
 <div style="margin-bottom:10px;">
@@ -32,9 +32,9 @@ if ($info['error']) {
 <div id="selected-org-info" style="display:<?php echo $org ? 'block' :'none'; ?>;margin:5px;">
 <form method="post" class="org" action="<?php echo $info['action'] ?: '#orgs/lookup'; ?>">
     <input type="hidden" id="org-id" name="orgid" value="<?php echo $org ? $org->getId() : 0; ?>"/>
-    <i class="icon-group icon-4x pull-left icon-border"></i>
+    <i class="fa fa-group fa-4x pull-left fa-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
-        id="unselect-org"  href="#"><i class="icon-remove"></i> Add New Organization</a>
+        id="unselect-org"  href="#"><i class="fa fa-remove"></i> Add New Organization</a>
     <div><strong id="org-name"><?php echo $org ?  Format::htmlchars($org->getName()) : ''; ?></strong></div>
 <?php if ($org) { ?>
     <table style="margin-top: 1em;">

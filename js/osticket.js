@@ -152,7 +152,7 @@ showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button"><i class="fa fa-download"></i> Download</a>')
                 );
         }
     });
@@ -195,7 +195,7 @@ showImagesInline = function(urls, thread_id) {
             });
           })
           .prepend($('<i>')
-            .addClass('icon-picture')
+            .addClass('fa fa-picture-o')
           )
         );
         imgs.each(function(i, img) {

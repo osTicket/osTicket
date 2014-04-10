@@ -592,7 +592,7 @@ Class ThreadEntry {
             if($attachment['size'])
                 $size=sprintf('<em>(%s)</em>', Format::file_size($attachment['size']));
 
-            $str.=sprintf('<a class="Icon file" href="%s?id=%d&h=%s" target="%s">%s</a>%s&nbsp;%s',
+            $str.=sprintf('<span style="display:inline-block"><i class="fa fa-paperclip"></i> <a href="%s?id=%d&h=%s" target="%s">%s</a> %s %s</span>',
                     $file, $attachment['attach_id'], $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
         }
 

@@ -145,11 +145,11 @@ if ($results) { ?>
                  <?php
                     if ($threadcount>1)
                         echo "<small>($threadcount)</small>&nbsp;".'<i
-                            class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
+                            class="fa fa-fw fa-comments-o"></i>&nbsp;';
                     if ($row['collaborators'])
-                        echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
+                        echo '<i class="fa fa-fw fa-group faded"></i>&nbsp;';
                     if ($row['attachments'])
-                        echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
+                        echo '<i class="fa fa-fw fa-paperclip"></i>&nbsp;';
                 ?>
             </td>
             <?php

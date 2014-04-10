@@ -1,5 +1,5 @@
     <h3>Item Properties &mdash; <?php echo $item->get('value') ?></h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <form method="post" action="ajax.php/list/item/<?php
             echo $item->get('id'); ?>/properties" onsubmit="javascript:

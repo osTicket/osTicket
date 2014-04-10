@@ -36,7 +36,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td width="180" class="required">Title:</td>
             <td><input type="text" name="title" size="40" value="<?php
                 echo $info['title']; ?>"/>
-                <i class="help-tip icon-question-sign" href="#form_title"></i>
+                <i class="help-tip fa fa-question-circle" href="#form_title"></i>
                 <font class="error"><?php
                     if ($errors['title']) echo '<br/>'; echo $errors['title']; ?></font>
             </td>
@@ -45,7 +45,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td width="180">Instructions:</td>
             <td><textarea name="instructions" rows="3" cols="40"><?php
                 echo $info['instructions']; ?></textarea>
-                <i class="help-tip icon-question-sign" href="#form_instructions"></i>
+                <i class="help-tip fa fa-question-circle" href="#form_instructions"></i>
             </td>
         </tr>
     </tbody>
@@ -96,19 +96,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th nowrap>Sort
-                <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_sort"></i></th>
             <th nowrap>Label
-                <i class="help-tip icon-question-sign" href="#field_label"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_label"></i></th>
             <th nowrap>Type
-                <i class="help-tip icon-question-sign" href="#field_type"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_type"></i></th>
             <th nowrap>Internal
-                <i class="help-tip icon-question-sign" href="#field_internal"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_internal"></i></th>
             <th nowrap>Required
-                <i class="help-tip icon-question-sign" href="#field_required"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_required"></i></th>
             <th nowrap>Variable
-                <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_variable"></i></th>
             <th nowrap>Delete
-                <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
+                <i class="help-tip fa fa-question-circle" href="#field_delete"></i></th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="sort-">
@@ -121,7 +121,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
-            <td><i class="icon-sort"></i></td>
+            <td><i class="fa fa-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
@@ -150,7 +150,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#field-config .body').load(this.href);
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Config</a>
+                    "><i class="fa fa-edit"></i> Config</a>
             <?php } ?></td>
             <td><input type="checkbox" name="private-<?php echo $id; ?>"
                 <?php if ($f->get('private')) echo 'checked="checked"'; ?>
@@ -232,8 +232,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
-    <h3><i class="icon-trash"></i> Remove Existing Data?</h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <h3><i class="fa fa-trash-o"></i> Remove Existing Data?</h3>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <p>
         <strong>You are about to delete <span id="deleted-count"></span> fields.</strong>

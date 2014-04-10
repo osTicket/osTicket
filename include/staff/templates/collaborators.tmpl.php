@@ -1,5 +1,5 @@
 <h3>Ticket Collaborators</h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <?php
 if($info && $info['msg']) {
     echo sprintf('<p id="msg_notice" style="padding-top:2px;">%s</p>', $info['msg']);

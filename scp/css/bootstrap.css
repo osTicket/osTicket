@@ -1239,7 +1239,7 @@ legend + .control-group {
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background-color: #0088cc;
 }
-.nav-list [class^="icon-"] {
+.nav-list [class^="fa-"] {
   margin-right: 2px;
 }
 .nav-list .divider {

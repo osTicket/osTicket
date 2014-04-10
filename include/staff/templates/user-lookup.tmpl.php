@@ -1,8 +1,8 @@
 <div id="the-lookup-form">
 <h3><?php echo $info['title']; ?></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <hr/>
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Search existing users or add a new user.</p></div>
+<div><p id="msg_info"><i class="fa fa-info-circle"></i>&nbsp; Search existing users or add a new user.</p></div>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
     placeholder="Search by email, phone or name" id="user-search"
@@ -17,9 +17,9 @@ if ($info['error']) {
 <div id="selected-user-info" style="display:<?php echo $user ? 'block' :'none'; ?>;margin:5px;">
 <form method="post" class="user" action="<?php echo $info['action'] ?  $info['action'] : '#users/lookup'; ?>">
     <input type="hidden" id="user-id" name="id" value="<?php echo $user ? $user->getId() : 0; ?>"/>
-    <i class="icon-user icon-4x pull-left icon-border"></i>
+    <i class="fa fa-user fa-4x pull-left fa-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
-        id="unselect-user"  href="#"><i class="icon-remove"></i> Add New User</a>
+        id="unselect-user"  href="#"><i class="fa fa-remove"></i> Add New User</a>
     <div><strong id="user-name"><?php echo $user ? Format::htmlchars($user->getName()->getOriginal()) : ''; ?></strong></div>
     <div>&lt;<span id="user-email"><?php echo $user ? $user->getEmail() : ''; ?></span>&gt;</div>
 <?php if ($user) { ?>

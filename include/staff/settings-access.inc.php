@@ -32,7 +32,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                     ?>
                 </select>
                 <font class="error"><?php echo $errors['passwd_reset_period']; ?></font>
-                <i class="help-tip icon-question-sign" href="#password_reset"></i>
+                <i class="help-tip fa fa-question-circle" href="#password_reset"></i>
             </td>
         </tr>
         <tr><td>Allow Password Resets:</th>
@@ -156,7 +156,7 @@ $manage_content = function($title, $content) use ($contents) {
     <a href="#ajax.php/content/<?php echo $id; ?>/manage"
     onclick="javascript:
         $.dialog($(this).attr('href').substr(1), 200);
-    return false;"><i class="icon-file-text pull-left icon-2x"
+    return false;"><i class="fa fa-file-text pull-left fa-2x"
         style="color:#bbb;"></i> <?php
     echo Format::htmlchars($title); ?></a><br/>
         <span class="faded" style="display:inline-block;width:90%"><?php

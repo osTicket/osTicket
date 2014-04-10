@@ -252,7 +252,7 @@ $(function() {
                         return false;
                     })
                     .append($('<i>')
-                        .addClass('icon-trash')
+                        .addClass('fa fa-trash-o')
                     )
                 );
             }

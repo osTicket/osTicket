@@ -19,7 +19,7 @@
                 <input type="checkbox" name="ticket_autoresponder" <?php
 echo $config['ticket_autoresponder'] ? 'checked="checked"' : ''; ?>/>
                 Ticket Owner&nbsp;
-                <i class="help-tip icon-question-sign" href="#new_ticket"></i>
+                <i class="help-tip fa fa-question-circle" href="#new_ticket"></i>
             </td>
         </tr>
         <tr>
@@ -28,7 +28,7 @@ echo $config['ticket_autoresponder'] ? 'checked="checked"' : ''; ?>/>
                 <input type="checkbox" name="ticket_notice_active" <?php
 echo $config['ticket_notice_active'] ? 'checked="checked"' : ''; ?>/>
                 Ticket Owner&nbsp;
-                <i class="help-tip icon-question-sign" href="#new_staff_ticket"></i>
+                <i class="help-tip fa fa-question-circle" href="#new_staff_ticket"></i>
             </td>
         </tr>
         <tr>
@@ -37,7 +37,7 @@ echo $config['ticket_notice_active'] ? 'checked="checked"' : ''; ?>/>
                 <input type="checkbox" name="message_autoresponder" <?php
 echo $config['message_autoresponder'] ? 'checked="checked"' : ''; ?>/>
                 Submitter: Send receipt confirmation&nbsp;
-                <i class="help-tip icon-question-sign" href="#new_message"></i>
+                <i class="help-tip fa fa-question-circle" href="#new_message"></i>
             </td>
         </tr>
         <tr>
@@ -45,7 +45,7 @@ echo $config['message_autoresponder'] ? 'checked="checked"' : ''; ?>/>
                 <input type="checkbox" name="message_autoresponder_collabs" <?php
 echo $config['message_autoresponder_collabs'] ? 'checked="checked"' : ''; ?>/>
                 Participants: Send new activity notice&nbsp;
-                <i class="help-tip icon-question-sign" href="#collaborators"></i>
+                <i class="help-tip fa fa-question-circle" href="#collaborators"></i>
                 </div>
             </td>
         </tr>
@@ -55,7 +55,7 @@ echo $config['message_autoresponder_collabs'] ? 'checked="checked"' : ''; ?>/>
                 <input type="checkbox" name="overlimit_notice_active" <?php
 echo $config['overlimit_notice_active'] ? 'checked="checked"' : ''; ?>/>
                 Ticket Submitter&nbsp;
-                <i class="help-tip icon-question-sign" href="#overlimit_notice"></i>
+                <i class="help-tip fa fa-question-circle" href="#overlimit_notice"></i>
             </td>
         </tr>
     </tbody>

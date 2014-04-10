@@ -17,13 +17,13 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                 <div class="row">
                     <label>Helpdesk Name:</label>
                     <input type="text" name="name" size="45" tabindex="1" value="<?php echo $info['name']; ?>">
-                    <a class="tip" href="#helpdesk_name"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#helpdesk_name"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['name']; ?></font>
                 </div>
                 <div class="row">
                     <label>Default Email:</label>
                     <input type="text" name="email" size="45" tabindex="2" value="<?php echo $info['email']; ?>">
-                    <a class="tip" href="#system_email"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#system_email"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['email']; ?></font>
                 </div>
                 <div class="row">
@@ -36,7 +36,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                         ?>><?php echo $l['desc']; ?></option>
 <?php } ?>
                 </select>
-                <a class="tip" href="#default_lang"><i class="icon-question-sign help-tip"></i></a>
+                <a class="tip" href="#default_lang"><i class="fa fa-question-circle help-tip"></i></a>
                 <font class="error">&nbsp;<?php echo $errors['lang_id']; ?></font>
                 </div>
 
@@ -45,37 +45,37 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                 <div class="row">
                     <label>First Name:</label>
                     <input type="text" name="fname" size="45" tabindex="3" value="<?php echo $info['fname']; ?>">
-                    <a class="tip" href="#first_name"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#first_name"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['fname']; ?></font>
                 </div>
                 <div class="row">
                     <label>Last Name:</label>
                     <input type="text" name="lname" size="45" tabindex="4" value="<?php echo $info['lname']; ?>">
-                    <a class="tip" href="#last_name"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#last_name"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['lname']; ?></font>
                 </div>
                 <div class="row">
                     <label>Email Address:</label>
                     <input type="text" name="admin_email" size="45" tabindex="5" value="<?php echo $info['admin_email']; ?>">
-                    <a class="tip" href="#email"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#email"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['admin_email']; ?></font>
                 </div>
                 <div class="row">
                     <label>Username:</label>
                     <input type="text" name="username" size="45" tabindex="6" value="<?php echo $info['username']; ?>" autocomplete="off">
-                    <a class="tip" href="#username"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#username"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['username']; ?></font>
                 </div>
                 <div class="row">
                     <label> Password:</label>
                     <input type="password" name="passwd" size="45" tabindex="7" value="<?php echo $info['passwd']; ?>" autocomplete="off">
-                    <a class="tip" href="#password"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#password"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['passwd']; ?></font>
                 </div>
                 <div class="row">
                     <label>Retype Password:</label>
                     <input type="password" name="passwd2" size="45" tabindex="8" value="<?php echo $info['passwd2']; ?>">
-                    <a class="tip" href="#password2"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#password2"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['passwd2']; ?></font>
                 </div>
 
@@ -84,31 +84,31 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                 <div class="row">
                     <label>MySQL Table Prefix:</label>
                     <input type="text" name="prefix" size="45" tabindex="9" value="<?php echo $info['prefix']; ?>">
-                    <a class="tip" href="#db_prefix"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#db_prefix"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['prefix']; ?></font>
                 </div>
                 <div class="row">
                     <label>MySQL Hostname:</label>
                     <input type="text" name="dbhost" size="45" tabindex="10" value="<?php echo $info['dbhost']; ?>">
-                    <a class="tip" href="#db_host"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#db_host"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['dbhost']; ?></font>
                 </div>
                 <div class="row">
                     <label>MySQL Database:</label>
                     <input type="text" name="dbname" size="45" tabindex="11" value="<?php echo $info['dbname']; ?>">
-                    <a class="tip" href="#db_schema"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#db_schema"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['dbname']; ?></font>
                 </div>
                 <div class="row">
                     <label>MySQL Username:</label>
                     <input type="text" name="dbuser" size="45" tabindex="12" value="<?php echo $info['dbuser']; ?>">
-                    <a class="tip" href="#db_user"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#db_user"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['dbuser']; ?></font>
                 </div>
                 <div class="row">
                     <label>MySQL Password:</label>
                     <input type="password" name="dbpass" size="45" tabindex="13" value="<?php echo $info['dbpass']; ?>">
-                    <a class="tip" href="#db_password"><i class="icon-question-sign help-tip"></i></a>
+                    <a class="tip" href="#db_password"><i class="fa fa-question-circle help-tip"></i></a>
                     <font class="error"><?php echo $errors['dbpass']; ?></font>
                 </div>
                 <br>

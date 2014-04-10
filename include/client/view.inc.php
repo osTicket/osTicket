@@ -12,7 +12,7 @@ if ($thisclient && $thisclient->isGuest()
     && $cfg->isClientRegistrationEnabled()) { ?>
 
 <div id="msg_info">
-    <i class="icon-compass icon-2x pull-left"></i>
+    <i class="fa fa-compass fa-2x pull-left"></i>
     <strong>Looking for your other tickets?</strong></br>
     <a href="login.php" style="text-decoration:underline">Sign in</a> or
     <a href="account.php?do=create" style="text-decoration:underline">register for an account</a>
@@ -28,7 +28,7 @@ if ($thisclient && $thisclient->isGuest()
                 <a href="view.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
 <?php if ($cfg->allowClientUpdates()) { ?>
                 <a class="action-button" href="tickets.php?a=edit&id=<?php
-                     echo $ticket->getId(); ?>"><i class="icon-edit"></i> Edit</a>
+                     echo $ticket->getId(); ?>"><i class="fa fa-edit"></i> Edit</a>
 <?php } ?>
             </h1>
         </td>

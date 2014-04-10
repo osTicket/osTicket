@@ -7,7 +7,7 @@ $info['warn'] = 'Deleted users and tickets CANNOT be recovered';
 
 ?>
 <h3><?php echo $info['title']; ?></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <hr/>
 <?php
 
@@ -20,13 +20,13 @@ if ($info['error']) {
 } ?>
 
 <div id="user-profile" style="margin:5px;">
-    <i class="icon-user icon-4x pull-left icon-border"></i>
+    <i class="fa fa-user fa-4x pull-left fa-border"></i>
     <?php
     // TODO: Implement change of ownership
     if (0 && $user->getNumTickets()) { ?>
     <a class="action-button pull-right change-user" style="overflow:inherit"
         href="#users/<?php echo $user->getId(); ?>/replace" ><i
-        class="icon-user"></i> Change Tickets Ownership</a>
+        class="fa fa-user"></i> Change Tickets Ownership</a>
     <?php
     } ?>
     <div><b> <?php echo Format::htmlchars($user->getName()->getOriginal()); ?></b></div>

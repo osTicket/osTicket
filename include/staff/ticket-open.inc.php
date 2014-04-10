@@ -39,7 +39,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             $('#user-email').text(user.email);
                         });
                 return false;
-                "><i class="icon-user"></i>
+                "><i class="fa fa-user"></i>
                 <span id="user-name"><?php echo $user->getName(); ?></span>
                 &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                 </a>
@@ -52,7 +52,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                                 $('#user-email').text('<'+user.email+'>');
                         });
                         return false;
-                "><i class="icon-edit"></i> Change</a>
+                "><i class="fa fa-edit"></i> Change</a>
             </div>
         </td></tr>
         <?php

@@ -12,7 +12,7 @@
     </thead>
     <tbody>
         <tr><th><em><b>New Ticket Alert</b>:
-            <i class="help-tip icon-question-sign" href="#new_ticket"></i>
+            <i class="help-tip fa fa-question-circle" href="#new_ticket"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
@@ -37,7 +37,7 @@
             </td>
         </tr>
         <tr><th><em><b>New Message Alert</b>:
-            <i class="help-tip icon-question-sign" href="#new_message"></i>
+            <i class="help-tip fa fa-question-circle" href="#new_message"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp; 
@@ -62,7 +62,7 @@
             </td>
         </tr>
         <tr><th><em><b>New Internal Note Alert</b>:
-            <i class="help-tip icon-question-sign" href="#new_activity"></i>
+            <i class="help-tip fa fa-question-circle" href="#new_activity"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
@@ -88,7 +88,7 @@
             </td>
         </tr>
         <tr><th><em><b>Ticket Assignment Alert</b>:
-            <i class="help-tip icon-question-sign" href="#assign_alert"></i>
+            <i class="help-tip fa fa-question-circle" href="#assign_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status: </b></em> &nbsp;
@@ -115,7 +115,7 @@
             </td>
         </tr>
         <tr><th><em><b>Ticket Transfer Alert</b>:
-            <i class="help-tip icon-question-sign" href="#transfer_alert"></i>
+            <i class="help-tip fa fa-question-circle" href="#transfer_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
@@ -141,7 +141,7 @@
             </td>
         </tr>
         <tr><th><em><b>Overdue Ticket Alert</b>:
-            <i class="help-tip icon-question-sign" href="#stale_alert"></i>
+            <i class="help-tip fa fa-question-circle" href="#stale_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
@@ -166,7 +166,7 @@
             </td>
         </tr>
         <tr><th><em><b>System Alerts</b>:
-            <i class="help-tip icon-question-sign" href="#meltdowns"></i>
+            <i class="help-tip fa fa-question-circle" href="#meltdowns"></i>
             </em></th></tr>
         <tr>
             <td>

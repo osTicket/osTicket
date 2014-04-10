@@ -820,6 +820,7 @@ a.refresh {
 }
 #ticketThread .info {
   padding: 2px;
+  padding-left: 5px;
   background: #f9f9f9;
   border-top: 1px solid #ddd;
   height: 16px;
@@ -828,7 +829,6 @@ a.refresh {
 #ticketThread .info a {
   display: inline-block;
   margin: 5px 10px 5px 0;
-  padding-left: 24px;
   height: 16px;
   line-height: 16px;
   background-position: 0 50%;
