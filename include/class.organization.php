@@ -129,6 +129,15 @@ class Organization extends OrganizationModel {
         return $base;
     }
 
+    function isMappedToDomain($domain) {
+        foreach (explode(',', $this->domain) as $d) {
+            if (strcasecmp($domain, trim($d)) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function to_json() {
 
         $info = array(
@@ -164,8 +173,8 @@ class Organization extends OrganizationModel {
 
         if ($vars['domain']) {
             foreach (explode(',', $vars['domain']) as $d) {
-                if (!Validator::is_email('test' . trim($d))) {
-                    $errors['domain'] = 'Enter a valid email domain, like @domain.com';
+                if (!Validator::is_email('t@' . trim($d))) {
+                    $errors['domain'] = 'Enter a valid email domain, like domain.com';
                 }
             }
         }

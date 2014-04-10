@@ -154,6 +154,16 @@ class User extends UserModel {
                 // of the detached emails is fixed.
                 'default_email' => UserEmail::ensure($vars['email'])
             ));
+            // Is there an organization registered for this domain
+            list($mailbox, $domain) = explode('@', $vars['email'], 2);
+            foreach (Organization::objects()
+                    ->filter(array('domain__contains'=>$domain)) as $org) {
+                if ($org->isMappedToDomain($domain)) {
+                    $user->setOrganization($org);
+                    break;
+                }
+            }
+
             $user->save(true);
             $user->emails->add($user->default_email);
             // Attach initial custom fields
