@@ -32,6 +32,8 @@ class OrganizationModel extends VerySimpleModel {
     const COLLAB_PRIMARY_CONTACT =  0x0002;
     const ASSIGN_AGENT_MANAGER =    0x0004;
 
+    var $_manager;
+
     function getId() {
         return $this->id;
     }
@@ -40,8 +42,18 @@ class OrganizationModel extends VerySimpleModel {
         return $this->name;
     }
 
+    function getAccountManager() {
+        if (!isset($this->_manager)) {
+            if ($this->manager[0] == 't')
+                $this->_manager = Team::lookup(substr($this->manager, 1));
+            if ($this->manager[0] == 's')
+                $this->_manager = Staff::lookup(substr($this->manager, 1));
+        }
+        return $this->_manager;
+    }
+
     function getAccountManagerId() {
-        return $this->staff_id;
+        return $this->manager;
     }
 
     function autoAddCollabs() {
@@ -195,8 +207,19 @@ class Organization extends OrganizationModel {
             }
         }
 
-        if ($vars['staff_id'] && (!$staff = Staff::lookup($vars['staff_id'])))
-            $errors['staff_id'] = 'Select a staff member from the list';
+        if ($vars['manager']) {
+            switch ($vars['manager'][0]) {
+            case 's':
+                if ($staff = Staff::lookup(substr($vars['manager'], 1)))
+                    break;
+            case 't':
+                if ($vars['manager'][0] == 't'
+                        && $team = Team::lookup(substr($vars['manager'], 1)))
+                    break;
+            default:
+                $errors['manager'] = 'Select a staff member or team from the list';
+            }
+        }
 
         if (!$valid || $errors)
             return false;
@@ -225,7 +248,7 @@ class Organization extends OrganizationModel {
 
         // Set staff and primary contacts
         $this->set('domain', $vars['domain']);
-        $this->set('staff_id', $staff ? $staff->getId() : 0);
+        $this->set('manager', $vars['manager'] ?: '');
         if ($vars['contacts'] && is_array($vars['contacts'])) {
             foreach ($this->allMembers() as $u) {
                 $u->setPrimaryContact(array_search($u->id, $vars['contacts']) !== false);

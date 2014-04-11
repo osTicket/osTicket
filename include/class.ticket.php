@@ -937,6 +937,16 @@ class Ticket {
             if($cfg->alertDeptManagerONNewTicket() && $dept && ($manager=$dept->getManager()))
                 $recipients[]= $manager;
 
+            // Account manager
+            if ($cfg->alertAcctManagerONNewMessage()
+                    && ($org = $this->getOwner()->getOrganization())
+                    && ($acct_manager = $org->getAcctManager())) {
+                if ($acct_manager instanceof Team)
+                    $recipients = array_merge($recipients, $acct_manager->getMembers());
+                else
+                    $recipients[] = $acct_manager;
+            }
+
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -1619,6 +1629,16 @@ class Ticket {
             //Dept manager
             if($cfg->alertDeptManagerONNewMessage() && $dept && ($manager=$dept->getManager()))
                 $recipients[]=$manager;
+
+            // Account manager
+            if ($cfg->alertAcctManagerONNewMessage()
+                    && ($org = $this->getOwner()->getOrganization())
+                    && ($acct_manager = $org->getAcctManager())) {
+                if ($acct_manager instanceof Team)
+                    $recipients = array_merge($recipients, $acct_manager->getMembers());
+                else
+                    $recipients[] = $acct_manager;
+            }
 
             $sentlist=array(); //I know it sucks...but..it works.
             foreach( $recipients as $k=>$staff) {
@@ -2334,9 +2354,12 @@ class Ticket {
         }
 
         // Auto assignment to organization account manager
-        if (($org = $user->getOrganization()) && $org->getAccountManagerId()) {
-            if (!isset($vars['staffId']))
-                $vars['staffId'] = $org->getAccountManagerId();
+        if (($org = $user->getOrganization())
+                && ($code = $org->getAccountManagerId())) {
+            if (!isset($vars['staffId']) && $code[0] == 's')
+                $vars['staffId'] = substr($code, 1);
+            elseif (!isset($vars['teamId']) && $code[0] == 't')
+                $vars['teamId'] = substr($code, 1);
         }
 
         // Intenal mapping magic...see if we need to override anything

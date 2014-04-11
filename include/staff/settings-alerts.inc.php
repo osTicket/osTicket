@@ -36,6 +36,11 @@
                 <input type="checkbox" name="ticket_alert_dept_members" <?php echo $config['ticket_alert_dept_members']?'checked':''; ?>> Department Members <em>(spammy)</em>
             </td>
         </tr>
+        <tr>
+            <td>
+                <input type="checkbox" name="ticket_alert_acct_manager" <?php echo $config['ticket_alert_acct_manager']?'checked':''; ?>> Organization Account Manager
+            </td>
+        </tr>
         <tr><th><em><b>New Message Alert</b>:
             <i class="help-tip icon-question-sign" href="#new_message"></i>
             </em></th></tr>
@@ -61,6 +66,11 @@
               <input type="checkbox" name="message_alert_dept_manager" <?php echo $config['message_alert_dept_manager']?'checked':''; ?>> Department Manager <em>(spammy)</em>
             </td>
         </tr>
+        <tr>
+            <td>
+                <input type="checkbox" name="message_alert_acct_manager" <?php echo $config['message_alert_acct_manager']?'checked':''; ?>> Organization Account Manager
+            </td>
+        </tr>
         <tr><th><em><b>New Internal Note Alert</b>:
             <i class="help-tip icon-question-sign" href="#new_activity"></i>
             </em></th></tr>
@@ -70,11 +80,6 @@
               &nbsp;&nbsp;
               <input type="radio" name="note_alert_active"  value="0"   <?php echo !$config['note_alert_active']?'checked':''; ?> />Disable
               &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['note_alert_active']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <input type="checkbox" name="note_alert_laststaff" <?php echo $config['note_alert_laststaff']?'checked':''; ?>> Last Respondent
             </td>
         </tr>
         <tr>

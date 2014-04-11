@@ -47,16 +47,29 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                     Account Manager:
                 </td>
                 <td>
-                    <select name="staff_id">
+                    <select name="manager">
                         <option value="0" selected="selected">&mdash; None &mdash;</option><?php
-                        if (($agents=Staff::getAvailableStaffMembers())) {
-                            foreach($agents as $id => $name) {
+                        if ($users=Staff::getAvailableStaffMembers()) { ?>
+                            <optgroup label="Staff Members (<?php echo count($users); ?>)">
+<?php                       foreach($users as $id => $name) {
+                                $k = "s$id";
                                 echo sprintf('<option value="%s" %s>%s</option>',
-                                        $id,(($info['staff_id']==$id)?'selected="selected"':''),$name);
+                                    $k,(($info['manager']==$k)?'selected="selected"':''),$name);
                             }
+                            echo '</optgroup>';
+                        }
+
+                        if ($teams=Team::getActiveTeams()) { ?>
+                            <optgroup label="Teams (<?php echo count($teams); ?>)">
+<?php                       foreach($teams as $id => $name) {
+                                $k="t$id";
+                                echo sprintf('<option value="%s" %s>%s</option>',
+                                    $k,(($info['manager']==$k)?'selected="selected"':''),$name);
+                            }
+                            echo '</optgroup>';
                         } ?>
                     </select>
-                    <br/><span class="error"><?php echo $errors['staff_id']; ?></span>
+                    <br/><span class="error"><?php echo $errors['manager']; ?></span>
                 </td>
             </tr>
             <tr>
