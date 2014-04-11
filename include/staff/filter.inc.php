@@ -186,7 +186,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="disable_autoresponder" value="1" <?php echo $info['disable_autoresponder']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> auto-response. <em>(Override Dept. settings)</em>
+                    <strong>Disable</strong> auto-response.&nbsp;<i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
             </td>
         </tr>
         <tr>
@@ -210,7 +210,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                <em>(Sent Automatically)&nbsp;<i class="help-tip icon-question-sign" href="#canned_response"></i></em>
+                &nbsp;<i class="help-tip icon-question-sign" href="#canned_response"></i>
             </td>
         </tr>
         <tr>
@@ -230,7 +230,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#department"></i>
             </td>
         </tr>
         <tr>
@@ -251,7 +251,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['priority_id']; ?></span>
-                <em>(Overrides department's priority)</em>
+                &nbsp;<i class="help-tip icon-question-sign" href="#priority"></i>
             </td>
         </tr>
         <tr>
@@ -271,7 +271,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                <em>(Overrides department's SLA)</em>
+                &nbsp;<i class="help-tip icon-question-sign" href="#sla_plan"></i>
             </td>
         </tr>
         <tr>
@@ -315,7 +315,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span><i class="help-tip icon-question-sign" href="#auto_assign_to"></i>
             </td>
         </tr>
         <tr>
@@ -335,7 +335,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error"><?php echo $errors['topic_id']; ?></span>
+                &nbsp;<span class="error"><?php echo $errors['topic_id']; ?></span><i class="help-tip icon-question-sign" href="#help_topic"></i>
             </td>
         </tr>
         <tr>

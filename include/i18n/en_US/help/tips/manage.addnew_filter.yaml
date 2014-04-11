@@ -20,13 +20,12 @@ filter_name:
 execution_order:
     title: Execution Order
     content: >
-        Think of these numbers as seat numbers when boarding an airplane. Just like
-        First Class has lower seat numbers and boards the plane first, so here the
-        lower the number the closer a Ticket Filter is to being the first Filter
-        executed. You want to keep your strict and narrow filters (very small
-        matches) first and your broad filters (large amount of matches) last. If
-        you enable <span class="doc-desc-title">Stop Processing Further on
-        Match</span>, then only the first matching Filter will be applied.
+        Choose a number that controls the priority of the filter being created. The
+        lower the number, the higher the priority this filter will have in being
+        executed over against another filter that might have an identical match.
+        A match is found according to the filter rules set below. If you want this
+        filter to be the last filter applied to a match, enable <span
+        class="doc-desc-title">Stop Processing Further On Match</span>.
 
 filter_status:
     title: Filter Status
@@ -35,9 +34,13 @@ filter_status:
 target:
     title: Target
     content: >
-        The Target is the source from whom the Ticket was created. So, for example,
-        if you choose Web Forms, you are saying that you want to apply  the Ticket
-        Filters to those tickets which originated from the Client Interface.
+        Choose the <span class="doc-desc-title">Target</span> for your <span
+        class="doc-desc-title">ticket Filter</span>. The <span
+        class="doc-desc-title">Target</span> is the source that created the ticket.
+        So, for example, if you choose <span class="doc-desc-opt">Web Forms</span>,
+        you are saying that you want to apply the <span
+        class="doc-desc-title">ticket Filter</span> to those tickets that
+        originated from the Client Portal's webform.
 
 filter_rules:
     title: Filter Rules
@@ -46,27 +49,21 @@ filter_rules:
 rules_matching_criteria:
     title: Rules Matching Criteria
     content: >
-        If you would like the filter to match any of the rules, and then stop,
-        choose Match Any. If you would like all rules of the filter to be matched,
-        choose Match All.
+        Choose how elastic you want the matches of your <span
+        class="doc-desc-title">ticket Filter</span> to be. If you would like the
+        <span class="doc-desc-title">ticket Filter</span> to
+        match any of the rules, and then stop, choose <span
+        class="doc-desc-opt">Match Any</span>. If you would like <em><strong>all
+        rules</strong></em> of the <span class="doc-desc-title">ticket
+        Filter</span> to be matched, choose <span class="doc-desc-opt">Match
+        All</span>.
 
 basic_fields_criterion:
     title: Basic Fields Criterion
     content: >
         The selectable options below this header are those elements which can be
-        found in any standard Ticket. Note: the Email option here indicates from
+        found in any standard ticket. Note: the Email option here indicates from
         whom the Email was sent.
-
-custom_fields_criterion:
-    title: Custom Fields Criterion
-    content: >
-        The selectable options below this header are the Custom Fields found in the
-        <span class="doc-desc-title">Ticket Details</span> Form. If you would like
-        to use one of your <span class="doc-desc-title">Custom Lists</span> as a
-        Field Criterion in your Ticket Filter, then you want to edit the Ticket
-        Details Form by adding your Custom List to the Ticket Details Form Fields.
-        (To edit the Ticket Details Form, see Admin Panel -> Manage -> Forms ->
-        Ticket Details).
 
 criterion_operator:
     title: Criterion Operator
@@ -87,48 +84,67 @@ reject_ticket:
 reply_to_email:
     title: Reply-To Email
     content: >
-        This field is only relevant if the Target selected above is an Email
-        Address. When a Client opens a Ticket by sending an Email, the Client has
-        the option to enable a Reply To field in their Email client (e.g,. Gmail,
-        Outlook, etc.). This includes header information that informs the Inbound
-        Email Client (i.e., recipient) that the Sender is requesting that the Reply
-        be routed to a different Email Address from that which it was originally
-        sent. If the <span class="doc-desc-title">Reply-To Email</span> feature is
-        enabled here, then osTicket will honor the Client’s request to respond to
-        their noted alternative Email Address.
+        Enable this if you want your Help Desk to honor a Client's email
+        application's <span class="doc-desc-title">Reply To</span> data. This field
+        is only relevant if the <span class="doc-desc-title">Target</span> above is
+        an <span class="doc-desc-opt">Email Address</span>.
 
 ticket_auto_response:
-    title: Ticket Auto-Response
+    title: ticket Auto-Response
     content: >
+        <em>Note: This will override any <span
+        class="doc-desc-title">Department</span> settings.</em>
 
 canned_response:
     title: Canned Response
     content: >
-        This will cause an email to go out from the Default Email Address (or
-        Department’s default if setting is enabled) with the Canned Response chosen
-        here included in the Email. The <span class="doc-desc-title">New Ticket
-        Auto-Reply</span> Template in an Email Template Set will dictate how the
-        Canned Response is included in that Email. What Email Template Set is used
-        depends on what Template Set is assigned as Default, or to the relevant
-        Department. (To edit Canned Responses, see Staff Panel -> Knowledgebase ->
-        Canned Responses). (To edit the <span class="doc-desc-title">New Ticket
-        Auto-Reply</span> <span class="doc-desc-title">Template</span>, see
+        Choose the <span class="doc-desc-title">Canned Response</span> you want included in the email to go out from the Default Email Address of the <span class="doc-desc-title">Help Desk</span> or <span class="doc-desc-title">Department</span> (if enabled). The <span class="doc-desc-title">New ticket Auto-Reply</span> template in an <span class="doc-desc-title">Email Template Set</span> will control how the <span class="doc-desc-title">Canned Response</span> is included in that email. What <span class="doc-desc-title">Email Template Set</span> is used depends on what template set is assigned as default, or to a matching ticket's <span class="doc-desc-title">Department</span>.
+    links:
+      - title: Manage Canned Responses
+        href: /scp/canned.php
+      - title: Manage Departments
+        href: /scp/departments.php
+      - title: Manage Template Sets
+        href: /scp/templates.php
+      - title: Edit the Default New Ticket Auto-Reply Template
+        href: /scp/templates.php?id=2&a=manage
 
 department:
     title: Department
     content: >
+        Choose what <span class="doc-desc-title">Department</span> you want the
+        matches of the <span class="doc-desc-title">Ticket Filter</span> to be
+        assigned.
 
 priority:
     title: Priority
     content: >
+        Choose the <span class="doc-desc-title">Priority</span> level you want to
+        be applied to the matches of the <span class="doc-desc-title">Ticket
+        Filter</span>.<br />
+        <br />
+        <em>Note: This will override any <span
+        class="doc-desc-title">Department</span> settings.</em>
 
 sla_plan:
     title: SLA Plan
     content: >
+        Choose the <span class="doc-desc-title">SLA Plan</span> you want to
+        be applied to the matches of the <span class="doc-desc-title">Ticket
+        Filter</span>.
 
 auto_assign_to:
-    title: Auto-Assign to…
+    title: Auto-Assign to&hellip;
     content: >
+        Choose the Agent to whom you want the matches of the <span
+        class="doc-desc-title">Ticket Filter</span> to be assigned.
+
+help_topic:
+    title: Help Topic
+    content: >
+        Choose the <span class="doc-desc-title">Help Topic</span> you want to
+        be applied to the matches of the <span class="doc-desc-title">Ticket
+        Filter</span>.
 
 admin_notes:
     title: Admin Notes

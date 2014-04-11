@@ -16,10 +16,7 @@
 custom_lists:
     title: Custom Lists
     content: >
-        Your custom lists will permit you to create dropdown boxes with predefined
-        options from which a Client can select in your Custom Forms. If you would
-        like to use this custom list as a target in your Ticket Filters, be sure to
-        add this list to your Ticket Details form.
+        Your <span class="doc-desc-title">custom lists</span> will permit you to create dropdown boxes with predefined options from which a Client can select in your <span class="doc-desc-title">Custom Forms</span>. If you would like to use this <span class="doc-desc-title">custom list</span> as a <span class="doc-desc-title">target</span> in a <span class="doc-desc-title">Ticket Filter</span>, be sure to add this list to your <span class="doc-desc-title">Ticket Details</span> form.
 
 name:
     title: Name

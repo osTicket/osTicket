@@ -31,26 +31,27 @@ password_expiration_policy:
 allow_password_resets:
     title: Allow Password Resets
     content: >
-        Would you like to enable the <span class="doc-desc-title">Forgot My
-        Password</span> link after 2 failed log-in attempts? If so, check the
-        checkbox.
+        Enable this feature if you would like to display the 
+        <span class="doc-desc-title">Forgot My Password</span> link on the
+        <span class="doc-desc-title">Staff Log In Panel</span>
+        after 2 failed log in attempts.
 
-password_reset_window:
+reset_token_expiration:
     title: Password Reset Window
     content: >
-        When a user (administrator, agent, or client) has requested a <span
+        Choose the duration (in minutes) for which the <span class="doc-desc-title">
+        Password Reset Token</span> will be valid. When an Agent requests a <span
         class="doc-desc-title">Password Reset</span>, they are emailed a token that
         will permit the reset to take place. This token however must have an
-        expiration. So, please choose the duration (in minutes) for which this
-        token would be valid.
+        expiration. 
 
 staff_session_timeout:
     title: Staff Session Timeout
     content: >
         Choose the maximum idle time (in minutes) before an Agent is required to
         log in again. If you would like to disable <span
-        class="doc-desc-title">Agent</span> <span class="doc-desc-title">Session
-        Timeouts,</span> enter 0 to <span class="doc-desc-opt">disable</span>.
+        class="doc-desc-title">Staff Session Timeouts</span>,
+        enter 0 to <span class="doc-desc-opt">disable</span>.
 
 client_session_timeout:
     title: Client Session Timeout

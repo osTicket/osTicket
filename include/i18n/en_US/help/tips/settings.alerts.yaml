@@ -165,7 +165,7 @@ overdue_ticket_alert:
     content: >
         Pertains to alerts that are sent out when a ticket becomes overdue. The
         <span class="doc-desc-title">Administrator</span> receives an alert by
-        default
+        default.
     links:
       - title: Default Stale Ticket Alert Template
         href: /scp/templates.php?default_for=ticket.overdue
@@ -185,8 +185,8 @@ department_manager_4:
 department_members_2:
     title: Department Members
     content: >
-        If enabled, the every member of the Department will receive an Alert of the
-        Overdue status of the Ticket. This may cause an unnecessary amount of Email
+        If enabled, every member of the <span class="doc-desc-title">Department</span> will receive an Alert of the
+        Overdue status of the ticket. This may cause an unnecessary amount of Email
         traffic and should be used with caution.
 
 system_alerts:

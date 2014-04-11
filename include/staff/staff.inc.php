@@ -122,7 +122,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 else if (sbk.val() == '' || sbk.val() == 'local')
                     $('#password-fields').show();
                 " />
-                Send staff welcome email with account access link
+                &nbsp;<i class="help-tip icon-question-sign" href="#welcome_email"></i>
             </td>
         </tr>
 <?php } ?>
@@ -187,7 +187,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong>Staff's Signature</strong>: Optional signature used on outgoing emails. &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#agent_s_signature"></i></em>
+                <em><strong>Staff's Signature</strong>: Optional signature used on outgoing emails. &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#agents_signature"></i></em>
             </th>
         </tr>
         <tr>
@@ -199,7 +199,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Account Status & Settings</strong>: Dept. and assigned group controls access permissions.&nbsp;<i class="help-tip icon-question-sign" href="#account_status_settings"></i></em>
+                <em><strong>Account Status & Settings</strong>: Dept. and assigned group controls access permissions.</em>
             </th>
         </tr>
         <tr>
@@ -306,7 +306,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Directory Listing:
             </td>
             <td>
-                <input type="checkbox" name="isvisible" value="1" <?php echo $info['isvisible']?'checked="checked"':''; ?>>Show the user on staff's directory&nbsp;<i class="help-tip icon-question-sign" href="#directory_listing"></i>
+                <input type="checkbox" name="isvisible" value="1" <?php echo $info['isvisible']?'checked="checked"':''; ?>>&nbsp;Make Visible in the Staff Directory&nbsp;<i class="help-tip icon-question-sign" href="#directory_listing"></i>
             </td>
         </tr>
         <tr>
@@ -315,7 +315,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="onvacation" value="1" <?php echo $info['onvacation']?'checked="checked"':''; ?>>
-                    Staff on vacation mode. (<i>No ticket assignment or alerts</i>)&nbsp;<i class="help-tip icon-question-sign" href="#vacation_mode"></i>
+                    Change Status to Vacation Mode&nbsp;<i class="help-tip icon-question-sign" href="#vacation_mode"></i>
             </td>
         </tr>
         <?php

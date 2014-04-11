@@ -51,8 +51,10 @@ custom_form:
     title: Custom Form
     content: >
         Custom Forms will help you acquire more specific information from Client’s
-        that are relevant to specific Departments and/or Help Topics. (To create a
-        Custom Form, see Admin Panel -> Manage -> Forms).
+        that are relevant to specific Departments and/or Help Topics. 
+    links:
+      - title: Create a Custom Form
+        href: /scp/forms.php
 
 priority:
     title: Priority
@@ -71,35 +73,41 @@ sla_plan:
     content: >
         Each Department has a default SLA plan for their Tickets. However, if your
         New Topic is a special case requiring different time constraints, you can
-        override the Departments default SLA Plan by choosing an SLA Plan here. (To
-        create/edit SLA Plans, see Admin Plans -> Manage -> SLA Plans).
+        override the Departments default SLA Plan by choosing an SLA Plan here. 
+    links:
+      - title: Create or Edit SLA Plans
+        href: /scp/slas.php
 
 thank_you_page:
     title: Thank-You Page
     content: >
         Choose the Thank-You Page to which a Client is directed after opening a
-        Ticket. (To Create/Edit your Thank-You Pages, see Admin Panel -> Manage ->
-        Pages).
+        Ticket.
+    links:
+      - title: Manage your Thank-You Page
+        href: /scp/pages.php
 
 auto_assign_to:
     title: Auto-assign to…
     content: >
         You may optionally choose to what Agent or Team the Tickets characterized
-        by this New Topic will be sent. (To manage Teams, see Admin Panel -> Agent
-        (Staff) Members -> Teams).
+        by this New Topic will be sent.
+    links:
+      - title: Manage Teams
+        href: /scp/teams.php
 
 ticket_auto_response:
     title: Ticket Auto-response
     content: >
-        If enabled, this will prevent any Alert sent out to notify any Agent of the
-        New Ticket. Therefore, this overrides any setting of the Department to
-        which the Ticket belongs.
+        If enabled, this will prevent any alert sent out to notify any Agent of the
+        new ticket. Therefore, this overrides any setting of the 
+        <span class="doc-desc-title">Department</span> to which the ticket belongs.
 
 admin_notes:
     title: Admin Notes
     content: >
-        These notes are only visible to those whose account type is ‘<span
-        class='doc-desc-title'>Admin</span>.’
+        These notes are only visible to those whose account type is <span
+        class='doc-desc-opt'>Admin</span>.
 
 add_topic:
     title: Add Topic
