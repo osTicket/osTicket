@@ -635,6 +635,10 @@ getConfig = (function() {
 })();
 
 $(document).on('pjax:start', function() {
+    // Don't show the spinner on back button
+    if (event instanceof PopStateEvent)
+        return;
+
     clearInterval(window.ticket_refresh);
     $('#loading').show().css({opacity:0.7});
     // Clear all timeouts
