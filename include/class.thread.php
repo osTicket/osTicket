@@ -1332,11 +1332,15 @@ class ThreadBody /* extends SplString */ {
     }
 
     function __toString() {
-        return $this->display();
+        return (string) $this->body;
     }
 
     function toHtml() {
         return $this->display('html');
+    }
+
+    function display($format=false) {
+        throw new Exception('display: Abstract dispplay() method not implemented');
     }
 
     static function fromFormattedText($text, $format=false) {
