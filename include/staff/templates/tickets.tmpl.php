@@ -23,7 +23,7 @@ $from =' FROM '.TICKET_TABLE.' ticket '
 if ($user)
     $where = 'WHERE ticket.user_id = '.db_input($user->getId());
 elseif ($org)
-    $where = 'WHERE account.org_id = '.db_input($org->getId());
+    $where = 'WHERE user.org_id = '.db_input($org->getId());
 
 
 TicketForm::ensureDynamicDataView();

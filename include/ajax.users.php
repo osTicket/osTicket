@@ -305,9 +305,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
-        elseif (!($user = User::lookup($id))
-                || !($account=$user->getAccount()))
-            Http::response(404, 'Unknown user account');
+        elseif (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
 
         $info = array();
         $info['title'] = 'Organization for '.$user->getName();
@@ -324,20 +323,20 @@ class UsersAjaxAPI extends AjaxController {
                     $info['error'] = 'Unable to create organization - try again!';
             }
 
-            if ($org && $account->setOrganization($org))
+            if ($org && $user->setOrganization($org))
                 Http::response(201, $org->to_json());
-
-            $info['error'] = 'Unable to user account - try again!';
+            elseif (! $info['error'])
+                $info['error'] = 'Unable to add organization - try again!';
 
         } elseif ($orgId)
             $org = Organization::lookup($orgId);
-        elseif ($org = $account->getOrganization()) {
+        elseif ($org = $user->getOrganization()) {
             $info['title'] =  $org->getName();
             $info['action'] = $info['onselect'] = '';
             $tmpl = 'org.tmpl.php';
         }
 
-        if ($org && $account->getOrgId() && $org->getId() != $account->getOrgId())
+        if ($org && $user->getOrgId() && $org->getId() != $user->getOrgId())
             $info['warning'] = 'Are you sure you want to change user\'s organization?';
 
         $tmpl = $tmpl ?: 'org-lookup.tmpl.php';

@@ -67,6 +67,9 @@ class UserModel extends VerySimpleModel {
                 'list' => false,
                 'reverse' => 'UserAccount.user',
             ),
+            'org' => array(
+                'constraint' => array('org_id' => 'Organization.id')
+            ),
             'default_email' => array(
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
@@ -84,6 +87,28 @@ class UserModel extends VerySimpleModel {
 
     function getDefaultEmail() {
         return $this->default_email;
+    }
+
+    function getAccount() {
+        return $this->account;
+    }
+
+    function getOrgId() {
+         return $this->get('org_id');
+    }
+
+    function getOrganization() {
+        return $this->org;
+    }
+
+    function setOrganization($org) {
+        if (!$org instanceof Organization)
+            return false;
+
+        $this->set('org', $org);
+        $this->save();
+
+        return true;
     }
 }
 
@@ -234,22 +259,12 @@ class User extends UserModel {
         return $this->_forms;
     }
 
-    function getAccount() {
-        return $this->account;
-    }
-
     function getAccountStatus() {
 
         if (!($account=$this->getAccount()))
             return 'Guest';
 
-        if ($account->isLocked())
-            return 'Locked (Administrative)';
-
-        if (!$account->isConfirmed())
-            return 'Locked (Pending Activation)';
-
-        return 'Active';
+        return (string) $account->getStatus();
     }
 
     function register($vars, &$errors) {
@@ -540,19 +555,17 @@ class UserAccountModel extends VerySimpleModel {
                 'null' => false,
                 'constraint' => array('user_id' => 'User.id')
             ),
-            'org' => array(
-                'constraint' => array('org_id' => 'Organization.id')
-            ),
         ),
     );
 
-    const CONFIRMED             = 0x0001;
-    const LOCKED                = 0x0002;
-    const REQUIRE_PASSWD_RESET  = 0x0004;
-    const FORBID_PASSWD_RESET   = 0x0008;
+    var $_status;
+
+    function __onload() {
+        $this->_status = new UserAccountStatus($this->get('status'));
+    }
 
     protected function hasStatus($flag) {
-        return 0 !== ($this->get('status') & $flag);
+        return $this->_status->check($flag);
     }
 
     protected function clearStatus($flag) {
@@ -564,38 +577,38 @@ class UserAccountModel extends VerySimpleModel {
     }
 
     function confirm() {
-        $this->setStatus(self::CONFIRMED);
+        $this->setStatus(UserAccountStatus::CONFIRMED);
         return $this->save();
     }
 
     function isConfirmed() {
-        return $this->hasStatus(self::CONFIRMED);
+        return $this->_status->isConfirmed();
     }
 
     function lock() {
-        $this->setStatus(self::LOCKED);
+        $this->setStatus(UserAccountStatus::LOCKED);
         $this->save();
     }
 
     function isLocked() {
-        return $this->hasStatus(self::LOCKED);
+        return $this->_status->isLocked();
     }
 
     function forcePasswdReset() {
-        $this->setStatus(self::REQUIRE_PASSWD_RESET);
+        $this->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
         return $this->save();
     }
 
     function isPasswdResetForced() {
-        return $this->hasStatus(self::REQUIRE_PASSWD_RESET);
+        return $this->hasStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
     }
 
     function isPasswdResetEnabled() {
-        return !$this->hasStatus(self::FORBID_PASSWD_RESET);
+        return !$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET);
     }
 
     function getStatus() {
-        return $this->get('status');
+        return $this->_status;
     }
 
     function getInfo() {
@@ -614,25 +627,6 @@ class UserAccountModel extends VerySimpleModel {
         $this->user->set('account', $this);
         return $this->user;
     }
-
-    function getOrgId() {
-         return $this->get('org_id');
-    }
-
-    function getOrganization() {
-        return $this->org;
-    }
-
-    function setOrganization($org) {
-        if (!$org instanceof Organization)
-            return false;
-
-        $this->set('org', $org);
-        $this->save();
-
-        return true;
-    }
-
 }
 
 class UserAccount extends UserAccountModel {
@@ -733,14 +727,14 @@ class UserAccount extends UserAccountModel {
 
         if ($vars['passwd1']) {
             $this->set('passwd', Passwd::hash($vars['passwd']));
-            $this->setStatus(self::CONFIRMED);
+            $this->setStatus(UserAccountStatus::CONFIRMED);
         }
 
         // Set flags
         foreach (array(
-                'pwreset-flag'=>        self::REQUIRE_PASSWD_RESET,
-                'locked-flag'=>         self::LOCKED,
-                'forbid-pwchange-flag'=> self::FORBID_PASSWD_RESET
+                'pwreset-flag' => UserAccountStatus::REQUIRE_PASSWD_RESET,
+                'locked-flag' => UserAccountStatus::LOCKED,
+                'forbid-pwchange-flag' => UserAccountStatus::FORBID_PASSWD_RESET
         ) as $ck=>$flag) {
             if ($vars[$ck])
                 $this->setStatus($flag);
@@ -795,11 +789,11 @@ class UserAccount extends UserAccountModel {
 
         if ($vars['passwd1'] && !$vars['sendemail']) {
             $account->set('passwd', Passwd::hash($vars['passwd1']));
-            $account->setStatus(self::CONFIRMED);
+            $account->setStatus(UserAccountStatus::CONFIRMED);
             if ($vars['pwreset-flag'])
-                $account->setStatus(self::REQUIRE_PASSWD_RESET);
+                $account->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
             if ($vars['forbid-pwreset-flag'])
-                $account->setStatus(self::FORBID_PASSWD_RESET);
+                $account->setStatus(UserAccountStatus::FORBID_PASSWD_RESET);
         }
 
         $account->save(true);
@@ -810,6 +804,46 @@ class UserAccount extends UserAccountModel {
         return $account;
     }
 
+}
+
+class UserAccountStatus {
+
+    var $flag;
+
+    const CONFIRMED             = 0x0001;
+    const LOCKED                = 0x0002;
+    const REQUIRE_PASSWD_RESET  = 0x0004;
+    const FORBID_PASSWD_RESET   = 0x0008;
+
+    function __construct($flag) {
+        $this->flag = $flag;
+    }
+
+    function check($flag) {
+        return 0 !== ($this->flag & $flag);
+    }
+
+    function isLocked() {
+        return $this->check(self::LOCKED);
+    }
+
+    function isConfirmed() {
+        return $this->check(self::CONFIRMED);
+    }
+
+    function __toString() {
+
+        if (!$this->flag)
+            return 'Guest';
+
+        if ($this->isLocked())
+            return 'Locked (Administrative)';
+
+        if (!$this->isConfirmed())
+            return 'Locked (Pending Activation)';
+
+        return 'Active (Registered)';
+    }
 }
 
 

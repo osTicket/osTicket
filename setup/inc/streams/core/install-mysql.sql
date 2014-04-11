@@ -203,6 +203,7 @@ CREATE TABLE `%TABLE_PREFIX%draft` (
   `staff_id` int(11) unsigned NOT NULL,
   `namespace` varchar(32) NOT NULL DEFAULT '',
   `body` text NOT NULL,
+  `extra` text,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -586,6 +587,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`ticket_id`),
+  KEY `user_id` (`user_id`),
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`),
   KEY `team_id` (`staff_id`),
@@ -771,11 +773,14 @@ CREATE TABLE `%TABLE_PREFIX%plugin` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;
 CREATE TABLE `%TABLE_PREFIX%user` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `org_id` int(10) unsigned NOT NULL,
   `default_email_id` int(10) NOT NULL,
+  `status` int(11) unsigned NOT NULL DEFAULT '0',
   `name` varchar(128) NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `org_id` (`org_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
@@ -792,7 +797,6 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%user_account`;
 CREATE TABLE `%TABLE_PREFIX%user_account` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
-  `org_id` int(11) unsigned NOT NULL,
   `status` int(11) unsigned NOT NULL DEFAULT '0',
   `timezone_id` int(11) NOT NULL DEFAULT '0',
   `dst` tinyint(1) NOT NULL DEFAULT '1',
@@ -802,5 +806,6 @@ CREATE TABLE `%TABLE_PREFIX%user_account` (
   `backend` varchar(32) DEFAULT NULL,
   `registered` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
   UNIQUE KEY `username` (`username`)
 ) DEFAULT CHARSET=utf8;

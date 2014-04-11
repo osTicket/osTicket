@@ -56,7 +56,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 
 $select .= ', count(DISTINCT user.id) as users ';
 
-$from .= ' LEFT JOIN '.USER_ACCOUNT_TABLE.' user ON (user.org_id = org.id) ';
+$from .= ' LEFT JOIN '.USER_TABLE.' user ON (user.org_id = org.id) ';
 
 
 $query="$select $from $where GROUP BY org.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();

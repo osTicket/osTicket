@@ -3,10 +3,11 @@ if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
 
-$select = 'SELECT user.*, email.address as email ';
+$select = 'SELECT user.*, email.address as email, account.status ';
 
 $from = 'FROM '.USER_TABLE.' user '
-      . 'JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) ';
+      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) '
+      . 'LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (account.user_id = user.id) ';
 
 $where='WHERE 1 ';
 
@@ -100,9 +101,8 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="300"><a <?php echo $name_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="300"><a <?php echo $email_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=email">Email</a></th>
-            <th width="100"><a  <?php echo $status_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
+            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
+            <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="100"><a <?php echo $create_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=create">Created</a></th>
             <th width="145"><a <?php echo $update_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=update">Updated</a></th>
         </tr>
@@ -112,9 +112,13 @@ else
         if($res && db_num_rows($res)):
             $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
             while ($row = db_fetch_array($res)) {
-
                 $name = new PersonsName($row['name']);
-                $status = 'Active';
+                // Account status
+                if ($row['status'])
+                    $status = new UserAccountStatus($row['status']);
+                else
+                    $status = 'Guest';
+
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
                     $sel=true;
@@ -129,7 +133,6 @@ else
                              <small>(%d)</small>', $row['tickets']);
                     ?>
                 </td>
-                <td><?php echo $row['email']; ?></td>
                 <td><?php echo $status; ?></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
                 <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
