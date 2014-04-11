@@ -604,7 +604,8 @@ class UserAccountModel extends VerySimpleModel {
     }
 
     function isPasswdResetEnabled() {
-        return !$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET);
+        return !$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET)
+            && (!$this->backend || $this->backend == 'client');
     }
 
     function getStatus() {
@@ -795,10 +796,14 @@ class UserAccount extends UserAccountModel {
             if ($vars['forbid-pwreset-flag'])
                 $account->setStatus(UserAccountStatus::FORBID_PASSWD_RESET);
         }
+        elseif ($vars['backend'] && $vars['backend'] != 'client') {
+            // Auto confirm remote accounts
+            $account->setStatus(self::CONFIRMED);
+        }
 
         $account->save(true);
 
-        if ($vars['sendemail'])
+        if (!$account->isConfirmed() && $vars['sendemail'])
             $account->sendConfirmEmail();
 
         return $account;
