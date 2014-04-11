@@ -1132,7 +1132,7 @@ class Ticket {
                 $recipients[] = $assignee;
         } elseif(!strcasecmp(get_class($assignee), 'Team')) {
             if($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembers()))
-                $recipients+=$members;
+                $recipients = array_merge($recipients, $members);
             elseif($cfg->alertTeamLeadONAssignment() && ($lead=$assignee->getTeamLead()))
                 $recipients[] = $lead;
         }
@@ -1388,11 +1388,11 @@ class Ticket {
                 if($this->getStaffId())
                     $recipients[]=$this->getStaff();
                 elseif($this->getTeamId() && ($team=$this->getTeam()) && ($members=$team->getMembers()))
-                    $recipients+=$members;
+                    $recipients = array_merge($recipients, $members);
             } elseif($cfg->alertDeptMembersONTransfer() && !$this->isAssigned()) {
                 //Only alerts dept members if the ticket is NOT assigned.
                 if(($members=$dept->getMembers()))
-                    $recipients+=$members;
+                    $recipients = array_merge($recipients, $members);
             }
 
             //Always alert dept manager??
