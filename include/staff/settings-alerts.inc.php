@@ -44,7 +44,6 @@
               <input type="radio" name="message_alert_active"  value="1"   <?php echo $config['message_alert_active']?'checked':''; ?> />Enable
               &nbsp;&nbsp;
               <input type="radio" name="message_alert_active"  value="0"   <?php echo !$config['message_alert_active']?'checked':''; ?> />Disable
-              <i class="help-tip icon-question-sign" href="#status_2"></i>
             </td>
         </tr>
         <tr>

@@ -16,14 +16,17 @@
 name:
     title: Name
     content: >
-        Choose a name for this SLA Plan that will reflect its purpose or
-        specificity (e.g., exclusivity to a Department or Help Topic).
+        Choose a name for this <span class="doc-desc-title">SLA Plan</span>
+        that will reflect its purpose or specificity (e.g., exclusivity to
+        a <span class="doc-desc-title">Department</span> or <span
+        class="doc-desc-title">Help Topic</span>).
 
 grace_period:
     title: Grace Period
     content: >
-        This is the how many hours pass by before the status of tickets with this
-        SLA Plan are rendered as Overdue.
+        This is the how many hours pass by before the status of tickets
+        with this <span class="doc-desc-title">SLA Plan</span> are rendered
+        as <span class="doc-desc-opt">Overdue</span>.
 
 status:
     title: Status
@@ -32,15 +35,19 @@ status:
 priority_escalation:
     title: Priority Escalation
     content: >
-        If enabled, the priority level of Tickets will increase as the duration of
-        a Ticket’s status as Overdue increases. It is recommended to enable to help
-        your Agents prioritize their tickets properly.
+        If enabled, the <span class="doc-desc-title">Priority</span> level
+        of tickets will increase as the duration of a ticket’s status as
+        <span class="doc-desc-opt">Overdue</span> increases. It is
+        recommended to enable to help your Agents prioritize their tickets
+        properly.
 
 transient:
     title: Transient
     content: >
-        If enabled, this will allow a SLA Plan’s restrictions to be overwritten
-        when a Ticket is transferred or its Help Topic is changed.
+        Enable this if you want to allow restrictions of a <span
+        class="doc-desc-title">SLA Plan</span> to be overridden
+        when a ticket is transferred or its <span
+        class="doc-desc-title">Help Topic</span> is changed.
 
 ticket_overdue_alerts:
     title: Ticket Overdue Alerts
