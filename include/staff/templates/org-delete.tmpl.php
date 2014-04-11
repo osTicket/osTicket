@@ -7,7 +7,7 @@ $info['warn'] = 'Deleted organization CANNOT be recovered';
 
 ?>
 <h3><?php echo $info['title']; ?></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <hr/>
 <?php
 
@@ -20,7 +20,7 @@ if ($info['error']) {
 } ?>
 
 <div id="org-profile" style="margin:5px;">
-    <i class="icon-group icon-4x pull-left icon-border"></i>
+    <i class="fa fa-group fa-4x pull-left fa-border"></i>
     <div><b> <?php echo Format::htmlchars($org->getName()); ?></b></div>
     <table style="margin-top: 1em;">
 <?php foreach ($org->getDynamicData() as $entry) {

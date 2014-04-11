@@ -31,11 +31,11 @@ echo '<ul class="tabs">';
 
 echo '
         <li><a id="preview_tab" href="#preview" class="active"
-            ><i class="icon-list-alt"></i>&nbsp;Ticket Summary</a></li>';
+            ><i class="fa fa-list-alt"></i>&nbsp;Ticket Summary</a></li>';
 if ($ticket->getNumCollaborators()) {
 echo sprintf('
         <li><a id="collab_tab" href="#collab"
-            ><i class="icon-fixed-width icon-group
+            ><i class="fa fa-fw fa-group
             faded"></i>&nbsp;Collaborators (%d)</a></li>',
             $ticket->getNumCollaborators());
 }
@@ -121,9 +121,9 @@ echo '</div>'; // ticket preview content.
         if (($users=$ticket->getCollaborators())) {?>
         <?php
             foreach($users as $user) {
-                echo sprintf('<tr><td %s><i class="icon-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
+                echo sprintf('<tr><td %s><i class="fa fa-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
                         ($user->isActive()? '' : 'class="faded"'),
-                        ($user->isActive()? 'comments' :  'comment-alt'),
+                        ($user->isActive()? 'comments' :  'comment-o'),
                         $user->getName(),
                         $user->getEmail());
             }

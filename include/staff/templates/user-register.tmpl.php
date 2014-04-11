@@ -17,7 +17,7 @@ if (!$_POST) {
 
 ?>
 <h3><?php echo $info['title']; ?></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <div class="clear"></div>
 <hr/>
 <?php
@@ -26,7 +26,7 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp;Complete the form
+<div><p id="msg_info"><i class="fa fa-info-circle"></i>&nbsp;Complete the form
 below to create a user account for <b><?php echo
 $user->getName()->getOriginal(); ?></b>.</p></div>
 <div id="user-registration" style="display:block; margin:5px;">

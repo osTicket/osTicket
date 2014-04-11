@@ -6,11 +6,11 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="orgs.php?id=<?php echo $org->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> <?php echo $org->getName(); ?></a></h2>
+             title="Reload"><i class="fa fa-refresh"></i> <?php echo $org->getName(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
             <a id="org-delete" class="action-button org-action"
-            href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="icon-trash"></i> Delete Organization</a>
+            href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="fa fa-trash-o"></i> Delete Organization</a>
         </td>
     </tr>
 </table>
@@ -22,7 +22,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                     <th width="150">Name:</th>
                     <td><b><a href="#orgs/<?php echo $org->getId();
                     ?>/edit" class="org-action"><i
-                    class="icon-edit"></i>&nbsp;<?php echo
+                    class="fa fa-edit"></i>&nbsp;<?php echo
                     $org->getName();
                     ?></a></td>
                 </tr>
@@ -50,9 +50,9 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 <div class="clear"></div>
 <ul class="tabs">
     <li><a class="active" id="users_tab" href="#users"><i
-    class="icon-user"></i>&nbsp;Users</a></li>
+    class="fa fa-user"></i>&nbsp;Users</a></li>
     <li><a id="tickets_tab" href="#tickets"><i
-    class="icon-list-alt"></i>&nbsp;Tickets</a></li>
+    class="fa fa-list-alt"></i>&nbsp;Tickets</a></li>
 </ul>
 <div class="tab_content" id="users">
 <?php

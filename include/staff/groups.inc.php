@@ -124,7 +124,7 @@ endif;
 
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3>Please Confirm</h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
         Are you sure want to <b>enable</b> selected groups?

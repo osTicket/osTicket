@@ -82,7 +82,7 @@ jQuery(function() {
             tip_box = $('<div>')
                 .addClass('tip_box'),
             tip_content = $('<div>')
-                .append('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>')
+                .append('<a href="#" class="tip_close"><i class="fa fa-times-circle-o"></i></a>')
                 .addClass('tip_content'),
             the_tip = tip_box
                 .append(tip_content.append(tip_arrow))
@@ -113,14 +113,14 @@ jQuery(function() {
             }
             tip_content.append(
                 $('<h1>')
-                    .append('<i class="icon-info-sign faded"> ')
-                    .append(section.title)
+                    .append('<i class="fa fa-info-circle faded">')
+                    .append(' '+section.title)
                 ).append(section.content);
             if (section.links) {
                 var links = $('<div class="links">');
                 $.each(section.links, function(i,l) {
                     var icon = l.href.match(/^http/)
-                        ? 'icon-external-link' : 'icon-share-alt';
+                        ? 'fa fa-external-link' : 'fa fa-share';
                     links.append($('<div>')
                         .append($('<a>')
                             .html(l.title)

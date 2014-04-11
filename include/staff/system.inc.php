@@ -20,34 +20,34 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 
     <tr><td>PHP Extensions</td>
         <td><table><tbody>
-            <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('gd')?'check':'warning-sign'; ?>"></i></td>
+            <tr><td><i class="fa fa-<?php
+                    echo extension_loaded('gd')?'check':'warning'; ?>"></i></td>
                 <td>gdlib</td>
                 <td>Used for image manipulation and PDF printing</td></tr>
-            <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('imap')?'check':'warning-sign'; ?>"></i></td>
+            <tr><td><i class="fa fa-<?php
+                    echo extension_loaded('imap')?'check':'warning'; ?>"></i></td>
                 <td>imap</td>
                 <td>Used for email fetching</td></tr>
-            <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('xml')?'check':'warning-sign'; ?>"></i></td>
+            <tr><td><i class="fa fa-<?php
+                    echo extension_loaded('xml')?'check':'warning'; ?>"></i></td>
                 <td>xml</td>
                 <td>XML API</td></tr>
-            <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('dom')?'check':'warning-sign'; ?>"></i></td>
+            <tr><td><i class="fa fa-<?php
+                    echo extension_loaded('dom')?'check':'warning'; ?>"></i></td>
                 <td>xml-dom</td>
                 <td>Used for HTML email processing</td></tr>
-            <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('json')?'check':'warning-sign'; ?>"></i></td>
+            <tr><td><i class="fa fa-<?php
+                    echo extension_loaded('json')?'check':'warning'; ?>"></i></td>
                 <td>json</td>
                 <td>Improves performance creating and processing JSON</td></tr>
-            <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('gettext')?'check':'warning-sign'; ?>"></i></td>
+            <tr><td><i class="fa fa-<?php
+                    echo extension_loaded('gettext')?'check':'warning'; ?>"></i></td>
                 <td>gettext</td>
                 <td>Improves performance for non US-English configurations</td></tr>
-            <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('mbstring')?'check':'warning-sign'; ?>"></i></td>
+            <tr><td><i class="fa fa-<?php
+                    echo extension_loaded('mbstring')?'check':'warning'; ?>"></i></td>
                 <td>mbstring</td>
-                <td>Highly recommended for non western european language content</td></tr>
+                <td>Highly recommended for non western European language content</td></tr>
         </tbody></table></td></tr>
 </tbody>
 <thead>

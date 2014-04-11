@@ -26,9 +26,9 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 && $options['entry']->getForm()->get('type') == 'G') { ?>
             <a href="#" title="Delete Entry" onclick="javascript:
                 $(this).closest('tbody').remove();
-                return false;"><i class="icon-trash"></i></a>&nbsp;
+                return false;"><i class="fa fa-trash-o"></i></a>&nbsp;
     <?php } ?>
-            <i class="icon-sort" title="Drag to Sort"></i>
+            <i class="fa fa-sort" title="Drag to Sort"></i>
         </div>
 <?php } ?></em>
     </th></tr>
@@ -66,7 +66,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                         });"
                     data-field-id="<?php echo $field->getAnswer()->get('field_id');
                 ?>" data-entry-id="<?php echo $field->getAnswer()->get('entry_id');
-                ?>"> <i class="icon-trash"></i> </a></div><?php
+                ?>"> <i class="fa fa-trash"></i> </a></div><?php
             }
             if ($field->get('hint') && !$field->isBlockLevel()) { ?>
                 <br /><em style="color:gray;display:inline-block"><?php

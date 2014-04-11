@@ -151,7 +151,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
             $dept=$row['ispublic']?$row['dept_name']:$defaultDept;
             $subject=Format::htmlchars(Format::truncate($row['subject'],40));
             if($row['attachments'])
-                $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
+                $subject.='  &nbsp;&nbsp;<i class="fa fa-paperclip"></i>';
 
             $ticketNumber=$row['number'];
             if($row['isanswered'] && !strcasecmp($row['status'],'open')) {

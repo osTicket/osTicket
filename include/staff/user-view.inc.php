@@ -9,27 +9,27 @@ $org = $account ? $account->getOrganization() : null;
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="users.php?id=<?php echo $user->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> <?php echo $user->getName(); ?></a></h2>
+             title="Reload"><i class="fa fa-refresh"></i> <?php echo $user->getName(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
            <?php
             if ($account) { ?>
             <span class="action-button" data-dropdown="#action-dropdown-more">
-                <span ><i class="icon-cog"></i> More</span>
-                <i class="icon-caret-down"></i>
+                <span ><i class="fa fa-cog"></i> More</span>
+                <i class="fa fa-caret-down"></i>
             </span>
             <?php
             } ?>
             <a id="user-delete" class="action-button user-action"
-            href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i> Delete User</a>
+            href="#users/<?php echo $user->getId(); ?>/delete"><i class="fa fa-trash-o"></i> Delete User</a>
             <?php
             if ($account) { ?>
             <a id="user-manage" class="action-button user-action"
-            href="#users/<?php echo $user->getId(); ?>/manage"><i class="icon-edit"></i> Manage Account</a>
+            href="#users/<?php echo $user->getId(); ?>/manage"><i class="fa fa-edit"></i> Manage Account</a>
             <?php
             } else { ?>
             <a id="user-register" class="action-button user-action"
-            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-edit"></i> Register</a>
+            href="#users/<?php echo $user->getId(); ?>/register"><i class="fa fa-edit"></i> Register</a>
             <?php
             } ?>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
@@ -39,16 +39,16 @@ $org = $account ? $account->getOrganization() : null;
                     if (!$account->isConfirmed()) {
                         ?>
                     <li><a class="confirm-action" href="#confirmlink"><i
-                        class="icon-envelope"></i> Send Activation Email</a></li>
+                        class="fa fa-envelope"></i> Send Activation Email</a></li>
                     <?php
                     } else { ?>
                     <li><a class="confirm-action" href="#pwreset"><i
-                        class="icon-envelope"></i> Send Password Reset Email</a></li>
+                        class="fa fa-envelope"></i> Send Password Reset Email</a></li>
                     <?php
                     } ?>
                     <li><a class="user-action"
                         href="#users/<?php echo $user->getId(); ?>/manage/access"><i
-                        class="icon-lock"></i> Manage Account Access</a></li>
+                        class="fa fa-lock"></i> Manage Account Access</a></li>
                 <?php
 
                 } ?>
@@ -65,7 +65,7 @@ $org = $account ? $account->getOrganization() : null;
                     <th width="150">Name:</th>
                     <td><b><a href="#users/<?php echo $user->getId();
                     ?>/edit" class="user-action"><i
-                    class="icon-edit"></i>&nbsp;<?php echo
+                    class="fa fa-edit"></i>&nbsp;<?php echo
                     $user->getName()->getOriginal();
                     ?></a></td>
                 </tr>
@@ -119,7 +119,7 @@ $org = $account ? $account->getOrganization() : null;
 <div class="clear"></div>
 <ul class="tabs">
     <li><a class="active" id="tickets_tab" href="#tickets"><i
-    class="icon-list-alt"></i>&nbsp;User Tickets</a></li>
+    class="fa fa-list-alt"></i>&nbsp;User Tickets</a></li>
 </ul>
 <div id="tickets">
 <?php
@@ -129,7 +129,7 @@ include STAFFINC_DIR . 'templates/tickets.tmpl.php';
 
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3>Please Confirm</h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="banemail-confirm">
         Are you sure want to <b>ban</b> <?php echo $user->getEmail(); ?>? <br><br>

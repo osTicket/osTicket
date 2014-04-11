@@ -42,69 +42,69 @@ if($ticket->isOverdue())
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> Ticket #<?php echo $ticket->getNumber(); ?></a></h2>
+             title="Reload"><i class="fa fa-refresh"></i> Ticket #<?php echo $ticket->getNumber(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
             <?php
             if($thisstaff->canBanEmails() || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button" data-dropdown="#action-dropdown-more">
-                <span ><i class="icon-cog"></i> More</span>
-                <i class="icon-caret-down"></i>
+                <span ><i class="fa fa-cog"></i> More</span>
+                <i class="fa fa-caret-down"></i>
             </span>
             <?php
             } ?>
             <?php if($thisstaff->canDeleteTickets()) { ?>
-                <a id="ticket-delete" class="action-button confirm-action" href="#delete"><i class="icon-trash"></i> Delete</a>
+                <a id="ticket-delete" class="action-button confirm-action" href="#delete"><i class="fa fa-trash-o"></i> Delete</a>
             <?php } ?>
             <?php
             if($thisstaff->canCloseTickets()) {
                 if($ticket->isOpen()) {?>
-                <a id="ticket-close" class="action-button" href="#close"><i class="icon-remove-circle"></i> Close</a>
+                <a id="ticket-close" class="action-button" href="#close"><i class="fa fa-times-circle-o"></i> Close</a>
                 <?php
                 } else { ?>
-                <a id="ticket-reopen" class="action-button" href="#reopen"><i class="icon-undo"></i> Reopen</a>
+                <a id="ticket-reopen" class="action-button" href="#reopen"><i class="fa fa-undo"></i> Reopen</a>
                 <?php
                 } ?>
             <?php
             } ?>
             <?php
             if($thisstaff->canEditTickets()) { ?>
-                <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> Edit</a>
+                <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="fa fa-edit"></i> Edit</a>
             <?php
             } ?>
             <?php
             if($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
-                <a id="ticket-claim" class="action-button confirm-action" href="#claim"><i class="icon-user"></i> Claim</a>
+                <a id="ticket-claim" class="action-button confirm-action" href="#claim"><i class="fa fa-user"></i> Claim</a>
 
             <?php
             }?>
 
-            <a id="ticket-print" class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> Print</a>
+            <a id="ticket-print" class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="fa fa-print"></i> Print</a>
 
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
                  if($thisstaff->canEditTickets()) { ?>
-                    <li><a class="change-user" href="#tickets/<?php echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> Change Ticket Owner</a></li>
+                    <li><a class="change-user" href="#tickets/<?php echo $ticket->getId(); ?>/change-user"><i class="fa fa-user"></i> Change Ticket Owner</a></li>
                 <?php
                  }
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
 
                     if($ticket->isAssigned()) { ?>
-                        <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="icon-user"></i> Release (unassign) Ticket</a></li>
+                        <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="fa fa-user"></i> Release (unassign) Ticket</a></li>
                     <?php
                     }
 
                     if(!$ticket->isOverdue()) { ?>
-                        <li><a class="confirm-action" id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> Mark as Overdue</a></li>
+                        <li><a class="confirm-action" id="ticket-overdue" href="#overdue"><i class="fa fa-bell"></i> Mark as Overdue</a></li>
                     <?php
                     }
 
                     if($ticket->isAnswered()) { ?>
-                        <li><a class="confirm-action" id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> Mark as Unanswered</a></li>
+                        <li><a class="confirm-action" id="ticket-unanswered" href="#unanswered"><i class="fa fa-arrow-circle-o-left"></i> Mark as Unanswered</a></li>
                     <?php
                     } else { ?>
-                        <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> Mark as Answered</a></li>
+                        <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="fa fa-arrow-circle-o-right"></i> Mark as Answered</a></li>
                     <?php
                     }
                 } ?>
@@ -112,16 +112,16 @@ if($ticket->isOverdue())
                     ?>/forms/manage" onclick="javascript:
                     $.dialog($(this).attr('href').substr(1), 201);
                     return false"
-                    ><i class="icon-paste"></i> Manage Forms</a></li>
+                    ><i class="fa fa-paste"></i> Manage Forms</a></li>
 
 <?php           if($thisstaff->canBanEmails()) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
-                            href="#banemail"><i class="icon-ban-circle"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
+                            href="#banemail"><i class="fa fa-ban"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
                 <?php
                      } elseif($unbannable) { ?>
                         <li><a  class="confirm-action" id="ticket-banemail"
-                            href="#unbanemail"><i class="icon-undo"></i> Unban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
+                            href="#unbanemail"><i class="fa fa-undo"></i> Unban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
                     <?php
                      }
                 }?>
@@ -166,7 +166,7 @@ if($ticket->isOverdue())
                                         $('select#emailreply option[value=1]').text(user.name+' <'+user.email+'>');
                                     });
                             return false;
-                            "><i class="icon-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
+                            "><i class="fa fa-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
                             ><?php echo Format::htmlchars($ticket->getName());
                         ?></span></a>
                         <?php
@@ -178,13 +178,13 @@ if($ticket->isOverdue())
                                 <ul>
                                     <?php
                                     if(($open=$user->getNumOpenTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="fa fa-folder-open-o"></i> %d Open Tickets</a></li>',
                                                 $user->getId(), $open);
                                     if(($closed=$user->getNumClosedTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="fa fa-folder-close-o"></i> %d Closed Tickets</a></li>',
                                                 $user->getId(), $closed);
                                     ?>
-                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
+                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="fa fa-angle-double-right"></i> All Tickets</a></li>
                                 </u>
                             </div>
                     <?php
@@ -861,7 +861,7 @@ $tcount+= $ticket->getNumNotes();
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3>Ticket Print Options</h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="print-form" name="print-form">
         <?php csrf_token(); ?>
@@ -900,7 +900,7 @@ $tcount+= $ticket->getNumNotes();
 </div>
 <div style="display:none;" class="dialog" id="ticket-status">
     <h3><?php echo sprintf('%s Ticket #%s', ($ticket->isClosed()?'Reopen':'Close'), $ticket->getNumber()); ?></h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <?php echo sprintf('Are you sure you want to <b>%s</b> this ticket?', $ticket->isClosed()?'REOPEN':'CLOSE'); ?>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="status-form" name="status-form">
@@ -931,7 +931,7 @@ $tcount+= $ticket->getNumNotes();
 </div>
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3>Please Confirm</h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="claim-confirm">
         Are you sure want to <b>claim</b> (self assign) this ticket?

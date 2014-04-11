@@ -113,7 +113,7 @@
   display: inline-block;
   float: left;
 }
-.action-button i.icon-caret-down {
+.action-button i.fa-caret-down {
   background-color: #dddddd;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100% #dddddd));
   background-image: -webkit-linear-gradient(top, #efefef 0%, #dddddd 100%);

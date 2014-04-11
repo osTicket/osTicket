@@ -3,7 +3,7 @@ if (!$info['title'])
     $info['title'] = Format::htmlchars($user->getName());
 ?>
 <h3><?php echo $info['title']; ?></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <hr/>
 <?php
 if ($info['error']) {
@@ -12,14 +12,14 @@ if ($info['error']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
 <div id="user-profile" style="display:<?php echo $forms ? 'none' : 'block'; ?>;margin:5px;">
-    <i class="icon-user icon-4x pull-left icon-border"></i>
+    <i class="fa fa-user fa-4x pull-left fa-border"></i>
     <?php
     if ($ticket) { ?>
     <a class="action-button pull-right change-user" style="overflow:inherit"
-        href="#tickets/<?php echo $ticket->getId(); ?>/change-user" ><i class="icon-user"></i> Change User</a>
+        href="#tickets/<?php echo $ticket->getId(); ?>/change-user" ><i class="fa fa-user"></i> Change User</a>
     <?php
     } ?>
-    <div><b><a href="#" id="edituser"><i class="icon-edit"></i>&nbsp;<?php
+    <div><b><a href="#" id="edituser"><i class="fa fa-edit"></i>&nbsp;<?php
     echo Format::htmlchars($user->getName()->getOriginal()); ?></a></b></div>
     <div>&lt;<?php echo $user->getEmail(); ?>&gt;</div>
     <table style="margin-top: 1em;">
@@ -41,7 +41,7 @@ if ($info['error']) {
     <div class="faded">Last updated <b><?php echo Format::db_datetime($user->getUpdateDate()); ?> </b></div>
 </div>
 <div id="user-form" style="display:<?php echo $forms ? 'block' : 'none'; ?>;">
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Please note that updates will be reflected system-wide.</p></div>
+<div><p id="msg_info"><i class="fa fa-info-circle"></i>&nbsp; Please note that updates will be reflected system-wide.</p></div>
 <?php
 $action = $info['action'] ? $info['action'] : ('#users/'.$user->getId());
 if ($ticket && $ticket->getOwnerId() == $user->getId())

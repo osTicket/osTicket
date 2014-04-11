@@ -32,7 +32,7 @@ if ($_POST)
                             $('#client-email').text(user.email);
                         });
                 return false;
-                "><i class="icon-user"></i>
+                "><i class="fa fa-user"></i>
             <span id="client-name"><?php echo Format::htmlchars($user->getName()); ?></span>
             &lt;<span id="client-email"><?php echo $user->getEmail(); ?></span>&gt;
             </a>
@@ -45,7 +45,7 @@ if ($_POST)
                                 $('#client-email').text('<'+user.email+'>');
                     });
                     return false;
-                "><i class="icon-edit"></i> Change</a>
+                "><i class="fa fa-edit"></i> Change</a>
             <input type="hidden" name="user_id" id="user_id"
                 value="<?php echo $info['user_id']; ?>" />
         </div>

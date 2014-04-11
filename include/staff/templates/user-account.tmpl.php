@@ -6,7 +6,7 @@ if (!$info['title'])
     $info['title'] = Format::htmlchars($user->getName());
 ?>
 <h3><?php echo $info['title']; ?></h3>
-<b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
+<b><a class="close" href="#"><i class="fa fa-times-circle-o"></i></a></b>
 <div class="clear"></div>
 <hr/>
 <?php
@@ -17,9 +17,9 @@ if ($info['error']) {
 } ?>
 <ul class="tabs">
     <li><a href="#user-account" <?php echo !$access? 'class="active"' : ''; ?>
-        ><i class="icon-user"></i>&nbsp;User Information</a></li>
+        ><i class="fa fa-user"></i>&nbsp;User Information</a></li>
     <li><a href="#user-access" <?php echo $access? 'class="active"' : ''; ?>
-        ><i class="icon-fixed-width icon-lock faded"></i>&nbsp;Manage Access</a></li>
+        ><i class="fa fa-fw fa-lock faded"></i>&nbsp;Manage Access</a></li>
 </ul>
 
 

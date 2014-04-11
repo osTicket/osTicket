@@ -1,5 +1,5 @@
 <h3>Manage Content &mdash; <?php echo Format::htmlchars($content->getName()); ?></h3>
-<a class="close" href=""><i class="icon-remove-circle"></i></a>
+<a class="close" href=""><i class="fa fa-times-circle-o"></i></a>
 <hr/>
 <form method="post" action="#content/<?php echo $content->getId(); ?>">
     <input type="text" style="width: 100%; font-size: 14pt" name="name" value="<?php
