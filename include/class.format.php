@@ -353,6 +353,7 @@ class Format {
                             .'&amp;auth='.$token;
                     // ALL link targets open in a new tab
                     $a['target'] = '_blank';
+                    $a['class'] = 'no-pjax';
                 }
                 // Images which are external are rewritten to <div
                 // data-src='url...'/>
