@@ -2469,11 +2469,18 @@ class Ticket {
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 
-        //Auto assign staff or team - auto assignment based on filter rules.
-        if($vars['staffId'] && !$vars['assignId'])
-             $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
-        if($vars['teamId'] && !$vars['assignId'])
-            $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+        // Assign ticket to staff or team (new ticket by staff)
+        if($vars['assignId']) {
+            $ticket->assign($vars['assignId'], $vars['note']);
+        }
+        else {
+            // Auto assign staff or team - auto assignment based on filter
+            // rules. Both team and staff can be assigned
+            if ($vars['staffId'])
+                 $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
+            if ($vars['teamId'])
+                $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+        }
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
@@ -2540,7 +2547,10 @@ class Ticket {
                 $errors['name'] = 'Name required';
         }
 
-        if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
+        if (!$thisstaff->canAssignTickets())
+            unset($vars['assignId']);
+
+        if(!($ticket=Ticket::create($vars, $errors, 'staff', false)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();
@@ -2561,13 +2571,14 @@ class Ticket {
             }
         }
 
-        //Post Internal note
-        if($vars['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
-            $ticket->assign($vars['assignId'], $vars['note']);
-        } elseif($vars['note']) { //Not assigned...save optional note if any
+        // Not assigned...save optional note if any
+        if (!$vars['assignId'] && $vars['note']) {
             $ticket->logNote('New Ticket', $vars['note'], $thisstaff, false);
-        } else { //Not assignment and no internal note - log activity
-            $ticket->logActivity('New Ticket by Staff','Ticket created by staff -'.$thisstaff->getName());
+        }
+        else {
+            // Not assignment and no internal note - log activity
+            $ticket->logActivity('New Ticket by Staff',
+                'Ticket created by staff -'.$thisstaff->getName());
         }
 
         $ticket->reload();
