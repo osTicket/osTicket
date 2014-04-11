@@ -138,9 +138,12 @@ class Thread {
              .' ORDER BY thread.created '.$order;
 
         $entries = array();
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while($rec=db_fetch_array($res))
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while($rec=db_fetch_array($res)) {
+                $rec['body'] = ThreadBody::fromFormattedText($rec['body'], $rec['format']);
                 $entries[] = $rec;
+            }
+        }
 
         return $entries;
     }
@@ -305,15 +308,22 @@ Class ThreadEntry {
     }
 
     function getBody() {
-        return $this->ht['body'];
+        return ThreadBody::fromFormattedText($this->ht['body'], $this->ht['format']);
     }
 
     function setBody($body) {
         global $cfg;
 
+        if (!$body instanceof ThreadBody) {
+            if ($cfg->isHtmlThreadEnabled())
+                $body = new HtmlThreadBody($body);
+            else
+                $body = new TextThreadBody($body);
+        }
+
         $sql='UPDATE '.TICKET_THREAD_TABLE.' SET updated=NOW()'
-            .',body='.db_input(Format::sanitize($body,
-                !$cfg->isHtmlThreadEnabled()))
+            .',format='.db_input($body->getType())
+            .',body='.db_input((string) $body)
             .' WHERE id='.db_input($this->getId());
         return db_query($sql) && db_affected_rows();
     }
@@ -760,7 +770,7 @@ Class ThreadEntry {
     /* variables */
 
     function __toString() {
-        return $this->getBody();
+        return (string) $this->getBody();
     }
 
     function asVar() {
@@ -969,9 +979,7 @@ Class ThreadEntry {
                 $vars['body'] = new TextThreadBody($vars['body']);
         }
 
-        // Drop stripped images. NOTE: This should be done before
-        // ->convert() because the strippedImages list will not propagate to
-        // the newly converted thread body
+        // Drop stripped images
         if ($vars['attachments']) {
             foreach ($vars['body']->getStrippedImages() as $cid) {
                 foreach ($vars['attachments'] as $i=>$a) {
@@ -994,8 +1002,7 @@ Class ThreadEntry {
             }
         }
 
-        if (!($body = Format::sanitize(
-                (string) $vars['body']->convertTo('html'))))
+        if (!($body = $vars['body']->getClean()))
             $body = '-'; //Special tag used to signify empty message as stored.
 
         $poster = $vars['poster'];
@@ -1006,6 +1013,7 @@ Class ThreadEntry {
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
+            .' ,format='.db_input($vars['body']->getType())
             .' ,staff_id='.db_input($vars['staffId'])
             .' ,user_id='.db_input($vars['userId'])
             .' ,poster='.db_input($poster)
@@ -1251,13 +1259,21 @@ class ThreadBody /* extends SplString */ {
     var $type;
     var $stripped_images = array();
     var $embedded_images = array();
+    var $options = array(
+        'strip-embedded' => true
+    );
 
-    function __construct($body, $type='text') {
+    function __construct($body, $type='text', $options=array()) {
         $type = strtolower($type);
         if (!in_array($type, static::$types))
             throw new Exception($type.': Unsupported ThreadBody type');
         $this->body = (string) $body;
         $this->type = $type;
+        $this->options = array_merge($this->options, $options);
+    }
+
+    function isEmpty() {
+        return !$this->body || $this->body == '-';
     }
 
     function convertTo($type) {
@@ -1307,21 +1323,66 @@ class ThreadBody /* extends SplString */ {
         return $this->embedded_images;
     }
 
+    function getType() {
+        return $this->type;
+    }
+
+    function getClean() {
+        return trim($this->body);
+    }
+
     function __toString() {
-        return $this->body;
+        return (string) $this->body;
+    }
+
+    function toHtml() {
+        return $this->display('html');
+    }
+
+    function display($format=false) {
+        throw new Exception('display: Abstract dispplay() method not implemented');
+    }
+
+    static function fromFormattedText($text, $format=false) {
+        switch ($format) {
+        case 'text':
+            return new TextThreadBody($text);
+        case 'html':
+            return new HtmlThreadBody($text, array('strip-embedded'=>false));
+        default:
+            return new ThreadBody($text);
+        }
     }
 }
 
 class TextThreadBody extends ThreadBody {
-    function __construct($body) {
-        parent::__construct(Format::stripEmptyLines($body), 'text');
+    function __construct($body, $options=array()) {
+        parent::__construct($body, 'text', $options);
+    }
+
+    function getClean() {
+        return Format::stripEmptyLines($this->body);
+    }
+
+    function display($output=false) {
+        if ($this->isEmpty())
+            return '(empty)';
+
+        switch ($output) {
+        case 'html':
+            return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
+        case 'pdf':
+            return nl2br($this->body);
+        default:
+            return '<pre>'.$this->body.'</pre>';
+        }
     }
 }
 class HtmlThreadBody extends ThreadBody {
-    function __construct($body) {
-        $body = $this->extractEmbeddedHtmlImages($body);
-        $body = trim($body, " <>br/\t\n\r") ? Format::safe_html($body) : '';
-        parent::__construct($body, 'html');
+    function __construct($body, $options=array()) {
+        parent::__construct($body, 'html', $options);
+        if ($this->options['strip-embedded'])
+            $this->body = $this->extractEmbeddedHtmlImages($this->body);
     }
 
     function extractEmbeddedHtmlImages($body) {
@@ -1335,6 +1396,22 @@ class HtmlThreadBody extends ThreadBody {
             $self->embedded_images[] = $info;
             return 'src="cid:'.$info['cid'].'"';
         }, $body);
+    }
+
+    function getClean() {
+        return trim($body, " <>br/\t\n\r") ? Format::sanitize($body) : '';
+    }
+
+    function display($output=false) {
+        if ($this->isEmpty())
+            return '(empty)';
+
+        switch ($output) {
+        case 'pdf':
+            return Format::clickableurls($this->body, false);
+        default:
+            return Format::display($this->body);
+        }
     }
 }
 ?>

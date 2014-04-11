@@ -342,10 +342,7 @@ $tcount+= $ticket->getNumNotes();
     /* -------- Messages & Responses & Notes (if inline)-------------*/
     $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
-       foreach($thread as $entry) {
-           if ($entry['body'] == '-')
-               $entry['body'] = '(EMPTY)';
-           ?>
+       foreach($thread as $entry) { ?>
         <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
                 <th colspan="4" width="100%">
@@ -365,7 +362,7 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry['id']; ?>"><div><?php
-                echo Format::viewableImages(Format::display($entry['body'])); ?></div></td></tr>
+                echo $entry['body']->toHtml(); ?></div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry = $ticket->getThreadEntry($entry['id']))
