@@ -375,7 +375,8 @@ $tcount+= $ticket->getNumNotes();
             if ($urls) { ?>
                 <script type="text/javascript">
                     $(function() { showImagesInline(<?php echo
-                        JsonDataEncoder::encode($urls); ?>); });
+                        JsonDataEncoder::encode($urls); ?>, <?php echo
+                        $entry['id']; ?>); });
                 </script>
 <?php
             } ?>

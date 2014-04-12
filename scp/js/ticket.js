@@ -414,10 +414,10 @@ showImagesInline = function(urls, thread_id) {
         ? '.thread-body img[data-cid]'
         : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
     $(selector).each(function(i, el) {
-        var cid = $(el).data('cid').toLowerCase(),
-            info = urls[cid],
-            e = $(el);
-        if (info) {
+        var e = $(el),
+            cid = e.data('cid').toLowerCase(),
+            info = urls[cid];
+        if (info && !e.data('wrapped')) {
             // Add a hover effect with the filename
             var timeout, caption = $('<div class="image-hover">')
                 .css({'float':e.css('float')});
@@ -437,6 +437,7 @@ showImagesInline = function(urls, thread_id) {
                     .append('<span class="filename">'+info.filename+'</span>')
                     .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
                 );
+            e.data('wrapped', true);
         }
     });
 }
