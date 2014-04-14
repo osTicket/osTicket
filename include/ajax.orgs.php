@@ -101,7 +101,7 @@ class OrgsAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/org-delete.tmpl.php');
     }
 
-    function addUser($id, $userId=0) {
+    function addUser($id, $userId=0, $remote=false) {
         global $thisstaff;
 
         if (!$thisstaff)
@@ -136,6 +136,13 @@ class OrgsAjaxAPI extends AjaxController {
             elseif (!$info['error'])
                 $info['error'] = 'Unable to add user to the organization - try again';
 
+        } elseif ($remote && $userId) {
+            list($bk, $userId) = explode(':', $userId, 2);
+            if (!($backend = AuthenticationBackend::getSearchDirectoryBackend($bk))
+                    || !($user_info = $backend->lookup($userId)))
+                Http::response(404, 'User not found');
+
+            $form = UserForm::getUserForm()->getForm($user_info);
         } elseif ($userId) //Selected local user
             $user = User::lookup($userId);
 
