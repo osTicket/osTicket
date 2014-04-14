@@ -6,8 +6,8 @@
 #
 ---
 notes: >
-    Initial (optional) email sent to staff members when accounts are created
-    for them in the staff control panel
+    This template defines the initial email (optional) sent to Agents when an account
+    is created on their behalf.
 name: "Welcome to osTicket"
 body: >
     <h3><strong>Hi %{recipient.name.first},</strong></h3>

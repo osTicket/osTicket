@@ -6,8 +6,9 @@
 #
 ---
 notes: >
-    Ticket access link sent to clients for guest-only systems where the ticket
-    number and email address will trigger an access link sent via email
+    This template defines the notification for Clients that an access link was 
+    sent to their email. The ticket number and email address trigger the access 
+    link.
 name: "Ticket [#%{ticket.number}] Access Link"
 body: >
     <h3><strong>Hi %{recipient.name.first},</strong></h3>

@@ -6,8 +6,7 @@
 #
 ---
 notes: |
-    The offline page is served to the customer portal when the help desk is
-    configured offline in the Admin Panel
+    The Offline Page appears in the Customer Portal when the Help Desk is offline.
 
 name: Offline
 body: |
