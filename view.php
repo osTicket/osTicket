@@ -19,7 +19,10 @@ require_once('client.inc.php');
 // Try autologin the user
 // Authenticated user can be of type ticket owner or collaborator
 $errors = array();
-$user =  UserAuthenticationBackend::processSignOn($errors, false);
+if (isset($_GET['auth']) || isset($_GET['t']))
+    // TODO: Consider receiving an AccessDenied object
+    $user =  UserAuthenticationBackend::processSignOn($errors, false);
+
 if ($user && $user->getTicketId())
     Http::redirect('tickets.php?id='.$user->getTicketId());
 
