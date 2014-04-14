@@ -363,13 +363,18 @@ class AttachmentFile {
         // otherwise.
         $succeeded = false;
         foreach ($bks as $bk) {
-            if (isset($file['tmp_name'])) {
-                if ($bk->upload($file['tmp_name'])) {
+            try {
+                if (isset($file['tmp_name'])) {
+                    if ($bk->upload($file['tmp_name'])) {
+                        $succeeded = true; break;
+                    }
+                }
+                elseif ($bk->write($file['data']) && $bk->flush()) {
                     $succeeded = true; break;
                 }
             }
-            elseif ($bk->write($file['data']) && $bk->flush()) {
-                $succeeded = true; break;
+            catch (Exception $e) {
+                // Try next backend
             }
             // Fallthrough to default backend if different?
         }
@@ -418,11 +423,17 @@ class AttachmentFile {
         // TODO: Make this resumable so that if the file cannot be migrated
         //      in the max_execution_time, the migration can be continued
         //      the next time the cron runs
-        while ($block = $source->read($target->getBlockSize())) {
-            hash_update($before, $block);
-            $target->write($block);
+        try {
+            while ($block = $source->read($target->getBlockSize())) {
+                hash_update($before, $block);
+                $target->write($block);
+            }
+            $target->flush();
         }
-        $target->flush();
+        catch (Exception $e) {
+            // Migration failed
+            return false;
+        }
 
         // Ask the backend to generate its own hash if at all possible
         if (!($target_hash = $target->getHashDigest($common_algo))) {
