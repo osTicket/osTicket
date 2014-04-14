@@ -786,7 +786,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function __contains($a, $b) {
         # {%a} like %{$b}%
-        return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
+        return sprintf('%s LIKE %s', $a, $this->input($b = "%$b%"));
     }
 
     function __in($a, $b) {

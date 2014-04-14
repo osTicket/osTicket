@@ -2300,18 +2300,27 @@ class Ticket {
 
             // Allow vars to be changed in ticket filter and applied to the user
             // account created or detected
+            if (!$user && $vars['email'])
+                $user = User::lookupByEmail($vars['email']);
+
             if (!$user) {
+                // Reject emails if not from registered clients (if
+                // configured)
+                if ($source == 'email' && !$cfg->acceptUnregisteredEmail()) {
+                    list($mailbox, $domain) = explode('@', $vars['email'], 2);
+                    // Users not yet created but linked to an organization
+                    // are still acceptable
+                    if (!Organization::forDomain($domain)) {
+                        return $reject_ticket(
+                            sprintf('Ticket rejected (%s) (unregistered client)',
+                                $vars['email']));
+                    }
+                }
+
                 $user_form = UserForm::getUserForm()->getForm($vars);
                 if (!$user_form->isValid($field_filter('user'))
                         || !($user=User::fromVars($user_form->getClean())))
                     $errors['user'] = 'Incomplete client information';
-            }
-
-            // Reject emails if not from registered clients (if configured)
-            if (!$cfg->acceptUnregisteredEmail() && !$user->getAccount()) {
-                return $reject_ticket(
-                    sprintf('Ticket rejected (%s) (unregistered client)',
-                        $vars['email']));
             }
         }
 

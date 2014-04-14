@@ -159,11 +159,27 @@ class Organization extends OrganizationModel {
 
     function isMappedToDomain($domain) {
         foreach (explode(',', $this->domain) as $d) {
-            if (strcasecmp($domain, trim($d)) === 0) {
+            $d = trim($d);
+            if ($d[0] == '.') {
+                // Subdomain syntax (.osticket.com accepts all subdomains of
+                // osticket.com)
+                if (strcasecmp(mb_substr($domain, -mb_strlen($d)), $d) === 0)
+                    return true;
+            }
+            elseif (strcasecmp($domain, $d) === 0) {
                 return true;
             }
         }
         return false;
+    }
+
+    static function forDomain($domain) {
+        foreach (static::objects()
+                ->filter(array('domain__contains'=>$domain)) as $org) {
+            if ($org->isMappedToDomain($domain)) {
+                return $org;
+            }
+        }
     }
 
     function to_json() {
