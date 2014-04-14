@@ -796,7 +796,7 @@ Class ThreadEntry {
                 // will be available to retrieve the image later
                 if ($a['cid']) {
                     $a['hash'] = Misc::randCode(32);
-                    $vars['body'] = str_replace('src="cid:'.$a['cid'].'"',
+                    $vars['body'] = preg_replace('/src=("|\'|\b)(?:cid:)?'.$a['cid'].'\1/i',
                         'src="cid:'.$a['hash'].'"', $vars['body']);
                 }
             }
