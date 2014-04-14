@@ -138,6 +138,14 @@ abstract class AuthenticationBackend {
             return $backends[$id];
     }
 
+    static function getSearchDirectoryBackend($id) {
+
+        if ($id
+                && ($backends = static::getSearchDirectories())
+                && isset($backends[$id]))
+            return $backends[$id];
+    }
+
     /*
      * Allow the backend to do login audit depending on the result
      * This is mainly used to track failed login attempts
@@ -229,13 +237,24 @@ abstract class AuthenticationBackend {
         self::authAudit($result);
     }
 
+    static function getSearchDirectories() {
+        $backends = array();
+        foreach (StaffAuthenticationBackend::allRegistered() as $bk)
+            if ($bk instanceof AuthDirectorySearch)
+                $backends[$bk::$id] = $bk;
+
+        foreach (UserAuthenticationBackend::allRegistered() as $bk)
+            if ($bk instanceof AuthDirectorySearch)
+                $backends[$bk::$id] = $bk;
+
+        return array_unique($backends);
+    }
+
     static function searchUsers($query) {
         $users = array();
-        foreach (static::allRegistered() as $bk) {
-            if ($bk instanceof AuthDirectorySearch) {
-                $users += $bk->search($query);
-            }
-        }
+        foreach (static::getSearchDirectories() as $bk)
+            $users += $bk->search($query);
+
         return $users;
     }
 
