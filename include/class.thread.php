@@ -1048,7 +1048,7 @@ Class ThreadEntry {
                 // content-id will be discarded, only the unique hash-code
                 // will be available to retrieve the image later
                 if ($a['cid'] && $a['key']) {
-                    $body = preg_replace('/src=("|\'|\b)cid:'.$a['cid'].'\1/i',
+                    $body = preg_replace('/src=("|\'|\b)(?:cid:)?'.$a['cid'].'\1/i',
                         'src="cid:'.$a['key'].'"', $body);
                 }
             }
