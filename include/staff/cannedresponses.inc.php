@@ -48,7 +48,7 @@ else
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Canned Responses</h2>
+ <h2>Canned Responses&nbsp;<i class="help-tip icon-question-sign" href="#canned_responses"></i></h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
     <b><a href="canned.php?a=add" class="Icon newReply">Add New Response</a></b></div>

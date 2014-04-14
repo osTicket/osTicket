@@ -1,5 +1,5 @@
 #
-# This is popup help messages for the Admin Panel -> Settings -> System page
+# This is popup help messages for the Account Panel ->
 #
 # Fields:
 # title - Shown in bold at the top of the popover window
@@ -13,59 +13,192 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-new_ticket:
+page_title:
+    title: Alerts and Notices
+    content: >
+        Alerts and Notices are automated messages sent to staff members
+        related to ticket events. The following table allows you to
+        configure which events should trigger automated notifications, and,
+        for those which are enabled, which staff members should be included
+        on the automated notifications.
+
+new_ticket_alert:
     title: New Ticket Alert
     content: >
-        Alert sent out to staff members when new tickets are created in the
-        system.
-    links:
+        Pertains to alerts that are sent out when new tickets are created by
+        Clients.
+   links:
       - title: Default New Ticket Alert Template
         href: /scp/templates.php?default_for=ticket.alert
 
-new_message:
+status:
+    title: Status
+    content: >
+        You may choose to disable whether any notice of New Tickets are sent out at
+        all.
+
+new_message_alert:
     title: New Message Alert
     content: >
-        Alert sent out when a new message, from the user, is appended to an
-        existing ticket
+        Alert sent out when a New Message from the Client is appended to an
+        existing ticket.
     links:
       - title: Default New Message Alert Template
         href: /scp/templates.php?default_for=message.alert
 
-new_activity:
+status_2:
+    title: Status
+    content: >
+        You may disable this Alert.
+
+last_respondent:
+    title: Last Respondent
+    content: >
+        Choose whether you would like the last Agent to have communicated with the
+        Client to be Alerted of the Client’s reply.
+
+assigned_staff:
+    title: Assigned Staff
+    content: >
+        Choose whether you would like the Assigned Agent to receive an Alert of a
+        Client’s reply.
+
+department_manager:
+    title: Department Manager
+    content: >
+        If enabled, the Department Manager’s Inbox could be flooded unnecessarily
+        with Email Alerts.
+
+new_internal_note_alert:
     title: New Internal Note Alert
     content: >
-        Alert sent out when a new internal note is posted
+        Pertains to alerts that are sent out when a new <span
+        class="doc-desc-title">Internal Note</span> is recorded.
     links:
       - title: Default Ticket Activity Template
         href: /scp/templates.php?default_for=note.alert
 
-assign_alert:
-    title: Alert on Assignment
+last_respondent_2:
+    title: Last Respondent
     content: >
-        Alert sent out to staff on ticket assignment
+        If enabled, the last Agent to have communicated with the Client will
+        receive an Alert that an Agent has recorded a new Internal Note on a Ticket
+        with which they have been involved.
+
+assigned_staff_2:
+    title: Assigned Staff
+    content: >
+        If enabled, the last Agent assigned to the Ticket will receive an Alert
+        that an Agent has recorded a new Internal Note.
+
+department_manager_2:
+    title: Department Manager
+    content: >
+        If enabled, the Department Manager’s Inbox could be flooded unnecessarily
+        with Email Alerts.
+
+ticket_assignment_alert:
+    title: Ticket Assignment Alert
+    content: >
+        Pertains to alerts that are sent out to Agents when a ticket is assigned.
     links:
       - title: Default Ticket Assignment Alert Template
         href: /scp/templates.php?default_for=assigned.alert
 
-transfer_alert:
-    title: Alert on Transfer
+assigned_staff_3:
+    title: Assigned Staff
     content: >
-        Alert sent out to staff of the target department on ticket transfer
+        If enabled, the Agent being assigned to a Ticket will receive an Alert
+        notifying them of such.
+
+team_lead:
+    title: Team Lead
+    content: >
+        If enabled, if a Ticket is assigned to a Team, the Team Lead will be
+        alerted of the new Assigned Ticket. (To manage your Teams, see Admin Panel
+        -> Agent (Staff) Members -> Teams).
+
+team_members:
+    title: Team Members
+    content: >
+        If enabled, if a Ticket is assigned to a Team, the entire Team will be
+        alerted of the new Assigned Ticket. This may cause an unnecessary amount of
+        Email traffic and should be used with caution. (To manage your Teams, see
+        Admin Panel -> Agent (Staff) Members -> Teams).
+
+ticket_transfer_alert:
+    title: Ticket Transfer Alert
+    content: >
+        Pertains to alerts that are sent out to the target <span
+        class="doc-desc-title">department</span> when a ticket is transferred.
     links:
       - title: Default Ticket Transfer Alert Template
         href: /scp/templates.php?default_for=transfer.alert
 
-stale_alert:
-    title: Alert on Stale Ticket
+assigned_staff_team:
+    title: Assigned Staff/Team
     content: >
-        Alert sent out when a ticket becomes overdue - admin email gets an
-        alert by default
+        If enabled, the new Agent/Team of the targeted Department will be alerted
+        of such.
+
+department_manager_3:
+    title: Department Manager
+    content: >
+        If enabled, when a Ticket is transferred to a new Department, the Manager
+        of the targeted Department will be alerted of such.
+
+department_members:
+    title: Department Members
+    content: >
+        If enabled, the every member of the Targeted Department will receive an
+        Alert of the Ticket Transfer. This may cause an unnecessary amount of Email
+        traffic and should be used with caution.
+
+overdue_ticket_alert:
+    title: Overdue Ticket Alert
+    content: >
+        Pertains to alerts that are sent out when a ticket becomes overdue. The
+        <span class="doc-desc-title">Administrator</span> receives an alert by
+        default.
     links:
       - title: Default Stale Ticket Alert Template
         href: /scp/templates.php?default_for=ticket.overdue
 
-meltdowns:
+assigned_staff_team_2:
+    title: Assigned Staff/Team
+    content: >
+        The Agent or Team that is assigned to the Ticket entering an Overdue status
+        will be alerted of such.
+
+department_manager_4:
+    title: Department Manager
+    content: >
+        The Manager of the Department whose Ticket enters an Overdue status will be
+        alerted.
+
+department_members_2:
+    title: Department Members
+    content: >
+        If enabled, every member of the <span class="doc-desc-title">Department</span> will receive an Alert of the
+        Overdue status of the ticket. This may cause an unnecessary amount of Email
+        traffic and should be used with caution.
+
+system_alerts:
+    title: System Alerts
+    content: >
+        Pertains to alerts that are sent out when a <span
+        class="doc-desc-title">System Error</span> occurs. This is enabled by
+        default. Errors are sent to the system <span
+        class="doc-desc-title">Administrator</span> (%{config.admin_email}).
+
+system_errors:
     title: System Errors
     content: >
-        Enabled by default. Errors are sent to system admin email
-        (%{config.admin_email})
+        This is enabled by default. Alerts of System Errors are sent to the System
+        Administrator’s Email.
+
+excessive_login_attempts:
+    title: Excessive Login Attempts
+    content: >
+        If enabled, the System Administrator will be alerted when a Client or Agent
+        undergoes excessive failed login attempts.

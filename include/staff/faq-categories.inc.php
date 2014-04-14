@@ -2,7 +2,7 @@
 if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 
 ?>
-<h2>Frequently Asked Questions</h2>
+<h2>Frequently Asked Questions&nbsp;<i class="help-tip icon-question-sign" href="#page_header"></i></h2>
 <form id="kbSearch" action="kb.php" method="get">
     <input type="hidden" name="a" value="search">
     <div>
@@ -100,7 +100,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         .' GROUP BY cat.category_id '
         .' ORDER BY cat.name';
     if(($res=db_query($sql)) && db_num_rows($res)) {
-        echo '<div>Click on the category to browse FAQs.</div>
+        echo '<div>Click on a category to add new FAQs or manage its existing FAQs.&nbsp;</div>
                 <ul id="kb">';
         while($row=db_fetch_array($res)) {
 

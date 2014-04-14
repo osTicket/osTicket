@@ -49,6 +49,7 @@ if($_POST){
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />');
 require(STAFFINC_DIR.'header.inc.php');
 ?>
 <form action="emailtest.php" method="post" id="save">
@@ -59,7 +60,7 @@ require(STAFFINC_DIR.'header.inc.php');
     <thead>
         <tr>
             <th colspan="2">
-                <em>Emails delivery depends on your server settings (php.ini) and/or email SMTP configuration.</em>
+                <em>Use the following form to test whether your <strong>Outgoing Email</strong> settings are properly established.&nbsp;<i class="help-tip icon-question-sign" href="#test_outgoing_email"></i></em>
             </th>
         </tr>
     </thead>

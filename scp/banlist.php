@@ -120,10 +120,14 @@ if($_POST && !$errors && $filter){
 }
 
 $page='banlist.inc.php';
-if(!$filter || ($rule || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))))
+$tip_namespace = 'emails.banlist';
+if(!$filter || ($rule || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))) {
     $page='banrule.inc.php';
+    $tip_namespace = 'emails.manage_banlist';
+}
 
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

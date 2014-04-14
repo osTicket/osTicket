@@ -32,22 +32,20 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                     ?>
                 </select>
                 <font class="error"><?php echo $errors['passwd_reset_period']; ?></font>
-                <i class="help-tip icon-question-sign" href="#password_reset"></i>
+                <i class="help-tip icon-question-sign" href="#password_expiration_policy"></i>
             </td>
         </tr>
         <tr><td>Allow Password Resets:</th>
             <td>
               <input type="checkbox" name="allow_pw_reset" <?php echo $config['allow_pw_reset']?'checked="checked"':''; ?>>
-              <em>Enables the <u>Forgot my password</u> link on the staff
-              control panel</em>
+              &nbsp;<i class="help-tip icon-question-sign" href="#allow_password_resets"></i>
             </td>
         </tr>
-        <tr><td>Password Reset Window:</th>
+        <tr><td>Reset Token Expiration:</th>
             <td>
               <input type="text" name="pw_reset_window" size="6" value="<?php
                     echo $config['pw_reset_window']; ?>">
-                Maximum time <em>in minutes</em> a password reset token can
-                be valid.
+                <em>mins</em>&nbsp;<i class="help-tip icon-question-sign" href="#reset_token_expiration"></i>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['pw_reset_window']; ?></font>
             </td>
         </tr>
@@ -72,13 +70,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         <tr><td>Staff Session Timeout:</td>
             <td>
               <input type="text" name="staff_session_timeout" size=6 value="<?php echo $config['staff_session_timeout']; ?>">
-                Maximum idle time in minutes before a staff member must log in again (enter 0 to disable).
+                mins <em>( 0 to disable)</em>. <i class="help-tip icon-question-sign" href="#staff_session_timeout"></i>
             </td>
         </tr>
         <tr><td>Bind Staff Session to IP:</td>
             <td>
               <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
-              <em>(binds staff session to originating IP address upon login)</em>
+              <i class="help-tip icon-question-sign" href="#bind_staff_session_to_ip"></i>
             </td>
         </tr>
         <tr>
@@ -128,7 +126,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         <tr><td>Client Session Timeout:</td>
             <td>
               <input type="text" name="client_session_timeout" size=6 value="<?php echo $config['client_session_timeout']; ?>">
-                &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable).
+                &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable). <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
             </td>
         </tr>
     </tbody>

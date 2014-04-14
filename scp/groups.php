@@ -95,10 +95,14 @@ if($_POST){
 }
 
 $page='groups.inc.php';
-if($group || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'staff.groups';
+if($group || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='group.inc.php';
+    $tip_namespace = 'staff.addnew_groups';
+}
 
 $nav->setTabActive('staff');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');
