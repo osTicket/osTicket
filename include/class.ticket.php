@@ -937,6 +937,16 @@ class Ticket {
             if($cfg->alertDeptManagerONNewTicket() && $dept && ($manager=$dept->getManager()))
                 $recipients[]= $manager;
 
+            // Account manager
+            if ($cfg->alertAcctManagerONNewMessage()
+                    && ($org = $this->getOwner()->getOrganization())
+                    && ($acct_manager = $org->getAcctManager())) {
+                if ($acct_manager instanceof Team)
+                    $recipients = array_merge($recipients, $acct_manager->getMembers());
+                else
+                    $recipients[] = $acct_manager;
+            }
+
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -1132,7 +1142,7 @@ class Ticket {
                 $recipients[] = $assignee;
         } elseif(!strcasecmp(get_class($assignee), 'Team')) {
             if($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembers()))
-                $recipients+=$members;
+                $recipients = array_merge($recipients, $members);
             elseif($cfg->alertTeamLeadONAssignment() && ($lead=$assignee->getTeamLead()))
                 $recipients[] = $lead;
         }
@@ -1388,11 +1398,11 @@ class Ticket {
                 if($this->getStaffId())
                     $recipients[]=$this->getStaff();
                 elseif($this->getTeamId() && ($team=$this->getTeam()) && ($members=$team->getMembers()))
-                    $recipients+=$members;
+                    $recipients = array_merge($recipients, $members);
             } elseif($cfg->alertDeptMembersONTransfer() && !$this->isAssigned()) {
                 //Only alerts dept members if the ticket is NOT assigned.
                 if(($members=$dept->getMembers()))
-                    $recipients+=$members;
+                    $recipients = array_merge($recipients, $members);
             }
 
             //Always alert dept manager??
@@ -1619,6 +1629,16 @@ class Ticket {
             //Dept manager
             if($cfg->alertDeptManagerONNewMessage() && $dept && ($manager=$dept->getManager()))
                 $recipients[]=$manager;
+
+            // Account manager
+            if ($cfg->alertAcctManagerONNewMessage()
+                    && ($org = $this->getOwner()->getOrganization())
+                    && ($acct_manager = $org->getAcctManager())) {
+                if ($acct_manager instanceof Team)
+                    $recipients = array_merge($recipients, $acct_manager->getMembers());
+                else
+                    $recipients[] = $acct_manager;
+            }
 
             $sentlist=array(); //I know it sucks...but..it works.
             foreach( $recipients as $k=>$staff) {
@@ -2333,6 +2353,15 @@ class Ticket {
             $source = 'Email';
         }
 
+        // Auto assignment to organization account manager
+        if (($org = $user->getOrganization())
+                && ($code = $org->getAccountManagerId())) {
+            if (!isset($vars['staffId']) && $code[0] == 's')
+                $vars['staffId'] = substr($code, 1);
+            elseif (!isset($vars['teamId']) && $code[0] == 't')
+                $vars['teamId'] = substr($code, 1);
+        }
+
         // Intenal mapping magic...see if we need to override anything
         if (isset($topic)) {
             $deptId = $deptId ?: $topic->getDeptId();
@@ -2409,6 +2438,28 @@ class Ticket {
 
         $dept = $ticket->getDept();
 
+        // Add organizational collaborators
+        if ($org && $org->autoAddCollabs()) {
+            $pris = $org->autoAddPrimaryContactsAsCollabs();
+            $members = $org->autoAddMembersAsCollabs();
+            $settings = array('isactive' => true);
+            $collabs = array();
+            foreach ($org->allMembers() as $u) {
+                if ($members || ($pris && $u->isPrimaryContact())) {
+                    if ($c = $this->addCollaborator($u, $settings, $errors)) {
+                        $collabs[] = (string) $c;
+                    }
+                }
+            }
+            //TODO: Can collaborators add others?
+            if ($collabs) {
+                //TODO: Change EndUser to name of  user.
+                $this->logNote(sprintf('Collaborators for %s organization added',
+                        $org->getName()),
+                    implode("<br>", $collabs), $org->getName(), false);
+            }
+        }
+
         //post the message.
         unset($vars['cannedattachments']); //Ticket::open() might have it set as part of  open & respond.
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
@@ -2418,11 +2469,18 @@ class Ticket {
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 
-        //Auto assign staff or team - auto assignment based on filter rules.
-        if($vars['staffId'] && !$vars['assignId'])
-             $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
-        if($vars['teamId'] && !$vars['assignId'])
-            $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+        // Assign ticket to staff or team (new ticket by staff)
+        if($vars['assignId']) {
+            $ticket->assign($vars['assignId'], $vars['note']);
+        }
+        else {
+            // Auto assign staff or team - auto assignment based on filter
+            // rules. Both team and staff can be assigned
+            if ($vars['staffId'])
+                 $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
+            if ($vars['teamId'])
+                $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+        }
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
@@ -2489,7 +2547,10 @@ class Ticket {
                 $errors['name'] = 'Name required';
         }
 
-        if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
+        if (!$thisstaff->canAssignTickets())
+            unset($vars['assignId']);
+
+        if(!($ticket=Ticket::create($vars, $errors, 'staff', false)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();
@@ -2510,13 +2571,14 @@ class Ticket {
             }
         }
 
-        //Post Internal note
-        if($vars['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
-            $ticket->assign($vars['assignId'], $vars['note']);
-        } elseif($vars['note']) { //Not assigned...save optional note if any
+        // Not assigned...save optional note if any
+        if (!$vars['assignId'] && $vars['note']) {
             $ticket->logNote('New Ticket', $vars['note'], $thisstaff, false);
-        } else { //Not assignment and no internal note - log activity
-            $ticket->logActivity('New Ticket by Staff','Ticket created by staff -'.$thisstaff->getName());
+        }
+        else {
+            // Not assignment and no internal note - log activity
+            $ticket->logActivity('New Ticket by Staff',
+                'Ticket created by staff -'.$thisstaff->getName());
         }
 
         $ticket->reload();

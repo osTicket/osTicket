@@ -61,11 +61,12 @@ class OrgsAjaxAPI extends AjaxController {
         );
 
         $forms = $org->getForms();
+        $action = "#orgs/{$org->id}/profile";
 
-        include(STAFFINC_DIR . 'templates/org.tmpl.php');
+        include(STAFFINC_DIR . 'templates/org-profile.tmpl.php');
     }
 
-    function updateOrg($id) {
+    function updateOrg($id, $profile=false) {
         global $thisstaff;
 
         if(!$thisstaff)
@@ -78,7 +79,15 @@ class OrgsAjaxAPI extends AjaxController {
              Http::response(201, $org->to_json());
 
         $forms = $org->getForms();
-        include(STAFFINC_DIR . 'templates/org.tmpl.php');
+
+        if ($profile) {
+            $action = "#orgs/{$org->id}/profile";
+            include(STAFFINC_DIR . 'templates/org-profile.tmpl.php');
+        }
+        else {
+            $action = "#orgs/{$org->id}";
+            include(STAFFINC_DIR . 'templates/org.tmpl.php');
+        }
     }
 
 

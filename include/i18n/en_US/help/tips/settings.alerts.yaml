@@ -16,8 +16,14 @@
 new_ticket:
     title: New Ticket Alert
     content: >
+        <p>
         Alert sent out to staff members when new tickets are created in the
         system.
+        </p><p class="info-banner">
+        <i class="icon-info-sign"></i>
+        Staff members (department members) are not
+        notified with this alert if the ticket is automatically assigned.
+        </p>
     links:
       - title: Default New Ticket Alert Template
         href: /scp/templates.php?default_for=ticket.alert

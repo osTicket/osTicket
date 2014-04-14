@@ -77,6 +77,8 @@ class UserModel extends VerySimpleModel {
         )
     );
 
+    const PRIMARY_ORG_CONTACT   = 0x0001;
+
     function getId() {
         return $this->id;
     }
@@ -110,6 +112,29 @@ class UserModel extends VerySimpleModel {
 
         return true;
     }
+
+    protected function hasStatus($flag) {
+        return $this->get('status') & $flag !== 0;
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isPrimaryContact() {
+        return $this->hasStatus(User::PRIMARY_ORG_CONTACT);
+    }
+
+    function setPrimaryContact($flag) {
+        if ($flag)
+            $this->setStatus(User::PRIMARY_ORG_CONTACT);
+        else
+            $this->clearStatus(User::PRIMARY_ORG_CONTACT);
+    }
 }
 
 class User extends UserModel {
@@ -129,6 +154,16 @@ class User extends UserModel {
                 // of the detached emails is fixed.
                 'default_email' => UserEmail::ensure($vars['email'])
             ));
+            // Is there an organization registered for this domain
+            list($mailbox, $domain) = explode('@', $vars['email'], 2);
+            foreach (Organization::objects()
+                    ->filter(array('domain__contains'=>$domain)) as $org) {
+                if ($org->isMappedToDomain($domain)) {
+                    $user->setOrganization($org);
+                    break;
+                }
+            }
+
             $user->save(true);
             $user->emails->add($user->default_email);
             // Attach initial custom fields

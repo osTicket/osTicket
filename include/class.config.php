@@ -610,6 +610,10 @@ class OsticketConfig extends Config {
         return ($this->get('message_alert_dept_manager'));
     }
 
+    function alertAcctManagerONNewMessage() {
+        return ($this->get('message_alert_acct_manager'));
+    }
+
     function alertONNewNote() {
         return ($this->get('note_alert_active'));
     }
@@ -640,6 +644,10 @@ class OsticketConfig extends Config {
 
     function alertDeptMembersONNewTicket() {
         return ($this->get('ticket_alert_dept_members'));
+    }
+
+    function alertAcctManagerONNewTicket() {
+        return ($this->get('ticket_alert_acct_manager'));
     }
 
     function alertONTransfer() {
@@ -1061,13 +1069,15 @@ class OsticketConfig extends Config {
        if($vars['ticket_alert_active']
                 && (!isset($vars['ticket_alert_admin'])
                     && !isset($vars['ticket_alert_dept_manager'])
-                    && !isset($vars['ticket_alert_dept_members']))) {
+                    && !isset($vars['ticket_alert_dept_members'])
+                    && !isset($vars['ticket_alert_acct_manager']))) {
             $errors['ticket_alert_active']='Select recipient(s)';
         }
         if($vars['message_alert_active']
                 && (!isset($vars['message_alert_laststaff'])
                     && !isset($vars['message_alert_assigned'])
-                    && !isset($vars['message_alert_dept_manager']))) {
+                    && !isset($vars['message_alert_dept_manager'])
+                    && !isset($vars['message_alert_acct_manager']))) {
             $errors['message_alert_active']='Select recipient(s)';
         }
 
@@ -1106,10 +1116,12 @@ class OsticketConfig extends Config {
             'ticket_alert_admin'=>isset($vars['ticket_alert_admin'])?1:0,
             'ticket_alert_dept_manager'=>isset($vars['ticket_alert_dept_manager'])?1:0,
             'ticket_alert_dept_members'=>isset($vars['ticket_alert_dept_members'])?1:0,
+            'ticket_alert_acct_manager'=>isset($vars['ticket_alert_acct_manager'])?1:0,
             'message_alert_active'=>$vars['message_alert_active'],
             'message_alert_laststaff'=>isset($vars['message_alert_laststaff'])?1:0,
             'message_alert_assigned'=>isset($vars['message_alert_assigned'])?1:0,
             'message_alert_dept_manager'=>isset($vars['message_alert_dept_manager'])?1:0,
+            'message_alert_acct_manager'=>isset($vars['message_alert_acct_manager'])?1:0,
             'note_alert_active'=>$vars['note_alert_active'],
             'note_alert_laststaff'=>isset($vars['note_alert_laststaff'])?1:0,
             'note_alert_assigned'=>isset($vars['note_alert_assigned'])?1:0,
