@@ -144,7 +144,7 @@ class User extends UserModel {
 
     static function fromVars($vars) {
         // Try and lookup by email address
-        $user = User::lookup(array('emails__address'=>$vars['email']));
+        $user = static::lookupByEmail($vars['email']);
         if (!$user) {
             $user = User::create(array(
                 'name'=>$vars['name'],
@@ -156,13 +156,8 @@ class User extends UserModel {
             ));
             // Is there an organization registered for this domain
             list($mailbox, $domain) = explode('@', $vars['email'], 2);
-            foreach (Organization::objects()
-                    ->filter(array('domain__contains'=>$domain)) as $org) {
-                if ($org->isMappedToDomain($domain)) {
-                    $user->setOrganization($org);
-                    break;
-                }
-            }
+            if ($org = Organization::forDomain($domain))
+                $user->setOrganization($org);
 
             $user->save(true);
             $user->emails->add($user->default_email);
@@ -395,6 +390,10 @@ class User extends UserModel {
 
         // Delete user
         return parent::delete();
+    }
+
+    static function lookupByEmail($email) {
+        return self::lookup(array('emails__address'=>$email));
     }
 }
 

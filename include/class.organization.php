@@ -166,6 +166,15 @@ class Organization extends OrganizationModel {
         return false;
     }
 
+    static function forDomain($domain) {
+        foreach (static::objects()
+                ->filter(array('domain__contains'=>$domain)) as $org) {
+            if ($org->isMappedToDomain($domain)) {
+                return $org;
+            }
+        }
+    }
+
     function to_json() {
 
         $info = array(
