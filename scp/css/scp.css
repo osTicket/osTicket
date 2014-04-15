@@ -550,7 +550,7 @@ a.print {
     border-right:1px solid #ddd;
 }
 
-.form_table td {
+.form_table td:not(:empty) {
     border-bottom:1px solid #ddd;
     height: 20px;
 }
