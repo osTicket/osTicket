@@ -1505,17 +1505,20 @@ ul.progress li.no small {color:red;}
 }
 
 #loading, #upgrading {
-    border:1px solid #2a67ac;
-    padding: 10px 10px 10px 60px;
+    border:3px solid #777;
+    border-radius: 10px;
+    padding: 10px;
     width: 300px;
-    height: 100px;
-    background: rgb( 255, 255, 255) url('../images/FhHRx-Spinner.gif') 10px 50% no-repeat;
+    background: black url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAWUlEQVQYGY2PAQoAIAgDrQf6pf7kC2vCRlRUgrjqXFrMrI3McHdKiwhpiMrTDRL4ghL8geQIsc6EOwbMcsYXhIYyUlvTgXUeS1vzkXWG8OMRXCE0b+AJAtgB7jEc+2fs6e8AAAAASUVORK5CYII=) repeat;
     position: fixed;
     display: none;
     z-index: 3000;
+    box-shadow: 0 5px 20px #001;
+    vertical-align: middle;
 }
 
-#loading h4, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
+#loading h1, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
+#loading, #upgrading * { color: white; }
 
 .non-local-image:after {
     background: url(../images/ost-logo.png) center center no-repeat;
