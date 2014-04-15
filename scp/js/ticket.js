@@ -437,7 +437,7 @@ showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button no-pjax"><i class="icon-download-alt"></i> Download</a>')
                 );
             e.data('wrapped', true);
         }
