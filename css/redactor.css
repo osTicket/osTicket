@@ -120,6 +120,7 @@ body .redactor_box_fullscreen {
   box-shadow: none !important;
   white-space: normal;
   border: 1px solid #eee;
+  overflow-y: auto;
 }
 .redactor_editor:focus {
   outline: none;
