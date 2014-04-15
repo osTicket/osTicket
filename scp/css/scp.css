@@ -384,7 +384,7 @@ a.Icon:hover {
     background:#fff;
 }
 
-#content a {
+#content a:not(.re-icon) {
     color:#184E81;
 }
 
