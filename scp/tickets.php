@@ -626,4 +626,15 @@ $ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');
+
+if (isset($_SERVER['HTTP_X_PJAX'])) {
+    // Update the ticket queue counts in the navigation
+    ob_start();
+    include STAFFINC_DIR . "templates/sub-navigation.tmpl.php";
+    $nav_content = ob_get_clean();
+?>
+<script type="text/javascript">
+    $('#sub_nav').html(<?php echo JsonDataEncoder::encode($nav_content); ?>);
+</script><?
+}
 ?>

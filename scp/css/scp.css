@@ -1509,7 +1509,7 @@ ul.progress li.no small {color:red;}
     border-radius: 10px;
     padding: 10px;
     width: 300px;
-    background: black url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAWUlEQVQYGY2PAQoAIAgDrQf6pf7kC2vCRlRUgrjqXFrMrI3McHdKiwhpiMrTDRL4ghL8geQIsc6EOwbMcsYXhIYyUlvTgXUeS1vzkXWG8OMRXCE0b+AJAtgB7jEc+2fs6e8AAAAASUVORK5CYII=) repeat;
+    background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAWUlEQVQYGY2PAQoAIAgDrQf6pf7kC2vCRlRUgrjqXFrMrI3McHdKiwhpiMrTDRL4ghL8geQIsc6EOwbMcsYXhIYyUlvTgXUeS1vzkXWG8OMRXCE0b+AJAtgB7jEc+2fs6e8AAAAASUVORK5CYII=) repeat;
     position: fixed;
     display: none;
     z-index: 3000;

@@ -64,54 +64,10 @@
         </p>
     </div>
     <ul id="nav">
-        <?php
-        if(($tabs=$nav->getTabs()) && is_array($tabs)){
-            foreach($tabs as $name =>$tab) {
-                echo sprintf('<li class="%s"><a href="%s" class="no-pjax">%s</a>',$tab['active']?'active':'inactive',$tab['href'],$tab['desc']);
-                if(!$tab['active'] && ($subnav=$nav->getSubMenu($name))){
-                    echo "<ul>\n";
-                    foreach($subnav as $k => $item) {
-                        if (!($id=$item['id']))
-                            $id="nav$k";
-
-                        echo sprintf(
-                            '<li><a class="%s %s" href="%s" title="%s" id="%s">%s</a></li>',
-                            $item['iconclass'],
-                            $tab['active'] ? '' : 'no-pjax',
-                            $item['href'], $item['title'],
-                            $id, $item['desc']);
-                    }
-                    echo "\n</ul>\n";
-                }
-                echo "\n</li>\n";
-            }
-        } ?>
+<?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
     </ul>
     <ul id="sub_nav">
-        <?php
-        if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
-            $activeMenu=$nav->getActiveMenu();
-            if($activeMenu>0 && !isset($subnav[$activeMenu-1]))
-                $activeMenu=0;
-            foreach($subnav as $k=> $item) {
-                if($item['droponly']) continue;
-                $class=$item['iconclass'];
-                if ($activeMenu && $k+1==$activeMenu
-                        or (!$activeMenu
-                            && (strpos(strtoupper($item['href']),strtoupper(basename($_SERVER['SCRIPT_NAME']))) !== false
-                                or ($item['urls']
-                                    && in_array(basename($_SERVER['SCRIPT_NAME']),$item['urls'])
-                                    )
-                                )))
-                    $class="$class active";
-                if (!($id=$item['id']))
-                    $id="subnav$k";
-
-                echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
-                        $class, $item['href'], $item['title'], $id, $item['desc']);
-            }
-        }
-        ?>
+<?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
     </ul>
     <div id="content">
 <?php } elseif ($pjax = $ost->getExtraPjax()) { # endif X_PJAX ?>
