@@ -21,5 +21,3 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 $class, $item['href'], $item['title'], $id, $item['desc']);
     }
 }
-?>
-

@@ -635,6 +635,6 @@ if (isset($_SERVER['HTTP_X_PJAX'])) {
 ?>
 <script type="text/javascript">
     $('#sub_nav').html(<?php echo JsonDataEncoder::encode($nav_content); ?>);
-</script><?
+</script><?php
 }
 ?>
