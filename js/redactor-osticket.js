@@ -280,4 +280,5 @@ $(function() {
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
+    $(document).on('pjax:success', findRichtextBoxes);
 });

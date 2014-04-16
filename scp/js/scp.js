@@ -29,7 +29,7 @@ function checkbox_checker(formObj, min, max) {
 }
 
 
-$(document).ready(function(){
+var scp_prep = function() {
 
     $("input:not(.dp):visible:enabled:first").focus();
     $('table.list tbody tr:odd').addClass('odd');
@@ -241,42 +241,7 @@ $(document).ready(function(){
             })
             .done(function() { })
             .fail(function() { });
-     });
-
-
-
-
-    /************ global inits *****************/
-
-    //Add CSRF token to the ajax requests.
-    // Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ + jared.
-    $(document).ajaxSend(function(event, xhr, settings) {
-
-        function sameOrigin(url) {
-            // url could be relative or scheme relative or absolute
-            var host = document.location.host; // host + port
-            var protocol = document.location.protocol;
-            var sr_origin = '//' + host;
-            var origin = protocol + sr_origin;
-            // Allow absolute or scheme relative URLs to same origin
-            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-                // or any other URL that isn't scheme relative or absolute i.e
-                // relative.
-                !(/^(\/\/|http:|https:).*/.test(url));
-        }
-
-        function safeMethod(method) {
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-            xhr.setRequestHeader("X-CSRFToken", $("meta[name=csrf_token]").attr("content"));
-        }
-
-       });
-
-    /* Get config settings from the backend */
-    jQuery.fn.exists = function() { return this.length>0; };
+    });
 
     /* Multifile uploads */
     var elems = $('.multifile');
@@ -291,23 +256,6 @@ $(document).ready(function(){
             });
         });
     }
-
-    $.translate_format = function(str) {
-        var translation = {
-            'd':'dd',
-            'j':'d',
-            'z':'o',
-            'm':'mm',
-            'F':'MM',
-            'n':'m',
-            'Y':'yy'
-        };
-        // Change PHP formats to datepicker ones
-        $.each(translation, function(php, jqdp) {
-            str = str.replace(php, jqdp);
-        });
-        return str;
-    };
 
     /* Datepicker */
     getConfig().then(function(c) {
@@ -371,6 +319,7 @@ $(document).ready(function(){
         },
         property: "email"
     });
+
     $('.staff-username.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
@@ -418,18 +367,6 @@ $(document).ready(function(){
         return false;
     });
 
-    $(document).keydown(function(e) {
-
-        if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
-            $('div.dialog').hide();
-            $('#overlay').hide();
-
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-    });
-
     /* advanced search */
     $('.dialog#advanced-search').css({
         top  : ($(window).height() / 6),
@@ -449,66 +386,6 @@ $(document).ready(function(){
         $('#advanced-search').show();
     });
 
-    $.dialog = function (url, codes, cb, options) {
-        options = options||{};
-
-        if (codes && !$.isArray(codes))
-            codes = [codes];
-
-        $('.dialog#popup .body').load(url, function () {
-            $('#overlay').show();
-            $('.dialog#popup').show({
-                duration: 0,
-                complete: function() { if (options.onshow) options.onshow(); }
-            });
-            $(document).off('.dialog');
-            $(document).on('submit.dialog', '.dialog#popup form', function(e) {
-                e.preventDefault();
-                var $form = $(this);
-                var $dialog = $form.closest('.dialog');
-                $.ajax({
-                    type:  $form.attr('method'),
-                    url: 'ajax.php/'+$form.attr('action').substr(1),
-                    data: $form.serialize(),
-                    cache: false,
-                    success: function(resp, status, xhr) {
-                        if (xhr && xhr.status && codes
-                            && $.inArray(xhr.status, codes) != -1) {
-                            $('div.body', $dialog).empty();
-                            $dialog.hide();
-                            $('#overlay').hide();
-                            if(cb) cb(xhr);
-                        } else {
-                            $('div.body', $dialog).html(resp);
-                            $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
-                        }
-                    }
-                })
-                .done(function() { })
-                .fail(function() { });
-                return false;
-            });
-         });
-        if (options.onload) { options.onload(); }
-     };
-
-    $.userLookup = function (url, cb) {
-        $.dialog(url, 201, function (xhr) {
-            var user = $.parseJSON(xhr.responseText);
-            if (cb) cb(user);
-        }, {
-            onshow: function() { $('#user-search').focus(); }
-        });
-    };
-
-    $.orgLookup = function (url, cb) {
-        $.dialog(url, 201, function (xhr) {
-            var org = $.parseJSON(xhr.responseText);
-            if (cb) cb(org);
-        }, {
-            onshow: function() { $('#org-search').focus(); }
-        });
-    };
 
     $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {
@@ -573,6 +450,7 @@ $(document).ready(function(){
       });
       return ui;
    };
+
    // Sortable tables for dynamic forms objects
    $('.sortable-rows').sortable({
        'helper': fixHelper,
@@ -584,33 +462,157 @@ $(document).ready(function(){
            });
        }
    });
+};
 
-   //Tabs
-   $(document).on('click.tab', 'ul.tabs li a', function(e) {
-        e.preventDefault();
-        if ($('.tab_content'+$(this).attr('href')).length) {
-            var ul = $(this).closest('ul');
-            $('ul.tabs li a', ul.parent()).removeClass('active');
-            $(this).addClass('active');
-            $('.tab_content', ul.parent()).hide();
-            $('.tab_content'+$(this).attr('href')).show();
-        }
-    });
+$(document).ready(scp_prep);
+$(document).on('pjax:complete', scp_prep);
 
-    //Collaborators
-    $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
-        e.preventDefault();
-        var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, 201, function (xhr) {
-           $('input#emailcollab').show();
-           $('#recipients').text(xhr.responseText);
-           $('.tip_box').remove();
-        }, {
-            onshow: function() { $('#user-search').focus(); }
-        });
-        return false;
-     });
+    /************ global inits *****************/
+
+//Add CSRF token to the ajax requests.
+// Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ + jared.
+$(document).ajaxSend(function(event, xhr, settings) {
+
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e
+            // relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", $("meta[name=csrf_token]").attr("content"));
+    }
+
 });
+
+/* Get config settings from the backend */
+jQuery.fn.exists = function() { return this.length>0; };
+
+$.translate_format = function(str) {
+    var translation = {
+        'd':'dd',
+        'j':'d',
+        'z':'o',
+        'm':'mm',
+        'F':'MM',
+        'n':'m',
+        'Y':'yy'
+    };
+    // Change PHP formats to datepicker ones
+    $.each(translation, function(php, jqdp) {
+        str = str.replace(php, jqdp);
+    });
+    return str;
+};
+$(document).keydown(function(e) {
+
+    if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
+        $('div.dialog').hide();
+        $('#overlay').hide();
+
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
+
+$.dialog = function (url, codes, cb, options) {
+    options = options||{};
+
+    if (codes && !$.isArray(codes))
+        codes = [codes];
+
+    $('.dialog#popup .body').load(url, function () {
+        $('#overlay').show();
+        $('.dialog#popup').show({
+            duration: 0,
+            complete: function() { if (options.onshow) options.onshow(); }
+        });
+        $(document).off('.dialog');
+        $(document).on('submit.dialog', '.dialog#popup form', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $dialog = $form.closest('.dialog');
+            $.ajax({
+                type:  $form.attr('method'),
+                url: 'ajax.php/'+$form.attr('action').substr(1),
+                data: $form.serialize(),
+                cache: false,
+                success: function(resp, status, xhr) {
+                    if (xhr && xhr.status && codes
+                        && $.inArray(xhr.status, codes) != -1) {
+                        $('div.body', $dialog).empty();
+                        $dialog.hide();
+                        $('#overlay').hide();
+                        if(cb) cb(xhr);
+                    } else {
+                        $('div.body', $dialog).html(resp);
+                        $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
+                    }
+                }
+            })
+            .done(function() { })
+            .fail(function() { });
+            return false;
+        });
+     });
+    if (options.onload) { options.onload(); }
+ };
+
+$.userLookup = function (url, cb) {
+    $.dialog(url, 201, function (xhr) {
+        var user = $.parseJSON(xhr.responseText);
+        if (cb) cb(user);
+    }, {
+        onshow: function() { $('#user-search').focus(); }
+    });
+};
+
+$.orgLookup = function (url, cb) {
+    $.dialog(url, 201, function (xhr) {
+        var org = $.parseJSON(xhr.responseText);
+        if (cb) cb(org);
+    }, {
+        onshow: function() { $('#org-search').focus(); }
+    });
+};
+
+//Tabs
+$(document).on('click.tab', 'ul.tabs li a', function(e) {
+    e.preventDefault();
+    if ($('.tab_content'+$(this).attr('href')).length) {
+        var ul = $(this).closest('ul');
+        $('ul.tabs li a', ul.parent()).removeClass('active');
+        $(this).addClass('active');
+        $('.tab_content', ul.parent()).hide();
+        $('.tab_content'+$(this).attr('href')).show();
+    }
+});
+
+//Collaborators
+$(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+    e.preventDefault();
+    var url = 'ajax.php/'+$(this).attr('href').substr(1);
+    $.dialog(url, 201, function (xhr) {
+       $('input#emailcollab').show();
+       $('#recipients').text(xhr.responseText);
+       $('.tip_box').remove();
+    }, {
+        onshow: function() { $('#user-search').focus(); }
+    });
+    return false;
+ });
 
 // NOTE: getConfig should be global
 getConfig = (function() {
@@ -623,8 +625,35 @@ getConfig = (function() {
                 dataType: 'json',
                 success: function (json_config) {
                     dfd.resolve(json_config);
+                },
+                error: function() {
+                    requested = null;
                 }
             });
         return dfd;
     }
 })();
+
+$(document).on('pjax:start', function() {
+    // Don't show the spinner on back button
+    if (event instanceof PopStateEvent)
+        return;
+
+    clearInterval(window.ticket_refresh);
+    $('#loading').show().css({opacity:0.7});
+    // Clear all timeouts
+    var id = window.setTimeout(function() {}, 0);
+    while (id--) {
+      window.clearTimeout(id);
+    }
+});
+$(document).on('pjax:complete', function() {
+    $('#loading').hide().css({opacity:1});
+});
+$(document).on('click', 'a', function() {
+    var ul = $(this).closest('ul');
+    if (ul.is('#sub_nav')) {
+        $('a.active', ul).removeClass('active');
+        $(this).addClass('active');
+    }
+});

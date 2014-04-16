@@ -24,20 +24,26 @@ jQuery(function() {
             });
     },
     getHelpTips = (function() {
-        var dfd = $.Deferred(),
-            requested = false,
-            namespace = $('meta[name=tip-namespace]').attr('content');
-        return function() {
-            if (namespace && dfd.state() != 'resolved' && !requested)
-                requested = $.ajax({
+        var dfd, cache = {};
+        return function(namespace) {
+            var namespace = namespace
+                || $('#content').data('tipNamespace')
+                || $('meta[name=tip-namespace]').attr('content');
+            if (!namespace)
+                return false;
+            else if (!cache[namespace])
+                cache[namespace] = {
+                  dfd: dfd = $.Deferred(),
+                  ajax: $.ajax({
                     url: "ajax.php/help/tips/" + namespace,
                     dataType: 'json',
-                    success: function (json_config) {
-                        dfd.resolve(json_config);
-                    }
-                });
-            return dfd;
-        }
+                    success: $.proxy(function (json_config) {
+                        this.resolve(json_config);
+                    }, dfd)
+                  })
+                }
+            return cache[namespace].dfd;
+        };
     })();
 
     //Generic tip.

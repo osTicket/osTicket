@@ -48,7 +48,8 @@ if($page && $_POST && !$errors) {
 }
 
 $config=($errors && $_POST)?Format::input($_POST):Format::htmlchars($cfg->getConfigInfo());
-$ost->addExtraHeader('<meta name="tip-namespace" content="'.$page[1].'" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="'.$page[1].'" />',
+    "$('#content').data('tipNamespace', '".$page[1]."');");
 
 $nav->setTabActive('settings', ('settings.php?t='.$target));
 require_once(STAFFINC_DIR.'header.inc.php');
