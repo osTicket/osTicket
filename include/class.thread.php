@@ -532,6 +532,8 @@ Class ThreadEntry {
         if(!($fileId=is_numeric($file)?$file:AttachmentFile::save($file)))
             return 0;
 
+        $inline = is_array($file) && @$file['inline'];
+
         // TODO: Add a unique index to TICKET_ATTACHMENT_TABLE (file_id,
         // ref_id), and remove this block
         if ($id = db_result(db_query('SELECT attach_id FROM '.TICKET_ATTACHMENT_TABLE
@@ -542,7 +544,7 @@ Class ThreadEntry {
         $sql ='INSERT IGNORE INTO '.TICKET_ATTACHMENT_TABLE.' SET created=NOW() '
              .' ,file_id='.db_input($fileId)
              .' ,ticket_id='.db_input($this->getTicketId())
-             .' ,inline='.db_input(@$file['inline'] ? 1 : 0)
+             .' ,inline='.db_input($inline ? 1 : 0)
              .' ,ref_id='.db_input($this->getId());
 
         return (db_query($sql) && ($id=db_insert_id()))?$id:0;
