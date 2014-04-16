@@ -253,7 +253,7 @@ abstract class AuthenticationBackend {
     static function searchUsers($query) {
         $users = array();
         foreach (static::getSearchDirectories() as $bk)
-            $users += $bk->search($query);
+            $users = array_merge($users, $bk->search($query));
 
         return $users;
     }

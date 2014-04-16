@@ -940,7 +940,7 @@ class Ticket {
             // Account manager
             if ($cfg->alertAcctManagerONNewMessage()
                     && ($org = $this->getOwner()->getOrganization())
-                    && ($acct_manager = $org->getAcctManager())) {
+                    && ($acct_manager = $org->getAccountManager())) {
                 if ($acct_manager instanceof Team)
                     $recipients = array_merge($recipients, $acct_manager->getMembers());
                 else
@@ -1633,7 +1633,7 @@ class Ticket {
             // Account manager
             if ($cfg->alertAcctManagerONNewMessage()
                     && ($org = $this->getOwner()->getOrganization())
-                    && ($acct_manager = $org->getAcctManager())) {
+                    && ($acct_manager = $org->getAccountManager())) {
                 if ($acct_manager instanceof Team)
                     $recipients = array_merge($recipients, $acct_manager->getMembers());
                 else
@@ -2306,7 +2306,8 @@ class Ticket {
             if (!$user) {
                 // Reject emails if not from registered clients (if
                 // configured)
-                if ($source == 'email' && !$cfg->acceptUnregisteredEmail()) {
+                if (strcasecmp($origin, 'email') === 0
+                        && !$cfg->acceptUnregisteredEmail()) {
                     list($mailbox, $domain) = explode('@', $vars['email'], 2);
                     // Users not yet created but linked to an organization
                     // are still acceptable

@@ -1399,7 +1399,7 @@ class HtmlThreadBody extends ThreadBody {
     }
 
     function getClean() {
-        return trim($body, " <>br/\t\n\r") ? Format::sanitize($body) : '';
+        return trim($this->body, " <>br/\t\n\r") ? Format::sanitize($this->body) : '';
     }
 
     function display($output=false) {

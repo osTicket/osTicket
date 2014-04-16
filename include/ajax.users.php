@@ -291,7 +291,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(400, 'Query argument is required');
 
         $users = array();
-        foreach (AuthenticationBackend::searchDirectories() as $ab) {
+        foreach (AuthenticationBackend::getSearchDirectories() as $ab) {
             foreach ($ab->search($_REQUEST['q']) as $u)
                 $users[] = $u;
         }
