@@ -239,7 +239,7 @@ $(function() {
         if (el.hasClass('draft')) {
             var draft_saved = $('<span>')
                 .addClass("pull-right draft-saved faded")
-                .css({'position':'relative','top':'-1.8em','right':'1em'})
+                .css({'position':'absolute','top':'0.2em','right':'1em'})
                 .hide()
                 .append($('<span>')
                     .css({'position':'relative', 'top':'0.17em'})
@@ -257,6 +257,7 @@ $(function() {
                     )
                 );
             }
+            el.parent().css('position', 'relative');
             draft_saved.insertBefore(el);
             options['plugins'].push('draft');
             if (el.data('draftNamespace'))
