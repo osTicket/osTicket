@@ -384,7 +384,7 @@ a.Icon:hover {
     background:#fff;
 }
 
-#content a {
+#content a:not(.re-icon) {
     color:#184E81;
 }
 
@@ -1278,8 +1278,8 @@ time {
     overflow-y: auto;
 }
 
-.redactor_air {
-    z-index: 7 !important;
+.redactor_editor {
+    font-size: 11pt;
 }
 
 .dialog#advanced-search {
