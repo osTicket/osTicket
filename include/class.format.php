@@ -177,14 +177,16 @@ class Format {
         }
         // Clean browser-specific style attributes
         if (isset($attributes['style'])) {
-            $styles = explode(';', $attributes['style']);
-            foreach ($styles as $i=>$s) {
+            $styles = explode(';', html_entity_decode($attributes['style']));
+            foreach ($styles as $i=>&$s) {
                 @list($prop, $val) = explode(':', $s);
-                if (!$val || !$prop || $prop[0] == '-')
+                if (!$val || !$prop || $prop[0] == '-' || substr($prop, 0, 4) == 'mso-')
                     unset($styles[$i]);
+                if (!strpos($val, ' '))
+                    $s = str_replace('"','', $s);
             }
             if ($styles)
-                $attributes['style'] = implode(';', $styles);
+                $attributes['style'] = Format::htmlencode(implode(';', $styles));
             else
                 unset($attributes['style']);
         }
@@ -246,7 +248,7 @@ class Format {
     }
 
     function htmlencode($var) {
-        $flags = ENT_COMPAT | ENT_QUOTES;
+        $flags = ENT_COMPAT;
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
 
