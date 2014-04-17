@@ -14,9 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once dirname(__file__) . "/class.module.php";
-
-define('OSTICKET_BACKUP_SIGNATURE', 'osTicket-Backup');
-define('OSTICKET_BACKUP_VERSION', 'A');
+require_once dirname(__file__) . "../../cli.inc.php";
 
 class Exporter extends Module {
     var $prologue =
@@ -30,18 +28,62 @@ class Exporter extends Module {
             'help'=> "Send zlib compress data to the output stream"),
     );
 
+    var $arguments = array(
+        'module' => array(
+            'required' => false,
+            'help' => 'Module used for export (see help)'
+        ),
+    );
+
+    var $autohelp = false;
+
     function run($args, $options) {
-        require_once dirname(__file__) . '/../../../main.inc.php';
+        require_once dirname(__file__) . '/../../../bootstrap.php';
         require_once INCLUDE_DIR . 'class.export.php';
 
-        global $ost;
+        if (!$args['module']) {
+            $exporter = 'DatabaseExporter';
+        }
+        else {
+            $module = (include dirname(__file__)."/importer/{$args['module']}.php");
+            if ($module) {
+                $module = new $module();
+                return $module->_run($args['module']);
+            }
+            else {
+                $this->stderr->write("Unknown importer module given\n");
+                $this->showHelp();
+            }
+        }
+        if ($exporter)
+            $this->dump($exporter);
+    }
 
-        $stream = $options['stream'];
-        if ($options['compress']) $stream = "compress.zlib://$stream";
+    function dump($module) {
+        $stream = $this->getOption('stream');
+        if ($this->getOption('compress')) $stream = "compress.zlib://$stream";
         $stream = fopen($stream, 'w');
 
-        $x = new DatabaseExporter($stream);
+        $x = new $module($stream, $this->_options);
         $x->dump($this->stderr);
+    }
+
+    function showHelp() {
+        $modules = array();
+        foreach (glob(dirname(__file__).'/importer/*.php') as $script) {
+            $info = pathinfo($script);
+            $modules[] = $info['filename'];
+        }
+
+        $this->epilog =
+            "Currently available modules follow. Use 'manage.php export <module>
+            --help' for usage regarding each respective module:";
+
+        parent::showHelp();
+
+        echo "\n";
+        foreach ($modules as $name)
+            echo str_pad($name, 20) . "\n";
     }
 }
 
