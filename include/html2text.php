@@ -28,19 +28,11 @@ function convert_html_to_text($html, $width=74) {
 
     $html = fix_newlines($html);
     $doc = new DOMDocument('1.0', 'utf-8');
-    if (strpos($html, '<?xml ') === false)
-        $html = '<?xml encoding="utf-8"?>'.$html; # <?php (4vim)
-    if (!@$doc->loadHTML($html))
-        return $html;
 
-    // Thanks, http://us3.php.net/manual/en/domdocument.loadhtml.php#95251
-    // dirty fix -- remove the inserted processing instruction
-    foreach ($doc->childNodes as $item) {
-        if ($item->nodeType == XML_PI_NODE) {
-            $doc->removeChild($item); // remove hack
-            break;
-        }
-    }
+    // Fix for wrong encoding http://stackoverflow.com/a/11310258
+    $encoded = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+    if (!@$doc->loadHTML($encoded))
+        return $html;
 
     $elements = identify_node($doc);
 
