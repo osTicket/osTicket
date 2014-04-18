@@ -53,11 +53,12 @@ if ($user && $_POST) {
 
 elseif ($_POST) {
     $user_form = UserForm::getUserForm()->getForm($_POST);
-    $user_form->getField('email')->configure('disabled', true);
-    if ($thisclient)
+    if ($thisclient) {
+        $user_form->getField('email')->configure('disabled', true);
         $user_form->getField('email')->value = $thisclient->getEmail();
+    }
 
-    if (!$user_form->isValid(function($f) { return !$f->get('internal'); }))
+    if (!$user_form->isValid(function($f) { return !$f->get('private'); }))
         $errors['err'] = 'Incomplete client information';
     elseif (!$_POST['backend'] && !$_POST['passwd1'])
         $errors['passwd1'] = 'New password required';
@@ -76,6 +77,9 @@ elseif ($_POST) {
     // Users created from ClientCreateRequest
     elseif (isset($_POST['backend']) && !($user = User::fromVars($user_form->getClean())))
         $errors['err'] = 'Unable to create local account. See messages below';
+    // Registration for existing users
+    elseif (!$user && !$thisclient && !($user = User::fromVars($user_form->getClean())))
+        $errors['err'] = 'Unable to register account. See messages below';
     // New users and users registering from a ticket access link
     elseif (!$user && !($user = $thisclient ?: User::fromForm($user_form)))
         $errors['err'] = 'Unable to register account. See messages below';

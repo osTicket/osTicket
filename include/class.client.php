@@ -360,7 +360,7 @@ class ClientAccount extends UserAccount {
             $info = array('password' => $vars['passwd1']);
             Signal::send('auth.pwchange', $this, $info);
             $this->cancelResetTokens();
-            $this->clearStatus(self::REQUIRE_PASSWD_RESET);
+            $this->clearStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
         }
 
         return $this->save();
