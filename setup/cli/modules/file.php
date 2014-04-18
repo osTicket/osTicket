@@ -104,18 +104,22 @@ class FileManager extends Module {
             }
             catch (Exception $e) {}
 
-            if ($options['backend'])
-                $bk = FileStorageBackend::lookup($options['backend'], $f);
+            if ($options['to'])
+                $bk = FileStorageBackend::lookup($options['to'], $f);
             else
                 // Use the system default
                 $bk = AttachmentFile::getBackendForFile($f);
 
             $type = false;
+            $signature = '';
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             if ($options['file'] && $options['file'] != '-') {
+                if (!file_exists($options['file']))
+                    $this->fail($options['file'].': Cannot open file');
                 if (!$bk->upload($options['file']))
                     $this->fail('Unable to upload file contents to backend');
                 $type = $finfo->file($options['file']);
+                list(, $signature) = AttachmentFile::_getKeyAndHash($options['file'], true);
             }
             else {
                 $stream = fopen('php://stdin', 'rb');
@@ -133,6 +137,7 @@ class FileManager extends Module {
             $sql = 'UPDATE '.FILE_TABLE.' SET bk='.db_input($bk->getBkChar())
                 .', created=CURRENT_TIMESTAMP'
                 .', type='.db_input($type)
+                .', signature='.db_input($signature)
                 .' WHERE id='.db_input($f->getId());
 
             if (!db_query($sql) || db_affected_rows()!=1)
