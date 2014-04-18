@@ -11,7 +11,9 @@ class FileManager extends Module {
             'options' => array(
                 'list' => 'List files matching criteria',
                 'export' => 'Export files from the system',
+                'import' => 'Load files exported via `export`',
                 'dump' => 'Dump file content to stdout',
+                'load' => 'Load file contents from stdin',
                 'migrate' => 'Migrate a file to another backend',
                 'backends' => 'List configured storage backends',
                 'expunge' => 'Remove matching files from the system',
@@ -69,8 +71,11 @@ class FileManager extends Module {
             $files = FileModel::objects();
             $this->_applyCriteria($options, $files);
             foreach ($files as $f) {
-                printf("% 5d %s % 8d %s % 12s %s\n", $f->id, $f->bk,
+                printf("% 5d %s % 8d %s % 16s %s\n", $f->id, $f->bk,
                     $f->size, $f->created, $f->type, $f->name);
+                if ($f->attrs) {
+                    printf("        %s\n", $f->attrs);
+                }
             }
             break;
 
@@ -83,6 +88,57 @@ class FileManager extends Module {
             if (($f = AttachmentFile::lookup($files[0]->id))
                     && ($bk = $f->open()))
                 $bk->passthru();
+            break;
+
+        case 'load':
+            // Load file content from STDIN
+            $files = FileModel::objects();
+            $this->_applyCriteria($options, $files);
+            if ($files->count() != 1)
+                $this->fail('Criteria must select exactly 1 file');
+
+            $f = AttachmentFile::lookup($files[0]->id);
+            try {
+                if ($bk = $f->open())
+                    $bk->unlink();
+            }
+            catch (Exception $e) {}
+
+            if ($options['backend'])
+                $bk = FileStorageBackend::lookup($options['backend'], $f);
+            else
+                // Use the system default
+                $bk = AttachmentFile::getBackendForFile($f);
+
+            $type = false;
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            if ($options['file'] && $options['file'] != '-') {
+                if (!$bk->upload($options['file']))
+                    $this->fail('Unable to upload file contents to backend');
+                $type = $finfo->file($options['file']);
+            }
+            else {
+                $stream = fopen('php://stdin', 'rb');
+                while ($block = fread($stream, $bk->getBlockSize())) {
+                    if (!$bk->write($block))
+                        $this->fail('Unable to send file contents to backend');
+                    if (!$type)
+                        $type = $finfo->buffer($block);
+                }
+                if (!$bk->flush())
+                    $this->fail('Unable to commit file contents to backend');
+            }
+
+            // TODO: Update file metadata
+            $sql = 'UPDATE '.FILE_TABLE.' SET bk='.db_input($bk->getBkChar())
+                .', created=CURRENT_TIMESTAMP'
+                .', type='.db_input($type)
+                .' WHERE id='.db_input($f->getId());
+
+            if (!db_query($sql) || db_affected_rows()!=1)
+                $this->fail('Unable to update file metadata');
+
+            $this->stdout->write("Successfully saved contents\n");
             break;
 
         case 'migrate':
@@ -149,10 +205,10 @@ class FileManager extends Module {
             $files = FileModel::objects();
             $this->_applyCriteria($options, $files);
 
-            foreach ($files as $f)
+            foreach ($files as $f) {
                 $f->tickets->expunge();
-
-            $files->delete();
+                $f->unlink() && $f->delete();
+            }
         }
     }
 
