@@ -702,7 +702,7 @@ class UserAccount extends UserAccountModel {
         $vars['reset_link'] = &$vars['link'];
 
         $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
-        Signal::send('auth.pwreset.email', $this, $info);
+        Signal::send('auth.pwreset.email', $this->getUser(), $info);
 
         $msg = $ost->replaceTemplateVariables(array(
             'subj' => $content->getName(),
