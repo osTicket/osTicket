@@ -167,7 +167,7 @@ class Format {
         if (isset($attributes['class'])) {
             $classes = explode(' ', $attributes['class']);
             foreach ($classes as $i=>$a)
-                // Unset all unsupported style classes -- anything by M$
+                // Unset all unsupported style classes -- anything but M$
                 if (strpos($a, 'Mso') !== 0)
                     unset($classes[$i]);
             if ($classes)
@@ -177,7 +177,7 @@ class Format {
         }
         // Clean browser-specific style attributes
         if (isset($attributes['style'])) {
-            $styles = explode(';', html_entity_decode($attributes['style']));
+            $styles = preg_split('/;\s*/S', html_entity_decode($attributes['style']));
             foreach ($styles as $i=>&$s) {
                 @list($prop, $val) = explode(':', $s);
                 if (!$val || !$prop || $prop[0] == '-' || substr($prop, 0, 4) == 'mso-')
