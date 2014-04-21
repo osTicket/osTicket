@@ -75,7 +75,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <div><b>Title</b><span class="error">*&nbsp;<?php echo $errors['title']; ?></span></div>
                 <input type="text" size="70" name="title" value="<?php echo $info['title']; ?>">
                 <br><br><div style="margin-bottom:0.5em"><b>Canned Response</b> <font class="error">*&nbsp;<?php echo $errors['response']; ?></font>
-                    &nbsp;&nbsp;&nbsp;(<a class="tip" href="ticket_variables">Supported Variables</a>)
+                    &nbsp;&nbsp;&nbsp;(<a class="tip" href="#ticket_variables">Supported Variables</a>)
                     </div>
                 <textarea name="response" class="richtext draft draft-delete" cols="21" rows="12"
                     data-draft-namespace="canned"

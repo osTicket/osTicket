@@ -46,15 +46,15 @@ jQuery(function() {
         };
     })();
 
+    var tip_id = 1;
     //Generic tip.
     $('.tip')
-    .each(function(i, e) {
-        e.rel = 'tip-' + i;
-    })
     .live('click mouseover', function(e) {
         e.preventDefault();
-        var id = this.rel;
-        var elem = $(this);
+        if (!this.rel)
+            this.rel = 'tip-' + (tip_id++);
+        var id = this.rel,
+            elem = $(this);
 
         elem.data('id',id);
         elem.data('timer',0);
@@ -63,10 +63,10 @@ jQuery(function() {
                 // wait about 1 sec - before showing the tip - mouseout kills
                 // the timeout
                 elem.data('timer',setTimeout(function() {
-                    showtip('ajax.php/content/'+elem.attr('href'),elem);i
+                    showtip('ajax.php/content/'+elem.attr('href').substr(1),elem);
                 },750));
             } else {
-                showtip('ajax.php/content/'+elem.attr('href'),elem);
+                showtip('ajax.php/content/'+elem.attr('href').substr(1),elem);
             }
         }
     })

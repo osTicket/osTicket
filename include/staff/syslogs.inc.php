@@ -133,7 +133,7 @@ else
                 <td width=7px>
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['log_id']; ?>" 
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
-                <td>&nbsp;<a class="tip" href="log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
+                <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
                 <td><?php echo $row['log_type']; ?></td>
                 <td>&nbsp;<?php echo Format::db_daydatetime($row['created']); ?></td>
                 <td><?php echo $row['ip_address']; ?></td>
