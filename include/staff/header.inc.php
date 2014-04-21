@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome-ie7.min.css">
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="./css/dropdown.css">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {

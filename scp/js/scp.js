@@ -344,7 +344,7 @@ var scp_prep = function() {
 
     //Overlay
     $('#overlay').css({
-        opacity : 0.3,
+        opacity : 0.5,
         top     : 0,
         left    : 0
     });
@@ -639,16 +639,31 @@ $(document).on('pjax:start', function() {
     if (event instanceof PopStateEvent)
         return;
 
+    //if ($(event.target).closest('redactor_editor').length())
+    //    return;
+
     clearInterval(window.ticket_refresh);
-    $('#loading').show().css({opacity:0.7});
     // Clear all timeouts
     var id = window.setTimeout(function() {}, 0);
     while (id--) {
       window.clearTimeout(id);
     }
+
+    if ($("#loadingbar").length === 0) {
+      $("body").append("<div id='loadingbar'></div>");
+      $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
+
+      // right
+      $("#loadingbar").width((50 + Math.random() * 30) + "%");
+      $('#overlay').css('background-color','white').fadeIn();
+    }
 });
 $(document).on('pjax:complete', function() {
-    $('#loading').hide().css({opacity:1});
+    // right
+    $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
+        $(this).remove();
+    });
+    $('#overlay').hide().removeAttr('style');
 });
 $(document).on('click', 'a', function() {
     var ul = $(this).closest('ul');
