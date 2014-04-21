@@ -18,6 +18,7 @@
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
+require_once(INCLUDE_DIR . 'class.filter.php');
 require_once(INCLUDE_DIR . 'class.signal.php');
 
 /**
@@ -36,6 +37,7 @@ class DynamicForm extends VerySimpleModel {
     static $types = array(
         'T' => 'Ticket Information',
         'U' => 'User Information',
+        'O' => 'Organization Information',
     );
 
     var $_form;
@@ -73,9 +75,9 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function getField($name) {
-        foreach ($this->getDynamicFields() as $f)
+        foreach ($this->getFields() as $f)
             if (!strcasecmp($f->get('name'), $name))
-                return $f->getImpl();
+                return $f;
     }
 
     function hasField($name) {
@@ -455,6 +457,10 @@ class DynamicFormEntry extends VerySimpleModel {
     var $_errors = false;
     var $_clean = false;
 
+    function getId() {
+        return $this->get('id');
+    }
+
     function getAnswers() {
         if (!isset($this->_values)) {
             $this->_values = DynamicFormEntryAnswer::objects()
@@ -494,7 +500,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function getForm() {
         if (!isset($this->_form)) {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
-            if ($this->id)
+            if (isset($this->id))
                 $this->_form->data($this);
         }
         return $this->_form;
@@ -562,13 +568,23 @@ class DynamicFormEntry extends VerySimpleModel {
         return DynamicFormEntry::objects()
             ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
     }
+
     function setClientId($user_id) {
         $this->object_type = 'U';
         $this->object_id = $user_id;
     }
 
-    function render($staff=true, $title=false) {
-        return $this->getForm()->render($staff, $title);
+    function setObjectId($object_id) {
+        $this->object_id = $object_id;
+    }
+
+    function forOrganization($org_id) {
+        return DynamicFormEntry::objects()
+            ->filter(array('object_id'=>$org_id, 'object_type'=>'O'));
+    }
+
+    function render($staff=true, $title=false, $options=array()) {
+        return $this->getForm()->render($staff, $title, $options);
     }
 
     /**
@@ -580,11 +596,15 @@ class DynamicFormEntry extends VerySimpleModel {
      * entry.
      */
     function addMissingFields() {
+        // Track deletions
+        foreach ($this->getAnswers() as $answer)
+            $answer->deleted = true;
+
         foreach ($this->getForm()->getDynamicFields() as $field) {
             $found = false;
             foreach ($this->getAnswers() as $answer) {
                 if ($answer->get('field_id') == $field->get('id')) {
-                    $found = true; break;
+                    $answer->deleted = false; $found = true; break;
                 }
             }
             if (!$found && ($field = $field->getImpl($field))
@@ -593,17 +613,27 @@ class DynamicFormEntry extends VerySimpleModel {
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
                 $a->field = $field;
                 $a->entry = $this;
+                $a->deleted = false;
                 // Add to list of answers
                 $this->_values[] = $a;
                 $this->_fields[] = $field;
+                $this->_form = null;
+
                 // Omit fields without data
                 // For user entries, the name and email fields should not be
                 // saved with the rest of the data
-                if (!($this->object_type == 'U'
+                if ($this->object_type == 'U'
                         && in_array($field->get('name'), array('name','email')))
-                        && $field->hasData())
-                    $a->save();
-                $this->_form = null;
+                    continue;
+
+                if ($this->object_type == 'O'
+                        && in_array($field->get('name'), array('name')))
+                    continue;
+
+                if (!$field->hasData())
+                    continue;
+
+                $a->save();
             }
             // Sort the form the way it is declared to be sorted
             if ($this->_fields)
@@ -623,6 +653,11 @@ class DynamicFormEntry extends VerySimpleModel {
             if ($this->object_type == 'U'
                     && in_array($field->get('name'), array('name','email')))
                 continue;
+
+            if ($this->object_type == 'O'
+                    && in_array($field->get('name'), array('name')))
+                continue;
+
             $val = $field->to_database($field->getClean());
             if (is_array($val)) {
                 $a->set('value', $val[0]);
@@ -684,6 +719,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     var $field;
     var $form;
     var $entry;
+    var $deleted = false;
     var $_value;
 
     function getEntry() {
@@ -716,6 +752,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         return $this->get('value_id');
     }
 
+    function isDeleted() {
+        return $this->deleted;
+    }
+
     function toString() {
         return $this->getField()->toString($this->getValue());
     }
@@ -725,7 +765,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function asVar() {
-        return $this->toString();
+        return (is_object($this->getValue()))
+            ? $this->getValue() : $this->toString();
+    }
+
+    function getVar($tag) {
+        if (is_object($this->getValue()) && method_exists($this->getValue(), 'getVar'))
+            return $this->getValue()->getVar($tag);
     }
 
     function __toString() {
@@ -749,6 +795,7 @@ class DynamicList extends VerySimpleModel {
     );
 
     var $_items;
+    var $_form;
 
     function getSortModes() {
         return array(
@@ -773,10 +820,17 @@ class DynamicList extends VerySimpleModel {
             return $this->get('name') . 's';
     }
 
+    function getAllItems() {
+         return DynamicListItem::objects()->filter(
+                array('list_id'=>$this->get('id')))
+                ->order_by($this->getListOrderBy());
+    }
+
     function getItems($limit=false, $offset=false) {
         if (!$this->_items) {
             $this->_items = DynamicListItem::objects()->filter(
-                    array('list_id'=>$this->get('id')))
+                array('list_id'=>$this->get('id'),
+                      'status__hasbit'=>DynamicListItem::ENABLED))
                 ->order_by($this->getListOrderBy());
             if ($limit)
                 $this->_items->limit($limit);
@@ -789,6 +843,14 @@ class DynamicList extends VerySimpleModel {
     function getItemCount() {
         return DynamicListItem::objects()->filter(array('list_id'=>$this->id))
             ->count();
+    }
+
+    function getConfigurationForm() {
+        if (!$this->_form) {
+            $this->_form = DynamicForm::lookup(
+                array('type'=>'L'.$this->get('id')));
+        }
+        return $this->_form;
     }
 
     function save($refetch=false) {
@@ -852,8 +914,81 @@ class DynamicListItem extends VerySimpleModel {
         ),
     );
 
+    var $_config;
+    var $_form;
+
+    const ENABLED               = 0x0001;
+
+    protected function hasStatus($flag) {
+        return 0 !== ($this->get('status') & $flag);
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isEnabled() {
+        return $this->hasStatus(self::ENABLED);
+    }
+
+    function enable() {
+        $this->setStatus(self::ENABLED);
+    }
+    function disable() {
+        $this->clearStatus(self::ENABLED);
+    }
+
+    function getConfiguration() {
+        if (!$this->_config) {
+            $this->_config = $this->get('properties');
+            if (is_string($this->_config))
+                $this->_config = JsonDataParser::parse($this->_config);
+            elseif (!$this->_config)
+                $this->_config = array();
+        }
+        return $this->_config;
+    }
+
+    function setConfiguration(&$errors=array()) {
+        $config = array();
+        foreach ($this->getConfigurationForm()->getFields() as $field) {
+            $val = $field->to_database($field->getClean());
+            $config[$field->get('id')] = is_array($val) ? $val[1] : $val;
+            $errors = array_merge($errors, $field->errors());
+        }
+        if (count($errors) === 0)
+            $this->set('properties', JsonDataEncoder::encode($config));
+
+        return count($errors) === 0;
+    }
+
+    function getConfigurationForm() {
+        if (!$this->_form) {
+            $this->_form = DynamicForm::lookup(
+                array('type'=>'L'.$this->get('list_id')));
+        }
+        return $this->_form;
+    }
+
+    function getVar($name) {
+        $config = $this->getConfiguration();
+        $name = mb_strtolower($name);
+        foreach ($this->getConfigurationForm()->getFields() as $field) {
+            if (mb_strtolower($field->get('name')) == $name)
+                return $config[$field->get('id')];
+        }
+    }
+
     function toString() {
         return $this->get('value');
+    }
+
+    function __toString() {
+        return $this->toString();
     }
 
     function delete() {
@@ -946,6 +1081,10 @@ class SelectionField extends FormField {
             $this->_choices = array();
             foreach ($this->getList()->getItems() as $i)
                 $this->_choices[$i->get('id')] = $i->get('value');
+            if ($this->value && !isset($this->_choices[$this->value])) {
+                $v = DynamicListItem::lookup($this->value);
+                $this->_choices[$v->get('id')] = $v->get('value').' (Disabled)';
+            }
         }
         return $this->_choices;
     }

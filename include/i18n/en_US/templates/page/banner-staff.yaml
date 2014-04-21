@@ -1,0 +1,11 @@
+#
+# banner-staff.yaml
+#
+# This is the initial message and banner shown on the staff login page
+---
+notes: >
+    This is the initial message and banner shown on the Staff Log In page.
+    The first input field refers to the red-formatted text that appears at the top.
+    The latter textarea is for the banner content which should serve as a disclaimer.
+name: "Authentication Required"
+body: ""

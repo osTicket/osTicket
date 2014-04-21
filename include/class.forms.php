@@ -99,11 +99,11 @@ class Form {
         return $this->_errors;
     }
 
-    function render($staff=true, $title=false, $instructions=false) {
+    function render($staff=true, $title=false, $options=array()) {
         if ($title)
             $this->title = $title;
-        if ($instructions)
-            $this->instructions = $instructions;
+        if (isset($options['instructions']))
+            $this->instructions = $options['instructions'];
         $form = $this;
         if ($staff)
             include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
@@ -476,6 +476,11 @@ class FormField {
             $this->_cform = $T->getConfigurationOptions();
         }
         return $this->_cform;
+    }
+
+    function configure($prop, $value) {
+        $this->getConfiguration();
+        $this->_config[$prop] = $value;
     }
 
     function getWidget() {
@@ -932,7 +937,7 @@ class Widget {
         $this->value = $this->getValue();
         if (!isset($this->value) && is_object($this->field->getAnswer()))
             $this->value = $this->field->getAnswer()->getValue();
-        if (!isset($this->value) && $this->field->value)
+        if (!isset($this->value) && isset($this->field->value))
             $this->value = $this->field->value;
     }
 
@@ -960,12 +965,14 @@ class TextboxWidget extends Widget {
             $classes = 'class="'.$config['classes'].'"';
         if (isset($config['autocomplete']))
             $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
+        if (isset($config['disabled']))
+            $disabled = 'disabled="disabled"';
         ?>
         <span style="display:inline-block">
         <input type="<?php echo static::$input_type; ?>"
             id="<?php echo $this->name; ?>"
-            <?php echo $size . " " . $maxlength; ?>
-            <?php echo $classes.' '.$autocomplete
+            <?php echo implode(' ', array_filter(array(
+                $size, $maxlength, $classes, $autocomplete, $disabled)))
                 .' placeholder="'.$config['placeholder'].'"'; ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
@@ -1090,6 +1097,8 @@ class CheckboxWidget extends Widget {
 
     function render() {
         $config = $this->field->getConfiguration();
+        if (!isset($this->value))
+            $this->value = $this->field->get('default');
         ?>
         <input type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php

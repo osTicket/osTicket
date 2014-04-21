@@ -937,6 +937,16 @@ class Ticket {
             if($cfg->alertDeptManagerONNewTicket() && $dept && ($manager=$dept->getManager()))
                 $recipients[]= $manager;
 
+            // Account manager
+            if ($cfg->alertAcctManagerONNewMessage()
+                    && ($org = $this->getOwner()->getOrganization())
+                    && ($acct_manager = $org->getAccountManager())) {
+                if ($acct_manager instanceof Team)
+                    $recipients = array_merge($recipients, $acct_manager->getMembers());
+                else
+                    $recipients[] = $acct_manager;
+            }
+
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -1278,7 +1288,7 @@ class Ticket {
                     // The answer object is retrieved here which will
                     // automatically invoke the toString() method when the
                     // answer is coerced into text
-                    return (string)$this->_answers[$tag];
+                    return $this->_answers[$tag];
         }
 
         return false;
@@ -1619,6 +1629,16 @@ class Ticket {
             //Dept manager
             if($cfg->alertDeptManagerONNewMessage() && $dept && ($manager=$dept->getManager()))
                 $recipients[]=$manager;
+
+            // Account manager
+            if ($cfg->alertAcctManagerONNewMessage()
+                    && ($org = $this->getOwner()->getOrganization())
+                    && ($acct_manager = $org->getAccountManager())) {
+                if ($acct_manager instanceof Team)
+                    $recipients = array_merge($recipients, $acct_manager->getMembers());
+                else
+                    $recipients[] = $acct_manager;
+            }
 
             $sentlist=array(); //I know it sucks...but..it works.
             foreach( $recipients as $k=>$staff) {
@@ -2157,6 +2177,14 @@ class Ticket {
             };
         };
 
+        $reject_ticket = function($message) use (&$errors, $ost) {
+            $errors = array(
+                'errno' => 403,
+                'err' => 'This help desk is for use by authorized users only');
+            $ost->logWarning('Ticket Denied', $message);
+            return 0;
+        };
+
         // Create and verify the dynamic form entry for the new ticket
         $form = TicketForm::getNewInstance();
         // If submitting via email, ensure we have a subject and such
@@ -2193,12 +2221,7 @@ class Ticket {
 
             //Make sure the email address is not banned
             if (TicketFilter::isBanned($vars['email'])) {
-                $errors = array(
-                        'errno' => 403,
-                        'err' => 'This help desk is for use by authorized
-                        users only');
-                $ost->logWarning('Ticket denied', 'Banned email - '.$vars['email']);
-                return 0;
+                return $reject_ticket('Banned email - '.$vars['email']);
             }
 
             //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
@@ -2220,17 +2243,19 @@ class Ticket {
         //Init ticket filters...
         $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected
-        if($ticket_filter
+        if ($ticket_filter
                 && ($filter=$ticket_filter->shouldReject())) {
-            $errors = array(
-                    'errno' => 403,
-                    'err' => "This help desk is for use by authorized users
-                    only");
-            $ost->logWarning('Ticket denied',
-                    sprintf('Ticket rejected ( %s) by filter "%s"',
-                        $vars['email'], $filter->getName()));
+            return $reject_ticket(
+                sprintf('Ticket rejected ( %s) by filter "%s"',
+                    $vars['email'], $filter->getName()));
+        }
 
-            return 0;
+        if ($vars['topicId'] && ($topic=Topic::lookup($vars['topicId']))) {
+            if ($topic_form = DynamicForm::lookup($topic->ht['form_id'])) {
+                $topic_form = $topic_form->instanciate();
+                if (!$topic_form->getForm()->isValid($field_filter('topic')))
+                    $errors = array_merge($errors, $topic_form->getForm()->errors());
+            }
         }
 
         $id=0;
@@ -2275,7 +2300,24 @@ class Ticket {
 
             // Allow vars to be changed in ticket filter and applied to the user
             // account created or detected
+            if (!$user && $vars['email'])
+                $user = User::lookupByEmail($vars['email']);
+
             if (!$user) {
+                // Reject emails if not from registered clients (if
+                // configured)
+                if (strcasecmp($origin, 'email') === 0
+                        && !$cfg->acceptUnregisteredEmail()) {
+                    list($mailbox, $domain) = explode('@', $vars['email'], 2);
+                    // Users not yet created but linked to an organization
+                    // are still acceptable
+                    if (!Organization::forDomain($domain)) {
+                        return $reject_ticket(
+                            sprintf('Ticket rejected (%s) (unregistered client)',
+                                $vars['email']));
+                    }
+                }
+
                 $user_form = UserForm::getUserForm()->getForm($vars);
                 if (!$user_form->isValid($field_filter('user'))
                         || !($user=User::fromVars($user_form->getClean())))
@@ -2283,29 +2325,62 @@ class Ticket {
             }
         }
 
-        //Any error above is fatal.
-        if($errors)  return 0;
+        // Any error above is fatal.
+        if ($errors)
+            return 0;
 
         # Some things will need to be unpacked back into the scope of this
         # function
-        if (isset($vars['autorespond'])) $autorespond=$vars['autorespond'];
+        if (isset($vars['autorespond']))
+            $autorespond = $vars['autorespond'];
 
         # Apply filter-specific priority
         if ($vars['priorityId'])
             $form->setAnswer('priority', null, $vars['priorityId']);
 
+        // If the filter specifies a help topic which has a form associated,
+        // and there was previously either no help topic set or the help
+        // topic did not have a form, there's no need to add it now as (1)
+        // validation is closed, (2) there may be a form already associated
+        // and filled out from the original  help topic, and (3) staff
+        // members can always add more forms now
+
         // OK...just do it.
-        $deptId=$vars['deptId']; //pre-selected Dept if any.
-        $source=ucfirst($vars['source']);
-        $topic=NULL;
+        $deptId = $vars['deptId']; //pre-selected Dept if any.
+        $source = ucfirst($vars['source']);
+
+        // Apply email settings for emailed tickets. Email settings should
+        // trump help topic settins if the email has an associated help
+        // topic
+        if ($vars['emailId'] && ($email=Email::lookup($vars['emailId']))) {
+            $deptId = $deptId ?: $email->getDeptId();
+            $priority = $form->getAnswer('priority');
+            if (!$priority || !$priority->getIdValue())
+                $form->setAnswer('priority', null, $email->getPriorityId());
+            if ($autorespond)
+                $autorespond = $email->autoRespond();
+            $email = null;
+            $source = 'Email';
+        }
+
+        // Auto assignment to organization account manager
+        if (($org = $user->getOrganization())
+                && ($code = $org->getAccountManagerId())) {
+            if (!isset($vars['staffId']) && $code[0] == 's')
+                $vars['staffId'] = substr($code, 1);
+            elseif (!isset($vars['teamId']) && $code[0] == 't')
+                $vars['teamId'] = substr($code, 1);
+        }
+
         // Intenal mapping magic...see if we need to override anything
-        if(isset($vars['topicId']) && ($topic=Topic::lookup($vars['topicId']))) { //Ticket created via web by user/or staff
-            $deptId=$deptId?$deptId:$topic->getDeptId();
+        if (isset($topic)) {
+            $deptId = $deptId ?: $topic->getDeptId();
             $priority = $form->getAnswer('priority');
             if (!$priority || !$priority->getIdValue())
                 $form->setAnswer('priority', null, $topic->getPriorityId());
-            if($autorespond) $autorespond=$topic->autoRespond();
-            $source=$vars['source']?$vars['source']:'Web';
+            if ($autorespond)
+                $autorespond = $topic->autoRespond();
+            $source = $vars['source'] ?: 'Web';
 
             //Auto assignment.
             if (!isset($vars['staffId']) && $topic->getStaffId())
@@ -2314,27 +2389,19 @@ class Ticket {
                 $vars['teamId'] = $topic->getTeamId();
 
             //set default sla.
-            if(isset($vars['slaId']))
-                $vars['slaId'] = $vars['slaId']?$vars['slaId']:$cfg->getDefaultSLAId();
-            elseif($topic && $topic->getSLAId())
+            if (isset($vars['slaId']))
+                $vars['slaId'] = $vars['slaId'] ?: $cfg->getDefaultSLAId();
+            elseif ($topic && $topic->getSLAId())
                 $vars['slaId'] = $topic->getSLAId();
-
-        }elseif($vars['emailId'] && !$vars['deptId'] && ($email=Email::lookup($vars['emailId']))) { //Emailed Tickets
-            $deptId=$email->getDeptId();
-            $priority = $form->getAnswer('priority');
-            if (!$priority || !$priority->getIdValue())
-                $form->setAnswer('priority', null, $email->getPriorityId());
-            if($autorespond) $autorespond=$email->autoRespond();
-            $email=null;
-            $source='Email';
         }
-        //Last minute checks
+
+        // Last minute checks
         $priority = $form->getAnswer('priority');
         if (!$priority || !$priority->getIdValue())
             $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
-        $deptId=$deptId?$deptId:$cfg->getDefaultDeptId();
-        $topicId=$vars['topicId']?$vars['topicId']:0;
-        $ipaddress=$vars['ip']?$vars['ip']:$_SERVER['REMOTE_ADDR'];
+        $deptId = $deptId ?: $cfg->getDefaultDeptId();
+        $topicId = $vars['topicId'] ?: 0;
+        $ipaddress = $vars['ip'] ?: $_SERVER['REMOTE_ADDR'];
 
         //We are ready son...hold on to the rails.
         $number = Ticket::genRandTicketNumber();
@@ -2370,9 +2437,38 @@ class Ticket {
         // Save the (common) dynamic form
         $form->setTicketId($id);
         $form->save();
+
+        // Save the form data from the help-topic form, if any
+        if ($topic_form) {
+            $topic_form->setTicketId($id);
+            $topic_form->save();
+        }
+
         $ticket->loadDynamicData();
 
         $dept = $ticket->getDept();
+
+        // Add organizational collaborators
+        if ($org && $org->autoAddCollabs()) {
+            $pris = $org->autoAddPrimaryContactsAsCollabs();
+            $members = $org->autoAddMembersAsCollabs();
+            $settings = array('isactive' => true);
+            $collabs = array();
+            foreach ($org->allMembers() as $u) {
+                if ($members || ($pris && $u->isPrimaryContact())) {
+                    if ($c = $this->addCollaborator($u, $settings, $errors)) {
+                        $collabs[] = (string) $c;
+                    }
+                }
+            }
+            //TODO: Can collaborators add others?
+            if ($collabs) {
+                //TODO: Change EndUser to name of  user.
+                $this->logNote(sprintf('Collaborators for %s organization added',
+                        $org->getName()),
+                    implode("<br>", $collabs), $org->getName(), false);
+            }
+        }
 
         //post the message.
         unset($vars['cannedattachments']); //Ticket::open() might have it set as part of  open & respond.
@@ -2383,11 +2479,18 @@ class Ticket {
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 
-        //Auto assign staff or team - auto assignment based on filter rules.
-        if($vars['staffId'] && !$vars['assignId'])
-             $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
-        if($vars['teamId'] && !$vars['assignId'])
-            $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+        // Assign ticket to staff or team (new ticket by staff)
+        if($vars['assignId']) {
+            $ticket->assign($vars['assignId'], $vars['note']);
+        }
+        else {
+            // Auto assign staff or team - auto assignment based on filter
+            // rules. Both team and staff can be assigned
+            if ($vars['staffId'])
+                 $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
+            if ($vars['teamId'])
+                $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+        }
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
@@ -2454,7 +2557,10 @@ class Ticket {
                 $errors['name'] = 'Name required';
         }
 
-        if(!($ticket=Ticket::create($vars, $errors, 'staff', false, (!$vars['assignId']))))
+        if (!$thisstaff->canAssignTickets())
+            unset($vars['assignId']);
+
+        if(!($ticket=Ticket::create($vars, $errors, 'staff', false)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();
@@ -2475,13 +2581,14 @@ class Ticket {
             }
         }
 
-        //Post Internal note
-        if($vars['assignId'] && $thisstaff->canAssignTickets()) { //Assign ticket to staff or team.
-            $ticket->assign($vars['assignId'], $vars['note']);
-        } elseif($vars['note']) { //Not assigned...save optional note if any
+        // Not assigned...save optional note if any
+        if (!$vars['assignId'] && $vars['note']) {
             $ticket->logNote('New Ticket', $vars['note'], $thisstaff, false);
-        } else { //Not assignment and no internal note - log activity
-            $ticket->logActivity('New Ticket by Staff','Ticket created by staff -'.$thisstaff->getName());
+        }
+        else {
+            // Not assignment and no internal note - log activity
+            $ticket->logActivity('New Ticket by Staff',
+                'Ticket created by staff -'.$thisstaff->getName());
         }
 
         $ticket->reload();

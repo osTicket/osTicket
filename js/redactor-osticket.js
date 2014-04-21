@@ -223,7 +223,8 @@ $(function() {
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
-                'tabFocus': false
+                'tabFocus': false,
+                'toolbarFixedBox': true
             };
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
@@ -238,7 +239,7 @@ $(function() {
         if (el.hasClass('draft')) {
             var draft_saved = $('<span>')
                 .addClass("pull-right draft-saved faded")
-                .css({'position':'relative','top':'-1.8em','right':'1em'})
+                .css({'position':'absolute','top':'0.2em','right':'1em'})
                 .hide()
                 .append($('<span>')
                     .css({'position':'relative', 'top':'0.17em'})
@@ -256,6 +257,7 @@ $(function() {
                     )
                 );
             }
+            el.parent().css('position', 'relative');
             draft_saved.insertBefore(el);
             options['plugins'].push('draft');
             if (el.data('draftNamespace'))
@@ -280,4 +282,5 @@ $(function() {
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
+    $(document).on('pjax:success', findRichtextBoxes);
 });

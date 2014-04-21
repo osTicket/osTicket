@@ -28,6 +28,30 @@ class UserEmailModel extends VerySimpleModel {
     );
 }
 
+class TicketModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_TABLE,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'UserModel.id')
+            )
+        )
+    );
+
+    function getId() {
+        return $this->ticket_id;
+    }
+
+    function delete() {
+
+        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
+            return true;
+
+        return false;
+    }
+}
+
 class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
@@ -36,6 +60,16 @@ class UserModel extends VerySimpleModel {
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
             ),
+            'tickets' => array(
+                'reverse' => 'TicketModel.user',
+            ),
+            'account' => array(
+                'list' => false,
+                'reverse' => 'UserAccount.user',
+            ),
+            'org' => array(
+                'constraint' => array('org_id' => 'Organization.id')
+            ),
             'default_email' => array(
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
@@ -43,13 +77,7 @@ class UserModel extends VerySimpleModel {
         )
     );
 
-    var $emails;
-
-    static function objects() {
-        $qs = parent::objects();
-        #$qs->select_related('default_email');
-        return $qs;
-    }
+    const PRIMARY_ORG_CONTACT   = 0x0001;
 
     function getId() {
         return $this->id;
@@ -62,6 +90,51 @@ class UserModel extends VerySimpleModel {
     function getDefaultEmail() {
         return $this->default_email;
     }
+
+    function getAccount() {
+        return $this->account;
+    }
+
+    function getOrgId() {
+         return $this->get('org_id');
+    }
+
+    function getOrganization() {
+        return $this->org;
+    }
+
+    function setOrganization($org) {
+        if (!$org instanceof Organization)
+            return false;
+
+        $this->set('org', $org);
+        $this->save();
+
+        return true;
+    }
+
+    protected function hasStatus($flag) {
+        return $this->get('status') & $flag !== 0;
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isPrimaryContact() {
+        return $this->hasStatus(User::PRIMARY_ORG_CONTACT);
+    }
+
+    function setPrimaryContact($flag) {
+        if ($flag)
+            $this->setStatus(User::PRIMARY_ORG_CONTACT);
+        else
+            $this->clearStatus(User::PRIMARY_ORG_CONTACT);
+    }
 }
 
 class User extends UserModel {
@@ -69,16 +142,9 @@ class User extends UserModel {
     var $_entries;
     var $_forms;
 
-    function __construct($ht) {
-        parent::__construct($ht);
-        // TODO: Make this automatic with select_related()
-        if (isset($ht['default_email_id']))
-            $this->default_email = UserEmail::lookup($ht['default_email_id']);
-    }
-
     static function fromVars($vars) {
         // Try and lookup by email address
-        $user = User::lookup(array('emails__address'=>$vars['email']));
+        $user = static::lookupByEmail($vars['email']);
         if (!$user) {
             $user = User::create(array(
                 'name'=>$vars['name'],
@@ -88,6 +154,11 @@ class User extends UserModel {
                 // of the detached emails is fixed.
                 'default_email' => UserEmail::ensure($vars['email'])
             ));
+            // Is there an organization registered for this domain
+            list($mailbox, $domain) = explode('@', $vars['email'], 2);
+            if ($org = Organization::forDomain($domain))
+                $user->setOrganization($org);
+
             $user->save(true);
             $user->emails->add($user->default_email);
             // Attach initial custom fields
@@ -186,9 +257,11 @@ class User extends UserModel {
             if (!$this->_entries) {
                 $g = UserForm::getInstance();
                 $g->setClientId($this->id);
+                $g->save();
                 $this->_entries[] = $g;
             }
         }
+
         return $this->_entries;
     }
 
@@ -214,6 +287,23 @@ class User extends UserModel {
         }
 
         return $this->_forms;
+    }
+
+    function getAccountStatus() {
+
+        if (!($account=$this->getAccount()))
+            return 'Guest';
+
+        return (string) $account->getStatus();
+    }
+
+    function register($vars, &$errors) {
+
+        // user already registered?
+        if ($this->getAccount())
+            return true;
+
+        return UserAccount::register($this, $vars, $errors);
     }
 
     function updateInfo($vars, &$errors) {
@@ -280,12 +370,32 @@ class User extends UserModel {
             $this->name = mb_convert_case($this->name, MB_CASE_TITLE);
         }
 
-        if (count($this->dirty))
+        if (count($this->dirty)) //XXX: doesn't work??
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);
     }
+
+    function delete() {
+
+        // Refuse to delete a user with tickets
+        if ($this->tickets->count())
+            return false;
+
+        // Delete account record (if any)
+        if ($this->getAccount())
+            $this->getAccount()->delete();
+
+        // Delete emails.
+        $this->emails->expunge();
+
+        // Delete user
+        return parent::delete();
+    }
+
+    static function lookupByEmail($email) {
+        return self::lookup(array('emails__address'=>$email));
+    }
 }
-User::_inspect();
 
 class PersonsName {
     var $parts;
@@ -394,7 +504,7 @@ class PersonsName {
 
     function __toString() {
         global $cfg;
-        $format = $cfg->getDefaultNameFormat();
+        $format = $cfg ? $cfg->getDefaultNameFormat() : 'original';
         list(,$func) = static::$formats[$format];
         if (!$func) $func = 'getFull';
         return call_user_func(array($this, $func));
@@ -470,6 +580,312 @@ class UserEmail extends UserEmailModel {
 }
 
 
+class UserAccountModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => USER_ACCOUNT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'user' => array(
+                'null' => false,
+                'constraint' => array('user_id' => 'User.id')
+            ),
+        ),
+    );
+
+    var $_status;
+
+    function __onload() {
+        $this->_status = new UserAccountStatus($this->get('status'));
+    }
+
+    protected function hasStatus($flag) {
+        return $this->_status->check($flag);
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function confirm() {
+        $this->setStatus(UserAccountStatus::CONFIRMED);
+        return $this->save();
+    }
+
+    function isConfirmed() {
+        return $this->_status->isConfirmed();
+    }
+
+    function lock() {
+        $this->setStatus(UserAccountStatus::LOCKED);
+        $this->save();
+    }
+
+    function isLocked() {
+        return $this->_status->isLocked();
+    }
+
+    function forcePasswdReset() {
+        $this->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+        return $this->save();
+    }
+
+    function isPasswdResetForced() {
+        return $this->hasStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+    }
+
+    function isPasswdResetEnabled() {
+        return !$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET)
+            && (!$this->backend || $this->backend == 'client');
+    }
+
+    function getStatus() {
+        return $this->_status;
+    }
+
+    function getInfo() {
+        return $this->ht;
+    }
+
+    function getId() {
+        return $this->get('id');
+    }
+
+    function getUserId() {
+        return $this->get('user_id');
+    }
+
+    function getUser() {
+        $this->user->set('account', $this);
+        return $this->user;
+    }
+}
+
+class UserAccount extends UserAccountModel {
+
+    function hasPassword() {
+        return (bool) $this->get('passwd');
+    }
+
+    function sendResetEmail() {
+        return static::sendUnlockEmail('pwreset-client') === true;
+    }
+
+    function sendConfirmEmail() {
+        return static::sendUnlockEmail('registration-client') === true;
+    }
+
+    protected function sendUnlockEmail($template) {
+        global $ost, $cfg;
+
+        $token = Misc::randCode(48); // 290-bits
+
+        $email = $cfg->getDefaultEmail();
+        $content = Page::lookup(Page::getIdByType($template));
+
+        if (!$email ||  !$content)
+            return new Error($template.': Unable to retrieve template');
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'token' => $token,
+            'user' => $this->getUser(),
+            'recipient' => $this->getUser(),
+            'link' => sprintf(
+                "%s/pwreset.php?token=%s",
+                $ost->getConfig()->getBaseUrl(),
+                $token),
+        );
+        $vars['reset_link'] = &$vars['link'];
+
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        Signal::send('auth.pwreset.email', $this->getUser(), $info);
+
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
+        ), $vars);
+
+        $_config = new Config('pwreset');
+        $_config->set($vars['token'], $this->getUser()->getId());
+
+        $email->send($this->getUser()->getEmail(),
+            Format::striptags($msg['subj']), $msg['body']);
+
+        return true;
+    }
+
+    function __toString() {
+        return (string) $this->getStatus();
+    }
+
+    /*
+     * This assumes the staff is doing the update
+     */
+    function update($vars, &$errors) {
+        global $thisstaff;
+
+
+        if (!$thisstaff) {
+            $errors['err'] = 'Access Denied';
+            return false;
+        }
+
+        // TODO: Make sure the username is unique
+
+        if (!$vars['timezone_id'])
+            $errors['timezone_id'] = 'Time zone required';
+
+        // Changing password?
+        if ($vars['passwd1'] || $vars['passwd2']) {
+            if (!$vars['passwd1'])
+                $errors['passwd1'] = 'New password required';
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1'] = 'Must be at least 6 characters';
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2'] = 'Password(s) do not match';
+        }
+
+        if ($errors) return false;
+
+        $this->set('timezone_id', $vars['timezone_id']);
+        $this->set('dst', isset($vars['dst']) ? 1 : 0);
+
+        // Make sure the username is not an email.
+        if ($vars['username'] && Validator::is_email($vars['username']))
+             $vars['username'] = '';
+
+        $this->set('username', $vars['username']);
+
+        if ($vars['passwd1']) {
+            $this->set('passwd', Passwd::hash($vars['passwd1']));
+            $this->setStatus(UserAccountStatus::CONFIRMED);
+        }
+
+        // Set flags
+        foreach (array(
+                'pwreset-flag' => UserAccountStatus::REQUIRE_PASSWD_RESET,
+                'locked-flag' => UserAccountStatus::LOCKED,
+                'forbid-pwchange-flag' => UserAccountStatus::FORBID_PASSWD_RESET
+        ) as $ck=>$flag) {
+            if ($vars[$ck])
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
+
+        return $this->save(true);
+    }
+
+    static function createForUser($user) {
+        return static::create(array('user_id'=>$user->getId()));
+    }
+
+    static function lookupByUsername($username) {
+        if (strpos($username, '@') !== false)
+            $user = static::lookup(array('user__emails__address'=>$username));
+        else
+            $user = static::lookup(array('username'=>$username));
+
+        return $user;
+    }
+
+    static function register($user, $vars, &$errors) {
+
+        if (!$user || !$vars)
+            return false;
+
+        //Require temp password.
+        if ((!$vars['backend'] || $vars['backend'] != 'client')
+                && !isset($vars['sendemail'])) {
+            if (!$vars['passwd1'])
+                $errors['passwd1'] = 'Temp. password required';
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1'] = 'Must be at least 6 characters';
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2'] = 'Password(s) do not match';
+        }
+
+        if ($errors) return false;
+
+        $account = UserAccount::create(array('user_id' => $user->getId()));
+        if (!$account)
+            return false;
+
+        $account->set('dst', isset($vars['dst'])?1:0);
+        $account->set('timezone_id', $vars['timezone_id']);
+        $account->set('backend', $vars['backend']);
+
+        if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))
+            $account->set('username', $vars['username']);
+
+        if ($vars['passwd1'] && !$vars['sendemail']) {
+            $account->set('passwd', Passwd::hash($vars['passwd1']));
+            $account->setStatus(UserAccountStatus::CONFIRMED);
+            if ($vars['pwreset-flag'])
+                $account->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+            if ($vars['forbid-pwreset-flag'])
+                $account->setStatus(UserAccountStatus::FORBID_PASSWD_RESET);
+        }
+        elseif ($vars['backend'] && $vars['backend'] != 'client') {
+            // Auto confirm remote accounts
+            $account->setStatus(self::CONFIRMED);
+        }
+
+        $account->save(true);
+
+        if (!$account->isConfirmed() && $vars['sendemail'])
+            $account->sendConfirmEmail();
+
+        return $account;
+    }
+
+}
+
+class UserAccountStatus {
+
+    var $flag;
+
+    const CONFIRMED             = 0x0001;
+    const LOCKED                = 0x0002;
+    const REQUIRE_PASSWD_RESET  = 0x0004;
+    const FORBID_PASSWD_RESET   = 0x0008;
+
+    function __construct($flag) {
+        $this->flag = $flag;
+    }
+
+    function check($flag) {
+        return 0 !== ($this->flag & $flag);
+    }
+
+    function isLocked() {
+        return $this->check(self::LOCKED);
+    }
+
+    function isConfirmed() {
+        return $this->check(self::CONFIRMED);
+    }
+
+    function __toString() {
+
+        if (!$this->flag)
+            return 'Guest';
+
+        if ($this->isLocked())
+            return 'Locked (Administrative)';
+
+        if (!$this->isConfirmed())
+            return 'Locked (Pending Activation)';
+
+        return 'Active (Registered)';
+    }
+}
+
+
 /*
  *  Generic user list.
  */
@@ -519,5 +935,7 @@ class UserList implements  IteratorAggregate, ArrayAccess {
         return $list ? implode(', ', $list) : '';
     }
 }
-
+require_once(INCLUDE_DIR . 'class.organization.php');
+User::_inspect();
+UserAccount::_inspect();
 ?>

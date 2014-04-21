@@ -51,6 +51,44 @@ interface AuthDirectorySearch {
 }
 
 /**
+ * Class: ClientCreateRequest
+ *
+ * Simple container to represent a remote authentication success for a
+ * client which should be imported into the local database. The class will
+ * provide access to the backend that authenticated the user, the username
+ * that the user entered when logging in, and any other information about
+ * the user that the backend was able to lookup. Generally, this extra
+ * information would be the same information retrieved from calling the
+ * AuthDirectorySearch::lookup() method.
+ */
+class ClientCreateRequest {
+
+    var $backend;
+    var $username;
+    var $info;
+
+    function __construct($backend, $username, $info=array()) {
+        $this->backend = $backend;
+        $this->username = $username;
+        $this->info = $info;
+    }
+
+    function getBackend() {
+        return $this->backend;
+    }
+    function setBackend($what) {
+        $this->backend = $what;
+    }
+
+    function getUsername() {
+        return $this->username;
+    }
+    function getInfo() {
+        return $this->info;
+    }
+}
+
+/**
  * Authentication backend
  *
  * Authentication provides the basis of abstracting the link between the
@@ -100,6 +138,14 @@ abstract class AuthenticationBackend {
             return $backends[$id];
     }
 
+    static function getSearchDirectoryBackend($id) {
+
+        if ($id
+                && ($backends = static::getSearchDirectories())
+                && isset($backends[$id]))
+            return $backends[$id];
+    }
+
     /*
      * Allow the backend to do login audit depending on the result
      * This is mainly used to track failed login attempts
@@ -120,7 +166,7 @@ abstract class AuthenticationBackend {
         $backends =  static::getAllowedBackends($username);
         foreach (static::allRegistered() as $bk) {
             if ($backends //Allowed backends
-                    && $bk->supportsAuthentication()
+                    && $bk->supportsInteractiveAuthentication()
                     && !in_array($bk::$id, $backends))
                 // User cannot be authenticated against this backend
                 continue;
@@ -128,17 +174,26 @@ abstract class AuthenticationBackend {
             // All backends are queried here, even if they don't support
             // authentication so that extensions like lockouts and audits
             // can be supported.
-            $result = $bk->authenticate($username, $password);
-            if ($result instanceof AuthenticatedUser
-                    && ($bk->login($result, $bk)))
-                return $result;
-            elseif ($result instanceof AccessDenied) {
+            try {
+                $result = $bk->authenticate($username, $password);
+                if ($result instanceof AuthenticatedUser
+                        && ($bk->login($result, $bk)))
+                    return $result;
+                elseif ($result instanceof ClientCreateRequest
+                        && $bk instanceof UserAuthenticationBackend)
+                    return $result;
+                elseif ($result instanceof AccessDenied) {
+                    break;
+                }
+            }
+            catch (AccessDenied $e) {
+                $result = $e;
                 break;
             }
         }
 
         if (!$result)
-            $result = new  AccessDenied('Access denied');
+            $result = new AccessDenied('Access denied');
 
         if ($result && $result instanceof AccessDenied)
             $errors['err'] = $result->reason;
@@ -182,13 +237,24 @@ abstract class AuthenticationBackend {
         self::authAudit($result);
     }
 
+    static function getSearchDirectories() {
+        $backends = array();
+        foreach (StaffAuthenticationBackend::allRegistered() as $bk)
+            if ($bk instanceof AuthDirectorySearch)
+                $backends[$bk::$id] = $bk;
+
+        foreach (UserAuthenticationBackend::allRegistered() as $bk)
+            if ($bk instanceof AuthDirectorySearch)
+                $backends[$bk::$id] = $bk;
+
+        return array_unique($backends);
+    }
+
     static function searchUsers($query) {
         $users = array();
-        foreach (static::allRegistered() as $bk) {
-            if ($bk instanceof AuthDirectorySearch) {
-                $users += $bk->search($query);
-            }
-        }
+        foreach (static::getSearchDirectories() as $bk)
+            $users = array_merge($users, $bk->search($query));
+
         return $users;
     }
 
@@ -203,7 +269,7 @@ abstract class AuthenticationBackend {
      * Indicates if the backed supports authentication. Useful if the
      * backend is used for logging or lockout only
      */
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return true;
     }
 
@@ -322,6 +388,9 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
         Signal::send('auth.login.succeeded', $staff);
 
+        if ($bk->supportsInteractiveAuthentication())
+            $staff->cancelResetTokens();
+
         return true;
     }
 
@@ -398,8 +467,20 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     function getAllowedBackends($userid) {
-        // White listing backends for specific user not supported.
-        return array();
+        $backends = array();
+        $sql = 'SELECT A1.backend FROM '.USER_ACCOUNT_TABLE
+              .' A1 INNER JOIN '.USER_EMAIL_TABLE.' A2 ON (A2.user_id = A1.user_id)'
+              .' WHERE backend IS NOT NULL '
+              .' AND (A1.username='.db_input($userid)
+                  .' OR A2.`address`='.db_input($userid).')';
+
+        if (!($res=db_query($sql, false)))
+            return $backends;
+
+        while (list($bk) = db_fetch_row($res))
+            $backends[] = $bk;
+
+        return array_filter($backends);
     }
 
     function login($user, $bk) {
@@ -410,6 +491,15 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 || !($authkey = $bk->getAuthKey($user)))
             return false;
 
+        $acct = $user->getAccount();
+
+        if ($acct) {
+            if (!$acct->isConfirmed())
+                throw new AccessDenied('Account confirmation required');
+            elseif ($acct->isLocked())
+                throw new AccessDenied('Account is administratively locked');
+        }
+
         //Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
 
@@ -419,8 +509,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $authsession = array(); //clear.
         $authsession['id'] = $user->getId();
         $authsession['key'] = $authkey;
-        $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
-        $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 
         //The backend used decides the format of the auth key.
         // XXX: encrypt to hide the bk??
@@ -428,10 +516,18 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         $user->refreshSession(true); //set the hash.
 
+        if (($acct = $user->getAccount()) && ($tid = $acct->get('timezone_id'))) {
+            $_SESSION['TZ_OFFSET'] = Timezone::getOffsetById($tid);
+            $_SESSION['TZ_DST'] = $acct->get('dst');
+        }
+
         //Log login info...
         $msg=sprintf('%s (%s) logged in [%s]',
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug('User login', $msg);
+
+        if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
+            $acct->cancelResetTokens();
 
         return true;
     }
@@ -451,7 +547,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     }
 
     protected function getAuthKey($user) {
-        return  $user->getUsername();
+        return  $user->getId();
     }
 
     static function getUser() {
@@ -463,7 +559,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         list($id, $auth) = explode(':', $_SESSION['_auth']['user']['key']);
 
         if (!($bk=static::getBackend($id)) //get the backend
-                || !$bk->supportsAuthentication() //Make sure it can authenticate
                 || !($user=$bk->validate($auth)) //Get AuthicatedUser
                 || !($user instanceof AuthenticatedUser) // Make sure it user
                 || $user->getId() != $_SESSION['_auth']['user']['id'] // check ID
@@ -474,14 +569,24 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         return $user;
     }
+
+    protected function validate($userid) {
+        if (!($user = User::lookup($userid)))
+            return false;
+        elseif (!$user->getAccount())
+            return false;
+
+        return new ClientSession(new EndUser($user));
+    }
 }
 
 /**
  * This will be an exception in later versions of PHP
  */
-class AccessDenied {
+class AccessDenied extends Exception {
     function __construct($reason) {
         $this->reason = $reason;
+        parent::__construct($reason);
     }
 }
 
@@ -512,7 +617,7 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
         return null;
     }
 
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return false;
     }
 
@@ -677,7 +782,7 @@ StaffAuthenticationBackend::register('osTicketAuthentication');
 class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     static $id = "pwreset.staff";
 
-    function supportsAuthentication() {
+    function supportsInteractiveAuthentication() {
         return false;
     }
 
@@ -745,10 +850,13 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         return $user;
     }
 
+    function supportsInteractiveAuthentication() {
+        return false;
+    }
 
     protected function getAuthKey($user) {
 
-        if (!$this->supportsAuthentication() || !$user)
+        if (!$user)
             return null;
 
         //Generate authkey based the type of ticket user
@@ -790,6 +898,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         if (!$user || strcmp($this->getAuthKey($user), $authkey))
             return null;
 
+        $user->flagGuest();
 
         return $user;
     }
@@ -807,19 +916,17 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
     function authenticate($email, $number) {
 
         if (!($ticket = Ticket::lookupByNumber($number))
-                || !($user=User::lookup(array('emails__address' =>
-                            $email))))
+                || !($user=User::lookup(array('emails__address' => $email))))
             return false;
 
-        //Ticket owner?
+        // Ticket owner?
         if ($ticket->getUserId() == $user->getId())
             $user = $ticket->getOwner();
-        //Collaborator?
-        elseif (!($user = Collaborator::lookup(array('userId' =>
-                            $user->getId(), 'ticketId' =>
-                            $ticket->getId()))))
+        // Collaborator?
+        elseif (!($user = Collaborator::lookup(array(
+                'userId' => $user->getId(),
+                'ticketId' => $ticket->getId()))))
             return false; //Bro, we don't know you!
-
 
         return new ClientSession($user);
     }
@@ -828,7 +935,93 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
     function login($user, $bk) {
         return true;
     }
-
+    function supportsInteractiveAuthentication() {
+        return false;
+    }
 }
 UserAuthenticationBackend::register('AccessLinkAuthentication');
+
+class osTicketClientAuthentication extends UserAuthenticationBackend {
+    static $name = "Local Client Authentication";
+    static $id = "client";
+
+    function authenticate($username, $password) {
+        if (!($acct = ClientAccount::lookupByUsername($username)))
+            return;
+
+        if (($client = new ClientSession(new EndUser($acct->getUser())))
+                && !$client->getId())
+            return false;
+        elseif (!$acct->checkPassword($password))
+            return false;
+        else
+            return $client;
+    }
+}
+UserAuthenticationBackend::register('osTicketClientAuthentication');
+
+class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
+    static $id = "pwreset.client";
+
+    function supportsInteractiveAuthentication() {
+        return false;
+    }
+
+    function signOn($errors=array()) {
+        global $ost;
+
+        if (!isset($_POST['userid']) || !isset($_POST['token']))
+            return false;
+        elseif (!($_config = new Config('pwreset')))
+            return false;
+        elseif (!($acct = ClientAccount::lookupByUsername($_POST['userid']))
+                || !$acct->getId()
+                || !($client = new ClientSession(new EndUser($acct->getUser()))))
+            $errors['msg'] = 'Invalid user-id given';
+        elseif (!($id = $_config->get($_POST['token']))
+                || $id != $client->getId())
+            $errors['msg'] = 'Invalid reset token';
+        elseif (!($ts = $_config->lastModified($_POST['token']))
+                && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
+            $errors['msg'] = 'Invalid reset token';
+        elseif (!$acct->forcePasswdReset())
+            $errors['msg'] = 'Unable to reset password';
+        else
+            return $client;
+    }
+
+    function login($client, $bk) {
+        $_SESSION['_client']['reset-token'] = $_POST['token'];
+        Signal::send('auth.pwreset.login', $client);
+        return parent::login($client, $bk);
+    }
+}
+UserAuthenticationBackend::register('ClientPasswordResetTokenBackend');
+
+class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
+    static $id = "confirm.client";
+
+    function supportsInteractiveAuthentication() {
+        return false;
+    }
+
+    function signOn($errors=array()) {
+        global $ost;
+
+        if (!isset($_GET['token']))
+            return false;
+        elseif (!($_config = new Config('pwreset')))
+            return false;
+        elseif (!($id = $_config->get($_GET['token'])))
+            return false;
+        elseif (!($acct = ClientAccount::lookup(array('user_id'=>$id)))
+                || !$acct->getId()
+                || $id != $acct->getUserId()
+                || !($client = new ClientSession(new EndUser($acct->getUser()))))
+            return false;
+        else
+            return $client;
+    }
+}
+UserAuthenticationBackend::register('ClientAcctConfirmationTokenBackend');
 ?>

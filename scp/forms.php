@@ -23,6 +23,11 @@ if($_POST) {
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
                 if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
+                    if ($_POST["delete-data-$id"]) {
+                        DynamicFormEntryAnswer::objects()
+                            ->filter(array('field_id'=>$id))
+                            ->delete();
+                    }
                     $field->delete();
                     // Don't bother updating the field
                     continue;
@@ -121,7 +126,8 @@ $page='dynamic-forms.inc.php';
 if($form || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page='dynamic-form.inc.php';
 
-$ost->addExtraHeader('<meta name="tip-namespace" content="forms" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="forms" />',
+    "$('#content').data('tipNamespace', 'forms');");
 $nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);

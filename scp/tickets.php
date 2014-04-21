@@ -198,16 +198,30 @@ if($_POST && !$errors):
         case 'edit':
         case 'update':
             $forms=DynamicFormEntry::forTicket($ticket->getId());
-            foreach ($forms as $form)
-                if (!$form->isValid())
+            foreach ($forms as $form) {
+                // Don't validate deleted forms
+                if (!in_array($form->getId(), $_POST['forms']))
+                    continue;
+                elseif (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
+            }
             if(!$ticket || !$thisstaff->canEditTickets())
                 $errors['err']='Permission Denied. You are not allowed to edit tickets';
             elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
-                foreach ($forms as $f) $f->save();
+                foreach ($forms as $f) {
+                    // Drop deleted forms
+                    $idx = array_search($f->getId(), $_POST['forms']);
+                    if ($idx === false) {
+                        $f->delete();
+                    }
+                    else {
+                        $f->set('sort', $idx);
+                        $f->save();
+                    }
+                }
                 if(!$ticket->checkStaffAccess($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {
@@ -471,13 +485,6 @@ if($_POST && !$errors):
                 break;
             case 'open':
                 $ticket=null;
-                if ($topic=Topic::lookup($_POST['topicId'])) {
-                    if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
-                        $form = $form->instanciate();
-                        if (!$form->getForm()->isValid())
-                            $errors = array_merge($errors, $form->getForm()->errors());
-                    }
-                }
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
@@ -487,11 +494,6 @@ if($_POST && !$errors):
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;
-                        # Save extra dynamic form(s)
-                        if (isset($form)) {
-                            $form->setTicketId($ticket->getId());
-                            $form->save();
-                        }
                         if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
@@ -614,10 +616,25 @@ if($ticket) {
 
     //set refresh rate if the user has it configured
     if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate()))
-        $ost->addExtraHeader('<meta http-equiv="refresh" content="'.($min*60).'" />');
+        $ost->addExtraHeader('',
+            "window.ticket_refresh = setTimeout(function() { $.pjax({url: document.location.href, container:'#content'});},"
+            .($min*60000).");");
 }
+
+$ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
 
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');
+
+if (isset($_SERVER['HTTP_X_PJAX'])) {
+    // Update the ticket queue counts in the navigation
+    ob_start();
+    include STAFFINC_DIR . "templates/sub-navigation.tmpl.php";
+    $nav_content = ob_get_clean();
+?>
+<script type="text/javascript">
+    $('#sub_nav').html(<?php echo JsonDataEncoder::encode($nav_content); ?>);
+</script><?php
+}
 ?>

@@ -611,5 +611,51 @@ class TicketsAjaxAPI extends AjaxController {
 
     }
 
+    function manageForms($ticket_id) {
+        include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
+    }
+
+    function updateForms($ticket_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($ticket = Ticket::lookup($ticket_id)))
+            Http::response(404, "No such ticket");
+        elseif (!$ticket->checkStaffAccess($thisstaff))
+            Http::response(403, "Access Denied");
+        elseif (!isset($_POST['forms']))
+            Http::response(422, "Send updated forms list");
+
+        // Add new forms
+        $forms = DynamicFormEntry::forTicket($ticket_id);
+        foreach ($_POST['forms'] as $sort => $id) {
+            $found = false;
+            foreach ($forms as $e) {
+                if ($e->get('form_id') == $id) {
+                    $e->set('sort', $sort);
+                    $e->save();
+                    $found = true;
+                    break;
+                }
+            }
+            // New form added
+            if (!$found && ($new = DynamicForm::lookup($id))) {
+                $f = $new->instanciate();
+                $f->set('sort', $sort);
+                $f->setTicketId($ticket_id);
+                $f->save();
+            }
+        }
+
+        // Deleted forms
+        foreach ($forms as $idx => $e) {
+            if (!in_array($e->get('form_id'), $_POST['forms']))
+                $e->delete();
+        }
+
+        Http::response(201, 'Successfully managed');
+    }
+
 }
 ?>

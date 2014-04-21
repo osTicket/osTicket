@@ -77,13 +77,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td width="180">Show Related Tickets:</td>
-            <td>
-                <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >
-                <em>(Show all related tickets on user login - otherwise access is restricted to one ticket view per login)</em>
-            </td>
-        </tr>
-        <tr>
             <td>Human Verification:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>

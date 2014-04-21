@@ -43,21 +43,23 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                 style="height: 5em"></a>
             <p>
              <?php
-             if($thisclient && is_object($thisclient) && $thisclient->isValid()) {
+                if ($thisclient && is_object($thisclient) && $thisclient->isValid()
+                    && !$thisclient->isGuest()) {
                  echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
                  ?>
-                <a href="<?php echo ROOT_PATH; ?>profile.php">Profile</a> |
-                <?php
-                if($cfg->showRelatedTickets()) {?>
+                <a href="<?php echo ROOT_PATH; ?>account.php">Profile</a> |
                 <a href="<?php echo ROOT_PATH; ?>tickets.php">Tickets <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
-                <?php
-                } ?>
                 <a href="<?php echo ROOT_PATH; ?>logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
-             <?php
-             }elseif($nav){ ?>
-                 Guest User | <a href="<?php echo ROOT_PATH; ?>login.php">Log In</a>
-              <?php
-             } ?>
+            <?php
+            } elseif($nav) {
+                if ($cfg->getClientRegistrationMode() == 'public') { ?>
+                    Guest User | <?php
+                }
+                if ($cfg->getClientRegistrationMode() != 'disabled') { ?>
+                    <a href="<?php echo ROOT_PATH; ?>login.php">Sign In</a>
+<?php
+                }
+            } ?>
             </p>
         </div>
         <?php

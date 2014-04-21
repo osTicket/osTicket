@@ -265,7 +265,7 @@ $.autoLock = autoLock;
    UI & form events
 */
 
-jQuery(function($) {
+var ticket_onload = function($) {
     $('#response_options form').hide();
     $('#ticket_notes').hide();
     if(location.hash != "" && $('#response_options '+location.hash).length) {
@@ -336,30 +336,11 @@ jQuery(function($) {
         return false;
     });
 
-    //ticket status (close & reopen)
+    //ticket status (close & reopen) xxx: move to backend ticket-action
     $('a#ticket-close, a#ticket-reopen').click(function(e) {
         e.preventDefault();
         $('#overlay').show();
         $('.dialog#ticket-status').show();
-        return false;
-    });
-
-    //ticket actions confirmation - Delete + more
-    $('a#ticket-delete, a#ticket-claim, #action-dropdown-more li a:not(.change-user)').click(function(e) {
-        e.preventDefault();
-        if($('.dialog#confirm-action '+$(this).attr('href')+'-confirm').length) {
-            var action = $(this).attr('href').substr(1, $(this).attr('href').length);
-            $('.dialog#confirm-action #action').val(action);
-            $('#overlay').show();
-            $('.dialog#confirm-action .confirm-action').hide();
-            $('.dialog#confirm-action p'+$(this).attr('href')+'-confirm')
-            .show()
-            .parent('div').show().trigger('click');
-
-        } else {
-            alert('Unknown action '+$(this).attr('href')+'- get technical help.');
-        }
-
         return false;
     });
 
@@ -426,17 +407,19 @@ jQuery(function($) {
             // TODO: Add a hover-button to show just one image
         });
     });
-});
+};
+$(ticket_onload);
+$(document).on('pjax:success', function() { ticket_onload(jQuery); });
 
 showImagesInline = function(urls, thread_id) {
     var selector = (thread_id == undefined)
         ? '.thread-body img[data-cid]'
         : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
     $(selector).each(function(i, el) {
-        var cid = $(el).data('cid').toLowerCase(),
-            info = urls[cid],
-            e = $(el);
-        if (info) {
+        var e = $(el),
+            cid = e.data('cid').toLowerCase(),
+            info = urls[cid];
+        if (info && !e.data('wrapped')) {
             // Add a hover effect with the filename
             var timeout, caption = $('<div class="image-hover">')
                 .css({'float':e.css('float')});
@@ -454,8 +437,9 @@ showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button no-pjax"><i class="icon-download-alt"></i> Download</a>')
                 );
+            e.data('wrapped', true);
         }
     });
 }

@@ -720,8 +720,11 @@ class Staff extends AuthenticatedUser {
     }
 
     function create($vars, &$errors) {
-        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($staff=Staff::lookup($id))) {
-            $staff->updateTeams($vars['teams']);
+        if(($id=self::save(0, $vars, $errors)) && ($staff=Staff::lookup($id))) {
+            if ($vars['teams'])
+                $staff->updateTeams($vars['teams']);
+            if ($vars['welcome_email'])
+                $staff->sendResetEmail('registration-staff');
             Signal::send('model.created', $staff);
         }
 
@@ -737,27 +740,28 @@ class Staff extends AuthenticatedUser {
         unset($_SESSION['_staff']['reset-token']);
     }
 
-    function sendResetEmail() {
+    function sendResetEmail($template='pwreset-staff') {
         global $ost, $cfg;
 
-        if(!($tpl = $this->getDept()->getTemplate()))
-            $tpl= $ost->getConfig()->getDefaultTemplate();
-
+        $content = Page::lookup(Page::getIdByType($template));
         $token = Misc::randCode(48); // 290-bits
-        if (!($template = $tpl->getMsgTemplate('staff.pwreset')))
+
+        if (!$content)
             return new Error('Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'token' => $token,
             'staff' => $this,
+            'recipient' => $this,
             'reset_link' => sprintf(
                 "%s/scp/pwreset.php?token=%s",
                 $ost->getConfig()->getBaseUrl(),
                 $token),
         );
+        $vars['link'] = &$vars['reset_link'];
 
-        if(!($email=$cfg->getAlertEmail()))
+        if (!($email = $cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
         $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
@@ -777,12 +781,16 @@ class Staff extends AuthenticatedUser {
                 $email->getEmail()
             ), false);
 
-        $msg = $ost->replaceTemplateVariables($template->asArray(), $vars);
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
+        ), $vars);
 
         $_config = new Config('pwreset');
         $_config->set($vars['token'], $this->getId());
 
-        $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+        $email->send($this->getEmail(), Format::striptags($msg['subj']),
+            $msg['body']);
     }
 
     function save($id, $vars, &$errors) {
@@ -822,7 +830,7 @@ class Staff extends AuthenticatedUser {
             if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
                 $errors['passwd2']='Password(s) do not match';
             }
-            elseif ($vars['backend'] != 'local') {
+            elseif ($vars['backend'] != 'local' || $vars['welcome_email']) {
                 // Password can be omitted
             }
             elseif(!$vars['passwd1'] && !$id) {

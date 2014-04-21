@@ -24,6 +24,8 @@ $settingOptions=array(
         array('Email Settings', 'settings.email'),
     'pages' =>
         array('Site Pages', 'settings.pages'),
+    'access' =>
+        array('Access Control', 'settings.access'),
     'kb' =>
         array('Knowledgebase Settings', 'settings.kb'),
     'autoresp' =>
@@ -46,7 +48,8 @@ if($page && $_POST && !$errors) {
 }
 
 $config=($errors && $_POST)?Format::input($_POST):Format::htmlchars($cfg->getConfigInfo());
-$ost->addExtraHeader('<meta name="tip-namespace" content="'.$page[1].'" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="'.$page[1].'" />',
+    "$('#content').data('tipNamespace', '".$page[1]."');");
 
 $nav->setTabActive('settings', ('settings.php?t='.$target));
 require_once(STAFFINC_DIR.'header.inc.php');
