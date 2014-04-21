@@ -761,7 +761,7 @@ class UserAccount extends UserAccountModel {
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
-            $this->set('passwd', Passwd::hash($vars['passwd']));
+            $this->set('passwd', Passwd::hash($vars['passwd1']));
             $this->setStatus(UserAccountStatus::CONFIRMED);
         }
 

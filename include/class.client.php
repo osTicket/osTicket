@@ -358,7 +358,7 @@ class ClientAccount extends UserAccount {
         if ($vars['passwd1']) {
             $this->set('passwd', Passwd::hash($vars['passwd1']));
             $info = array('password' => $vars['passwd1']);
-            Signal::send('auth.pwchange', $this, $info);
+            Signal::send('auth.pwchange', $this->getUser(), $info);
             $this->cancelResetTokens();
             $this->clearStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
         }
