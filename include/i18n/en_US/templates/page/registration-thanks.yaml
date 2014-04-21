@@ -13,6 +13,7 @@ notes: >
     or access existing tickets.
 name: "Account Confirmed!"
 body: >
+    <div>
     <strong>Thanks for registering for an account.</strong><br />
     <br />
     You've confirmed your email address and successfully activated your
@@ -20,3 +21,4 @@ body: >
     <br />
     <em>Your friendly support center</em><br />
     %{company.name}
+    </div>

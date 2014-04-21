@@ -5,11 +5,12 @@
 # link on the login page
 ---
 notes: >
-    This template defines the email sent to Clients who select the <strong>Forgot My 
+    This template defines the email sent to Clients who select the <strong>Forgot My
     Password</strong> link on the Client Log In page.
 name: "%{company.name} Help Desk Access"
 body: >
     <h3><strong>Hi %{user.name.first},</strong></h3>
+    <div>
     A password reset request has been submitted on your behalf for the
     helpdesk at %{url}.<br />
     <br />
@@ -26,3 +27,4 @@ body: >
     <em style="font-size: small">Your friendly Customer Support System
     <br />
     %{company.name}</em>
+    </div>

@@ -10,6 +10,7 @@ notes: >
 name: "osTicket Staff Password Reset"
 body: >
     <h3><strong>Hi %{staff.name.first},</strong></h3>
+    <div>
     A password reset request has been submitted on your behalf for the
     helpdesk at %{url}.<br />
     <br />
@@ -27,3 +28,4 @@ body: >
     <br />
     <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by
     osTicket" width="126" height="19" style="width: 126px" />
+    </div>

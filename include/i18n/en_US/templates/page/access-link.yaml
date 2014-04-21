@@ -12,6 +12,7 @@ notes: >
 name: "Ticket [#%{ticket.number}] Access Link"
 body: >
     <h3><strong>Hi %{recipient.name.first},</strong></h3>
+    <div>
     An access link request for ticket #%{ticket.number} has been submitted
     on your behalf for the helpdesk at %{url}.<br />
     <br />
@@ -27,3 +28,4 @@ body: >
     <br />
     --<br />
     %{company.name}
+    </div>

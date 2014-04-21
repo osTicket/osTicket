@@ -11,6 +11,7 @@ notes: >
 name: "Welcome to osTicket"
 body: >
     <h3><strong>Hi %{recipient.name.first},</strong></h3>
+    <div>
     We've created an account for you at our help desk at %{url}.<br />
     <br />
     Please follow the link below to confirm your account and gain access to
@@ -18,5 +19,6 @@ body: >
     <br />
     <a href="%{link}">%{link}</a><br />
     <br />
-    <em style="font-size: small">Your friendly Customer Support System
-    <br />%{company.name}</em>
+    <em style="font-size: small">Your friendly Customer Support System<br />
+    %{company.name}</em>
+    </div>

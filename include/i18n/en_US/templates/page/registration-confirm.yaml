@@ -14,9 +14,9 @@ notes: >
     process.
 name: "Account registration"
 body: >
-    <p><strong>Thanks for registering for an account.</strong></p>
-    <br /><p>
+    <div><strong>Thanks for registering for an account.</strong><br/>
+    <br />
     We've just sent you an email to the address you entered. Please follow
     the link in the email to confirm your account and gain access to your
     tickets.
-    </p>
+    </div>
