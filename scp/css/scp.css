@@ -1502,6 +1502,7 @@ ul.progress li.no small {color:red;}
     background: #000;
     z-index: 101;
     -webkit-transform: translate3d(0,0,0);
+    opacity: 0.5;
 }
 
 #loading, #upgrading {

@@ -224,7 +224,8 @@ $(function() {
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
                 'tabFocus': false,
-                'toolbarFixedBox': true
+                'toolbarFixedBox': true,
+                'focusCallback': function() { this.$box.addClass('no-pjax'); }
             };
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));

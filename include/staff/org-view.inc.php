@@ -59,7 +59,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 include STAFFINC_DIR . 'templates/users.tmpl.php';
 ?>
 </div>
-<div class="tab_content" id="tickets"  style="display:none;">
+<div class="tab_content no-pjax" id="tickets"  style="display:none;">
 <?php
 include STAFFINC_DIR . 'templates/tickets.tmpl.php';
 ?>

@@ -24,8 +24,9 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <script type="text/javascript">
 if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
-    if (!$(this).hasClass('no-pjax'))
-        $.pjax.click(event, {container: $('#content'), timeout: 2000})
+    if (!$(this).hasClass('no-pjax')
+        && !$(this).closest('.no-pjax').length)
+      $.pjax.click(event, {container: $('#content'), timeout: 2000});
   })
 }
 </script>
