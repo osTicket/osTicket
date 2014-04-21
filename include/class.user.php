@@ -873,14 +873,13 @@ class UserAccountStatus {
 
     function __toString() {
 
-        if (!$this->flag)
-            return 'Guest';
-
         if ($this->isLocked())
             return 'Locked (Administrative)';
 
         if (!$this->isConfirmed())
             return 'Locked (Pending Activation)';
+
+        // ... Other flags here (password reset, etc).
 
         return 'Active (Registered)';
     }

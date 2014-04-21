@@ -3,7 +3,7 @@ if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
 
-$select = 'SELECT user.*, email.address as email, account.status ';
+$select = 'SELECT user.*, email.address as email, account.id as account_id, account.status ';
 
 $from = 'FROM '.USER_TABLE.' user '
       . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) '
@@ -114,7 +114,7 @@ else
             while ($row = db_fetch_array($res)) {
                 $name = new PersonsName($row['name']);
                 // Account status
-                if ($row['status'])
+                if ($row['account_id'])
                     $status = new UserAccountStatus($row['status']);
                 else
                     $status = 'Guest';
