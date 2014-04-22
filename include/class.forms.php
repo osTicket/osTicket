@@ -493,6 +493,14 @@ class FormField {
         }
         return $this->_widget;
     }
+
+    function getSelectName() {
+        $name = $this->get('name') ?: 'field_'.$this->get('id');
+        if ($this->hasIdValue())
+            $name .= '_id';
+
+        return $name;
+    }
 }
 
 class TextboxField extends FormField {
