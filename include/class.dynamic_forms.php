@@ -166,6 +166,12 @@ class UserForm extends DynamicForm {
             static::$instance = static::getUserForm()->instanciate();
         return static::$instance;
     }
+
+    static function getNewInstance() {
+        $o = static::objects();
+        static::$instance = $o[0]->instanciate();
+        return static::$instance;
+    }
 }
 
 class TicketForm extends DynamicForm {

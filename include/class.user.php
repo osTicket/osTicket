@@ -252,8 +252,7 @@ class User extends UserModel {
     }
 
     function addDynamicData($data) {
-
-        $uf = UserForm::getInstance();
+        $uf = UserForm::getNewInstance();
         $uf->setClientId($this->id);
         foreach ($uf->getFields() as $f)
             if (isset($data[$f->get('name')]))
@@ -267,7 +266,7 @@ class User extends UserModel {
         if (!isset($this->_entries)) {
             $this->_entries = DynamicFormEntry::forClient($this->id)->all();
             if (!$this->_entries) {
-                $g = UserForm::getInstance();
+                $g = UserForm::getNewInstance();
                 $g->setClientId($this->id);
                 $g->save();
                 $this->_entries[] = $g;
