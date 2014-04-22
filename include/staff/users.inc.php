@@ -115,7 +115,12 @@ else
         if($res && db_num_rows($res)):
             $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
             while ($row = db_fetch_array($res)) {
-                $name = new PersonsName($row['name']);
+                // Default to email address mailbox if no name specified
+                if (!$row['name'])
+                    list($name) = explode('@', $row['email']);
+                else
+                    $name = new PersonsName($row['name']);
+
                 // Account status
                 if ($row['account_id'])
                     $status = new UserAccountStatus($row['status']);

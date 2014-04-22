@@ -215,7 +215,11 @@ class User extends UserModel {
     }
 
     function getName() {
-        return new PersonsName($this->name);
+        if (!$this->name)
+            list($name) = explode('@', $this->getDefaultEmailAddress(), 2);
+        else
+            $name = $this->name;
+        return new PersonsName($name);
     }
 
     function getUpdateDate() {
