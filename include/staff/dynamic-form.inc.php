@@ -143,11 +143,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </select>
             <?php if ($f->isConfigurable()) { ?>
                 <a class="action-button" style="float:none;overflow:inherit"
-                    href="ajax.php/form/field-config/<?php
+                    href="#ajax.php/form/field-config/<?php
                         echo $f->get('id'); ?>"
                     onclick="javascript:
                         $('#overlay').show();
-                        $('#field-config .body').load(this.href);
+                        $('#field-config .body').load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
                     "><i class="icon-edit"></i> Config</a>
