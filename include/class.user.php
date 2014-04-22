@@ -317,6 +317,128 @@ class User extends UserModel {
         return UserAccount::register($this, $vars, $errors);
     }
 
+    static function importCsv($stream, $defaults=array()) {
+        //Read the header (if any)
+        $headers = array('name' => 'Full Name', 'email' => 'Email Address');
+        $uform = UserForm::getUserForm();
+        $all_fields = $uform->getFields();
+        $named_fields = array();
+        $has_header = true;
+        foreach ($all_fields as $f)
+            if ($f->get('name'))
+                $named_fields[] = $f;
+
+        if (($data = fgetcsv($stream, 1000, ","))) {
+            if (Validator::is_email($data[1])) {
+                $has_header = false; // We don't have an header!
+            }
+            else {
+                $headers = array();
+                foreach ($data as $h) {
+                    $found = false;
+                    foreach ($all_fields as $f) {
+                        if (in_array(mb_strtolower($h), array(
+                                mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
+                            $found = true;
+                            if (!$f->get('name'))
+                                return $h.': Field must have `variable` set to be imported';
+                            $headers[$f->get('name')] = $f->get('label');
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $has_header = false;
+                        if (count($data) == count($named_fields)) {
+                            // Number of fields in the user form matches the number
+                            // of fields in the data. Assume things line up
+                            $headers = array();
+                            foreach ($named_fields as $f)
+                                $headers[$f->get('name')] = $f->get('label');
+                            break;
+                        }
+                        else {
+                            return $h.': Unable to map header to a user field';
+                        }
+                    }
+                }
+            }
+        }
+        else
+            return 'Whoops. Perhaps you meant to send some CSV records';
+
+        // 'name' and 'email' MUST be in the headers
+        if (!isset($headers['name']) || !isset($headers['email']))
+            return 'CSV file must include `name` and `email` columns';
+
+        if (!$has_header)
+            fseek($stream, 0);
+
+        $users = $fields = $keys = array();
+        foreach ($headers as $h => $label) {
+            if (!($f = $uform->getField($h)))
+                continue;
+
+            $name = $keys[] = $f->get('name');
+            $fields[$name] = $f->getImpl();
+        }
+
+        // Add default fields (org_id, etc).
+        foreach ($defaults as $key => $val) {
+            // Don't apply defaults which are also being imported
+            if (isset($header[$key]))
+                unset($defaults[$key]);
+            $keys[] = $key;
+        }
+
+        while (($data = fgetcsv($stream, 1000, ",")) !== false) {
+            if (!count($data))
+                // Skip empty rows
+                continue;
+            elseif (count($data) != count($headers))
+                return 'Bad data. Expected: '.implode(', ', $headers);
+            // Validate according to field configuration
+            $i = 0;
+            foreach ($headers as $h => $label) {
+                $f = $fields[$h];
+                $T = $f->parse($data[$i]);
+                if ($f->validateEntry($T) && $f->errors())
+                    return $label.': Invalid data: '.implode(', ', $f->errors());
+                // Convert to database format
+                $data[$i] = $f->to_database($T);
+                $i++;
+            }
+            // Add default fields
+            foreach ($defaults as $key => $val)
+                $data[] = $val;
+
+            $users[] = $data;
+        }
+
+        foreach ($users as $u) {
+            $vars = array_combine($keys, $u);
+            if (!static::fromVars($vars))
+                return 'Unable to import user: '.print_r($vars, true);
+        }
+
+        return count($users);
+    }
+
+    function importFromPost($stuff, $extra=array()) {
+        if (is_array($stuff) && !$stuff['error']) {
+            $stream = fopen($stuff['tmp_name'], 'r');
+        }
+        elseif ($stuff) {
+            $stream = fopen('php://temp', 'w+');
+            fwrite($stream, $stuff);
+            rewind($stream);
+        }
+        else {
+            return 'Unable to parse submitted users';
+        }
+
+        return User::importCsv($stream, $extra);
+    }
+
     function updateInfo($vars, &$errors) {
 
         $valid = true;

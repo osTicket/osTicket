@@ -18,7 +18,7 @@ if ($_REQUEST['id'] && !($user=User::lookup($_REQUEST['id'])))
     $errors['err'] = 'Unknown or invalid user ID.';
 
 if ($_POST) {
-    switch(strtolower($_POST['do'])) {
+    switch(strtolower($_REQUEST['do'])) {
         case 'update':
             if (!$user) {
                 $errors['err']='Unknown or invalid user.';
@@ -65,6 +65,13 @@ if ($_POST) {
             } else {
                 $errors['err'] = "Coming soon!";
             }
+            break;
+        case 'import-users':
+            $status = User::importFromPost($_FILES['import'] ?: $_POST['pasted']);
+            if (is_numeric($status))
+                $msg = "Successfully imported $status clients";
+            else
+                $errors['err'] = $status;
             break;
         default:
             $errors['err'] = 'Unknown action/command';

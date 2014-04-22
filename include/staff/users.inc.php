@@ -83,7 +83,10 @@ $query="$select $from $where GROUP BY user.id ORDER BY $order_by LIMIT ".$pageNa
     </form>
  </div>
  <div style="float:right;text-align:right;padding-right:5px;">
-    <b><a href="#users/add" class="Icon newstaff add-user">Add New User</a></b></div>
+    <b><a href="#users/add" class="Icon newstaff popup-dialog">Add User</a></b>
+    |
+    <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i> Import</a></b>
+</div>
 <div class="clear"></div>
 <?php
 $showing = $search ? 'Search Results: ' : '';
@@ -167,10 +170,13 @@ $(function() {
         property: "/bin/true"
     });
 
-    $(document).on('click', 'a.add-user', function(e) {
+    $(document).on('click', 'a.popup-dialog', function(e) {
         e.preventDefault();
-        $.userLookup('ajax.php/users/add', function (user) {
-            window.location.href = 'users.php?id='+user.id;
+        $.userLookup('ajax.php/' + $(this).attr('href').substr(1), function (user) {
+            if (user && user.id)
+                window.location.href = 'users.php?id='+user.id;
+            else
+              $.pjax({url: window.location.href, container: '#content'})
          });
 
         return false;
