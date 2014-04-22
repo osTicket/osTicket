@@ -349,11 +349,12 @@ class MailFetcher {
 
     //search for specific mime type parts....encoding is the desired encoding.
     function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
-        global $ost;
+
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
 
-        if(!$ost->getConfig()->readIntoAttachedRfc822Messages() && strcasecmp('message/rfc822', $this->getMimeType($struct))==0){
+        //Don't read parts from rfc822 message parts as this is a attached message
+        if(strcasecmp('message/rfc822', $this->getMimeType($struct))==0){
             return '';
         }
         //Match the mime type.
@@ -435,10 +436,8 @@ class MailFetcher {
 
      */
     function getAttachments($part, $index=0) {
-        global $ost;
         $mime=$this->getMimeType($part);
-        $attachRfc822 = !$ost->getConfig()->readIntoAttachedRfc822Messages() && strcasecmp('message/rfc822',$mime ) == 0;
-        if($part && (!$part->parts || $attachRfc822)) {
+        if($part && (!$part->parts || strcasecmp('message/rfc822',$mime ) == 0)) {
             //Check if the part is an attachment.
             $filename = false;
             if ($part->ifdisposition && $part->ifdparameters
@@ -463,7 +462,7 @@ class MailFetcher {
                         if($subject)
                             $filename = $subject.".eml";
                     }else{
-                        $filename = "es_noname.eml";
+                        $filename = "unknown.eml";
                     }
             }
 
