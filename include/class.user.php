@@ -103,12 +103,13 @@ class UserModel extends VerySimpleModel {
         return $this->org;
     }
 
-    function setOrganization($org) {
+    function setOrganization($org, $save=true) {
         if (!$org instanceof Organization)
             return false;
 
         $this->set('org', $org);
-        $this->save();
+        if ($save)
+            $this->save();
 
         return true;
     }
@@ -146,8 +147,12 @@ class User extends UserModel {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
         if (!$user) {
+            $name = $vars['name'];
+            if (!$name)
+                list($name) = explode('@', $vars['email'], 2);
+
             $user = User::create(array(
-                'name'=>$vars['name'],
+                'name'=>$name,
                 'created'=>new SqlFunction('NOW'),
                 'updated'=>new SqlFunction('NOW'),
                 //XXX: Do plain create once the cause
@@ -156,13 +161,20 @@ class User extends UserModel {
             ));
             // Is there an organization registered for this domain
             list($mailbox, $domain) = explode('@', $vars['email'], 2);
-            if ($org = Organization::forDomain($domain))
-                $user->setOrganization($org);
+            if (isset($vars['org_id']))
+                $user->set('org_id', $vars['org_id']);
+            elseif ($org = Organization::forDomain($domain))
+                $user->setOrganization($org, false);
 
-            $user->save(true);
-            $user->emails->add($user->default_email);
-            // Attach initial custom fields
-            $user->addDynamicData($vars);
+            try {
+                $user->save(true);
+                $user->emails->add($user->default_email);
+                // Attach initial custom fields
+                $user->addDynamicData($vars);
+            }
+            catch (OrmException $e) {
+                return null;
+            }
         }
 
         return $user;
