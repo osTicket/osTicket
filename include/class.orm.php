@@ -36,10 +36,7 @@ class VerySimpleModel {
         $this->dirty = array();
     }
 
-    function get($field) {
-        return $this->ht[$field];
-    }
-    function __get($field) {
+    function get($field, $default=false) {
         if (array_key_exists($field, $this->ht))
             return $this->ht[$field];
         elseif (isset(static::$meta['joins'][$field])) {
@@ -50,8 +47,13 @@ class VerySimpleModel {
                 array($j['fkey'][1] => $this->ht[$j['local']]));
             return $v;
         }
+        if (isset($default))
+            return $default;
         throw new OrmException(sprintf('%s: %s: Field not defined',
             get_class($this), $field));
+    }
+    function __get($field) {
+        return $this->get($field, null);
     }
 
     function __isset($field) {
@@ -78,7 +80,7 @@ class VerySimpleModel {
             $this->ht[$field] = $value;
             // Capture the foreign key id value
             $field = $j['local'];
-            $value = $value->{$j['fkey'][1]};
+            $value = $value->get($j['fkey'][1]);
             // Fall through to the standard logic below
         }
         // XXX: Fully support or die if updating pk
