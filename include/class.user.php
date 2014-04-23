@@ -332,43 +332,42 @@ class User extends UserModel {
             if ($f->get('name'))
                 $named_fields[] = $f;
 
-        if (($data = fgetcsv($stream, 1000, ","))) {
-            if (Validator::is_email($data[1])) {
-                $has_header = false; // We don't have an header!
-            }
-            else {
-                $headers = array();
-                foreach ($data as $h) {
-                    $found = false;
-                    foreach ($all_fields as $f) {
-                        if (in_array(mb_strtolower($h), array(
-                                mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
-                            $found = true;
-                            if (!$f->get('name'))
-                                return $h.': Field must have `variable` set to be imported';
-                            $headers[$f->get('name')] = $f->get('label');
-                            break;
-                        }
+        if (!($data = fgetcsv($stream, 1000, ",")))
+            return 'Whoops. Perhaps you meant to send some CSV records';
+
+        if (Validator::is_email($data[1])) {
+            $has_header = false; // We don't have an header!
+        }
+        else {
+            $headers = array();
+            foreach ($data as $h) {
+                $found = false;
+                foreach ($all_fields as $f) {
+                    if (in_array(mb_strtolower($h), array(
+                            mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
+                        $found = true;
+                        if (!$f->get('name'))
+                            return $h.': Field must have `variable` set to be imported';
+                        $headers[$f->get('name')] = $f->get('label');
+                        break;
                     }
-                    if (!$found) {
-                        $has_header = false;
-                        if (count($data) == count($named_fields)) {
-                            // Number of fields in the user form matches the number
-                            // of fields in the data. Assume things line up
-                            $headers = array();
-                            foreach ($named_fields as $f)
-                                $headers[$f->get('name')] = $f->get('label');
-                            break;
-                        }
-                        else {
-                            return $h.': Unable to map header to a user field';
-                        }
+                }
+                if (!$found) {
+                    $has_header = false;
+                    if (count($data) == count($named_fields)) {
+                        // Number of fields in the user form matches the number
+                        // of fields in the data. Assume things line up
+                        $headers = array();
+                        foreach ($named_fields as $f)
+                            $headers[$f->get('name')] = $f->get('label');
+                        break;
+                    }
+                    else {
+                        return $h.': Unable to map header to a user field';
                     }
                 }
             }
         }
-        else
-            return 'Whoops. Perhaps you meant to send some CSV records';
 
         // 'name' and 'email' MUST be in the headers
         if (!isset($headers['name']) || !isset($headers['email']))
