@@ -149,6 +149,57 @@ class Export {
 
         return false;
     }
+
+    static function saveOrganizations($sql, $filename, $how='csv') {
+
+        $exclude = array('name');
+        $form = OrganizationForm::getDefaultForm();
+        $fields = $form->getExportableFields($exclude);
+
+        // Field selection callback
+        $fname = function ($f) {
+            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
+        };
+
+        $sql = substr_replace($sql,
+                ','.implode(',', array_map($fname, $fields)).' ',
+                strpos($sql, 'FROM '), 0);
+
+        $sql = substr_replace($sql,
+                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, '_org_id', $exclude).') cdata
+                    ON (cdata._org_id = org.id) ',
+                strpos($sql, 'WHERE '), 0);
+
+        $cdata = array_combine(array_keys($fields),
+                array_values(array_map(
+                        function ($f) { return $f->get('label'); }, $fields)));
+
+        ob_start();
+        echo self::dumpQuery($sql,
+                array(
+                    'name'  =>  'Name',
+                    'account_manager' => 'Account Manager',
+                    'users' => 'Users'
+                    ) + $cdata,
+                $how,
+                array('modify' => function(&$record, $keys) use ($fields) {
+                    foreach ($fields as $k=>$f) {
+                        if ($f && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $f->export($f->to_php($record[$i]));
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        $stuff = ob_get_contents();
+        ob_end_clean();
+
+        if ($stuff)
+            Http::download($filename, "text/$how", $stuff);
+
+        return false;
+    }
+
 }
 
 class ResultSetExporter {
