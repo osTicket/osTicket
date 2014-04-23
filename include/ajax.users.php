@@ -248,6 +248,30 @@ class UsersAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
     }
 
+    function importUsers() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+
+        $info = array(
+            'title' => 'Import Users',
+            'action' => '#users/import',
+            'upload_url' => "users.php?do=import-users",
+        );
+
+        if ($_POST) {
+            $status = User::importFromPost($_POST['pasted']);
+            if (is_string($status))
+                $info['error'] = $status;
+            else
+                Http::response(201, "{\"count\": $status}");
+        }
+        $info += Format::input($_POST);
+
+        include STAFFINC_DIR . 'templates/user-import.tmpl.php';
+    }
+
     function getLookupForm() {
         return self::_lookupform();
     }

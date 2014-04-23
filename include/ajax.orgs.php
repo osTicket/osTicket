@@ -169,6 +169,32 @@ class OrgsAjaxAPI extends AjaxController {
         return $resp;
     }
 
+    function importUsers($org_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif (!($org = Organization::lookup($org_id)))
+            Http::response(404, 'No such organization');
+
+        $info = array(
+            'title' => 'Import Users',
+            'action' => "#orgs/$org_id/import-users",
+            'upload_url' => "orgs.php?a=import-users",
+        );
+
+        if ($_POST) {
+            $status = User::importFromPost($_POST['pasted']);
+            if (is_string($status))
+                $info['error'] = $status;
+            else
+                Http::response(201, "{\"count\": $status}");
+        }
+        $info += Format::input($_POST);
+
+        include STAFFINC_DIR . 'templates/user-import.tmpl.php';
+    }
+
     function addOrg() {
 
         $info = array();

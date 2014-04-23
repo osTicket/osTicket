@@ -55,7 +55,11 @@ else
 ?>
 <div style="width:700px; float:left;"><b><?php echo $showing; ?></b></div>
 <div style="float:right;text-align:right;padding-right:5px;">
-    <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user">Add New User</a></b></div>
+    <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user">Add User</a></b>
+    |
+    <b><a href="#orgs/<?php echo $org->getId(); ?>/import-users" class="add-user">
+    <i class="icon-cloud-upload icon-large"></i> Import</a></b>
+</div>
 <div class="clear"></div>
 <br/>
 <?php
@@ -117,10 +121,12 @@ endif;
 $(function() {
     $(document).on('click', 'a.add-user', function(e) {
         e.preventDefault();
-        $.userLookup('ajax.php/orgs/<?php echo $org->getId(); ?>/add-user', function (user) {
-            window.location.href = 'orgs.php?id=<?php echo $org->getId(); ?>'
-         });
-
+        $.userLookup('ajax.php/' + $(this).attr('href').substr(1), function (user) {
+            if (user && user.id)
+                window.location.href = 'orgs.php?id=<?php echo $org->getId(); ?>'
+            else
+              $.pjax({url: window.location.href, container: '#content'})
+        });
         return false;
      });
 });

@@ -14,9 +14,24 @@
 **********************************************************************/
 require('staff.inc.php');
 $org = null;
-if ($_REQUEST['id'])
-    $org = Organization::lookup($_REQUEST['id']);
+if ($_REQUEST['id'] || $_REQUEST['org_id'])
+    $org = Organization::lookup($_REQUEST['org_id'] ?: $_REQUEST['id']);
 
+if ($_POST) {
+    switch ($_REQUEST['a']) {
+    case 'import-users':
+        if (!$org) {
+            $errors['err'] = 'Organization ID must be specified for import';
+            break;
+        }
+        $status = User::importFromPost($_FILES['import'] ?: $_POST['pasted'],
+            array('org_id'=>$org->getId()));
+        if (is_numeric($status))
+            $msg = "Successfully imported $status clients";
+        else
+            $errors['err'] = $status;
+    }
+}
 
 $page = $org? 'org-view.inc.php' : 'orgs.inc.php';
 $nav->setTabActive('users');
