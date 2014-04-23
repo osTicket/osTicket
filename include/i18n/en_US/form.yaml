@@ -144,7 +144,7 @@
         rows: 2
         cols: 40
         html: false
-        maxlength: 100
+        length: 100
 
 - type: O # notrans
   title: Organization Information
@@ -161,11 +161,37 @@
         size: 40
         length: 64
 
+    - type: memo
+      name: address
+      label: Address
+      required: false
+      sort: 2
+      configuration:
+        rows: 2
+        cols: 40
+        length: 100
+        html: false
+
+    - type: phone
+      name: phone
+      label: Phone
+      required: false
+      sort: 3
+
+    - type: text
+      name: homepage
+      label: Homepage
+      required: false
+      sort: 4
+      configuration:
+        size: 40
+        length: 30
+
     - type: memo # notrans
       name: notes
       label: Internal Notes
       required: false
-      sort: 2
+      sort: 5
       configuration:
         rows: 4
         cols: 40
