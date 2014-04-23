@@ -601,6 +601,11 @@ class TextareaField extends FormField {
         else
             return Format::htmlchars($value);
     }
+
+    function export($value) {
+        return (!$value) ? $value : Format::html2text($value);
+    }
+
 }
 
 class PhoneField extends FormField {
