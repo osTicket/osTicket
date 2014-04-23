@@ -178,13 +178,14 @@ if($ticket->isOverdue())
                                 <ul>
                                     <?php
                                     if(($open=$user->getNumOpenTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt icon-fixed-width"></i> %d Open Tickets</a></li>',
                                                 $user->getId(), $open);
                                     if(($closed=$user->getNumClosedTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="icon-folder-close-alt icon-fixed-width"></i> %d Closed Tickets</a></li>',
                                                 $user->getId(), $closed);
                                     ?>
-                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
+                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> All Tickets</a></li>
+                                    <li><a href="users.php?id=<?php echo $user->getId(); ?>"><i class="icon-user icon-fixed-width"></i> Manage Client</a></li>
                                 </u>
                             </div>
                     <?php

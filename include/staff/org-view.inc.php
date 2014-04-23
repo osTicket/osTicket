@@ -53,6 +53,8 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
     class="icon-user"></i>&nbsp;Users</a></li>
     <li><a id="tickets_tab" href="#tickets"><i
     class="icon-list-alt"></i>&nbsp;Tickets</a></li>
+    <li><a id="notes_tab" href="#notes"><i
+    class="icon-pushpin"></i>&nbsp;Notes</a></li>
 </ul>
 <div class="tab_content" id="users">
 <?php
@@ -62,6 +64,14 @@ include STAFFINC_DIR . 'templates/users.tmpl.php';
 <div class="tab_content no-pjax" id="tickets"  style="display:none;">
 <?php
 include STAFFINC_DIR . 'templates/tickets.tmpl.php';
+?>
+</div>
+
+<div class="tab_content" id="notes" style="display:none">
+<?php
+$notes = QuickNote::forOrganization($org);
+$ext_id = 'O'.$org->getId();
+include STAFFINC_DIR . 'templates/notes.tmpl.php';
 ?>
 </div>
 

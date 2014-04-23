@@ -27,20 +27,68 @@ if ($info['error']) {
     <div><?php echo $org->getName(); ?></div>
     <?php
     } ?>
-    <table style="margin-top: 1em;">
+
+<div class="clear"></div>
+<ul class="tabs" style="margin-top:5px">
+    <li><a href="#info-tab" class="active"
+        ><i class="icon-info-sign"></i>&nbsp;Client</a></li>
+<?php if ($org) { ?>
+    <li><a href="#organization-tab"
+        ><i class="icon-fixed-width icon-building"></i>&nbsp;Organization</a></li>
+<?php }
+    $ext_id = "U".$user->getId();
+    if (($notes = QuickNote::forUser($user, $org)->all())) { ?>
+    <li><a href="#notes-tab"
+        ><i class="icon-fixed-width icon-pushpin"></i>&nbsp;Notes</a></li>
+<?php } ?>
+</ul>
+
+<div class="tab_content" id="info-tab">
+    <table class="custom-info">
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
-    <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
+    <tr><th colspan="2"><strong><?php
          echo $entry->getForm()->get('title'); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
-    <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
+    <tr><td style="width:30%;"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>
-    <td style="border-bottom: 1px dotted #ccc"><?php echo $a->display(); ?></td>
+    <td><?php echo $a->display(); ?></td>
     </tr>
 <?php }
 }
 ?>
     </table>
+</div>
+
+<div class="tab_content" id="organization-tab" style="display:none">
+    <table class="custom-info">
+<?php foreach ($org->getDynamicData() as $entry) {
+?>
+    <tr><th colspan="2"><strong><?php
+         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+<?php foreach ($entry->getAnswers() as $a) { ?>
+    <tr><td style="width:30%"><?php echo Format::htmlchars($a->getField()->get('label'));
+         ?>:</td>
+    <td><?php echo $a->display(); ?></td>
+    </tr>
+<?php }
+}
+?>
+    </table>
+</div>
+
+<div class="tab_content" id="notes-tab" style="display:none">
+<?php $show_options = true;
+foreach ($notes as $note)
+    include STAFFINC_DIR . 'templates/note.tmpl.php';
+?>
+<div class="quicknote no-options" id="new-note" data-ext-id="U<?php echo $user->getId(); ?>">
+<div class="body">
+    <a href="#"><i class="icon-plus icon-large"></i> &nbsp; Click to create a new note</a>
+</div>
+</div>
+</div>
+
     <div class="clear"></div>
     <hr>
     <div class="faded">Last updated <b><?php echo Format::db_datetime($user->getUpdateDate()); ?> </b></div>

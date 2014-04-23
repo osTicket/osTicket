@@ -206,9 +206,9 @@ $(function() {
         html = html.replace(/<inline /, '<span ').replace(/<\/inline>/, '</span>');
         return html;
     },
-    redact = function(el) {
+    redact = $.redact = function(el, options) {
         var el = $(el),
-            options = {
+            options = $.extend({
                 'air': el.hasClass('no-bar'),
                 'airButtons': ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
                 'buttons': ['html', '|', 'formatting', '|', 'bold',
@@ -226,7 +226,7 @@ $(function() {
                 'tabFocus': false,
                 'toolbarFixedBox': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); }
-            };
+            }, options||{});
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {

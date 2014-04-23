@@ -142,6 +142,12 @@ $dispatcher = patterns('',
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
     )),
+    url('^/note/', patterns('ajax.note.php:NoteAjaxAPI',
+        url_get('^(?P<id>\d+)$', 'getNote'),
+        url_post('^(?P<id>\d+)$', 'updateNote'),
+        url_delete('^(?P<id>\d+)$', 'deleteNote'),
+        url_post('^attach/(?P<ext_id>\w\d+)$', 'createNote')
+    )),
     url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade')),
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
         url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),

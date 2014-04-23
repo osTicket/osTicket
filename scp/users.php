@@ -13,6 +13,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+
+require_once INCLUDE_DIR.'class.note.php';
+
 $user = null;
 if ($_REQUEST['id'] && !($user=User::lookup($_REQUEST['id'])))
     $errors['err'] = 'Unknown or invalid user ID.';

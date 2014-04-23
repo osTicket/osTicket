@@ -1643,3 +1643,80 @@ tr.disabled th {
     opacity: 0.6;
     background: #f5f5f5;
 }
+
+.quicknote {
+    margin: 10px 0;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+.quicknote .header {
+    position: relative;
+    display: block;
+    padding: 10px;
+    border-bottom: 1px dashed rgba(0,0,0,0.2);
+}
+.quicknote .header .header-left {
+    display: inline-block;
+}
+.quicknote .header .header-right {
+    display: inline-block;
+    text-align: right;
+    right: 1em;
+    position: absolute;
+}
+.quicknote .header .options {
+    display: inline-block;
+    padding-left: 5px;
+    margin-left: 10px;
+    white-space: nowrap;
+    border-left: 1px solid rgba(0,0,0,0.2);
+}
+.quicknote .body {
+    padding: 10px;
+}
+.quicknote a.action {
+    padding: 2px 4px;
+    margin: 1px;
+    color: black !important;
+}
+.quicknote a.action:hover {
+    text-decoration: none;
+    border: 1px solid #ff9100;
+    border-radius: 3px;
+    color: #ff9100 !important;
+    margin: 0;
+}
+#new-note {
+    margin-top: 10px;
+}
+
+.label {
+  font-size: 11px;
+  padding: 1px 4px 2px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-weight: bold;
+  line-height: 14px;
+  color: #ffffff;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #999999;
+}
+.label-info {
+  background-color: #3a87ad;
+}
+
+table.custom-info th {
+    background: transparent;
+    border: none;
+    padding-top: 10px;
+    border-bottom: 1px dotted rgba(0,0,0,0.9);
+}
+table.custom-info tr {
+    vertical-align: top;
+}
+table.custom-info td {
+    border-bottom: 1px dotted rgba(0,0,0,0.3);
+}
