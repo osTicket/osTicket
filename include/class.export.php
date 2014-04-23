@@ -152,12 +152,16 @@ class Export {
 }
 
 class ResultSetExporter {
+    var $output;
+
     function ResultSetExporter($sql, $headers, $options=array()) {
         $this->headers = array_values($headers);
         if ($s = strpos(strtoupper($sql), ' LIMIT '))
             $sql = substr($sql, 0, $s);
         # TODO: If $filter, add different LIMIT clause to query
         $this->options = $options;
+        $this->output = $options['output'] ?: fopen('php://output', 'w');
+
         $this->_res = db_query($sql);
         if ($row = db_fetch_array($this->_res)) {
             $query_fields = array_keys($row);
@@ -211,14 +215,17 @@ class ResultSetExporter {
 }
 
 class CsvResultsExporter extends ResultSetExporter {
+
     function dump() {
-        echo '"' . implode('","', $this->getHeaders()) . "\"\n";
-        while ($row=$this->next()) {
-            foreach ($row as &$val)
-                # Escape enclosed double-quotes
-                $val = str_replace('"','""',$val);
-            echo '"' . implode('","', $row) . "\"\n";
-        }
+
+        if (!$this->output)
+             $this->output = fopen('php://output', 'w');
+
+        fputcsv($this->output, $this->getHeaders());
+        while ($row=$this->next())
+            fputcsv($this->output, $row);
+
+        fclose($this->output);
     }
 }
 
