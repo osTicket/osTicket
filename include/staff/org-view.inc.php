@@ -28,7 +28,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                 </tr>
                 <tr>
                     <th>Account Manager:</th>
-                    <td>&nbsp; </td>
+                    <td><?php echo $org->getAccountManager(); ?>&nbsp;</td>
                 </tr>
             </table>
         </td>
