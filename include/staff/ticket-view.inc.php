@@ -185,7 +185,10 @@ if($ticket->isOverdue())
                                                 $user->getId(), $closed);
                                     ?>
                                     <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> All Tickets</a></li>
-                                    <li><a href="users.php?id=<?php echo $user->getId(); ?>"><i class="icon-user icon-fixed-width"></i> Manage Client</a></li>
+                                    <li><a href="users.php?id=<?php echo $user->getId(); ?>" class="no-pjax"><i class="icon-user icon-fixed-width"></i> Manage Client</a></li>
+<?php if ($user->getOrgId()) { ?>
+                                    <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>" class="no-pjax"><i class="icon-building icon-fixed-width"></i> Manage Organization</a></li>
+<?php } ?>
                                 </u>
                             </div>
                     <?php

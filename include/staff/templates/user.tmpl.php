@@ -19,12 +19,12 @@ if ($info['error']) {
         href="#tickets/<?php echo $ticket->getId(); ?>/change-user" ><i class="icon-user"></i> Change User</a>
     <?php
     } ?>
-    <div><b><a href="#" id="edituser"><i class="icon-edit"></i>&nbsp;<?php
-    echo Format::htmlchars($user->getName()->getOriginal()); ?></a></b></div>
-    <div>&lt;<?php echo $user->getEmail(); ?>&gt;</div>
+    <div><b><?php
+    echo Format::htmlchars($user->getName()->getOriginal()); ?></b></div>
+    <div class="faded">&lt;<?php echo $user->getEmail(); ?>&gt;</div>
     <?php
     if (($org=$user->getOrganization())) { ?>
-    <div><?php echo $org->getName(); ?></div>
+    <div style="margin-top: 7px;"><?php echo $org->getName(); ?></div>
     <?php
     } ?>
 
@@ -44,6 +44,11 @@ if ($info['error']) {
 </ul>
 
 <div class="tab_content" id="info-tab">
+<div class="floating-options">
+    <a href="#" id="edituser" class="action" title="edit"><i class="icon-edit"></i></a>
+    <a href="users.php?id=<?php echo $user->getId(); ?>" title="manage"
+        class="action no-pjax"><i class="icon-share"></i></a>
+</div>
     <table class="custom-info">
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
@@ -61,7 +66,11 @@ if ($info['error']) {
 </div>
 
 <div class="tab_content" id="organization-tab" style="display:none">
-    <table class="custom-info">
+<div class="floating-options">
+    <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="manage"
+        class="action no-pjax"><i class="icon-share"></i></a>
+</div>
+    <table class="custom-info" width="100%">
 <?php foreach ($org->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
@@ -89,9 +98,6 @@ foreach ($notes as $note)
 </div>
 </div>
 
-    <div class="clear"></div>
-    <hr>
-    <div class="faded">Last updated <b><?php echo Format::db_datetime($user->getUpdateDate()); ?> </b></div>
 </div>
 <div id="user-form" style="display:<?php echo $forms ? 'block' : 'none'; ?>;">
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Please note that updates will be reflected system-wide.</p></div>

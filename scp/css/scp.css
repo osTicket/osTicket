@@ -1674,12 +1674,14 @@ tr.disabled th {
 .quicknote .body {
     padding: 10px;
 }
-.quicknote a.action {
+.quicknote a.action,
+.floating-options a.action {
     padding: 2px 4px;
     margin: 1px;
     color: black !important;
 }
-.quicknote a.action:hover {
+.quicknote a.action:hover,
+.floating-options a.action:hover {
     text-decoration: none;
     border: 1px solid #ff9100;
     border-radius: 3px;
@@ -1706,6 +1708,17 @@ tr.disabled th {
 }
 .label-info {
   background-color: #3a87ad;
+}
+
+.tab_content {
+    position: relative;
+}
+.floating-options {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 10px;
+    padding-right: 5px;
 }
 
 table.custom-info th {
