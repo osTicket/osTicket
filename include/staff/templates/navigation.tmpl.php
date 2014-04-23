@@ -1,7 +1,7 @@
 <?php
 if(($tabs=$nav->getTabs()) && is_array($tabs)){
     foreach($tabs as $name =>$tab) {
-        echo sprintf('<li class="%s"><a href="%s" class="no-pjax">%s</a>',$tab['active']?'active':'inactive',$tab['href'],$tab['desc']);
+        echo sprintf('<li class="%s"><a href="%s">%s</a>',$tab['active']?'active':'inactive',$tab['href'],$tab['desc']);
         if(!$tab['active'] && ($subnav=$nav->getSubMenu($name))){
             echo "<ul>\n";
             foreach($subnav as $k => $item) {
@@ -9,9 +9,8 @@ if(($tabs=$nav->getTabs()) && is_array($tabs)){
                     $id="nav$k";
 
                 echo sprintf(
-                    '<li><a class="%s %s" href="%s" title="%s" id="%s">%s</a></li>',
+                    '<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
                     $item['iconclass'],
-                    $tab['active'] ? '' : 'no-pjax',
                     $item['href'], $item['title'],
                     $id, $item['desc']);
             }
