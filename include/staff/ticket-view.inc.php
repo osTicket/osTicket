@@ -80,9 +80,18 @@ if($ticket->isOverdue())
 
             <?php
             }?>
-
-            <a id="ticket-print" class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> Print</a>
-
+            <span class="action-button" data-dropdown="#action-dropdown-print">
+                <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> Print</a>
+                <i class="icon-caret-down"></i>
+            </span>
+            <div id="action-dropdown-print" class="action-dropdown anchor-right">
+              <ul>
+                 <li><a target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
+                 class="icon-file-alt"></i> Ticket Thread</a>
+                 <li><a target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
+                 class="icon-file-text-alt"></i> Thread + Internal Notes</a>
+              </ul>
+            </div>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
