@@ -493,6 +493,14 @@ class FormField {
         }
         return $this->_widget;
     }
+
+    function getSelectName() {
+        $name = $this->get('name') ?: 'field_'.$this->get('id');
+        if ($this->hasIdValue())
+            $name .= '_id';
+
+        return $name;
+    }
 }
 
 class TextboxField extends FormField {
@@ -593,6 +601,11 @@ class TextareaField extends FormField {
         else
             return Format::htmlchars($value);
     }
+
+    function export($value) {
+        return (!$value) ? $value : Format::html2text($value);
+    }
+
 }
 
 class PhoneField extends FormField {

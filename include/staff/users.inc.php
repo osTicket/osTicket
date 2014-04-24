@@ -3,10 +3,12 @@ if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
 
-$select = 'SELECT user.*, email.address as email, account.id as account_id, account.status ';
+$select = 'SELECT user.*, email.address as email, org.name as organization
+          , account.id as account_id, account.status as account_status ';
 
 $from = 'FROM '.USER_TABLE.' user '
       . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) '
+      . 'LEFT JOIN '.ORGANIZATION_TABLE.' org ON (user.org_id = org.id) '
       . 'LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (account.user_id = user.id) ';
 
 $where='WHERE 1 ';
@@ -23,6 +25,7 @@ if ($_REQUEST['query']) {
     $where .= ' AND (
                     email.address LIKE \'%'.$search.'%\'
                     OR user.name LIKE \'%'.$search.'%\'
+                    OR org.name LIKE \'%'.$search.'%\'
                     OR value.value LIKE \'%'.$search.'%\'
                 )';
 
@@ -66,6 +69,9 @@ $from .= ' LEFT JOIN '.TICKET_TABLE.' ticket ON (ticket.user_id = user.id) ';
 
 $query="$select $from $where GROUP BY user.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
+$qhash = md5($query);
+$_SESSION['users_qs_'.$qhash] = $query;
+
 ?>
 <h2>User Directory</h2>
 <div style="width:700px; float:left;">
@@ -123,7 +129,7 @@ else
 
                 // Account status
                 if ($row['account_id'])
-                    $status = new UserAccountStatus($row['status']);
+                    $status = new UserAccountStatus($row['account_status']);
                 else
                     $status = 'Guest';
 
@@ -152,7 +158,10 @@ else
 </table>
 <?php
 if($res && $num): //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo sprintf('<div>&nbsp;Page: %s &nbsp; <a class="no-pjax"
+            href="users.php?a=export&qh=%s">Export</a></div>',
+            $pageNav->getPageLinks(),
+            $qhash);
 endif;
 ?>
 </form>

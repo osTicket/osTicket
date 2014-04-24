@@ -77,6 +77,15 @@ if ($_POST) {
             $errors['err'] = 'Unknown action/command';
             break;
     }
+} elseif($_REQUEST['a'] == 'export') {
+    require_once(INCLUDE_DIR.'class.export.php');
+    $ts = strftime('%Y%m%d');
+    if (!($token=$_REQUEST['qh']))
+        $errors['err'] = 'Query token required';
+    elseif (!($query=$_SESSION['users_qs_'.$token]))
+        $errors['err'] = 'Query token not found';
+    elseif (!Export::saveUsers($query, "users-$ts.csv", 'csv'))
+        $errors['err'] = 'Internal error: Unable to dump query results';
 }
 
 $page = $user? 'user-view.inc.php' : 'users.inc.php';
