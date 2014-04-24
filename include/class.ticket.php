@@ -1697,9 +1697,12 @@ class Ticket {
         global $thisstaff;
 
         require_once(INCLUDE_DIR.'class.pdf.php');
-        if (!is_string($psize))
-            if (!$thisstaff || !($psize = $thisstaff->getDefaultPaperSize()))
+        if (!is_string($psize)) {
+            if ($_SESSION['PAPER_SIZE'])
+                $psize = $_SESSION['PAPER_SIZE'];
+            elseif (!$thisstaff || !($psize = $thisstaff->getDefaultPaperSize()))
                 $psize = 'Letter';
+        }
 
         $pdf = new Ticket2PDF($this, $psize, $notes);
         $name='Ticket-'.$this->getExtId().'.pdf';
