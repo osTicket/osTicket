@@ -6,8 +6,10 @@ if (isset($options['entry']) && $options['mode'] == 'edit'
     && ($_POST['forms'] && !in_array($options['entry']->getId(), $_POST['forms']))
 )
     return;
-?>
+
+if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 <tbody>
+<?php } ?>
     <tr><td style="width:<?php echo $options['width'] ?: 150;?>px;"></td><td></td></tr>
 <?php
 // Keep up with the entry id in a hidden field to decide what to add and
@@ -79,5 +81,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
             <?php } ?>
             </div></td>
         </tr>
-    <?php } ?>
+    <?php }
+if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 </tbody>
+<?php } ?>
