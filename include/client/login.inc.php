@@ -24,10 +24,10 @@ if ($content) {
     <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding:15px;">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <div>
-        <input id="username" placeholder="username" type="text" name="luser" size="30" value="<?php echo $email; ?>">
+        <input id="username" placeholder="Email or Username" type="text" name="luser" size="30" value="<?php echo $email; ?>">
     </div>
     <div>
-        <input id="passwd" placeholder="password" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
+        <input id="passwd" placeholder="Password" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
     </div>
     <p>
         <input class="btn" type="submit" value="Sign In">

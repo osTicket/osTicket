@@ -643,12 +643,8 @@ label.required {
   color: #d00;
   display: block;
 }
-#clientLogin #email {
-  width: 250px;
-  margin-right: 0;
-}
+#clientLogin #email,
 #clientLogin #ticketno {
-  width: 120px;
   margin-right: 0;
 }
 #clientLogin input[type=text],
