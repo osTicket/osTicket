@@ -68,8 +68,6 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
     class="icon-list-alt"></i>&nbsp;Tickets</a></li>
     <li><a id="notes_tab" href="#notes"><i
     class="icon-pushpin"></i>&nbsp;Notes</a></li>
-    <li><a id="forms_tab" href="#fields"><i
-    class="icon-paste"></i>&nbsp;Fields</a></li>
 </ul>
 <div class="tab_content" id="users">
 <?php
@@ -80,13 +78,6 @@ include STAFFINC_DIR . 'templates/users.tmpl.php';
 <?php
 include STAFFINC_DIR . 'templates/tickets.tmpl.php';
 ?>
-</div>
-<div class="tab_content" id="fields" style="display:none">
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-<?php foreach ($org->getDynamicData() as $form) {
-    $form->render(true, false, array('mode'=>'edit','width'=>160,'entry'=>$form));
-} ?>
- </table>
 </div>
 
 <div class="tab_content" id="notes" style="display:none">
