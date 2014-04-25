@@ -662,3 +662,88 @@ $(document).on('click', 'a', function() {
         $(this).addClass('active');
     }
 });
+
+// Quick note interface
+$('.quicknote .action.edit-note').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        body = note.find('.body'),
+        T = $('<textarea>').text(body.html());
+    if (note.closest('.dialog').length)
+        T.addClass('no-bar small');
+    body.replaceWith(T);
+    $.redact(T);
+    $(T).redactor('focus');
+    note.find('.action.edit-note').hide();
+    note.find('.action.save-note').show();
+    note.find('.action.cancel-edit').show();
+    return false;
+});
+$('.quicknote .action.cancel-edit').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        T = note.find('textarea'),
+        body = $('<div class="body">');
+    body.load('ajax.php/note/' + note.data('id'), function() {
+      try { T.redactor('destroy'); } catch (e) {}
+      T.replaceWith(body);
+      note.find('.action.save-note').hide();
+      note.find('.action.cancel-edit').hide();
+      note.find('.action.edit-note').show();
+    });
+    return false;
+});
+$('.quicknote .action.save-note').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        T = note.find('textarea');
+    $.post('ajax.php/note/' + note.data('id'),
+      { note: T.redactor('get') },
+      function(html) {
+        var body = $('<div class="body">').html(html);
+        try { T.redactor('destroy'); } catch (e) {}
+        T.replaceWith(body);
+        note.find('.action.save-note').hide();
+        note.find('.action.cancel-edit').hide();
+        note.find('.action.edit-note').show();
+      },
+      'html'
+    );
+    return false;
+});
+$('.quicknote .delete').live('click.note', function() {
+  var that = $(this),
+      id = $(this).closest('.quicknote').data('id');
+  $.ajax('ajax.php/note/' + id, {
+    type: 'delete',
+    success: function() {
+      that.closest('.quicknote').animate(
+        {height: 0, opacity: 0}, 'slow', function() {
+          $(this).remove();
+      });
+    }
+  });
+  return false;
+});
+$('#new-note').live('click', function() {
+  var note = $(this).closest('.quicknote'),
+    top = note.parent(),
+    T = $('<textarea>'),
+    button = $('<input type="button">').val('Create');
+    button.click(function() {
+      $.post('ajax.php/' + note.data('url'),
+        { note: T.redactor('get'), no_options: note.hasClass('no-options') },
+        function(response) {
+          $(T).redactor('destroy').replaceWith(note);
+          $(response).show('highlight').insertBefore(note);
+          $('.submit', note.parent()).remove();
+        },
+        'html'
+      );
+    });
+    if (note.closest('.dialog').length)
+        T.addClass('no-bar small');
+    note.replaceWith(T);
+    $('<p>').addClass('submit').css('text-align', 'center')
+        .append(button).appendTo(T.parent());
+    $.redact(T);
+    $(T).redactor('focus');
+    return false;
+});

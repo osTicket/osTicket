@@ -119,10 +119,20 @@ $org = $user->getOrganization();
 <ul class="tabs">
     <li><a class="active" id="tickets_tab" href="#tickets"><i
     class="icon-list-alt"></i>&nbsp;User Tickets</a></li>
+    <li><a id="notes_tab" href="#notes"><i
+    class="icon-pushpin"></i>&nbsp;Notes</a></li>
 </ul>
-<div id="tickets">
+<div id="tickets" class="tab_content">
 <?php
 include STAFFINC_DIR . 'templates/tickets.tmpl.php';
+?>
+</div>
+
+<div class="tab_content" id="notes" style="display:none">
+<?php
+$notes = QuickNote::forUser($user);
+$create_note_url = 'users/'.$user->getId().'/note';
+include STAFFINC_DIR . 'templates/notes.tmpl.php';
 ?>
 </div>
 

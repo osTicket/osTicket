@@ -18,6 +18,7 @@
 if(!defined('INCLUDE_DIR')) die('403');
 
 include_once(INCLUDE_DIR.'class.ticket.php');
+require_once INCLUDE_DIR.'class.note.php';
 
 class UsersAjaxAPI extends AjaxController {
 
@@ -370,6 +371,15 @@ class UsersAjaxAPI extends AjaxController {
         ob_end_clean();
 
         return $resp;
+    }
+
+    function createNote($id) {
+        if (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        require_once INCLUDE_DIR . 'ajax.note.php';
+        $ajax = new NoteAjaxAPI();
+        return $ajax->createNote('U'.$id);
     }
 
 }

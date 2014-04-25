@@ -73,6 +73,7 @@ class Bootstrap {
         define('USER_ACCOUNT_TABLE',$prefix.'user_account');
 
         define('ORGANIZATION_TABLE', $prefix.'organization');
+        define('NOTE_TABLE', $prefix.'note');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');

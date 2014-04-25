@@ -90,7 +90,8 @@ $dispatcher = patterns('',
         url_post('^/(?P<id>\d+)/manage(?:/(?P<target>\w+))?$', 'manage'),
         url_get('^/(?P<id>\d+)/org(?:/(?P<orgid>\d+))?$', 'updateOrg'),
         url_post('^/(?P<id>\d+)/org$', 'updateOrg'),
-        url_get('^/staff$', 'searchStaff')
+        url_get('^/staff$', 'searchStaff'),
+        url_post('^/(?P<id>\d+)/note$', 'createNote')
     )),
     url('^/orgs', patterns('ajax.orgs.php:OrgsAjaxAPI',
         url_get('^$', 'search'),
@@ -110,7 +111,8 @@ $dispatcher = patterns('',
         url_post('^/(?P<id>\d+)/add-user$', 'addUser'),
         url('^/(?P<id>\d+)/import-users$', 'importUsers'),
         url_get('^/(?P<id>\d+)/delete$', 'delete'),
-        url_delete('^/(?P<id>\d+)/delete$', 'delete')
+        url_delete('^/(?P<id>\d+)/delete$', 'delete'),
+        url_post('^/(?P<id>\d+)/note$', 'createNote')
     )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/change-user$', 'changeUserForm'),
@@ -143,6 +145,12 @@ $dispatcher = patterns('',
         url_get('^(?P<namespace>[\w.]+)$', 'getDraft'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
+    )),
+    url('^/note/', patterns('ajax.note.php:NoteAjaxAPI',
+        url_get('^(?P<id>\d+)$', 'getNote'),
+        url_post('^(?P<id>\d+)$', 'updateNote'),
+        url_delete('^(?P<id>\d+)$', 'deleteNote'),
+        url_post('^attach/(?P<ext_id>\w\d+)$', 'createNote')
     )),
     url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade')),
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',

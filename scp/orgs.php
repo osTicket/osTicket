@@ -13,6 +13,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+require_once INCLUDE_DIR . 'class.note.php';
+
 $org = null;
 if ($_REQUEST['id'] || $_REQUEST['org_id'])
     $org = Organization::lookup($_REQUEST['org_id'] ?: $_REQUEST['id']);
