@@ -2184,7 +2184,7 @@ class Ticket {
             $errors = array(
                 'errno' => 403,
                 'err' => 'This help desk is for use by authorized users only');
-            $ost->logWarning('Ticket Denied', $message);
+            $ost->logWarning('Ticket Denied', $message, false);
             return 0;
         };
 
@@ -2237,7 +2237,8 @@ class Ticket {
                 $errors = array('err' => "You've reached the maximum open tickets allowed.");
                 $ost->logWarning('Ticket denied -'.$vars['email'],
                         sprintf('Max open tickets (%d) reached for %s ',
-                            $cfg->getMaxOpenTickets(), $vars['email']));
+                            $cfg->getMaxOpenTickets(), $vars['email']),
+                        false);
 
                 return 0;
             }
