@@ -216,8 +216,9 @@ class UsersAjaxAPI extends AjaxController {
 
         $info['title'] = 'Add New User';
 
+        $info['lookup'] = 'remote';
         if (!AuthenticationBackend::getSearchDirectories())
-            $info['lookup'] = 'local';
+            $info['lookup'] = false;
 
         if ($_POST) {
             $form = UserForm::getUserForm()->getForm($_POST);
