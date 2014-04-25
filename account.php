@@ -98,14 +98,13 @@ elseif ($_POST) {
             $acct->sendConfirmEmail();
             break;
         case 'import':
-            foreach (UserAuthenticationBackend::allRegistered() as $bk) {
-                if ($bk::$id == $_POST['backend']) {
-                    $cl = new ClientSession(new EndUser($user));
-                    $acct->confirm();
-                    if ($user = $bk->login($cl, $bk))
-                        Http::redirect('tickets.php');
-                    break;
-                }
+            if ($bk = UserAuthenticationBackend::getBackend($_POST['backend'])) {
+                $cl = new ClientSession(new EndUser($user));
+                if (!$bk->supportsInteractiveAuthentication())
+                    $acct->set('backend', null);
+                $acct->confirm();
+                if ($user = $bk->login($cl, $bk))
+                    Http::redirect('tickets.php');
             }
             break;
         }

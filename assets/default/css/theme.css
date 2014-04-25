@@ -522,7 +522,7 @@ body {
   color: #555;
 }
 #ticketForm div.clear,
-#clientLogin div {
+#clientLogin div.clear {
   clear: both;
   padding: 3px 0;
   overflow: hidden;
@@ -643,13 +643,19 @@ label.required {
   color: #d00;
   display: block;
 }
-#clientLogin #email {
-  width: 250px;
+#clientLogin #email,
+#clientLogin #ticketno {
   margin-right: 0;
 }
-#clientLogin #ticketno {
-  width: 120px;
-  margin-right: 0;
+#clientLogin input[type=text],
+#clientLogin input[type=password] {
+    padding: 5px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+#clientLogin input[type=submit] {
+    padding: 3px 10px;
+    border-radius: 4px;
 }
 #reply {
   margin-top: 20px;
@@ -875,4 +881,38 @@ table.padded tr > td,
 table.padded tr > th {
   height: 20px;
   padding-bottom: 5px;
+}
+
+.external-auth + .external-auth {
+    margin-top: 4px;
+}
+
+a.external-sign-in {
+    text-decoration: none;
+}
+.external-auth-box {
+    vertical-align: middle;
+    border-radius: 4px;
+    border: 1px solid #777;
+}
+.external-auth-icon {
+    display: inline-block;
+    color: #333;
+    width: 30px;
+    padding: 5px 10px;
+    border-right: 1px solid #ddd;
+}
+.external-auth-name {
+    color: #333;
+    width: 100px;
+    padding: 5px 10px;
+    line-height:30px;
+    font-size: 11pt;
+}
+img.sign-in-image {
+    border: none;
+    max-height: 40px;
+    max-width: 200px;
+    width: auto;
+    height: auto;
 }

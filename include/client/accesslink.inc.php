@@ -14,12 +14,14 @@ link will be emailed to you.</p>
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <br>
     <div>
-        <label for="email">E-Mail Address:</label><br/>
-        <input id="email" type="text" name="lemail" size="30" value="<?php echo $email; ?>">
+        <label for="email">E-Mail Address:
+        <input id="email" placeholder="e.g. john.doe@osticket.com" type="text"
+            name="lemail" size="30" value="<?php echo $email; ?>"></label>
     </div>
     <div>
         <label for="ticketno">Ticket Number:</label><br/>
-        <input id="ticketno" type="text" name="lticket" size="16" value="<?php echo $ticketid; ?>"></td>
+        <input id="ticketno" type="text" name="lticket" placeholder="e.g. 051243"
+            size="30" value="<?php echo $ticketid; ?>"></td>
     </div>
     <p>
         <input class="btn" type="submit" value="Email Access Link">
@@ -28,9 +30,9 @@ link will be emailed to you.</p>
     <div style="display:table-cell;padding-left: 2em;padding-right:90px;">
 <?php if ($cfg && $cfg->getClientRegistrationMode() !== 'disabled') { ?>
         Have an account with us?
-        <a href="account.php?do=create">Sign In</a> <?php
+        <a href="login.php">Sign In</a> <?php
     if ($cfg->isClientRegistrationEnabled()) { ?>
-        or <a href="login.php?do=create">register for an account</a> <?php
+        or <a href="account.php?do=create">register for an account</a> <?php
     } ?> to access all your tickets.
 <?php
 } ?>

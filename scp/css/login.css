@@ -23,7 +23,9 @@ html {
 
 body {
     -webkit-font-smoothing:antialiased;
-    background:url(../images/login-background.jpg) top left repeat-x #fff;
+    background:url(../images/login-background.jpg);
+    background-repeat: repeat-x;
+    background-attachment: fixed;
     font-size: 16px;
     font-smoothing:antialiased;
     height:100%;
@@ -105,15 +107,30 @@ fieldset input {
     width: 96%;
 }
 
+hr {
+    margin: 20px;
+    border: none;
+    height: 0;
+    border-bottom: 1px solid #eee;
+}
+
+div.banner {
+    color: #666;
+    line-height: 1.2em;
+}
+div.banner:not(:empty) {
+    margin-bottom: 1em;
+}
+
 input.submit {
+    border-radius: 4px;
     display:inline-block;
-    float:right;
     margin:0.25em;
     height:24px;
     line-height:24px;
     font-weight:bold;
     border:1px solid #666666;
-    padding:0 10px;
+    padding:0 30px;
     background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x;
     color: #333;
 }
@@ -131,4 +148,47 @@ input.submit:hover, input.submit:active {
 
 #copyRights a {
     color:#888;
+}
+
+.external-auth {
+    display:inline-block;
+}
+.external-auth + .external-auth {
+    margin-top: 4px;
+}
+
+a.external-sign-in {
+    text-decoration: none;
+}
+.external-auth-box {
+    vertical-align: middle;
+    border-radius: 4px;
+    border: 1px solid #777;
+}
+.external-auth-icon {
+    display: inline-block;
+    color: #333;
+    width: 30px;
+    padding: 5px 10px;
+    border-right: 1px solid #ddd;
+}
+.external-auth-name {
+    color: #333;
+    width: 100px;
+    padding: 5px 10px;
+    line-height:30px;
+    font-size: 11pt;
+}
+img.sign-in-image {
+    border: none;
+    max-height: 40px;
+    max-width: 200px;
+    width: auto;
+    height: auto;
+}
+
+input[type=text],
+input[type=password] {
+    border-radius: 4px;
+    padding: 5px;
 }

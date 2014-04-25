@@ -40,8 +40,17 @@ if($_POST) {
     $msg = $errors['err']?$errors['err']:'Invalid login';
     $show_reset = true;
 }
+elseif ($_GET['do']) {
+    switch ($_GET['do']) {
+    case 'ext':
+        // Lookup external backend
+        if ($bk = StaffAuthenticationBackend::getBackend($_GET['bk']))
+            $bk->triggerAuth();
+    }
+    Http::redirect('login.php');
+}
 // Consider single sign-on authentication backends
-else if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
+elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
     if (($user = StaffAuthenticationBackend::processSignOn($errors, false))
             && ($user instanceof StaffSession))
        @header("Location: $dest");
