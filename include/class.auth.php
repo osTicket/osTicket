@@ -223,6 +223,9 @@ abstract class AuthenticationBackend {
 
                 return $result;
             }
+            elseif ($result instanceof ClientCreateRequest
+                    && $bk instanceof UserAuthenticationBackend)
+                return $result;
             elseif ($result instanceof AccessDenied) {
                 break;
             }

@@ -917,8 +917,13 @@ class UserAccount extends UserAccountModel {
         return $this->save(true);
     }
 
-    static function createForUser($user) {
-        return static::create(array('user_id'=>$user->getId()));
+    static function createForUser($user, $defaults=false) {
+        $acct = static::create(array('user_id'=>$user->getId()));
+        if ($defaults && is_array($defaults)) {
+            foreach ($defaults as $k => $v)
+                $acct->set($k, $v);
+        }
+        return $acct;
     }
 
     static function lookupByUsername($username) {

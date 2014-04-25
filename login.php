@@ -71,6 +71,55 @@ elseif ($_POST && isset($_POST['lticket'])) {
         $errors['err'] = 'Invalid email or ticket number - try again!';
     }
 }
+elseif (isset($_GET['do'])) {
+    switch($_GET['do']) {
+    case 'ext':
+        // Lookup external backend
+        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk']))
+            $bk->triggerAuth();
+    }
+}
+elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
+    // Users from the ticket access link
+    if ($user && $user instanceof TicketUser && $user->getTicketId())
+        Http::redirect('tickets.php?id='.$user->getTicketId());
+    // Users imported from an external auth backend
+    elseif ($user instanceof ClientCreateRequest) {
+        if ($cfg && $cfg->isClientRegistrationEnabled()) {
+            // Attempt to automatically register
+            $user_form = UserForm::getUserForm()->getForm($user->getInfo());
+            $bk = $user->getBackend();
+            $defaults = array(
+                'timezone_id' => $cfg->getDefaultTimezoneId(),
+                'dst' => $cfg->observeDaylightSaving(),
+                'username' => $user->getUsername(),
+            );
+            if ($bk->supportsInteractiveAuthentication())
+                $defaults['backend'] = $bk::$id;
+            if ($user_form->isValid(function($f) { return !$f->get('private'); })
+                    && ($U = User::fromVars($user_form->getClean()))
+                    && ($acct = ClientAccount::createForUser($U, $defaults))
+                    // Confirm and save the account
+                    && $acct->confirm()
+                    // Login, since `tickets.php` will not attempt SSO
+                    && ($cl = new ClientSession(new EndUser($U)))
+                    && ($bk->login($cl, $bk)))
+                Http::redirect('tickets.php');
+
+            // Unable to auto-register. Fill in what we have and let the
+            // user complete the info
+            $inc = 'register.inc.php';
+        }
+        else {
+            $errors['err'] = 'Access Denied. Contact your help desk
+                administrator to have an account registered for you';
+            // fall through to show login page again
+        }
+    }
+    elseif ($user instanceof AuthenticatedUser) {
+        Http::redirect('tickets.php');
+    }
+}
 
 if (!$nav) {
     $nav = new UserNav();

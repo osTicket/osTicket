@@ -21,16 +21,13 @@ if ($content) {
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">
-    <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding-left: 2em;">
+    <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding:15px;">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
-    <br>
     <div>
-        <label for="username">Username:</label>
-        <input id="username" type="text" name="luser" size="30" value="<?php echo $email; ?>">
+        <input id="username" placeholder="username" type="text" name="luser" size="30" value="<?php echo $email; ?>">
     </div>
     <div>
-        <label for="passwd">Password:</label>
-        <input id="passwd" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
+        <input id="passwd" placeholder="password" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
     </div>
     <p>
         <input class="btn" type="submit" value="Sign In">
@@ -39,9 +36,22 @@ if ($content) {
 <?php } ?>
     </p>
     </div>
-    <div style="display:table-cell;padding-left: 2em;">
-<?php if ($cfg && $cfg->isClientRegistrationEnabled()) { ?>
-        Not yet registered? <a href="account.php?do=create">Create an account</a>
+    <div style="display:table-cell;padding: 15px;vertical-align:top">
+<?php
+
+$ext_bks = array();
+foreach (UserAuthenticationBackend::allRegistered() as $bk)
+    if ($bk instanceof ExternalAuthentication)
+        $ext_bks[] = $bk;
+
+if (count($ext_bks)) {
+    foreach ($ext_bks as $bk) { ?>
+<div class="external-auth"><?php $bk->renderExternalLink(); ?></div><?php
+    }
+}
+if ($cfg && $cfg->isClientRegistrationEnabled()) {
+    if (count($ext_bks)) echo '<hr style="width:70%"/>'; ?>
+    Not yet registered? <a href="account.php?do=create">Create an account</a>
 <?php } ?>
     </div>
 </div>
