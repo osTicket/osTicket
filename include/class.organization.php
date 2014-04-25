@@ -46,9 +46,12 @@ class OrganizationModel extends VerySimpleModel {
         if (!isset($this->_manager)) {
             if ($this->manager[0] == 't')
                 $this->_manager = Team::lookup(substr($this->manager, 1));
-            if ($this->manager[0] == 's')
+            elseif ($this->manager[0] == 's')
                 $this->_manager = Staff::lookup(substr($this->manager, 1));
+            else
+                $this->_manager = ''; // None.
         }
+
         return $this->_manager;
     }
 

@@ -128,6 +128,25 @@ class DynamicForm extends VerySimpleModel {
             return parent::delete();
     }
 
+
+    function getExportableFields($exclude=array()) {
+
+        $fields = array();
+        foreach ($this->getFields() as $f) {
+            // Ignore core fields
+            if ($exclude && in_array($f->get('name'), $exclude))
+                continue;
+            // Ignore non-data fields
+            elseif (!$f->hasData() || $f->isPresentationOnly())
+                continue;
+
+            $fields['__field_'.$f->get('id')] = $f;
+        }
+
+        return $fields;
+    }
+
+
     static function create($ht=false) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
@@ -142,6 +161,49 @@ class DynamicForm extends VerySimpleModel {
         }
         return $inst;
     }
+
+
+
+    static function getCrossTabQuery($object_type, $object_id='object_id', $exclude=array()) {
+        $fields = static::getDynamicDataViewFields($exclude);
+        return "SELECT entry.`object_id` as `$object_id`, ".implode(',', $fields)
+            .' FROM '.FORM_ENTRY_TABLE.' entry
+            JOIN '.FORM_ANSWER_TABLE.' ans ON ans.entry_id = entry.id
+            JOIN '.FORM_FIELD_TABLE." field ON field.id=ans.field_id
+            WHERE entry.object_type='$object_type' GROUP BY entry.object_id";
+    }
+
+    // Materialized View for Ticket custom data (MySQL FlexViews would be
+    // nice)
+    //
+    // @see http://code.google.com/p/flexviews/
+    static function getDynamicDataViewFields($exclude) {
+        $fields = array();
+        foreach (static::getInstance()->getFields() as $f) {
+            if ($exclude && in_array($f->get('name'), $exclude))
+                continue;
+
+            $impl = $f->getImpl();
+            if (!$impl->hasData() || $impl->isPresentationOnly())
+                continue;
+
+            $name = ($f->get('name')) ? $f->get('name')
+                : 'field_'.$f->get('id');
+
+            $fields[] = sprintf(
+                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as `%1$s`',
+                $name);
+            if ($impl->hasIdValue()) {
+                $fields[] = sprintf(
+                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as `%1$s_id`',
+                    $name);
+            }
+        }
+        return $fields;
+    }
+
+
+
 }
 
 class UserForm extends DynamicForm {
@@ -194,32 +256,6 @@ class TicketForm extends DynamicForm {
         return static::$instance;
     }
 
-    // Materialized View for Ticket custom data (MySQL FlexViews would be
-    // nice)
-    //
-    // @see http://code.google.com/p/flexviews/
-    static function getDynamicDataViewFields() {
-        $fields = array();
-        foreach (self::getInstance()->getFields() as $f) {
-            $impl = $f->getImpl();
-            if (!$impl->hasData() || $impl->isPresentationOnly())
-                continue;
-
-            $name = ($f->get('name')) ? $f->get('name')
-                : 'field_'.$f->get('id');
-
-            $fields[] = sprintf(
-                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as `%1$s`',
-                $name);
-            if ($impl->hasIdValue()) {
-                $fields[] = sprintf(
-                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as `%1$s_id`',
-                    $name);
-            }
-        }
-        return $fields;
-    }
-
     static function ensureDynamicDataView() {
         $sql = 'SHOW TABLES LIKE \''.TABLE_PREFIX.'ticket__cdata\'';
         if (!db_num_rows(db_query($sql)))
@@ -236,13 +272,8 @@ class TicketForm extends DynamicForm {
         // ans.entry_id = entry.id LEFT JOIN ost_form_field field ON
         // field.id=ans.field_id
         // where entry.object_type='T' group by entry.object_id;
-        $fields = static::getDynamicDataViewFields();
-        $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY (ticket_id)) AS
-            SELECT entry.`object_id` AS ticket_id, '.implode(',', $fields)
-         .' FROM '.FORM_ENTRY_TABLE.' entry
-            JOIN '.FORM_ANSWER_TABLE.' ans ON ans.entry_id = entry.id
-            JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id
-            WHERE entry.object_type=\'T\' GROUP BY entry.object_id';
+        $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
+                (ticket_id)) AS ' . static::getCrossTabQuery('T', 'ticket_id');
         db_query($sql);
     }
 

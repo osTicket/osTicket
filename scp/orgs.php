@@ -32,7 +32,19 @@ if ($_POST) {
             $msg = "Successfully imported $status clients";
         else
             $errors['err'] = $status;
+        break;
+    default:
+        $errors['err'] = 'Unknown action';
     }
+} elseif ($_REQUEST['a'] == 'export') {
+    require_once(INCLUDE_DIR.'class.export.php');
+    $ts = strftime('%Y%m%d');
+    if (!($token=$_REQUEST['qh']))
+        $errors['err'] = 'Query token required';
+    elseif (!($query=$_SESSION['orgs_qs_'.$token]))
+        $errors['err'] = 'Query token not found';
+    elseif (!Export::saveOrganizations($query, "organizations-$ts.csv", 'csv'))
+        $errors['err'] = 'Internal error: Unable to export results';
 }
 
 $page = $org? 'org-view.inc.php' : 'orgs.inc.php';

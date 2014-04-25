@@ -3,9 +3,15 @@ if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
 
-$select = 'SELECT org.* ';
-
-$from = 'FROM '.ORGANIZATION_TABLE.' org ';
+$select = 'SELECT org.*
+            ,COALESCE(team.name,
+                    IF(staff.staff_id, CONCAT_WS(" ", staff.firstname, staff.lastname), NULL)
+                    ) as account_manager ';
+$from = 'FROM '.ORGANIZATION_TABLE.' org '
+       .'LEFT JOIN '.STAFF_TABLE.' staff ON (
+           LEFT(org.manager, 1) = "s" AND staff.staff_id = SUBSTR(org.manager, 2)) '
+       .'LEFT JOIN '.TEAM_TABLE.' team ON (
+           LEFT(org.manager, 1) = "t" AND team.team_id = SUBSTR(org.manager, 2)) ';
 
 $where = ' WHERE 1 ';
 
@@ -61,6 +67,8 @@ $from .= ' LEFT JOIN '.USER_TABLE.' user ON (user.org_id = org.id) ';
 
 $query="$select $from $where GROUP BY org.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
+$qhash = md5($query);
+$_SESSION['orgs_qs_'.$qhash] = $query;
 ?>
 <h2>Organizations</h2>
 <div style="width:700px; float:left;">
@@ -125,7 +133,10 @@ else
 </table>
 <?php
 if($res && $num): //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo sprintf('<div>&nbsp;Page: %s &nbsp; <a class="no-pjax"
+            href="orgs.php?a=export&qh=%s">Export</a></div>',
+            $pageNav->getPageLinks(),
+            $qhash);
 endif;
 ?>
 </form>

@@ -643,7 +643,7 @@ class PersonsName {
         $format = $cfg ? $cfg->getDefaultNameFormat() : 'original';
         list(,$func) = static::$formats[$format];
         if (!$func) $func = 'getFull';
-        return call_user_func(array($this, $func));
+        return (string) call_user_func(array($this, $func));
     }
 
     static function allFormats() {
