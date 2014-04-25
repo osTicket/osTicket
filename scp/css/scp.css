@@ -1676,17 +1676,28 @@ tr.disabled th {
 }
 .quicknote a.action,
 .floating-options a.action {
-    padding: 2px 4px;
-    margin: 1px;
+    box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    display: inline-block;
+    width: 15px;
+    text-align: center;
+    padding: 2px 2px;
     color: black !important;
+    background-color: #eee;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ddd;
+    border-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
 }
 .quicknote a.action:hover,
 .floating-options a.action:hover {
     text-decoration: none;
-    border: 1px solid #ff9100;
+    border-color: #ff9100;
+    background-color: rgba(255, 145, 0, 0.05);
     border-radius: 3px;
-    color: #ff9100 !important;
-    margin: 0;
 }
 #new-note {
     margin-top: 10px;
@@ -1717,7 +1728,7 @@ tr.disabled th {
     display: inline-block;
     position: absolute;
     right: 0;
-    top: 10px;
+    top: 5px;
     padding-right: 5px;
 }
 
