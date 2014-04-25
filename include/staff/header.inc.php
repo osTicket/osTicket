@@ -52,7 +52,7 @@
         echo sprintf('<div id="notice_bar">%s</div>', $ost->getNotice());
     ?>
     <div id="header">
-        <a href="index.php" id="logo">osTicket - Customer Support System</a>
+        <a href="index.php" class="no-pjax" id="logo">osTicket - Customer Support System</a>
         <p id="info">Welcome, <strong><?php echo $thisstaff->getFirstName(); ?></strong>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
@@ -64,6 +64,12 @@
             | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax">Log Out</a>
         </p>
     </div>
+    <div id="pjax-container">
+<?php } elseif ($pjax = $ost->getExtraPjax()) { # endif X_PJAX ?>
+    <script type="text/javascript">
+    <?php foreach (array_filter($pjax) as $s) echo $s.";"; ?>
+    </script>
+<?php } # endif X_PJAX ?>
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
     </ul>
@@ -71,11 +77,6 @@
 <?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
     </ul>
     <div id="content">
-<?php } elseif ($pjax = $ost->getExtraPjax()) { # endif X_PJAX ?>
-    <script type="text/javascript">
-    <?php foreach (array_filter($pjax) as $s) echo $s.";"; ?>
-    </script>
-<?php } # endif X_PJAX ?>
         <?php if($errors['err']) { ?>
             <div id="msg_error"><?php echo $errors['err']; ?></div>
         <?php }elseif($msg) { ?>

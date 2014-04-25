@@ -13,6 +13,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <?php
 } ?>
 </div>
+</div>
 <div id="overlay"></div>
 <div id="loading">
     <i class="icon-spinner icon-spin icon-3x pull-left icon-light"></i>
@@ -26,7 +27,7 @@ if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
     if (!$(this).hasClass('no-pjax')
         && !$(this).closest('.no-pjax').length)
-      $.pjax.click(event, {container: $('#content'), timeout: 2000});
+      $.pjax.click(event, {container: $('#pjax-container'), timeout: 2000});
   })
 }
 </script>
