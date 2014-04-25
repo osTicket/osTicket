@@ -25,7 +25,7 @@ if($category && $_REQUEST['a']!='search') {
 }
 $nav->setTabActive('kbase');
 $ost->addExtraHeader('<meta name="tip-namespace" content="knowledgebase.faqs" />',
-    "$('#content').data('tipNamespace', '".$tip_namespace."');");
+    "$('#content').data('tipNamespace', 'knowledgebase.faqs');");
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');
