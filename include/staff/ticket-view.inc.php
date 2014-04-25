@@ -46,7 +46,9 @@ if($ticket->isOverdue())
         </td>
         <td width="50%" class="right_align has_bottom_border">
             <?php
-            if($thisstaff->canBanEmails() || ($dept && $dept->isManager($thisstaff))) { ?>
+            if ($thisstaff->canBanEmails()
+                    || $thisstaff->canEditTickets()
+                    || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button" data-dropdown="#action-dropdown-more">
                 <span ><i class="icon-cog"></i> More</span>
                 <i class="icon-caret-down"></i>

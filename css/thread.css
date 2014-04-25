@@ -410,7 +410,6 @@
     margin-bottom: 0 !important;
 }
 
-.thread-body > div div:not(.caption),
 .thread-body p,
 .thread-body ul,
 .thread-body ol,
@@ -419,7 +418,7 @@
 .thread-body blockquote,
 .thread-body pre {
 	margin: 0;
-	margin-bottom: 10px !important;
+	margin-bottom: 10px;
 	border: none;
 	background: none !important;
 	box-shadow: none !important;

@@ -275,7 +275,11 @@ class Dept {
     function delete() {
         global $cfg;
 
-        if(!$cfg || $this->getId()==$cfg->getDefaultDeptId() || $this->getNumUsers())
+        if(!$cfg
+                // Default department cannot be deleted
+                || $this->getId()==$cfg->getDefaultDeptId()
+                // Department  with users cannot be deleted
+                || $this->getNumUsers())
             return 0;
 
         $id=$this->getId();
@@ -286,8 +290,12 @@ class Dept {
             db_query('UPDATE '.TICKET_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
             //Move Dept members: This should never happen..since delete should be issued only to empty Depts...but check it anyways
             db_query('UPDATE '.STAFF_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
-            //make help topic using the dept default to default-dept.
-            db_query('UPDATE '.TOPIC_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
+
+            // Clear any settings using dept to default back to system default
+            db_query('UPDATE '.TOPIC_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+            db_query('UPDATE '.EMAIL_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+            db_query('UPDATE '.FILTER_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+
             //Delete group access
             db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($id));
         }
