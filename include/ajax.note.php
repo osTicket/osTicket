@@ -43,6 +43,8 @@ class NoteAjaxAPI extends AjaxController {
             Http::response(205, "Note not found");
         elseif (!$note->delete())
             Http::response(500, "Unable to remove note");
+
+        Http::response(204, "Deleted notes can be recovered by loading yesterday's backup");
     }
 
     function createNote($ext_id) {
