@@ -13,14 +13,10 @@ $org = $user->getOrganization();
              title="Reload"><i class="icon-refresh"></i> <?php echo $user->getName(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
-           <?php
-            if ($account) { ?>
             <span class="action-button" data-dropdown="#action-dropdown-more">
                 <span ><i class="icon-cog"></i> More</span>
                 <i class="icon-caret-down"></i>
             </span>
-            <?php
-            } ?>
             <a id="user-delete" class="action-button user-action"
             href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i> Delete User</a>
             <?php
@@ -53,6 +49,12 @@ $org = $user->getOrganization();
                 <?php
 
                 } ?>
+                <li><a href="#ajax.php/users/<?php echo $user->getId();
+                    ?>/forms/manage" onclick="javascript:
+                    $.dialog($(this).attr('href').substr(1), 201);
+                    return false"
+                    ><i class="icon-paste"></i> Manage Forms</a></li>
+
               </ul>
             </div>
         </td>

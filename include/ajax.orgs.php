@@ -252,5 +252,48 @@ class OrgsAjaxAPI extends AjaxController {
 
         return $resp;
     }
+
+    function manageForms($org_id) {
+        $forms = DynamicFormEntry::forOrganization($org_id);
+        $info = array('action' => '#orgs/'.Format::htmlchars($org_id).'/forms/manage');
+        include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
+    }
+
+    function updateForms($org_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($org = Organization::lookup($org_id)))
+            Http::response(404, "No such ticket");
+        elseif (!isset($_POST['forms']))
+            Http::response(422, "Send updated forms list");
+
+        // Add new forms
+        $forms = DynamicFormEntry::forOrganization($org_id);
+        foreach ($_POST['forms'] as $sort => $id) {
+            $found = false;
+            foreach ($forms as $e) {
+                if ($e->get('form_id') == $id) {
+                    $e->set('sort', $sort);
+                    $e->save();
+                    $found = true;
+                    break;
+                }
+            }
+            // New form added
+            if (!$found && ($new = DynamicForm::lookup($id))) {
+                $org->addForm($new, $sort);
+            }
+        }
+
+        // Deleted forms
+        foreach ($forms as $idx => $e) {
+            if (!in_array($e->get('form_id'), $_POST['forms']))
+                $e->delete();
+        }
+
+        Http::response(201, 'Successfully managed');
+    }
 }
 ?>

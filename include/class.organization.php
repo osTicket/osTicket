@@ -185,6 +185,14 @@ class Organization extends OrganizationModel {
         }
     }
 
+    function addForm($form, $sort=1) {
+        $form = $form->instanciate();
+        $form->set('sort', $sort);
+        $form->set('object_type', 'O');
+        $form->set('object_id', $this->getId());
+        $form->save();
+    }
+
     function to_json() {
 
         $info = array(
