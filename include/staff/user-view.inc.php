@@ -131,7 +131,7 @@ include STAFFINC_DIR . 'templates/tickets.tmpl.php';
 <div class="tab_content" id="notes" style="display:none">
 <?php
 $notes = QuickNote::forUser($user);
-$ext_id = 'U'.$user->getId();
+$create_note_url = 'users/'.$user->getId().'/note';
 include STAFFINC_DIR . 'templates/notes.tmpl.php';
 ?>
 </div>

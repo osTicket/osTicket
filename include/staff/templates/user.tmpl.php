@@ -91,7 +91,8 @@ if ($info['error']) {
 foreach ($notes as $note)
     include STAFFINC_DIR . 'templates/note.tmpl.php';
 ?>
-<div class="quicknote no-options" id="new-note" data-ext-id="U<?php echo $user->getId(); ?>">
+<div class="quicknote no-options" id="new-note"
+    data-url="users/<?php echo $user->getId(); ?>/note">
 <div class="body">
     <a href="#"><i class="icon-plus icon-large"></i> &nbsp; Click to create a new note</a>
 </div>

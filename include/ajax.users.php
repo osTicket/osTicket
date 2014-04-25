@@ -349,5 +349,14 @@ class UsersAjaxAPI extends AjaxController {
         return $resp;
     }
 
+    function createNote($id) {
+        if (!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        require_once INCLUDE_DIR . 'ajax.note.php';
+        $ajax = new NoteAjaxAPI();
+        return $ajax->createNote('U'.$id);
+    }
+
 }
 ?>

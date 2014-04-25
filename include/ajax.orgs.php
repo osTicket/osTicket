@@ -205,6 +205,15 @@ class OrgsAjaxAPI extends AjaxController {
 
     }
 
+    function createNote($id) {
+        if (!($org = Organization::lookup($id)))
+            Http::response(404, 'Unknown organization');
+
+        require_once INCLUDE_DIR . 'ajax.note.php';
+        $ajax = new NoteAjaxAPI();
+        return $ajax->createNote('O'.$id);
+    }
+
     static function _lookupform($form=null, $info=array()) {
 
         if (!$info or !$info['title'])

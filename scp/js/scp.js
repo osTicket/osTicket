@@ -728,7 +728,7 @@ $('#new-note').live('click', function() {
     T = $('<textarea>'),
     button = $('<input type="button">').val('Create');
     button.click(function() {
-      $.post('ajax.php/note/attach/' + note.data('extId'),
+      $.post('ajax.php/' + note.data('url'),
         { note: T.redactor('get'), no_options: note.hasClass('no-options') },
         function(response) {
           $(T).redactor('destroy').replaceWith(note);

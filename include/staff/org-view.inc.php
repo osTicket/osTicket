@@ -70,7 +70,7 @@ include STAFFINC_DIR . 'templates/tickets.tmpl.php';
 <div class="tab_content" id="notes" style="display:none">
 <?php
 $notes = QuickNote::forOrganization($org);
-$ext_id = 'O'.$org->getId();
+$create_note_url = 'orgs/'.$org->getId().'/note';
 include STAFFINC_DIR . 'templates/notes.tmpl.php';
 ?>
 </div>

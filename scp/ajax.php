@@ -89,7 +89,8 @@ $dispatcher = patterns('',
         url_post('^/(?P<id>\d+)/manage(?:/(?P<target>\w+))?$', 'manage'),
         url_get('^/(?P<id>\d+)/org(?:/(?P<orgid>\d+))?$', 'updateOrg'),
         url_post('^/(?P<id>\d+)/org$', 'updateOrg'),
-        url_get('^/staff$', 'searchStaff')
+        url_get('^/staff$', 'searchStaff'),
+        url_post('^/(?P<id>\d+)/note$', 'createNote')
     )),
     url('^/orgs', patterns('ajax.orgs.php:OrgsAjaxAPI',
         url_get('^$', 'search'),
@@ -108,7 +109,8 @@ $dispatcher = patterns('',
         url_get('^/(?P<id>\d+)/add-user(?:/auth:(?P<userid>.+))?$', 'addUser', array(true)),
         url_post('^/(?P<id>\d+)/add-user$', 'addUser'),
         url_get('^/(?P<id>\d+)/delete$', 'delete'),
-        url_delete('^/(?P<id>\d+)/delete$', 'delete')
+        url_delete('^/(?P<id>\d+)/delete$', 'delete'),
+        url_post('^/(?P<id>\d+)/note$', 'createNote')
     )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/change-user$', 'changeUserForm'),
