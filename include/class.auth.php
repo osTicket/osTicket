@@ -308,8 +308,32 @@ abstract class AuthenticationBackend {
     abstract static function signOut($user);
 }
 
-class RemoteAuthenticationBackend {
-    var $create_unknown_user = false;
+/**
+ * ExternalAuthenticationBackend
+ *
+ * External authentication backends are backends such as Google+ which
+ * require a redirect to a remote site and a redirect back to osTicket in
+ * order for a  user to be authenticated. For such backends, neither the
+ * username and password fields nor single sign on alone can be used to
+ * authenticate the user.
+ */
+interface ExternalAuthentication {
+
+    /**
+     * Requests the backend to render an external link box. When the user
+     * clicks this box, the backend will be prompted to redirect the user to
+     * the remote site for authentication there.
+     */
+    function renderExternalLink();
+
+    /**
+     * Function: triggerAuth
+     *
+     * Called when a user clicks the button rendered in the
+     * ::renderExternalLink() function. This method should initiate the
+     * remote authentication mechanism.
+     */
+    function triggerAuth();
 }
 
 abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
@@ -454,6 +478,50 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
     }
 }
 
+abstract class ExternalStaffAuthenticationBackend
+        extends StaffAuthenticationBackend
+        implements ExternalAuthentication {
+
+    static $fa_icon = "signin";
+    static $sign_in_image_url = false;
+    static $service_name = "External";
+
+    function renderExternalLink() { ?>
+        <a class="external-sign-in" title="Sign in with <?php echo static::$service_name; ?>"
+                href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
+<?php if (static::$sign_in_image_url) { ?>
+        <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
+            ?>" alt="Sign in with <?php echo static::$service_name; ?>"/>
+<?php } else { ?>
+            <div class="external-auth-box">
+            <span class="external-auth-icon">
+                <i class="icon-<?php echo static::$fa_icon; ?> icon-large icon-fixed-with"></i>
+            </span>
+            <span class="external-auth-name">
+                Sign in with <?php echo static::$service_name; ?>
+            </span>
+            </div>
+<?php } ?>
+        </a><?php
+    }
+
+    function triggerAuth() {
+        $_SESSION['ext:bk:class'] = get_class($this);
+    }
+}
+Signal::connect('api', function($dispatcher) {
+    $dispatcher->append(
+        url('^/auth/ext$', function() {
+            if ($class = $_SESSION['ext:bk:class']) {
+                $bk = StaffAuthenticationBackend::getBackend($class::$id)
+                    ?: UserAuthenticationBackend::getBackend($class::$id);
+                if ($bk instanceof ExternalAuthentication)
+                    $bk->triggerAuth();
+            }
+        })
+    );
+});
+
 abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
     static private $_registry = array();
@@ -577,6 +645,38 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             return false;
 
         return new ClientSession(new EndUser($user));
+    }
+}
+
+abstract class ExternalUserAuthenticationBackend
+        extends UserAuthenticationBackend
+        implements ExternalAuthentication {
+
+    static $fa_icon = "signin";
+    static $sign_in_image_url = false;
+    static $service_name = "External";
+
+    function renderExternalLink() { ?>
+        <a class="external-sign-in" title="Sign in with <?php echo static::$service_name; ?>"
+                href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
+<?php if (static::$sign_in_image_url) { ?>
+        <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
+            ?>" alt="Sign in with <?php echo static::$service_name; ?>"/>
+<?php } else { ?>
+            <div class="external-auth-box">
+            <span class="external-auth-icon">
+                <i class="icon-<?php echo static::$fa_icon; ?> icon-large icon-fixed-with"></i>
+            </span>
+            <span class="external-auth-name">
+                Sign in with <?php echo static::$service_name; ?>
+            </span>
+            </div>
+<?php } ?>
+        </a><?php
+    }
+
+    function triggerAuth() {
+        $_SESSION['ext:bk:class'] = get_class($this);
     }
 }
 

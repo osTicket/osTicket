@@ -35,9 +35,6 @@ class osTicketSession {
         if (OsticketConfig::getDBVersion())
             return session_start();
 
-        elseif (defined('DISABLE_SESSION'))
-            return;
-
         # Cookies
         // Avoid setting a cookie domain without a dot, thanks
         // http://stackoverflow.com/a/1188145
@@ -80,6 +77,7 @@ class osTicketSession {
     }
 
     function read($id){
+        $this->isnew = true;
         if (!$this->data || $this->id != $id) {
             $sql='SELECT session_data FROM '.SESSION_TABLE
                 .' WHERE session_id='.db_input($id)
@@ -91,6 +89,7 @@ class osTicketSession {
             $this->id = $id;
         }
         $this->data_hash = md5($id.$this->data);
+        $this->isnew = false;
         return $this->data;
     }
 
@@ -98,6 +97,9 @@ class osTicketSession {
         global $thisstaff;
 
         if (md5($id.$data) == $this->data_hash)
+            return;
+
+        elseif (defined('DISABLE_SESSION') && $this->isnew)
             return;
 
         $ttl = ($this && get_class($this) == 'osTicketSession')
