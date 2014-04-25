@@ -179,8 +179,11 @@ if($_POST) {
 }
 
 $page='dynamic-lists.inc.php';
-if($list || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+if($list || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='dynamic-list.inc.php';
+    $ost->addExtraHeader('<meta name="tip-namespace" content="manage.addnew_custom_list" />',
+        "$('#content').data('tipNamespace', 'manage.addnew_custom_list');");
+}
 
 $nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');

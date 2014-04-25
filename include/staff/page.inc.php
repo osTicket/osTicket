@@ -103,7 +103,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>
+                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
             </th>
         </tr>
         <tr>

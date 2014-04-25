@@ -54,7 +54,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" size="30" class="staff-username typeahead"
                      name="username" value="<?php echo $info['username']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['username']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['username']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#username"></i>
             </td>
         </tr>
 
@@ -65,7 +65,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" size="30" name="firstname" class="auto first"
                      value="<?php echo $info['firstname']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['firstname']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['firstname']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#first_name"></i>
             </td>
         </tr>
         <tr>
@@ -75,7 +75,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" size="30" name="lastname" class="auto last"
                     value="<?php echo $info['lastname']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['lastname']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['lastname']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#last_name"></i>
             </td>
         </tr>
         <tr>
@@ -85,7 +85,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" size="30" name="email" class="auto email"
                     value="<?php echo $info['email']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#email_address"></i>
             </td>
         </tr>
         <tr>
@@ -122,13 +122,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 else if (sbk.val() == '' || sbk.val() == 'local')
                     $('#password-fields').show();
                 " />
-                Send staff welcome email with account access link
+                &nbsp;<i class="help-tip icon-question-sign" href="#welcome_email"></i>
             </td>
         </tr>
 <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Authentication</strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span></em>
+                <em><strong>Authentication</strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#account_password"></i></em>
             </th>
         </tr>
         <tr>
@@ -180,14 +180,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="change_passwd" value="0" <?php echo $info['change_passwd']?'checked="checked"':''; ?>>
-                <strong>Force</strong> password change on next login.
+                <strong>Force</strong> password change on next login.&nbsp;<i class="help-tip icon-question-sign" href="#forced_password_change"></i>
             </td>
         </tr>
     </tbody>
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong>Staff's Signature</strong>: Optional signature used on outgoing emails. &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>
+                <em><strong>Staff's Signature</strong>: Optional signature used on outgoing emails. &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#agents_signature"></i></em>
             </th>
         </tr>
         <tr>
@@ -220,7 +220,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
                 <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><strong>Locked</strong>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['isactive']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['isactive']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#account_status"></i>
             </td>
         </tr>
         <tr>
@@ -240,7 +240,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['group_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['group_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#assigned_group"></i>
             </td>
         </tr>
         <tr>
@@ -260,7 +260,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
             </td>
         </tr>
         <tr>
@@ -290,7 +290,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="checkbox" name="daylight_saving" value="1" <?php echo $info['daylight_saving']?'checked="checked"':''; ?>>
                 Observe daylight saving
-                <em>(Current Time: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['daylight_saving']); ?></strong>)</em>
+                <em>(Current Time: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['daylight_saving']); ?></strong>)&nbsp;<i class="help-tip icon-question-sign" href="#daylight_saving"></i></em>
             </td>
         </tr>
         <tr>
@@ -298,7 +298,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Limited Access:
             </td>
             <td>
-                <input type="checkbox" name="assigned_only" value="1" <?php echo $info['assigned_only']?'checked="checked"':''; ?>>Limit ticket access to ONLY assigned tickets.
+                <input type="checkbox" name="assigned_only" value="1" <?php echo $info['assigned_only']?'checked="checked"':''; ?>>Limit ticket access to ONLY assigned tickets.&nbsp;<i class="help-tip icon-question-sign" href="#limited_access"></i>
             </td>
         </tr>
         <tr>
@@ -306,7 +306,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Directory Listing:
             </td>
             <td>
-                <input type="checkbox" name="isvisible" value="1" <?php echo $info['isvisible']?'checked="checked"':''; ?>>Show the user on staff's directory
+                <input type="checkbox" name="isvisible" value="1" <?php echo $info['isvisible']?'checked="checked"':''; ?>>&nbsp;Make Visible in the Staff Directory&nbsp;<i class="help-tip icon-question-sign" href="#directory_listing"></i>
             </td>
         </tr>
         <tr>
@@ -315,7 +315,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="onvacation" value="1" <?php echo $info['onvacation']?'checked="checked"':''; ?>>
-                    Staff on vacation mode. (<i>No ticket assignment or alerts</i>)
+                    Change Status to Vacation Mode&nbsp;<i class="help-tip icon-question-sign" href="#vacation_mode"></i>
             </td>
         </tr>
         <?php
@@ -336,7 +336,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes viewable by all admins.&nbsp;</em>
+                <em><strong>Admin Notes</strong>&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
             </th>
         </tr>
         <tr>

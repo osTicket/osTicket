@@ -65,7 +65,7 @@ if($_POST){
                         $warn = "$i of $count selected emails deleted";
                     elseif(!$errors['err'])
                         $errors['err'] = 'Unable to delete selected emails';
-                    
+
                 } else {
                     $errors['err'] = 'Unknown action - get technical help';
                 }
@@ -78,10 +78,15 @@ if($_POST){
 }
 
 $page='emails.inc.php';
-if($email || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'emails.emails';
+if($email || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='email.inc.php';
+    $tip_namespace = 'emails.addnew_email';
+}
 
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

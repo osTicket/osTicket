@@ -57,7 +57,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['execorder']; ?></span>
                 &nbsp;&nbsp;&nbsp;
                 <input type="checkbox" name="stop_onmatch" value="1" <?php echo $info['stop_onmatch']?'checked="checked"':''; ?> >
-                <strong>Stop</strong> processing further on match!
+                <strong>Stop</strong> processing further on match!&nbsp;<i class="help-tip icon-question-sign" href="#execution_order"></i>
             </td>
         </tr>
         <tr>
@@ -96,12 +96,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;
-                <span class="error">*&nbsp;<?php echo $errors['target']; ?></span>
+                <span class="error">*&nbsp;<?php echo $errors['target']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#target"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Filter Rules</strong>: Rules are applied based on the criteria.&nbsp;<span class="error">*&nbsp;<?php echo $errors['rules']; ?></span></em>
+                <em><strong>Filter Rules</strong>: Rules are applied based on the criteria.&nbsp;<span class="error">*&nbsp;<?php echo $errors['rules']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#basic_fields_criterion"></i></em>
             </th>
         </tr>
         <tr>
@@ -112,7 +112,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;&nbsp;&nbsp;
                 <input type="radio" name="match_all_rules" value="0" <?php echo !$info['match_all_rules']?'checked="checked"':''; ?>>Match Any
                 &nbsp;<span class="error">*&nbsp;</span>
-                <em>(case-insensitive comparison)</em>
+                <em>(case-insensitive comparison)</em>&nbsp;<i class="help-tip icon-question-sign" href="#rules_matching_criteria"></i>
 
             </td>
         </tr>
@@ -142,7 +142,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             echo sprintf('<option value="%s" %s>%s</option>',$k,$sel,$v);
                         }
                         ?>
-                    </select>
+                    </select>&nbsp;<i class="help-tip icon-question-sign" href="#criterion_operator"></i>
                     <input type="text" size="60" name="rule_v<?php echo $i; ?>" value="<?php echo $info["rule_v$i"]; ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors["rule_$i"]; ?></span>
                 <?php
@@ -168,7 +168,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="reject_ticket" value="1" <?php echo $info['reject_ticket']?'checked="checked"':''; ?> >
-                    <strong><font class="error">Reject Ticket</font></strong> <em>(All other actions and filters are ignored)</em>
+                    <strong><font class="error">Reject Ticket</font></strong>&nbsp;<i class="help-tip icon-question-sign" href="#reject_ticket"></i>
             </td>
         </tr>
         <tr>
@@ -177,7 +177,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="use_replyto_email" value="1" <?php echo $info['use_replyto_email']?'checked="checked"':''; ?> >
-                    <strong>Use</strong> Reply-To Email <em>(if available)</em>
+                    <strong>Use</strong> Reply-To Email <em>(if available)&nbsp;<i class="help-tip icon-question-sign" href="#reply_to_email"></i></em>
             </td>
         </tr>
         <tr>
@@ -186,7 +186,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="disable_autoresponder" value="1" <?php echo $info['disable_autoresponder']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> auto-response. <em>(Override Dept. settings)</em>
+                    <strong>Disable</strong> auto-response.&nbsp;<i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
             </td>
         </tr>
         <tr>
@@ -210,7 +210,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                <em>(Automatically respond with this canned response)</em>
+                &nbsp;<i class="help-tip icon-question-sign" href="#canned_response"></i>
             </td>
         </tr>
         <tr>
@@ -230,7 +230,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#department"></i>
             </td>
         </tr>
         <tr>
@@ -251,7 +251,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['priority_id']; ?></span>
-                <em>(Overrides department's priority)</em>
+                &nbsp;<i class="help-tip icon-question-sign" href="#priority"></i>
             </td>
         </tr>
         <tr>
@@ -271,7 +271,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                <em>(Overrides department's SLA)</em>
+                &nbsp;<i class="help-tip icon-question-sign" href="#sla_plan"></i>
             </td>
         </tr>
         <tr>
@@ -315,7 +315,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span><i class="help-tip icon-question-sign" href="#auto_assign_to"></i>
             </td>
         </tr>
         <tr>
@@ -335,12 +335,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error"><?php echo $errors['topic_id']; ?></span>
+                &nbsp;<span class="error"><?php echo $errors['topic_id']; ?></span><i class="help-tip icon-question-sign" href="#help_topic"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>
+                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
             </th>
         </tr>
         <tr>

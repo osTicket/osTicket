@@ -296,7 +296,7 @@ class UsersAjaxAPI extends AjaxController {
     static function _lookupform($form=null, $info=array()) {
 
         if (!$info or !$info['title'])
-            $info += array('title' => 'User Lookup');
+            $info += array('title' => 'Select or Create a Client');
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');

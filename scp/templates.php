@@ -132,15 +132,19 @@ if($_POST){
 }
 
 $page='templates.inc.php';
+$tip_namespace = 'email.templates';
 if($template && !strcasecmp($_REQUEST['a'],'manage')){
     $page='tpl.inc.php';
 }elseif($template && !strcasecmp($_REQUEST['a'],'implement')){
     $page='tpl.inc.php';
 }elseif($template || !strcasecmp($_REQUEST['a'],'add')){
     $page='template.inc.php';
+    $tip_namespace = 'emails.email_template_form';
 }
 
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

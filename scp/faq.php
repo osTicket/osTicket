@@ -94,12 +94,16 @@ if($faq) {
     $inc='faq-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canManageFAQ())
         $inc='faq.inc.php';
+        $tip_namespace = 'knowledgebase.addnew_faq';
 }elseif($_REQUEST['a']=='add' && $thisstaff->canManageFAQ()) {
     $inc='faq.inc.php';
+    $tip_namespace = 'knowledgebase.addnew_faq';
 } elseif($category && $_REQUEST['a']!='search') {
     $inc='faq-category.inc.php';
 }
 $nav->setTabActive('kbase');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');

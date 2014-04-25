@@ -12,7 +12,7 @@ $gmtime = Misc::gmtime();
         <tr>
             <th colspan="2">
                 <h4>System Settings &amp; Preferences</h4>
-                <em><b>General Settings</b>: Offline mode will disable client interface and only allow admins to login to Staff Control Panel</em>
+                <em><b>General Settings</b>&nbsp;<i class="help-tip icon-question-sign" href="#general_settings"></i></em>
             </th>
         </tr>
     </thead>
@@ -21,8 +21,8 @@ $gmtime = Misc::gmtime();
         <tr>
             <td width="220" class="required">Helpdesk Status:</td>
             <td>
-                <input type="radio" name="isonline"  value="1"   <?php echo $config['isonline']?'checked="checked"':''; ?> /><b>Online</b> (Active)
-                <input type="radio" name="isonline"  value="0"   <?php echo !$config['isonline']?'checked="checked"':''; ?> /><b>Offline</b> (Disabled)
+                <label><input type="radio" name="isonline"  value="1"   <?php echo $config['isonline']?'checked="checked"':''; ?> />&nbsp;<b>Online</b>&nbsp;</label>
+                <label><input type="radio" name="isonline"  value="0"   <?php echo !$config['isonline']?'checked="checked"':''; ?> />&nbsp;<b>Offline</b></label>
                 &nbsp;<font class="error">&nbsp;<?php echo $config['isoffline']?'osTicket offline':''; ?></font>
                 <i class="help-tip icon-question-sign" href="#helpdesk_status"></i>
             </td>
@@ -39,7 +39,7 @@ $gmtime = Misc::gmtime();
             <td width="220" class="required">Helpdesk Name/Title:</td>
             <td><input type="text" size="40" name="helpdesk_title" value="<?php echo $config['helpdesk_title']; ?>">
                 &nbsp;<font class="error">*&nbsp;<?php echo $errors['helpdesk_title']; ?></font>
-                <i class="help-tip icon-question-sign" href="#helpdesk_name"></i>
+                <i class="help-tip icon-question-sign" href="#helpdesk_name_title"></i>
             </td>
         </tr>
         <tr>
@@ -57,7 +57,7 @@ $gmtime = Misc::gmtime();
                         }
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_dept_id']; ?></font>
-                <i class="help-tip icon-question-sign" href="#default_dept"></i>
+                <i class="help-tip icon-question-sign" href="#default_department"></i>
             </td>
         </tr>
 
@@ -72,7 +72,7 @@ $gmtime = Misc::gmtime();
                         <?php
                     } ?>
                 </select>
-                <i class="help-tip icon-question-sign" href="#page_size"></i>
+                <i class="help-tip icon-question-sign" href="#default_page_size"></i>
             </td>
         </tr>
         <tr>
@@ -85,7 +85,7 @@ $gmtime = Misc::gmtime();
                     <option value=1 <?php echo $config['log_level'] == 1 ? 'selected="selected"':''; ?>> ERROR</option>
                 </select>
                 <font class="error">&nbsp;<?php echo $errors['log_level']; ?></font>
-                <i class="help-tip icon-question-sign" href="#log_level"></i>
+                <i class="help-tip icon-question-sign" href="#default_log_level"></i>
             </td>
         </tr>
         <tr>
@@ -115,13 +115,13 @@ $gmtime = Misc::gmtime();
                         ?>><?php echo $desc; ?></option>
 <?php } ?>
                 </select>
-                <i class="help-tip icon-question-sign" href="#name_format"></i>
+                <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
                 <em><b>Date and Time Options</b>&nbsp;
-                <i class="help-tip icon-question-sign" href="#date_and_time"></i>
+                <i class="help-tip icon-question-sign" href="#date_time_options"></i>
                 </em>
             </th>
         </tr>

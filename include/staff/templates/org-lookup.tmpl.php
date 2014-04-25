@@ -3,9 +3,9 @@
 if (!$info['title'])
     $info['title'] = 'Organization Lookup';
 
-$msg_info = 'Search existing organizations or add a new one';
+$msg_info = 'Search existing organizations or add a new one.';
 if ($info['search'] === false)
-    $msg_info = 'Complete the form below to add a new organization';
+    $msg_info = 'Complete the form below to add a new organization.';
 
 ?>
 <div id="the-lookup-form">
