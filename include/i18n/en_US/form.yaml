@@ -179,13 +179,13 @@
       sort: 3
 
     - type: text
-      name: homepage
-      label: Homepage
+      name: website
+      label: Website
       required: false
       sort: 4
       configuration:
         size: 40
-        length: 30
+        length: 0
 
     - type: memo # notrans
       name: notes
