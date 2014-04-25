@@ -1784,4 +1784,5 @@ table.custom-info td {
 
 .form_table tr i.help-tip {
     opacity: 0.2;
+    margin-left: 5px;
 }

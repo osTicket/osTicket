@@ -154,7 +154,8 @@ if($canned || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
 }
 
 $nav->setTabActive('kbase');
-$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

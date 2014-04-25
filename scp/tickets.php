@@ -622,7 +622,9 @@ if($ticket) {
 }
 
 $ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
-$ost->addExtraHeader('<meta name="tip-namespace" content="tickets.queue" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="tickets.open" />',
+    "$('#content').data('tipNamespace', 'tickets.open');");
+
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');

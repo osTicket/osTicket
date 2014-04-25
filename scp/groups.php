@@ -74,7 +74,7 @@ if($_POST){
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($g=Group::lookup($v)) && $g->delete())
                                 $i++;
-                        }   
+                        }
 
                         if($i && $i==$count)
                             $msg = 'Selected groups deleted successfully';
@@ -102,7 +102,8 @@ if($group || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
 }
 
 $nav->setTabActive('staff');
-$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

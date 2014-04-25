@@ -121,7 +121,8 @@ if($page || $_REQUEST['a']=='add') {
 }
 
 $nav->setTabActive('manage');
-$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');

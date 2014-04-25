@@ -2,7 +2,7 @@
 /*********************************************************************
     emailtest.php
 
-    Email Diagnostic 
+    Email Diagnostic
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
@@ -49,7 +49,8 @@ if($_POST){
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $nav->setTabActive('emails');
-$ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />');
+$ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 ?>
 <form action="emailtest.php" method="post" id="save">
