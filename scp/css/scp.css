@@ -1666,8 +1666,8 @@ tr.disabled th {
 }
 .quicknote .header .options {
     display: inline-block;
-    padding-left: 5px;
-    margin-left: 10px;
+    padding-left: 10px;
+    margin-left: 5px;
     white-space: nowrap;
     border-left: 1px solid rgba(0,0,0,0.2);
 }
@@ -1730,6 +1730,13 @@ tr.disabled th {
     right: 0;
     top: 5px;
     padding-right: 5px;
+}
+
+i.note-type {
+    color: #2a67ac;
+    opacity: 0.8;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    padding-right: 8px;
 }
 
 table.custom-info th {

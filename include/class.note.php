@@ -52,6 +52,19 @@ class QuickNote extends QuickNoteModel {
         return static::$types[$this->ext_id[0]];
     }
 
+    function getExtIconClass() {
+        switch ($this->ext_id[0]) {
+        case 'U':
+            return 'user';
+        case 'O':
+            return 'building';
+        }
+    }
+
+    function getIconTitle() {
+        return sprintf("%s Note", static::$types[$this->ext_id[0]]);
+    }
+
     static function forUser($user, $org=false) {
         if ($org)
             return static::objects()->filter(array('ext_id__in' =>

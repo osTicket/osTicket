@@ -1,14 +1,13 @@
 <div class="quicknote" data-id="<?php echo $note->id; ?>">
     <div class="header">
         <div class="header-left">
+            <i class="note-type icon-<?php echo $note->getExtIconClass(); ?>"i
+                title="<?php echo $note->getIconTitle(); ?>"></i>&nbsp;
             <?php echo $note->getFormattedTime(); ?>
         </div>
         <div class="header-right">
 <?php
             echo $note->getStaff()->getName();
-if ($ext_id && $note->ext_id != $ext_id) { ?>
-            <span class="label label-info"><?php echo $note->getExtType(); ?></span>
-<?php }
 if (isset($show_options) && $show_options) { ?>
             <div class="options">
                 <a href="#" class="action edit-note no-pjax" title="edit"><i class="icon-pencil"></i></a>
