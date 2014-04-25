@@ -383,5 +383,48 @@ class UsersAjaxAPI extends AjaxController {
         return $ajax->createNote('U'.$id);
     }
 
+    function manageForms($user_id) {
+        $forms = DynamicFormEntry::forUser($user_id);
+        $info = array('action' => '#users/'.Format::htmlchars($user_id).'/forms/manage');
+        include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
+    }
+
+    function updateForms($user_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($user = User::lookup($user_id)))
+            Http::response(404, "No such user");
+        elseif (!isset($_POST['forms']))
+            Http::response(422, "Send updated forms list");
+
+        // Add new forms
+        $forms = DynamicFormEntry::forUser($user_id);
+        foreach ($_POST['forms'] as $sort => $id) {
+            $found = false;
+            foreach ($forms as $e) {
+                if ($e->get('form_id') == $id) {
+                    $e->set('sort', $sort);
+                    $e->save();
+                    $found = true;
+                    break;
+                }
+            }
+            // New form added
+            if (!$found && ($new = DynamicForm::lookup($id))) {
+                $user->addForm($new, $sort);
+            }
+        }
+
+        // Deleted forms
+        foreach ($forms as $idx => $e) {
+            if (!in_array($e->get('form_id'), $_POST['forms']))
+                $e->delete();
+        }
+
+        Http::response(201, 'Successfully managed');
+    }
+
 }
 ?>

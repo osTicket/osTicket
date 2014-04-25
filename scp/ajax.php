@@ -91,7 +91,9 @@ $dispatcher = patterns('',
         url_get('^/(?P<id>\d+)/org(?:/(?P<orgid>\d+))?$', 'updateOrg'),
         url_post('^/(?P<id>\d+)/org$', 'updateOrg'),
         url_get('^/staff$', 'searchStaff'),
-        url_post('^/(?P<id>\d+)/note$', 'createNote')
+        url_post('^/(?P<id>\d+)/note$', 'createNote'),
+        url_get('^/(?P<id>\d+)/forms/manage$', 'manageForms'),
+        url_post('^/(?P<id>\d+)/forms/manage$', 'updateForms')
     )),
     url('^/orgs', patterns('ajax.orgs.php:OrgsAjaxAPI',
         url_get('^$', 'search'),

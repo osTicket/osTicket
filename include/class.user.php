@@ -230,6 +230,14 @@ class User extends UserModel {
         return $this->created;
     }
 
+    function addForm($form, $sort=1) {
+        $form = $form->instanciate();
+        $form->set('sort', $sort);
+        $form->set('object_type', 'U');
+        $form->set('object_id', $this->getId());
+        $form->save();
+    }
+
     function to_json() {
 
         $info = array(

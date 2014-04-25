@@ -615,6 +615,11 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $object_id;
     }
 
+    function forUser($user_id) {
+        return DynamicFormEntry::objects()
+            ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
+    }
+
     function forOrganization($org_id) {
         return DynamicFormEntry::objects()
             ->filter(array('object_id'=>$org_id, 'object_type'=>'O'));
