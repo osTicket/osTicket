@@ -118,7 +118,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
             </form>
     </div>
     <div>
-        <p><strong>Need Help?</strong> We provide <u>professional installation services</u> and commercial support. <a target="_blank" href="http://osticket.com/support/professional_services.php">Learn More!</a></p>
+        <p><strong>Need Help?</strong> We provide <u>professional installation services</u> and commercial support. <a target="_blank" href="http://osticket.com/support">Learn More!</a></p>
     </div>
     <div id="overlay"></div>
     <div id="loading">
