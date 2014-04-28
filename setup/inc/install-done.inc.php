@@ -30,7 +30,7 @@ $url=URL;
                 <tr>
                     <td width="50%">
                         <strong>osTicket Forums:</strong><Br>
-                        <a href="#">http://osticket.com/forums/</a>
+                        <a href="#">http://osticket.com/forum/</a>
                     </td>
                     <td width="50%">
                         <strong>osTicket Community Wiki:</strong><Br>
@@ -44,5 +44,5 @@ $url=URL;
             <h3>What's Next?</h3>
             <p><b>Post-Install Setup</b>: You can now log in to <a href="../scp/admin.php" target="_blank">Admin Panel</a> with the username and password you created during the install process. After a successful log in, you can proceed with post-install setup. For complete and upto date guide see <a href="http://osticket.com/wiki/Post-Install_Setup_Guide" target="_blank">osTicket wiki</a></p>
 
-            <p><b>Commercial Support Available</b>: Don't let technical problems impact your osTicket implementation. Get guidance and hands-on expertise to address unique challenges and make sure your osTicket runs smoothly, efficiently, and securely. <a target="_blank" href="http://osticket.com/support/commercial_support.php.php">Learn More!</a></p>
+            <p><b>Commercial Support Available</b>: Don't let technical problems impact your osTicket implementation. Get guidance and hands-on expertise to address unique challenges and make sure your osTicket runs smoothly, efficiently, and securely. <a target="_blank" href="http://osticket.com/commercial-support">Learn More!</a></p>
    </div>
