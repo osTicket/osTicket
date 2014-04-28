@@ -65,6 +65,7 @@ if ($info['error']) {
     </table>
 </div>
 
+<?php if ($org) { ?>
 <div class="tab_content" id="organization-tab" style="display:none">
 <div class="floating-options">
     <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="Manage Organization"
@@ -85,6 +86,7 @@ if ($info['error']) {
 ?>
     </table>
 </div>
+<?php } # endif ($org) ?>
 
 <div class="tab_content" id="notes-tab" style="display:none">
 <?php $show_options = true;
