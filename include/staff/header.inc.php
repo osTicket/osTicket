@@ -65,11 +65,17 @@
         </p>
     </div>
     <div id="pjax-container">
-<?php } elseif ($pjax = $ost->getExtraPjax()) { # endif X_PJAX ?>
+<?php } else {
+    if ($pjax = $ost->getExtraPjax()) { ?>
     <script type="text/javascript">
     <?php foreach (array_filter($pjax) as $s) echo $s.";"; ?>
     </script>
-<?php } # endif X_PJAX ?>
+    <?php }
+    foreach ($ost->getExtraHeaders() as $h) {
+        if (strpos($h, '<script ') !== false)
+            echo $h;
+    }
+} # endif X_PJAX ?>
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
     </ul>

@@ -389,9 +389,10 @@ $tcount+= $ticket->getNumNotes();
             }
             if ($urls) { ?>
                 <script type="text/javascript">
-                    $(function() { showImagesInline(<?php echo
-                        JsonDataEncoder::encode($urls); ?>, <?php echo
-                        $entry['id']; ?>); });
+                    $('#thread-id-<?php echo $entry['id']; ?>')
+                        .data('urls', <?php
+                            echo JsonDataEncoder::encode($urls); ?>)
+                        .data('id', <?php echo $entry['id']; ?>);
                 </script>
 <?php
             } ?>
