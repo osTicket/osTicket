@@ -394,8 +394,9 @@ class AttachmentFile {
                 $file['size'] = $size;
             // Prefer mb_strlen, because mbstring.func_overload will
             // automatically prefer it if configured.
-            elseif (function_exists('mb_strlen'))
+            elseif (extension_loaded('mbstring'))
                 $file['size'] = mb_strlen($file['data'], '8bit');
+            // bootstrap.php include a compat version of mb_strlen
             else
                 $file['size'] = strlen($file['data']);
 
