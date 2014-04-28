@@ -125,7 +125,7 @@ $(function() {
             if (user && user.id)
                 window.location.href = 'orgs.php?id=<?php echo $org->getId(); ?>'
             else
-              $.pjax({url: window.location.href, container: '#content'})
+              $.pjax({url: window.location.href, container: '#pjax-container'})
         });
         return false;
      });

@@ -190,7 +190,7 @@ $(function() {
             if (user && user.id)
                 window.location.href = 'users.php?id='+user.id;
             else
-              $.pjax({url: window.location.href, container: '#content'})
+              $.pjax({url: window.location.href, container: '#pjax-container'})
          });
 
         return false;
