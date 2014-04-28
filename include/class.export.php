@@ -174,12 +174,12 @@ class Export {
                 array_values(array_map(
                         function ($f) { return $f->get('label'); }, $fields)));
 
+        $cdata += array('account_manager' => 'Account Manager', 'users' => 'Users');
+
         ob_start();
         echo self::dumpQuery($sql,
                 array(
                     'name'  =>  'Name',
-                    'account_manager' => 'Account Manager',
-                    'users' => 'Users'
                     ) + $cdata,
                 $how,
                 array('modify' => function(&$record, $keys) use ($fields) {
