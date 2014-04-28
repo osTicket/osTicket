@@ -402,7 +402,7 @@ class User extends UserModel {
         }
 
         while (($data = fgetcsv($stream, 1000, ",")) !== false) {
-            if (!count($data))
+            if (count($data) == 1 && $data[0] == null)
                 // Skip empty rows
                 continue;
             elseif (count($data) != count($headers))
