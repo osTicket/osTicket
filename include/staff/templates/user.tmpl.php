@@ -47,7 +47,7 @@ if ($info['error']) {
 <div class="floating-options">
     <a href="#" id="edituser" class="action" title="Edit"><i class="icon-edit"></i></a>
     <a href="users.php?id=<?php echo $user->getId(); ?>" title="Manage User"
-        class="action no-pjax"><i class="icon-share"></i></a>
+        class="action"><i class="icon-share"></i></a>
 </div>
     <table class="custom-info">
 <?php foreach ($user->getDynamicData() as $entry) {
@@ -69,7 +69,7 @@ if ($info['error']) {
 <div class="tab_content" id="organization-tab" style="display:none">
 <div class="floating-options">
     <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="Manage Organization"
-        class="action no-pjax"><i class="icon-share"></i></a>
+        class="action"><i class="icon-share"></i></a>
 </div>
     <table class="custom-info" width="100%">
 <?php foreach ($org->getDynamicData() as $entry) {

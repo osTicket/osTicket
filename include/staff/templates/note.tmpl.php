@@ -9,11 +9,11 @@
 <?php
             echo $note->getStaff()->getName();
 if (isset($show_options) && $show_options) { ?>
-            <div class="options">
-                <a href="#" class="action edit-note no-pjax" title="edit"><i class="icon-pencil"></i></a>
-                <a href="#" class="action save-note no-pjax" style="display:none" title="save"><i class="icon-save"></i></a>
-                <a href="#" class="action cancel-edit no-pjax" style="display:none" title="undo"><i class="icon-undo"></i></a>
-                <a href="#" class="action delete no-pjax" title="delete"><i class="icon-trash"></i></a>
+            <div class="options no-pjax">
+                <a href="#" class="action edit-note" title="edit"><i class="icon-pencil"></i></a>
+                <a href="#" class="action save-note" style="display:none" title="save"><i class="icon-save"></i></a>
+                <a href="#" class="action cancel-edit" style="display:none" title="undo"><i class="icon-undo"></i></a>
+                <a href="#" class="action delete" title="delete"><i class="icon-trash"></i></a>
             </div>
 <?php } ?>
         </div>
