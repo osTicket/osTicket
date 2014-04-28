@@ -307,21 +307,24 @@ class AttachmentFile {
                 = self::_getKeyAndHash($file['data']);
             if (!$file['key'])
                 $file['key'] = $key;
-
-            if (!isset($file['size']))
-                $file['size'] = strlen($file['data']);
         }
 
-        // Check and see if the file is already on record
-        $sql = 'SELECT id, `key` FROM '.FILE_TABLE
-            .' WHERE signature='.db_input($file['signature'])
-            .' AND size='.db_input($file['size']);
+        if (isset($file['size'])) {
+            // Check and see if the file is already on record
+            $sql = 'SELECT id, `key` FROM '.FILE_TABLE
+                .' WHERE signature='.db_input($file['signature'])
+                .' AND size='.db_input($file['size']);
 
-        // If the record exists in the database already, a file with the
-        // same hash and size is already on file -- just return its ID
-        if (list($id, $key) = db_fetch_row(db_query($sql))) {
-            $file['key'] = $key;
-            return $id;
+            // If the record exists in the database already, a file with the
+            // same hash and size is already on file -- just return its ID
+            if (list($id, $key) = db_fetch_row(db_query($sql))) {
+                $file['key'] = $key;
+                return $id;
+            }
+        }
+        elseif (!isset($file['data'])) {
+            // Unable to determine the file's size
+            return false;
         }
 
         if (!$file['type']) {
@@ -337,14 +340,15 @@ class AttachmentFile {
                 $file['type'] = 'application/octet-stream';
         }
 
-
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input(strtolower($file['type']))
-            .',size='.db_input($file['size'])
             .',name='.db_input($file['name'])
             .',`key`='.db_input($file['key'])
             .',ft='.db_input($ft ?: 'T')
             .',signature='.db_input($file['signature']);
+
+        if (isset($file['size']))
+            $sql .= ',size='.db_input($file['size']);
 
         if (!(db_query($sql) && ($id = db_insert_id())))
             return false;
@@ -383,8 +387,22 @@ class AttachmentFile {
             return false;
         }
 
-        $sql = 'UPDATE '.FILE_TABLE.' SET bk='.db_input($bk->getBkChar())
-            .' WHERE id='.db_input($f->getId());
+        $sql = 'UPDATE '.FILE_TABLE.' SET bk='.db_input($bk->getBkChar());
+
+        if (!isset($file['size'])) {
+            if ($size = $bk->getSize())
+                $file['size'] = $size;
+            // Prefer mb_strlen, because mbstring.func_overload will
+            // automatically prefer it if configured.
+            elseif (function_exists('mb_strlen'))
+                $file['size'] = mb_strlen($file['data'], '8bit');
+            else
+                $file['size'] = strlen($file['data']);
+
+            $sql .= ', `size`='.db_input($file['size']);
+        }
+
+        $sql .= ' WHERE id='.db_input($f->getId());
         db_query($sql);
 
         return $f->getId();
@@ -745,6 +763,18 @@ class FileStorageBackend {
     function getHashDigest($algo) {
         return false;
     }
+
+    /**
+     * getSize
+     *
+     * Retrieves the size of the contents written or available to be read.
+     * The backend should optimize this process if possible by keeping track
+     * of the bytes written in a way apart from `strlen`. This value will be
+     * used instead of inspecting the contents using `strlen`.
+     */
+    function getSize() {
+        return false;
+    }
 }
 
 
@@ -764,7 +794,7 @@ class AttachmentChunkedData extends FileStorageBackend {
         $this->_buffer = false;
     }
 
-    function length() {
+    function getSize() {
         list($length) = db_fetch_row(db_query(
              'SELECT SUM(LENGTH(filedata)) FROM '.FILE_CHUNK_TABLE
             .' WHERE file_id='.db_input($this->file->getId())));
@@ -788,11 +818,12 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function write($what, $chunk_size=CHUNK_SIZE) {
         $offset=0;
+        $what = bin2hex($what);
         for (;;) {
-            $block = substr($what, $offset, $chunk_size);
+            $block = substr($what, $offset, $chunk_size*2);
             if (!$block) break;
             if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
-                    .' SET filedata=0x'.bin2hex($block).', file_id='
+                    .' SET filedata=0x'.$block.', file_id='
                     .db_input($this->file->getId()).', chunk_id='.db_input($this->_chunk++)))
                 return false;
             $offset += strlen($block);
