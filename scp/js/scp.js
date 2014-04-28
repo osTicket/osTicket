@@ -639,6 +639,10 @@ $(document).on('pjax:start', function() {
       window.clearTimeout(id);
     }
 
+    // Close popups
+    // Close tooltips
+    $('.dialog, .tip_box').empty().hide();
+
     if ($("#loadingbar").length === 0) {
       $("body").append("<div id='loadingbar'></div>");
       $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
