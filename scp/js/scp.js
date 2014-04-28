@@ -652,7 +652,7 @@ $(document).on('pjax:start', function() {
       $('#overlay').css('background-color','white').fadeIn();
     }
 });
-$(document).on('pjax:complete', function() {
+$(document).on('pjax:end', function() {
     // right
     $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
         $(this).remove();
