@@ -72,11 +72,8 @@ class TicketsAjaxAPI extends AjaxController {
             .' FROM '.TICKET_TABLE.' ticket'
             .' JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
             .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_id = user.id
-                AND entry.object_type=\'U\')
-               LEFT JOIN '.FORM_ANSWER_TABLE.' data ON (data.entry_id = entry.id)'
             .' WHERE (email.address LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\'
-                OR data.value LIKE \'%'.db_input($_REQUEST['q'], false).'%\')';
+                OR user.name LIKE \'%'.db_input($_REQUEST['q'], false).'%\')';
 
         $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
