@@ -81,7 +81,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         </tr>
         <tr>
             <th colspan="2">
-                <em><b>Client Authentication Settings</b></em>
+                <em><b>End User Authentication Settings</b></em>
             </th>
         </tr>
         <tr><td>Registration Required:</td>
@@ -95,7 +95,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 <?php foreach (array(
     'disabled' => 'Disabled — All users are guests',
     'public' => 'Public — Anyone can register',
-    'closed' => 'Private — Only staff can register clients',)
+    'closed' => 'Private — Only staff can register users',)
     as $key=>$val) { ?>
         <option value="<?php echo $key; ?>" <?php
         if ($config['client_registration'] == $key)
@@ -104,7 +104,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     } ?>
             </select></td>
         </tr>
-        <tr><td>Client Excessive Logins:</td>
+        <tr><td>User Excessive Logins:</td>
             <td>
                 <select name="client_max_logins">
                   <?php
@@ -123,10 +123,10 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 </select> minute lock-out is enforced.
             </td>
         </tr>
-        <tr><td>Client Session Timeout:</td>
+        <tr><td>User Session Timeout:</td>
             <td>
               <input type="text" name="client_session_timeout" size=6 value="<?php echo $config['client_session_timeout']; ?>">
-                &nbsp;Maximum idle time in minutes before a client must log in again (enter 0 to disable). <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
+                &nbsp;Maximum idle time in minutes before a user must log in again (enter 0 to disable). <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
             </td>
         </tr>
     </tbody>
@@ -178,7 +178,7 @@ $manage_content = function($title, $content) use ($contents) {
         <?php $manage_content('Client Sign-In Page', 'banner-client'); ?>
         <tr>
             <th colspan="2">
-                <em><b>Client Account Registration</b></em>
+                <em><b>User Account Registration</b></em>
             </th>
         </tr>
         <?php $manage_content('Please Confirm Email Address Page', 'registration-confirm'); ?>

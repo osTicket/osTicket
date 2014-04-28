@@ -16,14 +16,14 @@ if ($_POST)
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong>Client Information</strong>: Currently selected client</em>
+                <em><strong>User Information</strong>: Currently selected user</em>
             </th>
         </tr>
     <?php
     if(!$info['user_id'] || !($user = User::lookup($info['user_id'])))
         $user = $ticket->getUser();
     ?>
-    <tr><td>Client:</td><td>
+    <tr><td>User:</td><td>
         <div id="client-info">
             <a href="#" onclick="javascript:
                 $.userLookup('ajax.php/users/<?php echo $ticket->getOwnerId(); ?>/edit',
