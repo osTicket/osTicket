@@ -35,7 +35,7 @@ if ($info['error']) {
 <div class="clear"></div>
 <ul class="tabs" style="margin-top:5px">
     <li><a href="#info-tab" class="active"
-        ><i class="icon-info-sign"></i>&nbsp;Client</a></li>
+        ><i class="icon-info-sign"></i>&nbsp;User</a></li>
 <?php if ($org) { ?>
     <li><a href="#organization-tab"
         ><i class="icon-fixed-width icon-building"></i>&nbsp;Organization</a></li>
