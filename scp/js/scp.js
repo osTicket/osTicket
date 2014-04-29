@@ -680,6 +680,7 @@ $('.quicknote .action.edit-note').live('click.note', function() {
     note.find('.action.edit-note').hide();
     note.find('.action.save-note').show();
     note.find('.action.cancel-edit').show();
+    $('#new-note-box').hide();
     return false;
 });
 $('.quicknote .action.cancel-edit').live('click.note', function() {
@@ -692,6 +693,7 @@ $('.quicknote .action.cancel-edit').live('click.note', function() {
       note.find('.action.save-note').hide();
       note.find('.action.cancel-edit').hide();
       note.find('.action.edit-note').show();
+      $('#new-note-box').show();
     });
     return false;
 });
@@ -707,6 +709,7 @@ $('.quicknote .action.save-note').live('click.note', function() {
         note.find('.action.save-note').hide();
         note.find('.action.cancel-edit').hide();
         note.find('.action.edit-note').show();
+        $('#new-note-box').show();
       },
       'html'
     );
@@ -728,7 +731,6 @@ $('.quicknote .delete').live('click.note', function() {
 });
 $('#new-note').live('click', function() {
   var note = $(this).closest('.quicknote'),
-    top = note.parent(),
     T = $('<textarea>'),
     button = $('<input type="button">').val('Create');
     button.click(function() {
@@ -736,7 +738,7 @@ $('#new-note').live('click', function() {
         { note: T.redactor('get'), no_options: note.hasClass('no-options') },
         function(response) {
           $(T).redactor('destroy').replaceWith(note);
-          $(response).show('highlight').insertBefore(note);
+          $(response).show('highlight').insertBefore(note.parent());
           $('.submit', note.parent()).remove();
         },
         'html'
