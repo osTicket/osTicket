@@ -1,11 +1,15 @@
 <?php
-if (!$info['title'])
+if (!isset($info['title']))
     $info['title'] = Format::htmlchars($user->getName());
-?>
+
+if ($info['title']) { ?>
 <h3><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
-<hr/>
+<hr>
 <?php
+} else {
+    echo '<div class="clear"></div>';
+}
 if ($info['error']) {
     echo sprintf('<p id="msg_error">%s</p>', $info['error']);
 } elseif ($info['msg']) {
@@ -49,7 +53,7 @@ if ($info['error']) {
     <a href="users.php?id=<?php echo $user->getId(); ?>" title="Manage User"
         class="action"><i class="icon-share"></i></a>
 </div>
-    <table class="custom-info">
+    <table class="custom-info" width="100%">
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php

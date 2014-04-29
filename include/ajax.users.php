@@ -79,6 +79,29 @@ class UsersAjaxAPI extends AjaxController {
 
     }
 
+    function preview($id) {
+        global $thisstaff;
+
+        if(!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif(!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        $info = array('title' => '');
+
+        ob_start();
+        echo sprintf('<div style="width:650px; padding: 2px 2px 0 5px;"
+                id="u%d">', $user->getId());
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+        echo '</div>';
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+
+    }
+
+
     function editUser($id) {
         global $thisstaff;
 
@@ -210,17 +233,19 @@ class UsersAjaxAPI extends AjaxController {
         return self::_lookupform(null, $info);
     }
 
+    function lookup() {
+        return self::addUser();
+    }
+
     function addUser() {
 
         $info = array();
 
-        $info['title'] = 'Add New User';
-
-        $info['lookup'] = 'remote';
         if (!AuthenticationBackend::getSearchDirectories())
-            $info['lookup'] = false;
+            $info['lookup'] = 'local';
 
         if ($_POST) {
+            $info['title'] = 'Add New User';
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form)))
                 Http::response(201, $user->to_json());
@@ -274,10 +299,6 @@ class UsersAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/user-import.tmpl.php';
     }
 
-    function getLookupForm() {
-        return self::_lookupform();
-    }
-
     function selectUser($id) {
 
         if ($id)
@@ -296,7 +317,7 @@ class UsersAjaxAPI extends AjaxController {
     static function _lookupform($form=null, $info=array()) {
 
         if (!$info or !$info['title'])
-            $info += array('title' => 'Select or Create a Client');
+            $info += array('title' => 'Lookup or create a user');
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');

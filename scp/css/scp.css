@@ -8,8 +8,23 @@ body {
 }
 
 a {
-    color:#E65524;
+    color:#184E81;
     text-decoration:none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#nav a:hover,
+#sub_nav a:hover,
+a:hover i[class^="icon-"],
+.tabs a {
+    text-decoration: none;
+}
+
+div#header a {
+    color:#E65524;
 }
 
 .form_table a:hover {
@@ -1444,11 +1459,14 @@ time {
 }
 
 /* Dynamic forms in dialogs */
+.dialog th, .tip_box th {
+    text-align: left;
+}
+
 .dialog th {
     background-color: #eee;
     border: 1px dotted #bbb;
     padding: 0.3em;
-    text-align: left;
     padding-left: 0.3em;
 }
 

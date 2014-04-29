@@ -214,6 +214,32 @@ jQuery(function() {
         clearTimeout($(this).data('timer'));
     });
 
+    //User preview
+    $('.userPreview').live('mouseover', function(e) {
+        e.preventDefault();
+        var elem = $(this);
+
+        var vars = elem.attr('href').split('=');
+        var url = 'ajax.php/users/'+vars[1]+'/preview';
+        var id='u'+vars[1];
+        var xoffset = 80;
+
+        elem.data('timer', 0);
+        if(!elem.data('id')) {
+            elem.data('id', id);
+            if(e.type=='mouseover') {
+                 /* wait about 1 sec - before showing the tip - mouseout kills the timeout*/
+                 elem.data('timer',setTimeout(function() { showtip(url,elem,xoffset);},750))
+            }else{
+                clearTimeout(elem.data('timer'));
+                showtip(url, elem, xoffset);
+            }
+        }
+    }).live('mouseout', function(e) {
+        $(this).data('id', 0);
+        clearTimeout($(this).data('timer'));
+    });
+
     $('body')
     .delegate('.tip_close', 'click', function(e) {
         e.preventDefault();
