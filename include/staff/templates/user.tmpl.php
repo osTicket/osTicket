@@ -41,10 +41,9 @@ if ($info['error']) {
         ><i class="icon-fixed-width icon-building"></i>&nbsp;Organization</a></li>
 <?php }
     $ext_id = "U".$user->getId();
-    if (($notes = QuickNote::forUser($user, $org)->all())) { ?>
+    $notes = QuickNote::forUser($user, $org)->all(); ?>
     <li><a href="#notes-tab"
         ><i class="icon-fixed-width icon-pushpin"></i>&nbsp;Notes</a></li>
-<?php } ?>
 </ul>
 
 <div class="tab_content" id="info-tab">
