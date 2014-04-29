@@ -462,6 +462,7 @@ class MailFetcher {
                         array(
                             'name'  => $this->mime_decode($filename),
                             'type'  => $this->getMimeType($part),
+                            'size' => $part->bytes ?: null,
                             'encoding' => $part->encoding,
                             'index' => ($index?$index:1),
                             'cid'   => $content_id,
