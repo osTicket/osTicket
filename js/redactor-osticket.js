@@ -280,8 +280,13 @@ $(function() {
                 // Make a rich text editor immediately
                 redact(el);
         });
+    },
+    cleanupRedactorElements = function() {
+        // Drop the added redactor_air bars
+        $('.redactor_air').remove();
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
     $(document).on('pjax:success', findRichtextBoxes);
+    $(document).on('pjax:start', cleanupRedactorElements);
 });
