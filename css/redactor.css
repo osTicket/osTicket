@@ -112,7 +112,7 @@ body .redactor_box_fullscreen {
 .redactor_editor {
   position: relative;
   margin: 0 !important;
-  padding: 10px 20px;
+  padding: 10px 10px;
   padding-bottom: 5px;
   outline: none;
   background: none;
