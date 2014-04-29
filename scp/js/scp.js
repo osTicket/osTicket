@@ -630,7 +630,7 @@ getConfig = (function() {
     }
 })();
 
-$(document).on('pjax:start', function() {
+$(document).on('pjax:start', function(event) {
     // Don't show the spinner on back button
     if (event instanceof PopStateEvent)
         return;
