@@ -140,7 +140,10 @@ var scp_prep = function() {
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
                 return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
-             });
+            });
+            $(document).on('pjax:beforeSend.changed', function(e) {
+                return confirm('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
+            });
         }
     };
 
@@ -651,6 +654,10 @@ $(document).on('pjax:start', function() {
       $("#loadingbar").width((50 + Math.random() * 30) + "%");
       $('#overlay').css('background-color','white').fadeIn();
     }
+
+    // Cancel save-changes warning banner
+    $(document).unbind('pjax:beforeSend.changed');
+    $(window).unbind('beforeunload');
 });
 $(document).on('pjax:end', function() {
     // right
