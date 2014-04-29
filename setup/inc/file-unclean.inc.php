@@ -13,6 +13,6 @@ if(!defined('SETUPINC')) die('Kwaheri!');
     <div id="sidebar">
             <h3>Need Help?</h3>
             <p>
-            We provide <u>professional installation services</u> and commercial support with guaranteed response times, and access to the core development team. <a target="_blank" href="http://osticket.com/support/professional_services.php">Learn More!</a>
+            We provide <u>professional installation services</u> and commercial support with guaranteed response times, and access to the core development team. <a target="_blank" href="http://osticket.com/support">Learn More!</a>
             </p>
     </div>

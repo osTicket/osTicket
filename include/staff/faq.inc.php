@@ -89,7 +89,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <textarea name="answer" cols="21" rows="12"
                     style="width:98%;" class="richtext draft"
                     data-draft-namespace="faq"
-                    data-draft-object-id="<?php if (isset($faq)) echo $faq->getId(); ?>"
+                    data-draft-object-id="<?php if (is_object($faq)) echo $faq->getId(); ?>"
                     ><?php echo $info['answer']; ?></textarea>
             </td>
         </tr>

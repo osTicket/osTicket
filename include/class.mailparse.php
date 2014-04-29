@@ -396,6 +396,13 @@ class Mail_Parse {
             else
                 $file['data'] = $part->body;
 
+            // Capture filesize in order to support de-duplication
+            if (extension_loaded('mbstring'))
+                $file['size'] = mb_strlen($file['data'], '8bit');
+            // bootstrap.php include a compat version of mb_strlen
+            else
+                $file['size'] = strlen($file['data']);
+
             if(!$this->decode_bodies && $part->headers['content-transfer-encoding'])
                 $file['encoding'] = $part->headers['content-transfer-encoding'];
 
