@@ -139,7 +139,7 @@ else
                 ?>
                <tr id="<?php echo $row['id']; ?>">
                 <td>&nbsp;
-                    <a href="users.php?id=<?php echo $row['id']; ?>"><?php echo $name; ?></a>
+                    <a class="userPreview" href="users.php?id=<?php echo $row['id']; ?>"><?php echo $name; ?></a>
                     &nbsp;
                     <?php
                     if ($row['tickets'])

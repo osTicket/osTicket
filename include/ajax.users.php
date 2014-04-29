@@ -79,6 +79,29 @@ class UsersAjaxAPI extends AjaxController {
 
     }
 
+    function preview($id) {
+        global $thisstaff;
+
+        if(!$thisstaff)
+            Http::response(403, 'Login Required');
+        elseif(!($user = User::lookup($id)))
+            Http::response(404, 'Unknown user');
+
+        $info = array('title' => '');
+
+        ob_start();
+        echo sprintf('<div style="width:650px; padding: 2px 2px 0 5px;"
+                id="u%d">', $user->getId());
+        include(STAFFINC_DIR . 'templates/user.tmpl.php');
+        echo '</div>';
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+
+    }
+
+
     function editUser($id) {
         global $thisstaff;
 

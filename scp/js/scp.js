@@ -672,7 +672,7 @@ $('.quicknote .action.edit-note').live('click.note', function() {
     var note = $(this).closest('.quicknote'),
         body = note.find('.body'),
         T = $('<textarea>').text(body.html());
-    if (note.closest('.dialog').length)
+    if (note.closest('.dialog, .tip_box').length)
         T.addClass('no-bar small');
     body.replaceWith(T);
     $.redact(T);
@@ -742,7 +742,7 @@ $('#new-note').live('click', function() {
         'html'
       );
     });
-    if (note.closest('.dialog').length)
+    if (note.closest('.dialog, .tip_box').length)
         T.addClass('no-bar small');
     note.replaceWith(T);
     $('<p>').addClass('submit').css('text-align', 'center')
