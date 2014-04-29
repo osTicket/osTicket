@@ -95,7 +95,7 @@ echo sprintf(
     '
         <tr>
             <th>From:</th>
-            <td>%s <span class="faded">%s</span></td>
+            <td><a href="users.php?id=%d" class="no-pjax">%s</a> <span class="faded">%s</span></td>
         </tr>
         <tr>
             <th width="100">Department:</th>
@@ -105,6 +105,7 @@ echo sprintf(
             <th>Help Topic:</th>
             <td>%s</td>
         </tr>',
+    $ticket->getUserId(),
     Format::htmlchars($ticket->getName()),
     $ticket->getEmail(),
     Format::htmlchars($ticket->getDeptName()),
@@ -118,14 +119,16 @@ echo '</div>'; // ticket preview content.
     <table border="0" cellspacing="" cellpadding="1">
         <colgroup><col style="min-width: 250px;"></col></colgroup>
         <?php
-        if (($users=$ticket->getCollaborators())) {?>
+        if (($collabs=$ticket->getCollaborators())) {?>
         <?php
-            foreach($users as $user) {
-                echo sprintf('<tr><td %s><i class="icon-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
-                        ($user->isActive()? '' : 'class="faded"'),
-                        ($user->isActive()? 'comments' :  'comment-alt'),
-                        $user->getName(),
-                        $user->getEmail());
+            foreach($collabs as $collab) {
+                echo sprintf('<tr><td %s><i class="icon-%s"></i>
+                        <a href="users.php?id=%d" class="no-pjax">%s</a> <em>&lt;%s&gt;</em></td></tr>',
+                        ($collab->isActive()? '' : 'class="faded"'),
+                        ($collab->isActive()? 'comments' :  'comment-alt'),
+                        $collab->getUserId(),
+                        $collab->getName(),
+                        $collab->getEmail());
             }
         }  else {
             echo "Ticket doesn't have collaborators.";
