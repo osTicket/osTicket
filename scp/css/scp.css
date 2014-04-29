@@ -1718,6 +1718,10 @@ tr.disabled th {
     background-color: rgba(255, 145, 0, 0.05);
     border-radius: 3px;
 }
+.quicknote a.action.save-note,
+.floating-options a.action.save-note {
+    background-color: #bbeebb;
+}
 #new-note {
     margin-top: 10px;
 }
