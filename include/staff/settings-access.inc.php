@@ -89,6 +89,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 if ($config['clients_only'])
                     echo 'checked="checked"'; ?>/>
                 Require registration and login to create tickets
+            <i class="help-tip icon-question-sign" href="#registration_method"></i>
             </td>
         <tr><td>Registration Method:</td>
             <td><select name="client_registration">
@@ -102,7 +103,9 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             echo 'selected="selected"'; ?>><?php echo $val;
         ?></option><?php
     } ?>
-            </select></td>
+            </select>
+            <i class="help-tip icon-question-sign" href="#registration_method"></i>
+            </td>
         </tr>
         <tr><td>User Excessive Logins:</td>
             <td>

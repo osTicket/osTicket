@@ -67,3 +67,33 @@ bind_staff_session_to_ip:
         Enable this if you want the Agent to be remembered by their current IP
         at the time of Log In.
 
+registration_method:
+    title: Registration Options
+    content: >
+        <span class="doc-desc-title">Registration Method</span> and <span
+        class="doc-desc-title">Registration Required</span> are used
+        together to configure how users register and access the web portal
+        of your help desk. The table below summarizes how the two settings
+        are interpreted by the system.
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+            ><tbody style="vertical-align:top;">
+            <tr><th>Registration Required</th>
+                <th>Registration Method</th>
+                <th>Result</th></tr>
+            <tr><td>No</td><td>Public</td>
+                <td>Registration encouraged but not required for new
+                    tickets.</td></tr>
+            <tr><td>Yes</td><td>Public</td>
+                <td>Registration and login are required for new tickets</td></tr>
+            <tr><td>No</td><td>Private</td>
+                <td>Anyone can create a ticket, but only agents
+                    can register accounts</td></tr>
+            <tr><td>Yes</td><td>Private</td>
+                <td>Client access is by invitation only</td></tr>
+            <tr><td>No</td><td>Disabled</td>
+                <td>No one can register for an account, but anyone can
+                    create a ticket. <em>This was how osTicket functioned
+                    prior to 1.9</em></td></tr>
+            <tr><td>Yes</td><td>Disabled</td>
+                <td>Disable new tickets via web portal</td></tr>
+        </tbody></table>
