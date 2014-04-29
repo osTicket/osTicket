@@ -642,10 +642,6 @@ $(document).on('pjax:start', function() {
       window.clearTimeout(id);
     }
 
-    // Close popups
-    // Close tooltips
-    $('.dialog, .tip_box').empty().hide();
-
     if ($("#loadingbar").length === 0) {
       $("body").append("<div id='loadingbar'></div>");
       $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
@@ -665,13 +661,11 @@ $(document).on('pjax:end', function() {
         $(this).remove();
     });
     $('#overlay').hide().removeAttr('style');
-});
-$(document).on('click', 'a', function() {
-    var ul = $(this).closest('ul');
-    if (ul.is('#sub_nav')) {
-        $('a.active', ul).removeClass('active');
-        $(this).addClass('active');
-    }
+
+    // Close popups
+    // Close tooltips
+    $('.tip_box').empty().hide();
+    $('.dialog .body').empty().parent().hide();
 });
 
 // Quick note interface
