@@ -8,6 +8,7 @@ defined('OSTSCPINC') or die('Invalid path');
     <meta http-equiv="refresh" content="7200" />
     <title>osTicket:: SCP Login</title>
     <link rel="stylesheet" href="css/login.css" type="text/css" />
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
     <meta name="robots" content="noindex" />
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />

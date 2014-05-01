@@ -17,11 +17,11 @@ require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 
 /* Get the system ban list filter */
-if(!($filter=Banlist::getFilter())) 
+if(!($filter=Banlist::getFilter()))
     $warn = 'System ban list is empty.';
 elseif(!$filter->isActive())
-    $warn = 'SYSTEM BAN LIST filter is <b>DISABLED</b> - <a href="filters.php">enable here</a>.'; 
- 
+    $warn = 'SYSTEM BAN LIST filter is <b>DISABLED</b> - <a href="filters.php">enable here</a>.';
+
 $rule=null; //ban rule obj.
 if($filter && $_REQUEST['id'] && !($rule=$filter->getRule($_REQUEST['id'])))
     $errors['err'] = 'Unknown or invalid ban list ID #';
@@ -106,7 +106,7 @@ if($_POST && !$errors && $filter){
                             $warn = "$i of $count selected emails deleted from banlist";
                         elseif(!$errors['err'])
                             $errors['err'] = 'Unable to delete selected emails';
-                    
+
                         break;
                     default:
                         $errors['err'] = 'Unknown action - get technical help';
@@ -120,10 +120,15 @@ if($_POST && !$errors && $filter){
 }
 
 $page='banlist.inc.php';
-if(!$filter || ($rule || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))))
+$tip_namespace = 'emails.banlist';
+if(!$filter || ($rule || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))) {
     $page='banrule.inc.php';
+    $tip_namespace = 'emails.manage_banlist';
+}
 
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

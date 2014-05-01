@@ -43,10 +43,10 @@ else
 ?>
 
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Email Templates</h2>
+ <h2>Email Template Sets</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="templates.php?a=add" class="Icon newEmailTemplate">Add New Template</a></b></div>
+ <b><a href="templates.php?a=add" class="Icon newEmailTemplate">Add New Template Set</a></b></div>
 <div class="clear"></div>
 <form action="templates.php" method="POST" name="tpls">
  <?php csrf_token(); ?>

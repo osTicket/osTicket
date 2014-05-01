@@ -50,7 +50,7 @@ if($_POST){
                     case 'enable':
                         $sql='UPDATE '.TOPIC_TABLE.' SET isactive=1 '
                             .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')';
-                    
+
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
                                 $msg = 'Selected help topics enabled';
@@ -102,10 +102,15 @@ if($_POST){
 }
 
 $page='helptopics.inc.php';
-if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'manage.help_topics';
+if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='helptopic.inc.php';
+    $tip_namespace = 'manage.addnew_help_topic';
+}
 
 $nav->setTabActive('manage');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

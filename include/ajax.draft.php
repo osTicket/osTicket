@@ -62,6 +62,8 @@ class DraftAjaxAPI extends AjaxController {
 
         if (!$draft->setBody($body))
             return Http::response(500, "Unable to update draft body");
+
+        echo "{}";
     }
 
     function _uploadInlineImage($draft) {

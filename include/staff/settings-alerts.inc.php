@@ -12,13 +12,13 @@
     </thead>
     <tbody>
         <tr><th><em><b>New Ticket Alert</b>:
-            <i class="help-tip icon-question-sign" href="#new_ticket"></i>
+            <i class="help-tip icon-question-sign" href="#new_ticket_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
                 <input type="radio" name="ticket_alert_active"  value="1"   <?php echo $config['ticket_alert_active']?'checked':''; ?> />Enable
                 <input type="radio" name="ticket_alert_active"  value="0"   <?php echo !$config['ticket_alert_active']?'checked':''; ?> />Disable
-                &nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['ticket_alert_active']; ?></font></em>
+                &nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['ticket_alert_active']; ?></font></em> <i class="help-tip icon-question-sign" href="#status"></i>
              </td>
         </tr>
         <tr>
@@ -36,8 +36,13 @@
                 <input type="checkbox" name="ticket_alert_dept_members" <?php echo $config['ticket_alert_dept_members']?'checked':''; ?>> Department Members <em>(spammy)</em>
             </td>
         </tr>
+        <tr>
+            <td>
+                <input type="checkbox" name="ticket_alert_acct_manager" <?php echo $config['ticket_alert_acct_manager']?'checked':''; ?>> Organization Account Manager
+            </td>
+        </tr>
         <tr><th><em><b>New Message Alert</b>:
-            <i class="help-tip icon-question-sign" href="#new_message"></i>
+            <i class="help-tip icon-question-sign" href="#new_message_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp; 
@@ -48,21 +53,26 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="message_alert_laststaff" <?php echo $config['message_alert_laststaff']?'checked':''; ?>> Last Respondent
+              <input type="checkbox" name="message_alert_laststaff" <?php echo $config['message_alert_laststaff']?'checked':''; ?>> Last Respondent <i class="help-tip icon-question-sign" href="#last_respondent"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="message_alert_assigned" <?php echo $config['message_alert_assigned']?'checked':''; ?>> Assigned Staff
+              <input type="checkbox" name="message_alert_assigned" <?php echo $config['message_alert_assigned']?'checked':''; ?>> Assigned Staff <i class="help-tip icon-question-sign" href="#assigned_staff"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="message_alert_dept_manager" <?php echo $config['message_alert_dept_manager']?'checked':''; ?>> Department Manager <em>(spammy)</em>
+              <input type="checkbox" name="message_alert_dept_manager" <?php echo $config['message_alert_dept_manager']?'checked':''; ?>> Department Manager <em>(spammy)</em> <i class="help-tip icon-question-sign" href="#department_manager"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" name="message_alert_acct_manager" <?php echo $config['message_alert_acct_manager']?'checked':''; ?>> Organization Account Manager
             </td>
         </tr>
         <tr><th><em><b>New Internal Note Alert</b>:
-            <i class="help-tip icon-question-sign" href="#new_activity"></i>
+            <i class="help-tip icon-question-sign" href="#new_internal_note_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
@@ -74,21 +84,21 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="note_alert_laststaff" <?php echo $config['note_alert_laststaff']?'checked':''; ?>> Last Respondent
+              <input type="checkbox" name="note_alert_laststaff" <?php echo $config['note_alert_laststaff']?'checked':''; ?>> Last Respondent <i class="help-tip icon-question-sign" href="#last_respondent_2"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="note_alert_assigned" <?php echo $config['note_alert_assigned']?'checked':''; ?>> Assigned Staff
+              <input type="checkbox" name="note_alert_assigned" <?php echo $config['note_alert_assigned']?'checked':''; ?>> Assigned Staff <i class="help-tip icon-question-sign" href="#assigned_staff_2"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="note_alert_dept_manager" <?php echo $config['note_alert_dept_manager']?'checked':''; ?>> Department Manager <em>(spammy)</em>
+              <input type="checkbox" name="note_alert_dept_manager" <?php echo $config['note_alert_dept_manager']?'checked':''; ?>> Department Manager <em>(spammy)</em> <i class="help-tip icon-question-sign" href="#department_manager_2"></i>
             </td>
         </tr>
         <tr><th><em><b>Ticket Assignment Alert</b>:
-            <i class="help-tip icon-question-sign" href="#assign_alert"></i>
+            <i class="help-tip icon-question-sign" href="#ticket_assignment_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status: </b></em> &nbsp;
@@ -102,22 +112,22 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="assigned_alert_staff" <?php echo $config['assigned_alert_staff']?'checked':''; ?>> Assigned Staff
+              <input type="checkbox" name="assigned_alert_staff" <?php echo $config['assigned_alert_staff']?'checked':''; ?>> Assigned Staff <i class="help-tip icon-question-sign" href="#assigned_staff_3"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox"name="assigned_alert_team_lead" <?php echo $config['assigned_alert_team_lead']?'checked':''; ?>>Team Lead <em>(On team assignment)</em>
+              <input type="checkbox"name="assigned_alert_team_lead" <?php echo $config['assigned_alert_team_lead']?'checked':''; ?>>Team Lead <em>(On team assignment)</em> <i class="help-tip icon-question-sign" href="#team_lead"></i>
             </td>
         </tr>
         <tr>
             <td>
               <input type="checkbox"name="assigned_alert_team_members" <?php echo $config['assigned_alert_team_members']?'checked':''; ?>>
-                Team Members <em>(spammy)</em>
+                Team Members <em>(spammy)</em> <i class="help-tip icon-question-sign" href="#team_members"></i>
             </td>
         </tr>
         <tr><th><em><b>Ticket Transfer Alert</b>:
-            <i class="help-tip icon-question-sign" href="#transfer_alert"></i>
+            <i class="help-tip icon-question-sign" href="#ticket_transfer_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
@@ -128,22 +138,22 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="transfer_alert_assigned" <?php echo $config['transfer_alert_assigned']?'checked':''; ?>> Assigned Staff/Team
+              <input type="checkbox" name="transfer_alert_assigned" <?php echo $config['transfer_alert_assigned']?'checked':''; ?>> Assigned Staff/Team <i class="help-tip icon-question-sign" href="#assigned_staff_team"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="transfer_alert_dept_manager" <?php echo $config['transfer_alert_dept_manager']?'checked':''; ?>> Department Manager
+              <input type="checkbox" name="transfer_alert_dept_manager" <?php echo $config['transfer_alert_dept_manager']?'checked':''; ?>> Department Manager <i class="help-tip icon-question-sign" href="#department_manager_3"></i>
             </td>
         </tr>
         <tr>
             <td>
               <input type="checkbox" name="transfer_alert_dept_members" <?php echo $config['transfer_alert_dept_members']?'checked':''; ?>>
-                Department Members <em>(spammy)</em>
+                Department Members <em>(spammy)</em> <i class="help-tip icon-question-sign" href="#department_members"></i>
             </td>
         </tr>
         <tr><th><em><b>Overdue Ticket Alert</b>:
-            <i class="help-tip icon-question-sign" href="#stale_alert"></i>
+            <i class="help-tip icon-question-sign" href="#overdue_ticket_alert"></i>
             </em></th></tr>
         <tr>
             <td><em><b>Status:</b></em> &nbsp;
@@ -154,25 +164,25 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="overdue_alert_assigned" <?php echo $config['overdue_alert_assigned']?'checked':''; ?>> Assigned Staff/Team
+              <input type="checkbox" name="overdue_alert_assigned" <?php echo $config['overdue_alert_assigned']?'checked':''; ?>> Assigned Staff/Team <i class="help-tip icon-question-sign" href="#assigned_staff_team_2"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="overdue_alert_dept_manager" <?php echo $config['overdue_alert_dept_manager']?'checked':''; ?>> Department Manager
+              <input type="checkbox" name="overdue_alert_dept_manager" <?php echo $config['overdue_alert_dept_manager']?'checked':''; ?>> Department Manager <i class="help-tip icon-question-sign" href="#department_manager_4"></i>
             </td>
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="overdue_alert_dept_members" <?php echo $config['overdue_alert_dept_members']?'checked':''; ?>> Department Members <em>(spammy)</em>
+              <input type="checkbox" name="overdue_alert_dept_members" <?php echo $config['overdue_alert_dept_members']?'checked':''; ?>> Department Members <em>(spammy)</em> <i class="help-tip icon-question-sign" href="#department_members_2"></i>
             </td>
         </tr>
         <tr><th><em><b>System Alerts</b>:
-            <i class="help-tip icon-question-sign" href="#meltdowns"></i>
+            <i class="help-tip icon-question-sign" href="#system_alerts"></i>
             </em></th></tr>
         <tr>
             <td>
-              <input type="checkbox" name="send_sys_errors" checked="checked" disabled="disabled">System Errors
+              <input type="checkbox" name="send_sys_errors" checked="checked" disabled="disabled">System Errors <i class="help-tip icon-question-sign" href="#system_errors"></i>
             </td>
         </tr>
         <tr>
@@ -182,7 +192,7 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="send_login_errors" <?php echo $config['send_login_errors']?'checked':''; ?>>Excessive Login attempts
+              <input type="checkbox" name="send_login_errors" <?php echo $config['send_login_errors']?'checked':''; ?>>Excessive Login attempts <i class="help-tip icon-question-sign" href="#excessive_login_attempts"></i>
             </td>
         </tr>
     </tbody>

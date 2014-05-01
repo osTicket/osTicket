@@ -31,7 +31,7 @@ if($_POST){
             break;
         case 'create':
             if(($id=Staff::create($_POST,$errors))){
-                $msg=Format::htmlchars($_POST['name']).' added successfully';
+                $msg=Format::htmlchars($_POST['firstname']).' added successfully';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err']='Unable to add staff. Correct any error(s) below and try again.';
@@ -87,7 +87,7 @@ if($_POST){
                     default:
                         $errors['err'] = 'Unknown action. Get technical help!';
                 }
-                    
+
             }
             break;
         default:
@@ -97,10 +97,15 @@ if($_POST){
 }
 
 $page='staffmembers.inc.php';
-if($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'staff.agents';
+if($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='staff.inc.php';
+    $tip_namespace = 'staff.addnew_staff';
+}
 
 $nav->setTabActive('staff');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

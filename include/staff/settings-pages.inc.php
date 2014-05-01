@@ -105,8 +105,7 @@ $pages = Page::getPages();
         </td></tr>
         <tr>
             <th colspan="2">
-                <em>Use a custom logo &mdash; Use a delete checkbox to
-                remove the logo from the system</em>
+                <em>Use a custom logo&nbsp;<i class="help-tip icon-question-sign" href="#upload_a_new_logo"></i></em>
             </th>
         </tr>
         <tr><td colspan="2">

@@ -24,6 +24,11 @@ class Internationalization {
     var $langs = array('en_US');
 
     function Internationalization($language=false) {
+        global $cfg;
+
+        if ($cfg && ($lang = $cfg->getSystemLanguage()))
+            array_unshift($this->langs, $language);
+
         if ($language)
             array_unshift($this->langs, $language);
     }
@@ -85,9 +90,13 @@ class Internationalization {
             }
         }
 
-        // Pages
+        // Pages and content
         $_config = new OsticketConfig();
-        foreach (array('landing','thank-you','offline') as $type) {
+        foreach (array('landing','thank-you','offline',
+                'registration-staff', 'pwreset-staff', 'banner-staff',
+                'registration-client', 'pwreset-client', 'banner-client',
+                'registration-confirm', 'registration-thanks',
+                'access-link') as $type) {
             $tpl = $this->getTemplate("templates/page/{$type}.yaml");
             if (!($page = $tpl->getData()))
                 continue;
@@ -97,11 +106,15 @@ class Internationalization {
                 .', lang='.db_input($tpl->getLang())
                 .', notes='.db_input($page['notes'])
                 .', created=NOW(), updated=NOW(), isactive=1';
-            if (db_query($sql) && ($id = db_insert_id()))
+            if (db_query($sql) && ($id = db_insert_id())
+                    && in_array($type, array('landing', 'thank-you', 'offline')))
                 $_config->set("{$type}_page_id", $id);
         }
         // Default Language
         $_config->set('system_language', $this->langs[0]);
+
+        // content_id defaults to the `id` field value
+        db_query('UPDATE '.PAGE_TABLE.' SET content_id=id');
 
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))

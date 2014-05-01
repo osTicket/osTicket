@@ -1,0 +1,54 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> Add New SLA Plan
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+name:
+    title: Name
+    content: >
+        Choose a name for this <span class="doc-desc-title">SLA Plan</span>
+        that will reflect its purpose or specificity (e.g., exclusivity to
+        a <span class="doc-desc-title">Department</span> or <span
+        class="doc-desc-title">Help Topic</span>).
+
+grace_period:
+    title: Grace Period
+    content: >
+        This is the how many hours pass by before the status of tickets
+        with this <span class="doc-desc-title">SLA Plan</span> are rendered
+        as <span class="doc-desc-opt">Overdue</span>.
+
+status:
+    title: Status
+    content: >
+
+priority_escalation:
+    title: Priority Escalation
+    content: >
+        If enabled, the <span class="doc-desc-title">Priority</span> level
+        of tickets will increase as the duration of a ticket’s status as
+        <span class="doc-desc-opt">Overdue</span> increases. It is
+        recommended to enable to help your Agents prioritize their tickets
+        properly.
+
+transient:
+    title: Transient
+    content: >
+        Enable this if you want to allow restrictions of a <span
+        class="doc-desc-title">SLA Plan</span> to be overridden
+        when a ticket is transferred or its <span
+        class="doc-desc-title">Help Topic</span> is changed.
+
+ticket_overdue_alerts:
+    title: Ticket Overdue Alerts
+    content: >

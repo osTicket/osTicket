@@ -29,7 +29,7 @@ function checkbox_checker(formObj, min, max) {
 }
 
 
-$(document).ready(function(){
+var scp_prep = function() {
 
     $("input:not(.dp):visible:enabled:first").focus();
     $('table.list tbody tr:odd').addClass('odd');
@@ -103,6 +103,24 @@ $(document).ready(function(){
         return false;
      });
 
+    $('a.confirm-action').click(function(e) {
+        $dialog = $('.dialog#confirm-action');
+        if ($($(this).attr('href')+'-confirm', $dialog).length) {
+            e.preventDefault();
+            var action = $(this).attr('href').substr(1, $(this).attr('href').length);
+
+            $('input#action', $dialog).val(action);
+            $('#overlay').show();
+            $('.confirm-action', $dialog).hide();
+            $('p'+$(this).attr('href')+'-confirm', $dialog)
+            .show()
+            .parent('div').show().trigger('click');
+
+            return false;
+        }
+     });
+
+
     if($.browser.msie) {
         $('.inactive').mouseenter(function() {
             var elem = $(this);
@@ -122,7 +140,10 @@ $(document).ready(function(){
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
                 return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
-             });
+            });
+            $(document).on('pjax:beforeSend.changed', function(e) {
+                return confirm('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
+            });
         }
     };
 
@@ -213,7 +234,7 @@ $(document).ready(function(){
                             if(!$('.canned_attachments #f'+j.id,fObj).length) {
                                 var file='<span><label><input type="checkbox" name="cannedattachments[]" value="' + j.id+'" id="f'+j.id+'" checked="checked">';
                                     file+= ' '+ j.name + '</label>';
-                                    file+= ' (<a href="file.php?h=' + j.key + j.hash + '">view</a>) </span>';
+                                    file+= ' (<a target="_blank" class="no-pjax" href="file.php?h=' + j.key + j.hash + '">view</a>) </span>';
                                 $('.canned_attachments', fObj).append(file);
                             }
 
@@ -223,42 +244,7 @@ $(document).ready(function(){
             })
             .done(function() { })
             .fail(function() { });
-     });
-
-
-
-
-    /************ global inits *****************/
-
-    //Add CSRF token to the ajax requests.
-    // Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ + jared.
-    $(document).ajaxSend(function(event, xhr, settings) {
-
-        function sameOrigin(url) {
-            // url could be relative or scheme relative or absolute
-            var host = document.location.host; // host + port
-            var protocol = document.location.protocol;
-            var sr_origin = '//' + host;
-            var origin = protocol + sr_origin;
-            // Allow absolute or scheme relative URLs to same origin
-            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-                // or any other URL that isn't scheme relative or absolute i.e
-                // relative.
-                !(/^(\/\/|http:|https:).*/.test(url));
-        }
-
-        function safeMethod(method) {
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-            xhr.setRequestHeader("X-CSRFToken", $("meta[name=csrf_token]").attr("content"));
-        }
-
-       });
-
-    /* Get config settings from the backend */
-    jQuery.fn.exists = function() { return this.length>0; };
+    });
 
     /* Multifile uploads */
     var elems = $('.multifile');
@@ -273,23 +259,6 @@ $(document).ready(function(){
             });
         });
     }
-
-    $.translate_format = function(str) {
-        var translation = {
-            'd':'dd',
-            'j':'d',
-            'z':'o',
-            'm':'mm',
-            'F':'MM',
-            'n':'m',
-            'Y':'yy'
-        };
-        // Change PHP formats to datepicker ones
-        $.each(translation, function(php, jqdp) {
-            str = str.replace(php, jqdp);
-        });
-        return str;
-    };
 
     /* Datepicker */
     getConfig().then(function(c) {
@@ -354,6 +323,7 @@ $(document).ready(function(){
         },
         property: "email"
     });
+
     $('.staff-username.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
@@ -376,13 +346,6 @@ $(document).ready(function(){
         property: "username"
     });
 
-    //Overlay
-    $('#overlay').css({
-        opacity : 0.3,
-        top     : 0,
-        left    : 0
-    });
-
     //Dialog
     $('.dialog').each(function() {
         var w = $(window), $this=$(this);
@@ -399,18 +362,6 @@ $(document).ready(function(){
         $('#overlay').hide();
 
         return false;
-    });
-
-    $(document).keydown(function(e) {
-
-        if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
-            $('div.dialog').hide();
-            $('#overlay').hide();
-
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
     });
 
     /* advanced search */
@@ -432,53 +383,6 @@ $(document).ready(function(){
         $('#advanced-search').show();
     });
 
-    $.dialog = function (url, code, cb, options) {
-        options = options||{};
-
-        $('.dialog#popup .body').load(url, function () {
-            $('#overlay').show();
-            $('.dialog#popup').show({
-                duration: 0,
-                complete: function() { if (options.onshow) options.onshow(); }
-            });
-            $(document).off('.dialog');
-            $(document).on('submit.dialog', '.dialog#popup form', function(e) {
-                e.preventDefault();
-                var $form = $(this);
-                var $dialog = $form.closest('.dialog');
-                $.ajax({
-                    type:  $form.attr('method'),
-                    url: 'ajax.php/'+$form.attr('action').substr(1),
-                    data: $form.serialize(),
-                    cache: false,
-                    success: function(resp, status, xhr) {
-                        if (xhr && xhr.status == code) {
-                            $('div.body', $dialog).empty();
-                            $dialog.hide();
-                            $('#overlay').hide();
-                            if(cb) cb(xhr.responseText);
-                        } else {
-                            $('div.body', $dialog).html(resp);
-                            $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
-                        }
-                    }
-                })
-                .done(function() { })
-                .fail(function() { });
-                return false;
-            });
-         });
-        if (options.onload) { options.onload(); }
-     };
-
-    $.userLookup = function (url, cb) {
-        $.dialog(url, 201, function (resp) {
-            var user = $.parseJSON(resp);
-            if(cb) cb(user);
-        }, {
-            onshow: function() { $('#user-search').focus(); }
-        });
-    };
 
     $('#advanced-search').delegate('#status', 'change', function() {
         switch($(this).val()) {
@@ -543,6 +447,7 @@ $(document).ready(function(){
       });
       return ui;
    };
+
    // Sortable tables for dynamic forms objects
    $('.sortable-rows').sortable({
        'helper': fixHelper,
@@ -554,32 +459,157 @@ $(document).ready(function(){
            });
        }
    });
+};
 
-   //Tabs
-   $(document).on('click.tab', 'ul.tabs li a', function(e) {
-        e.preventDefault();
-        if ($('.tab_content'+$(this).attr('href')).length) {
-            $('ul.tabs li a').removeClass('active');
-            $(this).addClass('active');
-            $('.tab_content').hide();
-            $('.tab_content'+$(this).attr('href')).show();
-        }
-    });
+$(document).ready(scp_prep);
+$(document).on('pjax:complete', scp_prep);
 
-    //Collaborators
-    $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
-        e.preventDefault();
-        var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, 201, function (resp) {
-           $('input#emailcollab').show();
-           $('#recipients').text(resp);
-           $('.tip_box').remove();
-        }, {
-            onshow: function() { $('#user-search').focus(); }
-        });
-        return false;
-     });
+    /************ global inits *****************/
+
+//Add CSRF token to the ajax requests.
+// Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ + jared.
+$(document).ajaxSend(function(event, xhr, settings) {
+
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e
+            // relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", $("meta[name=csrf_token]").attr("content"));
+    }
+
 });
+
+/* Get config settings from the backend */
+jQuery.fn.exists = function() { return this.length>0; };
+
+$.translate_format = function(str) {
+    var translation = {
+        'd':'dd',
+        'j':'d',
+        'z':'o',
+        'm':'mm',
+        'F':'MM',
+        'n':'m',
+        'Y':'yy'
+    };
+    // Change PHP formats to datepicker ones
+    $.each(translation, function(php, jqdp) {
+        str = str.replace(php, jqdp);
+    });
+    return str;
+};
+$(document).keydown(function(e) {
+
+    if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
+        $('div.dialog').hide();
+        $('#overlay').hide();
+
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
+
+$.dialog = function (url, codes, cb, options) {
+    options = options||{};
+
+    if (codes && !$.isArray(codes))
+        codes = [codes];
+
+    $('.dialog#popup .body').load(url, function () {
+        $('#overlay').show();
+        $('.dialog#popup').show({
+            duration: 0,
+            complete: function() { if (options.onshow) options.onshow(); }
+        });
+        $(document).off('.dialog');
+        $(document).on('submit.dialog', '.dialog#popup form', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $dialog = $form.closest('.dialog');
+            $.ajax({
+                type:  $form.attr('method'),
+                url: 'ajax.php/'+$form.attr('action').substr(1),
+                data: $form.serialize(),
+                cache: false,
+                success: function(resp, status, xhr) {
+                    if (xhr && xhr.status && codes
+                        && $.inArray(xhr.status, codes) != -1) {
+                        $('div.body', $dialog).empty();
+                        $dialog.hide();
+                        $('#overlay').hide();
+                        if(cb) cb(xhr);
+                    } else {
+                        $('div.body', $dialog).html(resp);
+                        $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
+                    }
+                }
+            })
+            .done(function() { })
+            .fail(function() { });
+            return false;
+        });
+     });
+    if (options.onload) { options.onload(); }
+ };
+
+$.userLookup = function (url, cb) {
+    $.dialog(url, 201, function (xhr) {
+        var user = $.parseJSON(xhr.responseText);
+        if (cb) cb(user);
+    }, {
+        onshow: function() { $('#user-search').focus(); }
+    });
+};
+
+$.orgLookup = function (url, cb) {
+    $.dialog(url, 201, function (xhr) {
+        var org = $.parseJSON(xhr.responseText);
+        if (cb) cb(org);
+    }, {
+        onshow: function() { $('#org-search').focus(); }
+    });
+};
+
+//Tabs
+$(document).on('click.tab', 'ul.tabs li a', function(e) {
+    e.preventDefault();
+    if ($('.tab_content'+$(this).attr('href')).length) {
+        var ul = $(this).closest('ul');
+        $('ul.tabs li a', ul.parent()).removeClass('active');
+        $(this).addClass('active');
+        $('.tab_content', ul.parent()).hide();
+        $('.tab_content'+$(this).attr('href')).show();
+    }
+});
+
+//Collaborators
+$(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+    e.preventDefault();
+    var url = 'ajax.php/'+$(this).attr('href').substr(1);
+    $.dialog(url, 201, function (xhr) {
+       $('input#emailcollab').show();
+       $('#recipients').text(xhr.responseText);
+       $('.tip_box').remove();
+    }, {
+        onshow: function() { $('#user-search').focus(); }
+    });
+    return false;
+ });
 
 // NOTE: getConfig should be global
 getConfig = (function() {
@@ -592,8 +622,136 @@ getConfig = (function() {
                 dataType: 'json',
                 success: function (json_config) {
                     dfd.resolve(json_config);
+                },
+                error: function() {
+                    requested = null;
                 }
             });
         return dfd;
     }
 })();
+
+$(document).on('pjax:start', function(event) {
+    // Don't show the spinner on back button
+    if (event instanceof PopStateEvent)
+        return;
+
+    clearInterval(window.ticket_refresh);
+    // Clear all timeouts
+    var id = window.setTimeout(function() {}, 0);
+    while (id--) {
+      window.clearTimeout(id);
+    }
+
+    if ($("#loadingbar").length === 0) {
+      $("body").append("<div id='loadingbar'></div>");
+      $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
+
+      // right
+      $("#loadingbar").width((50 + Math.random() * 30) + "%");
+      $('#overlay').css('background-color','white').fadeIn();
+    }
+
+    // Cancel save-changes warning banner
+    $(document).unbind('pjax:beforeSend.changed');
+    $(window).unbind('beforeunload');
+});
+$(document).on('pjax:end', function() {
+    // right
+    $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
+        $(this).remove();
+    });
+    $('#overlay').hide().removeAttr('style');
+
+    // Close popups
+    // Close tooltips
+    $('.tip_box').empty().hide();
+    $('.dialog .body').empty().parent().hide();
+});
+
+// Quick note interface
+$('.quicknote .action.edit-note').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        body = note.find('.body'),
+        T = $('<textarea>').text(body.html());
+    if (note.closest('.dialog, .tip_box').length)
+        T.addClass('no-bar small');
+    body.replaceWith(T);
+    $.redact(T);
+    $(T).redactor('focus');
+    note.find('.action.edit-note').hide();
+    note.find('.action.save-note').show();
+    note.find('.action.cancel-edit').show();
+    $('#new-note-box').hide();
+    return false;
+});
+$('.quicknote .action.cancel-edit').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        T = note.find('textarea'),
+        body = $('<div class="body">');
+    body.load('ajax.php/note/' + note.data('id'), function() {
+      try { T.redactor('destroy'); } catch (e) {}
+      T.replaceWith(body);
+      note.find('.action.save-note').hide();
+      note.find('.action.cancel-edit').hide();
+      note.find('.action.edit-note').show();
+      $('#new-note-box').show();
+    });
+    return false;
+});
+$('.quicknote .action.save-note').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        T = note.find('textarea');
+    $.post('ajax.php/note/' + note.data('id'),
+      { note: T.redactor('get') },
+      function(html) {
+        var body = $('<div class="body">').html(html);
+        try { T.redactor('destroy'); } catch (e) {}
+        T.replaceWith(body);
+        note.find('.action.save-note').hide();
+        note.find('.action.cancel-edit').hide();
+        note.find('.action.edit-note').show();
+        $('#new-note-box').show();
+      },
+      'html'
+    );
+    return false;
+});
+$('.quicknote .delete').live('click.note', function() {
+  var that = $(this),
+      id = $(this).closest('.quicknote').data('id');
+  $.ajax('ajax.php/note/' + id, {
+    type: 'delete',
+    success: function() {
+      that.closest('.quicknote').animate(
+        {height: 0, opacity: 0}, 'slow', function() {
+          $(this).remove();
+      });
+    }
+  });
+  return false;
+});
+$('#new-note').live('click', function() {
+  var note = $(this).closest('.quicknote'),
+    T = $('<textarea>'),
+    button = $('<input type="button">').val('Create');
+    button.click(function() {
+      $.post('ajax.php/' + note.data('url'),
+        { note: T.redactor('get'), no_options: note.hasClass('no-options') },
+        function(response) {
+          $(T).redactor('destroy').replaceWith(note);
+          $(response).show('highlight').insertBefore(note.parent());
+          $('.submit', note.parent()).remove();
+        },
+        'html'
+      );
+    });
+    if (note.closest('.dialog, .tip_box').length)
+        T.addClass('no-bar small');
+    note.replaceWith(T);
+    $('<p>').addClass('submit').css('text-align', 'center')
+        .append(button).appendTo(T.parent());
+    $.redact(T);
+    $(T).redactor('focus');
+    return false;
+});

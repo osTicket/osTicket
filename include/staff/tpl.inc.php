@@ -87,7 +87,7 @@ $tpl=$msgtemplates[$selected];
      <tr>
         <th colspan="2">
             <h4><?php echo Format::htmlchars($desc['desc']); ?></h4>
-            <em>Subject and body required.  <a class="tip" href="ticket_variables.txt">Supported Variables</a>.</em>
+            <em>Subject and body required.  <a class="tip" href="#ticket_variables.txt">Supported Variables</a>.</em>
         </th>
      </tr>
     </thead>

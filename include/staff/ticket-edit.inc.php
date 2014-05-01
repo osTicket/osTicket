@@ -16,14 +16,14 @@ if ($_POST)
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong>Client Information</strong>: Currently selected client</em>
+                <em><strong>User Information</strong>: Currently selected user</em>
             </th>
         </tr>
     <?php
     if(!$info['user_id'] || !($user = User::lookup($info['user_id'])))
         $user = $ticket->getUser();
     ?>
-    <tr><td>Client:</td><td>
+    <tr><td>User:</td><td>
         <div id="client-info">
             <a href="#" onclick="javascript:
                 $.userLookup('ajax.php/users/<?php echo $ticket->getOwnerId(); ?>/edit',
@@ -128,14 +128,16 @@ if ($_POST)
                 <em>Time is based on your time zone (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
             </td>
         </tr>
-        </tbody>
-        <tbody id="dynamic-form">
+    </tbody>
+</table>
+<table class="form_table dynamic-forms" width="940" border="0" cellspacing="0" cellpadding="2">
         <?php if ($forms)
             foreach ($forms as $form) {
-                $form->render(true);
+                $form->render(true, false, array('mode'=>'edit','width'=>160,'entry'=>$form));
         } ?>
-        </tbody>
-        <tbody>
+</table>
+<table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <tbody>
         <tr>
             <th colspan="2">
                 <em><strong>Internal Note</strong>: Reason for editing the ticket (required) <font class="error">&nbsp;<?php echo $errors['note'];?></font></em>
@@ -159,3 +161,18 @@ if ($_POST)
 <div style="display:none;" class="dialog draggable" id="user-lookup">
     <div class="body"></div>
 </div>
+<script type="text/javascript">
+$('table.dynamic-forms').sortable({
+  items: 'tbody',
+  handle: 'th',
+  helper: function(e, ui) {
+    ui.children().each(function() {
+      $(this).children().each(function() {
+        $(this).width($(this).width());
+      });
+    });
+    ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
+    return ui;
+  }
+});
+</script>

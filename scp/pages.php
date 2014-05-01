@@ -114,10 +114,15 @@ if($_POST) {
 }
 
 $inc='pages.inc.php';
-if($page || $_REQUEST['a']=='add')
+$tip_namespace = 'manage.pages';
+if($page || $_REQUEST['a']=='add') {
     $inc='page.inc.php';
+    $tip_namespace = 'manage.addnew_page';
+}
 
 $nav->setTabActive('manage');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');

@@ -99,15 +99,120 @@ class Export {
 
         return false;
     }
+
+    static function saveUsers($sql, $filename, $how='csv') {
+
+        $exclude = array('name', 'email');
+        $form = UserForm::getUserForm();
+        $fields = $form->getExportableFields($exclude);
+
+        // Field selection callback
+        $fname = function ($f) {
+            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
+        };
+
+        $sql = substr_replace($sql,
+                ','.implode(',', array_map($fname, $fields)).' ',
+                strpos($sql, 'FROM '), 0);
+
+        $sql = substr_replace($sql,
+                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, 'user_id', $exclude).') cdata
+                    ON (cdata.user_id = user.id) ',
+                strpos($sql, 'WHERE '), 0);
+
+        $cdata = array_combine(array_keys($fields),
+                array_values(array_map(
+                        function ($f) { return $f->get('label'); }, $fields)));
+
+        ob_start();
+        echo self::dumpQuery($sql,
+                array(
+                    'name'  =>  'Name',
+                    'organization' => 'Organization',
+                    'email' =>  'Email'
+                    ) + $cdata,
+                $how,
+                array('modify' => function(&$record, $keys) use ($fields) {
+                    foreach ($fields as $k=>$f) {
+                        if ($f && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $f->export($f->to_php($record[$i]));
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        $stuff = ob_get_contents();
+        ob_end_clean();
+
+        if ($stuff)
+            Http::download($filename, "text/$how", $stuff);
+
+        return false;
+    }
+
+    static function saveOrganizations($sql, $filename, $how='csv') {
+
+        $exclude = array('name');
+        $form = OrganizationForm::getDefaultForm();
+        $fields = $form->getExportableFields($exclude);
+
+        // Field selection callback
+        $fname = function ($f) {
+            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
+        };
+
+        $sql = substr_replace($sql,
+                ','.implode(',', array_map($fname, $fields)).' ',
+                strpos($sql, 'FROM '), 0);
+
+        $sql = substr_replace($sql,
+                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, '_org_id', $exclude).') cdata
+                    ON (cdata._org_id = org.id) ',
+                strpos($sql, 'WHERE '), 0);
+
+        $cdata = array_combine(array_keys($fields),
+                array_values(array_map(
+                        function ($f) { return $f->get('label'); }, $fields)));
+
+        $cdata += array('account_manager' => 'Account Manager', 'users' => 'Users');
+
+        ob_start();
+        echo self::dumpQuery($sql,
+                array(
+                    'name'  =>  'Name',
+                    ) + $cdata,
+                $how,
+                array('modify' => function(&$record, $keys) use ($fields) {
+                    foreach ($fields as $k=>$f) {
+                        if ($f && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $f->export($f->to_php($record[$i]));
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        $stuff = ob_get_contents();
+        ob_end_clean();
+
+        if ($stuff)
+            Http::download($filename, "text/$how", $stuff);
+
+        return false;
+    }
+
 }
 
 class ResultSetExporter {
+    var $output;
+
     function ResultSetExporter($sql, $headers, $options=array()) {
         $this->headers = array_values($headers);
         if ($s = strpos(strtoupper($sql), ' LIMIT '))
             $sql = substr($sql, 0, $s);
         # TODO: If $filter, add different LIMIT clause to query
         $this->options = $options;
+        $this->output = $options['output'] ?: fopen('php://output', 'w');
+
         $this->_res = db_query($sql);
         if ($row = db_fetch_array($this->_res)) {
             $query_fields = array_keys($row);
@@ -161,14 +266,17 @@ class ResultSetExporter {
 }
 
 class CsvResultsExporter extends ResultSetExporter {
+
     function dump() {
-        echo '"' . implode('","', $this->getHeaders()) . "\"\n";
-        while ($row=$this->next()) {
-            foreach ($row as &$val)
-                # Escape enclosed double-quotes
-                $val = str_replace('"','""',$val);
-            echo '"' . implode('","', $row) . "\"\n";
-        }
+
+        if (!$this->output)
+             $this->output = fopen('php://output', 'w');
+
+        fputcsv($this->output, $this->getHeaders());
+        while ($row=$this->next())
+            fputcsv($this->output, $row);
+
+        fclose($this->output);
     }
 }
 

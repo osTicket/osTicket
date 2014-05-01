@@ -9,6 +9,12 @@ class PluginConfig extends Config {
         // Use parent constructor to place configurable information into the
         // central config table in a namespace of "plugin.<id>"
         parent::Config("plugin.$name");
+        foreach ($this->getOptions() as $name => $field) {
+            if ($this->exists($name))
+                $this->config[$name]['value'] = $field->to_php($this->get($name));
+            elseif ($default = $field->get('default'))
+                $this->defaults[$name] = $default;
+        }
     }
 
     /* abstract */
@@ -56,8 +62,14 @@ class PluginConfig extends Config {
             $commit = $this->pre_save($config, $errors);
         }
         $errors += $f->errors();
-        if ($commit && count($errors) === 0)
-            return $this->updateAll($config);
+        if ($commit && count($errors) === 0) {
+            $dbready = array();
+            foreach ($config as $name => $val) {
+                $field = $f->getField($name);
+                $dbready[$name] = $field->to_database($val);
+            }
+            return $this->updateAll($dbready);
+        }
         return false;
     }
 

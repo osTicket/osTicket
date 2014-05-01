@@ -153,6 +153,9 @@ class OsticketConfig extends Config {
         'allow_client_updates' => false,
         'message_autoresponder_collabs' => true,
         'add_email_collabs' => true,
+        'clients_only' => false,
+        'client_registration' => 'closed',
+        'accept_unregistered_email' => true,
     );
 
     function OsticketConfig($section=null) {
@@ -239,6 +242,10 @@ class OsticketConfig extends Config {
         return $this->get('db_tz_offset');
     }
 
+    function getDefaultTimezoneId() {
+        return $this->get('default_timezone_id');
+    }
+
     /* Date & Time Formats */
     function observeDaylightSaving() {
         return ($this->get('enable_daylight_saving'));
@@ -288,10 +295,6 @@ class OsticketConfig extends Config {
 
     function getPasswdResetPeriod() {
         return $this->get('passwd_reset_period');
-    }
-
-    function showRelatedTickets() {
-        return $this->get('show_related_tickets');
     }
 
     function isHtmlThreadEnabled() {
@@ -517,6 +520,19 @@ class OsticketConfig extends Config {
         return $this->get('pw_reset_window') * 60;
     }
 
+    function isClientLoginRequired() {
+        return $this->get('clients_only');
+    }
+
+    function isClientRegistrationEnabled() {
+        return in_array($this->getClientRegistrationMode(),
+            array('public', 'auto'));
+    }
+
+    function getClientRegistrationMode() {
+        return $this->get('client_registration');
+    }
+
     function isCaptchaEnabled() {
         return (extension_loaded('gd') && function_exists('gd_info') && $this->get('enable_captcha'));
     }
@@ -531,6 +547,10 @@ class OsticketConfig extends Config {
 
     function useEmailPriority() {
         return ($this->get('use_email_priority'));
+    }
+
+    function acceptUnregisteredEmail() {
+        return $this->get('accept_unregistered_email');
     }
 
     function addCollabsViaEmail() {
@@ -590,6 +610,10 @@ class OsticketConfig extends Config {
         return ($this->get('message_alert_dept_manager'));
     }
 
+    function alertAcctManagerONNewMessage() {
+        return ($this->get('message_alert_acct_manager'));
+    }
+
     function alertONNewNote() {
         return ($this->get('note_alert_active'));
     }
@@ -620,6 +644,10 @@ class OsticketConfig extends Config {
 
     function alertDeptMembersONNewTicket() {
         return ($this->get('ticket_alert_dept_members'));
+    }
+
+    function alertAcctManagerONNewTicket() {
+        return ($this->get('ticket_alert_acct_manager'));
     }
 
     function alertONTransfer() {
@@ -767,7 +795,10 @@ class OsticketConfig extends Config {
             case 'pages':
                 return $this->updatePagesSettings($vars, $errors);
                 break;
-           case 'autoresp':
+            case 'access':
+                return $this->updateAccessSettings($vars, $errors);
+                break;
+            case 'autoresp':
                 return $this->updateAutoresponderSettings($vars, $errors);
                 break;
             case 'alerts':
@@ -789,17 +820,12 @@ class OsticketConfig extends Config {
         $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk URl required');
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk title required');
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Dept. required');
-        $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
-        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>'Time format required');
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>'Date format required');
         $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Datetime format required');
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Day, Datetime format required');
         $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Timezone required');
-        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
-            'error'=>'Valid password reset window required');
-
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -813,6 +839,27 @@ class OsticketConfig extends Config {
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
             'name_format'=>$vars['name_format'],
+            'time_format'=>$vars['time_format'],
+            'date_format'=>$vars['date_format'],
+            'datetime_format'=>$vars['datetime_format'],
+            'daydatetime_format'=>$vars['daydatetime_format'],
+            'default_timezone_id'=>$vars['default_timezone_id'],
+            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+        ));
+    }
+
+    function updateAccessSettings($vars, &$errors) {
+        $f=array();
+        $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
+            'error'=>'Valid password reset window required');
+
+
+        if(!Validator::process($f, $vars, $errors) || $errors)
+            return false;
+
+        return $this->updateAll(array(
             'passwd_reset_period'=>$vars['passwd_reset_period'],
             'staff_max_logins'=>$vars['staff_max_logins'],
             'staff_login_timeout'=>$vars['staff_login_timeout'],
@@ -823,18 +870,12 @@ class OsticketConfig extends Config {
             'client_session_timeout'=>$vars['client_session_timeout'],
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
-            'time_format'=>$vars['time_format'],
-            'date_format'=>$vars['date_format'],
-            'datetime_format'=>$vars['datetime_format'],
-            'daydatetime_format'=>$vars['daydatetime_format'],
-            'default_timezone_id'=>$vars['default_timezone_id'],
-            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+            'clients_only'=>isset($vars['clients_only'])?1:0,
+            'client_registration'=>$vars['client_registration'],
         ));
     }
 
     function updateTicketsSettings($vars, &$errors) {
-
-
         $f=array();
         $f['default_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
@@ -932,6 +973,7 @@ class OsticketConfig extends Config {
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
             'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
+            'accept_unregistered_email'=>isset($vars['accept_unregistered_email'])?1:0,
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
          ));
@@ -1027,13 +1069,15 @@ class OsticketConfig extends Config {
        if($vars['ticket_alert_active']
                 && (!isset($vars['ticket_alert_admin'])
                     && !isset($vars['ticket_alert_dept_manager'])
-                    && !isset($vars['ticket_alert_dept_members']))) {
+                    && !isset($vars['ticket_alert_dept_members'])
+                    && !isset($vars['ticket_alert_acct_manager']))) {
             $errors['ticket_alert_active']='Select recipient(s)';
         }
         if($vars['message_alert_active']
                 && (!isset($vars['message_alert_laststaff'])
                     && !isset($vars['message_alert_assigned'])
-                    && !isset($vars['message_alert_dept_manager']))) {
+                    && !isset($vars['message_alert_dept_manager'])
+                    && !isset($vars['message_alert_acct_manager']))) {
             $errors['message_alert_active']='Select recipient(s)';
         }
 
@@ -1072,10 +1116,12 @@ class OsticketConfig extends Config {
             'ticket_alert_admin'=>isset($vars['ticket_alert_admin'])?1:0,
             'ticket_alert_dept_manager'=>isset($vars['ticket_alert_dept_manager'])?1:0,
             'ticket_alert_dept_members'=>isset($vars['ticket_alert_dept_members'])?1:0,
+            'ticket_alert_acct_manager'=>isset($vars['ticket_alert_acct_manager'])?1:0,
             'message_alert_active'=>$vars['message_alert_active'],
             'message_alert_laststaff'=>isset($vars['message_alert_laststaff'])?1:0,
             'message_alert_assigned'=>isset($vars['message_alert_assigned'])?1:0,
             'message_alert_dept_manager'=>isset($vars['message_alert_dept_manager'])?1:0,
+            'message_alert_acct_manager'=>isset($vars['message_alert_acct_manager'])?1:0,
             'note_alert_active'=>$vars['note_alert_active'],
             'note_alert_laststaff'=>isset($vars['note_alert_laststaff'])?1:0,
             'note_alert_assigned'=>isset($vars['note_alert_assigned'])?1:0,

@@ -103,10 +103,15 @@ if($_POST){
 }
 
 $page='departments.inc.php';
-if($dept || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'staff.departments';
+if($dept || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='department.inc.php';
+    $tip_namespace = 'staff.addnew_department';
+}
 
 $nav->setTabActive('staff');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

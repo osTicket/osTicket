@@ -76,8 +76,9 @@ class FileManager extends Module {
             if ($files->count() != 1)
                 $this->fail('Criteria must select exactly 1 file');
 
-            $f = AttachmentFile::lookup($files[0]->id);
-            $f->sendData();
+            if (($f = AttachmentFile::lookup($files[0]->id))
+                    && ($bk = $f->open()))
+                $bk->passthru();
             break;
 
         case 'migrate':
@@ -187,12 +188,6 @@ class TicketAttachmentModel extends VerySimpleModel {
                 'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
             ),
         ),
-    );
-}
-class TicketModel extends VerySimpleModel {
-    static $meta = array(
-        'table' => TICKET_TABLE,
-        'pk' => 'ticket_id',
     );
 }
 

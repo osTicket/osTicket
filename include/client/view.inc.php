@@ -8,7 +8,18 @@ $dept = $ticket->getDept();
 if(!$dept || !$dept->isPublic())
     $dept = $cfg->getDefaultDept();
 
-?>
+if ($thisclient && $thisclient->isGuest()
+    && $cfg->isClientRegistrationEnabled()) { ?>
+
+<div id="msg_info">
+    <i class="icon-compass icon-2x pull-left"></i>
+    <strong>Looking for your other tickets?</strong></br>
+    <a href="login.php" style="text-decoration:underline">Sign in</a> or
+    <a href="account.php?do=create" style="text-decoration:underline">register for an account</a>
+    for the best experience on our help desk.</div>
+
+<?php } ?>
+
 <table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
     <tr>
         <td colspan="2" width="100%">
@@ -90,8 +101,6 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     $threadType=array('M' => 'message', 'R' => 'response');
     foreach($thread as $entry) {
-        if ($entry['body'] == '-')
-            $entry['body'] = '(EMPTY)';
 
         //Making sure internal notes are not displayed due to backend MISTAKES!
         if(!$threadType[$entry['thread_type']]) continue;
@@ -101,19 +110,20 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         ?>
         <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><?php echo Format::db_datetime($entry['created']); ?> &nbsp;&nbsp;<span class="textra"></span><span><?php echo $poster; ?></span></th></tr>
-            <tr><td class="thread-body"><div><?php echo Format::viewableImages(Format::display($entry['body'])); ?></div></td></tr>
+            <tr><td class="thread-body"><div><?php echo $entry['body']->toHtml(); ?></div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
                     && ($urls = $tentry->getAttachmentUrls())
                     && ($links=$tentry->getAttachmentsLinks())) { ?>
+                <tr><td class="info"><?php echo $links; ?></td></tr>
+<?php       }
+            if ($urls) { ?>
                 <script type="text/javascript">
                     $(function() { showImagesInline(<?php echo
                         JsonDataEncoder::encode($urls); ?>); });
                 </script>
-                <tr><td class="info"><?php echo $links; ?></td></tr>
-            <?php
-            } ?>
+<?php       } ?>
         </table>
     <?php
     }

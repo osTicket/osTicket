@@ -42,6 +42,7 @@ class osTicket {
 
     var $title; //Custom title. html > head > title.
     var $headers;
+    var $pjax_extra;
 
     var $config;
     var $session;
@@ -163,12 +164,16 @@ class osTicket {
         return $replacer->replaceVars($input);
     }
 
-    function addExtraHeader($header) {
+    function addExtraHeader($header, $pjax_script=false) {
         $this->headers[md5($header)] = $header;
+        $this->pjax_extra[md5($header)] = $pjax_script;
     }
 
     function getExtraHeaders() {
         return $this->headers;
+    }
+    function getExtraPjax() {
+        return $this->pjax_extra;
     }
 
     function setPageTitle($title) {

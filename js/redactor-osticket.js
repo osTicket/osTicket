@@ -206,9 +206,9 @@ $(function() {
         html = html.replace(/<inline /, '<span ').replace(/<\/inline>/, '</span>');
         return html;
     },
-    redact = function(el) {
+    redact = $.redact = function(el, options) {
         var el = $(el),
-            options = {
+            options = $.extend({
                 'air': el.hasClass('no-bar'),
                 'airButtons': ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
                 'buttons': ['html', '|', 'formatting', '|', 'bold',
@@ -223,8 +223,10 @@ $(function() {
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
-                'tabFocus': false
-            };
+                'tabFocus': false,
+                'toolbarFixedBox': true,
+                'focusCallback': function() { this.$box.addClass('no-pjax'); }
+            }, options||{});
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {
@@ -238,7 +240,7 @@ $(function() {
         if (el.hasClass('draft')) {
             var draft_saved = $('<span>')
                 .addClass("pull-right draft-saved faded")
-                .css({'position':'relative','top':'-1.8em','right':'1em'})
+                .css({'position':'absolute','top':'0.2em','right':'1em'})
                 .hide()
                 .append($('<span>')
                     .css({'position':'relative', 'top':'0.17em'})
@@ -256,6 +258,7 @@ $(function() {
                     )
                 );
             }
+            el.parent().css('position', 'relative');
             draft_saved.insertBefore(el);
             options['plugins'].push('draft');
             if (el.data('draftNamespace'))
@@ -277,7 +280,13 @@ $(function() {
                 // Make a rich text editor immediately
                 redact(el);
         });
+    },
+    cleanupRedactorElements = function() {
+        // Drop the added redactor_air bars
+        $('.redactor_air').remove();
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
+    $(document).on('pjax:success', findRichtextBoxes);
+    $(document).on('pjax:start', cleanupRedactorElements);
 });

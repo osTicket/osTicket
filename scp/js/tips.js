@@ -24,31 +24,37 @@ jQuery(function() {
             });
     },
     getHelpTips = (function() {
-        var dfd = $.Deferred(),
-            requested = false,
-            namespace = $('meta[name=tip-namespace]').attr('content');
-        return function() {
-            if (namespace && dfd.state() != 'resolved' && !requested)
-                requested = $.ajax({
+        var dfd, cache = {};
+        return function(namespace) {
+            var namespace = namespace
+                || $('#content').data('tipNamespace')
+                || $('meta[name=tip-namespace]').attr('content');
+            if (!namespace)
+                return false;
+            else if (!cache[namespace])
+                cache[namespace] = {
+                  dfd: dfd = $.Deferred(),
+                  ajax: $.ajax({
                     url: "ajax.php/help/tips/" + namespace,
                     dataType: 'json',
-                    success: function (json_config) {
-                        dfd.resolve(json_config);
-                    }
-                });
-            return dfd;
-        }
+                    success: $.proxy(function (json_config) {
+                        this.resolve(json_config);
+                    }, dfd)
+                  })
+                }
+            return cache[namespace].dfd;
+        };
     })();
 
+    var tip_id = 1;
     //Generic tip.
     $('.tip')
-    .each(function(i, e) {
-        e.rel = 'tip-' + i;
-    })
     .live('click mouseover', function(e) {
         e.preventDefault();
-        var id = this.rel;
-        var elem = $(this);
+        if (!this.rel)
+            this.rel = 'tip-' + (tip_id++);
+        var id = this.rel,
+            elem = $(this);
 
         elem.data('id',id);
         elem.data('timer',0);
@@ -57,10 +63,10 @@ jQuery(function() {
                 // wait about 1 sec - before showing the tip - mouseout kills
                 // the timeout
                 elem.data('timer',setTimeout(function() {
-                    showtip('ajax.php/content/'+elem.attr('href'),elem);i
+                    showtip('ajax.php/content/'+elem.attr('href').substr(1),elem);
                 },750));
             } else {
-                showtip('ajax.php/content/'+elem.attr('href'),elem);
+                showtip('ajax.php/content/'+elem.attr('href').substr(1),elem);
             }
         }
     })
@@ -201,6 +207,32 @@ jQuery(function() {
             }else{
                 clearTimeout(elem.data('timer'));
                 showtip(url,elem,xoffset);
+            }
+        }
+    }).live('mouseout', function(e) {
+        $(this).data('id', 0);
+        clearTimeout($(this).data('timer'));
+    });
+
+    //User preview
+    $('.userPreview').live('mouseover', function(e) {
+        e.preventDefault();
+        var elem = $(this);
+
+        var vars = elem.attr('href').split('=');
+        var url = 'ajax.php/users/'+vars[1]+'/preview';
+        var id='u'+vars[1];
+        var xoffset = 80;
+
+        elem.data('timer', 0);
+        if(!elem.data('id')) {
+            elem.data('id', id);
+            if(e.type=='mouseover') {
+                 /* wait about 1 sec - before showing the tip - mouseout kills the timeout*/
+                 elem.data('timer',setTimeout(function() { showtip(url,elem,xoffset);},750))
+            }else{
+                clearTimeout(elem.data('timer'));
+                showtip(url, elem, xoffset);
             }
         }
     }).live('mouseout', function(e) {

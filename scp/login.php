@@ -19,9 +19,11 @@ if(!defined('INCLUDE_DIR')) die('Fatal Error. Kwaheri!');
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
+$content = Page::lookup(Page::getIdByType('banner-staff'));
+
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
-$msg = $msg?$msg:'Authentication Required';
+$msg = $msg ?: ($content ? $content->getName() : 'Authentication Required');
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
 if($_POST) {
@@ -38,8 +40,17 @@ if($_POST) {
     $msg = $errors['err']?$errors['err']:'Invalid login';
     $show_reset = true;
 }
+elseif ($_GET['do']) {
+    switch ($_GET['do']) {
+    case 'ext':
+        // Lookup external backend
+        if ($bk = StaffAuthenticationBackend::getBackend($_GET['bk']))
+            $bk->triggerAuth();
+    }
+    Http::redirect('login.php');
+}
 // Consider single sign-on authentication backends
-else if (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
+elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
     if (($user = StaffAuthenticationBackend::processSignOn($errors, false))
             && ($user instanceof StaffSession))
        @header("Location: $dest");

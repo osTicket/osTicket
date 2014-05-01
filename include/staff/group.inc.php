@@ -65,7 +65,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="radio" name="can_create_tickets"  value="1"   <?php echo $info['can_create_tickets']?'checked="checked"':''; ?> />Yes
                 &nbsp;&nbsp;
                 <input type="radio" name="can_create_tickets"  value="0"   <?php echo !$info['can_create_tickets']?'checked="checked"':''; ?> />No
-                &nbsp;&nbsp;<i>Ability to open tickets on behalf of clients.</i>
+                &nbsp;&nbsp;<i>Ability to open tickets on behalf of users.</i>
             </td>
         </tr>
         <tr><td>Can <b>Edit</b> Tickets</td>

@@ -55,7 +55,7 @@ if($_POST){
                     case 'make_public':
                         $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=1 '
                             .' WHERE category_id IN ('.implode(',', db_input($_POST['ids'])).')';
-                    
+
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
                                 $msg = 'Selected categories made PUBLIC';
@@ -104,10 +104,15 @@ if($_POST){
 }
 
 $page='categories.inc.php';
-if($category || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'knowledgebase.categories';
+if($category || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='category.inc.php';
+    $tip_namespace = 'knowledgebase.addnew_category';
+}
 
 $nav->setTabActive('kbase');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

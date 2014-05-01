@@ -1,0 +1,99 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> System page
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+# Authentication settings
+password_reset:
+    title: Password Expiration Policy
+    content: >
+        Sets how often (in months) staff members will be required to change
+        their password. If disabled (set to "No expiration"), passwords will
+        not expire.
+
+password_expiration_policy:
+    title: Password Expiration Policy
+    content: >
+        Choose how often Agents will be required to change their password. If
+        disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords
+        will not expire.
+
+allow_password_resets:
+    title: Allow Password Resets
+    content: >
+        Enable this feature if you would like to display the 
+        <span class="doc-desc-title">Forgot My Password</span> link on the
+        <span class="doc-desc-title">Staff Log In Panel</span>
+        after 2 failed log in attempts.
+
+reset_token_expiration:
+    title: Password Reset Window
+    content: >
+        Choose the duration (in minutes) for which the <span class="doc-desc-title">
+        Password Reset Token</span> will be valid. When an Agent requests a <span
+        class="doc-desc-title">Password Reset</span>, they are emailed a token that
+        will permit the reset to take place. This token however must have an
+        expiration. 
+
+staff_session_timeout:
+    title: Staff Session Timeout
+    content: >
+        Choose the maximum idle time (in minutes) before an Agent is required to
+        log in again. If you would like to disable <span
+        class="doc-desc-title">Staff Session Timeouts</span>,
+        enter 0 to <span class="doc-desc-opt">disable</span>.
+
+client_session_timeout:
+    title: Client Session Timeout
+    content: >
+        Choose the maximum idle time (in minutes) before a Client is required to
+        log in again. If you would like to disable <span
+        class="doc-desc-title">Client</span> <span class="doc-desc-title">Session
+        Timeouts,</span> enter 0 to <span class="doc-desc-opt">disable</span>.
+
+bind_staff_session_to_ip:
+    title: Bind Staff Session to IP
+    content: >
+        Enable this if you want the Agent to be remembered by their current IP
+        at the time of Log In.
+
+registration_method:
+    title: Registration Options
+    content: >
+        <span class="doc-desc-title">Registration Method</span> and <span
+        class="doc-desc-title">Registration Required</span> are used
+        together to configure how users register and access the web portal
+        of your help desk. The table below summarizes how the two settings
+        are interpreted by the system.
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+            ><tbody style="vertical-align:top;">
+            <tr><th>Registration Required</th>
+                <th>Registration Method</th>
+                <th>Result</th></tr>
+            <tr><td>No</td><td>Public</td>
+                <td>Registration encouraged but not required for new
+                    tickets.</td></tr>
+            <tr><td>Yes</td><td>Public</td>
+                <td>Registration and login are required for new tickets</td></tr>
+            <tr><td>No</td><td>Private</td>
+                <td>Anyone can create a ticket, but only agents
+                    can register accounts</td></tr>
+            <tr><td>Yes</td><td>Private</td>
+                <td>Client access is by invitation only</td></tr>
+            <tr><td>No</td><td>Disabled</td>
+                <td>No one can register for an account, but anyone can
+                    create a ticket. <em>This was how osTicket functioned
+                    prior to 1.9</em></td></tr>
+            <tr><td>Yes</td><td>Disabled</td>
+                <td>Disable new tickets via web portal</td></tr>
+        </tbody></table>

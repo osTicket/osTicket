@@ -134,7 +134,7 @@ showImagesInline = function(urls, thread_id) {
         var cid = $(el).data('cid').toLowerCase(),
             info = urls[cid],
             e = $(el);
-        if (info) {
+        if (info && !e.data('wrapped')) {
             // Add a hover effect with the filename
             var timeout, caption = $('<div class="image-hover">')
                 .css({'float':e.css('float')});
@@ -154,6 +154,7 @@ showImagesInline = function(urls, thread_id) {
                     .append('<span class="filename">'+info.filename+'</span>')
                     .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
                 );
+            e.data('wrapped', true);
         }
     });
 
