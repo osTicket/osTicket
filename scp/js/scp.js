@@ -303,8 +303,9 @@ $(document).ready(function(){
         $(document).on('submit', 'form', function() {
             $('.dp', $(this)).each(function(i, e) {
                 var $e = $(e),
-                    d = $e.datepicker('getDate'),
-                    day = ('0'+d.getDate()).substr(-2),
+                    d = $e.datepicker('getDate');
+                if (!d) return;
+                var day = ('0'+d.getDate()).substr(-2),
                     month = ('0'+(d.getMonth()+1)).substr(-2),
                     year = d.getFullYear();
                 $e.val(year+'-'+month+'-'+day);
