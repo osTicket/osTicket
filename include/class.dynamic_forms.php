@@ -243,7 +243,7 @@ Filter::addSupportedMatches('User Data', function() {
     foreach (UserForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = $f->getLabel();
+        $matches['field.'.$f->get('id')] = 'User / '.$f->getLabel();
     }
     return $matches;
 });
@@ -327,7 +327,7 @@ Filter::addSupportedMatches('Ticket Data', function() {
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = $f->getLabel();
+        $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
     }
     return $matches;
 });

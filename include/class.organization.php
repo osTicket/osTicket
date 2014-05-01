@@ -393,7 +393,7 @@ Filter::addSupportedMatches('Organization Data', function() {
     foreach (OrganizationForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = $f->getLabel();
+        $matches['field.'.$f->get('id')] = 'Organization / '.$f->getLabel();
     }
     return $matches;
 });

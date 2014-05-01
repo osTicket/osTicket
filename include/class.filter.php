@@ -318,12 +318,13 @@ class Filter {
         if ($this->getHelpTopic())
             $ticket['topicId'] = $this->getHelpTopic();
     }
-    /* static */ function getSupportedMatches() {
+     static function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
             if (is_callable($v))
                 $v = $v();
         }
         unset($v);
+        ksort(static::$match_types);
         return static::$match_types;
     }
 
