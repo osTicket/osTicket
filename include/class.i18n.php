@@ -47,26 +47,30 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept',
-            'sla.yaml' =>           'SLA',
-            'form.yaml' =>          'DynamicForm',
+            'department.yaml' =>    'Dept::create',
+            'sla.yaml' =>           'SLA::create',
+            'form.yaml' =>          'DynamicForm::create',
             // Note that department, sla, and forms are required for
             // help_topic
-            'help_topic.yaml' =>    'Topic',
-            'filter.yaml' =>        'Filter',
-            'team.yaml' =>          'Team',
+            'help_topic.yaml' =>    'Topic::create',
+            'filter.yaml' =>        'Filter::create',
+            'team.yaml' =>          'Team::create',
+            // Organization
+            'organization.yaml' =>  'Organization::__create',
             // Note that group requires department
-            'group.yaml' =>         'Group',
-            'file.yaml' =>          'AttachmentFile',
+            'group.yaml' =>         'Group::create',
+            'file.yaml' =>          'AttachmentFile::create',
         );
 
         $errors = array();
-        foreach ($models as $yaml=>$m)
-            if ($objects = $this->getTemplate($yaml)->getData())
-                foreach ($objects as $o)
-                    // Model::create($o)
-                    call_user_func_array(
-                        array($m, 'create'), array($o, &$errors));
+        foreach ($models as $yaml=>$m) {
+            if ($objects = $this->getTemplate($yaml)->getData()) {
+                foreach ($objects as $o) {
+                    if ($m && is_callable($m))
+                        @call_user_func_array($m, array($o, &$errors));
+                }
+            }
+        }
 
         // Priorities
         $priorities = $this->getTemplate('priority.yaml')->getData();

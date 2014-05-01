@@ -9,7 +9,7 @@ jQuery(function() {
             var tip_box = $('<div>').addClass('tip_box');
             var tip_shadow = $('<div>').addClass('tip_shadow');
             var tip_content = $('<div>').addClass('tip_content').load(url, function() {
-                tip_content.prepend('<a href="#" class="tip_close">x</a>');
+                tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>');
             });
 
             var the_tip = tip_box.append(tip_arrow).append(tip_content).prepend(tip_shadow);

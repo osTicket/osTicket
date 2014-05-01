@@ -102,7 +102,7 @@ class Organization extends OrganizationModel {
 
     function addDynamicData($data) {
 
-        $of = OrganizationForm::getInstance($this->id);
+        $of = OrganizationForm::getInstance($this->id, true);
         foreach ($of->getFields() as $f)
             if (isset($data[$f->get('name')]))
                 $of->setAnswer($f->get('name'), $data[$f->get('name')]);
@@ -116,7 +116,7 @@ class Organization extends OrganizationModel {
         if (!isset($this->_entries)) {
             $this->_entries = DynamicFormEntry::forOrganization($this->id)->all();
             if (!$this->_entries) {
-                $g = OrganizationForm::getInstance($this->id);
+                $g = OrganizationForm::getInstance($this->id, true);
                 $g->save();
                 $this->_entries[] = $g;
             }
@@ -321,6 +321,19 @@ class Organization extends OrganizationModel {
         return $valid ? self::fromVars($form->getClean()) : null;
     }
 
+    // Custom create called by installer/upgrader to load initial data
+    static function __create($ht, &$error=false) {
+
+        $ht['created'] = new SqlFunction('NOW');
+        $org = Organization::create($ht);
+        // Add dynamic data (if any)
+        if ($ht['fields']) {
+            $org->save(true);
+            $org->addDynamicData($ht['fields']);
+        }
+
+        return $org;
+    }
 }
 
 class OrganizationForm extends DynamicForm {
@@ -343,8 +356,8 @@ class OrganizationForm extends DynamicForm {
         return static::$form;
     }
 
-    static function getInstance($object_id=0) {
-        if (!isset(static::$instance))
+    static function getInstance($object_id=0, $new=false) {
+        if ($new || !isset(static::$instance))
             static::$instance = static::getDefaultForm()->instanciate();
 
         static::$instance->object_type = 'O';
@@ -368,7 +381,13 @@ class OrganizationForm extends DynamicForm {
             }
         }
 
-        $o =static::objects();
+        if (!$form || !($o=static::objects()))
+            return false;
+
+        // Create sample organization.
+        if (($orgs = $i18n->getTemplate('organization.yaml')->getData()))
+            foreach($orgs as $org)
+                Organization::__create($org);
 
         return $o[0];
     }
