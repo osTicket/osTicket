@@ -12,7 +12,7 @@ class TicketApiController extends ApiController {
         $supported = array(
             "alert", "autorespond", "source", "topicId",
             "attachments" => array("*" =>
-                array("name", "type", "data", "encoding")
+                array("name", "type", "data", "encoding", "size")
             ),
             "message", "ip", "priorityId"
         );
