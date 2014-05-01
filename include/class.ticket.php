@@ -2208,13 +2208,26 @@ class Ticket {
         if ($vars['uid'] && ($user = User::lookup($vars['uid']))) {
             $vars['email'] = $user->getEmail();
             $vars['name'] = $user->getName();
+            // Add in user and organization data for filtering
+            $vars += $user->getFilterData();
+            if ($org = $user->getOrganization()) {
+                $vars += $org->getFilterData();
+            }
         }
         else {
             $interesting = array('name', 'email');
             $user_form = UserForm::getUserForm()->getForm($vars);
-            foreach ($user_form->getFields() as $f)
+            // Add all the user-entered info for filtering
+            foreach ($user_form->getFields() as $f) {
+                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
                 if (in_array($f->get('name'), $interesting))
-                    $vars[$f->get('name')] = $f->toString($f->getClean());
+                    $vars[$f->get('name')] = $vars['field.'.$f->get('id')];
+            }
+            // Add in organization data if one exists for this email domain
+            list($mailbox, $domain) = explode('@', $vars['email'], 2);
+            if ($org = Organization::forDomain($domain)) {
+                $vars += $org->getFilterData();
+            }
         }
 
 

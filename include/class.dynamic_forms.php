@@ -235,6 +235,15 @@ class UserForm extends DynamicForm {
         return static::$instance;
     }
 }
+Filter::addSupportedMatches('User Data', function() {
+    $matches = array();
+    foreach (UserForm::getInstance()->getFields() as $f) {
+        if (!$f->hasData())
+            continue;
+        $matches['field.'.$f->get('id')] = $f->getLabel();
+    }
+    return $matches;
+});
 
 class TicketForm extends DynamicForm {
     static $instance;

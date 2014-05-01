@@ -193,6 +193,20 @@ class Organization extends OrganizationModel {
         $form->save();
     }
 
+    function getFilterData() {
+        $vars = array();
+        foreach ($this->getDynamicData() as $entry) {
+            if ($entry->getForm()->get('type') != 'O')
+                continue;
+            foreach ($entry->getFields() as $f)
+                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+            // Add special `name` field
+            $f = $entry->getForm()->getField('name');
+            $vars['field.'.$f->get('id')] = $this->getName();
+        }
+        return $vars;
+    }
+
     function to_json() {
 
         $info = array(
@@ -374,5 +388,14 @@ class OrganizationForm extends DynamicForm {
     }
 
 }
+Filter::addSupportedMatches('Organization Data', function() {
+    $matches = array();
+    foreach (OrganizationForm::getInstance()->getFields() as $f) {
+        if (!$f->hasData())
+            continue;
+        $matches['field.'.$f->get('id')] = $f->getLabel();
+    }
+    return $matches;
+});
 Organization::_inspect();
 ?>
