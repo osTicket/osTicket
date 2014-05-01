@@ -74,10 +74,13 @@ class DynamicForm extends VerySimpleModel {
         return call_user_func_array($delegate, $args);
     }
 
-    function getField($name) {
-        foreach ($this->getFields() as $f)
+    function getField($name, $cache=true) {
+        foreach ($this->getFields($cache) as $f) {
             if (!strcasecmp($f->get('name'), $name))
                 return $f;
+        }
+        if ($cache)
+            return $this->getField($name, false);
     }
 
     function hasField($name) {
