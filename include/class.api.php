@@ -221,7 +221,7 @@ class ApiController {
             $this->exerr(400, $parser->lastError());
 
         //Validate structure of the request.
-        $this->validate($data, $format);
+        $this->validate($data, $format, false);
 
         return $data;
     }
@@ -241,19 +241,25 @@ class ApiController {
      * expected. It is assumed that the functions actually implementing the
      * API will further validate the contents of the request
      */
-    function validateRequestStructure($data, $structure, $prefix="") {
+    function validateRequestStructure($data, $structure, $prefix="", $strict=true) {
+        global $ost;
 
         foreach ($data as $key=>$info) {
             if (is_array($structure) and is_array($info)) {
                 $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*";
                 if (isset($structure[$search])) {
-                    $this->validateRequestStructure($info, $structure[$search], "$prefix$key/");
+                    $this->validateRequestStructure($info, $structure[$search], "$prefix$key/", $strict);
                     continue;
                 }
             } elseif (in_array($key, $structure)) {
                 continue;
             }
-            return $this->exerr(400, "$prefix$key: Unexpected data received");
+            if ($strict)
+                return $this->exerr(400, "$prefix$key: Unexpected data received");
+            else
+                $ost->logWarning('API Unexpected Data',
+                    "$prefix$key: Unexpected data received in API request",
+                    false);
         }
 
         return true;
@@ -263,11 +269,12 @@ class ApiController {
      * Validate request.
      *
      */
-    function validate(&$data, $format) {
+    function validate(&$data, $format, $strict=true) {
         return $this->validateRequestStructure(
                 $data,
-                $this->getRequestStructure($format, $data)
-                );
+                $this->getRequestStructure($format, $data),
+                "",
+                $strict);
     }
 
     /**
