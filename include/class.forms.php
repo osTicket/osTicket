@@ -586,7 +586,7 @@ class TextareaField extends FormField {
         if ($config['html'])
             return Format::safe_html($value);
         else
-            return Format::htmlchars($value);
+            return nl2br(Format::htmlchars($value));
     }
 }
 
