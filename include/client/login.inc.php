@@ -52,6 +52,11 @@ if (count($ext_bks)) {
 if ($cfg && $cfg->isClientRegistrationEnabled()) {
     if (count($ext_bks)) echo '<hr style="width:70%"/>'; ?>
     Not yet registered? <a href="account.php?do=create">Create an account</a>
+    <br/>
+    <div style="margin-top: 5px;">
+    <b>I'm an agent</b> —
+    <a href="<?php echo ROOT_PATH; ?>scp">sign in here</a>
+    </div>
 <?php } ?>
     </div>
 </div>
