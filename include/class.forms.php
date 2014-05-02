@@ -1146,7 +1146,7 @@ class ThreadEntryWidget extends Widget {
         ?><div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
         echo Format::htmlchars($this->field->get('label'));
         ?></strong>:</div>
-        <textarea name="<?php echo $this->field->get('name'); ?>"
+        <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
             <?php if (!$client) { ?>
                 data-draft-namespace="ticket.staff"
@@ -1156,7 +1156,7 @@ class ThreadEntryWidget extends Widget {
             <?php } ?>
             class="richtext draft draft-delete ifhtml"
             cols="21" rows="8" style="width:80%;"><?php echo
-            $this->value; ?></textarea>
+            Format::htmlchars($this->value); ?></textarea>
     <?php
     }
 
@@ -1167,6 +1167,7 @@ class ThreadEntryWidget extends Widget {
             && !$cfg->allowAttachmentsOnlogin())
             || ($cfg->allowAttachmentsOnlogin()
                 && ($thisclient && $thisclient->isValid()))) { ?>
+        <div class="clear"><div>
         <hr/>
         <div><strong style="padding-right:1em;vertical-align:top">Attachments: </strong>
         <div style="display:inline-block">
