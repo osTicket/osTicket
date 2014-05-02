@@ -528,11 +528,15 @@ class Ticket {
     }
 
     function getLastMessage() {
+        if (!isset($this->last_message)) {
+            if($this->getLastMsgId())
+                $this->last_message =  Message::lookup(
+                    $this->getLastMsgId(), $this->getId());
 
-        if($this->getLastMsgId())
-            return Message::lookup($this->getLastMsgId(), $this->getId());
-
-        return Message::lastByTicketId($this->getId());
+            if (!$this->last_message)
+                $this->last_message = Message::lastByTicketId($this->getId());
+        }
+        return $this->last_message;
     }
 
     function getThread() {
@@ -693,6 +697,10 @@ class Ticket {
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
         return $this->lastMsgId=$msgid;
+    }
+    function setLastMessage($message) {
+        $this->last_message = $message;
+        $this->setLastMsgId($message->getId());
     }
 
     //DeptId can NOT be 0. No orphans please!
@@ -1542,7 +1550,7 @@ class Ticket {
         if(!($message = $this->getThread()->addMessage($vars, $errors)))
             return null;
 
-        $this->setLastMsgId($message->getId());
+        $this->setLastMessage($message);
 
         //Add email recipients as collaborators...
         if ($vars['recipients']
@@ -2496,7 +2504,7 @@ class Ticket {
                 && ($msg=$tpl->getNewTicketNoticeMsgTemplate())
                 && ($email=$dept->getEmail())) {
 
-            $message = $vars['message'];
+            $message = (string) $ticket->getLastMessage();
             if($response) {
                 $message .= ($cfg->isHtmlThreadEnabled()) ? "<br><br>" : "\n\n";
                 $message .= $response->getBody();
