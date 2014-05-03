@@ -11,7 +11,7 @@ if($_REQUEST['q']) {
     if($searchTerm){
         $query=db_real_escape($searchTerm,false); //escape the term ONLY...no quotes.
         if(is_numeric($searchTerm)){
-            $where.=" AND (staff.phone LIKE '%$query%' OR staff.phone_ext LIKE '%$query%' staff.mobile LIKE '%$query%') ";
+            $where.=" AND (staff.phone LIKE '%$query%' OR staff.phone_ext LIKE '%$query%' OR staff.mobile LIKE '%$query%') ";
         }elseif(strpos($searchTerm,'@') && Validator::is_email($searchTerm)){
             $where.=" AND staff.email='$query'";
         }else{

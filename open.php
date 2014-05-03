@@ -32,10 +32,12 @@ if ($_POST) {
     if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
+    // Drop the draft.. If there are validation errors, the content
+    // submitted will be displayed back to the user
+    Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
-        Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             session_write_close();

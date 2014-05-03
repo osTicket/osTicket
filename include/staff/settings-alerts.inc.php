@@ -102,9 +102,11 @@
             </em></th></tr>
         <tr>
             <td><em><b>Status: </b></em> &nbsp;
-              <input name="assigned_alert_active" value="1" checked="checked" type="radio">Enable
+              <input name="assigned_alert_active" value="1" type="radio"
+                <?php echo $config['assigned_alert_active']?'checked="checked"':''; ?>>Enable
               &nbsp;&nbsp;
-              <input name="assigned_alert_active" value="0" type="radio">Disable
+              <input name="assigned_alert_active" value="0" type="radio"
+                <?php echo !$config['assigned_alert_active']?'checked="checked"':''; ?>>Disable
                &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['assigned_alert_active']; ?></font>
             </td>
         </tr>

@@ -278,15 +278,14 @@ class TnefAttributeStreamReader extends TnefStreamReader {
         $this->push($stream);
         /* Number of attributes. */
         $this->count = $this->_geti(32);
-        $this->next();
     }
 
     function valid() {
-        return (bool) $this->current;
+        return $this->count && $this->current;
     }
 
     function rewind() {
-        $this->pos = 0;
+        $this->pos = 4;
     }
 
     protected function readPhpValue($type) {
@@ -350,10 +349,11 @@ class TnefAttributeStreamReader extends TnefStreamReader {
     }
 
     function next() {
-        $this->count--;
-
-        if ($this->length - $this->pos < 12)
+        if ($this->count <= 0) {
             return $this->current = false;
+        }
+
+        $this->count--;
 
         $have_mval = false;
         $named_id = $value = null;
@@ -391,7 +391,7 @@ class TnefAttributeStreamReader extends TnefStreamReader {
             $value = $this->readPhpValue($data_type);
         } else {
             $value = array();
-        $k = $this->_geti(32);
+            $k = $this->_geti(32);
             for ($i=0; $i < $k; $i++)
                 $value[] = $this->readPhpValue($data_type);
         }
