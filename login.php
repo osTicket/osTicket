@@ -38,6 +38,11 @@ if ($_POST && isset($_POST['luser'])) {
             $_POST['lpasswd'], $errors))) {
         if ($user instanceof ClientCreateRequest) {
             if ($cfg && $cfg->isClientRegistrationEnabled()) {
+                // Attempt to automatically register
+                if ($user->attemptAutoRegister())
+                    Http::redirect('tickets.php');
+
+                // Auto-registration failed. Show the user the info we have
                 $inc = 'register.inc.php';
                 $user_form = UserForm::getUserForm()->getForm($user->getInfo());
             }
@@ -87,23 +92,7 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
     elseif ($user instanceof ClientCreateRequest) {
         if ($cfg && $cfg->isClientRegistrationEnabled()) {
             // Attempt to automatically register
-            $user_form = UserForm::getUserForm()->getForm($user->getInfo());
-            $bk = $user->getBackend();
-            $defaults = array(
-                'timezone_id' => $cfg->getDefaultTimezoneId(),
-                'dst' => $cfg->observeDaylightSaving(),
-                'username' => $user->getUsername(),
-            );
-            if ($bk->supportsInteractiveAuthentication())
-                $defaults['backend'] = $bk::$id;
-            if ($user_form->isValid(function($f) { return !$f->get('private'); })
-                    && ($U = User::fromVars($user_form->getClean()))
-                    && ($acct = ClientAccount::createForUser($U, $defaults))
-                    // Confirm and save the account
-                    && $acct->confirm()
-                    // Login, since `tickets.php` will not attempt SSO
-                    && ($cl = new ClientSession(new EndUser($U)))
-                    && ($bk->login($cl, $bk)))
+            if ($user->attemptAutoRegister())
                 Http::redirect('tickets.php');
 
             // Unable to auto-register. Fill in what we have and let the
