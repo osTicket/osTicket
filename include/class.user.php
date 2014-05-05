@@ -43,8 +43,6 @@ class UserModel extends VerySimpleModel {
         )
     );
 
-    var $emails;
-
     static function objects() {
         $qs = parent::objects();
         #$qs->select_related('default_email');
