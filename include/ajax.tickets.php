@@ -140,10 +140,10 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         //Assignee
-        if(isset($req['assignee']) && strcasecmp($req['status'], 'closed'))  {
+        if ($req['assignee']) {
             $id=preg_replace("/[^0-9]/", "", $req['assignee']);
             $assignee = $req['assignee'];
-            $where.= ' AND ( ( ticket.status="open" ';
+            $where.= ' AND ( ticket.status="open" ';
             if($assignee[0]=='t')
                 $where.=' AND ticket.team_id='.db_input($id);
             elseif($assignee[0]=='s')
@@ -151,15 +151,9 @@ class TicketsAjaxAPI extends AjaxController {
             elseif(is_numeric($id))
                 $where.=' AND ticket.staff_id='.db_input($id);
 
-            $where.=')';
-
-            if($req['staffId'] && !$req['status']) //Assigned TO + Closed By
-                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']). ' AND ticket.status="closed") ';
-            elseif(isset($req['staffId'])) // closed by any
-                $where.= ' OR ticket.status="closed" ';
-
             $where.= ' ) ';
-        } elseif($req['staffId']) {
+        }
+        if ($req['staffId']) {
             $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND ticket.status="closed") ';
         }
 
