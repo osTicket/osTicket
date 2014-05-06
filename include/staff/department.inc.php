@@ -62,49 +62,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">
-                Email:
-            </td>
-            <td>
-                <select name="email_id">
-                    <option value="0">&mdash; Select Department Email &mdash;</option>
-                    <?php
-                    $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$email,$name)=db_fetch_row($res)){
-                            $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
-                            if($name)
-                                $email=Format::htmlchars("$name <$email>");
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">
-                Template:
-            </td>
-            <td>
-                <select name="tpl_id">
-                    <option value="0">&mdash; System Default &mdash;</option>
-                    <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl WHERE isactive=1 ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">
+            <td width="180">
                 SLA:
             </td>
             <td>
@@ -123,7 +81,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">
+            <td width="180">
                 Manager:
             </td>
             <td>
@@ -166,7 +124,54 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Auto Response Settings</strong>: Override global auto-response settings for tickets routed to the Dept.</em>
+                <em><strong>Email Settings</strong>: Outgoing email settings for the department.</em>
+            </th>
+        </tr>
+        <tr>
+            <td width="180">
+                Outgoing Email:
+            </td>
+            <td>
+                <select name="email_id">
+                    <option value="0">&mdash; System Default &mdash;</option>
+                    <?php
+                    $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$email,$name)=db_fetch_row($res)){
+                            $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
+                            if($name)
+                                $email=Format::htmlchars("$name <$email>");
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                Template Set:
+            </td>
+            <td>
+                <select name="tpl_id">
+                    <option value="0">&mdash; System Default &mdash;</option>
+                    <?php
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl WHERE isactive=1 ORDER by name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$name)=db_fetch_row($res)){
+                            $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <em><strong>Autoresponder Settings</strong>: Override global auto-response settings for tickets routed to the department.</em>
             </th>
         </tr>
         <tr>

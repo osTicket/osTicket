@@ -395,13 +395,6 @@ class Dept {
         if($id && $id!=$vars['id'])
             $errors['err']='Missing or invalid Dept ID (internal error).';
 
-        if(!isset($vars['id'])
-                && (!$vars['email_id'] || !is_numeric($vars['email_id'])))
-            $errors['email_id']='Email selection required';
-
-        if(isset($vars['tpl_id']) && !is_numeric($vars['tpl_id']))
-            $errors['tpl_id']='Template selection required';
-
         if(!$vars['name']) {
             $errors['name']='Name required';
         } elseif(strlen($vars['name'])<4) {
