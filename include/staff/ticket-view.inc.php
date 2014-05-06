@@ -354,6 +354,11 @@ $tcount+= $ticket->getNumNotes();
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
                             echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
+                        <?php if (!empty($entry['timeworked'])) { ?>
+                          <span style="vertical-align:middle;"
+                              class="tmeta faded title"><?php
+                              echo (int)$entry['timeworked']; ?>m</span>
+                        <?php } ?>
                     </span>
                 </div>
                 </th>
