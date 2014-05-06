@@ -19,6 +19,9 @@ if($dept && $_REQUEST['a']!='add') {
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $info['ticket_auto_response']=isset($info['ticket_auto_response'])?$info['ticket_auto_response']:1;
     $info['message_auto_response']=isset($info['message_auto_response'])?$info['message_auto_response']:1;
+    if (!isset($info['group_membership']))
+        $info['group_membership'] = 1;
+
     $qstr.='&a='.$_REQUEST['a'];
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
