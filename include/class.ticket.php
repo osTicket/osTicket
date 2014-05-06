@@ -1420,7 +1420,7 @@ class Ticket {
         if(!is_object($staff) && !($staff=Staff::lookup($staff)))
             return false;
 
-        if(!$this->setStaffId($staff->getId()))
+        if (!$staff->isAvailable() || !$this->setStaffId($staff->getId()))
             return false;
 
         $this->onAssign($staff, $note, $alert);
@@ -1434,7 +1434,7 @@ class Ticket {
         if(!is_object($team) && !($team=Team::lookup($team)))
             return false;
 
-        if(!$this->setTeamId($team->getId()))
+        if (!$team->isActive() || !$this->setTeamId($team->getId()))
             return false;
 
         //Clear - staff if it's a closed ticket

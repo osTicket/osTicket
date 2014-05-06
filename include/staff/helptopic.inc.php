@@ -193,20 +193,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="assign">
                     <option value="0">&mdash; Unassigned &mdash;</option>
                     <?php
-                    $sql=' SELECT staff_id,CONCAT_WS(", ",lastname,firstname) as name '.
-                         ' FROM '.STAFF_TABLE.' WHERE isactive=1 ORDER BY name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
+                    if (($users=Staff::getStaffMembers())) {
                         echo '<OPTGROUP label="Staff Members">';
-                        while (list($id,$name) = db_fetch_row($res)){
+                        foreach ($users as $id => $name) {
+                            $name = new PersonsName($name);
                             $k="s$id";
                             $selected = ($info['assign']==$k || $info['staff_id']==$id)?'selected="selected"':'';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
 
-                        <?php }
+                        <?php
+                        }
                         echo '</OPTGROUP>';
                     }
-                    $sql='SELECT team_id, name FROM '.TEAM_TABLE.' WHERE isenabled=1';
+                    $sql='SELECT team_id, name FROM '.TEAM_TABLE.' ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         echo '<OPTGROUP label="Teams">';
                         while (list($id,$name) = db_fetch_row($res)){

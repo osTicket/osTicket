@@ -126,6 +126,15 @@ class Config {
                 return false;
         return true;
     }
+
+    function destrory() {
+
+        $sql='DELETE FROM '.$this->table
+            .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
+
+        db_query($sql);
+        unset($this->session);
+    }
 }
 
 class OsticketConfig extends Config {

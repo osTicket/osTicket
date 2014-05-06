@@ -147,7 +147,18 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="group_membership" value="0" <?php echo $info['group_membership']?'checked="checked"':''; ?> >
-                Extend membership to groups with access. <i>(Alerts and  notices will include groups)</i>
+                Extend membership to groups with access <em>(Alerts and
+                        notices will include groups)</em>
+            </td>
+        </tr>
+        <tr>
+            <td>Ticket Assignment:</td>
+            <td>
+                <input type="checkbox" name="assign_members_only" <?php echo
+                $info['assign_members_only']?'checked="checked"':''; ?>>
+                Limit ticket assignment to department members
+                <!-- Help Tip:
+                     Tickets can ONLY be assigned to department members (+ group members)-->
             </td>
         </tr>
         <tr>

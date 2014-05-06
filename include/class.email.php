@@ -195,6 +195,15 @@ class Email {
     }
 
 
+   function __toString() {
+
+       $email = $this->getEmail();
+       if ($this->getName())
+           $email = sprintf('%s <%s>', $this->getName(), $this->getEmail());
+
+       return $email;
+   }
+
     /******* Static functions ************/
 
    function getIdByEmail($email) {
