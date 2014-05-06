@@ -628,7 +628,7 @@ $tcount+= $ticket->getNumNotes();
                         <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >
                         <br/>
                         <div class="faded" style="padding-left:0.15em">
-                        Note title - summary of the note (optional)</div>
+                        Time worked in minutes (optional))</div>
                         <input type="text" name="timeworked" id="timeworked" size="3" value="<?php echo $info['timeworked']; ?>" >
                         <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
