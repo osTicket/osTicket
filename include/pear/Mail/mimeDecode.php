@@ -405,10 +405,9 @@ class Mail_mimeDecode extends PEAR
     function _splitBodyHeader(&$input)
     {
         // The headers should end within the first 500k of the email...
-        $to_check = substr($input, 0, 500<<10);
-        if (preg_match("/^.*?(\r?\n\r?\n)(.)/s", $to_check, $match, PREG_OFFSET_CAPTURE)) {
+        if (preg_match("/^.*?(\r?\n\r?\n)(.)/s", $input, $match, PREG_OFFSET_CAPTURE)) {
             return array(substr($input, 0, $match[1][1]),
-                   substr($input, $match[2][1]));
+                   new StringView($input, $match[2][1]));
         }
         $this->_error = 'Could not split header and body';
         return false;
@@ -519,6 +518,9 @@ class Mail_mimeDecode extends PEAR
         if ($boundary == $bs_check) {
             $boundary = $bs_possible;
         }
+
+        if ($input instanceof StringView)
+            return $input->split('--' . $boundary);
 
         $tmp = explode('--' . $boundary, $input);
 
@@ -867,3 +869,44 @@ class Mail_mimeDecode extends PEAR
     }
 
 } // End of class
+
+class StringView {
+    var $string;
+    var $start;
+    var $end;
+
+    function __construct(&$string, $start=0, $end=false) {
+        $this->string = &$string;
+        $this->start = $start;
+        $this->end = $end;
+    }
+
+    function __toString() {
+        return $this->end
+            ? substr($this->string, $this->start, $this->end - $this->start)
+            : substr($this->string, $this->start);
+    }
+
+    function split($boundary) {
+        $matches = array();
+        if (!preg_match_all('/^' . preg_quote($boundary) . '/m', $this->string,
+                $matches, PREG_OFFSET_CAPTURE, $this->start))
+            return array();
+
+        $windows = array();
+        foreach ($matches[0] as $i => $m) {
+            $start = $m[1] + strlen($m[0]);
+            // Enforce local window
+            if ($i > 0)
+                $windows[$i-1]['stop'] = min($this->end ?: $m[1], $m[1]);
+            if ($this->end && $start > $this->end)
+                break;
+            $windows[$i]['start'] = $m[1] + strlen($m[0]);
+        }
+        $parts = array();
+        foreach ($windows as $w) {
+            $parts[] = new StringView($this->string, $w['start'], @$w['stop'] ?: false);
+        }
+        return $parts;
+    }
+}
