@@ -32,9 +32,9 @@ class Mail_Parse {
 
     var $tnef = false;      // TNEF encoded mail
 
-    function Mail_parse($mimeMessage, $charset=null){
+    function Mail_parse(&$mimeMessage, $charset=null){
 
-        $this->mime_message = $mimeMessage;
+        $this->mime_message = &$mimeMessage;
 
         if($charset)
             $this->charset = $charset;
@@ -54,17 +54,17 @@ class Mail_Parse {
 
         $params = array('crlf'          => "\r\n",
                         'charset'       => $this->charset,
-                        'input'         => $this->mime_message,
                         'include_bodies'=> $this->include_bodies,
                         'decode_headers'=> $this->decode_headers,
                         'decode_bodies' => $this->decode_bodies);
 
-        $this->struct=Mail_mimeDecode::decode($params);
+        $this->splitBodyHeader();
+
+        $decoder = new Mail_mimeDecode($this->mime_message);
+        $this->struct = $decoder->decode($params);
 
         if (PEAR::isError($this->struct))
             return false;
-
-        $this->splitBodyHeader();
 
         // Handle wrapped emails when forwarded
         if ($this->struct && $this->struct->parts) {
@@ -119,7 +119,7 @@ class Mail_Parse {
 
     function splitBodyHeader() {
         $match = array();
-        if (preg_match("/^(.*?)\r?\n\r?\n(.*)/s",
+        if (preg_match("/^(.*?)\r?\n\r?\n./s",
                 $this->mime_message,
                 $match)) {
             $this->header=$match[1];
