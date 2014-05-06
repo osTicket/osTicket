@@ -617,6 +617,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   `staff_id` int(11) unsigned NOT NULL default '0',
   `user_id` int(11) unsigned not null default 0,
   `thread_type` enum('M','R','N') NOT NULL,
+  `timeworked` int(11) NOT NULL default 0,
   `poster` varchar(128) NOT NULL default '',
   `source` varchar(32) NOT NULL default '',
   `title` varchar(255),

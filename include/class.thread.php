@@ -999,12 +999,18 @@ Class ThreadEntry {
         if ($poster && is_object($poster))
             $poster = (string) $poster;
 
+        // Check whether there is any time to record
+        if (empty($vars['timeworked'])) {
+            $vars['timeworked'] = '0';
+        }
+
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])
             .' ,title='.db_input(Format::sanitize($vars['title'], true))
             .' ,staff_id='.db_input($vars['staffId'])
             .' ,user_id='.db_input($vars['userId'])
+            .' ,timeworked='.db_input((int)$vars['timeworked'])
             .' ,poster='.db_input($poster)
             .' ,source='.db_input($vars['source']);
 
