@@ -286,6 +286,21 @@ if ($results) {
     }
 }
 
+// Fetch total timeworked for each ticket
+if ($results) {
+    $timeworked_sql = 'SELECT ticket.ticket_id,
+        SUM(thread.timeworked) AS timeworked_total
+        FROM '.TICKET_TABLE.' ticket
+        LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id)
+        WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
+        GROUP BY ticket.ticket_id';
+    $timeworked_res = db_query($timeworked_sql);
+    while ($row = db_fetch_array($timeworked_res)) {
+        $results[$row['ticket_id']]['timeworked_total'] = $row['timeworked_total'];
+    }
+}
+
+
 //YOU BREAK IT YOU FIX IT.
 ?>
 <!-- SEARCH FORM START -->
@@ -393,6 +408,7 @@ if ($results) {
                 $tid=$row['number'];
                 $subject = Format::htmlchars(Format::truncate($row['subject'],40));
                 $threadcount=$row['thread_count'];
+                $timeworked=$row['timeworked_total'];
                 if(!strcasecmp($row['status'],'open') && !$row['isanswered'] && !$row['lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
                 }
@@ -415,9 +431,14 @@ if ($results) {
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                      <?php
-                        if ($threadcount>1)
+                        if (!empty($timeworked)) {
+                            echo "<small>($threadcount | ${timeworked}m)</small>&nbsp;".'<i
+                                class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
+                        }
+                        elseif ($threadcount>1) {
                             echo "<small>($threadcount)</small>&nbsp;".'<i
                                 class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
+                        }
                         if ($row['collaborators'])
                             echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
                         if ($row['attachments'])
