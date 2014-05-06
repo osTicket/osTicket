@@ -1843,8 +1843,12 @@ class Ticket {
                 $recipients[]=$this->getLastRespondent();
 
             //Assigned staff if any...could be the last respondent
-            if($cfg->alertAssignedONNewNote() && $this->isAssigned() && $this->getStaffId())
-                $recipients[]=$this->getStaff();
+            if($cfg->alertAssignedONNewNote() && $this->isAssigned()) {
+                if ($staff = $this->getStaff())
+                    $recipients[] = $staff;
+                if ($team = $this->getTeam())
+                    $recipients = array_merge($recipients, $team->getMembers());
+            }
 
             //Dept manager
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
@@ -1858,12 +1862,12 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff)
                         || !$staff->isAvailable() //Don't bother vacationing staff.
-                        || in_array($staff->getEmail(), $sentlist) //No duplicates.
+                        || isset($sentlist[$staff->getEmail()]) //No duplicates.
                         || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
                 $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
-                $sentlist[] = $staff->getEmail();
+                $sentlist[$staff->getEmail()] = 1;
             }
         }
 
