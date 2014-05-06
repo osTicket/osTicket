@@ -286,6 +286,7 @@ class User extends UserModel {
 User::_inspect();
 
 class PersonsName {
+    var $format;
     var $parts;
     var $name;
 
@@ -302,7 +303,14 @@ class PersonsName {
         'original' => array('-- As Entered --', 'getOriginal'),
     );
 
-    function __construct($name) {
+    function __construct($name, $format=null) {
+        global $cfg;
+
+        if ($format && !isset(static::$formats[$format]))
+            $this->format = $format;
+        elseif($cfg)
+            $this->format = $cfg->getDefaultNameFormat();
+
         $this->parts = static::splitName($name);
         $this->name = $name;
     }
@@ -392,9 +400,9 @@ class PersonsName {
 
     function __toString() {
         global $cfg;
-        $format = $cfg->getDefaultNameFormat();
-        list(,$func) = static::$formats[$format];
+        @list(,$func) = static::$formats[$this->format];
         if (!$func) $func = 'getFull';
+
         return call_user_func(array($this, $func));
     }
 
