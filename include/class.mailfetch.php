@@ -515,15 +515,23 @@ class MailFetcher {
         return false;
     }
 
-    function getOriginalMessage($mid) {
-        if (!($body = $this->getPart($mid, 'message/rfc822')))
-            return null;
+    function getOriginalMessageHeaders($mid) {
+        if (!($body = $this->getPart($mid, 'message/rfc822'))) {
+            // Handle rfc1892 style bounces
+            if (!($body = $this->getPart($mid, 'text/rfc822-headers'))) {
+                return null;
+            }
+            else {
+                // Add a junk body for the parser
+                $body .= "\n\nIgnored";
+            }
+        }
 
         $msg = new Mail_Parse($body);
         if (!$msg->decode())
             return null;
 
-        return $msg->struct;
+        return $msg->struct->headers;
     }
 
     function getPriority($mid) {
@@ -619,9 +627,9 @@ class MailFetcher {
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
-            if ($msg = $this->getOriginalMessage($mid)) {
-                $vars['references'] = $msg->headers['references'];
-                unset($vars['in-reply-to']);
+            if ($headers = $this->getOriginalMessageHeaders($mid)) {
+                $vars['references'] = $headers['references'];
+                $vars['in-reply-to'] = @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
             $vars['message'] = $this->getDeliveryStatusMessage($mid);
