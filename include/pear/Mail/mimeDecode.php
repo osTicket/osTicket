@@ -525,8 +525,11 @@ class Mail_mimeDecode extends PEAR
             $boundary = $bs_possible;
         }
 
-        if ($input instanceof StringView)
-            return $input->split('--' . $boundary);
+        if ($input instanceof StringView) {
+            $parts = $input->split('--' . $boundary);
+            array_shift($parts);
+            return $parts;
+        }
 
         $tmp = explode('--' . $boundary, $input);
 
@@ -898,26 +901,28 @@ class StringView {
             $end ? min($this->start + $end, $this->end ?: PHP_INT_MAX) : $this->end);
     }
 
-    function split($boundary) {
-        $matches = array();
-        if (!preg_match_all('/^' . preg_quote($boundary) . '/m', $this->string,
-                $matches, PREG_OFFSET_CAPTURE, $this->start))
-            return array();
-
+    function split($token) {
+        $ltoken = strlen($token);
         $windows = array();
-        foreach ($matches[0] as $i => $m) {
-            $start = $m[1] + strlen($m[0]);
-            // Enforce local window
-            if ($i > 0)
-                $windows[$i-1]['stop'] = min($this->end ?: $m[1], $m[1]);
-            if ($this->end && $start > $this->end)
+        $offset = $this->start;
+        for ($i = 0;; $i++) {
+            $windows[$i] = array('start' => $offset);
+            $offset = strpos($this->string, $token, $offset);
+            if (!$offset || ($this->end && $offset >= $this->end))
                 break;
-            $windows[$i]['start'] = $m[1] + strlen($m[0]);
+
+            // Enforce local window
+            $windows[$i]['stop'] = min($this->end ?: $offset, $offset);
+            $offset += $ltoken;
+            if ($this->end && $offset > $this->end)
+                break;
         }
+
         $parts = array();
         foreach ($windows as $w) {
-            $parts[] = new StringView($this->string, $w['start'], @$w['stop'] ?: false);
+            $parts[] = new static($this->string, $w['start'], @$w['stop'] ?: false);
         }
         return $parts;
+
     }
 }
