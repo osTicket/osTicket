@@ -807,13 +807,18 @@ Class ThreadEntry {
      *  - "in-reply-to" => Message-Id the email is a direct response to
      *  - "references" => List of Message-Id's the email is in response
      *  - "subject" => Find external ticket number in the subject line
-     *
-     *  seen (by-ref:bool) a flag that will be set if the message-id was
+     *  - "seen (by-ref:bool)" => a flag that will be set if the message-id was
      *      positively found, indicating that the message-id has been
      *      previously seen. This is useful if no thread-id is associated
      *      with the email (if it was rejected for instance).
+     *
+     * strict (bool) - indicates if message-id matching is strict. When
+     *      - true  - matching is system-wide
+     *      - false - departments are considered separate queues
+     *
+     *
      */
-    function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
+    function lookupByEmailHeaders(&$mailinfo, $strict=true) {
         // Search for messages using the References header, then the
         // in-reply-to header
         $search = 'SELECT thread_id, email_mid FROM '.TICKET_EMAIL_INFO_TABLE
@@ -821,8 +826,25 @@ Class ThreadEntry {
 
         if (list($id, $mid) = db_fetch_row(db_query(
                 sprintf($search, db_input($mailinfo['mid']))))) {
-            $seen = true;
-            return ThreadEntry::lookup($id);
+
+            $mailinfo['seen'] = true;
+            $entry = ThreadEntry::lookup($id);
+
+            if ($entry // We found a thread entry
+                    //Lax matching - allow duplicates
+                    && !$strict
+                    // Ticket still exists
+                    && ($ticket = $entry->getTicket())
+                    // Duplicate email sent to 2 different  queues (email addresses)
+                    && ($ticket->getEmailId() != $mailinfo['emailId'])
+                    ) {
+                // Same email got sent to 2 different system emails we're
+                // fetching. Pretending as if we haven't seen the message
+                $entry = null;
+                $mailinfo['seen'] = false;
+            }
+
+            return $entry;
         }
 
         foreach (array('mid', 'in-reply-to', 'references') as $header) {
