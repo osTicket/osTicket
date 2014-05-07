@@ -86,6 +86,34 @@ class ClientCreateRequest {
     function getInfo() {
         return $this->info;
     }
+
+    function attemptAutoRegister() {
+        global $cfg;
+
+        if (!$cfg)
+            return false;
+
+        // Attempt to automatically register
+        $this_form = UserForm::getUserForm()->getForm($this->getInfo());
+        $bk = $this->getBackend();
+        $defaults = array(
+            'timezone_id' => $cfg->getDefaultTimezoneId(),
+            'dst' => $cfg->observeDaylightSaving(),
+            'username' => $this->getUsername(),
+        );
+        if ($bk->supportsInteractiveAuthentication())
+            // User can only be authenticated against this backend
+            $defaults['backend'] = $bk::$id;
+        if ($this_form->isValid(function($f) { return !$f->get('private'); })
+                && ($U = User::fromVars($this_form->getClean()))
+                && ($acct = ClientAccount::createForUser($U, $defaults))
+                // Confirm and save the account
+                && $acct->confirm()
+                // Login, since `tickets.php` will not attempt SSO
+                && ($cl = new ClientSession(new EndUser($U)))
+                && ($bk->login($cl, $bk)))
+            return $cl;
+    }
 }
 
 /**
