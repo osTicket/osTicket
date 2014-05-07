@@ -79,7 +79,7 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="note_alert_assigned" <?php echo $config['note_alert_assigned']?'checked':''; ?>> Assigned Staff
+              <input type="checkbox" name="note_alert_assigned" <?php echo $config['note_alert_assigned']?'checked':''; ?>> Assigned Staff / Team Members
             </td>
         </tr>
         <tr>
