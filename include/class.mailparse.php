@@ -268,11 +268,17 @@ class Mail_Parse {
         return false;
     }
 
-    function getOriginalMessage() {
+    function getOriginalMessageHeaders() {
         foreach ($this->struct->parts as $p) {
             $ctype = $p->ctype_primary.'/'.$p->ctype_secondary;
             if (strtolower($ctype) === 'message/rfc822')
-                return $p->parts[0];
+                return $p->parts[0]->headers;
+            // Handle rfc1892 style bounces
+            if (strtolower($ctype) === 'text/rfc822-headers') {
+                $T = new Mail_mimeDecode($p->body . "\n\nIgnored");
+                if ($struct = $T->decode())
+                    return $struct->headers;
+            }
         }
         return null;
     }
@@ -604,8 +610,10 @@ class EmailDataParser {
 
         if ($parser->isBounceNotice()) {
             // Fetch the original References and assign to 'references'
-            if ($msg = $parser->getOriginalMessage())
-                $data['references'] = $msg->headers['references'];
+            if ($headers = $parser->getOriginalMessageHeaders()) {
+                $data['references'] = $headers['references'];
+                $data['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+            }
             // Fetch deliver status report
             $data['message'] = $parser->getDeliveryStatusMessage();
             $data['thread-type'] = 'N';
