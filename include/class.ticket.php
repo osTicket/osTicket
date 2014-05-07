@@ -334,6 +334,10 @@ class Ticket {
         return $this->ht['ip_address'];
     }
 
+    function getEmailChannelId() {
+        return $this->ht['email_id'];
+    }
+
     function getHashtable() {
         return $this->ht;
     }

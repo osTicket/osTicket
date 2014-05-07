@@ -836,7 +836,7 @@ Class ThreadEntry {
                     // Ticket still exists
                     && ($ticket = $entry->getTicket())
                     // Duplicate email sent to 2 different  queues (email addresses)
-                    && ($ticket->getEmailId() != $mailinfo['emailId'])
+                    && ($ticket->getEmailChannelId() != $mailinfo['emailId'])
                     ) {
                 // Same email got sent to 2 different system emails we're
                 // fetching. Pretending as if we haven't seen the message b4
@@ -857,8 +857,8 @@ Class ThreadEntry {
                 $e = Email::lookup($mailinfo['emailId']);
                 $ticket->logNote(
                         'Duplicate Email',
-                        sprintf('Same email delivered to %s address',
-                            $e ? $e->getEmail() : 'another system'),
+                        'This email was also delivered to ' .
+                            ($e ? sprintf('the <%s> mailbox', $e->getEmail()) : 'another mailbox'),
                         'SYSTEM',
                         false);
             }

@@ -550,14 +550,14 @@ class EmailDataParser {
          */
 
         $tolist = array();
+        if (($dt = $parser->getDeliveredToAddressList()))
+            $tolist['delivered-to'] = $dt;
+
         if (($to = $parser->getToAddressList()))
             $tolist['to'] = $to;
 
         if (($cc = $parser->getCcAddressList()))
             $tolist['cc'] = $cc;
-
-        if (($dt = $parser->getDeliveredToAddressList()))
-            $tolist['delivered-to'] = $dt;
 
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {

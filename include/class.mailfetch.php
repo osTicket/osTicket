@@ -287,10 +287,6 @@ class MailFetcher {
 
         // Put together a list of recipients
         $tolist = array();
-        if($headerinfo->to)
-            $tolist['to'] = $headerinfo->to;
-        if($headerinfo->cc)
-            $tolist['cc'] = $headerinfo->cc;
 
         //Add delivered-to address to list.
         if (stripos($header['header'], 'delivered-to:') !==false
@@ -299,6 +295,11 @@ class MailFetcher {
             if (($delivered_to = Mail_Parse::parseAddressList($dt)))
                 $tolist['delivered-to'] = $delivered_to;
         }
+
+        if($headerinfo->to)
+            $tolist['to'] = $headerinfo->to;
+        if($headerinfo->cc)
+            $tolist['cc'] = $headerinfo->cc;
 
         $header['recipients'] = array();
         foreach($tolist as $source => $list) {
