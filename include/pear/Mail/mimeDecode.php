@@ -404,10 +404,16 @@ class Mail_mimeDecode extends PEAR
      */
     function _splitBodyHeader(&$input)
     {
-        // The headers should end within the first 500k of the email...
-        if (preg_match("/^.*?(\r?\n\r?\n)(.)/s", $input, $match, PREG_OFFSET_CAPTURE)) {
-            return array(substr($input, 0, $match[1][1]),
-                   new StringView($input, $match[2][1]));
+        if ($input instanceof StringView)
+            $check = $input->substr(0, 64<<10);
+        else
+            $check = &$input;
+        if (preg_match("/^.*?(\r?\n\r?\n)(.)/s", $check, $match, PREG_OFFSET_CAPTURE)) {
+            $headers = ($input instanceof StringView)
+                ? (string) $input->substr(0, $match[1][1]) : substr($input, 0, $match[1][1]);
+            $body = ($input instanceof StringView)
+                ? $input->substr($match[2][1]) : new StringView($input, $match[2][1]);
+            return array($headers, $body);
         }
         $this->_error = 'Could not split header and body';
         return false;
@@ -885,6 +891,11 @@ class StringView {
         return $this->end
             ? substr($this->string, $this->start, $this->end - $this->start)
             : substr($this->string, $this->start);
+    }
+
+    function substr($start, $end=false) {
+        return new StringView($this->string, $this->start + $start,
+            $end ? min($this->start + $end, $this->end ?: PHP_INT_MAX) : $this->end);
     }
 
     function split($boundary) {
