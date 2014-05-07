@@ -663,6 +663,7 @@ class MailFetcher {
                     $attachments[] = array(
                         'cid' => @$at->AttachContentId ?: false,
                         'data' => $at,
+                        'size' => @$at->DataSize ?: null,
                         'type' => @$at->AttachMimeTag ?: false,
                         'name' => $at->getName(),
                     );

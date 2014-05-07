@@ -12,7 +12,7 @@ class TicketApiController extends ApiController {
         $supported = array(
             "alert", "autorespond", "source", "topicId",
             "attachments" => array("*" =>
-                array("name", "type", "data", "encoding")
+                array("name", "type", "data", "encoding", "size")
             ),
             "message", "ip", "priorityId"
         );
@@ -53,11 +53,11 @@ class TicketApiController extends ApiController {
     /*
      Validate data - overwrites parent's validator for additional validations.
     */
-    function validate(&$data, $format) {
+    function validate(&$data, $format, $strict=true) {
         global $ost;
 
         //Call parent to Validate the structure
-        if(!parent::validate($data, $format))
+        if(!parent::validate($data, $format, $strict) && $strict)
             $this->exerr(400, 'Unexpected or invalid data received');
 
         //Nuke attachments IF API files are not allowed.

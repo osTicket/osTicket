@@ -491,6 +491,7 @@ class TnefStreamParser {
                 break;
             case self::attAttachData:
                 $attach->_setData($info['data']);
+                $attach->_setDataSize($info['length']);
                 break;
             }
         }
@@ -555,6 +556,10 @@ class TnefAttachment extends AbstractTnefObject {
 
     function _setData($data) {
         $this->Data = $data;
+    }
+
+    function _setDataSize($size) {
+        $this->DataSize = $size;
     }
 
     function getData() {

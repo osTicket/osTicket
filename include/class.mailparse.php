@@ -424,6 +424,7 @@ class Mail_Parse {
                 $files[] = array(
                     'cid' => @$at->AttachContentId ?: false,
                     'data' => $at->getData(),
+                    'size' => @$at->DataSize ?: null,
                     'type' => @$at->AttachMimeTag ?: false,
                     'name' => $at->getName(),
                 );
