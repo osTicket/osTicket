@@ -855,7 +855,7 @@ class Ticket {
     //set status to open on a closed ticket.
     function reopen($isanswered=0) {
 
-        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), reopened=NOW() '
+        $sql='UPDATE '.TICKET_TABLE.' SET closed=NULL, updated=NOW(), reopened=NOW() '
             .' ,status='.db_input('open')
             .' ,isanswered='.db_input($isanswered)
             .' WHERE ticket_id='.db_input($this->getId());
