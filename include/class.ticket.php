@@ -2401,6 +2401,15 @@ class Ticket {
                 $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
         }
 
+        // Log a note (if any)
+        if (($note=$vars['note'])
+                // Make sure the note of interest is an array to distinguish
+                // it from internal note from staff created tickets
+                && is_array($note)) {
+            $ticket->logNote($note['title'], $note['body'], $note['poster'],
+                    $note['alert']);
+        }
+
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))

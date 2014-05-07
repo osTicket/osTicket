@@ -831,7 +831,7 @@ Class ThreadEntry {
             $entry = ThreadEntry::lookup($id);
 
             if ($entry // We found a thread entry
-                    //Lax matching - allow duplicates
+                    // Lax matching - allow duplicates
                     && !$strict
                     // Ticket still exists
                     && ($ticket = $entry->getTicket())
@@ -839,9 +839,28 @@ Class ThreadEntry {
                     && ($ticket->getEmailId() != $mailinfo['emailId'])
                     ) {
                 // Same email got sent to 2 different system emails we're
-                // fetching. Pretending as if we haven't seen the message
+                // fetching. Pretending as if we haven't seen the message b4
                 $entry = null;
                 $mailinfo['seen'] = false;
+
+                // Note for about to be created ticket
+                $mailinfo['note'] = array(
+                        'title' => 'Duplicate Ticket',
+                        'body' => new TextThreadBody(
+                            sprintf('Duplicate ticket #%s already exists in %s department',
+                                $ticket->getNumber(),
+                                $ticket->getDept())),
+                        'poster' => 'SYSTEM',
+                        'alert' => false);
+
+                // Log a note to existing ticket
+                $e = Email::lookup($mailinfo['emailId']);
+                $ticket->logNote(
+                        'Duplicate Email',
+                        sprintf('Same email delivered to %s address',
+                            $e ? $e->getEmail() : 'another system'),
+                        'SYSTEM',
+                        false);
             }
 
             return $entry;
