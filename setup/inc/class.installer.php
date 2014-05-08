@@ -259,7 +259,14 @@ class Installer extends SetupWizard {
         $errors = array();
         $ticket_vars = $i18n->getTemplate('templates/ticket/installed.yaml')
             ->getData();
-        $tid = Ticket::create($ticket_vars, $errors, 'api', false, false);
+        $ticket = Ticket::create($ticket_vars, $errors, 'api', false, false);
+
+        if ($ticket
+                && ($org = Organization::objects()->order_by('id')->one())) {
+
+            $user=User::lookup($ticket->getOwnerId());
+            $user->setOrganization($org);
+        }
 
         //TODO: create another personalized ticket and assign to admin??
 
