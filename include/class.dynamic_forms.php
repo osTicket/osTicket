@@ -246,7 +246,7 @@ Filter::addSupportedMatches('User Data', function() {
         $matches['field.'.$f->get('id')] = 'User / '.$f->getLabel();
     }
     return $matches;
-});
+}, 20);
 
 class TicketForm extends DynamicForm {
     static $instance;
@@ -330,7 +330,7 @@ Filter::addSupportedMatches('Ticket Data', function() {
         $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
     }
     return $matches;
-});
+}, 30);
 // Manage materialized view on custom data updates
 Signal::connect('model.created',
     array('TicketForm', 'updateDynamicDataView'),

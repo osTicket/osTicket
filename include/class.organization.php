@@ -396,6 +396,6 @@ Filter::addSupportedMatches('Organization Data', function() {
         $matches['field.'.$f->get('id')] = 'Organization / '.$f->getLabel();
     }
     return $matches;
-});
+},40);
 Organization::_inspect();
 ?>
