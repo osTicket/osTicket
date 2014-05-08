@@ -19,6 +19,9 @@ if($dept && $_REQUEST['a']!='add') {
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $info['ticket_auto_response']=isset($info['ticket_auto_response'])?$info['ticket_auto_response']:1;
     $info['message_auto_response']=isset($info['message_auto_response'])?$info['message_auto_response']:1;
+    if (!isset($info['group_membership']))
+        $info['group_membership'] = 1;
+
     $qstr.='&a='.$_REQUEST['a'];
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -59,49 +62,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">
-                Email:
-            </td>
-            <td>
-                <select name="email_id">
-                    <option value="0">&mdash; Select Department Email &mdash;</option>
-                    <?php
-                    $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$email,$name)=db_fetch_row($res)){
-                            $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
-                            if($name)
-                                $email=Format::htmlchars("$name <$email>");
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">
-                Template:
-            </td>
-            <td>
-                <select name="tpl_id">
-                    <option value="0">&mdash; System Default &mdash;</option>
-                    <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl WHERE isactive=1 ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">
+            <td width="180">
                 SLA:
             </td>
             <td>
@@ -120,7 +81,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">
+            <td width="180">
                 Manager:
             </td>
             <td>
@@ -147,12 +108,70 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="group_membership" value="0" <?php echo $info['group_membership']?'checked="checked"':''; ?> >
-                Extend membership to groups with access. <i>(Alerts and  notices will include groups)</i>
+                Extend membership to groups with access <em>(Alerts and
+                        notices will include groups)</em>
+            </td>
+        </tr>
+        <tr>
+            <td>Ticket Assignment:</td>
+            <td>
+                <input type="checkbox" name="assign_members_only" <?php echo
+                $info['assign_members_only']?'checked="checked"':''; ?>>
+                Limit ticket assignment to department members
+                <!-- Help Tip:
+                     Tickets can ONLY be assigned to department members (+ group members)-->
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Auto Response Settings</strong>: Override global auto-response settings for tickets routed to the Dept.</em>
+                <em><strong>Email Settings</strong>: Outgoing email settings for the department.</em>
+            </th>
+        </tr>
+        <tr>
+            <td width="180">
+                Outgoing Email:
+            </td>
+            <td>
+                <select name="email_id">
+                    <option value="0">&mdash; System Default &mdash;</option>
+                    <?php
+                    $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$email,$name)=db_fetch_row($res)){
+                            $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
+                            if($name)
+                                $email=Format::htmlchars("$name <$email>");
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                Template Set:
+            </td>
+            <td>
+                <select name="tpl_id">
+                    <option value="0">&mdash; System Default &mdash;</option>
+                    <?php
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl WHERE isactive=1 ORDER by name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$name)=db_fetch_row($res)){
+                            $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <em><strong>Autoresponder Settings</strong>: Override global auto-response settings for tickets routed to the department.</em>
             </th>
         </tr>
         <tr>

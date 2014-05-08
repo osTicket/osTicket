@@ -93,12 +93,12 @@ class Staff extends AuthenticatedUser {
         return $this->__toString();
     }
 
-    function getHastable() {
+    function getHashtable() {
         return $this->ht;
     }
 
     function getInfo() {
-        return $this->config->getInfo() + $this->getHastable();
+        return $this->config->getInfo() + $this->getHashtable();
     }
 
     // AuthenticatedUser implementation...
@@ -585,6 +585,9 @@ class Staff extends AuthenticatedUser {
 
             //Cleanup Team membership table.
             db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($this->getId()));
+
+            // Destrory config settings
+            $this->config->destroy();
         }
 
         Signal::send('model.deleted', $this);
@@ -595,7 +598,7 @@ class Staff extends AuthenticatedUser {
     /**** Static functions ********/
     function getStaffMembers($availableonly=false) {
 
-        $sql='SELECT s.staff_id,CONCAT_WS(", ",s.lastname, s.firstname) as name '
+        $sql='SELECT s.staff_id, CONCAT_WS(" ", s.firstname, s.lastname) as name '
             .' FROM '.STAFF_TABLE.' s ';
 
         if($availableonly) {

@@ -54,7 +54,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7px">&nbsp;</th>        
+            <th width="7px">&nbsp;</th>
             <th width="180"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
             <th width="80"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type">Type</a></th>
             <th width="70"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users">Users</a></th>
@@ -68,17 +68,25 @@ else
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         if($res && db_num_rows($res)):
             $defaultId=$cfg->getDefaultDeptId();
+            $defaultEmailId = $cfg->getDefaultEmail()->getId();
+            $defaultEmailAddress = (string) $cfg->getDefaultEmail();
             while ($row = db_fetch_array($res)) {
                 $sel=false;
                 if($ids && in_array($row['dept_id'],$ids))
                     $sel=true;
-                
-                $row['email']=$row['email_name']?($row['email_name'].' &lt;'.$row['email'].'&gt;'):$row['email'];
+
+                if ($row['email_id'])
+                    $row['email']=$row['email_name']?($row['email_name'].' <'.$row['email'].'>'):$row['email'];
+                elseif($defaultEmailId) {
+                    $row['email_id'] = $defaultEmailId;
+                    $row['email'] = $defaultEmailAddress;
+                }
+
                 $default=($defaultId==$row['dept_id'])?' <small>(Default)</small>':'';
                 ?>
             <tr id="<?php echo $row['dept_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['dept_id']; ?>" 
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['dept_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?> >
                 </td>
                 <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['dept_name']; ?></a>&nbsp;<?php echo $default; ?></td>
@@ -91,7 +99,8 @@ else
                     <?php } ?>
                     </b>
                 </td>
-                <td><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo $row['email']; ?></a></td>
+                <td><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php
+                    echo Format::htmlchars($row['email']); ?></a>&nbsp;</td>
                 <td><a href="staff.php?id=<?php echo $row['manager_id']; ?>"><?php echo $row['manager']; ?>&nbsp;</a></td>
             </tr>
             <?php

@@ -197,13 +197,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="canned_response_id">
                     <option value="">&mdash; None &mdash;</option>
                     <?php
-                    $sql='SELECT canned_id,title FROM '.CANNED_TABLE
-                        .' WHERE isenabled ORDER by title';
+                    $sql='SELECT canned_id, title, isenabled FROM '.CANNED_TABLE .' ORDER by title';
                     if ($res=db_query($sql)) {
-                        while (list($id,$title)=db_fetch_row($res)) {
+                        while (list($id, $title, $isenabled)=db_fetch_row($res)) {
                             $selected=($info['canned_response_id'] &&
                                     $id==$info['canned_response_id'])
                                 ? 'selected="selected"' : '';
+
+                            if (!$isenabled)
+                                $title .= ' (disabled)';
+
                             echo sprintf('<option value="%d" %s>%s</option>',
                                 $id, $selected, $title);
                         }
@@ -281,32 +284,27 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <select name="assign">
                     <option value="0">&mdash; Unassigned &mdash;</option>
-
-
                     <?php
-
-
-                    $sql=' SELECT staff_id,CONCAT_WS(", ",lastname,firstname) as name '.
-                         ' FROM '.STAFF_TABLE.' WHERE isactive=1 ORDER BY name';
-
-                    if(($res=db_query($sql)) && db_num_rows($res)){
+                    if (($users=Staff::getStaffMembers())) {
                         echo '<OPTGROUP label="Staff Members">';
-                        while (list($id,$name) = db_fetch_row($res)){
+                        foreach($users as $id => $name) {
+                            $name = new PersonsName($name);
                             $k="s$id";
                             $selected = ($info['assign']==$k || $info['staff_id']==$id)?'selected="selected"':'';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
-
-                        <?php }
+                        <?php
+                        }
                         echo '</OPTGROUP>';
-
                     }
-                    $sql='SELECT team_id, name FROM '.TEAM_TABLE.' WHERE isenabled=1';
+                    $sql='SELECT team_id, isenabled, name FROM '.TEAM_TABLE .' ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         echo '<OPTGROUP label="Teams">';
-                        while (list($id,$name) = db_fetch_row($res)){
+                        while (list($id, $isenabled, $name) = db_fetch_row($res)){
                             $k="t$id";
                             $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
+                            if (!$isenabled)
+                                $name .= ' (disabled)';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
