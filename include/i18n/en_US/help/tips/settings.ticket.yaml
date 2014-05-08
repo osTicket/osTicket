@@ -13,26 +13,10 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-global_ticket_settings_options:
-    title: Global Ticket Settings &amp; Options
-    content: >
-        These settings are <span class="doc-desc-title">global,</span> in that they
-        apply until they are overridden by other possible system settings (e.g., a
-        <span class="doc-desc-title">Department’s SLA Plan</span> overrides the 
-        <span class="doc-desc-title">Global Default SLA Plan</span> set below).
-    links:
-      - title: Select a Department to edit its Default SLA Plan
-        href: /scp/departments.php
-
-ticket_ids:
-    title: Ticket IDs
-    content: >
-        Choose between Random (Recommended) or Sequential numbers for tickets.
-
 default_sla:
     title: Default SLA
     content: >
-        Choose the default Service Level Agreement to manage how long a Ticket
+        Choose the default Service Level Agreement to manage how long a ticket
         can remain Open before it is rendered Overdue.
     links:
       - title: Create more SLA Plans
@@ -41,25 +25,28 @@ default_sla:
 default_priority:
     title: Default Priority
     content: >
-        Choose between Low, Normal, High &amp; Emergency for all tickets not
-        auto-assigned to a Help Topic or Department.
+        Choose a default <span class="doc-desc-title">priority</span> for
+        tickets not assigned a priority automatically.
+        <br/><br/>
+        Prioriy can be assigned via the help topic, routed department, or
+        ticket filter settings.
 
 maximum_open_tickets:
     title: Maximum Open Tickets
     content: >
         Enter the maximum <em>number</em> of <span class="doc-desc-title">Open
-        Tickets</span> a Client is permitted to have simultaneously. This will help protect 
+        Tickets</span> a Client is permitted to have simultaneously. This will help protect
         against spam and enable email flood control. Enter <span class="doc-desc-opt">0
         </span> if you prefer to disable this limitation.
 
 agent_collision_avoidance:
     title: Agent Collision Avoidance
     content: >
-        Enter the length of time after an Agent stops ticket-response activity that a 
-        lockout period takes affect. This lockout prevents other Agents from sending 
-        a ticket response to the Client. It does not however prevent others from 
-        composing a draft. If the locking Agent sends their response, then any other 
-        Agent’s draft will be deleted. Enter <span class="doc-desc-opt">0</span> 
+        Enter the length of time after an Agent stops ticket-response activity that a
+        lockout period takes affect. This lockout prevents other Agents from sending
+        a ticket response to the Client. It does not however prevent others from
+        composing a draft. If the locking Agent sends their response, then any other
+        Agent’s draft will be deleted. Enter <span class="doc-desc-opt">0</span>
         to disable the lockout feature.
 
 email_ticket_priority:
@@ -76,7 +63,7 @@ show_related_tickets:
 human_verification:
     title: Human Verification
     content: >
-        Enable CAPTCHA on the Client Portal to verify an incoming ticket is the 
+        Enable CAPTCHA on the Client Portal to verify an incoming ticket is the
         result of human activity.
 
 claim_tickets:
@@ -94,9 +81,9 @@ assigned_tickets:
 answered_tickets:
     title: Answered Tickets
     content: >
-        Show tickets that have been answered by an Agent in the 
-        <span class="doc-desc-title">Open Queue</span>. If this is not enabled, 
-        answered tickets will be display in the <span class="doc-desc-title">Answered 
+        Show tickets that have been answered by an Agent in the
+        <span class="doc-desc-title">Open Queue</span>. If this is not enabled,
+        answered tickets will be display in the <span class="doc-desc-title">Answered
         Tickets Queue</span>.
 
 staff_identity_masking:

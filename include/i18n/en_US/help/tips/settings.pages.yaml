@@ -60,6 +60,6 @@ upload_a_new_logo:
     title: Upload a new logo
     content: >
         Choose an image in the .gif, .jpg or .png formats. We will proportionally
-        resize the display of your image. We will not however resize the image’s
+        resize the display of your image. We will not, however, resize the image’s
         data. Therefore, to speed load times, it is recommended that you keep your
-        image close to the default image (817x170).
+        image close to the default image size (817px &times; 170px).

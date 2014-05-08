@@ -16,9 +16,8 @@
 system_logs:
     title: System Logs
     content: >
-        If there is anything that is not working correctly, this is the place to
-        start. This is where you will find any troubleshooting related logging
-        activity (e.g., Errors, Warnings, or Bugs). 
+        This is where you will find any troubleshooting related logging
+        activity (e.g., Errors, Warnings, or Bugs).
     links:
       - title: Customize what type of activity is logged by changing the <br /><span class="doc-desc-title">Default Log Level</span>.
         href: /scp/settings.php?t=system
@@ -26,15 +25,15 @@ system_logs:
 date_span:
     title: Date Span
     content: >
-        Narrow your calendar range that you would like to view in the <span
+        Select your calendar range that you would like to view in the <span
         class="doc-desc-title">System Logs</span>.
 
 type:
     title: Type
     content: >
-        Choose an option to narrow your focus on a specific type of activity. 
-        <span class="doc-desc-opt">Debug</span> represents the least 
-        severity, and <span class="doc-desc-opt">Error</span> represents 
+        Choose an option to narrow your focus on a specific type of activity.
+        <span class="doc-desc-opt">Debug</span> represents the least
+        severity, and <span class="doc-desc-opt">Error</span> represents
         the greatest severity.
 
 showing_logs:

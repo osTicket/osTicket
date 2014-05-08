@@ -11,8 +11,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     <thead>
         <tr>
             <th colspan="2">
-                <h4>Ticket Settings</h4>
-                <em>Global ticket settings and options.&nbsp;<i class="help-tip icon-question-sign" href="#global_ticket_settings_options"></i></em>
+                <h4>Global Ticket Settings</h4>
+                <em>System-wide default ticket settings and options.</em>
             </th>
         </tr>
     </thead>
@@ -22,7 +22,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <input type="radio" name="random_ticket_ids"  value="0" <?php echo !$config['random_ticket_ids']?'checked="checked"':''; ?> />
                 Sequential
                 <input type="radio" name="random_ticket_ids"  value="1" <?php echo $config['random_ticket_ids']?'checked="checked"':''; ?> />
-                Random  <em>(highly recommended)</em> <i class="help-tip icon-question-sign" href="#ticket_ids"></i>
+                Random
             </td>
         </tr>
 
@@ -31,6 +31,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 Default SLA:
             </td>
             <td>
+                <span>
                 <select name="default_sla_id">
                     <option value="0">&mdash; None &mdash;</option>
                     <?php
@@ -45,6 +46,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_sla_id']; ?></span>  <i class="help-tip icon-question-sign" href="#default_sla"></i>
+                </span>
             </td>
         </tr>
         <tr>
