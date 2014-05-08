@@ -203,8 +203,8 @@ class Canned {
         if($errors) return false;
 
         $sql=' updated=NOW() '.
-             ',dept_id='.db_input($vars['dept_id']?$vars['dept_id']:0).
-             ',isenabled='.db_input($vars['isenabled']?$vars['isenabled']:1).
+             ',dept_id='.db_input($vars['dept_id']?:0).
+             ',isenabled='.db_input($vars['isenabled']).
              ',title='.db_input($vars['title']).
              ',response='.db_input(Format::sanitize($vars['response'])).
              ',notes='.db_input(Format::sanitize($vars['notes']));

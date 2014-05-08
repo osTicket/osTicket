@@ -206,12 +206,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         }
                         echo '</OPTGROUP>';
                     }
-                    $sql='SELECT team_id, name FROM '.TEAM_TABLE.' ORDER BY name';
+                    $sql='SELECT team_id, name, isenabled FROM '.TEAM_TABLE.' ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         echo '<OPTGROUP label="Teams">';
-                        while (list($id,$name) = db_fetch_row($res)){
+                        while (list($id, $name, $isenabled) = db_fetch_row($res)){
                             $k="t$id";
                             $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
+
+                            if (!$isenabled)
+                                $name .= ' (disabled)';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php

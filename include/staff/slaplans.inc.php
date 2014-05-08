@@ -53,7 +53,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
+            <th width="7">&nbsp;</th>
             <th width="320"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
             <th width="100"><a  <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="130"><a  <?php echo $period_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=period">Grace Period (hrs)</a></th>
@@ -66,17 +66,24 @@ else
         $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         if($res && db_num_rows($res)):
+            $defaultId = $cfg->getDefaultSLAId();
             while ($row = db_fetch_array($res)) {
                 $sel=false;
                 if($ids && in_array($row['id'],$ids))
                     $sel=true;
+
+                $default = '';
+                if ($row['id'] == $defaultId)
+                    $default = '<small><em>(Default)</em></small>';
                 ?>
             <tr id="<?php echo $row['id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" 
-                            <?php echo $sel?'checked="checked"':''; ?>>
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
+                    <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td>&nbsp;<a href="slas.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
+                <td>&nbsp;<a href="slas.php?id=<?php echo $row['id'];
+                    ?>"><?php echo Format::htmlchars($row['name']);
+                    ?></a>&nbsp;<?php echo $default; ?></td>
                 <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
                 <td style="text-align:right;padding-right:35px;"><?php echo $row['grace_period']; ?>&nbsp;</td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>

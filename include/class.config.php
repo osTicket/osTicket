@@ -127,7 +127,7 @@ class Config {
         return true;
     }
 
-    function destrory() {
+    function destroy() {
 
         $sql='DELETE FROM '.$this->table
             .' WHERE `'.$this->section_column.'` = '.db_input($this->section);

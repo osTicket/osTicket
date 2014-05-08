@@ -138,7 +138,7 @@ class Dept {
     }
 
     function getAvailableMembers() {
-        return $this->getMembers(array('available' =>1));
+        return $this->getMembers(array('available'=>1));
     }
 
 

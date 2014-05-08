@@ -399,8 +399,8 @@ class PersonsName {
     }
 
     function __toString() {
-        global $cfg;
-        @list(,$func) = static::$formats[$this->format];
+
+        @list(, $func) = static::$formats[$this->format];
         if (!$func) $func = 'getFull';
 
         return call_user_func(array($this, $func));
