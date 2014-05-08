@@ -20,13 +20,17 @@ class Filter {
 
     static $match_types = array(
         'User Information' => array(
-            'name'      => 'Name',
-            'email'     => 'Email',
+            array('name'      => 'Name',
+                'email'     => 'Email',
+            ),
+            900
         ),
         'Email Meta-Data' => array(
-            'reply-to'  => 'Reply-To Email',
-            'reply-to-name' => 'Reply-To Name',
-            'addressee' => 'Addressee (To and Cc)',
+            array('reply-to'  => 'Reply-To Email',
+                'reply-to-name' => 'Reply-To Name',
+                'addressee' => 'Addressee (To and Cc)',
+            ),
+            200
         ),
     );
 
@@ -318,17 +322,18 @@ class Filter {
         if ($this->getHelpTopic())
             $ticket['topicId'] = $this->getHelpTopic();
     }
-    /* static */ function getSupportedMatches() {
+     static function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
-            if (is_callable($v))
-                $v = $v();
+            if (is_callable($v[0]))
+                $v[0] = $v[0]();
         }
         unset($v);
-        return static::$match_types;
+        uasort(static::$match_types, function($a, $b) { return $a[1] - $b[1]; });
+        return array_map(function($a) { return $a[0]; }, static::$match_types);
     }
 
-    static function addSupportedMatches($group, $callable) {
-        static::$match_types[$group] = $callable;
+    static function addSupportedMatches($group, $callable, $order=10) {
+        static::$match_types[$group] = array($callable, $order);
     }
 
     static function getSupportedMatchFields() {

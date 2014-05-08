@@ -288,6 +288,22 @@ class User extends UserModel {
         return $this->_entries;
     }
 
+    function getFilterData() {
+        $vars = array();
+        foreach ($this->getDynamicData() as $entry) {
+            if ($entry->getForm()->get('type') != 'U')
+                continue;
+            foreach ($entry->getFields() as $f)
+                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+            // Add in special `name` and `email` fields
+            foreach (array('name', 'email') as $name) {
+                if ($f = $entry->getForm()->getField($name))
+                    $vars['field.'.$f->get('id')] = $this->getName();
+            }
+        }
+        return $vars;
+    }
+
     function getForms($data=null) {
 
         if (!isset($this->_forms)) {

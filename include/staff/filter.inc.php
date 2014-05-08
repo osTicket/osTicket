@@ -122,7 +122,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr id="r<?php echo $i; ?>">
             <td colspan="2">
                 <div>
-                    <select name="rule_w<?php echo $i; ?>">
+                    <select style="max-width: 200px;" name="rule_w<?php echo $i; ?>">
                         <option value="">&mdash; Select One &dash;</option>
                         <?php
                         foreach ($matches as $group=>$ms) { ?>

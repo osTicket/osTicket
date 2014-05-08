@@ -74,10 +74,13 @@ class DynamicForm extends VerySimpleModel {
         return call_user_func_array($delegate, $args);
     }
 
-    function getField($name) {
-        foreach ($this->getFields() as $f)
+    function getField($name, $cache=true) {
+        foreach ($this->getFields($cache) as $f) {
             if (!strcasecmp($f->get('name'), $name))
                 return $f;
+        }
+        if ($cache)
+            return $this->getField($name, false);
     }
 
     function hasField($name) {
@@ -235,6 +238,15 @@ class UserForm extends DynamicForm {
         return static::$instance;
     }
 }
+Filter::addSupportedMatches('User Data', function() {
+    $matches = array();
+    foreach (UserForm::getInstance()->getFields() as $f) {
+        if (!$f->hasData())
+            continue;
+        $matches['field.'.$f->get('id')] = 'User / '.$f->getLabel();
+    }
+    return $matches;
+}, 20);
 
 class TicketForm extends DynamicForm {
     static $instance;
@@ -315,10 +327,10 @@ Filter::addSupportedMatches('Ticket Data', function() {
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = $f->getLabel();
+        $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
     }
     return $matches;
-});
+}, 30);
 // Manage materialized view on custom data updates
 Signal::connect('model.created',
     array('TicketForm', 'updateDynamicDataView'),
