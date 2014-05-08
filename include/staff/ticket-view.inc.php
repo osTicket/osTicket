@@ -816,16 +816,25 @@ $tcount+= $ticket->getNumNotes();
                             echo sprintf('<option value="%d">Claim Ticket (comments optional)</option>', $thisstaff->getId());
 
                         $sid=$tid=0;
-                        if(($users=Staff::getAvailableStaffMembers())) {
+
+                        if ($dept->assignMembersOnly())
+                            $users = $dept->getAvailableMembers();
+                        else
+                            $users = Staff::getAvailableStaffMembers();
+
+                        if ($users) {
                             echo '<OPTGROUP label="Staff Members ('.count($users).')">';
                             $staffId=$ticket->isAssigned()?$ticket->getStaffId():0;
                             foreach($users as $id => $name) {
                                 if($staffId && $staffId==$id)
                                     continue;
 
+                                if (!is_object($name))
+                                    $name = new PersonsName($name);
+
                                 $k="s$id";
                                 echo sprintf('<option value="%s" %s>%s</option>',
-                                        $k,(($info['assignId']==$k)?'selected="selected"':''),$name);
+                                        $k,(($info['assignId']==$k)?'selected="selected"':''), $name);
                             }
                             echo '</OPTGROUP>';
                         }

@@ -62,16 +62,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
                 <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
-                &nbsp;<span class="error">*&nbsp;</span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                Priority Escalation:
-            </td>
-            <td>
-                <input type="checkbox" name="enable_priority_escalation" value="1" <?php echo $info['enable_priority_escalation']?'checked="checked"':''; ?> >
-                    <strong>Enable</strong> priority escalation on overdue tickets.&nbsp;<i class="help-tip icon-question-sign" href="#priority_escalation"></i>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
             </td>
         </tr>
         <tr>

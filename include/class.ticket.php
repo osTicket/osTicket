@@ -528,11 +528,15 @@ class Ticket {
     }
 
     function getLastMessage() {
+        if (!isset($this->last_message)) {
+            if($this->getLastMsgId())
+                $this->last_message =  Message::lookup(
+                    $this->getLastMsgId(), $this->getId());
 
-        if($this->getLastMsgId())
-            return Message::lookup($this->getLastMsgId(), $this->getId());
-
-        return Message::lastByTicketId($this->getId());
+            if (!$this->last_message)
+                $this->last_message = Message::lastByTicketId($this->getId());
+        }
+        return $this->last_message;
     }
 
     function getThread() {
@@ -693,6 +697,10 @@ class Ticket {
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
         return $this->lastMsgId=$msgid;
+    }
+    function setLastMessage($message) {
+        $this->last_message = $message;
+        $this->setLastMsgId($message->getId());
     }
 
     //DeptId can NOT be 0. No orphans please!
@@ -855,7 +863,7 @@ class Ticket {
     //set status to open on a closed ticket.
     function reopen($isanswered=0) {
 
-        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), reopened=NOW() '
+        $sql='UPDATE '.TICKET_TABLE.' SET closed=NULL, updated=NOW(), reopened=NOW() '
             .' ,status='.db_input('open')
             .' ,isanswered='.db_input($isanswered)
             .' WHERE ticket_id='.db_input($this->getId());
@@ -1430,7 +1438,7 @@ class Ticket {
         if(!is_object($staff) && !($staff=Staff::lookup($staff)))
             return false;
 
-        if(!$this->setStaffId($staff->getId()))
+        if (!$staff->isAvailable() || !$this->setStaffId($staff->getId()))
             return false;
 
         $this->onAssign($staff, $note, $alert);
@@ -1444,7 +1452,7 @@ class Ticket {
         if(!is_object($team) && !($team=Team::lookup($team)))
             return false;
 
-        if(!$this->setTeamId($team->getId()))
+        if (!$team->isActive() || !$this->setTeamId($team->getId()))
             return false;
 
         //Clear - staff if it's a closed ticket
@@ -1552,7 +1560,7 @@ class Ticket {
         if(!($message = $this->getThread()->addMessage($vars, $errors)))
             return null;
 
-        $this->setLastMsgId($message->getId());
+        $this->setLastMessage($message);
 
         //Add email recipients as collaborators...
         if ($vars['recipients']
@@ -1863,8 +1871,12 @@ class Ticket {
                 $recipients[]=$this->getLastRespondent();
 
             //Assigned staff if any...could be the last respondent
-            if($cfg->alertAssignedONNewNote() && $this->isAssigned() && $this->getStaffId())
-                $recipients[]=$this->getStaff();
+            if($cfg->alertAssignedONNewNote() && $this->isAssigned()) {
+                if ($staff = $this->getStaff())
+                    $recipients[] = $staff;
+                if ($team = $this->getTeam())
+                    $recipients = array_merge($recipients, $team->getMembers());
+            }
 
             //Dept manager
             if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
@@ -1878,12 +1890,12 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff)
                         || !$staff->isAvailable() //Don't bother vacationing staff.
-                        || in_array($staff->getEmail(), $sentlist) //No duplicates.
+                        || isset($sentlist[$staff->getEmail()]) //No duplicates.
                         || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
                 $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
-                $sentlist[] = $staff->getEmail();
+                $sentlist[$staff->getEmail()] = 1;
             }
         }
 
@@ -2620,7 +2632,7 @@ class Ticket {
                 && ($msg=$tpl->getNewTicketNoticeMsgTemplate())
                 && ($email=$dept->getEmail())) {
 
-            $message = $vars['message'];
+            $message = (string) $ticket->getLastMessage();
             if($response) {
                 $message .= ($cfg->isHtmlThreadEnabled()) ? "<br><br>" : "\n\n";
                 $message .= $response->getBody();

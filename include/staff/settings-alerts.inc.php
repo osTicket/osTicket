@@ -89,7 +89,7 @@
         </tr>
         <tr>
             <td>
-              <input type="checkbox" name="note_alert_assigned" <?php echo $config['note_alert_assigned']?'checked':''; ?>> Assigned Staff <i class="help-tip icon-question-sign" href="#assigned_staff_2"></i>
+              <input type="checkbox" name="note_alert_assigned" <?php echo $config['note_alert_assigned']?'checked':''; ?>> Assigned Staff / Team Members<i class="help-tip icon-question-sign" href="#assigned_staff_2"></i>
             </td>
         </tr>
         <tr>

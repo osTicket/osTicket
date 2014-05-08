@@ -73,7 +73,9 @@ if($_POST){
                     case 'delete':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($p=SLA::lookup($v)) && $p->delete())
+                            if (($p=SLA::lookup($v))
+                                && $p->getId() != $cfg->getDefaultSLAId()
+                                && $p->delete())
                                 $i++;
                         }
 

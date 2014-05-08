@@ -71,7 +71,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
         <td>
             <span class="captcha"><img src="captcha.php" border="0" align="left"></span>
             &nbsp;&nbsp;
-            <input id="captcha" type="text" name="captcha" size="6">
+            <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
             <em>Enter the text shown on the image.</em>
             <font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font>
         </td>

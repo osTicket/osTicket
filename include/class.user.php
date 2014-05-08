@@ -79,6 +79,12 @@ class UserModel extends VerySimpleModel {
 
     const PRIMARY_ORG_CONTACT   = 0x0001;
 
+    static function objects() {
+        $qs = parent::objects();
+        #$qs->select_related('default_email');
+        return $qs;
+    }
+
     function getId() {
         return $this->id;
     }
@@ -558,6 +564,7 @@ class User extends UserModel {
 }
 
 class PersonsName {
+    var $format;
     var $parts;
     var $name;
 
@@ -574,7 +581,14 @@ class PersonsName {
         'original' => array('-- As Entered --', 'getOriginal'),
     );
 
-    function __construct($name) {
+    function __construct($name, $format=null) {
+        global $cfg;
+
+        if ($format && !isset(static::$formats[$format]))
+            $this->format = $format;
+        elseif($cfg)
+            $this->format = $cfg->getDefaultNameFormat();
+
         $this->parts = static::splitName($name);
         $this->name = $name;
     }
@@ -663,10 +677,10 @@ class PersonsName {
     }
 
     function __toString() {
-        global $cfg;
-        $format = $cfg ? $cfg->getDefaultNameFormat() : 'original';
-        list(,$func) = static::$formats[$format];
+
+        @list(, $func) = static::$formats[$this->format];
         if (!$func) $func = 'getFull';
+
         return (string) call_user_func(array($this, $func));
     }
 

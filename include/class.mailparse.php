@@ -32,9 +32,9 @@ class Mail_Parse {
 
     var $tnef = false;      // TNEF encoded mail
 
-    function Mail_parse($mimeMessage, $charset=null){
+    function Mail_parse(&$mimeMessage, $charset=null){
 
-        $this->mime_message = $mimeMessage;
+        $this->mime_message = &$mimeMessage;
 
         if($charset)
             $this->charset = $charset;
@@ -54,17 +54,17 @@ class Mail_Parse {
 
         $params = array('crlf'          => "\r\n",
                         'charset'       => $this->charset,
-                        'input'         => $this->mime_message,
                         'include_bodies'=> $this->include_bodies,
                         'decode_headers'=> $this->decode_headers,
                         'decode_bodies' => $this->decode_bodies);
 
-        $this->struct=Mail_mimeDecode::decode($params);
+        $this->splitBodyHeader();
+
+        $decoder = new Mail_mimeDecode($this->mime_message);
+        $this->struct = $decoder->decode($params);
 
         if (PEAR::isError($this->struct))
             return false;
-
-        $this->splitBodyHeader();
 
         // Handle wrapped emails when forwarded
         if ($this->struct && $this->struct->parts) {
@@ -119,7 +119,7 @@ class Mail_Parse {
 
     function splitBodyHeader() {
         $match = array();
-        if (preg_match("/^(.*?)\r?\n\r?\n(.*)/s",
+        if (preg_match("/^(.*?)\r?\n\r?\n./s",
                 $this->mime_message,
                 $match)) {
             $this->header=$match[1];
@@ -268,11 +268,17 @@ class Mail_Parse {
         return false;
     }
 
-    function getOriginalMessage() {
+    function getOriginalMessageHeaders() {
         foreach ($this->struct->parts as $p) {
             $ctype = $p->ctype_primary.'/'.$p->ctype_secondary;
             if (strtolower($ctype) === 'message/rfc822')
-                return $p->parts[0];
+                return $p->parts[0]->headers;
+            // Handle rfc1892 style bounces
+            if (strtolower($ctype) === 'text/rfc822-headers') {
+                $T = new Mail_mimeDecode($p->body . "\n\nIgnored");
+                if ($struct = $T->decode())
+                    return $struct->headers;
+            }
         }
         return null;
     }
@@ -418,6 +424,7 @@ class Mail_Parse {
                 $files[] = array(
                     'cid' => @$at->AttachContentId ?: false,
                     'data' => $at->getData(),
+                    'size' => @$at->DataSize ?: null,
                     'type' => @$at->AttachMimeTag ?: false,
                     'name' => $at->getName(),
                 );
@@ -604,8 +611,10 @@ class EmailDataParser {
 
         if ($parser->isBounceNotice()) {
             // Fetch the original References and assign to 'references'
-            if ($msg = $parser->getOriginalMessage())
-                $data['references'] = $msg->headers['references'];
+            if ($headers = $parser->getOriginalMessageHeaders()) {
+                $data['references'] = $headers['references'];
+                $data['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+            }
             // Fetch deliver status report
             $data['message'] = $parser->getDeliveryStatusMessage();
             $data['thread-type'] = 'N';

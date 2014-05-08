@@ -384,9 +384,7 @@ class Format {
     }
 
     function stripEmptyLines($string) {
-        //return preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $string);
-        //return preg_replace('/\s\s+/',"\n",$string); //Too strict??
-        return preg_replace("/\n{3,}/", "\n\n", $string);
+        return preg_replace("/\n{3,}/", "\n\n", trim($string));
     }
 
 

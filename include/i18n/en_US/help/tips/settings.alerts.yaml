@@ -26,8 +26,7 @@ new_ticket_alert:
     title: New Ticket Alert
     content: >
         <p>
-        Pertains to alerts that are sent out when new tickets are created by
-        Clients.
+        Pertains to alerts that are sent out when new tickets are created.
         </p><p class="info-banner">
         <i class="icon-info-sign"></i>
         Staff members (department members) are not

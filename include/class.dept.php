@@ -50,6 +50,7 @@ class Dept {
         $this->id=$this->ht['dept_id'];
         $this->email=$this->sla=$this->manager=null;
         $this->getEmail(); //Auto load email struct.
+        $this->config = new Config('dept.'.$this->id);
         $this->members=$this->groups=array();
 
         return true;
@@ -99,27 +100,45 @@ class Dept {
         return count($this->getMembers());
     }
 
-    function getMembers() {
+    function getMembers($criteria=null) {
 
-        if(!$this->members) {
-            $this->members = array();
+        if(!$this->members || $criteria) {
+            $members = array();
             $sql='SELECT DISTINCT s.staff_id FROM '.STAFF_TABLE.' s '
-                .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON(s.group_id=g.group_id) '
+                .' LEFT JOIN '.GROUP_TABLE.' g ON (g.group_id=s.group_id) '
+                .' LEFT JOIN '.GROUP_DEPT_TABLE.' gd ON(s.group_id=gd.group_id) '
                 .' INNER JOIN '.DEPT_TABLE.' d
                        ON(d.dept_id=s.dept_id
                             OR d.manager_id=s.staff_id
-                            OR (d.dept_id=g.dept_id AND d.group_membership=1)
+                            OR (d.dept_id=gd.dept_id AND d.group_membership=1)
                         ) '
-                .' WHERE d.dept_id='.db_input($this->getId())
-                .' ORDER BY s.lastname, s.firstname';
+                .' WHERE d.dept_id='.db_input($this->getId());
+
+            if ($criteria && $criteria['available'])
+                $sql .= ' AND
+                        ( g.group_enabled=1
+                          AND s.isactive=1
+                          AND s.onvacation=0 ) ';
+
+            $sql.=' ORDER BY s.lastname, s.firstname';
 
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res))
-                    $this->members[] = Staff::lookup($id);
+                    $members[$id] = Staff::lookup($id);
             }
+
+            if ($criteria)
+                return $members;
+
+            $this->members = $members;
+
         }
 
         return $this->members;
+    }
+
+    function getAvailableMembers() {
+        return $this->getMembers(array('available'=>1));
     }
 
 
@@ -210,6 +229,9 @@ class Dept {
          return ($this->ht['noreply_autoresp']);
     }
 
+    function assignMembersOnly() {
+        return ($this->config->get('assign_members_only', 0));
+    }
 
     function isGroupMembershipEnabled() {
         return ($this->ht['group_membership']);
@@ -220,10 +242,8 @@ class Dept {
     }
 
     function getInfo() {
-        return $this->getHashtable();
+        return $this->config->getInfo() + $this->getHashtable();
     }
-
-
 
     function getAllowedGroups() {
 
@@ -240,25 +260,26 @@ class Dept {
         return $this->groups;
     }
 
-    function updateAllowedGroups($groups) {
+    function updateSettings($vars) {
 
-        if($groups && is_array($groups)) {
-            foreach($groups as $k=>$id) {
+        // Groups allowes to access department
+        if($vars['groups'] && is_array($vars['groups'])) {
+            foreach($vars['groups'] as $k=>$id) {
                 $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
                     .' SET dept_id='.db_input($this->getId()).', group_id='.db_input($id);
                 db_query($sql);
             }
         }
-
-
         $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($this->getId());
-        if($groups && is_array($groups))
-            $sql.=' AND group_id NOT IN('.implode(',', db_input($groups)).')';
+        if($vars['groups'] && is_array($vars['groups']))
+            $sql.=' AND group_id NOT IN ('.implode(',', db_input($vars['groups'])).')';
 
         db_query($sql);
 
-        return true;
+        // Misc. config settings
+        $this->config->set('assign_members_only', $vars['assign_members_only']);
 
+        return true;
     }
 
     function update($vars, &$errors) {
@@ -266,7 +287,7 @@ class Dept {
         if(!$this->save($this->getId(), $vars, $errors))
             return false;
 
-        $this->updateAllowedGroups($vars['groups']);
+        $this->updateSettings($vars);
         $this->reload();
 
         return true;
@@ -298,6 +319,9 @@ class Dept {
 
             //Delete group access
             db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($id));
+
+            // Destrory config settings
+            $this->config->destroy();
         }
 
         return $num;
@@ -340,6 +364,8 @@ class Dept {
         if(($manager=$criteria['manager']))
             $sql.=' AND manager_id='.db_input(is_object($manager)?$manager->getId():$manager);
 
+        $sql.=' ORDER BY dept_name';
+
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id, $name)=db_fetch_row($res))
                 $depts[$id] = $name;
@@ -353,8 +379,12 @@ class Dept {
     }
 
     function create($vars, &$errors) {
-        if(($id=self::save(0, $vars, $errors)) && ($dept=self::lookup($id)))
-            $dept->updateAllowedGroups($vars['groups']);
+
+        if(!($id=self::save(0, $vars, $errors)))
+            return null;
+
+        if (($dept=self::lookup($id)))
+            $dept->updateSettings($vars);
 
         return $id;
     }
@@ -364,13 +394,6 @@ class Dept {
 
         if($id && $id!=$vars['id'])
             $errors['err']='Missing or invalid Dept ID (internal error).';
-
-        if(!isset($vars['id'])
-                && (!$vars['email_id'] || !is_numeric($vars['email_id'])))
-            $errors['email_id']='Email selection required';
-
-        if(isset($vars['tpl_id']) && !is_numeric($vars['tpl_id']))
-            $errors['tpl_id']='Template selection required';
 
         if(!$vars['name']) {
             $errors['name']='Name required';
