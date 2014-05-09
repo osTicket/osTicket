@@ -103,7 +103,7 @@ class ContentAjaxAPI extends AjaxController {
         return $content;
     }
 
-    function getSignature($type, $id) {
+    function getSignature($type, $id=null) {
         global $thisstaff;
 
         if (!$thisstaff)
