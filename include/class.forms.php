@@ -1221,7 +1221,7 @@ class ThreadEntryWidget extends Widget {
             && !$cfg->allowAttachmentsOnlogin())
             || ($cfg->allowAttachmentsOnlogin()
                 && ($thisclient && $thisclient->isValid()))) { ?>
-        <div class="clear"><div>
+        <div class="clear"></div>
         <hr/>
         <div><strong style="padding-right:1em;vertical-align:top">Attachments: </strong>
         <div style="display:inline-block">
