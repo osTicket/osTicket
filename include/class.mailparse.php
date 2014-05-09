@@ -275,7 +275,8 @@ class Mail_Parse {
                 return $p->parts[0]->headers;
             // Handle rfc1892 style bounces
             if (strtolower($ctype) === 'text/rfc822-headers') {
-                $T = new Mail_mimeDecode($p->body . "\n\nIgnored");
+                $body = $p->body . "\n\nIgnored";
+                $T = new Mail_mimeDecode($body);
                 if ($struct = $T->decode())
                     return $struct->headers;
             }

@@ -39,7 +39,7 @@ class Mailer {
             if(!$e->allowSpoofing() || !$email)
                 $email = $e;
         } elseif(!$email && $cfg && ($e=$cfg->getDefaultEmail())) {
-            if($e->isSMTPEnabled() && ($info=$email->getSMTPInfo()))
+            if($e->isSMTPEnabled() && ($info=$e->getSMTPInfo()))
                 $this->smtp = $info;
             $email = $e;
         }
