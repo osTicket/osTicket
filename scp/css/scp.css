@@ -1810,3 +1810,7 @@ table.custom-info td {
     opacity: 0.2;
     margin-left: 5px;
 }
+
+.ui-datepicker {
+    z-index: 100 !important;
+}
