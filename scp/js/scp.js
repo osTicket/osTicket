@@ -631,42 +631,43 @@ getConfig = (function() {
     }
 })();
 
-$(document).on('pjax:start', function(event) {
-    // Don't show the spinner on back button
-    if (event instanceof PopStateEvent)
-        return;
-
-    clearInterval(window.ticket_refresh);
-    // Clear all timeouts
-    var id = window.setTimeout(function() {}, 0);
-    while (id--) {
-      window.clearTimeout(id);
-    }
-
-    if ($("#loadingbar").length === 0) {
-      $("body").append("<div id='loadingbar'></div>");
-      $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
-
-      // right
-      $("#loadingbar").width((50 + Math.random() * 30) + "%");
-      $('#overlay').css('background-color','white').fadeIn();
-    }
-
+$(document).on('pjax:click', function(options) {
+    if (window.ticket_refresh !== undefined)
+        clearInterval(window.ticket_refresh);
+    // Stop all animations
+    $(document).stop(false, true);
     // Cancel save-changes warning banner
     $(document).unbind('pjax:beforeSend.changed');
     $(window).unbind('beforeunload');
 });
-$(document).on('pjax:end', function() {
+
+$(document).on('pjax:send', function(event) {
+    if ($('#loadingbar').length !== 0) {
+        $('#loadingbar').remove();
+    }
+
+    $("body").append("<div id='loadingbar'></div>");
+    $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
+
+    // right
+    $('#loadingbar').stop(false, true).width((50 + Math.random() * 30) + "%");
+    $('#overlay').css('background-color','white').fadeIn();
+});
+
+$(document).on('pjax:complete', function() {
     // right
     $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
         $(this).remove();
     });
-    $('#overlay').hide().removeAttr('style');
+    $('#overlay').stop(false, true).hide().removeAttr('style');
+});
 
+$(document).on('pjax:end', function() {
     // Close popups
     // Close tooltips
     $('.tip_box').empty().hide();
     $('.dialog .body').empty().parent().hide();
+    $('#overlay').hide();
 });
 
 // Quick note interface
