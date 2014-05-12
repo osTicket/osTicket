@@ -117,7 +117,6 @@ $inc='pages.inc.php';
 $tip_namespace = 'manage.pages';
 if($page || $_REQUEST['a']=='add') {
     $inc='page.inc.php';
-    $tip_namespace = 'manage.addnew_page';
 }
 
 $nav->setTabActive('manage');
