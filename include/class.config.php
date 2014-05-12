@@ -419,6 +419,13 @@ class OsticketConfig extends Config {
         return $this->get('default_priority_id');
     }
 
+    function getDefaultPriority() {
+        if (!isset($this->defaultPriority))
+            $this->defaultPriority = Priority::lookup($this->getDefaultPriorityId());
+
+        return $this->defaultPriority;
+    }
+
     function getDefaultTemplateId() {
         return $this->get('default_template_id');
     }

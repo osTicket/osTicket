@@ -327,6 +327,10 @@ class Dept {
         return $num;
     }
 
+    function __toString() {
+        return $this->getName();
+    }
+
     /*----Static functions-------*/
 	function getIdByName($name) {
         $id=0;
