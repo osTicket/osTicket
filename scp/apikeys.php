@@ -96,10 +96,8 @@ if($_POST){
 $page='apikeys.inc.php';
 $tip_namespace = 'manage.api_keys';
 
-if($api || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+if($api || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
     $page = 'apikey.inc.php';
-    $tip_namespace = 'manage.addnew_api';
-}
 
 $nav->setTabActive('manage');
 $ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',

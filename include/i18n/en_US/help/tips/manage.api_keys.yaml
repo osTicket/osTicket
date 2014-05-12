@@ -13,22 +13,20 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-add_new_api_key:
-    title: Add New API Key
-    content: >
-
-api_keys_table:
-    title: API Keys
-    content: >
 
 api_key:
     title: API Key
     content: >
+        API keys are used to authenticate clients submitting new tickets via
+        the Application Programming Interface (API). API keys are used
+        instead of passwords. Since API keys may be sent unencrypted, they
+        are linked to each client's network IP address.
+    links:
+      - title: osTicket API Documentation
+        href: https://github.com/osTicket/osTicket-1.8/blob/develop/setup/doc/api.md
 
 ip_addr:
     title: IP Address
     content: >
-
-status:
-    title: Status
-    content: >
+        Client's network IP address. Each unique client IP address will
+        require separate API keys
