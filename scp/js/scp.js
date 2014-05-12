@@ -634,6 +634,9 @@ getConfig = (function() {
 $(document).on('pjax:click', function(options) {
     if (window.ticket_refresh !== undefined)
         clearInterval(window.ticket_refresh);
+    // Release ticket lock (maybe)
+    if ($.autoLock !== undefined)
+        $.autoLock.releaseLock();
     // Stop all animations
     $(document).stop(false, true);
     // Cancel save-changes warning banner
