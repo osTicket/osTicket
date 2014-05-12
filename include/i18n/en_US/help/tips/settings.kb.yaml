@@ -20,18 +20,20 @@ knowledge_base_settings:
 knowledge_base_status:
     title: Knowledge Base Status
     content: >
-        Enable this setting to allow your clients self-service access to
+        Enable this setting to allow your users self-service access to
         your public knowledge base articles.
+        <br><br>
+        Knowledge base categories and FAQs can be made internal (viewable only by Agents.)
     links:
-      - title: View and edit the content of your Knowledge Base
+      - title: Manage Knowledge Base
         href: /scp/kb.php
 
 canned_responses:
     title: Canned Responses
     content: >
-        Enable this setting to allow agents to configure and use <span
+        Enable this setting to allow Agents to use <span
         class="doc-desc-title">Canned Responses</span> when replying to
         tickets.
     links:
-      - title: Manage Canned Responses for Agents
+      - title: Manage Canned Responses
         href: /scp/canned.php

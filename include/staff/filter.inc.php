@@ -65,18 +65,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Filter Status:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
+                <input type="radio" name="isactive" value="1" <?php echo
+                $info['isactive']?'checked="checked"':''; ?>> Active
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>> Disabled
                 &nbsp;<span class="error">*&nbsp;</span>
             </td>
         </tr>
         <tr>
             <td width="180" class="required">
-                Target:
+                Target Channel:
             </td>
             <td>
                 <select name="target">
-                   <option value="">&mdash; Select a Target &dash;</option>
+                   <option value="">&mdash; Select a Channel &dash;</option>
                    <?php
                    foreach(Filter::getTargets() as $k => $v) {
                        echo sprintf('<option value="%s" %s>%s</option>',
@@ -96,12 +97,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;
-                <span class="error">*&nbsp;<?php echo $errors['target']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#target"></i>
+                <span class="error">*&nbsp;<?php echo $errors['target']; ?></span>&nbsp;
+                <i class="help-tip icon-question-sign" href="#target_channel"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Filter Rules</strong>: Rules are applied based on the criteria.&nbsp;<span class="error">*&nbsp;<?php echo $errors['rules']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#basic_fields_criterion"></i></em>
+                <em><strong>Filter Rules</strong>: Rules are applied based on the criteria.&nbsp;<span class="error">*&nbsp;<?php echo
+                $errors['rules']; ?></span></em>
             </th>
         </tr>
         <tr>
@@ -142,7 +145,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                             echo sprintf('<option value="%s" %s>%s</option>',$k,$sel,$v);
                         }
                         ?>
-                    </select>&nbsp;<i class="help-tip icon-question-sign" href="#criterion_operator"></i>
+                    </select>&nbsp;
                     <input type="text" size="60" name="rule_v<?php echo $i; ?>" value="<?php echo $info["rule_v$i"]; ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors["rule_$i"]; ?></span>
                 <?php
@@ -313,7 +316,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span><i class="help-tip icon-question-sign" href="#auto_assign_to"></i>
+                &nbsp;<span class="error">&nbsp;<?php echo
+                $errors['assign']; ?></span><i class="help-tip icon-question-sign" href="#auto_assign"></i>
             </td>
         </tr>
         <tr>
@@ -338,7 +342,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
+                <em><strong>Admin Notes</strong>: Internal notes.</em>
             </th>
         </tr>
         <tr>

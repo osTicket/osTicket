@@ -102,10 +102,9 @@ if($_POST){
 }
 
 $page='helptopics.inc.php';
-$tip_namespace = 'manage.help_topics';
+$tip_namespace = 'manage.helptopic';
 if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='helptopic.inc.php';
-    $tip_namespace = 'manage.addnew_help_topic';
 }
 
 $nav->setTabActive('manage');

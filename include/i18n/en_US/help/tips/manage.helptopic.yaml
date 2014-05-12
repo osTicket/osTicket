@@ -1,0 +1,112 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> Help Topic
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+help_topic_information:
+    title: Help Topic Information
+    content: >
+        Your Help Topics help guide what information is gathered from Users and
+        how tickets are routed or assigned.
+topic:
+    title: Topic Name
+    content: >
+        Uniqueue Help Topic name.
+
+status:
+    title: Status
+    content: >
+        If disabled, this Help Topic will not be available in the Client Interface.
+
+type:
+    title: Type
+    content: >
+        If a Topic is labelled as Private, it will only be available for Agents to
+        choose when an Agent opens a new Ticket under the Staff Panel.
+
+parent_topic:
+    title: Parent Topic
+    content: >
+        Do you want this Help Topic to be treated as a subtopic? If so, then choose a
+        Parent Topic under which this Help Topic will belong.
+
+custom_form:
+    title: Custom Form
+    content: >
+        Custom Forms will help you acquire more specific information from Users
+        that are relevant to this Help Topics.
+    links:
+      - title: Manage Custom Forms
+        href: /scp/forms.php
+
+priority:
+    title: Priority
+    content: >
+        Priority assigned to new ticket related to this Help Topic.
+        <br><br>
+        Ticket Filters can override new ticket Priority.
+
+department:
+    title: Department
+    content: >
+        Choose Department to which new tickets under this Help Topic will be routed.
+    links:
+      - title: Manage Departments
+        href: /scp/departments.php
+sla_plan:
+    title: SLA Plan
+    content: >
+        Choose SLA plan associated with this Help Topic.
+        <br><br>
+        Department default SLA plan will be overriden by choosing an SLA plan.
+    links:
+      - title: Manage SLA Plans
+        href: /scp/slas.php
+
+thank_you_page:
+    title: Thank-You Page
+    content: >
+        Choose the Thank-You Page to which a User is directed after opening a
+        Ticket.
+    links:
+      - title: Manage Thank-You Pages
+        href: /scp/pages.php
+
+auto_assign_to:
+    title: Auto-assign New Tickets
+    content: >
+        You may optionally choose to what Agent or Team the new Tickets characterized
+        by this New Topic will be sent.
+        <br><br>
+        Ticket Filters can override assignment.
+    links:
+      - title: Manage Staff
+        href: /scp/staff.php
+      - title: Manage Teams
+        href: /scp/teams.php
+      - title: Manage Filters
+        href: /scp/filters.php
+
+ticket_auto_response:
+    title: Ticket Auto-response
+    content: >
+        If checked, the setting will disable new ticket auto-response for this Help Topic.
+        <br><br>
+        This overrides <span class="doc-desc-title">Department</span> as
+        well as global <span class="doc-desc-title">Autoresponder
+        settings</span>.
+admin_notes:
+    title: Admin Notes
+    content: >
+        These notes are only visible to those whose account type is <span
+        class='doc-desc-opt'>Admin</span>.

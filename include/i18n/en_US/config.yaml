@@ -12,7 +12,7 @@ core:
     default_priority_id: 2
     enable_daylight_saving: 0
 
-    reply_separator: '-- do not edit --'
+    reply_separator: '-- reply above this line --'
 
     # Do not translate below here
     allowed_filetypes: '.doc, .pdf, .jpg, .jpeg, .gif, .png, .xls, .docx, .xlsx, .txt'

@@ -89,7 +89,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
 
         <tr><th colspan="2"><em>New ticket options</em></th></tr>
-       <tr>
+        <tr>
            <td><strong>Custom Form</strong>:</td>
            <td><select name="form_id">
                <option value="0">&mdash; No Extra Fields &mdash;</option>
@@ -101,10 +101,31 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                    </option>
                <?php } ?>
                </select>
-               <em>Extra information for tickets associated with this help topic</em>
-               &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span> <i class="help-tip icon-question-sign" href="#custom_form"></i>
+               &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
+               <i class="help-tip icon-question-sign" href="#custom_form"></i>
            </td>
-       </tr>
+        </tr>
+        <tr>
+            <td width="180" class="required">
+                Department:
+            </td>
+            <td>
+                <select name="dept_id">
+                    <option value="0">&mdash; System Default &mdash;</option>
+                    <?php
+                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$name)=db_fetch_row($res)){
+                            $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['dept_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#department"></i>
+            </td>
+        </tr>
         <tr>
             <td width="180">
                 Priority:
@@ -122,27 +143,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['priority_id']; ?></span><i class="help-tip icon-question-sign" href="#priority"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">
-                Department:
-            </td>
-            <td>
-                <select name="dept_id">
-                    <option value="">&mdash; Select Department &mdash;</option>
-                    <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span> <i class="help-tip icon-question-sign" href="#department"></i>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['priority_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#priority"></i>
             </td>
         </tr>
         <tr>
@@ -162,7 +164,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                <em>(Overrides department's SLA)</em> <i class="help-tip icon-question-sign" href="#sla_plan"></i>
+                <i class="help-tip icon-question-sign" href="#sla_plan"></i>
             </td>
         </tr>
         <tr>
@@ -182,7 +184,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>&nbsp;<font class="error"><?php echo $errors['page_id']; ?></font>
-                <em>(Overrides global setting. Applies to web tickets only.)</em> <i class="help-tip icon-question-sign" href="#thank_you_page"></i>
+                <i class="help-tip icon-question-sign" href="#thank_you_page"></i>
             </td>
         </tr>
         <tr>
@@ -223,17 +225,18 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span> <i class="help-tip icon-question-sign" href="#auto_assign_to"></i>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span>
+                <i class="help-tip icon-question-sign" href="#auto_assign_to"></i>
             </td>
         </tr>
         <tr>
             <td width="180">
-                Ticket auto-response:
+                Auto-response:
             </td>
             <td>
                 <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> new ticket auto-response for
-                    this topic (Overrides Dept. settings). <i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
+                    <strong>Disable</strong> new ticket auto-response
+                    <i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
             </td>
         </tr>
         <tr>

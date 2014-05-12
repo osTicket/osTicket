@@ -34,20 +34,18 @@ default_priority:
 maximum_open_tickets:
     title: Maximum Open Tickets
     content: >
-        Enter the maximum <em>number</em> of <span class="doc-desc-title">Open
-        Tickets</span> a Client is permitted to have simultaneously. This will help protect
-        against spam and enable email flood control. Enter <span class="doc-desc-opt">0
-        </span> if you prefer to disable this limitation.
+        Enter the maximum <em>number</em> of tickets a User is permitted to
+        have <strong>open</strong> in your help desk.
+        <br><br>
+        Enter <span class="doc-desc-opt">0 </span> if you prefer to disable this limitation.
 
 agent_collision_avoidance:
     title: Agent Collision Avoidance
     content: >
-        Enter the length of time after an Agent stops ticket-response activity that a
-        lockout period takes affect. This lockout prevents other Agents from sending
-        a ticket response to the Client. It does not however prevent others from
-        composing a draft. If the locking Agent sends their response, then any other
-        Agent’s draft will be deleted. Enter <span class="doc-desc-opt">0</span>
-        to disable the lockout feature.
+        Enter the maximum length of time an Agent is allowed to hold a lock
+        on a ticket without any activity.
+        <br><br>
+        Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
 
 email_ticket_priority:
     title: Email Ticket Priority
@@ -65,26 +63,29 @@ human_verification:
     content: >
         Enable CAPTCHA on the Client Portal to verify an incoming ticket is the
         result of human activity.
+        <br><br>
+        Requires GDLib library
 
 claim_tickets:
-    title: Claim Tickets
+    title: Claim Tickets on Response
     content: >
-        Enable this to auto-assign unassigned tickets to the initially responding Agent.
-        Also, reopened tickets are always assigned to the last respondent.
+        Enable this to auto-assign unassigned tickets to the responding Agent.
+        <br><br>
+        Reopened tickets are always assigned to the last respondent.
 
 assigned_tickets:
     title: Assigned Tickets
     content: >
-        Enable this feature to make visible (in the <span class="doc-desc-title">Open
-        Queue</span>) Ticket Assignments that do not belong to the current user.
+        Enable this feature to exclude assigned tickets from the <span class="doc-desc-title">Open
+        Tickets Queue</span>.
 
 answered_tickets:
     title: Answered Tickets
     content: >
-        Show tickets that have been answered by an Agent in the
-        <span class="doc-desc-title">Open Queue</span>. If this is not enabled,
-        answered tickets will be display in the <span class="doc-desc-title">Answered
-        Tickets Queue</span>.
+        Enable this feature to show answered tickets in the <span
+        class="doc-desc-title">Answered Tickets Queue</span>. Otherwise, it
+        will be included in the <span class="doc-desc-title">Open Tickets
+        Queue</span>.
 
 staff_identity_masking:
     title: Staff Identity Masking
@@ -96,7 +97,7 @@ enable_html_ticket_thread:
     title: Enable HTML Ticket Thread
     content: >
         If enabled, this will permit the use of rich text formatting between
-        Clients and Agents and Auto-Response emails.
+        Clients and Agents.
 
 attachments:
     title: Attachments
@@ -129,8 +130,8 @@ maximum_file_size:
 ticket_response_files:
     title: Ticket Response Files
     content: >
-        If enabled, any attachments an Agent may attach to a Ticket response will
-        be also included in the Client’s email.
+        If enabled, any attachments an Agent may attach to a ticket response will
+        be also included in the email to the User.
 
 accepted_file_types:
     title: Accepted File Types
