@@ -1153,6 +1153,9 @@ h2 > i.help-tip {
     vertical-align: baseline;
     font-size: 11pt;
 }
+.form_table th h4 i.help-tip {
+    color: white;
+}
 
 /* Knowledgebase */
 /* Knowledgebase */
