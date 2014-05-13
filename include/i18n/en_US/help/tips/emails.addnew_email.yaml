@@ -25,9 +25,20 @@ email_name:
     title: Email Name
     content: >
 
-setting:
-    title: Setting
+new_ticket_help_topic:
+    title: New Ticket Help Topic
     content: >
+        Choose the <span class="doc-desc-title">Help Topic</span> to which incoming mail to this addressed will belong.
+
+new_ticket_priority:
+    title: New Ticket Priority
+    content: >
+        Choose the <span class="doc-desc-title">ticket priority</span> for tickets to have that were created from mail sent to this address.
+
+new_ticket_department:
+    title: New Ticket Department
+    content: >
+        Choose the <span class="doc-desc-title">Department</span> to which incoming mail to this addressed will be routed.
 
 username:
     title: Username
@@ -61,22 +72,27 @@ host:
 port:
     title: Port
     content: >
+        Enter the proper IMAP/POP port as prescribed by your host. We recommend that you choose IMAP/SSL
 
 protocol:
     title: Protocol
     content: >
+        IMAP is recommended.
 
 encryption:
     title: Encryption
     content: >
+        SSL is recommended.
 
 fetch_frequency:
     title: Fetch Frequency
     content: >
+        Enter the duration of time to be passed between the helpdesk's attempts to check the email address's inbox for new mail.
 
 emails_per_fetch:
     title: Emails Per Fetch
     content: >
+        Decide the maximum number of emails fetched per fetching cycle.
 
 fetched_emails:
     title: Fetched Emails
@@ -85,7 +101,7 @@ fetched_emails:
 smtp_settings:
     title: SMTP Settings
     content: >
-        When enabled, the <span class="doc-desc-title">email account</span> will use 
+        When enabled, the <span class="doc-desc-title">email account</span> will use
         the SMTP server instead of internal PHP mail() function for outgoing emails.
 
 status:

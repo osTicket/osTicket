@@ -68,19 +68,24 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 New Ticket Help Topic
             </td>
             <td>
-                <select name="topic_id">
-                    <option value="0" selected="selected">&mdash; Empty &mdash;</option>
-                    <?php
-                    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE.' T ORDER by topic';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error"><?php echo $errors['topic_id']; ?></span>
+		<span>
+			<select name="topic_id">
+			    <option value="0" selected="selected">&mdash; Empty &mdash;</option>
+			    <?php
+			    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE.' T ORDER by topic';
+			    if(($res=db_query($sql)) && db_num_rows($res)){
+				while(list($id,$name)=db_fetch_row($res)){
+				    $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
+				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+				}
+			    }
+			    ?>
+			</select>
+			<i class="help-tip icon-question-sign" href="#new_ticket_help_topic"></i>
+		</span>
+                <span class="error">
+			<?php echo $errors['topic_id']; ?>
+		</span>
             </td>
         </tr>
         <tr>
@@ -88,19 +93,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 New Ticket Priority
             </td>
             <td>
-                <select name="priority_id">
-                    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
-                    <?php
-                    $sql='SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error"><?php echo $errors['priority_id']; ?></span>
+		<span>
+			<select name="priority_id">
+			    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
+			    <?php
+			    $sql='SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
+			    if(($res=db_query($sql)) && db_num_rows($res)){
+				while(list($id,$name)=db_fetch_row($res)){
+				    $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
+				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+				}
+			    }
+			    ?>
+			</select>
+			<i class="help-tip icon-question-sign" href="#new_ticket_priority"></i>
+		</span>
+		&nbsp;<span class="error"><?php echo $errors['priority_id']; ?></span>
             </td>
         </tr>
         <tr>
@@ -108,19 +116,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 New Ticket Dept.
             </td>
             <td>
-                <select name="dept_id">
-                    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
-                    <?php
-                    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error"><?php echo $errors['dept_id']; ?></span>
+		<span>
+			<select name="dept_id">
+			    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
+			    <?php
+			    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
+			    if(($res=db_query($sql)) && db_num_rows($res)){
+				while(list($id,$name)=db_fetch_row($res)){
+				    $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+				}
+			    }
+			    ?>
+			</select>
+			<i class="help-tip icon-question-sign" href="#new_ticket_department"></i>
+		</span>
+			&nbsp;<span class="error"><?php echo $errors['dept_id']; ?></span>
             </td>
         </tr>
         <tr>
@@ -164,7 +175,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <em><strong>Mail Account</strong>&nbsp;<i class="help-tip icon-question-sign" href="#mail_account"></i>&nbsp;<font class="error">&nbsp;<?php echo $errors['mail']; ?></font></em>
             </th>
         </tr>
-        <tr><td>Status</td>
+        <tr>
+            <td>Status</td>
             <td>
                 <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> />&nbsp;Enable</label>
                 &nbsp;&nbsp;
@@ -173,45 +185,63 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr><td>Host</td>
-            <td><input type="text" name="mail_host" size=35 value="<?php echo $info['mail_host']; ?>">
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_host']; ?></font>
+            <td>
+		<span>
+			<input type="text" name="mail_host" size=35 value="<?php echo $info['mail_host']; ?>">
+			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_host']; ?></font>
+		</span>
             </td>
         </tr>
         <tr><td>Port</td>
             <td><input type="text" name="mail_port" size=6 value="<?php echo $info['mail_port']?$info['mail_port']:''; ?>">
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_port']; ?></font>
+		<span>
+			<i class="help-tip icon-question-sign" href="#port"></i>
+			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_port']; ?></font>
+		</span>
             </td>
         </tr>
         <tr><td>Protocol</td>
             <td>
-                <select name="mail_protocol">
-                    <option value='POP'>&mdash; Select Mail Protocol &mdash;</option>
-                    <option value='POP' <?php echo ($info['mail_protocol']=='POP')?'selected="selected"':''; ?> >POP</option>
-                    <option value='IMAP' <?php echo ($info['mail_protocol']=='IMAP')?'selected="selected"':''; ?> >IMAP</option>
-                </select>
-                <font class="error">&nbsp;<?php echo $errors['mail_protocol']; ?></font>
+		<span>
+			<select name="mail_protocol">
+			    <option value='POP'>&mdash; Select Mail Protocol &mdash;</option>
+			    <option value='POP' <?php echo ($info['mail_protocol']=='POP')?'selected="selected"':''; ?> >POP</option>
+			    <option value='IMAP' <?php echo ($info['mail_protocol']=='IMAP')?'selected="selected"':''; ?> >IMAP</option>
+			</select>
+			<i class="help-tip icon-question-sign" href="#protocol"></i>
+			<font class="error">&nbsp;<?php echo $errors['mail_protocol']; ?></font>
+		</span>
             </td>
         </tr>
 
         <tr><td>Encryption</td>
             <td>
-                <select name="mail_encryption">
-                    <option value='NONE'>None</option>
-                    <option value='SSL' <?php echo ($info['mail_encryption']=='SSL')?'selected="selected"':''; ?> >SSL</option>
-                </select>
-                <font class="error">&nbsp;<?php echo $errors['mail_encryption']; ?></font>
+		<span>
+			<select name="mail_encryption">
+			    <option value='NONE'>None</option>
+			    <option value='SSL' <?php echo ($info['mail_encryption']=='SSL')?'selected="selected"':''; ?> >SSL</option>
+			</select>
+			<i class="help-tip icon-question-sign" href="#encryption"></i>
+			<font class="error">&nbsp;<?php echo $errors['mail_encryption']; ?></font>
+		</span>
             </td>
         </tr>
         <tr><td>Fetch Frequency</td>
             <td>
-                <input type="text" name="mail_fetchfreq" size=4 value="<?php echo $info['mail_fetchfreq']?$info['mail_fetchfreq']:''; ?>"> Delay intervals in minutes
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchfreq']; ?></font>
+		<span>
+			<input type="text" name="mail_fetchfreq" size=4 value="<?php echo $info['mail_fetchfreq']?$info['mail_fetchfreq']:''; ?>"> Delay intervals in minutes
+			<i class="help-tip icon-question-sign" href="#fetch_frequency"></i>
+			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchfreq']; ?></font>
+		</span>
             </td>
         </tr>
         <tr><td>Emails Per Fetch</td>
             <td>
-                <input type="text" name="mail_fetchmax" size=4 value="<?php echo $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>"> Maximum emails to process per fetch.
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
+		<span>
+			<input type="text" name="mail_fetchmax" size=4 value="<?php echo $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>"> Maximum emails to process per fetch.
+			<i class="help-tip icon-question-sign" href="#emails_per_fetch"></i>
+			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
+		</span>
             </td>
         </tr>
         <tr><td valign="top">Fetched Emails</td>
