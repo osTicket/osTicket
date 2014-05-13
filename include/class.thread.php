@@ -1055,7 +1055,8 @@ Class ThreadEntry {
         //Emailed or API attachments
         if (isset($vars['attachments']) && $vars['attachments']) {
             foreach ($vars['attachments'] as &$a)
-                if (isset($a['cid']) && strpos($body, 'cid:'.$a['cid']) !== false)
+                if (isset($a['cid']) && $a['cid']
+                        && strpos($body, 'cid:'.$a['cid']) !== false)
                     $a['inline'] = true;
             unset($a);
 
