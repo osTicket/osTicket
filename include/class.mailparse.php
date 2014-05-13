@@ -140,7 +140,10 @@ class Mail_Parse {
     /* static */ function splitHeaders($headers_text, $as_array=false) {
         $headers = preg_split("/\r?\n/", $headers_text);
         for ($i=0, $k=count($headers); $i<$k; $i++) {
-            # XXX: Might tabs be used here?
+            // first char might be whitespace (" " or "\t")
+            // or the whole line might be using the 'encoded-word' syntax (http://tools.ietf.org/html/rfc2047#section-2)
+            $c = substr($headers[$i], 0, 1);
+            if ($c == " " || $c == "\t" || preg_match("/^=\?.*\?=$/", $headers[$i])) {
             if (substr($headers[$i], 0, 1) == " ") {
                 # Continuation from previous header (runon to next line)
                 $j=$i-1; while (!isset($headers[$j]) && $j>0) $j--;
