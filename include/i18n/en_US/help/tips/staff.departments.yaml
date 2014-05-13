@@ -24,8 +24,7 @@ name:
 type:
     title: Type
     content: >
-        If the Department’s Type is Private, then that Department only handles
-        matters pertinent among other Agents.
+        If the Department’s Type is Private, then the Department Signature will not be available on response nor will the department assignment show from the Client Portal.
 
 users:
     title: Users
@@ -36,11 +35,7 @@ email_address:
     content: >
 
 dept_manager:
-    title: Dept. Manager
+    title: Department Manager
     content: >
-        You may commission an Agent as a Department Manager by first adding that
-        Agent to the Department, and then choose that Agent as Manager by editing
-        the Department. (To add an Agent to a Department, see Admin Panel -> Staff
-        -> Staff Members; Select the Agent whose account you would like to edit. To
-        commission an Agent as a Department Manager, simply click the Department
-        name below that you would like to edit).
+        You may choose an Agent as a Department Manager to receive Alerts & Notices for tickets in departments. 
+		Agents do not have to be members of the Department to be the Manager of the Department

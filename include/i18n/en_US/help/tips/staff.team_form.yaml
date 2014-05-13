@@ -24,15 +24,23 @@ team_information:
 name:
     title: Name
     content: >
-
+	Name of Team visible in the drop down when configuring auto-assignement of Help Topics or Ticket Filters. 
+	Team Name will also show as an option when assigning from Ticket Thread. 
 status:
     title: Status
     content: >
+	If Disabled, Team will not be available for ticket assignments nor receive Alerts & Notices on previous assignments. 
 
 team_lead:
     title: Team Lead
     content: >
+	Assign Team Lead where applicable. You can also set Alerts & Notices to be sent to only Team Lead or both Team Lead and Team Members. 
 
+    links:
+      - title: Manage Alerts & Notices
+        href: /scp/settings.php
+		
 assignment_alerts:
     title: Assignment Alerts
     content: >
+	Disable Global Alerts & Notices from being sent to Team for New Ticket Assignment Alerts. 

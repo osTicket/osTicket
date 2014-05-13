@@ -28,6 +28,7 @@ name:
 status:
     title: Status
     content: >
+	By disabling, staff assigned to the group will be limited in their access to the help desk. 
 
 group_permissions:
     title: Group Permissions
