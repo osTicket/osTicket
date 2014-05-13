@@ -273,7 +273,11 @@ class Page {
                 return false;
             }
 
-            // TODO: Update `content_id`
+            $sql = 'UPDATE '.PAGE_TABLE.' SET `content_id`=`id`'
+                .' WHERE id='.db_input($id);
+            if (!db_query($sql))
+                return false;
+
             return $id;
         }
 
