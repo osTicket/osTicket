@@ -17,22 +17,20 @@ name:
     title: Name
     content: >
         Choose a discriptive name for this <span class="doc-desc-title">SLA Plan</span>
-        that will reflect its purpose or specificity.
+        that will reflect its purpose.
 
 grace_period:
     title: Grace Period
     content: >
-        This is the how many hours pass by before the <span class="doc-desc-title">Open Tickets</span>
-        with this <span class="doc-desc-title">SLA Plan</span> are marked
-        as <span class="doc-desc-opt">Overdue</span>.
+        Determine the number of hours after a ticket is created that it will
+        be automatically marked as overdue.
         <br><br>
         <em>Hours are counted from ticket create time.</em>
 
 transient:
     title: Transient
     content: >
-        Enable this if you want the <span class="doc-desc-title">SLA
-        Plan</span> to be considered temporary and overridable by
-        none-transient SLA on <span class="doc-desc-opt">Department</span>
+        Transient SLAs are considered temporary and can be overridden by
+        a non-transient SLA on <span class="doc-desc-opt">Department</span>
         transfer or when its <span class="doc-desc-title">Help Topic</span>
         is changed.

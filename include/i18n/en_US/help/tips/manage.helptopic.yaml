@@ -16,35 +16,41 @@
 help_topic_information:
     title: Help Topic Information
     content: >
-        Your Help Topics help guide what information is gathered from Users and
-        how tickets are routed or assigned.
+        <span class="doc-desc-title">Help Topics</span> guide what
+        information is gathered from Users and how tickets are routed or
+        assigned.
 topic:
     title: Topic Name
     content: >
-        Uniqueue Help Topic name.
+        Unique Help Topic name.
 
 status:
     title: Status
     content: >
-        If disabled, this Help Topic will not be available in the Client Interface.
+        If disabled, this <span class="doc-desc-title">Help Topic</span>
+        will not be available.
 
 type:
     title: Type
     content: >
-        If a Topic is labelled as Private, it will only be available for Agents to
-        choose when an Agent opens a new Ticket under the Staff Panel.
+        If a <span class="doc-desc-title">Help Topic</span> is labeled as
+        Private, it will only be available for Agents to choose when an
+        Agent opens a new Ticket under the Staff Panel.
 
 parent_topic:
     title: Parent Topic
     content: >
-        Do you want this Help Topic to be treated as a subtopic? If so, then choose a
-        Parent Topic under which this Help Topic will belong.
+        Select the Parent Topic to which this <span
+        class="doc-desc-title">Help Topic</span> will belong. The Parent
+        Topic will appear first in the listing with this <span
+        class="doc-desc-title">Help Topic</span> listed behind the parent.
 
 custom_form:
     title: Custom Form
     content: >
-        Custom Forms will help you acquire more specific information from Users
-        that are relevant to this Help Topics.
+        Custom Forms will help you acquire more specific information from
+        Users that are relevant to this <span class="doc-desc-title">Help
+        Topic</span>.
     links:
       - title: Manage Custom Forms
         href: /scp/forms.php
@@ -52,7 +58,8 @@ custom_form:
 priority:
     title: Priority
     content: >
-        Priority assigned to new ticket related to this Help Topic.
+        Select the Priority assigned to new tickets related to this <span
+        class="doc-desc-title">Help Topic</span>.
         <br><br>
         Ticket Filters can override new ticket Priority.
 
@@ -66,9 +73,9 @@ department:
 sla_plan:
     title: SLA Plan
     content: >
-        Choose SLA plan associated with this Help Topic.
+        Choose SLA plan associated with this <span class="doc-desc-title">Help Topic</span>.
         <br><br>
-        Department default SLA plan will be overriden by choosing an SLA plan.
+        This selection will override any selected Department's SLA plan
     links:
       - title: Manage SLA Plans
         href: /scp/slas.php
@@ -77,7 +84,7 @@ thank_you_page:
     title: Thank-You Page
     content: >
         Choose the Thank-You Page to which a User is directed after opening a
-        Ticket.
+        Ticket under this <span class="doc-desc-title">Help Topic</span>.
     links:
       - title: Manage Thank-You Pages
         href: /scp/pages.php
@@ -85,28 +92,23 @@ thank_you_page:
 auto_assign_to:
     title: Auto-assign New Tickets
     content: >
-        You may optionally choose to what Agent or Team the new Tickets characterized
-        by this New Topic will be sent.
+        Optionally choose an Agent or Team to auto-assign tickets opened
+        with this <span class="doc-desc-title">Help Topic</span>
         <br><br>
         Ticket Filters can override assignment.
     links:
-      - title: Manage Staff
+      - title: Manage Staff and Teams
         href: /scp/staff.php
-      - title: Manage Teams
-        href: /scp/teams.php
-      - title: Manage Filters
-        href: /scp/filters.php
 
 ticket_auto_response:
     title: Ticket Auto-response
     content: >
-        If checked, the setting will disable new ticket auto-response for this Help Topic.
+        If checked, the setting will disable new ticket auto-responses for
+        this <span class="doc-desc-title">Help Topic</span>.
         <br><br>
-        This overrides <span class="doc-desc-title">Department</span> as
-        well as global <span class="doc-desc-title">Autoresponder
-        settings</span>.
-admin_notes:
-    title: Admin Notes
-    content: >
-        These notes are only visible to those whose account type is <span
-        class='doc-desc-opt'>Admin</span>.
+        This overrides the autoresponder setting for the <span
+        class="doc-desc-title">Department</span> as well as global <span
+        class="doc-desc-title">Autoresponder settings</span>.
+    links:
+      - title: Autoresponder Settings
+        href: /scp/settings.php?t=autoresp
