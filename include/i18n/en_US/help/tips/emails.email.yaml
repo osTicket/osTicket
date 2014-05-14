@@ -13,32 +13,39 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-email_information_settings:
-    title: Email Information &amp; Settings
-    content: >
-
-email_address:
-    title: Email Address
-    content: >
-
-email_name:
-    title: Email Name
-    content: >
-
 new_ticket_help_topic:
     title: New Ticket Help Topic
     content: >
-        Choose the <span class="doc-desc-title">Help Topic</span> to which incoming mail to this addressed will belong.
+        Choose a <span class="doc-desc-title">Help Topic</span> to be
+        automatically associated with tickets created via this Email
+        Address.
+        <br/><br/>
+        Forms associated with the Help Topic will be added to the ticket,
+        but will not have any data.
+    links:
+      - title: Manage Help Topics
+        href: /scp/helptopics.php
 
 new_ticket_priority:
     title: New Ticket Priority
     content: >
-        Choose the <span class="doc-desc-title">ticket priority</span> for tickets to have that were created from mail sent to this address.
+        Choose the <span class="doc-desc-title">priority</span> for new
+        tickets created via ths Email Address.
 
 new_ticket_department:
     title: New Ticket Department
     content: >
-        Choose the <span class="doc-desc-title">Department</span> to which incoming mail to this addressed will be routed.
+        Choose the <span class="doc-desc-title">Department</span> to which
+        new tickets created via this Email Address will be routed.
+    links:
+      - title: Manage Departments
+        href: /scp/departments.php
+
+auto_response:
+    title: New Ticket Auto-Response
+    content: >
+        You may disable the Auto-Response sent to the User when a new ticket
+        is created via this Email Address.
 
 username:
     title: Username
@@ -49,81 +56,83 @@ password:
     content: >
 
 login_information:
-    title: Login Information
+    title: Email Login Information
     content: >
-        While this is optional, it is required if IMAP/POP or SMTP (with
-        authorization) are enabled.
+        The <span class="doc-desc-title">Username</span> and <span
+        class="doc-desc-title">Password</span> are required to fetch email
+        from IMAP / POP mail boxes as well as to send email through SMTP.
 
 mail_account:
-    title: Mail Account
+    title: Fetching Email
     content: >
-        Optional setting for fetching incoming emails. Mail fetching must be enabled with autocron active or external cron setup.
+        Fetch emails from a remote IMAP or POP mail box and convert them
+        to tickets in your help desk.
     links:
       - title: Manage <span class="doc-desc-title">Email Polling</span> &amp; <span class="doc-desc-title">AutoCron</span> settings.
         href: /scp/settings.php?t=emails
-status:
-    title: Status
-    content: >
 
-host:
-    title: Host
+host_and_port:
+    title: Remote Host
     content: >
-
-port:
-    title: Port
-    content: >
-        Enter the proper IMAP/POP port as prescribed by your host. We recommend that you choose IMAP/SSL
+        Enter the <span class="doc-desc-title">hostname</span> and <span
+        class="doc-desc-title">port</span> number for your mail server. This
+        may be available in the documentation for your hosting account or
+        from your email administrator.
 
 protocol:
-    title: Protocol
+    title: Mail Box Protocol
     content: >
-        IMAP is recommended.
-
-encryption:
-    title: Encryption
-    content: >
-        SSL is recommended.
+        Select the mail box protocol supported by your remote mail server.
+        IMAP is recommended and SSL is encouraged if at all possible.
 
 fetch_frequency:
     title: Fetch Frequency
     content: >
-        Enter the duration of time to be passed between the helpdesk's attempts to check the email address's inbox for new mail.
+        Enter how often, in minutes, the system will poll the mail box.
+        <br/><br/>
+        This will define the average delay in receiving an Auto-Response
+        after a User sends an email to this mail box.
 
 emails_per_fetch:
     title: Emails Per Fetch
     content: >
-        Decide the maximum number of emails fetched per fetching cycle.
+        Enter the number of emails processed at one time.
 
 fetched_emails:
     title: Fetched Emails
     content: >
+        Decide what to do with processed emails:
+        <br/><br/>
+        <span class="doc-desc-opt"><b>Move to Folder</b></span>:
+        This will backup your email from the INBOX to a
+        folder you specify. If the folder does not yet exist on the server,
+        the system will attempt to automatically create it.
+        (<b>Recommended</b>)
+        <hr>
+        <span class="doc-desc-opt"><b>Delete Emails</b></span>: This will delete
+        your email from the INBOX once it is processed.
+        <hr>
+        <span class="doc-desc-opt"><b>Do Nothing</b></span>: This will leave emails
+        in your INBOX. The system will record the
+        message ids of your email and attempt not to refetch it. However,
+        this option may cause duplicate tickets to be created.
+        (<em>Not Recommended</em>)
 
 smtp_settings:
     title: SMTP Settings
     content: >
-        When enabled, the <span class="doc-desc-title">email account</span> will use
-        the SMTP server instead of internal PHP mail() function for outgoing emails.
+        Email sent from the help desk can be sent through an SMTP server.
+        This is recommended, if possible, as it will increase the likelyhood
+        of email delivery and will make the emails less likely to be marked
+        as spam.
 
-status:
-    title: Status
-    content: >
-
-smtp_host:
-    title: SMTP Host
-    content: >
-
-smtp_port:
-    title: SMTP Port
-    content: >
-
-authentication_required:
-    title: Authentication Required
-    content: >
-
-allow_header_spoofing:
+header_spoofing:
     title: Allow Header Spoofing
     content: >
+        Enable this to allow sending emails via this mail box from an address
+        other that the one given in the <span class="doc-desc-title">Email
+        Address</span> setting above.
+        <br/><br/>
+        This advanced setting is generally used when sending mail from
+        aliases of this mail box.
 
-internal_notes:
-    title: Internal Notes
-    content: >
