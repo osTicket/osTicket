@@ -13,35 +13,8 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-ban_new_email:
-    title: Ban New Email
-    content: >
-
-banned_email_addresses:
+ban_list:
     title: Banned Email Addresses
     content: >
-        (Offer an intro to email address banning here.)
-
-query_search:
-    title: Query Search
-    content: >
-
-showing_:
-    title: Showing…
-    content: >
-
-email_address:
-    title: Email Address
-    content: >
-
-ban_status:
-    title: Ban Status
-    content: >
-
-date_added:
-    title: Date Added
-    content: >
-
-last_updated:
-    title: Last Updated
-    content: >
+        Emails received from banned email addresses listed in the ban list
+        will be automatically rejected.
