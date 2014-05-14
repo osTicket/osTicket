@@ -104,10 +104,9 @@ if($_POST){
 }
 
 $page='categories.inc.php';
-$tip_namespace = 'knowledgebase.categories';
+$tip_namespace = 'knowledgebase.category';
 if($category || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='category.inc.php';
-    $tip_namespace = 'knowledgebase.addnew_category';
 }
 
 $nav->setTabActive('kbase');

@@ -103,10 +103,9 @@ if($_POST){
 }
 
 $page='departments.inc.php';
-$tip_namespace = 'staff.departments';
+$tip_namespace = 'staff.department';
 if($dept || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='department.inc.php';
-    $tip_namespace = 'staff.addnew_department';
 }
 
 $nav->setTabActive('staff');

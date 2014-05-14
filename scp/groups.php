@@ -98,7 +98,6 @@ $page='groups.inc.php';
 $tip_namespace = 'staff.groups';
 if($group || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='group.inc.php';
-    $tip_namespace = 'staff.addnew_groups';
 }
 
 $nav->setTabActive('staff');

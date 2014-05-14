@@ -78,10 +78,9 @@ if($_POST){
 }
 
 $page='emails.inc.php';
-$tip_namespace = 'emails.emails';
+$tip_namespace = 'emails.email';
 if($email || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='email.inc.php';
-    $tip_namespace = 'emails.addnew_email';
 }
 
 $nav->setTabActive('emails');
