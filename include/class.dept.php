@@ -141,6 +141,16 @@ class Dept {
         return $this->getMembers(array('available'=>1));
     }
 
+    function getMembersForAlerts() {
+        if ($this->isGroupMembershipEnabled() == 2) {
+            // Disabled for this department
+            $rv = array();
+        }
+        else {
+            $rv = $this->getAvailableMembers();
+        }
+        return $rv;
+    }
 
     function getSLAId() {
         return $this->ht['sla_id'];
