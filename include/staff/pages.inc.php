@@ -49,7 +49,9 @@ else
 ?>
 
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Site Pages</h2>
+ <h2>Site Pages
+    <i class="help-tip icon-question-sign" href="#site_pages"></i>
+    </h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
  <b><a href="pages.php?a=add" class="Icon newPage">Add New Page</a></b></div>

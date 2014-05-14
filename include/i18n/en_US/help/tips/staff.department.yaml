@@ -13,85 +13,102 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-add_new_department:
-    title: Add New Department
-    content: >
-
-department_information:
-    title: Department Information
-    content: >
-
-name:
-    title: Name
-    content: >
-
 type:
     title: Type
     content: >
-        Select Private if you do not want the Department assignment 
-		visible to the user from the Client Portal. 
-        Additionally, when labelled as Private, the Email Signature
-        will not display in replies.
+        Select <span class="doc-desc-opt">Private</span> if you wish to mask
+        assignments to this Department in the Client Portal.  Additionally,
+        when labeled as <span class="doc-desc-opt">Private</span>, the <span
+        class="doc-desc-title">Department Signature</span> will not be
+        displayed in email replies.
+        <br/><br/>
+        At least one department must be <span
+        class="doc-desc-opt">Public</span>
 
 email:
     title: Email
     content: >
-        Email Address used when responses are sent to users from Agents or assigned staff on tickets in this department. 
+        Email Address used when responses are sent to Users when Agents post
+        Responses to Tickets.
 
 template:
-    title: Template
+    title: Template Set
     content: >
-        Template Set used for Auto-Responses and Alerts &amp; Notices for all Tickets
-        associated with this Department.
+        Email <span class="doc-desc-title">Template Set</span> used for
+        Auto-Responses and Alerts &amp; Notices for tickets routed to this
+        Department.
+    links:
+      - title: Manage Templates
+        href: /scp/templates.php
 
 sla:
     title: SLA
     content: >
-        Service Level Agreement for all tickets assigned or transferred to Department. (To create or edit a SLA Plan, see Admin Panel
-        -> Manage -> SLA Plans).
+        Service Level Agreement for tickets routed to this Department.
+    links:
+      - title: Manage SLA Plans
+        href: /scp/slaplans.php
+
+manager:
+    title: Department Manager
+    content: >
+        Select a <span class="doc-desc-title">Manager</span> for this department.
+        <br/><br/>
+        Managers can be configured to receive special alerts and
+        also have the right to unassign tickets.
+    links:
+      - title: Manage Alerts &amp; Notices
+        href: /scp/settings.php?t=alerts
 
 group_membership:
-    title: Group Membership
+    title: Alerts &amp; Notices Recipients
     content: >
-        To send Alerts & Notices to groups allowed access to this department from their group access. 
-		Otherwise, only staff assigned to this department will receive Alerts & Notices (if enabled). (To edit Groups, see Admin Panel ->
-        Agents (Staff) -> Groups).
+        Select the recipients of configured <span
+        class="doc-desc-title">Alerts &amp; Notices</span>.
+    links:
+      - title: Configure Alerts &amp; Notices
+        href: /scp/settings.php?t=alerts
+
+sandboxing:
+    title: Ticket Assignment Restrictions
+    content: >
+        Enable this to restrict ticket assignement to only include members
+        of this Department. Department access can be extended to
+        Groups, if <span class="doc-desc-title">Group Membership</span> is
+        also enabled.
 
 auto_response_settings:
-    title: Auto-Response Settings
+    title: Autoresponder Settings
     content: >
-        This allows you to disable New Ticket Auto-Response and/or New
-        Message Auto-Response to users when creating a ticket in this department.
+        This allows you to override the global Autoresponder settings for
+        this Department.
 
 new_ticket:
-    title: New Ticket
+    title: New Ticket Auto-Response
     content: >
-        Click the checkbox if do not want an email automatically sent to the Client
-        when a New Ticket is Opened.
+        You may disable the Auto-Response sent to the User when a new ticket
+        is created and routed to this Department.
 
 new_message:
-    title: New Message
+    title: New Message Auto-Response
     content: >
-        Click the checkbox if do not want an email automatically sent when a New
-        Message is received.
+        You may disable the Auto-Response sent to the User to confirm
+        a newly posted message for tickets in this Department.
 
 auto_response_email:
     title: Auto Response Email
     content: >
-        If you would like Department Email to send Auto-Responses from a different
-        Address from that noted above, then choose the differing Email Address
-        here.
+        Select an email address from which Auto-Responses are sent for this
+        Department.
 
 department_access:
-    title: Department Access
+    title: Group Access
     content: >
-        Allow staff members assigned to another department to have access to this deparmtent's tickets. 
-		Staff's access will be limited to their assigned group permissions. Be sure to check the above "Group Membership" if you would also like staff with group access to receive Alerts & Notices.'(To edit an Agent’s Account, see Admin Panel -> Agent
-        (Staff) Members -> Choose the Agent to Edit).
+        Allow Agents of other Departments access to this Deparmtent's
+        tickets.
 
 department_signature:
     title: Department Signature
     content: >
-        Signature is made available as a choice, for Public Departments, on Ticket
-        Reply. (To create email templates, see Admin Panel -> Emails ->
-        Templates.)
+        Signature is made available as a choice, for <span
+        class="doc-desc-opt">Public</span> Departments, on Agent Responses.

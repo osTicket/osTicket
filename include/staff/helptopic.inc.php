@@ -83,7 +83,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         }
                     }
                     ?>
-                </select> (<em>optional</em>) <i class="help-tip icon-question-sign" href="#parent_topic"></i>
+                </select> <i class="help-tip icon-question-sign" href="#parent_topic"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
         </tr>
@@ -241,7 +241,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes about the help topic.&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
+                <em><strong>Admin Notes</strong>: Internal notes about the help topic.</em>
             </th>
         </tr>
         <tr>
