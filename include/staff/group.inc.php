@@ -51,8 +51,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><strong>Disabled</strong>
+                &nbsp;
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['status']; ?></span>
+                <i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
         <tr>
@@ -150,7 +152,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Department Access</strong>: Check all departments the group members are allowed to access.&nbsp;&nbsp;&nbsp;<a id="selectAll" href="#deptckb">Select All</a>&nbsp;&nbsp;<a id="selectNone" href="#deptckb">Select None</a>&nbsp;&nbsp;</em>
+                <em><strong>Department Access</strong>:
+                <i class="help-tip icon-question-sign" href="#department_access"></i>
+                &nbsp;<a id="selectAll" href="#deptckb">Select All</a>
+                &nbsp;&nbsp;
+                <a id="selectNone" href="#deptckb">Select None</a></em>
             </th>
         </tr>
         <?php
@@ -175,7 +181,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="groups.php"'>

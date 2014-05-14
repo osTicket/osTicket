@@ -13,75 +13,21 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-add_new_group:
-    title: Add New Group
+groups:
+    title: Groups
     content: >
-
-group_information:
-    title: Group Information
-    content: >
-
-name:
-    title: Name
-    content: >
+        Groups are used to define an Agent's permissions in the help desk.
+        Groups can also grant access to Departments other than an Agent's
+        primary Department.
 
 status:
     title: Status
     content: >
-	By disabling, staff assigned to the group will be limited in their access to the help desk. 
-
-group_permissions:
-    title: Group Permissions
-    content: >
-
-can_create_tickets:
-    title: Can Create Tickets
-    content: >
-
-can_edit_tickets:
-    title: Can Edit Tickets
-    content: >
-
-can_post_reply:
-    title: Can Post Reply
-    content: >
-
-can_close_tickets:
-    title: Can Close Tickets
-    content: >
-
-can_assign_tickets:
-    title: Can Assign Tickets
-    content: >
-
-can_transfer_tickets:
-    title: Can Transfer Tickets
-    content: >
-
-can_delete_tickets:
-    title: Can Delete Tickets
-    content: >
-
-can_ban_emails:
-    title: Can Ban Emails
-    content: >
-
-can_manage_premade:
-    title: Can Manage Premade
-    content: >
-
-can_manage_faq:
-    title: Can Manage FAQ
-    content: >
-
-can_view_staff_stats_:
-    title: Can View Staff Stats.
-    content: >
+        If <span class="doc-desc-opt">Disabled</span>, Agents assigned to
+        this Group cannot sign in and will not receive Department Alerts
+        &amp; Notices.
 
 department_access:
     title: Department Access
     content: >
-
-support:
-    title: Support
-    content: >
+        Check all departments to which the Group members are allowed access.
