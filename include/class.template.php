@@ -518,7 +518,8 @@ class EmailTemplate {
         $inst = self::lookup(self::create($vars, $errors));
 
         // Inline images (attached to the draft)
-        $inst->attachments->upload(Draft::getAttachmentIds($inst->getBody()), true);
+        if ($inst)
+            $inst->attachments->upload(Draft::getAttachmentIds($inst->getBody()), true);
 
         return $inst;
     }

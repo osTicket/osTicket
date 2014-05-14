@@ -111,8 +111,14 @@ jQuery(function() {
         });
 
         getHelpTips().then(function(tips) {
-            var section = tips[elem.attr('href').substr(1)];
-            if (!section) {
+            var href = elem.attr('href');
+            if (href) {
+                section = tips[elem.attr('href').substr(1)];
+            }
+            else if (elem.data('content')) {
+                section = {title: elem.data('title'), content: elem.data('content')};
+            }
+            else {
                 elem.remove();
                 clearTimeout(tip_timer);
                 return;
