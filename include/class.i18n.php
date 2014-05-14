@@ -157,7 +157,19 @@ class Internationalization {
         }
     }
 
+    static function getLanguageDescription($lang) {
+        $langs = self::availableLanguages();
+        $lang = strtolower($lang);
+        if (isset($langs[$lang]))
+            return $langs[$lang]['desc'];
+        else
+            return $lang;
+    }
+
     static function availableLanguages($base=I18N_DIR) {
+        static $cache = false;
+        if ($cache) return $cache;
+
         $langs = (include I18N_DIR . 'langs.php');
 
         // Consider all subdirectories and .phar files in the base dir
@@ -182,9 +194,9 @@ class Internationalization {
                 );
             }
         }
-        usort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
+        uasort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
 
-        return $installed;
+        return $cache = $installed;
     }
 
     // TODO: Move this to the REQUEST class or some middleware when that

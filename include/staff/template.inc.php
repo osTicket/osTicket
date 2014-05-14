@@ -64,15 +64,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td width="180" class="required">
                 Language:
             </td>
-            <td>
-                <?php
-            $langs = Internationalization::availableLanguages();
-            $lang = strtolower($info['lang']);
-            if (isset($langs[$lang]))
-                echo $langs[$lang]['desc'];
-            else
-                echo $info['lang']; ?>
-            </td>
+            <td><?php
+            echo Internationalization::getLanguageDescription($info['lang']);
+            ?></td>
         </tr>
         <?php
             $current_group = false;
