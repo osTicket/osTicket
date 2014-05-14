@@ -39,7 +39,9 @@ else
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Teams</h2>
+ <h2>Teams
+    <i class="help-tip icon-question-sign" href="#teams"></i>
+    </h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
     <b><a href="teams.php?a=add" class="Icon newteam">Add New Team</a></b></div>
