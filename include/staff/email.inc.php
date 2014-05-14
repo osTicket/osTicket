@@ -25,6 +25,12 @@ if($email && $_REQUEST['a']!='add'){
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $info['ticket_auto_response']=isset($info['ticket_auto_response'])?$info['ticket_auto_response']:1;
     $info['message_auto_response']=isset($info['message_auto_response'])?$info['message_auto_response']:1;
+    if (!$info['mail_fetchfreq'])
+        $info['mail_fetchfreq'] = 5;
+    if (!$info['mail_fetchmax'])
+        $info['mail_fetchmax'] = 10;
+    if (!isset($info['smtp_auth']))
+        $info['smtp_auth'] = 1;
     $qstr.='&a='.$_REQUEST['a'];
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
