@@ -20,7 +20,7 @@ default_email_templates:
         class="doc-desc-title">Auto-Responses</span> and <span class="doc-desc-title">Alerts</span> for various actions that can
         take place during a  Ticket’s lifetime.
         <br><br>
-        Departments can be assigned specific set of Email Template.
+        Departments can be assigned a specific Email Template Set.
     links:
       - title: Manage Email Template Sets
         href: /scp/templates.php
