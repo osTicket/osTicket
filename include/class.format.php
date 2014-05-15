@@ -178,13 +178,25 @@ class Format {
         // Clean browser-specific style attributes
         if (isset($attributes['style'])) {
             $styles = preg_split('/;\s*/S', html_entity_decode($attributes['style']));
+            $props = array();
             foreach ($styles as $i=>&$s) {
                 @list($prop, $val) = explode(':', $s);
+                if (isset($props[$prop])) {
+                    unset($styles[$i]);
+                    continue;
+                }
+                $props[$prop] = true;
+                // Remove unset or browser-specific style rules
                 if (!$val || !$prop || $prop[0] == '-' || substr($prop, 0, 4) == 'mso-')
                     unset($styles[$i]);
+                // Remove quotes of properties without enclosed space
                 if (!strpos($val, ' '))
-                    $s = str_replace('"','', $s);
+                    $val = str_replace('"','', $val);
+                else
+                    $val = str_replace('"',"'", $val);
+                $s = "$prop:".trim($val);
             }
+            unset($s);
             if ($styles)
                 $attributes['style'] = Format::htmlencode(implode(';', $styles));
             else
