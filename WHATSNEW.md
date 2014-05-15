@@ -1,3 +1,63 @@
+osTicket v1.9
+=============
+### Client Login and Registration
+Setup flexible user registration policy for your help desk to match your
+needs. Users can register for accounts via the client portal and can now
+login with a username and password instead of email and ticket number. We
+also have a forgot-my-password link and several other new minor adjustments
+to the user profile.
+
+### External Authentication Support
+Use third-party SSO to authenticate your users and staff. Initial support
+include OAuth2 and LDAP (v0.5 of the LDAP plugin is required)
+
+### User Directory
+Search, view, and manage, even delete! contact information from the users
+from whom you receive tickets. Staff can also manually register users and
+even set an initial password. Users can also be imported and exported via
+CSV data.
+
+### Organizations
+Organize your users together into organizations. Organizations can have
+internal owners ("Account Manager") and external owners ("Primary Contact").
+The Account Manager can receive new ticket and new message alerts.
+Organization Primary Contacts and members can be automatically added to
+tickets as collaborators.
+
+### User and Organization Notes
+Quickly view, edit, add and remove pertinent notes on your users and
+organizations
+
+### Form Management
+Staff members can now add, delete, and sort forms attached to tickets, users
+and organizations as well as remove stale data where fields have been
+retired from active forms.
+
+### Custom Properties for Lists
+Add properties to your list items and use it in your email templates and
+pages. For example create an address property to a list of locations. List
+items can also be disabled now, which causes them to be hidden from
+selection.
+
+### PJAX page loading
+For browsers supporting PJAX, navigating around the system will see a
+performance improvement as javascript and css files are not re-parsed for
+each page load.
+
+### Redactor 9.2
+Several new features including a floating editor bar as well better support
+for non-US keyboards
+
+### Minor Enhancements
+  * Agent selection for assignment can be limited to the current department
+  * Complete help tip documentation for the Admin panel
+  * Email addresses can have an associated Help Topic
+  * Alerts and Notices can be disabled per Department
+  * Agent portal can have a login banner
+  * Inline images are not displayed with the attachments in the ticket view
+  * Original thread content format is saved (html or text)
+  * Alerts and Notices support quoted response removal
+
 osTicket v1.8.1.3
 =================
 ### Enhancements
