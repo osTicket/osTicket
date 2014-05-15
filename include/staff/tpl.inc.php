@@ -97,7 +97,7 @@ $tpl=$msgtemplates[$selected];
 
 <div>
     <input type="text" name="subject" size="65" value="<?php echo $info['subject']; ?>"
-    style="font-size:14pt">
+    style="font-size:14pt;width:100%;box-sizing:border-box">
     <div style="margin-bottom:0.5em;margin-top:0.5em">
     </div>
     <input type="hidden" name="draft_id" value=""/>
