@@ -3,16 +3,22 @@ jQuery(function() {
 
             var pos = elem.offset();
             var y_pos = pos.top - 12;
-            var x_pos = pos.left + (xoffset || ((elem.width()/2) + 20));
+            var x_pos = pos.left + (xoffset || (elem.width() + 16));
 
             var tip_arrow = $('<img>').attr('src', './images/tip_arrow.png').addClass('tip_arrow');
             var tip_box = $('<div>').addClass('tip_box');
             var tip_shadow = $('<div>').addClass('tip_shadow');
             var tip_content = $('<div>').addClass('tip_content').load(url, function() {
-                tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>');
+                tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>').append(tip_arrow);
+                if ($(window).width() < tip_content.outerWidth() + the_tip.position().left) {
+                    console.log(x_pos, tip_content.outerWidth(), elem.width());
+                    the_tip.css({'left':x_pos-tip_content.outerWidth()-elem.width()-32+'px'});
+                    tip_box.addClass('right');
+                    tip_arrow.addClass('flip-x');
+                }
             });
 
-            var the_tip = tip_box.append(tip_arrow).append(tip_content).prepend(tip_shadow);
+            var the_tip = tip_box.append(tip_content).prepend(tip_shadow);
             the_tip.css({
                 "top":y_pos + "px",
                 "left":x_pos + "px"
