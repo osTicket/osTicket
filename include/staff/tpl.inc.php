@@ -100,7 +100,7 @@ $tpl=$msgtemplates[$selected];
 
 <div style="padding-bottom:3px;" class="faded"><strong>Email Subject and Body:</strong></div>
 <div id="toolbar"></div>
-<div style="padding-top:5px;">
+<div id="save" style="padding-top:5px;">
     <input type="text" name="subject" size="65" value="<?php echo $info['subject']; ?>"
     style="font-size:14pt;width:100%;box-sizing:border-box">
     <div style="margin-bottom:0.5em;margin-top:0.5em">

@@ -639,12 +639,16 @@ $(document).on('pjax:click', function(options) {
         $.autoLock.releaseLock();
     // Stop all animations
     $(document).stop(false, true);
+});
+
+$(document).on('pjax:start', function() {
     // Cancel save-changes warning banner
     $(document).unbind('pjax:beforeSend.changed');
     $(window).unbind('beforeunload');
 });
 
 $(document).on('pjax:send', function(event) {
+
     if ($('#loadingbar').length !== 0) {
         $('#loadingbar').remove();
     }

@@ -51,6 +51,9 @@ var autoLock = {
         }
 
         if(!autoLock.lasteventTime) { //I hate nav away warnings..but
+            $(document).on('pjax:beforeSend.changed', function(e) {
+                return confirm("Any changes or info you've entered will be discarded!");
+            });
             $(window).bind('beforeunload', function(e) {
                 return "Any changes or info you've entered will be discarded!";
              });
