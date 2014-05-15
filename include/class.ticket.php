@@ -1135,18 +1135,19 @@ class Ticket {
 
         //recipients
         $recipients=array();
-        if(!strcasecmp(get_class($assignee), 'Staff')) {
-            if($cfg->alertStaffONAssignment())
+        if ($assignee instanceof Staff) {
+            if ($cfg->alertStaffONAssignment())
                 $recipients[] = $assignee;
-        } elseif(!strcasecmp(get_class($assignee), 'Team')) {
-            if($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembers()))
+        } elseif (($assignee instanceof Team) && $assignee->alertsEnabled()) {
+            if ($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembers()))
                 $recipients = array_merge($recipients, $members);
-            elseif($cfg->alertTeamLeadONAssignment() && ($lead=$assignee->getTeamLead()))
+            elseif ($cfg->alertTeamLeadONAssignment() && ($lead=$assignee->getTeamLead()))
                 $recipients[] = $lead;
         }
 
         //Get the message template
-        if($recipients && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
+        if ($recipients
+                && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                         array('comments' => $comments,

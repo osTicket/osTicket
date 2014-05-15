@@ -122,6 +122,10 @@ class Team {
         return $this->isEnabled();
     }
 
+    function alertsEnabled() {
+        return !$this->ht['noalerts'];
+    }
+
     function update($vars, &$errors) {
 
         //reset team lead if they're being deleted
