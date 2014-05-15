@@ -776,7 +776,7 @@ Class ThreadEntry {
     }
 
     function asVar() {
-        return (string) $this;
+        return (string) $this->getBody()->display('html');
     }
 
     function getVar($tag) {
@@ -1380,6 +1380,11 @@ class TextThreadBody extends ThreadBody {
         default:
             return '<pre>'.$this->body.'</pre>';
         }
+    }
+
+    function asVar() {
+        // Email template, assume HTML
+        return $this->display('html');
     }
 }
 class HtmlThreadBody extends ThreadBody {
