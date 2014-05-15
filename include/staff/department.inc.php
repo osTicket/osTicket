@@ -59,7 +59,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><strong>Public</strong>
                 &nbsp;
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong>Private</strong> (Internal)
-                &nbsp;<span class="error">*&nbsp;</span>&nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
+                &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
         <tr>
@@ -78,7 +78,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['sla_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#sla"></i>
+                &nbsp;<span class="error"><?php echo $errors['sla_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#sla"></i>
             </td>
         </tr>
         <tr>
