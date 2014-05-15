@@ -149,7 +149,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
 $sortOptions=array('date'=>'effective_date','ID'=>'ticket.`number`',
     'pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
     'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
-    'dept'=>'dept.dept_name');
+    'dept'=>'dept.dept_name','loc'=>'location','roomnum'=>'roomnumber');
 
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
@@ -326,8 +326,12 @@ if ($results) {
                 <a  <?php echo $date_sort; ?> href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                     title="Sort By Date <?php echo $negorder; ?>">Date</a></th>
 	        <th width="280">
-                 <a <?php echo $subj_sort; ?> href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                    title="Sort By Subject <?php echo $negorder; ?>">Subject</a></th>
+                <a <?php echo $loc_sort; ?> href="tickets.php?sort=loc&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
+                     title="Sort By Location <?php echo $negorder; ?>">School</a></th>
+                <th width="50">
+                <a <?php echo $roomnum_sort; ?> href="tickets.php?sort=roomnum&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
+                    title="Sort By Room Number <?php echo $negorder; ?>">Room #</a></th>
+
             <th width="170">
                 <a <?php echo $name_sort; ?> href="tickets.php?sort=name&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                      title="Sort By Name <?php echo $negorder; ?>">From</a></th>
@@ -424,7 +428,9 @@ if ($results) {
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <td nowrap>&nbsp;<?php echo Format::truncate($row['name'],22,strpos($row['name'],'@')); ?>&nbsp;</td>
+                <td><?php echo $row['location']; ?></td>
+                <td><?php echo $row['roomnumber']; ?></td>
+
                 <?php
                 if($search && !$status){
                     $displaystatus=ucfirst($row['status']);
@@ -447,7 +453,7 @@ if ($results) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="8">
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             Select:&nbsp;
             <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;

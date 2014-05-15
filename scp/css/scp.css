@@ -339,6 +339,8 @@ a.Icon:hover {
 .Icon.otherTicket { background:url(../images/icons/ticket_source_other.gif) 0 0 no-repeat; }
 .Icon.overdueTicket { background:url(../images/icons/overdue_ticket.gif) 0 0 no-repeat; }
 .Icon.assignedTicket { background:url(../images/icons/assigned_ticket.gif) 0 0 no-repeat; }
+.Icon.staffAssigned { background:url(../images/icons/assigned_ticket.gif) 0 0 no-repeat; }
+.Icon.teamAssigned { background:url(../images/icons/assigned_tickets.gif) 0 0 no-repeat; }
 .Icon.lockedTicket { background:url(../images/icons/locked_ticket.gif) 0 0 no-repeat; }
 .Icon.editTicket { background-image: url(../images/icons/edit_ticket.png); }
 
