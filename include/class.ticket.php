@@ -938,7 +938,7 @@ class Ticket {
 
             //Only alerts dept members if the ticket is NOT assigned.
             if($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
-                if(($members=$dept->getMembers()))
+                if(($members=$dept->getMembersForAlerts()))
                     $recipients=array_merge($recipients, $members);
             }
 
@@ -1211,8 +1211,8 @@ class Ticket {
                     $recipients=array_merge($recipients, $members);
             } elseif($cfg->alertDeptMembersONOverdueTicket() && !$this->isAssigned()) {
                 //Only alerts dept members if the ticket is NOT assigned.
-                if(($members=$dept->getMembers()))
-                    $recipients=array_merge($recipients, $members);
+                if ($members = $dept->getMembersForAlerts())
+                    $recipients = array_merge($recipients, $members);
             }
             //Always alert dept manager??
             if($cfg->alertDeptManagerONOverdueTicket() && $dept && ($manager=$dept->getManager()))
@@ -1409,7 +1409,7 @@ class Ticket {
                     $recipients = array_merge($recipients, $members);
             } elseif($cfg->alertDeptMembersONTransfer() && !$this->isAssigned()) {
                 //Only alerts dept members if the ticket is NOT assigned.
-                if(($members=$dept->getMembers()))
+                if(($members=$dept->getMembersForAlerts()))
                     $recipients = array_merge($recipients, $members);
             }
 

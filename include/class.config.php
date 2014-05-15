@@ -419,6 +419,13 @@ class OsticketConfig extends Config {
         return $this->get('default_priority_id');
     }
 
+    function getDefaultPriority() {
+        if (!isset($this->defaultPriority))
+            $this->defaultPriority = Priority::lookup($this->getDefaultPriorityId());
+
+        return $this->defaultPriority;
+    }
+
     function getDefaultTemplateId() {
         return $this->get('default_template_id');
     }
@@ -936,8 +943,8 @@ class OsticketConfig extends Config {
             'autolock_minutes'=>$vars['autolock_minutes'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
-            'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?1:0,
-            'show_answered_tickets'=>isset($vars['show_answered_tickets'])?1:0,
+            'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
+            'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,

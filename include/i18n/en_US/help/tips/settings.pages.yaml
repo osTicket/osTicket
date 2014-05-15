@@ -24,24 +24,18 @@ company_information:
       - title: Company Information Form
         href: /scp/forms.php?type=C
 
-site_pages:
-    title: Site Pages
-    content: >
-        To manage your customize pages, see Admin Panel -> Manage -> Pages.
-
 landing_page:
     title: Landing Page
     content: >
-        What page would you like your clients to see when they first “land” on your
-        support site (i.e., your installation of osTicket)?
+        The <span class="doc-desc-title">Landing Page</span> is displayed on
+        the front page of your your support site.
 
 offline_page:
     title: Offline Page
     content: >
-        What page would you like your clients to see when the system is either
-        being updated or maintained? To activate the <span
-        class="doc-desc-title">Offline Page</span>, see Admin Panel -> Setting ->
-        System -> Helpdesk Status.
+        The <span class="doc-desc-title">Offline Page</span> is displayed in
+        the support site when the help desk is offline, see Admin Panel
+        -&gt; Setting -&gt; System -&gt; Helpdesk Status.
 
 default_thank_you_page:
     title: Default Thank-You Page
@@ -49,6 +43,9 @@ default_thank_you_page:
         The <span class="doc-desc-title">thank-you page</span> is displayed to the
         customer when a <span class="doc-desc-title">Client</span> submits a new
         ticket.
+        <br/><br/>
+        <span class="doc-desc-title">Thank you</span> pages can be
+        associated with help topics.
 
 logos:
     title: Logos
@@ -60,6 +57,6 @@ upload_a_new_logo:
     title: Upload a new logo
     content: >
         Choose an image in the .gif, .jpg or .png formats. We will proportionally
-        resize the display of your image. We will not however resize the image’s
+        resize the display of your image. We will not, however, resize the image’s
         data. Therefore, to speed load times, it is recommended that you keep your
-        image close to the default image (817x170).
+        image close to the default image size (817px &times; 170px).

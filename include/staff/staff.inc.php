@@ -65,7 +65,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" size="30" name="firstname" class="auto first"
                      value="<?php echo $info['firstname']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['firstname']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#first_name"></i>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['firstname']; ?></span>&nbsp;
             </td>
         </tr>
         <tr>
@@ -75,7 +75,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="text" size="30" name="lastname" class="auto last"
                     value="<?php echo $info['lastname']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['lastname']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#last_name"></i>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['lastname']; ?></span>&nbsp;
             </td>
         </tr>
         <tr>
@@ -122,6 +122,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 else if (sbk.val() == '' || sbk.val() == 'local')
                     $('#password-fields').show();
                 " />
+                 Send sign in information
                 &nbsp;<i class="help-tip icon-question-sign" href="#welcome_email"></i>
             </td>
         </tr>
@@ -336,7 +337,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
+                <em><strong>Admin Notes</strong></em>
             </th>
         </tr>
         <tr>

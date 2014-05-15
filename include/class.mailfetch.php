@@ -723,6 +723,15 @@ class MailFetcher {
         return $ticket;
     }
 
+    static function getSupportedProtos() {
+        return array(
+            'IMAP/SSL'  => 'IMAP + SSL',
+            'IMAP'      => 'IMAP',
+            'POP/SSL'   => 'POP + SSL',
+            'POP'       => 'POP',
+        );
+    }
+
 
     function fetchEmails() {
 

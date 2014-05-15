@@ -61,7 +61,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
+            <th width="7">&nbsp;</th>
             <th width="320"><a <?php echo $name_sort; ?> href="helptopics.php?<?php echo $qstr; ?>&sort=name">Help Topic</a></th>
             <th width="80"><a  <?php echo $status_sort; ?> href="helptopics.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="100"><a  <?php echo $type_sort; ?> href="helptopics.php?<?php echo $qstr; ?>&sort=type">Type</a></th>
@@ -75,14 +75,25 @@ else
         $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         if($res && db_num_rows($res)):
+            $defaultDept = $cfg->getDefaultDept();
+            $defaultPriority = $cfg->getDefaultPriority();
             while ($row = db_fetch_array($res)) {
                 $sel=false;
                 if($ids && in_array($row['topic_id'],$ids))
                     $sel=true;
+
+                if (!$row['dept_id'] && $defaultDept) {
+                    $row['dept_id'] = $defaultDept->getId();
+                    $row['department'] = (string) $defaultDept;
+                }
+
+                if (!$row['priority'] && $defaultPriority)
+                    $row['priority'] = (string) $defaultPriority;
+
                 ?>
             <tr id="<?php echo $row['topic_id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['topic_id']; ?>" 
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['topic_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <td><a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>

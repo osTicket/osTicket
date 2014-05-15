@@ -12,7 +12,7 @@ $gmtime = Misc::gmtime();
         <tr>
             <th colspan="2">
                 <h4>System Settings &amp; Preferences</h4>
-                <em><b>General Settings</b>&nbsp;<i class="help-tip icon-question-sign" href="#general_settings"></i></em>
+                <em><b>General Settings</b></em>
             </th>
         </tr>
     </thead>
@@ -21,10 +21,12 @@ $gmtime = Misc::gmtime();
         <tr>
             <td width="220" class="required">Helpdesk Status:</td>
             <td>
+                <span>
                 <label><input type="radio" name="isonline"  value="1"   <?php echo $config['isonline']?'checked="checked"':''; ?> />&nbsp;<b>Online</b>&nbsp;</label>
                 <label><input type="radio" name="isonline"  value="0"   <?php echo !$config['isonline']?'checked="checked"':''; ?> />&nbsp;<b>Offline</b></label>
-                &nbsp;<font class="error">&nbsp;<?php echo $config['isoffline']?'osTicket offline':''; ?></font>
+                &nbsp;<font class="error"><?php echo $config['isoffline']?'osTicket offline':''; ?></font>
                 <i class="help-tip icon-question-sign" href="#helpdesk_status"></i>
+                </span>
             </td>
         </tr>
         <tr>

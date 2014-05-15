@@ -13,22 +13,23 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-add_new_page:
-    title: Add New Page
-    content: >
-
 site_pages:
     title: Site Pages
     content: >
-
-name:
-    title: Name
-    content: >
+        Site pages can serve as a mini Content Management System (CMS). You
+        can define multiple landing, offline, and thank-you pages and
+        configure them in the company settings and help topics.
+    links:
+      - title: Company Settings
+        href: /scp/settings?t=pages
 
 type:
     title: Type
     content: >
-
-status:
-    title: Status
-    content: >
+        <span class="doc-desc-opt">Offline</span> pages are displayed on the
+        client portal if your help desk is disabled. <span
+        class="doc-desc-opt">Landing</span> pages are displayed on the home
+        page of your client portal. <span class="doc-desc-opt">Thank
+        You</span> pages are displayed after a user submits a ticket. <span
+        class="doc-desc-opt">Other</span> pages can be used as a simple
+        content management system (CMS).

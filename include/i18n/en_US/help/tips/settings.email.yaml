@@ -14,109 +14,112 @@
 #
 ---
 default_email_templates:
-    title: Default Email Templates
+    title: Default Email Template Set
     content: >
-        <span class="doc-desc-title">Templates</span> are used as <span
-        class="doc-desc-title">Auto-Responses</span> for various actions that can
-        take place during a  Ticket’s lifetime. <span
-        class="doc-desc-title">Alerts</span> are sent to Agents as assigned by
-        <span class="doc-desc-title">Department</span>, <span
-        class="doc-desc-title">Team</span>, <span class="doc-desc-title">Help
-        Topic</span> or <span class="doc-desc-title">Group</span>. Responses or
-        Replies are intended for the Client who created the Ticket.
+        Select <span class="doc-desc-title">Email Template Set</span> used to send <span
+        class="doc-desc-title">Auto-Responses</span> and <span class="doc-desc-title">Alerts</span> for various actions that can
+        take place during a  Ticket’s lifetime.
+        <br><br>
+        Departments can be assigned a specific Email Template Set.
+    links:
+      - title: Manage Email Template Sets
+        href: /scp/templates.php
 
 default_system_email:
-    title: Default System Email
+    title: Default Outgoing Email
     content: >
-        Choose an Email Address from which <span
-        class="doc-desc-title">Auto-Responses</span> are sent to Clients. Note,
-        however, that if the Department to which a Ticket is assigned sets its own
-        Default Email Address, that Department Address will override what is set
-        here.
+        Choose an email address from which outgoing emails are sent.
+        <br><br>
+        <span class="doc-desc-title">Department</span> can set its own <span
+        class="doc-desc-title">email address</span> which will override what is set here.
+    links:
+      - title: Manage Email Addresses
+        href: /scp/emails.php
 
 default_alert_email:
     title: Default Alert Email
     content: >
-        Choose an Email Address from which Agents are sent <span class="doc-desc-title">Alerts &amp;
-        Notices</span>. Note, however, that if the <span
-        class="doc-desc-title">Department</span> or <span
-        class="doc-desc-title">Help Topic</span> sets its own <span
-        class="doc-desc-title">Default Email Address</span>, that <span
-        class="doc-desc-title">Department</span> or <span
-        class="doc-desc-title">Help Topic</span> setting will override what is set
-        here.
+        Choose an email address from which <span class="doc-desc-title">Alerts &amp;
+        Notices</span> are sent to Agents.
+    links:
+      - title: Manage Email Addresses
+        href: /scp/emails.php
 
 admins_email_address:
     title: Admin’s Email Address
     content: >
-        Choose an Email Address from which notices of the <span
-        class="doc-desc-title">System Error Log</span> and <span
-        class="doc-desc-title">New Ticket Alerts</span> (if enabled) are sent to
-        the Helpdesk Administrator.
+        Enter an adminstrator's email address to which <span
+        class="doc-desc-title">System Errors</span> and <span
+        class="doc-desc-title">New Ticket Alerts</span> (if enabled) are sent.
+    links:
+      - title: Manage Alerts & Notices
+        href: /scp/settings.php?t=alerts
 
-incoming_emails:
-    title: Incoming Emails
+email_fetching:
+    title: Email Fetching
     content: >
-        Allow IMAP/POP polling once you have set up the information in emails
-        section of Admin Panel. You can also edit the reply separator text.
+        Allow IMAP/POP polling for configured and enabled <span class="doc-desc-title">Mail Boxes</span>.
+    links:
+      - title: Manage Mail Boxes
+        href: /scp/emails.php
 
-
-email_polling:
-    title: Email Polling
+enable_autocron_fetch:
+    title: Fetch Emails using Auto-cron
     content: >
-        Allow IMAP/POP polling once you have set up the information in emails
-        section of Admin Panel. You can also edit the reply separator text.
+        Enables periodic email fetching using an internal task manager
+        triggered by Agents' activity.  <br><br> Please note that emails will not be
+        fetched if no one is logged in to Staff Control Panel. External task scheduler
+        is highly recommended for predictable fetch intervals.
+    links:
+      - title: Using External Task Scheduler
+        href: http://osticket.com/wiki/POP3/IMAP_Setting_Guide#Schedule_Polling
 
 strip_quoted_reply:
     title: Strip Quoted Reply
     content: >
-        If enabled, this will remove any preceding correspondences duplicated
-        between response communication. Thereby, the Agent &amp; Client, when viewing
-        the Ticket, will not see any one preceding message duplicated. <br /><br />
-        <strong>Note:</strong> this will not actually delete preceding communication; it will only hide it from
-        the Agent &amp; Client. Furthermore, this feature is relationally dependent
-        on the <span class="doc-desc-title">Reply Separator Tag</span> below.
+        If enabled, this will remove preceding correspondence between email communications.
+        <br><br>
+        This feature is relationally dependent on the <span
+        class="doc-desc-title">Reply Separator Tag</span> below.
 
 reply_separator_tag:
     title: Reply Separator Tag
     content: >
-        This is the string that will tell the engine that anything below this line
-        is old correspondence. This way the engine knows to remove it from the
-        Client or Agent’s sight. <br /><br />
+        This is a token indicating to the User to reply above the line.
+        <br><br>
         <strong>Note:</strong> this is only relevant if <span
         class="doc-desc-title">Strip Quoted Reply</span> is enabled above.
 
 emailed_tickets_priority:
     title: Emailed Tickets Priority
     content: >
-        Choose whether you would like the priority option of the email service 
-        (e.g., Yahoo, Gmail, etc.) to dictate the new ticket’s priority status. This 
-        setting can be overridden by a <span class="doc-desc-title">Ticket 
-        Filter</span>.
+        Choose whether you would like the priority/importance option of the
+        User's email (e.g. OutLook) to dictate the new ticket’s priority.
+        <br><br>
+        This setting can be overridden by a <span
+        class="doc-desc-title">Ticket Filter</span>.
     links:
       - title: Create &amp; Manage Ticket Filters
         href: /scp/filters.php
 
+accept_all_emails:
+    title: Accept All Emails
+    content: >
+        Accept emails from unknown Users.
+        <br><br>
+        Unchecking this setting will result in tickets getting rejected.
+
 accept_email_collaborators:
     title: Accept Email Collaborators
     content: >
-        Add participants included in the <code><strong>To</strong></code> 
-        and <code><strong>CC</strong></code> fields of email as ticket
-        collaborators.<br /><br />
-         <em>Collaborators can always be added manually by staff members when
+        Add email participants included in the <code><strong>To</strong></code>
+        and <code><strong>CC</strong></code> fields as ticket collaborators.
+        <br /><br />
+        <em>Collaborators can always be added manually by Agents when
         viewing a ticket.</em>
 
-default_outgoing_email:
-    title: Default Outgoing Email
+default_mta:
+    title: Default MTA
     content: >
-        <span class="doc-desc-title">Default Outgoing Email</span> only applies to
-        outgoing emails without SMTP setting.
-
-enable_autocron_poll:
-    title: Poll Email using Auto-cron
-    content: >
-        <em><b>Not Recommended</b></em><br/><br/>
-        Enables fetching email periodically using the automatic cron system.
-        As admin and staff members interact with the system, the system will
-        periodically run cleanup routines called the auto-cron. This setting
-        enables fetching email during this cleanup.
+        <span class="doc-desc-title">Default MTA</span> takes care of
+        email delivery process for outgoing emails without SMTP setting.

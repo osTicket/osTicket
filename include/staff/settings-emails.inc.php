@@ -16,12 +16,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     </thead>
     <tbody>
         <tr>
-            <td width="180" class="required">Default Email Templates:</td>
+            <td width="180" class="required">Default Template Set:</td>
             <td>
                 <select name="default_template_id">
-                    <option value="">&mdash; Select Default Template &mdash;</option>
+                    <option value="">&mdash; Select Default Email Template Set &mdash;</option>
                     <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' WHERE isactive=1 ORDER BY name';
+                    $sql='SELECT tpl_id, name FROM '.EMAIL_TEMPLATE_GRP_TABLE
+                        .' WHERE isactive =1 ORDER BY name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while (list($id, $name) = db_fetch_row($res)){
                             $selected = ($config['default_template_id']==$id)?'selected="selected"':''; ?>
@@ -82,24 +83,22 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             </td>
         </tr>
         <tr><th colspan=2><em><strong>Incoming Emails:</strong>&nbsp;
-            <i class="help-tip icon-question-sign" href="#incoming_emails"></i>
             </em></th>
         <tr>
-            <td width="180">Email Polling:</td>
-            <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable POP/IMAP polling
-                &nbsp;
-                <i class="help-tip icon-question-sign" href="#email_polling"></i>
+            <td width="180">Email Fetching:</td>
+            <td><input type="checkbox" name="enable_mail_polling" value=1 <?php echo $config['enable_mail_polling']? 'checked="checked"': ''; ?>  > Enable
+                <i class="help-tip icon-question-sign" href="#email_fetching"></i>
                 &nbsp;
                  <input type="checkbox" name="enable_auto_cron" <?php echo $config['enable_auto_cron']?'checked="checked"':''; ?>>
-                 Poll on auto-cron&nbsp;
-                <i class="help-tip icon-question-sign" href="#enable_autocron_poll"></i>
+                 Fetch on auto-cron&nbsp;
+                <i class="help-tip icon-question-sign" href="#enable_autocron_fetch"></i>
             </td>
         </tr>
         <tr>
             <td width="180">Strip Quoted Reply:</td>
             <td>
                 <input type="checkbox" name="strip_quoted_reply" <?php echo $config['strip_quoted_reply'] ? 'checked="checked"':''; ?>>
-                &nbsp;Enable&nbsp;<i class="help-tip icon-question-sign" href="#strip_quoted_reply"></i>
+                Enable <i class="help-tip icon-question-sign" href="#strip_quoted_reply"></i>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['strip_quoted_reply']; ?></font>
             </td>
         </tr>
@@ -119,8 +118,10 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         <tr>
             <td width="180">Accept All Emails:</td>
             <td><input type="checkbox" name="accept_unregistered_email" <?php
-    echo $config['accept_unregistered_email'] ? 'checked="checked"' : ''; ?>/>
-            Accept email from unknown Clients
+                echo $config['accept_unregistered_email'] ? 'checked="checked"' : ''; ?>/>
+                Accept email from unknown Users
+                <i class="help-tip icon-question-sign" href="#accept_all_emails"></i>
+            </td>
         </tr>
         <tr>
             <td width="180">Accept Email Collaborators:</td>
@@ -130,22 +131,23 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <i class="help-tip icon-question-sign" href="#accept_email_collaborators"></i>
         </tr>
         <tr><th colspan=2><em><strong>Outgoing Emails</strong>: Default email only applies to outgoing emails without SMTP setting.</em></th></tr>
-        <tr><td width="180">Default Outgoing Email:</td>
+        <tr><td width="180">Default MTA:</td>
             <td>
                 <select name="default_smtp_id">
                     <option value=0 selected="selected">None: Use PHP mail function</option>
                     <?php
-                    $sql='SELECT email_id,email,name,smtp_host FROM '.EMAIL_TABLE.' WHERE smtp_active=1';
-
+                    $sql=' SELECT email_id, email, name, smtp_host '
+                        .' FROM '.EMAIL_TABLE.' WHERE smtp_active = 1';
                     if(($res=db_query($sql)) && db_num_rows($res)) {
-                        while (list($id,$email,$name,$host) = db_fetch_row($res)){
+                        while (list($id, $email, $name, $host) = db_fetch_row($res)){
                             $email=$name?"$name &lt;$email&gt;":$email;
                             ?>
                             <option value="<?php echo $id; ?>"<?php echo ($config['default_smtp_id']==$id)?'selected="selected"':''; ?>><?php echo $email; ?></option>
                         <?php
                         }
                     } ?>
-                 </select>&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['default_smtp_id']; ?></font>
+                 </select>&nbsp;<font class="error">&nbsp;<?php echo $errors['default_smtp_id']; ?></font>
+                 <i class="help-tip icon-question-sign" href="#default_mta"></i>
            </td>
        </tr>
     </tbody>

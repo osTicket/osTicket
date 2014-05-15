@@ -129,7 +129,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         <tr><td>User Session Timeout:</td>
             <td>
               <input type="text" name="client_session_timeout" size=6 value="<?php echo $config['client_session_timeout']; ?>">
-                &nbsp;Maximum idle time in minutes before a user must log in again (enter 0 to disable). <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
+              <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
             </td>
         </tr>
     </tbody>

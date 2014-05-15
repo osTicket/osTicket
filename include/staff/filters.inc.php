@@ -5,6 +5,7 @@ $qstr='';
 $sql='SELECT filter.*,count(rule.id) as rules '.
      'FROM '.FILTER_TABLE.' filter '.
      'LEFT JOIN '.FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '.
+     "WHERE filter.`name` <> 'SYSTEM BAN LIST' ".
      'GROUP BY filter.id';
 $sortOptions=array('name'=>'filter.name','status'=>'filter.isactive','order'=>'filter.execorder','rules'=>'rules',
                    'target'=>'filter.target', 'created'=>'filter.created','updated'=>'filter.updated');

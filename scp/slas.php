@@ -100,8 +100,8 @@ if($_POST){
 $page='slaplans.inc.php';
 if($sla || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='slaplan.inc.php';
-    $ost->addExtraHeader('<meta name="tip-namespace" content="manage.addnew_sla_plan" />',
-        "$('#content').data('tipNamespace', 'manage.addnew_sla_plan');");
+    $ost->addExtraHeader('<meta name="tip-namespace" content="manage.sla" />',
+            "$('#content').data('tipNamespace', 'manage.sla');");
 }
 
 $nav->setTabActive('manage');

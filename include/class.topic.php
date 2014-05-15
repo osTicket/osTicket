@@ -221,7 +221,7 @@ class Topic {
         elseif(($tid=self::getIdByName($vars['topic'], $vars['pid'])) && $tid!=$id)
             $errors['topic']='Topic already exists';
 
-        if(!$vars['dept_id'])
+        if (!is_numeric($vars['dept_id']))
             $errors['dept_id']='You must select a department';
 
         if($errors) return false;
@@ -234,8 +234,7 @@ class Topic {
             .',topic='.db_input($vars['topic'])
             .',topic_pid='.db_input($vars['pid'])
             .',dept_id='.db_input($vars['dept_id'])
-            .',priority_id='.db_input(isset($vars['priority_id'])
-                ? $vars['priority_id'] : 0)
+            .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
             .',form_id='.db_input($vars['form_id'])
             .',page_id='.db_input($vars['page_id'])

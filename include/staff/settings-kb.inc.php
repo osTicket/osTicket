@@ -16,10 +16,10 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     </thead>
     <tbody>
         <tr>
-            <td width="180">Knowledge base status:</td>
+            <td width="180">Knowledge Base Status:</td>
             <td>
               <input type="checkbox" name="enable_kb" value="1" <?php echo $config['enable_kb']?'checked="checked"':''; ?>>
-              Enable Knowledge base&nbsp;<em>(Client interface)</em>
+              Enable Knowledge Base
               &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_kb']; ?></font> <i class="help-tip icon-question-sign" href="#knowledge_base_status"></i>
             </td>
         </tr>
@@ -27,7 +27,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td width="180">Canned Responses:</td>
             <td>
                 <input type="checkbox" name="enable_premade" value="1" <?php echo $config['enable_premade']?'checked="checked"':''; ?> >
-                Enable canned responses&nbsp;<em>(Available on ticket reply)</em>
+                Enable Canned Responses
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_premade']; ?></font> <i class="help-tip icon-question-sign" href="#canned_responses"></i>
             </td>
         </tr>

@@ -99,10 +99,9 @@ if($_POST){
 }
 
 $page='filters.inc.php';
-$tip_namespace = 'manage.ticket_filters';
+$tip_namespace = 'manage.filter';
 if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='filter.inc.php';
-    $tip_namespace = 'manage.addnew_filter';
 }
 
 $nav->setTabActive('manage');

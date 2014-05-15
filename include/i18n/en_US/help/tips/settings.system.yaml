@@ -13,18 +13,13 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-general_settings:
-    title: General Settings
-    content: >
-        Offline mode will disable client interface and only allow admins to login to 
-        Staff Control Panel.
-
 helpdesk_status:
     title: Helpdesk Status
     content: >
-        If the status is changed to Offline, the client interface will be disabled.
-        This does not however affect any normal Agent interaction with the Agent
-        Panel.
+        If the status is changed to <span
+        class="doc-desc-opt">Offline</span>, the client interface will be
+        disabled.  This does not however affect any normal Agent interaction
+        with the Agent Panel.
 
 helpdesk_url:
     title: Helpdesk URL
@@ -35,63 +30,61 @@ helpdesk_url:
 helpdesk_name_title:
     title: Helpdesk Name/Title
     content: >
-        This appears in the browser tab when a <span class="doc-desc-title">client
-        </span> goes to your help desk. If your help desk page is bookmarked (i.e.,
-        in your favorites), this will be the title/name of the site page.
+        This is the title that appears in the browser tab. If your help desk
+        page is bookmarked, this will be the title/name of the site page.
 
 default_department:
     title: Default Department
     content: >
-        Determines the default <span class="doc-desc-title">department</span> for
-        tickets submitted that do not have a department auto-assigned by help topic
-        or incoming email.
+        Choose a default <span class="doc-desc-title">department</span>
+        for tickets that are not automatically routed to a department.
+        <br/><br/>
+        Ticket can be routed base on help topic, incoming email and ticket
+        filter settings.
 
 default_page_size:
     title: Default Page Size
     content: >
-        How many Tickets would you like to see per page in the Ticket Tables in the
-        Staff Panel? Each Agent can also customize this number for their own
+        Choose the number of items shown per page in the Ticket Queues in the
+        Staff Panel. Each Agent can also customize this number for their own
         account under <span class="doc-desc-title">My Preferences</span>.
 
 default_log_level:
     title: Default Log Level
     content: >
-        Determines to what minimum level of issues that will be recorded in the
+        Determine the minimum level of issues which will be recorded in the
         <span class="doc-desc-title">system log</span>. <span
         class="doc-desc-opt">Debug</span> represents the least severity, and <span
-        class="doc-desc-opt">Error</span> represents the greatest severity. So, if
-        you want to see all issues in the <span class="doc-desc-title">System
-        Logs</span>, choose <span class="doc-desc-opt">Debug</span>.
+        class="doc-desc-opt">Error</span> represents the greatest severity.
+        For example, if you want to see all issues in the <span
+        class="doc-desc-title">System Logs</span>, choose <span
+        class="doc-desc-opt">Debug</span>.
 
 purge_logs:
     title: Purge Logs
     content: >
-        How long would you like to store the <span class="doc-desc-title">System
-        Logs</span> until they are deleted? You may also choose to <span
-        class="doc-desc-opt">Never Purge Logs</span>.
+        Determine how long you would like to keep <span
+        class="doc-desc-title">System Logs</span> before they are deleted.
 
 default_name_formatting:
     title: Default Name Formatting
     content: >
-        Formatting technique used to format names throughout the system.
-        Email templates will use the format for names if no other format is
-        specified in the place holder.
+        Choose a format for names throughout the system. Email templates
+        will use it for names if no other format is specified in the
+        variable.
+
+    links:
+      - title: Supported Email Template Variables
+        href: http://osticket.com/wiki/Email_templates
 
 # Date and time options
-date_and_time:
-    title: Localized Date Formats
-        You may choose from various formats in which names throughout the system
-        will be displayed. This is also the format that will be used by Emails if
-        no other format is established in the <span class="doc-desc-title">Email
-        Template</span>.
-
 date_time_options:
     title: Date &amp; Time Options
     content: >
-        The following settings will alter the Date &amp; Time settings Clients. You can
-        change how these appear by following the PHP date format characters. The
-        following examples are not realtime; they simply display the format for the
-        values in the text input fields to their left.
+        The following settings define the Date &amp; Time settings for
+        Clients. You can change how these appear by following the PHP date
+        format characters. The dates shown below simply illustrate the
+        result of their corresponding values.
     links:
       - title: See the PHP Date Formatting Table
         href: http://www.php.net/manual/en/function.date.php

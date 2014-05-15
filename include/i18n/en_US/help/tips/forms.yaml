@@ -77,7 +77,7 @@ field_variable:
         via <code>%{ticket.user.variable}</code></em>
 
 field_delete:
-    title: Remote this Field
+    title: Remove this Field
     content: >
         Check and save the form to remove a field from this form.<br>
         <br>

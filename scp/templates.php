@@ -132,14 +132,13 @@ if($_POST){
 }
 
 $page='templates.inc.php';
-$tip_namespace = 'email.templates';
+$tip_namespace = 'emails.template';
 if($template && !strcasecmp($_REQUEST['a'],'manage')){
     $page='tpl.inc.php';
 }elseif($template && !strcasecmp($_REQUEST['a'],'implement')){
     $page='tpl.inc.php';
 }elseif($template || !strcasecmp($_REQUEST['a'],'add')){
     $page='template.inc.php';
-    $tip_namespace = 'emails.email_template_form';
 }
 
 $nav->setTabActive('emails');

@@ -147,10 +147,9 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
 }
 
 $page='cannedresponses.inc.php';
-$tip_namespace = 'knowledgebase.canned_responses';
+$tip_namespace = 'knowledgebase.canned_response';
 if($canned || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='cannedresponse.inc.php';
-    $tip_namespace = 'knowledgebase.addnew_canned_response';
 }
 
 $nav->setTabActive('kbase');

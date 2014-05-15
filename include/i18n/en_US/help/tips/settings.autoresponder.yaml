@@ -16,47 +16,45 @@
 new_ticket:
     title: New Ticket
     content: >
-        Enable this if you want a confirmation message  sent to the Client
-        that the Help Desk has received their new ticket. The message sent to
-        the Client is customizable.
+        Enable this if you want an autoresponse to be sent to the User on new ticket.
     links:
-      - title: Default New Ticket Autoresponse Template
+      - title: New Ticket Autoresponse Template
         href: /scp/templates.php?default_for=ticket.autoresp
 
 new_ticket_by_staff:
     title: New Ticket by Staff
     content: >
-        Notice sent when staff creates a ticket on behalf of the user. <em>Staff
+        Notice sent when an Agent creates a ticket on behalf of the User. <em>Agent
         can override this when creating new tickets.</em>
     links:
-      - title: Default New Ticket by Staff Autoresponse Template
+      - title: New Ticket Notice Template
         href: /scp/templates.php?default_for=ticket.notice
 
 new_message_for_submitter:
-    title: New Message for Submitter
+    title: New Message Confirmation
     content: >
         Confirmation notice sent when a new message is appended to an existing
         ticket.
     links:
-      - title: Default New Message Confirmation Template
+      - title: New Message Confirmation Template
         href: /scp/templates.php?default_for=message.autoresp
 
 new_message_for_participants:
-    title: New Message for Participants
+    title: New Message Notice
     content: >
         Broadcast messages received from message submitter to all other
         participants on the ticket.
     links:
-      - title: Default New Activity Template
+      - title: New Activity Notice Template
         href: /scp/templates.php?default_for=ticket.activity.notice
 
 overlimit_notice:
     title: Overlimit Notice
     content: >
-        Send ticket denied notice sent to user on limit violation. Admin gets
-        alerts on <em>all</em> denials by default.
+        Ticket denied notice sent to User on <span
+        class="doc-desc-title">Maximum Open Tickets</span> violation.
     links:
-      - title: Default Overlimit Notice Template
+      - title: Overlimit Notice Template
         href: /scp/templates.php?default_for=ticket.overlimit
 
       - title: Set <em>Maximum Open Tickets</em>

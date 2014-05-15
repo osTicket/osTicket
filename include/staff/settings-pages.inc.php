@@ -32,6 +32,7 @@ $pages = Page::getPages();
         <tr>
             <td width="220" class="required">Landing Page:</td>
             <td>
+                <span>
                 <select name="landing_page_id">
                     <option value="">&mdash; Select Landing Page &mdash;</option>
                     <?php
@@ -43,11 +44,14 @@ $pages = Page::getPages();
                                 $page->getName());
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['landing_page_id']; ?></font>
+                <i class="help-tip icon-question-sign" href="#landing_page"></i>
+                </span>
             </td>
         </tr>
         <tr>
             <td width="220" class="required">Offline Page:</td>
             <td>
+                <span>
                 <select name="offline_page_id">
                     <option value="">&mdash; Select Offline Page &mdash;</option>
                     <?php
@@ -59,11 +63,14 @@ $pages = Page::getPages();
                                 $page->getName());
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['offline_page_id']; ?></font>
+                <i class="help-tip icon-question-sign" href="#offline_page"></i>
+                </span>
             </td>
         </tr>
         <tr>
             <td width="220" class="required">Default Thank-You Page:</td>
             <td>
+                <span>
                 <select name="thank-you_page_id">
                     <option value="">&mdash; Select Thank-You Page &mdash;</option>
                     <?php
@@ -75,6 +82,8 @@ $pages = Page::getPages();
                                 $page->getName());
                     } ?>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['thank-you_page_id']; ?></font>
+                <i class="help-tip icon-question-sign" href="#default_thank_you_page"></i>
+                </span>
             </td>
         </tr>
     </tbody>
@@ -83,7 +92,9 @@ $pages = Page::getPages();
     <thead>
         <tr>
             <th colspan="2">
-                <h4>Logos</h4>
+                <h4>Logos
+                    <i class="help-tip icon-question-sign" href="#logos"></i>
+                    </h4>
                 <em>System Default Logo</em>
             </th>
         </tr>

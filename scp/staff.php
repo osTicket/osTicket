@@ -97,10 +97,9 @@ if($_POST){
 }
 
 $page='staffmembers.inc.php';
-$tip_namespace = 'staff.agents';
+$tip_namespace = 'staff.agent';
 if($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='staff.inc.php';
-    $tip_namespace = 'staff.addnew_staff';
 }
 
 $nav->setTabActive('staff');
