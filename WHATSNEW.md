@@ -1,3 +1,56 @@
+osTicket v1.8.1.3
+=================
+### Enhancements
+  * Support filtering based on help topic (#728)
+  * Embedded images ([rfc2397](http://www.ietf.org/rfc/rfc2397.txt)) are correctly supported (#740)
+  * Allow regular staff members to show assigned open tickets on open queue (#751)
+  * Support Handle [rfc1892](http://www.ietf.org/rfc/rfc1892.txt) style bounce notices (#871)
+  * Disable autocomplete on CAPTCHA fields (#821)
+  * Show `closed` date on the closed ticket queue (#865)
+  * Departments support assignment to members only (#862)
+  * Department email selection is optional (#862)
+
+### Bugs
+  * Fix error output on some systems if the `i18n` folder is not readable (#714)
+  * Fix possible crash if an email has no body (#707)
+  * Fix errors in download hash generation (#743)
+  * Support two-character file extensions (#719)
+  * Fix inline images with an invalid content id (#708)
+  * Remove confusing false-positive banner and admin email for client login (#763, #765)
+  * Fix detection of inline images without a `cid:` URL scheme (#779)
+  * Fix crash sending fatal alert email (bdfb2f1)
+  * Fix partial corruption of HTML @style attributes (#784)
+  * Fix several CSS styles for the staff interface (#785)
+  * Properly clear department selection from other settings on deletion (#792)
+  * Users with ticket-edit rights can see the "Change Owner" option in the more drop-down (#799)
+  * Links to new osTicket site are now correct (#808)
+  * Fix incorrect ticket count on simple ticket search (#809)
+  * Fix attachment size detection on systems with `mbstring.func_overload` set (#811)
+  * Fix horribly incorrect TNEF stream parsing (#825)
+  * Fix incorrect SQL query searching staff directory (91d65d9)
+  * Properly trim user input for ban list entries (#837)
+  * Ticket assignment alert can be disabled (#839)
+  * Preserve newlines in long answer form fields (with HTML disabled) (a04c5e7)
+  * Fix javascript error on form submission with empty date picker field (0013b40)
+  * Fix images in message portion of the new ticket notice to end user (#842)
+  * Send new internal note alert to assigned team members (#858)
+  * Properly strip leading and trailing whitespace from text/plain emails (fa7a025)
+  * Fix incorrect default template for ticket auto responses (97d6e25)
+  * Canned responses can be disabled (120d90b)
+  * Don't corrupt filters with selected, disabled teams, SLAs (120d90b)
+  * Fix crash sending some alert emails (efa7311)
+  * Fix HTML scrubbing with some content-ids (efa7311, eb5861f)
+  * Squelch E_WARN from ContentAjaxAPI::getSignature (ed33d06)
+  * `@localhost` is *not* a valid email address (f40c018)
+  * Fix `web.config` for newly patched IIS setups (78a47c2)
+  * Honor disabled assignment alerts for teams (#894)
+  * Send out internal note alerts to assigned staff (and Team) if Agent closes the ticket with the note (#903)
+
+### Performance and Security
+  * Fix cross site scripting (XSS) vulnerability in thread entry widget (9916214)
+  * Mail parsing uses significantly less memory (#861)
+
+
 osTicket v1.8.1.2
 =================
 * All fixes and enhancements from v1.8.0.4, plus *
