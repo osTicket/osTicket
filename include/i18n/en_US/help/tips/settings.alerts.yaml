@@ -16,11 +16,8 @@
 page_title:
     title: Alerts and Notices
     content: >
-        Alerts and Notices are automated messages sent to staff members
-        related to ticket events. The following table allows you to
-        configure which events should trigger automated notifications, and,
-        for those which are enabled, which staff members should be included
-        on the automated notifications.
+        Alerts and Notices are automated email notifications sent to Agents
+        when various ticket events are triggered.
 
 ticket_alert:
     title: New Ticket Alert
@@ -29,7 +26,7 @@ ticket_alert:
         Alert sent out to Agents when a new ticket is created.
         </p><p class="info-banner">
         <i class="icon-info-sign"></i>
-        New ticket alert is not sent out if the ticket is automatically assigned.
+        This alert is not sent out if the ticket is auto-assigned via Ticket Filter or a Help Topic section.
         </p>
     links:
       - title: Default New Ticket Alert Template
@@ -38,8 +35,8 @@ ticket_alert:
 message_alert:
     title: New Message Alert
     content: >
-        Alert sent out when a New Message from the User is appended to an
-        existing ticket.
+        Alert sent out to Agents when a new message from the User is
+        appended to an existing ticket.
     links:
       - title: Default New Message Alert Template
         href: /scp/templates.php?default_for=message.alert
@@ -47,8 +44,8 @@ message_alert:
 internal_note_alert:
     title: New Internal Note Alert
     content: >
-        Alert sent out when a new <span class="doc-desc-title">Internal
-        Note</span> is appended to a ticket.
+        Alert sent out to Agents when a new <span
+        class="doc-desc-title">Internal Note</span> is appended to a ticket.
     links:
       - title: Default Ticket Activity Template
         href: /scp/templates.php?default_for=note.alert
@@ -56,7 +53,7 @@ internal_note_alert:
 assignment_alert:
     title: Ticket Assignment Alert
     content: >
-        Alert sent out to Staff on ticket assignment.
+        Alert sent out to Agents on ticket assignment.
     links:
       - title: Default Ticket Assignment Alert Template
         href: /scp/templates.php?default_for=assigned.alert
@@ -64,7 +61,7 @@ assignment_alert:
 transfer_alert:
     title: Ticket Transfer Alert
     content: >
-        Alert sent out on ticket transfer.
+        Alert sent out to Agents on ticket transfer between Departments.
     links:
       - title: Default Ticket Transfer Alert Template
         href: /scp/templates.php?default_for=transfer.alert
@@ -72,7 +69,8 @@ transfer_alert:
 overdue_alert:
     title: Overdue Ticket Alert
     content: >
-        Alert sent out when a ticket becomes overdue based on SLA or Overdue Date.
+        Alert sent out to Agents when a ticket becomes overdue based on SLA
+        or Due Date.
     links:
       - title: Default Stale Ticket Alert Template
         href: /scp/templates.php?default_for=ticket.overdue
@@ -83,9 +81,10 @@ overdue_alert:
 system_alerts:
     title: System Alerts
     content: >
-        Alerts that are sent out when system error occurs. All <span class="doc-desc-title">System Errors</span> are logged in <span class="doc-desc-title">System Logs</span>
-        <br><br>
-        System errors, by default, are sent to the administrator's email (%{config.admin_email}).
+        Significant system events that are sent out to the Administrator
+        (%{config.admin_email}). Depending on the configured <span
+        class="doc-desc-title">Log Level</span>, the events are also made
+        available in the <span class="doc-desc-title">System Logs</span>
     links:
       - title: View System Logs
         href: /scp/logs.php

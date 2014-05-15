@@ -1,4 +1,5 @@
-<h2>Alerts and Notices</h2>
+<h2>Alerts and Notices
+    <i class="help-tip icon-question-sign" href="#page_title"></i></h2>
 <form action="settings.php?t=alerts" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="alerts" >
