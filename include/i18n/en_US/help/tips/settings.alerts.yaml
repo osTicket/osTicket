@@ -72,7 +72,7 @@ transfer_alert:
 overdue_alert:
     title: Overdue Ticket Alert
     content: >
-        Alerts sent out when a ticket becomes overdue based on SLA or Overdue Date.
+        Alert sent out when a ticket becomes overdue based on SLA or Overdue Date.
     links:
       - title: Default Stale Ticket Alert Template
         href: /scp/templates.php?default_for=ticket.overdue

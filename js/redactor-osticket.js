@@ -27,24 +27,19 @@ RedactorPlugins.draft = {
         this.opts.initCallback = this.recoverDraft;
 
         this.$draft_saved = $('<span>')
-            .addClass("pull-right draft-saved faded")
+            .addClass("pull-right draft-saved")
             .css({'position':'absolute','top':'3em','right':'0.5em'})
             .hide()
             .append($('<span>')
                 .text('Draft Saved'));
-        if (this.opts.draftDelete) {
-            this.$draft_saved.append($('<span>')
-                .css({'padding-left':'1em', 'cursor':'pointer'})
-                .click($.proxy(function() {
-                    this.deleteDraft();
-                    return false;
-                }, this))
-                .append($('<i>')
-                    .addClass('icon-trash')
-                )
-            );
-        }
+        // Float the [Draft Saved] box with the toolbar
         this.$toolbar.append(this.$draft_saved);
+        if (this.opts.draftDelete) {
+            var trash = this.buttonAdd('deleteDraft', 'Delete Draft', this.deleteDraft);
+            this.buttonAwesome('deleteDraft', 'icon-trash');
+            trash.parent().addClass('pull-right');
+            trash.addClass('delete-draft');
+        }
     },
     recoverDraft: function() {
         var self = this;
