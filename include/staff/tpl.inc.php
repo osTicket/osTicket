@@ -83,25 +83,31 @@ $tpl=$msgtemplates[$selected];
 <input type="hidden" name="a" value="manage">
 <input type="hidden" name="do" value="<?php echo $action; ?>">
 
-<p>
-<h3 style="font-size:12pt;"><?php echo $desc['name']; ?>
+<div style="border:1px solid #ccc;background:#f0f0f0;padding:5px 10px;
+    margin:10px 0;">
+<h3 style="font-size:12pt;margin:0"><?php echo $desc['name']; ?>
     &nbsp;<i class="help-tip icon-question-sign"
         data-content="<?php echo Format::htmlchars($desc['desc']); ?>"
         data-title="<?php echo Format::htmlchars($desc['name']); ?>"></i>
-    <a style="font-size:10pt" class="tip pull-right" href="#ticket_variables.txt">Supported Variables</a>
+    <a style="font-size:10pt" class="tip pull-right" href="#ticket_variables.txt">
+    <i class="icon-tags"></i>
+    Supported Variables</a>
     </h3>
 <?php if ($errors) { ?>
     <font class="error"><?php echo $errors['subject']; ?>&nbsp;<?php echo $errors['body']; ?></font>
 <?php } ?>
-</p>
+</div>
 
-<div>
+<div style="padding-bottom:3px;" class="faded"><strong>Email Subject and Body:</strong></div>
+<div id="toolbar"></div>
+<div style="padding-top:5px;">
     <input type="text" name="subject" size="65" value="<?php echo $info['subject']; ?>"
     style="font-size:14pt;width:100%;box-sizing:border-box">
     <div style="margin-bottom:0.5em;margin-top:0.5em">
     </div>
     <input type="hidden" name="draft_id" value=""/>
     <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
+        data-toolbar-external="#toolbar"
         class="richtext draft" data-draft-namespace="tpl.<?php echo $selected; ?>"
         data-draft-object-id="<?php echo $tpl_id; ?>"><?php echo $info['body']; ?></textarea>
 </div>

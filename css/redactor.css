@@ -328,7 +328,6 @@ body .redactor_box_fullscreen {
   white-space: nowrap;
 }
 .redactor_toolbar.redactor-toolbar-external {
-  z-index: 999;
   box-shadow: none;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
