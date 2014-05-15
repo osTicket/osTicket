@@ -1826,6 +1826,9 @@ class Ticket {
             // No alerts for bounce emails
             $alert = false;
 
+        // Get assigned staff just in case the ticket is closed.
+        $assignee = $this->getStaff();
+
         //Set state: Error on state change not critical!
         if(isset($vars['state']) && $vars['state']) {
             if($this->setState($vars['state']))
@@ -1847,31 +1850,41 @@ class Ticket {
             $recipients=array();
 
             //Last respondent.
-            if($cfg->alertLastRespondentONNewNote())
-                $recipients[]=$this->getLastRespondent();
+            if ($cfg->alertLastRespondentONNewNote())
+                $recipients[] = $this->getLastRespondent();
 
-            //Assigned staff if any...could be the last respondent
-            if($cfg->alertAssignedONNewNote() && $this->isAssigned()) {
-                if ($staff = $this->getStaff())
-                    $recipients[] = $staff;
+            // Assigned staff / team
+            if ($cfg->alertAssignedONNewNote()) {
+
+                if ($assignee && $assignee instanceof Staff)
+                    $recipients[] = $assignee;
+
                 if ($team = $this->getTeam())
                     $recipients = array_merge($recipients, $team->getMembers());
             }
 
-            //Dept manager
-            if($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
-                $recipients[]=$dept->getManager();
+            // Dept manager
+            if ($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
+                $recipients[] = $dept->getManager();
 
             $options = array(
                 'inreplyto'=>$note->getEmailMessageId(),
                 'references'=>$note->getEmailReferences(),
                 'thread'=>$note);
+
+            $isClosed = $this->isClosed();
             $sentlist=array();
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff)
-                        || !$staff->isAvailable() //Don't bother vacationing staff.
-                        || isset($sentlist[$staff->getEmail()]) //No duplicates.
-                        || $note->getStaffId() == $staff->getId())  //No need to alert the poster!
+                        // Don't bother vacationing staff.
+                        || !$staff->isAvailable()
+                        // No duplicates.
+                        || isset($sentlist[$staff->getEmail()])
+                        // No need to alert the poster!
+                        || $note->getStaffId() == $staff->getId()
+                        // Make sure staff has access to ticket
+                        || ($isClosed && !$this->checkStaffAccess($staff))
+                        )
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
                 $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
