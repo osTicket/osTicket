@@ -667,8 +667,6 @@ $(document).on('pjax:complete', function() {
         $(this).remove();
     });
     $('#overlay').stop(false, true).hide().removeAttr('style');
-    // Drop previous POST data (if any)
-    window.location.href = window.location.href;
 });
 
 $(document).on('pjax:end', function() {
