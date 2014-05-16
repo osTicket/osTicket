@@ -275,6 +275,12 @@ $(function() {
     cleanupRedactorElements = function() {
         // Drop the added redactor_air bars
         $('.redactor_air').remove();
+        // Cancel autosave
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor)
+                redactor.opts.autosave = false;
+        });
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
