@@ -2,6 +2,16 @@
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die('Access Denied');
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+
+$form = null;
+if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
+    $form = $topic->getForm();
+    if ($_POST && $form) {
+        $form = $form->instanciate();
+        $form->isValid();
+    }
+}
+
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
@@ -130,8 +140,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                                 $selected, $name);
                         }
                         if (count($topics) == 1 && !$form) {
-                            $T = Topic::lookup($id);
-                            $form = DynamicForm::lookup($T->ht['form_id']);
+                            if (($T = Topic::lookup($id)))
+                                $form =  $T->getForm();
                         }
                     }
                     ?>
@@ -233,7 +243,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tbody>
         <tbody id="dynamic-form">
         <?php
-            if ($form) $form->getForm()->render(true);
+            if ($form) {
+                include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
+            }
         ?>
         </tbody>
         <tbody> <?php
