@@ -64,7 +64,7 @@
             | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax">Log Out</a>
         </p>
     </div>
-    <div id="pjax-container">
+    <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
 <?php } else {
     if ($pjax = $ost->getExtraPjax()) { ?>
     <script type="text/javascript">
