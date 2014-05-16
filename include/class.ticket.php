@@ -2294,7 +2294,7 @@ class Ticket {
         }
 
         if ($vars['topicId'] && ($topic=Topic::lookup($vars['topicId']))) {
-            if ($topic_form = DynamicForm::lookup($topic->ht['form_id'])) {
+            if ($topic_form = $topic->getForm()) {
                 $topic_form = $topic_form->instanciate();
                 if (!$topic_form->getForm()->isValid($field_filter('topic')))
                     $errors = array_merge($errors, $topic_form->getForm()->errors());

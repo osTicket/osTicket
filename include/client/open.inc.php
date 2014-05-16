@@ -8,6 +8,16 @@ if($thisclient && $thisclient->isValid()) {
 }
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
+
+$form = null;
+if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
+    $form = $topic->getForm();
+    if ($_POST && $form) {
+        $form = $form->instanciate();
+        $form->isValidForClient();
+    }
+}
+
 ?>
 <h1>Open a New Ticket</h1>
 <p>Please fill in the form below to open a new ticket.</p>

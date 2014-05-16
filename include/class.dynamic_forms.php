@@ -580,15 +580,24 @@ class DynamicFormEntry extends VerySimpleModel {
      * $filter - (callback) function to receive each field and return
      *      boolean true if the field's errors are significant
      */
-    function isValid($include=false) {
+    function isValid($filter=false) {
         if (!is_array($this->_errors)) {
             $this->_errors = array();
             $this->getClean();
             foreach ($this->getFields() as $field)
-                if ($field->errors() && (!$include || $include($field)))
+                if ($field->errors() && (!$filter || $filter($field)))
                     $this->_errors[$field->get('id')] = $field->errors();
         }
         return !$this->_errors;
+    }
+
+    function isValidForClient() {
+
+        $filter = function($f) {
+            return !$f->get('private');
+        };
+
+        return $this->isValid($filter);
     }
 
     function getClean() {
