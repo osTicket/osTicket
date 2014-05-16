@@ -87,6 +87,46 @@ class Deployment extends Unpacker {
         }
     }
 
+    function copyFile($src, $dest) {
+        static $short = false;
+        static $version = false;
+
+        if (substr($src, -4) != '.php')
+            return parent::copyFile($src, $dest);
+
+        if (!$short) {
+            $hash = exec('git rev-parse HEAD');
+            $short = substr($hash, 0, 7);
+        }
+
+        if (!$version)
+            $version = exec('git describe');
+
+        if (!$short || !$version)
+            return parent::copyFile($src, $dest);
+
+        $source = file_get_contents($src);
+        $source = preg_replace(':<script(.*) src="(.*).js"></script>:',
+            '<script$1 src="$2.js?'.$short.'"></script>',
+            $source);
+        $source = preg_replace(':<link(.*) href="(.*).css"([^/>]*)/?>:', # <?php
+            '<link$1 href="$2.css?'.$short.'"$3/>',
+            $source);
+        // Set THIS_VERSION
+        $source = preg_replace("/^(\s*)define\s*\(\s*'THIS_VERSION'.*$/m",
+            "\1define('THIS_VERSION', '".$version."'); // Set by installer",
+            $source);
+        // Disable error display
+        $source = preg_replace("/^(\s*)ini_set\s*\(\s*'(display_errors|display_startup_errors)'.*$/m",
+            "$1ini_set('$2', '0'); // Set by installer",
+            $source);
+
+        if (!file_put_contents($dest, $source))
+            die("Unable to apply rewrite rules to ".$dest);
+
+        return true;
+    }
+
     function run($args, $options) {
         $this->destination = $args['install-path'];
         if (!is_dir($this->destination))
@@ -122,7 +162,6 @@ class Deployment extends Unpacker {
         if (!$options['dry-run']) {
             if ($include != "{$this->destination}/include/")
                 $this->change_include_dir($include);
-            $this->touch_version();
         }
 
         if ($options['clean']) {
@@ -133,30 +172,6 @@ class Deployment extends Unpacker {
                 array("ost-config.php","settings.php","plugins/",
                 "*/.htaccess"));
         }
-    }
-
-    function touch_version($version=false) {
-        if (!$version)
-            $version = exec('git describe');
-        if (!$version)
-            return false;
-
-        $bootstrap_php = $this->destination . '/bootstrap.php';
-        $lines = explode("\n", file_get_contents($bootstrap_php));
-        # Find the line that defines INCLUDE_DIR
-        $match = array();
-        foreach ($lines as &$line) {
-            // TODO: Change THIS_VERSION inline to be current `git describe`
-            if (preg_match("/(\s*)define\s*\(\s*'THIS_VERSION'/", $line, $match)) {
-                # Replace the definition with the new locatin
-                $line = $match[1] . "define('THIS_VERSION', '"
-                    . $version
-                    . "'); // Set by installer";
-                break;
-            }
-        }
-        if (!file_put_contents($bootstrap_php, implode("\n", $lines)))
-            die("Unable to write version information to bootstrap.php\n");
     }
 }
 
