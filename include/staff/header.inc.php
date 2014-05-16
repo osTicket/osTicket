@@ -20,8 +20,8 @@
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
     <script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="./js/scp.js"></script>
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/thread.css" media="screen">
-    <link rel="stylesheet" href="./css/scp.css" media="screen">
+    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/thread.css" media="all">
+    <link rel="stylesheet" href="./css/scp.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
     <link rel="stylesheet" href="./css/typeahead.css" media="screen">
     <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css"
