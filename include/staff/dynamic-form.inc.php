@@ -4,21 +4,24 @@ $info=array();
 if($form && $_REQUEST['a']!='add') {
     $title = 'Update custom form section';
     $action = 'update';
+    $url = "?id=".urlencode($_REQUEST['id']);
     $submit_text='Save Changes';
     $info = $form->ht;
     $newcount=2;
 } else {
     $title = 'Add new custom form section';
     $action = 'add';
+    $url = '?a=add';
     $submit_text='Add Form';
     $newcount=4;
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form id="manage-form" action="?id=<?php echo urlencode($_REQUEST['id']); ?>" method="post">
+<form class="manage-form" action="<?php echo $url ?>" method="post" id="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
+    <input type="hidden" name="a" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
     <h2>Custom Form</h2>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -263,7 +266,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </div>
 
 <script type="text/javascript">
-$('#manage-form').on('submit.inline', function() {
+$('form.manage-form').on('submit.inline', function() {
     var formObj = this, deleted = $('input.delete-box:checked', this);
     if (deleted.length) {
         $('#overlay').show();

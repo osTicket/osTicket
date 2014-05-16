@@ -10,6 +10,7 @@ if($_POST) {
     $fields = array('title', 'notes', 'instructions');
     $required = array('title');
     $max_sort = 0;
+    $form_fields = array();
     switch(strtolower($_POST['do'])) {
         case 'update':
             foreach ($fields as $f)
@@ -53,7 +54,7 @@ if($_POST) {
                 if ($field->get('name'))
                     $names[] = $field->get('name');
                 if ($field->isValid())
-                    $field->save();
+                    $form_fields[] = $field;
                 else
                     # notrans (not shown)
                     $errors["field-$id"] = 'Field has validation errors';
@@ -62,11 +63,14 @@ if($_POST) {
             }
             break;
         case 'add':
-            $form = DynamicForm::create(array(
-                'title'=>$_POST['title'],
-                'instructions'=>$_POST['instructions'],
-                'notes'=>$_POST['notes']));
-            $form->save(true);
+            $form = DynamicForm::create();
+            foreach ($fields as $f) {
+                if (in_array($f, $required) && !$_POST[$f])
+                    $errors[$f] = sprintf('%s is required',
+                        mb_convert_case($f, MB_CASE_TITLE));
+                elseif (isset($_POST[$f]))
+                    $form->set($f, $_POST[$f]);
+            }
             break;
 
         case 'mass_process':
@@ -98,7 +102,6 @@ if($_POST) {
             if (!$_POST["label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
-                'form_id'=>$form->get('id'),
                 'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : ++$max_sort,
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
@@ -108,13 +111,19 @@ if($_POST) {
             ));
             $field->setForm($form);
             if ($field->isValid())
-                $field->save();
+                $form_fields[] = $field;
             else
                 $errors["new-$i"] = $field->errors();
         }
         // XXX: Move to an instrumented list that can handle this better
-        if (!$errors)
+        if (!$errors) {
             $form->_dfields = $form->_fields = null;
+            $form->save(true);
+            foreach ($form_fields as $field) {
+                $field->set('form_id', $form->get('id'));
+                $field->save();
+            }
+        }
     }
     if ($errors)
         $errors['err'] = 'Unable to commit form. Check validation errors';

@@ -88,6 +88,10 @@ class Unpacker extends Module {
         return false;
     }
 
+    function copyFile($src, $dest) {
+        return copy($src, $dest);
+    }
+
     /**
      * Copy from source to desination, perhaps recursing up to n folders.
      * Exclusions are also permitted. If any files match an MD5 sum, they
@@ -120,7 +124,7 @@ class Unpacker extends Module {
                 if ($verbose)
                     $this->stdout->write($target."\n");
                 if (!$dryrun)
-                    copy($file, $target);
+                    $this->copyFile($file, $target);
             }
         }
         if ($recurse) {
