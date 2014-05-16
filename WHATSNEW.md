@@ -1,5 +1,5 @@
-osTicket v1.8.1.3
-=================
+osTicket v1.8.3
+===============
 ### Enhancements
   * Support filtering based on help topic (#728)
   * Embedded images ([rfc2397](http://www.ietf.org/rfc/rfc2397.txt)) are correctly supported (#740)
