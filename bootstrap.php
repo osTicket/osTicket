@@ -294,6 +294,7 @@ define('I18N_DIR', INCLUDE_DIR.'i18n/');
 
 #Current version && schema signature (Changes from version to version)
 define('THIS_VERSION','1.8-git'); //Shown on admin panel
+define('GIT_VERSION','$git');
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))

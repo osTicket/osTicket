@@ -144,6 +144,7 @@ chdir($stage_path);
 
 shell_exec("sed -ri -e \"
     s/( *)define\('THIS_VERSION'.*/\\1define('THIS_VERSION', '$version');/
+    s/( *)define\('GIT_VERSION'.*/\\1define('GIT_VERSION', '$short');/
     \" upload/bootstrap.php");
 shell_exec("find upload -name '*.php' -print0 | xargs -0 sed -i -e '
     s:<script\(.*\) src=\"\(.*\).js\"></script>:<script\\1 src=\"\\2.js?$short\"></script>:
