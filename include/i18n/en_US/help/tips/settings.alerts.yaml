@@ -26,7 +26,7 @@ ticket_alert:
         Alert sent out to Agents when a new ticket is created.
         </p><p class="info-banner">
         <i class="icon-info-sign"></i>
-        This alert is not sent out if the ticket is auto-assigned via Ticket Filter or a Help Topic section.
+        This alert is not sent out if the ticket is auto-assigned via a Ticket Filter or Help Topic.
         </p>
     links:
       - title: Default New Ticket Alert Template
