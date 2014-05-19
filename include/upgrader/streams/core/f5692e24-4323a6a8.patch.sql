@@ -33,9 +33,6 @@ CREATE TABLE `%TABLE_PREFIX%email_account` (
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 
-ALTER TABLE `%TABLE_PREFIX%ticket_thread`
-  ADD `format` varchar(16) NOT NULL default 'html' AFTER `body`;
-
 ALTER TABLE `%TABLE_PREFIX%faq_category`
   CHANGE `created` `created` datetime NOT NULL,
   CHANGE `updated` `updated` datetime NOT NULL;
