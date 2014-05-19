@@ -1,6 +1,9 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
+$commit = GIT_VERSION != '$git' ? GIT_VERSION : (
+    @shell_exec('git rev-parse HEAD') ?: '?');
+
 ?>
 <h2>About this osTicket Installation</h2>
 <br/>
@@ -10,7 +13,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 </thead>
 <tbody>
     <tr><td>osTicket Version</td>
-        <td><?php echo THIS_VERSION; ?></td></tr>
+        <td><?php echo sprintf("%s (%s)", THIS_VERSION, $commit); ?></td></tr>
     <tr><td>Server Software</td>
         <td><?php echo $_SERVER['SERVER_SOFTWARE']; ?></td></tr>
     <tr><td>PHP Version</td>
