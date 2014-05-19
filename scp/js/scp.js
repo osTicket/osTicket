@@ -639,12 +639,20 @@ $(document).on('pjax:click', function(options) {
         $.autoLock.releaseLock();
     // Stop all animations
     $(document).stop(false, true);
+
+    // Remove tips and clear any pending timer
+    $('.tip, .help-tips, .userPreview, .ticketPreview, .previewfaq').each(function() {
+        if ($(this).data('timer'))
+            clearTimeout($(this).data('timer'));
+    });
+    $('.tip_box').remove();
 });
 
 $(document).on('pjax:start', function() {
     // Cancel save-changes warning banner
     $(document).unbind('pjax:beforeSend.changed');
     $(window).unbind('beforeunload');
+    $('.tip_box').remove();
 });
 
 $(document).on('pjax:send', function(event) {
@@ -666,13 +674,16 @@ $(document).on('pjax:complete', function() {
     $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
         $(this).remove();
     });
+
+    $('.tip_box').remove();
+    $('.dialog .body').empty().parent().hide();
     $('#overlay').stop(false, true).hide().removeAttr('style');
 });
 
 $(document).on('pjax:end', function() {
     // Close popups
     // Close tooltips
-    $('.tip_box').empty().hide();
+    $('.tip_box').remove();
     $('.dialog .body').empty().parent().hide();
     $('#overlay').hide();
 });
