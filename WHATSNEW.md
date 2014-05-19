@@ -58,7 +58,7 @@ for non-US keyboards
   * Original thread content format is saved (html or text)
   * Alerts and Notices support quoted response removal
 
-osTicket v1.8.1.3
+osTicket v1.8.3
 =================
 ### Enhancements
   * Support filtering based on help topic (#728)

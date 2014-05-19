@@ -1,5 +1,5 @@
 /**
- * @version v1.8.2
+ * @version v1.9.0
  * @signature 4323a6a81c35efbf7722b7fc4e475440
  * @title Add client login feature
  *
@@ -140,7 +140,7 @@ DELETE FROM `%TABLE_PREFIX%email_template`
 -- thread entries from text to html. Now that the format column exists in
 -- the ticket_thread table, we opted to retroactively add the format column
 -- to the dad45ca2 patch. Therefore, anyone upgrading from osTicket < 1.8.0
--- to v1.8.2 and further will alreay have a `format` column when they arrive
+-- to v1.9.0 and further will alreay have a `format` column when they arrive
 -- at this patch. In such a case, we'll just change the default to 'html'
 SET @s = (SELECT IF(
     (SELECT COUNT(*)

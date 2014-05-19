@@ -1,5 +1,5 @@
 /**
- * @version v1.8.2
+ * @version v1.9.0
  * @signature 8f99b8bf9bee63c8e4dc274ffbdda383
  * @title Move organization support from UserAccount to User model.
  *

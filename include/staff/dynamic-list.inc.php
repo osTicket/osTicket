@@ -87,16 +87,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <th nowrap>Sort
-                <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
-            <th nowrap>Label
-                <i class="help-tip icon-question-sign" href="#field_label"></i></th>
-            <th nowrap>Type
-                <i class="help-tip icon-question-sign" href="#field_type"></i></th>
-            <th nowrap>Variable
-                <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
-            <th nowrap>Delete
-                <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
+            <th nowrap>Sort</th>
+            <th nowrap>Label</th>
+            <th nowrap>Type</th>
+            <th nowrap>Variable</th>
+            <th nowrap>Delete</th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="prop-sort-">
