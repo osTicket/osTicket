@@ -1559,7 +1559,7 @@ ul.progress li.no small {color:red;}
 }
 
 #loading h1, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
-#loading, #upgrading * { color: white; }
+#loading, #upgrading { color: white; }
 
 .non-local-image:after {
     background: url(../images/ost-logo.png) center center no-repeat;
