@@ -123,6 +123,8 @@ if($_POST) {
                 $field->set('form_id', $form->get('id'));
                 $field->save();
             }
+            // No longer adding a new form
+            unset($_REQUEST['a']);
         }
     }
     if ($errors)
