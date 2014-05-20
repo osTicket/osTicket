@@ -266,9 +266,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </div>
 
 <script type="text/javascript">
-$('form.manage-form').on('submit.inline', function() {
+$('form.manage-form').on('submit.inline', function(e) {
     var formObj = this, deleted = $('input.delete-box:checked', this);
     if (deleted.length) {
+        e.stopImmediatePropagation();
         $('#overlay').show();
         $('#deleted-fields').empty();
         deleted.each(function(i, e) {
