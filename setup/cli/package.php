@@ -147,7 +147,7 @@ shell_exec("sed -ri -e \"
     \" upload/bootstrap.php");
 shell_exec("find upload -name '*.php' -print0 | xargs -0 sed -i -e '
     s:<script\(.*\) src=\"\(.*\).js\"></script>:<script\\1 src=\"\\2.js?$short\"></script>:
-    s:<link\(.*\) href=\"\(.*\).css\"\(.*\)*/*>:<link\\1 href=\"\\2.css?$short\"\\3>:
+    s:<link\(.*\) href=\"\(.*\)\.css\"\(.*\)*/*>:<link\\1 href=\"\\2.css?$short\"\\3>:
    '");
 shell_exec("find upload -name '*.php' -print0 | xargs -0 sed -i -e \"
     s/\( *\)ini_set( *'display_errors'[^])]*);/\\1ini_set('display_errors', 0);/
