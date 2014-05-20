@@ -776,7 +776,7 @@ Class ThreadEntry {
     }
 
     function asVar() {
-        return (string) $this->getBody()->display('html');
+        return (string) $this->getBody()->display('email');
     }
 
     function getVar($tag) {
@@ -1374,6 +1374,9 @@ class TextThreadBody extends ThreadBody {
 
         switch ($output) {
         case 'html':
+            return '<div style="white-space:pre-wrap">'
+                .Format::clickableurls($this->body).'</div>';
+        case 'email':
             return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
         case 'pdf':
             return nl2br($this->body);
@@ -1384,7 +1387,7 @@ class TextThreadBody extends ThreadBody {
 
     function asVar() {
         // Email template, assume HTML
-        return $this->display('html');
+        return $this->display('email');
     }
 }
 class HtmlThreadBody extends ThreadBody {
@@ -1416,6 +1419,8 @@ class HtmlThreadBody extends ThreadBody {
             return '(empty)';
 
         switch ($output) {
+        case 'email':
+            return $this->body;
         case 'pdf':
             return Format::clickableurls($this->body, false);
         default:
