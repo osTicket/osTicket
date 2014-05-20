@@ -161,8 +161,6 @@ class Mailer {
                     && (!isset($options['reply-tag']) || $options['reply-tag']))
                 $message = "<div style=\"display:none\"
                     data-mid=\"$mid_token\">$tag<br/><br/></div>$message";
-            // Make sure nothing unsafe has creeped into the message
-            $message = Format::safe_html($message); //XXX??
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
             $mime->setTXTBody($txtbody);
