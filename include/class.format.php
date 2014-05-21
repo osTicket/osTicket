@@ -292,7 +292,7 @@ class Format {
             function($match) {
                 // Drop embedded classes -- they don't refer to ours
                 $match = preg_replace('/class="[^"]*"/', '', $match);
-                return sprintf('<div %s class="non-local-image" data-%s %s></div>',
+                return sprintf('<span %s class="non-local-image" data-%s %s></span>',
                     $match[1], $match[2], $match[3]);
             },
             $text);
@@ -371,7 +371,7 @@ class Format {
                 }
                 // Images which are external are rewritten to <div
                 // data-src='url...'/>
-                elseif ($e == 'div' && $a && isset($a['data-src']))
+                elseif ($e == 'span' && $a && isset($a['data-src']))
                     $a['data-src'] = 'l.php?url='.urlencode($a['data-src'])
                         .'&amp;auth='.$token;
                 // URLs for videos need to route too
@@ -390,7 +390,7 @@ class Format {
             },
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'elements' => '*+iframe',
-            'spec' => 'div=data-src,width,height',
+            'spec' => 'span=data-src,width,height',
         );
         return Format::html($text, $config);
     }

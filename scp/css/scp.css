@@ -1561,15 +1561,20 @@ ul.progress li.no small {color:red;}
 #loading h1, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
 #loading, #upgrading { color: white; }
 
+.non-local-image {
+    display: inline-block;
+    border: 3px dashed #eee;
+    border-radius: 5px;
+}
 .non-local-image:after {
-    background: url(../images/ost-logo.png) center center no-repeat;
+    background: url(../../logo.php) center center no-repeat;
     background-size: cover;
     content: "";
     z-index: -1;
     width: 100%;
     height: 100%;
-    display: block;
     opacity: 0.3;
+    display: block;
 }
 
 input[type=text]:disabled, input[type=checkbox]:disabled {

@@ -404,7 +404,7 @@ var ticket_onload = function($) {
     // Optionally show external images
     $('.thread-entry').each(function(i, te) {
         var extra = $(te).find('.textra'),
-            imgs = $(te).find('div.non-local-image[data-src]');
+            imgs = $(te).find('.non-local-image[data-src]');
         if (!extra) return;
         if (!imgs.length) return;
         extra.append($('<a>')

@@ -30,11 +30,12 @@
 
 .non-local-image {
     display: inline-block;
-    border: 5px dashed #eee;
+    border: 3px dashed #eee;
+    border-radius: 5px;
 }
 
 .non-local-image:after {
-    background: url(../assets/default/images/logo.png) center left no-repeat;
+    background: url(../logo.php) center center no-repeat;
     background-size: cover;
     content: "";
     z-index: -1;

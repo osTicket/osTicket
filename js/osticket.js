@@ -124,39 +124,6 @@ $(document).ready(function(){
         });
         return str;
     };
-});
-
-showImagesInline = function(urls, thread_id) {
-    var selector = (thread_id == undefined)
-        ? '.thread-body img[data-cid]'
-        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
-    $(selector).each(function(i, el) {
-        var cid = $(el).data('cid').toLowerCase(),
-            info = urls[cid],
-            e = $(el);
-        if (info && !e.data('wrapped')) {
-            // Add a hover effect with the filename
-            var timeout, caption = $('<div class="image-hover">')
-                .css({'float':e.css('float')});
-            e.wrap(caption).parent()
-                .hover(
-                    function() {
-                        var self = this;
-                        timeout = setTimeout(
-                            function() { $(self).find('.caption').slideDown(250); },
-                            500);
-                    },
-                    function() {
-                        clearTimeout(timeout);
-                        $(this).find('.caption').slideUp(250);
-                    }
-                ).append($('<div class="caption">')
-                    .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
-                );
-            e.data('wrapped', true);
-        }
-    });
 
     var showNonLocalImage = function(div) {
         var $div = $(div),
@@ -175,7 +142,7 @@ showImagesInline = function(urls, thread_id) {
     // Optionally show external images
     $('.thread-entry').each(function(i, te) {
         var extra = $(te).find('.textra'),
-            imgs = $(te).find('div.non-local-image[data-src]');
+            imgs = $(te).find('.non-local-image[data-src]');
         if (!extra) return;
         if (!imgs.length) return;
         extra.append($('<a>')
@@ -212,5 +179,38 @@ showImagesInline = function(urls, thread_id) {
                 $img.width(($img.attr('width') || '80') + 'px');
             // TODO: Add a hover-button to show just one image
         });
+    });
+});
+
+showImagesInline = function(urls, thread_id) {
+    var selector = (thread_id == undefined)
+        ? '.thread-body img[data-cid]'
+        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
+    $(selector).each(function(i, el) {
+        var cid = $(el).data('cid').toLowerCase(),
+            info = urls[cid],
+            e = $(el);
+        if (info && !e.data('wrapped')) {
+            // Add a hover effect with the filename
+            var timeout, caption = $('<div class="image-hover">')
+                .css({'float':e.css('float')});
+            e.wrap(caption).parent()
+                .hover(
+                    function() {
+                        var self = this;
+                        timeout = setTimeout(
+                            function() { $(self).find('.caption').slideDown(250); },
+                            500);
+                    },
+                    function() {
+                        clearTimeout(timeout);
+                        $(this).find('.caption').slideUp(250);
+                    }
+                ).append($('<div class="caption">')
+                    .append('<span class="filename">'+info.filename+'</span>')
+                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
+                );
+            e.data('wrapped', true);
+        }
     });
 }
