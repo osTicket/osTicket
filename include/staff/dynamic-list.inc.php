@@ -220,7 +220,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 value="<?php echo $i->get('sort'); ?>"/></td>
             <td><input type="text" size="40" name="value-<?php echo $id; ?>"
                 value="<?php echo $i->get('value'); ?>"/>
-                <?php if ($form->getFields()) { ?>
+                <?php if ($form && $form->getFields()) { ?>
                 <a class="action-button" style="float:none;overflow:inherit"
                     href="#ajax.php/list/item/<?php
                         echo $i->get('id'); ?>/properties"
