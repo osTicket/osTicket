@@ -916,6 +916,10 @@ class DynamicList extends VerySimpleModel {
         return $this->_form;
     }
 
+    function getForm() {
+        return $this->getConfigurationForm();
+    }
+
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));

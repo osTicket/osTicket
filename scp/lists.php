@@ -6,9 +6,8 @@ $list=null;
 if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
     $errors['err']='Unknown or invalid dynamic list ID.';
 
-if ($list) {
-    $form = DynamicForm::lookup(array('type'=>'L'.$_REQUEST['id']));
-}
+if ($list)
+    $form = $list->getForm();
 
 if($_POST) {
     $fields = array('name', 'name_plural', 'sort_mode', 'notes');
