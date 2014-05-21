@@ -40,7 +40,7 @@ class Mail_Parse {
             $this->charset = $charset;
 
         $this->include_bodies = true;
-        $this->decode_headers = true;
+        $this->decode_headers = false;
         $this->decode_bodies = true;
 
         //Desired charset
@@ -233,7 +233,7 @@ class Mail_Parse {
     }
 
     function getSubject(){
-        return $this->struct->headers['subject'];
+        return Format::mimedecode($this->struct->headers['subject'], $this->charset);
     }
 
     function getReplyTo() {
@@ -486,6 +486,10 @@ class Mail_Parse {
 
         if(PEAR::isError($parsed))
             return array();
+
+        foreach ($parsed as $p) {
+            $p->personal = Format::mimedecode($p->personal, $this->charset);
+        }
         return $parsed;
     }
 
