@@ -1815,7 +1815,7 @@ table.custom-info td {
 }
 
 .ui-datepicker {
-    z-index: 100 !important;
+    z-index: 200 !important;
 }
 .draft-saved {
     background-color: black;
