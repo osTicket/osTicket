@@ -77,7 +77,8 @@ RedactorPlugins.draft = {
         });
     },
     setupDraftUpdate: function(data) {
-        this.$draft_saved.show().delay(5000).fadeOut();
+        if (this.get())
+            this.$draft_saved.show().delay(5000).fadeOut();
 
         // Slight workaround. Signal the 'keyup' event normally signaled
         // from typing in the <textarea>
