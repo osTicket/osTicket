@@ -246,22 +246,18 @@ var scp_prep = function() {
             .fail(function() { });
     });
 
-    /* Multifile uploads */
-    var elems = $('.multifile');
-    if (elems.exists()) {
-        /* Get config settings from the backend */
-        getConfig().then(function(c) {
-            elems.multifile({
-                container:   '.uploads',
-                max_uploads: c.max_file_uploads || 1,
-                file_types:  c.file_types || ".*",
-                max_file_size: c.max_file_size || 0
-            });
-        });
-    }
 
-    /* Datepicker */
+    /* Get config settings from the backend */
     getConfig().then(function(c) {
+        // Multifile uploads
+        $('.multifile').multifile({
+            container:   '.uploads',
+            max_uploads: c.max_file_uploads || 1,
+            file_types:  c.file_types || ".*",
+            max_file_size: c.max_file_size || 0
+        });
+
+        // Datepicker
         $('.dp').datepicker({
             numberOfMonths: 2,
             showButtonPanel: true,
@@ -269,17 +265,7 @@ var scp_prep = function() {
             showOn:'both',
             dateFormat: $.translate_format(c.date_format||'m/d/Y')
         });
-        $(document).on('submit', 'form', function() {
-            $('.dp', $(this)).each(function(i, e) {
-                var $e = $(e),
-                    d = $e.datepicker('getDate');
-                if (!d) return;
-                var day = ('0'+d.getDate()).substr(-2),
-                    month = ('0'+(d.getMonth()+1)).substr(-2),
-                    year = d.getFullYear();
-                $e.val(year+'-'+month+'-'+day);
-            });
-        });
+
     });
 
     /* Typeahead tickets lookup */
@@ -463,6 +449,18 @@ var scp_prep = function() {
 
 $(document).ready(scp_prep);
 $(document).on('pjax:complete', scp_prep);
+$(document).on('submit', 'form', function() {
+    // Reformat dates
+    $('.dp', $(this)).each(function(i, e) {
+        var $e = $(e),
+            d = $e.datepicker('getDate');
+        if (!d) return;
+        var day = ('0'+d.getDate()).substr(-2),
+            month = ('0'+(d.getMonth()+1)).substr(-2),
+            year = d.getFullYear();
+        $e.val(year+'-'+month+'-'+day);
+    });
+});
 
     /************ global inits *****************/
 

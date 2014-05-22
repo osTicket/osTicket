@@ -26,9 +26,6 @@ class Form {
     var $_errors = null;
     var $_source = false;
 
-    function Form() {
-        call_user_func_array(array($this, '__construct'), func_get_args());
-    }
     function __construct($fields=array(), $source=null, $options=array()) {
         $this->fields = $fields;
         foreach ($fields as $f)
@@ -1193,11 +1190,8 @@ class DatetimePickerWidget extends Widget {
         $data = $this->field->getSource();
         $config = $this->field->getConfiguration();
         if ($datetime = parent::getValue()) {
-            $datetime = (is_int($datetime) ? $datetime :
-                (($dt = DateTime::createFromFormat($cfg->getDateFormat() . ' G:i',
-                        $datetime . ' 00:00'))
-                    ? (int) $dt->format('U') : false)
-            );
+            $datetime = is_int($datetime) ? $datetime :
+                strtotime($datetime);
             if ($datetime && isset($data[$this->name . ':time'])) {
                 list($hr, $min) = explode(':', $data[$this->name . ':time']);
                 $datetime += $hr * 3600 + $min * 60;
