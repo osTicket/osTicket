@@ -286,3 +286,17 @@ $(function() {
     $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
 });
+
+$(document).ajaxError(function(event, request, settings) {
+    if (settings.url.indexOf('ajax.php/draft') != -1) {
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor) {
+                clearInterval(redactor.autosaveInterval);
+            }
+        });
+        $('#overlay').show();
+        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
+        $('#overlay').hide();
+    }
+});
