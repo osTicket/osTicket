@@ -632,8 +632,7 @@ getConfig = (function() {
 })();
 
 $(document).on('pjax:click', function(options) {
-    if (window.ticket_refresh !== undefined)
-        clearInterval(window.ticket_refresh);
+    clearTimeout(window.ticket_refresh);
     // Release ticket lock (maybe)
     if ($.autoLock !== undefined)
         $.autoLock.releaseLock();
