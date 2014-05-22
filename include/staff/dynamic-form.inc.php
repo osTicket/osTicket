@@ -124,8 +124,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
-        $force_privacy = $f->isPrivacyForced() ? 'disabled="disabled"' : '';
-        $force_required = $f->isRequirementForced() ? 'disabled="disabled"' : '';
+        $rmode = $f->getRequirementMode();
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
@@ -157,17 +156,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $.dialog($(this).attr('href').substr(1), [201]);
                         return false;
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
-            <?php } ?>
-            <div class="error" style="white-space:normal"><?php
-                if ($ferrors['type']) echo $ferrors['type'];
-            ?></div>
-            </td>
-            <td><input type="checkbox" name="private-<?php echo $id; ?>"
-                <?php if ($f->get('private')) echo 'checked="checked"'; ?>
-                <?php echo $force_privacy ?>/></td>
-            <td><input type="checkbox" name="required-<?php echo $id; ?>"
-                <?php if ($f->get('required')) echo 'checked="checked"'; ?>
-                <?php echo $force_required ?>/>
+            <?php } ?></td>
+            <td colspan="2">
+                <select name="requirement-<?php echo $id; ?>">
+<?php foreach ($f->allRequirementModes() as $m=>$info) { ?>
+    <option value="<?php echo $m; ?>" <?php if ($rmode == $m)
+         echo 'selected="selected"'; ?>><?php echo $info['desc']; ?></option>
+<?php } ?>
+                <select>
             </td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"

@@ -480,6 +480,74 @@ class DynamicFormField extends VerySimpleModel {
         return (($this->get('edit_mask') & 32) == 0);
     }
 
+    function allRequirementModes() {
+        $modes = array(
+            'a' => array('desc' => 'Optional',
+                'private' => 0, 'required' => 0),
+            'b' => array('desc' => 'Required',
+                'private' => 0, 'required' => 1),
+            'c' => array('desc' => 'Required for Users',
+                'private' => 0, 'required' => 2),
+            'd' => array('desc' => 'Required for Agents',
+                'private' => 0, 'required' => 3),
+            'e' => array('desc' => 'Internal, Optional',
+                'private' => 1, 'required' => 0),
+            'f' => array('desc' => 'Internal, Required',
+                'private' => 1, 'required' => 1),
+            'g' => array('desc' => 'For Users Only',
+                'private' => 2, 'required' => 2),
+        );
+
+        if ($this->isPrivacyForced()) {
+            // Required to be internal
+            foreach ($modes as $m=>$info) {
+                if ($info['private'] != $this->get('private'))
+                    unset($modes[$m]);
+            }
+        }
+
+        if ($this->isRequirementForced()) {
+            // Required to be required
+            foreach ($modes as $m=>$info) {
+                if ($info['required'] != $this->get('required'))
+                    unset($modes[$m]);
+            }
+        }
+        return $modes;
+    }
+
+    function getRequirementMode() {
+        foreach ($this->allRequirementModes() as $m=>$info) {
+            if ($this->get('private') == $info['private']
+                    && $this->get('required') == $info['required'])
+                return $m;
+        }
+        return false;
+    }
+
+    function setRequirementMode($mode) {
+        $modes = $this->allRequirementModes();
+        if (!isset($modes[$mode]))
+            return false;
+
+        $info = $modes[$mode];
+        $this->set('required', $info['required']);
+        $this->set('private', $info['private']);
+    }
+
+    function isRequiredForStaff() {
+        return in_array($this->get('required'), array(1, 3));
+    }
+    function isRequiredForUsers() {
+        return in_array($this->get('required'), array(1, 2));
+    }
+    function isVisibleToStaff() {
+        return in_array($this->get('private'), array(0, 1));
+    }
+    function isVisibleToUsers() {
+        return in_array($this->get('private'), array(0, 2));
+    }
+
     /**
      * Used when updating the form via the admin panel. This represents
      * validation on the form field template, not data entered into a form
@@ -652,11 +720,16 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     function isValidForClient() {
-
         $filter = function($f) {
-            return !$f->get('private');
+            return !$f->isRequiredForUsers();
         };
+        return $this->isValid($filter);
+    }
 
+    function isValidForStaff() {
+        $filter = function($f) {
+            return !$f->isRequiredForStaff();
+        };
         return $this->isValid($filter);
     }
 

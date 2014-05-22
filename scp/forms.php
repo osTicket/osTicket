@@ -38,10 +38,8 @@ if($_POST) {
                 if (isset($_POST["name-$id"]) && !$field->isNameForced())
                     $field->set('name', $_POST["name-$id"]);
                 # TODO: make sure all help topics still have all required fields
-                if (!$field->isRequirementForced())
-                    $field->set('required', $_POST["required-$id"] == 'on' ?  1 : 0);
-                if (!$field->isPrivacyForced())
-                    $field->set('private', $_POST["private-$id"] == 'on' ?  1 : 0);
+                $field->setRequirementMode($_POST["requirement-$id"]);
+
                 foreach (array('sort','label') as $f) {
                     if (isset($_POST["$f-$id"])) {
                         $field->set($f, $_POST["$f-$id"]);

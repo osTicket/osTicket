@@ -194,12 +194,16 @@ class User extends UserModel {
     }
 
     static function fromForm($form) {
+        global $thisstaff;
 
         if(!$form) return null;
 
         //Validate the form
         $valid = true;
-        if (!$form->isValid())
+        $filter = function($f) use ($thisstaff) {
+            return !isset($thisstaff) || $f->isRequiredForStaff();
+        };
+        if (!$form->isValid($filter))
             $valid  = false;
 
         //Make sure the email is not in-use

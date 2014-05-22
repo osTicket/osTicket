@@ -86,7 +86,7 @@ class Form {
         if (!$this->_clean) {
             $this->_clean = array();
             foreach ($this->getFields() as $key=>$field) {
-                if (!$field->hasData())
+                if ($field->isPresentationOnly())
                     continue;
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
                     = $field->getClean();
