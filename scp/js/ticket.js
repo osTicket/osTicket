@@ -314,6 +314,11 @@ $.showImagesInline = function(urls, thread_id) {
     });
 };
 
+$.refreshTicketView = function() {
+    if (0 === $('.dialog:visible').length)
+        $.pjax({url: document.location.href, container:'#pjax-container'});
+}
+
 var ticket_onload = function($) {
     $('#response_options form').hide();
     $('#ticket_notes').hide();
