@@ -273,13 +273,11 @@ $(function() {
         });
     },
     cleanupRedactorElements = function() {
-        // Drop the added redactor_air bars
-        $('.redactor_air').remove();
-        // Cancel autosave
+        // Tear down redactor editors on this page
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor)
-                redactor.opts.autosave = false;
+                redactor.destroy();
         });
     };
     findRichtextBoxes();
