@@ -485,7 +485,7 @@ class FlatArrayIterator extends ModelInstanceIterator {
     function fillTo($index) {
         while ($this->resource && $index >= count($this->cache)) {
             if ($row = $this->resource->getRow()) {
-                $this->cache += $row;
+                $this->cache[] = $row;
             } else {
                 $this->resource->close();
                 $this->resource = null;
@@ -988,7 +988,10 @@ class MysqlExecutor {
                 .' '.$this->sql);
         if (count($this->params))
             $this->_bind($this->params);
-        return $this->stmt->execute();
+        if (!$this->stmt->execute()) {
+            throw new OrmException('Unable to execute query: ' . $this->stmt->error);
+        }
+        return true;
     }
 
     function _bind($params) {
@@ -1028,7 +1031,7 @@ class MysqlExecutor {
     function next() {
         $status = $this->stmt->fetch();
         if ($status === false)
-            throw new Exception($this->stmt->error_list . db_error());
+            throw new OrmException($this->stmt->error);
         elseif ($status === null) {
             $this->close();
             return false;
