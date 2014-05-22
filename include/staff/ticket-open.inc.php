@@ -373,10 +373,17 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="Open">
     <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="tickets.php"'>
+    <input type="button" name="cancel" value="Cancel" onclick="javascript:
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor && redactor.opts.draftDelete)
+                redactor.deleteDraft();
+        });
+        window.location.href='tickets.php';
+    ">
 </p>
 </form>
 <script type="text/javascript">
