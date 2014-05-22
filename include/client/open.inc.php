@@ -52,7 +52,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         if (!$thisclient) {
             $uform = UserForm::getUserForm()->getForm($_POST);
             if ($_POST) $uform->isValid();
-            $uform->render(false, 'Your Information');
+            $uform->render(false);
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
