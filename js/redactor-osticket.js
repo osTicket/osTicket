@@ -288,7 +288,8 @@ $(function() {
 });
 
 $(document).ajaxError(function(event, request, settings) {
-    if (settings.url.indexOf('ajax.php/draft') != -1) {
+    if (settings.url.indexOf('ajax.php/draft') != -1
+            && settings.type.touppercase() == 'POST') {
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor) {
