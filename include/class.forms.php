@@ -1139,9 +1139,8 @@ class DatetimePickerWidget extends Widget {
 
         $config = $this->field->getConfiguration();
         if ($this->value) {
-            $this->value = (is_int($this->value) ? $this->value :
-                DateTime::createFromFormat($cfg->getDateFormat(), $this->value)
-                ->format('U'));
+            $this->value = is_int($this->value) ? $this->value :
+                strtotime($this->value);
             if ($config['gmt'])
                 $this->value += 3600 *
                     $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
