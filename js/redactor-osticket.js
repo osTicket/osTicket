@@ -77,7 +77,8 @@ RedactorPlugins.draft = {
         });
     },
     setupDraftUpdate: function(data) {
-        this.$draft_saved.show().delay(5000).fadeOut();
+        if (this.get())
+            this.$draft_saved.show().delay(5000).fadeOut();
 
         // Slight workaround. Signal the 'keyup' event normally signaled
         // from typing in the <textarea>
@@ -273,17 +274,29 @@ $(function() {
         });
     },
     cleanupRedactorElements = function() {
-        // Drop the added redactor_air bars
-        $('.redactor_air').remove();
-        // Cancel autosave
+        // Tear down redactor editors on this page
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor)
-                redactor.opts.autosave = false;
+                redactor.destroy();
         });
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
     $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
+});
+
+$(document).ajaxError(function(event, request, settings) {
+    if (settings.url.indexOf('ajax.php/draft') != -1) {
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor) {
+                clearInterval(redactor.autosaveInterval);
+            }
+        });
+        $('#overlay').show();
+        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
+        $('#overlay').hide();
+    }
 });

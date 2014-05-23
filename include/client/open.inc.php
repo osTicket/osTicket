@@ -52,7 +52,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         if (!$thisclient) {
             $uform = UserForm::getUserForm()->getForm($_POST);
             if ($_POST) $uform->isValid();
-            $uform->render(false, 'Your Information');
+            $uform->render(false);
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
@@ -94,7 +94,13 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 <hr/>
   <p style="text-align:center;">
         <input type="submit" value="Create Ticket">
-        <input type="reset" value="Reset">
-        <input type="button" value="Cancel" onClick='window.location.href="index.php"'>
+        <input type="reset" name="reset" value="Reset">
+        <input type="button" name="cancel" value="Cancel" onclick="javascript:
+            $('.richtext').each(function() {
+                var redactor = $(this).data('redactor');
+                if (redactor && redactor.opts.draftDelete)
+                    redactor.deleteDraft();
+            });
+            window.location.href='index.php';">
   </p>
 </form>

@@ -583,6 +583,10 @@ if($thisstaff->canCreateTickets()) {
 }
 
 
+$ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
+$ost->addExtraHeader('<meta name="tip-namespace" content="tickets.queue" />',
+    "$('#content').data('tipNamespace', 'tickets.queue');");
+
 $inc = 'tickets.inc.php';
 if($ticket) {
     $ost->setPageTitle('Ticket #'.$ticket->getNumber());
@@ -615,15 +619,14 @@ if($ticket) {
         $nav->setActiveSubMenu(-1);
 
     //set refresh rate if the user has it configured
-    if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate()))
-        $ost->addExtraHeader('',
-            "window.ticket_refresh = setTimeout(function() { $.pjax({url: document.location.href, container:'#pjax-container'});},"
-            .($min*60000).");");
+    if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate())) {
+        $js = "clearTimeout(window.ticket_refresh);
+               window.ticket_refresh = setTimeout($.refreshTicketView,"
+            .($min*60000).");";
+        $ost->addExtraHeader('<script type="text/javascript">'.$js.'</script>',
+            $js);
+    }
 }
-
-$ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
-$ost->addExtraHeader('<meta name="tip-namespace" content="tickets.queue" />',
-    "$('#content').data('tipNamespace', 'tickets.queue');");
 
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);

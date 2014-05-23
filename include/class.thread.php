@@ -1272,6 +1272,11 @@ class ThreadBody /* extends SplString */ {
         if (!in_array($type, static::$types))
             throw new Exception($type.': Unsupported ThreadBody type');
         $this->body = (string) $body;
+        if (strlen($this->body) > 250000) {
+            $max_packet = db_get_variable('max_allowed_packet', 'global');
+            // Truncate just short of the max_allowed_packet
+            $this->body = substr($this->body, $max_packet - 2048) . ' ... (truncated)';
+        }
         $this->type = $type;
         $this->options = array_merge($this->options, $options);
     }

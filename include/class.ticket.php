@@ -2181,7 +2181,8 @@ class Ticket {
      *
      *  $autorespond and $alertstaff overrides config settings...
      */
-    function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
+    static function create($vars, &$errors, $origin, $autorespond=true,
+            $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
         // Don't enforce form validation for email
@@ -2499,7 +2500,7 @@ class Ticket {
             $collabs = array();
             foreach ($org->allMembers() as $u) {
                 if ($members || ($pris && $u->isPrimaryContact())) {
-                    if ($c = $this->addCollaborator($u, $settings, $errors)) {
+                    if ($c = $ticket->addCollaborator($u, $settings, $errors)) {
                         $collabs[] = (string) $c;
                     }
                 }
@@ -2507,7 +2508,7 @@ class Ticket {
             //TODO: Can collaborators add others?
             if ($collabs) {
                 //TODO: Change EndUser to name of  user.
-                $this->logNote(sprintf('Collaborators for %s organization added',
+                $ticket->logNote(sprintf('Collaborators for %s organization added',
                         $org->getName()),
                     implode("<br>", $collabs), $org->getName(), false);
             }
