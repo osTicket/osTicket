@@ -1,6 +1,7 @@
 .htaccess
 php53.cgi
 include/ost-config.php
+setup/cli/modules/importers
 *.sw[a-z]
 .DS_Store
 .vagrant
