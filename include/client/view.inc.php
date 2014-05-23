@@ -26,7 +26,9 @@ if ($thisclient && $thisclient->isGuest()
             <h1>
                 Ticket #<?php echo $ticket->getNumber(); ?> &nbsp;
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
-<?php if ($cfg->allowClientUpdates()) { ?>
+<?php if ($cfg->allowClientUpdates()
+        // Only ticket owners can edit the ticket details (and other forms)
+        && $thisclient->getId() == $ticket->getUserId()) { ?>
                 <a class="action-button" href="tickets.php?a=edit&id=<?php
                      echo $ticket->getId(); ?>"><i class="icon-edit"></i> Edit</a>
 <?php } ?>
