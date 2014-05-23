@@ -1,5 +1,7 @@
 <?php
 $title=($cfg && is_object($cfg) && $cfg->getTitle())?$cfg->getTitle():'osTicket :: Support Ticket System';
+$signin_url = ROOT_PATH . "login.php"
+    . ($thisclient ? "?e=".urlencode($thisclient->getEmail()) : "");
 header("Content-Type: text/html; charset=UTF-8\r\n");
 ?>
 <!DOCTYPE html>
@@ -56,7 +58,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                     Guest User | <?php
                 }
                 if ($cfg->getClientRegistrationMode() != 'disabled') { ?>
-                    <a href="<?php echo ROOT_PATH; ?>login.php">Sign In</a>
+                    <a href="<?php echo $signin_url; ?>">Sign In</a>
 <?php
                 }
             } ?>

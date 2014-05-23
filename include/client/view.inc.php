@@ -14,7 +14,9 @@ if ($thisclient && $thisclient->isGuest()
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
     <strong>Looking for your other tickets?</strong></br>
-    <a href="login.php" style="text-decoration:underline">Sign in</a> or
+    <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
+        echo urlencode($thisclient->getEmail());
+        ?>" style="text-decoration:underline">Sign in</a> or
     <a href="account.php?do=create" style="text-decoration:underline">register for an account</a>
     for the best experience on our help desk.</div>
 
