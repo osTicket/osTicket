@@ -197,7 +197,7 @@ var autoLock = {
     },
 
     releaseLock: function(e) {
-        if(!autoLock.tid) { return false; }
+        if (!autoLock.tid || !autoLock.lockId) { return false; }
 
         $.ajax({
             type: 'POST',
@@ -205,8 +205,8 @@ var autoLock = {
             data: 'delete',
             async: false,
             cache: false,
-            success: function(){
-
+            success: function() {
+                autoLock.lockId = 0;
             }
         })
         .done(function() { })
