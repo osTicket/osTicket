@@ -97,9 +97,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
 </tr>
 </table>
 <br>
-<h2>Subject:<?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
-<br>
-<span class="Icon thread">Ticket Thread</span>
+<div class="subject">Subject: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
 <div id="ticketThread">
 <?php
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
