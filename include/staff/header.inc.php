@@ -77,6 +77,7 @@
             echo $h;
     } ?>
     <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: Staff Control Panel'; ?></title><?php
+    header('X-PJAX-Version: ' . GIT_VERSION);
 } # endif X_PJAX ?>
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
