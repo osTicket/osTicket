@@ -728,10 +728,17 @@ class MailFetcher {
                 return true;
             }
 
-            //TODO: Log error..
+            // Log an error to the system logs
+            $mailbox = Email::lookup($vars['emailId']);
+            $ost->logError('Mail Processing Exception', sprintf(
+                "Mailbox: %s\nError(s): %s",
+                $mailbox->getEmail(),
+                print_r($errors, true)
+            ), false);
+
+            // Indicate failure of mail processing
             return null;
         }
-
 
         return $ticket;
     }
