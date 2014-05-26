@@ -153,7 +153,7 @@ class FormField {
     static $widget = false;
 
     var $ht = array(
-        'label' => 'Unlabeled',
+        'label' => false,
         'required' => false,
         'default' => false,
         'configuration' => array(),
@@ -1760,6 +1760,125 @@ class FileUploadField extends FormField {
     }
 }
 
+class InlineFormData extends ArrayObject {
+    var $_form;
+
+    function __construct($form, array $data=array()) {
+        parent::__construct($data);
+        $this->_form = $form;
+    }
+
+    function getVar($tag) {
+        foreach ($this->_form->getFields() as $f) {
+            if ($f->get('name') == $tag)
+                return $this[$f->get('id')];
+        }
+    }
+}
+
+
+class InlineFormField extends FormField {
+    static $widget = 'InlineFormWidget';
+
+    var $_iform = null;
+
+    function validateEntry($value) {
+        if (!$this->getInlineForm()->isValid()) {
+            $this->_errors[] = 'Correct errors in the inline form';
+        }
+    }
+
+    function parse($value) {
+        // The InlineFieldWidget returns an array of cleaned data
+        return $value;
+    }
+
+    function to_database($value) {
+        return JsonDataEncoder::encode($value);
+    }
+
+    function to_php($value) {
+        $data = JsonDataParser::decode($value);
+        // The InlineFormData helps with the variable replacer API
+        return new InlineFormData($this->getInlineForm(), $data);
+    }
+
+    function display($data) {
+        $form = $this->getInlineForm();
+        ob_start(); ?>
+        <div><?php
+        foreach ($form->getFields() as $field) { ?>
+            <span style="display:inline-block;padding:0 5px;vertical-align:top">
+                <strong><?php echo Format::htmlchars($field->get('label')); ?></strong>
+                <div><?php
+                    $value = $data[$field->get('id')];
+                    echo $field->display($value); ?></div>
+            </span><?php
+        } ?>
+        </div><?php
+        return ob_get_clean();
+    }
+
+    function getInlineForm() {
+        $form = $this->get('form');
+        if (is_array($form)) {
+            $form = new Form($form);
+        }
+        return $form;
+    }
+}
+
+class InlineDynamicFormField extends FormField {
+    function getInlineForm($data=false) {
+        if (!isset($this->_iform) || $data) {
+            $config = $this->getConfiguration();
+            $this->_iform = DynamicForm::lookup($config['form']);
+            if ($data)
+                $this->_iform = $this->_iform->getForm($data);
+        }
+        return $this->_iform;
+    }
+
+    function getConfigurationOptions() {
+        $forms = DynamicForm::objects()->filter(array('type'=>'G'))
+            ->values_flat('id', 'title');
+        $choices = array();
+        foreach ($forms as $row) {
+            list($id, $title) = $row;
+            $choices[$id] = $title;
+        }
+        return array(
+            'form' => new ChoiceField(array(
+                'id'=>2, 'label'=>'Inline Form', 'required'=>true,
+                'default'=>'', 'choices'=>$choices
+            )),
+        );
+    }
+}
+
+class InlineFormWidget extends Widget {
+    function render($mode=false) {
+        $form = $this->field->getInlineForm();
+        if (!$form)
+            return;
+        // Handle first-step edits -- load data from $this->value
+        if ($form instanceof DynamicForm && !$form->getSource())
+            $form = $form->getForm($this->value);
+        $inc = ($mode == 'client') ? CLIENTINC_DIR : STAFFINC_DIR;
+        include $inc . 'templates/inline-form.tmpl.php';
+    }
+
+    function getValue() {
+        $data = $this->field->getSource();
+        if (!$data)
+            return null;
+        $form = $this->field->getInlineForm($data);
+        if (!$form)
+            return null;
+        return $form->getClean();
+    }
+}
+
 class Widget {
     static $media = null;
 
@@ -1784,6 +1903,8 @@ class Widget {
             return $data[$this->name];
         elseif (isset($data[$this->field->get('name')]))
             return $data[$this->field->get('name')];
+        elseif (isset($data[$this->field->get('id')]))
+            return $data[$this->field->get('id')];
         return null;
     }
 
