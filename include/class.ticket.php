@@ -1596,7 +1596,9 @@ class Ticket {
         if(!$alerts) return $message; //Our work is done...
 
         // Do not auto-respond to bounces and other auto-replies
-        $autorespond = isset($vars['flags']) ? !$vars['flags']['bounce'] : true;
+        $autorespond = isset($vars['flags'])
+            ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
+            : true;
         if ($autorespond && $message->isAutoReply())
             $autorespond = false;
 
@@ -1843,9 +1845,12 @@ class Ticket {
         if(!($note=$this->getThread()->addNote($vars, $errors)))
             return null;
 
-        if (isset($vars['flags']) && $vars['flags']['bounce'])
-            // No alerts for bounce emails
-            $alert = false;
+        $alert = $alert && (
+            isset($vars['flags'])
+            // No alerts for bounce and auto-reply emails
+            ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
+            : true
+        );
 
         // Get assigned staff just in case the ticket is closed.
         $assignee = $this->getStaff();
