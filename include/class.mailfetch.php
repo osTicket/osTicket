@@ -269,13 +269,22 @@ class MailFetcher {
         if(!($headerinfo=imap_headerinfo($this->mbox, $mid)) || !$headerinfo->from)
             return null;
 
+        $raw_header = $this->getHeader($mid);
+        $info = array(
+            'raw_header' => &$raw_header,
+            'headers' => $headerinfo,
+            'decoder' => $this,
+            'type' => $this->getMimeType($headerinfo),
+        );
+        Signal::send('mail.decoded', $this, $info);
+
         $sender=$headerinfo->from[0];
         //Just what we need...
         $header=array('name'  => $this->mime_decode(@$sender->personal),
                       'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
                       'subject'=> $this->mime_decode(@$headerinfo->subject),
                       'mid'    => trim(@$headerinfo->message_id),
-                      'header' => $this->getHeader($mid),
+                      'header' => $raw_header,
                       'in-reply-to' => $headerinfo->in_reply_to,
                       'references' => $headerinfo->references,
                       );
@@ -624,6 +633,7 @@ class MailFetcher {
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
+        $vars['flags'] = new ArrayObject();
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
@@ -693,6 +703,9 @@ class MailFetcher {
                 $vars['attachments'][] = $file;
             }
         }
+
+        // Allow signal handlers to interact with the message decoding
+        Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
         if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
