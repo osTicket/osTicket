@@ -202,7 +202,7 @@ if($ticket->isOverdue())
 <?php if ($user->getOrgId()) { ?>
                                     <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>"><i class="icon-building icon-fixed-width"></i> Manage Organization</a></li>
 <?php } ?>
-                                </u>
+                                </ul>
                             </div>
                     <?php
                         }
@@ -323,7 +323,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     if (count($answers) == 0)
         continue;
     ?>
-        </tr><tr>
+        <tr>
         <td colspan="2">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
             <?php foreach($answers as $a) {
@@ -339,10 +339,10 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                 <?php } ?>
             </table>
         </td>
+        </tr>
     <?php
     $idx++;
     } ?>
-    </tr>
 </table>
 <div class="clear"></div>
 <h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
@@ -640,7 +640,7 @@ $tcount+= $ticket->getNumNotes();
                         Note title - summary of the note (optional)</div>
                         <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >
                         <br/>
-                        <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
+                        <span class="error">&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
                     <br/>
                     <textarea name="note" id="internal_note" cols="80"
