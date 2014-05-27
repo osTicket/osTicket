@@ -304,7 +304,7 @@ class Filter {
         #       Set owning department (?)
         if ($this->getDeptId())     $ticket['deptId']=$this->getDeptId();
         #       Set ticket priority (?)
-        if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
+        if ($this->getPriorityId()) $ticket['priority']=$this->getPriorityId();
         #       Set SLA plan (?)
         if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
         #       Set status
