@@ -289,7 +289,7 @@ $(function() {
 
 $(document).ajaxError(function(event, request, settings) {
     if (settings.url.indexOf('ajax.php/draft') != -1
-            && settings.type.touppercase() == 'POST') {
+            && settings.type.toUpperCase() == 'POST') {
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor) {
