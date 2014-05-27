@@ -41,7 +41,7 @@ class DynamicForm extends VerySimpleModel {
     var $_form;
     var $_fields;
     var $_has_data = false;
-    var $_dfields;
+    var $_dfields = array();
 
     function getFields($cache=true) {
         if (!isset($this->_fields) || !$cache) {
@@ -54,7 +54,7 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function getDynamicFields() {
-        if (!isset($this->_dfields)) {
+        if (!isset($this->_dfields) && isset($this->id)) {
             $this->_dfields = DynamicFormField::objects()
                 ->filter(array('form_id'=>$this->id))
                 ->all();
