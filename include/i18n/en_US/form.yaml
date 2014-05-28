@@ -78,7 +78,8 @@
       tickets, and will be searchable with advanced search and filterable.
   deletable: false
   fields:
-    - type: text # notrans
+    - id: 20
+      type: text # notrans
       name: subject # notrans
       label: Issue Summary
       required: true
@@ -88,7 +89,8 @@
         size: 40
         length: 50
 
-    - type: thread # notrans
+    - id: 21
+      type: thread # notrans
       name: message # notrans
       label: Issue Details
       hint: Details on the reason(s) for opening the ticket.
@@ -96,7 +98,8 @@
       edit_mask: 15
       sort: 2
 
-    - type: priority # notrans
+    - id: 22
+      type: priority # notrans
       name: priority # notrans
       label: Priority Level
       required: false
