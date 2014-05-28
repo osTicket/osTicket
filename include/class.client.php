@@ -149,6 +149,10 @@ abstract class TicketUser {
         return $this->_guest;
     }
 
+    function getUserId() {
+        return $this->user->getId();
+    }
+
     abstract function getTicketId();
     abstract function getTicket();
 }

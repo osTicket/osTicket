@@ -16,14 +16,23 @@
 **********************************************************************/
 require_once('client.inc.php');
 
+$errors = array();
+// Check if the client is already signed in. Don't corrupt their session!
+if ($_GET['auth']
+        && $thisclient
+        && ($u = TicketUser::lookupByToken($_GET['auth']))
+        && ($u->getUserId() == $thisclient->getId())
+) {
+    Http::redirect('tickets.php?id='.$u->getTicketId());
+}
 // Try autologin the user
 // Authenticated user can be of type ticket owner or collaborator
-$errors = array();
-if (isset($_GET['auth']) || isset($_GET['t']))
+elseif (isset($_GET['auth']) || isset($_GET['t'])) {
     // TODO: Consider receiving an AccessDenied object
     $user =  UserAuthenticationBackend::processSignOn($errors, false);
+}
 
-if ($user && $user->getTicketId())
+if (@$user && is_object($user) && $user->getTicketId())
     Http::redirect('tickets.php?id='.$user->getTicketId());
 
 $nav = new UserNav();

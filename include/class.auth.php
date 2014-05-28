@@ -872,13 +872,13 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
         if($authsession['strikes']>$cfg->getClientMaxLogins()) {
             $authsession['laststrike'] = time();
             $alert='Excessive login attempts by a user.'."\n".
-                    'Login: '.$username.': '.$password."\n".
+                    'Username: '.$username."\n".
                     'IP: '.$_SERVER['REMOTE_ADDR']."\n".'Time:'.date('M j, Y, g:i a T')."\n\n".
                     'Attempts #'.$authsession['strikes'];
             $ost->logError('Excessive login attempts (user)', $alert, ($cfg->alertONLoginError()));
             return new AccessDenied('Access Denied');
-        } elseif($authsession['strikes']%3==0) { //Log every other third failed login attempt as a warning.
-            $alert='Login: '.$username.': '.$password."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
+        } elseif($authsession['strikes']%3==0) { //Log every third failed login attempt as a warning.
+            $alert='Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
                    "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$authsession['strikes'];
             $ost->logWarning('Failed login attempt (user)', $alert);
         }

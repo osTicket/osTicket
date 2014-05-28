@@ -5,7 +5,7 @@
 
 $(document).ready(function(){
 
-    $("input:not(.dp):visible:enabled:first").focus();
+    $('input:not(.dp):visible:enabled:input[value=""]:first').focus();
     $('table.list tbody tr:odd').addClass('odd');
 
     //Overlay

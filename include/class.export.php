@@ -213,7 +213,7 @@ class ResultSetExporter {
         $this->options = $options;
         $this->output = $options['output'] ?: fopen('php://output', 'w');
 
-        $this->_res = db_query($sql);
+        $this->_res = db_query($sql, true, true);
         if ($row = db_fetch_array($this->_res)) {
             $query_fields = array_keys($row);
             $this->headers = array();
@@ -296,9 +296,13 @@ require_once INCLUDE_DIR . 'class.json.php';
 require_once INCLUDE_DIR . 'class.migrater.php';
 require_once INCLUDE_DIR . 'class.signal.php';
 
+define('OSTICKET_BACKUP_SIGNATURE', 'osTicket-Backup');
+define('OSTICKET_BACKUP_VERSION', 'B');
+
 class DatabaseExporter {
 
     var $stream;
+    var $options;
     var $tables = array(CONFIG_TABLE, SYSLOG_TABLE, FILE_TABLE,
         FILE_CHUNK_TABLE, STAFF_TABLE, DEPT_TABLE, TOPIC_TABLE, GROUP_TABLE,
         GROUP_DEPT_TABLE, TEAM_TABLE, TEAM_MEMBER_TABLE, FAQ_TABLE,
@@ -311,21 +315,21 @@ class DatabaseExporter {
         TIMEZONE_TABLE, SESSION_TABLE, PAGE_TABLE,
         FORM_SEC_TABLE, FORM_FIELD_TABLE, LIST_TABLE, LIST_ITEM_TABLE,
         FORM_ENTRY_TABLE, FORM_ANSWER_TABLE, USER_TABLE, USER_EMAIL_TABLE,
+        PLUGIN_TABLE, TICKET_COLLABORATOR_TABLE,
+        USER_ACCOUNT_TABLE, ORGANIZATION_TABLE, NOTE_TABLE
     );
 
-    function DatabaseExporter($stream) {
+    function DatabaseExporter($stream, $options=array()) {
         $this->stream = $stream;
+        $this->options = $options;
     }
 
     function write_block($what) {
         fwrite($this->stream, JsonDataEncoder::encode($what));
-        fwrite($this->stream, "\x1e");
+        fwrite($this->stream, "\n");
     }
 
-    function dump($error_stream) {
-        // Allow plugins to change the tables exported
-        Signal::send('export.tables', $this, $this->tables);
-
+    function dump_header() {
         $header = array(
             array(OSTICKET_BACKUP_SIGNATURE, OSTICKET_BACKUP_VERSION),
             array(
@@ -338,21 +342,22 @@ class DatabaseExporter {
             ),
         );
         $this->write_block($header);
+    }
+
+    function dump($error_stream) {
+        // Allow plugins to change the tables exported
+        Signal::send('export.tables', $this, $this->tables);
+        $this->dump_header();
 
         foreach ($this->tables as $t) {
             if ($error_stream) $error_stream->write("$t\n");
+
             // Inspect schema
-            $table = $indexes = array();
-            $res = db_query("show columns from $t");
-            while ($field = db_fetch_array($res))
+            $table = array();
+            $res = db_query("select column_name from information_schema.columns
+                where table_schema=DATABASE() and table_name='$t'");
+            while (list($field) = db_fetch_row($res))
                 $table[] = $field;
-
-            $res = db_query("show indexes from $t");
-            while ($col = db_fetch_array($res))
-                $indexes[] = $col;
-
-            $res = db_query("select * from $t");
-            $types = array();
 
             if (!$table) {
                 if ($error_stream) $error_stream->write(
@@ -360,8 +365,9 @@ class DatabaseExporter {
                 die();
             }
             $this->write_block(
-                array('table', substr($t, strlen(TABLE_PREFIX)), $table,
-                    $indexes));
+                array('table', substr($t, strlen(TABLE_PREFIX)), $table));
+
+            db_query("select * from $t");
 
             // Dump row data
             while ($row = db_fetch_row($res))
@@ -369,5 +375,33 @@ class DatabaseExporter {
 
             $this->write_block(array('end-table'));
         }
+    }
+
+    function transfer($destination, $query, $callback=false, $options=array()) {
+        $header_out = false;
+        $res = db_query($query, true, false);
+        $i = 0;
+        while ($row = db_fetch_array($res)) {
+            if (is_callable($callback))
+                $callback($row);
+            if (!$header_out) {
+                $fields = array_keys($row);
+                $this->write_block(
+                    array('table', $destination, $fields, $options));
+                $header_out = true;
+
+            }
+            $this->write_block(array_values($row));
+        }
+        $this->write_block(array('end-table'));
+    }
+
+    function transfer_array($destination, $array, $keys, $options=array()) {
+        $this->write_block(
+            array('table', $destination, $keys, $options));
+        foreach ($array as $row) {
+            $this->write_block(array_values($row));
+        }
+        $this->write_block(array('end-table'));
     }
 }

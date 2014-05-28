@@ -14,9 +14,10 @@ if ($info['error']) {
 <div id="org-profile" style="display:<?php echo $forms ? 'none' : 'block'; ?>;margin:5px;">
     <i class="icon-group icon-4x pull-left icon-border"></i>
     <?php
-    if ($account) { ?>
+    if ($user) { ?>
     <a class="action-button pull-right user-action" style="overflow:inherit"
-        href="#users/<?php echo $account->getUserId(); ?>/org/<?php echo $org->getId(); ?>" ><i class="icon-user"></i> Change Organization</a>
+        href="#users/<?php echo $user->getId(); ?>/org/<?php echo $org->getId(); ?>" ><i class="icon-user"></i> Change</a>
+    <a class="action-button pull-right" href="orgs.php?id=<?php echo $org->getId(); ?>"><i class="icon-share"></i> Manage</a>
     <?php
     } ?>
     <div><b><a href="#" id="editorg"><i class="icon-edit"></i>&nbsp;<?php

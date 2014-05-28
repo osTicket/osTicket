@@ -14,7 +14,9 @@ if ($thisclient && $thisclient->isGuest()
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
     <strong>Looking for your other tickets?</strong></br>
-    <a href="login.php" style="text-decoration:underline">Sign in</a> or
+    <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
+        echo urlencode($thisclient->getEmail());
+        ?>" style="text-decoration:underline">Sign in</a> or
     <a href="account.php?do=create" style="text-decoration:underline">register for an account</a>
     for the best experience on our help desk.</div>
 
@@ -26,7 +28,9 @@ if ($thisclient && $thisclient->isGuest()
             <h1>
                 Ticket #<?php echo $ticket->getNumber(); ?> &nbsp;
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
-<?php if ($cfg->allowClientUpdates()) { ?>
+<?php if ($cfg->allowClientUpdates()
+        // Only ticket owners can edit the ticket details (and other forms)
+        && $thisclient->getId() == $ticket->getUserId()) { ?>
                 <a class="action-button" href="tickets.php?a=edit&id=<?php
                      echo $ticket->getId(); ?>"><i class="icon-edit"></i> Edit</a>
 <?php } ?>
@@ -93,9 +97,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
 </tr>
 </table>
 <br>
-<h2>Subject:<?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
-<br>
-<span class="Icon thread">Ticket Thread</span>
+<div class="subject">Subject: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
 <div id="ticketThread">
 <?php
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {

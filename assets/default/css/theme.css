@@ -127,9 +127,9 @@ h1 {
 h3 {
   font-size: 16px;
 }
-h2 {
+h2, .subject {
   font-size: 16px;
-  color: #999;
+  color: black;
 }
 /* Helpers */
 .centered {

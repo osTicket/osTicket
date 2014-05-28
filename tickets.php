@@ -40,7 +40,8 @@ if($_POST && is_object($ticket) && $ticket->getId()):
     $errors=array();
     switch(strtolower($_POST['a'])){
     case 'edit':
-        if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
+        if(!$ticket->checkUserAccess($thisclient) //double check perm again!
+                || $thisclient->getId() != $ticket->getUserId())
             $errors['err']='Access Denied. Possibly invalid ticket ID';
         elseif (!$cfg || !$cfg->allowClientUpdates())
             $errors['err']='Access Denied. Client updates are currently disabled';
