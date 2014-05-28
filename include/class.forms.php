@@ -974,7 +974,7 @@ class TextboxWidget extends Widget {
         $config = $this->field->getConfiguration();
         if (isset($config['size']))
             $size = "size=\"{$config['size']}\"";
-        if (isset($config['length']))
+        if (isset($config['length']) && $config['length'])
             $maxlength = "maxlength=\"{$config['length']}\"";
         if (isset($config['classes']))
             $classes = 'class="'.$config['classes'].'"';

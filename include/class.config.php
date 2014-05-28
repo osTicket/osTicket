@@ -1059,11 +1059,11 @@ class OsticketConfig extends Config {
         if($errors) return false;
 
         return $this->updateAll(array(
-            'ticket_autoresponder'=>$vars['ticket_autoresponder'],
-            'message_autoresponder'=>$vars['message_autoresponder'],
-            'message_autoresponder_collabs'=>$vars['message_autoresponder_collabs'],
-            'ticket_notice_active'=>$vars['ticket_notice_active'],
-            'overlimit_notice_active'=>$vars['overlimit_notice_active'],
+            'ticket_autoresponder'=>isset($vars['ticket_autoresponder']) ? 1 : 0,
+            'message_autoresponder'=>isset($vars['message_autoresponder']) ? 1 : 0,
+            'message_autoresponder_collabs'=>isset($vars['message_autoresponder_collabs']) ? 1 : 0,
+            'ticket_notice_active'=>isset($vars['ticket_notice_active']) ? 1 : 0,
+            'overlimit_notice_active'=>isset($vars['overlimit_notice_active']) ? 1 : 0,
         ));
     }
 
