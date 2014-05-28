@@ -87,8 +87,10 @@ class UsersAjaxAPI extends AjaxController {
         elseif(!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
-        $info = array('title' => '');
-
+        $info = array(
+                'title' => '',
+                'useredit' => sprintf('#users/%d/edit', $user->getId()),
+                );
         ob_start();
         echo sprintf('<div style="width:650px; padding: 2px 2px 0 5px;"
                 id="u%d">', $user->getId());
