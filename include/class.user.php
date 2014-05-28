@@ -1010,7 +1010,7 @@ class UserAccount extends UserAccountModel {
         }
         elseif ($vars['backend'] && $vars['backend'] != 'client') {
             // Auto confirm remote accounts
-            $account->setStatus(self::CONFIRMED);
+            $account->setStatus(UserAccountStatus::CONFIRMED);
         }
 
         $account->save(true);
