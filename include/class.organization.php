@@ -207,6 +207,20 @@ class Organization extends OrganizationModel {
         return $vars;
     }
 
+    function removeUser($user) {
+
+        if (!$user instanceof User)
+            return false;
+
+        if (!$user->setOrganization(null, false))
+            return false;
+
+        // House cleaning - remove user from org contact..etc
+        $user->setPrimaryContact(false);
+
+        return $user->save();
+    }
+
     function to_json() {
 
         $info = array(

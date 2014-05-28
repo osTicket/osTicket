@@ -87,8 +87,10 @@ class UsersAjaxAPI extends AjaxController {
         elseif(!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
-        $info = array('title' => '');
-
+        $info = array(
+                'title' => '',
+                'useredit' => sprintf('#users/%d/edit', $user->getId()),
+                );
         ob_start();
         echo sprintf('<div style="width:650px; padding: 2px 2px 0 5px;"
                 id="u%d">', $user->getId());
@@ -377,7 +379,7 @@ class UsersAjaxAPI extends AjaxController {
         } elseif ($orgId)
             $org = Organization::lookup($orgId);
         elseif ($org = $user->getOrganization()) {
-            $info['title'] =  $org->getName();
+            $info['title'] = sprintf('%s &mdash; %s', $user->getName(), 'Organization');
             $info['action'] = $info['onselect'] = '';
             $tmpl = 'org.tmpl.php';
         }

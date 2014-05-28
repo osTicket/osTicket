@@ -48,7 +48,7 @@ if ($info['error']) {
 
 <div class="tab_content" id="info-tab">
 <div class="floating-options">
-    <a href="#" id="edituser" class="action" title="Edit"><i class="icon-edit"></i></a>
+    <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="Edit"><i class="icon-edit"></i></a>
     <a href="users.php?id=<?php echo $user->getId(); ?>" title="Manage User"
         class="action"><i class="icon-share"></i></a>
 </div>
@@ -141,8 +141,18 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
 $(function() {
     $('a#edituser').click( function(e) {
         e.preventDefault();
-        $('div#user-profile').hide();
-        $('div#user-form').fadeIn();
+        if ($(this).attr('href').length > 1) {
+            var url = 'ajax.php/'+$(this).attr('href').substr(1);
+            $.dialog(url, [201, 204], function (xhr) {
+                window.location.href = window.location.href;
+            }, {
+                onshow: function() { $('#user-search').focus(); }
+            });
+        } else {
+            $('div#user-profile').hide();
+            $('div#user-form').fadeIn();
+        }
+
         return false;
      });
 
