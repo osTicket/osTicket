@@ -379,7 +379,7 @@ class UsersAjaxAPI extends AjaxController {
         } elseif ($orgId)
             $org = Organization::lookup($orgId);
         elseif ($org = $user->getOrganization()) {
-            $info['title'] =  $org->getName();
+            $info['title'] = sprintf('%s &mdash; %s', $user->getName(), 'Organization');
             $info['action'] = $info['onselect'] = '';
             $tmpl = 'org.tmpl.php';
         }

@@ -212,13 +212,13 @@ class Organization extends OrganizationModel {
         if (!$user instanceof User)
             return false;
 
-        if (!$user->setOrganization(null))
+        if (!$user->setOrganization(null, false))
             return false;
 
-        // TODO: house cleaning - remove user from org contact..etc
+        // House cleaning - remove user from org contact..etc
+        $user->setPrimaryContact(false);
 
-
-        return true;
+        return $user->save();
     }
 
     function to_json() {
