@@ -64,13 +64,15 @@ else
 <br/>
 <?php
 if ($num) { ?>
-<form action="users.php" method="POST" name="staff" >
+<form action="orgs.php?id=<?php echo $org->getId(); ?>" method="POST" name="users" >
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
+ <input type="hidden" id="id" name="id" value="<?php echo $org->getId(); ?>" >
  <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
+            <th width="7px">&nbsp;</th>
             <th width="350"> Name</th>
             <th width="300"> Email</th>
             <th width="100"> Status</th>
@@ -90,6 +92,10 @@ if ($num) { ?>
                     $sel=true;
                 ?>
                <tr id="<?php echo $row['id']; ?>">
+                <td width=7px>
+                  <input type="checkbox" class="ckb" name="ids[]"
+                    value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
+                </td>
                 <td>&nbsp;
                     <a class="userPreview" href="users.php?id=<?php echo $row['id']; ?>"><?php echo $name; ?></a>
                     &nbsp;
@@ -107,15 +113,60 @@ if ($num) { ?>
             } //end of while.
         endif; ?>
     </tbody>
+    <tfoot>
+     <tr>
+        <td colspan="5">
+            <?php
+            if ($res && $num) {
+                ?>
+            Select:&nbsp;
+            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php
+            } else {
+                echo 'No users found';
+            }
+            ?>
+        </td>
+     </tr>
+    </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if ($res && $num) { //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
-endif;
+
+    ?>
+    <p class="centered" id="actions">
+        <input class="button" type="submit" name="remove-users" value="Remove" >
+    </p>
+<?php
+}
 ?>
 </form>
 <?php
 } ?>
+
+<div style="display:none;" class="dialog" id="confirm-action">
+    <h3>Please Confirm</h3>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="remove-users-confirm">
+        Are you sure want to <b>REMOVE</b> selected user from <strong><?php
+        echo $org->getName(); ?></strong> organization?
+    </p>
+    <div>Please confirm to continue.</div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons" style="float:left">
+            <input type="button" value="No, Cancel" class="close">
+        </span>
+        <span class="buttons" style="float:right">
+            <input type="button" value="Yes, Do it!" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>
 
 <script type="text/javascript">
 $(function() {

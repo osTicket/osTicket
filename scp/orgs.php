@@ -33,6 +33,27 @@ if ($_POST) {
         else
             $errors['err'] = $status;
         break;
+    case 'remove-users':
+        if (!$org)
+            $errors['err'] = ' Trying to remove users from unknown
+                 organization';
+        elseif (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
+            $errors['err'] = 'You must select at least one user to remove';
+        } else {
+            $i = 0;
+            foreach ($_POST['ids'] as $k=>$v) {
+                if (($u=User::lookup($v)) && $org->removeUser($u))
+                    $i++;
+            }
+            $num = count($_POST['ids']);
+            if ($i && $i == $num)
+                $msg = 'Selected users removed successfully';
+            elseif ($i > 0)
+                $warn = "$i of $num selected users removed";
+            elseif (!$errors['err'])
+                $errors['err'] = 'Unable to remove selected users';
+        }
+        break;
     default:
         $errors['err'] = 'Unknown action';
     }
