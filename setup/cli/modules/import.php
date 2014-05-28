@@ -266,7 +266,7 @@ class Importer_B extends Importer {
         $this->stderr->write("Importing table: {$header[1]}\n");
 
         $res = db_query("select column_name from information_schema.columns
-            where table_schema=DATABASE() and table_name='$t'");
+            where table_schema=DATABASE() and table_name='{$header[1]}'");
         while (list($field) = db_fetch_row($res))
             if (!in_array($field, $header[2]))
                 $this->fail($header[1]

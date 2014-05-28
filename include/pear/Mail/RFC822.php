@@ -363,13 +363,11 @@ class Mail_RFC822 {
     function _hasUnclosedQuotes($string)
     {
         $matches = array();
-        if (!preg_match_all('/\\|"/S', $string, $matches, PREG_SET_ORDER))
+        if (!preg_match_all('/[\\"]/', trim($string), $matches))
             return false;
 
-        $string = trim($string);
-        $iMax = strlen($string);
         $in_quote = false;
-        $i = $slashes = 0;
+        $slashes = 0;
 
         foreach ($matches[0] as $m) {
             switch ($m) {
