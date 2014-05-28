@@ -111,12 +111,7 @@ class UserModel extends VerySimpleModel {
 
     function setOrganization($org, $save=true) {
 
-        if (is_null($org))
-            $this->set('org_id', 0);
-        elseif ($org instanceof Organization)
-            $this->set('org', $org);
-        else // noop
-            return false;
+        $this->set('org', $org);
 
         if ($save)
             $this->save();

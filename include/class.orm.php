@@ -73,15 +73,23 @@ class VerySimpleModel {
                 $this->ht[$field] = $value;
                 return;
             }
-            // XXX: Ensure $value instanceof $j['fkey'][0]
-            if ($value->__new__)
-                $value->save();
-            // Capture the object under the object's field name
-            $this->ht[$field] = $value;
+            if ($value === null) {
+                // Pass. Set local field to NULL in logic below
+            }
+            elseif ($value instanceof $j['fkey'][0]) {
+                if ($value->__new__)
+                    $value->save();
+                // Capture the object under the object's field name
+                $this->ht[$field] = $value;
+                $value = $value->get($j['fkey'][1]);
+                // Fall through to the standard logic below
+            }
+            else
+                throw new InvalidArgumentException(
+                    'Expecting NULL or instance of ' . $j['fkey'][0]);
+
             // Capture the foreign key id value
             $field = $j['local'];
-            $value = $value->get($j['fkey'][1]);
-            // Fall through to the standard logic below
         }
         // XXX: Fully support or die if updating pk
         // XXX: The contents of $this->dirty should be the value after the
