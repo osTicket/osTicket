@@ -365,7 +365,7 @@ class Mail_Parse {
                     || !strcasecmp($part->ctype_primary,'application')))) {
 
             if (isset($part->d_parameters['filename']))
-                $filename = $part->d_parameters['filename'];
+                $filename = Format::mimedecode($part->d_parameters['filename'], $this->charset);
             elseif (isset($part->d_parameters['filename*']))
                 // Support RFC 6266, section 4.3 and RFC, and RFC 5987
                 $filename = Format::decodeRfc5987(
@@ -374,7 +374,7 @@ class Mail_Parse {
             // Support attachments that do not specify a content-disposition
             // but do specify a "name" parameter in the content-type header.
             elseif (isset($part->ctype_parameters['name']))
-                $filename = $part->ctype_parameters['name'];
+                $filename = Format::mimedecode($part->ctype_parameters['name'], $this->charset);
             elseif (isset($part->ctype_parameters['name*']))
                 $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
