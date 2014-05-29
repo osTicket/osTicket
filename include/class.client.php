@@ -175,11 +175,21 @@ class  EndUser extends AuthenticatedUser {
 
         if(!$this->user
                 || !is_callable(array($this->user, $name)))
-            return false;
+            return $this->getVar(substr($name, 3));
 
         return  $args
             ? call_user_func_array(array($this->user, $name), $args)
             : call_user_func(array($this->user, $name));
+    }
+
+    function getVar($tag) {
+        $u = $this;
+        // Traverse the $user properties of all nested user objects to get
+        // to the User instance with the custom data
+        while (isset($u->user))
+            $u = $u->user;
+        if (method_exists($u, 'getVar'))
+            return $u->getVar($tag);
     }
 
     function getId() {
