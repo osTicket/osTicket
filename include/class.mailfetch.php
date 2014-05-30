@@ -288,35 +288,50 @@ class MailFetcher {
         // Put together a list of recipients
         $tolist = array();
 
-        //Add delivered-to address to list.
+        // Add delivered-to address to list first.
         if (stripos($header['header'], 'delivered-to:') !==false
                 && ($dt = Mail_Parse::findHeaderEntry($header['header'],
                      'delivered-to', true))) {
             if (($delivered_to = Mail_Parse::parseAddressList($dt)))
-                $tolist['delivered-to'] = $delivered_to;
+                $tolist['delivered-to'] = array_reverse($delivered_to);
         }
 
-        if($headerinfo->to)
+        if ($headerinfo->bcc)
+            $tolist['bcc'] = $headerinfo->bcc;
+
+        if ($headerinfo->to)
             $tolist['to'] = $headerinfo->to;
-        if($headerinfo->cc)
+        if ($headerinfo->cc)
             $tolist['cc'] = $headerinfo->cc;
 
         $header['recipients'] = array();
-        foreach($tolist as $source => $list) {
-            foreach($list as $addr) {
+        $fetchedEmailId = $this->getEmailId();
+        $systemEmails = array();
+        foreach ($tolist as $source => $list) {
+            foreach ($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
-                    if ($source == 'delivered-to') continue;
+                    if (in_array($source, array('delivered-to', 'bcc'))) continue;
 
                     $header['recipients'][] = array(
                             'source' => "Email ($source)",
                             'name' => $this->mime_decode(@$addr->personal),
                             'email' => strtolower($addr->mailbox).'@'.$addr->host);
-                } elseif(!$header['emailId']) {
-                    $header['emailId'] = $emailId;
+                } elseif (!$header['emailId']) {
+                    if ($source == 'delivered-to')
+                        $header['emailId'] = $emailId;
+                    elseif ($emailId == $fetchedEmailId)
+                        $header['emailId'] = $emailId;
                 }
+
+                $systemEmails[] = $emailId;
             }
         }
+
+        // Use the first system email if target is not set.
+        if (!$header['emailId'] && $systemEmails)
+            $header['emailId'] = $systemEmails[0];
+
 
         //See if any of the recipients is a delivered to address
         if ($tolist['delivered-to']) {
@@ -325,15 +340,6 @@ class MailFetcher {
                     if (strcasecmp($r['email'], $addr->mailbox.'@'.$addr->host) === 0)
                         $header['recipients'][$i]['source'] = 'delivered-to';
                 }
-            }
-        }
-
-        //BCCed?
-        if(!$header['emailId']) {
-            if ($headerinfo->bcc) {
-                foreach($headerinfo->bcc as $addr)
-                    if (($header['emailId'] = Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
-                        break;
             }
         }
 
