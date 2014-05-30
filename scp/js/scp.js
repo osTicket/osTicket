@@ -137,7 +137,7 @@ var scp_prep = function() {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
-            $('input[type=submit]', fObj).css('color', 'red');
+            $('input[type=submit][name="submit"]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
                 return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
             });
@@ -437,6 +437,7 @@ var scp_prep = function() {
    // Sortable tables for dynamic forms objects
    $('.sortable-rows').sortable({
        'helper': fixHelper,
+       'cursor': 'move',
        'stop': function(e, ui) {
            var attr = ui.item.parent('tbody').data('sort');
            warnOnLeave(ui.item);

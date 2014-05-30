@@ -78,6 +78,15 @@ class Topic {
         return $this->ht['name'];
     }
 
+    function getFullName() {
+        return self::getTopicName($this->getId());
+    }
+
+    static function getTopicName($id) {
+        $names = static::getHelpTopics();
+        return $names[$id];
+    }
+
     function getDeptId() {
         return $this->ht['dept_id'];
     }
@@ -144,6 +153,16 @@ class Topic {
         return $this->getHashtable();
     }
 
+    function setSortOrder($i) {
+        if ($i != $this->ht['sort']) {
+            $sql = 'UPDATE '.TOPIC_TABLE.' SET `sort`='.db_input($i)
+                .' WHERE `topic_id`='.db_input($this->getId());
+            return (db_query($sql) && db_affected_rows() == 1);
+        }
+        // Noop
+        return true;
+    }
+
     function update($vars, &$errors) {
 
         if(!$this->save($this->getId(), $vars, $errors))
@@ -169,23 +188,39 @@ class Topic {
         return self::save(0, $vars, $errors);
     }
 
-    function getHelpTopics($publicOnly=false) {
+    static function getHelpTopics($publicOnly=false) {
+        global $cfg;
+        static $names;
 
-        $topics=array();
-        $sql='SELECT ht.topic_id, CONCAT_WS(" / ", ht2.topic, ht.topic) as name '
-            .' FROM '.TOPIC_TABLE. ' ht '
-            .' LEFT JOIN '.TOPIC_TABLE.' ht2 ON(ht2.topic_id=ht.topic_pid) '
-            .' WHERE ht.isactive=1';
+        if ($names) return $names;
 
-        if($publicOnly)
-            $sql.=' AND ht.ispublic=1';
+        $sql = 'SELECT topic_id, topic_pid, ispublic, topic FROM '.TOPIC_TABLE
+            . ' WHERE isactive=1';
 
-        $sql.=' ORDER BY name';
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while(list($id, $name)=db_fetch_row($res))
-                $topics[$id]=$name;
+        $sql .= ' ORDER BY '
+            . ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
+        $res = db_query($sql);
 
-        return $topics;
+        // Fetch information for all topics, in declared sort order
+        $topics = array();
+        while (list($id, $pid, $pub, $topic) = db_fetch_row($res))
+            $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
+                'topic'=>$topic);
+
+        // Resolve parent names
+        foreach ($topics as $id=>$info) {
+            if ($publicOnly && !$info['public'])
+                continue;
+            $name = $info['topic'];
+            while ($info['pid'] && ($info = $topics[$info['pid']])) {
+                $name = sprintf('%s / %s', $info['topic'], $name);
+            }
+            $names[$id] = $name;
+        }
+
+        if ($cfg->getTopicSortMode() == 'a')
+            uasort($names, function($a, $b) { return strcmp($a, $b); });
+        return $names;
     }
 
     function getPublicHelpTopics() {
@@ -203,7 +238,7 @@ class Topic {
         return $id;
     }
 
-    function lookup($id) {
+    static function lookup($id) {
         return ($id && is_numeric($id) && ($t= new Topic($id)) && $t->getId()==$id)?$t:null;
     }
 

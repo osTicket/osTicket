@@ -10,6 +10,9 @@ if($thisclient && $thisclient->isValid()) {
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 
 $form = null;
+if (!$info['topicId'])
+    $info['topicId'] = $cfg->getDefaultTopicId();
+
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     $form = $topic->getForm();
     if ($_POST && $form) {

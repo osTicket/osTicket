@@ -3,6 +3,9 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die(
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
+if (!$info['topicId'])
+    $info['topicId'] = $cfg->getDefaultTopicId();
+
 $form = null;
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     $form = $topic->getForm();
