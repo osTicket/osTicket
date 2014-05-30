@@ -212,8 +212,12 @@ class Topic {
             if ($publicOnly && !$info['public'])
                 continue;
             $name = $info['topic'];
+            $loop = array($id=>true);
             while ($info['pid'] && ($info = $topics[$info['pid']])) {
                 $name = sprintf('%s / %s', $info['topic'], $name);
+                if (isset($loop[$info['pid']]))
+                    break;
+                $loop[$info['pid']] = true;
             }
             $names[$id] = $name;
         }
