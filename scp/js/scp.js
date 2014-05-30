@@ -32,7 +32,6 @@ function checkbox_checker(formObj, min, max) {
 var scp_prep = function() {
 
     $("input:not(.dp):visible:enabled:first").focus();
-    $('table.list tbody tr:odd').addClass('odd');
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")
