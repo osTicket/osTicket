@@ -2,28 +2,38 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $sql='SELECT topic.* '
-    .', IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as name '
     .', dept.dept_name as department '
     .', priority_desc as priority '
     .' FROM '.TOPIC_TABLE.' topic '
-    .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) '
     .' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=topic.dept_id) '
     .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=topic.priority_id) ';
 $sql.=' WHERE 1';
-$order_by = ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`name`');
+$order_by = ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
 
 $total=db_count('SELECT count(*) FROM '.TOPIC_TABLE.' topic ');
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('helptopics.php');
 //Ok..lets roll...create the actual query
-$query="$sql GROUP BY topic.topic_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
+$query="$sql ORDER BY $order_by";
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing().' help topics';
 else
     $showing='No help topic found!';
 
+// Get the full names and filter for this page
+$topics = array();
+while ($row = db_fetch_array($res))
+    $topics[] = $row;
+
+foreach ($topics as &$t)
+    $t['name'] = Topic::getTopicName($t['topic_id']);
+
+if ($cfg->getTopicSortMode() == 'a')
+    usort($topics, function($a, $b) { return strcmp($a['name'], $b['name']); });
+
+$topics = array_slice($topics, $pageNav->getStart(), $pageNav->getLimit()+2);
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
  <h2>Help Topics</h2>
@@ -49,11 +59,11 @@ else
     <thead>
         <tr>
             <th width="7" style="height:20px;">&nbsp;</th>
-            <th style="padding-left:4px;vertical-align:middle" width="320">Help Topic</th>
+            <th style="padding-left:4px;vertical-align:middle" width="360">Help Topic</th>
             <th style="padding-left:4px;vertical-align:middle" width="80">Status</th>
             <th style="padding-left:4px;vertical-align:middle" width="100">Type</th>
             <th style="padding-left:4px;vertical-align:middle" width="100">Priority</th>
-            <th style="padding-left:4px;vertical-align:middle" width="200">Department</th>
+            <th style="padding-left:4px;vertical-align:middle" width="160">Department</th>
             <th style="padding-left:4px;vertical-align:middle" width="150" nowrap>Last Updated</th>
         </tr>
     </thead>
@@ -62,11 +72,11 @@ else
     <?php
         $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if($res && db_num_rows($res)):
+        if (count($topics)):
             $defaultDept = $cfg->getDefaultDept();
             $defaultPriority = $cfg->getDefaultPriority();
             $sort = 0;
-            while ($row = db_fetch_array($res)) {
+            foreach($topics as $row) {
                 $sort++; // Track initial order for transition
                 $sel=false;
                 if($ids && in_array($row['topic_id'],$ids))

@@ -71,18 +71,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="pid">
-                    <option value="">&mdash; Select Parent Topic &mdash;</option>
+                    <option value="">&mdash; Select Parent Topic &mdash;</option><?php
+                    $topics = Topic::getHelpTopics();
+                    while (list($id,$topic) = each($topics)) {
+                        if ($id == $info['topic_id'])
+                            continue; ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($info['topic_pid']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
                     <?php
-                    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE
-                        .' WHERE topic_pid=0 '
-                        .' ORDER by topic';
-                    if(($res=db_query($sql)) && db_num_rows($res)) {
-                        while(list($id, $name)=db_fetch_row($res)) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, (($info['pid'] && $id==$info['pid'])?'selected="selected"':'') ,$name);
-                        }
-                    }
-                    ?>
+                    } ?>
                 </select> <i class="help-tip icon-question-sign" href="#parent_topic"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
