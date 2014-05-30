@@ -1642,6 +1642,10 @@ div.selected-signature .inner {
     right: 5px;
 }
 
+.sortable-rows tr td:hover {
+    cursor: move;
+}
+
 .sortable-row-item {
     border: 1px solid rgba(0, 0, 0, 0.7);
     padding: 9px;
