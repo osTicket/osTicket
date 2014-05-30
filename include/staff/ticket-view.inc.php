@@ -515,8 +515,6 @@ $tcount+= $ticket->getNumNotes();
                             }
                             ?>
                         </select>
-                        &nbsp;&nbsp;&nbsp;
-                        <label><input type='checkbox' value='1' name="append" id="append" checked="checked"> Append</label>
                         <br>
                     <?php
                     }
@@ -539,7 +537,7 @@ $tcount+= $ticket->getNumNotes();
                         placeholder="Start writing your response here. Use canned responses from the drop-down above"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"
-                        class="richtext ifhtml draft"><?php
+                        class="richtext ifhtml draft draft-delete"><?php
                         echo $info['response']; ?></textarea>
                 </td>
             </tr>
@@ -647,7 +645,7 @@ $tcount+= $ticket->getNumNotes();
                         placeholder="Note details"
                         rows="9" wrap="soft" data-draft-namespace="ticket.note"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
-                        class="richtext ifhtml draft"><?php echo $info['note'];
+                        class="richtext ifhtml draft draft-delete"><?php echo $info['note'];
                         ?></textarea>
                         <span class="error"><?php echo $errors['note']; ?></span>
                         <br>
