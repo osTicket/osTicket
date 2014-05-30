@@ -98,7 +98,11 @@ $topics = array_slice($topics, $pageNav->getStart(), $pageNav->getLimit()+2);
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['topic_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td><a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>
+                <td>
+<?php if ($cfg->getTopicSortMode() == 'm') { ?>
+                    <i class="icon-sort"></i>
+<?php } ?>
+<a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>
                 <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
                 <td><?php echo $row['ispublic']?'Public':'<b>Private</b>'; ?></td>
                 <td><?php echo $row['priority']; ?></td>
