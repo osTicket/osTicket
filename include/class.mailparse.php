@@ -140,8 +140,8 @@ class Mail_Parse {
     /* static */ function splitHeaders($headers_text, $as_array=false) {
         $headers = preg_split("/\r?\n/", $headers_text);
         for ($i=0, $k=count($headers); $i<$k; $i++) {
-            # XXX: Might tabs be used here?
-            if (substr($headers[$i], 0, 1) == " ") {
+            // first char might be whitespace (" " or "\t")
+            if (in_array($headers[$i][0], array(" ", "\t"))) {
                 # Continuation from previous header (runon to next line)
                 $j=$i-1; while (!isset($headers[$j]) && $j>0) $j--;
                 $headers[$j] .= " ".ltrim($headers[$i]);
