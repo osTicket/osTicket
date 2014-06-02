@@ -10,15 +10,12 @@ $sql='SELECT topic.* '
 $sql.=' WHERE 1';
 $order_by = ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
 
-$total=db_count('SELECT count(*) FROM '.TOPIC_TABLE.' topic ');
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('helptopics.php');
 //Ok..lets roll...create the actual query
 $query="$sql ORDER BY $order_by";
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' help topics';
+    $showing="Showing $num help topics";
 else
     $showing='No help topic found!';
 
@@ -33,7 +30,6 @@ foreach ($topics as &$t)
 if ($cfg->getTopicSortMode() == 'a')
     usort($topics, function($a, $b) { return strcmp($a['name'], $b['name']); });
 
-$topics = array_slice($topics, $pageNav->getStart(), $pageNav->getLimit()+2);
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
  <h2>Help Topics</h2>
@@ -133,7 +129,6 @@ $topics = array_slice($topics, $pageNav->getStart(), $pageNav->getLimit()+2);
 </table>
 <?php
 if($res && $num): //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
 <?php if ($cfg->getTopicSortMode() != 'a') { ?>

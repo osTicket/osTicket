@@ -29,14 +29,13 @@ class Topic {
     }
 
     function load($id=0) {
+        global $cfg;
 
         if(!$id && !($id=$this->getId()))
             return false;
 
         $sql='SELECT ht.* '
-            .', IF(ht.topic_pid IS NULL, ht.topic, CONCAT_WS(" / ", ht2.topic, ht.topic)) as name '
             .' FROM '.TOPIC_TABLE.' ht '
-            .' LEFT JOIN '.TOPIC_TABLE.' ht2 ON(ht2.topic_id=ht.topic_pid) '
             .' WHERE ht.topic_id='.db_input($id);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -47,6 +46,10 @@ class Topic {
 
         $this->page = $this->form = null;
 
+        // Handle upgrade case where sort has not yet been defined
+        if (!$this->ht['sort'] && $cfg->getTopicSortMode() == 'a') {
+            static::updateSortOrder();
+        }
 
         return true;
     }
@@ -75,7 +78,7 @@ class Topic {
     }
 
     function getName() {
-        return $this->ht['name'];
+        return $this->ht['topic'];
     }
 
     function getFullName() {
@@ -194,8 +197,7 @@ class Topic {
 
         if (!$names) {
             $sql = 'SELECT topic_id, topic_pid, ispublic, isactive, topic FROM '.TOPIC_TABLE
-                . ' ORDER BY '
-                . ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
+                . ' ORDER BY `sort`';
             $res = db_query($sql);
 
             // Fetch information for all topics, in declared sort order
@@ -216,10 +218,9 @@ class Topic {
                 }
                 $names[$id] = $name;
             }
-
-            if ($cfg->getTopicSortMode() == 'a')
-                uasort($names, function($a, $b) { return strcmp($a, $b); });
         }
+        if ($disabled && !$publicOnly)
+            return $names;
 
         // Apply requested filters
         $requested_names = array();
@@ -298,23 +299,46 @@ class Topic {
         else
             $sql.=',staff_id=0, team_id=0 '; //no auto-assignment!
 
-        if($id) {
+        $rv = false;
+        if ($id) {
             $sql='UPDATE '.TOPIC_TABLE.' SET '.$sql.' WHERE topic_id='.db_input($id);
-            if(db_query($sql))
-                return true;
-
-            $errors['err']='Unable to update topic. Internal error occurred';
+            if (!($rv = db_query($sql)))
+                $errors['err']='Unable to update topic. Internal error occurred';
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
+            if ($vars['pid'] && $cfg->getTopicSortMode() != 'a') {
+                $sql .= ', `sort`='.db_input(
+                    db_result(db_query('SELECT COALESCE(`sort`,0)+1 FROM '.TOPIC_TABLE
+                        .' WHERE `topic_id`='.db_input($vars['pid']))));
+            }
+
             $sql='INSERT INTO '.TOPIC_TABLE.' SET '.$sql.',created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
-
-            $errors['err']='Unable to create the topic. Internal error';
+            if (db_query($sql) && ($id = db_insert_id()))
+                $rv = $id;
+            else
+                $errors['err']='Unable to create the topic. Internal error';
         }
+        if ($cfg->getTopicSortMode() == 'a') {
+            static::updateSortOrder();
+        }
+        return $rv;
+    }
 
-        return false;
+    static function updateSortOrder() {
+        // Fetch (un)sorted names
+        $names = static::getHelpTopics(false, true);
+        uasort($names, function($a, $b) { return strcmp($a, $b); });
+
+        $update = array_keys($names);
+        foreach ($update as $idx=>&$id) {
+            $id = sprintf("(%s,%s)", db_input($id), db_input($idx+1));
+        }
+        // Thanks, http://stackoverflow.com/a/3466
+        $sql = sprintf('INSERT INTO `%s` (topic_id,`sort`) VALUES %s
+            ON DUPLICATE KEY UPDATE `sort`=VALUES(`sort`)',
+            TOPIC_TABLE, implode(',', $update));
+        db_query($sql);
     }
 }
 

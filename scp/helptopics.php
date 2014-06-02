@@ -100,7 +100,7 @@ if($_POST){
                                 foreach ($_POST as $k=>$v) {
                                     if (strpos($k, 'sort-') === 0
                                             && is_numeric($v)
-                                            && $t = Topic::lookup(substr($k, 5)))
+                                            && ($t = Topic::lookup(substr($k, 5))))
                                         $t->setSortOrder($v);
                                 }
                             }

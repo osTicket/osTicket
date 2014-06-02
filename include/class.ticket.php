@@ -248,7 +248,7 @@ class Ticket {
     function getHelpTopic() {
 
         if(!$this->ht['helptopic'] && ($topic=$this->getTopic()))
-            $this->ht['helptopic'] = $topic->getName();
+            $this->ht['helptopic'] = $topic->getFullName();
 
         return $this->ht['helptopic'];
     }
