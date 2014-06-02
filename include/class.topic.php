@@ -83,7 +83,7 @@ class Topic {
     }
 
     static function getTopicName($id) {
-        $names = static::getHelpTopics();
+        $names = static::getHelpTopics(false, true);
         return $names[$id];
     }
 
@@ -188,43 +188,51 @@ class Topic {
         return self::save(0, $vars, $errors);
     }
 
-    static function getHelpTopics($publicOnly=false) {
+    static function getHelpTopics($publicOnly=false, $disabled=false) {
         global $cfg;
-        static $names;
+        static $topics, $names;
 
-        if ($names) return $names;
+        if (!$names) {
+            $sql = 'SELECT topic_id, topic_pid, ispublic, isactive, topic FROM '.TOPIC_TABLE
+                . ' ORDER BY '
+                . ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
+            $res = db_query($sql);
 
-        $sql = 'SELECT topic_id, topic_pid, ispublic, topic FROM '.TOPIC_TABLE
-            . ' WHERE isactive=1';
+            // Fetch information for all topics, in declared sort order
+            $topics = array();
+            while (list($id, $pid, $pub, $act, $topic) = db_fetch_row($res))
+                $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
+                    'disabled'=>!$act, 'topic'=>$topic);
 
-        $sql .= ' ORDER BY '
-            . ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
-        $res = db_query($sql);
-
-        // Fetch information for all topics, in declared sort order
-        $topics = array();
-        while (list($id, $pid, $pub, $topic) = db_fetch_row($res))
-            $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
-                'topic'=>$topic);
-
-        // Resolve parent names
-        foreach ($topics as $id=>$info) {
-            if ($publicOnly && !$info['public'])
-                continue;
-            $name = $info['topic'];
-            $loop = array($id=>true);
-            while ($info['pid'] && ($info = $topics[$info['pid']])) {
-                $name = sprintf('%s / %s', $info['topic'], $name);
-                if (isset($loop[$info['pid']]))
-                    break;
-                $loop[$info['pid']] = true;
+            // Resolve parent names
+            foreach ($topics as $id=>$info) {
+                $name = $info['topic'];
+                $loop = array($id=>true);
+                while ($info['pid'] && ($info = $topics[$info['pid']])) {
+                    $name = sprintf('%s / %s', $info['topic'], $name);
+                    if (isset($loop[$info['pid']]))
+                        break;
+                    $loop[$info['pid']] = true;
+                }
+                $names[$id] = $name;
             }
-            $names[$id] = $name;
+
+            if ($cfg->getTopicSortMode() == 'a')
+                uasort($names, function($a, $b) { return strcmp($a, $b); });
         }
 
-        if ($cfg->getTopicSortMode() == 'a')
-            uasort($names, function($a, $b) { return strcmp($a, $b); });
-        return $names;
+        // Apply requested filters
+        $requested_names = array();
+        foreach ($names as $id=>$n) {
+            $info = $topics[$id];
+            if ($publicOnly && !$info['public'])
+                continue;
+            if (!$disabled && $info['disabled'])
+                continue;
+            $requested_names[$id] = $n;
+        }
+
+        return $requested_names;
     }
 
     function getPublicHelpTopics() {
