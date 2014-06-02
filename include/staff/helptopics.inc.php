@@ -41,7 +41,7 @@ $topics = array_slice($topics, $pageNav->getStart(), $pageNav->getLimit()+2);
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
     <b><a href="helptopics.php?a=add" class="Icon newHelpTopic">Add New Help Topic</a></b></div>
 <div class="clear"></div>
-<form id="save" action="helptopics.php" method="POST" name="topics">
+<form action="helptopics.php" method="POST" name="topics">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
@@ -49,7 +49,11 @@ $topics = array_slice($topics, $pageNav->getStart(), $pageNav->getLimit()+2);
     <caption><span style="display:inline-block;vertical-align:middle"><?php
          echo $showing; ?></span>
     <div class="pull-right">Sorting Mode:
-        <select name="help_topic_sort_mode">
+        <select name="help_topic_sort_mode" onchange="javascript:
+    var $form = $(this).closest('form');
+    $form.find('input[name=a]').val('sort');
+    $form.submit();
+">
 <?php foreach (OsticketConfig::allTopicSortModes() as $i=>$m)
     echo sprintf('<option value="%s"%s>%s</option>',
         $i, $i == $cfg->getTopicSortMode() ? ' selected="selected"' : '', $m); ?>
@@ -132,10 +136,12 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input type="submit" name="submit" value="Save">
-    <input class="button" type="submit" name="enable" value="Enable" >
-    <input class="button" type="submit" name="disable" value="Disable">
-    <input class="button" type="submit" name="delete" value="Delete">
+<?php if ($cfg->getTopicSortMode() != 'a') { ?>
+    <input class="button no-confirm" type="submit" name="sort" value="Save"/>
+<?php } ?>
+    <button class="button" type="submit" name="enable" value="Enable" >Enable</button>
+    <button class="button" type="submit" name="disable" value="Disable">Disable</button>
+    <button class="button" type="submit" name="delete" value="Delete">Delete</button>
 </p>
 <?php
 endif;

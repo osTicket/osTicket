@@ -71,7 +71,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="pid">
-                    <option value="">&mdash; Select Parent Topic &mdash;</option><?php
+                    <option value="">&mdash; Top-Level Topic &mdash;</option><?php
                     $topics = Topic::getHelpTopics();
                     while (list($id,$topic) = each($topics)) {
                         if ($id == $info['topic_id'])

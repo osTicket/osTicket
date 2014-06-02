@@ -75,7 +75,7 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions input:submit.button').bind('click', function(e) {
+    $('#actions :submit.button:not(.no-confirm)').bind('click', function(e) {
 
         var formObj = $(this).closest('form');
         e.preventDefault();
@@ -136,7 +136,7 @@ var scp_prep = function() {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
-            $('input[type=submit][name="submit"]', fObj).css('color', 'red');
+            $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
                 return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
             });
