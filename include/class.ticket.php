@@ -2403,6 +2403,10 @@ class Ticket {
                 $form->setAnswer('priority', null, $email->getPriorityId());
             if ($autorespond)
                 $autorespond = $email->autoRespond();
+            if (!isset($topic)) {
+                // This may return NULL. No big deal
+                $topic = $email->getTopic();
+            }
             $email = null;
             $source = 'Email';
         }
@@ -2414,6 +2418,11 @@ class Ticket {
                 $vars['staffId'] = substr($code, 1);
             elseif (!isset($vars['teamId']) && $code[0] == 't')
                 $vars['teamId'] = substr($code, 1);
+        }
+
+        if (!isset($topic)) {
+            // This may return NULL, no big deal
+            $topic = $cfg->getDefaultTopic();
         }
 
         // Intenal mapping magic...see if we need to override anything

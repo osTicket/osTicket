@@ -432,6 +432,10 @@ class OsticketConfig extends Config {
         return $this->get('default_help_topic');
     }
 
+    function getDefaultTopic() {
+        return Topic::lookup($this->getDefaultTopicId());
+    }
+
     function getTopicSortMode() {
         return $this->get('help_topic_sort_mode');
     }

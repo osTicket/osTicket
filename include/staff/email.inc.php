@@ -127,7 +127,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
 		<span>
 			<select name="topic_id">
-			    <option value="0" selected="selected">&mdash; None &mdash;</option>
+			    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
 			    <?php
                     $topics = Topic::getHelpTopics();
                     while (list($id,$topic) = each($topics)) { ?>
