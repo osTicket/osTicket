@@ -70,7 +70,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Parent Topic:
             </td>
             <td>
-                <select name="pid">
+                <select name="topic_pid">
                     <option value="">&mdash; Top-Level Topic &mdash;</option><?php
                     $topics = Topic::getAllHelpTopics();
                     while (list($id,$topic) = each($topics)) {

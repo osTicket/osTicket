@@ -271,7 +271,7 @@ class Topic {
             $errors['topic']='Help topic required';
         elseif(strlen($vars['topic'])<5)
             $errors['topic']='Topic is too short. 5 chars minimum';
-        elseif(($tid=self::getIdByName($vars['topic'], $vars['pid'])) && $tid!=$id)
+        elseif(($tid=self::getIdByName($vars['topic'], $vars['topic_pid'])) && $tid!=$id)
             $errors['topic']='Topic already exists';
 
         if (!is_numeric($vars['dept_id']))
@@ -279,13 +279,13 @@ class Topic {
 
         if($errors) return false;
 
-        foreach (array('sla_id','form_id','page_id','pid') as $f)
+        foreach (array('sla_id','form_id','page_id','topic_pid') as $f)
             if (!isset($vars[$f]))
                 $vars[$f] = 0;
 
         $sql=' updated=NOW() '
             .',topic='.db_input($vars['topic'])
-            .',topic_pid='.db_input($vars['pid'])
+            .',topic_pid='.db_input($vars['topic_pid'])
             .',dept_id='.db_input($vars['dept_id'])
             .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
@@ -312,10 +312,10 @@ class Topic {
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
-            if ($vars['pid'] && $cfg->getTopicSortMode() != 'a') {
+            if ($vars['topic_pid'] && $cfg->getTopicSortMode() != 'a') {
                 $sql .= ', `sort`='.db_input(
                     db_result(db_query('SELECT COALESCE(`sort`,0)+1 FROM '.TOPIC_TABLE
-                        .' WHERE `topic_id`='.db_input($vars['pid']))));
+                        .' WHERE `topic_id`='.db_input($vars['topic_pid']))));
             }
 
             $sql='INSERT INTO '.TOPIC_TABLE.' SET '.$sql.',created=NOW()';
