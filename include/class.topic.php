@@ -240,6 +240,10 @@ class Topic {
         return self::getHelpTopics(true);
     }
 
+    function getAllHelpTopics() {
+        return self::getHelpTopics(false, true);
+    }
+
     function getIdByName($name, $pid=0) {
 
         $sql='SELECT topic_id FROM '.TOPIC_TABLE
@@ -256,6 +260,7 @@ class Topic {
     }
 
     function save($id, $vars, &$errors) {
+        global $cfg;
 
         $vars['topic']=Format::striptags(trim($vars['topic']));
 

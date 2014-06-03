@@ -72,7 +72,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <select name="pid">
                     <option value="">&mdash; Top-Level Topic &mdash;</option><?php
-                    $topics = Topic::getHelpTopics();
+                    $topics = Topic::getAllHelpTopics();
                     while (list($id,$topic) = each($topics)) {
                         if ($id == $info['topic_id'])
                             continue; ?>
