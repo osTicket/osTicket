@@ -23,6 +23,8 @@ class Topic {
     var $page;
     var $form;
 
+    const DISPLAY_DISABLED = 2;
+
     function Topic($id) {
         $this->id=0;
         $this->load($id);
@@ -250,8 +252,6 @@ class Topic {
                 $names[$id] = $name;
             }
         }
-        if ($disabled && !$publicOnly)
-            return $names;
 
         // Apply requested filters
         $requested_names = array();
@@ -261,6 +261,8 @@ class Topic {
                 continue;
             if (!$disabled && $info['disabled'])
                 continue;
+            if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
+                $n .= " &mdash; (disabled)";
             $requested_names[$id] = $n;
         }
 

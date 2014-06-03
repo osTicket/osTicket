@@ -931,7 +931,7 @@ class OsticketConfig extends Config {
 
         if($vars['enable_captcha']) {
             if (!extension_loaded('gd'))
-                $errors['enable_captcha']='The GD extension required';
+                $errors['enable_captcha']='The GD extension is required';
             elseif(!function_exists('imagepng'))
                 $errors['enable_captcha']='PNG support required for Image Captcha';
         }
@@ -957,7 +957,11 @@ class OsticketConfig extends Config {
                 $errors['max_staff_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
         }
 
-
+        if ($vars['default_help_topic']
+                && ($T = Topic::lookup($vars['default_help_topic']))
+                && !$T->isActive()) {
+            $errors['default_help_topic'] = 'Default help topic must be set to active';
+        }
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
