@@ -2403,9 +2403,10 @@ class Ticket {
                 $form->setAnswer('priority', null, $email->getPriorityId());
             if ($autorespond)
                 $autorespond = $email->autoRespond();
-            if (!isset($topic)) {
-                // This may return NULL. No big deal
-                $topic = $email->getTopic();
+            if (!isset($topic)
+                    && ($T = $email->getTopic())
+                    && ($T->isActive())) {
+                $topic = $T;
             }
             $email = null;
             $source = 'Email';
