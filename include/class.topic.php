@@ -137,11 +137,33 @@ class Topic {
     }
 
     function isEnabled() {
-         return ($this->ht['isactive']);
+        return $this->isActive();
     }
 
-    function isActive() {
-        return $this->isEnabled();
+    /**
+     * Determine if the help topic is currently enabled. The ancestry of
+     * this topic will be considered to see if any of the parents are
+     * disabled. If any are disabled, then this topic will be considered
+     * disabled.
+     *
+     * Parameters:
+     * $chain - array<id:bool> recusion chain used to detect loops. The
+     *      chain should be maintained and passed to a parent's ::isActive()
+     *      method. When consulting a parent, if the local topic ID is a key
+     *      in the chain, then this topic has already been considered, and
+     *      there is a loop in the ancestry
+     */
+    function isActive(array $chain=array()) {
+        if (!$this->ht['isactive'])
+            return false;
+
+        if (!isset($chain[$this->getId()]) && ($p = $this->getParent())) {
+            $chain[$this->getId()] = true;
+            return $p->isActive($chain);
+        }
+        else {
+            return $this->ht['isactive'];
+        }
     }
 
     function isPublic() {
@@ -210,11 +232,16 @@ class Topic {
             foreach ($topics as $id=>$info) {
                 $name = $info['topic'];
                 $loop = array($id=>true);
+                $parent = false;
                 while ($info['pid'] && ($info = $topics[$info['pid']])) {
                     $name = sprintf('%s / %s', $info['topic'], $name);
+                    if ($parent && $parent['disabled'])
+                        // Cascade disabled flag
+                        $topics[$id]['disabled'] = true;
                     if (isset($loop[$info['pid']]))
                         break;
                     $loop[$info['pid']] = true;
+                    $parent = $info;
                 }
                 $names[$id] = $name;
             }
