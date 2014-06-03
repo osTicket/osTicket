@@ -68,7 +68,8 @@ if($_POST){
                         break;
                     case 'disable':
                         $sql='UPDATE '.TOPIC_TABLE.' SET isactive=0 '
-                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')'
+                            .' AND topic_id <> '.db_input($cfg->getDefaultTopicId());
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
                                 $msg = 'Selected help topics disabled';

@@ -198,6 +198,10 @@ class Topic {
     }
 
     function delete() {
+        global $cfg;
+
+        if ($this->getId() == $cfg->getDefaultTopicId())
+            return false;
 
         $sql='DELETE FROM '.TOPIC_TABLE.' WHERE topic_id='.db_input($this->getId()).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
