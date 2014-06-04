@@ -24,6 +24,10 @@ class Dept {
 
     var $ht;
 
+    const ALERTS_DISABLED = 2;
+    const ALERTS_DEPT_AND_GROUPS = 1;
+    const ALERTS_DEPT_ONLY = 0;
+
     function Dept($id) {
         $this->id=0;
         $this->load($id);
@@ -108,9 +112,10 @@ class Dept {
                 .' LEFT JOIN '.GROUP_TABLE.' g ON (g.group_id=s.group_id) '
                 .' LEFT JOIN '.GROUP_DEPT_TABLE.' gd ON(s.group_id=gd.group_id) '
                 .' INNER JOIN '.DEPT_TABLE.' d
-                       ON(d.dept_id=s.dept_id
+                       ON ( d.dept_id=s.dept_id
                             OR d.manager_id=s.staff_id
-                            OR (d.dept_id=gd.dept_id AND d.group_membership=1)
+                            OR (d.dept_id=gd.dept_id AND d.group_membership='.
+                                self::ALERTS_DEPT_AND_GROUPS.')
                         ) '
                 .' WHERE d.dept_id='.db_input($this->getId());
 
@@ -142,7 +147,7 @@ class Dept {
     }
 
     function getMembersForAlerts() {
-        if ($this->isGroupMembershipEnabled() == 2) {
+        if ($this->isGroupMembershipEnabled() == self::ALERTS_DISABLED) {
             // Disabled for this department
             $rv = array();
         }
@@ -432,7 +437,7 @@ class Dept {
             .' ,manager_id='.db_input($vars['manager_id']?$vars['manager_id']:0)
             .' ,dept_name='.db_input(Format::striptags($vars['name']))
             .' ,dept_signature='.db_input(Format::sanitize($vars['signature']))
-            .' ,group_membership='.db_input(isset($vars['group_membership'])?1:0)
+            .' ,group_membership='.db_input($vars['group_membership'])
             .' ,ticket_auto_response='.db_input(isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1)
             .' ,message_auto_response='.db_input(isset($vars['message_auto_response'])?$vars['message_auto_response']:1);
 
