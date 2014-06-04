@@ -414,8 +414,17 @@ Class ThreadEntry {
 
     function getUser() {
 
-        if (!isset($this->user))
-            $this->user = User::lookup($this->getUserId());
+        if (!isset($this->user)) {
+            if (!($ticket = $this->getTicket()))
+                return null;
+
+            if ($ticket->getOwnerId() == $ticket->getUserId())
+                $this->user = new TicketOwner(
+                    User::lookup($this->getUserId()), $ticket);
+            else
+                $this->user = Collborator::lookup(array(
+                    'userId'=>$this->getUserId(), 'ticketId'=>$this->getTicketId()));
+        }
 
         return $this->user;
     }
