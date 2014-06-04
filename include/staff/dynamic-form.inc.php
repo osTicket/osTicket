@@ -154,7 +154,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#field-config').show();
                         return false;
                     "><i class="icon-edit"></i> Config</a>
-            <?php } ?></td>
+            <?php } ?>
+            <div class="error" style="white-space:normal"><?php
+                if ($ferrors['type']) echo $ferrors['type'];
+            ?></div>
+            </td>
             <td><input type="checkbox" name="private-<?php echo $id; ?>"
                 <?php if ($f->get('private')) echo 'checked="checked"'; ?>
                 <?php echo $force_privacy ?>/></td>
