@@ -105,7 +105,7 @@ $tpl=$msgtemplates[$selected];
                 </div>
                 <input type="hidden" name="draft_id" value=""/>
                 <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
-                    class="richtext draft" data-draft-namespace="tpl.<?php echo $selected; ?>"
+                    class="richtext draft emailhtml" data-draft-namespace="tpl.<?php echo $selected; ?>"
                     data-draft-object-id="<?php echo $tpl_id; ?>"><?php echo $info['body']; ?></textarea>
             </td>
         </tr>

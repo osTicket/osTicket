@@ -497,7 +497,7 @@ class EmailTemplate {
         if ($errors)
             return false;
 
-        $vars['body'] = Format::sanitize($vars['body'], false);
+		$vars['body'] = Format::sanitize($vars['body'], false, true);
 
         if ($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() '

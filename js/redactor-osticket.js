@@ -225,6 +225,11 @@ $(function() {
                 'linebreaks': true,
                 'tabFocus': false
             };
+		if(el.hasClass('emailhtml')){
+            // For HTML in emails only deny SCRIPT and APPLET tags instead of the default list of tags:
+            // ["html", "head", "link", "body", "meta", "script", "style", "applet"]
+            options['deniedTags'] = ['script', 'applet'];
+        }
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {
