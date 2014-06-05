@@ -212,18 +212,11 @@ var scp_prep = function() {
                     var box = $('#response',fObj),
                         redactor = box.data('redactor');
                     if(canned.response) {
-                        if($('#append',fObj).is(':checked') &&  $('#response',fObj).val()) {
-                            if (redactor)
-                                redactor.insertHtml(canned.response);
-                            else
-                                box.val(box.val() + canned.response);
-                        }
-                        else {
-                            if (redactor)
-                                redactor.set(canned.response);
-                            else
-                                box.val(canned.response);
-                        }
+                        if (redactor)
+                            redactor.insertHtml(canned.response);
+                        else
+                            box.val(box.val() + canned.response);
+
                         if (redactor)
                             redactor.observeStart();
                     }
