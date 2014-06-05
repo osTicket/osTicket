@@ -38,6 +38,8 @@ if ($_POST) {
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
+        // Drop session-backed form data
+        unset($_SESSION[':form-data']);
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             session_write_close();

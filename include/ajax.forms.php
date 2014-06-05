@@ -14,9 +14,17 @@ class DynamicFormsAjaxAPI extends AjaxController {
     }
 
     function getFormsForHelpTopic($topic_id, $client=false) {
-        $topic = Topic::lookup($topic_id);
+        if (!($topic = Topic::lookup($topic_id)))
+            Http::response(404, 'No such help topic');
+
+        if ($_GET || isset($_SESSION[':form-data'])) {
+            if (!is_array($_SESSION[':form-data']))
+                $_SESSION[':form-data'] = array();
+            $_SESSION[':form-data'] = array_merge($_SESSION[':form-data'], $_GET);
+        }
+
         if ($form = $topic->getForm())
-            $form->render(!$client);
+            $form->getForm($_SESSION[':form-data'])->render(!$client);
     }
 
     function getClientFormsForHelpTopic($topic_id) {

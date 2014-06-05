@@ -497,6 +497,7 @@ if($_POST && !$errors):
                         if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
+                        unset($_SESSION[':form-data']);
                     } elseif(!$errors['err']) {
                         $errors['err']='Unable to create the ticket. Correct the error(s) and try again';
                     }
