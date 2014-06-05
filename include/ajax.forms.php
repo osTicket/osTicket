@@ -15,8 +15,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
     function getFormsForHelpTopic($topic_id, $client=false) {
         $topic = Topic::lookup($topic_id);
-        if ($topic->ht['form_id']
-                && ($form = DynamicForm::lookup($topic->ht['form_id'])))
+        if ($form = $topic->getForm())
             $form->render(!$client);
     }
 

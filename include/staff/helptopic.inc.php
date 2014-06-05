@@ -16,6 +16,7 @@ if($topic && $_REQUEST['a']!='add') {
     $submit_text='Add Topic';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
+    $info['form_id'] = Topic::FORM_USE_PARENT;
     $qstr.='&a='.$_REQUEST['a'];
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -88,9 +89,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
            <td><strong>Custom Form</strong>:</td>
            <td><select name="form_id">
-               <option value="0">&mdash; No Extra Fields &mdash;</option>
+                <option value="0" <?php
+if ($info['form_id'] == '0') echo 'selected="selected"';
+                    ?>>&mdash; None &mdash;</option>
+                <option value="<?php echo Topic::FORM_USE_PARENT; ?>"  <?php
+if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
+                    ?>>&mdash; Use Parent Form &mdash;</option>
                <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>
-                   <option value="<?php echo $group->get('id'); ?>"
+                <option value="<?php echo $group->get('id'); ?>"
                        <?php if ($group->get('id') == $info['form_id'])
                             echo 'selected="selected"'; ?>>
                        <?php echo $group->get('title'); ?>

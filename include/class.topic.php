@@ -25,6 +25,8 @@ class Topic {
 
     const DISPLAY_DISABLED = 2;
 
+    const FORM_USE_PARENT = 4294967295;
+
     function Topic($id) {
         $this->id=0;
         $this->load($id);
@@ -128,8 +130,12 @@ class Topic {
     }
 
     function getForm() {
-        if(!$this->form && $this->getFormId())
-            $this->form = DynamicForm::lookup($this->getFormId());
+        $id = $this->getFormId();
+
+        if ($id == self::FORM_USE_PARENT && ($p = $this->getParent()))
+            $this->form = $p->getForm();
+        elseif ($id && !$this->form)
+            $this->form = DynamicForm::lookup($id);
 
         return $this->form;
     }
