@@ -21,7 +21,7 @@ site_pages:
         configure them in the company settings and help topics.
     links:
       - title: Company Settings
-        href: /scp/settings?t=pages
+        href: /scp/settings.php?t=pages
 
 type:
     title: Type
