@@ -86,6 +86,16 @@ class Email {
         return $this->dept;
     }
 
+    function getTopicId() {
+        return $this->ht['topic_id'];
+    }
+
+    function getTopic() {
+        // Topic::lookup will do validation on the ID, no need to duplicate
+        // code here
+        return Topic::lookup($this->getTopicId());
+    }
+
     function autoRespond() {
         return (!$this->ht['noautoresp']);
     }

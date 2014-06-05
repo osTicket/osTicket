@@ -248,7 +248,7 @@ class Ticket {
     function getHelpTopic() {
 
         if(!$this->ht['helptopic'] && ($topic=$this->getTopic()))
-            $this->ht['helptopic'] = $topic->getName();
+            $this->ht['helptopic'] = $topic->getFullName();
 
         return $this->ht['helptopic'];
     }
@@ -2403,6 +2403,11 @@ class Ticket {
                 $form->setAnswer('priority', null, $email->getPriorityId());
             if ($autorespond)
                 $autorespond = $email->autoRespond();
+            if (!isset($topic)
+                    && ($T = $email->getTopic())
+                    && ($T->isActive())) {
+                $topic = $T;
+            }
             $email = null;
             $source = 'Email';
         }
@@ -2414,6 +2419,11 @@ class Ticket {
                 $vars['staffId'] = substr($code, 1);
             elseif (!isset($vars['teamId']) && $code[0] == 't')
                 $vars['teamId'] = substr($code, 1);
+        }
+
+        if (!isset($topic)) {
+            // This may return NULL, no big deal
+            $topic = $cfg->getDefaultTopic();
         }
 
         // Intenal mapping magic...see if we need to override anything

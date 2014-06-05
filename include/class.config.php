@@ -165,6 +165,8 @@ class OsticketConfig extends Config {
         'clients_only' => false,
         'client_registration' => 'closed',
         'accept_unregistered_email' => true,
+        'default_help_topic' => 0,
+        'help_topic_sort_mode' => 'a',
     );
 
     function OsticketConfig($section=null) {
@@ -424,6 +426,34 @@ class OsticketConfig extends Config {
             $this->defaultPriority = Priority::lookup($this->getDefaultPriorityId());
 
         return $this->defaultPriority;
+    }
+
+    function getDefaultTopicId() {
+        return $this->get('default_help_topic');
+    }
+
+    function getDefaultTopic() {
+        return Topic::lookup($this->getDefaultTopicId());
+    }
+
+    function getTopicSortMode() {
+        return $this->get('help_topic_sort_mode');
+    }
+
+    function setTopicSortMode($mode) {
+        $modes = static::allTopicSortModes();
+        if (!isset($modes[$mode]))
+            throw new InvalidArgumentException($mode
+                .': Unsupport help topic sort mode');
+
+        $this->update('help_topic_sort_mode', $mode);
+    }
+
+    static function allTopicSortModes() {
+        return array(
+            'a' => 'Alphabetically',
+            'm' => 'Manually',
+        );
     }
 
     function getDefaultTemplateId() {
@@ -901,7 +931,7 @@ class OsticketConfig extends Config {
 
         if($vars['enable_captcha']) {
             if (!extension_loaded('gd'))
-                $errors['enable_captcha']='The GD extension required';
+                $errors['enable_captcha']='The GD extension is required';
             elseif(!function_exists('imagepng'))
                 $errors['enable_captcha']='PNG support required for Image Captcha';
         }
@@ -927,7 +957,11 @@ class OsticketConfig extends Config {
                 $errors['max_staff_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
         }
 
-
+        if ($vars['default_help_topic']
+                && ($T = Topic::lookup($vars['default_help_topic']))
+                && !$T->isActive()) {
+            $errors['default_help_topic'] = 'Default help topic must be set to active';
+        }
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -938,6 +972,7 @@ class OsticketConfig extends Config {
         return $this->updateAll(array(
             'random_ticket_ids'=>$vars['random_ticket_ids'],
             'default_priority_id'=>$vars['default_priority_id'],
+            'default_help_topic'=>$vars['default_help_topic'],
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],

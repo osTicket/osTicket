@@ -127,16 +127,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
 		<span>
 			<select name="topic_id">
-			    <option value="0" selected="selected">&mdash; None &mdash;</option>
+			    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
 			    <?php
-			    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE.' T ORDER by topic';
-			    if(($res=db_query($sql)) && db_num_rows($res)){
-				while(list($id,$name)=db_fetch_row($res)){
-				    $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
-				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-				}
-			    }
-			    ?>
+                    $topics = Topic::getHelpTopics();
+                    while (list($id,$topic) = each($topics)) { ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($info['topic_id']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
+                    <?php
+                    } ?>
 			</select>
 			<i class="help-tip icon-question-sign" href="#new_ticket_help_topic"></i>
 		</span>

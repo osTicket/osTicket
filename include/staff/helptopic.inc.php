@@ -16,6 +16,7 @@ if($topic && $_REQUEST['a']!='add') {
     $submit_text='Add Topic';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
+    $info['form_id'] = Topic::FORM_USE_PARENT;
     $qstr.='&a='.$_REQUEST['a'];
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -70,19 +71,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Parent Topic:
             </td>
             <td>
-                <select name="pid">
-                    <option value="">&mdash; Select Parent Topic &mdash;</option>
+                <select name="topic_pid">
+                    <option value="">&mdash; Top-Level Topic &mdash;</option><?php
+                    $topics = Topic::getAllHelpTopics();
+                    while (list($id,$topic) = each($topics)) {
+                        if ($id == $info['topic_id'])
+                            continue; ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($info['topic_pid']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
                     <?php
-                    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE
-                        .' WHERE topic_pid=0 '
-                        .' ORDER by topic';
-                    if(($res=db_query($sql)) && db_num_rows($res)) {
-                        while(list($id, $name)=db_fetch_row($res)) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, (($info['pid'] && $id==$info['pid'])?'selected="selected"':'') ,$name);
-                        }
-                    }
-                    ?>
+                    } ?>
                 </select> <i class="help-tip icon-question-sign" href="#parent_topic"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
@@ -92,9 +89,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
            <td><strong>Custom Form</strong>:</td>
            <td><select name="form_id">
-               <option value="0">&mdash; No Extra Fields &mdash;</option>
+                <option value="0" <?php
+if ($info['form_id'] == '0') echo 'selected="selected"';
+                    ?>>&mdash; None &mdash;</option>
+                <option value="<?php echo Topic::FORM_USE_PARENT; ?>"  <?php
+if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
+                    ?>>&mdash; Use Parent Form &mdash;</option>
                <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>
-                   <option value="<?php echo $group->get('id'); ?>"
+                <option value="<?php echo $group->get('id'); ?>"
                        <?php if ($group->get('id') == $info['form_id'])
                             echo 'selected="selected"'; ?>>
                        <?php echo $group->get('title'); ?>

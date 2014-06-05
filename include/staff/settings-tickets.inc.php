@@ -64,6 +64,20 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
              </td>
         </tr>
         <tr>
+            <td width="180">Default Help Topic:</td>
+            <td>
+                <select name="default_help_topic">
+                    <option value="0">&mdash; None &mdash;</option><?php
+                    $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+                    while (list($id,$topic) = each($topics)) { ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($config['default_help_topic']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
+                    <?php
+                    } ?>
+                </select><br/>
+                <span class="error"><?php echo $errors['default_help_topic']; ?></span>
+            </td>
+        </tr>
+        <tr>
             <td>Maximum <b>Open</b> Tickets:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
@@ -88,7 +102,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td>Claim on Response:</td>
             <td>
                 <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
-                &nbsp;Enable&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
+                Enable&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
             </td>
         </tr>
         <tr>

@@ -3,6 +3,9 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die(
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
+if (!$info['topicId'])
+    $info['topicId'] = $cfg->getDefaultTopicId();
+
 $form = null;
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     $form = $topic->getForm();
@@ -124,8 +127,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             </td>
             <td>
                 <select name="topicId" onchange="javascript:
+                        var data = $(':input[name]', '#dynamic-form').serialize();
                         $('#dynamic-form').load(
-                            'ajax.php/form/help-topic/' + this.value);
+                            'ajax.php/form/help-topic/' + this.value, data);
                         ">
                     <?php
                     if ($topics=Topic::getHelpTopics()) {

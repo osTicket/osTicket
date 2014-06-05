@@ -32,7 +32,6 @@ function checkbox_checker(formObj, min, max) {
 var scp_prep = function() {
 
     $("input:not(.dp):visible:enabled:first").focus();
-    $('table.list tbody tr:odd').addClass('odd');
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")
@@ -76,7 +75,7 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions input:submit.button').bind('click', function(e) {
+    $('#actions :submit.button:not(.no-confirm)').bind('click', function(e) {
 
         var formObj = $(this).closest('form');
         e.preventDefault();
@@ -437,6 +436,7 @@ var scp_prep = function() {
    // Sortable tables for dynamic forms objects
    $('.sortable-rows').sortable({
        'helper': fixHelper,
+       'cursor': 'move',
        'stop': function(e, ui) {
            var attr = ui.item.parent('tbody').data('sort');
            warnOnLeave(ui.item);

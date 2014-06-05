@@ -10,6 +10,9 @@ if($thisclient && $thisclient->isValid()) {
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 
 $form = null;
+if (!$info['topicId'])
+    $info['topicId'] = $cfg->getDefaultTopicId();
+
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     $form = $topic->getForm();
     if ($_POST && $form) {
@@ -30,8 +33,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         <td class="required">Help Topic:</td>
         <td>
             <select id="topicId" name="topicId" onchange="javascript:
+                    var data = $(':input[name]', '#dynamic-form').serialize();
                     $('#dynamic-form').load(
-                        'ajax.php/form/help-topic/' + this.value);
+                        'ajax.php/form/help-topic/' + this.value, data);
                     ">
                 <option value="" selected="selected">&mdash; Select a Help Topic &mdash;</option>
                 <?php
