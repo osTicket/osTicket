@@ -232,12 +232,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <span>
                 <select name="group_membership">
-                <option value="2" <?php echo $info['group_membership'] == 2 ?'selected="selected"':'';
-                    ?>>No one (disable Alerts &amp; Notices)</option>
-                    <option value="0" <?php echo $info['group_membership'] == 0 ?'selected="selected"':'';
-                    ?>>Department members only</option>
-                    <option value="1" <?php echo $info['group_membership'] == 1 ?'selected="selected"':'';
-                    ?>>Department and Group members</option>
+<?php foreach (array(
+    Dept::ALERTS_DISABLED =>        "No one (disable Alerts &amp; Notices)",
+    Dept::ALERTS_DEPT_ONLY =>       "Department members only",
+    Dept::ALERTS_DEPT_AND_GROUPS => "Department and Group members",
+) as $mode=>$desc) { ?>
+    <option value="<?php echo $mode; ?>" <?php
+        if ($info['group_membership'] == $mode) echo 'selected="selected"';
+    ?>><?php echo $desc; ?></option><?php
+} ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#group_membership"></i>
                 </span>
