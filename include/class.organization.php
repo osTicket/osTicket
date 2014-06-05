@@ -318,6 +318,11 @@ class Organization extends OrganizationModel {
             }
         }
 
+        // Send signal for search engine updating if not modifying the
+        // fields specific to the organization
+        if (count($this->dirty) === 0)
+            Signal::send('model.updated', $this);
+
         return $this->save();
     }
 

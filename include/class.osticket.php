@@ -457,6 +457,9 @@ class osTicket {
         // Bootstrap installed plugins
         $ost->plugins->bootstrap();
 
+        // Mirror content updates to the search backend
+        $ost->searcher = new SearchInterface();
+
         return $ost;
     }
 }

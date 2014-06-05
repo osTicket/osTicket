@@ -26,6 +26,10 @@ class UserEmailModel extends VerySimpleModel {
             )
         )
     );
+
+    function __toString() {
+        return $this->address;
+    }
 }
 
 class TicketModel extends VerySimpleModel {

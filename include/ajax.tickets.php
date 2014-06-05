@@ -98,7 +98,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function _search($req) {
-        global $thisstaff, $cfg;
+        global $thisstaff, $cfg, $ost;
 
         $result=array();
         $select = 'SELECT ticket.ticket_id';
@@ -189,27 +189,15 @@ class TicketsAjaxAPI extends AjaxController {
             $queryterm=db_real_escape($req['query'], false);
 
             // Setup sets of joins and queries
+            if ($s = $ost->searcher)
+               $ids = $s->find($req['query'], null, 'Ticket');
+
+            if (!$ids)
+                return array();
+
             $joins[] = array(
-                'from' =>
-                    'LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )',
-                'where' => "thread.title LIKE '%$queryterm%' OR thread.body LIKE '%$queryterm%'"
-            );
-            $joins[] = array(
-                'from' =>
-                    'LEFT JOIN '.FORM_ENTRY_TABLE.' tentry ON (tentry.object_id = ticket.ticket_id AND tentry.object_type="T")
-                    LEFT JOIN '.FORM_ANSWER_TABLE.' tans ON (tans.entry_id = tentry.id AND tans.value_id IS NULL)',
-                'where' => "tans.value LIKE '%$queryterm%'"
-            );
-            $joins[] = array(
-                'from' =>
-                   'LEFT JOIN '.FORM_ENTRY_TABLE.' uentry ON (uentry.object_id = ticket.user_id
-                   AND uentry.object_type="U")
-                   LEFT JOIN '.FORM_ANSWER_TABLE.' uans ON (uans.entry_id = uentry.id
-                   AND uans.value_id IS NULL)
-                   LEFT JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id)
-                   LEFT JOIN '.USER_EMAIL_TABLE.' uemail ON (user.id = uemail.user_id)',
-                'where' =>
-                    "uemail.address LIKE '%$queryterm%' OR user.name LIKE '%$queryterm%' OR uans.value LIKE '%$queryterm%'",
+                'from' => '',
+                'where' => 'ticket.ticket_id IN (' . implode(',', $ids) . ')'
             );
         }
 

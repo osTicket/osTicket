@@ -911,6 +911,14 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         return $this->getField()->display($this->getValue());
     }
 
+    function getSearchable($include_label=false) {
+        if ($include_label)
+            $label = Format::searchable($this->getField()->getLabel()) . " ";
+        return sprintf("%s%s", $label,
+            $this->getField()->searchable($this->getValue())
+        );
+    }
+
     function asVar() {
         return (is_object($this->getValue()))
             ? $this->getValue() : $this->toString();

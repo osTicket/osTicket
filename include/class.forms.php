@@ -338,6 +338,10 @@ class FormField {
         return $this->toString($this->getClean());
     }
 
+    function searchable($value) {
+        return Format::searchable($this->toString($value));
+    }
+
     function getLabel() { return $this->get('label'); }
 
     /**
@@ -619,6 +623,12 @@ class TextareaField extends FormField {
             return Format::safe_html($value);
         else
             return nl2br(Format::htmlchars($value));
+    }
+
+    function searchable($value) {
+        $value = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $value);
+        $value = Format::htmldecode(Format::striptags($value));
+        return Format::searchable($value);
     }
 
     function export($value) {
@@ -985,6 +995,11 @@ class PriorityField extends ChoiceField {
 
     function toString($value) {
         return ($value instanceof Priority) ? $value->getDesc() : $value;
+    }
+
+    function searchable($value) {
+        // Priority isn't searchable this way
+        return null;
     }
 
     function getConfigurationOptions() {

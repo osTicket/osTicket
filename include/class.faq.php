@@ -63,6 +63,10 @@ class FAQ {
     function getAnswerWithImages() {
         return Format::viewableImages($this->ht['answer'], ROOT_PATH.'image.php');
     }
+    function getSearchableAnswer() {
+        return ThreadBody::fromFormattedText($this->ht['answer'], 'html')
+            ->getSearchable();
+    }
     function getNotes() { return $this->ht['notes']; }
     function getNumAttachments() { return $this->ht['attachments']; }
 
@@ -153,9 +157,10 @@ class FAQ {
         if($ids)
             $sql.=' AND topic_id NOT IN('.implode(',', db_input($ids)).')';
 
-        db_query($sql);
+        if (!db_query($sql))
+            return false;
 
-        return true;
+        Signal::send('model.updated', $this);
     }
 
     function update($vars, &$errors) {
@@ -186,6 +191,7 @@ class FAQ {
 
         $this->reload();
 
+        Signal::send('model.updated', $this);
         return true;
     }
 
@@ -319,8 +325,10 @@ class FAQ {
 
         } else {
             $sql='INSERT INTO '.FAQ_TABLE.' SET '.$sql.',created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
+            if (db_query($sql) && ($id=db_insert_id())) {
+                Signal::send('model.created', FAQ::lookup($id));
                 return $id;
+            }
 
             $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ article'))
                .' '.__('Internal error occurred');

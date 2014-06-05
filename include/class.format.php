@@ -569,5 +569,58 @@ class Format {
         );
     }
 
+    // Performs Unicode normalization (where possible) and splits words at
+    // difficult word boundaries (for far eastern languages)
+    function searchable($text) {
+        if (function_exists('normalizer_normalize')) {
+            // Normalize text input :: remove diacritics and such
+            $text = normalizer_normalize($text, Normalizer::FORM_C);
+        }
+        else {
+            // As a lightweight compatiblity, use a lightweight C
+            // normalizer with diacritic removal, thanks
+            // http://ahinea.com/en/tech/accented-translate.html
+            $tr = array(
+                "ä" => "a", "ñ" => "n", "ö" => "o", "ü" => "u", "ÿ" => "y"
+            );
+            $text = strtr($text, $tr);
+        }
+        // Decompose compatible versions of characters (ä => ae)
+        $tr = array(
+            "ß" => "ss", "Æ" => "AE", "æ" => "ae", "Ĳ" => "IJ",
+            "ĳ" => "ij", "Œ" => "OE", "œ" => "oe", "Ð" => "D",
+            "Đ" => "D", "ð" => "d", "đ" => "d", "Ħ" => "H", "ħ" => "h",
+            "ı" => "i", "ĸ" => "k", "Ŀ" => "L", "Ł" => "L", "ŀ" => "l",
+            "ł" => "l", "Ŋ" => "N", "ŉ" => "n", "ŋ" => "n", "Ø" => "O",
+            "ø" => "o", "ſ" => "s", "Þ" => "T", "Ŧ" => "T", "þ" => "t",
+            "ŧ" => "t", "ä" => "ae", "ö" => "oe", "ü" => "ue",
+            "Ä" => "AE", "Ö" => "OE", "Ü" => "UE",
+        );
+        $text = strtr($text, $tr);
+
+        // Drop separated diacritics
+        $text = preg_replace('/\p{M}/u', '', $text);
+
+        // Drop extraneous whitespace
+        $text = preg_replace('/(\s)\s+/u', '$1', $text);
+
+        // Drop leading and trailing whitespace
+        $text = trim($text);
+
+        if (class_exists('IntlBreakIterator')) {
+            // Split by word boundaries
+            if ($tokenizer = IntlBreakIterator::createWordInstance()) {
+                $tokenizer->setText($text);
+                $text = implode(' ', $tokenizer);
+            }
+        }
+        else {
+            // Approximate word boundaries from Unicode chart at
+            // http://www.unicode.org/reports/tr29/#Word_Boundaries
+
+            // Punt for now
+        }
+        return $text;
+    }
 }
 ?>

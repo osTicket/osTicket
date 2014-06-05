@@ -194,6 +194,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
         require_once INCLUDE_DIR.'class.i18n.php';
+        require_once INCLUDE_DIR.'class.search.php';
     }
 
     function i18n_prep() {

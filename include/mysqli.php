@@ -189,6 +189,10 @@ function db_query($query, $logError=true, $buffered=true) {
     return $res;
 }
 
+function db_query_unbuffered($sql, $logError=false) {
+    return db_query($sql, $logError, true);
+}
+
 function db_squery($query) { //smart db query...utilizing args and sprintf
 
     $args  = func_get_args();

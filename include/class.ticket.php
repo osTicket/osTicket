@@ -115,11 +115,15 @@ class Ticket {
 
     function loadDynamicData() {
         if (!$this->_answers) {
-            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form)
-                foreach ($form->getAnswers() as $answer)
-                    if ($tag = mb_strtolower($answer->getField()->get('name')))
+            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
+                foreach ($form->getAnswers() as $answer) {
+                    $tag = mb_strtolower($answer->getField()->get('name'))
+                        ?: 'field.' . $answer->getField()->get('id');
                         $this->_answers[$tag] = $answer;
+                }
+            }
         }
+        return $this->_answers;
     }
 
     function reload() {
@@ -2062,6 +2066,17 @@ class Ticket {
                 $errors['duedate']=__('Due date must be in the future');
         }
 
+        // Validate dynamic meta-data
+        $forms = DynamicFormEntry::forTicket($this->getId());
+        foreach ($forms as $form) {
+            // Don't validate deleted forms
+            if (!in_array($form->getId(), $vars['forms']))
+                continue;
+            $form->setSource($_POST);
+            if (!$form->isValid())
+                $errors = array_merge($errors, $form->errors());
+        }
+
         if($errors) return false;
 
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
@@ -2089,6 +2104,19 @@ class Ticket {
         // Decide if we need to keep the just selected SLA
         $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
+        // Update dynamic meta-data
+        foreach ($forms as $f) {
+            // Drop deleted forms
+            $idx = array_search($f->getId(), $vars['forms']);
+            if ($idx === false) {
+                $f->delete();
+            }
+            else {
+                $f->set('sort', $idx);
+                $f->save();
+            }
+        }
+
         // Reload the ticket so we can do further checking
         $this->reload();
 
@@ -2105,6 +2133,7 @@ class Ticket {
             $this->clearOverdue();
         }
 
+        Signal::send('model.updated', $this);
         return true;
     }
 
@@ -2302,6 +2331,8 @@ class Ticket {
             return 0;
         };
 
+        Signal::send('ticket.create.before', null, $vars);
+
         // Create and verify the dynamic form entry for the new ticket
         $form = TicketForm::getNewInstance();
         // If submitting via email, ensure we have a subject and such
@@ -2463,6 +2494,8 @@ class Ticket {
         // Any error above is fatal.
         if ($errors)
             return 0;
+
+        Signal::send('ticket.create.validated', null, $vars);
 
         # Some things will need to be unpacked back into the scope of this
         # function
@@ -2676,6 +2709,9 @@ class Ticket {
 
         /* Start tracking ticket lifecycle events */
         $ticket->logEvent('created');
+
+        // Fire post-create signal (for extra email sending, searching)
+        Signal::send('model.created', $ticket);
 
         /* Phew! ... time for tea (KETEPA) */
 
