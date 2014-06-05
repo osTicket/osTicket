@@ -330,7 +330,10 @@ class DynamicFormField extends VerySimpleModel {
             array($this->getField(), $what), $args);
     }
 
-    function getField() {
+    function getField($cache=true) {
+        if (!$cache)
+            return new FormField($this->ht);
+
         if (!isset($this->_field))
             $this->_field = new FormField($this->ht);
         return $this->_field;
