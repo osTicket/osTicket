@@ -100,3 +100,14 @@ registration_method:
             <tr><td>Yes</td><td>Disabled</td>
                 <td>Disable new tickets via web portal</td></tr>
         </tbody></table>
+
+client_verify_email:
+    title: Require Email Verification
+    content: >
+        Disable this option to give your users immediate access to tickets
+        via the "Check Ticket Status" login page in the client portal. If
+        enabled, (which is the default), users will be required to receive
+        an email and follow a link in the email to view the ticket.
+        <br><br>
+        Disabling email verification might allow third-parties (e.g. ticket
+        collaborators) to impersonate the ticket owner.

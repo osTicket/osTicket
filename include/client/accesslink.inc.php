@@ -3,6 +3,11 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 
 $email=Format::input($_POST['lemail']?$_POST['lemail']:$_GET['e']);
 $ticketid=Format::input($_POST['lticket']?$_POST['lticket']:$_GET['t']);
+
+if ($cfg->isClientEmailVerificationRequired())
+    $button = "Email Access Link";
+else
+    $button = "View Ticket";
 ?>
 <h1>Check Ticket Status</h1>
 <p>Please provide us with your email address and a ticket number, and an access
@@ -24,7 +29,7 @@ link will be emailed to you.</p>
             size="30" value="<?php echo $ticketid; ?>"></td>
     </div>
     <p>
-        <input class="btn" type="submit" value="Email Access Link">
+        <input class="btn" type="submit" value="<?php echo $button; ?>">
     </p>
     </div>
     <div style="display:table-cell;padding-left: 2em;padding-right:90px;">

@@ -66,6 +66,12 @@ elseif ($_POST && isset($_POST['lticket'])) {
         $errors['err'] = 'Valid email address and ticket number required';
     elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
             $_POST['lticket'], $errors))) {
+
+        // If email address verification is not required, then provide
+        // immediate access to the ticket!
+        if (!$cfg->isClientEmailVerificationRequired())
+            Http::redirect('tickets.php');
+
         // We're using authentication backend so we can guard aganist brute
         // force attempts (which doesn't buy much since the link is emailed)
         $user->sendAccessLink();
