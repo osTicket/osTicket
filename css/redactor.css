@@ -337,7 +337,6 @@ body .redactor_box_fullscreen {
   white-space: nowrap;
 }
 .redactor_toolbar.redactor-toolbar-external {
-  z-index: 999;
   box-shadow: none;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -373,6 +372,7 @@ body .redactor_air .redactor_toolbar {
   outline: none;
   background-color: #1f78d8;
   color: #fff;
+  text-decoration: none;
 }
 .redactor_toolbar li a:hover i:before {
   color: #fff;
