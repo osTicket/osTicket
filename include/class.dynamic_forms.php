@@ -546,6 +546,16 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->_clean;
     }
 
+    function getSaved() {
+        $info = array();
+        foreach ($this->getAnswers() as $a) {
+            $field = $a->getField();
+            $info[$field->get('id')]
+                = $info[$field->get('name')] = $a->getValue();
+        }
+        return $info;
+    }
+
     function forTicket($ticket_id, $force=false) {
         static $entries = array();
         if (!isset($entries[$ticket_id]) || $force)
