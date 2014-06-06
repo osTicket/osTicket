@@ -51,6 +51,13 @@ if($_POST) {
                     $field->addError('Field variable name is not unique', 'name');
                 if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
                     $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
+                // Subject (Issue Summary) must always have data
+                if ($form->get('type') == 'T' && $field->get('name') == 'subject') {
+                    if (($f = $field->getField(false)->getImpl()) && !$f->hasData())
+                        $field->addError('The issue summary must be a field '
+                            .'that supports user input, such as short answer',
+                            'type');
+                }
                 if ($field->get('name'))
                     $names[] = $field->get('name');
                 if ($field->isValid())

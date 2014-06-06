@@ -1244,7 +1244,7 @@ class Ticket {
         if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
             return call_user_func(array($this, 'get'.ucfirst($tag)));
 
-        switch(strtolower($tag)) {
+        switch(mb_strtolower($tag)) {
             case 'phone':
             case 'phone_number':
                 return $this->getPhoneNumber();
@@ -1292,7 +1292,6 @@ class Ticket {
                 return $this->getOwner();
                 break;
             default:
-                $tag = mb_strtolower($tag);
                 if (isset($this->_answers[$tag]))
                     // The answer object is retrieved here which will
                     // automatically invoke the toString() method when the

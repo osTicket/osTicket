@@ -140,8 +140,8 @@ class Mail_Parse {
     /* static */ function splitHeaders($headers_text, $as_array=false) {
         $headers = preg_split("/\r?\n/", $headers_text);
         for ($i=0, $k=count($headers); $i<$k; $i++) {
-            # XXX: Might tabs be used here?
-            if (substr($headers[$i], 0, 1) == " ") {
+            // first char might be whitespace (" " or "\t")
+            if (in_array($headers[$i][0], array(" ", "\t"))) {
                 # Continuation from previous header (runon to next line)
                 $j=$i-1; while (!isset($headers[$j]) && $j>0) $j--;
                 $headers[$j] .= " ".ltrim($headers[$i]);
@@ -365,7 +365,7 @@ class Mail_Parse {
                     || !strcasecmp($part->ctype_primary,'application')))) {
 
             if (isset($part->d_parameters['filename']))
-                $filename = $part->d_parameters['filename'];
+                $filename = Format::mimedecode($part->d_parameters['filename'], $this->charset);
             elseif (isset($part->d_parameters['filename*']))
                 // Support RFC 6266, section 4.3 and RFC, and RFC 5987
                 $filename = Format::decodeRfc5987(
@@ -374,7 +374,7 @@ class Mail_Parse {
             // Support attachments that do not specify a content-disposition
             // but do specify a "name" parameter in the content-type header.
             elseif (isset($part->ctype_parameters['name']))
-                $filename = $part->ctype_parameters['name'];
+                $filename = Format::mimedecode($part->ctype_parameters['name'], $this->charset);
             elseif (isset($part->ctype_parameters['name*']))
                 $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
