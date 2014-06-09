@@ -243,18 +243,24 @@ abstract class AuthenticationBackend {
             // All backends are queried here, even if they don't support
             // authentication so that extensions like lockouts and audits
             // can be supported.
-            $result = $bk->signOn();
-            if ($result instanceof AuthenticatedUser) {
-                //Perform further Object specific checks and the actual login
-                if (!$bk->login($result, $bk))
-                    continue;
+            try {
+                $result = $bk->signOn();
+                if ($result instanceof AuthenticatedUser) {
+                    //Perform further Object specific checks and the actual login
+                    if (!$bk->login($result, $bk))
+                        continue;
 
-                return $result;
+                    return $result;
+                }
+                elseif ($result instanceof ClientCreateRequest
+                        && $bk instanceof UserAuthenticationBackend)
+                    return $result;
+                elseif ($result instanceof AccessDenied) {
+                    break;
+                }
             }
-            elseif ($result instanceof ClientCreateRequest
-                    && $bk instanceof UserAuthenticationBackend)
-                return $result;
-            elseif ($result instanceof AccessDenied) {
+            catch (AccessDenied $e) {
+                $result = $e;
                 break;
             }
         }
