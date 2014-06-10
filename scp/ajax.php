@@ -137,7 +137,8 @@ $dispatcher = patterns('',
         url_get('^lookup', 'lookup'),
         url_get('^search', 'search'),
         url_get('^(?P<tid>\d+)/forms/manage$', 'manageForms'),
-        url_post('^(?P<tid>\d+)/forms/manage$', 'updateForms')
+        url_post('^(?P<tid>\d+)/forms/manage$', 'updateForms'),
+        url_get('^(?P<tid>\d+)/canned-resp/(?P<cid>\w+).(?P<format>json|txt)', 'cannedResponse')
     )),
     url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),

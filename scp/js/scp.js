@@ -195,16 +195,18 @@ var scp_prep = function() {
 
     $('form select#cannedResp').change(function() {
 
-        var fObj=$(this).closest('form');
-        var cannedId = $(this).val();
-        var ticketId = $(':input[name=id]',fObj).val();
-
+        var fObj = $(this).closest('form');
+        var cid = $(this).val();
+        var tid = $(':input[name=id]',fObj).val();
         $(this).find('option:first').attr('selected', 'selected').parent('select');
+
+        var $url = 'ajax.php/kb/canned-response/'+cid+'.json';
+        if (tid)
+            $url =  'ajax.php/tickets/'+tid+'/canned-resp/'+cid+'.json';
 
         $.ajax({
                 type: "GET",
-                url: 'ajax.php/kb/canned-response/'+cannedId+'.json',
-                data: 'tid='+ticketId,
+                url: $url,
                 dataType: 'json',
                 cache: false,
                 success: function(canned){
