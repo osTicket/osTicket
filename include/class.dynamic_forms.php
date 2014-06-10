@@ -328,6 +328,14 @@ Filter::addSupportedMatches('Ticket Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
+        if (strpos($f->get('type'), 'list-') === 0) {
+            list(,$id) = explode('-', $f->get('type'));
+            foreach (DynamicList::lookup($id)->getProperties() as $p) {
+                if ($p->get('name'))
+                    $matches['field.'.$f->get('id').'.'.mb_strtolower($p->get('name'))]
+                        = 'Ticket / '.$f->getLabel().' / '.$p->getLabel();
+            }
+        }
     }
     return $matches;
 }, 30);
@@ -917,6 +925,12 @@ class DynamicList extends VerySimpleModel {
                 array('type'=>'L'.$this->get('id')));
         }
         return $this->_form;
+    }
+
+    function getProperties() {
+        if ($f = $this->getForm())
+            return $f->getFields();
+        return array();
     }
 
     function getForm() {
