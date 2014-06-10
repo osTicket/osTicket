@@ -18,7 +18,7 @@ if(!defined('INCLUDE_DIR')) die('!');
 
 class KbaseAjaxAPI extends AjaxController {
 
-    function cannedResp($id, $format='') {
+    function cannedResp($id, $format='text') {
         global $thisstaff, $cfg;
 
         include_once(INCLUDE_DIR.'class.canned.php');
@@ -26,39 +26,10 @@ class KbaseAjaxAPI extends AjaxController {
         if(!$id || !($canned=Canned::lookup($id)) || !$canned->isEnabled())
             Http::response(404, 'No such premade reply');
 
-        //Load ticket.
-        if($_GET['tid']) {
-            include_once(INCLUDE_DIR.'class.ticket.php');
-            $ticket = Ticket::lookup($_GET['tid']);
-        }
+        if (!$cfg->isHtmlThreadEnabled())
+            $format .= '.plain';
 
-        $resp = array();
-        switch($format) {
-            case 'json':
-                $resp['id'] = $canned->getId();
-                $resp['ticket'] = $canned->getTitle();
-                $resp['response'] = $ticket
-                    ? $ticket->replaceVars($canned->getResponseWithImages())
-                    : $canned->getResponseWithImages();
-                $resp['files'] = $canned->attachments->getSeparates();
-
-                if (!$cfg->isHtmlThreadEnabled()) {
-                    $resp['response'] = Format::html2text($resp['response'], 90);
-                    $resp['files'] += $canned->attachments->getInlines();
-                }
-
-                $response = $this->json_encode($resp);
-                break;
-
-            case 'txt':
-            default:
-                $response =$ticket?$ticket->replaceVars($canned->getResponse()):$canned->getResponse();
-
-                if (!$cfg->isHtmlThreadEnabled())
-                    $response = Format::html2text($response, 90);
-        }
-
-        return $response;
+        return $canned->getFormattedResponse($format);
     }
 
     function faq($id, $format='html') {

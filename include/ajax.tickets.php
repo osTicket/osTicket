@@ -657,5 +657,40 @@ class TicketsAjaxAPI extends AjaxController {
         Http::response(201, 'Successfully managed');
     }
 
+    function cannedResponse($tid, $cid, $format='text') {
+        global $thisstaff, $cfg;
+
+        if (!($ticket = Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket #');
+
+
+        if ($cid && !is_numeric($cid)) {
+            if (!($response=$ticket->getThread()->getVar($cid)))
+                Http::response(404, 'Unknown ticket variable');
+
+            // Ticket thread variables are assumed to be quotes
+            $response = "<br/><blockquote>$response</blockquote><br/>";
+            //  Return text if html thread is not enabled
+            if (!$cfg->isHtmlThreadEnabled())
+                $response = Format::html2text($response, 90);
+
+            // XXX: assuming json format for now.
+            return Format::json_encode(array('response' => $response));
+        }
+
+        if (!$cfg->isHtmlThreadEnabled())
+            $format.='.plain';
+
+        $varReplacer = function (&$var) use($ticket) {
+            return $ticket->replaceVars($var);
+        };
+
+        include_once(INCLUDE_DIR.'class.canned.php');
+        if (!$cid || !($canned=Canned::lookup($cid)) || !$canned->isEnabled())
+            Http::response(404, 'No such premade reply');
+
+        return $canned->getFormattedResponse($format, $varReplacer);
+    }
 }
 ?>

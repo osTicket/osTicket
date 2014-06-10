@@ -1670,9 +1670,16 @@ class Ticket {
         foreach ($canned->attachments->getAll() as $file)
             $files[] = $file['id'];
 
+        if ($cfg->isHtmlThreadEnabled())
+            $response = new HtmlThreadBody(
+                    $this->replaceVars($canned->getHtml()));
+        else
+            $response = new HtmlThreadBody(
+                    $this->replaceVars($canned->getPlainText()));
+
         $info = array('msgId' => $msgId,
                       'poster' => 'SYSTEM (Canned Reply)',
-                      'response' => $this->replaceVars($canned->getResponse()),
+                      'response' => $response,
                       'cannedattachments' => $files);
 
         $errors = array();
