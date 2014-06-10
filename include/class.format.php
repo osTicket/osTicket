@@ -99,6 +99,15 @@ class Format {
             return $filename;
     }
 
+    /**
+     * Json Encoder
+     *
+     */
+    function json_encode($what) {
+        require_once (INCLUDE_DIR.'class.json.php');
+        return JsonDataEncoder::encode($what);
+    }
+
 	function phone($phone) {
 
 		$stripped= preg_replace("/[^0-9]/", "", $phone);
