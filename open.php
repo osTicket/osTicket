@@ -69,8 +69,8 @@ if($ticket
             (($topic = $ticket->getTopic()) && ($page = $topic->getPage()))
             || ($page = $cfg->getThankYouPage())
         )) {
-    //Thank the user and promise speedy resolution!
-    echo Format::display($ticket->replaceVars($page->getBody()));
+    // Thank the user and promise speedy resolution!
+    echo Format::viewableImages($ticket->replaceVars($page->getBody()));
 }
 else {
     require(CLIENTINC_DIR.'open.inc.php');
