@@ -2411,15 +2411,6 @@ class Ticket {
             $source = 'Email';
         }
 
-        // Auto assignment to organization account manager
-        if (($org = $user->getOrganization())
-                && ($code = $org->getAccountManagerId())) {
-            if (!isset($vars['staffId']) && $code[0] == 's')
-                $vars['staffId'] = substr($code, 1);
-            elseif (!isset($vars['teamId']) && $code[0] == 't')
-                $vars['teamId'] = substr($code, 1);
-        }
-
         if (!isset($topic)) {
             // This may return NULL, no big deal
             $topic = $cfg->getDefaultTopic();
@@ -2446,6 +2437,16 @@ class Ticket {
                 $vars['slaId'] = $vars['slaId'] ?: $cfg->getDefaultSLAId();
             elseif ($topic && $topic->getSLAId())
                 $vars['slaId'] = $topic->getSLAId();
+        }
+
+        // Auto assignment to organization account manager
+        if (($org = $user->getOrganization())
+                && $org->autoAssignAccountManager()
+                && ($code = $org->getAccountManagerId())) {
+            if (!isset($vars['staffId']) && $code[0] == 's')
+                $vars['staffId'] = substr($code, 1);
+            elseif (!isset($vars['teamId']) && $code[0] == 't')
+                $vars['teamId'] = substr($code, 1);
         }
 
         // Last minute checks
