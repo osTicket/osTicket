@@ -71,6 +71,10 @@ class OrganizationModel extends VerySimpleModel {
         return $this->check(self::COLLAB_ALL_MEMBERS);
     }
 
+    function autoAssignAccountManager() {
+        return $this->check(self::ASSIGN_AGENT_MANAGER);
+    }
+
     function getUpdateDate() {
         return $this->updated;
     }
