@@ -198,8 +198,7 @@ class Organization extends OrganizationModel {
         foreach ($this->getDynamicData() as $entry) {
             if ($entry->getForm()->get('type') != 'O')
                 continue;
-            foreach ($entry->getFields() as $f)
-                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+            $vars += $entry->getFilterData();
             // Add special `name` field
             $f = $entry->getForm()->getField('name');
             $vars['field.'.$f->get('id')] = $this->getName();

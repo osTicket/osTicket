@@ -331,9 +331,8 @@ Filter::addSupportedMatches('Ticket Data', function() {
         if (strpos($f->get('type'), 'list-') === 0) {
             list(,$id) = explode('-', $f->get('type'));
             foreach (DynamicList::lookup($id)->getProperties() as $p) {
-                if ($p->get('name'))
-                    $matches['field.'.$f->get('id').'.'.mb_strtolower($p->get('name'))]
-                        = 'Ticket / '.$f->getLabel().' / '.$p->getLabel();
+                $matches['field.'.$f->get('id').'.'.$p->get('id')]
+                    = 'Ticket / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }
@@ -619,6 +618,39 @@ class DynamicFormEntry extends VerySimpleModel {
                     = $this->_clean[$field->get('name')] = $field->getClean();
         }
         return $this->_clean;
+    }
+
+    /**
+     * Compile a list of data used by the filtering system to match dynamic
+     * content in this entry. This returs an array of `field.<id>` =>
+     * <value> pairs where the <id> is the field id and the <value> is the
+     * toString() value for the entered data.
+     *
+     * If the field returns an array for its ::getFilterData() method, the
+     * data will be added in the array with the keys prefixed with
+     * `field.<id>`. This is useful for properties on custom lists, for
+     * instance, which can contain properties usefule for matching and
+     * filtering.
+     */
+    function getFilterData() {
+        $vars = array();
+        foreach ($this->getFields() as $f) {
+            $tag = 'field.'.$f->get('id');
+            if ($d = $f->getFilterData()) {
+                if (is_array($d)) {
+                    foreach ($d as $k=>$v) {
+                        if (is_string($k))
+                            $vars["$tag$k"] = $v;
+                        else
+                            $vars[$tag] = $v;
+                    }
+                }
+                else {
+                    $vars[$tag] = $d;
+                }
+            }
+        }
+        return $vars;
     }
 
     function forTicket($ticket_id, $force=false) {
@@ -1037,6 +1069,17 @@ class DynamicListItem extends VerySimpleModel {
         return $this->_config;
     }
 
+    function getFilterData() {
+        $raw = $this->getConfiguration();
+        $props = array();
+        foreach ($this->getConfigurationForm()->getFields() as $field) {
+            $tag = $field->get('id');
+            if (isset($raw[$tag]))
+                $props[".$tag"] = $field->toString($raw[$tag]);
+        }
+        return $props;
+    }
+
     function setConfiguration(&$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm()->getFields() as $field) {
@@ -1178,6 +1221,14 @@ class SelectionField extends FormField {
                 && ($item = DynamicListItem::lookup($value)))
             return $item->toString();
         return $value;
+    }
+
+    function getFilterData() {
+        $data = array(parent::getFilterData());
+        if (($v = $this->getClean()) instanceof DynamicListItem) {
+            $data = array_merge($data, $v->getFilterData());
+        }
+        return $data;
     }
 }
 

@@ -322,6 +322,14 @@ class FormField {
         return $this->toString($value);
     }
 
+    /**
+     * Convert the field data to something matchable by filtering. The
+     * primary use of this is for ticket filtering.
+     */
+    function getFilterData() {
+        return $this->toString($this->getClean());
+    }
+
     function getLabel() { return $this->get('label'); }
 
     /**
