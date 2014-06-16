@@ -244,6 +244,12 @@ Filter::addSupportedMatches('User Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = 'User / '.$f->getLabel();
+        if (($fi = $f->getImpl()) instanceof SelectionField) {
+            foreach ($fi->getList()->getProperties() as $p) {
+                $matches['field.'.$f->get('id').'.'.$p->get('id')]
+                    = 'User / '.$f->getLabel().' / '.$p->getLabel();
+            }
+        }
     }
     return $matches;
 }, 20);
@@ -328,9 +334,8 @@ Filter::addSupportedMatches('Ticket Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
-        if (strpos($f->get('type'), 'list-') === 0) {
-            list(,$id) = explode('-', $f->get('type'));
-            foreach (DynamicList::lookup($id)->getProperties() as $p) {
+        if (($fi = $f->getImpl()) instanceof SelectionField) {
+            foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = 'Ticket / '.$f->getLabel().' / '.$p->getLabel();
             }

@@ -426,6 +426,12 @@ Filter::addSupportedMatches('Organization Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = 'Organization / '.$f->getLabel();
+        if (($fi = $f->getImpl()) instanceof SelectionField) {
+            foreach ($fi->getList()->getProperties() as $p) {
+                $matches['field.'.$f->get('id').'.'.$p->get('id')]
+                    = 'Organization / '.$f->getLabel().' / '.$p->getLabel();
+            }
+        }
     }
     return $matches;
 },40);
