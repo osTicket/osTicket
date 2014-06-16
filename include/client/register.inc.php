@@ -22,8 +22,8 @@ your account
 </p>
 <form action="account.php" method="post">
   <?php csrf_token(); ?>
-  <input type="hidden" name="do" value="<?php echo $_REQUEST['do']
-    ?: ($info['backend'] ? 'import' :'create'); ?>" />
+  <input type="hidden" name="do" value="<?php echo Format::htmlchars($_REQUEST['do']
+    ?: ($info['backend'] ? 'import' :'create')); ?>" />
 <table width="800" class="padded">
 <tbody>
 <?php
