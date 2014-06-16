@@ -13,6 +13,7 @@ if (isset($user) && $user instanceof ClientCreateRequest) {
         'username' => $user->getUsername(),
     ));
 }
+$info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
 <h1>Account Registration</h1>
