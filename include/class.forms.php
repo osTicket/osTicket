@@ -1017,12 +1017,13 @@ class PhoneNumberWidget extends Widget {
         list($phone, $ext) = explode("X", $this->value);
         ?>
         <input type="text" name="<?php echo $this->name; ?>" value="<?php
-        echo $phone; ?>"/><?php
+        echo Format::htmlchars($phone); ?>"/><?php
         // Allow display of extension field even if disabled if the phone
         // number being edited has an extension
         if ($ext || $config['ext']) { ?> Ext:
             <input type="text" name="<?php
-            echo $this->name; ?>-ext" value="<?php echo $ext; ?>" size="5"/>
+            echo $this->name; ?>-ext" value="<?php echo Format::htmlchars($ext);
+                ?>" size="5"/>
         <?php }
     }
 
