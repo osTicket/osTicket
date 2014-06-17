@@ -291,7 +291,15 @@ class MysqlSearchBackend extends SearchBackend {
                     case 'staff_id':
                     case 'dept_id':
                     case 'user_id':
+                    case 'isanswered':
+                    case 'isoverdue':
                         $where[] = sprintf('A1.%s = %s', $name, db_input($value));
+                        break;
+                    case 'created__gte':
+                        $where[] = sprintf('A1.created >= %s', db_input($value));
+                        break;
+                    case 'created__lte':
+                        $where[] = sprintf('A1.created <= %s', db_input($value));
                         break;
                     case 'email':
                     case 'org_id':
@@ -357,8 +365,6 @@ class MysqlSearchBackend extends SearchBackend {
      * not index in the _search table and add it to the index.
      */
     function IndexOldStuff() {
-        print 'Indexing old stuff!';
-
         $class = get_class();
         $auto_create = function($db_error) use ($class) {
 
