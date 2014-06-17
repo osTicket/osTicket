@@ -257,31 +257,36 @@ class MysqlSearchBackend extends SearchBackend {
     function find($query, $criteria=array(), $model=false, $sort=array()) {
         global $thisstaff;
 
-        $tables = array();
         $mode = ' IN BOOLEAN MODE';
         #if (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
-        $where = array('MATCH (search.title, search.content) AGAINST ('
+        $search = 'MATCH (search.title, search.content) AGAINST ('
             .db_input($query)
-            .$mode.') ');
-        $fields = array($where[0] . ' AS `relevance`');
+            .$mode.')';
+        $tables = array("(
+            SELECT object_type, object_id, $search AS `relevance`
+            FROM `ost__search` `search`
+            WHERE $search
+        ) `search`");
 
         switch ($model) {
         case false:
         case 'Ticket':
-            $tables[] = ORGANIZATION_TABLE . " A4 ON (A4.id = `search`.object_id
-                AND `search`.object_type = 'O')";
-            $tables[] = USER_TABLE . " A3 ON ((A3.id = `search`.object_id
-                AND `search`.object_type = 'U') OR A3.org_id = A4.id)";
-            $tables[] = TICKET_THREAD_TABLE . " A2 ON (A2.id = `search`.object_id
-                AND `search`.object_type = 'H')";
-            $tables[] = TICKET_TABLE . " A1 ON ((A1.ticket_id = `search`.object_id
-                AND `search`.object_type='T')
-                OR (A4.id = A3.org_id AND A1.user_id = A3.id)
-                OR A3.id = A1.user_id
-                OR A2.ticket_id = A1.ticket_id)";
-            $fields[] = 'A1.`ticket_id`';
-            $key = 'ticket_id';
+            $P = TABLE_PREFIX;
+            $tables[] = "(select ticket_id as ticket_id from {$P}ticket
+            ) B1 ON (B1.ticket_id = search.object_id and search.object_type = 'T')";
+            $tables[] = "(select A2.id as thread_id, A1.ticket_id from {$P}ticket A1
+                join {$P}ticket_thread A2 on (A1.ticket_id = A2.ticket_id)
+            ) B2 ON (B2.thread_id = search.object_id and search.object_type = 'H')";
+            $tables[] = "(select A3.id as user_id, A1.ticket_id from {$P}user A3
+                join {$P}ticket A1 on (A1.user_id = A3.id)
+            ) B3 ON (B3.user_id = search.object_id and search.object_type = 'U')";
+            $tables[] = "(select A4.id as org_id, A1.ticket_id from {$P}organization A4
+                join {$P}user A3 on (A3.org_id = A4.id) join {$P}ticket A1 on (A1.user_id = A3.id)
+            ) B4 ON (B4.org_id = search.object_id and search.object_type = 'O')";
+            $key = 'COALESCE(B1.ticket_id, B2.ticket_id, B3.ticket_id, B4.ticket_id)';
+            $tables[] = "{$P}ticket A1 ON (A1.ticket_id = {$key})";
+            $cdata_search = false;
 
             if ($criteria) {
                 foreach ($criteria as $name=>$value) {
@@ -328,15 +333,12 @@ class MysqlSearchBackend extends SearchBackend {
 
             $sql = 'SELECT DISTINCT '
                 . $key
-                . ' FROM ( SELECT '
-                . implode(', ', $fields)
-                . ' FROM `'.TABLE_PREFIX.'_search` `search` '
-                . (count($tables) ? ' LEFT JOIN ' : '')
+                . ' FROM '
                 . implode(' LEFT JOIN ', $tables)
                 . ' WHERE ' . implode(' AND ', $where)
                 // TODO: Consider sorting preferences
                 . ' ORDER BY `relevance` DESC'
-                . ') __ LIMIT 500';
+                . ' LIMIT 500';
         }
 
         $res = db_query($sql);
