@@ -122,6 +122,7 @@ if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
 
 //Search?? Somebody...get me some coffee
 $deep_search=false;
+$order_by=$order=null;
 if($search):
     $qstr.='&a='.urlencode($_REQUEST['a']);
     $qstr.='&t='.urlencode($_REQUEST['t']);
@@ -142,9 +143,12 @@ if($search):
             require_once(INCLUDE_DIR.'ajax.tickets.php');
 
             $tickets = TicketsAjaxApi::_search(array('query'=>$queryterm));
-            if (count($tickets))
-                $qwhere .= ' AND ticket.ticket_id IN ('.
-                    implode(',',db_input($tickets)).')';
+            if (count($tickets)) {
+                $ticket_ids = implode(',',db_input($tickets));
+                $qwhere .= ' AND ticket.ticket_id IN ('.$ticket_ids.')';
+                $order_by = 'FIELD(ticket.ticket_id, '.$ticket_ids.')';
+                $order = ' ';
+            }
             else
                 // No hits -- there should be an empty list of results
                 $qwhere .= ' AND false';
@@ -154,9 +158,12 @@ if($search):
 endif;
 
 if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
+    $ticket_ids = implode(',', db_input($_SESSION['adv_'.$_REQUEST['advsid']]));
     $qstr.='advsid='.$_REQUEST['advsid'];
-    $qwhere .= ' AND ticket.ticket_id IN ('. implode(',',
-        db_input($_SESSION['adv_'.$_REQUEST['advsid']])).')';
+    $qwhere .= ' AND ticket.ticket_id IN ('.$ticket_ids.')';
+    // Thanks, http://stackoverflow.com/a/1631794
+    $order_by = 'FIELD(ticket.ticket_id, '.$ticket_ids.')';
+    $order = ' ';
 }
 
 $sortOptions=array('date'=>'effective_date','ID'=>'ticket.`number`',
@@ -168,7 +175,6 @@ $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
 //Sorting options...
 $queue = isset($_REQUEST['status'])?strtolower($_REQUEST['status']):$status;
-$order_by=$order=null;
 if($_REQUEST['sort'] && $sortOptions[$_REQUEST['sort']])
     $order_by =$sortOptions[$_REQUEST['sort']];
 elseif($sortOptions[$_SESSION[$queue.'_tickets']['sort']]) {
