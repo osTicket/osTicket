@@ -309,9 +309,19 @@ class MysqlSearchBackend extends SearchBackend {
                     case 'email':
                     case 'org_id':
                     case 'form_id':
+                    default:
+                        if (strpos($name, 'cdata.') === 0) {
+                            // Search ticket CDATA table
+                            $cdata_search = true;
+                            $name = substr($name, 6);
+                            $where[] = sprintf("cdata.%s = %s", $name, db_input($value));
+                        }
                     }
                 }
             }
+            if ($cdata_search)
+                $tables[] = TABLE_PREFIX.'ticket__cdata cdata'
+                    .' ON (cdata.ticket_id = A1.ticket_id)';
 
             // Always consider the current staff's access
             $thisstaff->getDepts();
