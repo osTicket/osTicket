@@ -386,12 +386,10 @@ class MysqlSearchBackend extends SearchBackend {
             $title = Format::searchable($row[1]);
             if (!$body && !$title)
                 continue;
-            $records[] = array('H', $row[0], $title, $body);
-            if (count($records) > self::$BATCH_SIZE)
-                if (null === ($records = self::__searchFlush($records)))
-                    return;
+            $record = array('H', $row[0], $title, $body);
+            if (!$this->__index($record))
+                return;
         }
-        $records = self::__searchFlush($records);
 
         // TICKETS ----------------------------------
 
@@ -409,14 +407,12 @@ class MysqlSearchBackend extends SearchBackend {
             foreach ($cdata as $k=>$a)
                 if ($k != 'subject' && ($v = $a->getSearchable()))
                     $content[] = $v;
-            $records[] = array('T', $ticket->getId(),
-                Format::searchable($ticket->getSubject()),
+            $record = array('T', $ticket->getId(),
+                Format::searchable($ticket->getNumber().' '.$ticket->getSubject()),
                 implode("\n", $content));
-            if (count($records) > self::$BATCH_SIZE)
-                if (null === ($records = self::__searchFlush($records)))
-                    return;
+            if (!$this->__index($record))
+                return;
         }
-        $records = self::__searchFlush($records);
 
         // USERS ------------------------------------
 
@@ -437,14 +433,12 @@ class MysqlSearchBackend extends SearchBackend {
                 foreach ($e->getAnswers() as $a)
                     if ($c = $a->getSearchable())
                         $content[] = $c;
-            $records[] = array('U', $user->getId(),
+            $record = array('U', $user->getId(),
                 Format::searchable($user->getFullName()),
                 trim(implode("\n", $content)));
-            if (count($records) > self::$BATCH_SIZE)
-                if (null === ($records = self::__searchFlush($records)))
-                    return;
+            if (!$this->__index($record))
+                return;
         }
-        $records = self::__searchFlush($records);
 
         // ORGANIZATIONS ----------------------------
 
@@ -463,13 +457,12 @@ class MysqlSearchBackend extends SearchBackend {
                 foreach ($e->getAnswers() as $a)
                     if ($c = $a->getSearchable())
                         $content[] = $c;
-            $records[] = array('O', $org->getId(),
+            $record = array('O', $org->getId(),
                 Format::searchable($org->getName()),
                 trim(implode("\n", $content)));
-            if (count($records) > self::$BATCH_SIZE)
-                $records = self::__searchFlush($records);
+            if (!$this->__index($record))
+                return null;
         }
-        $records = self::__searchFlush($records);
 
         // KNOWLEDGEBASE ----------------------------
 
@@ -483,35 +476,48 @@ class MysqlSearchBackend extends SearchBackend {
 
         while ($row = db_fetch_row($res)) {
             $faq = FAQ::lookup($row[0]);
-            $records[] = array('K', $faq->getId(),
-                Format::searchable($faq->getQuestion()),
+            $q = $faq->getQuestion();
+            if ($k = $faq->getKeywords())
+                $q = $k.' '.$q;
+            $record = array('K', $faq->getId(),
+                Format::searchable($q),
                 $faq->getSearchableAnswer());
-            if (count($records) > self::$BATCH_SIZE)
-                if (null === ($records = self::__searchFlush($records)))
-                    return;
+            if (!$this->__index($record))
+                return;
         }
-        $records = self::__searchFlush($records);
 
         // FILES ------------------------------------
+
+        // Flush non-full batch of records
+        $this->__index(null, true);
     }
 
-    function __searchFlush($records) {
-        if (!$records)
-            return $records;
+    function __index($record, $force_flush=false) {
+        static $queue = array();
 
-        foreach ($records as &$r)
+        if ($record)
+            $queue[] = $record;
+        elseif (!$queue)
+            return;
+
+        if (!$force_flush && count($queue) < $this::$BATCH_SIZE)
+            return true;
+
+        foreach ($queue as &$r)
             $r = sprintf('(%s)', implode(',', db_input($r)));
         unset($r);
 
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'_search` (`object_type`, `object_id`, `title`, `content`)
-            VALUES '.implode(',', $records);
-        if (!db_query($sql) || count($records) != db_affected_rows())
+            VALUES '.implode(',', $queue);
+        if (!db_query($sql) || count($queue) != db_affected_rows())
             throw new Exception('Unable to index content');
+
+        $queue = array();
 
         if (!--$this->max_batches)
             return null;
 
-        return array();
+        return true;
     }
 }
 MysqlSearchBackend::register();
