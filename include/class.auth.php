@@ -605,15 +605,8 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 throw new AccessDenied('Account is administratively locked');
         }
 
-        //Tag the authkey.
-        $authkey = $bk::$id.':'.$authkey;
-
-        //Set the session goodies
-        $authsession = &$_SESSION['_auth']['user'];
-
-        $authsession = array(); //clear.
-        $authsession['id'] = $user->getId();
-        $authsession['key'] = $authkey;
+        // Tag the user and associated ticket in the SESSION
+        $this->setAuthKey($user, $bk, $authkey);
 
         //The backend used decides the format of the auth key.
         // XXX: encrypt to hide the bk??
@@ -635,6 +628,20 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             $acct->cancelResetTokens();
 
         return true;
+    }
+
+    function setAuthKey($user, $bk, $key=false) {
+        $authkey = $key ?: $bk->getAuthKey($user);
+
+        //Tag the authkey.
+        $authkey = $bk::$id.':'.$authkey;
+
+        //Set the session goodies
+        $authsession = &$_SESSION['_auth']['user'];
+
+        $authsession = array(); //clear.
+        $authsession['id'] = $user->getId();
+        $authsession['key'] = $authkey;
     }
 
     function authenticate($username, $password) {

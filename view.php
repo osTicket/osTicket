@@ -23,6 +23,11 @@ if ($_GET['auth']
         && ($u = TicketUser::lookupByToken($_GET['auth']))
         && ($u->getUserId() == $thisclient->getId())
 ) {
+    // Switch auth keys ? (Otherwise the user can never use links for two
+    // different tickets)
+    if (($bk = $thisclient->getAuthBackend()) instanceof AuthTokenAuthentication) {
+        $bk->setAuthKey($u, $bk);
+    }
     Http::redirect('tickets.php?id='.$u->getTicketId());
 }
 // Try autologin the user
