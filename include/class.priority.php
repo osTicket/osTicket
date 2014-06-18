@@ -15,12 +15,12 @@
 **********************************************************************/
 
 class Priority {
-    
+
     var $id;
     var $ht;
 
     function Priority($id){
-        
+
         $this->id =0;
         $this->load($id);
     }
@@ -63,6 +63,10 @@ class Priority {
 
     function isPublic() {
         return ($this->ht['ispublic']);
+    }
+
+    function __toString() {
+        return $this->getDesc();
     }
 
     /* ------------- Static ---------------*/

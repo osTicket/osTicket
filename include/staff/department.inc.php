@@ -57,8 +57,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><strong>Public</strong>
+                &nbsp;
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong>Private</strong> (Internal)
-                &nbsp;<span class="error">*&nbsp;</span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
         <tr>
@@ -77,7 +78,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['sla_id']; ?></span>
+                &nbsp;<span class="error"><?php echo $errors['sla_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#sla"></i>
             </td>
         </tr>
         <tr>
@@ -85,6 +86,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Manager:
             </td>
             <td>
+                <span>
                 <select name="manager_id">
                     <option value="0">&mdash; None &mdash;</option>
                     <?php
@@ -99,32 +101,25 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['manager_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                Group Membership:
-            </td>
-            <td>
-                <input type="checkbox" name="group_membership" value="0" <?php echo $info['group_membership']?'checked="checked"':''; ?> >
-                Extend membership to groups with access <em>(Alerts and
-                        notices will include groups)</em>
+                &nbsp;<span class="error"><?php echo $errors['manager_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#manager"></i>
+                </span>
             </td>
         </tr>
         <tr>
             <td>Ticket Assignment:</td>
             <td>
+                <span>
                 <input type="checkbox" name="assign_members_only" <?php echo
                 $info['assign_members_only']?'checked="checked"':''; ?>>
-                Limit ticket assignment to department members
-                <!-- Help Tip:
-                     Tickets can ONLY be assigned to department members (+ group members)-->
+                Restrict ticket assignment to department members
+                <i class="help-tip icon-question-sign" href="#sandboxing"></i>
+                </span>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Email Settings</strong>: Outgoing email settings for the department.</em>
+                <em><strong>Outgoing Email Settings</strong>:</em>
             </th>
         </tr>
         <tr>
@@ -146,7 +141,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email_id']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['email_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#email"></i>
             </td>
         </tr>
         <tr>
@@ -166,12 +161,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['tpl_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#template"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Autoresponder Settings</strong>: Override global auto-response settings for tickets routed to the department.</em>
+                <em><strong>Autoresponder Settings</strong>:
+                <i class="help-tip icon-question-sign" href="#auto_response_settings"></i></em>
             </th>
         </tr>
         <tr>
@@ -179,9 +175,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 New Ticket:
             </td>
             <td>
+                <span>
                 <input type="checkbox" name="ticket_auto_response" value="0" <?php echo !$info['ticket_auto_response']?'checked="checked"':''; ?> >
 
-                <strong>Disable</strong> new ticket auto-response for this Dept.
+                <strong>Disable</strong> for this Department&nbsp;<i class="help-tip icon-question-sign" href="#new_ticket"></i>
+                </span>
             </td>
         </tr>
         <tr>
@@ -189,8 +187,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 New Message:
             </td>
             <td>
+                <span>
                 <input type="checkbox" name="message_auto_response" value="0" <?php echo !$info['message_auto_response']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> new message auto-response for this Dept.
+                    <strong>Disable</strong> for this Department&nbsp;<i class="help-tip icon-question-sign" href="#new_message"></i>
+                </span>
             </td>
         </tr>
         <tr>
@@ -198,6 +198,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Auto-Response Email:
             </td>
             <td>
+                <span>
                 <select name="autoresp_email_id">
                     <option value="0" selected="selected">&mdash; Department Email &mdash;</option>
                     <?php
@@ -214,15 +215,42 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['autoresp_email_id']; ?></span>
+                &nbsp;<span class="error"><?php echo $errors['autoresp_email_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#auto_response_email"></i>
+                </span>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Department Access</strong>: Check all groups allowed to access this department.</em>
+                <em><strong>Alerts &amp; Notices:</strong>&nbsp;<i class="help-tip icon-question-sign" href="#group_membership"></i></em>
             </th>
         </tr>
-        <tr><td colspan=2><em>Department manager and primary members will always have access independent of group selection or assignment.</em></td></tr>
+        <tr>
+            <td width="180">
+                Recipients:
+            </td>
+            <td>
+                <span>
+                <select name="group_membership">
+<?php foreach (array(
+    Dept::ALERTS_DISABLED =>        "No one (disable Alerts &amp; Notices)",
+    Dept::ALERTS_DEPT_ONLY =>       "Department members only",
+    Dept::ALERTS_DEPT_AND_GROUPS => "Department and Group members",
+) as $mode=>$desc) { ?>
+    <option value="<?php echo $mode; ?>" <?php
+        if ($info['group_membership'] == $mode) echo 'selected="selected"';
+    ?>><?php echo $desc; ?></option><?php
+} ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#group_membership"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <em><strong>Group Access</strong>: Check all groups allowed to access this department.&nbsp;<i class="help-tip icon-question-sign" href="#department_access"></i></em>
+            </th>
+        </tr>
         <?php
          $sql='SELECT group_id, group_name, count(staff.staff_id) as members '
              .' FROM '.GROUP_TABLE.' grp '
@@ -242,19 +270,18 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         ?>
         <tr>
             <th colspan="2">
-                <em><strong>Department Signature</strong>: Optional signature used on outgoing emails. &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>
+                <em><strong>Department Signature</strong>:&nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#department_signature"></i></em>
             </th>
         </tr>
         <tr>
             <td colspan=2>
                 <textarea class="richtext no-bar" name="signature" cols="21"
                     rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
-                <br><em>Signature is made available as a choice, for public departments, on ticket reply.</em>
             </td>
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="departments.php"'>

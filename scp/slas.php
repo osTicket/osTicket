@@ -48,7 +48,7 @@ if($_POST){
                     case 'enable':
                         $sql='UPDATE '.SLA_TABLE.' SET isactive=1 '
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                    
+
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
                                 $msg = 'Selected SLA plans enabled';
@@ -98,8 +98,11 @@ if($_POST){
 }
 
 $page='slaplans.inc.php';
-if($sla || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+if($sla || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='slaplan.inc.php';
+    $ost->addExtraHeader('<meta name="tip-namespace" content="manage.sla" />',
+            "$('#content').data('tipNamespace', 'manage.sla');");
+}
 
 $nav->setTabActive('manage');
 require(STAFFINC_DIR.'header.inc.php');

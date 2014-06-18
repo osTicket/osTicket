@@ -1,0 +1,20 @@
+#
+# This is popup help messages for the Admin Panel -> Emails -> Banlist
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+ban_list:
+    title: Banned Email Addresses
+    content: >
+        Emails received from banned email addresses listed in the ban list
+        will be automatically rejected.

@@ -147,10 +147,14 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
 }
 
 $page='cannedresponses.inc.php';
-if($canned || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'knowledgebase.canned_response';
+if($canned || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='cannedresponse.inc.php';
+}
 
 $nav->setTabActive('kbase');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

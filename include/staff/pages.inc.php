@@ -5,8 +5,8 @@ $qstr='';
 $sql='SELECT page.id, page.isactive, page.name, page.created, page.updated, '
      .'page.type, count(topic.topic_id) as topics '
      .' FROM '.PAGE_TABLE.' page '
-     .' LEFT JOIN '.TOPIC_TABLE.' topic ON(topic.page_id=page.id) '
-     .' WHERE 1 ';
+     .' LEFT JOIN '.TOPIC_TABLE.' topic ON(topic.page_id=page.id) ';
+$where = ' WHERE type in ("other","landing","thank-you","offline") ';
 $sortOptions=array(
         'name'=>'page.name', 'status'=>'page.isactive',
         'created'=>'page.created', 'updated'=>'page.updated',
@@ -33,13 +33,13 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$total=db_count('SELECT count(*) FROM '.PAGE_TABLE.' page ');
+$total=db_count('SELECT count(*) FROM '.PAGE_TABLE.' page '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('pages.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 //Ok..lets roll...create the actual query
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
-$query="$sql GROUP BY page.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
+$query="$sql $where GROUP BY page.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing();
@@ -49,7 +49,9 @@ else
 ?>
 
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Site Pages</h2>
+ <h2>Site Pages
+    <i class="help-tip icon-question-sign" href="#site_pages"></i>
+    </h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
  <b><a href="pages.php?a=add" class="Icon newPage">Add New Page</a></b></div>

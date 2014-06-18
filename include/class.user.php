@@ -28,6 +28,30 @@ class UserEmailModel extends VerySimpleModel {
     );
 }
 
+class TicketModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_TABLE,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'UserModel.id')
+            )
+        )
+    );
+
+    function getId() {
+        return $this->ticket_id;
+    }
+
+    function delete() {
+
+        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
+            return true;
+
+        return false;
+    }
+}
+
 class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
@@ -36,12 +60,24 @@ class UserModel extends VerySimpleModel {
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
             ),
+            'tickets' => array(
+                'reverse' => 'TicketModel.user',
+            ),
+            'account' => array(
+                'list' => false,
+                'reverse' => 'UserAccount.user',
+            ),
+            'org' => array(
+                'constraint' => array('org_id' => 'Organization.id')
+            ),
             'default_email' => array(
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
             ),
         )
     );
+
+    const PRIMARY_ORG_CONTACT   = 0x0001;
 
     static function objects() {
         $qs = parent::objects();
@@ -60,6 +96,51 @@ class UserModel extends VerySimpleModel {
     function getDefaultEmail() {
         return $this->default_email;
     }
+
+    function getAccount() {
+        return $this->account;
+    }
+
+    function getOrgId() {
+         return $this->get('org_id');
+    }
+
+    function getOrganization() {
+        return $this->org;
+    }
+
+    function setOrganization($org, $save=true) {
+
+        $this->set('org', $org);
+
+        if ($save)
+            $this->save();
+
+        return true;
+    }
+
+    protected function hasStatus($flag) {
+        return $this->get('status') & $flag !== 0;
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function isPrimaryContact() {
+        return $this->hasStatus(User::PRIMARY_ORG_CONTACT);
+    }
+
+    function setPrimaryContact($flag) {
+        if ($flag)
+            $this->setStatus(User::PRIMARY_ORG_CONTACT);
+        else
+            $this->clearStatus(User::PRIMARY_ORG_CONTACT);
+    }
 }
 
 class User extends UserModel {
@@ -67,29 +148,38 @@ class User extends UserModel {
     var $_entries;
     var $_forms;
 
-    function __construct($ht) {
-        parent::__construct($ht);
-        // TODO: Make this automatic with select_related()
-        if (isset($ht['default_email_id']))
-            $this->default_email = UserEmail::lookup($ht['default_email_id']);
-    }
-
     static function fromVars($vars) {
         // Try and lookup by email address
-        $user = User::lookup(array('emails__address'=>$vars['email']));
+        $user = static::lookupByEmail($vars['email']);
         if (!$user) {
+            $name = $vars['name'];
+            if (!$name)
+                list($name) = explode('@', $vars['email'], 2);
+
             $user = User::create(array(
-                'name'=>$vars['name'],
+                'name'=>$name,
                 'created'=>new SqlFunction('NOW'),
                 'updated'=>new SqlFunction('NOW'),
                 //XXX: Do plain create once the cause
                 // of the detached emails is fixed.
                 'default_email' => UserEmail::ensure($vars['email'])
             ));
-            $user->save(true);
-            $user->emails->add($user->default_email);
-            // Attach initial custom fields
-            $user->addDynamicData($vars);
+            // Is there an organization registered for this domain
+            list($mailbox, $domain) = explode('@', $vars['email'], 2);
+            if (isset($vars['org_id']))
+                $user->set('org_id', $vars['org_id']);
+            elseif ($org = Organization::forDomain($domain))
+                $user->setOrganization($org, false);
+
+            try {
+                $user->save(true);
+                $user->emails->add($user->default_email);
+                // Attach initial custom fields
+                $user->addDynamicData($vars);
+            }
+            catch (OrmException $e) {
+                return null;
+            }
         }
 
         return $user;
@@ -130,7 +220,11 @@ class User extends UserModel {
     }
 
     function getName() {
-        return new PersonsName($this->name);
+        if (!$this->name)
+            list($name) = explode('@', $this->getDefaultEmailAddress(), 2);
+        else
+            $name = $this->name;
+        return new PersonsName($name);
     }
 
     function getUpdateDate() {
@@ -139,6 +233,14 @@ class User extends UserModel {
 
     function getCreateDate() {
         return $this->created;
+    }
+
+    function addForm($form, $sort=1) {
+        $form = $form->instanciate();
+        $form->set('sort', $sort);
+        $form->set('object_type', 'U');
+        $form->set('object_id', $this->getId());
+        $form->save();
     }
 
     function to_json() {
@@ -167,8 +269,7 @@ class User extends UserModel {
     }
 
     function addDynamicData($data) {
-
-        $uf = UserForm::getInstance();
+        $uf = UserForm::getNewInstance();
         $uf->setClientId($this->id);
         foreach ($uf->getFields() as $f)
             if (isset($data[$f->get('name')]))
@@ -182,12 +283,30 @@ class User extends UserModel {
         if (!isset($this->_entries)) {
             $this->_entries = DynamicFormEntry::forClient($this->id)->all();
             if (!$this->_entries) {
-                $g = UserForm::getInstance();
+                $g = UserForm::getNewInstance();
                 $g->setClientId($this->id);
+                $g->save();
                 $this->_entries[] = $g;
             }
         }
+
         return $this->_entries;
+    }
+
+    function getFilterData() {
+        $vars = array();
+        foreach ($this->getDynamicData() as $entry) {
+            if ($entry->getForm()->get('type') != 'U')
+                continue;
+            foreach ($entry->getFields() as $f)
+                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+            // Add in special `name` and `email` fields
+            foreach (array('name', 'email') as $name) {
+                if ($f = $entry->getForm()->getField($name))
+                    $vars['field.'.$f->get('id')] = $this->getName();
+            }
+        }
+        return $vars;
     }
 
     function getForms($data=null) {
@@ -212,6 +331,144 @@ class User extends UserModel {
         }
 
         return $this->_forms;
+    }
+
+    function getAccountStatus() {
+
+        if (!($account=$this->getAccount()))
+            return 'Guest';
+
+        return (string) $account->getStatus();
+    }
+
+    function register($vars, &$errors) {
+
+        // user already registered?
+        if ($this->getAccount())
+            return true;
+
+        return UserAccount::register($this, $vars, $errors);
+    }
+
+    static function importCsv($stream, $defaults=array()) {
+        //Read the header (if any)
+        $headers = array('name' => 'Full Name', 'email' => 'Email Address');
+        $uform = UserForm::getUserForm();
+        $all_fields = $uform->getFields();
+        $named_fields = array();
+        $has_header = true;
+        foreach ($all_fields as $f)
+            if ($f->get('name'))
+                $named_fields[] = $f;
+
+        if (!($data = fgetcsv($stream, 1000, ",")))
+            return 'Whoops. Perhaps you meant to send some CSV records';
+
+        if (Validator::is_email($data[1])) {
+            $has_header = false; // We don't have an header!
+        }
+        else {
+            $headers = array();
+            foreach ($data as $h) {
+                $found = false;
+                foreach ($all_fields as $f) {
+                    if (in_array(mb_strtolower($h), array(
+                            mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
+                        $found = true;
+                        if (!$f->get('name'))
+                            return $h.': Field must have `variable` set to be imported';
+                        $headers[$f->get('name')] = $f->get('label');
+                        break;
+                    }
+                }
+                if (!$found) {
+                    $has_header = false;
+                    if (count($data) == count($named_fields)) {
+                        // Number of fields in the user form matches the number
+                        // of fields in the data. Assume things line up
+                        $headers = array();
+                        foreach ($named_fields as $f)
+                            $headers[$f->get('name')] = $f->get('label');
+                        break;
+                    }
+                    else {
+                        return $h.': Unable to map header to a user field';
+                    }
+                }
+            }
+        }
+
+        // 'name' and 'email' MUST be in the headers
+        if (!isset($headers['name']) || !isset($headers['email']))
+            return 'CSV file must include `name` and `email` columns';
+
+        if (!$has_header)
+            fseek($stream, 0);
+
+        $users = $fields = $keys = array();
+        foreach ($headers as $h => $label) {
+            if (!($f = $uform->getField($h)))
+                continue;
+
+            $name = $keys[] = $f->get('name');
+            $fields[$name] = $f->getImpl();
+        }
+
+        // Add default fields (org_id, etc).
+        foreach ($defaults as $key => $val) {
+            // Don't apply defaults which are also being imported
+            if (isset($header[$key]))
+                unset($defaults[$key]);
+            $keys[] = $key;
+        }
+
+        while (($data = fgetcsv($stream, 1000, ",")) !== false) {
+            if (count($data) == 1 && $data[0] == null)
+                // Skip empty rows
+                continue;
+            elseif (count($data) != count($headers))
+                return 'Bad data. Expected: '.implode(', ', $headers);
+            // Validate according to field configuration
+            $i = 0;
+            foreach ($headers as $h => $label) {
+                $f = $fields[$h];
+                $T = $f->parse($data[$i]);
+                if ($f->validateEntry($T) && $f->errors())
+                    return $label.': Invalid data: '.implode(', ', $f->errors());
+                // Convert to database format
+                $data[$i] = $f->to_database($T);
+                $i++;
+            }
+            // Add default fields
+            foreach ($defaults as $key => $val)
+                $data[] = $val;
+
+            $users[] = $data;
+        }
+
+        foreach ($users as $u) {
+            $vars = array_combine($keys, $u);
+            if (!static::fromVars($vars))
+                return 'Unable to import user: '.print_r($vars, true);
+        }
+
+        return count($users);
+    }
+
+    function importFromPost($stuff, $extra=array()) {
+        if (is_array($stuff) && !$stuff['error']) {
+            $stream = fopen($stuff['tmp_name'], 'r');
+        }
+        elseif ($stuff) {
+            $stream = fopen('php://temp', 'w+');
+            fwrite($stream, $stuff);
+            rewind($stream);
+        }
+        else {
+            return 'Unable to parse submitted users';
+        }
+
+        return User::importCsv($stream, $extra);
     }
 
     function updateInfo($vars, &$errors) {
@@ -278,12 +535,32 @@ class User extends UserModel {
             $this->name = mb_convert_case($this->name, MB_CASE_TITLE);
         }
 
-        if (count($this->dirty))
+        if (count($this->dirty)) //XXX: doesn't work??
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save($refetch);
     }
+
+    function delete() {
+
+        // Refuse to delete a user with tickets
+        if ($this->tickets->count())
+            return false;
+
+        // Delete account record (if any)
+        if ($this->getAccount())
+            $this->getAccount()->delete();
+
+        // Delete emails.
+        $this->emails->expunge();
+
+        // Delete user
+        return parent::delete();
+    }
+
+    static function lookupByEmail($email) {
+        return self::lookup(array('emails__address'=>$email));
+    }
 }
-User::_inspect();
 
 class PersonsName {
     var $format;
@@ -403,7 +680,7 @@ class PersonsName {
         @list(, $func) = static::$formats[$this->format];
         if (!$func) $func = 'getFull';
 
-        return call_user_func(array($this, $func));
+        return (string) call_user_func(array($this, $func));
     }
 
     static function allFormats() {
@@ -476,6 +753,316 @@ class UserEmail extends UserEmailModel {
 }
 
 
+class UserAccountModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => USER_ACCOUNT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'user' => array(
+                'null' => false,
+                'constraint' => array('user_id' => 'User.id')
+            ),
+        ),
+    );
+
+    var $_status;
+
+    function __construct() {
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+        $this->_status = new UserAccountStatus($this->get('status'));
+    }
+
+    protected function hasStatus($flag) {
+        return $this->_status->check($flag);
+    }
+
+    protected function clearStatus($flag) {
+        return $this->set('status', $this->get('status') & ~$flag);
+    }
+
+    protected function setStatus($flag) {
+        return $this->set('status', $this->get('status') | $flag);
+    }
+
+    function confirm() {
+        $this->setStatus(UserAccountStatus::CONFIRMED);
+        return $this->save();
+    }
+
+    function isConfirmed() {
+        return $this->_status->isConfirmed();
+    }
+
+    function lock() {
+        $this->setStatus(UserAccountStatus::LOCKED);
+        $this->save();
+    }
+
+    function isLocked() {
+        return $this->_status->isLocked();
+    }
+
+    function forcePasswdReset() {
+        $this->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+        return $this->save();
+    }
+
+    function isPasswdResetForced() {
+        return $this->hasStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+    }
+
+    function isPasswdResetEnabled() {
+        return !$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET);
+    }
+
+    function getStatus() {
+        return $this->_status;
+    }
+
+    function getInfo() {
+        return $this->ht;
+    }
+
+    function getId() {
+        return $this->get('id');
+    }
+
+    function getUserId() {
+        return $this->get('user_id');
+    }
+
+    function getUser() {
+        $this->user->set('account', $this);
+        return $this->user;
+    }
+}
+
+class UserAccount extends UserAccountModel {
+
+    function hasPassword() {
+        return (bool) $this->get('passwd');
+    }
+
+    function sendResetEmail() {
+        return static::sendUnlockEmail('pwreset-client') === true;
+    }
+
+    function sendConfirmEmail() {
+        return static::sendUnlockEmail('registration-client') === true;
+    }
+
+    protected function sendUnlockEmail($template) {
+        global $ost, $cfg;
+
+        $token = Misc::randCode(48); // 290-bits
+
+        $email = $cfg->getDefaultEmail();
+        $content = Page::lookup(Page::getIdByType($template));
+
+        if (!$email ||  !$content)
+            return new Error($template.': Unable to retrieve template');
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'token' => $token,
+            'user' => $this->getUser(),
+            'recipient' => $this->getUser(),
+            'link' => sprintf(
+                "%s/pwreset.php?token=%s",
+                $ost->getConfig()->getBaseUrl(),
+                $token),
+        );
+        $vars['reset_link'] = &$vars['link'];
+
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        Signal::send('auth.pwreset.email', $this->getUser(), $info);
+
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
+        ), $vars);
+
+        $_config = new Config('pwreset');
+        $_config->set($vars['token'], $this->getUser()->getId());
+
+        $email->send($this->getUser()->getEmail(),
+            Format::striptags($msg['subj']), $msg['body']);
+
+        return true;
+    }
+
+    function __toString() {
+        return (string) $this->getStatus();
+    }
+
+    /*
+     * This assumes the staff is doing the update
+     */
+    function update($vars, &$errors) {
+        global $thisstaff;
+
+
+        if (!$thisstaff) {
+            $errors['err'] = 'Access Denied';
+            return false;
+        }
+
+        // TODO: Make sure the username is unique
+
+        if (!$vars['timezone_id'])
+            $errors['timezone_id'] = 'Time zone required';
+
+        // Changing password?
+        if ($vars['passwd1'] || $vars['passwd2']) {
+            if (!$vars['passwd1'])
+                $errors['passwd1'] = 'New password required';
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1'] = 'Must be at least 6 characters';
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2'] = 'Password(s) do not match';
+        }
+
+        if ($errors) return false;
+
+        $this->set('timezone_id', $vars['timezone_id']);
+        $this->set('dst', isset($vars['dst']) ? 1 : 0);
+
+        // Make sure the username is not an email.
+        if ($vars['username'] && Validator::is_email($vars['username']))
+             $vars['username'] = '';
+
+        $this->set('username', $vars['username']);
+
+        if ($vars['passwd1']) {
+            $this->set('passwd', Passwd::hash($vars['passwd1']));
+            $this->setStatus(UserAccountStatus::CONFIRMED);
+        }
+
+        // Set flags
+        foreach (array(
+                'pwreset-flag' => UserAccountStatus::REQUIRE_PASSWD_RESET,
+                'locked-flag' => UserAccountStatus::LOCKED,
+                'forbid-pwchange-flag' => UserAccountStatus::FORBID_PASSWD_RESET
+        ) as $ck=>$flag) {
+            if ($vars[$ck])
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
+
+        return $this->save(true);
+    }
+
+    static function createForUser($user, $defaults=false) {
+        $acct = static::create(array('user_id'=>$user->getId()));
+        if ($defaults && is_array($defaults)) {
+            foreach ($defaults as $k => $v)
+                $acct->set($k, $v);
+        }
+        return $acct;
+    }
+
+    static function lookupByUsername($username) {
+        if (strpos($username, '@') !== false)
+            $user = static::lookup(array('user__emails__address'=>$username));
+        else
+            $user = static::lookup(array('username'=>$username));
+
+        return $user;
+    }
+
+    static function register($user, $vars, &$errors) {
+
+        if (!$user || !$vars)
+            return false;
+
+        //Require temp password.
+        if ((!$vars['backend'] || $vars['backend'] != 'client')
+                && !isset($vars['sendemail'])) {
+            if (!$vars['passwd1'])
+                $errors['passwd1'] = 'Temp. password required';
+            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
+                $errors['passwd1'] = 'Must be at least 6 characters';
+            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
+                $errors['passwd2'] = 'Password(s) do not match';
+        }
+
+        if ($errors) return false;
+
+        $account = UserAccount::create(array('user_id' => $user->getId()));
+        if (!$account)
+            return false;
+
+        $account->set('dst', isset($vars['dst'])?1:0);
+        $account->set('timezone_id', $vars['timezone_id']);
+        $account->set('backend', $vars['backend']);
+
+        if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))
+            $account->set('username', $vars['username']);
+
+        if ($vars['passwd1'] && !$vars['sendemail']) {
+            $account->set('passwd', Passwd::hash($vars['passwd1']));
+            $account->setStatus(UserAccountStatus::CONFIRMED);
+            if ($vars['pwreset-flag'])
+                $account->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+            if ($vars['forbid-pwreset-flag'])
+                $account->setStatus(UserAccountStatus::FORBID_PASSWD_RESET);
+        }
+        elseif ($vars['backend'] && $vars['backend'] != 'client') {
+            // Auto confirm remote accounts
+            $account->setStatus(UserAccountStatus::CONFIRMED);
+        }
+
+        $account->save(true);
+
+        if (!$account->isConfirmed() && $vars['sendemail'])
+            $account->sendConfirmEmail();
+
+        return $account;
+    }
+
+}
+
+class UserAccountStatus {
+
+    var $flag;
+
+    const CONFIRMED             = 0x0001;
+    const LOCKED                = 0x0002;
+    const REQUIRE_PASSWD_RESET  = 0x0004;
+    const FORBID_PASSWD_RESET   = 0x0008;
+
+    function __construct($flag) {
+        $this->flag = $flag;
+    }
+
+    function check($flag) {
+        return 0 !== ($this->flag & $flag);
+    }
+
+    function isLocked() {
+        return $this->check(self::LOCKED);
+    }
+
+    function isConfirmed() {
+        return $this->check(self::CONFIRMED);
+    }
+
+    function __toString() {
+
+        if ($this->isLocked())
+            return 'Locked (Administrative)';
+
+        if (!$this->isConfirmed())
+            return 'Locked (Pending Activation)';
+
+        // ... Other flags here (password reset, etc).
+
+        return 'Active (Registered)';
+    }
+}
+
+
 /*
  *  Generic user list.
  */
@@ -525,5 +1112,7 @@ class UserList implements  IteratorAggregate, ArrayAccess {
         return $list ? implode(', ', $list) : '';
     }
 }
-
+require_once(INCLUDE_DIR . 'class.organization.php');
+User::_inspect();
+UserAccount::_inspect();
 ?>

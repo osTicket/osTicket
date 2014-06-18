@@ -16,6 +16,10 @@
 **********************************************************************/
 require('secure.inc.php');
 if(!is_object($thisclient) || !$thisclient->isValid()) die('Access denied'); //Double check again.
+
+if ($thisclient->isGuest())
+    $_REQUEST['id'] = $thisclient->getTicketId();
+
 require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
@@ -28,12 +32,16 @@ if($_REQUEST['id']) {
     }
 }
 
+if (!$ticket && $thisclient->isGuest())
+    Http::redirect('view.php');
+
 //Process post...depends on $ticket object above.
 if($_POST && is_object($ticket) && $ticket->getId()):
     $errors=array();
     switch(strtolower($_POST['a'])){
     case 'edit':
-        if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
+        if(!$ticket->checkUserAccess($thisclient) //double check perm again!
+                || $thisclient->getId() != $ticket->getUserId())
             $errors['err']='Access Denied. Possibly invalid ticket ID';
         elseif (!$cfg || !$cfg->allowClientUpdates())
             $errors['err']='Access Denied. Client updates are currently disabled';
@@ -98,7 +106,7 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
     }
     else
         $inc='view.inc.php';
-} elseif($cfg->showRelatedTickets() && $thisclient->getNumTickets()) {
+} elseif($thisclient->getNumTickets()) {
     $inc='tickets.inc.php';
 } else {
     $nav->setActiveNav('new');

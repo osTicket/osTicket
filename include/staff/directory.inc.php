@@ -60,7 +60,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2>Staff Members</h2>
+<h2>Staff Members&nbsp;<i class="help-tip icon-question-sign" href="#staff_members"></i></h2>
 <div style="width:700px; float:left;">
     <form action="directory.php" method="GET" name="filter">
        <input type="text" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>" >
@@ -80,7 +80,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
              ?>
         </select>
         &nbsp;&nbsp;
-        <input type="submit" name="submit" value="Filter"/>
+        <input type="submit" name="submit" value="Filter"/>&nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#apply_filtering_criteria"></i>
     </form>
  </div>
 <div class="clear"></div>

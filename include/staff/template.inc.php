@@ -50,9 +50,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Status:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
+                <span>
+                <label><input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>&nbsp;Enabled</strong></label>
+                &nbsp;
+                <label><input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>&nbsp;Disabled</label>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#status"></i>
+                </span>
             </td>
         </tr>
         <?php
@@ -61,15 +64,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td width="180" class="required">
                 Language:
             </td>
-            <td>
-                <?php
-            $langs = Internationalization::availableLanguages();
-            $lang = strtolower($info['lang']);
-            if (isset($langs[$lang]))
-                echo $langs[$lang]['desc'];
-            else
-                echo $info['lang']; ?>
-            </td>
+            <td><?php
+            echo Internationalization::getLanguageDescription($info['lang']);
+            ?></td>
         </tr>
         <?php
             $current_group = false;
@@ -108,6 +105,33 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } else { ?>
         <tr>
             <td width="180" class="required">
+                Template Set To Clone:
+            </td>
+            <td>
+                <select name="tpl_id" onchange="javascript:
+    if ($(this).val() == 0)
+        $('#language').show();
+    else
+        $('#language').hide();
+">
+                    <option value="0">&mdash; Stock Templates &dash;</option>
+                    <?php
+                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' ORDER by name';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$name)=db_fetch_row($res)){
+                            $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span><i class="help-tip icon-question-sign" href="#template_to_clone"></i>
+            </td>
+        </tr>
+</tbody>
+<tbody id="language">
+        <tr>
+            <td width="180" class="required">
                 Language:
             </td>
             <td>
@@ -121,33 +145,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php } ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['lang_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#language"></i>
             </td>
         </tr>
-        <tr>
-            <td width="180" class="required">
-                Template To Clone:
-            </td>
-            <td>
-                <select name="tpl_id">
-                    <option value="0">&mdash; Select One &dash;</option>
-                    <?php
-                    $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['tpl_id'] && $id==$info['tpl_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['tpl_id']; ?></span>
-                 <em>(select an existing template to copy and edit it thereafter)</em>
-            </td>
-        </tr>
+</tbody>
+<tbody>
         <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>
+                <em><strong>Admin Notes </strong>: Internal notes.</em>
             </th>
         </tr>
         <tr>
@@ -158,7 +164,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="Reset">
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="templates.php"'>

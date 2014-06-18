@@ -298,7 +298,7 @@ if ($results) {
             <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" name="basic_search" class="button" value="Search"></td>
-            <td>&nbsp;&nbsp;<a href="" id="go-advanced">[advanced]</a></td>
+            <td>&nbsp;&nbsp;<a href="#" id="go-advanced">[advanced]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
         </tr>
     </table>
     </form>
@@ -465,8 +465,8 @@ if ($results) {
     <?php
     if($num>0){ //if we actually had any tickets returned.
         echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;';
-        echo '<a class="export-csv" href="?a=export&h='
-            .$hash.'&status='.$_REQUEST['status'] .'">Export</a></div>';
+        echo '<a class="export-csv no-pjax" href="?a=export&h='
+            .$hash.'&status='.$_REQUEST['status'] .'">Export</a>&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
     ?>
         <?php
          if($thisstaff->canManageTickets()) { ?>

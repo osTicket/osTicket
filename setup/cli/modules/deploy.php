@@ -116,6 +116,10 @@ class Deployment extends Unpacker {
         $source = preg_replace("/^(\s*)define\s*\(\s*'THIS_VERSION'.*$/m",
             "$1define('THIS_VERSION', '".$version."'); // Set by installer",
             $source);
+        // Set GIT_VERSION
+        $source = preg_replace("/^(\s*)define\s*\(\s*'GIT_VERSION'.*$/m",
+            "$1define('GIT_VERSION', '".$short."'); // Set by installer",
+            $source);
         // Disable error display
         $source = preg_replace("/^(\s*)ini_set\s*\(\s*'(display_errors|display_startup_errors)'.*$/m",
             "$1ini_set('$2', '0'); // Set by installer",

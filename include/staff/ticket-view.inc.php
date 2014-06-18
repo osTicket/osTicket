@@ -56,7 +56,7 @@ if($ticket->isOverdue())
             <?php
             } ?>
             <?php if($thisstaff->canDeleteTickets()) { ?>
-                <a id="ticket-delete" class="action-button" href="#delete"><i class="icon-trash"></i> Delete</a>
+                <a id="ticket-delete" class="action-button confirm-action" href="#delete"><i class="icon-trash"></i> Delete</a>
             <?php } ?>
             <?php
             if($thisstaff->canCloseTickets()) {
@@ -76,7 +76,7 @@ if($ticket->isOverdue())
             } ?>
             <?php
             if($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
-                <a id="ticket-claim" class="action-button" href="#claim"><i class="icon-user"></i> Claim</a>
+                <a id="ticket-claim" class="action-button confirm-action" href="#claim"><i class="icon-user"></i> Claim</a>
 
             <?php
             }?>
@@ -86,9 +86,9 @@ if($ticket->isOverdue())
             </span>
             <div id="action-dropdown-print" class="action-dropdown anchor-right">
               <ul>
-                 <li><a target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
                  class="icon-file-alt"></i> Ticket Thread</a>
-                 <li><a target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
                  class="icon-file-text-alt"></i> Thread + Internal Notes</a>
               </ul>
             </div>
@@ -102,30 +102,37 @@ if($ticket->isOverdue())
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
 
                     if($ticket->isAssigned()) { ?>
-                        <li><a id="ticket-release" href="#release"><i class="icon-user"></i> Release (unassign) Ticket</a></li>
+                        <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="icon-user"></i> Release (unassign) Ticket</a></li>
                     <?php
                     }
 
                     if(!$ticket->isOverdue()) { ?>
-                        <li><a id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> Mark as Overdue</a></li>
+                        <li><a class="confirm-action" id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> Mark as Overdue</a></li>
                     <?php
                     }
 
                     if($ticket->isAnswered()) { ?>
-                        <li><a id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> Mark as Unanswered</a></li>
+                        <li><a class="confirm-action" id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> Mark as Unanswered</a></li>
                     <?php
                     } else { ?>
-                        <li><a id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> Mark as Answered</a></li>
+                        <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> Mark as Answered</a></li>
                     <?php
                     }
-                }
+                } ?>
+                <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
+                    ?>/forms/manage" onclick="javascript:
+                    $.dialog($(this).attr('href').substr(1), 201);
+                    return false"
+                    ><i class="icon-paste"></i> Manage Forms</a></li>
 
-                if($thisstaff->canBanEmails()) {
+<?php           if($thisstaff->canBanEmails()) {
                      if(!$emailBanned) {?>
-                        <li><a id="ticket-banemail" href="#banemail"><i class="icon-ban-circle"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
+                        <li><a class="confirm-action" id="ticket-banemail"
+                            href="#banemail"><i class="icon-ban-circle"></i> Ban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
                 <?php
                      } elseif($unbannable) { ?>
-                        <li><a id="ticket-banemail" href="#unbanemail"><i class="icon-undo"></i> Unban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
+                        <li><a  class="confirm-action" id="ticket-banemail"
+                            href="#unbanemail"><i class="icon-undo"></i> Unban Email (<?php echo $ticket->getEmail(); ?>)</a></li>
                     <?php
                      }
                 }?>
@@ -136,7 +143,7 @@ if($ticket->isOverdue())
 </table>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
-        <td width="50">
+        <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100">Status:</th>
@@ -159,7 +166,7 @@ if($ticket->isOverdue())
         <td width="50%" style="vertical-align:top">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="100">Client:</th>
+                    <th width="100">User:</th>
                     <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
                         onclick="javascript:
                             $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
@@ -182,14 +189,20 @@ if($ticket->isOverdue())
                                 <ul>
                                     <?php
                                     if(($open=$user->getNumOpenTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt"></i> %d Open Tickets</a></li>',
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt icon-fixed-width"></i> %d Open Tickets</a></li>',
                                                 $user->getId(), $open);
                                     if(($closed=$user->getNumClosedTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="icon-folder-close-alt"></i> %d Closed Tickets</a></li>',
+                                        echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="icon-folder-close-alt icon-fixed-width"></i> %d Closed Tickets</a></li>',
                                                 $user->getId(), $closed);
                                     ?>
-                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right"></i> All Tickets</a></li>
-                                </u>
+                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> All Tickets</a></li>
+                                    <li><a href="users.php?id=<?php echo
+                                    $user->getId(); ?>"><i class="icon-user
+                                    icon-fixed-width"></i> Manage User</a></li>
+<?php if ($user->getOrgId()) { ?>
+                                    <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>"><i class="icon-building icon-fixed-width"></i> Manage Organization</a></li>
+<?php } ?>
+                                </ul>
                             </div>
                     <?php
                         }
@@ -310,7 +323,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     if (count($answers) == 0)
         continue;
     ?>
-        </tr><tr>
+        <tr>
         <td colspan="2">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
             <?php foreach($answers as $a) {
@@ -326,10 +339,10 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                 <?php } ?>
             </table>
         </td>
+        </tr>
     <?php
     $idx++;
     } ?>
-    </tr>
 </table>
 <div class="clear"></div>
 <h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
@@ -346,10 +359,7 @@ $tcount+= $ticket->getNumNotes();
     /* -------- Messages & Responses & Notes (if inline)-------------*/
     $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
-       foreach($thread as $entry) {
-           if ($entry['body'] == '-')
-               $entry['body'] = '(EMPTY)';
-           ?>
+       foreach($thread as $entry) { ?>
         <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
                 <th colspan="4" width="100%">
@@ -369,21 +379,25 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry['id']; ?>"><div><?php
-                echo Format::viewableImages(Format::display($entry['body'])); ?></div></td></tr>
+                echo $entry['body']->toHtml(); ?></div></td></tr>
             <?php
             if($entry['attachments']
-                    && ($tentry=$ticket->getThreadEntry($entry['id']))
+                    && ($tentry = $ticket->getThreadEntry($entry['id']))
                     && ($urls = $tentry->getAttachmentUrls())
-                    && ($links=$tentry->getAttachmentsLinks())) {?>
+                    && ($links = $tentry->getAttachmentsLinks())) {?>
             <tr>
-                <td class="info" colspan="4"><?php echo $links; ?></td>
+                <td class="info" colspan="4"><?php echo $tentry->getAttachmentsLinks(); ?></td>
+            </tr> <?php
+            }
+            if ($urls) { ?>
                 <script type="text/javascript">
-                    $(function() { showImagesInline(<?php echo
-                        JsonDataEncoder::encode($urls); ?>); });
+                    $('#thread-id-<?php echo $entry['id']; ?>')
+                        .data('urls', <?php
+                            echo JsonDataEncoder::encode($urls); ?>)
+                        .data('id', <?php echo $entry['id']; ?>);
                 </script>
-            </tr>
-            <?php
-            }?>
+<?php
+            } ?>
         </table>
         <?php
         if($entry['thread_type']=='M')
@@ -501,8 +515,6 @@ $tcount+= $ticket->getNumNotes();
                             }
                             ?>
                         </select>
-                        &nbsp;&nbsp;&nbsp;
-                        <label><input type='checkbox' value='1' name="append" id="append" checked="checked"> Append</label>
                         <br>
                     <?php
                     }
@@ -525,7 +537,7 @@ $tcount+= $ticket->getNumNotes();
                         placeholder="Start writing your response here. Use canned responses from the drop-down above"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"
-                        class="richtext ifhtml draft"><?php
+                        class="richtext ifhtml draft draft-delete"><?php
                         echo $info['response']; ?></textarea>
                 </td>
             </tr>
@@ -626,14 +638,14 @@ $tcount+= $ticket->getNumNotes();
                         Note title - summary of the note (optional)</div>
                         <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >
                         <br/>
-                        <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
+                        <span class="error">&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
                     <br/>
                     <textarea name="note" id="internal_note" cols="80"
                         placeholder="Note details"
                         rows="9" wrap="soft" data-draft-namespace="ticket.note"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
-                        class="richtext ifhtml draft"><?php echo $info['note'];
+                        class="richtext ifhtml draft draft-delete"><?php echo $info['note'];
                         ?></textarea>
                         <span class="error"><?php echo $errors['note']; ?></span>
                         <br>
@@ -995,7 +1007,6 @@ $tcount+= $ticket->getNumNotes();
     </form>
     <div class="clear"></div>
 </div>
-<script type="text/javascript" src="js/ticket.js"></script>
 <script type="text/javascript">
 $(function() {
     $(document).on('click', 'a.change-user', function(e) {

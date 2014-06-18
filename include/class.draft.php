@@ -154,7 +154,8 @@ class Draft {
         // Keep client drafts for two weeks (14 days)
         $sql = 'DELETE FROM '.DRAFT_TABLE
             ." WHERE `namespace` LIKE 'ticket.client.%'
-            AND datediff(now(), updated) > 14";
+            AND ((updated IS NULL AND datediff(now(), created) > 14)
+                OR datediff(now(), updated) > 14)";
         return db_query($sql);
     }
 }

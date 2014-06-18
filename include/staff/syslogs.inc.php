@@ -83,16 +83,16 @@ else
     $showing='No logs found!';
 ?>
 
-<h2>System Logs</h2>
+<h2>System Logs&nbsp;<i class="help-tip icon-question-sign" href="#system_logs"></i></h2>
 <div id='filter' >
  <form action="logs.php" method="get">
     <div style="padding-left:2px;">
-        <b>Date Span</b>:
+        <b>Date Span</b>&nbsp;<i class="help-tip icon-question-sign" href="#date_span"></i>
         &nbsp;From&nbsp;<input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp; to &nbsp;&nbsp;
             <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete=OFF>
             &nbsp;&nbsp;
-            &nbsp;Type:
+            &nbsp;Type&nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
             <select name='type'>
                 <option value="" selected>All</option>
                 <option value="Error" <?php echo ($type=='Error')?'selected="selected"':''; ?>>Errors</option>
@@ -133,7 +133,7 @@ else
                 <td width=7px>
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['log_id']; ?>" 
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
-                <td>&nbsp;<a class="tip" href="log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
+                <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
                 <td><?php echo $row['log_type']; ?></td>
                 <td>&nbsp;<?php echo Format::db_daydatetime($row['created']); ?></td>
                 <td><?php echo $row['ip_address']; ?></td>

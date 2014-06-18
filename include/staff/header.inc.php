@@ -1,3 +1,4 @@
+<?php if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
@@ -5,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="x-pjax-version" content="<?php echo GIT_VERSION; ?>">
     <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: Staff Control Panel'; ?></title>
     <!--[if IE]>
     <style type="text/css">
@@ -13,6 +15,7 @@
     <![endif]-->
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.pjax.js"></script>
     <script type="text/javascript" src="../js/jquery.multifile.js"></script>
     <script type="text/javascript" src="./js/tips.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
@@ -31,6 +34,7 @@
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome-ie7.min.css">
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="./css/dropdown.css">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
@@ -49,63 +53,37 @@
         echo sprintf('<div id="notice_bar">%s</div>', $ost->getNotice());
     ?>
     <div id="header">
-        <a href="index.php" id="logo">osTicket - Customer Support System</a>
+        <a href="index.php" class="no-pjax" id="logo">osTicket - Customer Support System</a>
         <p id="info">Welcome, <strong><?php echo $thisstaff->getFirstName(); ?></strong>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
-            | <a href="admin.php">Admin Panel</a>
+            | <a href="admin.php" class="no-pjax">Admin Panel</a>
             <?php }else{ ?>
-            | <a href="index.php">Staff Panel</a>
+            | <a href="index.php" class="no-pjax">Staff Panel</a>
             <?php } ?>
             | <a href="profile.php">My Preferences</a>
-            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>">Log Out</a>
+            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax">Log Out</a>
         </p>
     </div>
+    <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
+<?php } else {
+    if ($pjax = $ost->getExtraPjax()) { ?>
+    <script type="text/javascript">
+    <?php foreach (array_filter($pjax) as $s) echo $s.";"; ?>
+    </script>
+    <?php }
+    foreach ($ost->getExtraHeaders() as $h) {
+        if (strpos($h, '<script ') !== false)
+            echo $h;
+    } ?>
+    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: Staff Control Panel'; ?></title><?php
+    header('X-PJAX-Version: ' . GIT_VERSION);
+} # endif X_PJAX ?>
     <ul id="nav">
-        <?php
-        if(($tabs=$nav->getTabs()) && is_array($tabs)){
-            foreach($tabs as $name =>$tab) {
-                echo sprintf('<li class="%s"><a href="%s">%s</a>',$tab['active']?'active':'inactive',$tab['href'],$tab['desc']);
-                if(!$tab['active'] && ($subnav=$nav->getSubMenu($name))){
-                    echo "<ul>\n";
-                    foreach($subnav as $k => $item) {
-                        if (!($id=$item['id']))
-                            $id="nav$k";
-
-                        echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
-                                $item['iconclass'], $item['href'], $item['title'], $id, $item['desc']);
-                    }
-                    echo "\n</ul>\n";
-                }
-                echo "\n</li>\n";
-            }
-        } ?>
+<?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
     </ul>
     <ul id="sub_nav">
-        <?php
-        if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
-            $activeMenu=$nav->getActiveMenu();
-            if($activeMenu>0 && !isset($subnav[$activeMenu-1]))
-                $activeMenu=0;
-            foreach($subnav as $k=> $item) {
-                if($item['droponly']) continue;
-                $class=$item['iconclass'];
-                if ($activeMenu && $k+1==$activeMenu
-                        or (!$activeMenu
-                            && (strpos(strtoupper($item['href']),strtoupper(basename($_SERVER['SCRIPT_NAME']))) !== false
-                                or ($item['urls']
-                                    && in_array(basename($_SERVER['SCRIPT_NAME']),$item['urls'])
-                                    )
-                                )))
-                    $class="$class active";
-                if (!($id=$item['id']))
-                    $id="subnav$k";
-
-                echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
-                        $class, $item['href'], $item['title'], $id, $item['desc']);
-            }
-        }
-        ?>
+<?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
     </ul>
     <div id="content">
         <?php if($errors['err']) { ?>

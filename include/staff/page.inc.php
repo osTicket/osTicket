@@ -31,7 +31,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Site Pages</h2>
+ <h2>Site Pages
+    <i class="help-tip icon-question-sign" href="#site_pages"></i>
+    </h2>
  <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr><td></td><td></td></tr> <!-- For fixed table layout -->
@@ -57,8 +59,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Type:
             </td>
             <td>
+                <span>
                 <select name="type">
-                    <option value="" selected="selected">Select Page Type</option>
+                    <option value="" selected="selected">&mdash; Select Page Type &mdash;</option>
                     <?php
                     foreach($pageTypes as $k => $v)
                         echo sprintf('<option value="%s" %s>%s</option>',
@@ -66,6 +69,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['type']; ?></span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
+                </span>
             </td>
         </tr>
         <?php if ($info['name'] && $info['type'] == 'other') { ?>

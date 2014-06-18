@@ -155,19 +155,19 @@ class Installer extends SetupWizard {
             $i18n->loadDefaultData();
 
             $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
-            $sla_id_1 = db_result(db_query($sql, false), 0);
+            $sla_id_1 = db_result(db_query($sql, false));
 
             $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
-            $dept_id_1 = db_result(db_query($sql, false), 0);
+            $dept_id_1 = db_result(db_query($sql, false));
 
             $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
-            $template_id_1 = db_result(db_query($sql, false), 0);
+            $template_id_1 = db_result(db_query($sql, false));
 
             $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
-            $group_id_1 = db_result(db_query($sql, false), 0);
+            $group_id_1 = db_result(db_query($sql, false));
 
             $sql='SELECT `value` FROM '.PREFIX.'config WHERE namespace=\'core\' and `key`=\'default_timezone_id\' LIMIT 1';
-            $default_timezone = db_result(db_query($sql, false), 0);
+            $default_timezone = db_result(db_query($sql, false));
 
             //Create admin user.
             $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
@@ -194,7 +194,7 @@ class Installer extends SetupWizard {
 
 
             $sql='SELECT `email_id` FROM '.PREFIX."email WHERE `email`='alerts@$domain' LIMIT 1";
-            $alert_email_id = db_result(db_query($sql, false), 0);
+            $alert_email_id = db_result(db_query($sql, false));
 
             //Create config settings---default settings!
             //XXX: rename ostversion  helpdesk_* ??
@@ -256,7 +256,14 @@ class Installer extends SetupWizard {
         $errors = array();
         $ticket_vars = $i18n->getTemplate('templates/ticket/installed.yaml')
             ->getData();
-        $tid = Ticket::create($ticket_vars, $errors, 'api', false, false);
+        $ticket = Ticket::create($ticket_vars, $errors, 'api', false, false);
+
+        if ($ticket
+                && ($org = Organization::objects()->order_by('id')->one())) {
+
+            $user=User::lookup($ticket->getOwnerId());
+            $user->setOrganization($org);
+        }
 
         //TODO: create another personalized ticket and assign to admin??
 

@@ -24,7 +24,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Manage Email Ban List</h2>
+ <h2>Manage Email Ban Rule
+    <i class="help-tip icon-question-sign" href="#ban_list"></i>
+    </h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -35,12 +37,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td width="180" class="required">
-              Filter Name:
-            </td>
-            <td><?php echo $filter->getName(); ?></td>
-        </tr>
         <tr>
             <td width="180" class="required">
                 Ban Status:

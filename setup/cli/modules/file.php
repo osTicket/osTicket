@@ -11,9 +11,12 @@ class FileManager extends Module {
             'options' => array(
                 'list' => 'List files matching criteria',
                 'export' => 'Export files from the system',
+                'import' => 'Load files exported via `export`',
                 'dump' => 'Dump file content to stdout',
+                'load' => 'Load file contents from stdin',
                 'migrate' => 'Migrate a file to another backend',
                 'backends' => 'List configured storage backends',
+                'expunge' => 'Remove matching files from the system',
             ),
         ),
     );
@@ -21,7 +24,7 @@ class FileManager extends Module {
     var $options = array(
         'ticket' => array('-T', '--ticket', 'metavar'=>'id',
             'help' => 'Search by internal ticket id'),
-        'file' => array('-F', '--file', 'metavar'=>'id',
+        'file-id' => array('-F', '--file-id', 'metavar'=>'id',
             'help' => 'Search by file id'),
         'name' => array('-N', '--name', 'metavar'=>'name',
             'help' => 'Search by file name (subsring match)'),
@@ -41,6 +44,9 @@ class FileManager extends Module {
         'to' => array('-m', '--to', 'metavar'=>'BK',
             'help' => 'Target backend for migration. See `backends` action
                 for a list of available backends'),
+
+        'file' => array('-f', '--file', 'metavar'=>'FILE',
+            'help' => 'Filename used for import and export'),
 
         'verbose' => array('-v', '--verbose', 'action'=>'store_true',
             'help' => 'Be more verbose'),
@@ -65,8 +71,11 @@ class FileManager extends Module {
             $files = FileModel::objects();
             $this->_applyCriteria($options, $files);
             foreach ($files as $f) {
-                printf("% 5d %s % 8d %s % 12s %s\n", $f->id, $f->bk,
+                printf("% 5d %s % 8d %s % 16s %s\n", $f->id, $f->bk,
                     $f->size, $f->created, $f->type, $f->name);
+                if ($f->attrs) {
+                    printf("        %s\n", $f->attrs);
+                }
             }
             break;
 
@@ -76,8 +85,65 @@ class FileManager extends Module {
             if ($files->count() != 1)
                 $this->fail('Criteria must select exactly 1 file');
 
+            if (($f = AttachmentFile::lookup($files[0]->id))
+                    && ($bk = $f->open()))
+                $bk->passthru();
+            break;
+
+        case 'load':
+            // Load file content from STDIN
+            $files = FileModel::objects();
+            $this->_applyCriteria($options, $files);
+            if ($files->count() != 1)
+                $this->fail('Criteria must select exactly 1 file');
+
             $f = AttachmentFile::lookup($files[0]->id);
-            $f->sendData();
+            try {
+                if ($bk = $f->open())
+                    $bk->unlink();
+            }
+            catch (Exception $e) {}
+
+            if ($options['to'])
+                $bk = FileStorageBackend::lookup($options['to'], $f);
+            else
+                // Use the system default
+                $bk = AttachmentFile::getBackendForFile($f);
+
+            $type = false;
+            $signature = '';
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            if ($options['file'] && $options['file'] != '-') {
+                if (!file_exists($options['file']))
+                    $this->fail($options['file'].': Cannot open file');
+                if (!$bk->upload($options['file']))
+                    $this->fail('Unable to upload file contents to backend');
+                $type = $finfo->file($options['file']);
+                list(, $signature) = AttachmentFile::_getKeyAndHash($options['file'], true);
+            }
+            else {
+                $stream = fopen('php://stdin', 'rb');
+                while ($block = fread($stream, $bk->getBlockSize())) {
+                    if (!$bk->write($block))
+                        $this->fail('Unable to send file contents to backend');
+                    if (!$type)
+                        $type = $finfo->buffer($block);
+                }
+                if (!$bk->flush())
+                    $this->fail('Unable to commit file contents to backend');
+            }
+
+            // TODO: Update file metadata
+            $sql = 'UPDATE '.FILE_TABLE.' SET bk='.db_input($bk->getBkChar())
+                .', created=CURRENT_TIMESTAMP'
+                .', type='.db_input($type)
+                .', signature='.db_input($signature)
+                .' WHERE id='.db_input($f->getId());
+
+            if (!db_query($sql) || db_affected_rows()!=1)
+                $this->fail('Unable to update file metadata');
+
+            $this->stdout->write("Successfully saved contents\n");
             break;
 
         case 'migrate':
@@ -109,9 +175,46 @@ class FileManager extends Module {
             }
             $this->stdout->write("Migrated $count files\n");
             break;
+
+        case 'export':
+            // Create a temporary ZIP file
+            $files = FileModel::objects();
+            $this->_applyCriteria($options, $files);
+
+            if (!$options['file'])
+                $this->fail('Please specify zip file with `-f`');
+
+            $zip = new ZipArchive();
+            if (true !== ($reason = $zip->open($options['file'],
+                    ZipArchive::CREATE)))
+                $this->fail($reason.': Unable to create zip file');
+
+            $manifest = array();
+            foreach ($files as $m) {
+                $f = AttachmentFile::lookup($m->id);
+                $zip->addFromString($f->getId(), $f->getData());
+                $zip->setCommentName($f->getId(), $f->getName());
+                // TODO: Log %attachment and %ticket_attachment entries
+                $info = array('file' => $f->getInfo());
+                foreach ($m->tickets as $t)
+                    $info['tickets'][] = $t->ht;
+
+                $manifest[$f->getId()] = $info;
+            }
+            $zip->addFromString('MANIFEST', serialize($manifest));
+            $zip->close();
+            break;
+
+        case 'expunge':
+            // Create a temporary ZIP file
+            $files = FileModel::objects();
+            $this->_applyCriteria($options, $files);
+
+            foreach ($files as $f) {
+                $f->tickets->expunge();
+                $f->unlink() && $f->delete();
+            }
         }
-
-
     }
 
     function _applyCriteria($options, $qs) {
@@ -121,7 +224,7 @@ class FileManager extends Module {
             case 'ticket':
                 $qs->filter(array('tickets__ticket_id'=>$val));
                 break;
-            case 'file':
+            case 'file-id':
                 $qs->filter(array('id'=>$val));
                 break;
             case 'name':
@@ -189,10 +292,11 @@ class TicketAttachmentModel extends VerySimpleModel {
         ),
     );
 }
-class TicketModel extends VerySimpleModel {
+
+class AttachmentModel extends VerySimpleModel {
     static $meta = array(
-        'table' => TICKET_TABLE,
-        'pk' => 'ticket_id',
+        'table' => ATTACHMENT_TABLE,
+        'pk' => array('object_id', 'type', 'file_id'),
     );
 }
 

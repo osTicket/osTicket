@@ -51,6 +51,9 @@ var autoLock = {
         }
 
         if(!autoLock.lasteventTime) { //I hate nav away warnings..but
+            $(document).on('pjax:beforeSend.changed', function(e) {
+                return confirm("Any changes or info you've entered will be discarded!");
+            });
             $(window).bind('beforeunload', function(e) {
                 return "Any changes or info you've entered will be discarded!";
              });
@@ -194,7 +197,7 @@ var autoLock = {
     },
 
     releaseLock: function(e) {
-        if(!autoLock.tid) { return false; }
+        if (!autoLock.tid || !autoLock.lockId) { return false; }
 
         $.ajax({
             type: 'POST',
@@ -202,8 +205,8 @@ var autoLock = {
             data: 'delete',
             async: false,
             cache: false,
-            success: function(){
-
+            success: function() {
+                autoLock.lockId = 0;
             }
         })
         .done(function() { })
@@ -264,8 +267,59 @@ $.autoLock = autoLock;
 /*
    UI & form events
 */
+$.showNonLocalImage = function(div) {
+    var $div = $(div),
+        $img = $div.append($('<img>')
+          .attr('src', $div.data('src'))
+          .attr('alt', $div.attr('alt'))
+          .attr('title', $div.attr('title'))
+          .attr('style', $div.data('style'))
+        );
+    if ($div.attr('width'))
+        $img.width($div.attr('width'));
+    if ($div.attr('height'))
+        $img.height($div.attr('height'));
+};
 
-jQuery(function($) {
+$.showImagesInline = function(urls, thread_id) {
+    var selector = (thread_id == undefined)
+        ? '.thread-body img[data-cid]'
+        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
+    $(selector).each(function(i, el) {
+        var e = $(el),
+            cid = e.data('cid').toLowerCase(),
+            info = urls[cid];
+        if (info && !e.data('wrapped')) {
+            // Add a hover effect with the filename
+            var timeout, caption = $('<div class="image-hover">')
+                .css({'float':e.css('float')});
+            e.wrap(caption).parent()
+                .hover(
+                    function() {
+                        var self = this;
+                        timeout = setTimeout(
+                            function() { $(self).find('.caption').slideDown(250); },
+                            500);
+                    },
+                    function() {
+                        clearTimeout(timeout);
+                        $(this).find('.caption').slideUp(250);
+                    }
+                ).append($('<div class="caption">')
+                    .append('<span class="filename">'+info.filename+'</span>')
+                    .append('<a href="'+info.download_url+'" class="action-button no-pjax"><i class="icon-download-alt"></i> Download</a>')
+                );
+            e.data('wrapped', true);
+        }
+    });
+};
+
+$.refreshTicketView = function() {
+    if (0 === $('.dialog:visible').length)
+        $.pjax({url: document.location.href, container:'#pjax-container'});
+}
+
+var ticket_onload = function($) {
     $('#response_options form').hide();
     $('#ticket_notes').hide();
     if(location.hash != "" && $('#response_options '+location.hash).length) {
@@ -336,30 +390,11 @@ jQuery(function($) {
         return false;
     });
 
-    //ticket status (close & reopen)
+    //ticket status (close & reopen) xxx: move to backend ticket-action
     $('a#ticket-close, a#ticket-reopen').click(function(e) {
         e.preventDefault();
         $('#overlay').show();
         $('.dialog#ticket-status').show();
-        return false;
-    });
-
-    //ticket actions confirmation - Delete + more
-    $('a#ticket-delete, a#ticket-claim, #action-dropdown-more li a:not(.change-user)').click(function(e) {
-        e.preventDefault();
-        if($('.dialog#confirm-action '+$(this).attr('href')+'-confirm').length) {
-            var action = $(this).attr('href').substr(1, $(this).attr('href').length);
-            $('.dialog#confirm-action #action').val(action);
-            $('#overlay').show();
-            $('.dialog#confirm-action .confirm-action').hide();
-            $('.dialog#confirm-action p'+$(this).attr('href')+'-confirm')
-            .show()
-            .parent('div').show().trigger('click');
-
-        } else {
-            alert('Unknown action '+$(this).attr('href')+'- get technical help.');
-        }
-
         return false;
     });
 
@@ -370,20 +405,6 @@ jQuery(function($) {
         else
             $cc.show();
      });
-
-    var showNonLocalImage = function(div) {
-        var $div = $(div),
-            $img = $div.append($('<img>')
-              .attr('src', $div.data('src'))
-              .attr('alt', $div.attr('alt'))
-              .attr('title', $div.attr('title'))
-              .attr('style', $div.data('style'))
-            );
-        if ($div.attr('width'))
-            $img.width($div.attr('width'));
-        if ($div.attr('height'))
-            $img.height($div.attr('height'));
-    };
 
     // Optionally show external images
     $('.thread-entry').each(function(i, te) {
@@ -397,7 +418,7 @@ jQuery(function($) {
           .text(' Show Images')
           .click(function(ev) {
             imgs.each(function(i, img) {
-              showNonLocalImage(img);
+              $.showNonLocalImage(img);
               $(img).removeClass('non-local-image')
                 // Remove placeholder sizing
                 .css({'display':'inline-block'})
@@ -426,36 +447,12 @@ jQuery(function($) {
             // TODO: Add a hover-button to show just one image
         });
     });
-});
 
-showImagesInline = function(urls, thread_id) {
-    var selector = (thread_id == undefined)
-        ? '.thread-body img[data-cid]'
-        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
-    $(selector).each(function(i, el) {
-        var cid = $(el).data('cid').toLowerCase(),
-            info = urls[cid],
-            e = $(el);
-        if (info) {
-            // Add a hover effect with the filename
-            var timeout, caption = $('<div class="image-hover">')
-                .css({'float':e.css('float')});
-            e.wrap(caption).parent()
-                .hover(
-                    function() {
-                        var self = this;
-                        timeout = setTimeout(
-                            function() { $(self).find('.caption').slideDown(250); },
-                            500);
-                    },
-                    function() {
-                        clearTimeout(timeout);
-                        $(this).find('.caption').slideUp(250);
-                    }
-                ).append($('<div class="caption">')
-                    .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
-                );
-        }
+    $('.thread-body').each(function() {
+        var urls = $(this).data('urls');
+        if (urls)
+            $.showImagesInline(urls, $(this).data('id'));
     });
-}
+};
+$(ticket_onload);
+$(document).on('pjax:success', function() { ticket_onload(jQuery); });

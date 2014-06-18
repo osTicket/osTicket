@@ -11,8 +11,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     <thead>
         <tr>
             <th colspan="2">
-                <h4>Ticket Settings</h4>
-                <em>Global ticket settings and options.</em>
+                <h4>Global Ticket Settings</h4>
+                <em>System-wide default ticket settings and options.</em>
             </th>
         </tr>
     </thead>
@@ -22,7 +22,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <input type="radio" name="random_ticket_ids"  value="0" <?php echo !$config['random_ticket_ids']?'checked="checked"':''; ?> />
                 Sequential
                 <input type="radio" name="random_ticket_ids"  value="1" <?php echo $config['random_ticket_ids']?'checked="checked"':''; ?> />
-                Random  <em>(highly recommended)</em>
+                Random
             </td>
         </tr>
 
@@ -31,6 +31,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 Default SLA:
             </td>
             <td>
+                <span>
                 <select name="default_sla_id">
                     <option value="0">&mdash; None &mdash;</option>
                     <?php
@@ -44,7 +45,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_sla_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_sla_id']; ?></span>  <i class="help-tip icon-question-sign" href="#default_sla"></i>
+                </span>
             </td>
         </tr>
         <tr>
@@ -58,66 +60,72 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     <?php
                     } ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_priority_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_priority_id']; ?></span> <i class="help-tip icon-question-sign" href="#default_priority"></i>
              </td>
+        </tr>
+        <tr>
+            <td width="180">Default Help Topic:</td>
+            <td>
+                <select name="default_help_topic">
+                    <option value="0">&mdash; None &mdash;</option><?php
+                    $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+                    while (list($id,$topic) = each($topics)) { ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($config['default_help_topic']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
+                    <?php
+                    } ?>
+                </select><br/>
+                <span class="error"><?php echo $errors['default_help_topic']; ?></span>
+            </td>
         </tr>
         <tr>
             <td>Maximum <b>Open</b> Tickets:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
-                per email/user. <em>(Helps with spam and email flood control - enter 0 for unlimited)</em>
+                per email/user. <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
             </td>
         </tr>
         <tr>
-            <td>Ticket Auto-lock Time:</td>
+            <td>Agent Collision Avoidance Duration:</td>
             <td>
                 <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
-                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>
-                <em>(Minutes to lock a ticket on activity - enter 0 to disable locking)</em>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Show Related Tickets:</td>
-            <td>
-                <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >
-                <em>(Show all related tickets on user login - otherwise access is restricted to one ticket view per login)</em>
+                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>&nbsp;minutes&nbsp;<i class="help-tip icon-question-sign" href="#agent_collision_avoidance"></i>
             </td>
         </tr>
         <tr>
             <td>Human Verification:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
-                Enable CAPTCHA on new web tickets.<em>(requires GDLib)</em> &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font><br/>
+                Enable CAPTCHA on new web tickets. &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>&nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
             </td>
         </tr>
         <tr>
-            <td>Claim Tickets:</td>
+            <td>Claim on Response:</td>
             <td>
                 <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
-                Auto-assign unassigned tickets on response
-                <!-- Help Tip:
-                     Reopened tickets are always assigned to the last respondent -->
+                Enable&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
             </td>
         </tr>
         <tr>
             <td>Assigned Tickets:</td>
             <td>
-                <input type="checkbox" name="show_assigned_tickets" <?php echo $config['show_assigned_tickets']?'checked="checked"':''; ?>>
-                Show assigned tickets on open queue.
+                <input type="checkbox" name="show_assigned_tickets" <?php
+                echo !$config['show_assigned_tickets']?'checked="checked"':''; ?>>
+                Exclude assigned tickets from open queue. <i class="help-tip icon-question-sign" href="#assigned_tickets"></i>
             </td>
         </tr>
         <tr>
             <td>Answered Tickets:</td>
             <td>
-                <input type="checkbox" name="show_answered_tickets" <?php echo $config['show_answered_tickets']?'checked="checked"':''; ?>>
-                Show answered tickets on open queue.
+                <input type="checkbox" name="show_answered_tickets" <?php
+                echo !$config['show_answered_tickets']?'checked="checked"':''; ?>>
+                Exclude answered tickets from open queue. <i class="help-tip icon-question-sign" href="#answered_tickets"></i>
             </td>
         </tr>
         <tr>
             <td>Staff Identity Masking:</td>
             <td>
                 <input type="checkbox" name="hide_staff_name" <?php echo $config['hide_staff_name']?'checked="checked"':''; ?>>
-                Hide staff's name on responses.
+                Hide staff's name on responses. <i class="help-tip icon-question-sign" href="#staff_identity_masking"></i>
             </td>
         </tr>
         <tr>
@@ -125,7 +133,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td>
                 <input type="checkbox" name="enable_html_thread" <?php
                 echo $config['enable_html_thread']?'checked="checked"':''; ?>>
-                Enable rich text in ticket thread and autoresponse emails
+                Enable rich text in ticket thread and autoresponse emails. <i class="help-tip icon-question-sign" href="#enable_html_ticket_thread"></i>
             </td>
         </tr>
         <tr>
@@ -144,7 +152,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <tr>
             <td width="180">Allow Attachments:</td>
             <td>
-              <input type="checkbox" name="allow_attachments" <?php echo $config['allow_attachments']?'checked="checked"':''; ?>><b>Allow Attachments</b>
+              <input type="checkbox" name="allow_attachments" <?php echo
+              $config['allow_attachments']?'checked="checked"':''; ?>> <b>Allow Attachments</b>
                 &nbsp; <em>(Global Setting)</em>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_attachments']; ?></font>
             </td>
@@ -238,7 +247,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <tr>
             <td width="180">Ticket Response Files:</td>
             <td>
-                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?> >Email attachments to the user
+                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?> > Email attachments to the user <i class="help-tip icon-question-sign" href="#ticket_response_files"></i>
             </td>
         </tr>
         <?php if (($bks = FileStorageBackend::allRegistered())

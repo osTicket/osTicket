@@ -74,8 +74,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div><b>Listing Type</b>:&nbsp;
-                    <span class="faded">Published questions are listed on public knowledgebase if the parent category is public.</span></div>
+                <div><b>Listing Type</b>: &nbsp;<i class="help-tip icon-question-sign" href="#listing_type"></i></div>
                 <input type="radio" name="ispublished" value="1" <?php echo $info['ispublished']?'checked="checked"':''; ?>>Public (publish)
                 &nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="radio" name="ispublished" value="0" <?php echo !$info['ispublished']?'checked="checked"':''; ?>>Internal (private)

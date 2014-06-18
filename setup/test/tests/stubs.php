@@ -92,6 +92,8 @@ class Phar {
 class ZipArchive {
     function statIndex() {}
     function getFromIndex() {}
+    function setCommentName() {}
+    function addFromString() {}
 }
 
 class finfo {

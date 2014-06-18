@@ -8,6 +8,19 @@ if($thisclient && $thisclient->isValid()) {
 }
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
+
+$form = null;
+if (!$info['topicId'])
+    $info['topicId'] = $cfg->getDefaultTopicId();
+
+if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
+    $form = $topic->getForm();
+    if ($_POST && $form) {
+        $form = $form->instanciate();
+        $form->isValidForClient();
+    }
+}
+
 ?>
 <h1>Open a New Ticket</h1>
 <p>Please fill in the form below to open a new ticket.</p>
@@ -20,8 +33,9 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
         <td class="required">Help Topic:</td>
         <td>
             <select id="topicId" name="topicId" onchange="javascript:
+                    var data = $(':input[name]', '#dynamic-form').serialize();
                     $('#dynamic-form').load(
-                        'ajax.php/form/help-topic/' + this.value);
+                        'ajax.php/form/help-topic/' + this.value, data);
                     ">
                 <option value="" selected="selected">&mdash; Select a Help Topic &mdash;</option>
                 <?php
@@ -42,7 +56,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
         if (!$thisclient) {
             $uform = UserForm::getUserForm()->getForm($_POST);
             if ($_POST) $uform->isValid();
-            $uform->render(false, 'Your Information');
+            $uform->render(false);
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
@@ -84,7 +98,13 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 <hr/>
   <p style="text-align:center;">
         <input type="submit" value="Create Ticket">
-        <input type="reset" value="Reset">
-        <input type="button" value="Cancel" onClick='window.location.href="index.php"'>
+        <input type="reset" name="reset" value="Reset">
+        <input type="button" name="cancel" value="Cancel" onclick="javascript:
+            $('.richtext').each(function() {
+                var redactor = $(this).data('redactor');
+                if (redactor && redactor.opts.draftDelete)
+                    redactor.deleteDraft();
+            });
+            window.location.href='index.php';">
   </p>
 </form>

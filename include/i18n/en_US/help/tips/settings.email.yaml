@@ -1,5 +1,5 @@
 #
-# This is popup help messages for the Admin Panel -> Settings -> System page
+# This is popup help messages for the Admin Panel -> Settings -> Emails
 #
 # Fields:
 # title - Shown in bold at the top of the popover window
@@ -13,87 +13,113 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-default_templates:
-    title: Default Email Templates
+default_email_templates:
+    title: Default Email Template Set
     content: >
-         Set of templates that will be utilized for Alerts &amp; Notices to
-         staff as well as Auto-Responses to clients during the actions in a
-         ticket’s life cycle. Templates can be created in Admin Panel &gt;
-         Emails &gt; Templates
+        Select <span class="doc-desc-title">Email Template Set</span> used to send <span
+        class="doc-desc-title">Auto-Responses</span> and <span class="doc-desc-title">Alerts</span> for various actions that can
+        take place during a  Ticket’s lifetime.
+        <br><br>
+        Departments can be assigned a specific Email Template Set.
     links:
-      - title: Email Templates
+      - title: Manage Email Template Sets
         href: /scp/templates.php
 
-default_email:
-    title: Default System Email
+default_system_email:
+    title: Default Outgoing Email
     content: >
-        Set the system email address that auto-responses that clients will
-        be shown emails are from if not set by Department
+        Choose an email address from which outgoing emails are sent.
+        <br><br>
+        <span class="doc-desc-title">Department</span> can set its own <span
+        class="doc-desc-title">email address</span> which will override what is set here.
     links:
-      - title: System Email Addresses
+      - title: Manage Email Addresses
         href: /scp/emails.php
 
 default_alert_email:
     title: Default Alert Email
     content: >
-        Set the email address that Alerts &amp; Notices to staff will be
-        shown as received from if no default is set by Department (Admin
-        Panel &gt; Staff &gt; Department) or by Help Topic (Admin Panel &gt;
-        Manage &gt; Help Topic)
+        Choose an email address from which <span class="doc-desc-title">Alerts &amp;
+        Notices</span> are sent to Agents.
     links:
-      - title: System Email Addresses
+      - title: Manage Email Addresses
         href: /scp/emails.php
 
-admin_email:
-    title: Administrative Contact
+admins_email_address:
+    title: Admin’s Email Address
     content: >
-        Set the address for the Helpdesk Administrator to receive notices of
-        the System Error Log as well as the New Ticket Alerts (if enabled at
-        Admin Panel &gt; Settings &gt; Alerts &amp; Notices &gt; New Ticket
-        Alert)
+        Enter an adminstrator's email address to which <span
+        class="doc-desc-title">System Errors</span> and <span
+        class="doc-desc-title">New Ticket Alerts</span> (if enabled) are sent.
     links:
-      - title: Alerts &amp; Notices
+      - title: Manage Alerts & Notices
         href: /scp/settings.php?t=alerts
 
-# Incoming emails section
-incoming_email:
-    title: Incoming Email Settings
+email_fetching:
+    title: Email Fetching
     content: >
-        Allow IMAP/POP polling once you have set up the information in
-        emails section of Admin Panel. You can also edit the reply separator
-        text.<br/><br/>
-        <em>For mail polling to work you must set an external cron job or
-        enable auto-cron polling</em>
+        Allow IMAP/POP polling for configured and enabled <span class="doc-desc-title">Mail Boxes</span>.
+    links:
+      - title: Manage Mail Boxes
+        href: /scp/emails.php
 
-enable_email_poll:
-    title: Enable Email Polling
+enable_autocron_fetch:
+    title: Fetch Emails using Auto-cron
     content: >
-        Allow IMAP/POP polling once you have set up the information in
-        emails section of Admin Panel. You can also edit the reply separator
-        text
+        Enables periodic email fetching using an internal task manager
+        triggered by Agents' activity.  <br><br> Please note that emails will not be
+        fetched if no one is logged in to Staff Control Panel. External task scheduler
+        is highly recommended for predictable fetch intervals.
+    links:
+      - title: Using External Task Scheduler
+        href: http://osticket.com/wiki/POP3/IMAP_Setting_Guide#Schedule_Polling
 
-enable_autocron_poll:
-    title: Poll Email using Auto-cron
+strip_quoted_reply:
+    title: Strip Quoted Reply
     content: >
-        <em><b>Not Recommended</b></em><br/><br/>
-        Enables fetching email periodically using the automatic cron system.
-        As admin and staff members interact with the system, the system will
-        periodically run cleanup routines called the auto-cron. This setting
-        enables fetching email during this cleanup.
+        If enabled, this will remove preceding correspondence between email communications.
+        <br><br>
+        This feature is relationally dependent on the <span
+        class="doc-desc-title">Reply Separator Tag</span> below.
 
-use_email_priority:
-    title: Honor Email Priority
+reply_separator_tag:
+    title: Reply Separator Tag
     content: >
-        Honor the priority flag set in incoming email. If enabled, the
-        priority of new tickets will be set by the priority of the email
-        used to create them, if available.
+        This is a token indicating to the User to reply above the line.
+        <br><br>
+        <strong>Note:</strong> this is only relevant if <span
+        class="doc-desc-title">Strip Quoted Reply</span> is enabled above.
 
-add_email_collabs:
-    title: Email Collaborators
+emailed_tickets_priority:
+    title: Emailed Tickets Priority
     content: >
-        Add participants included in the <code><strong>To</strong></code> and
-        <code><strong>Cc</strong></code> fields of email as ticket
-        collaborators<br>
-        <br>
-        <em>Collaborators can always be added manually by staff members when
+        Choose whether you would like the priority/importance option of the
+        User's email (e.g. OutLook) to dictate the new ticket’s priority.
+        <br><br>
+        This setting can be overridden by a <span
+        class="doc-desc-title">Ticket Filter</span>.
+    links:
+      - title: Create &amp; Manage Ticket Filters
+        href: /scp/filters.php
+
+accept_all_emails:
+    title: Accept All Emails
+    content: >
+        Accept emails from unknown Users.
+        <br><br>
+        Unchecking this setting will result in tickets getting rejected.
+
+accept_email_collaborators:
+    title: Accept Email Collaborators
+    content: >
+        Add email participants included in the <code><strong>To</strong></code>
+        and <code><strong>CC</strong></code> fields as ticket collaborators.
+        <br /><br />
+        <em>Collaborators can always be added manually by Agents when
         viewing a ticket.</em>
+
+default_mta:
+    title: Default MTA
+    content: >
+        <span class="doc-desc-title">Default MTA</span> takes care of
+        email delivery process for outgoing emails without SMTP setting.
