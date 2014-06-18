@@ -2,6 +2,9 @@
 <?php
 if (php_sapi_name() != 'cli') exit();
 
+//Allow user to select suite
+$selected_test = (isset($argv[1])) ? $argv[1] : false;
+
 require_once "tests/class.test.php";
 
 if (!function_exists('get_osticket_root_path')) {
@@ -63,6 +66,8 @@ foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
     $class = (include $t);
     if (!is_string($class))
         continue;
+    if($selected_test && ($class != $selected_test))
+    	continue;
     $test = new $class();
     echo "Running: " . $test->name . "\n";
     $test->run();
