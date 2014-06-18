@@ -305,6 +305,8 @@ class osTicket {
                 $level=3; //Debug
         }
 
+        $loglevel=array(1=>'Error','Warning','Debug');
+
         $info = array(
             'title' => &$title,
             'level' => $loglevel[$level],
@@ -322,7 +324,6 @@ class osTicket {
             $this->alertAdmin($title, $message);
 
         //Save log based on system log level settings.
-        $loglevel=array(1=>'Error','Warning','Debug');
         $sql='INSERT INTO '.SYSLOG_TABLE.' SET created=NOW(), updated=NOW() '
             .',title='.db_input(Format::sanitize($title, true))
             .',log_type='.db_input($loglevel[$level])
