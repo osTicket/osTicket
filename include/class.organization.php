@@ -202,8 +202,7 @@ class Organization extends OrganizationModel {
         foreach ($this->getDynamicData() as $entry) {
             if ($entry->getForm()->get('type') != 'O')
                 continue;
-            foreach ($entry->getFields() as $f)
-                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+            $vars += $entry->getFilterData();
             // Add special `name` field
             $f = $entry->getForm()->getField('name');
             $vars['field.'.$f->get('id')] = $this->getName();
@@ -431,6 +430,12 @@ Filter::addSupportedMatches('Organization Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = 'Organization / '.$f->getLabel();
+        if (($fi = $f->getImpl()) instanceof SelectionField) {
+            foreach ($fi->getList()->getProperties() as $p) {
+                $matches['field.'.$f->get('id').'.'.$p->get('id')]
+                    = 'Organization / '.$f->getLabel().' / '.$p->getLabel();
+            }
+        }
     }
     return $matches;
 },40);

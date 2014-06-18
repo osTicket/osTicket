@@ -2227,8 +2227,7 @@ class Ticket {
             $errors += $form->errors();
 
         // Unpack dynamic variables into $vars for filter application
-        foreach ($form->getFields() as $f)
-            $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+        $vars += $form->getFilterData();
 
         // Unpack the basic user information
         if ($vars['uid'] && ($user = User::lookup($vars['uid']))) {
