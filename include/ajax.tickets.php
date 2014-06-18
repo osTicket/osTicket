@@ -662,12 +662,12 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket = Ticket::lookup($tid))
                 || !$ticket->checkStaffAccess($thisstaff))
-            Http::response(404, 'Unknown ticket #');
+            Http::response(404, 'Unknown ticket ID');
 
 
         if ($cid && !is_numeric($cid)) {
             if (!($response=$ticket->getThread()->getVar($cid)))
-                Http::response(404, 'Unknown ticket variable');
+                Http::response(422, 'Unknown ticket variable');
 
             // Ticket thread variables are assumed to be quotes
             $response = "<br/><blockquote>$response</blockquote><br/>";

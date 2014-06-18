@@ -1674,7 +1674,7 @@ class Ticket {
             $response = new HtmlThreadBody(
                     $this->replaceVars($canned->getHtml()));
         else
-            $response = new HtmlThreadBody(
+            $response = new TextThreadBody(
                     $this->replaceVars($canned->getPlainText()));
 
         $info = array('msgId' => $msgId,
