@@ -12,7 +12,7 @@ Enter your username or email address again in the form below and press the
     <div style="width:50%;display:inline-block">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="reset"/>
-    <input type="hidden" name="token" value="<?php echo $_REQUEST['token']; ?>"/>
+    <input type="hidden" name="token" value="<?php echo Format::htmlchars($_REQUEST['token']); ?>"/>
     <strong><?php echo Format::htmlchars($banner); ?></strong>
     <br>
     <div>
