@@ -305,6 +305,14 @@ class osTicket {
                 $level=3; //Debug
         }
 
+        $info = array(
+            'title' => &$title,
+            'level' => $loglevel[$level],
+            'level_id' => $level,
+            'body' => &$message,
+        );
+        Signal::send('syslog', null, $info);
+
         //Logging everything during upgrade.
         if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;

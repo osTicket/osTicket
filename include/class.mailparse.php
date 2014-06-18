@@ -58,6 +58,9 @@ class Mail_Parse {
                         'decode_headers'=> $this->decode_headers,
                         'decode_bodies' => $this->decode_bodies);
 
+        $info = array('raw' => &$this->mime_message);
+        Signal::send('mail.received', $this, $info);
+
         $this->splitBodyHeader();
 
         $decoder = new Mail_mimeDecode($this->mime_message);
@@ -65,6 +68,18 @@ class Mail_Parse {
 
         if (PEAR::isError($this->struct))
             return false;
+
+        $info = array(
+            'raw_header' => &$this->header,
+            'headers' => &$this->struct->headers,
+            'body' => &$this->struct->parts,
+            'type' => $this->struct->ctype_primary.'/'.$this->struct->ctype_secondary,
+            'mail' => $this->struct,
+            'decoder' => $decoder,
+        );
+
+        // Allow signal handlers to interact with the processing
+        Signal::send('mail.decoded', $decoder, $info);
 
         // Handle wrapped emails when forwarded
         if ($this->struct && $this->struct->parts) {
@@ -533,6 +548,7 @@ class EmailDataParser {
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
+        $data['flags'] = new ArrayObject();
 
         //FROM address: who sent the email.
         if(($fromlist = $parser->getFromAddressList())) {

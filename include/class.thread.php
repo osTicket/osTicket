@@ -1361,6 +1361,11 @@ class ThreadBody /* extends SplString */ {
         throw new Exception('display: Abstract dispplay() method not implemented');
     }
 
+    function getSearchable() {
+        return $this->body;
+        // TODO: Normalize Unicode string
+    }
+
     static function fromFormattedText($text, $format=false) {
         switch ($format) {
         case 'text':
@@ -1426,6 +1431,13 @@ class HtmlThreadBody extends ThreadBody {
 
     function getClean() {
         return trim($this->body, " <>br/\t\n\r") ? Format::sanitize($this->body) : '';
+    }
+
+    function getSearchable() {
+        // <br> -> \n
+        $body = preg_replace('/\<br(\s*)?\/?\>/i', "\n", $this->body);
+        return Format::striptags($body);
+        // TODO: Normalize Unicode string
     }
 
     function display($output=false) {
