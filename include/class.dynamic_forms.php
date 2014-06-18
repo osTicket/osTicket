@@ -220,8 +220,7 @@ class UserForm extends DynamicForm {
 
     static function getUserForm() {
         if (!isset(static::$form)) {
-            $o = static::objects();
-            static::$form = $o[0];
+            static::$form = static::objects()->one();
         }
         return static::$form;
     }
@@ -233,8 +232,8 @@ class UserForm extends DynamicForm {
     }
 
     static function getNewInstance() {
-        $o = static::objects();
-        static::$instance = $o[0]->instanciate();
+        $o = static::objects()->one();
+        static::$instance = $o->instanciate();
         return static::$instance;
     }
 }
@@ -263,8 +262,8 @@ class TicketForm extends DynamicForm {
     }
 
     static function getNewInstance() {
-        $o = static::objects();
-        static::$instance = $o[0]->instanciate();
+        $o = static::objects()->one();
+        static::$instance = $o->instanciate();
         return static::$instance;
     }
 
@@ -1094,6 +1093,8 @@ class SelectionField extends FormField {
     }
 
     function to_php($value, $id=false) {
+        if ($value === null && $id === null)
+            return null;
         if ($id && is_int($id))
             $item = DynamicListItem::lookup($id);
         # Attempt item lookup by name too

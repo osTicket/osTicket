@@ -167,9 +167,7 @@ class VerySimpleModel {
         if (!is_array($criteria))
             // Model::lookup(1), where >1< is the pk value
             $criteria = array(static::$meta['pk'][0] => $criteria);
-        $list = static::objects()->filter($criteria)->limit(1);
-        // TODO: Throw error if more than one result from database
-        return $list[0];
+        return static::objects()->filter($criteria)->one();
     }
 
     function delete($pk=false) {
@@ -333,7 +331,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     }
 
     function one() {
-        $this->limit(1);
+        $list = $this->limit(1)->all();
+        // TODO: Throw error if more than one result from database
         return $this[0];
     }
 
@@ -987,7 +986,8 @@ class MysqlExecutor {
     function _prepare() {
         $this->execute();
         $this->_setup_output();
-        $this->stmt->store_result();
+        if (!$this->stmt->store_result())
+            throw new OrmException('Unable to process query: '.$this->stmt->error);
     }
 
     function execute() {
@@ -1024,9 +1024,11 @@ class MysqlExecutor {
     }
 
     function _setup_output() {
-        $meta = $this->stmt->result_metadata();
+        if (!($meta = $this->stmt->result_metadata()))
+            throw new OrmException('Unable to fetch statment metadata: ', $this->stmt->error);
         while ($f = $meta->fetch_field())
             $this->fields[] = $f;
+        $meta->free_result();
     }
 
     // Iterator interface
@@ -1057,7 +1059,9 @@ class MysqlExecutor {
         foreach ($this->fields as $f)
             $variables[] = &$output[$f->name]; // pass by reference
 
-        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
+        if (!call_user_func_array(array($this->stmt, 'bind_result'), $variables))
+            throw new OrmException('Unable to bind result: ' . $this->stmt->error);
+
         if (!$this->next())
             return false;
         return $output;
@@ -1073,7 +1077,9 @@ class MysqlExecutor {
         foreach ($this->fields as $f)
             $variables[] = &$output[]; // pass by reference
 
-        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
+        if (!call_user_func_array(array($this->stmt, 'bind_result'), $variables))
+            throw new OrmException('Unable to bind result: ' . $this->stmt->error);
+
         if (!$this->next())
             return false;
         return $output;
