@@ -1,10 +1,32 @@
+osTicket v1.8.4
+===============
+### Improvements
+  * Fix misleading and incorrect custom form management pages (#919)
+  * Fix linked external image tag corruption (#936)
+  * Fix multiple [Show Images] button for external images in client interface (e4b721c)
+  * Properly handle email address personal names with commas (#940)
+  * Organizations can define a website now (13312dd)
+  * Correctly handle email headers with leading tabs (RFC 2047) (#895, #953)
+  * Implement `%{ticket.user.x}` for email templates and canned responses (#966)
+  * Handle shameful `X-AMAZON-MAIL-RELAY-TYPE` invented by Amazon
+  * Issue summary field type must have associated data (#987)
+  * Fix `%{recipient.ticket_link}` for new message auto response (#989)
+  * Fix corruption of `%{company.name}` on new ticket notice (#1002)
+  * Fix signal data byref (#1037)
+  * Correctly handle email priority headers (#491)
+  * Fix mail header newline corruption with the Suhosin extension (#442)
+
+### Performance and Security
+  * Fix XSS vulnerability in the phone number widget (#1025)
+  * Fix several XSS vulnerabilities (#1025)
+
 osTicket v1.8.3
 ===============
 ### Enhancements
   * Support filtering based on help topic (#728)
   * Embedded images ([rfc2397](http://www.ietf.org/rfc/rfc2397.txt)) are correctly supported (#740)
   * Allow regular staff members to show assigned open tickets on open queue (#751)
-  * Support Handle [rfc1892](http://www.ietf.org/rfc/rfc1892.txt) style bounce notices (#871)
+  * Support [rfc1892](http://www.ietf.org/rfc/rfc1892.txt) style bounce notices (#871)
   * Disable autocomplete on CAPTCHA fields (#821)
   * Show `closed` date on the closed ticket queue (#865)
   * Departments support assignment to members only (#862)
