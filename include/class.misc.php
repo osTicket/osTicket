@@ -103,6 +103,8 @@ class Misc {
     }
 
     function timeDropdown($hr=null, $min =null,$name='time') {
+        global $cfg;
+
         $hr =is_null($hr)?0:$hr;
         $min =is_null($min)?0:$min;
 
@@ -129,7 +131,8 @@ class Misc {
                 $sel=($hr==$i && $min==$minute)?'selected="selected"':'';
                 $_minute=str_pad($minute, 2, '0',STR_PAD_LEFT);
                 $_hour=str_pad($i, 2, '0',STR_PAD_LEFT);
-                echo sprintf('<option value="%s:%s" %s>%s:%s</option>',$_hour,$_minute,$sel,$_hour,$_minute);
+                $disp = date($cfg->getTimeFormat(), $i*3600 + $minute*60);
+                echo sprintf('<option value="%s:%s" %s>%s</option>',$_hour,$_minute,$sel,$disp);
             }
         }
         echo '</select>';
