@@ -120,7 +120,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     </select>
     <input type="submit" value="Go">
 </form>
-<a class="refresh" href="<?php echo $_SERVER['REQUEST_URI']; ?>">Refresh</a>
+<a class="refresh" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>">Refresh</a>
 <table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0">
     <caption><?php echo $showing; ?></caption>
     <thead>

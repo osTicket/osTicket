@@ -148,7 +148,19 @@ class Mailer {
             }
         }
 
-        $mime = new Mail_mime();
+        // The Suhosin patch will muck up the line endings in some
+        // cases
+        //
+        // References:
+        // https://github.com/osTicket/osTicket-1.8/issues/202
+        // http://pear.php.net/bugs/bug.php?id=12032
+        // http://us2.php.net/manual/en/function.mail.php#97680
+        if ((extension_loaded('suhosin') || constant("SUHOSIN_PATCH"))
+                && !$this->getSMTPInfo())
+            $mime = new Mail_mime("\n");
+        else
+            // Use defaults
+            $mime = new Mail_mime();
 
         // If the message is not explicitly declared to be a text message,
         // then assume that it needs html processing to create a valid text

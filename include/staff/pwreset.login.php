@@ -11,7 +11,7 @@ $info = ($_POST)?Format::htmlchars($_POST):array();
     <form action="pwreset.php" method="post">
         <?php csrf_token(); ?>
         <input type="hidden" name="do" value="newpasswd"/>
-        <input type="hidden" name="token" value="<?php echo $_REQUEST['token']; ?>"/>
+        <input type="hidden" name="token" value="<?php echo Format::htmlchars($_REQUEST['token']); ?>"/>
         <fieldset>
             <input type="text" name="userid" id="name" value="<?php echo
                 $info['userid']; ?>" placeholder="username or email"

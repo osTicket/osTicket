@@ -43,7 +43,7 @@ class DynamicForm extends VerySimpleModel {
     var $_form;
     var $_fields;
     var $_has_data = false;
-    var $_dfields = array();
+    var $_dfields;
 
     function getFields($cache=true) {
         if (!isset($this->_fields) || !$cache) {
@@ -655,6 +655,16 @@ class DynamicFormEntry extends VerySimpleModel {
             }
         }
         return $vars;
+    }
+
+    function getSaved() {
+        $info = array();
+        foreach ($this->getAnswers() as $a) {
+            $field = $a->getField();
+            $info[$field->get('id')]
+                = $info[$field->get('name')] = $a->getValue();
+        }
+        return $info;
     }
 
     function forTicket($ticket_id, $force=false) {
