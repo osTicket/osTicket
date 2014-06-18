@@ -441,7 +441,7 @@ var scp_prep = function() {
 };
 
 $(document).ready(scp_prep);
-$(document).on('pjax:complete', scp_prep);
+$(document).on('pjax:end', scp_prep);
 $(document).on('submit', 'form', function() {
     // Reformat dates
     $('.dp', $(this)).each(function(i, e) {
