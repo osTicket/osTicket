@@ -116,10 +116,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <?php
-        $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as name '
-            .' FROM '.TOPIC_TABLE.' ht '
-            .' LEFT JOIN '.TOPIC_TABLE.' pht ON(pht.topic_id=ht.topic_pid) ';
-        if(($res=db_query($sql)) && db_num_rows($res)) { ?>
+        if ($topics = Topic::getAllHelpTopics()) { ?>
         <tr>
             <th colspan="2">
                 <em><strong>Help Topics</strong>: Check all help topics related to this FAQ.</em>
@@ -127,7 +124,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr><td colspan="2">
             <?php
-            while(list($topicId,$topic)=db_fetch_row($res)) {
+            while (list($topicId,$topic) = each($topics)) {
                 echo sprintf('<input type="checkbox" name="topics[]" value="%d" %s>%s<br>',
                         $topicId,
                         (($info['topics'] && in_array($topicId,$info['topics']))?'checked="checked"':''),
