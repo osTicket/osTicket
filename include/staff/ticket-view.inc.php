@@ -505,19 +505,21 @@ $tcount+= $ticket->getNumNotes();
                     <label><strong>Response:</strong></label>
                 </td>
                 <td>
-                    <?php
-                    if(($cannedResponses=Canned::responsesByDeptId($ticket->getDeptId()))) {?>
-                        <select id="cannedResp" name="cannedResp">
-                            <option value="0" selected="selected">Select a canned response</option>
-                            <?php
-                            foreach($cannedResponses as $id =>$title) {
+                    <select id="cannedResp" name="cannedResp">
+                        <option value="0" selected="selected">Select a canned response</option>
+                        <option value='lastmessage'>Original Message</option>
+                        <option value='original'>Last Message</option>
+                        <?php
+                        if(($cannedResponses=Canned::responsesByDeptId($ticket->getDeptId()))) {
+                            echo '<option value="0" disabled="disabled">
+                                ------------- Premade Replies ------------- </option>';
+                            foreach($cannedResponses as $id =>$title)
                                 echo sprintf('<option value="%d">%s</option>',$id,$title);
-                            }
-                            ?>
-                        </select>
-                        <br>
+                        }
+                        ?>
+                    </select>
+                    <br>
                     <?php
-                    }
                     $signature = '';
                     switch ($thisstaff->getDefaultSignatureType()) {
                     case 'dept':
