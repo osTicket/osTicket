@@ -269,7 +269,12 @@ class MailFetcher {
         if(!($headerinfo=imap_headerinfo($this->mbox, $mid)) || !$headerinfo->from)
             return null;
 
-        $sender=$headerinfo->from[0];
+        if (isset($headerinfo->reply_to[0]) && !empty($headerinfo->reply_to[0])){
+			$sender=$headerinfo->reply_to[0];
+        } else {
+			$sender=$headerinfo->from[0];
+        }
+        
         //Just what we need...
         $header=array('name'  => $this->mime_decode(@$sender->personal),
                       'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
