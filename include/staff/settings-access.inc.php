@@ -132,6 +132,14 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
               <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
             </td>
         </tr>
+        <tr><td>Client Quick Access:</td>
+            <td><input type="checkbox" name="client_verify_email" <?php
+                if ($config['client_verify_email'])
+                    echo 'checked="checked"'; ?>/>
+                Require email verification on "Check Ticket Status" page
+            <i class="help-tip icon-question-sign" href="#client_verify_email"></i>
+            </td>
+        </tr>
     </tbody>
     <thead>
         <tr>

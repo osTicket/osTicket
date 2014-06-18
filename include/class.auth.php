@@ -1063,6 +1063,14 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
                 || !($user=User::lookup(array('emails__address' => $email))))
             return false;
 
+        if (!($user = $this->_getTicketUser($ticket, $user)))
+            return false;
+
+        $_SESSION['_auth']['user-ticket'] = $number;
+        return new ClientSession($user);
+    }
+
+    function _getTicketUser($ticket, $user) {
         // Ticket owner?
         if ($ticket->getUserId() == $user->getId())
             $user = $ticket->getOwner();
@@ -1072,13 +1080,36 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
                 'ticketId' => $ticket->getId()))))
             return false; //Bro, we don't know you!
 
-        return new ClientSession($user);
+        return $user;
     }
 
-    //We are not actually logging in the user....
+    // We are not actually logging in the user....
     function login($user, $bk) {
+        global $cfg;
+
+        if (!$cfg->isClientEmailVerificationRequired()) {
+            return parent::login($user, $bk);
+        }
         return true;
     }
+
+    protected function validate($userid) {
+        $number = $_SESSION['_auth']['user-ticket'];
+
+        if (!($ticket = Ticket::lookupByNumber($number)))
+            return false;
+
+        if (!($user = User::lookup($userid)))
+            return false;
+
+        if (!($user = $this->_getTicketUser($ticket, $user)))
+            return false;
+
+        $user = new ClientSession($user);
+        $user->flagGuest();
+        return $user;
+    }
+
     function supportsInteractiveAuthentication() {
         return false;
     }

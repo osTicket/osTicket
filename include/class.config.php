@@ -167,6 +167,7 @@ class OsticketConfig extends Config {
         'accept_unregistered_email' => true,
         'default_help_topic' => 0,
         'help_topic_sort_mode' => 'a',
+        'client_verify_email' => 1,
     );
 
     function OsticketConfig($section=null) {
@@ -579,6 +580,10 @@ class OsticketConfig extends Config {
         return $this->get('client_registration');
     }
 
+    function isClientEmailVerificationRequired() {
+        return $this->get('client_verify_email');
+    }
+
     function isCaptchaEnabled() {
         return (extension_loaded('gd') && function_exists('gd_info') && $this->get('enable_captcha'));
     }
@@ -918,6 +923,7 @@ class OsticketConfig extends Config {
             'pw_reset_window'=>$vars['pw_reset_window'],
             'clients_only'=>isset($vars['clients_only'])?1:0,
             'client_registration'=>$vars['client_registration'],
+            'client_verify_email'=>isset($vars['client_verify_email'])?1:0,
         ));
     }
 
