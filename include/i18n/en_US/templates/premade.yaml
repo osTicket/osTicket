@@ -2,7 +2,7 @@
 # Canned response templates
 #
 ---
-- isenabled:1
+- isenabled: 1
   title: What is osTicket (sample)?
   response: |
     osTicket is a widely-used open source support ticket system, an
