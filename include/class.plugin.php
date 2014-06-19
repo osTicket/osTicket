@@ -180,6 +180,7 @@ class PluginManager {
                 GLOB_NOSORT|GLOB_BRACE) as $p) {
             $is_phar = false;
             if (substr($p, strlen($p) - 5) == '.phar'
+                    && class_exists('Phar')
                     && Phar::isValidPharFilename($p)) {
                 try {
                 // When public key is invalid, openssl throws a
