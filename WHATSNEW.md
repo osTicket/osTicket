@@ -1,3 +1,82 @@
+osTicket v1.9.2
+===============
+### Enhancements
+  * Help topics have super powers (#974)
+    * They can be arbitrarily nested
+    * They can be manually sorted
+    * Admins can select a system default help topic
+    * They can inherit the form from a parent
+  * Form data entered to custom forms is preserved when switching help topics
+  * Update to Redactor 9.2.4 (http://imperavi.com/redactor/log/)
+  * Using canned responses no longer requires [Append] click (#973)
+  * Guests can sign out (#1000)
+  * Filter by custom list item properties (#1024)
+  * Time selection is based on admin configured time format (#1036)
+  * (Optionally) clients can access tickets without clicking email link (#999)
+  * Introduction of signals for mail filter plugins (#952)
+
+### Improvements
+  * Fix a few glitches on site page management (#986)
+  * Fix saving department alert recipients (#985)
+  * Fix assignment to account manager regardless of setting (#1013)
+  * Fix dialog boxes on some PJAX navigations (#1034)
+  * Help topics are properly sorted in FAQ management (#1035)
+  * Fix MySQL commands out-of-sync triggered by the ORM (#1012)
+  * Clients can follow email links from multiple tickets (#1001)
+  * Workaround for PHP variable corruption issue (#917, #969)
+  * All other improvements cited in v1.8.3
+
+### Performance and Security
+  * Fix XSS vulnerability in phone number widget (#1025)
+  * Fix several XSS vulnerabilities in client and staff interfaces (#1024, #1025)
+
+osTicket v1.8.4
+===============
+### Improvements
+  * Fix misleading and incorrect custom form management pages (#919)
+  * Fix linked external image tag corruption (#936)
+  * Fix multiple [Show Images] button for external images in client interface (e4b721c)
+  * Properly handle email address personal names with commas (#940)
+  * Organizations can define a website now (13312dd)
+  * Correctly handle email headers with leading tabs (RFC 2047) (#895, #953)
+  * Implement `%{ticket.user.x}` for email templates and canned responses (#966)
+  * Handle shameful `X-AMAZON-MAIL-RELAY-TYPE` invented by Amazon
+  * Issue summary field type must have associated data (#987)
+  * Fix `%{recipient.ticket_link}` for new message auto response (#989)
+  * Fix corruption of `%{company.name}` on new ticket notice (#1002)
+  * Fix signal data byref (#1037)
+  * Correctly handle email priority headers (#491)
+  * Fix mail header newline corruption with the Suhosin extension (#442)
+
+### Performance and Security
+  * Fix XSS vulnerability in the phone number widget (#1025)
+  * Fix several XSS vulnerabilities (#1025)
+
+osTicket v1.9.1
+===============
+### Enhancements
+  * [Draft Saved] box does not show if nothing entered yet (be38e8b)
+  * `Your Information` is now translatable (b189b86)
+  * Canceling new ticket also deletes drafts (2695dce)
+  * A users organization can be updated (#955)
+  * Users can be removed from an organization (#957)
+
+### Bugs
+  * Fix confusing form view after adding a new form (#923)
+  * Fix whitespace munging in emails if HTML ticket thread is disabled (#924)
+  * Fix [loading] popup on form save (#925)
+  * Fix URLs in emails linking through l.php (#929)
+  * Fix crash on custom list view if there no properties defined (#935)
+  * Fix handling of encoded email mailboxes with commas (#940)
+  * Fix display of link, external images in the ticket thread (99e719d)
+  * Fix crash submitting a new ticket with organization collaborators (7335525)
+  * Fix handling of custom date and time fields (#944)
+  * Fix PJAX detection of new deployment (a18bf0c)
+  * Fix continual release of ticket locks after navigation (30a3d2)
+  * Fix logout if following link from client email (bda2e42)
+  * Fix un-editable organization website (13312dd)
+  * Fix incorrect constant usage in User object (#958)
+
 osTicket v1.9
 =============
 ### Client Login and Registration
@@ -64,7 +143,7 @@ osTicket v1.8.3
   * Support filtering based on help topic (#728)
   * Embedded images ([rfc2397](http://www.ietf.org/rfc/rfc2397.txt)) are correctly supported (#740)
   * Allow regular staff members to show assigned open tickets on open queue (#751)
-  * Support Handle [rfc1892](http://www.ietf.org/rfc/rfc1892.txt) style bounce notices (#871)
+  * Support [rfc1892](http://www.ietf.org/rfc/rfc1892.txt) style bounce notices (#871)
   * Disable autocomplete on CAPTCHA fields (#821)
   * Show `closed` date on the closed ticket queue (#865)
   * Departments support assignment to members only (#862)
