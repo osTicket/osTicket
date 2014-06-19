@@ -49,6 +49,14 @@ class VerySimpleModel {
         }
     }
 
+    function __isset($field) {
+        return array_key_exists($field, $this->ht)
+            || isset(static::$meta['joins'][$field]);
+    }
+    function __unset($field) {
+        unset($this->ht[$field]);
+    }
+
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
         if (isset(static::$meta['joins'][$field])) {
