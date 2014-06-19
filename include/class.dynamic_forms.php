@@ -1086,10 +1086,12 @@ class DynamicListItem extends VerySimpleModel {
     function getFilterData() {
         $raw = $this->getConfiguration();
         $props = array();
-        foreach ($this->getConfigurationForm()->getFields() as $field) {
-            $tag = $field->get('id');
-            if (isset($raw[$tag]))
-                $props[".$tag"] = $field->toString($raw[$tag]);
+        if ($form = $this->getConfigurationForm()) {
+            foreach ($form->getFields() as $field) {
+                $tag = $field->get('id');
+                if (isset($raw[$tag]))
+                    $props[".$tag"] = $field->toString($raw[$tag]);
+            }
         }
         return $props;
     }
