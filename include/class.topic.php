@@ -351,7 +351,9 @@ class Topic {
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
-            if ($vars['topic_pid'] && $cfg->getTopicSortMode() != 'a') {
+            // If in manual sort mode, place the new item directly below the
+            // parent item
+            if ($vars['topic_pid'] && $cfg && $cfg->getTopicSortMode() != 'a') {
                 $sql .= ', `sort`='.db_input(
                     db_result(db_query('SELECT COALESCE(`sort`,0)+1 FROM '.TOPIC_TABLE
                         .' WHERE `topic_id`='.db_input($vars['topic_pid']))));
@@ -363,7 +365,7 @@ class Topic {
             else
                 $errors['err']='Unable to create the topic. Internal error';
         }
-        if ($cfg->getTopicSortMode() == 'a') {
+        if (!$cfg || $cfg->getTopicSortMode() == 'a') {
             static::updateSortOrder();
         }
         return $rv;
@@ -371,7 +373,9 @@ class Topic {
 
     static function updateSortOrder() {
         // Fetch (un)sorted names
-        $names = static::getHelpTopics(false, true);
+        if (!($names = static::getHelpTopics(false, true)))
+            return;
+
         uasort($names, function($a, $b) { return strcmp($a, $b); });
 
         $update = array_keys($names);
