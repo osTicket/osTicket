@@ -306,7 +306,8 @@ class DataTemplate {
                 $this->filepath = Misc::realpath("{$this->base}/$l/$path");
                 break;
             }
-            elseif (Phar::isValidPharFilename("{$this->base}/$l.phar")
+            elseif (class_exists('Phar')
+                    && Phar::isValidPharFilename("{$this->base}/$l.phar")
                     && file_exists("phar://{$this->base}/$l.phar/$path")) {
                 $this->lang = $l;
                 $this->filepath = "phar://{$this->base}/$l.phar/$path";

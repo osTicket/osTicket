@@ -29,6 +29,7 @@ if(!defined('SETUPINC')) die('Kwaheri!');
                 <li class="<?php echo extension_loaded('json')?'yes':'no'; ?>">PHP JSON extension (faster performance)</li>
                 <li class="<?php echo extension_loaded('gettext')?'yes':'no'; ?>">Gettext is used for translations (faster performance)</li>
                 <li class="<?php echo extension_loaded('mbstring')?'yes':'no'; ?>">Mbstring is <b>strongly</b> recommended for all installations</li>
+                <li class="<?php echo extension_loaded('phar')?'yes':'no'; ?>">Phar is <b>strongly</b> recommended for plugins and language packs</li>
             </ul>
             <div id="bar">
                 <form method="post" action="install.php">

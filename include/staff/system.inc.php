@@ -51,6 +51,21 @@ $commit = GIT_VERSION != '$git' ? GIT_VERSION : (
                     echo extension_loaded('mbstring')?'check':'warning-sign'; ?>"></i></td>
                 <td>mbstring</td>
                 <td>Highly recommended for non western european language content</td></tr>
+            <tr><td><i class="icon icon-<?php
+                    echo extension_loaded('phar')?'check':'warning-sign'; ?>"></i></td>
+                <td>phar</td>
+                <td>Highly recommended for plugins and language packs</td></tr>
+        </tbody></table></td></tr>
+    <tr><td>PHP Settings</td>
+        <td><table><tbody>
+        <tr><td><i class="icon icon-<?php
+                echo extension_loaded('mbstring')?'check':'warning-sign'; ?>"></i>
+            </td><td>
+            <code>cgi.fix_pathinfo</code> =
+                <?php echo ini_get('cgi.fix_pathinfo'); ?>
+            </td><td>
+            <span class="faded">"1" is recommended if AJAX is not working</span>
+        </td></tr>
         </tbody></table></td></tr>
 </tbody>
 <thead>
