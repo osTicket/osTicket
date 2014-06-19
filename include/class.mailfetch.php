@@ -454,14 +454,17 @@ class MailFetcher {
             if (!$filename && strcasecmp('message/rfc822',$mime ) == 0
                     && $part->type > 0
                 ) {
-                $headers = imap_rfc822_parse_headers(imap_fetchbody($this->mbox, 1, '3'));
+                $headers = imap_rfc822_parse_headers(imap_fetchbody($this->mbox, 1, $index));
                     if ($headers) {
                         if($headers->Subject)
                             $subject = $headers->Subject;
                         if($headers->message_id)
                             $subject = $headers->message_id;
-                        if($subject)
-                            $filename = $subject.".eml";
+                        if (isset($subject)) {
+                            $subject = preg_replace("/[^a-zA-Z0-9\\s\\-_\\.]/",'', $subject);
+                            if (isset($subject) && strlen($subject) > 2)
+                                $filename = Format::truncate($subject,40,true). ".eml";
+                        }
                     }else{
                         $filename = "es_noname.eml";
                     }
