@@ -568,28 +568,31 @@ class EmailDataParser {
                 $data['name'] = $data['email'];
         }
 
-        /* Scan through the list of addressees (via To, Cc, and Delivered-To headers), and identify
+        /* Scan through the list of addressees (via To, Cc, Bcc and Delivered-To headers), and identify
          * how the mail arrived at the system. One of the mails should be in the system email list.
-         * The recipient list (without the Delivered-To addressees) will be made available to the
+         * The recipient list (without the Delivered-To and BCC addressees) will be made available to the
          * ticket filtering system. However, addresses in the Delivered-To header should never be
          * considered for the collaborator list.
          */
 
         $tolist = array();
+        if (($dt = $parser->getDeliveredToAddressList()))
+            $tolist['delivered-to'] = array_reverse($dt);
+
+        if (($bcc = $parser->getBccAddressList()))
+            $tolist['bcc'] = $bcc;
+
         if (($to = $parser->getToAddressList()))
             $tolist['to'] = $to;
 
         if (($cc = $parser->getCcAddressList()))
             $tolist['cc'] = $cc;
 
-        if (($dt = $parser->getDeliveredToAddressList()))
-            $tolist['delivered-to'] = $dt;
-
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
-                    if ($source == 'delivered-to') continue;
+                    if (in_array($source, array('delivered-to', 'bcc'))) continue;
 
                     $data['recipients'][] = array(
                         'source' => "Email ($source)",
@@ -616,17 +619,6 @@ class EmailDataParser {
             }
         }
 
-
-        //maybe we got BCC'ed??
-        if(!$data['emailId']) {
-            $emailId =  0;
-            if($bcc = $parser->getBccAddressList()) {
-                foreach ($bcc as $addr)
-                    if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
-                        break;
-            }
-            $data['emailId'] = $emailId;
-        }
 
         if ($parser->isBounceNotice()) {
             // Fetch the original References and assign to 'references'
