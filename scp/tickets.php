@@ -68,6 +68,18 @@ if($_POST && !$errors):
 
             //If no error...do the do.
             $vars = $_POST;
+			if($_POST[reply_ticket_status]=='Closed') {
+				$forms=DynamicFormEntry::forTicket($ticket->getId());
+				foreach ($forms as $form) {
+					foreach ($form->getFields() as $field) {
+						if ($field->get('required')) {
+							if (!($field->answer->get('value'))) {
+								$errors['err'] = "Cannot close.  Missing \"" . $field->get('label') . "\" field. Please <a href=\"tickets.php?id=" . $ticket->getId() . "&a=edit\">EDIT</a> the ticket.";
+							}
+						}
+					}
+				}
+			}
             if(!$errors && $_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
@@ -221,6 +233,17 @@ if($_POST && !$errors):
                         $errors['err'] = 'Permission Denied. You are not allowed to close tickets.';
                     } elseif($ticket->isClosed()) {
                         $errors['err'] = 'Ticket is already closed!';
+                    } elseif(True) {
+						$forms=DynamicFormEntry::forTicket($ticket->getId());
+						foreach ($forms as $form) {
+							foreach ($form->getFields() as $field) {
+								if ($field->get('required')) {
+									if (!($field->answer->get('value'))) {
+										$errors['err'] = "Cannot close.  Missing \"" . $field->get('label') . "\" field. Please <a href=\"tickets.php?id=" . $ticket->getId() . "&a=edit\">EDIT</a> the ticket.";
+									}
+								}
+							}
+						}
                     } elseif($ticket->close()) {
                         $msg='Ticket #'.$ticket->getNumber().' status set to CLOSED';
                         //Log internal note
