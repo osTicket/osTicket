@@ -62,6 +62,7 @@ class SearchInterface {
     }
 
     function find($query, $criteria, $model=false, $sort=array()) {
+        $query = Format::searchable($query);
         return $this->backend->find($query, $criteria, $model, $sort);
     }
 
@@ -107,6 +108,7 @@ class SearchInterface {
                 $new,
                 array(
                     'title'=>       Format::searchable($model->getSubject()),
+                    'number'=>      $model->getNumber(),
                     'status'=>      $model->getStatus(),
                     'topic_id'=>    $model->getTopicId(),
                     'priority_id'=> $model->getPriorityId(),
@@ -196,7 +198,7 @@ class SearchInterface {
         // Users, organizations
         Signal::connect('model.created', array($this, 'createModel'));
         Signal::connect('model.updated', array($this, 'updateModel'));
-        Signal::connect('model.deleted', array($this, 'deleteModel'));
+        #Signal::connect('model.deleted', array($this, 'deleteModel'));
     }
 }
 
@@ -221,6 +223,7 @@ class MysqlSearchBackend extends SearchBackend {
             $type = 'H';
             break;
         case $model instanceof Ticket:
+            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
             $type = 'T';
             break;
         case $model instanceof User:
@@ -263,16 +266,22 @@ class MysqlSearchBackend extends SearchBackend {
         $search = 'MATCH (search.title, search.content) AGAINST ('
             .db_input($query)
             .$mode.')';
-        $tables = array("(
-            SELECT object_type, object_id, $search AS `relevance`
-            FROM `ost__search` `search`
-            WHERE $search
-        ) `search`");
+        $tables = array();
+        $P = TABLE_PREFIX;
+        $sort = '';
+
+        if ($query) {
+            $tables[] = "(
+                SELECT object_type, object_id, $search AS `relevance`
+                FROM `{$P}_search` `search`
+                WHERE $search
+            ) `search`";
+            $sort = 'ORDER BY `search`.`relevance`';
+        }
 
         switch ($model) {
         case false:
         case 'Ticket':
-            $P = TABLE_PREFIX;
             $tables[] = "(select ticket_id as ticket_id from {$P}ticket
             ) B1 ON (B1.ticket_id = search.object_id and search.object_type = 'T')";
             $tables[] = "(select A2.id as thread_id, A1.ticket_id from {$P}ticket A1
@@ -298,6 +307,7 @@ class MysqlSearchBackend extends SearchBackend {
                     case 'user_id':
                     case 'isanswered':
                     case 'isoverdue':
+                    case 'number':
                         $where[] = sprintf('A1.%s = %s', $name, db_input($value));
                         break;
                     case 'created__gte':
@@ -341,13 +351,14 @@ class MysqlSearchBackend extends SearchBackend {
 
             $where[] = '(' . implode(' OR ', $access) . ')';
 
+            // TODO: Consider sorting preferences
+
             $sql = 'SELECT DISTINCT '
                 . $key
                 . ' FROM '
                 . implode(' LEFT JOIN ', $tables)
                 . ' WHERE ' . implode(' AND ', $where)
-                // TODO: Consider sorting preferences
-                . ' ORDER BY `relevance` DESC'
+                . $sort
                 . ' LIMIT 500';
         }
 
