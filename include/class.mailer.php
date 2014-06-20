@@ -172,7 +172,7 @@ class Mailer {
             if ($cfg && $cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator())
                     && (!isset($options['reply-tag']) || $options['reply-tag']))
                 $message = "<div style=\"display:none\"
-                    data-mid=\"$mid_token\">$tag<br/><br/></div>$message";
+                    data-mid=\"$mid_token\">$tag<br/><br/></div><p>$message";
             // Make sure nothing unsafe has creeped into the message
             $message = Format::safe_html($message); //XXX??
             $txtbody = rtrim(Format::html2text($message, 90, false))
