@@ -69,6 +69,9 @@ else
         $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         if($res && db_num_rows($res)):
+            $defaultDeptId = $cfg->getDefaultDeptId();
+            $defaultDept = $cfg->getDefaultDept();
+            $defaultPriority = $cfg->getDefaultPriority();
             $defaultId=$cfg->getDefaultEmailId();
             while ($row = db_fetch_array($res)) {
                 $sel=false;
@@ -76,8 +79,15 @@ else
                     $sel=true;
                 $default=($row['email_id']==$defaultId);
                 $email=$row['email'];
-                if($row['name'])
+                if ($row['name'])
                     $email=$row['name'].' <'.$row['email'].'>';
+                if (!$row['dept_id']) {
+                    $row['dept_id'] = $defaultDeptId;
+                    $row['department'] = $defaultDept->getName();
+                }
+                if (!$row['priority']) {
+                    $row['priority'] = $defaultPriority->getDesc();
+                }
                 ?>
             <tr id="<?php echo $row['email_id']; ?>">
                 <td width=7px>
