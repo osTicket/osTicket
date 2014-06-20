@@ -363,6 +363,11 @@ $tcount+= $ticket->getNumNotes();
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
                             echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
+                        <?php if (!empty($entry['timeworked'])) { ?>
+                          <span style="vertical-align:middle;"
+                              class="tmeta faded title"><?php
+                              echo (int)$entry['timeworked']; ?>m</span>
+                        <?php } ?>
                     </span>
                 </div>
                 </th>
@@ -480,6 +485,16 @@ $tcount+= $ticket->getNumNotes();
             </tbody>
             <?php
             } ?>
+            <tbody id="tw_sec">
+             <tr>
+              <td>
+                  <label><strong>Time Worked:</strong></label>
+              </td>
+              <td>
+                  <input type='text' value='' name="timeworked", id="timeworked", size="3">
+              </td>
+             </tr>
+            </tbody>
             <tbody id="resp_sec">
             <?php
             if($errors['response']) {?>
@@ -626,6 +641,9 @@ $tcount+= $ticket->getNumNotes();
                         Note title - summary of the note (optional)</div>
                         <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >
                         <br/>
+                        <div class="faded" style="padding-left:0.15em">
+                        Time worked in minutes (optional))</div>
+                        <input type="text" name="timeworked" id="timeworked" size="3" value="<?php echo $info['timeworked']; ?>" >
                         <span class="error"&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
                     <br/>
