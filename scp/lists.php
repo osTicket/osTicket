@@ -4,11 +4,17 @@ require_once(INCLUDE_DIR.'class.list.php');
 
 
 $list=null;
-if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid dynamic list ID.';
+if ($_REQUEST['id']) {
+    if (is_numeric($_REQUEST['id']))
+        $list = DynamicList::lookup($_REQUEST['id']);
+    else
+        $list = BuiltInCustomList::lookup($_REQUEST['id']);
 
-if ($list)
-    $form = $list->getForm();
+    if ($list)
+         $form = $list->getForm();
+    else
+        $errors['err'] = 'Unknown or invalid dynamic list ID.';
+}
 
 if($_POST) {
     $fields = array('name', 'name_plural', 'sort_mode', 'notes');

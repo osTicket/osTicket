@@ -129,8 +129,14 @@ abstract class BuiltInCustomList implements CustomList {
     }
 
     static function getLists() {
-        //TODO: define built-in lists
-        return array();
+
+        $list['status'] = array ( //Ticket statuses
+                'name' => 'Ticket Status',
+                'handler' => 'TicketStatusList',
+                'icon' => 'icon-flag',
+                );
+
+        return $list;
     }
 
 }
@@ -451,4 +457,89 @@ class DynamicListItem extends VerySimpleModel {
     }
 }
 
+
+/*
+ * Ticket status List
+ *
+ *
+ */
+
+class TicketStatusList extends BuiltInCustomList {
+
+    var $ht = array(
+            'id' => 'status',
+            'name' => 'Status',
+            'name_plural' => 'Statuses',
+    );
+    // Fields of interest we need to store
+    static $config_fields = array('sort_mode', 'notes');
+
+    function getId() {
+        return $this->ht['id'];
+    }
+
+    function getName() {
+        return $this->ht['name'];
+    }
+
+    function getPluralName() {
+        return $this->ht['name_plural'];
+    }
+
+    function getSortMode() {
+        return $this->ht['sort_mode'];
+    }
+
+    function getNotes() {
+        return $this->ht['notes'];
+    }
+
+    function getInfo() {
+        return $this->config->getInfo() + $this->ht;
+    }
+
+    function getNumItems() {
+        return 0;
+    }
+
+    function getAllItems() {
+
+    }
+
+    function getItems($criteria) {
+
+    }
+
+    function hasProperties() {
+        return true;
+    }
+
+    function getListOrderBy() {
+        switch ($this->setSortMode()) {
+            case 'Alpha':
+                return 'name';
+            case '-Alpha':
+                return '-name';
+            case 'SortCol':
+            default:
+                return 'sort';
+        }
+    }
+
+    function getForm() {
+       return null;
+    }
+
+    function update($vars, &$errors) {
+
+        foreach (static::$config_fields as $f) {
+            if (!isset($vars[$f])) continue;
+
+            if (parent::set($f, $vars[$f]))
+                $this->ht[$field] = $vars[$f];
+        }
+
+        return true;
+    }
+}
 ?>
