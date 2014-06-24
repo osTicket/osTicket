@@ -1,6 +1,7 @@
 <?php
 require('admin.inc.php');
-require_once(INCLUDE_DIR."/class.dynamic_forms.php");
+require_once(INCLUDE_DIR.'class.list.php');
+
 
 $list=null;
 if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
@@ -14,42 +15,42 @@ if($_POST) {
     $required = array('name');
     switch(strtolower($_POST['do'])) {
         case 'update':
-            foreach ($fields as $f)
-                if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
-                        mb_convert_case($f, MB_CASE_TITLE));
-                elseif (isset($_POST[$f]))
-                    $list->set($f, $_POST[$f]);
-            if ($errors)
-                $errors['err'] = 'Unable to update custom list. Correct any error(s) below and try again.';
-            elseif ($list->save(true))
+            if ($list->update($_POST, $errors))
                 $msg = 'Custom list updated successfully';
+            elseif ($errors)
+                $errors['err'] = 'Unable to update custom list. Correct any error(s) below and try again.';
             else
                 $errors['err'] = 'Unable to update custom list. Unknown internal error';
 
-            foreach ($list->getAllItems() as $item) {
-                $id = $item->get('id');
-                if ($_POST["delete-$id"] == 'on') {
-                    $item->delete();
-                    continue;
+            if ($list->getNumItems()) {
+                foreach ($list->getAllItems() as $item) {
+                    $id = $item->getId();
+                    if ($_POST["delete-$id"] == 'on') {
+                        $item->delete();
+                        continue;
+                    }
+
+                    $item->update(array(
+                                'value' => $_POST["value-$id"],
+                                'abbrev' => $_POST["abbrev-$id"],
+                                'sort' => $_POST["name-$id"],
+                                ),
+                            false);
+
+                    if ($_POST["disable-$id"] == 'on')
+                        $item->disable();
+                    else
+                        $item->enable();
+
+                    $item->save();
                 }
-                foreach (array('sort','value','extra') as $i)
-                    if (isset($_POST["$i-$id"]))
-                        $item->set($i, $_POST["$i-$id"]);
-
-                if ($_POST["disable-$id"] == 'on')
-                    $item->disable();
-                else
-                    $item->enable();
-
-                $item->save();
             }
 
             $names = array();
             if (!$form) {
                 $form = DynamicForm::create(array(
-                    'type'=>'L'.$_REQUEST['id'],
-                    'title'=>$_POST['name'] . ' Properties'
+                    'type' => 'L'.$list->getId(),
+                    'title' => $list->getName() . ' Properties'
                 ));
                 $form->save(true);
             }
@@ -138,19 +139,16 @@ if($_POST) {
     }
 
     if ($list) {
-        for ($i=0; isset($_POST["prop-sort-new-$i"]); $i++) {
+        for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
             if (!$_POST["value-new-$i"])
                 continue;
-            $item = DynamicListItem::create(array(
-                'list_id'=>$list->get('id'),
-                'sort'=>$_POST["sort-new-$i"],
-                'value'=>$_POST["value-new-$i"],
-                'extra'=>$_POST["extra-new-$i"]
-            ));
-            $item->save();
+
+            $list->addItem(array(
+                        'value' => $_POST["value-new-$i"],
+                        'abbrev' =>$_POST["abbrev-new-$i"],
+                        'sort' => $_POST["sort-new-$i"]
+                        ));
         }
-        # Invalidate items cache
-        $list->_items = false;
     }
 
     if ($form) {
