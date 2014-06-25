@@ -44,7 +44,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <td width="180" class="required">
-                <?php echo __('Name:');?>
+                <?php echo __('Name');?>:
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
@@ -53,12 +53,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                <?php echo __('Type:');?>
+                <?php echo __('Type');?>:
             </td>
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Public');?></strong>
                 &nbsp;
-                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Private');?></strong> <?php echo __('(Internal)');?>
+                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Private');?></strong> <?php echo mb_convert_case(__('(internal)'), MB_CASE_TITLE);?>
                 &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
@@ -172,7 +172,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('New Ticket:');?>
+                <?php echo __('New Ticket');?>:
             </td>
             <td>
                 <span>
@@ -185,7 +185,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('New Message:');?>
+                <?php echo __('New Message');?>:
             </td>
             <td>
                 <span>

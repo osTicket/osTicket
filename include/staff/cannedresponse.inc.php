@@ -41,7 +41,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </thead>
     <tbody>
         <tr>
-            <td width="180" class="required"><?php echo __('Status:');?></td>
+            <td width="180" class="required"><?php echo __('Status');?>:</td>
             <td>
                 <label><input type="radio" name="isenabled" value="1" <?php
                     echo $info['isenabled']?'checked="checked"':''; ?>>&nbsp;<?php echo __('Active'); ?>&nbsp;</label>
@@ -52,7 +52,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required"><?php echo __('Department:');?></td>
+            <td width="180" class="required"><?php echo __('Department');?>:</td>
             <td>
                 <select name="dept_id">
                     <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>

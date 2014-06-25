@@ -34,7 +34,7 @@ if($_POST){
                     } elseif(!$errors['err'])
                         $errors['err']=__('Unable to delete selected logs');
                 } else {
-                    $errors['err']=__('Unknown action - get technical help');
+                    $errors['err']=__('Unknown action - get technical help.');
                 }
             }
             break;

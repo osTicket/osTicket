@@ -38,7 +38,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <td width="180" class="required">
-              <?php echo __('Name:');?>
+              <?php echo __('Name');?>:
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
@@ -47,7 +47,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-              <?php echo __('Grace Period:');?>
+              <?php echo __('Grace Period');?>:
             </td>
             <td>
                 <input type="text" size="10" name="grace_period" value="<?php echo $info['grace_period']; ?>">
@@ -57,7 +57,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                <?php echo __('Status:');?>
+                <?php echo __('Status');?>:
             </td>
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active');?></strong>
@@ -77,7 +77,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('Ticket Overdue Alerts:');?>
+                <?php echo __('Ticket Overdue Alerts');?>:
             </td>
             <td>
                 <input type="checkbox" name="disable_overdue_alerts" value="1" <?php echo $info['disable_overdue_alerts']?'checked="checked"':''; ?> >

@@ -40,7 +40,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <td width="180" class="required">
-               <?php echo __('Topic:');?>
+               <?php echo __('Topic');?>:
             </td>
             <td>
                 <input type="text" size="30" name="topic" value="<?php echo $info['topic']; ?>">
@@ -49,7 +49,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                <?php echo __('Status:');?>
+                <?php echo __('Status');?>:
             </td>
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><?php echo __('Active'); ?>
@@ -59,7 +59,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                <?php echo __('Type:');?>
+                <?php echo __('Type');?>:
             </td>
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><?php echo __('Public'); ?>
@@ -69,7 +69,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('Parent Topic:');?>
+                <?php echo __('Parent Topic');?>:
             </td>
             <td>
                 <select name="topic_pid">
@@ -152,7 +152,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('SLA Plan:');?>:
+                <?php echo __('SLA Plan');?>:
             </td>
             <td>
                 <select name="sla_id">

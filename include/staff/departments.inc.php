@@ -110,7 +110,7 @@ else
      <tr>
         <td colspan="6">
             <?php if($res && $num){ ?>
-            <?php echo __('Select:');?>&nbsp;
+            <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;

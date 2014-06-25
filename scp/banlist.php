@@ -111,7 +111,7 @@ if($_POST && !$errors && $filter){
 
                         break;
                     default:
-                        $errors['err'] = __('Unknown action - get technical help');
+                        $errors['err'] = __('Unknown action - get technical help.');
                 }
             }
             break;

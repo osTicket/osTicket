@@ -41,7 +41,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <td width="180" class="required"><?php echo __('Category Type:');?></td>
+            <td width="180" class="required"><?php echo __('Category Type');?>:</td>
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><b><?php echo __('Public');?></b> <?php echo __('(publish)');?>
                 &nbsp;&nbsp;&nbsp;&nbsp;

@@ -53,7 +53,7 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
     <form action="banlist.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
      <div>
-       <?php echo __('Query:');?> <input name="q" type="text" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+       <?php echo __('Query');?>: <input name="q" type="text" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         &nbsp;&nbsp;
         <input type="submit" name="submit" value="<?php echo __('Search');?>"/>
      </div>
@@ -68,7 +68,7 @@ else
     $showing=__('No banned emails matching the query found!');
 
 if($search)
-    $showing=__('Search Results:').' '.$showing;
+    $showing=__('Search Results').': '.$showing;
 
 ?>
 <form action="banlist.php" method="POST" name="banlist">
@@ -111,7 +111,7 @@ if($search)
      <tr>
         <td colspan="5">
             <?php if($res && $num){ ?>
-            <?php echo __('Select:');?>&nbsp;
+            <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;

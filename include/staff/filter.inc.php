@@ -40,7 +40,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <td width="180" class="required">
-              <?php echo __('Filter Name:');?>
+              <?php echo __('Filter Name');?>:
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
@@ -49,7 +49,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-              <?php echo __('Execution Order:');?>
+              <?php echo __('Execution Order');?>:
             </td>
             <td>
                 <input type="text" size="6" name="execorder" value="<?php echo $info['execorder']; ?>">
@@ -112,7 +112,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-               <em><?php echo __('Rules Matching Criteria:');?></em>
+               <em><?php echo __('Rules Matching Criteria');?>:</em>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="radio" name="match_all_rules" value="1" <?php echo $info['match_all_rules']?'checked="checked"':''; ?>><?php echo __('Match All');?>
                 &nbsp;&nbsp;&nbsp;
@@ -229,7 +229,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('Department:');?>
+                <?php echo __('Department');?>:
             </td>
             <td>
                 <select name="dept_id">
@@ -249,7 +249,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('Priority:');?>
+                <?php echo __('Priority');?>:
             </td>
             <td>
                 <select name="priority_id">
@@ -270,7 +270,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('SLA Plan:');?>
+                <?php echo __('SLA Plan');?>:
             </td>
             <td>
                 <select name="sla_id">
@@ -290,7 +290,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('Auto-assign To:');?>
+                <?php echo __('Auto-assign To');?>:
             </td>
             <td>
                 <select name="assign">

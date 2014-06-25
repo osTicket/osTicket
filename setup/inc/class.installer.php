@@ -84,14 +84,14 @@ class Installer extends SetupWizard {
         // Support port number specified in the hostname with a colon (:)
         list($host, $port) = explode(':', $vars['dbhost']);
         if ($port && is_numeric($port) && ($port < 1 || $port > 65535))
-            $this->errors['db'] = _('Invalid database port number');
+            $this->errors['db'] = __('Invalid database port number');
 
         //MYSQL: Connect to the DB and check the version & database (create database if it doesn't exist!)
         if(!$this->errors) {
             if(!db_connect($vars['dbhost'],$vars['dbuser'],$vars['dbpass']))
                 $this->errors['db']=sprintf(__('Unable to connect to MySQL server: %s'), db_connect_error());
             elseif(explode('.', db_version()) < explode('.', $this->getMySQLVersion()))
-                $this->errors['db']=sprintf(__('osTicket requires MySQL %s or later!',$this->getMySQLVersion()));
+                $this->errors['db']=sprintf(__('osTicket requires MySQL %s or later!'),$this->getMySQLVersion());
             elseif(!db_select_database($vars['dbname']) && !db_create_database($vars['dbname'])) {
                 $this->errors['dbname']=__("Database doesn't exist");
                 $this->errors['db']=__('Unable to create the database.');

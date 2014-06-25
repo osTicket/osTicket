@@ -38,7 +38,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <td width="150" class="required">
-                <?php echo __('Status:');?>
+                <?php echo __('Status');?>:
             </td>
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active');?></strong>
@@ -49,7 +49,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php if($api){ ?>
         <tr>
             <td width="150">
-                <?php echo __('IP Address:');?>
+                <?php echo __('IP Address');?>:
             </td>
             <td>
                 <span>
@@ -60,14 +60,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="150">
-                <?php echo __('API Key:');?>
+                <?php echo __('API Key');?>:
             </td>
             <td><?php echo $api->getKey(); ?> &nbsp;</td>
         </tr>
         <?php }else{ ?>
         <tr>
             <td width="150" class="required">
-               <?php echo __('IP Address:');?>
+               <?php echo __('IP Address');?>:
             </td>
             <td>
                 <span>
@@ -80,7 +80,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Services:');?></strong> <?php echo __('Check applicable API services enabled for the key.');?></em>
+                <em><strong><?php echo __('Services');?>:</strong> <?php echo __('Check applicable API services enabled for the key.');?></em>
             </th>
         </tr>
         <tr>

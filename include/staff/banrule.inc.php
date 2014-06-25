@@ -32,7 +32,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em><?php echo __('Valid email address required.');?></em>
+                <em><?php echo __('Valid email address required');?></em>
             </th>
         </tr>
     </thead>

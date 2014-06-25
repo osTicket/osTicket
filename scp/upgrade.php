@@ -48,7 +48,7 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
             }
             break;
         default:
-            $errors['err']=__('Unknown action!');
+            $errors['err']=__('Unknown action');
     }
 }
 

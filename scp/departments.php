@@ -93,7 +93,7 @@ if($_POST){
                         }
                         break;
                     default:
-                        $errors['err']=__('Unknown action - get technical help');
+                        $errors['err']=__('Unknown action - get technical help.');
                 }
             }
             break;

@@ -851,10 +851,10 @@ class MailFetcher {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=mail_errors+1, mail_lasterror=NOW() WHERE email_id='.db_input($emailId));
                 if (++$errors>=$MAXERRORS) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
-                    $msg="\n".__('osTicket is having trouble fetching emails from the following mail account:')." \n".
-                        "\n".__('User:')." ".$fetcher->getUsername().
-                        "\n".__('Host:')." ".$fetcher->getHost().
-                        "\n".__('Error:')." ".$fetcher->getLastError().
+                    $msg="\n".__('osTicket is having trouble fetching emails from the following mail account').": \n".
+                        "\n".__('User').": ".$fetcher->getUsername().
+                        "\n".__('Host').": ".$fetcher->getHost().
+                        "\n".__('Error').": ".$fetcher->getLastError().
                         "\n\n ".sprintf(__('%1$d consecutive errors. Maximum of %2$d allowed'), $errors, $MAXERRORS).
                         "\n\n ".sprintf(__('This could be connection issues related to the mail server. Next delayed login attempt in aprox. %d minutes'),$TIMEOUT);
                     $ost->alertAdmin(__('Mail Fetch Failure Alert'), $msg, true);

@@ -67,7 +67,7 @@ if($_POST){
                         $errors['err'] = __('Unable to delete selected emails');
 
                 } else {
-                    $errors['err'] = __('Unknown action - get technical help');
+                    $errors['err'] = __('Unknown action - get technical help.');
                 }
             }
             break;

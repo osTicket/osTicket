@@ -83,7 +83,7 @@ if($_POST){
                             $errors['err'] = __('Unable to delete selected API keys');
                         break;
                     default:
-                        $errors['err']=__('Unknown action - get technical help');
+                        $errors['err']=__('Unknown action - get technical help.');
                 }
             }
             break;

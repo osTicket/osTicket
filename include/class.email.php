@@ -294,7 +294,7 @@ class Email {
             if(!$vars['mail_fetchmax'] || !is_numeric($vars['mail_fetchmax']))
                 $errors['mail_fetchmax']=__('Maximum emails required');
             if(!$vars['dept_id'] || !is_numeric($vars['dept_id']))
-                $errors['dept_id']=__('You must select a Dept.');
+                $errors['dept_id']=__('You must select a department');
             if(!$vars['priority_id'])
                 $errors['priority_id']=__('You must select a priority');
 

@@ -259,7 +259,7 @@ if($_POST && !$errors):
                     } elseif($ticket->isOpen()) {
                         $errors['err'] = __('Ticket is already open!');
                     } elseif($ticket->reopen()) {
-                        $msg=__('Ticket REOPENED');
+                        $msg=__('Ticket Reopened');
 
                         if($_POST['ticket_status_notes'])
                             $note = $_POST['ticket_status_notes'];
@@ -478,7 +478,7 @@ if($_POST && !$errors):
                             }
                             break;
                         default:
-                            $errors['err']=__('Unknown or unsupported action - get technical help');
+                            $errors['err']=__('Unknown or unsupported action - get technical help.');
                     }
                 }
                 break;
