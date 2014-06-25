@@ -1704,7 +1704,11 @@ class Ticket {
                 $signature='';
 
             $msg = $this->replaceVars($msg->asArray(),
-                array('response' => $response, 'signature' => $signature));
+                    array(
+                        'response' => $response,
+                        'signature' => $signature,
+                        'recipient' => $this->getOwner(),
+                        ));
 
             $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
             $options = array(
