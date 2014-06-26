@@ -4,10 +4,6 @@
 #
 ---
 core:
-    time_format: 'h:i A'
-    date_format: 'm/d/Y'
-    datetime_format: 'm/d/Y g:i a'
-    daydatetime_format: 'D, M j Y g:ia'
     default_timezone_id: 8
     default_priority_id: 2
     enable_daylight_saving: 0
@@ -15,6 +11,10 @@ core:
     reply_separator: '-- reply above this line --'
 
     # Do not translate below here
+    time_format: '%X'
+    date_format: '%x'
+    datetime_format: '%x %X'
+    daydatetime_format: '%c'
     allowed_filetypes: '.doc, .pdf, .jpg, .jpeg, .gif, .png, .xls, .docx, .xlsx, .txt'
     isonline: 1
     staff_ip_binding: 0

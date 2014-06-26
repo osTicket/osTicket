@@ -30,7 +30,10 @@ return array(
     ),
     "ar" => array(
         "name" => "Arabic",
-        "nativeName" => "العربية"
+        "nativeName" => "العربية",
+        "locales" => array(
+            "ar_AE", "ar_BH"
+        )
     ),
     "an" => array(
         "name" => "Aragonese",
@@ -70,7 +73,10 @@ return array(
     ),
     "eu" => array(
         "name" => "Basque",
-        "nativeName" => "euskara, euskera"
+        "nativeName" => "euskara, euskera",
+        "locales" => array(
+            "eu_ES"
+        )
     ),
     "be" => array(
         "name" => "Belarusian",
@@ -98,7 +104,10 @@ return array(
     ),
     "bg" => array(
         "name" => "Bulgarian",
-        "nativeName" => "български език"
+        "nativeName" => "български език",
+        "locales" => array(
+            "bg_BG"
+        )
     ),
     "my" => array(
         "name" => "Burmese",
@@ -106,7 +115,10 @@ return array(
     ),
     "ca" => array(
         "name" => "Catalan; Valencian",
-        "nativeName" => "Català"
+        "nativeName" => "Català",
+        "locales" => array(
+            "ca_ES", "ca_FR", "ca_IT", "ca_AD"
+        )
     ),
     "ch" => array(
         "name" => "Chamorro",
@@ -146,11 +158,17 @@ return array(
     ),
     "cs" => array(
         "name" => "Czech",
-        "nativeName" => "česky, čeština"
+        "nativeName" => "česky, čeština",
+        "locales" => array(
+            "cs_CZ"
+        )
     ),
     "da" => array(
         "name" => "Danish",
-        "nativeName" => "dansk"
+        "nativeName" => "dansk",
+        "locales" => array(
+            "da_DK", "da_GL"
+        )
     ),
     "dv" => array(
         "name" => "Divehi; Dhivehi; Maldivian;",
@@ -158,11 +176,17 @@ return array(
     ),
     "nl" => array(
         "name" => "Dutch",
-        "nativeName" => "Nederlands, Vlaams"
+        "nativeName" => "Nederlands, Vlaams",
+        "locales" => array(
+            "nl_NL", "nl_BE"
+        )
     ),
     "en" => array(
         "name" => "English",
-        "nativeName" => "English"
+        "nativeName" => "English",
+        "locales" => array(
+            "en_US", "eb_GB"
+        )
     ),
     "eo" => array(
         "name" => "Esperanto",
@@ -186,7 +210,10 @@ return array(
     ),
     "fi" => array(
         "name" => "Finnish",
-        "nativeName" => "suomi, suomen kieli"
+        "nativeName" => "suomi, suomen kieli",
+        "locales" => array(
+            "fi_FI"
+        )
     ),
     "fr" => array(
         "name" => "French",
@@ -206,11 +233,17 @@ return array(
     ),
     "de" => array(
         "name" => "German",
-        "nativeName" => "Deutsch"
+        "nativeName" => "Deutsch",
+        "locales" => array(
+            "de_DE", "de_AT", "de_CH", "de_LI"
+        )
     ),
     "el" => array(
         "name" => "Greek, Modern",
-        "nativeName" => "Ελληνικά"
+        "nativeName" => "Ελληνικά",
+        "locales" => array(
+            "el_GR", "el_CY"
+        )
     ),
     "gn" => array(
         "name" => "Guaraní",
@@ -238,7 +271,10 @@ return array(
     ),
     "hi" => array(
         "name" => "Hindi",
-        "nativeName" => "हिन्दी, हिंदी"
+        "nativeName" => "हिन्दी, हिंदी",
+        "locales" => array(
+            "hi_IN"
+        )
     ),
     "ho" => array(
         "name" => "Hiri Motu",
@@ -246,7 +282,10 @@ return array(
     ),
     "hu" => array(
         "name" => "Hungarian",
-        "nativeName" => "Magyar"
+        "nativeName" => "Magyar",
+        "locales" => array(
+            "hu_HU"
+        )
     ),
     "ia" => array(
         "name" => "Interlingua",
@@ -278,11 +317,17 @@ return array(
     ),
     "is" => array(
         "name" => "Icelandic",
-        "nativeName" => "Íslenska"
+        "nativeName" => "Íslenska",
+        "locales" => array(
+            "is_IS"
+        )
     ),
     "it" => array(
         "name" => "Italian",
-        "nativeName" => "Italiano"
+        "nativeName" => "Italiano",
+        "locales" => array(
+            "it_IT", "it_SM", "it_CH"
+        )
     ),
     "iu" => array(
         "name" => "Inuktitut",
@@ -458,7 +503,10 @@ return array(
     ),
     "no" => array(
         "name" => "Norwegian",
-        "nativeName" => "Norsk"
+        "nativeName" => "Norsk",
+        "locales" => array(
+            "no_NO", "nb_NO", "nn_NO"
+        )
     ),
     "ii" => array(
         "name" => "Nuosu",
@@ -502,11 +550,17 @@ return array(
     ),
     "fa" => array(
         "name" => "Persian",
-        "nativeName" => "فارسی"
+        "nativeName" => "فارسی",
+        "locales" => array(
+            "fa_IR", "fa_AF"
+        )
     ),
     "pl" => array(
         "name" => "Polish",
-        "nativeName" => "polski"
+        "nativeName" => "polski",
+        "locales" => array(
+            "pl_PL"
+        )
     ),
     "ps" => array(
         "name" => "Pashto, Pushto",
@@ -530,11 +584,17 @@ return array(
     ),
     "ro" => array(
         "name" => "Romanian, Moldavian, Moldovan",
-        "nativeName" => "română"
+        "nativeName" => "română",
+        "locales" => array(
+            "ro_RO", "ro_MD"
+        )
     ),
     "ru" => array(
         "name" => "Russian",
-        "nativeName" => "русский язык"
+        "nativeName" => "русский язык",
+        "locales" => array(
+            "ru_RU"
+        )
     ),
     "sa" => array(
         "name" => "Sanskrit (Saṁskṛta)",
@@ -562,7 +622,10 @@ return array(
     ),
     "sr" => array(
         "name" => "Serbian",
-        "nativeName" => "српски језик"
+        "nativeName" => "српски језик",
+        "locales" => array(
+            "sr_RS", "sr_BA"
+        )
     ),
     "gd" => array(
         "name" => "Scottish Gaelic; Gaelic",
@@ -578,7 +641,10 @@ return array(
     ),
     "sk" => array(
         "name" => "Slovak",
-        "nativeName" => "slovenčina"
+        "nativeName" => "slovenčina",
+        "locales" => array(
+            "sk_SK"
+        )
     ),
     "sl" => array(
         "name" => "Slovene",
@@ -602,7 +668,10 @@ return array(
     ),
     "sw" => array(
         "name" => "Swahili",
-        "nativeName" => "Kiswahili"
+        "nativeName" => "Kiswahili",
+        "locales" => array(
+            "sw", "sw_KE", "sw_TZ"
+        )
     ),
     "ss" => array(
         "name" => "Swati",
@@ -626,7 +695,10 @@ return array(
     ),
     "th" => array(
         "name" => "Thai",
-        "nativeName" => "ไทย"
+        "nativeName" => "ไทย",
+        "locales" => array(
+            "th_TH"
+        )
     ),
     "ti" => array(
         "name" => "Tigrinya",
@@ -654,7 +726,10 @@ return array(
     ),
     "tr" => array(
         "name" => "Turkish",
-        "nativeName" => "Türkçe"
+        "nativeName" => "Türkçe",
+        "locales" => array(
+            "tr_TR"
+        )
     ),
     "ts" => array(
         "name" => "Tsonga",
@@ -694,7 +769,10 @@ return array(
     ),
     "vi" => array(
         "name" => "Vietnamese",
-        "nativeName" => "Tiếng Việt"
+        "nativeName" => "Tiếng Việt",
+        "locales" => array(
+            "vi_VN"
+        )
     ),
     "vo" => array(
         "name" => "Volapük",
