@@ -57,6 +57,11 @@ if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the fu
 }
 
 $thisstaff = StaffAuthenticationBackend::getUser();
+
+// Bootstrap gettext translations as early as possible, but after attempting
+// to sign on the agent
+Internationalization::bootstrap($thisstaff);
+
 //1) is the user Logged in for real && is staff.
 if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {
     if (isset($_SESSION['_staff']['auth']['msg'])) {

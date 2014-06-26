@@ -267,6 +267,19 @@ class  EndUser extends AuthenticatedUser {
         return $this->_account;
     }
 
+    function getLanguage() {
+        static $cached = false;
+        if (!$cached) $cached = &$_SESSION['client:lang'];
+
+        if (!$cached) {
+            if ($acct = $this->getAccount())
+                $cached = $acct->getLanguage();
+            if (!$cached)
+                $cached = Internationalization::getDefaultLanguage();
+        }
+        return $cached;
+    }
+
     private function getStats() {
 
         $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '

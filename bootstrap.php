@@ -190,6 +190,7 @@ class Bootstrap {
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
+        require_once INCLUDE_DIR.'class.i18n.php';
     }
 
     function i18n_prep() {

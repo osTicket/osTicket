@@ -284,6 +284,51 @@ class Internationalization {
 
         return $best_match_langcode;
     }
+
+    static function bootstrap($user) {
+        global $cfg;
+
+        #if (!extension_loaded('gettext'))
+            require_once INCLUDE_DIR . 'gettext/gettext.inc';
+
+        if ($user && method_exists($user, 'getLanguage'))
+            $lang = $user->getLanguage();
+        else
+            $lang = Internationalization::getDefaultLanguage();
+
+        $packs = Internationalization::availableLanguages();
+
+        $domain = 'messages';
+
+        // User-specific translations
+        putenv('LC_ALL=' . $lang);
+        setlocale(LC_ALL, $lang);
+        bindtextdomain($domain, $packs[$lang]['path']);
+        textdomain($domain);
+
+        // User-specific translations
+        if (!function_exists('__')) {
+            function __($text) { return _($text); }
+        }
+
+        function _N($msgid, $plural, $count) {
+            return ngettext($msgid, $plural, $count);
+        }
+
+        // System-specific translations
+        function _S($msgid) {
+            global $cfg;
+        }
+        function _SN($msgid, $plural, $count) {
+            global $cfg;
+        }
+
+        // Language-specific translations
+        function _L($msgid, $lang) {
+        }
+        function _LN($msgid, $plural, $count, $lang) {
+        }
+    }
 }
 
 class DataTemplate {

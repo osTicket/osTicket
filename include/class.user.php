@@ -834,6 +834,10 @@ class UserAccountModel extends VerySimpleModel {
         $this->user->set('account', $this);
         return $this->user;
     }
+
+    function getLanguage() {
+        return $this->get('lang');
+    }
 }
 
 class UserAccount extends UserAccountModel {
