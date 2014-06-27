@@ -17,7 +17,7 @@ require('admin.inc.php');
 
 $team=null;
 if($_REQUEST['id'] && !($team=Team::lookup($_REQUEST['id'])))
-    $errors['err']=__('Unknown or invalid team ID.');
+    $errors['err']=__('Unknown or invalid team.');
 
 if($_POST){
     switch(strtolower($_POST['do'])){
@@ -27,7 +27,7 @@ if($_POST){
             }elseif($team->update($_POST,$errors)){
                 $msg=__('Team updated successfully');
             }elseif(!$errors['err']){
-                $errors['err']=__('Unable to update team. Correct any error(s) below and try again!');
+                $errors['err']=__('Unable to update team. Correct any error(s) below and try again.');
             }
             break;
         case 'create':

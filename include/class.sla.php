@@ -168,7 +168,7 @@ class SLA {
             $errors['grace_period']=__('Numeric value required (in hours)');
 
         if(!$vars['name'])
-            $errors['name']=__('Name required');
+            $errors['name']=__('Name is required');
         elseif(($sid=SLA::getIdByName($vars['name'])) && $sid!=$id)
             $errors['name']=__('Name already exists');
 
@@ -196,7 +196,7 @@ class SLA {
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=__('Unable to add SLA. Internal error');
+            $errors['err']=__('Unable to add SLA. Internal error occurred');
         }
 
         return false;

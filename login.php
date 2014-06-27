@@ -33,7 +33,7 @@ else
 $suggest_pwreset = false;
 if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
-        $errors['err'] = 'Valid username or email address is required';
+        $errors['err'] = __('Valid username or email address is required');
     elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
             $_POST['lpasswd'], $errors))) {
         if ($user instanceof ClientCreateRequest) {
@@ -105,7 +105,7 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
             $inc = 'register.inc.php';
         }
         else {
-            $errors['err'] = _('Access Denied. Contact your help desk administrator to have an account registered for you');
+            $errors['err'] = __('Access Denied. Contact your help desk administrator to have an account registered for you');
             // fall through to show login page again
         }
     }

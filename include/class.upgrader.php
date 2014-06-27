@@ -215,7 +215,7 @@ class StreamUpgrader extends SetupWizard {
     function onError($error) {
         global $ost, $thisstaff;
 
-        $subject = '['.$this->name.']: '.__('Upgrader Error');
+        $subject = '['.$this->name.']: '._S('Upgrader Error');
         $ost->logError($subject, $error);
         $this->setError($error);
         $this->upgrader->setState('aborted');
@@ -232,7 +232,8 @@ class StreamUpgrader extends SetupWizard {
         if($email) {
             $email->sendAlert($thisstaff->getEmail(), $subject, $error);
         } else {//no luck - try the system mail.
-            Mailer::sendmail($thisstaff->getEmail(), $subject, $error, sprintf(__('"osTicket Alerts"<%s>'), $thisstaff->getEmail()));
+            Mailer::sendmail($thisstaff->getEmail(), $subject, $error,
+                '"'._S('osTicket Alerts')."\" <{$thisstaff->getEmail()}>");
         }
 
     }
@@ -278,7 +279,7 @@ class StreamUpgrader extends SetupWizard {
 
     function getNextVersion() {
         if(!$patch=$this->getNextPatch())
-            return '(Latest)';
+            return __('(Latest)');
 
         $info = $this->readPatchInfo($patch);
         return $info['version'];
@@ -361,8 +362,8 @@ class StreamUpgrader extends SetupWizard {
             return false; //Nothing to do.
 
         $this->log(
-                sprintf(__('Upgrader - %s (task pending).'), $this->getShash()),
-                sprintf(__('The %s task reports there is work to do'),
+                sprintf(_S('Upgrader - %s (task pending).'), $this->getShash()),
+                sprintf(_S('The %s task reports there is work to do'),
                     get_class($task))
                 );
         if(!($max_time = ini_get('max_execution_time')))
@@ -405,11 +406,11 @@ class StreamUpgrader extends SetupWizard {
             $shash = substr($phash, 9, 8);
 
             //Log the patch info
-            $logMsg = sprintf(__("Patch %s applied successfully "), $phash);
+            $logMsg = sprintf(_S("Patch %s applied successfully "), $phash);
             if(($info = $this->readPatchInfo($patch)) && $info['version'])
                 $logMsg.= ' ('.$info['version'].') ';
 
-            $this->log(sprintf(__("Upgrader - %s applied"), $shash), $logMsg);
+            $this->log(sprintf(_S("Upgrader - %s applied"), $shash), $logMsg);
             $this->signature = $shash; //Update signature to the *new* HEAD
             $this->phash = $phash;
 
@@ -450,12 +451,12 @@ class StreamUpgrader extends SetupWizard {
 
         //We have a cleanup script  ::XXX: Don't abort on error?
         if($this->load_sql_file($file, $this->getTablePrefix(), false, true)) {
-            $this->log(sprintf(__("Upgrader - %s cleanup"), $this->phash),
-                sprintf(__("Applied cleanup script %s"), $file));
+            $this->log(sprintf(_S("Upgrader - %s cleanup"), $this->phash),
+                sprintf(_S("Applied cleanup script %s"), $file));
             return 0;
         }
 
-        $this->log(__('Upgrader'), sprintf(__("%s: Unable to process cleanup file"),
+        $this->log(_S('Upgrader'), sprintf(_S("%s: Unable to process cleanup file"),
                         $this->phash));
         return 0;
     }

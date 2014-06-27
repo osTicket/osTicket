@@ -524,9 +524,10 @@ Class ThreadEntry {
             $error = $attachment['error'];
 
             if(!$error)
-                $error = sprintf(__('Unable to import attachment - %s'),$attachment['name']);
+                $error = sprintf(_S('Unable to import attachment - %s'),$attachment['name']);
 
-            $this->getTicket()->logNote(__('File Import Error'), $error, 'SYSTEM', false);
+            $this->getTicket()->logNote(_S('File Import Error'), $error,
+                _S('SYSTEM'), false);
         }
 
         return $id;
@@ -665,11 +666,10 @@ Class ThreadEntry {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
-            if ($ost) $ost->log(LOG_ERR, 'Email loop detected', sprintf(
-               'It appears as though &lt;%s&gt; is being used as a forwarded or
-                fetched email account and is also being used as a user /
-                system account. Please correct the loop or seek technical
-                assistance.', $mailinfo['email']),
+            if ($ost) $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
+                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
+                $mailinfo['email']),
+
                 // This is quite intentional -- don't continue the loop
                 false,
                 // Force the message, even if logging is disabled
@@ -1124,7 +1124,7 @@ class Message extends ThreadEntry {
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
             $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['message'])
-            $errors['message'] = __('Message required');
+            $errors['message'] = __('Message content is required');
 
         if($errors) return false;
 
@@ -1193,7 +1193,7 @@ class Response extends ThreadEntry {
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
             $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['response'])
-            $errors['response'] = __('Response required');
+            $errors['response'] = __('Response content is required');
 
         if($errors) return false;
 
@@ -1243,7 +1243,7 @@ class Note extends ThreadEntry {
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
             $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['note'])
-            $errors['note'] = __('Note required');
+            $errors['note'] = __('Note content is required');
 
         if($errors) return false;
 
@@ -1279,12 +1279,13 @@ class ThreadBody /* extends SplString */ {
     function __construct($body, $type='text', $options=array()) {
         $type = strtolower($type);
         if (!in_array($type, static::$types))
-            throw new Exception($type.': Unsupported ThreadBody type');
+            throw new Exception("$type: Unsupported ThreadBody type");
         $this->body = (string) $body;
         if (strlen($this->body) > 250000) {
             $max_packet = db_get_variable('max_allowed_packet', 'global');
             // Truncate just short of the max_allowed_packet
-            $this->body = substr($this->body, $max_packet - 2048) . ' ... (truncated)';
+            $this->body = substr($this->body, $max_packet - 2048) . ' ... '
+               . _S('(truncated)');
         }
         $this->type = $type;
         $this->options = array_merge($this->options, $options);
@@ -1358,7 +1359,7 @@ class ThreadBody /* extends SplString */ {
     }
 
     function display($format=false) {
-        throw new Exception('display: Abstract dispplay() method not implemented');
+        throw new Exception('display: Abstract display() method not implemented');
     }
 
     function getSearchable() {

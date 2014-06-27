@@ -1,5 +1,6 @@
 <?php
-$title=($cfg && is_object($cfg) && $cfg->getTitle())?$cfg->getTitle():'osTicket :: Support Ticket System';
+$title=($cfg && is_object($cfg) && $cfg->getTitle())
+    ? $cfg->getTitle() : 'osTicket :: '.__('Support Ticket System');
 $signin_url = ROOT_PATH . "login.php"
     . ($thisclient ? "?e=".urlencode($thisclient->getEmail()) : "");
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
@@ -42,7 +43,8 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
     <div id="container">
         <div id="header">
             <a id="logo" href="<?php echo ROOT_PATH; ?>index.php"
-            title="Support Center"><img src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
+            title="<?php echo __('Support Center'); ?>"><img src="<?php
+                echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
                 echo $ost->getConfig()->getTitle(); ?>"
                 style="height: 5em"></a>
             <p>

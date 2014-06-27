@@ -273,7 +273,7 @@ class Email {
                     && $vars['userid']
                     && !Crypto::encrypt($vars['passwd'], SECRET_SALT, $vars['userid'])
                     )
-                $errors['passwd'] = 'Unable to encrypt password - get technical support';
+                $errors['passwd'] = __('Unable to encrypt password - get technical support');
         }
 
         list($vars['mail_protocol'], $encryption) = explode('/', $vars['mail_proto']);

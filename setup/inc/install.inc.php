@@ -27,7 +27,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                     <font class="error"><?php echo $errors['email']; ?></font>
                 </div>
                 <div class="row">
-                    <label><?php echo _('Primary Language');?>:</label>
+                    <label><?php echo __('Primary Language');?>:</label>
 <?php $langs = Internationalization::availableLanguages(); ?>
                 <select name="lang_id">
 <?php foreach($langs as $l) {

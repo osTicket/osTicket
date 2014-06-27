@@ -316,7 +316,7 @@ class MailFetcher {
                     if ($source == 'delivered-to') continue;
 
                     $header['recipients'][] = array(
-                            'source' => "Email ($source)",
+                            'source' => sprintf(_S("Email (%s)"),$source),
                             'name' => $this->mime_decode(@$addr->personal),
                             'email' => strtolower($addr->mailbox).'@'.$addr->host);
                 } elseif(!$header['emailId']) {
@@ -462,7 +462,7 @@ class MailFetcher {
             // send images without a filename. For such a case, generate a
             // random filename for the image
             if (!$filename && $content_id && $part->type == 5) {
-                $filename = 'image-'.Misc::randCode(4).'.'.strtolower($part->subtype);
+                $filename = _S('image').'-'.Misc::randCode(4).'.'.strtolower($part->subtype);
             }
 
             if($filename) {
@@ -602,7 +602,8 @@ class MailFetcher {
 	    //Is the email address banned?
         if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
-            $ost->logWarning(__('Ticket denied'), __('Banned email').' - '.$mailinfo['email'], false);
+            $ost->logWarning(_S('Ticket denied'),
+                sprintf(_S('Banned email — %s'),$mailinfo['email']), false);
 	        return true; //Report success (moved or delete)
         }
 
@@ -684,7 +685,8 @@ class MailFetcher {
 
                 //Check the file  type
                 if(!$ost->isFileTypeAllowed($file)) {
-                    $file['error'] = 'Invalid file type (ext) for '.Format::htmlchars($file['name']);
+                    $file['error'] = sprintf(_S('Invalid file type (ext) for %s'),
+                        Format::htmlchars($file['name']));
                 }
                 elseif (@$a['data'] instanceof TnefAttachment) {
                     $file['data'] = $a['data']->getData();
@@ -729,8 +731,8 @@ class MailFetcher {
 
             // Log an error to the system logs
             $mailbox = Email::lookup($vars['emailId']);
-            $ost->logError(__('Mail Processing Exception'), sprintf(
-                __("Mailbox: %s | Error(s): %s"),
+            $ost->logError(_S('Mail Processing Exception'), sprintf(
+                _S("Mailbox: %s | Error(s): %s"),
                 $mailbox->getEmail(),
                 print_r($errors, true)
             ), false);
@@ -783,7 +785,7 @@ class MailFetcher {
 
         //Warn on excessive errors
         if($errors>$msgs) {
-            $warn=sprintf(__('Excessive errors processing emails for %1$s/%2$s. Please manually check the inbox.'),
+            $warn=sprintf(_S('Excessive errors processing emails for %1$s/%2$s. Please manually check the inbox.'),
                     $this->getHost(), $this->getUsername());
             $this->log($warn);
         }
@@ -795,7 +797,7 @@ class MailFetcher {
 
     function log($error) {
         global $ost;
-        $ost->logWarning('Mail Fetcher', $error);
+        $ost->logWarning(_S('Mail Fetcher'), $error);
     }
 
     /*
@@ -812,8 +814,8 @@ class MailFetcher {
         //We require imap ext to fetch emails via IMAP/POP3
         //We check here just in case the extension gets disabled post email config...
         if(!function_exists('imap_open')) {
-            $msg=__('osTicket requires PHP IMAP extension enabled for IMAP/POP3 email fetch to work!');
-            $ost->logWarning('Mail Fetch Error', $msg);
+            $msg=_S('osTicket requires PHP IMAP extension enabled for IMAP/POP3 email fetch to work!');
+            $ost->logWarning(_S('Mail Fetch Error'), $msg);
             return;
         }
 
@@ -851,13 +853,13 @@ class MailFetcher {
                 db_query('UPDATE '.EMAIL_TABLE.' SET mail_errors=mail_errors+1, mail_lasterror=NOW() WHERE email_id='.db_input($emailId));
                 if (++$errors>=$MAXERRORS) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
-                    $msg="\n".__('osTicket is having trouble fetching emails from the following mail account').": \n".
-                        "\n".__('User').": ".$fetcher->getUsername().
-                        "\n".__('Host').": ".$fetcher->getHost().
-                        "\n".__('Error').": ".$fetcher->getLastError().
-                        "\n\n ".sprintf(__('%1$d consecutive errors. Maximum of %2$d allowed'), $errors, $MAXERRORS).
-                        "\n\n ".sprintf(__('This could be connection issues related to the mail server. Next delayed login attempt in aprox. %d minutes'),$TIMEOUT);
-                    $ost->alertAdmin(__('Mail Fetch Failure Alert'), $msg, true);
+                    $msg="\n"._S('osTicket is having trouble fetching emails from the following mail account').": \n".
+                        "\n"._S('User').": ".$fetcher->getUsername().
+                        "\n"._S('Host').": ".$fetcher->getHost().
+                        "\n"._S('Error').": ".$fetcher->getLastError().
+                        "\n\n ".sprintf(_S('%1$d consecutive errors. Maximum of %2$d allowed'), $errors, $MAXERRORS).
+                        "\n\n ".sprintf(_S('This could be connection issues related to the mail server. Next delayed login attempt in aprox. %d minutes'),$TIMEOUT);
+                    $ost->alertAdmin(_S('Mail Fetch Failure Alert'), $msg, true);
                 }
             }
         } //end while.

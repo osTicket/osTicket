@@ -6,7 +6,7 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <div id="intro">
             <p> <?php
             echo sprintf(
-                 __('osTicket installer requires ability to write to the configuration file <b>%s</b>'),
+                 __('osTicket installer requires ability to write to the configuration file %s'),
                  '<b>include/ost-config.php</b>');?>
              </p>
             </div>

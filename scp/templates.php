@@ -19,10 +19,10 @@ include_once(INCLUDE_DIR.'class.template.php');
 $template=null;
 if($_REQUEST['tpl_id'] &&
         !($template=EmailTemplateGroup::lookup($_REQUEST['tpl_id'])))
-    $errors['err']=__('Unknown or invalid template group ID.');
+    $errors['err']=__('Unknown or invalid template set.');
 elseif($_REQUEST['id'] &&
         !($template=EmailTemplate::lookup($_REQUEST['id'])))
-    $errors['err']=__('Unknown or invalid template ID.');
+    $errors['err']=__('Unknown or invalid template.');
 elseif($_REQUEST['default_for']) {
     $sql = 'SELECT id FROM '.EMAIL_TEMPLATE_TABLE
         .' WHERE tpl_id='.db_input($cfg->getDefaultTemplateId())
@@ -35,7 +35,7 @@ if($_POST){
     switch(strtolower($_POST['do'])){
         case 'updatetpl':
             if(!$template){
-                $errors['err']=__('Unknown or invalid template');
+                $errors['err']=__('Unknown or invalid template.');
             }elseif($template->update($_POST,$errors)){
                 $msg=__('Message template updated successfully');
                 // Drop drafts for this template for ALL users

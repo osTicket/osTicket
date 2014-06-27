@@ -20,16 +20,16 @@ class Filter {
     var $ht;
 
     static $match_types = array(
-        'User Information' => array(
-            array('name'      => 'Name',
-                'email'     => 'Email',
+        /* trans */ 'User Information' => array(
+            array('name'      =>    /* trans */ 'Name',
+                'email'     =>      /* trans */ 'Email',
             ),
             900
         ),
-        'Email Meta-Data' => array(
-            array('reply-to'  => 'Reply-To Email',
-                'reply-to-name' => 'Reply-To Name',
-                'addressee' => 'Addressee (To and Cc)',
+        /* trans */ 'Email Meta-Data' => array(
+            array('reply-to'  =>    /* trans */ 'Reply-To Email',
+                'reply-to-name' =>  /* trans */ 'Reply-To Name',
+                'addressee' =>      /* trans */ 'Addressee (To and Cc)',
             ),
             200
         ),
@@ -349,14 +349,14 @@ class Filter {
 
     /* static */ function getSupportedMatchTypes() {
         return array(
-            'equal'=>       'Equal',
-            'not_equal'=>   'Not Equal',
-            'contains'=>    'Contains',
-            'dn_contain'=>  'Does Not Contain',
-            'starts'=>      'Starts With',
-            'ends'=>        'Ends With',
-            'match'=>       'Matches Regex',
-            'not_match'=>   'Does Not Match Regex',
+            'equal'=>       __('Equal'),
+            'not_equal'=>   __('Not Equal'),
+            'contains'=>    __('Contains'),
+            'dn_contain'=>  __('Does Not Contain'),
+            'starts'=>      __('Starts With'),
+            'ends'=>        __('Ends With'),
+            'match'=>       __('Matches Regex'),
+            'not_match'=>   __('Does Not Match Regex'),
         );
     }
 

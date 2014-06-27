@@ -100,12 +100,12 @@ class StaffNav {
     function getTabs(){
         if(!$this->tabs) {
             $this->tabs=array();
-            $this->tabs['dashboard'] = array('desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>'Staff Dashboard');
-            $this->tabs['users'] = array('desc' => __('Users'), 'href' => 'users.php', 'title' => 'User Directory');
-            $this->tabs['tickets'] = array('desc'=>__('Tickets'),'href'=>'tickets.php','title'=>'Ticket Queue');
-            $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>'Knowledgebase');
+            $this->tabs['dashboard'] = array('desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Staff Dashboard'));
+            $this->tabs['users'] = array('desc' => __('Users'), 'href' => 'users.php', 'title' => __('User Directory'));
+            $this->tabs['tickets'] = array('desc'=>__('Tickets'),'href'=>'tickets.php','title'=>__('Ticket Queue'));
+            $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>__('Knowledgebase'));
             if (count($this->getRegisteredApps()))
-                $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>'Applications');
+                $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>__('Applications'));
         }
 
         return $this->tabs;
@@ -138,11 +138,11 @@ class StaffNav {
                     break;
                 case 'dashboard':
                     $subnav[]=array('desc'=>__('Dashboard'),'href'=>'dashboard.php','iconclass'=>'logs');
-                    $subnav[]=array('desc'=>__('Staff&nbsp;Directory'),'href'=>'directory.php','iconclass'=>'teams');
-                    $subnav[]=array('desc'=>__('My&nbsp;Profile'),'href'=>'profile.php','iconclass'=>'users');
+                    $subnav[]=array('desc'=>__('Staff Directory'),'href'=>'directory.php','iconclass'=>'teams');
+                    $subnav[]=array('desc'=>__('My Profile'),'href'=>'profile.php','iconclass'=>'users');
                     break;
                 case 'users':
-                    $subnav[] = array('desc' => 'User&nbsp;Directory', 'href' => 'users.php', 'iconclass' => 'teams');
+                    $subnav[] = array('desc' => 'User Directory', 'href' => 'users.php', 'iconclass' => 'teams');
                     $subnav[] = array('desc' => 'Organizations', 'href' => 'orgs.php', 'iconclass' => 'departments');
                     break;
                 case 'kbase':
@@ -151,7 +151,7 @@ class StaffNav {
                         if($staff->canManageFAQ())
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
                         if($staff->canManageCannedResponses())
-                            $subnav[]=array('desc'=>__('Canned&nbsp;Responses'),'href'=>'canned.php','iconclass'=>'canned');
+                            $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
                 case 'apps':

@@ -3,7 +3,7 @@ require('admin.inc.php');
 require_once(INCLUDE_DIR."/class.plugin.php");
 
 if($_REQUEST['id'] && !($plugin=Plugin::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid plugin ID.';
+    $errors['err']=__('Unknown or invalid plugin ID.');
 
 if($_POST) {
     switch(strtolower($_POST['do'])) {
@@ -14,7 +14,7 @@ if($_POST) {
         break;
     case 'mass_process':
         if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-            $errors['err'] = 'You must select at least one plugin';
+            $errors['err'] = __('You must select at least one plugin');
         } else {
             $count = count($_POST['ids']);
             switch(strtolower($_POST['a'])) {
@@ -44,7 +44,7 @@ if($_POST) {
         break;
     case 'install':
         if ($ost->plugins->install($_POST['install_path']))
-            $msg = 'Plugin successfully installed';
+            $msg = __('Plugin successfully installed');
         break;
     }
 }

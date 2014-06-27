@@ -304,17 +304,17 @@ class Topic {
         $vars['topic']=Format::striptags(trim($vars['topic']));
 
         if($id && $id!=$vars['id'])
-            $errors['err']=__('Internal error. Try again');
+            $errors['err']=__('Internal error occurred. Try again');
 
         if(!$vars['topic'])
-            $errors['topic']=__('Help topic required');
+            $errors['topic']=__('Help topic name is required');
         elseif(strlen($vars['topic'])<5)
-            $errors['topic']=__('Topic is too short. 5 chars minimum');
+            $errors['topic']=__('Topic is too short. Five characters minimum');
         elseif(($tid=self::getIdByName($vars['topic'], $vars['topic_pid'])) && $tid!=$id)
             $errors['topic']=__('Topic already exists');
 
         if (!is_numeric($vars['dept_id']))
-            $errors['dept_id']=__('You must select a department');
+            $errors['dept_id']=__('Department selection is required');
 
         if($errors) return false;
 
@@ -363,7 +363,7 @@ class Topic {
             if (db_query($sql) && ($id = db_insert_id()))
                 $rv = $id;
             else
-                $errors['err']=__('Unable to create the topic. Internal error');
+                $errors['err']=__('Unable to create the topic. Internal error occurred');
         }
         if (!$cfg || $cfg->getTopicSortMode() == 'a') {
             static::updateSortOrder();

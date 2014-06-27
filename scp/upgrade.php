@@ -77,8 +77,8 @@ switch(strtolower($upgrader->getState())) {
 
 $nav = new AdminNav($thisstaff);
 $nav->setTabActive('dashboard');
-$nav->addSubMenu(array('desc'=>'Upgrader',
-                           'title'=>'Upgrader',
+$nav->addSubMenu(array('desc'=>__('Upgrader'),
+                           'title'=>__('Upgrader'),
                            'href'=>'upgrade.php',
                            'iconclass'=>'preferences'),
                         true);

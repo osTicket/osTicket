@@ -13,12 +13,13 @@ if ($thisclient && $thisclient->isGuest()
 
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
-    <strong>Looking for your other tickets?</strong></br>
+    <strong><?php echo __('Looking for your other tickets?'); ?></strong></br>
     <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
         echo urlencode($thisclient->getEmail());
-        ?>" style="text-decoration:underline">Sign in</a> or
-    <a href="account.php?do=create" style="text-decoration:underline">register for an account</a>
-    for the best experience on our help desk.</div>
+    ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a> or
+    <?php echo sprintf(__('or %s register for an account %s for the best experience on our help desk.'),
+        '<a href="account.php?do=create" style="text-decoration:underline">','</a>'); ?>
+    </div>
 
 <?php } ?>
 
@@ -171,7 +172,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                 if($ticket->isClosed()) {
                     $msg='<b>'.__('Ticket will be reopened on message post').'</b>';
                 } else {
-                    $msg=__('To best assist you, please be specific and detailed');
+                    $msg=__('To best assist you, we request that you be specific and detailed');
                 }
                 ?>
                 <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>

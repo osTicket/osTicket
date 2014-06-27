@@ -112,7 +112,7 @@ class Validator {
                 break;
             case 'password':
                 if(strlen($this->input[$k])<5)
-                    $this->errors[$k]=$field['error'].' (5 chars min)';
+                    $this->errors[$k]=$field['error'].' '.__('(Five characters min)');
                 break;
             case 'username':
                 $error = '';
@@ -191,9 +191,9 @@ class Validator {
 
     function is_username($username, &$error='') {
         if (strlen($username)<2)
-            $error = 'At least two (2) characters';
+            $error = __('Username must have at least two (2) characters');
         elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))
-            $error = 'Username contains invalid characters';
+            $error = __('Username contains invalid characters');
         return $error == '';
     }
 

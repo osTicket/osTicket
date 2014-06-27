@@ -117,7 +117,7 @@ if($_POST){
             }
             break;
         default:
-            $errors['err']=__('Unknown command/action');
+            $errors['err']=__('Unknown action');
             break;
     }
     if ($id or $topic) {

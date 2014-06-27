@@ -170,8 +170,8 @@ class EmailTemplateGroup {
         if ($tpl=EmailTemplate::fromInitialData($name, $this))
             return $tpl;
 
-        $ost->logWarning(__('Template Fetch Error'),
-            sprintf(__('Unable to fetch "%1$s" template - id #%d'), $name, $this->getId()));
+        $ost->logWarning(_S('Template Fetch Error'),
+            sprintf(_S('Unable to fetch "%1$s" template - id #%d'), $name, $this->getId()));
         return false;
     }
 
@@ -250,7 +250,7 @@ class EmailTemplateGroup {
 
     function update($vars,&$errors) {
         if(!$vars['isactive'] && $this->isInUse())
-            $errors['isactive']=__('Template in use cannot be disabled!');
+            $errors['isactive']=__('In-use template set cannot be disabled!');
 
         if(!$this->save($this->getId(),$vars,$errors))
             return false;
@@ -317,15 +317,15 @@ class EmailTemplateGroup {
         $vars['name']=Format::striptags(trim($vars['name']));
 
         if($id && $id!=$vars['tpl_id'])
-            $errors['err']=__('Internal error. Try again');
+            $errors['err']=__('Internal error occurred. Try again');
 
         if(!$vars['name'])
-            $errors['name']=__('Name required');
+            $errors['name']=__('Name is required');
         elseif(($tid=EmailTemplateGroup::getIdByName($vars['name'])) && $tid!=$id)
             $errors['name']=__('Template name already exists');
 
         if(!$id && ($vars['tpl_id'] && !($tpl=EmailTemplateGroup::lookup($vars['tpl_id']))))
-            $errors['tpl_id']=__('Invalid template group specified');
+            $errors['tpl_id']=__('Invalid template set specified');
 
         if($errors) return false;
 
@@ -352,7 +352,7 @@ class EmailTemplateGroup {
             $sql='INSERT INTO '.EMAIL_TEMPLATE_GRP_TABLE
                 .' SET created=NOW(), '.$sql;
             if(!db_query($sql) || !($new_id=db_insert_id())) {
-                $errors['err']=__('Unable to create template. Internal error');
+                $errors['err']=__('Unable to create template. Internal error occurred');
                 return false;
             }
 
@@ -474,16 +474,16 @@ class EmailTemplate {
 
     function save($id, $vars, &$errors) {
         if(!$vars['subject'])
-            $errors['subject']='Message subject required';
+            $errors['subject']='Message subject is required';
 
         if(!$vars['body'])
-            $errors['body']='Message body required';
+            $errors['body']='Message body is required';
 
         if (!$id) {
             if (!$vars['tpl_id'])
-                $errors['tpl_id']='Template group required';
+                $errors['tpl_id']='Template set is required';
             if (!$vars['code_name'])
-                $errors['code_name']='Code name required';
+                $errors['code_name']='Code name is required';
         }
 
         if ($errors)
@@ -555,7 +555,7 @@ class EmailTemplate {
             return $templ;
         }
         raise_error("$lang/templates/$name.yaml: "
-            . _('Email templates must define both "subject" and "body" parts of the template'),
+            . _S('Email templates must define both "subject" and "body" parts of the template'),
             'InitialDataError');
         return false;
     }

@@ -29,6 +29,6 @@ if(($res=db_query($sql)) && db_num_rows($res)) {
          </div>
          <p><a class="back" href="index.php">&laquo; '.__('Go Back').'</a></p>';
 }else {
-    echo '<strong>'.__('Category does not have any FAQs.').' <a href="index.php">'.__('Back To Index').'</a></strong>';
+    echo '<strong>'.__('This category does not have any FAQs.').' <a href="index.php">'.__('Back To Index').'</a></strong>';
 }
 ?>

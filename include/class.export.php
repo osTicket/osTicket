@@ -127,9 +127,9 @@ class Export {
         ob_start();
         echo self::dumpQuery($sql,
                 array(
-                    'name'  =>  'Name',
-                    'organization' => 'Organization',
-                    'email' =>  'Email'
+                    'name'  =>          __('Name'),
+                    'organization' =>   __('Organization'),
+                    'email' =>          __('Email'),
                     ) + $cdata,
                 $how,
                 array('modify' => function(&$record, $keys) use ($fields) {
@@ -361,7 +361,7 @@ class DatabaseExporter {
 
             if (!$table) {
                 if ($error_stream) $error_stream->write(
-                    $t.': Cannot export table with no fields'."\n");
+                    sprintf(__("%s: Cannot export table with no fields\n"), $t));
                 die();
             }
             $this->write_block(

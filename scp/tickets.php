@@ -45,7 +45,6 @@ if($_POST && !$errors):
         //More coffee please.
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
-        $statusKeys=array('open'=>'Open','Reopen'=>'Open','Close'=>'Closed');
         switch(strtolower($_POST['a'])):
         case 'reply':
             if(!$thisstaff->canPostReply())

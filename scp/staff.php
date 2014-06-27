@@ -92,7 +92,7 @@ if($_POST){
             }
             break;
         default:
-            $errors['err']=__('Unknown action/command');
+            $errors['err']=__('Unknown action');
             break;
     }
 }

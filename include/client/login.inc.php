@@ -50,11 +50,11 @@ if (count($ext_bks)) {
 }
 if ($cfg && $cfg->isClientRegistrationEnabled()) {
     if (count($ext_bks)) echo '<hr style="width:70%"/>'; ?>
-    <?php echo _('Not yet registered?'); ?> <a href="account.php?do=create"><?php echo _('Create an account'); ?></a>
+    <?php echo __('Not yet registered?'); ?> <a href="account.php?do=create"><?php echo __('Create an account'); ?></a>
     <br/>
     <div style="margin-top: 5px;">
-    <b><?php echo _("I'm an agent"); ?></b> —
-    <a href="<?php echo ROOT_PATH; ?>scp"><?php echo _('sign in here'); ?></a>
+    <b><?php echo __("I'm an agent"); ?></b> —
+    <a href="<?php echo ROOT_PATH; ?>scp"><?php echo __('sign in here'); ?></a>
     </div>
 <?php } ?>
     </div>
@@ -63,7 +63,7 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
 <br>
 <p>
 <?php if ($cfg && !$cfg->isClientLoginRequired()) {
-    echo sprintf(__('If this is your first time contacting us or you\'ve lost the ticket number, please %1$s open a new ticket %2$s'),
+    echo sprintf(__('If this is your first time contacting us or you\'ve lost the ticket number, please %s open a new ticket %s'),
         '<a href="open.php">', '</a>');
 } ?>
 </p>

@@ -151,7 +151,7 @@ class i18n_Compiler extends Module {
                     case '#':
                         $text = ltrim($T[1], '# ');
                     }
-                    $string['comment'] = $text;
+                    $string['comments'][] = $text;
                     break;
                 case T_WHITESPACE:
                     // noop
@@ -178,8 +178,9 @@ class i18n_Compiler extends Module {
                 }
                 $args['forms'][] = $string['form'];
                 $args['line'] = $string['line'];
-                if (isset($string['comment']))
-                    $args['comments'][] = $string['comment'];
+                if (isset($string['comments']))
+                    $args['comments'] = array_merge(
+                        @$args['comments'] ?: array(), $string['comments']);
             }
 
             switch ($T[0]) {
@@ -231,8 +232,9 @@ class i18n_Compiler extends Module {
                     // Find the next textual token
                     list($S, $T) = $this->__read_next_string($tokens);
                     $string = array('forms'=>array($S['form']), 'line'=>$S['line']);
-                    if (isset($S['comment']))
-                        $string['comments'][] = $S['comment'];
+                    if (isset($S['comments']))
+                        $string['comments'] = array_merge(
+                            @$string['comments'] ?: array(), $S['comments']);
                     $T_funcs[] = $string;
                 }
                 break;
@@ -293,8 +295,8 @@ class i18n_Compiler extends Module {
             if ($c = @$S['comments']) {
                 foreach ($c as $comment) {
                     foreach (explode("\n", $comment) as $line) {
-                        $line = trim($line);
-                        print "#. {$line}\n";
+                        if ($line = trim($line))
+                            print "#. {$line}\n";
                     }
                 }
             }
@@ -320,7 +322,7 @@ class i18n_Compiler extends Module {
 
     function _make_pot() {
         error_reporting(E_ALL);
-        $funcs = array('__'=>1, '_N'=>2);
+        $funcs = array('__'=>1, '_S'=>1, '_N'=>2, '_SN'=>2);
         function get_osticket_root_path() { return ROOT_DIR; }
         require_once(ROOT_DIR.'setup/test/tests/class.test.php');
         $files = Test::getAllScripts();
@@ -334,6 +336,8 @@ class i18n_Compiler extends Module {
                     // Transation of non-constant
                     continue;
                 $primary = $forms[0];
+                // Normalize the $primary string
+                $primary = preg_replace(array("`\\\(['$])`", '`(?<!\\\)"`'), array("$1", '\"'), $primary);
                 if (!isset($strings[$primary])) {
                     $strings[$primary] = array('forms' => $forms);
                 }

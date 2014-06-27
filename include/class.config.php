@@ -444,8 +444,8 @@ class OsticketConfig extends Config {
     function setTopicSortMode($mode) {
         $modes = static::allTopicSortModes();
         if (!isset($modes[$mode]))
-            throw new InvalidArgumentException($mode
-                .': Unsupport help topic sort mode');
+            throw new InvalidArgumentException(sprintf(
+                __('%s: Unsupport help topic sort mode'), $mode));
 
         $this->update('help_topic_sort_mode', $mode);
     }
@@ -904,7 +904,7 @@ class OsticketConfig extends Config {
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
-            'error'=>'Valid password reset window required');
+            'error'=>__('Valid password reset window required'));
 
 
         if(!Validator::process($f, $vars, $errors) || $errors)
@@ -966,7 +966,7 @@ class OsticketConfig extends Config {
         if ($vars['default_help_topic']
                 && ($T = Topic::lookup($vars['default_help_topic']))
                 && !$T->isActive()) {
-            $errors['default_help_topic'] = 'Default help topic must be set to active';
+            $errors['default_help_topic'] = __('Default help topic must be set to active');
         }
 
         if(!Validator::process($f, $vars, $errors) || $errors)
@@ -1065,7 +1065,7 @@ class OsticketConfig extends Config {
             elseif ($logo['error'])
                 $errors['logo'] = $logo['error'];
             elseif (!($id = AttachmentFile::uploadLogo($logo, $error)))
-                $errors['logo'] = sprintf(_('Unable to upload logo image: %s'), $error);
+                $errors['logo'] = sprintf(__('Unable to upload logo image: %s'), $error);
         }
 
         $company = $ost->company;

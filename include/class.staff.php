@@ -442,35 +442,35 @@ class Staff extends AuthenticatedUser {
         $vars['lastname']=Format::striptags($vars['lastname']);
 
         if($this->getId()!=$vars['id'])
-            $errors['err']=__('Internal Error');
+            $errors['err']=__('Internal error occurred');
 
         if(!$vars['firstname'])
-            $errors['firstname']=__('First name required');
+            $errors['firstname']=__('First name is required');
 
         if(!$vars['lastname'])
-            $errors['lastname']=__('Last name required');
+            $errors['lastname']=__('Last name is required');
 
         if(!$vars['email'] || !Validator::is_email($vars['email']))
-            $errors['email']=__('Valid email required');
+            $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in-use as system email');
         elseif(($uid=Staff::getIdByEmail($vars['email'])) && $uid!=$this->getId())
             $errors['email']=__('Email already in-use by another staff member');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
-            $errors['phone']=__('Valid number required');
+            $errors['phone']=__('Valid phone number is required');
 
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
-            $errors['mobile']=__('Valid number required');
+            $errors['mobile']=__('Valid phone number is required');
 
         if($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
 
             if(!$vars['passwd1'])
-                $errors['passwd1']=__('New password required');
+                $errors['passwd1']=__('New password is required');
             elseif($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Must be at least 6 characters');
+                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2']=__('Password(s) do not match');
+                $errors['passwd2']=__('Passwords do not match');
 
             if (($rtoken = $_SESSION['_staff']['reset-token'])) {
                 $_config = new Config('pwreset');
@@ -483,7 +483,7 @@ class Staff extends AuthenticatedUser {
                         __('Invalid reset token. Logout and try again');
             }
             elseif(!$vars['cpasswd'])
-                $errors['cpasswd']=__('Current password required');
+                $errors['cpasswd']=__('Current password is required');
             elseif(!$this->cmp_passwd($vars['cpasswd']))
                 $errors['cpasswd']=__('Invalid current password!');
             elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
@@ -491,7 +491,7 @@ class Staff extends AuthenticatedUser {
         }
 
         if(!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone required');
+            $errors['timezone_id']=__('Time zone selection is required');
 
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
             $errors['default_signature_type'] = __("You don't have a signature");
@@ -670,7 +670,7 @@ class Staff extends AuthenticatedUser {
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)
-            return new Error('Unable to retrieve password reset email template');
+            return new Error(/* trans */ 'Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
@@ -691,8 +691,8 @@ class Staff extends AuthenticatedUser {
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
-            $ost->logWarning(_('Staff Password Reset'), sprintf(
-             _('Password reset was attempted for staff member: %1$s<br><br>
+            $ost->logWarning(_S('Staff Password Reset'), sprintf(
+             _S('Password reset was attempted for staff member: %1$s<br><br>
                 Requested-User-Id: %2$s<br>
                 Source-Ip: %3$s<br>
                 Email-Sent-To: %4$s<br>
@@ -732,46 +732,46 @@ class Staff extends AuthenticatedUser {
 
         $error = '';
         if(!$vars['username'] || !Validator::is_username($vars['username'], $error))
-            $errors['username']=($error) ? $error : __('Username required');
+            $errors['username']=($error) ? $error : __('Username is required');
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
             $errors['username']=__('Username already in use');
 
         if(!$vars['email'] || !Validator::is_email($vars['email']))
-            $errors['email']=__('Valid email required');
+            $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
-            $errors['email']=__('Already in-use system email');
+            $errors['email']=__('Already in use system email');
         elseif(($uid=Staff::getIdByEmail($vars['email'])) && $uid!=$id)
             $errors['email']=__('Email already in use by another staff member');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
-            $errors['phone']=__('Valid number required');
+            $errors['phone']=__('Valid phone number is required');
 
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
-            $errors['mobile']=__('Valid number required');
+            $errors['mobile']=__('Valid phone number is required');
 
         if($vars['passwd1'] || $vars['passwd2'] || !$id) {
             if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
-                $errors['passwd2']=__('Password(s) do not match');
+                $errors['passwd2']=__('Passwords do not match');
             }
             elseif ($vars['backend'] != 'local' || $vars['welcome_email']) {
                 // Password can be omitted
             }
             elseif(!$vars['passwd1'] && !$id) {
-                $errors['passwd1']=__('Temporary password required');
+                $errors['passwd1']=__('Temporary password is required');
                 $errors['temppasswd']=__('Required');
             } elseif($vars['passwd1'] && strlen($vars['passwd1'])<6) {
-                $errors['passwd1']=__('Must be at least 6 characters');
+                $errors['passwd1']=__('Password must be at least 6 characters');
             }
         }
 
         if(!$vars['dept_id'])
-            $errors['dept_id']=__('Department required');
+            $errors['dept_id']=__('Department is required');
 
         if(!$vars['group_id'])
-            $errors['group_id']=__('Group required');
+            $errors['group_id']=__('Group is required');
 
         if(!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone required');
+            $errors['timezone_id']=__('Time zone selection is required');
 
         if($errors) return false;
 
@@ -817,7 +817,7 @@ class Staff extends AuthenticatedUser {
             if(db_query($sql) && ($uid=db_insert_id()))
                 return $uid;
 
-            $errors['err']=__('Unable to create user. Internal error');
+            $errors['err']=__('Unable to create user. Internal error occurred');
         }
 
         return false;

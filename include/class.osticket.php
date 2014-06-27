@@ -246,7 +246,7 @@ class osTicket {
         if($email) {
             $email->sendAlert($to, $subject, $message, null, array('text'=>true));
         } else {//no luck - try the system mail.
-            Mailer::sendmail($to, $subject, $message, sprintf(__('"osTicket Alerts" <%s>'),$to));
+            Mailer::sendmail($to, $subject, $message, '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
         }
 
         //log the alert? Watch out for loops here.
@@ -277,8 +277,9 @@ class osTicket {
             $alert =false;
 
         $e = new Exception();
-        $bt = str_replace(ROOT_DIR, '(root)/', $e->getTraceAsString());
-        $error .= nl2br("\n\n---- Backtrace ----\n".$bt);
+        $bt = str_replace(ROOT_DIR, _S(/* `root` is a root folder */ '(root)').'/',
+            $e->getTraceAsString());
+        $error .= nl2br("\n\n---- "._S('Backtrace')." ----\n".$bt);
 
         return $this->log(LOG_ERR, $title, $error, $alert);
     }

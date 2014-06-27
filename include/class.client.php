@@ -342,11 +342,11 @@ class ClientAccount extends UserAccount {
         if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
 
             if (!$vars['passwd1'])
-                $errors['passwd1']=__('New password required');
+                $errors['passwd1']=__('New password is required');
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Must be at least 6 characters');
+                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2']=__('Password(s) do not match');
+                $errors['passwd2']=__('Passwords do not match');
 
             if ($rtoken) {
                 $_config = new Config('pwreset');
@@ -360,7 +360,7 @@ class ClientAccount extends UserAccount {
             }
             elseif ($this->get('passwd')) {
                 if (!$vars['cpasswd'])
-                    $errors['cpasswd']=__('Current password required');
+                    $errors['cpasswd']=__('Current password is required');
                 elseif (!$this->hasCurrentPassword($vars['cpasswd']))
                     $errors['cpasswd']=__('Invalid current password!');
                 elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
