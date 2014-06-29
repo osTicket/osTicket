@@ -60,7 +60,7 @@ $thisstaff = StaffAuthenticationBackend::getUser();
 
 // Bootstrap gettext translations as early as possible, but after attempting
 // to sign on the agent
-Internationalization::bootstrap($thisstaff);
+TextDomain::configureForUser($thisstaff);
 
 //1) is the user Logged in for real && is staff.
 if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {

@@ -285,48 +285,37 @@ class Internationalization {
         return $best_match_langcode;
     }
 
-    static function bootstrap($user) {
-        global $cfg;
+    static function bootstrap() {
 
-        #if (!extension_loaded('gettext'))
-            require_once INCLUDE_DIR . 'gettext/gettext.inc';
-
-        if ($user && method_exists($user, 'getLanguage'))
-            $lang = $user->getLanguage();
-        else
-            $lang = Internationalization::getDefaultLanguage();
-
-        $packs = Internationalization::availableLanguages();
+        require_once INCLUDE_DIR . 'class.translation.php';
 
         $domain = 'messages';
+        TextDomain::setDefaultDomain($domain);
+        TextDomain::lookup()->setPath(I18N_DIR);
 
         // User-specific translations
-        putenv('LC_ALL=' . $lang);
-        setlocale(LC_ALL, $lang);
-        bindtextdomain($domain, $packs[$lang]['path']);
-        textdomain($domain);
-
-        // User-specific translations
-        if (!function_exists('__')) {
-            function __($text) { return _($text); }
-        }
-
         function _N($msgid, $plural, $count) {
-            return ngettext($msgid, $plural, $count);
+            return TextDomain::lookup()->getTranslation(LC_MESSAGES, $locale)
+                ->ngettext($msgid, $plural, $count);
         }
 
         // System-specific translations
         function _S($msgid) {
             global $cfg;
+            return __($msgid);
         }
         function _SN($msgid, $plural, $count) {
             global $cfg;
         }
 
         // Language-specific translations
-        function _L($msgid, $lang) {
+        function _L($msgid, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->translate($msgid);
         }
-        function _LN($msgid, $plural, $count, $lang) {
+        function _LN($msgid, $plural, $count, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->ngettext($msgid);
         }
     }
 }

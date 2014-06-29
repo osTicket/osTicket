@@ -33,7 +33,7 @@ if (count($ext_bks)) { ?>
     }
 } ?>
 </div>
-<div id="copyRights"><?php echo _('Copyright'); ?> &copy;
+<div id="copyRights"><?php echo __('Copyright'); ?> &copy;
 <a href='http://www.osticket.com' target="_blank">osTicket.com</a></div>
 </body>
 </html>

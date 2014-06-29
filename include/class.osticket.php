@@ -444,6 +444,8 @@ class osTicket {
 
     /**** static functions ****/
     function start() {
+        // Prep basic translation support
+        Internationalization::bootstrap();
 
         if(!($ost = new osTicket()))
             return null;
