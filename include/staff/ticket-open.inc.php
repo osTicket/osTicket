@@ -106,7 +106,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Ticket Information &amp; Options');?></strong>:</em>
+                <em><strong><?php echo __('Ticket Information and Options');?></strong>:</em>
             </th>
         </tr>
         <tr>

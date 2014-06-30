@@ -31,7 +31,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em><?php echo __('Template information.');?></em>
+                <em><?php echo __('Template information');?></em>
             </th>
         </tr>
     </thead>
@@ -90,9 +90,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
 <?php } # end if ($current_group)
             if (isset($impl[$cn])) {
-                echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">Updated %s</span><br/>&nbsp;%s</td></tr>',
+                echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">%s</span><br/>&nbsp;%s</td></tr>',
                 $impl[$cn]->getId(), Format::htmlchars($info['name']),
-                Format::db_datetime($impl[$cn]->getLastUpdated()),
+                sprintf(__('Updated %s'), Format::db_datetime($impl[$cn]->getLastUpdated())),
                 Format::htmlchars($info['desc']));
             } else {
                 echo sprintf('<tr><td colspan=2>&nbsp;<strong><a
@@ -153,7 +153,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes.');?></em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __(
+                "be liberal, they're internal");?></em>
             </th>
         </tr>
         <tr>

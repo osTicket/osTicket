@@ -112,7 +112,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
 <?php if (!$staff) { ?>
         <tr>
-            <td width="180">Welcome Email</td>
+            <td width="180"><?php echo __('Welcome Email'); ?></td>
             <td><input type="checkbox" name="welcome_email" id="welcome-email" <?php
                 if ($info['welcome_email']) echo 'checked="checked"';
                 ?> onchange="javascript:
@@ -122,7 +122,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 else if (sbk.val() == '' || sbk.val() == 'local')
                     $('#password-fields').show();
                 " />
-                 Send sign in information
+                <?php echo __('Send sign in information'); ?>
                 &nbsp;<i class="help-tip icon-question-sign" href="#welcome_email"></i>
             </td>
         </tr>
@@ -349,7 +349,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Admin Notes'); ?></strong></em>
+                <em><strong><?php echo __('Internal Notes'); ?></strong></em>
             </th>
         </tr>
         <tr>

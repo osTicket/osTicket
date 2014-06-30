@@ -5,7 +5,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
 
 <div id="loginBox">
-    <h1 id="logo"><a href="index.php">osTicket Staff Password Reset</a></h1>
+    <h1 id="logo"><a href="index.php">osTicket <?php echo __('Staff Password Reset'); ?></a></h1>
     <h3><?php echo Format::htmlchars($msg); ?></h3>
     <form action="pwreset.php" method="post">
         <?php csrf_token(); ?>

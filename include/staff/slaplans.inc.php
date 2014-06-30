@@ -33,9 +33,11 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' '.__('SLA plans');
+    $showing=$pageNav->showing().' '._N('SLA plan',
+        'SLA plans' /* SLA is abbreviation for Service Level Agreement */,
+        $total);
 else
-    $showing=__('No SLA plans found!');
+    $showing=__('No SLA plans found!' /* SLA is abbreviation for Service Level Agreement */);
 
 ?>
 
@@ -101,7 +103,7 @@ else
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo __('No SLA plans found');
+                echo __('No SLA plans found' /* SLA is abbreviation for Service Level Agreement */);
             } ?>
         </td>
      </tr>

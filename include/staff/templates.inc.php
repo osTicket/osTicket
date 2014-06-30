@@ -36,7 +36,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY tpl.tpl_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' '.__('Templates');
+    $showing=$pageNav->showing().' '._N('template', 'templates', $num);
 else
     $showing=__('No templates found!');
 
@@ -102,7 +102,7 @@ else
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo __('No templates found');
+                echo __('No templates found!');
             } ?>
         </td>
      </tr>

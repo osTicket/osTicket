@@ -71,7 +71,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>New Ticket Settings</strong></em>
+                <em><strong><?php echo __('New Ticket Settings'); ?></strong></em>
             </th>
         </tr>
         <tr>
@@ -81,7 +81,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
         <span>
 			<select name="dept_id">
-			    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
+			    <option value="0" selected="selected">&mdash; <?php
+                echo __('System Default'); ?> &mdash;</option>
 			    <?php
 			    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
 			    if(($res=db_query($sql)) && db_num_rows($res)){
@@ -104,7 +105,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
 		<span>
 			<select name="priority_id">
-			    <option value="0" selected="selected">&mdash; System Default &mdash;</option>
+			    <option value="0" selected="selected">&mdash; <?php
+                echo __('System Default'); ?> &mdash;</option>
 			    <?php
 			    $sql='SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
 			    if(($res=db_query($sql)) && db_num_rows($res)){
@@ -243,7 +245,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr><td><?php echo __('Emails Per Fetch'); ?></td>
             <td>
 		<span>
-			<input type="text" name="mail_fetchmax" size=4 value="<?php echo $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>"> emails
+			<input type="text" name="mail_fetchmax" size=4 value="<?php echo
+            $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>">
+            <?php echo __('emails'); ?>
 			<i class="help-tip icon-question-sign" href="#emails_per_fetch"></i>
 			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
 		</span>
@@ -308,13 +312,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td><?php echo __('Header Spoofing'); ?></td>
             <td>
                 <label><input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
-                Allow for this Email Address</label>
+                <?php echo __('Allow for this Email Address'); ?></label>
                 <i class="help-tip icon-question-sign" href="#header_spoofing"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("Admin's notes.");?> &nbsp;<span class="error">&nbsp;<?php echo $errors['notes']; ?></span></em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php
+                echo __("be liberal, they're internal.");?> &nbsp;<span class="error">&nbsp;<?php echo $errors['notes']; ?></span></em>
             </th>
         </tr>
         <tr>

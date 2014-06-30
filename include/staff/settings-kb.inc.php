@@ -36,7 +36,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     </tbody>
 </table>
 <p style="padding-left:210px;">
-    <input class="button" type="submit" name="submit" value="Save Changes">
-    <input class="button" type="reset" name="reset" value="Reset Changes">
+    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
+    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>">
 </p>
 </form>

@@ -16,7 +16,7 @@ $info['id']=$staff->getId();
         <tr>
             <th colspan="2">
                 <h4><?php echo __('Account Information');?></h4>
-                <em><?php echo __('Contact information.');?></em>
+                <em><?php echo __('Contact information');?></em>
             </th>
         </tr>
     </thead>
@@ -151,7 +151,10 @@ $info['id']=$staff->getId();
                   $y=1;
                    for($i=1; $i <=30; $i+=$y) {
                      $sel=($info['auto_refresh_rate']==$i)?'selected="selected"':'';
-                     echo sprintf('<option value="%1$d" %2$s>'.__('Every %3$s %4$s').'</option>',$i,$sel,$i,($i>1?'mins':'min'));
+                     echo sprintf('<option value="%1$d" %2$s>'
+                        .sprintf(
+                            _N('Every minute', 'Every %d %minutes', $i), $i)
+                         .'</option>',$i,$sel);
                      if($i>9)
                         $y=2;
                    } ?>
@@ -165,14 +168,14 @@ $info['id']=$staff->getId();
                 <select name="default_signature_type">
                   <option value="none" selected="selected">&mdash; <?php echo __('None');?> &mdash;</option>
                   <?php
-                  $options=array('mine'=>__('My Signature'),'dept'=>__('Dept. Signature (if set)'));
+                  $options=array('mine'=>__('My Signature'),'dept'=>__('Deptartment Signature (if set)'));
                   foreach($options as $k=>$v) {
                       echo sprintf('<option value="%s" %s>%s</option>',
                                 $k,($info['default_signature_type']==$k)?'selected="selected"':'',$v);
                   }
                   ?>
                 </select>
-                <em><?php echo __('(You can change selection on ticket page)');?></em>
+                <em><?php echo __('(This can be selectected when replying to a ticket)');?></em>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['default_signature_type']; ?></span>
             </td>
         </tr>

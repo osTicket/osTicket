@@ -15,9 +15,9 @@ $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $query="$sql ORDER BY $order_by";
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=sprintf(__('Showing %d help topics'), $num);
+    $showing=sprintf(_N('Showing %d help topic', 'Showing %d help topics'), $num);
 else
-    $showing=__('No help topic found!');
+    $showing=__('No help topics found!');
 
 // Get the full names and filter for this page
 $topics = array();

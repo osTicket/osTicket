@@ -42,7 +42,8 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY canned.canned_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' '.__('premade responses');
+    $showing=$pageNav->showing().' '._N('premade response', 'premade responses',
+        $total);
 else
     $showing=__('No premade responses found!');
 

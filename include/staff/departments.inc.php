@@ -35,7 +35,8 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY dept.dept_id ORDER BY $order_by";
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=sprintf(__('Showing 1-%1$d of %2$d departments'),$num,$num);
+    $showing=sprintf(_N('Showing %d department', 'Showing %d departments',
+        $num),$num);
 else
     $showing=__('No departments found!');
 

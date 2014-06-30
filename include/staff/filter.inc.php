@@ -53,7 +53,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="6" name="execorder" value="<?php echo $info['execorder']; ?>">
-                <em>(1...99 )</em>
+                <em>(1...99)</em>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['execorder']; ?></span>
                 &nbsp;&nbsp;&nbsp;
                 <input type="checkbox" name="stop_onmatch" value="1" <?php echo $info['stop_onmatch']?'checked="checked"':''; ?> >
@@ -133,10 +133,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         <option value="">&mdash; <?php echo __('Select One');?> &mdash;</option>
                         <?php
                         foreach ($matches as $group=>$ms) { ?>
-                            <optgroup label="<?php echo $group; ?>"><?php
+                            <optgroup label="<?php echo __($group); ?>"><?php
                             foreach ($ms as $k=>$v) {
                                 $sel=($info["rule_w$i"]==$k)?'selected="selected"':'';
-                                echo sprintf('<option value="%s" %s>%s</option>',$k,$sel,$v);
+                                echo sprintf('<option value="%s" %s>%s</option>',
+                                    $k,$sel,__($v));
                             } ?>
                         </optgroup>
                         <?php } ?>
@@ -146,7 +147,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         <?php
                         foreach($match_types as $k=>$v){
                             $sel=($info["rule_h$i"]==$k)?'selected="selected"':'';
-                            echo sprintf('<option value="%s" %s>%s</option>',$k,$sel,$v);
+                            echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,$sel,__($v));
                         }
                         ?>
                     </select>&nbsp;
@@ -330,11 +332,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Help Topic
+                <?php echo __('Help Topic'); ?>
             </td>
             <td>
                 <select name="topic_id">
-                    <option value="0" selected="selected">&mdash; Unchanged &mdash;</option>
+                    <option value="0" selected="selected">&mdash; <?php
+                        echo __('Unchanged'); ?> &mdash;</option>
                     <?php
                     $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE.' T ORDER by topic';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -350,7 +353,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes');?></em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php
+                    echo __("be liberal, they're internal");?></em>
             </th>
         </tr>
         <tr>

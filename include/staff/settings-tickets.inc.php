@@ -81,7 +81,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
-                <?php echo __('per email/user'); ?> <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
+                <?php echo __('per end user'); ?> <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
             </td>
         </tr>
         <tr>
@@ -182,7 +182,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Max. User File Uploads');?>:</td>
+            <td><?php echo __('Maximum User File Uploads');?>:</td>
             <td>
                 <select name="max_user_file_uploads">
                     <?php
@@ -198,7 +198,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Max. Staff File Uploads');?>:</td>
+            <td><?php echo __('Maximum Staff File Uploads');?>:</td>
             <td>
                 <select name="max_staff_file_uploads">
                     <?php

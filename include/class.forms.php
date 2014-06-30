@@ -919,7 +919,7 @@ class PriorityField extends ChoiceField {
         return $this->to_php(null, $id);
     }
 
-    function to_php($value, $id) {
+    function to_php($value, $id=false) {
         return Priority::lookup($id);
     }
 
@@ -1252,7 +1252,8 @@ class ThreadEntryWidget extends Widget {
                 && ($thisclient && $thisclient->isValid()))) { ?>
         <div class="clear"></div>
         <hr/>
-        <div><strong style="padding-right:1em;vertical-align:top">Attachments: </strong>
+        <div><strong style="padding-right:1em;vertical-align:top"><?php
+        echo __('Attachments'); ?>: </strong>
         <div style="display:inline-block">
         <div class="uploads" style="display:block"></div>
         <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />

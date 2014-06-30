@@ -1,4 +1,4 @@
-    <h3>Item Properties &mdash; <?php echo $item->get('value') ?></h3>
+    <h3><?php echo __('Item Properties'); ?> &mdash; <?php echo $item->get('value') ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <form method="post" action="ajax.php/list/item/<?php

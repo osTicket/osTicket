@@ -3,14 +3,14 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info=array();
 $qstr='';
 if($sla && $_REQUEST['a']!='add'){
-    $title=__('Update SLA Plan');
+    $title=__('Update SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='update';
     $submit_text=__('Save Changes');
     $info=$sla->getInfo();
     $info['id']=$sla->getId();
     $qstr.='&id='.$sla->getId();
 }else {
-    $title=__('Add New SLA Plan');
+    $title=__('Add New SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='add';
     $submit_text=__('Add Plan');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;

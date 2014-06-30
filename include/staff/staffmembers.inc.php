@@ -111,9 +111,9 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
 <?php
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing();
+    $showing=$pageNav->showing() . ' ' . _N('agent', 'agents', $num);
 else
-    $showing=__('No staff found!');
+    $showing=__('No staff members found!');
 ?>
 <form action="staff.php" method="POST" name="staff" >
  <?php csrf_token(); ?>

@@ -7,7 +7,7 @@
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="x-pjax-version" content="<?php echo GIT_VERSION; ?>">
-    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:__('osTicket :: Staff Control Panel'); ?></title>
+    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: '.__('Staff Control Panel'); ?></title>
     <!--[if IE]>
     <style type="text/css">
         .tip_shadow { display:block !important; }
@@ -75,7 +75,7 @@
         echo sprintf('<div id="notice_bar">%s</div>', $ost->getNotice());
     ?>
     <div id="header">
-        <a href="index.php" class="no-pjax" id="logo"><?php echo __('osTicket &mdash; Customer Support System'); ?></a>
+        <a href="index.php" class="no-pjax" id="logo">osTicket &mdash; <?php echo __('Customer Support System'); ?></a>
         <p id="info"><?php echo sprintf(__('Welcome, %s'), '<strong>'.$thisstaff->getFirstName().'</strong>.'); ?>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
@@ -84,7 +84,7 @@
             | <a href="index.php" class="no-pjax"><?php echo __('Staff Panel'); ?></a>
             <?php } ?>
             | <a href="profile.php"><?php echo __('My Preferences'); ?></a>
-            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax">Log Out</a>
+            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax"><?php echo __('Log Out'); ?></a>
         </p>
     </div>
     <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
@@ -98,7 +98,7 @@
         if (strpos($h, '<script ') !== false)
             echo $h;
     } ?>
-    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:_('osTicket :: Staff Control Panel'); ?></title><?php
+    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: '.__('Staff Control Panel'); ?></title><?php
     header('X-PJAX-Version: ' . GIT_VERSION);
 } # endif X_PJAX ?>
     <ul id="nav">

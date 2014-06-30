@@ -224,21 +224,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo _('Alerts and Notices'); ?>:</strong>
+                <em><strong><?php echo __('Alerts and Notices'); ?>:</strong>
                 <i class="help-tip icon-question-sign" href="#group_membership"></i></em>
             </th>
         </tr>
         <tr>
             <td width="180">
-                <?php echo _('Recipients'); ?>:
+                <?php echo __('Recipients'); ?>:
             </td>
             <td>
                 <span>
                 <select name="group_membership">
 <?php foreach (array(
-    Dept::ALERTS_DISABLED =>        _("No one (disable Alerts and Notices)"),
-    Dept::ALERTS_DEPT_ONLY =>       _("Department members only"),
-    Dept::ALERTS_DEPT_AND_GROUPS => _("Department and Group members"),
+    Dept::ALERTS_DISABLED =>        __("No one (disable Alerts and Notices)"),
+    Dept::ALERTS_DEPT_ONLY =>       __("Department members only"),
+    Dept::ALERTS_DEPT_AND_GROUPS => __("Department and Group members"),
 ) as $mode=>$desc) { ?>
     <option value="<?php echo $mode; ?>" <?php
         if ($info['group_membership'] == $mode) echo 'selected="selected"';

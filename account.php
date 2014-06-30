@@ -72,7 +72,7 @@ elseif ($_POST) {
         $user_form->getField('email')->addError(
             sprintf(__('Email already registered. Would you like to %1$s sign in %2$s?'),
             '<a href="login.php?e='.urlencode($addr).'" style="color:inherit"><strong>',
-            '</strong></a>');
+            '</strong></a>'));
         $errors['err'] = __('Unable to register account. See messages below');
     }
     // Users created from ClientCreateRequest

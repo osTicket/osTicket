@@ -139,13 +139,13 @@ $gmtime = Misc::gmtime();
                         <em><?php echo Format::date($config['date_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
-        <tr><td width="220" class="required"><?php echo __('Date &amp; Time Format');?>:</td>
+        <tr><td width="220" class="required"><?php echo __('Date and Time Format');?>:</td>
             <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
                         <em><?php echo Format::date($config['datetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
             </td>
         </tr>
-        <tr><td width="220" class="required"><?php echo __('Day, Date &amp; Time Format');?>:</td>
+        <tr><td width="220" class="required"><?php echo __('Day, Date and Time Format');?>:</td>
             <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
                         <em><?php echo Format::date($config['daydatetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>

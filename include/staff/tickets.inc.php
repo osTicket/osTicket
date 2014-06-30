@@ -257,7 +257,8 @@ $_SESSION['search_'.$hash] = $query;
 $res = db_query($query);
 $showing=db_num_rows($res)?$pageNav->showing():"";
 if(!$results_type)
-    $results_type = ucfirst($status).' Tickets';
+    $results_type = sprintf(__('%s Tickets' /* %s will be a status such as 'open' */),
+        mb_convert_case($status, MB_CASE_TITLE));
 
 if($search)
     $results_type.= ' ('.__('Search Results').')';

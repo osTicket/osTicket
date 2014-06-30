@@ -88,14 +88,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
         <tr><th colspan="2"><em><?php echo __('New ticket options');?></em></th></tr>
         <tr>
-            <td><strong><?php echo _('Custom Form'); ?></strong>:</td>
+            <td><strong><?php echo __('Custom Form'); ?></strong>:</td>
            <td><select name="form_id">
                 <option value="0" <?php
 if ($info['form_id'] == '0') echo 'selected="selected"';
-                    ?>>&mdash; <?php echo _('None'); ?> &mdash;</option>
+                    ?>>&mdash; <?php echo __('None'); ?> &mdash;</option>
                 <option value="<?php echo Topic::FORM_USE_PARENT; ?>"  <?php
 if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
-                    ?>>&mdash; <?php echo _('Use Parent Form'); ?> &mdash;</option>
+                    ?>>&mdash; <?php echo __('Use Parent Form'); ?> &mdash;</option>
                <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>
                 <option value="<?php echo $group->get('id'); ?>"
                        <?php if ($group->get('id') == $info['form_id'])
@@ -219,7 +219,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                             $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
 
                             if (!$isenabled)
-                                $name .= ' '.__('(Disabled)');
+                                $name .= ' '.mb_convert_encoding(__('(disabled)'), MB_CASE_TITLE);
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
@@ -244,7 +244,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes about the help topic.');?></em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("be liberal, they're internal.");?></em>
             </th>
         </tr>
         <tr>

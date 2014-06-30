@@ -46,6 +46,11 @@ $msg='';
 $nav=null;
 //Make sure the user is valid..before doing anything else.
 $thisclient = UserAuthenticationBackend::getUser();
+
+// Bootstrap gettext translations as early as possible, but after attempting
+// to sign on the agent
+TextDomain::configureForUser($thisclient);
+
 //is the user logged in?
 if($thisclient && $thisclient->getId() && $thisclient->isValid()){
      $thisclient->refreshSession();

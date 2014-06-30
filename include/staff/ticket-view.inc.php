@@ -98,7 +98,9 @@ if($ticket->isOverdue())
               <ul>
                 <?php
                  if($thisstaff->canEditTickets()) { ?>
-                    <li><a class="change-user" href="#tickets/<?php echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> Change Ticket Owner</a></li>
+                    <li><a class="change-user" href="#tickets/<?php
+                    echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
+                    echo __('Change Ticket Owner'); ?></a></li>
                 <?php
                  }
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
@@ -280,7 +282,7 @@ if($ticket->isOverdue())
                 } ?>
                 <tr>
                     <th><?php echo __('SLA Plan');?>:</th>
-                    <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('none').' &mdash;</span>'; ?></td>
+                    <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
                 </tr>
                 <?php
                 if($ticket->isOpen()){ ?>
@@ -480,7 +482,7 @@ $tcount+= $ticket->getNumNotes();
                 style="display:<?php echo $emailReply?  'table-row-group':'none'; ?>;">
              <tr>
                 <td width="120">
-                    <label><strong>Collaborators:</strong></label>
+                    <label><strong><?php echo __('Collaborators'); ?>:</strong></label>
                 </td>
                 <td>
                     <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
@@ -488,9 +490,9 @@ $tcount+= $ticket->getNumNotes();
                         style="display:<?php echo $ticket->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
-                    $recipients = 'Add Recipients';
+                    $recipients = __('Add Recipients');
                     if ($ticket->getNumCollaborators())
-                        $recipients = sprintf('Recipients (%d of %d)',
+                        $recipients = sprintf(__('Recipients (%d of %d)'),
                                 $ticket->getNumActiveCollaborators(),
                                 $ticket->getNumCollaborators());
 
@@ -546,7 +548,9 @@ $tcount+= $ticket->getNumNotes();
                         data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
                         data-signature="<?php
                             echo Format::htmlchars(Format::viewableImages($signature)); ?>"
-                        placeholder="Start writing your response here. Use canned responses from the drop-down above"
+                        placeholder="<?php echo __(
+                        'Start writing your response here. Use canned responses from the drop-down above'
+                        ); ?>"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"
                         class="richtext ifhtml draft draft-delete"><?php
@@ -783,7 +787,7 @@ $tcount+= $ticket->getNumNotes();
                 </td>
                 <td>
                     <textarea name="transfer_comments" id="transfer_comments"
-                        placeholder="<?php echo _('Enter reasons for the transfer'); ?>"
+                        placeholder="<?php echo __('Enter reasons for the transfer'); ?>"
                         class="richtext ifhtml no-bar" cols="80" rows="7" wrap="soft"><?php
                         echo $info['transfer_comments']; ?></textarea>
                     <span class="error"><?php echo $errors['transfer_comments']; ?></span>
@@ -850,7 +854,7 @@ $tcount+= $ticket->getNumNotes();
                         }
 
                         if(($teams=Team::getActiveTeams())) {
-                            echo '<OPTGROUP label="'.__('Teams').' ('.count($teams).')">';
+                            echo '<OPTGROUP label="'.sprintf(__('Teams (%d)'), count($teams)).'">';
                             $teamId=(!$sid && $ticket->isAssigned())?$ticket->getTeamId():0;
                             foreach($teams as $id => $name) {
                                 if($teamId && $teamId==$id)
@@ -866,10 +870,10 @@ $tcount+= $ticket->getNumNotes();
                     </select>&nbsp;<span class='error'>*&nbsp;<?php echo $errors['assignId']; ?></span>
                     <?php
                     if ($ticket->isAssigned() && $ticket->isOpen()) { ?>
-                        <div class="faded"><?php echo sprintf(_('Ticket is currently assigned to %s'),
+                        <div class="faded"><?php echo sprintf(__('Ticket is currently assigned to %s'),
                             sprintf('<b>%s</b>', $ticket->getAssignee())); ?></div> <?php
                     } elseif ($ticket->isClosed()) { ?>
-                        <div class="faded"><?php echo _('Assigning a closed ticket will <b>reopen</b> it!'); ?></div>
+                        <div class="faded"><?php echo __('Assigning a closed ticket will <b>reopen</b> it!'); ?></div>
                     <?php } ?>
                 </td>
             </tr>
