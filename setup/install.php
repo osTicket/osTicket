@@ -100,8 +100,10 @@ switch(strtolower($_SESSION['ost_installer']['s'])) {
         break;
     case 'done':
         $inc='install-done.inc.php';
-        if(!$installer->config_exists())
+        if (!$installer->config_exists())
             $inc='install-prereq.inc.php';
+        else // Clear installer session
+            $_SESSION['ost_installer'] =  array();
         break;
     default:
         //Fail IF any of the old config files exists.

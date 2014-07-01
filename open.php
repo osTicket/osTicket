@@ -17,7 +17,7 @@ require('client.inc.php');
 define('SOURCE','Web'); //Ticket source.
 $ticket = null;
 $errors=array();
-if($_POST):
+if ($_POST) {
     $vars = $_POST;
     $vars['deptId']=$vars['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
     if ($thisclient) {
@@ -29,16 +29,6 @@ if($_POST):
             $errors['captcha']='Invalid - try again!';
     }
 
-    $form = false;
-    if ($topic = Topic::lookup($vars['topicId'])) {
-        if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
-            $form = $form->instanciate();
-            // Don't require internal fields (they're not shown)
-            if (!$form->isValid(function($f) { return !$f->get('private'); }))
-                $errors += $form->errors();
-        }
-    }
-
     if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
         $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
 
@@ -48,11 +38,8 @@ if($_POST):
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
         $msg='Support ticket request created';
-        // Save the form data from the help-topic form, if any
-        if ($form) {
-            $form->setTicketId($ticket->getId());
-            $form->save();
-        }
+        // Drop session-backed form data
+        unset($_SESSION[':form-data']);
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
             session_write_close();
@@ -62,23 +49,30 @@ if($_POST):
     }else{
         $errors['err']=$errors['err']?$errors['err']:'Unable to create a ticket. Please correct errors below and try again!';
     }
-endif;
+}
 
 //page
 $nav->setActiveNav('new');
+if ($cfg->isClientLoginRequired()) {
+    if (!$thisclient) {
+        require_once 'secure.inc.php';
+    }
+    elseif ($thisclient->isGuest()) {
+        require_once 'login.php';
+        exit();
+    }
+}
+
 require(CLIENTINC_DIR.'header.inc.php');
 if($ticket
         && (
             (($topic = $ticket->getTopic()) && ($page = $topic->getPage()))
             || ($page = $cfg->getThankYouPage())
-            )) { //Thank the user and promise speedy resolution!
-    //Hide ticket number -  it should only be delivered via email for security reasons.
-    echo Format::safe_html($ticket->replaceVars(str_replace(
-                    array('%{ticket.number}', '%{ticket.extId}', '%{ticket}'), //ticket number vars.
-                    array_fill(0, 3, 'XXXXXX'),
-                    $page->getBody()
-                    )));
-} else {
+        )) {
+    // Thank the user and promise speedy resolution!
+    echo Format::viewableImages($ticket->replaceVars($page->getBody()));
+}
+else {
     require(CLIENTINC_DIR.'open.inc.php');
 }
 require(CLIENTINC_DIR.'footer.inc.php');

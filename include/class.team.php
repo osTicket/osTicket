@@ -52,7 +52,11 @@ class Team {
     }
 
     function asVar() {
-        return $this->getName();
+        return $this->__toString();
+    }
+
+    function __toString() {
+        return (string) $this->getName();
     }
 
     function getId() {

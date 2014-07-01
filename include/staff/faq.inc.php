@@ -74,8 +74,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div><b>Listing Type</b>:&nbsp;
-                    <span class="faded">Published questions are listed on public knowledgebase if the parent category is public.</span></div>
+                <div><b>Listing Type</b>: &nbsp;<i class="help-tip icon-question-sign" href="#listing_type"></i></div>
                 <input type="radio" name="ispublished" value="1" <?php echo $info['ispublished']?'checked="checked"':''; ?>>Public (publish)
                 &nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="radio" name="ispublished" value="0" <?php echo !$info['ispublished']?'checked="checked"':''; ?>>Internal (private)
@@ -117,10 +116,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <?php
-        $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as name '
-            .' FROM '.TOPIC_TABLE.' ht '
-            .' LEFT JOIN '.TOPIC_TABLE.' pht ON(pht.topic_id=ht.topic_pid) ';
-        if(($res=db_query($sql)) && db_num_rows($res)) { ?>
+        if ($topics = Topic::getAllHelpTopics()) { ?>
         <tr>
             <th colspan="2">
                 <em><strong>Help Topics</strong>: Check all help topics related to this FAQ.</em>
@@ -128,7 +124,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr><td colspan="2">
             <?php
-            while(list($topicId,$topic)=db_fetch_row($res)) {
+            while (list($topicId,$topic) = each($topics)) {
                 echo sprintf('<input type="checkbox" name="topics[]" value="%d" %s>%s<br>',
                         $topicId,
                         (($info['topics'] && in_array($topicId,$info['topics']))?'checked="checked"':''),

@@ -41,16 +41,22 @@ if($_POST){
             }
             break;
         case 'mass_process':
-            if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one help topic';
-            } else {
+            switch(strtolower($_POST['a'])) {
+            case 'sort':
+                // Pass
+                break;
+            default:
+                if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids']))
+                    $errors['err'] = 'You must select at least one help topic';
+            }
+            if (!$errors) {
                 $count=count($_POST['ids']);
 
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
                         $sql='UPDATE '.TOPIC_TABLE.' SET isactive=1 '
                             .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')';
-                    
+
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
                                 $msg = 'Selected help topics enabled';
@@ -62,7 +68,8 @@ if($_POST){
                         break;
                     case 'disable':
                         $sql='UPDATE '.TOPIC_TABLE.' SET isactive=0 '
-                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')'
+                            .' AND topic_id <> '.db_input($cfg->getDefaultTopicId());
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
                                 $msg = 'Selected help topics disabled';
@@ -87,6 +94,23 @@ if($_POST){
                             $errors['err']  = 'Unable to delete selected help topics';
 
                         break;
+                    case 'sort':
+                        try {
+                            $cfg->setTopicSortMode($_POST['help_topic_sort_mode']);
+                            if ($cfg->getTopicSortMode() == 'm') {
+                                foreach ($_POST as $k=>$v) {
+                                    if (strpos($k, 'sort-') === 0
+                                            && is_numeric($v)
+                                            && ($t = Topic::lookup(substr($k, 5))))
+                                        $t->setSortOrder($v);
+                                }
+                            }
+                            $msg = 'Successfully set sorting configuration';
+                        }
+                        catch (Exception $ex) {
+                            $errors['err'] = 'Unable to set sorting mode';
+                        }
+                        break;
                     default:
                         $errors['err']='Unknown action - get technical help.';
                 }
@@ -102,10 +126,14 @@ if($_POST){
 }
 
 $page='helptopics.inc.php';
-if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'manage.helptopic';
+if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='helptopic.inc.php';
+}
 
 $nav->setTabActive('manage');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

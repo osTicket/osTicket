@@ -33,7 +33,7 @@
 # the initial staff member -- the administrator.
 ---
 - isactive: 1
-  name: Overseers
+  name: Lion Tamers
   notes: |
     System overlords. These folks (initially) have full control to all the
     departments they have access to.
@@ -51,7 +51,7 @@
   depts: [1, 2, 3]
 
 - isactive: 1
-  name: Managers
+  name: Elephant Walkers
   notes: |
     Inhabitants of the ivory tower
   can_create_tickets: 1
@@ -68,7 +68,7 @@
   depts: [1, 2, 3]
 
 - isactive: 1
-  name: Staff
+  name: Flea Trainers
   notes: |
     Lowly staff members
   can_create_tickets: 1

@@ -18,6 +18,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
+require_once(INCLUDE_DIR.'class.note.php');
 
 class TicketsAjaxAPI extends AjaxController {
 
@@ -608,5 +609,88 @@ class TicketsAjaxAPI extends AjaxController {
 
     }
 
+    function manageForms($ticket_id) {
+        $forms = DynamicFormEntry::forTicket($ticket_id);
+        $info = array('action' => '#tickets/'.Format::htmlchars($ticket_id).'/forms/manage');
+        include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
+    }
+
+    function updateForms($ticket_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($ticket = Ticket::lookup($ticket_id)))
+            Http::response(404, "No such ticket");
+        elseif (!$ticket->checkStaffAccess($thisstaff))
+            Http::response(403, "Access Denied");
+        elseif (!isset($_POST['forms']))
+            Http::response(422, "Send updated forms list");
+
+        // Add new forms
+        $forms = DynamicFormEntry::forTicket($ticket_id);
+        foreach ($_POST['forms'] as $sort => $id) {
+            $found = false;
+            foreach ($forms as $e) {
+                if ($e->get('form_id') == $id) {
+                    $e->set('sort', $sort);
+                    $e->save();
+                    $found = true;
+                    break;
+                }
+            }
+            // New form added
+            if (!$found && ($new = DynamicForm::lookup($id))) {
+                $f = $new->instanciate();
+                $f->set('sort', $sort);
+                $f->setTicketId($ticket_id);
+                $f->save();
+            }
+        }
+
+        // Deleted forms
+        foreach ($forms as $idx => $e) {
+            if (!in_array($e->get('form_id'), $_POST['forms']))
+                $e->delete();
+        }
+
+        Http::response(201, 'Successfully managed');
+    }
+
+    function cannedResponse($tid, $cid, $format='text') {
+        global $thisstaff, $cfg;
+
+        if (!($ticket = Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket ID');
+
+
+        if ($cid && !is_numeric($cid)) {
+            if (!($response=$ticket->getThread()->getVar($cid)))
+                Http::response(422, 'Unknown ticket variable');
+
+            // Ticket thread variables are assumed to be quotes
+            $response = "<br/><blockquote>$response</blockquote><br/>";
+            //  Return text if html thread is not enabled
+            if (!$cfg->isHtmlThreadEnabled())
+                $response = Format::html2text($response, 90);
+
+            // XXX: assuming json format for now.
+            return Format::json_encode(array('response' => $response));
+        }
+
+        if (!$cfg->isHtmlThreadEnabled())
+            $format.='.plain';
+
+        $varReplacer = function (&$var) use($ticket) {
+            return $ticket->replaceVars($var);
+        };
+
+        include_once(INCLUDE_DIR.'class.canned.php');
+        if (!$cid || !($canned=Canned::lookup($cid)) || !$canned->isEnabled())
+            Http::response(404, 'No such premade reply');
+
+        return $canned->getFormattedResponse($format, $varReplacer);
+    }
 }
 ?>

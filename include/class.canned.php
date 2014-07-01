@@ -86,6 +86,60 @@ class Canned {
         return $this->getResponse();
     }
 
+    function getHtml() {
+        return $this->getFormattedResponse('html');
+    }
+
+    function getPlainText() {
+        return $this->getFormattedResponse('text.plain');
+    }
+
+    function getFormattedResponse($format='text', $cb=null) {
+
+        $resp = array();
+        $html = true;
+        switch($format) {
+            case 'json.plain':
+                $html = false;
+                // fall-through
+            case 'json':
+                $resp['id'] = $this->getId();
+                $resp['title'] = $this->getTitle();
+                $resp['response'] = $this->getResponseWithImages();
+
+                // Callback to strip or replace variables!
+                if ($cb && is_callable($cb))
+                    $resp = $cb($resp);
+
+                $resp['files'] = $this->attachments->getSeparates();
+                // strip html
+                if (!$html) {
+                    $resp['response'] = Format::html2text($resp['response'], 90);
+                    $resp['files'] += $this->attachments->getInlines();
+                }
+                return Format::json_encode($resp);
+                break;
+            case 'html':
+            case 'text.html':
+                $response = $this->getResponseWithImages();
+                break;
+            case 'text.plain':
+                $html = false;
+            case 'text':
+            default:
+                $response = $this->getResponse();
+                if (!$html)
+                    $response = Format::html2text($response, 90);
+                break;
+        }
+
+        // Callback to strip or replace variables!
+        if ($response && $cb && is_callable($cb))
+            $response = $cb($response);
+
+        return $response;
+    }
+
     function getNotes() {
         return $this->ht['notes'];
     }

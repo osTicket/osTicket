@@ -143,12 +143,18 @@ function db_create_database($database, $charset='utf8',
  * (mixed) MysqliResource if SELECT query succeeds, true if an INSERT,
  * UPDATE, or DELETE succeeds, false or null if the query fails.
  */
-function db_query($query, $logError=true) {
+function db_query($query, $logError=true, $buffered=true) {
     global $ost, $__db;
+
+    if ($__db->unbuffered_result) {
+        $__db->unbuffered_result->free();
+        $__db->unbuffered_result = false;
+    }
 
     $tries = 3;
     do {
-        $res = $__db->query($query);
+        $res = $__db->query($query,
+            $buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
         // Retry the query due to deadlock error (#1213)
         // TODO: Consider retry on #1205 (lock wait timeout exceeded)
         // TODO: Log warning
@@ -163,6 +169,9 @@ function db_query($query, $logError=true) {
         $ost->logDBError('DB Error #'.db_errno(), $msg);
         //echo $msg; #uncomment during debuging or dev.
     }
+
+    if (is_object($res) && !$buffered)
+        $__db->unbuffered_result = $res;
 
     return $res;
 }
@@ -182,11 +191,13 @@ function db_count($query) {
     return db_result(db_query($query));
 }
 
-function db_result($res, $row=0) {
+function db_result($res, $row=false) {
     if (!$res)
         return NULL;
 
-    $res->data_seek($row);
+    if ($row !== false)
+        $res->data_seek($row);
+
     list($value) = db_output($res->fetch_row());
     return $value;
 }

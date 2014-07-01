@@ -20,13 +20,17 @@ class Filter {
 
     static $match_types = array(
         'User Information' => array(
-            'name'      => 'Name',
-            'email'     => 'Email',
+            array('name'      => 'Name',
+                'email'     => 'Email',
+            ),
+            900
         ),
         'Email Meta-Data' => array(
-            'reply-to'  => 'Reply-To Email',
-            'reply-to-name' => 'Reply-To Name',
-            'addressee' => 'Addressee (To and Cc)',
+            array('reply-to'  => 'Reply-To Email',
+                'reply-to-name' => 'Reply-To Name',
+                'addressee' => 'Addressee (To and Cc)',
+            ),
+            200
         ),
     );
 
@@ -121,6 +125,10 @@ class Filter {
 
     function getCannedResponse() {
         return $this->ht['canned_response_id'];
+    }
+
+    function getHelpTopic() {
+        return $this->ht['topic_id'];
     }
 
     function stopOnMatch() {
@@ -309,18 +317,23 @@ class Filter {
         # Use canned response.
         if ($this->getCannedResponse())
             $ticket['cannedResponseId'] = $this->getCannedResponse();
+
+        # Apply help topic
+        if ($this->getHelpTopic())
+            $ticket['topicId'] = $this->getHelpTopic();
     }
-    /* static */ function getSupportedMatches() {
+     static function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
-            if (is_callable($v))
-                $v = $v();
+            if (is_callable($v[0]))
+                $v[0] = $v[0]();
         }
         unset($v);
-        return static::$match_types;
+        uasort(static::$match_types, function($a, $b) { return $a[1] - $b[1]; });
+        return array_map(function($a) { return $a[0]; }, static::$match_types);
     }
 
-    static function addSupportedMatches($group, $callable) {
-        static::$match_types[$group] = $callable;
+    static function addSupportedMatches($group, $callable, $order=10) {
+        static::$match_types[$group] = array($callable, $order);
     }
 
     static function getSupportedMatchFields() {
@@ -498,6 +511,7 @@ class Filter {
             .',dept_id='.db_input($vars['dept_id'])
             .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
+            .',topic_id='.db_input($vars['topic_id'])
             .',match_all_rules='.db_input($vars['match_all_rules'])
             .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
             .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)

@@ -49,10 +49,13 @@ $action=$upgrader->getNextAction();
     </div>
     <div class="clear"></div>
     <div id="upgrading">
+        <i class="icon-spinner icon-spin icon-3x pull-left icon-light"></i>
+        <div style="display: inline-block; width: 220px">
         <h4 id="action"><?php echo $action; ?></h4>
         Please wait... while we upgrade your osTicket installation!
         <div id="msg" style="font-weight: bold;padding-top:10px;">
             <?php echo sprintf("%s - Relax!", $thisstaff->getFirstName()); ?>
+        </div>
         </div>
     </div>
 </div>

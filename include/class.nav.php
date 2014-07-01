@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once(INCLUDE_DIR.'class.app.php');
 
 class StaffNav {
     var $tabs=array();
@@ -41,6 +42,10 @@ class StaffNav {
 
     function isStaffPanel() {
         return (!$this->isAdminPanel());
+    }
+
+    function getRegisteredApps() {
+        return Application::getStaffApps();
     }
 
     function setTabActive($tab, $menu=''){
@@ -96,9 +101,12 @@ class StaffNav {
 
         if(!$this->tabs) {
             $this->tabs=array();
-            $this->tabs['dashboard']=array('desc'=>'Dashboard','href'=>'dashboard.php','title'=>'Staff Dashboard');
-            $this->tabs['tickets']=array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
-            $this->tabs['kbase']=array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
+            $this->tabs['dashboard'] = array('desc'=>'Dashboard','href'=>'dashboard.php','title'=>'Staff Dashboard');
+            $this->tabs['users'] = array('desc' => 'Users', 'href' => 'users.php', 'title' => 'User Directory');
+            $this->tabs['tickets'] = array('desc'=>'Tickets','href'=>'tickets.php','title'=>'Ticket Queue');
+            $this->tabs['kbase'] = array('desc'=>'Knowledgebase','href'=>'kb.php','title'=>'Knowledgebase');
+            if (count($this->getRegisteredApps()))
+                $this->tabs['apps']=array('desc'=>'Applications','href'=>'apps.php','title'=>'Applications');
         }
 
         return $this->tabs;
@@ -134,6 +142,10 @@ class StaffNav {
                     $subnav[]=array('desc'=>'Staff&nbsp;Directory','href'=>'directory.php','iconclass'=>'teams');
                     $subnav[]=array('desc'=>'My&nbsp;Profile','href'=>'profile.php','iconclass'=>'users');
                     break;
+                case 'users':
+                    $subnav[] = array('desc' => 'User&nbsp;Directory', 'href' => 'users.php', 'iconclass' => 'teams');
+                    $subnav[] = array('desc' => 'Organizations', 'href' => 'orgs.php', 'iconclass' => 'departments');
+                    break;
                 case 'kbase':
                     $subnav[]=array('desc'=>'FAQs','href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
                     if($staff) {
@@ -143,6 +155,10 @@ class StaffNav {
                             $subnav[]=array('desc'=>'Canned&nbsp;Responses','href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
+                case 'apps':
+                    foreach ($this->getRegisteredApps() as $app)
+                        $subnav[] = $app;
+                    break;
             }
             if($subnav)
                 $submenus[$this->getPanel().'.'.strtolower($k)]=$subnav;
@@ -168,6 +184,10 @@ class AdminNav extends StaffNav{
         parent::StaffNav($staff, 'admin');
     }
 
+    function getRegisteredApps() {
+        return Application::getAdminApps();
+    }
+
     function getTabs(){
 
 
@@ -179,6 +199,8 @@ class AdminNav extends StaffNav{
             $tabs['manage']=array('desc'=>'Manage','href'=>'helptopics.php','title'=>'Manage Options');
             $tabs['emails']=array('desc'=>'Emails','href'=>'emails.php','title'=>'Email Settings');
             $tabs['staff']=array('desc'=>'Staff','href'=>'staff.php','title'=>'Manage Staff');
+            if (count($this->getRegisteredApps()))
+                $tabs['apps']=array('desc'=>'Applications','href'=>'apps.php','title'=>'Applications');
             $this->tabs=$tabs;
         }
 
@@ -200,6 +222,7 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>'System','href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>'Tickets','href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
                     $subnav[]=array('desc'=>'Emails','href'=>'settings.php?t=emails','iconclass'=>'email-settings');
+                    $subnav[]=array('desc'=>'Access','href'=>'settings.php?t=access','iconclass'=>'users');
                     $subnav[]=array('desc'=>'Knowledgebase','href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
                     $subnav[]=array('desc'=>'Autoresponder','href'=>'settings.php?t=autoresp','iconclass'=>'email-autoresponders');
                     $subnav[]=array('desc'=>'Alerts&nbsp;&amp;&nbsp;Notices','href'=>'settings.php?t=alerts','iconclass'=>'alert-settings');
@@ -228,6 +251,10 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>'Groups','href'=>'groups.php','iconclass'=>'groups');
                     $subnav[]=array('desc'=>'Departments','href'=>'departments.php','iconclass'=>'departments');
                     break;
+                case 'apps':
+                    foreach ($this->getRegisteredApps() as $app)
+                        $subnav[] = $app;
+                    break;
             }
             if($subnav)
                 $submenus[$this->getPanel().'.'.strtolower($k)]=$subnav;
@@ -250,6 +277,10 @@ class UserNav {
         $this->navs=$this->getNavs();
         if($active)
             $this->setActiveNav($active);
+    }
+
+    function getRegisteredApps() {
+        return Application::getClientApps();
     }
 
     function setActiveNav($nav){
@@ -279,9 +310,15 @@ class UserNav {
             if($cfg && $cfg->isKnowledgebaseEnabled())
                 $navs['kb']=array('desc'=>'Knowledgebase','href'=>'kb/index.php','title'=>'');
 
-            $navs['new']=array('desc'=>'Open&nbsp;New&nbsp;Ticket','href'=>'open.php','title'=>'');
+            // Show the "Open New Ticket" link unless BOTH client
+            // registration is disabled and client login is required for new
+            // tickets. In such a case, creating a ticket would not be
+            // possible for web clients.
+            if ($cfg->getClientRegistrationMode() != 'disabled'
+                    || !$cfg->isClientLoginRequired())
+                $navs['new']=array('desc'=>'Open&nbsp;New&nbsp;Ticket','href'=>'open.php','title'=>'');
             if($user && $user->isValid()) {
-                if($cfg && $cfg->showRelatedTickets()) {
+                if(!$user->isGuest()) {
                     $navs['tickets']=array('desc'=>sprintf('Tickets&nbsp;(%d)',$user->getNumTickets()),
                                            'href'=>'tickets.php',
                                             'title'=>'Show all tickets');

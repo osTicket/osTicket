@@ -2,6 +2,19 @@
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die('Access Denied');
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+
+if (!$info['topicId'])
+    $info['topicId'] = $cfg->getDefaultTopicId();
+
+$form = null;
+if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
+    $form = $topic->getForm();
+    if ($_POST && $form) {
+        $form = $form->instanciate();
+        $form->isValid();
+    }
+}
+
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
@@ -114,8 +127,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="topicId" onchange="javascript:
+                        var data = $(':input[name]', '#dynamic-form').serialize();
                         $('#dynamic-form').load(
-                            'ajax.php/form/help-topic/' + this.value);
+                            'ajax.php/form/help-topic/' + this.value, data);
                         ">
                     <?php
                     if ($topics=Topic::getHelpTopics()) {
@@ -130,8 +144,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                                 $selected, $name);
                         }
                         if (count($topics) == 1 && !$form) {
-                            $T = Topic::lookup($id);
-                            $form = DynamicForm::lookup($T->ht['form_id']);
+                            if (($T = Topic::lookup($id)))
+                                $form =  $T->getForm();
                         }
                     }
                     ?>
@@ -233,7 +247,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tbody>
         <tbody id="dynamic-form">
         <?php
-            if ($form) $form->getForm()->render(true);
+            if ($form) {
+                include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
+            }
         ?>
         </tbody>
         <tbody> <?php
@@ -361,10 +377,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="Open">
     <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="tickets.php"'>
+    <input type="button" name="cancel" value="Cancel" onclick="javascript:
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor && redactor.opts.draftDelete)
+                redactor.deleteDraft();
+        });
+        window.location.href='tickets.php';
+    ">
 </p>
 </form>
 <script type="text/javascript">

@@ -24,6 +24,11 @@ class Internationalization {
     var $langs = array('en_US');
 
     function Internationalization($language=false) {
+        global $cfg;
+
+        if ($cfg && ($lang = $cfg->getSystemLanguage()))
+            array_unshift($this->langs, $language);
+
         if ($language)
             array_unshift($this->langs, $language);
     }
@@ -42,26 +47,30 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept',
-            'sla.yaml' =>           'SLA',
-            'form.yaml' =>          'DynamicForm',
+            'department.yaml' =>    'Dept::create',
+            'sla.yaml' =>           'SLA::create',
+            'form.yaml' =>          'DynamicForm::create',
             // Note that department, sla, and forms are required for
             // help_topic
-            'help_topic.yaml' =>    'Topic',
-            'filter.yaml' =>        'Filter',
-            'team.yaml' =>          'Team',
+            'help_topic.yaml' =>    'Topic::create',
+            'filter.yaml' =>        'Filter::create',
+            'team.yaml' =>          'Team::create',
+            // Organization
+            'organization.yaml' =>  'Organization::__create',
             // Note that group requires department
-            'group.yaml' =>         'Group',
-            'file.yaml' =>          'AttachmentFile',
+            'group.yaml' =>         'Group::create',
+            'file.yaml' =>          'AttachmentFile::create',
         );
 
         $errors = array();
-        foreach ($models as $yaml=>$m)
-            if ($objects = $this->getTemplate($yaml)->getData())
-                foreach ($objects as $o)
-                    // Model::create($o)
-                    call_user_func_array(
-                        array($m, 'create'), array($o, &$errors));
+        foreach ($models as $yaml=>$m) {
+            if ($objects = $this->getTemplate($yaml)->getData()) {
+                foreach ($objects as $o) {
+                    if ($m && is_callable($m))
+                        @call_user_func_array($m, array($o, &$errors));
+                }
+            }
+        }
 
         // Priorities
         $priorities = $this->getTemplate('priority.yaml')->getData();
@@ -85,9 +94,13 @@ class Internationalization {
             }
         }
 
-        // Pages
+        // Pages and content
         $_config = new OsticketConfig();
-        foreach (array('landing','thank-you','offline') as $type) {
+        foreach (array('landing','thank-you','offline',
+                'registration-staff', 'pwreset-staff', 'banner-staff',
+                'registration-client', 'pwreset-client', 'banner-client',
+                'registration-confirm', 'registration-thanks',
+                'access-link') as $type) {
             $tpl = $this->getTemplate("templates/page/{$type}.yaml");
             if (!($page = $tpl->getData()))
                 continue;
@@ -97,11 +110,15 @@ class Internationalization {
                 .', lang='.db_input($tpl->getLang())
                 .', notes='.db_input($page['notes'])
                 .', created=NOW(), updated=NOW(), isactive=1';
-            if (db_query($sql) && ($id = db_insert_id()))
+            if (db_query($sql) && ($id = db_insert_id())
+                    && in_array($type, array('landing', 'thank-you', 'offline')))
                 $_config->set("{$type}_page_id", $id);
         }
         // Default Language
         $_config->set('system_language', $this->langs[0]);
+
+        // content_id defaults to the `id` field value
+        db_query('UPDATE '.PAGE_TABLE.' SET content_id=id');
 
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
@@ -140,7 +157,19 @@ class Internationalization {
         }
     }
 
+    static function getLanguageDescription($lang) {
+        $langs = self::availableLanguages();
+        $lang = strtolower($lang);
+        if (isset($langs[$lang]))
+            return $langs[$lang]['desc'];
+        else
+            return $lang;
+    }
+
     static function availableLanguages($base=I18N_DIR) {
+        static $cache = false;
+        if ($cache) return $cache;
+
         $langs = (include I18N_DIR . 'langs.php');
 
         // Consider all subdirectories and .phar files in the base dir
@@ -165,9 +194,9 @@ class Internationalization {
                 );
             }
         }
-        usort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
+        uasort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
 
-        return $installed;
+        return $cache = $installed;
     }
 
     // TODO: Move this to the REQUEST class or some middleware when that

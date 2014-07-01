@@ -40,7 +40,7 @@ class TicketApiController extends ApiController {
             $supported = array_merge($supported, array('header', 'mid',
                 'emailId', 'to-email-id', 'ticketId', 'reply-to', 'reply-to-name',
                 'in-reply-to', 'references', 'thread-type',
-                'flags' => array('bounce', 'auto-reply'),
+                'flags' => array('bounce', 'auto-reply', 'spam', 'viral'),
                 'recipients' => array('*' => array('name', 'email', 'source'))
                 ));
 
@@ -122,14 +122,6 @@ class TicketApiController extends ApiController {
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
 
-        if ($topic=Topic::lookup($data['topicId'])) {
-            if ($form=DynamicForm::lookup($topic->ht['form_id'])) {
-                $form = $form->instanciate();
-                if (!$form->isValid())
-                    $errors += $form->errors();
-            }
-        }
-
         $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
         # Return errors (?)
         if (count($errors)) {
@@ -143,12 +135,6 @@ class TicketApiController extends ApiController {
                         );
         } elseif (!$ticket) {
             return $this->exerr(500, "Unable to create new ticket: unknown error");
-        }
-
-        # Save dynamic form
-        if (isset($form)) {
-            $form->setTicketId($ticket->getId());
-            $form->save();
         }
 
         return $ticket;

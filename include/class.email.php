@@ -38,6 +38,10 @@ class Email {
 
 
         $this->ht=db_fetch_array($res);
+        $this->ht['mail_proto'] = $this->ht['mail_protocol'];
+        if ($this->ht['mail_encryption'] == 'SSL')
+            $this->ht['mail_proto'] .= "/".$this->ht['mail_encryption'];
+
         $this->id=$this->ht['email_id'];
         $this->address=$this->ht['name']?($this->ht['name'].'<'.$this->ht['email'].'>'):$this->ht['email'];
 
@@ -80,6 +84,16 @@ class Email {
             $this->dept=Dept::lookup($this->getDeptId());
 
         return $this->dept;
+    }
+
+    function getTopicId() {
+        return $this->ht['topic_id'];
+    }
+
+    function getTopic() {
+        // Topic::lookup will do validation on the ID, no need to duplicate
+        // code here
+        return Topic::lookup($this->getTopicId());
     }
 
     function autoRespond() {
@@ -261,6 +275,9 @@ class Email {
                 $errors['passwd'] = 'Unable to encrypt password - get technical support';
         }
 
+        list($vars['mail_protocol'], $encryption) = explode('/', $vars['mail_proto']);
+        $vars['mail_encryption'] = $encryption ?: 'NONE';
+
         if($vars['mail_active']) {
             //Check pop/imapinfo only when enabled.
             if(!function_exists('imap_open'))
@@ -350,17 +367,12 @@ class Email {
 
         if($errors) return false;
 
-        //Default to default priority and dept..
-        if(!$vars['priority_id'] && $cfg)
-            $vars['priority_id']=$cfg->getDefaultPriorityId();
-        if(!$vars['dept_id'] && $cfg)
-            $vars['dept_id']=$cfg->getDefaultDeptId();
-
         $sql='updated=NOW(),mail_errors=0, mail_lastfetch=NULL'.
              ',email='.db_input($vars['email']).
              ',name='.db_input(Format::striptags($vars['name'])).
              ',dept_id='.db_input($vars['dept_id']).
              ',priority_id='.db_input($vars['priority_id']).
+             ',topic_id='.db_input($vars['topic_id']).
              ',noautoresp='.db_input(isset($vars['noautoresp'])?1:0).
              ',userid='.db_input($vars['userid']).
              ',mail_active='.db_input($vars['mail_active']).

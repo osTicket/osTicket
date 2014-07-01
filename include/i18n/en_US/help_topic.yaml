@@ -43,7 +43,7 @@
   notes: |
     Product, service, or equipment related issues
 
-- pid: 10
+- topic_pid: 10
   isactive: 1
   ispublic: 1
   dept_id: 1

@@ -4,8 +4,8 @@ if (typeof RedactorPlugins === 'undefined') var RedactorPlugins = {};
  * automatically, along with draft autosave, and image uploading.
  *
  * Configuration:
- * draft_namespace: namespace for the draft retrieval
- * draft_object_id: extension to the namespace for draft retrieval
+ * draftNamespace: namespace for the draft retrieval
+ * draftObjectId: extension to the namespace for draft retrieval
  *
  * Caveats:
  * Login (staff only currently) is required server-side for drafts and image
@@ -14,17 +14,32 @@ if (typeof RedactorPlugins === 'undefined') var RedactorPlugins = {};
  */
 RedactorPlugins.draft = {
     init: function() {
-        if (!this.opts.draft_namespace)
+        if (!this.opts.draftNamespace)
             return;
 
         this.opts.changeCallback = this.hideDraftSaved;
-        var autosave_url = 'ajax.php/draft/' + this.opts.draft_namespace;
-        if (this.opts.draft_object_id)
-            autosave_url += '.' + this.opts.draft_object_id;
+        var autosave_url = 'ajax.php/draft/' + this.opts.draftNamespace;
+        if (this.opts.draftObjectId)
+            autosave_url += '.' + this.opts.draftObjectId;
         this.opts.autosave = autosave_url;
         this.opts.autosaveInterval = 10;
         this.opts.autosaveCallback = this.setupDraftUpdate;
         this.opts.initCallback = this.recoverDraft;
+
+        this.$draft_saved = $('<span>')
+            .addClass("pull-right draft-saved")
+            .css({'position':'absolute','top':'3em','right':'0.5em'})
+            .hide()
+            .append($('<span>')
+                .text('Draft Saved'));
+        // Float the [Draft Saved] box with the toolbar
+        this.$toolbar.append(this.$draft_saved);
+        if (this.opts.draftDelete) {
+            var trash = this.buttonAdd('deleteDraft', 'Delete Draft', this.deleteDraft);
+            this.buttonAwesome('deleteDraft', 'icon-trash');
+            trash.parent().addClass('pull-right');
+            trash.addClass('delete-draft');
+        }
     },
     recoverDraft: function() {
         var self = this;
@@ -62,11 +77,12 @@ RedactorPlugins.draft = {
         });
     },
     setupDraftUpdate: function(data) {
-        this.$box.parent().find('.draft-saved').show();
+        if (this.get())
+            this.$draft_saved.show().delay(5000).fadeOut();
 
         // Slight workaround. Signal the 'keyup' event normally signaled
         // from typing in the <textarea>
-        if ($.autoLock && this.opts.draft_namespace == 'ticket.response')
+        if ($.autoLock && this.opts.draftNamespace == 'ticket.response')
             if (this.get())
                 $.autoLock.handleEvent();
 
@@ -102,7 +118,7 @@ RedactorPlugins.draft = {
     },
 
     hideDraftSaved: function() {
-        this.$box.parent().find('.draft-saved').hide();
+        this.$draft_saved.hide();
     },
 
     deleteDraft: function() {
@@ -206,9 +222,9 @@ $(function() {
         html = html.replace(/<inline /, '<span ').replace(/<\/inline>/, '</span>');
         return html;
     },
-    redact = function(el) {
+    redact = $.redact = function(el, options) {
         var el = $(el),
-            options = {
+            options = $.extend({
                 'air': el.hasClass('no-bar'),
                 'airButtons': ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
                 'buttons': ['html', '|', 'formatting', '|', 'bold',
@@ -223,8 +239,10 @@ $(function() {
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
-                'tabFocus': false
-            };
+                'tabFocus': false,
+                'toolbarFixedBox': true,
+                'focusCallback': function() { this.$box.addClass('no-pjax'); }
+            }, options||{});
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {
@@ -236,32 +254,9 @@ $(function() {
             });
         }
         if (el.hasClass('draft')) {
-            var draft_saved = $('<span>')
-                .addClass("pull-right draft-saved faded")
-                .css({'position':'relative','top':'-1.8em','right':'1em'})
-                .hide()
-                .append($('<span>')
-                    .css({'position':'relative', 'top':'0.17em'})
-                    .text('Draft Saved'));
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
-            if (el.hasClass('draft-delete')) {
-                draft_saved.append($('<span>')
-                    .addClass('action-button')
-                    .click(function() {
-                        el.redactor('deleteDraft');
-                        return false;
-                    })
-                    .append($('<i>')
-                        .addClass('icon-trash')
-                    )
-                );
-            }
-            draft_saved.insertBefore(el);
             options['plugins'].push('draft');
-            if (el.data('draftNamespace'))
-                options['draft_namespace'] = el.data('draftNamespace');
-            if (el.data('draftObjectId'))
-                options['draft_object_id'] = el.data('draftObjectId');
+            options.draftDelete = el.hasClass('draft-delete');
         }
         el.redactor(options);
     },
@@ -277,7 +272,32 @@ $(function() {
                 // Make a rich text editor immediately
                 redact(el);
         });
+    },
+    cleanupRedactorElements = function() {
+        // Tear down redactor editors on this page
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor)
+                redactor.destroy();
+        });
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
+    $(document).on('pjax:success', findRichtextBoxes);
+    $(document).on('pjax:start', cleanupRedactorElements);
+});
+
+$(document).ajaxError(function(event, request, settings) {
+    if (settings.url.indexOf('ajax.php/draft') != -1
+            && settings.type.toUpperCase() == 'POST') {
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor) {
+                clearInterval(redactor.autosaveInterval);
+            }
+        });
+        $('#overlay').show();
+        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
+        $('#overlay').hide();
+    }
 });

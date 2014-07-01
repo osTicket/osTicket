@@ -16,6 +16,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+class OrmException extends Exception {}
+class OrmConfigurationException extends Exception {}
+
 class VerySimpleModel {
     static $meta = array(
         'table' => false,
@@ -33,10 +36,7 @@ class VerySimpleModel {
         $this->dirty = array();
     }
 
-    function get($field) {
-        return $this->ht[$field];
-    }
-    function __get($field) {
+    function get($field, $default=false) {
         if (array_key_exists($field, $this->ht))
             return $this->ht[$field];
         elseif (isset(static::$meta['joins'][$field])) {
@@ -47,6 +47,13 @@ class VerySimpleModel {
                 array($j['fkey'][1] => $this->ht[$j['local']]));
             return $v;
         }
+        if (isset($default))
+            return $default;
+        throw new OrmException(sprintf('%s: %s: Field not defined',
+            get_class($this), $field));
+    }
+    function __get($field) {
+        return $this->get($field, null);
     }
 
     function __isset($field) {
@@ -66,15 +73,23 @@ class VerySimpleModel {
                 $this->ht[$field] = $value;
                 return;
             }
-            // XXX: Ensure $value instanceof $j['fkey'][0]
-            if ($value->__new__)
-                $value->save();
-            // Capture the object under the object's field name
-            $this->ht[$field] = $value;
+            if ($value === null) {
+                // Pass. Set local field to NULL in logic below
+            }
+            elseif ($value instanceof $j['fkey'][0]) {
+                if ($value->__new__)
+                    $value->save();
+                // Capture the object under the object's field name
+                $this->ht[$field] = $value;
+                $value = $value->get($j['fkey'][1]);
+                // Fall through to the standard logic below
+            }
+            else
+                throw new InvalidArgumentException(
+                    'Expecting NULL or instance of ' . $j['fkey'][0]);
+
             // Capture the foreign key id value
             $field = $j['local'];
-            $value = $value->{$j['fkey'][1]};
-            // Fall through to the standard logic below
         }
         // XXX: Fully support or die if updating pk
         // XXX: The contents of $this->dirty should be the value after the
@@ -112,9 +127,11 @@ class VerySimpleModel {
         }
     }
 
+    function __onload() {}
+
     static function _inspect() {
         if (!static::$meta['table'])
-            throw new OrmConfigurationError(
+            throw new OrmConfigurationException(
                 'Model does not define meta.table', get_called_class());
 
         // Break down foreign-key metadata
@@ -123,12 +140,16 @@ class VerySimpleModel {
                 list($model, $key) = explode('.', $j['reverse']);
                 $info = $model::$meta['joins'][$key];
                 $constraint = array();
+                if (!is_array($info['constraint']))
+                    throw new OrmConfigurationException(
+                        $j['reverse'].': Reverse does not specify any constraints');
                 foreach ($info['constraint'] as $foreign => $local) {
                     list(,$field) = explode('.', $local);
                     $constraint[$field] = "$model.$foreign";
                 }
                 $j['constraint'] = $constraint;
-                $j['list'] = true;
+                if (!isset($j['list']))
+                    $j['list'] = true;
             }
             // XXX: Make this better (ie. composite keys)
             $keys = array_keys($j['constraint']);
@@ -146,9 +167,7 @@ class VerySimpleModel {
         if (!is_array($criteria))
             // Model::lookup(1), where >1< is the pk value
             $criteria = array(static::$meta['pk'][0] => $criteria);
-        $list = static::objects()->filter($criteria)->limit(1);
-        // TODO: Throw error if more than one result from database
-        return $list[0];
+        return static::objects()->filter($criteria)->one();
     }
 
     function delete($pk=false) {
@@ -237,7 +256,7 @@ class SqlFunction {
         $this->args = array_slice(func_get_args(), 1);
     }
 
-    function toSql() {
+    function toSql($compiler=false) {
         $args = (count($this->args)) ? implode(',', db_input($this->args)) : "";
         return sprintf('%s(%s)', $this->func, $args);
     }
@@ -311,6 +330,12 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this->getIterator()->asArray();
     }
 
+    function one() {
+        $list = $this->limit(1)->all();
+        // TODO: Throw error if more than one result from database
+        return $this[0];
+    }
+
     function count() {
         $class = $this->compiler;
         $compiler = new $class();
@@ -319,6 +344,27 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
     function exists() {
         return $this->count() > 0;
+    }
+
+    function delete() {
+        $class = $this->compiler;
+        $compiler = new $class();
+        $ex = $compiler->compileBulkDelete($this);
+        $ex->execute();
+        return $ex->affected_rows();
+    }
+
+    function update(array $what) {
+        $class = $this->compiler;
+        $compiler = new $class;
+        $ex = $compiler->compileBulkUpdate($this, $what);
+        $ex->execute();
+        return $ex->affected_rows();
+    }
+
+    function __clone() {
+        unset($this->_iterator);
+        unset($this->query);
     }
 
     // IteratorAggregate interface
@@ -344,7 +390,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     }
 
     function __toString() {
-        return (string)$this->getQuery();
+        return (string) $this->getQuery();
     }
 
     function getQuery($options=array()) {
@@ -372,6 +418,7 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     var $queryset;
 
     function __construct($queryset=false) {
+        $this->queryset = $queryset;
         if ($queryset) {
             $this->model = $queryset->model;
             $this->resource = $queryset->getQuery();
@@ -380,7 +427,9 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
 
     function buildModel($row) {
         // TODO: Traverse to foreign keys
-        return new $this->model($row); # nolint
+        $model = new $this->model($row); # nolint
+        $model->__onload();
+        return $model;
     }
 
     function fillTo($index) {
@@ -443,7 +492,7 @@ class FlatArrayIterator extends ModelInstanceIterator {
     function fillTo($index) {
         while ($this->resource && $index >= count($this->cache)) {
             if ($row = $this->resource->getRow()) {
-                $this->cache += $row;
+                $this->cache[] = $row;
             } else {
                 $this->resource->close();
                 $this->resource = null;
@@ -468,16 +517,44 @@ class InstrumentedList extends ModelInstanceIterator {
             $this->resource = null;
     }
 
-    function add($object) {
+    function add($object, $at=false) {
         if (!$object || !$object instanceof $this->model)
             throw new Exception('Attempting to add invalid object to list');
 
-        $object->{$this->key} = $this->id;
+        $object->set($this->key, $this->id);
         $object->save();
-        $this->list[] = $object;
+
+        if ($at !== false)
+            $this->cache[$at] = $object;
+        else
+            $this->cache[] = $object;
     }
     function remove($object) {
         $object->delete();
+    }
+
+    function reset() {
+        $this->cache = array();
+    }
+
+    // QuerySet delegates
+    function count() {
+        return $this->queryset->count();
+    }
+    function exists() {
+        return $this->queryset->exists();
+    }
+    function expunge() {
+        if ($this->queryset->delete())
+            $this->reset();
+    }
+    function update(array $what) {
+        return $this->queryset->update($what);
+    }
+
+    // Fetch a new QuerySet
+    function objects() {
+        return clone $this->queryset;
     }
 
     function offsetUnset($a) {
@@ -487,7 +564,7 @@ class InstrumentedList extends ModelInstanceIterator {
     function offsetSet($a, $b) {
         $this->fillTo($a);
         $this->cache[$a]->delete();
-        $this->add($b);
+        $this->add($b, $a);
     }
 }
 
@@ -643,7 +720,7 @@ class SqlCompiler {
         return $alias;
     }
 
-    function compileWhere($where, $model) {
+    function compileConstraints($where, $model) {
         $constraints = array();
         foreach ($where as $constraint) {
             $filter = array();
@@ -712,12 +789,13 @@ class MySqlCompiler extends SqlCompiler {
         'lte' => '%1$s <= %2$s',
         'isnull' => '%1$s IS NULL',
         'like' => '%1$s LIKE %2$s',
+        'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
     );
 
     function __contains($a, $b) {
         # {%a} like %{$b}%
-        return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
+        return sprintf('%s LIKE %s', $a, $this->input($b = "%$b%"));
     }
 
     function __in($a, $b) {
@@ -752,11 +830,14 @@ class MySqlCompiler extends SqlCompiler {
             .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
     }
 
-    function input($what) {
+    function input(&$what) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params += $q->params;
             return (string)$q;
+        }
+        elseif ($what instanceof SqlFunction) {
+            return $what->toSql($this);
         }
         else {
             $this->params[] = $what;
@@ -768,17 +849,22 @@ class MySqlCompiler extends SqlCompiler {
         return "`$what`";
     }
 
-    function compileCount($queryset) {
+    /**
+     * getWhereClause
+     *
+     * This builds the WHERE ... part of a DML statement. This should be
+     * called before ::getJoins(), because it may add joins into the
+     * statement based on the relationships used in the where clause
+     */
+    protected function getWhereClause($queryset) {
         $model = $queryset->model;
-        $table = $model::$meta['table'];
         $where_pos = array();
         $where_neg = array();
-        $joins = array();
         foreach ($queryset->constraints as $where) {
-            $where_pos[] = $this->compileWhere($where, $model);
+            $where_pos[] = $this->compileConstraints($where, $model);
         }
         foreach ($queryset->exclusions as $where) {
-            $where_neg[] = $this->compileWhere($where, $model);
+            $where_neg[] = $this->compileConstraints($where, $model);
         }
 
         $where = '';
@@ -786,6 +872,13 @@ class MySqlCompiler extends SqlCompiler {
             $where = ' WHERE '.implode(' AND ', $where_pos)
                 .implode(' AND NOT ', $where_neg);
         }
+        return $where;
+    }
+
+    function compileCount($queryset) {
+        $model = $queryset->model;
+        $table = $model::$meta['table'];
+        $where = $this->getWhereClause($queryset);
         $joins = $this->getJoins();
         $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
         $exec = new MysqlExecutor($sql, $this->params);
@@ -795,21 +888,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileSelect($queryset) {
         $model = $queryset->model;
-        $where_pos = array();
-        $where_neg = array();
-        $joins = array();
-        foreach ($queryset->constraints as $where) {
-            $where_pos[] = $this->compileWhere($where, $model);
-        }
-        foreach ($queryset->exclusions as $where) {
-            $where_neg[] = $this->compileWhere($where, $model);
-        }
-
-        $where = '';
-        if ($where_pos || $where_neg) {
-            $where = ' WHERE '.implode(' AND ', $where_pos)
-                .implode(' AND NOT ', $where_neg);
-        }
+        $where = $this->getWhereClause($queryset);
 
         $sort = '';
         if ($queryset->ordering && !isset($this->options['nosort'])) {
@@ -863,7 +942,27 @@ class MySqlCompiler extends SqlCompiler {
     function compileInsert() {
     }
 
-    function compileDelete() {
+    function compileBulkDelete($queryset) {
+        $model = $queryset->model;
+        $table = $model::$meta['table'];
+        $where = $this->getWhereClause($queryset);
+        $joins = $this->getJoins();
+        $sql = 'DELETE '.$this->quote($table).'.* FROM '
+            .$this->quote($table).$joins.$where;
+        return new MysqlExecutor($sql, $this->params);
+    }
+
+    function compileBulkUpdate($queryset, array $what) {
+        $model = $queryset->model;
+        $table = $model::$meta['table'];
+        $set = array();
+        foreach ($what as $field=>$value)
+            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
+        $set = implode(', ', $set);
+        $where = $this->getWhereClause($queryset);
+        $joins = $this->getJoins();
+        $sql = 'UPDATE '.$this->quote($table).' SET '.$set.$joins.$where;
+        return new MysqlExecutor($sql, $this->params);
     }
 
     // Returns meta data about the table used to build queries
@@ -885,14 +984,22 @@ class MysqlExecutor {
     }
 
     function _prepare() {
+        $this->execute();
+        $this->_setup_output();
+        if (!$this->stmt->store_result())
+            throw new OrmException('Unable to process query: '.$this->stmt->error);
+    }
+
+    function execute() {
         if (!($this->stmt = db_prepare($this->sql)))
             throw new Exception('Unable to prepare query: '.db_error()
                 .' '.$this->sql);
         if (count($this->params))
             $this->_bind($this->params);
-        $this->stmt->execute();
-        $this->_setup_output();
-        $this->stmt->store_result();
+        if (!$this->stmt->execute()) {
+            throw new OrmException('Unable to execute query: ' . $this->stmt->error);
+        }
+        return true;
     }
 
     function _bind($params) {
@@ -917,9 +1024,11 @@ class MysqlExecutor {
     }
 
     function _setup_output() {
-        $meta = $this->stmt->result_metadata();
+        if (!($meta = $this->stmt->result_metadata()))
+            throw new OrmException('Unable to fetch statment metadata: ', $this->stmt->error);
         while ($f = $meta->fetch_field())
             $this->fields[] = $f;
+        $meta->free_result();
     }
 
     // Iterator interface
@@ -932,7 +1041,7 @@ class MysqlExecutor {
     function next() {
         $status = $this->stmt->fetch();
         if ($status === false)
-            throw new Exception($this->stmt->error_list . db_error());
+            throw new OrmException($this->stmt->error);
         elseif ($status === null) {
             $this->close();
             return false;
@@ -950,7 +1059,9 @@ class MysqlExecutor {
         foreach ($this->fields as $f)
             $variables[] = &$output[$f->name]; // pass by reference
 
-        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
+        if (!call_user_func_array(array($this->stmt, 'bind_result'), $variables))
+            throw new OrmException('Unable to bind result: ' . $this->stmt->error);
+
         if (!$this->next())
             return false;
         return $output;
@@ -966,7 +1077,9 @@ class MysqlExecutor {
         foreach ($this->fields as $f)
             $variables[] = &$output[]; // pass by reference
 
-        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
+        if (!call_user_func_array(array($this->stmt, 'bind_result'), $variables))
+            throw new OrmException('Unable to bind result: ' . $this->stmt->error);
+
         if (!$this->next())
             return false;
         return $output;
@@ -995,6 +1108,14 @@ class MysqlExecutor {
 
         $this->stmt->close();
         $this->stmt = null;
+    }
+
+    function affected_rows() {
+        return $this->stmt->affected_rows;
+    }
+
+    function insert_id() {
+        return $this->stmt->insert_id;
     }
 
     function __toString() {

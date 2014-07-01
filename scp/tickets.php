@@ -68,6 +68,19 @@ if($_POST && !$errors):
 
             //If no error...do the do.
             $vars = $_POST;
+            // require filling out required fields before close
+            if($_POST[reply_ticket_status]=='Closed') {
+                $forms=DynamicFormEntry::forTicket($ticket->getId());
+                foreach ($forms as $form) {
+                    foreach ($form->getFields() as $field) {
+                        if ($field->get('required')) {
+                            if (!($field->answer->get('value'))) {
+                                $errors['err'] = "Cannot close.  Missing \"" . $field->get('label') . "\" field. Please <a href=\"tickets.php?id=" . $ticket->getId() . "&a=edit\">EDIT</a> the ticket.";
+                            }
+                        }
+                    }
+                }
+            }
             if(!$errors && $_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
@@ -198,16 +211,30 @@ if($_POST && !$errors):
         case 'edit':
         case 'update':
             $forms=DynamicFormEntry::forTicket($ticket->getId());
-            foreach ($forms as $form)
-                if (!$form->isValid())
+            foreach ($forms as $form) {
+                // Don't validate deleted forms
+                if (!in_array($form->getId(), $_POST['forms']))
+                    continue;
+                elseif (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
+            }
             if(!$ticket || !$thisstaff->canEditTickets())
                 $errors['err']='Permission Denied. You are not allowed to edit tickets';
             elseif($ticket->update($_POST,$errors)) {
                 $msg='Ticket updated successfully';
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
-                foreach ($forms as $f) $f->save();
+                foreach ($forms as $f) {
+                    // Drop deleted forms
+                    $idx = array_search($f->getId(), $_POST['forms']);
+                    if ($idx === false) {
+                        $f->delete();
+                    }
+                    else {
+                        $f->set('sort', $idx);
+                        $f->save();
+                    }
+                }
                 if(!$ticket->checkStaffAccess($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {
@@ -217,7 +244,20 @@ if($_POST && !$errors):
         case 'process':
             switch(strtolower($_POST['do'])):
                 case 'close':
-                    if(!$thisstaff->canCloseTickets()) {
+                    // require filling out required fields before close
+                    $forms=DynamicFormEntry::forTicket($ticket->getId());
+                    foreach ($forms as $form) {
+                        foreach ($form->getFields() as $field) {
+                            if ($field->get('required')) {
+                                if (!($field->answer->get('value'))) {
+                                    $errors['err'] = "Cannot close.  Missing \"" . $field->get('label') . "\" field. Please <a href=\"tickets.php?id=" . $ticket->getId() . "&a=edit\">EDIT</a> the ticket.";
+                                }
+                            }
+                        }
+                    }
+                    if ($errors) {
+                        // no errors, proceed
+                    } elseif(!$thisstaff->canCloseTickets()) {
                         $errors['err'] = 'Permission Denied. You are not allowed to close tickets.';
                     } elseif($ticket->isClosed()) {
                         $errors['err'] = 'Ticket is already closed!';
@@ -230,14 +270,14 @@ if($_POST && !$errors):
                             $note='Ticket closed (without comments)';
 
                         $ticket->logNote('Ticket Closed', $note, $thisstaff);
-
-                        //Going back to main listing.
-                        TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
-                        $page=$ticket=null;
-
                     } else {
                         $errors['err']='Problems closing the ticket. Try again';
                     }
+
+                    //Going back to main listing.
+                    TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
+                    $page=$ticket=null;
+
                     break;
                 case 'reopen':
                     //if staff can close or create tickets ...then assume they can reopen.
@@ -471,13 +511,6 @@ if($_POST && !$errors):
                 break;
             case 'open':
                 $ticket=null;
-                if ($topic=Topic::lookup($_POST['topicId'])) {
-                    if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
-                        $form = $form->instanciate();
-                        if (!$form->getForm()->isValid())
-                            $errors = array_merge($errors, $form->getForm()->errors());
-                    }
-                }
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
                      $errors['err']='You do not have permission to create tickets. Contact admin for such access';
                 } else {
@@ -487,14 +520,10 @@ if($_POST && !$errors):
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg='Ticket created successfully';
                         $_REQUEST['a']=null;
-                        # Save extra dynamic form(s)
-                        if (isset($form)) {
-                            $form->setTicketId($ticket->getId());
-                            $form->save();
-                        }
                         if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
+                        unset($_SESSION[':form-data']);
                     } elseif(!$errors['err']) {
                         $errors['err']='Unable to create the ticket. Correct the error(s) and try again';
                     }
@@ -581,6 +610,10 @@ if($thisstaff->canCreateTickets()) {
 }
 
 
+$ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
+$ost->addExtraHeader('<meta name="tip-namespace" content="tickets.queue" />',
+    "$('#content').data('tipNamespace', 'tickets.queue');");
+
 $inc = 'tickets.inc.php';
 if($ticket) {
     $ost->setPageTitle('Ticket #'.$ticket->getNumber());
@@ -613,11 +646,15 @@ if($ticket) {
         $nav->setActiveSubMenu(-1);
 
     //set refresh rate if the user has it configured
-    if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate()))
-        $ost->addExtraHeader('<meta http-equiv="refresh" content="'.($min*60).'" />');
+    if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate())) {
+        $js = "clearTimeout(window.ticket_refresh);
+               window.ticket_refresh = setTimeout($.refreshTicketView,"
+            .($min*60000).");";
+        $ost->addExtraHeader('<script type="text/javascript">'.$js.'</script>',
+            $js);
+    }
 }
 
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');
-?>

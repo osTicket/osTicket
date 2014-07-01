@@ -79,7 +79,7 @@ if($_POST){
                             if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete())
                                 $i++;
                         }
-                        
+
                         if($i && $i==$count)
                             $msg = 'Selected filters deleted successfully';
                         elseif($i>0)
@@ -99,10 +99,14 @@ if($_POST){
 }
 
 $page='filters.inc.php';
-if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'manage.filter';
+if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='filter.inc.php';
+}
 
 $nav->setTabActive('manage');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

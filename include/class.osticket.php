@@ -42,6 +42,7 @@ class osTicket {
 
     var $title; //Custom title. html > head > title.
     var $headers;
+    var $pjax_extra;
 
     var $config;
     var $session;
@@ -163,12 +164,16 @@ class osTicket {
         return $replacer->replaceVars($input);
     }
 
-    function addExtraHeader($header) {
+    function addExtraHeader($header, $pjax_script=false) {
         $this->headers[md5($header)] = $header;
+        $this->pjax_extra[md5($header)] = $pjax_script;
     }
 
     function getExtraHeaders() {
         return $this->headers;
+    }
+    function getExtraPjax() {
+        return $this->pjax_extra;
     }
 
     function setPageTitle($title) {
@@ -300,6 +305,16 @@ class osTicket {
                 $level=3; //Debug
         }
 
+        $loglevel=array(1=>'Error','Warning','Debug');
+
+        $info = array(
+            'title' => &$title,
+            'level' => $loglevel[$level],
+            'level_id' => $level,
+            'body' => &$message,
+        );
+        Signal::send('syslog', null, $info);
+
         //Logging everything during upgrade.
         if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;
@@ -309,7 +324,6 @@ class osTicket {
             $this->alertAdmin($title, $message);
 
         //Save log based on system log level settings.
-        $loglevel=array(1=>'Error','Warning','Debug');
         $sql='INSERT INTO '.SYSLOG_TABLE.' SET created=NOW(), updated=NOW() '
             .',title='.db_input(Format::sanitize($title, true))
             .',log_type='.db_input($loglevel[$level])

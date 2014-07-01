@@ -27,27 +27,19 @@ $showing=$pageNav->showing().' forms';
     </thead>
     <tbody>
     <?php
-    foreach (UserForm::objects()->order_by('title') as $form) { ?>
+    $forms = array(
+        'U' => 'icon-user',
+        'T' => 'icon-ticket',
+        'C' => 'icon-building',
+        'O' => 'icon-group',
+    );
+    foreach (DynamicForm::objects()
+            ->filter(array('type__in'=>array_keys($forms)))
+            ->order_by('type', 'title') as $form) { ?>
         <tr>
-            <td><i class="icon-user"></i></td>
+        <td><i class="<?php echo $forms[$form->get('type')]; ?>"></i></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>">
                 <?php echo $form->get('title'); ?></a>
-            <td><?php echo $form->get('updated'); ?></td>
-        </tr>
-    <?php }
-    foreach (TicketForm::objects()->order_by('title') as $form) { ?>
-        <tr>
-            <td><i class="icon-ticket"></i></td>
-            <td><a href="?id=<?php echo $form->get('id'); ?>">
-                <?php echo $form->get('title'); ?></a></td>
-            <td><?php echo $form->get('updated'); ?></td>
-        </tr>
-    <?php }
-    foreach (DynamicForm::objects()->filter(array('type'=>'C')) as $form) { ?>
-        <tr>
-            <td><i class="icon-building"></i></td>
-            <td><a href="?id=<?php echo $form->get('id'); ?>">
-                <?php echo $form->get('title'); ?></a></td>
             <td><?php echo $form->get('updated'); ?></td>
         </tr>
     <?php } ?>

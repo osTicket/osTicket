@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid() || !$cfg->showRelatedTickets()) die('Access Denied');
+if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid()) die('Access Denied');
 
 $qstr='&'; //Query string collector
 $status=null;

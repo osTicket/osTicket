@@ -26,6 +26,11 @@ class mysqli_stmt {
     function free() {}
 }
 
+class mysqli_result {
+    function free() {}
+    function free_result() {}
+}
+
 class ReflectionClass {
     function getMethods() {}
     function getConstants() {}
@@ -93,6 +98,7 @@ class ZipArchive {
     function statIndex() {}
     function addFromString() {}
     function getFromIndex() {}
+    function setCommentName() {}
 }
 
 class finfo {

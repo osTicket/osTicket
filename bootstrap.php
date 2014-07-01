@@ -63,13 +63,17 @@ class Bootstrap {
         define('CONFIG_TABLE',$prefix.'config');
 
         define('CANNED_TABLE',$prefix.'canned_response');
-        define('PAGE_TABLE', $prefix.'page');
+        define('PAGE_TABLE', $prefix.'content');
         define('FILE_TABLE',$prefix.'file');
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
 
         define('ATTACHMENT_TABLE',$prefix.'attachment');
         define('USER_TABLE',$prefix.'user');
         define('USER_EMAIL_TABLE',$prefix.'user_email');
+        define('USER_ACCOUNT_TABLE',$prefix.'user_account');
+
+        define('ORGANIZATION_TABLE', $prefix.'organization');
+        define('NOTE_TABLE', $prefix.'note');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');
@@ -173,6 +177,7 @@ class Bootstrap {
     function loadCode() {
         #include required files
         require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');
@@ -289,6 +294,7 @@ define('I18N_DIR', INCLUDE_DIR.'i18n/');
 
 #Current version && schema signature (Changes from version to version)
 define('THIS_VERSION','1.8-git'); //Shown on admin panel
+define('GIT_VERSION','$git');
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))

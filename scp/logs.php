@@ -46,6 +46,8 @@ if($_POST){
 
 $page='syslogs.inc.php';
 $nav->setTabActive('dashboard');
+$ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.system_logs" />',
+    "$('#content').data('tipNamespace', 'dashboard.system_logs');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

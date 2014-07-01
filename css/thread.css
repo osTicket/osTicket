@@ -277,6 +277,7 @@
   padding: 10px 20px;
   margin: 0 0 20px;
   border-left: 5px solid #eeeeee;
+  color: #777;
 }
 .thread-body blockquote p {
   font-weight: 300;
@@ -415,7 +416,6 @@
 .thread-body ol,
 .thread-body table,
 .thread-body dl,
-.thread-body blockquote,
 .thread-body pre {
 	margin: 0;
 	margin-bottom: 10px;

@@ -362,13 +362,15 @@ class Mail_RFC822 {
      */
     function _hasUnclosedQuotes($string)
     {
-        $string = trim($string);
-        $iMax = strlen($string);
-        $in_quote = false;
-        $i = $slashes = 0;
+        $matches = array();
+        if (!preg_match_all('/[\\"]/', trim($string), $matches))
+            return false;
 
-        for (; $i < $iMax; ++$i) {
-            switch ($string[$i]) {
+        $in_quote = false;
+        $slashes = 0;
+
+        foreach ($matches[0] as $m) {
+            switch ($m) {
             case '\\':
                 ++$slashes;
                 break;
@@ -425,7 +427,7 @@ class Mail_RFC822 {
     function _hasUnclosedBracketsSub($string, &$num, $char)
     {
         $parts = explode($char, $string);
-        for ($i = 0; $i < count($parts); $i++){
+        for ($i = 0, $k = count($parts); $i < $k; $i++){
             if (substr($parts[$i], -1) == '\\' || $this->_hasUnclosedQuotes($parts[$i]))
                 $num--;
             if (isset($parts[$i + 1]))

@@ -1,3 +1,35 @@
+osTicket v1.9.2
+===============
+### Enhancements
+  * Help topics have super powers (#974)
+    * They can be arbitrarily nested
+    * They can be manually sorted
+    * Admins can select a system default help topic
+    * They can inherit the form from a parent
+  * Form data entered to custom forms is preserved when switching help topics
+  * Update to Redactor 9.2.4 (http://imperavi.com/redactor/log/)
+  * Using canned responses no longer requires [Append] click (#973)
+  * Guests can sign out (#1000)
+  * Filter by custom list item properties (#1024)
+  * Time selection is based on admin configured time format (#1036)
+  * (Optionally) clients can access tickets without clicking email link (#999)
+  * Introduction of signals for mail filter plugins (#952)
+
+### Improvements
+  * Fix a few glitches on site page management (#986)
+  * Fix saving department alert recipients (#985)
+  * Fix assignment to account manager regardless of setting (#1013)
+  * Fix dialog boxes on some PJAX navigations (#1034)
+  * Help topics are properly sorted in FAQ management (#1035)
+  * Fix MySQL commands out-of-sync triggered by the ORM (#1012)
+  * Clients can follow email links from multiple tickets (#1001)
+  * Workaround for PHP variable corruption issue (#917, #969)
+  * All other improvements cited in v1.8.3
+
+### Performance and Security
+  * Fix XSS vulnerability in phone number widget (#1025)
+  * Fix several XSS vulnerabilities in client and staff interfaces (#1024, #1025)
+
 osTicket v1.8.4
 ===============
 ### Improvements
@@ -20,8 +52,93 @@ osTicket v1.8.4
   * Fix XSS vulnerability in the phone number widget (#1025)
   * Fix several XSS vulnerabilities (#1025)
 
-osTicket v1.8.3
+osTicket v1.9.1
 ===============
+### Enhancements
+  * [Draft Saved] box does not show if nothing entered yet (be38e8b)
+  * `Your Information` is now translatable (b189b86)
+  * Canceling new ticket also deletes drafts (2695dce)
+  * A users organization can be updated (#955)
+  * Users can be removed from an organization (#957)
+
+### Bugs
+  * Fix confusing form view after adding a new form (#923)
+  * Fix whitespace munging in emails if HTML ticket thread is disabled (#924)
+  * Fix [loading] popup on form save (#925)
+  * Fix URLs in emails linking through l.php (#929)
+  * Fix crash on custom list view if there no properties defined (#935)
+  * Fix handling of encoded email mailboxes with commas (#940)
+  * Fix display of link, external images in the ticket thread (99e719d)
+  * Fix crash submitting a new ticket with organization collaborators (7335525)
+  * Fix handling of custom date and time fields (#944)
+  * Fix PJAX detection of new deployment (a18bf0c)
+  * Fix continual release of ticket locks after navigation (30a3d2)
+  * Fix logout if following link from client email (bda2e42)
+  * Fix un-editable organization website (13312dd)
+  * Fix incorrect constant usage in User object (#958)
+
+osTicket v1.9
+=============
+### Client Login and Registration
+Setup flexible user registration policy for your help desk to match your
+needs. Users can register for accounts via the client portal and can now
+login with a username and password instead of email and ticket number. We
+also have a forgot-my-password link and several other new minor adjustments
+to the user profile.
+
+### External Authentication Support
+Use third-party SSO to authenticate your users and staff. Initial support
+include OAuth2 and LDAP (v0.5 of the LDAP plugin is required)
+
+### User Directory
+Search, view, and manage, even delete! contact information from the users
+from whom you receive tickets. Staff can also manually register users and
+even set an initial password. Users can also be imported and exported via
+CSV data.
+
+### Organizations
+Organize your users together into organizations. Organizations can have
+internal owners ("Account Manager") and external owners ("Primary Contact").
+The Account Manager can receive new ticket and new message alerts.
+Organization Primary Contacts and members can be automatically added to
+tickets as collaborators.
+
+### User and Organization Notes
+Quickly view, edit, add and remove pertinent notes on your users and
+organizations
+
+### Form Management
+Staff members can now add, delete, and sort forms attached to tickets, users
+and organizations as well as remove stale data where fields have been
+retired from active forms.
+
+### Custom Properties for Lists
+Add properties to your list items and use it in your email templates and
+pages. For example create an address property to a list of locations. List
+items can also be disabled now, which causes them to be hidden from
+selection.
+
+### PJAX page loading
+For browsers supporting PJAX, navigating around the system will see a
+performance improvement as javascript and css files are not re-parsed for
+each page load.
+
+### Redactor 9.2
+Several new features including a floating editor bar as well better support
+for non-US keyboards
+
+### Minor Enhancements
+  * Agent selection for assignment can be limited to the current department
+  * Complete help tip documentation for the Admin panel
+  * Email addresses can have an associated Help Topic
+  * Alerts and Notices can be disabled per Department
+  * Agent portal can have a login banner
+  * Inline images are not displayed with the attachments in the ticket view
+  * Original thread content format is saved (html or text)
+  * Alerts and Notices support quoted response removal
+
+osTicket v1.8.3
+=================
 ### Enhancements
   * Support filtering based on help topic (#728)
   * Embedded images ([rfc2397](http://www.ietf.org/rfc/rfc2397.txt)) are correctly supported (#740)

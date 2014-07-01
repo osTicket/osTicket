@@ -38,9 +38,7 @@ class AjaxController extends ApiController {
      * Convert a PHP array into a JSON-encoded string
      */
     function json_encode($what) {
-        require_once (INCLUDE_DIR.'class.json.php');
-        $encoder = new JsonDataEncoder();
-        return $encoder->encode($what);
+        return Format::json_encode($what);
     }
 
     function encode($what) {
