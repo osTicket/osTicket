@@ -68,6 +68,19 @@ if($_POST && !$errors):
 
             //If no error...do the do.
             $vars = $_POST;
+            // require filling out required fields before close
+            if($_POST[reply_ticket_status]=='Closed') {
+                $forms=DynamicFormEntry::forTicket($ticket->getId());
+                foreach ($forms as $form) {
+                    foreach ($form->getFields() as $field) {
+                        if ($field->get('required')) {
+                            if (!($field->answer->get('value'))) {
+                                $errors['err'] = "Cannot close.  Missing \"" . $field->get('label') . "\" field. Please <a href=\"tickets.php?id=" . $ticket->getId() . "&a=edit\">EDIT</a> the ticket.";
+                            }
+                        }
+                    }
+                }
+            }
             if(!$errors && $_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
@@ -231,7 +244,20 @@ if($_POST && !$errors):
         case 'process':
             switch(strtolower($_POST['do'])):
                 case 'close':
-                    if(!$thisstaff->canCloseTickets()) {
+                    // require filling out required fields before close
+                    $forms=DynamicFormEntry::forTicket($ticket->getId());
+                    foreach ($forms as $form) {
+                        foreach ($form->getFields() as $field) {
+                            if ($field->get('required')) {
+                                if (!($field->answer->get('value'))) {
+                                    $errors['err'] = "Cannot close.  Missing \"" . $field->get('label') . "\" field. Please <a href=\"tickets.php?id=" . $ticket->getId() . "&a=edit\">EDIT</a> the ticket.";
+                                }
+                            }
+                        }
+                    }
+                    if ($errors) {
+                        // no errors, proceed
+                    } elseif(!$thisstaff->canCloseTickets()) {
                         $errors['err'] = 'Permission Denied. You are not allowed to close tickets.';
                     } elseif($ticket->isClosed()) {
                         $errors['err'] = 'Ticket is already closed!';
@@ -244,14 +270,14 @@ if($_POST && !$errors):
                             $note='Ticket closed (without comments)';
 
                         $ticket->logNote('Ticket Closed', $note, $thisstaff);
-
-                        //Going back to main listing.
-                        TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
-                        $page=$ticket=null;
-
                     } else {
                         $errors['err']='Problems closing the ticket. Try again';
                     }
+
+                    //Going back to main listing.
+                    TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
+                    $page=$ticket=null;
+
                     break;
                 case 'reopen':
                     //if staff can close or create tickets ...then assume they can reopen.
