@@ -16,9 +16,10 @@
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.filter.php');
 require_once(INCLUDE_DIR.'class.canned.php');
+
 $filter=null;
 if($_REQUEST['id'] && !($filter=Filter::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid filter.';
+    $errors['err']=__('Unknown or invalid filter.');
 
 /* NOTE: Banlist has its own interface*/
 if($filter && $filter->isSystemBanlist())
@@ -28,24 +29,24 @@ if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$filter){
-                $errors['err']='Unknown or invalid filter.';
+                $errors['err']=__('Unknown or invalid filter.');
             }elseif($filter->update($_POST,$errors)){
-                $msg='Filter updated successfully';
+                $msg=__('Filter updated successfully');
             }elseif(!$errors['err']){
-                $errors['err']='Error updating filter. Try again!';
+                $errors['err']=__('Error updating filter. Try again!');
             }
             break;
         case 'add':
             if((Filter::create($_POST,$errors))){
-                $msg='Filter added successfully';
+                $msg=__('Filter added successfully');
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add filter. Correct error(s) below and try again.';
+                $errors['err']=__('Unable to add filter. Correct error(s) below and try again.');
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one filter to process.';
+                $errors['err'] = __('You must select at least one filter to process.');
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -54,11 +55,11 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected filters enabled';
+                                $msg = __('Selected filters enabled');
                             else
-                                $warn = "$num of $count selected filters enabled";
+                                $warn = sprintf(__('%1$d of %2$d selected filters enabled'), $num, $count);
                         } else {
-                            $errors['err'] = 'Unable to enable selected filters';
+                            $errors['err'] = __('Unable to enable selected filters');
                         }
                         break;
                     case 'disable':
@@ -66,11 +67,11 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected filters disabled';
+                                $msg = __('Selected filters disabled');
                             else
-                                $warn = "$num of $count selected filters disabled";
+                                $warn = sprintf(__('%1$d of %2$d selected filters disabled'), $num, $count);
                         } else {
-                            $errors['err'] = 'Unable to disable selected filters';
+                            $errors['err'] = __('Unable to disable selected filters');
                         }
                         break;
                     case 'delete':
@@ -81,19 +82,19 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = 'Selected filters deleted successfully';
+                            $msg = __('Selected filters deleted successfully');
                         elseif($i>0)
-                            $warn = "$i of $count selected filters deleted";
+                            $warn = sprintf(__('%1$d of %2$d selected filters deleted'), $i, $count);
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected filters';
+                            $errors['err'] = __('Unable to delete selected filters');
                         break;
                     default:
-                        $errors['err']='Unknown action - get technical help';
+                        $errors['err']=__('Unknown action - get technical help.');
                 }
             }
             break;
         default:
-            $errors['err']='Unknown commande/action';
+            $errors['err']=__('Unknown command/action');
             break;
     }
 }

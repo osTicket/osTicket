@@ -18,53 +18,53 @@ require_once INCLUDE_DIR.'class.note.php';
 
 $user = null;
 if ($_REQUEST['id'] && !($user=User::lookup($_REQUEST['id'])))
-    $errors['err'] = 'Unknown or invalid user ID.';
+    $errors['err'] = __('Unknown or invalid user.');
 
 if ($_POST) {
     switch(strtolower($_REQUEST['do'])) {
         case 'update':
             if (!$user) {
-                $errors['err']='Unknown or invalid user.';
+                $errors['err']=__('Unknown or invalid user.');
             } elseif(($acct = $user->getAccount())
                     && !$acct->update($_POST, $errors)) {
-                 $errors['err']='Unable to update user account information';
+                 $errors['err']=__('Unable to update user account information');
             } elseif($user->updateInfo($_POST, $errors)) {
-                $msg='User updated successfully';
+                $msg=__('User updated successfully');
                 $_REQUEST['a'] = null;
             } elseif(!$errors['err']) {
-                $errors['err']='Unable to update user profile. Correct any error(s) below and try again!';
+                $errors['err']=__('Unable to update user profile. Correct any error(s) below and try again!');
             }
             break;
         case 'create':
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form))) {
-                $msg = Format::htmlchars($user->getName()).' added successfully';
+                $msg = Format::htmlchars(sprintf(__('%s added successfully'), $user->getName()));
                 $_REQUEST['a'] = null;
             } elseif (!$errors['err']) {
-                $errors['err'] = 'Unable to add user. Correct any error(s) below and try again.';
+                $errors['err'] = __('Unable to add user. Correct any error(s) below and try again.');
             }
             break;
         case 'confirmlink':
             if (!$user || !$user->getAccount())
-                $errors['err'] = 'Unknown or invalid user account';
+                $errors['err'] = __('Unknown or invalid user account');
             elseif ($user->getAccount()->isConfirmed())
-                $errors['err'] = 'Account is already confirmed';
+                $errors['err'] = __('Account is already confirmed');
             elseif ($user->getAccount()->sendConfirmEmail())
-                $msg = 'Account activation email sent to '.$user->getEmail();
+                $msg = sprintf(__('Account activation email sent to %s'),$user->getEmail());
             else
-                $errors['err'] = 'Unable to send account activation email - try again!';
+                $errors['err'] = __('Unable to send account activation email - try again!');
             break;
         case 'pwreset':
             if (!$user || !$user->getAccount())
-                $errors['err'] = 'Unknown or invalid user account';
+                $errors['err'] = __('Unknown or invalid user account');
             elseif ($user->getAccount()->sendResetEmail())
-                $msg = 'Account password reset email sent to '.$user->getEmail();
+                $msg = sprintf(__('Account password reset email sent to %s'),$user->getEmail());
             else
-                $errors['err'] = 'Unable to send account password reset email - try again!';
+                $errors['err'] = __('Unable to send account password reset email - try again!');
             break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one user member.';
+                $errors['err'] = __('You must select at least one user.');
             } else {
                 $errors['err'] = "Coming soon!";
             }
@@ -72,23 +72,24 @@ if ($_POST) {
         case 'import-users':
             $status = User::importFromPost($_FILES['import'] ?: $_POST['pasted']);
             if (is_numeric($status))
-                $msg = "Successfully imported $status clients";
+                $msg = sprintf(_N('Successfully imported %1$d client.', 'Successfully imported %1$d clients.', $status),
+                   $status);
             else
                 $errors['err'] = $status;
             break;
         default:
-            $errors['err'] = 'Unknown action/command';
+            $errors['err'] = __('Unknown action');
             break;
     }
 } elseif($_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
     $ts = strftime('%Y%m%d');
     if (!($token=$_REQUEST['qh']))
-        $errors['err'] = 'Query token required';
+        $errors['err'] = __('Query token required');
     elseif (!($query=$_SESSION['users_qs_'.$token]))
-        $errors['err'] = 'Query token not found';
-    elseif (!Export::saveUsers($query, "users-$ts.csv", 'csv'))
-        $errors['err'] = 'Internal error: Unable to dump query results';
+        $errors['err'] = __('Query token not found');
+    elseif (!Export::saveUsers($query, __("users")."-$ts.csv", 'csv'))
+        $errors['err'] = __('Internal error: Unable to dump query results');
 }
 
 $page = $user? 'user-view.inc.php' : 'users.inc.php';

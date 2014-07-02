@@ -1,4 +1,4 @@
-    <h3>Field Configuration &mdash; <?php echo $field->get('label') ?></h3>
+    <h3><?php echo __('Field Configuration'); ?> &mdash; <?php echo $field->get('label') ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <form method="post" action="ajax.php/form/field-config/<?php
@@ -62,7 +62,7 @@
             echo Format::htmlchars($field->get('hint')); ?></textarea>
             <br />
             <em style="color:gray;display:inline-block">
-                Help text shown with the field</em>
+                <?php echo __('Help text shown with the field'); ?></em>
         </span>
         </td></tr>
         </table>

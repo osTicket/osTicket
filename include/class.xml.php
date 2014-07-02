@@ -39,7 +39,7 @@ class XmlDataParser {
     }
 
     function lastError() {
-        return sprintf("XML error: %s at line %d:%d",
+        return sprintf(__('XML error: %1$s at line %2$d:%3$d'),
             xml_error_string(xml_get_error_code($this->parser)),
             xml_get_current_line_number($this->parser),
             xml_get_current_column_number($this->parser));

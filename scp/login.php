@@ -23,7 +23,7 @@ $content = Page::lookup(Page::getIdByType('banner-staff'));
 
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
-$msg = $msg ?: ($content ? $content->getName() : 'Authentication Required');
+$msg = $msg ?: ($content ? $content->getName() : __('Authentication Required'));
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
 if($_POST) {
@@ -37,7 +37,7 @@ if($_POST) {
         exit;
     }
 
-    $msg = $errors['err']?$errors['err']:'Invalid login';
+    $msg = $errors['err']?$errors['err']:__('Invalid login');
     $show_reset = true;
 }
 elseif ($_GET['do']) {

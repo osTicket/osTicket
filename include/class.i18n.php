@@ -284,6 +284,40 @@ class Internationalization {
 
         return $best_match_langcode;
     }
+
+    static function bootstrap() {
+
+        require_once INCLUDE_DIR . 'class.translation.php';
+
+        $domain = 'messages';
+        TextDomain::setDefaultDomain($domain);
+        TextDomain::lookup()->setPath(I18N_DIR);
+
+        // User-specific translations
+        function _N($msgid, $plural, $count) {
+            return TextDomain::lookup()->getTranslation(LC_MESSAGES)
+                ->ngettext($msgid, $plural, $count);
+        }
+
+        // System-specific translations
+        function _S($msgid) {
+            global $cfg;
+            return __($msgid);
+        }
+        function _SN($msgid, $plural, $count) {
+            global $cfg;
+        }
+
+        // Language-specific translations
+        function _L($msgid, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->translate($msgid);
+        }
+        function _LN($msgid, $plural, $count, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->ngettext($msgid);
+        }
+    }
 }
 
 class DataTemplate {
@@ -322,6 +356,14 @@ class DataTemplate {
             // TODO: If there was a parsing error, attempt to try the next
             //       language in the list of requested languages
         return $this->data;
+    }
+
+    function getRawData() {
+        if (!isset($this->data) && $this->filepath)
+            return file_get_contents($this->filepath);
+            // TODO: If there was a parsing error, attempt to try the next
+            //       language in the list of requested languages
+        return false;
     }
 
     function getLang() {

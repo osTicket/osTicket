@@ -134,13 +134,12 @@ class Bootstrap {
             //Die gracefully on upgraded v1.6 RC5 installation - otherwise script dies with confusing message.
             if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
                 Http::response(500,
-                    'Please rename config file include/settings.php to '
-                   .'include/ost-config.php to continue!');
+                    _S('Please rename config file include/settings.php to include/ost-config.php to continue!'));
         } elseif(file_exists(ROOT_DIR.'setup/'))
             Http::redirect(ROOT_PATH.'setup/');
 
         if(!$configfile || !file_exists($configfile))
-            Http::response(500,'<b>Error loading settings. Contact admin.</b>');
+            Http::response(500,'<b>'._S('Error loading settings. Contact admin.').'</b>');
 
         require($configfile);
         define('CONFIG_FILE',$configfile); //used in admin.php to check perm.
@@ -165,9 +164,9 @@ class Bootstrap {
             );
 
         if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
-            $ferror='Unable to connect to the database -'.db_connect_error();
+            $ferror=sprintf('Unable to connect to the database — %s',db_connect_error());
         }elseif(!db_select_database(DBNAME)) {
-            $ferror='Unknown or invalid database '.DBNAME;
+            $ferror=sprintf('Unknown or invalid database: %s',DBNAME);
         }
 
         if($ferror) //Fatal error
@@ -190,6 +189,7 @@ class Bootstrap {
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
+        require_once INCLUDE_DIR.'class.i18n.php';
     }
 
     function i18n_prep() {
@@ -271,7 +271,7 @@ class Bootstrap {
     function croak($message) {
         $msg = $message."\n\n".THISPAGE;
         Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
-            sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
+            '"'.'osTicket Alerts'.sprintf('" <%s>', ADMIN_EMAIL));
         //Display generic error to the user
         Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
     }

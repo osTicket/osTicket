@@ -92,6 +92,7 @@ class DateTimeZone {
 
 class Phar {
     static function isValidPharFilename() {}
+    function setStub() {}
 }
 
 class ZipArchive {

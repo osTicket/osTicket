@@ -4,7 +4,7 @@
 
     Attachments interface for clients.
     Clients should never see the dir paths.
-    
+
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
@@ -22,14 +22,14 @@ if(!$thisclient
         || !$_GET['h']
         || !($attachment=Attachment::lookup($_GET['id']))
         || !($file=$attachment->getFile()))
-    die('Unknown attachment!');
+    die(__('Unknown or invalid attachment'));
 
 //Validate session access hash - we want to make sure the link is FRESH! and the user has access to the parent ticket!!
 $vhash=md5($attachment->getFileId().session_id().strtolower($file->getKey()));
 if(strcasecmp(trim($_GET['h']),$vhash)
         || !($ticket=$attachment->getTicket())
         || !$ticket->checkUserAccess($thisclient))
-    die('Unknown or invalid attachment');
+    die(__('Unknown or invalid attachment'));
 //Download the file..
 $file->download();
 

@@ -57,16 +57,18 @@ if ($results) {
 <div style="width:700px; float:left;">
    <?php
     if ($results) {
-        echo  sprintf('<strong>Showing 1 - %d of %s</strong>', count($results), count($results));
+        echo '<strong>'.sprintf(_N('Showing %d ticket', 'Showing %d tickets',
+            count($results)), count($results)).'</strong>';
     } else {
-        echo sprintf('%s does not have any tickets', $user? 'User' : 'Organization');
+        echo sprintf(__('%s does not have any tickets'), $user? 'User' : 'Organization');
     }
    ?>
 </div>
 <div style="float:right;text-align:right;padding-right:5px;">
     <?php
     if ($user) { ?>
-    <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>"> Create New Ticket</a></b>
+    <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
+    <?php print __('Create New Ticket'); ?></a></b>
     <?php
     } ?>
 </div>
@@ -86,17 +88,17 @@ if ($results) { ?>
             <th width="8px">&nbsp;</th>
             <?php
             } ?>
-            <th width="70">Ticket</th>
-            <th width="100">Date</th>
-            <th width="100">Status</th>
-            <th width="300">Subject</th>
+            <th width="70"><?php echo __('Ticket'); ?></th>
+            <th width="100"><?php echo __('Date'); ?></th>
+            <th width="100"><?php echo __('Status'); ?></th>
+            <th width="300"><?php echo __('Subject'); ?></th>
             <?php
             if ($user) { ?>
-            <th width="200">Department</th>
-            <th width="200">Assignee</th>
+            <th width="200"><?php echo __('Department'); ?></th>
+            <th width="200"><?php echo __('Assignee'); ?></th>
             <?php
             } else { ?>
-            <th width="400">User</th>
+            <th width="400"><?php echo __('User'); ?></th>
             <?php
             } ?>
         </tr>
@@ -136,7 +138,8 @@ if ($results) { ?>
             <?php
             } ?>
             <td align="center" nowrap>
-              <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview" title="Preview Ticket"
+              <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview"
+                title="<?php echo __('Preview Ticket'); ?>"
                 href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
             <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
             <td><?php echo $status; ?></td>
