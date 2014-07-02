@@ -14,6 +14,9 @@ ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR)
 
 $fails = array();
 
+require_once INCLUDE_DIR . 'class.i18n.php';
+Internationalization::bootstrap();
+
 function show_fails() {
     global $fails, $root;
     if ($fails) {

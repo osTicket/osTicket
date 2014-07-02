@@ -295,7 +295,7 @@ class Internationalization {
 
         // User-specific translations
         function _N($msgid, $plural, $count) {
-            return TextDomain::lookup()->getTranslation(LC_MESSAGES, $locale)
+            return TextDomain::lookup()->getTranslation(LC_MESSAGES)
                 ->ngettext($msgid, $plural, $count);
         }
 

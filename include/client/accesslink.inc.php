@@ -39,7 +39,7 @@ else
     </div>
     <div style="display:table-cell;padding-left: 2em;padding-right:90px;">
 <?php if ($cfg && $cfg->getClientRegistrationMode() !== 'disabled') { ?>
-        <?pho echo __('Have an account with us?'); ?>
+        <?php echo __('Have an account with us?'); ?>
         <a href="login.php"><?php echo __('Sign In'); ?></a> <?php
     if ($cfg->isClientRegistrationEnabled()) { ?>
 <?php echo sprintf(__('or %s register for an account %s to access all your tickets.'),

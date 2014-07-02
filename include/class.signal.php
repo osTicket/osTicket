@@ -58,7 +58,7 @@ class Signal {
         if (!isset(self::$subscribers[$signal])) self::$subscribers[$signal] = array();
         // XXX: Ensure $object if set is a class
         if ($object && !is_string($object))
-            trigger_error(sprintf(_S("Invalid object: %s: Expected class"), $class));
+            trigger_error(sprintf(_S("Invalid object: %s: Expected class"), $object));
         elseif ($check && !is_callable($check)) {
             trigger_error(_S("Invalid check function: Must be callable"));
             $check = null;

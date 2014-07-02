@@ -331,6 +331,7 @@ class gettext_reader {
    * @return string verbatim plural form header field
    */
   function extract_plural_forms_header_from_po_header($header) {
+    $regs = array();
     if (preg_match("/(^|\n)plural-forms: ([^\n]*)\n/i", $header, $regs))
       $expr = $regs[2];
     else
@@ -647,7 +648,7 @@ class TextDomain {
     }
 
     function getTranslation($category=LC_MESSAGES, $locale=false) {
-        $locale = $locale ?: self::setlocale(LC_MESSAGES, 0);
+        $locale = $locale ?: self::setLocale(LC_MESSAGES, 0);
         if (!isset($this->l10n[$locale])) {
             // get the current locale
             $bound_path = @$this->path ?: './';
@@ -668,7 +669,8 @@ class TextDomain {
                     break;
                 }
             }
-            $this->l10n[$locale] = new Translation($input, $charset);
+            // TODO: Handle charset hint from the environment
+            $this->l10n[$locale] = new Translation($input);
         }
         return $this->l10n[$locale];
     }
@@ -724,7 +726,7 @@ class TextDomain {
                 }
                 $locale_names[] = "{$m['lang']}@{$m['modifier']}";
             }
-            if ($country) {
+            if ($m['country']) {
                 $locale_names[] = "{$m['lang']}_{$m['country']}";
             }
             $locale_names[] = $m['lang'];
@@ -744,7 +746,7 @@ class TextDomain {
             else
                 // obey LANG variable, maybe extend to support all of LC_* vars
                 // even if we tried to read locale without setting it first
-                return self::setlocale($category, static::$current_locale);
+                return self::setLocale($category, static::$current_locale);
         } else {
             if (function_exists('setlocale')) {
               $ret = setlocale($category, $locale);
