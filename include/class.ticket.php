@@ -2666,8 +2666,8 @@ class Ticket {
         }
         else {
             // Not assignment and no internal note - log activity
-            $ticket->logActivity(_S('New Ticket by Staff'),
-                sprintf(_S('Ticket created by staff - %s'), $thisstaff->getName()));
+            $ticket->logActivity(_S('New Ticket by Agent'),
+                sprintf(_S('Ticket created by agent - %s'), $thisstaff->getName()));
         }
 
         $ticket->reload();

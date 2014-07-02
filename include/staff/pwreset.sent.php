@@ -5,7 +5,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
 
 <div id="loginBox">
-    <h1 id="logo"><a href="index.php">osTicket <?php echo __('Staff Password Reset'); ?></a></h1>
+    <h1 id="logo"><a href="index.php">osTicket <?php echo __('Agent Password Reset'); ?></a></h1>
     <h3><?php echo __('A confirmation email has been sent'); ?></h3>
     <h3 style="color:black;"><em><?php echo __(
     'A password reset email was sent to the email on file for your account.  Follow the link in the email to reset your password.'

@@ -136,7 +136,7 @@ endif;
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong><?php echo __('Are you sure you want to DELETE selected groups?');?></strong></font>
-        <br><br><?php echo __("Deleted groups CANNOT be recovered and might affect staff's access.");?>
+        <br><br><?php echo __("Deleted groups CANNOT be recovered and might affect agents' access.");?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>

@@ -23,7 +23,7 @@ echo $config['ticket_autoresponder'] ? 'checked="checked"' : ''; ?>/>
             </td>
         </tr>
         <tr>
-            <td width="160"><?php echo __('New Ticket by Staff'); ?>:</td>
+            <td width="160"><?php echo __('New Ticket by Agent'); ?>:</td>
             <td>
                 <input type="checkbox" name="ticket_notice_active" <?php
 echo $config['ticket_notice_active'] ? 'checked="checked"' : ''; ?>/>

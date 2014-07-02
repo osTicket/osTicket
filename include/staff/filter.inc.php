@@ -299,7 +299,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <option value="0">&mdash; <?php echo __('Unassigned');?> &mdash;</option>
                     <?php
                     if (($users=Staff::getStaffMembers())) {
-                        echo '<OPTGROUP label="'.__('Staff Members').'">';
+                        echo '<OPTGROUP label="'.__('Agents').'">';
                         foreach($users as $id => $name) {
                             $name = new PersonsName($name);
                             $k="s$id";

@@ -17,7 +17,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     <tbody>
         <tr>
             <th colspan="2">
-                <em><b><?php echo __('Staff Authentication Settings'); ?></b></em>
+                <em><b><?php echo __('Agent Authentication Settings'); ?></b></em>
             </th>
         </tr>
         <tr><td><?php echo __('Password Expiration Policy'); ?>:</th>
@@ -50,7 +50,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['pw_reset_window']; ?></font>
             </td>
         </tr>
-        <tr><td><?php echo __('Staff Excessive Logins'); ?>:</td>
+        <tr><td><?php echo __('Agent Excessive Logins'); ?>:</td>
             <td>
                 <select name="staff_max_logins">
                   <?php
@@ -70,13 +70,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 </select><?php echo __('minutes locked out'); ?>
             </td>
         </tr>
-        <tr><td><?php echo __('Staff Session Timeout'); ?>:</td>
+        <tr><td><?php echo __('Agent Session Timeout'); ?>:</td>
             <td>
               <input type="text" name="staff_session_timeout" size=6 value="<?php echo $config['staff_session_timeout']; ?>">
                 mins <em><?php echo __('(0 to disable)'); ?></em>. <i class="help-tip icon-question-sign" href="#staff_session_timeout"></i>
             </td>
         </tr>
-        <tr><td><?php echo __('Bind Staff Session to IP'); ?>:</td>
+        <tr><td><?php echo __('Bind Agent Session to IP'); ?>:</td>
             <td>
               <input type="checkbox" name="staff_ip_binding" <?php echo $config['staff_ip_binding']?'checked="checked"':''; ?>>
               <i class="help-tip icon-question-sign" href="#bind_staff_session_to_ip"></i>
@@ -99,7 +99,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 <?php foreach (array(
     'disabled' => __('Disabled — All users are guests'),
     'public' => __('Public — Anyone can register'),
-    'closed' => __('Private — Only staff can register users'),)
+    'closed' => __('Private — Only agents can register users'),)
     as $key=>$val) { ?>
         <option value="<?php echo $key; ?>" <?php
         if ($config['client_registration'] == $key)
@@ -184,7 +184,7 @@ $manage_content = function($title, $content) use ($contents) {
                 'Authentication and Registration Templates'); ?></b></em>
             </th>
         </tr>
-        <?php $manage_content(__('Staff Members'), 'pwreset-staff'); ?>
+        <?php $manage_content(__('Agents'), 'pwreset-staff'); ?>
         <?php $manage_content(__('Clients'), 'pwreset-client'); ?>
         <?php $manage_content(__('Guess Ticket Access'), 'access-link'); ?>
         <tr>
@@ -192,7 +192,7 @@ $manage_content = function($title, $content) use ($contents) {
                 <em><b><?php echo __('Sign In Pages'); ?></b></em>
             </th>
         </tr>
-        <?php $manage_content(__('Staff Login Banner'), 'banner-staff'); ?>
+        <?php $manage_content(__('Agent Login Banner'), 'banner-staff'); ?>
         <?php $manage_content(__('Client Sign-In Page'), 'banner-client'); ?>
         <tr>
             <th colspan="2">
@@ -204,10 +204,10 @@ $manage_content = function($title, $content) use ($contents) {
         <?php $manage_content(__('Account Confirmed Page'), 'registration-thanks'); ?>
         <tr>
             <th colspan="2">
-                <em><b><?php echo __('Staff Account Registration'); ?></b></em>
+                <em><b><?php echo __('Agent Account Registration'); ?></b></em>
             </th>
         </tr>
-        <?php $manage_content(__('Staff Welcome Email'), 'registration-staff'); ?>
+        <?php $manage_content(__('Agent Welcome Email'), 'registration-staff'); ?>
 </tbody>
 </table>
 <p style="text-align:center">

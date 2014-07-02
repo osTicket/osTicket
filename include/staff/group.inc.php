@@ -31,7 +31,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em><strong><?php echo __('Group Information');?></strong>: <?php echo __('Disabled group will limit staff members access. Admins are exempted.');?></em>
+                <em><strong><?php echo __('Group Information');?></strong>: <?php echo __("Disabled group will limit agents' access. Admins are exempted.");?></em>
             </th>
         </tr>
     </thead>
@@ -91,7 +91,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="radio" name="can_close_tickets"  value="1" <?php echo $info['can_close_tickets']?'checked="checked"':''; ?> /><?php echo __('Yes');?>
                 &nbsp;&nbsp;
                 <input type="radio" name="can_close_tickets"  value="0" <?php echo !$info['can_close_tickets']?'checked="checked"':''; ?> /><?php echo __('No');?>
-                &nbsp;&nbsp;<i><?php echo __('Ability to close tickets. Staff can still post a response.');?></i>
+                &nbsp;&nbsp;<i><?php echo __('Ability to close tickets.  Agents can still post a response.');?></i>
             </td>
         </tr>
         <tr><td><?php echo __('Can <b>Assign</b> Tickets');?></td>
@@ -99,7 +99,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="radio" name="can_assign_tickets"  value="1" <?php echo $info['can_assign_tickets']?'checked="checked"':''; ?> /><?php echo __('Yes');?>
                 &nbsp;&nbsp;
                 <input type="radio" name="can_assign_tickets"  value="0" <?php echo !$info['can_assign_tickets']?'checked="checked"':''; ?> /><?php echo __('No');?>
-                &nbsp;&nbsp;<i><?php echo __('Ability to assign tickets to staff members.');?></i>
+                &nbsp;&nbsp;<i><?php echo __('Ability to assign tickets to agents.');?></i>
             </td>
         </tr>
         <tr><td><?php echo __('Can <b>Transfer</b> Tickets');?></td>
@@ -142,12 +142,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;&nbsp;<i><?php echo __('Ability to add/update/disable/delete knowledgebase categories and FAQs.');?></i>
             </td>
         </tr>
-        <tr><td><?php echo __('Can View Staff Stats.');?></td>
+        <tr><td><?php echo __('Can View Agent Stats');?></td>
             <td>
                 <input type="radio" name="can_view_staff_stats"  value="1" <?php echo $info['can_view_staff_stats']?'checked="checked"':''; ?> /><?php echo __('Yes');?>
                 &nbsp;&nbsp;
                 <input type="radio" name="can_view_staff_stats"  value="0" <?php echo !$info['can_view_staff_stats']?'checked="checked"':''; ?> /><?php echo __('No');?>
-                &nbsp;&nbsp;<i><?php echo __('Ability to view stats of other staff members in allowed departments.');?></i>
+                &nbsp;&nbsp;<i><?php echo __('Ability to view stats of other agents in allowed departments.');?></i>
             </td>
         </tr>
         <tr>

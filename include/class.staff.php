@@ -455,7 +455,7 @@ class Staff extends AuthenticatedUser {
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in-use as system email');
         elseif(($uid=Staff::getIdByEmail($vars['email'])) && $uid!=$this->getId())
-            $errors['email']=__('Email already in-use by another staff member');
+            $errors['email']=__('Email already in-use by another agent');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
             $errors['phone']=__('Valid phone number is required');
@@ -691,8 +691,8 @@ class Staff extends AuthenticatedUser {
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
-            $ost->logWarning(_S('Staff Password Reset'), sprintf(
-             _S('Password reset was attempted for staff member: %1$s<br><br>
+            $ost->logWarning(_S('Agent Password Reset'), sprintf(
+             _S('Password reset was attempted for agent: %1$s<br><br>
                 Requested-User-Id: %2$s<br>
                 Source-Ip: %3$s<br>
                 Email-Sent-To: %4$s<br>
@@ -741,7 +741,7 @@ class Staff extends AuthenticatedUser {
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in use system email');
         elseif(($uid=Staff::getIdByEmail($vars['email'])) && $uid!=$id)
-            $errors['email']=__('Email already in use by another staff member');
+            $errors['email']=__('Email already in use by another agent');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
             $errors['phone']=__('Valid phone number is required');

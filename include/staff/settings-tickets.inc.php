@@ -126,10 +126,10 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Staff Identity Masking'); ?>:</td>
+            <td><?php echo __('Agent Identity Masking'); ?>:</td>
             <td>
                 <input type="checkbox" name="hide_staff_name" <?php echo $config['hide_staff_name']?'checked="checked"':''; ?>>
-                <?php echo __("Hide staff's name on responses."); ?>
+                <?php echo __("Hide agent's name on responses."); ?>
                 <i class="help-tip icon-question-sign" href="#staff_identity_masking"></i>
             </td>
         </tr>
@@ -198,7 +198,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Maximum Staff File Uploads');?>:</td>
+            <td><?php echo __('Maximum Agent File Uploads');?>:</td>
             <td>
                 <select name="max_staff_file_uploads">
                     <?php
@@ -209,7 +209,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                         <?php
                     } ?>
                 </select>
-                <em><?php echo __('(Number of files the staff is allowed to upload simultaneously)');?></em>
+                <em><?php echo __('(Number of files an agent is allowed to upload simultaneously)');?></em>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['max_staff_file_uploads']; ?></font>
             </td>
         </tr>

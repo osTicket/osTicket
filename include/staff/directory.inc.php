@@ -60,7 +60,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2><?php echo __('Staff Members');?>
+<h2><?php echo __('Agents');?>
 &nbsp;<i class="help-tip icon-question-sign" href="#staff_members"></i></h2>
 <div style="width:700px; float:left;">
     <form action="directory.php" method="GET" name="filter">
@@ -91,7 +91,7 @@ $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing();
 else
-    $showing=__('No staff members found!');
+    $showing=__('No agents found!');
 ?>
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
@@ -128,7 +128,7 @@ else
                 echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
                 ?>
             <?php } else {
-                echo __('No staff members found!');
+                echo __('No agents found!');
             } ?>
         </td>
      </tr>

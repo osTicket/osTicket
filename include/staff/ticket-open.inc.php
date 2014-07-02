@@ -222,10 +222,10 @@ if ($_POST)
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
                 <select id="assignId" name="assignId">
-                    <option value="0" selected="selected">&mdash; <?php echo __('Select Staff Member OR a Team');?> &mdash;</option>
+                    <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                     <?php
                     if(($users=Staff::getAvailableStaffMembers())) {
-                        echo '<OPTGROUP label="'.sprintf(__('Staff Members (%d)'), count($users)).'">';
+                        echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'), count($users)).'">';
                         foreach($users as $id => $name) {
                             $k="s$id";
                             echo sprintf('<option value="%s" %s>%s</option>',

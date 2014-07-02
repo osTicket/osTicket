@@ -423,7 +423,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             return false;
 
         //Log debug info.
-        $ost->logDebug(_S('Staff login'),
+        $ost->logDebug(_S('Agent login'),
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
@@ -466,7 +466,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
         $_SESSION['_auth']['staff'] = array();
         unset($_SESSION[':token']['staff']);
-        $ost->logDebug(_S('Staff logout'),
+        $ost->logDebug(_S('Agent logout'),
                 sprintf(_S("%s logged out [%s]"),
                     $staff->getUserName(),
                     $_SERVER['REMOTE_ADDR'])); //Debug.
@@ -826,7 +826,7 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
         if($authsession['strikes']>$cfg->getStaffMaxLogins()) {
             $authsession['laststrike']=time();
             $timeout = $cfg->getStaffLoginTimeout()/60;
-            $alert=_S('Excessive login attempts by a staff member?')."\n"
+            $alert=_S('Excessive login attempts by an agent?')."\n"
                    ._S('Username').": $username\n"
                    ._S('IP').": {$_SERVER['REMOTE_ADDR']}\n"
                    ._S('Time').": ".date('M j, Y, g:i a T')."\n\n"
@@ -841,7 +841,7 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
                     ._S('IP').": {$_SERVER['REMOTE_ADDR']}\n"
                     ._S('Time').": ".date('M j, Y, g:i a T')."\n\n"
                     ._S('Attempts').": {$authsession['strikes']}";
-            $ost->logWarning(sprintf(_S('Failed staff login attempt (%s)'),$username),
+            $ost->logWarning(sprintf(_S('Failed agent login attempt (%s)'),$username),
                 $alert, false);
         }
     }

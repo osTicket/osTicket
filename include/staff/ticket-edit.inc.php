@@ -23,7 +23,7 @@ if ($_POST)
     if(!$info['user_id'] || !($user = User::lookup($info['user_id'])))
         $user = $ticket->getUser();
     ?>
-    <tr><td><?php echo _('User'); ?>:</td><td>
+    <tr><td><?php echo __('User'); ?>:</td><td>
         <div id="client-info">
             <a href="#" onclick="javascript:
                 $.userLookup('ajax.php/users/<?php echo $ticket->getOwnerId(); ?>/edit',
@@ -45,7 +45,7 @@ if ($_POST)
                                 $('#client-email').text('<'+user.email+'>');
                     });
                     return false;
-                "><i class="icon-edit"></i> <?php echo _('Change'); ?></a>
+                "><i class="icon-edit"></i> <?php echo __('Change'); ?></a>
             <input type="hidden" name="user_id" id="user_id"
                 value="<?php echo $info['user_id']; ?>" />
         </div>

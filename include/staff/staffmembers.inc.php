@@ -54,7 +54,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2><?php echo __('Staff Members');?></h2>
+<h2><?php echo __('Agents');?></h2>
 <div style="width:700px; float:left;">
     <form action="staff.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
@@ -106,14 +106,14 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
         <input type="submit" name="submit" value="<?php echo __('Apply');?>"/>
     </form>
  </div>
-<div style="float:right;text-align:right;padding-right:5px;"><b><a href="staff.php?a=add" class="Icon newstaff"><?php echo __('Add New Staff');?></a></b></div>
+<div style="float:right;text-align:right;padding-right:5px;"><b><a href="staff.php?a=add" class="Icon newstaff"><?php echo __('Add New Agent');?></a></b></div>
 <div class="clear"></div>
 <?php
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing() . ' ' . _N('agent', 'agents', $num);
 else
-    $showing=__('No staff members found!');
+    $showing=__('No agents found!');
 ?>
 <form action="staff.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
@@ -165,7 +165,7 @@ else
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo __('No staff members found!');
+                echo __('No agents found!');
             } ?>
         </td>
      </tr>
@@ -192,15 +192,15 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        <?php echo __('Are you sure want to <b>enable</b> (unlock) selected staff?');?>
+        <?php echo __('Are you sure want to <b>enable</b> (unlock) selected agent?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        <?php echo __('Are you sure want to <b>disable</b> (lock) selected staff?');?>
+        <?php echo __('Are you sure want to <b>disable</b> (lock) selected agent?');?>
         <br><br><?php echo __("Locked staff won't be able to login to Staff Control Panel.");?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong><?php echo __('Are you sure you want to DELETE selected staff?');?></strong></font>
-        <br><br><?php echo __('Deleted staff CANNOT be recovered.');?>
+        <font color="red"><strong><?php echo __('Are you sure you want to DELETE selected agent?');?></strong></font>
+        <br><br><?php echo __('Deleted agent CANNOT be recovered.');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>

@@ -824,7 +824,7 @@ $tcount+= $ticket->getNumNotes();
                 </td>
                 <td>
                     <select id="assignId" name="assignId">
-                        <option value="0" selected="selected">&mdash; <?php echo __('Select Staff Member OR a Team');?> &mdash;</option>
+                        <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                         <?php
                         if($ticket->isOpen() && !$ticket->isAssigned())
                             echo sprintf('<option value="%d">'.__('Claim Ticket (comments optional)').'</option>', $thisstaff->getId());
@@ -837,7 +837,7 @@ $tcount+= $ticket->getNumNotes();
                             $users = Staff::getAvailableStaffMembers();
 
                         if ($users) {
-                            echo '<OPTGROUP label="'.sprintf(__('Staff Members (%d)'), count($users)).'">';
+                            echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'), count($users)).'">';
                             $staffId=$ticket->isAssigned()?$ticket->getStaffId():0;
                             foreach($users as $id => $name) {
                                 if($staffId && $staffId==$id)

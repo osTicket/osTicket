@@ -353,7 +353,7 @@ if ($results) {
                 if(!strcasecmp($status,'closed')) { ?>
                     <th width="150">
                         <a <?php echo $staff_sort; ?> href="tickets.php?sort=staff&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                            title="<?php echo sprintf(__('Sort by %s %s'), __('Closing Staff Name'), __($negorder)); ?>"><?php echo __('Closed By'); ?></a></th>
+                            title="<?php echo sprintf(__('Sort by %s %s'), __("Closing Agent's Name"), __($negorder)); ?>"><?php echo __('Closed By'); ?></a></th>
                 <?php
                 } else { //assigned to ?>
                     <th width="150">
@@ -584,7 +584,7 @@ if ($results) {
                 <option value="<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
-                    echo '<OPTGROUP label="'.__('Staff Members').' ('.count($users).')">';
+                    echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'),count($users)).'">';
                     foreach($users as $id => $name) {
                         $k="s$id";
                         echo sprintf('<option value="%s">%s</option>', $k, $name);

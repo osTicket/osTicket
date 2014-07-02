@@ -199,7 +199,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                     <option value="0">&mdash; <?php echo __('Unassigned'); ?> &mdash;</option>
                     <?php
                     if (($users=Staff::getStaffMembers())) {
-                        echo sprintf('<OPTGROUP label="%s">', sprintf(__('Staff Members (%d)'), count($user)));
+                        echo sprintf('<OPTGROUP label="%s">', sprintf(__('Agents (%d)'), count($user)));
                         foreach ($users as $id => $name) {
                             $name = new PersonsName($name);
                             $k="s$id";

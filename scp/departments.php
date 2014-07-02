@@ -77,7 +77,7 @@ if($_POST){
                             .' WHERE dept_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         list($members)=db_fetch_row(db_query($sql));
                         if($members)
-                            $errors['err']=__('Departments with staff can not be deleted. Move staff first.');
+                            $errors['err']=__('Departments with agents can not be deleted. Move the agents first.');
                         else {
                             $i=0;
                             foreach($_POST['ids'] as $k=>$v) {

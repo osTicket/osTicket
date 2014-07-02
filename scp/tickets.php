@@ -133,7 +133,7 @@ if($_POST && !$errors):
                      $errors['assignId']=__('Invalid assignee ID - get technical support');
                  elseif($ticket->isAssigned()) {
                      if($_POST['assignId'][0]=='s' && $id==$ticket->getStaffId())
-                         $errors['assignId']=__('Ticket already assigned to the staff.');
+                         $errors['assignId']=__('Ticket already assigned to the agent.');
                      elseif($_POST['assignId'][0]=='t' && $id==$ticket->getTeamId())
                          $errors['assignId']=__('Ticket already assigned to the team.');
                  }

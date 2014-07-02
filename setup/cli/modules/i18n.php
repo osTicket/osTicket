@@ -9,9 +9,14 @@ class i18n_Compiler extends Module {
     var $prologue = "Manages translation files from Crowdin";
 
     var $arguments = array(
-        "command" => "Action to be performed.
-            list    - Show list of available translations
-            make-pot - Build the PO file for gettext translations"
+        "command" => array(
+            'help' => "Action to be performed.",
+            "options" => array(
+                'list' =>       'Show list of available translations',
+                'build' =>      'Compile a language pack',
+                'make-pot' =>   'Build the PO file for gettext translations',
+            ),
+        ),
     );
 
     var $options = array(

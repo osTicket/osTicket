@@ -164,9 +164,9 @@ class Bootstrap {
             );
 
         if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
-            $ferror=sprintf(_S('Unable to connect to the database — %s'),db_connect_error());
+            $ferror=sprintf('Unable to connect to the database — %s',db_connect_error());
         }elseif(!db_select_database(DBNAME)) {
-            $ferror=sprintf(_S('Unknown or invalid database: %s'),DBNAME);
+            $ferror=sprintf('Unknown or invalid database: %s',DBNAME);
         }
 
         if($ferror) //Fatal error
@@ -269,11 +269,11 @@ class Bootstrap {
     }
 
     function croak($message) {
-        $msg = _S($message)."\n\n".THISPAGE;
-        Mailer::sendmail(ADMIN_EMAIL, _S('osTicket Fatal Error'), $msg,
-            '"'._S('osTicket Alerts').sprintf('" <%s>', ADMIN_EMAIL));
+        $msg = $message."\n\n".THISPAGE;
+        Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
+            '"'.'osTicket Alerts'.sprintf('" <%s>', ADMIN_EMAIL));
         //Display generic error to the user
-        Http::response(500, _S("<b>Fatal Error:</b> Contact system administrator."));
+        Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
     }
 }
 

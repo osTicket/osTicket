@@ -61,7 +61,7 @@ require(STAFFINC_DIR.'header.inc.php');
 
 <hr/>
 <h2><?php echo __('Statistics'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
-<p><?php echo __('Statistics of tickets organized by department, help topic, and staff.');?></p>
+<p><?php echo __('Statistics of tickets organized by department, help topic, and agent.');?></p>
 <ul class="nav nav-tabs" id="tabular-navigation"></ul>
 
 <div id="table-here"></div>

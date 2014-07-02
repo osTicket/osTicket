@@ -7,7 +7,7 @@
     <thead>
         <tr>
             <th>
-                <h4><?php echo __('Alerts and Notices sent to staff on ticket "events"'); ?></h4>
+                <h4><?php echo __('Alerts and Notices sent to agents on ticket "events"'); ?></h4>
             </th>
         </tr>
     </thead>
@@ -72,7 +72,7 @@
             <td>
               <input type="checkbox" name="message_alert_assigned" <?php
               echo $config['message_alert_assigned']?'checked':''; ?>>
-              <?php echo __('Assigned Staff'); ?>
+              <?php echo __('Assigned Agents'); ?>
             </td>
         </tr>
         <tr>
@@ -110,7 +110,7 @@
         <tr>
             <td>
               <input type="checkbox" name="note_alert_assigned" <?php echo $config['note_alert_assigned']?'checked':''; ?>>
-                <?php echo __('Assigned Staff / Team'); ?>
+                <?php echo __('Assigned Agent / Team'); ?>
             </td>
         </tr>
         <tr>
@@ -135,7 +135,7 @@
         <tr>
             <td>
               <input type="checkbox" name="assigned_alert_staff" <?php echo
-              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Staff'); ?>
+              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Agents'); ?>
             </td>
         </tr>
         <tr>
@@ -165,7 +165,7 @@
         <tr>
             <td>
               <input type="checkbox" name="transfer_alert_assigned" <?php echo $config['transfer_alert_assigned']?'checked':''; ?>>
-                <?php echo __('Assigned Staff / Team'); ?>
+                <?php echo __('Assigned Agent / Team'); ?>
             </td>
         </tr>
         <tr>
@@ -195,7 +195,7 @@
         <tr>
             <td>
               <input type="checkbox" name="overdue_alert_assigned" <?php
-                echo $config['overdue_alert_assigned']?'checked':''; ?>> <?php echo __('Assigned Staff / Team'); ?>
+                echo $config['overdue_alert_assigned']?'checked':''; ?>> <?php echo __('Assigned Agent / Team'); ?>
             </td>
         </tr>
         <tr>

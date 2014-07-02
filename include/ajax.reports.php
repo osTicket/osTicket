@@ -31,7 +31,7 @@ class OverviewReportAjaxAPI extends AjaxController {
         return $this->encode(array("dept"=>__("Department"), "topic"=>__("Topics"),
             # XXX: This will be relative to permissions based on the
             # logged-in-staff. For basic staff, this will be 'My Stats'
-            "staff"=>__("Staff")));
+            "staff"=>__("Agent")));
     }
 
     function getData() {
@@ -63,7 +63,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "pk" => 'staff_id',
                 "sort" => 'name',
                 "fields" => "CONCAT_WS(' ', T1.firstname, T1.lastname) as name",
-                "headers" => array(__('Staff Member')),
+                "headers" => array(__('Agent')),
                 "filter" =>
                     ('T1.staff_id=S1.staff_id
                       AND

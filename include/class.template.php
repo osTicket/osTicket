@@ -24,7 +24,7 @@ class EmailTemplateGroup {
     static $all_groups = array(
         'sys' => /* trans */ 'System Management Templates',
         'ticket.user' => /* trans */ 'End-User Ticket Templates',
-        'ticket.staff' => /* trans */ 'Staff Ticket Templates',
+        'ticket.staff' => /* trans */ 'Agent Ticket Templates',
     );
     static $all_names=array(
         'ticket.autoresp'=>array(
@@ -42,7 +42,7 @@ class EmailTemplateGroup {
         'ticket.notice'=>array(
             'group'=>'ticket.user',
             'name'=>/* trans */ 'New Ticket Notice',
-            'desc'=>/* trans */ 'Notice sent to user, if enabled, on new ticket created by staff on their behalf (e.g phone calls).'),
+            'desc'=>/* trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).'),
         'ticket.overlimit'=>array(
             'group'=>'ticket.user',
             'name'=>/* trans */ 'Over Limit Notice',
@@ -58,27 +58,27 @@ class EmailTemplateGroup {
         'ticket.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* trans */ 'New Ticket Alert',
-            'desc'=>/* trans */ 'Alert sent to staff, if enabled, on new ticket.'),
+            'desc'=>/* trans */ 'Alert sent to agents, if enabled, on new ticket.'),
         'message.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* trans */ 'New Message Alert',
-            'desc'=>/* trans */ 'Alert sent to staff, if enabled, when user replies to an existing ticket.'),
+            'desc'=>/* trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.'),
         'note.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* trans */ 'Internal Note Alert',
-            'desc'=>/* trans */ 'Alert sent to selected staff, if enabled, on new internal note.'),
+            'desc'=>/* trans */ 'Alert sent to selected agents, if enabled, on new internal note.'),
         'assigned.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* trans */ 'Ticket Assignment Alert',
-            'desc'=>/* trans */ 'Alert sent to staff on ticket assignment.'),
+            'desc'=>/* trans */ 'Alert sent to agents on ticket assignment.'),
         'transfer.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* trans */ 'Ticket Transfer Alert',
-            'desc'=>/* trans */ 'Alert sent to staff on ticket transfer.'),
+            'desc'=>/* trans */ 'Alert sent to agents on ticket transfer.'),
         'ticket.overdue'=>array(
             'group'=>'ticket.staff',
             'name'=>/* trans */ 'Overdue Ticket Alert',
-            'desc'=>/* trans */ 'Alert sent to staff on stale or overdue tickets.'),
+            'desc'=>/* trans */ 'Alert sent to agents on stale or overdue tickets.'),
         );
 
     function EmailTemplateGroup($id){

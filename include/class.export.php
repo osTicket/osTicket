@@ -72,7 +72,7 @@ class Export {
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
                 'assigned' =>       __('Assigned To'),
-                'staff' =>          __('Staff Assigned'),
+                'staff' =>          __('Agent Assigned'),
                 'team' =>           __('Team Assigned'),
                 'thread_count' =>   __('Thread Count'),
                 'attachments' =>    __('Attachment Count'),

@@ -59,17 +59,17 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{ticket.phone}</td><td>'.__('Phone number | ext').'</td></tr>
                     <tr><td>%{ticket.status}</td><td>'.__('Status').'</td></tr>
                     <tr><td>%{ticket.priority}</td><td>'.__('Priority').'</td></tr>
-                    <tr><td>%{ticket.assigned}</td><td>Assigned staff and/or team</td></tr>
+                    <tr><td>%{ticket.assigned}</td><td>Assigned agent and/or team</td></tr>
                     <tr><td>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
                     <tr><td>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
                     <tr><td>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>
                     <tr><td>%{recipient.ticket_link}</td><td>'.__('Auth. token used for auto-login').'</td></tr>
                     <tr><td>%{ticket.client_link}</td><td>'.__('Client\'s ticket view link').'</td></tr>
-                    <tr><td>%{recipient.ticket_link}</td><td>'.__('Staff\'s ticket view link').'</td></tr>
+                    <tr><td>%{recipient.ticket_link}</td><td>'.__('Agent\'s ticket view link').'</td></tr>
                     <tr><td colspan="2" style="padding:5px 0 5px 0;"><em>'.__('Expandable Variables (See Wiki)').'</em></td></tr>
                     <tr><td>%{ticket.<b>topic</b>}</td><td>'.__('Help topic').'</td></tr>
                     <tr><td>%{ticket.<b>dept</b>}</td><td>'.__('Department').'</td></tr>
-                    <tr><td>%{ticket.<b>staff</b>}</td><td>'.__('Assigned/closing staff').'</td></tr>
+                    <tr><td>%{ticket.<b>staff</b>}</td><td>'.__('Assigned/closing agent').'</td></tr>
                     <tr><td>%{ticket.<b>team</b>}</td><td>'.__('Assigned/closing team').'</td></tr>
                 </table>
             </td>
@@ -79,8 +79,8 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{response}</td><td>'.__('Outgoing response').'</td></tr>
                     <tr><td>%{comments}</td><td>'.__('Assign/transfer comments').'</td></tr>
                     <tr><td>%{note}</td><td>'.__('Internal note <em>(expandable)</em>').'</td></tr>
-                    <tr><td>%{assignee}</td><td>'.__('Assigned staff/team').'</td></tr>
-                    <tr><td>%{assigner}</td><td>'.__('Staff assigning the ticket').'</td></tr>
+                    <tr><td>%{assignee}</td><td>'.__('Assigned agent/team').'</td></tr>
+                    <tr><td>%{assigner}</td><td>'.__('Agent assigning the ticket').'</td></tr>
                     <tr><td>%{url}</td><td>'.__('osTicket\'s base url (FQDN)').'</td></tr>
                     <tr><td>%{reset_link}</td>
                         <td>'.__('Reset link used by the password reset feature').'</td></tr>

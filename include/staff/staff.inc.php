@@ -5,7 +5,7 @@ $info=array();
 $qstr='';
 if($staff && $_REQUEST['a']!='add'){
     //Editing Department.
-    $title=__('Update Staff');
+    $title=__('Update Agent');
     $action='update';
     $submit_text=__('Save Changes');
     $passwd_text=__('To reset the password enter a new one below');
@@ -15,9 +15,9 @@ if($staff && $_REQUEST['a']!='add'){
     $info['signature'] = Format::viewableImages($info['signature']);
     $qstr.='&id='.$staff->getId();
 }else {
-    $title=__('Add New Staff');
+    $title=__('Add New Agent');
     $action='create';
-    $submit_text=__('Add Staff');
+    $submit_text=__('Add Agent');
     $passwd_text=__('Temporary password required only for "Local" authenication');
     //Some defaults for new staff.
     $info['change_passwd']=1;
@@ -36,7 +36,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Staff Account');?></h2>
+ <h2><?php echo __('Agent Account');?></h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -189,7 +189,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __("Staff's Signature");?></strong>:
+                <em><strong><?php echo __("Agent's Signature");?></strong>:
                 <?php echo __('Optional signature used on outgoing emails.');?>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>
                 &nbsp;<i class="help-tip icon-question-sign" href="#agents_signature"></i></em>
@@ -214,7 +214,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <input type="radio" name="isadmin" value="1" <?php echo $info['isadmin']?'checked="checked"':''; ?>>
                     <font color="red"><strong><?php echo __('Admin');?></strong></font>
-                <input type="radio" name="isadmin" value="0" <?php echo !$info['isadmin']?'checked="checked"':''; ?>><strong><?php echo __('Staff');?></strong>
+                <input type="radio" name="isadmin" value="0" <?php echo !$info['isadmin']?'checked="checked"':''; ?>><strong><?php echo __('Agent');?></strong>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['isadmin']; ?></span>
             </td>
         </tr>
@@ -270,7 +270,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                <?php echo __("Staff's Time Zone");?>:
+                <?php echo __("Agent's Time Zone");?>:
             </td>
             <td>
                 <select name="timezone_id" id="timezone_id">
@@ -317,7 +317,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="checkbox" name="isvisible" value="1" <?php echo $info['isvisible']?'checked="checked"':''; ?>>&nbsp;<?php
-                echo __('Make visible in the Staff Directory'); ?>
+                echo __('Make visible in the Agent Directory'); ?>
                 &nbsp;<i class="help-tip icon-question-sign" href="#directory_listing"></i>
             </td>
         </tr>
@@ -337,7 +337,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
          if(($res=db_query($sql)) && db_num_rows($res)){ ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Assigned Teams');?></strong>: <?php echo __("Staff will have access to tickets assigned to a team they belong to regardless of the ticket's department.");?> </em>
+                <em><strong><?php echo __('Assigned Teams');?></strong>: <?php echo __("Agent will have access to tickets assigned to a team they belong to regardless of the ticket's department.");?> </em>
             </th>
         </tr>
         <?php

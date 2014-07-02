@@ -275,7 +275,7 @@ class Organization extends OrganizationModel {
                         && $team = Team::lookup(substr($vars['manager'], 1)))
                     break;
             default:
-                $errors['manager'] = __('Select a staff member or team from the list');
+                $errors['manager'] = __('Select an agent or team from the list');
             }
         }
 

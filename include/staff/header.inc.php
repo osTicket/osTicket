@@ -37,27 +37,6 @@
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
 
-	<script>
-	jQuery(function($){
-		$.datepicker.regional["varlang"]={closeText:"<?php echo __('Done');?>",
-		prevText:"<?php echo __('Prev');?>",
-		nextText:"<?php echo __('Next');?>",
-		currentText:"<?php echo __('Today');?>",
-		monthNames:["<?php echo __('January');?>","<?php echo __('February');?>","<?php echo __('March');?>","<?php echo __('April');?>","<?php echo __('May');?>","<?php echo __('June');?>","<?php echo __('July');?>","<?php echo __('August');?>","<?php echo __('September');?>","<?php echo __('October');?>","<?php echo __('November');?>","<?php echo __('December');?>"],
-		monthNamesShort:["<?php echo __('Jan');?>","<?php echo __('Feb');?>","<?php echo __('Mar');?>","<?php echo __('Apr');?>","<?php echo __('May');?>","<?php echo __('Jun');?>","<?php echo __('Jul');?>","<?php echo __('Aug');?>","<?php echo __('Sep');?>","<?php echo __('Oct');?>","<?php echo __('Nov');?>","<?php echo __('Dec');?>"],
-		dayNames:["<?php echo __('Sunday');?>","<?php echo __('Monday');?>","<?php echo __('Tuesday');?>","<?php echo __('Wednesday');?>","<?php echo __('Thursday');?>","<?php echo __('Friday');?>","<?php echo __('Saturday');?>"],
-		dayNamesShort:["<?php echo __('Sun');?>","<?php echo __('Mon');?>","<?php echo __('Tue');?>","<?php echo __('Wed');?>","<?php echo __('Thu');?>","<?php echo __('Fri');?>","<?php echo __('Sat');?>"],
-		dayNamesMin:["<?php echo __('Su');?>","<?php echo __('Mo');?>","<?php echo __('Tu');?>","<?php echo __('We');?>","<?php echo __('Th');?>","<?php echo __('Fr');?>","<?php echo __('Sa');?>"],
-		weekHeader:"<?php echo __('Wk');?>",
-		dateFormat:"mm/dd/yy",
-		firstDay:0,
-		isRTL:!1,
-		showMonthAfterYear:!1,
-		yearSuffix:""
-		};
-		$.datepicker.setDefaults($.datepicker.regional['varlang']);
-	});
-	</script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
@@ -81,7 +60,7 @@
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
             | <a href="admin.php" class="no-pjax"><?php echo __('Admin Panel'); ?></a>
             <?php }else{ ?>
-            | <a href="index.php" class="no-pjax"><?php echo __('Staff Panel'); ?></a>
+            | <a href="index.php" class="no-pjax"><?php echo __('Agent Panel'); ?></a>
             <?php } ?>
             | <a href="profile.php"><?php echo __('My Preferences'); ?></a>
             | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax"><?php echo __('Log Out'); ?></a>

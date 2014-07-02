@@ -257,7 +257,7 @@ class Email {
         }elseif($cfg && !strcasecmp($cfg->getAdminEmail(), $vars['email'])) {
             $errors['email']=__('Email already used as admin email!');
         }elseif(Staff::getIdByEmail($vars['email'])) { //make sure the email doesn't belong to any of the staff
-            $errors['email']=__('Email in use by a staff member');
+            $errors['email']=__('Email in use by an agent');
         }
 
         if(!$vars['name'])
