@@ -456,10 +456,14 @@ class FileReader {
   var $_length;
 
   function FileReader($filename) {
-    if (file_exists($filename)) {
+    if (is_resource($filename)) {
+        $this->_length = strlen(stream_get_contents($filename));
+        rewind($filename);
+        $this->_fd = $filename;
+    }
+    elseif (file_exists($filename)) {
 
       $this->_length=filesize($filename);
-      $this->_pos = 0;
       $this->_fd = fopen($filename,'rb');
       if (!$this->_fd) {
         $this->error = 3; // Cannot read file, probably permissions
@@ -469,6 +473,7 @@ class FileReader {
       $this->error = 2; // File doesn't exist
       return false;
     }
+    $this->_pos = 0;
   }
 
   function read($bytes) {
@@ -528,6 +533,8 @@ class FileReader {
 class Translation extends gettext_reader {
 
     var $charset;
+
+    const META_HEADER = 0;
 
     function __construct($reader, $charset=false) {
         if (!$reader || $reader->error)
@@ -612,7 +619,7 @@ class Translation extends gettext_reader {
         }
 
         // Add in some meta-data
-        $table[0] = array(
+        $table[self::META_HEADER] = array(
             'Revision' => $reader->revision,      // From the MO
             'Total-Strings' => $reader->total,    // From the MO
             'Table-Size' => count($table),      // Sanity check for later
@@ -630,7 +637,6 @@ if (!defined('LC_MESSAGES')) {
     define('LC_MESSAGES',	6);
 }
 
-/* Class to hold a single domain included in $text_domains. */
 class TextDomain {
     var $l10n = array();
     var $path;
@@ -685,7 +691,7 @@ class TextDomain {
         else
             $lang = Internationalization::getDefaultLanguage();
 
-        // User-specific translations
+        // Define locale for C-libraries
         putenv('LC_ALL=' . $lang);
         self::setLocale(LC_ALL, $lang);
     }
@@ -697,7 +703,7 @@ class TextDomain {
     /**
      * Returns passed in $locale, or environment variable $LANG if $locale == ''.
      */
-    static function get_default_locale($locale) {
+    static function get_default_locale($locale='') {
         if ($locale == '') // emulate variable support
             return getenv('LANG');
         else
@@ -817,17 +823,17 @@ function _dcpgettext($domain, $context, $msgid, $category) {
     return TextDomain::lookup($domain)->getTranslation($category)
         ->pgettext($context, $msgid);
 }
-function _npgettext($context, $singular, $plural) {
+function _npgettext($context, $singular, $plural, $n) {
     return TextDomain::lookup()->getTranslation()
-        ->npgettext($context, $singular, $plural);
+        ->npgettext($context, $singular, $plural, $n);
 }
-function _dnpgettext($domain, $context, $singular, $plural) {
+function _dnpgettext($domain, $context, $singular, $plural, $n) {
     return TextDomain::lookup($domain)->getTranslation()
-        ->npgettext($context, $singular, $plural);
+        ->npgettext($context, $singular, $plural, $n);
 }
-function _dcnpgettext($domain, $context, $singular, $plural, $category) {
+function _dcnpgettext($domain, $context, $singular, $plural, $category, $n) {
     return TextDomain::lookup($domain)->getTranslation($category)
-        ->npgettext($context, $singular, $plural);
+        ->npgettext($context, $singular, $plural, $n);
 }
 
 
@@ -836,5 +842,5 @@ do {
   if (empty ($_SERVER['argc']) || $_SERVER['argc'] < 2) break;
   if (empty ($_SERVER['PHP_SELF']) || FALSE === strpos ($_SERVER['PHP_SELF'], basename(__FILE__)) ) break;
   $file = $argv[1];
-  quick_gettext_reader::buildHashFile($file);
+  Translation::buildHashFile($file);
 } while (0);

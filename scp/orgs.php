@@ -48,7 +48,7 @@ if ($_POST) {
             if ($i && $i == $num)
                 $msg = __('Selected users removed successfully');
             elseif ($i > 0)
-                $warn = sprintf(__('%1$d or %2$d selected users removed'), $i, $count);
+                $warn = sprintf(__('%1$d of %2$d selected users removed'), $i, $count);
             elseif (!$errors['err'])
                 $errors['err'] = __('Unable to remove selected users');
         }

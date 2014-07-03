@@ -134,12 +134,12 @@ class Bootstrap {
             //Die gracefully on upgraded v1.6 RC5 installation - otherwise script dies with confusing message.
             if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
                 Http::response(500,
-                    _S('Please rename config file include/settings.php to include/ost-config.php to continue!'));
+                    'Please rename config file include/settings.php to include/ost-config.php to continue!');
         } elseif(file_exists(ROOT_DIR.'setup/'))
             Http::redirect(ROOT_PATH.'setup/');
 
         if(!$configfile || !file_exists($configfile))
-            Http::response(500,'<b>'._S('Error loading settings. Contact admin.').'</b>');
+            Http::response(500,'<b>Error loading settings. Contact admin.</b>');
 
         require($configfile);
         define('CONFIG_FILE',$configfile); //used in admin.php to check perm.
@@ -271,7 +271,7 @@ class Bootstrap {
     function croak($message) {
         $msg = $message."\n\n".THISPAGE;
         Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
-            '"'.'osTicket Alerts'.sprintf('" <%s>', ADMIN_EMAIL));
+            sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
         Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
     }

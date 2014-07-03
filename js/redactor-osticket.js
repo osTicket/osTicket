@@ -301,7 +301,7 @@ $(document).ajaxError(function(event, request, settings) {
             }
         });
         $('#overlay').show();
-        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
+        alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
         $('#overlay').hide();
     }
 });

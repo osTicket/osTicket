@@ -57,23 +57,6 @@ if($ost->isUpgradePending()) {
 
     if(!$sysnotice && ini_get('register_globals'))
         $sysnotice=__('Please consider turning off register globals if possible');
-	if($use_php_gettext==true&&!function_exists('mb_detect_encoding'))
-	{
-		$sysnotice='mbstring extension is required to use php_gettext';
-	}
-	if($use_php_gettext==true&&function_exists('mb_detect_encoding'))
-	{
-		$f = fopen(INCLUDE_DIR.'locale/'.$language.'/LC_MESSAGES/messages.mo', 'r');
-		$meta = stream_get_meta_data($f);
-		if($meta['mode']==NULL)
-		{
-			$sysnotice='The translation file "include/locale/'.$language.'/LC_MESSAGES/messages.mo" isn\'t readable, check permissions.';
-		}
-		else
-		{
-			fclose($f);
-		}
-	}
 }
 
 //System notice displayed as a warning (if any).

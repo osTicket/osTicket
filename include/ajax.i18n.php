@@ -26,6 +26,8 @@ class i18nAjaxAPI extends AjaxController {
         case 'js':
             $data = $i18n->getTemplate('js/redactor.js')->getRawData();
             $data .= $i18n->getTemplate('js/jquery.ui.datepicker.js')->getRawData();
+            // Strings from various javascript files
+            $data .= $i18n->getTemplate('js/osticket-strings.js')->getRawData();
             header('Content-Type: text/javascript; charset=UTF-8');
             break;
         default:

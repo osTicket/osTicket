@@ -124,9 +124,17 @@ class i18n_Compiler extends Module {
         @unlink(I18N_DIR."$lang.phar");
         $phar = new Phar(I18N_DIR."$lang.phar");
 
+        $mo_file = false;
+
         for ($i=0; $i<$zip->numFiles; $i++) {
             $info = $zip->statIndex($i);
-            $phar->addFromString($info['name'], $zip->getFromIndex($i));
+            $contents = $zip->getFromIndex($i);
+            if (strpos($info['name'], '/messages.mo') !== false) {
+                $mo_file = $contents;
+                // Don't add the MO file as-is to the PHAR file
+                continue;
+            }
+            $phar->addFromString($info['name'], $contents);
         }
 
         // TODO: Add i18n extras (like fonts)
@@ -150,6 +158,8 @@ class i18n_Compiler extends Module {
             list($code, $js) = $this->_http_get(
                 'http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-'
                     .str_replace('_','-',$l).'.js');
+            // If locale-specific version is not available, use the base
+            // language version (de if de_CH is not available)
             if ($code == 200)
                 break;
         }
@@ -158,6 +168,28 @@ class i18n_Compiler extends Module {
         else
             $this->stderr->write(str_replace('_','-',$lang)
                 .": Unable to fetch jQuery UI Datepicker locale file\n");
+
+        // Add in the messages.mo.php file
+        if ($mo_file) {
+            $mo_output = fopen('php://temp', 'r+b');
+            Translation::buildHashFile($mo_file, $mo_output);
+            rewind($mo_output);
+            $phar->addFile($mo_output, 'LC_MESSAGES/messages.mo.php');
+        }
+
+        // Add in translation of javascript strings
+        if ($mo_output && ($js = self::__getAllJsPhrases())) {
+            $mo = unserialize($mo);
+            foreach ($js as $c) {
+                foreach ($c['forms'] as $f) {
+                    $phrases[$f] = @$mo[$f] ?: $f;
+                }
+            }
+            $phar->addFromStrings(
+                sprintf('(function($){$.strings=%s;})(jQuery);',
+                    JsonDataEncoder::encode($phrases)),
+                'js/osticket-strings.js');
+        }
 
         // TODO: Sign files
 
@@ -264,7 +296,7 @@ class i18n_Compiler extends Module {
                 break;
             case T_COMMENT:
             case T_DOC_COMMENT:
-                if (strpos($T[1], '* trans *') !== false) {
+                if (preg_match('`\*\s*trans\s*\*`', $T[1])) {
                     // Find the next textual token
                     list($S, $T) = $this->__read_next_string($tokens);
                     $string = array('forms'=>array($S['form']), 'line'=>$S['line']);
@@ -367,27 +399,55 @@ class i18n_Compiler extends Module {
             $F = str_replace(ROOT_DIR, '', $f);
             $this->stderr->write("$F\n");
             $tokens = new ArrayObject(token_get_all(fread(fopen($f, 'r'), filesize($f))));
-            foreach ($this->__find_strings($tokens, $funcs, 1) as $calls) {
-                if (!($forms = $calls['forms']))
-                    // Transation of non-constant
-                    continue;
-                $primary = $forms[0];
-                // Normalize the $primary string
-                $primary = preg_replace(array("`\\\(['$])`", '`(?<!\\\)"`'), array("$1", '\"'), $primary);
-                if (!isset($strings[$primary])) {
-                    $strings[$primary] = array('forms' => $forms);
-                }
-                $E = &$strings[$primary];
-
-                if (isset($calls['line']))
-                    $E['usage'][] = "{$F}:{$calls['line']}";
-                if (isset($calls['flags']))
-                    $E['flags'] = array_unique(array_merge(@$E['flags'] ?: array(), $calls['flags']));
-                if (isset($calls['comments']))
-                    $E['comments'] = array_merge(@$E['comments'] ?: array(), $calls['comments']);
+            foreach ($this->__find_strings($tokens, $funcs, 1) as $call) {
+                self::__addString($strings, $call, $F);
             }
         }
         $this->__write_pot($strings);
+    }
+
+    static function __addString(&$strings, $call, $file=false) {
+        if (!($forms = $call['forms']))
+            // Transation of non-constant
+            return;
+        $primary = $forms[0];
+        // Normalize the $primary string
+        $primary = preg_replace(array("`\\\(['$])`", '`(?<!\\\)"`'), array("$1", '\"'), $primary);
+        if (!isset($strings[$primary])) {
+            $strings[$primary] = array('forms' => $forms);
+        }
+        $E = &$strings[$primary];
+
+        if (isset($call['line']) && $file)
+            $E['usage'][] = "{$file}:{$call['line']}";
+        if (isset($call['flags']))
+            $E['flags'] = array_unique(array_merge(@$E['flags'] ?: array(), $call['flags']));
+        if (isset($call['comments']))
+            $E['comments'] = array_merge(@$E['comments'] ?: array(), $call['comments']);
+
+        $strings = array_merge($strings, self::__getAllJsPhrases());
+    }
+
+    function __getAllJsPhrases() {
+        $strings = array();
+        foreach (glob_recursive(ROOT_DIR . "*.js") as $s) {
+            $script = file_get_contents($s);
+            $s = str_replace(ROOT_DIR, '', $s);
+            $this->stderr->write($s."\n");
+            $calls = array();
+            preg_match_all('/__\(\s*[^\'"]*(([\'"])(?:(?<!\\\\)\2|.)+\2)\s*[^)]*\)/',
+                $script, $calls, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
+            foreach ($calls as $c) {
+                $call = $this->__find_strings(token_get_all('<?php '.$c[0][0]), $funcs, 0);
+                $call = $call[0];
+
+                list($lhs) = str_split($script, $c[1][1]);
+                $call['line'] = strlen($lhs) - strlen(str_replace("\n", "", $lhs)) + 1;
+
+                self::__addString($strings, $call, $s);
+            }
+        }
+        return $strings;
     }
 }
 

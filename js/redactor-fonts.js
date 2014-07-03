@@ -3,7 +3,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
 RedactorPlugins.fontfamily = {
     init: function ()
     {
-        var fonts = [ 'Arial', 'Helvetica', 'Georgia', 'Times New Roman', 'Monospace' ];
+        var fonts = [ 'Arial', 'Helvetica', 'Georgia', 'Times New Roman', __('Monospace') ];
         var that = this;
         var dropdown = {};
 
@@ -14,7 +14,7 @@ RedactorPlugins.fontfamily = {
 
         dropdown['remove'] = { title: 'Remove font', callback: function() { that.resetFontfamily(); }};
 
-        this.buttonAddBefore('bold', 'fontfamily', 'Change font family', false, dropdown);
+        this.buttonAddBefore('bold', 'fontfamily', __('Change font family'), false, dropdown);
     },
     setFontfamily: function (value)
     {
@@ -122,7 +122,7 @@ RedactorPlugins.fontsize = {
 
 		dropdown['remove'] = { title: 'Remove font size', callback: function() { that.resetFontsize(); } };
 
-		this.buttonAddAfter('formatting', 'fontsize', 'Change font size', false, dropdown);
+		this.buttonAddAfter('formatting', 'fontsize', __('Change font size'), false, dropdown);
 	},
 	setFontsize: function(size)
 	{
