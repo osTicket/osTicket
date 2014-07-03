@@ -23,7 +23,7 @@ function checkbox_checker(formObj, min, max) {
     if (checked< min ){
         alert(__("Please make at least {0} selections. {1} checked so far.")
             .replace('{0}', min)
-            .replace('{1}', checked);
+            .replace('{1}', checked));
         return (false);
     }
 
@@ -415,7 +415,7 @@ var scp_prep = function() {
              })
             .fail( function () {
                 $('#result-count').html('<div class="fail">'
-                    + __('Advanced search failed - try again!'). + '</div>');
+                    + __('Advanced search failed - try again!') + '</div>');
             })
             .always( function () {
                 $('.spinner', elem).hide();

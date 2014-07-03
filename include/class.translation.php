@@ -634,7 +634,13 @@ class Translation extends gettext_reader {
 }
 
 if (!defined('LC_MESSAGES')) {
-    define('LC_MESSAGES',	6);
+    define('LC_ALL', 0);
+    define('LC_CTYPE', 1);
+    define('LC_NUMERIC', 2);
+    define('LC_TIME', 3);
+    define('LC_COLLATE', 4);
+    define('LC_MONETARY', 5);
+    define('LC_MESSAGES', 6);
 }
 
 class TextDomain {
@@ -646,8 +652,15 @@ class TextDomain {
     static $registry;
     static $default_domain = 'messages';
     static $current_locale = '';
-    static $LC_CATEGORIES = array('LC_ALL', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME',
-        'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES');
+    static $LC_CATEGORIES = array(
+        LC_ALL => 'LC_ALL',
+        LC_CTYPE => 'LC_CTYPE',
+        LC_NUMERIC => 'LC_NUMERIC',
+        LC_TIME => 'LC_TIME',
+        LC_COLLATE => 'LC_COLLATE',
+        LC_MONETARY => 'LC_MONETARY',
+        LC_MESSAGES => 'LC_MESSAGES'
+    );
 
     function __construct($domain) {
         $this->domain = $domain;
@@ -670,7 +683,7 @@ class TextDomain {
                     break;
                 }
                 $phar_path = 'phar://' . $bound_path . $locale . ".phar/" . $subpath;
-                if (file_exists($full_path)) {
+                if (file_exists($phar_path)) {
                     $input = new FileReader($phar_path);
                     break;
                 }

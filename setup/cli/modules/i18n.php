@@ -126,12 +126,15 @@ class i18n_Compiler extends Module {
         $lang = str_replace('-','_',$lang);
         @unlink(I18N_DIR."$lang.phar");
         $phar = new Phar(I18N_DIR."$lang.phar");
+        $phar->startBuffering();
 
         $po_file = false;
 
         for ($i=0; $i<$zip->numFiles; $i++) {
             $info = $zip->statIndex($i);
             $contents = $zip->getFromIndex($i);
+            if (!$contents)
+                continue;
             if (strpos($info['name'], '/messages.po') !== false) {
                 $po_file = $contents;
                 // Don't add the PO file as-is to the PHAR file
@@ -214,6 +217,7 @@ class i18n_Compiler extends Module {
 
         // Use a very small stub
         $phar->setStub('<?php __HALT_COMPILER();');
+        $phar->stopBuffering();
     }
 
     function __read_next_string($tokens) {

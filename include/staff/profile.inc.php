@@ -153,7 +153,7 @@ $info['id']=$staff->getId();
                      $sel=($info['auto_refresh_rate']==$i)?'selected="selected"':'';
                      echo sprintf('<option value="%1$d" %2$s>'
                         .sprintf(
-                            _N('Every minute', 'Every %d %minutes', $i), $i)
+                            _N('Every minute', 'Every %d minutes', $i), $i)
                          .'</option>',$i,$sel);
                      if($i>9)
                         $y=2;

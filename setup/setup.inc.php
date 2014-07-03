@@ -59,6 +59,8 @@ require_once(INCLUDE_DIR.'class.passwd.php');
 require_once(INCLUDE_DIR.'class.format.php');
 require_once(INCLUDE_DIR.'class.misc.php');
 require_once INCLUDE_DIR.'mysqli.php';
-require_once(INCLUDE_DIR.'gettext-conf.php');
+require_once INCLUDE_DIR.'class.i18n.php';
+
+Internationalization::bootstrap();
 
 ?>
