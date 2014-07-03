@@ -62,6 +62,9 @@ class i18n_Compiler extends Module {
         if (!$this->key && defined('CROWDIN_API_KEY'))
             $this->key = CROWDIN_API_KEY;
 
+        function get_osticket_root_path() { return ROOT_DIR; }
+        require_once(ROOT_DIR.'setup/test/tests/class.test.php');
+
         switch (strtolower($args['command'])) {
         case 'list':
             if (!$this->key)
@@ -124,14 +127,14 @@ class i18n_Compiler extends Module {
         @unlink(I18N_DIR."$lang.phar");
         $phar = new Phar(I18N_DIR."$lang.phar");
 
-        $mo_file = false;
+        $po_file = false;
 
         for ($i=0; $i<$zip->numFiles; $i++) {
             $info = $zip->statIndex($i);
             $contents = $zip->getFromIndex($i);
-            if (strpos($info['name'], '/messages.mo') !== false) {
-                $mo_file = $contents;
-                // Don't add the MO file as-is to the PHAR file
+            if (strpos($info['name'], '/messages.po') !== false) {
+                $po_file = $contents;
+                // Don't add the PO file as-is to the PHAR file
                 continue;
             }
             $phar->addFromString($info['name'], $contents);
@@ -170,25 +173,41 @@ class i18n_Compiler extends Module {
                 .": Unable to fetch jQuery UI Datepicker locale file\n");
 
         // Add in the messages.mo.php file
-        if ($mo_file) {
-            $mo_output = fopen('php://temp', 'r+b');
-            Translation::buildHashFile($mo_file, $mo_output);
-            rewind($mo_output);
-            $phar->addFile($mo_output, 'LC_MESSAGES/messages.mo.php');
+        if ($po_file) {
+            $pipes = array();
+            $msgfmt = proc_open('msgfmt -o- -',
+                array(0=>array('pipe','r'), 1=>array('pipe','w')),
+                $pipes);
+            if (is_resource($msgfmt)) {
+                fwrite($pipes[0], $po_file);
+                fclose($pipes[0]);
+                $mo_output = fopen('php://temp', 'r+b');
+                $mo_input = fopen('php://temp', 'r+b');
+                fwrite($mo_input, stream_get_contents($pipes[1]));
+                rewind($mo_input);
+                require_once INCLUDE_DIR . 'class.translation.php';
+                Translation::buildHashFile($mo_input, $mo_output);
+                rewind($mo_output);
+                $mo = stream_get_contents($mo_output);
+                $phar->addFromString('LC_MESSAGES/messages.mo.php', $mo);
+                fclose($mo_input);
+                fclose($mo_output);
+            }
         }
 
         // Add in translation of javascript strings
-        if ($mo_output && ($js = self::__getAllJsPhrases())) {
+        if ($mo && ($js = $this->__getAllJsPhrases())) {
             $mo = unserialize($mo);
             foreach ($js as $c) {
                 foreach ($c['forms'] as $f) {
                     $phrases[$f] = @$mo[$f] ?: $f;
                 }
             }
-            $phar->addFromStrings(
+            $phar->addFromString(
+                'js/osticket-strings.js',
                 sprintf('(function($){$.strings=%s;})(jQuery);',
-                    JsonDataEncoder::encode($phrases)),
-                'js/osticket-strings.js');
+                    JsonDataEncoder::encode($phrases))
+            );
         }
 
         // TODO: Sign files
@@ -391,8 +410,6 @@ class i18n_Compiler extends Module {
     function _make_pot() {
         error_reporting(E_ALL);
         $funcs = array('__'=>1, '_S'=>1, '_N'=>2, '_SN'=>2);
-        function get_osticket_root_path() { return ROOT_DIR; }
-        require_once(ROOT_DIR.'setup/test/tests/class.test.php');
         $files = Test::getAllScripts();
         $strings = array();
         foreach ($files as $f) {
@@ -403,11 +420,12 @@ class i18n_Compiler extends Module {
                 self::__addString($strings, $call, $F);
             }
         }
+        $strings = array_merge($strings, $this->__getAllJsPhrases());
         $this->__write_pot($strings);
     }
 
     static function __addString(&$strings, $call, $file=false) {
-        if (!($forms = $call['forms']))
+        if (!($forms = @$call['forms']))
             // Transation of non-constant
             return;
         $primary = $forms[0];
@@ -424,12 +442,11 @@ class i18n_Compiler extends Module {
             $E['flags'] = array_unique(array_merge(@$E['flags'] ?: array(), $call['flags']));
         if (isset($call['comments']))
             $E['comments'] = array_merge(@$E['comments'] ?: array(), $call['comments']);
-
-        $strings = array_merge($strings, self::__getAllJsPhrases());
     }
 
     function __getAllJsPhrases() {
         $strings = array();
+        $funcs = array('__'=>1);
         foreach (glob_recursive(ROOT_DIR . "*.js") as $s) {
             $script = file_get_contents($s);
             $s = str_replace(ROOT_DIR, '', $s);
