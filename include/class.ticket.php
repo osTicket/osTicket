@@ -1277,10 +1277,10 @@ class Ticket {
 
                 return $duedate;
                 break;
-            case 'close_date';
+            case 'close_date':
                 $closedate ='';
                 if($this->isClosed())
-                    $duedate = Format::date(
+                    $closedate = Format::date(
                             $cfg->getDateTimeFormat(),
                             Misc::db2gmtime($this->getCloseDate()),
                             $cfg->getTZOffset(),
