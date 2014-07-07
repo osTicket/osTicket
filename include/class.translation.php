@@ -698,7 +698,7 @@ class TextDomain {
         $this->path = $path;
     }
 
-    static function configureForUser($user) {
+    static function configureForUser($user=false) {
         if ($user && method_exists($user, 'getLanguage'))
             $lang = $user->getLanguage();
         else

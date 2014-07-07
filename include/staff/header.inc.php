@@ -55,7 +55,7 @@
     ?>
     <div id="header">
         <a href="index.php" class="no-pjax" id="logo">osTicket &mdash; <?php echo __('Customer Support System'); ?></a>
-        <p id="info"><?php echo sprintf(__('Welcome, %s'), '<strong>'.$thisstaff->getFirstName().'</strong>.'); ?>
+        <p id="info"><?php echo sprintf(__('Welcome, %s.'), '<strong>'.$thisstaff->getFirstName().'</strong>'); ?>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
             | <a href="admin.php" class="no-pjax"><?php echo __('Admin Panel'); ?></a>
