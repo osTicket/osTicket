@@ -618,23 +618,52 @@ class TicketStatusList extends BuiltInCustomList {
     }
 
     function getNumItems() {
-        return 0;
+        return TicketStatus::objects()->count();
     }
 
     function getAllItems() {
-
+         return TicketStatus::objects()->order_by($this->getListOrderBy());
     }
 
     function getItems($criteria) {
 
+        if (!$this->_items) {
+            $this->_items = TicketStatus::objects()->filter(
+                array('flags__hasbit' => TicketStatus::ENABLED))
+                ->order_by($this->getListOrderBy());
+            if ($criteria['limit'])
+                $this->_items->limit($criteria['limit']);
+            if ($criteria['offset'])
+                $this->_items->offset($criteria['offset']);
+        }
+
+        return $this->_items;
     }
 
+    function getItem($id) {
+         return TicketStatus::lookup($id);
+    }
+
+    function addItem($vars, &$errors) {
+        $item = TicketStatus::create(array(
+            'flags' => 0, //Disable  until configured.
+            'sort'  => $vars['sort'],
+            'name' => $vars['value'],
+        ));
+        $item->save();
+
+        $this->_items = false;
+
+        return $item;
+    }
+
+
     function hasProperties() {
-        return true;
+        return ($this->getForm());
     }
 
     function getListOrderBy() {
-        switch ($this->setSortMode()) {
+        switch ($this->getSortMode()) {
             case 'Alpha':
                 return 'name';
             case '-Alpha':
@@ -645,20 +674,304 @@ class TicketStatusList extends BuiltInCustomList {
         }
     }
 
-    function getForm() {
-       return null;
-    }
-
     function update($vars, &$errors) {
 
         foreach (static::$config_fields as $f) {
             if (!isset($vars[$f])) continue;
 
             if (parent::set($f, $vars[$f]))
-                $this->ht[$field] = $vars[$f];
+                $this->ht[$f] = $vars[$f];
         }
 
         return true;
     }
+
+    function getForm() {
+
+        if (!isset($this->_form)) {
+            $o = DynamicForm::objects()->filter(array('type'=>'S'));
+            if ($o && $o[0])
+                $this->_form =  $o[0];
+            else // Auto-load the data
+                $this->_form = self::__load();
+        }
+
+        return $this->_form;
+    }
+
+
+    static function __load() {
+        require_once(INCLUDE_DIR.'class.i18n.php');
+
+        $i18n = new Internationalization();
+        $tpl = $i18n->getTemplate('form.yaml');
+        foreach ($tpl->getData() as $f) {
+            if ($f['type'] == 'S') {
+                $form = DynamicForm::create($f);
+                $form->save();
+                break;
+            }
+        }
+
+        $o = DynamicForm::objects()->filter(array('type'=>'S'));
+        if (!$form || !$o)
+            return false;
+
+        // Create default statuses
+        if (($statuses = $i18n->getTemplate('ticket_status.yaml')->getData()))
+            foreach ($statuses as $status)
+                TicketStatus::__create($status);
+
+        return $o[0];
+    }
 }
+
+class TicketStatus  extends VerySimpleModel implements CustomListItem {
+
+    static $meta = array(
+        'table' => TICKET_STATUS_TABLE,
+        'ordering' => array('name'),
+        'pk' => array('id'),
+    );
+
+    // Major statuses (states)
+    static $_states = array( 1 => 'open', 'closed', 'archived', 'deleted');
+
+    // Supported flags (TODO: move to configurable custom list)
+    static $_flags = array(
+            'onhold' => array(
+                'flag' => 1,
+                'name' => 'Onhold',
+                'states' => array('open'),
+                ),
+            'overdue' => array(
+                'flag' => 2,
+                'name' => 'Overdue',
+                'states' => array('open'),
+                ),
+            'answered' => array(
+                'flag' => 4,
+                'name' => 'Answered',
+                'states' => array('open'),
+                )
+            );
+
+    var $_form;
+    var $_config;
+    var $_settings;
+
+
+    const ENABLED = 0x0001;
+    const INTERNAL = 0x0002; // Forbid deletion or name and status change.
+
+
+
+    function __construct() {
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+        $this->_config = new Config('TS.'.$this->getId());
+    }
+
+    protected function hasFlag($field, $flag) {
+        return 0 !== ($this->get($field) & $flag);
+    }
+
+    protected function clearFlag($field, $flag) {
+        return $this->set($field, $this->get($field) & ~$flag);
+    }
+
+    protected function setFlag($field, $flag) {
+        return $this->set($field, $this->get($field) | $flag);
+    }
+
+    function getForm() {
+        return $this->getConfigurationForm();
+    }
+
+    function getConfigurationForm() {
+
+        if (!$this->_form) {
+            $this->_form = DynamicForm::lookup(array('type'=>'S'));
+        }
+
+        return $this->_form;
+    }
+
+    function isEnabled() {
+        return $this->hasFlag('mode', self::ENABLED);
+    }
+
+    function enable() {
+
+        // Ticket status without properties cannot be enabled!
+        if (!$this->isEnableable())
+            return false;
+
+        return $this->setFlag('mode', self::ENABLED);
+    }
+
+    function disable() {
+        return (!$this->isInternal()
+                && $this->clearFlag('mode', self::ENABLED));
+    }
+
+    function isEnableable() {
+        return ($this->getForm());
+    }
+
+    function isDeletable() {
+        return !$this->isInternal();
+    }
+
+    function isInternal() {
+        return ($this->hasFlag('mode', self::INTERNAL));
+    }
+
+    function getId() {
+        return $this->get('id');
+    }
+
+    function getName() {
+        return $this->get('name');
+    }
+
+    function getValue() {
+        return $this->getName();
+    }
+
+    function getAbbrev() {
+        return '';
+    }
+
+    function getSortOrder() {
+        return $this->get('sort');
+    }
+
+    function getConfiguration() {
+
+        if (!$this->_settings) {
+             $this->_settings = $this->_config->get('properties');
+             if (is_string($this->_settings))
+                 $this->_settings = JsonDataParser::parse($this->_settings);
+             elseif (!$this->_settings)
+                 $this->_settings = array();
+
+            if ($this->getConfigurationForm()) {
+                foreach ($this->getConfigurationForm()->getFields() as $f)  {
+                    $name = mb_strtolower($f->get('name'));
+                    $id = $f->get('id');
+                    switch($name) {
+                        case 'flags':
+                            foreach (static::$_flags as $k => $v)
+                                if ($this->hasFlag('flags', $v['flag']))
+                                    $this->_settings[$id][] = $k;
+                            break;
+                        case 'state':
+                            $this->_settings[$id] = $this->get('state');
+                            break;
+                        default:
+                            if (!$this->_settings[$id] && $this->_settings[$name])
+                                $this->_settings[$id] = $this->_settings[$name];
+                    }
+                }
+            }
+        }
+
+        return $this->_settings;
+    }
+
+    function setConfiguration(&$errors=array()) {
+        $properties = array();
+        foreach ($this->getConfigurationForm()->getFields() as $f) {
+            $val = $f->to_database($f->getClean());
+            $name = mb_strtolower($f->get('name'));
+            switch ($name) {
+                case 'flags':
+                    $val = $f->getClean();
+                    if ($val && is_array($val)) {
+                        $flags = 0;
+                        foreach ($val as $v) {
+                            if (isset(static::$_flags[$v]))
+                                $flags += static::$_flags[$v]['flag'];
+                            elseif (!$f->errors())
+                                $f->addError('Unknown or invalid flag', $name);
+                        }
+                        $this->set('flags', $flags);
+                    } elseif ($val && !$f->errors()) {
+                        $f->addError('Unknown or invalid flag format', $name);
+                    }
+                    break;
+                case 'state':
+                    if ($val && in_array($val, static::$_states))
+                        $this->set('state', $val);
+                    else
+                        $f->addError('Unknown or invalid state', $name);
+                    break;
+                default: //Custom properties the user might add.
+                    $properties[$f->get('id')] = $val;
+            }
+            $errors = array_merge($errors, $f->errors());
+        }
+
+        if (count($errors) === 0) {
+            $this->save(true);
+            $this->setProperties($properties);
+        }
+
+        return count($errors) === 0;
+    }
+
+    function setProperties($properties) {
+        if ($properties && is_array($properties))
+            $properties = JsonDataEncoder::encode($properties);
+
+        $this->_config->set('properties', $properties);
+    }
+
+    function update($vars, &$errors) {
+
+        $fields = array('value' => 'name', 'sort' => 'sort');
+        foreach($fields as $k => $v) {
+            if (isset($vars[$k]))
+                $this->set($v, $vars[$k]);
+        }
+
+        return $this->save(true);
+    }
+
+    function delete() {
+
+        if (!$this->isDeletable())
+            return false;
+
+        // TODO: Delete and do house cleaning (move tickets..etc)
+
+    }
+
+    function toString() {
+        return $this->getValue();
+    }
+
+    function __toString() {
+        return $this->toString();
+    }
+
+    static function __create($ht, &$error=false) {
+        global $ost;
+
+        $properties = JsonDataEncoder::encode($ht['properties']);
+        unset($ht['properties']);
+        $ht['created'] = new SqlFunction('NOW');
+        if ($status = TicketStatus::create($ht)) {
+            $status->save(true);
+            $status->_config = new Config('TS.'.$status->getId());
+            $status->_config->set('properties', $properties);
+        }
+
+        return $status;
+    }
+}
+
+
+
+
 ?>

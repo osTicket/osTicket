@@ -57,6 +57,8 @@ class Internationalization {
             'team.yaml' =>          'Team::create',
             // Organization
             'organization.yaml' =>  'Organization::__create',
+            // Ticket
+            'ticket_status.yaml' =>  'TicketStatus::__create',
             // Note that group requires department
             'group.yaml' =>         'Group::create',
             'file.yaml' =>          'AttachmentFile::create',

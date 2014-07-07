@@ -650,6 +650,22 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   KEY `ticket_stats` (`timestamp`, `state`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_status`;
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL DEFAULT '',
+  `state` varchar(16) NOT NULL DEFAULT 'open',
+  `mode` int(11) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `sort` int(11) unsigned NOT NULL DEFAULT '0',
+  `notes` text NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_priority`;
 CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
   `priority_id` tinyint(4) NOT NULL auto_increment,
