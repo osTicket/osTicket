@@ -306,6 +306,10 @@ class FormField {
         return (string) $value;
     }
 
+    function __toString() {
+        return $this->toString($this->value);
+    }
+
     /**
      * Returns an HTML friendly value for the data in the field.
      */
@@ -729,23 +733,57 @@ class ChoiceField extends FormField {
                 'hint'=>'Leading text shown before a value is selected',
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
+            'multiselect' => new BooleanField(array(
+                'id'=>1, 'label'=>'Multiselect', 'required'=>false, 'default'=>false,
+                'configuration'=>array(
+                    'desc'=>'Allow multiple selections')
+            )),
         );
     }
 
     function parse($value) {
-        if (is_numeric($value))
-            return $value;
-        foreach ($this->getChoices() as $k=>$v)
-            if (strcasecmp($value, $k) === 0)
-                return $k;
+
+        if (!$value) return null;
+
+        // Assume multiselect
+        $values = array();
+        $choices = $this->getChoices();
+        if (is_array($value)) {
+            foreach($value as $k => $v)
+                if (isset($choices[$v]))
+                    $values[] = $v;
+        } elseif(isset($choices[$value])) {
+            $values[] = $value;
+        }
+
+        return $values ?: null;
+    }
+
+    function to_database($value) {
+        if ($value && is_array($value))
+            $value = implode(',', $value);
+
+        return $value;
+    }
+
+    function to_php($value) {
+        return $value ? explode(',', $value) : $value;
     }
 
     function toString($value) {
+
         $choices = $this->getChoices();
-        if (isset($choices[$value]))
-            return $choices[$value];
-        else
-            return $choices[$this->get('default')];
+        $selection = array();
+        if ($value && is_array($value)) {
+            foreach ($value as $v)
+                if (isset($choices[$v]))
+                    $selection[] = $choices[$v];
+        } elseif (isset($choices[$value]))
+            $selection[] = $choices[$value];
+        elseif ($this->get('default'))
+            $selection[] = $choices[$this->get('default')];
+
+        return $selection ? implode(', ', array_filter($selection)) : '';
     }
 
     function getChoices() {
@@ -1075,28 +1113,37 @@ class ChoicesWidget extends Widget {
         // Determine the value for the default (the one listed if nothing is
         // selected)
         $choices = $this->field->getChoices();
-        // We don't consider the 'default' when rendering in 'search' mode
+        $prompt = $config['prompt'] ?: 'Select';
+
         $have_def = false;
-        if ($mode != 'search') {
+        // We don't consider the 'default' when rendering in 'search' mode
+        if (!strcasecmp($mode, 'search')) {
+            $def_val = $prompt;
+        } else {
             $def_key = $this->field->get('default');
             if (!$def_key && $config['default'])
                 $def_key = $config['default'];
             $have_def = isset($choices[$def_key]);
-            if (!$have_def)
-                $def_val = ($config['prompt'])
-                   ? $config['prompt'] : 'Select';
-            else
-                $def_val = $choices[$def_key];
-        } else {
-            $def_val = ($config['prompt'])
-                ? $config['prompt'] : 'Select';
+            $def_val = $have_def ? $choices[$def_key] : $prompt;
         }
         $value = $this->value;
         if ($value === null && $have_def)
             $value = $def_key;
-        ?> <span style="display:inline-block">
-        <select name="<?php echo $this->name; ?>">
-            <?php if (!$have_def) { ?>
+
+        if ($value && is_array($value))
+            $values = $value;
+        elseif ($value !== null) // Assume multiselect (comma delimited values)
+            $values = explode(',', $value);
+        else
+            $values = array();
+        ?>
+        <span style="display:inline-block">
+        <select name="<?php echo $this->name; ?>[]"
+            id="<?php echo $this->name; ?>"
+            data-prompt="<?php echo $prompt; ?>"
+            <?php if ($config['multiselect'])
+                echo ' multiple="multiple" class="multiselect"'; ?>>
+            <?php if (!$have_def && !$config['multiselect']) { ?>
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
             <?php }
@@ -1104,12 +1151,24 @@ class ChoicesWidget extends Widget {
                 if (!$have_def && $key == $def_key)
                     continue; ?>
                 <option value="<?php echo $key; ?>" <?php
-                    if ($value == $key) echo 'selected="selected"';
+                    if (in_array($key, $values)) echo 'selected="selected"';
                 ?>><?php echo $name; ?></option>
             <?php } ?>
         </select>
         </span>
         <?php
+        if ($config['multiselect']) {
+         ?>
+        <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.min.js"></script>
+        <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
+        <script type="text/javascript">
+        $(function() {
+            $("#<?php echo $this->name; ?>")
+            .multiselect({'noneSelectedText':'<?php echo $prompt; ?>'});
+        });
+        </script>
+       <?php
+        }
     }
 }
 
