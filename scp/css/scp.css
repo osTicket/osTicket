@@ -144,10 +144,13 @@ div#header a {
     border-bottom:1px solid #c5d9ec;
 }
 
-#nav .active a, #nav .inactive {
+#nav .active, #nav .inactive {
     display:block;
     float:left;
-    width:115px;
+    min-width:95px;
+    width: auto;
+    padding-left: 10px;
+    padding-right: 10px;
     height:26px;
     color:#555;
     text-align:center;
@@ -163,8 +166,26 @@ div#header a {
 }
 
 #nav .active a {
-    background:url(../images/tab-bg.png) top left no-repeat;
     color:#004a80;
+}
+
+#nav li.inactive {
+    /* Make room for hidden border */
+    margin: 1px 1px 0 1px;
+}
+#nav li.active, #nav li.inactive:hover {
+    border-radius:5px 5px 0 0;
+    box-shadow: 4px -3px 6px -4px rgba(0,0,0,0.3);
+    border-color: #c5d9ec;
+    border-style: solid;
+    border-width: 1px 1px 0 1px;
+    margin: 0;
+}
+#nav li.active {
+    background-color: #f7f7f7;
+}
+#nav li.inactive:hover {
+    background-color: #fbfbfb;
 }
 
 #nav .inactive ul {
@@ -173,11 +194,13 @@ div#header a {
     background:#fbfbfb;
     margin:0;
     padding:0;
-    position:relative;
+    position:absolute;
+    left: -1px;
     z-index:500;
     border-bottom:1px solid #ccc;
     border-left:1px solid #ccc;
     border-right:1px solid #ccc;
+    border-radius: 0 0 5px 5px;
 }
 
 #nav .inactive li {
@@ -188,15 +211,13 @@ div#header a {
     text-align:left;
 }
 
-#nav .inactive:hover {
-    background:url(../images/tab-bg.png) bottom left no-repeat;
-}
-
 #nav .inactive:hover ul {
     display:block;
+    padding-left: 5px;
     -moz-box-shadow: 3px 3px 3px #ccc;
     -webkit-box-shadow: 3px 3px 3px #ccc;
     box-shadow: 3px 3px 3px #ccc;
+    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.25);
 }
 
 .ieshadow {
@@ -211,16 +232,11 @@ div#header a {
     left:0;
 }
 
-#nav .inactive li {
-    background:#fbfbfb;
-}
-
 #nav .inactive li a {
     padding-left:24px;
     background-position:0 50%;
     background-repeat:no-repeat;
     font-weight:normal;
-    background-color:#fbfbfb;
 }
 
 #nav .inactive li a:hover {
