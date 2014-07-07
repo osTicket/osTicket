@@ -537,31 +537,39 @@ class Translation extends gettext_reader {
     const META_HEADER = 0;
 
     function __construct($reader, $charset=false) {
-        if (!$reader || $reader->error)
-            return parent::__construct($reader);
+        if (!$reader)
+            return $this->short_circuit = true;
 
         // Just load the cache
+        if (!is_string($reader))
+            throw new RuntimeException('Programming Error: Expected filename for translation source');
         $this->STREAM = $reader;
+
         $this->enable_cache = true;
         $this->charset = $charset;
         $this->encode = $charset && strcasecmp($charset, 'utf-8') !== 0;
+        $this->load_tables();
     }
 
     function load_tables() {
-        if (is_array($this->cache_translations))
+        if (isset($this->cache_translations))
             return;
 
-        $this->STREAM->seekto(0);
-        $this->cache_translations =
-            unserialize($this->STREAM->read($this->STREAM->length()));
+        $this->cache_translations = (include $this->STREAM);
     }
 
     function translate($string) {
-        $translation = parent::translate($string);
+        if ($this->short_circuit)
+            return $string;
+
+        // Caching enabled, get translated string from cache
+        if (isset($this->cache_translations[$string]))
+            $string = $this->cache_translations[$string];
+
         if (!$this->encode)
-            return $translation;
-        else
-            return Format::encode($translation, 'utf-8', $this->charset);
+            return $string;
+
+        return Format::encode($string, 'utf-8', $this->charset);
     }
 
     static function buildHashFile($mofile, $outfile=false) {
@@ -629,7 +637,7 @@ class Translation extends gettext_reader {
         );
 
         // Serialize the PHP array and write to output
-        fwrite($stream, serialize($table));
+        fwrite($stream, sprintf('<?php return %s;', var_export($table, true)));
     }
 }
 
@@ -677,14 +685,14 @@ class TextDomain {
             $locale_names = self::get_list_of_locales($locale);
             $input = null;
             foreach ($locale_names as $locale) {
-                $full_path = $bound_path . $locale . "/" . $subpath;
-                if (file_exists($full_path)) {
-                    $input = new FileReader($full_path);
-                    break;
-                }
                 $phar_path = 'phar://' . $bound_path . $locale . ".phar/" . $subpath;
                 if (file_exists($phar_path)) {
-                    $input = new FileReader($phar_path);
+                    $input = $phar_path;
+                    break;
+                }
+                $full_path = $bound_path . $locale . "/" . $subpath;
+                if (file_exists($full_path)) {
+                    $input = $full_path;
                     break;
                 }
             }
@@ -760,27 +768,27 @@ class TextDomain {
 
     static function setLocale($category, $locale) {
         if ($locale === 0) { // use === to differentiate between string "0"
-            if (static::$current_locale != '')
-                return static::$current_locale;
+            if (self::$current_locale != '')
+                return self::$current_locale;
             else
                 // obey LANG variable, maybe extend to support all of LC_* vars
                 // even if we tried to read locale without setting it first
-                return self::setLocale($category, static::$current_locale);
+                return self::setLocale($category, self::$current_locale);
         } else {
             if (function_exists('setlocale')) {
               $ret = setlocale($category, $locale);
               if (($locale == '' and !$ret) or // failed setting it by env
                   ($locale != '' and $ret != $locale)) { // failed setting it
                 // Failed setting it according to environment.
-                static::$current_locale = self::get_default_locale($locale);
+                self::$current_locale = self::get_default_locale($locale);
               } else {
-                static::$current_locale = $ret;
+                self::$current_locale = $ret;
               }
             } else {
               // No function setlocale(), emulate it all.
-              static::$current_locale = self::get_default_locale($locale);
+              self::$current_locale = self::get_default_locale($locale);
             }
-            return static::$current_locale;
+            return self::$current_locale;
         }
     }
 
