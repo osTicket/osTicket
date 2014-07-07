@@ -40,12 +40,12 @@ if($ticket->isOverdue())
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
-        <td width="50%" class="has_bottom_border">
+        <td width="20%" class="has_bottom_border">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
              <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a></h2>
         </td>
-        <td width="50%" class="right_align has_bottom_border">
+        <td width="auto" class="right_align has_bottom_border">
             <?php
             if ($thisstaff->canBanEmails()
                     || $thisstaff->canEditTickets()

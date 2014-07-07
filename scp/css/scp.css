@@ -915,7 +915,7 @@ ul.tabs li {
 }
 
 ul.tabs li a {
-    width:130px;
+    min-width:130px;
     font-weight:bold;
     padding:5px;
     height:18px;

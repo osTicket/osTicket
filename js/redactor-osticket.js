@@ -259,7 +259,8 @@ $(function() {
             options.draftDelete = el.hasClass('draft-delete');
         }
         getConfig().then(function(c) {
-            if (c.lang && c.lang.toLowerCase() != 'en_us')
+            if (c.lang && c.lang.toLowerCase() != 'en_us' &&
+                    $.Redactor.opts.langs[c.lang.toLowerCase()])
                 options['lang'] = c.lang.toLowerCase();
             el.redactor(options);
         });
