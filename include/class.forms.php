@@ -1016,7 +1016,7 @@ class Widget {
 class TextboxWidget extends Widget {
     static $input_type = 'text';
 
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         if (isset($config['size']))
             $size = "size=\"{$config['size']}\"";
@@ -1056,7 +1056,7 @@ class PasswordWidget extends TextboxWidget {
 }
 
 class TextareaWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         $class = $cols = $rows = $maxlength = "";
         if (isset($config['rows']))
@@ -1080,7 +1080,7 @@ class TextareaWidget extends Widget {
 }
 
 class PhoneNumberWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
@@ -1109,6 +1109,15 @@ class PhoneNumberWidget extends Widget {
 
 class ChoicesWidget extends Widget {
     function render($mode=false) {
+
+        if ($mode && $mode =='view') {
+            if (!($val = (string) $this->field))
+                $val = '<span class="faded">None</span>';
+
+            echo $val;
+            return;
+        }
+
         $config = $this->field->getConfiguration();
         // Determine the value for the default (the one listed if nothing is
         // selected)
@@ -1178,7 +1187,7 @@ class CheckboxWidget extends Widget {
         $this->name = '_field-checkboxes';
     }
 
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
@@ -1202,7 +1211,7 @@ class CheckboxWidget extends Widget {
 }
 
 class DatetimePickerWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         global $cfg;
 
         $config = $this->field->getConfiguration();
@@ -1272,7 +1281,7 @@ class DatetimePickerWidget extends Widget {
 }
 
 class SectionBreakWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         ?><div class="form-header section-break"><h3><?php
         echo Format::htmlchars($this->field->get('label'));
         ?></h3><em><?php echo Format::htmlchars($this->field->get('hint'));

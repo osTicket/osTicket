@@ -33,16 +33,20 @@
             </td><td>
             <span style="display:inline-block;width:100%">
             <?php
-            $f->render();
-            if ($f->get('required')) { ?>
-                <font class="error">*</font>
-            <?php
-            }
-            if ($f->get('hint')) { ?>
-                <br /><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($f->get('hint')); ?></em>
-            <?php
-            }
+                if ($item->isInternal() && $f->isConfigurable())
+                    $f->render('view');
+                else {
+                    $f->render();
+                    if ($f->get('required')) { ?>
+                        <font class="error">*</font>
+                    <?php
+                    }
+                    if ($f->get('hint')) { ?>
+                        <br /><em style="color:gray;display:inline-block"><?php
+                            echo Format::htmlchars($f->get('hint')); ?></em>
+                    <?php
+                    }
+                }
             ?>
             </span>
             <?php
