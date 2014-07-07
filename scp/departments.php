@@ -42,7 +42,7 @@ if($_POST){
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
                 $errors['err'] = __('You must select at least one department');
             }elseif(in_array($cfg->getDefaultDeptId(),$_POST['ids'])) {
-                $errors['err'] = __('You can not disable/delete a default department. Remove default Dept. and try again.');
+                $errors['err'] = __('You can not disable/delete a default department. Select a new default department and try again.');
             }else{
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {

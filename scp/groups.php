@@ -42,7 +42,7 @@ if($_POST){
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
                 $errors['err'] = __('You must select at least one group.');
             } elseif(in_array($thisstaff->getGroupId(), $_POST['ids'])) {
-                $errors['err'] = __("As an admin, you can't disable/delete a group you belong to - you might lockout all admins!");
+                $errors['err'] = __("As an admin, you cannot disable/delete a group you belong to - you might lockout all admins!");
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {

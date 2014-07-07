@@ -148,7 +148,7 @@ class i18n_Compiler extends Module {
         list($code, $js) = $this->_http_get(
             'http://imperavi.com/webdownload/redactor/lang/?lang='
             .strtolower($lang));
-        if ($code == 200)
+        if ($code == 200 && ($js != 'File not found'))
             $phar->addFromString('js/redactor.js', $js);
         else
             $this->stderr->write("Unable to fetch Redactor language file\n");

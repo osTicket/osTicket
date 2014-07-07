@@ -142,8 +142,8 @@ class StaffNav {
                     $subnav[]=array('desc'=>__('My Profile'),'href'=>'profile.php','iconclass'=>'users');
                     break;
                 case 'users':
-                    $subnav[] = array('desc' => 'User Directory', 'href' => 'users.php', 'iconclass' => 'teams');
-                    $subnav[] = array('desc' => 'Organizations', 'href' => 'orgs.php', 'iconclass' => 'departments');
+                    $subnav[] = array('desc' => __('User Directory'), 'href' => 'users.php', 'iconclass' => 'teams');
+                    $subnav[] = array('desc' => __('Organizations'), 'href' => 'orgs.php', 'iconclass' => 'departments');
                     break;
                 case 'kbase':
                     $subnav[]=array('desc'=>__('FAQs'),'href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');

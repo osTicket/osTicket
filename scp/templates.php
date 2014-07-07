@@ -103,9 +103,9 @@ if($_POST){
                         if($i && $i==$count)
                             $msg = __('Selected templates disabled');
                         elseif($i)
-                            $warn = sprintf(__('%1$d of %2$d selected templates disabled (in-use templates can\'t be disabled)'), $i, $count);
+                            $warn = sprintf(__('%1$d of %2$d selected template sets disabled (in-use templates cannot be disabled)'), $i, $count);
                         else
-                            $errors['err'] = __("Unable to disable selected templates (in-use or default template can't be disabled)");
+                            $errors['err'] = __("Unable to disable selected template sets (in-use or default template cannot be disabled)");
                         break;
                     case 'delete':
                         $i=0;

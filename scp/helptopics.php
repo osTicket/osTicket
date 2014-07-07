@@ -105,10 +105,10 @@ if($_POST){
                                         $t->setSortOrder($v);
                                 }
                             }
-                            $msg = 'Successfully set sorting configuration';
+                            $msg = __('Successfully set sorting configuration');
                         }
                         catch (Exception $ex) {
-                            $errors['err'] = 'Unable to set sorting mode';
+                            $errors['err'] = __('Unable to set sorting mode');
                         }
                         break;
                     default:
