@@ -448,6 +448,14 @@ class DynamicFormField extends VerySimpleModel {
         return $this->get('edit_mask') & 8;
     }
 
+    function  isChangeable() {
+        return ($this->get('edit_mask') & 16) == 0;
+    }
+
+    function  isConfigurable() {
+        return ($this->get('edit_mask') & 32) == 0;
+    }
+
     /**
      * Used when updating the form via the admin panel. This represents
      * validation on the form field template, not data entered into a form

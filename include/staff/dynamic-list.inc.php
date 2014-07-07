@@ -22,7 +22,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2>Custom List: <?php echo $list->getName(); ?></h2>
+    <h2>Custom List: <?php echo $list ? $list->getName() : 'Add new list'; ?></h2>
 
 <ul class="tabs">
     <li><a href="#definition" class="active">
@@ -48,8 +48,8 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td width="180" class="required">Name:</td>
             <td>
                 <?php
-                if ($list->isBuiltIn())
-                    echo $info['name'];
+                if ($list && $list->isBuiltIn())
+                    echo $list->getName();
                 else {
                     echo sprintf('<input size="50" type="text" name="name"
                             value="%s"/> <span
@@ -63,8 +63,8 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td width="180">Plural Name:</td>
             <td>
                 <?php
-                    if ($list->isBuiltIn())
-                        echo $info['name_plural'];
+                    if ($list && $list->isBuiltIn())
+                        echo $list->getPluralName();
                     else
                         echo sprintf('<input size="50" type="text"
                                 name="name_plural" value="%s"/>',
@@ -75,7 +75,9 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         <tr>
             <td width="180">Sort Order:</td>
             <td><select name="sort_mode">
-                <?php foreach ($list->getSortModes() as $key=>$desc) { ?>
+                <?php
+                $sortModes = $list ? $list->getSortModes() : DynamicList::getSortModes();
+                foreach ($sortModes as $key=>$desc) { ?>
                 <option value="<?php echo $key; ?>" <?php
                     if ($key == $info['sort_mode']) echo 'selected="selected"';
                     ?>><?php echo $desc; ?></option>
@@ -115,7 +117,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="prop-sort-">
-    <?php if ($form) foreach ($form->getDynamicFields() as $f) {
+    <?php if ($list && $form=$list->getForm()) foreach ($form->getDynamicFields() as $f) {
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
@@ -129,7 +131,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
             <td nowrap><select name="type-<?php echo $id; ?>" <?php
-                if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
+                if (!$fi->isChangeable() || !$f->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
                         ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
                         foreach ($types as $type=>$nfo) {
@@ -148,6 +150,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                         echo $f->get('id'); ?>"
                     onclick="javascript:
                         $('#overlay').show();
+                        $('#field-config .body').html('Loading...');
                         $('#field-config .body').load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
@@ -161,8 +164,13 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     if ($ferrors['name']) echo '<br/>'; echo $ferrors['name'];
                 ?></font>
                 </td>
-            <td><input type="checkbox" name="delete-<?php echo $id; ?>"
-                    <?php echo $deletable; ?>/>
+            <td>
+                <?php
+                if (!$f->isDeletable())
+                    echo '<i class="icon-ban-circle"></i>';
+                else
+                    echo sprintf('<input type="checkbox" name="delete-prop-%s">', $id);
+                ?>
                 <input type="hidden" name="prop-sort-<?php echo $id; ?>"
                     value="<?php echo $f->get('sort'); ?>"/>
                 </td>
@@ -220,7 +228,11 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         <tr>
             <th></th>
             <th>Value</th>
+            <?php
+            if (!$list || !$list->isBuiltIn()) { ?>
             <th>Abbrev <em style="display:inline">&mdash; Abbreviations and such</em></th>
+            <?php
+            } ?>
             <th>Disabled</th>
             <th>Delete</th>
         </tr>
@@ -242,22 +254,51 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 value="<?php echo $i->getValue(); ?>"/>
                 <?php if ($list->hasProperties()) { ?>
                 <a class="action-button" style="float:none;overflow:inherit"
-                    href="#ajax.php/list/item/<?php
-                        echo $id ?>/properties"
+                    href="#ajax.php/list/<?php
+                        echo $list->getId(); ?>/item/<?php echo $id ?>/properties"
                     onclick="javascript:
                         $('#overlay').show();
+                        $('#field-config .body').html('Loading...');
                         $('#field-config .body').load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
                     "><i class="icon-edit"></i> Properties</a>
-                <?php } ?></td>
+                <?php
+                }
+
+                if ($errors["value-$id"])
+                    echo sprintf('<br><span class="error">%s</span>',
+                            $errors["value-$id"]);
+                ?>
+            </td>
+            <?php
+            if (!$list->isBuiltIn()) { ?>
             <td><input type="text" size="30" name="abbrev-<?php echo $id; ?>"
                 value="<?php echo $i->getAbbrev(); ?>"/></td>
+            <?php
+            } ?>
             <td>
-                <input type="checkbox" name="disable-<?php echo $id; ?>" <?php
-                if (!$i->isEnabled()) echo 'checked="checked"'; ?>/></td>
+                <?php
+                if ($i->isInternal())
+                     echo '<i class="icon-ban-circle"></i>';
+                else
+                    echo sprintf('<input type="checkbox" name="disable-%s"
+                            %s %s />',
+                            $id,
+                            !$i->isEnabled() ? ' checked="checked" ' : '',
+                            (!$i->isEnabled() && !$i->isEnableable()) ? ' disabled="disabled" ' : ''
+                            );
+                ?>
+            </td>
             <td>
-                <input type="checkbox" name="delete-<?php echo $id; ?>"/></td>
+                <?php
+                if (!$i->isDeletable())
+                    echo '<i class="icon-ban-circle"></i>';
+                else
+                    echo sprintf('<input type="checkbox" name="delete-item-%s">', $id);
+
+                ?>
+            </td>
         </tr>
     <?php }
     }
@@ -266,9 +307,13 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td><?php echo $icon; ?> <em>+</em>
                 <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
             <td><input type="text" size="40" name="value-new-<?php echo $i; ?>"/></td>
+            <?php
+            if (!$list || !$list->isBuiltIn()) { ?>
             <td><input type="text" size="30" name="abbrev-new-<?php echo $i; ?>"/></td>
-            <td></td>
-            <td></td>
+            <?php
+            } ?>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
         </tr>
     <?php } ?>
     </tbody>

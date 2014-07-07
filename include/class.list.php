@@ -36,10 +36,14 @@ interface CustomList {
     function getAllItems();
     function getItems($criteria);
 
+    function getItem($id);
+    function addItem($vars, &$errors);
+
     function getForm(); // Config form
     function hasProperties();
 
     function getSortModes();
+    function getSortMode();
     function getListOrderBy();
 
     function isBuiltIn();
@@ -48,7 +52,34 @@ interface CustomList {
     function delete();
 
     static function create($vars, &$errors);
+    static function lookup($id);
 }
+
+/*
+ * Custom list item interface
+ */
+interface CustomListItem {
+    function getId();
+    function getValue();
+    function getAbbrev();
+    function getSortOrder();
+
+    function getConfiguration();
+    function getConfigurationForm();
+
+
+    function isEnabled();
+    function isDeletable();
+    function isEnableable();
+    function isInternal();
+
+    function enable();
+    function disable();
+
+    function update($vars, &$errors);
+    function delete();
+}
+
 
 /*
  * Base class for Built-in Custom Lists
@@ -81,10 +112,14 @@ abstract class BuiltInCustomList implements CustomList {
     abstract function getAllItems();
     abstract function getItems($criteria);
 
+    abstract function addItem($vars, &$errors);
+
     abstract function getForm(); // Config form
     abstract function hasProperties();
 
     abstract function getListOrderBy();
+
+    abstract function getSortMode();
 
     function getSortModes() {
         return static::$sort_modes;
@@ -186,8 +221,12 @@ class DynamicList extends VerySimpleModel implements CustomList {
        return static::$sort_modes;
     }
 
+    function getSortMode() {
+        return $this->sort_mode;
+    }
+
     function getListOrderBy() {
-        switch ($this->sort_mode) {
+        switch ($this->getSortMode()) {
             case 'Alpha':   return 'value';
             case '-Alpha':  return '-value';
             case 'SortCol': return 'sort';
@@ -234,7 +273,15 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $this->_items;
     }
 
-    function addItem($vars) {
+
+
+    function getItem($id) {
+         return DynamicListItem::lookup(array(
+                     'id' => $id,
+                     'list_id' => $this->getId()));
+    }
+
+    function addItem($vars, &$errors) {
 
         $item = DynamicListItem::create(array(
             'list_id' => $this->getId(),
@@ -250,16 +297,30 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $item;
     }
 
-    function getConfigurationForm() {
+    function getConfigurationForm($autocreate=false) {
         if (!$this->_form) {
-            $this->_form = DynamicForm::lookup(
-                array('type'=>'L'.$this->get('id')));
+            $this->_form = DynamicForm::lookup(array('type'=>'L'.$this->getId()));
+            if (!$this->_form
+                    && $autocreate
+                    && $this->createConfigurationForm())
+                return $this->getConfigurationForm(false);
         }
+
         return $this->_form;
     }
 
-    function getForm() {
-        return $this->getConfigurationForm();
+    private function createConfigurationForm() {
+
+        $form = DynamicForm::create(array(
+                    'type' => 'L'.$this->getId(),
+                    'title' => $this->getName() . ' Properties'
+        ));
+
+        return $form->save(true);
+    }
+
+    function getForm($autocreate=true) {
+        return $this->getConfigurationForm($autocreate);
     }
 
     function update($vars, &$errors) {
@@ -295,6 +356,39 @@ class DynamicList extends VerySimpleModel implements CustomList {
             return false;
     }
 
+    private function createForm() {
+
+        $form = DynamicForm::create(array(
+                    'type' => 'L'.$this->getId(),
+                    'title' => $this->getName() . ' Properties'
+        ));
+
+        return $form->save(true);
+    }
+
+    static function add($vars, &$errors) {
+
+        $required = array('name');
+        $ht = array();
+        foreach (static::$fields as $f) {
+            if (in_array($f, $required) && !$vars[$f])
+                $errors[$f] = sprintf('%s is required', mb_convert_case($f, MB_CASE_TITLE));
+            elseif(isset($vars[$f]))
+                $ht[$f] = $vars[$f];
+        }
+
+        if (!$ht || $errors)
+            return false;
+
+        // Create the list && form
+        if (!($list = self::create($ht))
+                || !$list->save(true)
+                || !$list->createConfigurationForm())
+            return false;
+
+        return $list;
+    }
+
     static function create($ht=false, &$errors=array()) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
@@ -326,7 +420,7 @@ FormField::addFieldTypes('Custom Lists', array('DynamicList', 'getSelections'));
  * sort - (int) If sorting by this field, represents the numeric sort order
  *      that this item should come in the dropdown list
  */
-class DynamicListItem extends VerySimpleModel {
+class DynamicListItem extends VerySimpleModel implements CustomListItem {
 
     static $meta = array(
         'table' => LIST_ITEM_TABLE,
@@ -356,6 +450,18 @@ class DynamicListItem extends VerySimpleModel {
         return $this->set('status', $this->get('status') | $flag);
     }
 
+    function isInternal() {
+        return false;
+    }
+
+    function isEnableable() {
+        return true;
+    }
+
+    function isDeletable() {
+        return !$this->isInternal();
+    }
+
     function isEnabled() {
         return $this->hasStatus(self::ENABLED);
     }
@@ -369,6 +475,10 @@ class DynamicListItem extends VerySimpleModel {
 
     function getId() {
         return $this->get('id');
+    }
+
+    function getListId() {
+        return $this->get('list_id');
     }
 
     function getValue() {
@@ -415,6 +525,10 @@ class DynamicListItem extends VerySimpleModel {
         return $this->_form;
     }
 
+    function getForm() {
+        return $this->getConfigurationForm();
+    }
+
     function getVar($name) {
         $config = $this->getConfiguration();
         $name = mb_strtolower($name);
@@ -432,7 +546,12 @@ class DynamicListItem extends VerySimpleModel {
         return $this->toString();
     }
 
-    function update($vars, $save = true) {
+    function update($vars, &$errors=array()) {
+
+        if (!$vars['value']) {
+            $errors['value-'.$this->getId()] = 'Value required';
+            return false;
+        }
 
         foreach (array(
                     'sort' => 'sort',
@@ -440,13 +559,9 @@ class DynamicListItem extends VerySimpleModel {
                     'abbrev' => 'extra') as $k => $v) {
             if (isset($vars[$k]))
                 $this->set($v, $vars[$k]);
-
         }
 
-        if ($save)
-            $this->save();
-
-        return true;
+        return $this->save();
     }
 
     function delete() {
@@ -471,8 +586,12 @@ class TicketStatusList extends BuiltInCustomList {
             'name' => 'Status',
             'name_plural' => 'Statuses',
     );
+
     // Fields of interest we need to store
     static $config_fields = array('sort_mode', 'notes');
+
+    var $_items;
+    var $_form;
 
     function getId() {
         return $this->ht['id'];
