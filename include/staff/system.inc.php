@@ -44,10 +44,6 @@ $commit = GIT_VERSION != '$git' ? GIT_VERSION : (
                 <td>json</td>
                 <td><?php echo __('Improves performance creating and processing JSON'); ?></td></tr>
             <tr><td><i class="icon icon-<?php
-                    echo extension_loaded('gettext')?'check':'warning-sign'; ?>"></i></td>
-                <td>gettext</td>
-                <td><?php echo __('Improves performance for non US-English configurations'); ?></td></tr>
-            <tr><td><i class="icon icon-<?php
                     echo extension_loaded('mbstring')?'check':'warning-sign'; ?>"></i></td>
                 <td>mbstring</td>
                 <td><?php echo __('Highly recommended for non western european language content'); ?></td></tr>

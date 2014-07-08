@@ -199,6 +199,7 @@ class i18n_Compiler extends Module {
         }
 
         // Add in translation of javascript strings
+        $phrases = array();
         if ($mo && ($js = $this->__getAllJsPhrases())) {
             $mo = unserialize($mo);
             foreach ($js as $c) {

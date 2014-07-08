@@ -32,8 +32,6 @@ if(!defined('SETUPINC')) die('Kwaheri!');
                     echo __('(for HTML email processing)');?></li>
                 <li class="<?php echo extension_loaded('json')?'yes':'no'; ?>">PHP JSON <?php echo __('extension');?> <?php
                     echo __('(faster performance)');?></li>
-                <li class="<?php echo extension_loaded('gettext')?'yes':'no'; ?>">Gettext <?php echo __('extension');?> &mdash; <?php
-                    echo __('used for translations');?> <?php echo __('(faster performance)');?></li>
                 <li class="<?php echo extension_loaded('mbstring')?'yes':'no'; ?>">Mbstring <?php echo __('extension');?> &mdash; <?php
                     echo __('recommended for all installations');?></li>
                 <li class="<?php echo extension_loaded('phar')?'yes':'no'; ?>">Phar <?php echo __('extension');?> &mdash; <?php
