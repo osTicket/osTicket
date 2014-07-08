@@ -17,7 +17,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <div id="overlay"></div>
 <div id="loading">
     <i class="icon-spinner icon-spin icon-3x pull-left icon-light"></i>
-    <h1>Loading ...</h1>
+    <h1><?php echo __('Loading ...');?></h1>
 </div>
 <div class="dialog" style="display:none;width:650px;" id="popup">
     <div class="body"></div>
@@ -32,7 +32,11 @@ if ($.support.pjax) {
   })
 }
 </script>
+<?php
+if ($thisstaff && $thisstaff->getLanguage() != 'en_US') { ?>
+    <script type="text/javascript" src="ajax.php/i18n/<?php
+        echo $thisstaff->getLanguage(); ?>/js"></script>
+<?php } ?>
 </body>
 </html>
 <?php } # endif X_PJAX ?>
-

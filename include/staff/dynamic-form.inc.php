@@ -2,17 +2,17 @@
 
 $info=array();
 if($form && $_REQUEST['a']!='add') {
-    $title = 'Update custom form section';
+    $title = __('Update custom form section');
     $action = 'update';
     $url = "?id=".urlencode($_REQUEST['id']);
-    $submit_text='Save Changes';
+    $submit_text=__('Save Changes');
     $info = $form->ht;
     $newcount=2;
 } else {
-    $title = 'Add new custom form section';
+    $title = __('Add new custom form section');
     $action = 'add';
     $url = '?a=add';
-    $submit_text='Add Form';
+    $submit_text=__('Add Form');
     $newcount=4;
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -23,20 +23,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2>Custom Form</h2>
+    <h2><?php echo __('Custom Form'); ?></h2>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Custom forms are used to allow custom data to be
-                associated with tickets</em>
+                <em><?php echo __(
+                'Custom forms are used to allow custom data to be associated with tickets'
+                ); ?></em>
             </th>
         </tr>
     </thead>
     <tbody style="vertical-align:top">
         <tr>
-            <td width="180" class="required">Title:</td>
+            <td width="180" class="required"><?php echo __('Title'); ?>:</td>
             <td><input type="text" name="title" size="40" value="<?php
                 echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
@@ -45,7 +46,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180">Instructions:</td>
+            <td width="180"><?php echo __('Instructions'); ?>:</td>
             <td><textarea name="instructions" rows="3" cols="40"><?php
                 echo $info['instructions']; ?></textarea>
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
@@ -58,17 +59,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>User Information Fields</strong> more information here</em>
+                <em><strong><?php echo __('User Information Fields'); ?></strong>
+                <?php echo sprintf(__('(These fields are requested for new tickets
+                via the %s form)',
+                UserForm::objects()->one()->get('title'))); ?></em>
             </th>
         </tr>
         <tr>
             <th></th>
-            <th>Label</th>
-            <th>Type</th>
-            <th>Internal</th>
-            <th>Required</th>
-            <th>Variable</th>
-            <th>Delete</th>
+            <th><?php echo __('Label'); ?></th>
+            <th><?php echo __('Type'); ?></th>
+            <th><?php echo __('Internal'); ?></th>
+            <th><?php echo __('Required'); ?></th>
+            <th><?php echo __('Variable'); ?></th>
+            <th><?php echo __('Delete'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -94,23 +98,24 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>Form Fields</strong> fields available for ticket information</em>
+                <em><strong><?php echo __('Form Fields'); ?></strong>
+                <?php echo __('fields available where this form is used'); ?></em>
             </th>
         </tr>
         <tr>
-            <th nowrap>Sort
+            <th nowrap><?php echo __('Sort'); ?>
                 <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
-            <th nowrap>Label
+            <th nowrap><?php echo __('Label'); ?>
                 <i class="help-tip icon-question-sign" href="#field_label"></i></th>
-            <th nowrap>Type
+            <th nowrap><?php echo __('Type'); ?>
                 <i class="help-tip icon-question-sign" href="#field_type"></i></th>
-            <th nowrap>Internal
+            <th nowrap><?php echo __('Internal'); ?>
                 <i class="help-tip icon-question-sign" href="#field_internal"></i></th>
-            <th nowrap>Required
+            <th nowrap><?php echo __('Required'); ?>
                 <i class="help-tip icon-question-sign" href="#field_required"></i></th>
-            <th nowrap>Variable
+            <th nowrap><?php echo __('Variable'); ?>
                 <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
-            <th nowrap>Delete
+            <th nowrap><?php echo __('Delete'); ?>
                 <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
         </tr>
     </thead>
@@ -153,7 +158,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#field-config .body').load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Config</a>
+                    "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
             <?php } ?>
             <div class="error" style="white-space:normal"><?php
                 if ($ferrors['type']) echo $ferrors['type'];
@@ -221,7 +226,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="7">
-                <em><strong>Internal Notes:</strong> be liberal, they're internal</em>
+                <em><strong><?php echo __('Internal Notes'); ?>:</strong>
+                <?php echo __("be liberal, they're internal"); ?></em>
             </th>
         </tr>
         <tr>
@@ -239,25 +245,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
-    <h3><i class="icon-trash"></i> Remove Existing Data?</h3>
+    <h3><i class="icon-trash"></i> <?php echo __('Remove Existing Data?'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p>
         <strong>You are about to delete <span id="deleted-count"></span> fields.</strong>
-        Would you also like to remove data currently entered for this field?
-        <em>If you opt not to remove the data now, you will have the option
-        to delete the the data when editing it</em>
+        <?php echo __('Would you also like to remove data currently entered for this field? <em> If you opt not to remove the data now, you will have the option to delete the the data when editing it.</em>'); ?>
     </p><p style="color:red">
-        Deleted data CANNOT be recovered.
+        <?php echo __('Deleted data CANNOT be recovered.'); ?>
     </p>
     <hr>
     <div id="deleted-fields"></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="No, Cancel" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="submit" value="Continue" class="confirm">
         </span>
      </p>
@@ -281,7 +285,8 @@ $('form.manage-form').on('submit.inline', function(e) {
                 .append($('<input/>').attr({type:'checkbox',name:'delete-data-'
                     + $(e).data('fieldId')})
                 ).append($('<strong>').html(
-                    'Remove all data entered for <u>' + $(e).data('fieldLabel') + '</u>'
+                    '<?php echo __('Remove all data entered for <u> %s </u>?');
+                        ?>'.replace('%s', $(e).data('fieldLabel'))
                 ))
             );
         });

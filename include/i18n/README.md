@@ -22,10 +22,5 @@ Comments are meant to serve as a consistent hint to the context of the text.
 
 Starting a new translation
 --------------------------
-Copy the entire en_US folder and all its contents and subfolders to a new
-language code, such as de_DE. This is recommended as opposed to copying the
-contents of another translation, because the en_US folder is the most
-up-to-date in terms of content. osTicket is developed with en_US as the
-primary language. Therefore new features will be implemented against the
-en_US data first. If you are beginning a new translation, start with the
-most current texts.
+We are using Crowdin to manage our translations. Visit our translation page
+at http://i18n.crowdin.com/

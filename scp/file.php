@@ -1,9 +1,9 @@
 <?php
 /*********************************************************************
     file.php
-    
+
     Simply downloads the file...on hash validation as follows;
-    
+
     * Hash must be 64 chars long.
     * First 32 chars is the perm. file hash
     * Next 32 chars  is md5(file_id.session_id().file_hash)
@@ -24,7 +24,7 @@ $h=trim($_GET['h']);
 if(!$h  || strlen($h)!=64  //32*2
         || !($file=AttachmentFile::lookup(substr($h,0,32))) //first 32 is the file hash.
         || strcasecmp($file->getDownloadHash(), $h)) //next 32 is file id + session hash.
-    die('Unknown or invalid file. #'.Format::htmlchars($_GET['h']));
+    Http::response(404, __('Unknown or invalid file'));
 
 $file->download();
 ?>

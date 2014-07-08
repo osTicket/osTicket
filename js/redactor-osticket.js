@@ -258,7 +258,12 @@ $(function() {
             options['plugins'].push('draft');
             options.draftDelete = el.hasClass('draft-delete');
         }
-        el.redactor(options);
+        getConfig().then(function(c) {
+            if (c.lang && c.lang.toLowerCase() != 'en_us' &&
+                    $.Redactor.opts.langs[c.lang.toLowerCase()])
+                options['lang'] = c.lang.toLowerCase();
+            el.redactor(options);
+        });
     },
     findRichtextBoxes = function() {
         $('.richtext').each(function(i,el) {
@@ -297,7 +302,7 @@ $(document).ajaxError(function(event, request, settings) {
             }
         });
         $('#overlay').show();
-        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
+        alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
         $('#overlay').hide();
     }
 });

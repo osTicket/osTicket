@@ -30,7 +30,7 @@ class Format {
         return round(($bytes/1048576),1).' mb';
     }
 
-    /* encode text into desired encoding - taking into accout charset when available. */
+	/* encode text into desired encoding - taking into accout charset when available. */
     function encode($text, $charset=null, $encoding='utf-8') {
 
         //Try auto-detecting charset/encoding

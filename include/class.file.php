@@ -282,7 +282,7 @@ class AttachmentFile {
                 break;
             default:
                 // TODO: Return an error
-                $error = 'Invalid image file type';
+                $error = __('Invalid image file type');
                 return false;
         }
 
@@ -291,7 +291,7 @@ class AttachmentFile {
         if ($source_aspect_ratio >= $aspect_ratio)
             return self::upload($file, 'L');
 
-        $error = 'Image is too square. Upload a wider image';
+        $error = __('Image is too square. Upload a wider image');
         return false;
     }
 

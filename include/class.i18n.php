@@ -158,12 +158,46 @@ class Internationalization {
     }
 
     static function getLanguageDescription($lang) {
+        global $thisstaff, $thisclient;
+
         $langs = self::availableLanguages();
         $lang = strtolower($lang);
-        if (isset($langs[$lang]))
-            return $langs[$lang]['desc'];
+        if (isset($langs[$lang])) {
+            $info = &$langs[$lang];
+            if (!isset($info['desc'])) {
+                if (extension_loaded('intl')) {
+                    if ($thisstaff)
+                        $lang = $thisstaff->getLanguage();
+                    elseif ($thisclient)
+                        $lang = $thisclient->getLanguage();
+                    else
+                        $lang = self::getDefaultLanguage();
+                    list($simple_lang,) = explode('_', $lang);
+                    $info['desc'] = sprintf("%s%s",
+                        // Display the localized name of the language
+                        Locale::getDisplayName($info['code'], $info['code']),
+                        // If the major language differes from the user's,
+                        // display the language in the user's language
+                        (strpos($simple_lang, $info['lang']) === false
+                            ? sprintf(' (%s)', Locale::getDisplayName($info['code'], $lang)) : '')
+                    );
+                }
+                else {
+                    $info['desc'] = sprintf("%s%s (%s)",
+                        $info['nativeName'],
+                        $info['locale'] ? sprintf(' - %s', $info['locale']) : '',
+                        $info['name']);
+                }
+            }
+            return $info['desc'];
+        }
         else
             return $lang;
+    }
+
+    static function getLanguageInfo($lang) {
+        $langs = self::availableLanguages();
+        return @$langs[$lang] ?: array();
     }
 
     static function availableLanguages($base=I18N_DIR) {
@@ -187,10 +221,6 @@ class Internationalization {
                     'locale' => $locale,
                     'path' => $f,
                     'code' => $base,
-                    'desc' => sprintf("%s%s (%s)",
-                        $langs[$code]['nativeName'],
-                        $locale ? sprintf(' - %s', $locale) : '',
-                        $langs[$code]['name']),
                 );
             }
         }
@@ -284,6 +314,40 @@ class Internationalization {
 
         return $best_match_langcode;
     }
+
+    static function bootstrap() {
+
+        require_once INCLUDE_DIR . 'class.translation.php';
+
+        $domain = 'messages';
+        TextDomain::setDefaultDomain($domain);
+        TextDomain::lookup()->setPath(I18N_DIR);
+
+        // User-specific translations
+        function _N($msgid, $plural, $count) {
+            return TextDomain::lookup()->getTranslation(LC_MESSAGES)
+                ->ngettext($msgid, $plural, $count);
+        }
+
+        // System-specific translations
+        function _S($msgid) {
+            global $cfg;
+            return __($msgid);
+        }
+        function _SN($msgid, $plural, $count) {
+            global $cfg;
+        }
+
+        // Language-specific translations
+        function _L($msgid, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->translate($msgid);
+        }
+        function _LN($msgid, $plural, $count, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->ngettext($msgid);
+        }
+    }
 }
 
 class DataTemplate {
@@ -322,6 +386,14 @@ class DataTemplate {
             // TODO: If there was a parsing error, attempt to try the next
             //       language in the list of requested languages
         return $this->data;
+    }
+
+    function getRawData() {
+        if (!isset($this->data) && $this->filepath)
+            return file_get_contents($this->filepath);
+            // TODO: If there was a parsing error, attempt to try the next
+            //       language in the list of requested languages
+        return false;
     }
 
     function getLang() {

@@ -4,16 +4,16 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info=array();
 $qstr='';
 if($rule && $_REQUEST['a']!='add'){
-    $title='Update Ban Rule';
+    $title=__('Update Ban Rule');
     $action='update';
-    $submit_text='Update';
+    $submit_text=__('Update');
     $info=$rule->getInfo();
     $info['id']=$rule->getId();
     $qstr.='&id='.$rule->getId();
 }else {
-    $title='Add New Email Address to Ban List';
+    $title=__('Add New Email Address to Ban List');
     $action='add';
-    $submit_text='Add';
+    $submit_text=__('Add');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $qstr.='&a='.urlencode($_REQUEST['a']);
 }
@@ -24,7 +24,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Manage Email Ban Rule
+ <h2><?php echo __('Manage Email Ban Rule');?>
     <i class="help-tip icon-question-sign" href="#ban_list"></i>
     </h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -32,24 +32,24 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Valid email address required.</em>
+                <em><?php echo __('Valid email address required');?></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td width="180" class="required">
-                Ban Status:
+                <?php echo __('Ban Status'); ?>:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
+                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active');?></strong>
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><?php echo __('Disabled');?>
                 &nbsp;<span class="error">*&nbsp;</span>
             </td>
         </tr>
         <tr>
             <td width="180" class="required">
-                Email Address:
+                <?php echo __('Email Address');?>:
             </td>
             <td>
                 <input name="val" type="text" size="24" value="<?php echo $info['val']; ?>">
@@ -58,7 +58,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Internal notes</strong>: Admin notes&nbsp;</em>
+                <em><strong><?php echo __('Internal notes');?></strong>: <?php echo __('Admin notes');?>&nbsp;</em>
             </th>
         </tr>
         <tr>
@@ -69,9 +69,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="banlist.php"'>
+    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="banlist.php"'>
 </p>
 </form>

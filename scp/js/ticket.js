@@ -52,10 +52,10 @@ var autoLock = {
 
         if(!autoLock.lasteventTime) { //I hate nav away warnings..but
             $(document).on('pjax:beforeSend.changed', function(e) {
-                return confirm("Any changes or info you've entered will be discarded!");
+                return confirm(__("Any changes or info you've entered will be discarded!"));
             });
             $(window).bind('beforeunload', function(e) {
-                return "Any changes or info you've entered will be discarded!";
+                return __("Any changes or info you've entered will be discarded!");
              });
         }
 
@@ -135,8 +135,7 @@ var autoLock = {
             $(window).unbind('beforeunload');
             //Only warn if we had a failed lock attempt.
             if(autoLock.warn && !autoLock.lockId && autoLock.lasteventTime) {
-                var answer=confirm('Unable to acquire a lock on the ticket. Someone else could be working on the same ticket. \
-                    Please confirm if you wish to continue anyways.');
+                var answer=confirm(__('Unable to acquire a lock on the ticket. Someone else could be working on the same ticket.  Please confirm if you wish to continue anyways.'));
                 if(!answer) {
                     e.returnValue=false;
                     e.cancelBubble=true;
@@ -236,7 +235,7 @@ var autoLock = {
                     autoLock.lockAttempts++;
                     if(warn && (!lock.retry || autoLock.lockAttempts>=autoLock.maxattempts)) {
                         autoLock.retry=false;
-                        alert('Unable to lock the ticket. Someone else could be working on the same ticket.');
+                        alert(__('Unable to lock the ticket. Someone else could be working on the same ticket.'));
                     }
                 }
                 break;
@@ -244,7 +243,7 @@ var autoLock = {
     },
 
     discardWarning: function(e) {
-        e.returnValue="Any changes or info you've entered will be discarded!";
+        e.returnValue=__("Any changes or info you've entered will be discarded!");
     },
 
     //TODO: Monitor events and elapsed time and warn user when the lock is about to expire.
@@ -307,7 +306,7 @@ $.showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button no-pjax"><i class="icon-download-alt"></i> Download</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
                 );
             e.data('wrapped', true);
         }
@@ -415,7 +414,7 @@ var ticket_onload = function($) {
         extra.append($('<a>')
           .addClass("action-button show-images")
           .css({'font-weight':'normal'})
-          .text(' Show Images')
+          .text(' ' + __('Show Images'))
           .click(function(ev) {
             imgs.each(function(i, img) {
               $.showNonLocalImage(img);

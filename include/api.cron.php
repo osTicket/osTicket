@@ -7,7 +7,7 @@ class CronApiController extends ApiController {
     function execute() {
 
         if(!($key=$this->requireApiKey()) || !$key->canExecuteCron())
-            return $this->exerr(401, 'API key not authorized');
+            return $this->exerr(401, __('API key not authorized'));
 
         $this->run();
     }
@@ -18,7 +18,7 @@ class CronApiController extends ApiController {
 
         Cron::run();
        
-        $ost->logDebug('Cron Job','Cron job executed ['.$_SERVER['REMOTE_ADDR'].']');
+        $ost->logDebug(__('Cron Job'),__('Cron job executed').' ['.$_SERVER['REMOTE_ADDR'].']');
         $this->response(200,'Completed');
     }
 }
