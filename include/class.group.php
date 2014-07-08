@@ -218,14 +218,16 @@ class Group {
             if(($res=db_query($sql)))
                 return true;
 
-            $errors['err']=__('Unable to update group. Internal error occurred.');
-            
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this group'))
+               .' '.__('Internal error occurred');
+
         }else{
             $sql='INSERT INTO '.GROUP_TABLE.' '.$sql.',created=NOW()';
             if(($res=db_query($sql)) && ($id=db_insert_id()))
                 return $id;
-                
-            $errors['err']=__('Unable to create the group. Internal error');
+
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this group'))
+               .' '.__('Internal error occurrred');
         }
         
         return false;

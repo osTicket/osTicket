@@ -26,13 +26,13 @@ elseif(!$filter->isActive())
 
 $rule=null; //ban rule obj.
 if($filter && $_REQUEST['id'] && !($rule=$filter->getRule($_REQUEST['id'])))
-    $errors['err'] = __('Unknown or invalid ban list ID #');
+    $errors['err'] = sprintf(__('%s: Unknown or invalid ID.'), __('ban list'));
 
 if($_POST && !$errors && $filter){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$rule){
-                $errors['err']=__('Unknown or invalid ban rule.');
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ban rule'));
             }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])){
                 $errors['err']=$errors['val']=__('Valid email address required');
             }elseif(!$errors){
@@ -43,15 +43,15 @@ if($_POST && !$errors && $filter){
                             'isactive'=>$_POST['isactive'],
                             'notes'=>$_POST['notes']);
                 if($rule->update($vars,$errors)){
-                    $msg=__('Email updated successfully');
+                    $msg=sprintf(__('Successfully updated %s'), Format::htmlchars($_POST['val']));
                 }elseif(!$errors['err']){
-                    $errors['err']=__('Error updating ban rule. Try again!');
+                    $errors['err']=sprintf(__('Error updating %s. Try again!'), __('this ban rule'));
                 }
             }
             break;
         case 'add':
             if(!$filter) {
-                $errors['err']=__('Unknown or invalid ban list');
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ban list'));
             }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])) {
                 $errors['err']=$errors['val']=__('Valid email address required');
             }elseif(BanList::includes(trim($_POST['val']))) {
@@ -61,7 +61,7 @@ if($_POST && !$errors && $filter){
                 $_REQUEST['a']=null;
                 //Add filter rule here.
             }elseif(!$errors['err']){
-                $errors['err']=__('Error creating ban rule. Try again!');
+                $errors['err']=sprintf(__('Error creating %s. Try again!'), __('ban rule'));
             }
             break;
         case 'mass_process':
@@ -76,11 +76,14 @@ if($_POST && !$errors && $filter){
                             .' AND id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
                             if($num==$count)
-                                $msg = __('Selected emails ban status set to enabled');
+                                $msg = sprintf(__('Successfully enabled %s'),
+                                    _N('selected ban rule', 'selected ban rules', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d selected emails ban status enabled'), $num, $count);
+                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
+                                    _N('selected ban rule', 'selected ban rules', $count));
                         } else  {
-                            $errors['err'] = __('Unable to enable selected emails');
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
+                                _N('selected ban rule', 'selected ban rules', $count));
                         }
                         break;
                     case 'disable':
@@ -89,11 +92,14 @@ if($_POST && !$errors && $filter){
                             .' AND id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = __('Selected emails ban status set to disabled');
+                                $msg = sprintf(__('Successfully disabled %s'),
+                                    _N('selected ban rule', 'selected ban rules', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d selected emails ban status set to disabled'), $num, $count);
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
+                                    _N('selected ban rule', 'selected ban rules', $count));
                         } else {
-                            $errors['err'] = __('Unable to disable selected emails');
+                            $errors['err'] = sprintf(__('Unable to disable %s'),
+                                _N('selected ban rule', 'selected ban rules', $count));
                         }
                         break;
                     case 'delete':
@@ -103,11 +109,14 @@ if($_POST && !$errors && $filter){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = __('Selected emails deleted from banlist successfully');
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected ban rule', 'selected ban rules', $count));
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d selected emails deleted from banlist'), $i, $count);
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected ban rule', 'selected ban rules', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = __('Unable to delete selected emails');
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                _N('selected ban rule', 'selected ban rules', $count));
 
                         break;
                     default:

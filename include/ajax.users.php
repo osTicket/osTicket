@@ -230,7 +230,7 @@ class UsersAjaxAPI extends AjaxController {
         if(($user=User::lookup(($id) ? $id : $_REQUEST['id'])))
            Http::response(201, $user->to_json());
 
-        $info = array('error' => __('Unknown or invalid user'));
+        $info = array('error' => sprintf(__('%s: Unknown or invalid ID.'), _N('end user', 'end users', 1)));
 
         return self::_lookupform(null, $info);
     }
@@ -370,13 +370,15 @@ class UsersAjaxAPI extends AjaxController {
             } else { //Creating new org.
                 $form = OrganizationForm::getDefaultForm()->getForm($_POST);
                 if (!($org = Organization::fromForm($form)))
-                    $info['error'] = __('Unable to create organization - try again!');
+                    $info['error'] = __('Unable to create organization.')
+                        .' '.__('Correct error(s) below and try again.');
             }
 
             if ($org && $user->setOrganization($org))
                 Http::response(201, $org->to_json());
             elseif (! $info['error'])
-                $info['error'] = __('Unable to add organization - try again!');
+                $info['error'] = __('Unable to add user to organization.')
+                    .' '.__('Correct error(s) below and try again.');
 
         } elseif ($orgId)
             $org = Organization::lookup($orgId);

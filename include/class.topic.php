@@ -304,7 +304,7 @@ class Topic {
         $vars['topic']=Format::striptags(trim($vars['topic']));
 
         if($id && $id!=$vars['id'])
-            $errors['err']=__('Internal error occurred. Try again');
+            $errors['err']=__('Internal error occurred');
 
         if(!$vars['topic'])
             $errors['topic']=__('Help topic name is required');
@@ -347,7 +347,8 @@ class Topic {
         if ($id) {
             $sql='UPDATE '.TOPIC_TABLE.' SET '.$sql.' WHERE topic_id='.db_input($id);
             if (!($rv = db_query($sql)))
-                $errors['err']=__('Unable to update topic. Internal error occurred');
+                $errors['err']=sprintf(__('Unable to update %s.'), __('this help topic'))
+                .' '.__('Internal error occurred');
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
@@ -363,7 +364,8 @@ class Topic {
             if (db_query($sql) && ($id = db_insert_id()))
                 $rv = $id;
             else
-                $errors['err']=__('Unable to create the topic. Internal error occurred');
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this help topic'))
+               .' '.__('Internal error occurred');
         }
         if (!$cfg || $cfg->getTopicSortMode() == 'a') {
             static::updateSortOrder();

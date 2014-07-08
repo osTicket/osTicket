@@ -811,13 +811,15 @@ class Staff extends AuthenticatedUser {
             if(db_query($sql) && db_affected_rows())
                 return true;
 
-            $errors['err']=__('Unable to update the user. Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this agent'))
+               .' '.__('Internal error occurred');
         } else {
             $sql='INSERT INTO '.STAFF_TABLE.' '.$sql.', created=NOW()';
             if(db_query($sql) && ($uid=db_insert_id()))
                 return $uid;
 
-            $errors['err']=__('Unable to create user. Internal error occurred');
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this agent'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

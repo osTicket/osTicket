@@ -404,7 +404,7 @@ class TicketsAjaxAPI extends AjaxController {
         if($errors && $errors['err']) {
             $info +=array('error' => $errors['err']);
         } else {
-            $info +=array('error' =>__('Unable to add collaborator - try again'));
+            $info +=array('error' =>__('Unable to add collaborator. Internal error'));
         }
 
         return self::_addcollaborator($ticket, $user, $form, $info);

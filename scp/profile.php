@@ -23,7 +23,7 @@ if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the f
 } elseif(!$errors && $_POST) { //Handle post
 
     if(!$staff)
-        $errors['err']=__('Unknown or invalid agent.');
+        $errors['err']=sprintf(__('%s: Unknown or invalid'), __('agent'));
     elseif($staff->updateProfile($_POST,$errors)){
         $msg=__('Profile updated successfully');
         $thisstaff->reload();

@@ -408,13 +408,15 @@ class Email {
             if(db_query($sql) && db_affected_rows())
                 return true;
 
-            $errors['err']=__('Unable to update email. Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this email'))
+               .' '.__('Internal error occurred');
         }else {
             $sql='INSERT INTO '.EMAIL_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=__('Unable to add email. Internal error');
+            $errors['err']=sprintf(__('Unable to add %s.'), __('this email'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

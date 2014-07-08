@@ -4,7 +4,7 @@ require_once(INCLUDE_DIR."/class.dynamic_forms.php");
 
 $form=null;
 if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
-    $errors['err']=__('Unknown or invalid dynamic form ID.');
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('custom form'));
 
 if($_POST) {
     $fields = array('title', 'notes', 'instructions');
@@ -81,7 +81,7 @@ if($_POST) {
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = __('You must select at least one form');
+                $errors['err'] = sprintf(__('You must select at least %s'), __('one custom form'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -92,11 +92,14 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = __('Selected custom forms deleted successfully');
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected custom form', 'selected custom forms', $count));
                         elseif ($i > 0)
-                            $warn = sprintf(__('%1$d of %1$d selected forms deleted'), $i, $count);
+                            $warn = sprintf(__('%1$d of %1$d %3$s deleted'), $i, $count,
+                                _N('selected custom form', 'selected custom forms', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = __('Unable to delete selected custom forms');
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                _N('selected custom form', 'selected custom forms', $count));
                         break;
                 }
             }
@@ -134,9 +137,10 @@ if($_POST) {
         }
     }
     if ($errors)
-        $errors['err'] = __('Unable to commit form. Check validation errors');
+        $errors['err'] = sprintf(__('Unable to commit %s. Check validation errors'), __('this custom form'));
     else
-        $msg = __('Custom form successfully updated');
+        $msg = sprintf(__('Successfully updated %s'),
+            __('this custom form'));
 }
 
 $page='dynamic-forms.inc.php';

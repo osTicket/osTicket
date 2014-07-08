@@ -119,11 +119,11 @@ class Category {
 
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
-      
+
         //validate
         if($id && $id!=$vars['id'])
-            $errors['err']=__('Internal error. Try again');
-      
+            $errors['err']=__('Internal error occurred');
+
         if(!$vars['name'])
             $errors['name']=__('Category name is required');
         elseif(strlen($vars['name'])<3)
@@ -151,14 +151,15 @@ class Category {
             if(db_query($sql))
                 return true;
 
-            $errors['err']=__('Unable to update FAQ category.');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this FAQ category'));
 
         } else {
             $sql='INSERT INTO '.FAQ_CATEGORY_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=__('Unable to create FAQ category. Internal error');
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ category'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

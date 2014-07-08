@@ -32,7 +32,8 @@ class ContentAjaxAPI extends AjaxController {
                     __('IP Address'),
                     $log->getIP());
         }else {
-            $content='<div style="width:295px;">&nbsp;<strong>'.__('Error').':</strong>'.__('Unknown or invalid log ID').'</div>';
+            $content='<div style="width:295px;">&nbsp;<strong>'.__('Error').':</strong>'.
+                sprintf(__('%s: Unknown or invalid ID.'), __('log entry')).'</div>';
         }
 
         return $content;

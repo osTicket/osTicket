@@ -17,30 +17,34 @@ require('admin.inc.php');
 
 $staff=null;
 if($_REQUEST['id'] && !($staff=Staff::lookup($_REQUEST['id'])))
-    $errors['err']=__('Unknown or invalid agent.');
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('agent'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$staff){
-                $errors['err']=__('Unknown or invalid agent.');
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('agent'));
             }elseif($staff->update($_POST,$errors)){
-                $msg=__('Agent updated successfully');
+                $msg=sprintf(__('Successfully updated %s'),
+                    __('this agent'));
             }elseif(!$errors['err']){
-                $errors['err']=__('Unable to update agent. Correct any error(s) below and try again!');
+                $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                    __('this agent'));
             }
             break;
         case 'create':
             if(($id=Staff::create($_POST,$errors))){
-                $msg=sprintf(__('%s added successfully'),Format::htmlchars($_POST['firstname']));
+                $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['firstname']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=__('Unable to add agent. Correct any error(s) below and try again.');
+                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this agent'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = __('You must select at least one agent.');
+                $errors['err'] = sprintf(__('You must select at least %s.'),
+                    __('one agent'));
             } elseif(in_array($thisstaff->getId(),$_POST['ids'])) {
                 $errors['err'] = __('You can not disable/delete yourself - you could be the only admin!');
             } else {
@@ -52,11 +56,14 @@ if($_POST){
 
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = _N('Selected agent activated', 'Selected agents activated', $count);
+                                $msg = sprintf('Successfully activated %s',
+                                    _N('selected agent', 'selected agents', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d selected agents activated'), $num, $count);
+                                $warn = sprintf(__('%1$d of %2$d %3$s activated'), $num, $count,
+                                    _N('selected agent', 'selected agents', $count));
                         } else {
-                            $errors['err'] = __('Unable to activate selected agents');
+                            $errors['err'] = sprintf(__('Unable to activate %s'),
+                                _N('selected agent', 'selected agents', $count));
                         }
                         break;
                     case 'disable':
@@ -65,11 +72,14 @@ if($_POST){
 
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = _N('Selected agent disabled', 'Selected agents disabled', $count);
+                                $msg = sprintf('Successfully disabled %s',
+                                    _N('selected agent', 'selected agents', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d selected agents disabled'), $num, $count);
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
+                                    _N('selected agent', 'selected agents', $count));
                         } else {
-                            $errors['err'] = __('Unable to disable selected agents');
+                            $errors['err'] = sprintf(__('Unable to disable %s'),
+                                _N('selected agent', 'selected agents', $count));
                         }
                         break;
                     case 'delete':
@@ -79,14 +89,17 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = _N('Selected agent deleted successfully', 'Selected agents deleted successfully', $count);
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected agent', 'selected agents', $count));
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d selected agents deleted'), $i, $count);
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected agent', 'selected agents', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = __('Unable to delete selected agents.');
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                _N('selected agent', 'selected agents', $count));
                         break;
                     default:
-                        $errors['err'] = __('Unknown action. Get technical help!');
+                        $errors['err'] = __('Unknown action - get technical help.');
                 }
 
             }

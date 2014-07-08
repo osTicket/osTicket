@@ -448,7 +448,8 @@ class Dept {
             if(db_query($sql) && db_affected_rows())
                 return true;
 
-            $errors['err']=sprintf(__('Unable to update "%s" Department. Error occurred'),Format::htmlchars($vars['name']));
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
+               .' '.__('Internal error occurred');
 
         } else {
             if (isset($vars['id']))
@@ -459,7 +460,8 @@ class Dept {
                 return $id;
 
 
-            $errors['err']=__('Unable to create department. Internal error');
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this department'))
+               .' '.__('Internal error occurred');
 
         }
 

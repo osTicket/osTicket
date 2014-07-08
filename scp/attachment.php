@@ -20,7 +20,7 @@ require_once(INCLUDE_DIR.'class.attachment.php');
 if(!$thisstaff || !$_GET['id'] || !$_GET['h']
         || !($attachment=Attachment::lookup($_GET['id']))
         || !($file=$attachment->getFile()))
-    Http::response(404, __('Unknown or invalid attachment'));
+    Http::response(404, __('Unknown or invalid file'));
 
 //Validate session access hash - we want to make sure the link is FRESH! and the user has access to the parent ticket!!
 $vhash=md5($attachment->getFileId().session_id().strtolower($file->getKey()));

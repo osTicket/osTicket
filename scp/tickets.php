@@ -27,7 +27,7 @@ $ticket = $user = null; //clean start.
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
     if(!($ticket=Ticket::lookup($_REQUEST['id'])))
-         $errors['err']=__('Unknown or invalid ticket ID');
+         $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif(!$ticket->checkStaffAccess($thisstaff)) {
         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
         $ticket=null; //Clear ticket obj.
@@ -391,7 +391,8 @@ if($_POST && !$errors):
                 if(!$thisstaff->canManageTickets())
                     $errors['err']=__('You do not have permission to mass manage tickets. Contact admin for such access');
                 elseif(!$_POST['tids'] || !is_array($_POST['tids']))
-                    $errors['err']=__('No tickets selected. You must select at least one ticket.');
+                    $errors['err']=sprintf(__('You must select at least %s.'),
+                        __('one ticket'));
                 else {
                     $count=count($_POST['tids']);
                     $i = 0;
@@ -407,11 +408,14 @@ if($_POST && !$errors):
                                 }
 
                                 if($i==$count)
-                                    $msg = sprintf(__('Selected tickets %d reopened successfully'),$i);
+                                    $msg = sprintf(__('Successfully reopened %s'),
+                                        _N('selected ticket', 'selected tickets', $count));
                                 elseif($i)
-                                    $warn = sprintf(__('%1$d of %2$d selected tickets reopened'),$i, $count);
+                                    $warn = sprintf(__('%1$d of %2$d %3$s reopened'),$i, $count,
+                                        _N('selected ticket', 'selected tickets', $count));
                                 else
-                                    $errors['err'] = __('Unable to reopen selected tickets');
+                                    $errors['err'] = sprintf(__('Unable to reopen %s'),
+                                        _N('selected ticket', 'selected tickets', $count));
                             } else {
                                 $errors['err'] = __('You do not have permission to reopen tickets');
                             }
@@ -427,11 +431,14 @@ if($_POST && !$errors):
                                 }
 
                                 if($i==$count)
-                                    $msg =sprintf(__('Selected tickets (%d) closed successfully'),$i);
+                                    $msg =sprintf(__('Successfully closed %s'),
+                                        _N('selected ticket', 'selected tickets', $count));
                                 elseif($i)
-                                    $warn = sprintf(__('%1$d of %2$d selected tickets closed'),$i, $count);
+                                    $warn = sprintf(__('%1$d of %2$d %s closed'),$i, $count,
+                                        _N('selected ticket', 'selected tickets', $count));
                                 else
-                                    $errors['err'] = __('Unable to close selected tickets');
+                                    $errors['err'] = sprintf(__('Unable to close %s'),
+                                        _N('selected ticket', 'selected tickets', $count));
                             } else {
                                 $errors['err'] = __('You do not have permission to close tickets');
                             }
@@ -460,24 +467,27 @@ if($_POST && !$errors):
 
                                 //Log a warning
                                 if($i) {
-                                    $log = sprintf(__('%1$s (%2$s) just deleted %3$d ticket(s)'),
+                                    $log = sprintf(_S('%1$s (%2$s) just deleted %3$d ticket(s)'),
                                             $thisstaff->getName(), $thisstaff->getUserName(), $i);
-                                    $ost->logWarning(__('Tickets deleted'), $log, false);
+                                    $ost->logWarning(_S('Tickets deleted'), $log, false);
 
                                 }
 
                                 if($i==$count)
-                                    $msg = sprintf(__('Selected tickets (%d) deleted successfully'),$i);
+                                    $msg = sprintf(__('Successfully deleted %s'),
+                                        _N('selected ticket', 'selected tickets', $count));
                                 elseif($i)
-                                    $warn = sprintf(__('%1$d of %2$d selected tickets deleted'),$i, $count);
+                                    $warn = sprintf(__('%1$d of %2$d %3$s deleted'),$i, $count,
+                                        _N('selected ticket', 'selected tickets', $count));
                                 else
-                                    $errors['err'] = __('Unable to delete selected tickets');
+                                    $errors['err'] = sprintf(__('Unable to delete %s'),
+                                        _N('selected ticket', 'selected tickets', $count));
                             } else {
                                 $errors['err'] = __('You do not have permission to delete tickets');
                             }
                             break;
                         default:
-                            $errors['err']=__('Unknown or unsupported action - get technical help.');
+                            $errors['err']=__('Unknown action - get technical help.');
                     }
                 }
                 break;

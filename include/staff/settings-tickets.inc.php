@@ -189,7 +189,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     for($i = 1; $i <=$maxfileuploads; $i++) {
                         ?>
                         <option <?php echo $config['max_user_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
-                            <?php echo $i; ?>&nbsp;<?php echo ($i>1)?__('files'):__('file'); ?></option>
+                            <?php echo sprintf(_N('%d file', '%d files', $i), $i); ?></option>
                         <?php
                     } ?>
                 </select>
@@ -205,7 +205,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     for($i = 1; $i <=$maxfileuploads; $i++) {
                         ?>
                         <option <?php echo $config['max_staff_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
-                            <?php echo $i; ?>&nbsp;<?php echo ($i>1)?__('files'):__('file'); ?></option>
+                            <?php echo sprintf(_N('%d file', '%d files', $i), $i); ?></option>
                         <?php
                     } ?>
                 </select>

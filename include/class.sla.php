@@ -187,7 +187,8 @@ class SLA {
             if(db_query($sql))
                 return true;
 
-            $errors['err']=__('Unable to update SLA. Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this SLA plan'))
+               .' '.__('Internal error occurred');
         }else{
             if (isset($vars['id']))
                 $sql .= ', id='.db_input($vars['id']);
@@ -196,7 +197,8 @@ class SLA {
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=__('Unable to add SLA. Internal error occurred');
+            $errors['err']=sprintf(__('Unable to add %s.'), __('this SLA plan'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

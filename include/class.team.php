@@ -252,13 +252,15 @@ class Team {
             if(db_query($sql) && db_affected_rows())
                 return true;
 
-            $errors['err']=__('Unable to update the team. Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
+               .' '.__('Internal error occurred');
         } else {
             $sql='INSERT INTO '.TEAM_TABLE.' '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=__('Unable to create the team. Internal error occurred');
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this team'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

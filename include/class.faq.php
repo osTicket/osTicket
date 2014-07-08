@@ -315,14 +315,15 @@ class FAQ {
             if(db_query($sql))
                 return true;
 
-            $errors['err']=__('Unable to update FAQ.');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this FAQ article'));
 
         } else {
             $sql='INSERT INTO '.FAQ_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=__('Unable to create FAQ. Internal error');
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ article'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

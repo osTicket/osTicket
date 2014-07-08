@@ -264,12 +264,13 @@ class Page {
             if(db_query($sql))
                 return true;
 
-            $errors['err']=__('Unable to update page.');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this site page'));
 
         } else {
             $sql='INSERT INTO '.PAGE_TABLE.' SET '.$sql.', created=NOW()';
             if (!db_query($sql) || !($id=db_insert_id())) {
-                $errors['err']=__('Unable to create page. Internal error');
+                $errors['err']=sprintf(_('Unable to create %s.'), __('this site page'))
+                   .' '.__('Internal error occurred');
                 return false;
             }
 

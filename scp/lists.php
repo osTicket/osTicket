@@ -4,7 +4,8 @@ require_once(INCLUDE_DIR."/class.dynamic_forms.php");
 
 $list=null;
 if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
-    $errors['err']=__('Unknown or invalid dynamic list ID.');
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+        __('custom list'));
 
 if ($list)
     $form = $list->getForm();
@@ -21,11 +22,14 @@ if($_POST) {
                 elseif (isset($_POST[$f]))
                     $list->set($f, $_POST[$f]);
             if ($errors)
-                $errors['err'] = __('Unable to update custom list. Correct any error(s) below and try again.');
+                $errors['err'] = sprintf(__('Unable to update %s. Correct any error(s) below and try again.'),
+                    __('this custom list'));
             elseif ($list->save(true))
-                $msg = __('Custom list updated successfully');
+                $msg = sprintf(__('Successfully updated %s'),
+                    __('this custom list'));
             else
-                $errors['err'] = __('Unable to update custom list. Unknown internal error');
+                $errors['err'] = sprintf(__('Unable to update %s.'), __('this custom list'))
+                    .' '.__('Internal error occurred');
 
             foreach ($list->getAllItems() as $item) {
                 $id = $item->get('id');
@@ -101,20 +105,24 @@ if($_POST) {
             ));
 
             if ($errors)
-                $errors['err'] = __('Unable to create custom list. Correct any error(s) below and try again.');
+                $errors['err'] = sprintf(__('Unable to create %s. Correct any error(s) below and try again.'),
+                    __('this custom list'));
             elseif (!$list->save(true))
-                $errors['err'] = __('Unable to create custom list: Unknown internal error');
+                $errors['err'] = sprintf(__('Unable to create %s: Unknown internal error'),
+                    __('this custom list'));
 
             $form->set('type', 'L'.$list->get('id'));
             if (!$errors && !$form->save(true))
                 $errors['err'] = __('Unable to create properties for custom list: Unknown internal error');
             else
-                $msg = __('Custom list added successfully');
+                $msg = sprintf(__('Successfully added %s'),
+                    __('this custom list'));
             break;
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = __('You must select at least one custom list');
+                $errors['err'] = sprintf(__('You must select at least %s'),
+                    __('one custom list'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -125,11 +133,14 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = __('Selected custom lists deleted successfully');
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected custom list', 'selected custom lists', $count));
                         elseif ($i > 0)
-                            $warn = sprintf(__('%1$d or %2$d selected lists deleted'), $i, $count);
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected custom list', 'selected custom lists', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = __('Unable to delete selected custom lists — they may be in use on a custom form');
+                            $errors['err'] = sprintf(__('Unable to delete %s — they may be in use on a custom form'),
+                                _N('selected custom list', 'selected custom lists', $count));
                         break;
                 }
             }

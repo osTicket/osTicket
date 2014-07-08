@@ -19,34 +19,37 @@ require_once(INCLUDE_DIR.'class.canned.php');
 
 $filter=null;
 if($_REQUEST['id'] && !($filter=Filter::lookup($_REQUEST['id'])))
-    $errors['err']=__('Unknown or invalid filter.');
+    $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ticket filter'));
 
 /* NOTE: Banlist has its own interface*/
 if($filter && $filter->isSystemBanlist())
-    header('Location: banlist.php');
+    Http::redirect('banlist.php');
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$filter){
-                $errors['err']=__('Unknown or invalid filter.');
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ticket filter'));
             }elseif($filter->update($_POST,$errors)){
-                $msg=__('Filter updated successfully');
+                $msg=sprintf(__('Successfully updated %s'), __('this ticket filter'));
             }elseif(!$errors['err']){
-                $errors['err']=__('Error updating filter. Try again!');
+                $errors['err']=sprintf(__('Error updating %s. Correct error(s) below and try again.'),
+                    __('this ticket filter'));
             }
             break;
         case 'add':
             if((Filter::create($_POST,$errors))){
-                $msg=__('Filter added successfully');
+                $msg=sprintf(__('Successfully updated %s'), __('this ticket filter'));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=__('Unable to add filter. Correct error(s) below and try again.');
+                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this ticket filter'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = __('You must select at least one filter to process.');
+                $errors['err'] = sprintf(__('You must select at least %s to process.'),
+                    __('one ticket filter'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -55,11 +58,14 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = __('Selected filters enabled');
+                                $msg = sprintf(__('Successfully enabled %s'),
+                                    _N('selected ticket filter', 'selected ticket filters', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d selected filters enabled'), $num, $count);
+                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
+                                    _N('selected ticket filter', 'selected ticket filters', $count));
                         } else {
-                            $errors['err'] = __('Unable to enable selected filters');
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
+                                _N('selected ticket filter', 'selected ticket filters', $count));
                         }
                         break;
                     case 'disable':
@@ -67,11 +73,14 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = __('Selected filters disabled');
+                                $msg = sprintf(__('Successfully disabled %s'),
+                                    _N('selected ticket filter', 'selected ticket filters', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d selected filters disabled'), $num, $count);
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
+                                    _N('selected ticket filter', 'selected ticket filters', $count));
                         } else {
-                            $errors['err'] = __('Unable to disable selected filters');
+                            $errors['err'] = sprintf(__('Unable to disable %s'),
+                                _N('selected ticket filter', 'selected ticket filters', $count));
                         }
                         break;
                     case 'delete':
@@ -82,11 +91,14 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = __('Selected filters deleted successfully');
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d selected filters deleted'), $i, $count);
+                            $warn = sprintf(__('%1$d of %2$d %s deleted'), $i, $count,
+                                _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = __('Unable to delete selected filters');
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                 _N('selected ticket filter', 'selected ticket filters', $count));
                         break;
                     default:
                         $errors['err']=__('Unknown action - get technical help.');

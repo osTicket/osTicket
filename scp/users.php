@@ -18,35 +18,38 @@ require_once INCLUDE_DIR.'class.note.php';
 
 $user = null;
 if ($_REQUEST['id'] && !($user=User::lookup($_REQUEST['id'])))
-    $errors['err'] = __('Unknown or invalid user.');
+    $errors['err'] = sprintf(__('%s: Unknown or invalid'), _N('end user', 'end users', 1));
 
 if ($_POST) {
     switch(strtolower($_REQUEST['do'])) {
         case 'update':
             if (!$user) {
-                $errors['err']=__('Unknown or invalid user.');
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), _N('end user', 'end users', 1));
             } elseif(($acct = $user->getAccount())
                     && !$acct->update($_POST, $errors)) {
                  $errors['err']=__('Unable to update user account information');
             } elseif($user->updateInfo($_POST, $errors)) {
-                $msg=__('User updated successfully');
+                $msg=sprintf(__('Successfully updated %s'), __('this end user'));
                 $_REQUEST['a'] = null;
             } elseif(!$errors['err']) {
-                $errors['err']=__('Unable to update user profile. Correct any error(s) below and try again!');
+                $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                    __('this end user'));
             }
             break;
         case 'create':
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form))) {
-                $msg = Format::htmlchars(sprintf(__('%s added successfully'), $user->getName()));
+                $msg = Format::htmlchars(sprintf(__('Successfully added %s'), $user->getName()));
                 $_REQUEST['a'] = null;
             } elseif (!$errors['err']) {
-                $errors['err'] = __('Unable to add user. Correct any error(s) below and try again.');
+                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this end user'));
             }
             break;
         case 'confirmlink':
             if (!$user || !$user->getAccount())
-                $errors['err'] = __('Unknown or invalid user account');
+                $errors['err'] = sprintf(__('%s: Unknown or invalid'),
+                    __('end user account'));
             elseif ($user->getAccount()->isConfirmed())
                 $errors['err'] = __('Account is already confirmed');
             elseif ($user->getAccount()->sendConfirmEmail())
@@ -56,7 +59,7 @@ if ($_POST) {
             break;
         case 'pwreset':
             if (!$user || !$user->getAccount())
-                $errors['err'] = __('Unknown or invalid user account');
+                $errors['err'] = sprintf(__('%s: Unknown or invalid'), __('end user account'));
             elseif ($user->getAccount()->sendResetEmail())
                 $msg = sprintf(__('Account password reset email sent to %s'),$user->getEmail());
             else
@@ -64,7 +67,8 @@ if ($_POST) {
             break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = __('You must select at least one user.');
+                $errors['err'] = sprintf(__('You must select at least %s.'),
+                    __('one end user'));
             } else {
                 $errors['err'] = "Coming soon!";
             }
@@ -72,8 +76,8 @@ if ($_POST) {
         case 'import-users':
             $status = User::importFromPost($_FILES['import'] ?: $_POST['pasted']);
             if (is_numeric($status))
-                $msg = sprintf(_N('Successfully imported %1$d client.', 'Successfully imported %1$d clients.', $status),
-                   $status);
+                $msg = sprintf(__('Successfully imported %1$d %2$s.'), $status,
+                    _N('end user', 'end users', $status));
             else
                 $errors['err'] = $status;
             break;
