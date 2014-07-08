@@ -42,10 +42,10 @@ else
     $showing=__('No emails found!');
 
 ?>
-<div style="width:700px;padding-top:5px; float:left;">
+<div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Email Addresses');?></h2>
  </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
     <b><a href="emails.php?a=add" class="Icon newEmail"><?php echo __('Add New Email');?></a></b></div>
 <div class="clear"></div>
 <form action="emails.php" method="POST" name="emails">
@@ -84,7 +84,7 @@ else
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['email_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>>
                 </td>
-                <td><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo Format::htmlchars($email); ?></a>&nbsp;</td>
+                <td><span class="ltr"><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo Format::htmlchars($email); ?></a></span></td>
                 <td><?php echo $row['priority']; ?></td>
                 <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
@@ -131,10 +131,10 @@ endif;
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>

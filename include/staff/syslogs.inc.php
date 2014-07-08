@@ -182,10 +182,10 @@ endif;
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>

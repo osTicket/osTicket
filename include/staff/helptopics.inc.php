@@ -31,10 +31,10 @@ if ($cfg->getTopicSortMode() == 'a')
     usort($topics, function($a, $b) { return strcmp($a['name'], $b['name']); });
 
 ?>
-<div style="width:700px;padding-top:5px; float:left;">
+<div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Help Topics');?></h2>
  </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
     <b><a href="helptopics.php?a=add" class="Icon newHelpTopic"><?php echo __('Add New Help Topic');?></a></b></div>
 <div class="clear"></div>
 <form action="helptopics.php" method="POST" name="topics">
@@ -42,9 +42,9 @@ if ($cfg->getTopicSortMode() == 'a')
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><span style="display:inline-block;vertical-align:middle"><?php
+    <caption><span class="pull-left" style="display:inline-block;vertical-align:middle"><?php
          echo $showing; ?></span>
-         <div class="pull-right"><?php echo _('Sorting Mode'); ?>:
+         <div class="pull-right"><?php echo __('Sorting Mode'); ?>:
         <select name="help_topic_sort_mode" onchange="javascript:
     var $form = $(this).closest('form');
     $form.find('input[name=a]').val('sort');
@@ -160,10 +160,10 @@ endif;
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>

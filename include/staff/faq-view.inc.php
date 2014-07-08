@@ -10,10 +10,10 @@ $category=$faq->getCategory();
     &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
     <span class="faded">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</span>
 </div>
-<div style="width:700px;padding-top:2px; float:left;">
+<div class="pull-left" style="width:700px;padding-top:2px;">
 <strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo $faq->isPublished()?__('(Published)'):''; ?></span>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
 <?php
 if($thisstaff->canManageFAQ()) {
     echo sprintf('<a href="faq.php?id=%d&a=edit" class="Icon newHelpTopic">'.__('Edit FAQ').'</a>',

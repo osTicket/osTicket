@@ -71,7 +71,7 @@ $qhash = md5($query);
 $_SESSION['orgs_qs_'.$qhash] = $query;
 ?>
 <h2><?php echo __('Organizations'); ?></h2>
-<div style="width:700px; float:left;">
+<div class="pull-left" style="width:700px;">
     <form action="orgs.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -85,7 +85,7 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
         </table>
     </form>
  </div>
- <div style="float:right;text-align:right;padding-right:5px;">
+ <div class="pull-right flush-right">
     <b><a href="#orgs/add" class="Icon newDepartment add-org"><?php
     echo __('Add New Organization'); ?></a></b></div>
 <div class="clear"></div>

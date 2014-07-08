@@ -1,7 +1,7 @@
-<div style="width:700;padding-top:5px; float:left;">
+<div class="pull-left" style="width:700;padding-top:5px;">
  <h2><?php echo __('Custom Lists'); ?></h2>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
  <b><a href="lists.php?a=add" class="Icon list-add"><?php
  echo __('Add New Custom List'); ?></a></b></div>
 <div class="clear"></div>
@@ -84,10 +84,10 @@ if ($count) //Show options..
     <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="No, Cancel" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="Yes, Do it!" class="confirm">
         </span>
     </p>

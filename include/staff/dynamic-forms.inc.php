@@ -1,8 +1,9 @@
-<div style="width:700;padding-top:5px; float:left;">
+<div class="pull-left" style="width:700;padding-top:5px;">
  <h2><?php echo __('Custom Forms'); ?></h2>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="forms.php?a=add" class="Icon form-add">Add New Custom Form</a></b></div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
+<b><a href="forms.php?a=add" class="Icon form-add"><?php
+    echo __('Add New Custom Form'); ?></a></b></div>
 <div class="clear"></div>
 
 <?php
@@ -110,10 +111,10 @@ if ($count) //Show options..
     <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="No, Cancel" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="Yes, Do it!" class="confirm">
         </span>
      </p>

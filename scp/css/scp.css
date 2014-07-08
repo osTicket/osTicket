@@ -458,6 +458,7 @@ table.list thead th {
     color:#000;
     text-align:left;
     vertical-align:top;
+    padding: 0 4px;
 }
 
 table.list th a {
@@ -477,7 +478,7 @@ table.list tbody td {
     vertical-align:top;
 }
 
-table.list tbody td { background: #fff; padding: 1px; padding-left:2px; vertical-align: top; }
+table.list tbody td { background: #fff; padding: 1px 3px; vertical-align: top; }
 table.list tbody tr:nth-child(2n+1) td { background-color: #f0faff; }
 table.list tbody tr:hover td { background: #ffe; }
 table.list tbody tr:nth-child(2n+1):hover td { background: #ffd; }
@@ -1862,4 +1863,14 @@ table.custom-info td {
 
 .delete-draft:hover {
     background-color: #fc9f41 !important;
+}
+.pull-right {
+    float: right;
+}
+.flush-right {
+    text-align: right;
+}
+.ltr {
+    direction: ltr;
+    unicode-bidi: embed;
 }

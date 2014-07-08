@@ -926,11 +926,11 @@ $tcount+= $ticket->getNumNotes();
         </fieldset>
         <hr style="margin-top:3em"/>
         <p class="full-width">
-            <span class="buttons" style="float:left">
+            <span class="buttons pull-left">
                 <input type="reset" value="<?php echo __('Reset');?>">
                 <input type="button" value="<?php echo __('Cancel');?>" class="close">
             </span>
-            <span class="buttons" style="float:right">
+            <span class="buttons pull-right">
                 <input type="submit" value="<?php echo __('Print');?>">
             </span>
          </p>
@@ -958,11 +958,11 @@ $tcount+= $ticket->getNumNotes();
         </fieldset>
         <hr style="margin-top:1em"/>
         <p class="full-width">
-            <span class="buttons" style="float:left">
+            <span class="buttons pull-left">
                 <input type="reset" value="<?php echo __('Reset');?>">
                 <input type="button" value="<?php echo __('Cancel');?>" class="close">
             </span>
-            <span class="buttons" style="float:right">
+            <span class="buttons pull-right">
                 <input type="submit" value="<?php echo $ticket->isClosed()?__('Reopen'):__('Close'); ?>">
             </span>
          </p>
@@ -1015,10 +1015,10 @@ $tcount+= $ticket->getNumNotes();
         <input type="hidden" name="do" id="action" value="">
         <hr style="margin-top:1em"/>
         <p class="full-width">
-            <span class="buttons" style="float:left">
+            <span class="buttons pull-left">
                 <input type="button" value="<?php echo __('Cancel');?>" class="close">
             </span>
-            <span class="buttons" style="float:right">
+            <span class="buttons pull-right">
                 <input type="submit" value="<?php echo __('OK');?>">
             </span>
          </p>

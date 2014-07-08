@@ -166,6 +166,11 @@ class Internationalization {
             return $lang;
     }
 
+    static function getLanguageInfo($lang) {
+        $langs = self::availableLanguages();
+        return @$langs[$lang] ?: array();
+    }
+
     static function availableLanguages($base=I18N_DIR) {
         static $cache = false;
         if ($cache) return $cache;

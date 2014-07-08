@@ -42,10 +42,10 @@ else
 
 ?>
 
-<div style="width:700px;padding-top:5px; float:left;">
+<div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Email Template Sets'); ?></h2>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
  <b><a href="templates.php?a=add" class="Icon newEmailTemplate"><?php echo __('Add New Template Set'); ?></a></b></div>
 <div class="clear"></div>
 <form action="templates.php" method="POST" name="tpls">
@@ -139,10 +139,10 @@ endif;
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>

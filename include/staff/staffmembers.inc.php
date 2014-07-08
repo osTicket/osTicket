@@ -55,7 +55,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
 //echo $query;
 ?>
 <h2><?php echo __('Agents');?></h2>
-<div style="width:700px; float:left;">
+<div class="pull-left" style="width:700px;">
     <form action="staff.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
         <select name="did" id="did">
@@ -106,7 +106,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
         <input type="submit" name="submit" value="<?php echo __('Apply');?>"/>
     </form>
  </div>
-<div style="float:right;text-align:right;padding-right:5px;"><b><a href="staff.php?a=add" class="Icon newstaff"><?php echo __('Add New Agent');?></a></b></div>
+<div class="pull-right flush-right" style="padding-right:5px;"><b><a href="staff.php?a=add" class="Icon newstaff"><?php echo __('Add New Agent');?></a></b></div>
 <div class="clear"></div>
 <?php
 $res=db_query($query);
@@ -205,10 +205,10 @@ endif;
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>

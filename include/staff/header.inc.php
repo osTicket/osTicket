@@ -1,6 +1,11 @@
 <?php if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<html <?php
+if ($thisstaff && ($lang = $thisstaff->getLanguage())
+        && ($info = Internationalization::getLanguageInfo($lang))
+        && (@$info['direction'] == 'rtl'))
+    echo 'dir="rtl" class="rtl"';
+?>>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -35,6 +40,7 @@
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="./css/dropdown.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
 
     <?php

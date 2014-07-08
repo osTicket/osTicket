@@ -148,15 +148,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         foreach($match_types as $k=>$v){
                             $sel=($info["rule_h$i"]==$k)?'selected="selected"':'';
                             echo sprintf('<option value="%s" %s>%s</option>',
-                                $k,$sel,__($v));
+                                $k,$sel,$v);
                         }
                         ?>
                     </select>&nbsp;
-                    <input type="text" size="60" name="rule_v<?php echo $i; ?>" value="<?php echo $info["rule_v$i"]; ?>">
+                    <input class="ltr" type="text" size="60" name="rule_v<?php echo $i; ?>" value="<?php echo $info["rule_v$i"]; ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors["rule_$i"]; ?></span>
                 <?php
                 if($info["rule_w$i"] || $info["rule_h$i"] || $info["rule_v$i"]){ ?>
-                <div style="float:right;text-align:right;padding-right:20px;"><a href="#" class="clearrule">(<?php echo __('clear');?>)</a></div>
+                <div class="pull-right" style="padding-right:20px;"><a href="#" class="clearrule">(<?php echo __('clear');?>)</a></div>
                 <?php
                 } ?>
                 </div>

@@ -258,10 +258,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <div id="deleted-fields"></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="No, Cancel" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="submit" value="Continue" class="confirm">
         </span>
      </p>

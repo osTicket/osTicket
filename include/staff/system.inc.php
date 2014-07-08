@@ -13,13 +13,13 @@ $commit = GIT_VERSION != '$git' ? GIT_VERSION : (
 </thead>
 <tbody>
     <tr><td><?php echo __('osTicket Version'); ?></td>
-        <td><?php echo sprintf("%s (%s)", THIS_VERSION, $commit); ?></td></tr>
+        <td><span class="ltr"><?php echo sprintf("%s (%s)", THIS_VERSION, $commit); ?></span></td></tr>
     <tr><td><?php echo __('Server Software'); ?></td>
-        <td><?php echo $_SERVER['SERVER_SOFTWARE']; ?></td></tr>
+        <td><span class="ltr"><?php echo $_SERVER['SERVER_SOFTWARE']; ?></span></td></tr>
     <tr><td><?php echo __('PHP Version'); ?></td>
-        <td><?php echo phpversion(); ?></td></tr>
+        <td><span class="ltr"><?php echo phpversion(); ?></span></td></tr>
     <tr><td><?php echo __('MySQL Version'); ?></td>
-        <td><?php echo db_version(); ?></td></tr>
+        <td><span class="ltr"><?php echo db_version(); ?></span></td></tr>
 
     <tr><td><?php echo __('PHP Extensions'); ?></td>
         <td><table><tbody>
@@ -61,9 +61,9 @@ $commit = GIT_VERSION != '$git' ? GIT_VERSION : (
         <tr><td><i class="icon icon-<?php
                 echo extension_loaded('mbstring')?'check':'warning-sign'; ?>"></i>
             </td><td>
-            <code>cgi.fix_pathinfo</code> =
+            <span class="ltr"><code>cgi.fix_pathinfo</code> =
                 <?php echo ini_get('cgi.fix_pathinfo'); ?>
-            </td><td>
+            </span></td><td>
             <span class="faded"><?php echo __('"1" is recommended if AJAX is not working'); ?></span>
         </td></tr>
         </tbody></table></td></tr>

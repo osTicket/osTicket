@@ -2,10 +2,10 @@
 if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 
 ?>
-<div style="width:700px;padding-top:10px; float:left;">
+<div class="pull-left" style="width:700px;padding-top:10px;">
   <h2><?php echo __('Frequently Asked Questions');?></h2>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">&nbsp;</div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">&nbsp;</div>
 <div class="clear"></div>
 <br>
 <div>

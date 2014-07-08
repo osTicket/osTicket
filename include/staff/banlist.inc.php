@@ -49,7 +49,7 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
 <h2><?php echo __('Banned Email Addresses');?>
     <i class="help-tip icon-question-sign" href="#ban_list"></i>
     </h2>
-<div style="width:600; float:left;padding-top:5px;">
+<div class="pull-left" style="width:600;padding-top:5px;">
     <form action="banlist.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
      <div>
@@ -59,7 +59,7 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
      </div>
     </form>
  </div>
-<div style="float:right;text-align:right;padding-right:5px;"><b><a href="banlist.php?a=add" class="Icon newstaff"><?php echo __('Ban New Email');?></a></b></div>
+<div class="pull-right flush-right" style="padding-right:5px;"><b><a href="banlist.php?a=add" class="Icon newstaff"><?php echo __('Ban New Email');?></a></b></div>
 <div class="clear"></div>
 <?php
 if(($res=db_query($query)) && ($num=db_num_rows($res)))
@@ -154,10 +154,10 @@ endif;
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>

@@ -29,6 +29,7 @@ return array(
         "nativeName" => "አማርኛ"
     ),
     "ar" => array(
+        "direction" => "rtl",
         "name" => "Arabic",
         "nativeName" => "العربية"
     ),
@@ -229,6 +230,7 @@ return array(
         "nativeName" => "Hausa, هَوُسَ"
     ),
     "he" => array(
+        "direction" => "rtl",
         "name" => "Hebrew (modern)",
         "nativeName" => "עברית"
     ),
@@ -501,6 +503,7 @@ return array(
         "nativeName" => "पाऴि"
     ),
     "fa" => array(
+        "direction" => "rtl",
         "name" => "Persian",
         "nativeName" => "فارسی"
     ),

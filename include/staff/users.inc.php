@@ -74,7 +74,7 @@ $_SESSION['users_qs_'.$qhash] = $query;
 
 ?>
 <h2><?php echo __('User Directory'); ?></h2>
-<div style="width:700px; float:left;">
+<div class="pull-left" style="width:700px;">
     <form action="users.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -82,13 +82,13 @@ $_SESSION['users_qs_'.$qhash] = $query;
             <tr>
                 <td><input type="text" id="basic-user-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-                <td><input type="submit" name="basic_search" class="button" value="Search"></td>
+                <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
                 <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
             </tr>
         </table>
     </form>
  </div>
- <div style="float:right;text-align:right;padding-right:5px;">
+ <div class="pull-right flush-right" style="padding-right:5px;">
     <b><a href="#users/add" class="Icon newstaff popup-dialog"><?php echo __('Add User'); ?></a></b>
     |
     <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i>
