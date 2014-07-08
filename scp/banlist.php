@@ -36,9 +36,9 @@ if($_POST && !$errors && $filter){
             }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])){
                 $errors['err']=$errors['val']=__('Valid email address required');
             }elseif(!$errors){
-                $vars=array('w'=>'email',
-                            'h'=>'equal',
-                            'v'=>trim($_POST['val']),
+                $vars=array('what'=>'email',
+                            'how'=>'equal',
+                            'val'=>trim($_POST['val']),
                             'filter_id'=>$filter->getId(),
                             'isactive'=>$_POST['isactive'],
                             'notes'=>$_POST['notes']);
