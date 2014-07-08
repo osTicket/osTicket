@@ -158,10 +158,39 @@ class Internationalization {
     }
 
     static function getLanguageDescription($lang) {
+        global $thisstaff, $thisclient;
+
         $langs = self::availableLanguages();
         $lang = strtolower($lang);
-        if (isset($langs[$lang]))
-            return $langs[$lang]['desc'];
+        if (isset($langs[$lang])) {
+            $info = &$langs[$lang];
+            if (!isset($info['desc'])) {
+                if (extension_loaded('intl')) {
+                    if ($thisstaff)
+                        $lang = $thisstaff->getLanguage();
+                    elseif ($thisclient)
+                        $lang = $thisclient->getLanguage();
+                    else
+                        $lang = self::getDefaultLanguage();
+                    list($simple_lang,) = explode('_', $lang);
+                    $info['desc'] = sprintf("%s%s",
+                        // Display the localized name of the language
+                        Locale::getDisplayName($info['code'], $info['code']),
+                        // If the major language differes from the user's,
+                        // display the language in the user's language
+                        (strpos($simple_lang, $info['lang']) === false
+                            ? sprintf(' (%s)', Locale::getDisplayName($info['code'], $lang)) : '')
+                    );
+                }
+                else {
+                    $info['desc'] = sprintf("%s%s (%s)",
+                        $info['nativeName'],
+                        $info['locale'] ? sprintf(' - %s', $info['locale']) : '',
+                        $info['name']);
+                }
+            }
+            return $info['desc'];
+        }
         else
             return $lang;
     }
@@ -192,10 +221,6 @@ class Internationalization {
                     'locale' => $locale,
                     'path' => $f,
                     'code' => $base,
-                    'desc' => sprintf("%s%s (%s)",
-                        $langs[$code]['nativeName'],
-                        $locale ? sprintf(' - %s', $locale) : '',
-                        $langs[$code]['name']),
                 );
             }
         }

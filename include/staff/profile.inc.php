@@ -112,7 +112,7 @@ $info['id']=$staff->getId();
 <?php foreach($langs as $l) {
     $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
                     <option value="<?php echo $l['code']; ?>" <?php echo $selected;
-                        ?>><?php echo $l['desc']; ?></option>
+                        ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
 <?php } ?>
                 </select>
                 <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
