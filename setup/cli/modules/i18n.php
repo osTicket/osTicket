@@ -259,21 +259,28 @@ class i18n_Compiler extends Module {
             }
         }
     }
-    function __read_args($tokens, $constants=1) {
+    function __read_args($tokens, $proto=false) {
         $args = array('forms'=>array());
         $arg = null;
+        $proto = $proto ?: array('forms'=>1);
 
         while (list($string,$T) = $this->__read_next_string($tokens)) {
-            if (count($args['forms']) < $constants && $string) {
+            // Add context and forms
+            if (isset($proto['context']) && !isset($args['context'])) {
+                $args['context'] = $string['form'];
+            }
+            elseif (count($args['forms']) < $proto['forms'] && $string) {
                 if (isset($string['constant']) && !$string['constant']) {
                     throw new Exception($string['form'] . ': Untranslatable string');
                 }
                 $args['forms'][] = $string['form'];
-                $args['line'] = $string['line'];
-                if (isset($string['comments']))
-                    $args['comments'] = array_merge(
-                        @$args['comments'] ?: array(), $string['comments']);
             }
+            // Add usage and comment info
+            if (!isset($args['line']) && isset($string['line']))
+                $args['line'] = $string['line'];
+            if (isset($string['comments']))
+                $args['comments'] = array_merge(
+                    @$args['comments'] ?: array(), $string['comments']);
 
             switch ($T[0]) {
             case ')':
@@ -398,6 +405,10 @@ class i18n_Compiler extends Module {
             if ($f = @$S['flags']) {
                 print "#, ".implode(', ', $f)."\n";
             }
+            if (isset($S['context'])) {
+                print "msgctxt ";
+                $this->__write_string($S['context']);
+            }
             print "msgid ";
             $this->__write_string($S['forms'][0]);
             if (count($S['forms']) == 2) {
@@ -414,7 +425,14 @@ class i18n_Compiler extends Module {
 
     function _make_pot() {
         error_reporting(E_ALL);
-        $funcs = array('__'=>1, '_S'=>1, '_N'=>2, '_SN'=>2);
+        $funcs = array(
+            '__'    => array('forms'=>1),
+            '_S'    => array('forms'=>1),
+            '_N'    => array('forms'=>2),
+            '_NS'   => array('forms'=>2),
+            '_P'    => array('context'=>1, 'forms'=>1),
+            '_NP'   => array('context'=>1, 'forms'=>2),
+        );
         $files = Test::getAllScripts();
         $strings = array();
         foreach ($files as $f) {
@@ -436,6 +454,8 @@ class i18n_Compiler extends Module {
         $primary = $forms[0];
         // Normalize the $primary string
         $primary = preg_replace(array("`\\\(['$])`", '`(?<!\\\)"`'), array("$1", '\"'), $primary);
+        if (isset($call['context']))
+            $primary = $call['context'] . "\x04" . $primary;
         if (!isset($strings[$primary])) {
             $strings[$primary] = array('forms' => $forms);
         }
@@ -447,11 +467,13 @@ class i18n_Compiler extends Module {
             $E['flags'] = array_unique(array_merge(@$E['flags'] ?: array(), $call['flags']));
         if (isset($call['comments']))
             $E['comments'] = array_merge(@$E['comments'] ?: array(), $call['comments']);
+        if (isset($call['context']))
+            $E['context'] = $call['context'];
     }
 
     function __getAllJsPhrases() {
         $strings = array();
-        $funcs = array('__'=>1);
+        $funcs = array('__'=>array('forms'=>1));
         foreach (glob_recursive(ROOT_DIR . "*.js") as $s) {
             $script = file_get_contents($s);
             $s = str_replace(ROOT_DIR, '', $s);

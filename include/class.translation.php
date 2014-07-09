@@ -3,11 +3,12 @@
     class.gettext.php
 
     This implements a `Translation` class that is loosely based on the PHP
-    gettext pure-php module.
+    gettext pure-php module. It includes some code from the project and some
+    code which is based in part at least on the PHP gettext project.
 
     This extension to the PHP gettext extension using a specially crafted MO
-    file which is a PHP serialized hash array. The file can be built using a
-    utility method in this class.
+    file which is a PHP hash array. The file can be built using a utility
+    method in this class.
 
     Jared Hancock <jared@osticket.com>
     Copyright (c)  2006-2014 osTicket

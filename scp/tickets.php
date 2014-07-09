@@ -522,8 +522,11 @@ $stats= $thisstaff->getTicketsStats();
 
 //Navigation
 $nav->setTabActive('tickets');
+$open_name = _P('queue-name',
+    /* This is the name of the open ticket queue */
+    'Open');
 if($cfg->showAnsweredTickets()) {
-    $nav->addSubMenu(array('desc'=>__('Open').' ('.number_format($stats['open']+$stats['answered']).')',
+    $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']+$stats['answered']).')',
                             'title'=>__('Open Tickets'),
                             'href'=>'tickets.php',
                             'iconclass'=>'Ticket'),
@@ -531,7 +534,7 @@ if($cfg->showAnsweredTickets()) {
 } else {
 
     if($stats) {
-        $nav->addSubMenu(array('desc'=>__('Open').' ('.number_format($stats['open']).')',
+        $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
                                'title'=>__('Open Tickets'),
                                'href'=>'tickets.php',
                                'iconclass'=>'Ticket'),

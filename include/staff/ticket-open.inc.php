@@ -373,7 +373,7 @@ if ($_POST)
         <tr>
             <td colspan=2>
                 <textarea class="richtext ifhtml draft draft-delete"
-                    placeholder="Optional internal note (recommended on assignment)"
+                    placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
                     data-draft-namespace="ticket.staff.note" name="note"
                     cols="21" rows="6" style="width:80%;"
                     ><?php echo $info['note']; ?></textarea>
@@ -382,7 +382,7 @@ if ($_POST)
     </tbody>
 </table>
 <p style="text-align:center;">
-    <input type="submit" name="submit" value="<?php echo __('Open');?>">
+    <input type="submit" name="submit" value="<?php echo _P('action-button', 'Open');?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
         $('.richtext').each(function() {

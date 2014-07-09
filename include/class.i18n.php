@@ -334,8 +334,18 @@ class Internationalization {
             global $cfg;
             return __($msgid);
         }
-        function _SN($msgid, $plural, $count) {
+        function _NS($msgid, $plural, $count) {
             global $cfg;
+        }
+
+        // Phrases with separate contexts
+        function _P($context, $msgid) {
+            return TextDomain::lookup()->getTranslation()
+                ->pgettext($context, $msgid);
+        }
+        function _NP($context, $singular, $plural, $n) {
+            return TextDomain::lookup()->getTranslation()
+                ->npgettext($context, $singular, $plural, $n);
         }
 
         // Language-specific translations
@@ -343,7 +353,7 @@ class Internationalization {
             return TextDomain::lookup()->getTranslation($locale)
                 ->translate($msgid);
         }
-        function _LN($msgid, $plural, $count, $locale) {
+        function _NL($msgid, $plural, $count, $locale) {
             return TextDomain::lookup()->getTranslation($locale)
                 ->ngettext($msgid);
         }

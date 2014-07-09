@@ -554,7 +554,7 @@ if ($results) {
             <label for="status"><?php echo __('Status');?>:</label>
             <select id="status" name="status">
                 <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
-                <option value="open"><?php echo __('Open');?></option>
+                <option value="open"><?php echo _P('ticket-status', 'Open');?></option>
                 <?php
                 if(!$cfg->showAnsweredTickets()) {?>
                 <option value="answered"><?php echo __('Answered');?></option>

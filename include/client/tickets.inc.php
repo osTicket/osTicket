@@ -116,7 +116,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     <select name="status">
         <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
         <option value="open"
-            <?php echo ($status=='open')?'selected="selected"':'';?>><?php echo __('Open');?> (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
+            <?php echo ($status=='open')?'selected="selected"':'';?>><?php echo _P('ticket-status', 'Open');?> (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
         <?php
         if($thisclient->getNumClosedTickets()) {
             ?>
