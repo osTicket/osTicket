@@ -275,10 +275,15 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
 
 
-    function getItem($id) {
-         return DynamicListItem::lookup(array(
-                     'id' => $id,
-                     'list_id' => $this->getId()));
+    function getItem($val) {
+
+        $criteria = array('list_id' => $this->getId());
+        if (is_int($val))
+            $criteria['id'] = $val;
+        else
+            $criteria['value'] = $val;
+
+         return DynamicListItem::lookup($criteria);
     }
 
     function addItem($vars, &$errors) {
@@ -640,11 +645,16 @@ class TicketStatusList extends BuiltInCustomList {
         return $this->_items;
     }
 
-    function getItem($id) {
-         return TicketStatus::lookup($id);
+    function getItem($val) {
+
+        if (!is_int($val))
+            $val = array('name' => $val);
+
+         return TicketStatus::lookup($val);
     }
 
     function addItem($vars, &$errors) {
+
         $item = TicketStatus::create(array(
             'flags' => 0, //Disable  until configured.
             'sort'  => $vars['sort'],

@@ -256,7 +256,7 @@ class FormField {
      * useful error message indicating what is wrong with the input.
      */
     function parse($value) {
-        return trim($value);
+        return is_string($value) ? trim($value) : $value;
     }
 
     /**
@@ -1110,7 +1110,7 @@ class PhoneNumberWidget extends Widget {
 class ChoicesWidget extends Widget {
     function render($mode=false) {
 
-        if ($mode && $mode =='view') {
+        if ($mode && $mode == 'view') {
             if (!($val = (string) $this->field))
                 $val = '<span class="faded">None</span>';
 

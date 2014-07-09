@@ -65,7 +65,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         else
             $list = BuiltInCustomList::lookup($list_id);
 
-        if (!($item = $list->getItem($item_id)))
+        if (!($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
         include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
@@ -78,7 +78,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         else
             $list = BuiltInCustomList::lookup($list_id);
 
-        if (!($item = $list->getItem($item_id)))
+        if (!($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
         if (!$item->setConfiguration())
