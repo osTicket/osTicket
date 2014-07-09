@@ -751,9 +751,9 @@ class ChoiceField extends FormField {
         if (is_array($value)) {
             foreach($value as $k => $v)
                 if (isset($choices[$v]))
-                    $values[] = $v;
+                    $values[$v] = $choices[$v];
         } elseif(isset($choices[$value])) {
-            $values[] = $value;
+            $values[$value] = $choices[$value];
         }
 
         return $values ?: null;
@@ -761,13 +761,14 @@ class ChoiceField extends FormField {
 
     function to_database($value) {
         if ($value && is_array($value))
-            $value = implode(',', $value);
+            $value = JsonDataEncoder::encode($value);
 
         return $value;
     }
 
     function to_php($value) {
-        return $value ? explode(',', $value) : $value;
+        return ($value && !is_array($value))
+            ? JsonDataParser::parse($value) : $value;
     }
 
     function toString($value) {
@@ -775,9 +776,7 @@ class ChoiceField extends FormField {
         $choices = $this->getChoices();
         $selection = array();
         if ($value && is_array($value)) {
-            foreach ($value as $v)
-                if (isset($choices[$v]))
-                    $selection[] = $choices[$v];
+            $selection = $value;
         } elseif (isset($choices[$value]))
             $selection[] = $choices[$value];
         elseif ($this->get('default'))
@@ -786,8 +785,8 @@ class ChoiceField extends FormField {
         return $selection ? implode(', ', array_filter($selection)) : '';
     }
 
-    function getChoices() {
-        if ($this->_choices === null) {
+    function getChoices($verbose=false) {
+        if ($this->_choices === null || $verbose) {
             // Allow choices to be set in this->ht (for configurationOptions)
             $this->_choices = $this->get('choices');
             if (!$this->_choices) {
@@ -800,6 +799,18 @@ class ChoiceField extends FormField {
                     if ($val == null)
                         $val = $key;
                     $this->_choices[trim($key)] = trim($val);
+                }
+                // Add old selections if nolonger available
+                // This is necessary so choices made previously can be
+                // retained
+                $values = ($a=$this->getAnswer()) ? $a->getValue() : array();
+                if ($values && is_array($values)) {
+                    foreach ($values as $k => $v) {
+                        if (!isset($this->_choices[$k])) {
+                            if ($verbose) $v .= ' (retired)';
+                            $this->_choices[$k] = $v;
+                        }
+                    }
                 }
             }
         }
@@ -1121,7 +1132,7 @@ class ChoicesWidget extends Widget {
         $config = $this->field->getConfiguration();
         // Determine the value for the default (the one listed if nothing is
         // selected)
-        $choices = $this->field->getChoices();
+        $choices = $this->field->getChoices(true);
         $prompt = $config['prompt'] ?: 'Select';
 
         $have_def = false;
@@ -1135,16 +1146,15 @@ class ChoicesWidget extends Widget {
             $have_def = isset($choices[$def_key]);
             $def_val = $have_def ? $choices[$def_key] : $prompt;
         }
-        $value = $this->value;
-        if ($value === null && $have_def)
-            $value = $def_key;
 
-        if ($value && is_array($value))
-            $values = $value;
-        elseif ($value !== null) // Assume multiselect (comma delimited values)
-            $values = explode(',', $value);
-        else
-            $values = array();
+        if (($value=$this->getValue()))
+            $values = $this->field->parse($value);
+        elseif ($this->value)
+             $values = $this->value;
+
+        if ($values === null)
+            $values = $have_def ? array($def_key => $choices[$def_key]) : array();
+
         ?>
         <span style="display:inline-block">
         <select name="<?php echo $this->name; ?>[]"
@@ -1156,11 +1166,11 @@ class ChoicesWidget extends Widget {
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
             <?php }
-            foreach ($choices as $key=>$name) {
+            foreach ($choices as $key => $name) {
                 if (!$have_def && $key == $def_key)
                     continue; ?>
                 <option value="<?php echo $key; ?>" <?php
-                    if (in_array($key, $values)) echo 'selected="selected"';
+                    if (isset($values[$key])) echo 'selected="selected"';
                 ?>><?php echo $name; ?></option>
             <?php } ?>
         </select>

@@ -892,11 +892,10 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     function setConfiguration(&$errors=array()) {
         $properties = array();
         foreach ($this->getConfigurationForm()->getFields() as $f) {
-            $val = $f->to_database($f->getClean());
+            $val = $f->getClean();
             $name = mb_strtolower($f->get('name'));
             switch ($name) {
                 case 'flags':
-                    $val = $f->getClean();
                     if ($val && is_array($val)) {
                         $flags = 0;
                         foreach ($val as $v) {
@@ -911,13 +910,14 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
                     }
                     break;
                 case 'state':
+                    $val = $f->to_database($val);
                     if ($val && in_array($val, static::$_states))
                         $this->set('state', $val);
                     else
                         $f->addError('Unknown or invalid state', $name);
                     break;
                 default: //Custom properties the user might add.
-                    $properties[$f->get('id')] = $val;
+                    $properties[$f->get('id')] = $f->to_php($val);
             }
             $errors = array_merge($errors, $f->errors());
         }
