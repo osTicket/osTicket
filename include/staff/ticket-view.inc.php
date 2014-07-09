@@ -200,10 +200,10 @@ if($ticket->isOverdue())
                                     <?php
                                     if(($open=$user->getNumOpenTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt icon-fixed-width"></i> %s</a></li>',
-                                                $user->getId(), sprintf(__('%d Open Tickets'), $open));
+                                                $user->getId(), sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open));
                                     if(($closed=$user->getNumClosedTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i class="icon-folder-close-alt icon-fixed-width"></i> %s</a></li>',
-                                                $user->getId(), sprintf(__('%d Closed Tickets'), $closed));
+                                                $user->getId(), sprintf(_N('%d Closed Ticket', '%d Closed Tickets', $closed), $closed));
                                     ?>
                                     <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
                                     <li><a href="users.php?id=<?php echo
