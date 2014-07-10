@@ -129,7 +129,7 @@ class StaffNav {
 
                         if($staff->canCreateTickets())
                             $subnav[]=array('desc'=>__('New Ticket'),
-                                            'title' => __('Open New Ticket'),
+                                            'title' => __('Open a New Ticket'),
                                             'href'=>'tickets.php?a=open',
                                             'iconclass'=>'newTicket',
                                             'id' => 'new-ticket',
@@ -314,7 +314,7 @@ class UserNav {
             // possible for web clients.
             if ($cfg->getClientRegistrationMode() != 'disabled'
                     || !$cfg->isClientLoginRequired())
-                $navs['new']=array('desc'=>__('Open New Ticket'),'href'=>'open.php','title'=>'');
+                $navs['new']=array('desc'=>__('Open a New Ticket'),'href'=>'open.php','title'=>'');
             if($user && $user->isValid()) {
                 if(!$user->isGuest()) {
                     $navs['tickets']=array('desc'=>sprintf(__('Tickets (%d)'),$user->getNumTickets()),

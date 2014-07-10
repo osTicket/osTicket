@@ -91,15 +91,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php } # end if ($current_group)
             if (isset($impl[$cn])) {
                 echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">%s</span><br/>&nbsp;%s</td></tr>',
-                $impl[$cn]->getId(), Format::htmlchars($info['name']),
+                $impl[$cn]->getId(), Format::htmlchars(__($info['name'])),
                 sprintf(__('Updated %s'), Format::db_datetime($impl[$cn]->getLastUpdated())),
-                Format::htmlchars($info['desc']));
+                Format::htmlchars(__($info['desc'])));
             } else {
                 echo sprintf('<tr><td colspan=2>&nbsp;<strong><a
                     href="templates.php?tpl_id=%d&a=implement&code_name=%s"
                     >%s</a></strong><br/>&nbsp%s</td></tr>',
-                    $template->getid(),$cn,format::htmlchars($info['name']),
-                    format::htmlchars($info['desc']));
+                    $template->getid(),$cn,format::htmlchars(__($info['name'])),
+                    format::htmlchars(__($info['desc'])));
             }
          } # endfor
         } else { ?>

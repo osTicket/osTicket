@@ -587,7 +587,7 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
 
 if($thisstaff->canCreateTickets()) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
-                           'title'=> __('Open New Ticket'),
+                           'title'=> __('Open a New Ticket'),
                            'href'=>'tickets.php?a=open',
                            'iconclass'=>'newTicket',
                            'id' => 'new-ticket'),

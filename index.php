@@ -25,7 +25,7 @@ require(CLIENTINC_DIR.'header.inc.php');
         echo  '<h1>'.__('Welcome to the Support Center').'</h1>';
     ?>
     <div id="new_ticket">
-        <h3><?php echo __('Open A New Ticket');?></h3>
+        <h3><?php echo __('Open a New Ticket');?></h3>
         <br>
         <div><?php echo __('Please provide as much detail as possible so we can best assist you. To update a previously submitted ticket, please login.');?></div>
         <p>
