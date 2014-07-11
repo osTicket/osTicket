@@ -2307,9 +2307,11 @@ class Ticket {
 
         if ($vars['topicId'] && ($topic=Topic::lookup($vars['topicId']))) {
             if ($topic_form = $topic->getForm()) {
+                $TF = $topic_form->getForm($vars);
                 $topic_form = $topic_form->instanciate();
-                if (!$topic_form->getForm()->isValid($field_filter('topic')))
-                    $errors = array_merge($errors, $topic_form->getForm()->errors());
+                $topic_form->setSource($vars);
+                if (!$TF->isValid($field_filter('topic')))
+                    $errors = array_merge($errors, $TF->errors());
             }
         }
 
@@ -2337,6 +2339,9 @@ class Ticket {
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] ='Missing or invalid data - check the errors and try again';
+
+        if ($vars['topicId'] && !$topic)
+            $errors['topicId'] = 'Invalid help topic selected';
 
         //Make sure the due date is valid
         if($vars['duedate']) {
