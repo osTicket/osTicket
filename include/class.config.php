@@ -797,8 +797,12 @@ class OsticketConfig extends Config {
         return ($this->get('allow_attachments'));
     }
 
-    function getSystemLanguage() {
+    function getPrimaryLanguage() {
         return $this->get('system_language');
+    }
+
+    function getSecondaryLanguages() {
+        return array('de', 'ja', 'zh_CN');
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
