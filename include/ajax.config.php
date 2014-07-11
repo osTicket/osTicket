@@ -39,6 +39,8 @@ class ConfigAjaxAPI extends AjaxController {
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
+              'primary_language' => $cfg->getPrimaryLanguage(),
+              'secondary_languages' => $cfg->getSecondaryLanguages(),
         );
         return $this->json_encode($config);
     }
@@ -60,6 +62,8 @@ class ConfigAjaxAPI extends AjaxController {
             'lang'            => $lang,
             'short_lang'      => $sl,
             'has_rtl'         => $rtl,
+            'primary_language' => $cfg->getPrimaryLanguage(),
+            'secondary_languages' => $cfg->getSecondaryLanguages(),
         );
 
         $config = $this->json_encode($config);

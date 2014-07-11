@@ -856,6 +856,116 @@ class TextDomain {
     }
 }
 
+require_once INCLUDE_DIR . 'class.orm.php';
+class CustomDataTranslation extends VerySimpleModel {
+
+    static $meta = array(
+        'table' => 'ost_translation',
+        'pk' => array('id')
+    );
+
+    const FLAG_FUZZY        = 0x01;     // Source string has been changed
+    const FLAG_UNAPPROVED   = 0x02;     // String has been reviewed by an authority
+    const FLAG_CURRENT      = 0x04;     // If more than one version exist, this is current
+
+    static function lookup($msgid, $flags=0) {
+        if (!is_string($msgid))
+            return parent::lookup($msgid);
+
+        // Hash is 16 char of md5
+        $hash = substr(md5($msgid), -16);
+
+        $criteria = array('object_hash'=>$hash);
+
+        if ($flags)
+            $criteria += array('flags__hasbit'=>$flags);
+
+        return parent::lookup($criteria);
+    }
+
+    static function getTranslation($locale, $cache=true) {
+        static $_cache = array();
+
+        if ($cache && isset($_cache[$locale]))
+            return $_cache[$locale];
+
+        $criteria = array(
+            'lang' => $locale,
+            'type' => 'phrase',
+        );
+
+        $mo = array();
+        foreach (static::objects()->filter($criteria) as $t) {
+            $mo[$t->object_hash] = $t;
+        }
+
+        return $_cache[$locale] = $mo;
+    }
+
+    static function translate($msgid, $locale=false, $cache=true) {
+        global $thisstaff, $thisclient;
+
+        if (!$locale
+                && ($user = $thisstaff ?: $thisclient)
+                && method_exists($user, 'getLanguage'))
+            $locale = $user->getLanguage();
+
+        // Support sending a User as the locale
+        elseif (is_object($locale) && method_exists($locale, 'getLanguage'))
+            $locale = $locale->getLanguage();
+
+        if ($locale) {
+            if ($cache) {
+                $mo = static::getTranslation($locale);
+                if (isset($mo[$msgid]))
+                    $msgid = $mo[$msgid]->text;
+            }
+            elseif ($p = static::lookup(array(
+                    'type' => 'phrase',
+                    'lang' => $locale,
+                    'object_hash' => $msgid
+            ))) {
+                $msgid = $p->text;
+            }
+        }
+        return $msgid;
+    }
+
+    static function allTranslations($msgid) {
+        return static::objects()->filter(array(
+            'type' => 'phrase',
+            'object_hash' => $msgid
+        ))->all();
+    }
+
+    static function getDepartmentNames($ids) {
+        global $cfg;
+
+        $tags = array();
+        $names = array();
+        foreach ($ids as $i)
+            $tags[_H('dept.name.'.$i)] = $i;
+
+        if (($lang = Internationalization::getCurrentLanguage())
+            && $lang != $cfg->getPrimaryLanguage()
+        ) {
+            foreach (CustomDataTranslation::objects()->filter(array(
+                'object_hash__in'=>array_keys($tags),
+                'lang'=>$lang
+                )) as $translation
+            ) {
+                $names[$tags[$translation->object_hash]] = $translation->text;
+            }
+        }
+        return $names;
+    }
+
+}
+
+class CustomTextDomain {
+
+}
+
 // Functions for gettext library. Since the gettext extension for PHP is not
 // used as a fallback, there is no detection and compat funciton
 // installation for the gettext library function calls.
@@ -911,6 +1021,18 @@ function _dcnpgettext($domain, $context, $singular, $plural, $category, $n) {
         ->npgettext($context, $singular, $plural, $n);
 }
 
+// Custom data translations
+function _H($tag) {
+    return substr(md5($tag), -16);
+}
+function _C(Translatable $object) {
+    return $objet->getLocalName();
+}
+
+interface Translatable {
+    function getTranslationTag();
+    function getLocalName($user=false);
+}
 
 do {
   if (PHP_SAPI != 'cli') break;

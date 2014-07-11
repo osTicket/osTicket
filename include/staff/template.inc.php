@@ -15,7 +15,7 @@ if($template && $_REQUEST['a']!='add'){
     $action='add';
     $submit_text=__('Add Template');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
-    $info['lang_id'] = $cfg->getSystemLanguage();
+    $info['lang_id'] = $cfg->getPrimaryLanguage();
     $qstr.='&a='.urlencode($_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);

@@ -26,7 +26,7 @@ class Internationalization {
     function Internationalization($language=false) {
         global $cfg;
 
-        if ($cfg && ($lang = $cfg->getSystemLanguage()))
+        if ($cfg && ($lang = $cfg->getPrimaryLanguage()))
             array_unshift($this->langs, $language);
 
         // Detect language filesystem path, case insensitively
@@ -242,7 +242,7 @@ class Internationalization {
         global $cfg;
 
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
-            return $cfg->getSystemLanguage();
+            return $cfg->getPrimaryLanguage();
 
         $languages = self::availableLanguages();
 
@@ -327,6 +327,7 @@ class Internationalization {
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
             return $user->getLanguage();
+        // Support the flag buttons for guests
         if (isset($_SESSION['client:lang']))
             return $_SESSION['client:lang'];
         return self::getDefaultLanguage();
