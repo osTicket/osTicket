@@ -31,11 +31,13 @@ if($_POST):
 
     $form = false;
     if ($topic = Topic::lookup($vars['topicId'])) {
-        if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
+        if ($form = $topic->getForm()) {
+            $TF = $form->getForm($vars);
             $form = $form->instanciate();
+            $form->setSource($vars);
             // Don't require internal fields (they're not shown)
-            if (!$form->isValid(function($f) { return !$f->get('private'); }))
-                $errors += $form->errors();
+            if (!$TF->isValid(function($f) { return !$f->get('private'); }))
+                $errors = array_merge($errors, $TF->errors());
         }
     }
 

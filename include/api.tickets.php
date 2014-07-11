@@ -123,10 +123,12 @@ class TicketApiController extends ApiController {
         $errors = array();
 
         if ($topic=Topic::lookup($data['topicId'])) {
-            if ($form=DynamicForm::lookup($topic->ht['form_id'])) {
-                $form = $form->instanciate();
-                if (!$form->isValid())
-                    $errors += $form->errors();
+            if ($topic_form = $topic->getForm()) {
+                $TF = $topic_form->getForm($data);
+                $topic_form = $topic_form->instanciate();
+                $topic_form->setSource($data);
+                if (!$TF->isValid())
+                    $errors = array_merge($errors, $TF->errors());
             }
         }
 
@@ -146,9 +148,9 @@ class TicketApiController extends ApiController {
         }
 
         # Save dynamic form
-        if (isset($form)) {
-            $form->setTicketId($ticket->getId());
-            $form->save();
+        if (isset($topic_form)) {
+            $topic_form->setTicketId($ticket->getId());
+            $topic_form->save();
         }
 
         return $ticket;

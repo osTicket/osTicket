@@ -198,9 +198,11 @@ if($_POST && !$errors):
         case 'edit':
         case 'update':
             $forms=DynamicFormEntry::forTicket($ticket->getId());
-            foreach ($forms as $form)
+            foreach ($forms as $form) {
+                $form->setSource($_POST);
                 if (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
+            }
             if(!$ticket || !$thisstaff->canEditTickets())
                 $errors['err']='Permission Denied. You are not allowed to edit tickets';
             elseif($ticket->update($_POST,$errors)) {
@@ -472,10 +474,12 @@ if($_POST && !$errors):
             case 'open':
                 $ticket=null;
                 if ($topic=Topic::lookup($_POST['topicId'])) {
-                    if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
+                    if ($form = $topic->getForm()) {
+                        $TF = $form->getForm($_POST);
                         $form = $form->instanciate();
-                        if (!$form->getForm()->isValid())
-                            $errors = array_merge($errors, $form->getForm()->errors());
+                        $form->setSource($_POST);
+                        if (!$TF->isValid())
+                            $errors = array_merge($errors, $TF->errors());
                     }
                 }
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
