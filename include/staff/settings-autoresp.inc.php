@@ -61,7 +61,7 @@ echo $config['overlimit_notice_active'] ? 'checked="checked"' : ''; ?>/>
     </tbody>
 </table>
 <p style="padding-left:200px;">
-    <input class="button" type="submit" name="submit" value="Save Changes">
-    <input class="button" type="reset" name="reset" value="Reset Changes">
+    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
+    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>">
 </p>
 </form>

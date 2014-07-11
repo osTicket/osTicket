@@ -472,7 +472,7 @@ class TicketsAjaxAPI extends AjaxController {
     function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
 
         $info += array(
-                    'title' => sprintf('Ticket #%s: Add a collaborator', $ticket->getNumber()),
+                    'title' => sprintf(__('Ticket #%s: Add a collaborator'), $ticket->getNumber()),
                     'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId()),
                     'onselect' => sprintf('ajax.php/tickets/%d/add-collaborator/', $ticket->getId()),
                     );
@@ -539,7 +539,7 @@ class TicketsAjaxAPI extends AjaxController {
 
 
         $info = array(
-            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -568,7 +568,7 @@ class TicketsAjaxAPI extends AjaxController {
         $forms = $user->getForms();
 
         $info = array(
-            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -591,7 +591,7 @@ class TicketsAjaxAPI extends AjaxController {
         $user = User::lookup($ticket->getOwnerId());
 
         $info = array(
-                'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
+                'title' => sprintf(__('Change user for ticket #%s'), $ticket->getNumber())
                 );
 
         return self::_userlookup($user, null, $info);

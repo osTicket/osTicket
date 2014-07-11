@@ -383,13 +383,13 @@ class UsersAjaxAPI extends AjaxController {
         } elseif ($orgId)
             $org = Organization::lookup($orgId);
         elseif ($org = $user->getOrganization()) {
-            $info['title'] = sprintf('%s &mdash; %s', $user->getName(), 'Organization');
+            $info['title'] = sprintf(__('%s &mdash; Organization'), $user->getName());
             $info['action'] = $info['onselect'] = '';
             $tmpl = 'org.tmpl.php';
         }
 
         if ($org && $user->getOrgId() && $org->getId() != $user->getOrgId())
-            $info['warning'] = 'Are you sure you want to change user\'s organization?';
+            $info['warning'] = __("Are you sure you want to change user's organization?");
 
         $tmpl = $tmpl ?: 'org-lookup.tmpl.php';
 
