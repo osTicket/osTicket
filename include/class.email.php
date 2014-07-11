@@ -253,7 +253,7 @@ class Email {
         if(!$vars['email'] || !Validator::is_email($vars['email'])) {
             $errors['email']=__('Valid email required');
         }elseif(($eid=Email::getIdByEmail($vars['email'])) && $eid!=$id) {
-            $errors['email']=__('Email already exits');
+            $errors['email']=__('Email already exists');
         }elseif($cfg && !strcasecmp($cfg->getAdminEmail(), $vars['email'])) {
             $errors['email']=__('Email already used as admin email!');
         }elseif(Staff::getIdByEmail($vars['email'])) { //make sure the email doesn't belong to any of the staff

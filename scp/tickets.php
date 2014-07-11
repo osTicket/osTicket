@@ -324,7 +324,7 @@ if($_POST && !$errors):
                         $msg=sprintf(__('Ticket flagged as unanswered by %s'),$thisstaff->getName());
                         $ticket->logActivity(__('Ticket Marked Unanswered'),$msg);
                     } else {
-                        $errors['err']=__('Problems marking the the ticket unanswered. Try again');
+                        $errors['err']=__('Problems marking the ticket unanswered. Try again');
                     }
                     break;
                 case 'banemail':
