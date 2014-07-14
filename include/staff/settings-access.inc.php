@@ -46,8 +46,9 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td>
               <input type="text" name="pw_reset_window" size="6" value="<?php
                     echo $config['pw_reset_window']; ?>">
-                <em>mins</em>&nbsp;<i class="help-tip icon-question-sign" href="#reset_token_expiration"></i>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['pw_reset_window']; ?></font>
+                    <em><?php echo __('minutes'); ?></em>
+                    <i class="help-tip icon-question-sign" href="#reset_token_expiration"></i>
+                &nbsp;<font class="error"><?php echo $errors['pw_reset_window']; ?></font>
             </td>
         </tr>
         <tr><td><?php echo __('Agent Excessive Logins'); ?>:</td>
@@ -67,13 +68,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                         echo sprintf('<option value="%d" %s>%d</option>', $i,(($config['staff_login_timeout']==$i)?'selected="selected"':''), $i);
                     }
                     ?>
-                </select><?php echo __('minutes locked out'); ?>
+                </select> <?php echo __('minutes locked out'); ?>
             </td>
         </tr>
         <tr><td><?php echo __('Agent Session Timeout'); ?>:</td>
             <td>
               <input type="text" name="staff_session_timeout" size=6 value="<?php echo $config['staff_session_timeout']; ?>">
-                mins <em><?php echo __('(0 to disable)'); ?></em>. <i class="help-tip icon-question-sign" href="#staff_session_timeout"></i>
+                <?php echo __('minutes'); ?> <em><?php echo __('(0 to disable)'); ?></em>. <i class="help-tip icon-question-sign" href="#staff_session_timeout"></i>
             </td>
         </tr>
         <tr><td><?php echo __('Bind Agent Session to IP'); ?>:</td>
