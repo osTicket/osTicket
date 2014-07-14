@@ -452,8 +452,8 @@ class OsticketConfig extends Config {
 
     static function allTopicSortModes() {
         return array(
-            'a' => 'Alphabetically',
-            'm' => 'Manually',
+            'a' => __('Alphabetically'),
+            'm' => __('Manually'),
         );
     }
 
