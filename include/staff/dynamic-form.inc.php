@@ -240,8 +240,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </table>
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
+    <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick='window.location.href="?"'>
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
@@ -249,7 +249,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p>
-        <strong>You are about to delete <span id="deleted-count"></span> fields.</strong>
+    <strong><?php echo sprintf(__('You are about to delete %s fields.'),
+        '<span id="deleted-count"></span>'); ?></strong>
         <?php echo __('Would you also like to remove data currently entered for this field? <em> If you opt not to remove the data now, you will have the option to delete the the data when editing it.</em>'); ?>
     </p><p style="color:red">
         <?php echo __('Deleted data CANNOT be recovered.'); ?>
@@ -259,10 +260,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="Continue" class="confirm">
+            <input type="submit" value="<?php echo __('Continue'); ?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
