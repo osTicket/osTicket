@@ -9,7 +9,7 @@
                     form.closest('.dialog').hide();
                     $('#overlay').hide();
                 } else {
-                    form.closest('.dialog').empty().append(data);
+                    form.closest('.dialog .body').empty().append(data);
                 }
             });
             return false;">
