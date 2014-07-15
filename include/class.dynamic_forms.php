@@ -46,13 +46,18 @@ class DynamicForm extends VerySimpleModel {
     var $_dfields;
 
     function getFields($cache=true) {
-        if (!isset($this->_fields) || !$cache) {
-            $this->_fields = array();
+        if (!$cache)
+            $fields = false;
+        else
+            $fields = &$this->_fields;
+
+        if (!$fields) {
+            $fields = new ArrayObject();
             foreach ($this->getDynamicFields() as $f)
                 // TODO: Index by field name or id
-                $this->_fields[$f->get('id')] = $f->getImpl($f);
+                $fields[$f->get('id')] = $f->getImpl($f);
         }
-        return $this->_fields;
+        return $fields;
     }
 
     function getDynamicFields() {
