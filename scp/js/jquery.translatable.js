@@ -6,12 +6,18 @@
   var Translatable = function( element, options ) {
     this.$element = $(element);
     this.options = $.extend({}, $.fn.translatable.defaults, options);
+    if (!this.$element.data('translateTag'))
+        return;
+
     this.$translations = $('<ul class="translations"></ul>');
     this.$status = $('<li class="status"><i class="icon-spinner icon-spin"></i> Loading ...</li>')
       .appendTo(this.$translations);
     this.$footer = $('<div class="add-translation"></div>');
     this.$select = $('<select name="locale"></select>');
     this.$menu = $(this.options.menu).appendTo('body');
+    this.$element.wrap(
+      $('<span></span>').css({display:'inline-block', 'white-space':'nowrap'})
+    )
     this.$button = $(this.options.button).insertAfter(this.$element);
     //this.$menu.append('<a class="close pull-right" href=""><i class="icon-remove-circle"></i></a>')
     //    .on('click', $.proxy(this.hide, this));
@@ -95,6 +101,7 @@
       $('option[value='+lang+']', this.$select).remove();
       if (!$('option', this.$select).length)
         this.$footer.hide();
+      this.$status.remove();
     },
 
     showCommit: function(e) {

@@ -609,7 +609,7 @@ class FormField {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
             $clazz = $type[1];
-            $T = new $clazz(array('type'=>$this->get('type')));
+            $T = new $clazz($this->ht);
             $config = $this->getConfiguration();
             $this->_cform = new Form($T->getConfigurationOptions(), $source);
             if (!$source) {
@@ -646,6 +646,15 @@ class FormField {
             $name .= '_id';
 
         return $name;
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('field.%s.%s', $subtag, $this->get('id')));
+    }
+    function getLocal($subtag, $default=false) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : ($default ?: $this->get($subtag));
     }
 }
 
@@ -689,12 +698,16 @@ class TextboxField extends FormField {
                 })),
             'validator-error' => new TextboxField(array(
                 'id'=>4, 'label'=>__('Validation Error'), 'default'=>'',
-                'configuration'=>array('size'=>40, 'length'=>60),
+                'configuration'=>array('size'=>40, 'length'=>60,
+                    'translatable'=>$this->getTranslateTag('validator-error')
+                ),
                 'hint'=>__('Message shown to user if the input does not match the validator'))),
             'placeholder' => new TextboxField(array(
                 'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Text shown in before any input from the user'),
-                'configuration'=>array('size'=>40, 'length'=>40),
+                'configuration'=>array('size'=>40, 'length'=>40,
+                    'translatable'=>$this->getTranslateTag('placeholder')
+                ),
             )),
         );
     }
@@ -732,7 +745,7 @@ class TextboxField extends FormField {
         $func = $validators[$valid];
         $error = $func[1];
         if ($config['validator-error'])
-            $error = $config['validator-error'];
+            $error = $this->getLocal('validator-error', $config['validator-error']);
         if (is_array($func) && is_callable($func[0]))
             if (!call_user_func($func[0], $value))
                 $this->_errors[] = $error;
@@ -1709,13 +1722,17 @@ class TextboxWidget extends Widget {
             $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
         if (isset($config['disabled']))
             $disabled = 'disabled="disabled"';
+        if (isset($config['translatable']) && $config['translatable'])
+            $translatable = 'data-translate-tag="'.$config['translatable'].'"';
+        $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
+            $config['placeholder']));
         ?>
         <span style="display:inline-block">
         <input type="<?php echo static::$input_type; ?>"
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
-                $size, $maxlength, $classes, $autocomplete, $disabled)))
-                .' placeholder="'.$config['placeholder'].'"'; ?>
+                $size, $maxlength, $classes, $autocomplete, $disabled,
+                $translatable, $placeholder))); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         </span>
