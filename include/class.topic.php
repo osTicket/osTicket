@@ -384,6 +384,9 @@ class Topic {
         foreach ($update as $idx=>&$id) {
             $id = sprintf("(%s,%s)", db_input($id), db_input($idx+1));
         }
+        if (!count($update))
+            return;
+
         // Thanks, http://stackoverflow.com/a/3466
         $sql = sprintf('INSERT INTO `%s` (topic_id,`sort`) VALUES %s
             ON DUPLICATE KEY UPDATE `sort`=VALUES(`sort`)',
@@ -393,4 +396,4 @@ class Topic {
 }
 
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Help Topic', array('topicId' => 'Topic ID'), 100);
+Filter::addSupportedMatches(/* trans */ 'Help Topic', array('topicId' => 'Topic ID'), 100);

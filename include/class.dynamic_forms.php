@@ -237,16 +237,16 @@ class UserForm extends DynamicForm {
         return static::$instance;
     }
 }
-Filter::addSupportedMatches('User Data', function() {
+Filter::addSupportedMatches(/* trans */ 'User Data', function() {
     $matches = array();
     foreach (UserForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'User / '.$f->getLabel();
+        $matches['field.'.$f->get('id')] = __('User').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
             foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'User / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('User').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }
@@ -327,16 +327,16 @@ class TicketForm extends DynamicForm {
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Ticket Data', function() {
+Filter::addSupportedMatches(/* trans */ 'Ticket Data', function() {
     $matches = array();
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
+        $matches['field.'.$f->get('id')] = __('Ticket').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
             foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'Ticket / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('Ticket').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }

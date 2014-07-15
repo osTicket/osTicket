@@ -915,11 +915,10 @@ $tcount+= $ticket->getNumNotes();
             <select id="psize" name="psize">
                 <option value="">&mdash; <?php echo __('Select Print Paper Size');?> &mdash;</option>
                 <?php
-                  $options=array('Letter', 'Legal', 'A4', 'A3');
                   $psize =$_SESSION['PAPER_SIZE']?$_SESSION['PAPER_SIZE']:$thisstaff->getDefaultPaperSize();
-                  foreach($options as $v) {
+                  foreach(Export::$paper_sizes as $v) {
                       echo sprintf('<option value="%s" %s>%s</option>',
-                                $v,($psize==$v)?'selected="selected"':'', $v);
+                                $v,($psize==$v)?'selected="selected"':'', __($v));
                   }
                 ?>
             </select>

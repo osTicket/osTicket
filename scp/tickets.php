@@ -21,6 +21,7 @@ require_once(INCLUDE_DIR.'class.filter.php');
 require_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.json.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
+require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 
 $page='';
 $ticket = $user = null; //clean start.
@@ -616,7 +617,6 @@ if($ticket) {
     if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
-        require_once(INCLUDE_DIR.'class.export.php');
         $ts = strftime('%Y%m%d');
         if (!($token=$_REQUEST['h']))
             $errors['err'] = __('Query token required');

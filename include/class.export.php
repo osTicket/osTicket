@@ -16,6 +16,14 @@
 
 class Export {
 
+    // XXX: This may need to be moved to a print-specific class
+    static $paper_sizes = array(
+        /* trans */ 'Letter',
+        /* trans */ 'Legal',
+        'A4',
+        'A3',
+    );
+
     static function dumpQuery($sql, $headers, $how='csv', $options=array()) {
         $exporters = array(
             'csv' => CsvResultsExporter,

@@ -185,10 +185,10 @@ $info['id']=$staff->getId();
                 <select name="default_paper_size">
                   <option value="none" selected="selected">&mdash; <?php echo __('None');?> &mdash;</option>
                   <?php
-                  $options=array('Letter', 'Legal', 'A4', 'A3');
-                  foreach($options as $v) {
+
+                  foreach(Export::$paper_sizes as $v) {
                       echo sprintf('<option value="%s" %s>%s</option>',
-                                $v,($info['default_paper_size']==$v)?'selected="selected"':'',$v);
+                                $v,($info['default_paper_size']==$v)?'selected="selected"':'',__($v));
                   }
                   ?>
                 </select>
