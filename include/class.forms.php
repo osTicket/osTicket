@@ -131,7 +131,7 @@ class FormField {
     var $presentation_only = false;
 
     static $types = array(
-        'Basic Fields' => array(
+        /* trans */ 'Basic Fields' => array(
             'text'  => array(   /* trans */ 'Short Answer', 'TextboxField'),
             'memo' => array(    /* trans */ 'Long Answer', 'TextareaField'),
             'thread' => array(  /* trans */ 'Thread Entry', 'ThreadEntryField', false),

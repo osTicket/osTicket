@@ -61,8 +61,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th colspan="7">
                 <em><strong><?php echo __('User Information Fields'); ?></strong>
                 <?php echo sprintf(__('(These fields are requested for new tickets
-                via the %s form)',
-                UserForm::objects()->one()->get('title'))); ?></em>
+                via the %s form)'),
+                UserForm::objects()->one()->get('title')); ?></em>
             </th>
         </tr>
         <tr>
@@ -85,7 +85,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td></td>
             <td><?php echo $f->get('label'); ?></td>
-            <td><?php $t=FormField::getFieldType($f->get('type')); echo $t[0]; ?></td>
+            <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
             <td><input type="checkbox" disabled="disabled"/></td>
             <td><input type="checkbox" disabled="disabled"
                 <?php echo $f->get('required') ? 'checked="checked"' : ''; ?>/></td>
@@ -103,8 +103,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <th nowrap><?php echo __('Sort'); ?>
-                <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
+            <th nowrap
+                ><i class="help-tip icon-question-sign" href="#field_sort"></i></th>
             <th nowrap><?php echo __('Label'); ?>
                 <i class="help-tip icon-question-sign" href="#field_label"></i></th>
             <th nowrap><?php echo __('Type'); ?>
@@ -135,16 +135,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
-            <td nowrap><select name="type-<?php echo $id; ?>" <?php
+            <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
                 if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                        ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                        ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {
                             if ($f->get('type') != $type
                                     && isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>" <?php
                     if ($f->get('type') == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?></option>
+                    <?php echo __($nfo[0]); ?></option>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
@@ -155,7 +155,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         echo $f->get('id'); ?>"
                     onclick="javascript:
                         $('#overlay').show();
-                        $('#field-config .body').load($(this).attr('href').substr(1));
+                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
@@ -195,14 +195,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     value="<?php echo $info["sort-new-$i"]; ?>"/></td>
             <td><input type="text" size="32" name="label-new-<?php echo $i; ?>"
                 value="<?php echo $info["label-new-$i"]; ?>"/></td>
-            <td><select name="type-new-<?php echo $i; ?>">
+            <td><select style="max-width:150px" name="type-new-<?php echo $i; ?>">
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                    ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                    ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                     foreach ($types as $type=>$nfo) {
                         if (isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>"
                     <?php if ($info["type-new-$i"] == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?>
+                    <?php echo __($nfo[0]); ?>
                 </option>
                     <?php } ?>
                 </optgroup>
@@ -271,10 +271,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </form>
 
 <div style="display:none;" class="dialog draggable" id="field-config">
+    <div id="popup-loading">
+        <h1><i class="icon-spinner icon-spin icon-large pull-left"></i>
+        <?php echo __('Loading ...');?></h1>
+    </div>
     <div class="body"></div>
 </div>
 
 <script type="text/javascript">
+$(function() {
+    $('#popup-loading').hide().ajaxStart( function() {
+        $(this).show();  // show Loading Div
+    } ).ajaxStop ( function(){
+        $(this).hide(); // hide loading div
+    });
+});
 $('form.manage-form').on('submit.inline', function(e) {
     var formObj = this, deleted = $('input.delete-box:checked', this);
     if (deleted.length) {
@@ -286,7 +297,7 @@ $('form.manage-form').on('submit.inline', function(e) {
                 .append($('<input/>').attr({type:'checkbox',name:'delete-data-'
                     + $(e).data('fieldId')})
                 ).append($('<strong>').html(
-                    '<?php echo __('Remove all data entered for <u> %s </u>?');
+                    ' <?php echo __('Remove all data entered for <u> %s </u>?');
                         ?>'.replace('%s', $(e).data('fieldLabel'))
                 ))
             );

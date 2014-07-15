@@ -1400,7 +1400,14 @@ time {
     overflow:hidden;
 }
 
-.dialog label {
+.dialog .custom-field .field-label {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+.dialog .custom-field + .custom-field {
+    margin-top: 8px;
+}
+.dialog label.fixed-size {
     width:100px;
     display:inline-block;
     text-align:right;
@@ -1869,6 +1876,9 @@ table.custom-info td {
 }
 .flush-right {
     text-align: right;
+}
+.flush-left {
+    text-align: left;
 }
 .ltr {
     direction: ltr;

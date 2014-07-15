@@ -907,11 +907,11 @@ $tcount+= $ticket->getNumNotes();
         <input type="hidden" name="a" value="print">
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <fieldset class="notes">
-            <label for="notes"><?php echo __('Print Notes');?>:</label>
+            <label class="fixed-size" for="notes"><?php echo __('Print Notes');?>:</label>
             <input type="checkbox" id="notes" name="notes" value="1"> <?php echo __('Print <b>Internal</b> Notes/Comments');?>
         </fieldset>
         <fieldset>
-            <label for="psize"><?php echo __('Paper Size');?>:</label>
+            <label class="fixed-size" for="psize"><?php echo __('Paper Size');?>:</label>
             <select id="psize" name="psize">
                 <option value="">&mdash; <?php echo __('Select Print Paper Size');?> &mdash;</option>
                 <?php
@@ -996,7 +996,7 @@ $tcount+= $ticket->getNumNotes();
     </p>
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
         <span id="msg_warning" style="display:block;vertical-align:top">
-        <b><?php echo sprintf(Format::htmlchars(__('%s <%s> will longer have access to the ticket')),
+        <?php echo sprintf(Format::htmlchars(__('%s <%s> will longer have access to the ticket')),
             '<b>'.Format::htmlchars($ticket->getName()).'</b>', Format::htmlchars($ticket->getEmail())); ?>
         </span>
         <?php echo sprintf(__('Are you sure want to <b>change</b> ticket owner to %s?'),

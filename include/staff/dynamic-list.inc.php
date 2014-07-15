@@ -132,7 +132,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         echo $f->get('id'); ?>"
                     onclick="javascript:
                         $('#overlay').show();
-                        $('#field-config .body').load($(this).attr('href').substr(1));
+                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
@@ -203,7 +203,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th></th>
             <th><?php echo __('Value'); ?></th>
-            <th><?php echo __('Extra'); ?> <em style="display:inline">&mdash; 
+            <th><?php echo __('Extra'); ?> <em style="display:inline">&mdash;
                 <?php echo __('abbreviations and such'); ?></em></th>
             <th><?php echo __('Disabled'); ?></th>
             <th><?php echo __('Delete'); ?></th>
@@ -230,7 +230,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         echo $i->get('id'); ?>/properties"
                     onclick="javascript:
                         $('#overlay').show();
-                        $('#field-config .body').load($(this).attr('href').substr(1));
+                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
                     "><i class="icon-edit"></i> <?php echo __('Properties'); ?></a>
@@ -267,5 +267,18 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </form>
 
 <div style="display:none;" class="dialog draggable" id="field-config">
+    <div id="popup-loading">
+        <h1><i class="icon-spinner icon-spin icon-large pull-left"></i>
+        <?php echo __('Loading ...');?></h1>
+    </div>
     <div class="body"></div>
 </div>
+<script type="text/javascript">
+$(function() {
+    $('#popup-loading').hide().ajaxStart( function() {
+        $(this).show();  // show Loading Div
+    } ).ajaxStop ( function(){
+        $(this).hide(); // hide loading div
+    });
+});
+</script>

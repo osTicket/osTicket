@@ -57,3 +57,9 @@
 .rtl .form_table th, .rtl div.section-break {
     text-align: right;
 }
+.rtl .flush-right {
+    text-align: left;
+}
+.rtl .flush-left {
+    text-align: right;
+}

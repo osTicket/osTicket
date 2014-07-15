@@ -37,16 +37,16 @@ if(($users=$ticket->getCollaborators())) {?>
     <hr style="margin-top:1em"/>
     <div><a class="collaborator"
         href="#tickets/<?php echo $ticket->getId(); ?>/add-collaborator"
-        ><?php echo __('Add New Collaborator'); ?></a></div>
+        ><i class="icon-plus-sign"></i> <?php echo __('Add New Collaborator'); ?></a></div>
     <div id="savewarning" style="display:none; padding-top:2px;"><p
     id="msg_warning"><?php echo __('You have made changes that you need to save.'); ?></p></div>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="Cancel" class="close">
-            <input type="reset" value="Reset">
+        <span class="buttons pull-left">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Save Changes">
+        <span class="buttons pull-right">
+        <input type="submit" value="<?php echo __('Save Changes'); ?>">
         </span>
      </p>
 </form>
