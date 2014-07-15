@@ -192,9 +192,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td><?php echo __('Status'); ?></td>
             <td>
-                <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> />&nbsp;Enable</label>
+                <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> />&nbsp;<?php echo __('Enable'); ?></label>
                 &nbsp;&nbsp;
-                <label><input type="radio" name="mail_active"  value="0"   <?php echo !$info['mail_active']?'checked="checked"':''; ?> />&nbsp;Disable</label>
+                <label><input type="radio" name="mail_active"  value="0"   <?php echo !$info['mail_active']?'checked="checked"':''; ?> />&nbsp;<?php echo __('Disable'); ?></label>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_active']; ?></font>
             </td>
         </tr>
@@ -279,32 +279,32 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr><td><?php echo __('Status');?></td>
             <td>
-                <label><input type="radio" name="smtp_active" value="1" <?php echo $info['smtp_active']?'checked':''; ?> /><?php echo __('Enable');?></label>
+                <label><input type="radio" name="smtp_active" value="1" <?php echo $info['smtp_active']?'checked':''; ?> />&nbsp;<?php echo __('Enable');?></label>
                 &nbsp;
-                <label><input type="radio" name="smtp_active" value="0" <?php echo !$info['smtp_active']?'checked':''; ?> /><?php echo __('Disable');?></label>
+                <label><input type="radio" name="smtp_active" value="0" <?php echo !$info['smtp_active']?'checked':''; ?> />&nbsp;<?php echo __('Disable');?></label>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['smtp_active']; ?></font>
             </td>
         </tr>
-        <tr><td><?php __('Hostname'); ?></td>
+        <tr><td><?php echo __('Hostname'); ?></td>
             <td><input type="text" name="smtp_host" size=35 value="<?php echo $info['smtp_host']; ?>">
                 &nbsp;<font class="error"><?php echo $errors['smtp_host']; ?></font>
 			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
             </td>
         </tr>
-        <tr><td><?php __('Port Number'); ?></td>
+        <tr><td><?php echo __('Port Number'); ?></td>
             <td><input type="text" name="smtp_port" size=6 value="<?php echo $info['smtp_port']?$info['smtp_port']:''; ?>">
                 &nbsp;<font class="error"><?php echo $errors['smtp_port']; ?></font>
 			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
             </td>
         </tr>
-        <tr><td><?php __('Authentication Required'); ?></td>
+        <tr><td><?php echo __('Authentication Required'); ?></td>
             <td>
 
                  <label><input type="radio" name="smtp_auth"  value="1"
-                    <?php echo $info['smtp_auth']?'checked':''; ?> /> Yes</label>
+                     <?php echo $info['smtp_auth']?'checked':''; ?> /> <?php echo __('Yes'); ?></label>
                  &nbsp;
                  <label><input type="radio" name="smtp_auth"  value="0"
-                    <?php echo !$info['smtp_auth']?'checked':''; ?> /> No</label>
+                     <?php echo !$info['smtp_auth']?'checked':''; ?> /> <?php echo __('No'); ?></label>
                 <font class="error">&nbsp;<?php echo $errors['smtp_auth']; ?></font>
             </td>
         </tr>
