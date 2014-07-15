@@ -91,7 +91,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <th nowrap><?php echo __('Sort'); ?></th>
+            <th nowrap></th>
             <th nowrap><?php echo __('Label'); ?></th>
             <th nowrap><?php echo __('Type'); ?></th>
             <th nowrap><?php echo __('Variable'); ?></th>
@@ -112,16 +112,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
-            <td nowrap><select name="type-<?php echo $id; ?>" <?php
+            <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
                 if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                        ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                        ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {
                             if ($f->get('type') != $type
                                     && isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>" <?php
                     if ($f->get('type') == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?></option>
+                    <?php echo __($nfo[0]); ?></option>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
@@ -159,14 +159,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     value="<?php echo $info["prop-sort-new-$i"]; ?>"/></td>
             <td><input type="text" size="32" name="prop-label-new-<?php echo $i; ?>"
                 value="<?php echo $info["prop-label-new-$i"]; ?>"/></td>
-            <td><select name="type-new-<?php echo $i; ?>">
+            <td><select style="max-width:150px" name="type-new-<?php echo $i; ?>">
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                    ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                    ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                     foreach ($types as $type=>$nfo) {
                         if (isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>"
                     <?php if ($info["type-new-$i"] == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?>
+                    <?php echo __($nfo[0]); ?>
                 </option>
                     <?php } ?>
                 </optgroup>
