@@ -295,6 +295,3 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="departments.php"'>
 </p>
 </form>
-<script type="text/javascript">
-    $('input[data-translate-tag]').translatable();
-</script>

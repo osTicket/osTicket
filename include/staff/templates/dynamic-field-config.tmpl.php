@@ -61,3 +61,7 @@
          </p>
     </form>
     <div class="clear"></div>
+<script type="text/javascript">
+   // Make translatable fields translatable
+   $('input[data-translate-tag]').translatable();
+</script>

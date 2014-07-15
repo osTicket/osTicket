@@ -443,6 +443,9 @@ var scp_prep = function() {
            });
        }
    });
+
+   // Make translatable fields translatable
+   $('input[data-translate-tag]').translatable();
 };
 
 $(document).ready(scp_prep);

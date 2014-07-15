@@ -7,6 +7,8 @@ if($form && $_REQUEST['a']!='add') {
     $url = "?id=".urlencode($_REQUEST['id']);
     $submit_text=__('Save Changes');
     $info = $form->ht;
+    $trans['title'] = $form->getTranslateTag('title');
+    $trans['instructions'] = $form->getTranslateTag('instructions');
     $newcount=2;
 } else {
     $title = __('Add new custom form section');
@@ -38,8 +40,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody style="vertical-align:top">
         <tr>
             <td width="180" class="required"><?php echo __('Title'); ?>:</td>
-            <td><input type="text" name="title" size="40" value="<?php
-                echo $info['title']; ?>"/>
+            <td><input type="text" name="title" size="40"
+                data-translate-tag="<?php echo $trans['title']; ?>"
+                value="<?php echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
                 <font class="error"><?php
                     if ($errors['title']) echo '<br/>'; echo $errors['title']; ?></font>
@@ -129,6 +132,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
+                data-translate-tag="<?php echo $f->getTranslateTag('label'); ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>

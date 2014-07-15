@@ -103,7 +103,7 @@ class DynamicForm extends VerySimpleModel {
         if (!$this->_form || $source) {
             $fields = $this->getFields($this->_has_data);
             $this->_form = new Form($fields, $source, array(
-                'title'=>$this->title, 'instructions'=>$this->instructions));
+                'title'=>$this->getLocal('title'), 'instructions'=>$this->getLocal('instructions')));
         }
         return $this->_form;
     }
@@ -122,6 +122,15 @@ class DynamicForm extends VerySimpleModel {
             $this->_fields = $data->getFields();
             $this->_has_data = true;
         }
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('form.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->get($subtag);
     }
 
     function save($refetch=false) {
@@ -489,6 +498,14 @@ class DynamicFormField extends VerySimpleModel {
 
     function  isEditable() {
         return (($this->get('edit_mask') & 32) == 0);
+    }
+    function getTranslateTag($subtag) {
+        return _H(sprintf('field.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag, $default=false) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : ($default ?: $this->get($subtag));
     }
 
     function allRequirementModes() {
