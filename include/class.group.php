@@ -80,7 +80,21 @@ class Group {
     function isActive(){
         return $this->isEnabled();
     }
- 
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('group.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('group.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+
     //Get members of the group.
     function getMembers() {
 
@@ -113,7 +127,7 @@ class Group {
         return $this->departments;
     }
 
-        
+
     function updateDeptAccess($depts) {
 
 
@@ -171,11 +185,28 @@ class Group {
         return $id;
     }
 
+    static function getGroupNames($localize=true) {
+        static $groups=array();
+
+        if (!$groups) {
+            $sql='SELECT group_id, group_name, group_enabled as isactive FROM '.GROUP_TABLE.' ORDER BY group_name';
+            if (($res=db_query($sql)) && db_num_rows($res)) {
+                while (list($id, $name, $enabled) = db_fetch_row($res)) {
+                    $groups[$id] = sprintf('%s%s',
+                        self::getLocalById($id, 'name', $name),
+                        $enabled ? '' : ' ' . __('(disabled)'));
+                }
+            }
+        }
+        // TODO: Sort groups if $localize
+        return $groups;
+    }
+
     function lookup($id){
         return ($id && is_numeric($id) && ($g= new Group($id)) && $g->getId()==$id)?$g:null;
     }
 
-    function create($vars, &$errors) { 
+    function create($vars, &$errors) {
         if(($id=self::save(0,$vars,$errors)) && ($group=self::lookup($id)))
             $group->updateDeptAccess($vars['depts']);
 
