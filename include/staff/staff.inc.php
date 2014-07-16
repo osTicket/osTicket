@@ -236,12 +236,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="group_id" id="group_id">
                     <option value="0">&mdash; <?php echo __('Select Group');?> &mdash;</option>
                     <?php
-                    $sql='SELECT group_id, group_name, group_enabled as isactive FROM '.GROUP_TABLE.' ORDER BY group_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name,$isactive)=db_fetch_row($res)){
-                            $sel=($info['group_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s %s</option>',$id,$sel,$name,($isactive?'':__('(disabled)')));
-                        }
+                    foreach (Group::getGroupNames() as $id=>$name) {
+                        $sel=($info['group_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                            $id, $sel, $name);
                     }
                     ?>
                 </select>
@@ -256,12 +254,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="dept_id" id="dept_id">
                     <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' ORDER BY dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $sel=($info['dept_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                        }
+                    foreach (Dept::getDepartments() as $id=>$name) {
+                        $sel=($info['dept_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
                     }
                     ?>
                 </select>
@@ -332,20 +327,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <?php
-         //List team assignments.
-         $sql='SELECT team.team_id, team.name, isenabled FROM '.TEAM_TABLE.' team  ORDER BY team.name';
-         if(($res=db_query($sql)) && db_num_rows($res)){ ?>
+        // List team assignments.
+        $teams = Team::getTeams();
+        if (count($teams)) { ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Assigned Teams');?></strong>: <?php echo __("Agent will have access to tickets assigned to a team they belong to regardless of the ticket's department.");?> </em>
             </th>
         </tr>
         <?php
-         while(list($id,$name,$isactive)=db_fetch_row($res)){
-             $checked=($info['teams'] && in_array($id,$info['teams']))?'checked="checked"':'';
-             echo sprintf('<tr><td colspan=2><input type="checkbox" name="teams[]" value="%d" %s>%s %s</td></tr>',
-                     $id,$checked,$name,($isactive?'':__('(disabled)')));
-         }
+            foreach ($teams as $id=>$name) {
+                $checked=($info['teams'] && in_array($id,$info['teams']))
+                    ? 'checked="checked"' : '';
+                echo sprintf('<tr><td colspan=2><input type="checkbox" name="teams[]" value="%d" %s> %s</td></tr>',
+                     $id,$checked,$name);
+            }
         } ?>
         <tr>
             <th colspan="2">
