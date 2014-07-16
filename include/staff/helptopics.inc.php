@@ -8,7 +8,7 @@ $sql='SELECT topic.* '
     .' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=topic.dept_id) '
     .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=topic.priority_id) ';
 $sql.=' WHERE 1';
-$order_by = ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
+$order_by = '`sort`';
 
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 //Ok..lets roll...create the actual query
@@ -26,9 +26,6 @@ while ($row = db_fetch_array($res))
 
 foreach ($topics as &$t)
     $t['name'] = Topic::getTopicName($t['topic_id']);
-
-if ($cfg->getTopicSortMode() == 'a')
-    usort($topics, function($a, $b) { return strcmp($a['name'], $b['name']); });
 
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">

@@ -143,7 +143,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=Topic::getHelpTopics()) {
+                    if ($topics=Topic::getHelpTopics(false, false, true)) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>

@@ -8,6 +8,7 @@ if($sla && $_REQUEST['a']!='add'){
     $submit_text=__('Save Changes');
     $info=$sla->getInfo();
     $info['id']=$sla->getId();
+    $trans['name'] = $sla->getTranslateTag('name');
     $qstr.='&id='.$sla->getId();
 }else {
     $title=__('Add New SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
@@ -41,7 +42,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
               <?php echo __('Name');?>:
             </td>
             <td>
-                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
+                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
+                data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#name"></i>
             </td>
         </tr>
