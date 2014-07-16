@@ -215,6 +215,15 @@ class Topic {
             array('Ticket', 'isTicketNumberUnique'));
     }
 
+    function getTranslateTag($subtag) {
+        return _H(sprintf('topic.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+
     function setSortOrder($i) {
         if ($i != $this->ht['sort']) {
             $sql = 'UPDATE '.TOPIC_TABLE.' SET `sort`='.db_input($i)
@@ -254,11 +263,12 @@ class Topic {
         return self::save(0, $vars, $errors);
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true) {
         global $cfg;
         static $topics, $names = array();
 
-        if (!$names) {
+        // If localization is specifically requested, then rebuild the list.
+        if (!$names || $localize) {
             $sql = 'SELECT topic_id, topic_pid, ispublic, isactive, topic FROM '.TOPIC_TABLE
                 . ' ORDER BY `sort`';
             $res = db_query($sql);
@@ -269,13 +279,23 @@ class Topic {
                 $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
                     'disabled'=>!$act, 'topic'=>$topic);
 
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("topic.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
+
             // Resolve parent names
             foreach ($topics as $id=>$info) {
-                $name = $info['topic'];
+                $name = $localize_this($id, $info['topic']);
                 $loop = array($id=>true);
                 $parent = false;
-                while ($info['pid'] && ($info = $topics[$info['pid']])) {
-                    $name = sprintf('%s / %s', $info['topic'], $name);
+                while (($pid = $info['pid']) && ($info = $topics[$info['pid']])) {
+                    $name = sprintf('%s / %s', $localize_this($pid, $info['topic']),
+                        $name);
                     if ($parent && $parent['disabled'])
                         // Cascade disabled flag
                         $topics[$id]['disabled'] = true;
@@ -301,6 +321,11 @@ class Topic {
             $requested_names[$id] = $n;
         }
 
+        // XXX: If localization requested and the current locale is not the
+        // primary, the list may need to be sorted. Caching is ok here,
+        // because the locale is not going to be changed within a single
+        // request.
+
         return $requested_names;
     }
 
@@ -308,8 +333,8 @@ class Topic {
         return self::getHelpTopics(true);
     }
 
-    function getAllHelpTopics() {
-        return self::getHelpTopics(false, true);
+    function getAllHelpTopics($localize=false) {
+        return self::getHelpTopics(false, true, $localize);
     }
 
     function getIdByName($name, $pid=0) {
@@ -412,10 +437,19 @@ class Topic {
 
     static function updateSortOrder() {
         // Fetch (un)sorted names
-        if (!($names = static::getHelpTopics(false, true)))
+        if (!($names = static::getHelpTopics(false, true, false)))
             return;
 
-        uasort($names, function($a, $b) { return strcmp($a, $b); });
+        if (function_exists('collator_create')) {
+            $coll = Collator::create($cfg->getPrimaryLanguage());
+            // UASORT is necessary to preserve the keys
+            uasort($names, function($a, $b) use ($coll) {
+                return $coll->compare($a, $b); });
+        }
+        else {
+            // Really only works on English names
+            asort($names);
+        }
 
         $update = array_keys($names);
         foreach ($update as $idx=>&$id) {

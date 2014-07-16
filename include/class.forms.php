@@ -931,7 +931,9 @@ class ChoiceField extends FormField {
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Leading text shown before a value is selected'),
-                'configuration'=>array('size'=>40, 'length'=>40),
+                'configuration'=>array('size'=>40, 'length'=>40,
+                    'translatable'=>$this->getTranslateTag('prompt'),
+                ),
             )),
             'multiselect' => new BooleanField(array(
                 'id'=>1, 'label'=>'Multiselect', 'required'=>false, 'default'=>false,
@@ -1835,7 +1837,10 @@ class ChoicesWidget extends Widget {
         // Determine the value for the default (the one listed if nothing is
         // selected)
         $choices = $this->field->getChoices(true);
-        $prompt = $config['prompt'] ?: __('Select');
+        $prompt = ($config['prompt'])
+            ? $this->field->getLocal('prompt', $config['prompt'])
+            : __('Select'
+            /* Used as a default prompt for a custom drop-down list */);
 
         $have_def = false;
         // We don't consider the 'default' when rendering in 'search' mode

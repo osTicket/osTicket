@@ -1215,7 +1215,9 @@ class SelectionField extends FormField {
                 'id'=>3,
                 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Leading text shown before a value is selected'),
-                'configuration'=>array('size'=>40, 'length'=>40),
+                'configuration'=>array('size'=>40, 'length'=>40,
+                    'translatable'=>$this->getTranslateTag('prompt'),
+                ),
             )),
             'default' => new SelectionField(array(
                 'id'=>4, 'label'=>__('Default'), 'required'=>false, 'default'=>'',

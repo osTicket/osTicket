@@ -6,6 +6,8 @@ if ($list) {
     $action = 'update';
     $submit_text = __('Save Changes');
     $info = $list->getInfo();
+    $trans['name'] = $list->getTranslateTag('name');
+    $trans['plural'] = $list->getTranslateTag('plural');
     $newcount=2;
 } else {
     $title = __('Add New Custom List');
@@ -55,9 +57,10 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     echo $list->getName();
                 else {
                     echo sprintf('<input size="50" type="text" name="name"
+                            data-translate-tag="%s"
                             value="%s"/> <span
                             class="error">*<br/>%s</span>',
-                            $info['name'], $errors['name']);
+                            $trans['name'], $info['name'], $errors['name']);
                 }
                 ?>
             </td>
@@ -70,8 +73,9 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                         echo $list->getPluralName();
                     else
                         echo sprintf('<input size="50" type="text"
+                                data-translate-tag="%s"
                                 name="name_plural" value="%s"/>',
-                                $info['name_plural']);
+                                $trans['plural'], $info['name_plural']);
                 ?>
             </td>
         </tr>
@@ -131,6 +135,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         <tr>
             <td><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="prop-label-<?php echo $id; ?>"
+                data-translate-tag="<?php echo $f->getTranslateTag('label'); ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
@@ -251,6 +256,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 <input type="hidden" name="sort-<?php echo $id; ?>"
                 value="<?php echo $i->getSortOrder(); ?>"/></td>
             <td><input type="text" size="40" name="value-<?php echo $id; ?>"
+                data-translate-tag="<?php echo $i->getTranslateTag('value'); ?>"
                 value="<?php echo $i->getValue(); ?>"/>
                 <?php if ($list->hasProperties()) { ?>
                    <a class="action-button field-config"

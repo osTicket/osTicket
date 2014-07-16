@@ -12,7 +12,7 @@
                 ?>" <?php if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
             <div class="field-label <?php if ($f->get('required')) echo 'required'; ?>">
             <label for="<?php echo $f->getWidget()->name; ?>">
-                <?php echo Format::htmlchars($f->get('label')); ?>:
+                <?php echo Format::htmlchars($f->getLocal('label')); ?>:
       <?php if ($f->get('required')) { ?>
                 <span class="error">*</span>
       <?php } ?>
