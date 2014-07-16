@@ -9,6 +9,7 @@ if($topic && $_REQUEST['a']!='add') {
     $info=$topic->getInfo();
     $info['id']=$topic->getId();
     $info['pid']=$topic->getPid();
+    $trans['name'] = $topic->getTranslateTag('name');
     $qstr.='&id='.$topic->getId();
 } else {
     $title=__('Add New Help Topic');
@@ -43,7 +44,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                <?php echo __('Topic');?>:
             </td>
             <td>
-                <input type="text" size="30" name="topic" value="<?php echo $info['topic']; ?>">
+                <input type="text" size="30" name="topic" value="<?php echo $info['topic']; ?>"
+                data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['topic']; ?></span> <i class="help-tip icon-question-sign" href="#topic"></i>
             </td>
         </tr>
