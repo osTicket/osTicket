@@ -291,6 +291,15 @@ class Topic extends VerySimpleModel {
                 return $T != $tag ? $T : $default;
             };
 
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("topic.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
+
             // Resolve parent names
             foreach ($topics as $id=>$info) {
                 $name = $localize_this($id, $info['topic']);
