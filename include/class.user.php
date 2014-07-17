@@ -157,9 +157,9 @@ class User extends UserModel {
                 list($name) = explode('@', $vars['email'], 2);
 
             $user = User::create(array(
-                'name'=>$name,
-                'created'=>new SqlFunction('NOW'),
-                'updated'=>new SqlFunction('NOW'),
+                'name' => Format::sanitize($name, false),
+                'created' => new SqlFunction('NOW'),
+                'updated' => new SqlFunction('NOW'),
                 //XXX: Do plain create once the cause
                 // of the detached emails is fixed.
                 'default_email' => UserEmail::ensure($vars['email'])
@@ -247,7 +247,7 @@ class User extends UserModel {
 
         $info = array(
                 'id'  => $this->getId(),
-                'name' => (string) $this->getName(),
+                'name' => Format::htmlchars($this->getName()),
                 'email' => (string) $this->getEmail(),
                 'phone' => (string) $this->getPhoneNumber());
 
