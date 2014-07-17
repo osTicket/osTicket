@@ -145,7 +145,7 @@ class User extends UserModel {
 
         $info = array(
                 'id'  => $this->getId(),
-                'name' => (string) $this->getName(),
+                'name' => Format::htmlchars($this->getName()),
                 'email' => (string) $this->getEmail(),
                 'phone' => (string) $this->getPhoneNumber());
 
