@@ -902,7 +902,7 @@ class CustomDataTranslation extends VerySimpleModel {
         return $_cache[$locale] = $mo;
     }
 
-    static function translate($msgid, $locale=false, $cache=true) {
+    static function translate($msgid, $locale=false, $cache=true, $type='phrase') {
         global $thisstaff, $thisclient;
 
         if (!$locale
@@ -914,6 +914,12 @@ class CustomDataTranslation extends VerySimpleModel {
         elseif (is_object($locale) && method_exists($locale, 'getLanguage'))
             $locale = $locale->getLanguage();
 
+        else
+            $locale = Internationalization::getDefaultLanguage();
+
+        // Perhaps a slight optimization would be to check if the selected
+        // locale is also the system primary. If so, short-circuit
+
         if ($locale) {
             if ($cache) {
                 $mo = static::getTranslation($locale);
@@ -921,7 +927,7 @@ class CustomDataTranslation extends VerySimpleModel {
                     $msgid = $mo[$msgid]->text;
             }
             elseif ($p = static::lookup(array(
-                    'type' => 'phrase',
+                    'type' => $type,
                     'lang' => $locale,
                     'object_hash' => $msgid
             ))) {
@@ -931,9 +937,13 @@ class CustomDataTranslation extends VerySimpleModel {
         return $msgid;
     }
 
-    static function allTranslations($msgid) {
+    static function translateArticle($msgid, $locale=false) {
+        return static::translate($msgid, $locale, false, 'article');
+    }
+
+    static function allTranslations($msgid, $type='phrase') {
         return static::objects()->filter(array(
-            'type' => 'phrase',
+            'type' => $type,
             'object_hash' => $msgid
         ))->all();
     }
@@ -1024,9 +1034,6 @@ function _dcnpgettext($domain, $context, $singular, $plural, $category, $n) {
 // Custom data translations
 function _H($tag) {
     return substr(md5($tag), -16);
-}
-function _C(Translatable $object) {
-    return $objet->getLocalName();
 }
 
 interface Translatable {
