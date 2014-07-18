@@ -70,8 +70,13 @@ class Page {
     function getBody() {
         return $this->ht['body'];
     }
+    function getLocalBody() {
+        $tag = $this->getTranslateTag('body');
+        $T = CustomDataTranslation::translateArticle($tag);
+        return $T != $tag ? $T : $this->getBody();
+    }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getBody(), ROOT_PATH.'image.php');
+        return Format::viewableImages($this->getLocalBody(), ROOT_PATH.'image.php');
     }
 
     function getNotes() {
@@ -100,6 +105,15 @@ class Page {
 
     function getNumTopics() {
         return $this->ht['topics'];
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('page.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
     }
 
     function update($vars, &$errors) {
@@ -261,8 +275,8 @@ class Page {
 
         if($id) {
             $sql='UPDATE '.PAGE_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
-            if(db_query($sql))
-                return true;
+            if (db_query($sql))
+                return $this->saveTranslations($vars, $errors);
 
             $errors['err']=sprintf(__('Unable to update %s.'), __('this site page'));
 
@@ -283,6 +297,45 @@ class Page {
         }
 
         return false;
+    }
+
+    function saveTranslations($vars, &$errors) {
+        global $thisstaff;
+
+        $tag = $this->getTranslateTag('body');
+        $translations = CustomDataTranslation::allTranslations($tag,'article');
+        foreach ($translations as $t) {
+            foreach ($vars['trans'] as $lang=>$content) {
+                if (strcasecmp($lang, $t->lang) !== 0)
+                    continue;
+                $content = Format::sanitize($content);
+                unset($vars['trans'][$lang]);
+                if ($content == $t->text)
+                    continue;
+                $t->text = $content;
+                $t->agent_id = $thisstaff->getId();
+                if (!$t->save())
+                    return false;
+            }
+        }
+        // New translations (?)
+        foreach ($vars['trans'] as $lang=>$content) {
+            $content = Format::sanitize($content);
+            if (!$content)
+                continue;
+            $t = CustomDataTranslation::create(array(
+                'type'      => 'article',
+                'object_hash' => $tag,
+                'lang'      => $lang,
+                'text'      => $content,
+                'revision'  => 1,
+                'agent_id'  => $thisstaff->getId(),
+                'updated'   => new SqlFunction('NOW'),
+            ));
+            if (!$t->save())
+                return false;
+        }
+        return true;
     }
 }
 ?>

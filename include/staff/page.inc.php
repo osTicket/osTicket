@@ -15,8 +15,19 @@ if($page && $_REQUEST['a']!='add'){
     $info=$page->getHashtable();
     $info['body'] = Format::viewableImages($page->getBody());
     $info['notes'] = Format::viewableImages($info['notes']);
+    $trans['name'] = $page->getTranslateTag('name');
     $slug = Format::slugify($info['name']);
     $qstr.='&id='.$page->getId();
+    $translations = CustomDataTranslation::allTranslations(
+        $page->getTranslateTag('body'), 'article');
+    foreach ($cfg->getSecondaryLanguages() as $tag) {
+        foreach ($translations as $t) {
+            if (strcasecmp($t->lang, $tag) === 0) {
+                $info['trans'][$tag] = Format::viewableImages($t->text);
+                break;
+            }
+        }
+    }
 }else {
     $title=__('Add New Page');
     $action='add';
@@ -50,7 +61,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
               <?php echo __('Name'); ?>:
             </td>
             <td>
-                <input type="text" size="40" name="name" value="<?php echo $info['name']; ?>">
+                <input type="text" size="40" name="name" value="<?php echo $info['name']; ?>"
+                data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>
@@ -96,30 +108,66 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <th colspan="2">
-                <em><?php echo __(
-                '<b>Page body</b>: Ticket variables are only supported in thank-you pages.'
-                ); ?><font class="error">*&nbsp;<?php echo $errors['body']; ?></font></em>
-            </th>
-        </tr>
-         <tr>
-            <td colspan=2 style="padding-left:3px;">
-                <textarea name="body" cols="21" rows="12" style="width:98%;" class="richtext draft"
+            <td colspan="2">
+                <ul class="tabs">
+                    <li><a class="active" href="#content"><?php echo __('Page Content'); ?></a></li>
+                    <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
+                </ul>
+    <div class="tab_content active" id="content">
+<?php if ($page && ($langs = $cfg->getSecondaryLanguages())) { ?>
+        <div class="banner">&nbsp;
+        <span class="pull-left">
+            <i class="icon-globe icon-large"></i>
+            <?php echo __('This content is translatable'); ?>
+        </span>
+        <span class="pull-right">
+        <?php echo __('View'); ?>:
+        <select onchange="javascript:
+$('option', this).each(function(){$($(this).val()).hide()});
+$($('option:selected', this).val()).show(); ">
+            <option value="#reference-text"><?php echo
+            Internationalization::getLanguageDescription($cfg->getPrimaryLanguage());
+            ?> — <?php echo __('Primary'); ?></option>
+<?php   foreach ($langs as $tag) { ?>
+            <option value="#translation-<?php echo $tag; ?>"><?php echo
+            Internationalization::getLanguageDescription($tag);
+            ?></option>
+<?php   } ?>
+        </select>
+        </span>
+        </div>
+        <div class="clear"></div>
+<?php } ?>
+        <div id="reference-text"
+            lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
+        <textarea name="body" cols="21" rows="12" style="width:98%;" class="richtext draft"
 <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'], $info['body']);
     echo $attrs; ?>><?php echo $draft ?: $info['body']; ?></textarea>
-            </td>
-        </tr>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Internal Notes'); ?></strong>:
-                <?php echo __("be liberal, they're internal"); ?></em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <textarea class="richtext no-bar" name="notes" cols="21"
-                    rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+        </div>
+
+<?php if ($langs && $page) {
+    foreach ($langs as $tag) { ?>
+        <div id="translation-<?php echo $tag; ?>" style="display:none" lang="<?php echo $tag; ?>">
+        <textarea name="trans[<?php echo $tag; ?>]" cols="21" rows="12"
+            style="width:98%;" class="richtext"
+            ><?php echo $info['trans'][$tag]; ?></textarea>
+        </div>
+<?php }
+} ?>
+
+        <div class="error" style="margin: 5px 0"><?php echo $errors['body']; ?></div>
+        <div id="msg_info"><em><i class="icon-info-sign"></i> <?php
+            echo __(
+                'Ticket variables are only supported in thank-you pages.'
+        ); ?></em></div>
+    </div>
+    <div class="tab_content" style="display:none" id="notes">
+        <em><strong><?php echo __('Internal Notes'); ?></strong>:
+        <?php echo __("be liberal, they're internal"); ?></em>
+        <textarea class="richtext no-bar" name="notes" cols="21"
+            rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+    </div>
             </td>
         </tr>
     </tbody>
