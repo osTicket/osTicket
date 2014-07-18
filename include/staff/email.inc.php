@@ -215,11 +215,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 		</span>
             </td>
         </tr>
-        <tr><td><?php echo _('Mail Box Protocol'); ?></td>
+        <tr><td><?php echo __('Mail Box Protocol'); ?></td>
             <td>
 		<span>
 			<select name="mail_proto">
-                <option value=''>&mdash; <?php __('Select Protocol'); ?> &mdash;</option>
+                <option value=''>&mdash; <?php __('Select protocol'); ?> &mdash;</option>
 <?php
     foreach (MailFetcher::getSupportedProtos() as $proto=>$desc) { ?>
                 <option value="<?php echo $proto; ?>" <?php
@@ -236,7 +236,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr><td><?php echo __('Fetch Frequency'); ?></td>
             <td>
 		<span>
-			<input type="text" name="mail_fetchfreq" size=4 value="<?php echo $info['mail_fetchfreq']?$info['mail_fetchfreq']:''; ?>"> minutes
+            <input type="text" name="mail_fetchfreq" size=4 value="<?php echo $info['mail_fetchfreq']?$info['mail_fetchfreq']:''; ?>"> <?php echo __('minutes'); ?>
 			<i class="help-tip icon-question-sign" href="#fetch_frequency"></i>
 			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchfreq']; ?></font>
 		</span>

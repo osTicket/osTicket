@@ -137,7 +137,8 @@ class SLA {
         $sql='SELECT id, name, isactive, grace_period FROM '.SLA_TABLE.' ORDER BY name';
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while($row=db_fetch_array($res))
-                $slas[$row['id']] = sprintf('%s (%d hrs - %s)',
+                $slas[$row['id']] = sprintf(__('%s (%d hours - %s)'
+                        /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
                         $row['name'],
                         $row['grace_period'],
                         $row['isactive']?'Active':'Disabled');

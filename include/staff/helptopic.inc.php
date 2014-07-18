@@ -219,7 +219,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                             $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
 
                             if (!$isenabled)
-                                $name .= ' '.mb_convert_encoding(__('(disabled)'), MB_CASE_TITLE);
+                                $name .= ' '.__('(disabled)');
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php

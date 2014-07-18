@@ -87,7 +87,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)) {
-                        echo '<OPTGROUP label="Specific System Email">';
+                        echo sprintf('<OPTGROUP label="%s">', __('System Emails'));
                         while(list($id,$email,$name)=db_fetch_row($res)) {
                             $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
                             if($name)
@@ -218,7 +218,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                                 ? 'selected="selected"' : '';
 
                             if (!$isenabled)
-                                $title .= _(' (disabled)');
+                                $title .= ' ' . __('(disabled)');
 
                             echo sprintf('<option value="%d" %s>%s</option>',
                                 $id, $selected, $title);

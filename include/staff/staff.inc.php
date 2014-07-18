@@ -133,7 +133,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <tr>
-            <td><?php echo _('Authentication Backend'); ?></td>
+            <td><?php echo __('Authentication Backend'); ?></td>
             <td>
             <select name="backend" id="backend-selection" onchange="javascript:
                 if (this.value != '' && this.value != 'local')
@@ -141,7 +141,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 else if (!$('#welcome-email').is(':checked'))
                     $('#password-fields').show();
                 ">
-                <option value="">&mdash; <?php echo ('Use any available backend'); ?> &mdash;</option>
+                <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
             <?php foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
                 if (!$ab->supportsInteractiveAuthentication()) continue; ?>
                 <option value="<?php echo $ab::$id; ?>" <?php
@@ -240,7 +240,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     if(($res=db_query($sql)) && db_num_rows($res)){
                         while(list($id,$name,$isactive)=db_fetch_row($res)){
                             $sel=($info['group_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s %s</option>',$id,$sel,$name,($isactive?'':' (Disabled)'));
+                            echo sprintf('<option value="%d" %s>%s %s</option>',$id,$sel,$name,($isactive?'':__('(disabled)')));
                         }
                     }
                     ?>
@@ -344,7 +344,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
          while(list($id,$name,$isactive)=db_fetch_row($res)){
              $checked=($info['teams'] && in_array($id,$info['teams']))?'checked="checked"':'';
              echo sprintf('<tr><td colspan=2><input type="checkbox" name="teams[]" value="%d" %s>%s %s</td></tr>',
-                     $id,$checked,$name,($isactive?'':' (Disabled)'));
+                     $id,$checked,$name,($isactive?'':__('(disabled)')));
          }
         } ?>
         <tr>

@@ -269,7 +269,7 @@ class Page {
         } else {
             $sql='INSERT INTO '.PAGE_TABLE.' SET '.$sql.', created=NOW()';
             if (!db_query($sql) || !($id=db_insert_id())) {
-                $errors['err']=sprintf(_('Unable to create %s.'), __('this site page'))
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this site page'))
                    .' '.__('Internal error occurred');
                 return false;
             }

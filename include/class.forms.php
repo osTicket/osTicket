@@ -1084,12 +1084,13 @@ class ChoicesWidget extends Widget {
             $have_def = isset($choices[$def_key]);
             if (!$have_def)
                 $def_val = ($config['prompt'])
-                   ? $config['prompt'] : 'Select';
+                    ? $config['prompt'] : __('Select'
+                    /* Used as a default prompt for a custom drop-down list */);
             else
                 $def_val = $choices[$def_key];
         } else {
             $def_val = ($config['prompt'])
-                ? $config['prompt'] : 'Select';
+                ? $config['prompt'] : __('Select');
         }
         $value = $this->value;
         if ($value === null && $have_def)

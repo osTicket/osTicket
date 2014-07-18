@@ -275,6 +275,11 @@ class i18n_Compiler extends Module {
                 }
                 $args['forms'][] = $string['form'];
             }
+            elseif ($string) {
+                $this->stderr->write(sprintf("%s: %s: Too many arguments\n",
+                    $string['line'] ?: '?', $string['form']));
+            }
+
             // Add usage and comment info
             if (!isset($args['line']) && isset($string['line']))
                 $args['line'] = $string['line'];
@@ -432,6 +437,8 @@ class i18n_Compiler extends Module {
             '_NS'   => array('forms'=>2),
             '_P'    => array('context'=>1, 'forms'=>1),
             '_NP'   => array('context'=>1, 'forms'=>2),
+            // This is an error
+            '_'     => array('forms'=>0),
         );
         $files = Test::getAllScripts();
         $strings = array();

@@ -1238,7 +1238,7 @@ class SelectionField extends FormField {
             if ($this->value && !isset($this->_choices[$this->value])) {
                 $v = DynamicListItem::lookup($this->value);
                 $this->_choices[$v->get('id')] = $v->get('value')
-                    . mb_convert_encoding(__(' (Disabled)'), MB_CASE_TITLE);
+                    . ' ' . __('(disabled)');
             }
         }
         return $this->_choices;
