@@ -357,7 +357,7 @@ if($_POST && !$errors):
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = 'Unknown user selected!';
                     } elseif ($ticket->changeOwner($user)) {
-                        $msg = 'Ticket ownership changed to '.$user->getName();
+                        $msg = 'Ticket ownership changed to ' . Format::htmlchars($user->getName());
                     } else {
                         $errors['err'] = 'Unable to change tiket ownership. Try again';
                     }

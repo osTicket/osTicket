@@ -97,7 +97,9 @@ if ($num) { ?>
                     value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
                 </td>
                 <td>&nbsp;
-                    <a class="userPreview" href="users.php?id=<?php echo $row['id']; ?>"><?php echo $name; ?></a>
+                    <a class="userPreview"
+                        href="users.php?id=<?php echo $row['id']; ?>"><?php
+                        echo Format::htmlchars($name); ?></a>
                     &nbsp;
                     <?php
                     if ($row['tickets'])
@@ -105,7 +107,7 @@ if ($num) { ?>
                              <small>(%d)</small>', $row['tickets']);
                     ?>
                 </td>
-                <td><?php echo $row['email']; ?></td>
+                <td><?php echo Format::htmlchars($row['email']); ?></td>
                 <td><?php echo $status; ?></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
                </tr>

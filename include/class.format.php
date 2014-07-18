@@ -274,8 +274,8 @@ class Format {
             $flags |= ENT_HTML401;
 
         return is_array($var)
-            ? array_map(array('Format','htmlencode'), $var)
-            : htmlentities($var, $flags, 'UTF-8');
+            ? array_map(array('Format', 'htmlencode'), $var)
+            : htmlentities( (string) $var, $flags, 'UTF-8', false);
     }
 
     function htmldecode($var) {
