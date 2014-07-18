@@ -1227,8 +1227,8 @@ class SelectionField extends FormField {
             foreach ($this->getList()->getItems() as $i)
                 $this->_choices[$i->get('id')] = $i->get('value');
             if ($this->value && !isset($this->_choices[$this->value])) {
-                $v = DynamicListItem::lookup($this->value);
-                $this->_choices[$v->get('id')] = $v->get('value').' (Disabled)';
+                if ($v = DynamicListItem::lookup($this->value))
+                    $this->_choices[$v->get('id')] = $v->get('value').' (Disabled)';
             }
         }
         return $this->_choices;
