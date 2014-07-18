@@ -10,7 +10,7 @@ $org = $user->getOrganization();
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="users.php?id=<?php echo $user->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> <?php echo $user->getName(); ?></a></h2>
+             title="Reload"><i class="icon-refresh"></i> <?php echo Format::htmlchars($user->getName()); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
             <span class="action-button" data-dropdown="#action-dropdown-more">
@@ -69,7 +69,7 @@ $org = $user->getOrganization();
                     <td><b><a href="#users/<?php echo $user->getId();
                     ?>/edit" class="user-action"><i
                     class="icon-edit"></i>&nbsp;<?php echo
-                    $user->getName()->getOriginal();
+                    Format::htmlchars($user->getName()->getOriginal());
                     ?></a></td>
                 </tr>
                 <tr>

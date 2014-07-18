@@ -53,7 +53,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                         });
                 return false;
                 "><i class="icon-user"></i>
-                <span id="user-name"><?php echo $user->getName(); ?></span>
+                <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
                 &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                 </a>
                 <a class="action-button" style="float:none;overflow:inherit" href="#"
