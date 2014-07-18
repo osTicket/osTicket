@@ -81,7 +81,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $info = array(
-            'title' => sprintf('Update %s', $user->getName())
+            'title' => sprintf('Update %s', Format::htmlchars($user->getName()))
         );
         $forms = $user->getForms();
 
