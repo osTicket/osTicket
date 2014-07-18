@@ -67,6 +67,8 @@ div#header a {
     color: #555;
 }
 
+.banner { margin: 0; padding: 5px 5px 11px; margin-bottom: 10px; color: #444; border: 1px solid #444;  background-color: #ddd; border-radius: 4px; }
+
 #msg_info,
 .info-banner { margin: 0; padding: 5px; margin-bottom: 10px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
 
