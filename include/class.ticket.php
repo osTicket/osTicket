@@ -110,7 +110,8 @@ class Ticket {
             foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form)
                 foreach ($form->getAnswers() as $answer)
                     if ($tag = mb_strtolower($answer->getField()->get('name')))
-                        $this->_answers[$tag] = $answer;
+                        if (!isset($this->_answers[$tag]))
+                            $this->_answers[$tag] = $answer;
         }
     }
 
