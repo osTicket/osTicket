@@ -35,7 +35,7 @@ foreach ($forms as $e) { ?>
     );
     $sel.prop('disabled',true);">
 <option selected="selected" disabled="disabled"><?php
-    echo __('Add a new form to this ticket'); ?></option>
+    echo __('Add a form'); ?></option>
 <?php foreach (DynamicForm::objects()->filter(array(
     'type'=>'G')) as $f
 ) {
