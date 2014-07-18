@@ -8,7 +8,7 @@ if (($users=$ticket->getCollaborators())) {?>
         echo sprintf('<tr><td %s><i class="icon-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
                 ($user->isActive()? '' : 'class="faded"'),
                 ($user->isActive()? 'comments' :  'comment-alt'),
-                $user->getName(),
+                Format::htmlchars($user->getName()),
                 $user->getEmail());
     }
 }  else {
