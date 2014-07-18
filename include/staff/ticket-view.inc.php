@@ -438,7 +438,7 @@ $tcount+= $ticket->getNumNotes();
         <li><a id="note_tab" href="#note"><?php echo __('Post Internal Note');?></a></li>
         <?php
         if($thisstaff->canTransferTickets()) { ?>
-        <li><a id="transfer_tab" href="#transfer"><?php echo __('Dept. Transfer');?></a></li>
+        <li><a id="transfer_tab" href="#transfer"><?php echo __('Department Transfer');?></a></li>
         <?php
         }
 
@@ -594,7 +594,7 @@ $tcount+= $ticket->getNumNotes();
                     if($dept && $dept->canAppendSignature()) { ?>
                     <label><input type="radio" name="signature" value="dept"
                         <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>>
-                        Dept. Signature (<?php echo Format::htmlchars($dept->getName()); ?>)</label>
+                        <?php echo sprintf(__('Department Signature (%s)'), Format::htmlchars($dept->getName())); ?></label>
                     <?php
                     } ?>
                 </td>

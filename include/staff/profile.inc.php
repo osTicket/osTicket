@@ -168,7 +168,8 @@ $info['id']=$staff->getId();
                 <select name="default_signature_type">
                   <option value="none" selected="selected">&mdash; <?php echo __('None');?> &mdash;</option>
                   <?php
-                  $options=array('mine'=>__('My Signature'),'dept'=>__('Deptartment Signature (if set)'));
+                   $options=array('mine'=>__('My Signature'),'dept'=>sprintf(__('Department Signature (%s)'),
+                       __('if set' /* This is used in 'Department Signature (>if set<)' */)));
                   foreach($options as $k=>$v) {
                       echo sprintf('<option value="%s" %s>%s</option>',
                                 $k,($info['default_signature_type']==$k)?'selected="selected"':'',$v);

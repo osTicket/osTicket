@@ -355,7 +355,7 @@ if ($_POST)
                     <?php
                     } ?>
                     <label><input type="radio" name="signature" value="dept"
-                        <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>> <?php echo __('Dept. Signature (if set)');?></label>
+                        <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>> <?php echo sprintf(__('Department Signature (%s)'), __('if set')); ?></label>
                 </td>
              </tr>
             </table>

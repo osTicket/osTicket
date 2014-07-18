@@ -204,7 +204,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Account Status & Settings');?></strong>: <?php echo __('Dept. and assigned group controls access permissions.');?></em>
+                <em><strong><?php echo __('Account Status & Settings');?></strong>: <?php echo __('Department and group assigned control access permissions.');?></em>
             </th>
         </tr>
         <tr>
