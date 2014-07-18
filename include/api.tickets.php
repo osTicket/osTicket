@@ -102,8 +102,7 @@ class TicketApiController extends ApiController {
             $ticket = $this->processEmail();
         } else {
 			# Parse request body
-			//mail("scott@nexus-iservices.com","ticket intermediate format",print_r($this->getRequest($format),true));
-            $ticket = $this->createTicket($this->getRequest($format));
+			$ticket = $this->createTicket($this->getRequest($format));
         }
 
         if(!$ticket)
