@@ -201,7 +201,7 @@ class i18n_Compiler extends Module {
         // Add in translation of javascript strings
         $phrases = array();
         if ($mo && ($js = $this->__getAllJsPhrases())) {
-            $mo = unserialize($mo);
+            $mo = (eval (substr($mo, 5))); # Chop off <?php
             foreach ($js as $c) {
                 foreach ($c['forms'] as $f) {
                     $phrases[$f] = @$mo[$f] ?: $f;

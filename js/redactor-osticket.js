@@ -31,11 +31,11 @@ RedactorPlugins.draft = {
             .css({'position':'absolute','top':'3em','right':'0.5em'})
             .hide()
             .append($('<span>')
-                .text('Draft Saved'));
+                .text(__('Draft Saved')));
         // Float the [Draft Saved] box with the toolbar
         this.$toolbar.append(this.$draft_saved);
         if (this.opts.draftDelete) {
-            var trash = this.buttonAdd('deleteDraft', 'Delete Draft', this.deleteDraft);
+            var trash = this.buttonAdd('deleteDraft', __('Delete Draft'), this.deleteDraft);
             this.buttonAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
