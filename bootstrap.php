@@ -94,8 +94,11 @@ class Bootstrap {
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
         define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
         define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
+        define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
+
 
         define('FORM_SEC_TABLE',$prefix.'form');
         define('FORM_FIELD_TABLE',$prefix.'form_field');

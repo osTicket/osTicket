@@ -10,21 +10,43 @@ $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = DynamicList::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('lists.php');
-$showing=$pageNav->showing().' custom lists';
-?>
+$showing=$pageNav->showing().' Dynamic Lists';
 
+// Get built-in list
+$builtInList = BuiltInCustomList::getLists();
+
+?>
 <form action="lists.php" method="POST" name="lists">
 <?php csrf_token(); ?>
 <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
+    <caption>Custom Lists</caption>
+    <?php
+    if ($builtInList) { ?>
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>List Name</th>
-            <th>Created</th>
-            <th>Last Updated</th>
+            <th colspan=3>&nbsp;Built-In Lists</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($builtInList as $id => $list) { ?>
+        <tr>
+            <td><i class="<?php echo $list['icon']; ?>"></i></td>
+            <td colspan=3><a href="?id=<?php echo $id; ?>"><?php echo $list['name']; ?></a></td>
+        </tr>
+    <?php }
+    ?>
+    </tbody>
+    <?php
+    } ?>
+    <thead>
+        <tr>
+            <th width="7">&nbsp;</th>
+            <th>&nbsp;Dynamic Lists</th>
+            <th width="250">Created</th>
+            <th width="250">Last Updated</th>
         </tr>
     </thead>
     <tbody>
@@ -36,9 +58,11 @@ $showing=$pageNav->showing().' custom lists';
                 $sel = true; ?>
         <tr>
             <td>
-                <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $list->get('id'); ?>"
+                <input width="7" type="checkbox" class="ckb" name="ids[]"
+                value="<?php echo $list->getId(); ?>"
                     <?php echo $sel?'checked="checked"':''; ?>></td>
-            <td><a href="?id=<?php echo $list->get('id'); ?>"><?php echo $list->get('name'); ?></a></td>
+            <td><a href="?id=<?php echo $list->getId(); ?>"><?php echo
+            $list->getName(); ?></a></td>
             <td><?php echo $list->get('created'); ?></td>
             <td><?php echo $list->get('updated'); ?></td>
         </tr>
@@ -76,7 +100,7 @@ if ($count) //Show options..
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong>Are you sure you want to DELETE selected lists?</strong></font>
-        <br><br>Deleted forms CANNOT be recovered.
+        <br><br>Deleted list CANNOT be recovered.
     </p>
     <div>Please confirm to continue.</div>
     <hr style="margin-top:1em"/>

@@ -18,6 +18,7 @@
 **********************************************************************/
 require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
+require_once(INCLUDE_DIR . 'class.list.php');
 require_once(INCLUDE_DIR . 'class.filter.php');
 require_once(INCLUDE_DIR . 'class.signal.php');
 
@@ -425,7 +426,7 @@ class DynamicFormField extends VerySimpleModel {
     function setConfiguration(&$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm() as $name=>$field) {
-            $config[$name] = $field->getClean();
+            $config[$name] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
         if (count($errors) === 0)
@@ -445,6 +446,14 @@ class DynamicFormField extends VerySimpleModel {
     }
     function isRequirementForced() {
         return $this->get('edit_mask') & 8;
+    }
+
+    function  isChangeable() {
+        return ($this->get('edit_mask') & 16) == 0;
+    }
+
+    function  isConfigurable() {
+        return ($this->get('edit_mask') & 32) == 0;
     }
 
     /**
@@ -900,248 +909,6 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 }
 
-/**
- * Dynamic lists are used to represent list of arbitrary data that can be
- * used as dropdown or typeahead selections in dynamic forms. This model
- * defines a list. The individual items are stored in the DynamicListItem
- * model.
- */
-class DynamicList extends VerySimpleModel {
-
-    static $meta = array(
-        'table' => LIST_TABLE,
-        'ordering' => array('name'),
-        'pk' => array('id'),
-    );
-
-    var $_items;
-    var $_form;
-
-    function getSortModes() {
-        return array(
-            'Alpha'     => 'Alphabetical',
-            '-Alpha'    => 'Alphabetical (Reversed)',
-            'SortCol'   => 'Manually Sorted'
-        );
-    }
-
-    function getListOrderBy() {
-        switch ($this->sort_mode) {
-            case 'Alpha':   return 'value';
-            case '-Alpha':  return '-value';
-            case 'SortCol': return 'sort';
-        }
-    }
-
-    function getPluralName() {
-        if ($name = $this->get('name_plural'))
-            return $name;
-        else
-            return $this->get('name') . 's';
-    }
-
-    function getAllItems() {
-         return DynamicListItem::objects()->filter(
-                array('list_id'=>$this->get('id')))
-                ->order_by($this->getListOrderBy());
-    }
-
-    function getItems($limit=false, $offset=false) {
-        if (!$this->_items) {
-            $this->_items = DynamicListItem::objects()->filter(
-                array('list_id'=>$this->get('id'),
-                      'status__hasbit'=>DynamicListItem::ENABLED))
-                ->order_by($this->getListOrderBy());
-            if ($limit)
-                $this->_items->limit($limit);
-            if ($offset)
-                $this->_items->offset($offset);
-        }
-        return $this->_items;
-    }
-
-    function getItemCount() {
-        return DynamicListItem::objects()->filter(array('list_id'=>$this->id))
-            ->count();
-    }
-
-    function getConfigurationForm() {
-        if (!$this->_form) {
-            $this->_form = DynamicForm::lookup(
-                array('type'=>'L'.$this->get('id')));
-        }
-        return $this->_form;
-    }
-
-    function getProperties() {
-        if ($f = $this->getForm())
-            return $f->getFields();
-        return array();
-    }
-
-    function getForm() {
-        return $this->getConfigurationForm();
-    }
-
-    function save($refetch=false) {
-        if (count($this->dirty))
-            $this->set('updated', new SqlFunction('NOW'));
-        if (isset($this->dirty['notes']))
-            $this->notes = Format::sanitize($this->notes);
-        return parent::save($refetch);
-    }
-
-    function delete() {
-        $fields = DynamicFormField::objects()->filter(array(
-            'type'=>'list-'.$this->id))->count();
-        if ($fields == 0)
-            return parent::delete();
-        else
-            // Refuse to delete lists that are in use by fields
-            return false;
-    }
-
-    static function create($ht=false) {
-        $inst = parent::create($ht);
-        $inst->set('created', new SqlFunction('NOW'));
-        return $inst;
-    }
-
-    static function getSelections() {
-        $selections = array();
-        foreach (DynamicList::objects() as $list) {
-            $selections['list-'.$list->id] =
-                array($list->getPluralName(),
-                    SelectionField, $list->get('id'));
-        }
-        return $selections;
-    }
-}
-FormField::addFieldTypes('Custom Lists', array('DynamicList', 'getSelections'));
-
-/**
- * Represents a single item in a dynamic list
- *
- * Fields:
- * value - (char * 255) Actual list item content
- * extra - (char * 255) Other values that represent the same item in the
- *      list, such as an abbreviation. In practice, should be a
- *      space-separated list of tokens which should hit this list item in a
- *      search
- * sort - (int) If sorting by this field, represents the numeric sort order
- *      that this item should come in the dropdown list
- */
-class DynamicListItem extends VerySimpleModel {
-
-    static $meta = array(
-        'table' => LIST_ITEM_TABLE,
-        'pk' => array('id'),
-        'joins' => array(
-            'list' => array(
-                'null' => true,
-                'constraint' => array('list_id' => 'DynamicList.id'),
-            ),
-        ),
-    );
-
-    var $_config;
-    var $_form;
-
-    const ENABLED               = 0x0001;
-
-    protected function hasStatus($flag) {
-        return 0 !== ($this->get('status') & $flag);
-    }
-
-    protected function clearStatus($flag) {
-        return $this->set('status', $this->get('status') & ~$flag);
-    }
-
-    protected function setStatus($flag) {
-        return $this->set('status', $this->get('status') | $flag);
-    }
-
-    function isEnabled() {
-        return $this->hasStatus(self::ENABLED);
-    }
-
-    function enable() {
-        $this->setStatus(self::ENABLED);
-    }
-    function disable() {
-        $this->clearStatus(self::ENABLED);
-    }
-
-    function getConfiguration() {
-        if (!$this->_config) {
-            $this->_config = $this->get('properties');
-            if (is_string($this->_config))
-                $this->_config = JsonDataParser::parse($this->_config);
-            elseif (!$this->_config)
-                $this->_config = array();
-        }
-        return $this->_config;
-    }
-
-    function getFilterData() {
-        $raw = $this->getConfiguration();
-        $props = array();
-        if ($form = $this->getConfigurationForm()) {
-            foreach ($form->getFields() as $field) {
-                $tag = $field->get('id');
-                if (isset($raw[$tag]))
-                    $props[".$tag"] = $field->toString($raw[$tag]);
-            }
-        }
-        return $props;
-    }
-
-    function setConfiguration(&$errors=array()) {
-        $config = array();
-        foreach ($this->getConfigurationForm()->getFields() as $field) {
-            $val = $field->to_database($field->getClean());
-            $config[$field->get('id')] = is_array($val) ? $val[1] : $val;
-            $errors = array_merge($errors, $field->errors());
-        }
-        if (count($errors) === 0)
-            $this->set('properties', JsonDataEncoder::encode($config));
-
-        return count($errors) === 0;
-    }
-
-    function getConfigurationForm() {
-        if (!$this->_form) {
-            $this->_form = DynamicForm::lookup(
-                array('type'=>'L'.$this->get('list_id')));
-        }
-        return $this->_form;
-    }
-
-    function getVar($name) {
-        $config = $this->getConfiguration();
-        $name = mb_strtolower($name);
-        foreach ($this->getConfigurationForm()->getFields() as $field) {
-            if (mb_strtolower($field->get('name')) == $name)
-                return $config[$field->get('id')];
-        }
-    }
-
-    function toString() {
-        return $this->get('value');
-    }
-
-    function __toString() {
-        return $this->toString();
-    }
-
-    function delete() {
-        # Don't really delete, just unset the list_id to un-associate it with
-        # the list
-        $this->set('list_id', null);
-        return $this->save();
-    }
-}
-
 class SelectionField extends FormField {
     static $widget = 'SelectionWidget';
 
@@ -1153,65 +920,89 @@ class SelectionField extends FormField {
     function getList() {
         if (!$this->_list)
             $this->_list = DynamicList::lookup($this->getListId());
+
         return $this->_list;
     }
 
     function parse($value) {
+
+        if (!($list=$this->getList()))
+            return null;
+
         $config = $this->getConfiguration();
-        if (is_int($value))
-            return $this->to_php($this->getWidget()->getEnteredValue(), (int) $value);
-        elseif (!$config['typeahead'])
-            return $this->to_php(null, (int) $value);
-        else
-            return $this->to_php($value);
+        $choices = $this->getChoices();
+        $selection = array();
+        if ($config['typeahead']) {
+            // Entered value
+            $val = $this->getWidget()->getEnteredValue();
+            if (($i=$list->getItem($val)) && $i->getId() == $value)
+                $selection[$i->getId()] = $i->getValue();
+            elseif ($val && isset($choices[$value])) //perhaps old deleted item...
+                $selection[$value] = $choices[$value];
+        } elseif ($value && is_array($value)) {
+            foreach ($value as $v) {
+                if (($i=$list->getItem((int) $v)))
+                    $selection[$i->getId()] = $i->getValue();
+                elseif (isset($choices[$v]))
+                    $selection[$v] = $choices[$v];
+            }
+        }
+
+        return $selection;
+    }
+
+    function to_database($value) {
+        if ($value && is_array($value))
+            $value = JsonDataEncoder::encode($value);
+
+        return $value;
     }
 
     function to_php($value, $id=false) {
-        if ($value === null && $id === null)
-            return null;
-        if ($id && is_int($id))
-            $item = DynamicListItem::lookup($id);
-        # Attempt item lookup by name too
-        if (!$item || ($value !== null && $value != $item->get('value'))) {
-            $item = DynamicListItem::lookup(array(
-                'value'=>$value,
-                'list_id'=>$this->getListId()));
-        }
-        return ($item) ? $item : $value;
+        return ($value && !is_array($value))
+            ? JsonDataParser::parse($value) : $value;
     }
 
     function hasIdValue() {
         return true;
     }
 
-    function to_database($item) {
-        if ($item instanceof DynamicListItem)
-            return array($item->value, $item->id);
-        return null;
+    function toString($items) {
+        return ($items && is_array($items))
+            ? explode(', ', $items) : (string) $items;
     }
 
-    function toString($item) {
-        return ($item instanceof DynamicListItem)
-            ? $item->toString() : (string) $item;
-    }
-
-    function validateEntry($item) {
-        $config = $this->getConfiguration();
-        parent::validateEntry($item);
-        if ($item && !$item instanceof DynamicListItem)
-            $this->_errors[] = 'Select a value from the list';
-        elseif ($item && $config['typeahead']
-                && $this->getWidget()->getEnteredValue() != $item->get('value'))
-            $this->_errors[] = 'Select a value from the list';
+    function validateEntry($entry) {
+        parent::validateEntry($entry);
+        if (!$this->errors()) {
+            $config = $this->getConfiguration();
+            if (!$entry || count($entry) == 0)
+                $this->_errors[] = 'Select a value from the list';
+            elseif ($config['typeahead']
+                    && !in_array($this->getWidget()->getEnteredValue(), $entry))
+                $this->_errors[] = 'Select a value from the list';
+        }
     }
 
     function getConfigurationOptions() {
         return array(
-            'typeahead' => new ChoiceField(array(
+            'widget' => new ChoiceField(array(
                 'id'=>1, 'label'=>'Widget', 'required'=>false,
-                'default'=>false,
-                'choices'=>array(false=>'Drop Down', true=>'Typeahead'),
+                'default' => 'dropdown',
+                'choices'=>array(
+                    'dropdown' => 'Drop Down',
+                    'typeahead' =>'Typeahead',
+                ),
+                'configuration'=>array(
+                    'multiselect' => false,
+                ),
                 'hint'=>'Typeahead will work better for large lists'
+            )),
+            'multiselect' => new BooleanField(array(
+                'id'=>1, 'label'=>'Multiselect', 'required'=>false, 'default'=>false,
+                'configuration'=>array(
+                    'desc'=>'Allow multiple selections'),
+                'hint' => 'Dropdown only',
             )),
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
@@ -1221,14 +1012,34 @@ class SelectionField extends FormField {
         );
     }
 
-    function getChoices() {
-        if (!$this->_choices) {
+    function getConfiguration() {
+
+        $config = parent::getConfiguration();
+        if ($config['widget'])
+            $config['typeahead'] = isset($config['widget']['typeahead']);
+
+        //Typeahed doesn't support multiselect for now  TODO: Add!
+        if ($config['typeahead'])
+            $config['multiselect'] = false;
+
+        return $config;
+    }
+
+    function getChoices($verbose=false) {
+        if (!$this->_choices || $verbose) {
             $this->_choices = array();
             foreach ($this->getList()->getItems() as $i)
-                $this->_choices[$i->get('id')] = $i->get('value');
-            if ($this->value && !isset($this->_choices[$this->value])) {
-                $v = DynamicListItem::lookup($this->value);
-                $this->_choices[$v->get('id')] = $v->get('value').' (Disabled)';
+                $this->_choices[$i->getId()] = $i->getValue();
+
+            // Retired old selections
+            $values = ($a=$this->getAnswer()) ? $a->getValue() : array();
+            if ($values && is_array($values)) {
+                foreach ($values as $k => $v) {
+                    if (!isset($this->_choices[$k])) {
+                        if ($verbose) $v .= ' (retired)';
+                        $this->_choices[$k] = $v;
+                    }
+                }
             }
         }
         return $this->_choices;
@@ -1252,27 +1063,30 @@ class SelectionField extends FormField {
 
 class SelectionWidget extends ChoicesWidget {
     function render($mode=false) {
+
         $config = $this->field->getConfiguration();
-        $value = false;
-        if ($this->value instanceof DynamicListItem) {
-            // Loaded from database
-            $value = $this->value->get('id');
-            $name = $this->value->get('value');
-        } elseif ($this->value) {
-            // Loaded from POST
+        if (($value=$this->getValue()))
+            $value =  $this->field->parse($value);
+        elseif ($this->value)
             $value = $this->value;
-            $name = $this->getEnteredValue();
-        }
+
         if (!$config['typeahead'] || $mode=='search') {
             $this->value = $value;
             return parent::render($mode);
         }
 
+        if ($value && is_array($value)) {
+            $name = current($value);
+            $value = key($value);
+        }
+
         $source = array();
         foreach ($this->field->getList()->getItems() as $i)
             $source[] = array(
-                'value' => $i->get('value'), 'id' => $i->get('id'),
-                'info' => $i->get('value')." -- ".$i->get('extra'),
+                'value' => $i->getValue(), 'id' => $i->getId(),
+                'info' => sprintf('%s %s',
+                    $i->getValue(),
+                    (($extra= $i->getAbbrev()) ? "-- $extra" : '')),
             );
         ?>
         <span style="display:inline-block">

@@ -1,8 +1,9 @@
-    <h3>Item Properties &mdash; <?php echo $item->get('value') ?></h3>
+    <h3>Item Properties &mdash; <?php echo $item->getValue(); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <form method="post" action="ajax.php/list/item/<?php
-            echo $item->get('id'); ?>/properties" onsubmit="javascript:
+    <form method="post" action="ajax.php/list/<?php
+            echo $list->getId(); ?>/item/<?php
+            echo $item->getId(); ?>/properties" onsubmit="javascript:
             var form = $(this);
             $.post(this.action, form.serialize(), function(data, status, xhr) {
                 if (!data.length) {
@@ -32,16 +33,20 @@
             </td><td>
             <span style="display:inline-block;width:100%">
             <?php
-            $f->render();
-            if ($f->get('required')) { ?>
-                <font class="error">*</font>
-            <?php
-            }
-            if ($f->get('hint')) { ?>
-                <br /><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($f->get('hint')); ?></em>
-            <?php
-            }
+                if ($item->isInternal() && $f->isConfigurable())
+                    $f->render('view');
+                else {
+                    $f->render();
+                    if ($f->get('required')) { ?>
+                        <font class="error">*</font>
+                    <?php
+                    }
+                    if ($f->get('hint')) { ?>
+                        <br /><em style="color:gray;display:inline-block"><?php
+                            echo Format::htmlchars($f->get('hint')); ?></em>
+                    <?php
+                    }
+                }
             ?>
             </span>
             <?php

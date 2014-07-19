@@ -256,7 +256,7 @@ class FormField {
      * useful error message indicating what is wrong with the input.
      */
     function parse($value) {
-        return trim($value);
+        return is_string($value) ? trim($value) : $value;
     }
 
     /**
@@ -304,6 +304,10 @@ class FormField {
      */
     function toString($value) {
         return (string) $value;
+    }
+
+    function __toString() {
+        return $this->toString($this->value);
     }
 
     /**
@@ -729,27 +733,60 @@ class ChoiceField extends FormField {
                 'hint'=>'Leading text shown before a value is selected',
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
+            'multiselect' => new BooleanField(array(
+                'id'=>1, 'label'=>'Multiselect', 'required'=>false, 'default'=>false,
+                'configuration'=>array(
+                    'desc'=>'Allow multiple selections')
+            )),
         );
     }
 
     function parse($value) {
-        if (is_numeric($value))
-            return $value;
-        foreach ($this->getChoices() as $k=>$v)
-            if (strcasecmp($value, $k) === 0)
-                return $k;
+
+        if (!$value) return null;
+
+        // Assume multiselect
+        $values = array();
+        $choices = $this->getChoices();
+        if (is_array($value)) {
+            foreach($value as $k => $v)
+                if (isset($choices[$v]))
+                    $values[$v] = $choices[$v];
+        } elseif(isset($choices[$value])) {
+            $values[$value] = $choices[$value];
+        }
+
+        return $values ?: null;
+    }
+
+    function to_database($value) {
+        if ($value && is_array($value))
+            $value = JsonDataEncoder::encode($value);
+
+        return $value;
+    }
+
+    function to_php($value) {
+        return ($value && !is_array($value))
+            ? JsonDataParser::parse($value) : $value;
     }
 
     function toString($value) {
+
         $choices = $this->getChoices();
-        if (isset($choices[$value]))
-            return $choices[$value];
-        else
-            return $choices[$this->get('default')];
+        $selection = array();
+        if ($value && is_array($value)) {
+            $selection = $value;
+        } elseif (isset($choices[$value]))
+            $selection[] = $choices[$value];
+        elseif ($this->get('default'))
+            $selection[] = $choices[$this->get('default')];
+
+        return $selection ? implode(', ', array_filter($selection)) : '';
     }
 
-    function getChoices() {
-        if ($this->_choices === null) {
+    function getChoices($verbose=false) {
+        if ($this->_choices === null || $verbose) {
             // Allow choices to be set in this->ht (for configurationOptions)
             $this->_choices = $this->get('choices');
             if (!$this->_choices) {
@@ -762,6 +799,18 @@ class ChoiceField extends FormField {
                     if ($val == null)
                         $val = $key;
                     $this->_choices[trim($key)] = trim($val);
+                }
+                // Add old selections if nolonger available
+                // This is necessary so choices made previously can be
+                // retained
+                $values = ($a=$this->getAnswer()) ? $a->getValue() : array();
+                if ($values && is_array($values)) {
+                    foreach ($values as $k => $v) {
+                        if (!isset($this->_choices[$k])) {
+                            if ($verbose) $v .= ' (retired)';
+                            $this->_choices[$k] = $v;
+                        }
+                    }
                 }
             }
         }
@@ -978,7 +1027,7 @@ class Widget {
 class TextboxWidget extends Widget {
     static $input_type = 'text';
 
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         if (isset($config['size']))
             $size = "size=\"{$config['size']}\"";
@@ -1018,7 +1067,7 @@ class PasswordWidget extends TextboxWidget {
 }
 
 class TextareaWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         $class = $cols = $rows = $maxlength = "";
         if (isset($config['rows']))
@@ -1042,7 +1091,7 @@ class TextareaWidget extends Widget {
 }
 
 class PhoneNumberWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
@@ -1071,45 +1120,74 @@ class PhoneNumberWidget extends Widget {
 
 class ChoicesWidget extends Widget {
     function render($mode=false) {
+
+        if ($mode && $mode == 'view') {
+            if (!($val = (string) $this->field))
+                $val = '<span class="faded">None</span>';
+
+            echo $val;
+            return;
+        }
+
         $config = $this->field->getConfiguration();
         // Determine the value for the default (the one listed if nothing is
         // selected)
-        $choices = $this->field->getChoices();
-        // We don't consider the 'default' when rendering in 'search' mode
+        $choices = $this->field->getChoices(true);
+        $prompt = $config['prompt'] ?: 'Select';
+
         $have_def = false;
-        if ($mode != 'search') {
+        // We don't consider the 'default' when rendering in 'search' mode
+        if (!strcasecmp($mode, 'search')) {
+            $def_val = $prompt;
+        } else {
             $def_key = $this->field->get('default');
             if (!$def_key && $config['default'])
                 $def_key = $config['default'];
             $have_def = isset($choices[$def_key]);
-            if (!$have_def)
-                $def_val = ($config['prompt'])
-                   ? $config['prompt'] : 'Select';
-            else
-                $def_val = $choices[$def_key];
-        } else {
-            $def_val = ($config['prompt'])
-                ? $config['prompt'] : 'Select';
+            $def_val = $have_def ? $choices[$def_key] : $prompt;
         }
-        $value = $this->value;
-        if ($value === null && $have_def)
-            $value = $def_key;
-        ?> <span style="display:inline-block">
-        <select name="<?php echo $this->name; ?>">
-            <?php if (!$have_def) { ?>
+
+        if (($value=$this->getValue()))
+            $values = $this->field->parse($value);
+        elseif ($this->value)
+             $values = $this->value;
+
+        if ($values === null)
+            $values = $have_def ? array($def_key => $choices[$def_key]) : array();
+
+        ?>
+        <span style="display:inline-block">
+        <select name="<?php echo $this->name; ?>[]"
+            id="<?php echo $this->name; ?>"
+            data-prompt="<?php echo $prompt; ?>"
+            <?php if ($config['multiselect'])
+                echo ' multiple="multiple" class="multiselect"'; ?>>
+            <?php if (!$have_def && !$config['multiselect']) { ?>
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
             <?php }
-            foreach ($choices as $key=>$name) {
+            foreach ($choices as $key => $name) {
                 if (!$have_def && $key == $def_key)
                     continue; ?>
                 <option value="<?php echo $key; ?>" <?php
-                    if ($value == $key) echo 'selected="selected"';
+                    if (isset($values[$key])) echo 'selected="selected"';
                 ?>><?php echo $name; ?></option>
             <?php } ?>
         </select>
         </span>
         <?php
+        if ($config['multiselect']) {
+         ?>
+        <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.min.js"></script>
+        <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
+        <script type="text/javascript">
+        $(function() {
+            $("#<?php echo $this->name; ?>")
+            .multiselect({'noneSelectedText':'<?php echo $prompt; ?>'});
+        });
+        </script>
+       <?php
+        }
     }
 }
 
@@ -1119,7 +1197,7 @@ class CheckboxWidget extends Widget {
         $this->name = '_field-checkboxes';
     }
 
-    function render() {
+    function render($mode=false) {
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
@@ -1143,7 +1221,7 @@ class CheckboxWidget extends Widget {
 }
 
 class DatetimePickerWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         global $cfg;
 
         $config = $this->field->getConfiguration();
@@ -1213,7 +1291,7 @@ class DatetimePickerWidget extends Widget {
 }
 
 class SectionBreakWidget extends Widget {
-    function render() {
+    function render($mode=false) {
         ?><div class="form-header section-break"><h3><?php
         echo Format::htmlchars($this->field->get('label'));
         ?></h3><em><?php echo Format::htmlchars($this->field->get('hint'));

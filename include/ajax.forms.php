@@ -58,15 +58,27 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $ent->delete();
     }
 
-    function getListItemProperties($item_id) {
-        if (!($item = DynamicListItem::lookup($item_id)))
+    function getListItemProperties($list_id, $item_id) {
+
+        if (is_numeric($list_id))
+            $list = DynamicList::lookup($list_id);
+        else
+            $list = BuiltInCustomList::lookup($list_id);
+
+        if (!($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
         include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
     }
 
-    function saveListItemProperties($item_id) {
-        if (!($item = DynamicListItem::lookup($item_id)))
+    function saveListItemProperties($list_id, $item_id) {
+
+        if (is_numeric($list_id))
+            $list = DynamicList::lookup($list_id);
+        else
+            $list = BuiltInCustomList::lookup($list_id);
+
+        if (!($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
         if (!$item->setConfiguration())

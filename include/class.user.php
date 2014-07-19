@@ -254,6 +254,10 @@ class User extends UserModel {
         return JsonDataEncoder::encode($info);
     }
 
+    function __toString() {
+        return $this->asVar();
+    }
+
     function asVar() {
         return (string) $this->getName();
     }
