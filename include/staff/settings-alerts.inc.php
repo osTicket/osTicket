@@ -72,7 +72,7 @@
             <td>
               <input type="checkbox" name="message_alert_assigned" <?php
               echo $config['message_alert_assigned']?'checked':''; ?>>
-              <?php echo __('Assigned Agents'); ?>
+              <?php echo __('Assigned Agent / Team'); ?>
             </td>
         </tr>
         <tr>
@@ -135,7 +135,7 @@
         <tr>
             <td>
               <input type="checkbox" name="assigned_alert_staff" <?php echo
-              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Agents'); ?>
+              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Agent / Team'); ?>
             </td>
         </tr>
         <tr>
