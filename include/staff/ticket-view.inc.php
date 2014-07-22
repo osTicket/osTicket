@@ -1004,7 +1004,7 @@ $tcount+= $ticket->getNumNotes();
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong><?php echo __('Are you sure you want to DELETE this ticket?');?></strong></font>
-        <br><br><?php echo __('Deleted tickets CANNOT be recovered, including any associated attachments.');?>
+        <br><br><?php echo __('Deleted data CANNOT be recovered, including any associated attachments.');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="confirm-form" name="confirm-form">

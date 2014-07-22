@@ -75,18 +75,21 @@ if ($count) //Show options..
     <a class="close" href="">&times;</a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong><?php echo __(
-        'Are you sure you want to DELETE selected plugins?'); ?></strong></font>
+        <font color="red"><strong><?php echo sprintf(
+        __('Are you sure you want to DELETE %s?'),
+        _N('selected plugin', 'selected plugins', 2)); ?></strong></font>
         <br><br><?php echo __(
         'Configuration for deleted plugins CANNOT be recovered.'); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        <font color="green"><strong><?php echo __(
-        'Are you ready to enable selected plugins?'); ?></strong></font>
+        <font color="green"><?php echo sprintf(
+        __('Are you sure want to <b>enable</b> %s?'),
+        _N('selected plugin', 'selected plugins', 2)); ?></font>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        <font color="red"><strong><?php echo __(
-        'Are you sure you want to disable selected plugins?'); ?></strong></font>
+        <font color="red"><?php echo sprintf(
+        __('Are you sure want to <b>disable</b> %s?'),
+        _N('selected plugin', 'selected plugins', 2)); ?></font>
     </p>
     <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>

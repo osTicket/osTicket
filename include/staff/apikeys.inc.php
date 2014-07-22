@@ -117,14 +117,17 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        <?php echo __('Are you sure want to <b>enable</b> selected API keys?');?>
+        <?php echo sprintf(__('Are you sure want to <b>enable</b> %s?'),
+            _N('selected API key', 'selected API keys', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        <?php echo __('Are you sure want to <b>disable</b>  selected API keys?');?>
+        <?php echo sprintf(__('Are you sure want to <b>disable</b> %s?'),
+            _N('selected API key', 'selected API keys', 2)); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong><?php echo __('Are you sure you want to DELETE selected API keys?');?></strong></font>
-        <br><br><?php echo __('Deleted keys CANNOT be recovered.');?>
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected API key', 'selected API keys', 2));?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.'); ?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>

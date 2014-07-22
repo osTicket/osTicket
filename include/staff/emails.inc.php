@@ -125,8 +125,9 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong><?php echo __('Are you sure you want to DELETE selected emails?');?></strong></font>
-        <br><br><?php echo __('Deleted emails CANNOT be recovered.');?>
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected email', 'selected emails', 2)) ;?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>

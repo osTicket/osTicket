@@ -140,14 +140,17 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="make_public-confirm">
-        <?php echo __('Are you sure want to make selected departments <b>public</b>?');?>
+        <?php echo sprintf(__('Are you sure want to make %s <b>public</b>?'),
+            _N('selected department', 'selected departments', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="make_private-confirm">
-        <?php echo __('Are you sure want to make selected departments <b>private</b>?');?>
+        <?php echo sprintf(__('Are you sure want to make %s <b>private</b> (internal)?'),
+            _N('selected department', 'selected departments', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong><?php echo __('Are you sure you want to DELETE selected departments?');?></strong></font>
-        <br><br><?php echo __('Deleted departments CANNOT be recovered.');?>
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected department', 'selected departments', 2));?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.'); ?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>

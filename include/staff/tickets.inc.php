@@ -525,7 +525,8 @@ if ($results) {
         <?php echo __('Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong><?php echo __('Are you sure you want to DELETE selected tickets?');?></strong></font>
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected ticket', 'selected tickets', 2));?></strong></font>
         <br><br><?php echo __('Deleted tickets CANNOT be recovered, including any associated attachments.');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
