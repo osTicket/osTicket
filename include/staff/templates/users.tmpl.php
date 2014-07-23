@@ -155,7 +155,8 @@ if ($res && $num) { //Show options..
     <hr/>
     <p class="confirm-action" style="display:none;" id="remove-users-confirm">
         <?php echo sprintf(__(
-        'Are you sure want to <b>REMOVE</b> selected user from <strong>%s</strong> organization?'),
+        'Are you sure want to <b>REMOVE</b> %1$s from <strong>%2$s</strong> organization?'),
+        _N('selected user', 'selected users', 2),
         $org->getName()); ?>
     </p>
     <div><?php echo __('Please confirm to continue.'); ?></div>
