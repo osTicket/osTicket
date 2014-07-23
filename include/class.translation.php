@@ -708,10 +708,7 @@ class TextDomain {
     }
 
     static function configureForUser($user=false) {
-        if ($user && method_exists($user, 'getLanguage'))
-            $lang = $user->getLanguage();
-        else
-            $lang = Internationalization::getDefaultLanguage();
+        $lang = Internationalization::getCurrentLanguage($user);
 
         // Define locale for C-libraries
         putenv('LC_ALL=' . $lang);

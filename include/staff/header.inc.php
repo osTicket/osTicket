@@ -1,7 +1,7 @@
 <?php if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html <?php
-if ($thisstaff && ($lang = $thisstaff->getLanguage())
+if (($lang = Internationalization::getCurrentLanguage())
         && ($info = Internationalization::getLanguageInfo($lang))
         && (@$info['direction'] == 'rtl'))
     echo 'dir="rtl" class="rtl"';

@@ -315,6 +315,15 @@ class Internationalization {
         return $best_match_langcode;
     }
 
+    static function getCurrentLanguage($user=false) {
+        global $thisstaff, $thisclient, $cfg;
+
+        $user = $user ?: $thisstaff ?: $thisclient;
+        if ($user && method_exists($user, 'getLanguage'))
+            return $user->getLanguage();
+        return Internationalization::getDefaultLanguage();
+    }
+
     static function bootstrap() {
 
         require_once INCLUDE_DIR . 'class.translation.php';

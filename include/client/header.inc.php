@@ -8,7 +8,12 @@ $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 header("Content-Type: text/html; charset=UTF-8\r\n");
 ?>
 <!DOCTYPE html>
-<html>
+<html <?php
+if (($lang = Internationalization::getCurrentLanguage())
+        && ($info = Internationalization::getLanguageInfo($lang))
+        && (@$info['direction'] == 'rtl'))
+    echo 'dir="rtl" class="rtl"';
+?>>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
