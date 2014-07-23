@@ -21,7 +21,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
         }
         ?>
         <p><b><?php echo sprintf(__('For details - please view %s or check your email.'),
-            sprintf(__('<a href="logs.php">%s</a>'), 'System Logs'));?></b></p>
+            sprintf('<a href="logs.php">%s</a>', __('System Logs')));?></b></p>
         <br>
         <p><?php echo sprintf(__('Please refer to the %1$s Upgrade Guide %2$s for more information.'), '<a target="_blank" href="http://osticket.com/wiki/Upgrade_and_Migration">', '</a>');?></p>
     </div>
