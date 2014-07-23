@@ -375,6 +375,10 @@ class ClientAccount extends UserAccount {
 
         $this->set('timezone_id', $vars['timezone_id']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
+        // Change language
+        $this->set('lang', $vars['lang'] ?: null);
+        $_SESSION['client:lang'] = null;
+        TextDomain::configureForUser($this);
 
         if ($vars['backend']) {
             $this->set('backend', $vars['backend']);

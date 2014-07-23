@@ -48,6 +48,24 @@ if ($acct = $thisclient->getAccount()) {
             <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
     </td>
 </tr>
+    <tr>
+        <td width="180">
+            <?php echo __('Preferred Language'); ?>:
+        </td>
+        <td>
+    <?php
+    $langs = Internationalization::availableLanguages(); ?>
+            <select name="lang">
+                <option value="">&mdash; <?php echo __('Use Browser Preference'); ?> &mdash;</option>
+<?php foreach($langs as $l) {
+$selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
+                <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                    ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
+<?php } ?>
+            </select>
+            <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
+        </td>
+    </tr>
 <?php if ($acct->isPasswdResetEnabled()) { ?>
 <tr>
     <td colspan=2">
