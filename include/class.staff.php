@@ -500,6 +500,7 @@ class Staff extends AuthenticatedUser {
 
         $this->config->set('lang', $vars['lang']);
         $_SESSION['staff:lang'] = null;
+        TextDomain::configureForUser($this);
 
         $sql='UPDATE '.STAFF_TABLE.' SET updated=NOW() '
             .' ,firstname='.db_input($vars['firstname'])

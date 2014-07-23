@@ -16,11 +16,9 @@
 require_once(INCLUDE_DIR.'class.app.php');
 
 class StaffNav {
-    var $tabs=array();
-    var $submenus=array();
 
     var $activetab;
-    var $activemenu;
+    var $activeMenu;
     var $panel;
 
     var $staff;
@@ -28,8 +26,21 @@ class StaffNav {
     function StaffNav($staff, $panel='staff'){
         $this->staff=$staff;
         $this->panel=strtolower($panel);
-        $this->tabs=$this->getTabs();
-        $this->submenus=$this->getSubMenus();
+    }
+
+    function __get($what) {
+        // Lazily initialize the tabbing system
+        switch($what) {
+        case 'tabs':
+            $this->tabs=$this->getTabs();
+            break;
+        case 'submenus':
+            $this->submenus=$this->getSubMenus();
+            break;
+        default:
+            throw new Exception($what . ': No such attribute');
+        }
+        return $this->{$what};
     }
 
     function getPanel(){
