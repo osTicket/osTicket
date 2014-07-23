@@ -130,7 +130,6 @@ div#header a {
 }
 
 #nav .active, #sub_nav li {
-    margin:0;
     padding:0;
     list-style:none;
     display:inline;
@@ -155,9 +154,12 @@ div#header a {
     color:#555;
     text-align:center;
     font-weight:bold;
-    margin-top:1px;
-    margin-right:5px;
     position:relative;
+
+    border-radius:5px 5px 0 0;
+    border-style: solid;
+    border-width: 1px 1px 0;
+    border-color: transparent;
 }
 
 #nav .inactive a {
@@ -169,17 +171,13 @@ div#header a {
     color:#004a80;
 }
 
-#nav li.inactive {
-    /* Make room for hidden border */
-    margin: 1px 1px 0 1px;
+#nav > li + li {
+    margin-left: 8px;
 }
+
 #nav li.active, #nav li.inactive:hover {
-    border-radius:5px 5px 0 0;
     box-shadow: 4px -3px 6px -3px rgba(0,0,0,0.3);
     border-color: #c5d9ec;
-    border-style: solid;
-    border-width: 1px 1px 0 1px;
-    margin: 0;
 }
 #nav li.active {
     background-color: #f7f7f7;
@@ -222,7 +220,6 @@ div#header a {
 }
 
 #nav li.inactive:hover > ul {
-
     visibility: visible;
     opacity: 1;
     transition-delay: 0.25s;
@@ -259,11 +256,13 @@ div#header a {
 #sub_nav a {
     display:block;
     float:left;
-    margin-right:10px;
     padding:0 10px 0 21px;
     background-position:0 50%;
     background-repeat:no-repeat;
     color:#000;
+}
+#sub_nav li + li > a {
+    margin-left:10px;
 }
 
 #sub_nav a:hover {
