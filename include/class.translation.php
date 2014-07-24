@@ -676,8 +676,16 @@ class TextDomain {
     }
 
     function getTranslation($category=LC_MESSAGES, $locale=false) {
-        $locale = $locale ?: self::setLocale(LC_MESSAGES, 0);
-        if (!isset($this->l10n[$locale])) {
+        $locale = $locale ?: self::$current_locale
+            ?: self::setLocale(LC_MESSAGES, 0);
+
+        if (isset($this->l10n[$locale]))
+            return $this->l10n[$locale];
+
+        if ($locale == 'en_US') {
+            $this->l10n[$locale] = new Translation(null);
+        }
+        else {
             // get the current locale
             $bound_path = @$this->path ?: './';
             $subpath = self::$LC_CATEGORIES[$category] .
@@ -685,13 +693,13 @@ class TextDomain {
 
             $locale_names = self::get_list_of_locales($locale);
             $input = null;
-            foreach ($locale_names as $locale) {
-                $phar_path = 'phar://' . $bound_path . $locale . ".phar/" . $subpath;
+            foreach ($locale_names as $T) {
+                $phar_path = 'phar://' . $bound_path . $T . ".phar/" . $subpath;
                 if (file_exists($phar_path)) {
                     $input = $phar_path;
                     break;
                 }
-                $full_path = $bound_path . $locale . "/" . $subpath;
+                $full_path = $bound_path . $T . "/" . $subpath;
                 if (file_exists($full_path)) {
                     $input = $full_path;
                     break;
