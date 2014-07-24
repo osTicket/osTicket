@@ -43,7 +43,6 @@ if (isset($settingOptions[$target]))
 if($page && $_POST && !$errors) {
     if($cfg && $cfg->updateSettings($_POST,$errors)) {
         $msg=sprintf(__('Successfully updated %s'), Format::htmlchars($page[0]));
-        $cfg->reload();
     } elseif(!$errors['err']) {
         $errors['err']=__('Unable to update settings - correct errors below and try again');
     }

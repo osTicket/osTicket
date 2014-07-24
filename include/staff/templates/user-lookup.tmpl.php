@@ -9,7 +9,7 @@ if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
 ); ?></p></div>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
-    placeholder="Search by email, phone or name" id="user-search"
+    placeholder="<?php echo __('Search by email, phone or name'); ?>" id="user-search"
     autocorrect="off" autocomplete="off"/>
 </div>
 <?php

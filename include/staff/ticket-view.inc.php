@@ -658,7 +658,7 @@ $tcount+= $ticket->getNumNotes();
                     </div>
                     <br/>
                     <textarea name="note" id="internal_note" cols="80"
-                        placeholder="Note details"
+                        placeholder="<?php echo __('Note details'); ?>"
                         rows="9" wrap="soft" data-draft-namespace="ticket.note"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         class="richtext ifhtml draft draft-delete"><?php echo $info['note'];

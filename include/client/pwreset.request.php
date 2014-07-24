@@ -19,7 +19,7 @@ $userid=Format::input($_POST['userid']);
         <input id="username" type="text" name="userid" size="30" value="<?php echo $userid; ?>">
     </div>
     <p>
-        <input class="btn" type="submit" value="Send Email">
+        <input class="btn" type="submit" value="<?php echo __('Send Email'); ?>">
     </p>
     </div>
 </form>

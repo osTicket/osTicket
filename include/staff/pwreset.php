@@ -12,10 +12,10 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
         <input type="hidden" name="do" value="sendmail">
         <fieldset>
             <input type="text" name="userid" id="name" value="<?php echo
-                $info['userid']; ?>" placeholder="username" autocorrect="off"
+            $info['userid']; ?>" placeholder="<?php echo __('Email or Username'); ?>" autocorrect="off"
                 autocapitalize="off">
         </fieldset>
-        <input class="submit" type="submit" name="submit" value="Send Email"/>
+        <input class="submit" type="submit" name="submit" value="<?php echo __('Send Email'); ?>"/>
     </form>
 
 </div>
