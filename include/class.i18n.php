@@ -29,8 +29,10 @@ class Internationalization {
         if ($cfg && ($lang = $cfg->getSystemLanguage()))
             array_unshift($this->langs, $language);
 
-        if ($language)
-            array_unshift($this->langs, $language);
+        // Detect language filesystem path, case insensitively
+        if ($language && ($info = self::getLanguageInfo($language))) {
+            array_unshift($this->langs, $info['code']);
+        }
     }
 
     function getTemplate($path) {
@@ -192,7 +194,7 @@ class Internationalization {
 
     static function getLanguageInfo($lang) {
         $langs = self::availableLanguages();
-        return @$langs[$lang] ?: array();
+        return @$langs[strtolower($lang)] ?: array();
     }
 
     static function availableLanguages($base=I18N_DIR) {
