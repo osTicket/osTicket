@@ -260,8 +260,8 @@ $(function() {
         }
         getConfig().then(function(c) {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
-                    $.Redactor.opts.langs[c.lang.toLowerCase()])
-                options['lang'] = c.lang.toLowerCase();
+                    $.Redactor.opts.langs[c.short_lang])
+                options['lang'] = c.short_lang;
             el.redactor(options);
         });
     },

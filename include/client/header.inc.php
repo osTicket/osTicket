@@ -31,6 +31,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/thread.css" media="screen">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/jquery.multifile.js"></script>
@@ -75,7 +76,22 @@ if (($lang = Internationalization::getCurrentLanguage())
                 }
             } ?>
             </p>
+            <p>
+<?php
+if (($all_langs = Internationalization::availableLanguages())
+    && (count($all_langs) > 1)
+) {
+    foreach ($all_langs as $code=>$info) {
+        list($lang, $locale) = explode('_', $code);
+?>
+        <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
+            href="?<?php echo urlencode($_GET['QUERY_STRING']); ?>&amp;lang=<?php echo $code;
+            ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a>
+<?php }
+} ?>
+            </p>
         </div>
+        <div class="clear"></div>
         <?php
         if($nav){ ?>
         <ul id="nav">

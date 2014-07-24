@@ -166,12 +166,7 @@ class Internationalization {
             $info = &$langs[$lang];
             if (!isset($info['desc'])) {
                 if (extension_loaded('intl')) {
-                    if ($thisstaff)
-                        $lang = $thisstaff->getLanguage();
-                    elseif ($thisclient)
-                        $lang = $thisclient->getLanguage();
-                    else
-                        $lang = self::getDefaultLanguage();
+                    $lang = self::getCurrentLanguage();
                     list($simple_lang,) = explode('_', $lang);
                     $info['desc'] = sprintf("%s%s",
                         // Display the localized name of the language
@@ -316,12 +311,14 @@ class Internationalization {
     }
 
     static function getCurrentLanguage($user=false) {
-        global $thisstaff, $thisclient, $cfg;
+        global $thisstaff, $thisclient;
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
             return $user->getLanguage();
-        return Internationalization::getDefaultLanguage();
+        if (isset($_SESSION['client:lang']))
+            return $_SESSION['client:lang'];
+        return self::getDefaultLanguage();
     }
 
     static function bootstrap() {

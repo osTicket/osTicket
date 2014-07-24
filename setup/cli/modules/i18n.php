@@ -145,9 +145,11 @@ class i18n_Compiler extends Module {
 
         // TODO: Add i18n extras (like fonts)
         // Redactor language pack
+        //
+        list($short_lang, $locale) = explode('_', $lang);
         list($code, $js) = $this->_http_get(
             'http://imperavi.com/webdownload/redactor/lang/?lang='
-            .strtolower($lang));
+            .strtolower($short_lang));
         if ($code == 200 && ($js != 'File not found'))
             $phar->addFromString('js/redactor.js', $js);
         else

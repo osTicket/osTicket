@@ -710,9 +710,14 @@ class TextDomain {
     static function configureForUser($user=false) {
         $lang = Internationalization::getCurrentLanguage($user);
 
+        $info = Internationalization::getLanguageInfo(strtolower($lang));
+        if (!$info)
+            // Not a supported language
+            return;
+
         // Define locale for C-libraries
-        putenv('LC_ALL=' . $lang);
-        self::setLocale(LC_ALL, $lang);
+        putenv('LC_ALL=' . $info['code']);
+        self::setLocale(LC_ALL, $info['code']);
     }
 
     static function setDefaultDomain($domain) {
