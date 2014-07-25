@@ -22,6 +22,10 @@ class PluginConfig extends Config {
         return array();
     }
 
+    function hasCustomConfig() {
+        return $this instanceof PluginCustomConfig;
+    }
+
     /**
      * Retreive a Form instance for the configurable options offered in
      * ::getOptions
@@ -55,6 +59,15 @@ class PluginConfig extends Config {
      * array.
      */
     function commit(&$errors=array()) {
+        global $msg;
+
+        if ($this->hasCustomConfig())
+            return $this->saveCustomConfig($errors);
+
+        return $this->commitForm($errors);
+    }
+
+    function commitForm(&$errors=array()) {
         $f = $this->getForm();
         $commit = false;
         if ($f->isValid()) {
@@ -68,7 +81,11 @@ class PluginConfig extends Config {
                 $field = $f->getField($name);
                 $dbready[$name] = $field->to_database($val);
             }
-            return $this->updateAll($dbready);
+            if ($this->updateAll($dbready)) {
+                if (!$msg)
+                    $msg = 'Successfully updated configuration';
+                return true;
+            }
         }
         return false;
     }
@@ -91,6 +108,20 @@ class PluginConfig extends Config {
             .' WHERE `namespace`='.db_input($this->getNamespace());
         return (db_query($sql) && db_affected_rows());
     }
+}
+
+/**
+ * Interface: PluginCustomConfig
+ *
+ * Allows a plugin to specify custom configuration pages. If the
+ * configuration cannot be suited by a single page, single form, then
+ * the plugin can use the ::renderCustomConfig() method to trigger
+ * rendering the page, and use ::saveCustomConfig() to trigger
+ * validating and saving the custom configuration.
+ */
+interface PluginCustomConfig {
+    function renderCustomConfig();
+    function saveCustomConfig();
 }
 
 class PluginManager {
