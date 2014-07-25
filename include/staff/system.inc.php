@@ -82,3 +82,24 @@ $commit = GIT_VERSION != '$git' ? GIT_VERSION : (
         echo sprintf('%.2f MiB', $space); ?></td>
 </tbody>
 </table>
+<br/>
+<h2><?php echo __('Installed Language Packs'); ?></h2>
+<div style="margin: 0 20px">
+<?php
+    foreach (Internationalization::availableLanguages() as $info) {
+        $p = $info['path'];
+        if ($info['phar']) $p = 'phar://' . $p;
+        if (file_exists($p . '/MANIFEST.php')) {
+            $manifest = (include $p . '/MANIFEST.php'); ?>
+    <h3><strong><?php echo Internationalization::getLanguageDescription($info['code']); ?></strong>
+        &mdash; <?php echo $manifest['Language']; ?>
+<?php       if ($info['phar'])
+                Plugin::showVerificationBadge($info['path']);
+            ?>
+        </h3>
+        <div><?php echo __('Version'); ?>: <?php echo $manifest['Version']; ?>,
+            <?php echo __('Built'); ?>: <?php echo $manifest['Build-Date']; ?>
+        </div>
+<?php }
+    } ?>
+</div>

@@ -216,7 +216,7 @@ showImagesInline = function(urls, thread_id) {
 }
 
 function __(s) {
-  if ($.strings && $.strings[s])
-    return $.strings[s];
+  if ($.oststrings && $.oststrings[s])
+    return $.oststrings[s];
   return s;
 }

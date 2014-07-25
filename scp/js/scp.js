@@ -771,7 +771,7 @@ $('#new-note').live('click', function() {
 });
 
 function __(s) {
-  if ($.strings && $.strings[s])
-    return $.strings[s];
+  if ($.oststrings && $.oststrings[s])
+    return $.oststrings[s];
   return s;
 }

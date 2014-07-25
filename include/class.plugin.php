@@ -309,6 +309,15 @@ abstract class Plugin {
     var $id;
     var $info;
 
+    const VERIFIED = 1;             // Thumbs up
+    const VERIFY_EXT_MISSING = 2;   // PHP extension missing
+    const VERIFY_FAILED = 3;        // Bad signature data
+    const VERIFY_ERROR = 4;         // Unable to verify (unexpected error)
+    const VERIFY_NO_KEY = 5;        // Public key missing
+    const VERIFY_DNS_PASS = 6;      // DNS check passes, cannot verify sig
+
+    static $verify_domain = 'updates.osticket.com';
+
     function Plugin($id) {
         $this->id = $id;
         $this->load();
@@ -421,6 +430,129 @@ abstract class Plugin {
         }
         if ($path)
            return PluginManager::getInstance($path);
+    }
+
+    /**
+     * Function: isVerified
+     *
+     * This will help verify the content, integrity, oversight, and origin
+     * of plugins, language packs and other modules distributed for
+     * osTicket.
+     *
+     * This idea is that the signature of the PHAR file will be registered
+     * in DNS, for instance,
+     * `7afc8bf80b0555bed88823306744258d6030f0d9.updates.osticket.com`, for
+     * a PHAR file with a SHA1 signature of
+     * `7afc8bf80b0555bed88823306744258d6030f0d9 `, which will resolve to a
+     * string like the following:
+     * ```
+     * "v=1; i=storage:s3; s=MEUCIFw6A489eX4Oq17BflxCZ8+MH6miNjtcpScUoKDjmblsAiEAjiBo9FzYtV3WQtW6sbhPlJXcoPpDfYyQB+BFVBMps4c=; V=0.1;"
+     * ```
+     * Which is a simple semicolon separated key-value pair string with the
+     * following keys
+     *
+     *   Key | Description
+     *  :----|:---------------------------------------------------
+     *   v   | Algorithm version
+     *   i   | Plugin 'id' registered in plugin.php['id']
+     *   V   | Plugin 'version' registered in plugin.php['version']
+     *   s   | OpenSSL signature of the PHAR SHA1 signature using a
+     *       | private key (specified on the command line)
+     *
+     * The public key, which will be distributed with osTicket, can be used
+     * to verify the signature of the PHAR file from the data received from
+     * DNS.
+     *
+     * Parameters:
+     * $phar - (string) filename of phar file to verify
+     *
+     * Returns:
+     * (int) -
+     *      Plugin::VERIFIED upon success
+     *      Plugin::VERIFY_DNS_PASS if found in DNS but cannot verify sig
+     *      Plugin::VERIFY_NO_KEY if public key not found in include/plugins
+     *      Plugin::VERIFY_FAILED if the plugin fails validation
+     *      Plugin::VERIFY_EXT_MISSING if a PHP extension is required
+     *      Plugin::VERIFY_ERROR if an unexpected error occurred
+     */
+    static function isVerified($phar) {
+        static $pubkey = null;
+
+        if (!class_exists('Phar'))
+            return self::VERIFY_EXT_MISSING;
+        elseif (!file_exists(INCLUDE_DIR . '/plugins/updates.pem'))
+            return self::VERIFY_NO_KEY;
+
+        if (!isset($pubkey)) {
+            $pubkey = openssl_pkey_get_public(
+                    file_get_contents(INCLUDE_DIR . 'plugins/updates.pem'));
+        }
+        if (!$pubkey) {
+            return self::VERIFY_ERROR;
+        }
+
+        require_once(PEAR_DIR.'Net/DNS2.php');
+        $P = new Phar($phar);
+        $sig = $P->getSignature();
+        $info = array();
+        try {
+            $q = new Net_DNS2_Resolver();
+            $r = $q->query(strtolower($sig['hash']) . '.' . self::$verify_domain, 'TXT');
+            foreach ($r->answer as $rec) {
+                foreach ($rec->text as $txt) {
+                    foreach (explode(';', $txt) as $kv) {
+                        list($k, $v) = explode('=', trim($kv));
+                        $info[$k] = trim($v);
+                    }
+                    if ($info['v'] && $info['s'])
+                        break;
+                }
+            }
+        }
+        catch (Net_DNS2_Exception $e) {
+            // TODO: Differenciate NXDOMAIN and DNS failure
+        }
+
+        if (is_array($info) && isset($info['v'])) {
+            switch ($info['v']) {
+            case '1':
+                if (!($signature = base64_decode($info['s'])))
+                    return self::VERIFY_FAILED;
+                elseif (!function_exists('openssl_verify'))
+                    return self::VERIFY_DNS_PASS;
+
+                $codes = array(
+                    -1 => self::VERIFY_ERROR,
+                    0 => self::VERIFY_FAILED,
+                    1 => self::VERIFIED,
+                );
+                $result = openssl_verify($sig['hash'], $signature, $pubkey,
+                    OPENSSL_ALGO_SHA1);
+                return $codes[$result];
+            }
+        }
+        return self::VERIFY_FAILED;
+    }
+
+    static function showVerificationBadge($phar) {
+        switch (self::isVerified($phar)) {
+        case self::VERIFIED:
+            $show_lock = true;
+        case self::VERIFY_DNS_PASS: ?>
+        &nbsp;
+        <span class="label label-verified" title="<?php
+            if ($show_lock) echo sprintf(__('Verified by %s'), self::$verify_domain);
+            ?>"> <?php
+            if ($show_lock) echo '<i class="icon icon-lock"></i>'; ?>
+            <?php echo $show_lock ? __('Verified') : __('Registered'); ?></span>
+<?php       break;
+        case self::VERIFY_FAILED: ?>
+        &nbsp;
+        <span class="label label-danger" title="<?php
+            echo __('The originator of this extension cannot be verified');
+            ?>"><i class="icon icon-warning-sign"></i></span>
+<?php       break;
+        }
     }
 }
 

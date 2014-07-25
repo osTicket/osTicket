@@ -15,6 +15,7 @@ class i18n_Compiler extends Module {
                 'list' =>       'Show list of available translations',
                 'build' =>      'Compile a language pack',
                 'make-pot' =>   'Build the PO file for gettext translations',
+                'sign' =>       'Sign a language pack',
             ),
         ),
     );
@@ -25,6 +26,10 @@ class i18n_Compiler extends Module {
             CROWDIN_API_KEY is defined in the ost-config.php file'),
         "lang" => array('-L', '--lang', 'metavar'=>'code',
             'help'=>'Language code (used for building)'),
+        'file' => array('-f', '--file', 'metavar'=>'FILE',
+            'help' => "Language pack to be signed"),
+        'pkey' => array('-P', '--pkey', 'metavar'=>'key-file',
+            'help' => 'Private key for signing'),
     );
 
     static $crowdin_api_url = 'http://i18n.osticket.com/api/project/osticket-official/{command}';
@@ -80,6 +85,11 @@ class i18n_Compiler extends Module {
             break;
         case 'make-pot':
             $this->_make_pot();
+            break;
+        case 'sign':
+            if (!$options['file'] || !file_exists($options['file']))
+                $this->fail('Specify a language pack to sign with --file=');
+            $this->_sign($options['file'], $options);
             break;
         }
     }
@@ -211,16 +221,65 @@ class i18n_Compiler extends Module {
             }
             $phar->addFromString(
                 'js/osticket-strings.js',
-                sprintf('(function($){$.strings=%s;})(jQuery);',
+                sprintf('(function($){$.oststrings=%s;})(jQuery);',
                     JsonDataEncoder::encode($phrases))
             );
         }
+
+        list($code, $zip) = $this->_request("download/$lang.zip");
+
+        // Include a manifest
+        include_once INCLUDE_DIR . 'class.mailfetch.php';
+
+        $po_header = Mail_Parse::splitHeaders($mo['']);
+        $info = array(
+            'Build-Date' => date(DATE_RFC822),
+            'Build-Version' => trim(`git describe`),
+            'Language' => $po_header['Language'],
+            #'Phrases' =>
+            #'Translated' =>
+            #'Approved' =>
+            'Id' => 'lang:' . $lang,
+            'Version' => strtotime($po_header['PO-Revision-Date']),
+        );
+        $phar->addFromString(
+            'MANIFEST.php',
+            sprintf('<?php return %s;', var_export($info, true)));
 
         // TODO: Sign files
 
         // Use a very small stub
         $phar->setStub('<?php __HALT_COMPILER();');
+        $phar->setSignatureAlgorithm(Phar::SHA1);
         $phar->stopBuffering();
+    }
+
+    function _sign($plugin, $options) {
+        if (!file_exists($plugin))
+            $this->fail($plugin.': Cannot find file');
+        elseif (!file_exists("phar://$plugin/MANIFEST.php"))
+            $this->fail($plugin.': Should be a plugin PHAR file');
+        $info = (include "phar://$plugin/MANIFEST.php");
+        $phar = new Phar($plugin);
+
+        if (!function_exists('openssl_get_privatekey'))
+            $this->fail('OpenSSL extension required for signing');
+        $private = openssl_get_privatekey(
+                file_get_contents($options['pkey']));
+        if (!$private)
+            $this->fail('Unable to read private key');
+        $signature = $phar->getSignature();
+        $seal = '';
+        openssl_sign($signature['hash'], $seal, $private,
+            OPENSSL_ALGO_SHA1);
+        if (!$seal)
+            $this->fail('Unable to generate verify signature');
+
+        $this->stdout->write(sprintf("Signature: %s\n",
+            strtolower($signature['hash'])));
+        $this->stdout->write(
+            sprintf("Seal: \"v=1; i=%s; s=%s; V=%s;\"\n",
+            $info['Id'], base64_encode($seal), $info['Version']));
     }
 
     function __read_next_string($tokens) {

@@ -217,6 +217,7 @@ class Internationalization {
                     'lang' => $code,
                     'locale' => $locale,
                     'path' => $f,
+                    'phar' => substr($f, -5) == '.phar',
                     'code' => $base,
                 );
             }

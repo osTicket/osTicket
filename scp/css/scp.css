@@ -1804,6 +1804,20 @@ tr.disabled th {
 .label-info {
   background-color: #3a87ad;
 }
+.label-verified {
+    border:1px solid green;
+    background-color:transparent;
+    background-color:rgba(0,0,0,0);
+    color:green;
+    text-shadow:none;
+}
+.label-danger {
+    border:1px solid red;
+    background-color:transparent;
+    background-color:rgba(0,0,0,0);
+    color:red;
+    text-shadow:none;
+}
 
 .tab_content {
     position: relative;
