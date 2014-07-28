@@ -436,7 +436,7 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function isDeletable() {
-        return ($this->get('edit_mask') & 1) == 0;
+        return (($this->get('edit_mask') & 1) == 0);
     }
     function isNameForced() {
         return $this->get('edit_mask') & 2;
@@ -449,11 +449,11 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function  isChangeable() {
-        return ($this->get('edit_mask') & 16) == 0;
+        return (($this->get('edit_mask') & 16) == 0);
     }
 
-    function  isConfigurable() {
-        return ($this->get('edit_mask') & 32) == 0;
+    function  isEditable() {
+        return (($this->get('edit_mask') & 32) == 0);
     }
 
     /**

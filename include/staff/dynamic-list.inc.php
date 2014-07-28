@@ -48,7 +48,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td width="180" class="required">Name:</td>
             <td>
                 <?php
-                if ($list && $list->isBuiltIn())
+                if ($list && !$list->isEditable())
                     echo $list->getName();
                 else {
                     echo sprintf('<input size="50" type="text" name="name"
@@ -63,7 +63,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td width="180">Plural Name:</td>
             <td>
                 <?php
-                    if ($list && $list->isBuiltIn())
+                    if ($list && !$list->isEditable())
                         echo $list->getPluralName();
                     else
                         echo sprintf('<input size="50" type="text"
@@ -229,7 +229,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <th></th>
             <th>Value</th>
             <?php
-            if (!$list || !$list->isBuiltIn()) { ?>
+            if (!$list || $list->hasAbbrev()) { ?>
             <th>Abbrev <em style="display:inline">&mdash; Abbreviations and such</em></th>
             <?php
             } ?>
@@ -272,7 +272,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 ?>
             </td>
             <?php
-            if (!$list->isBuiltIn()) { ?>
+            if ($list->hasAbbrev()) { ?>
             <td><input type="text" size="30" name="abbrev-<?php echo $id; ?>"
                 value="<?php echo $i->getAbbrev(); ?>"/></td>
             <?php
@@ -302,20 +302,24 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         </tr>
     <?php }
     }
-    for ($i=0; $i<$newcount; $i++) { ?>
+
+    if (!$list || $list->allowAdd()) {
+       for ($i=0; $i<$newcount; $i++) { ?>
         <tr>
             <td><?php echo $icon; ?> <em>+</em>
                 <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
             <td><input type="text" size="40" name="value-new-<?php echo $i; ?>"/></td>
             <?php
-            if (!$list || !$list->isBuiltIn()) { ?>
+            if (!$list || $list->hasAbbrev()) { ?>
             <td><input type="text" size="30" name="abbrev-new-<?php echo $i; ?>"/></td>
             <?php
             } ?>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
         </tr>
-    <?php } ?>
+    <?php
+       }
+    }?>
     </tbody>
     </table>
 </div>

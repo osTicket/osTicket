@@ -12,9 +12,6 @@ $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('lists.php');
 $showing=$pageNav->showing().' Dynamic Lists';
 
-// Get built-in list
-$builtInList = BuiltInCustomList::getLists();
-
 ?>
 <form action="lists.php" method="POST" name="lists">
 <?php csrf_token(); ?>
@@ -22,25 +19,6 @@ $builtInList = BuiltInCustomList::getLists();
 <input type="hidden" id="action" name="a" value="" >
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption>Custom Lists</caption>
-    <?php
-    if ($builtInList) { ?>
-    <thead>
-        <tr>
-            <th width="7">&nbsp;</th>
-            <th colspan=3>&nbsp;Built-In Lists</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($builtInList as $id => $list) { ?>
-        <tr>
-            <td><i class="<?php echo $list['icon']; ?>"></i></td>
-            <td colspan=3><a href="?id=<?php echo $id; ?>"><?php echo $list['name']; ?></a></td>
-        </tr>
-    <?php }
-    ?>
-    </tbody>
-    <?php
-    } ?>
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
@@ -50,7 +28,7 @@ $builtInList = BuiltInCustomList::getLists();
         </tr>
     </thead>
     <tbody>
-    <?php foreach (DynamicList::objects()->order_by('name')
+    <?php foreach (DynamicList::objects()->order_by('-type', 'name')
                 ->limit($pageNav->getLimit())
                 ->offset($pageNav->getStart()) as $list) {
             $sel = false;
@@ -58,11 +36,19 @@ $builtInList = BuiltInCustomList::getLists();
                 $sel = true; ?>
         <tr>
             <td>
+                <?php
+                if ($list->isDeleteable()) { ?>
                 <input width="7" type="checkbox" class="ckb" name="ids[]"
                 value="<?php echo $list->getId(); ?>"
-                    <?php echo $sel?'checked="checked"':''; ?>></td>
+                    <?php echo $sel?'checked="checked"':''; ?>>
+                <?php
+                } else {
+                    echo '&nbsp;';
+                }
+                ?>
+            </td>
             <td><a href="?id=<?php echo $list->getId(); ?>"><?php echo
-            $list->getName(); ?></a></td>
+            $list->getPluralName() ?: $list->getName(); ?></a></td>
             <td><?php echo $list->get('created'); ?></td>
             <td><?php echo $list->get('updated'); ?></td>
         </tr>

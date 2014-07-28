@@ -46,7 +46,8 @@ interface CustomList {
     function getSortMode();
     function getListOrderBy();
 
-    function isBuiltIn();
+    function allowAdd();
+    function hasAbbrev();
 
     function update($vars, &$errors);
     function delete();
@@ -82,98 +83,41 @@ interface CustomListItem {
 
 
 /*
- * Base class for Built-in Custom Lists
+ * Base class for Custom List handlers
  *
- * Built-in custom lists are lists that can be extended but within the
- * constrains of system defined parameters.
+ * Custom list handler extends custom list and might store data outside the
+ * typical dynamic list store.
  *
  */
 
-abstract class BuiltInCustomList implements CustomList {
-    static $sort_modes = array(
-            'Alpha'     => 'Alphabetical',
-            '-Alpha'    => 'Alphabetical (Reversed)',
-            'SortCol'   => 'Manually Sorted'
-    );
+abstract class CustomListHandler {
 
-    var $config = null;
+    var $_list;
 
-    function __construct() {
-        $this->config = new Config('CL'.$this->getId());
+    function __construct($list) {
+        $this->_list = $list;
     }
 
-    abstract function getId();
-    abstract function getName();
-    abstract function getPluralName();
+    function __call($name, $args) {
 
-    abstract  function getInfo();
+        $rv = null;
+        if ($this->_list && is_callable(array($this->_list, $name)))
+            $rv = $args
+                ? call_user_func_array(array($this->_list, $name), $args)
+                : call_user_func(array($this->_list, $name));
+
+        return $rv;
+    }
+
+    function update($vars, &$errors) {
+        return $this->_list->update($vars, $errors);
+    }
 
     abstract function getNumItems();
     abstract function getAllItems();
     abstract function getItems($criteria);
-
+    abstract function getItem($id);
     abstract function addItem($vars, &$errors);
-
-    abstract function getForm(); // Config form
-    abstract function hasProperties();
-
-    abstract function getListOrderBy();
-
-    abstract function getSortMode();
-
-    function getSortModes() {
-        return static::$sort_modes;
-    }
-
-    function isBuiltIn() {
-        return true;
-    }
-
-    function set($field, $value) {
-
-        if (!$this->config)
-            return false;
-
-        return $this->config->set($field, $value);
-    }
-
-    abstract function update($vars, &$errors);
-
-    // Built-in list cannot be deleted
-    function delete() {
-        return false;
-    }
-
-    // Built-in list is defined - not created.
-    static function create($vars, &$errors) {
-        return false;
-    }
-
-    static function lookup($id) {
-
-        if (!($list=static::getLists())
-                // Built-in list exists
-                || !isset($list[$id])
-                // Handler exits
-                || !($handler = $list[$id]['handler'])
-                // It's a collable handler
-                || !class_exists($handler))
-           return null;
-
-        return new $handler();
-    }
-
-    static function getLists() {
-
-        $list['status'] = array ( //Ticket statuses
-                'name' => 'Ticket Status',
-                'handler' => 'TicketStatusList',
-                'icon' => 'icon-flag',
-                );
-
-        return $list;
-    }
-
 }
 
 /**
@@ -197,16 +141,23 @@ class DynamicList extends VerySimpleModel implements CustomList {
     // Required fields
     static $fields = array('name', 'name_plural', 'sort_mode', 'notes');
 
+    // Supported masks
+    const MASK_EDIT     = 0x0001;
+    const MASK_ADD      = 0x0002;
+    const MASK_DELETE   = 0x0004;
+    const MASK_ABBREV   = 0x0008;
 
     var $_items;
     var $_form;
+    var $_config;
+
+    function __construct() {
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+        $this->_config = new Config('list.'.$this->getId());
+    }
 
     function getId() {
         return $this->get('id');
-    }
-
-    function isBuiltIn() {
-        return false;
     }
 
     function getInfo() {
@@ -314,6 +265,34 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $this->_form;
     }
 
+    function isDeleteable() {
+        return !$this->hasMask(static::MASK_DELETE);
+    }
+
+    function isEditable() {
+        return !$this->hasMask(static::MASK_EDIT);
+    }
+
+    function allowAdd() {
+        return !$this->hasMask(static::MASK_ADD);
+    }
+
+    function hasAbbrev() {
+        return !$this->hasMask(static::MASK_ABBREV);
+    }
+
+    protected function hasMask($mask) {
+        return 0 !== ($this->get('masks') & $mask);
+    }
+
+    protected function clearMask($mask) {
+        return $this->set('masks', $this->get('masks') & ~$mask);
+    }
+
+    protected function setFlag($mask) {
+        return $this->set('mask', $this->get('mask') | $mask);
+    }
+
     private function createConfigurationForm() {
 
         $form = DynamicForm::create(array(
@@ -328,8 +307,16 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $this->getConfigurationForm($autocreate);
     }
 
+    function getConfiguration() {
+        return JsonDataParser::parse($this->_config->get('configuration'));
+    }
+
     function update($vars, &$errors) {
-        $required = array('name');
+
+        $required = array();
+        if ($this->isEditable())
+            $required = array('name');
+
         foreach (static::$fields as $f) {
             if (in_array($f, $required) && !$vars[$f])
                 $errors[$f] = sprintf('%s is required', mb_convert_case($f, MB_CASE_TITLE));
@@ -397,7 +384,43 @@ class DynamicList extends VerySimpleModel implements CustomList {
     static function create($ht=false, &$errors=array()) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
+
+        if (isset($ht['properties'])) {
+            $inst->save();
+            $ht['properties']['type'] = 'L'.$inst->getId();
+            $form = DynamicForm::create($ht['properties']);
+            $form->save();
+        }
+
+        if (isset($ht['configuration'])) {
+            $inst->save();
+            $c = new Config('list.'.$inst->getId());
+            $c->set('configuration', JsonDataEncoder::encode($ht['configuration']));
+        }
+
+        if (isset($ht['items'])) {
+            $inst->save();
+            foreach ($ht['items'] as $i) {
+                $i['list_id'] = $inst->getId();
+                $item = DynamicListItem::create($i);
+                $item->save();
+            }
+        }
+
         return $inst;
+    }
+
+    static function lookup($id) {
+
+        if (!($list = parent::lookup($id)))
+            return null;
+
+        if (($config = $list->getConfiguration())) {
+            if (($lh=$config['handler']) && class_exists($lh))
+                $list = new $lh($list);
+        }
+
+        return $list;
     }
 
     static function getSelections() {
@@ -441,7 +464,8 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     var $_config;
     var $_form;
 
-    const ENABLED               = 0x0001;
+    const ENABLED   = 0x0001;
+    const INTERNAL  = 0x0002;
 
     protected function hasStatus($flag) {
         return 0 !== ($this->get('status') & $flag);
@@ -456,7 +480,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function isInternal() {
-        return false;
+        return  $this->hasStatus(self::INTERNAL);
     }
 
     function isEnableable() {
@@ -575,52 +599,53 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         $this->set('list_id', null);
         return $this->save();
     }
+
+    static function create($ht=false, &$errors=array()) {
+
+        if (isset($ht['properties']) && is_array($ht['properties']))
+            $ht['properties'] = JsonDataEncoder::encode($ht['properties']);
+
+        $inst = parent::create($ht);
+        $inst->save(true);
+
+        // Auto-config properties if any
+        if ($ht['configuration'] && is_array($ht['configuration'])) {
+            $config = $inst->getConfiguration();
+            if (($form = $inst->getConfigurationForm())) {
+                foreach ($form->getFields() as $f) {
+                    if (!isset($ht['configuration'][$f->get('name')]))
+                        continue;
+
+                    if (is_array($ht['configuration'][$f->get('name')]))
+                        $val = JsonDataEncoder::encode(
+                                $ht['configuration'][$f->get('name')]);
+                    else
+                        $val = $ht['configuration'][$f->get('name')];
+
+                    $config[$f->get('id')] = $val;
+                }
+            }
+
+            $inst->set('properties', JsonDataEncoder::encode($config));
+        }
+
+        return $inst;
+    }
 }
 
 
 /*
  * Ticket status List
  *
- *
  */
 
-class TicketStatusList extends BuiltInCustomList {
-
-    var $ht = array(
-            'id' => 'status',
-            'name' => 'Status',
-            'name_plural' => 'Statuses',
-    );
+class TicketStatusList extends CustomListHandler {
 
     // Fields of interest we need to store
     static $config_fields = array('sort_mode', 'notes');
 
     var $_items;
     var $_form;
-
-    function getId() {
-        return $this->ht['id'];
-    }
-
-    function getName() {
-        return $this->ht['name'];
-    }
-
-    function getPluralName() {
-        return $this->ht['name_plural'];
-    }
-
-    function getSortMode() {
-        return $this->ht['sort_mode'];
-    }
-
-    function getNotes() {
-        return $this->ht['notes'];
-    }
-
-    function getInfo() {
-        return $this->config->getInfo() + $this->ht;
-    }
 
     function getNumItems() {
         return TicketStatus::objects()->count();
@@ -650,13 +675,13 @@ class TicketStatusList extends BuiltInCustomList {
         if (!is_int($val))
             $val = array('name' => $val);
 
-         return TicketStatus::lookup($val);
+         return TicketStatus::lookup($val, $this);
     }
 
     function addItem($vars, &$errors) {
 
         $item = TicketStatus::create(array(
-            'flags' => 0, //Disable  until configured.
+            'flags' => 0,
             'sort'  => $vars['sort'],
             'name' => $vars['value'],
         ));
@@ -666,49 +691,6 @@ class TicketStatusList extends BuiltInCustomList {
 
         return $item;
     }
-
-
-    function hasProperties() {
-        return ($this->getForm());
-    }
-
-    function getListOrderBy() {
-        switch ($this->getSortMode()) {
-            case 'Alpha':
-                return 'name';
-            case '-Alpha':
-                return '-name';
-            case 'SortCol':
-            default:
-                return 'sort';
-        }
-    }
-
-    function update($vars, &$errors) {
-
-        foreach (static::$config_fields as $f) {
-            if (!isset($vars[$f])) continue;
-
-            if (parent::set($f, $vars[$f]))
-                $this->ht[$f] = $vars[$f];
-        }
-
-        return true;
-    }
-
-    function getForm() {
-
-        if (!isset($this->_form)) {
-            $o = DynamicForm::objects()->filter(array('type'=>'S'));
-            if ($o && $o[0])
-                $this->_form =  $o[0];
-            else // Auto-load the data
-                $this->_form = self::__load();
-        }
-
-        return $this->_form;
-    }
-
 
     static function __load() {
         require_once(INCLUDE_DIR.'class.i18n.php');
@@ -744,35 +726,13 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         'pk' => array('id'),
     );
 
-    // Major statuses (states)
-    static $_states = array( 1 => 'open', 'closed', 'archived', 'deleted');
-
-    // Supported flags (TODO: move to configurable custom list)
-    static $_flags = array(
-            'onhold' => array(
-                'flag' => 1,
-                'name' => 'Onhold',
-                'states' => array('open'),
-                ),
-            'overdue' => array(
-                'flag' => 2,
-                'name' => 'Overdue',
-                'states' => array('open'),
-                ),
-            'answered' => array(
-                'flag' => 4,
-                'name' => 'Answered',
-                'states' => array('open'),
-                )
-            );
-
+    var $_list;
     var $_form;
     var $_config;
     var $_settings;
 
-
-    const ENABLED = 0x0001;
-    const INTERNAL = 0x0002; // Forbid deletion or name and status change.
+    const ENABLED   = 0x0001;
+    const INTERNAL  = 0x0002; // Forbid deletion or name and status change.
 
 
 
@@ -793,14 +753,19 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->set($field, $this->get($field) | $flag);
     }
 
+    protected function hasProperties() {
+        return ($this->_config->get('properties'));
+    }
+
     function getForm() {
         return $this->getConfigurationForm();
     }
 
     function getConfigurationForm() {
 
-        if (!$this->_form) {
-            $this->_form = DynamicForm::lookup(array('type'=>'S'));
+        if (!$this->_form && $this->_list) {
+            $this->_form = DynamicForm::lookup(
+                    array('type'=>'L'.$this->_list->getId()));
         }
 
         return $this->_form;
@@ -825,7 +790,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     function isEnableable() {
-        return ($this->getForm());
+        return $this->hasProperties();
     }
 
     function isDeletable() {
@@ -871,12 +836,12 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
                     $id = $f->get('id');
                     switch($name) {
                         case 'flags':
-                            foreach (static::$_flags as $k => $v)
+                            foreach (TicketFlagField::$_flags as $k => $v)
                                 if ($this->hasFlag('flags', $v['flag']))
-                                    $this->_settings[$id][] = $k;
+                                    $this->_settings[$id][$k] = $v['name'];
                             break;
                         case 'state':
-                            $this->_settings[$id] = $this->get('state');
+                            $this->_settings[$id][$this->get('state')] = $this->get('state');
                             break;
                         default:
                             if (!$this->_settings[$id] && $this->_settings[$name])
@@ -892,15 +857,20 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     function setConfiguration(&$errors=array()) {
         $properties = array();
         foreach ($this->getConfigurationForm()->getFields() as $f) {
+            if ($this->isInternal() //Item is internal.
+                    && !$f->isEditable())
+                continue;
             $val = $f->getClean();
+            $errors = array_merge($errors, $f->errors());
+            if ($f->errors()) continue;
             $name = mb_strtolower($f->get('name'));
             switch ($name) {
                 case 'flags':
                     if ($val && is_array($val)) {
                         $flags = 0;
-                        foreach ($val as $v) {
-                            if (isset(static::$_flags[$v]))
-                                $flags += static::$_flags[$v]['flag'];
+                        foreach ($val as $k => $v) {
+                            if (isset(TicketFlagField::$_flags[$k]))
+                                $flags += TicketFlagField::$_flags[$k]['flag'];
                             elseif (!$f->errors())
                                 $f->addError('Unknown or invalid flag', $name);
                         }
@@ -910,15 +880,15 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
                     }
                     break;
                 case 'state':
-                    $val = $f->to_database($val);
-                    if ($val && in_array($val, static::$_states))
-                        $this->set('state', $val);
+                    if ($val && is_array($val))
+                        $this->set('state', key($val));
                     else
                         $f->addError('Unknown or invalid state', $name);
                     break;
                 default: //Custom properties the user might add.
                     $properties[$f->get('id')] = $f->to_php($val);
             }
+            // Add field specific validation errors (warnings)
             $errors = array_merge($errors, $f->errors());
         }
 
@@ -964,6 +934,18 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     function __toString() {
         return $this->toString();
     }
+
+
+    static function lookup($var, $list= false) {
+
+        if (!($item = parent::lookup($var)))
+            return null;
+
+        $item->_list = $list;
+
+        return $item;
+    }
+
 
     static function __create($ht, &$error=false) {
         global $ost;

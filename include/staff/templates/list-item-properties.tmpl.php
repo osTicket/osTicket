@@ -19,10 +19,11 @@
         <?php
         echo csrf_token();
         $config = $item->getConfiguration();
+        $internal = $item->isInternal();
         foreach ($item->getConfigurationForm()->getFields() as $f) {
             $name = $f->get('id');
             if (isset($config[$name]))
-                $f->value = $config[$name];
+                $f->value = $f->to_php($config[$name]);
             else if ($f->get('default'))
                 $f->value = $f->get('default');
             ?>
@@ -33,7 +34,7 @@
             </td><td>
             <span style="display:inline-block;width:100%">
             <?php
-                if ($item->isInternal() && $f->isConfigurable())
+                if ($internal && !$f->isEditable())
                     $f->render('view');
                 else {
                     $f->render();

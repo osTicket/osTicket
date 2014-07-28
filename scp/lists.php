@@ -5,10 +5,7 @@ require_once(INCLUDE_DIR.'class.list.php');
 
 $list=null;
 if ($_REQUEST['id']) {
-    if (is_numeric($_REQUEST['id']))
-        $list = DynamicList::lookup($_REQUEST['id']);
-    else
-        $list = BuiltInCustomList::lookup($_REQUEST['id']);
+    $list = DynamicList::lookup($_REQUEST['id']);
 
     if ($list)
          $form = $list->getForm();
@@ -140,7 +137,7 @@ if($_POST) {
             break;
     }
 
-    if ($list) {
+    if ($list && $list->allowAdd()) {
         for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
             if (!$_POST["value-new-$i"])
                 continue;
