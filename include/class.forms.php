@@ -157,13 +157,16 @@ class FormField {
     }
 
     static function addFieldTypes($group, $callable) {
-        static::$more_types[$group] = $callable;
+        static::$more_types[$group][] = $callable;
     }
 
     static function allTypes() {
         if (static::$more_types) {
-            foreach (static::$more_types as $group=>$c)
-                static::$types[$group] = call_user_func($c);
+            foreach (static::$more_types as $group => $entries)
+                foreach ($entries as $c)
+                    static::$types[$group] = array_merge(
+                            static::$types[$group] ?: array(), call_user_func($c));
+
             static::$more_types = array();
         }
         return static::$types;
@@ -992,11 +995,112 @@ class PriorityField extends ChoiceField {
         );
     }
 }
-FormField::addFieldTypes('Built-in Lists', function() {
+FormField::addFieldTypes('Dynamic Fields', function() {
     return array(
         'priority' => array('Priority Level', PriorityField),
     );
 });
+
+
+class TicketStateField extends ChoiceField {
+
+    static $_choices = array(
+            'open' => 'Open',
+            'resolved' => 'Resolved',
+            'closed' => 'Closed',
+            'archived' => 'Archived',
+            'deleted' => 'Deleted'
+            );
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function isChangeable() {
+        return false;
+    }
+
+    function getChoices() {
+        $this->ht['default'] =  '';
+
+        return static::$_choices;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Leading text shown before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+FormField::addFieldTypes('Dynamic Fields', function() {
+    return array(
+        'state' => array('Ticket State', TicketStateField, false),
+    );
+});
+
+class TicketFlagField extends ChoiceField {
+
+    // Supported flags (TODO: move to configurable custom list)
+    static $_flags = array(
+            'onhold' => array(
+                'flag' => 1,
+                'name' => 'Onhold',
+                'states' => array('open'),
+                ),
+            'overdue' => array(
+                'flag' => 2,
+                'name' => 'Overdue',
+                'states' => array('open'),
+                ),
+            'answered' => array(
+                'flag' => 4,
+                'name' => 'Answered',
+                'states' => array('open'),
+                )
+            );
+
+    var $_choices;
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function isChangeable() {
+        return true;
+    }
+
+    function getChoices() {
+        $this->ht['default'] =  '';
+
+        if (!$this->_choices) {
+            foreach (static::$_flags as $k => $v)
+                $this->_choices[$k] = $v['name'];
+        }
+
+        return $this->_choices;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Leading text shown before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+
+FormField::addFieldTypes('Dynamic Fields', function() {
+    return array(
+        'flags' => array('Ticket Flags', TicketFlagField, false),
+    );
+});
+
 
 class Widget {
 
