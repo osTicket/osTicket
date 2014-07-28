@@ -240,6 +240,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     function addItem($vars, &$errors) {
 
         $item = DynamicListItem::create(array(
+            'status' => 1,
             'list_id' => $this->getId(),
             'sort'  => $vars['sort'],
             'value' => $vars['value'],
@@ -696,17 +697,17 @@ class TicketStatusList extends CustomListHandler {
         require_once(INCLUDE_DIR.'class.i18n.php');
 
         $i18n = new Internationalization();
-        $tpl = $i18n->getTemplate('form.yaml');
+        $tpl = $i18n->getTemplate('list.yaml');
         foreach ($tpl->getData() as $f) {
-            if ($f['type'] == 'S') {
-                $form = DynamicForm::create($f);
-                $form->save();
+            if ($f['type'] == 'ticket-status') {
+                $list = DynamicList::create($f);
+                $list->save();
                 break;
             }
         }
 
-        $o = DynamicForm::objects()->filter(array('type'=>'S'));
-        if (!$form || !$o)
+        if (!$list || !($o=DynamicForm::objects()->filter(
+                        array('type'=>'L'.$list->getId()))))
             return false;
 
         // Create default statuses

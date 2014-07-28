@@ -153,10 +153,13 @@ CREATE TABLE `%TABLE_PREFIX%list` (
     `name` varchar(255) NOT NULL,
     `name_plural` varchar(255),
     `sort_mode` enum('Alpha', '-Alpha', 'SortCol') NOT NULL DEFAULT 'Alpha',
+    `masks` int(11) unsigned NOT NULL DEFAULT 0,
+    `type` VARCHAR( 16 ) NULL DEFAULT NULL,
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `type` (`type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%list_items`;
