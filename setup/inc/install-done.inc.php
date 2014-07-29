@@ -10,7 +10,7 @@ $url=URL;
         <h2>Config file permission:</h2>
         Change permission of ost-config.php to remove write access as shown below.
         <ul>
-            <li><b>CLI</b>:<br><i>chmod 0664  include/ost-config.php</i></li>
+            <li><b>CLI</b>:<br><i>chmod 0644  include/ost-config.php</i></li>
             <li><b>FTP</b>:<br>Using WS_FTP this would be right hand clicking on the file, selecting chmod, and then remove write access</li>
             <li><b>Cpanel</b>:<br>Click on the file, select change permission, and then remove write access.</li>
         </ul>
