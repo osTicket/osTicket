@@ -125,22 +125,21 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="70" nowrap>
+            <th nowrap>
                 <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID">Ticket #</a>
             </th>
-            <th width="100">
+            <th width="120">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date">Create Date</a>
             </th>
-            <th width="80">
+            <th width="100">
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status">Status</a>
             </th>
-            <th width="300">
+            <th width="320">
                 <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject">Subject</a>
             </th>
-            <th width="150">
+            <th width="120">
                 <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department">Department</a>
             </th>
-            <th width="100">Phone Number</th>
         </tr>
     </thead>
     <tbody>
@@ -158,12 +157,9 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
                 $subject="<b>$subject</b>";
                 $ticketNumber="<b>$ticketNumber</b>";
             }
-            $phone=Format::phone($row['phone']);
-            if($row['phone_ext'])
-                $phone.=' '.$row['phone_ext'];
             ?>
             <tr id="<?php echo $row['ticket_id']; ?>">
-                <td class="centered">
+                <td>
                 <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>"
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
@@ -173,13 +169,12 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
                     <a href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
-                <td><?php echo $phone; ?></td>
             </tr>
         <?php
         }
 
      } else {
-         echo '<tr><td colspan="7">Your query did not match any records</td></tr>';
+         echo '<tr><td colspan="6">Your query did not match any records</td></tr>';
      }
     ?>
     </tbody>

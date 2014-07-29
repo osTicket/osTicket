@@ -260,6 +260,12 @@ class SqlFunction {
         $args = (count($this->args)) ? implode(',', db_input($this->args)) : "";
         return sprintf('%s(%s)', $this->func, $args);
     }
+
+    static function __callStatic($func, $args) {
+        $I = new static($func);
+        $I->args = $args;
+        return $I;
+    }
 }
 
 class QuerySet implements IteratorAggregate, ArrayAccess {
@@ -272,6 +278,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     var $offset = 0;
     var $related = array();
     var $values = array();
+    var $lock = false;
+
+    const LOCK_EXCLUSIVE = 1;
+    const LOCK_SHARED = 2;
 
     var $compiler = 'MySqlCompiler';
     var $iterator = 'ModelInstanceIterator';
@@ -296,6 +306,11 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
     function order_by() {
         $this->ordering = array_merge($this->ordering, func_get_args());
+        return $this;
+    }
+
+    function lock($how=false) {
+        $this->lock = $how ?: self::LOCK_EXCLUSIVE;
         return $this;
     }
 
@@ -932,6 +947,14 @@ class MySqlCompiler extends SqlCompiler {
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)
             $sql .= ' OFFSET '.$queryset->offset;
+        switch ($queryset->lock) {
+        case QuerySet::LOCK_EXCLUSIVE:
+            $sql .= ' FOR UPDATE';
+            break;
+        case QuerySet::LOCK_SHARED:
+            $sql .= ' LOCK IN SHARE MODE';
+            break;
+        }
 
         return new MysqlExecutor($sql, $this->params);
     }

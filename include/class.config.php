@@ -624,8 +624,20 @@ class OsticketConfig extends Config {
         return true; //No longer an option...hint: big plans for headers coming!!
     }
 
-    function useRandomIds() {
-        return ($this->get('random_ticket_ids'));
+    function getDefaultSequence() {
+        if ($this->get('sequence_id'))
+            $sequence = Sequence::lookup($this->get('sequence_id'));
+        if (!$sequence)
+            $sequence = new RandomSequence();
+        return $sequence;
+    }
+    function getDefaultNumberFormat() {
+        return $this->get('number_format');
+    }
+    function getNewTicketNumber() {
+        $s = $this->getDefaultSequence();
+        return $s->next($this->getDefaultNumberFormat(),
+            array('Ticket', 'isTicketNumberUnique'));
     }
 
     /* autoresponders  & Alerts */
@@ -976,7 +988,8 @@ class OsticketConfig extends Config {
             $this->update('default_storage_bk', $vars['default_storage_bk']);
 
         return $this->updateAll(array(
-            'random_ticket_ids'=>$vars['random_ticket_ids'],
+            'number_format'=>$vars['number_format'] ?: '######',
+            'sequence_id'=>$vars['sequence_id'] ?: 0,
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
             'default_sla_id'=>$vars['default_sla_id'],

@@ -17,15 +17,41 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         </tr>
     </thead>
     <tbody>
-        <tr><td width="220" class="required">Ticket IDs:</td>
+        <tr>
             <td>
-                <input type="radio" name="random_ticket_ids"  value="0" <?php echo !$config['random_ticket_ids']?'checked="checked"':''; ?> />
-                Sequential
-                <input type="radio" name="random_ticket_ids"  value="1" <?php echo $config['random_ticket_ids']?'checked="checked"':''; ?> />
-                Random
+                Default Ticket Number Format:
+            </td>
+            <td>
+                <input type="text" name="number_format" value="<?php echo $config['number_format']; ?>"/>
+                <span class="faded">e.g. <span id="format-example"><?php
+                    if ($config['sequence_id'])
+                        $seq = Sequence::lookup($config['sequence_id']);
+                    if (!isset($seq))
+                        $seq = new RandomSequence();
+                    echo $seq->current($config['number_format']);
+                    ?></span></span>
+                <i class="help-tip icon-question-sign" href="#number_format"></i>
             </td>
         </tr>
-
+        <tr><td width="220">Default Ticket Number Sequence:</td>
+<?php $selected = 'selected="selected"'; ?>
+            <td>
+                <select name="sequence_id">
+                <option value="0" <?php if ($config['sequence_id'] == 0) echo $selected;
+                    ?>>&mdash; Random &mdash;</option>
+<?php foreach (Sequence::objects() as $s) { ?>
+                <option value="<?php echo $s->id; ?>" <?php
+                    if ($config['sequence_id'] == $s->id) echo $selected;
+                    ?>><?php echo $s->name; ?></option>
+<?php } ?>
+                </select>
+                <button class="action-button" onclick="javascript:
+                $.dialog('ajax.php/sequence/manage', 205);
+                return false;
+                "><i class="icon-gear"></i> Manage</button>
+                <i class="help-tip icon-question-sign" href="#sequence_id"></i>
+            </td>
+        </tr>
         <tr>
             <td width="180" class="required">
                 Default SLA:
@@ -283,4 +309,18 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     <input class="button" type="reset" name="reset" value="Reset Changes">
 </p>
 </form>
-
+<script type="text/javascript">
+$(function() {
+    var request = null,
+      update_example = function() {
+      request && request.abort();
+      request = $.get('ajax.php/sequence/'
+        + $('[name=sequence_id] :selected').val(),
+        {'format': $('[name=number_format]').val()},
+        function(data) { $('#format-example').text(data); }
+      );
+    };
+    $('[name=sequence_id]').on('change', update_example);
+    $('[name=number_format]').on('keyup', update_example);
+});
+</script>

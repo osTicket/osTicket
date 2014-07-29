@@ -158,6 +158,11 @@ $dispatcher = patterns('',
         url_delete('^(?P<id>\d+)$', 'deleteNote'),
         url_post('^attach/(?P<ext_id>\w\d+)$', 'createNote')
     )),
+    url('^/sequence/', patterns('ajax.sequence.php:SequenceAjaxAPI',
+        url_get('^(?P<id>\d+)$', 'current'),
+        url_get('^manage$', 'manage'),
+        url_post('^manage$', 'manage')
+    )),
     url_post('^/upgrader', array('ajax.upgrader.php:UpgraderAjaxAPI', 'upgrade')),
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
         url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),

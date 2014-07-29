@@ -14,6 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+require_once INCLUDE_DIR . 'class.sequence.php';
+
 class Topic {
     var $id;
 
@@ -26,6 +28,8 @@ class Topic {
     const DISPLAY_DISABLED = 2;
 
     const FORM_USE_PARENT = 4294967295;
+
+    const FLAG_CUSTOM_NUMBERS = 0x0001;
 
     function Topic($id) {
         $this->id=0;
@@ -183,7 +187,28 @@ class Topic {
     }
 
     function getInfo() {
-        return $this->getHashtable();
+        $base = $this->getHashtable();
+        $base['custom-numbers'] = $this->hasFlag(self::FLAG_CUSTOM_NUMBERS);
+        return $base;
+    }
+
+    function hasFlag($flag) {
+        return $this->ht['flags'] & $flag != 0;
+    }
+
+    function getNewTicketNumber() {
+        global $cfg;
+
+        if (!$this->hasFlag(self::FLAG_CUSTOM_NUMBERS))
+            return $cfg->getNewTicketNumber();
+
+        if ($this->ht['sequence_id'])
+            $sequence = Sequence::lookup($this->ht['sequence_id']);
+        if (!$sequence)
+            $sequence = new RandomSequence();
+
+        return $sequence->next($this->ht['number_format'] ?: '######',
+            array('Ticket', 'isTicketNumberUnique'));
     }
 
     function setSortOrder($i) {
@@ -332,6 +357,9 @@ class Topic {
             .',page_id='.db_input($vars['page_id'])
             .',isactive='.db_input($vars['isactive'])
             .',ispublic='.db_input($vars['ispublic'])
+            .',sequence_id='.db_input($vars['custom-numbers'] ? $vars['sequence_id'] : 0)
+            .',number_format='.db_input($vars['custom-numbers'] ? $vars['number_format'] : '')
+            .',flags='.db_input($vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : 0)
             .',noautoresp='.db_input(isset($vars['noautoresp']) && $vars['noautoresp']?1:0)
             .',notes='.db_input(Format::sanitize($vars['notes']));
 

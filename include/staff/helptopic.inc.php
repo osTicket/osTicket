@@ -242,6 +242,61 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
             </td>
         </tr>
         <tr>
+            <td>
+                Ticket Number Format:
+            </td>
+            <td>
+                <label>
+                <input type="radio" name="custom-numbers" value="0" <?php echo !$info['custom-numbers']?'checked="checked"':''; ?>
+                    onchange="javascript:$('#custom-numbers').hide();"> System Default
+                </label>&nbsp;<label>
+                <input type="radio" name="custom-numbers" value="1" <?php echo $info['custom-numbers']?'checked="checked"':''; ?>
+                    onchange="javascript:$('#custom-numbers').show(200);"> Custom
+                </label>&nbsp; <i class="help-tip icon-question-sign" href="#custom_numbers"></i>
+            </td>
+        </tr>
+    </tbody>
+    <tbody id="custom-numbers" style="<?php if (!$info['custom-numbers']) echo 'display:none'; ?>">
+        <tr>
+            <td style="padding-left:20px">
+                Format:
+            </td>
+            <td>
+                <input type="text" name="number_format" value="<?php echo $info['number_format']; ?>"/>
+                <span class="faded">e.g. <span id="format-example"><?php
+                    if ($info['custom-numbers']) {
+                        if ($info['sequence_id'])
+                            $seq = Sequence::lookup($info['sequence_id']);
+                        if (!isset($seq))
+                            $seq = new RandomSequence();
+                        echo $seq->current($info['number_format']);
+                    } ?></span></span>
+            </td>
+        </tr>
+        <tr>
+<?php $selected = 'selected="selected"'; ?>
+            <td style="padding-left:20px">
+                Sequence:
+            </td>
+            <td>
+                <select name="sequence_id">
+                <option value="0" <?php if ($info['sequence_id'] == 0) echo $selected;
+                    ?>>&mdash; Random &mdash;</option>
+<?php foreach (Sequence::objects() as $s) { ?>
+                <option value="<?php echo $s->id; ?>" <?php
+                    if ($info['sequence_id'] == $s->id) echo $selected;
+                    ?>><?php echo $s->name; ?></option>
+<?php } ?>
+                </select>
+                <button class="action-button" onclick="javascript:
+                $.dialog('ajax.php/sequence/manage', 205);
+                return false;
+                "><i class="icon-gear"></i> Manage</button>
+            </td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
             <th colspan="2">
                 <em><strong>Admin Notes</strong>: Internal notes about the help topic.</em>
             </th>
@@ -260,3 +315,18 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
     <input type="button" name="cancel" value="Cancel" onclick='window.location.href="helptopics.php"'>
 </p>
 </form>
+<script type="text/javascript">
+$(function() {
+    var request = null,
+      update_example = function() {
+      request && request.abort();
+      request = $.get('ajax.php/sequence/'
+        + $('[name=sequence_id] :selected').val(),
+        {'format': $('[name=number_format]').val()},
+        function(data) { $('#format-example').text(data); }
+      );
+    };
+    $('[name=sequence_id]').on('change', update_example);
+    $('[name=number_format]').on('keyup', update_example);
+});
+</script>

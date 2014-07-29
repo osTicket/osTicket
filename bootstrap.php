@@ -117,6 +117,7 @@ class Bootstrap {
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
 
         define('PLUGIN_TABLE', $prefix.'plugin');
+        define('SEQUENCE_TABLE', $prefix.'sequence');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
@@ -322,8 +323,6 @@ define('THISPAGE', Misc::currentURL());
 
 define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
 define('DEFAULT_PRIORITY_ID',1);
-
-define('EXT_TICKET_ID_LEN',6); //Ticket create. when you start getting collisions. Applies only on random ticket ids.
 
 #Global override
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))

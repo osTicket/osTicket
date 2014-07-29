@@ -578,6 +578,8 @@ $.orgLookup = function (url, cb) {
     });
 };
 
+$.uid = 1;
+
 //Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
     e.preventDefault();

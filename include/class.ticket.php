@@ -2081,16 +2081,9 @@ class Ticket {
         return self::lookup(self:: getIdByNumber($number, $email));
     }
 
-    function genRandTicketNumber($len = EXT_TICKET_ID_LEN) {
-
-        //We can allow collissions...number and email must be unique ...so
-        // same number with diff emails is ok.. But for clarity...we are going to make sure it is unique.
-        $number = Misc::randNumber($len);
-        if(db_num_rows(db_query('SELECT ticket_id FROM '.TICKET_TABLE.'
-                        WHERE `number`='.db_input($number))))
-            return Ticket::genRandTicketNumber($len);
-
-        return $number;
+    static function isTicketNumberUnique($number) {
+        return 0 == db_num_rows(db_query(
+            'SELECT ticket_id FROM '.TICKET_TABLE.' WHERE `number`='.db_input($number)));
     }
 
     function getIdByMessageId($mid, $email) {
@@ -2470,7 +2463,7 @@ class Ticket {
         $ipaddress = $vars['ip'] ?: $_SERVER['REMOTE_ADDR'];
 
         //We are ready son...hold on to the rails.
-        $number = Ticket::genRandTicketNumber();
+        $number = $topic ? $topic->getNewTicketNumber() : $cfg->getNewTicketNumber();
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->getId())
@@ -2492,13 +2485,6 @@ class Ticket {
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
-
-        if(!$cfg->useRandomIds()) {
-            //Sequential ticket number support really..really suck arse.
-            //To make things really easy we are going to use autoincrement ticket_id.
-            db_query('UPDATE '.TICKET_TABLE.' SET `number`='.db_input($id).' WHERE ticket_id='.$id.' LIMIT 1');
-            //TODO: RETHING what happens if this fails?? [At the moment on failure random ID is used...making stuff usable]
-        }
 
         // Save the (common) dynamic form
         $form->setTicketId($id);

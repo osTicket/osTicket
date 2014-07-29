@@ -1646,43 +1646,58 @@ div.selected-signature .inner {
     cursor: move;
 }
 
-.sortable-row-item {
+.sortable {
+    cursor: move;
+}
+.row-item {
     border: 1px solid rgba(0, 0, 0, 0.7);
     padding: 9px;
-    cursor: move;
     position: relative;
 }
-.sortable-row-item:hover {
+.sortable:hover {
     background: rgba(0, 0, 0, 0.1);
 }
-.sortable-row-item:active {
+.sortable:active {
     background: rgba(0, 0, 0, 0.3);
 }
-.sortable-row-item:first-child {
+.row-item:first-child {
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
 }
-.sortable-row-item:last-child {
+.row-item:last-child {
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
 }
-.sortable-row-item + .sortable-row-item {
+.row-item + .row-item {
     margin-top: -1px;
 }
 
-.sortable-row-item .delete {
+.row-item .delete {
     border-left: 1px solid rgba(0, 0, 0, 0.7);
     border-top-right-radius: inherit;
     border-bottom-right-radius: inherit;
+    width: 35px;
+}
+
+.row-item .button-group {
+    font-size: 105%;
     position: absolute;
     top: 0px;
     right: 0;
-    padding: 9px;
-    padding-left: 12px;
-    font-size: 105%;
+    display: inline-block;
 }
 
-.sortable-row-item .delete:hover {
+.row-item .button-group div {
+    padding: 9px;
+    padding-left: 12px;
+    display: inline-block;
+}
+.row-item .management {
+    margin-top: 10px;
+    border-top: 1px dashed black;
+}
+
+.row-item .delete:hover {
     background: #fc9f41; /* Old browsers */
     color: rgba(255,255,255,0.8) !important;
 }
@@ -1838,4 +1853,8 @@ table.custom-info td {
 
 .delete-draft:hover {
     background-color: #fc9f41 !important;
+}
+
+.hidden {
+    display: none;
 }

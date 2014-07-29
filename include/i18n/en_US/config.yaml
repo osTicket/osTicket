@@ -78,7 +78,8 @@ core:
     hide_staff_name: 0
     overlimit_notice_active: 0
     email_attachments: 1
-    random_ticket_ids: 1
+    number_format: '######'
+    sequence_id: 0
     log_level: 2
     log_graceperiod: 12
     client_registration: 'public'
