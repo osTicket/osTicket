@@ -662,7 +662,9 @@ class PhoneField extends FormField {
     function parse($value) {
         // NOTE: Value may have a legitimate 'X' to separate the number and
         // extension parts. Don't remove the 'X'
-        return preg_replace('/[^\dX]/', '', $value);
+        $val = preg_replace('/[^\dX]/', '', $value);
+        // Pass completely-incorrect string for validation error
+        return $val ?: $value;
     }
 
     function toString($value) {
