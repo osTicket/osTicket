@@ -61,6 +61,20 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   PRIMARY KEY  (`faq_id`,`topic_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%sequence`;
+CREATE TABLE `%TABLE_PREFIX%sequence` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) DEFAULT NULL,
+  `flags` int(10) unsigned DEFAULT NULL,
+  `next` bigint(20) unsigned NOT NULL DEFAULT '1',
+  `increment` int(11) DEFAULT '1',
+  `padding` char(1) DEFAULT '0',
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+-- InnoDB is intended here because transaction support is required for row
+-- locking
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
 CREATE TABLE `%TABLE_PREFIX%sla` (
   `id` int(11) unsigned NOT NULL auto_increment,
@@ -404,6 +418,7 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `isactive` tinyint(1) unsigned NOT NULL default '1',
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `noautoresp` tinyint(3) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned DEFAULT '0',
   `priority_id` tinyint(3) unsigned NOT NULL default '0',
   `dept_id` tinyint(3) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
@@ -411,8 +426,10 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `sla_id` int(10) unsigned NOT NULL default '0',
   `page_id` int(10) unsigned NOT NULL default '0',
   `form_id` int(10) unsigned NOT NULL default '0',
+  `sequence_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sort` int(10) unsigned NOT NULL default '0',
   `topic` varchar(32) NOT NULL default '',
+  `number_format` varchar(32) DEFAULT NULL,
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
