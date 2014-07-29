@@ -992,7 +992,7 @@ $tcount+= $ticket->getNumNotes();
         <?php echo sprintf(__('Are you sure you want to <b>remove</b> %s from ban list?'), $ticket->getEmail()); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="release-confirm">
-        <?php echo sprintf(__('Are you sure you want to <b>unassign</b> ticket from %s<b>?'), $ticket->getAssigned()); ?></b>
+        <?php echo sprintf(__('Are you sure you want to <b>unassign</b> ticket from <b>%s</b>?'), $ticket->getAssigned()); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
         <span id="msg_warning" style="display:block;vertical-align:top">

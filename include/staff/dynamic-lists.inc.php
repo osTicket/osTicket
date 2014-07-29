@@ -68,7 +68,7 @@ if ($count) //Show options..
 ?>
 
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="delete" value="<?php echo __('Delete'); ?>">
 </p>
 </form>
 

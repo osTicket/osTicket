@@ -748,7 +748,7 @@ $('.quicknote .delete').live('click.note', function() {
 $('#new-note').live('click', function() {
   var note = $(this).closest('.quicknote'),
     T = $('<textarea>'),
-    button = $('<input type="button">').val('Create');
+    button = $('<input type="button">').val(__('Create'));
     button.click(function() {
       $.post('ajax.php/' + note.data('url'),
         { note: T.redactor('get'), no_options: note.hasClass('no-options') },

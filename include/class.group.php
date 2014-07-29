@@ -227,9 +227,9 @@ class Group {
                 return $id;
 
             $errors['err']=sprintf(__('Unable to create %s.'), __('this group'))
-               .' '.__('Internal error occurrred');
+               .' '.__('Internal error occurred');
         }
-        
+
         return false;
     }
 }

@@ -187,7 +187,7 @@ $manage_content = function($title, $content) use ($contents) {
         </tr>
         <?php $manage_content(__('Agents'), 'pwreset-staff'); ?>
         <?php $manage_content(__('Clients'), 'pwreset-client'); ?>
-        <?php $manage_content(__('Guess Ticket Access'), 'access-link'); ?>
+        <?php $manage_content(__('Guest Ticket Access'), 'access-link'); ?>
         <tr>
             <th colspan="2">
                 <em><b><?php echo __('Sign In Pages'); ?></b></em>

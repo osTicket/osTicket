@@ -23,7 +23,7 @@ knowledge_base_status:
         Enable this setting to allow your users self-service access to
         your public knowledge base articles.
         <br><br>
-        Knowledge base categories and FAQs can be made internal (viewable only by Agents.)
+        Knowledge base categories and FAQs can be made internal (viewable only by Agents).
     links:
       - title: Manage Knowledge Base
         href: /scp/kb.php

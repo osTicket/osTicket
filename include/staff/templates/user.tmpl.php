@@ -49,7 +49,7 @@ if ($info['error']) {
 
 <div class="tab_content" id="info-tab">
 <div class="floating-options">
-    <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="Edit"><i class="icon-edit"></i></a>
+    <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="<?php echo __('Edit'); ?>"><i class="icon-edit"></i></a>
     <a href="users.php?id=<?php echo $user->getId(); ?>" title="<?php
         echo __('Manage User'); ?>" class="action"><i class="icon-share"></i></a>
 </div>

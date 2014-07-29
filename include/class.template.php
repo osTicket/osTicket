@@ -23,8 +23,8 @@ class EmailTemplateGroup {
     var $_templates;
     static $all_groups = array(
         'sys' => /* trans */ 'System Management Templates',
-        'ticket.user' => /* trans */ 'End-User Ticket Templates',
-        'ticket.staff' => /* trans */ 'Agent Ticket Templates',
+        'ticket.user' => /* trans */ 'End-User Email Templates',
+        'ticket.staff' => /* trans */ 'Agent Email Templates',
     );
     static $all_names=array(
         'ticket.autoresp'=>array(
