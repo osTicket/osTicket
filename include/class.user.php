@@ -473,12 +473,13 @@ class User extends UserModel {
     function updateInfo($vars, &$errors) {
 
         $valid = true;
-        $forms = $this->getForms($vars);
+        $forms = $this->getDynamicData();
         foreach ($forms as $cd) {
-            if (!$cd->isValid())
+            $cd->setSource($vars);
+            if (!$cd->isValidForClient())
                 $valid = false;
-            if ($cd->get('type') == 'U'
-                        && ($form= $cd->getForm($vars))
+            elseif ($cd->get('type') == 'U'
+                        && ($form= $cd->getForm())
                         && ($f=$form->getField('email'))
                         && $f->getClean()
                         && ($u=User::lookup(array('emails__address'=>$f->getClean())))

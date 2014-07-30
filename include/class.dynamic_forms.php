@@ -519,6 +519,7 @@ class DynamicFormEntry extends VerySimpleModel {
     var $_form;
     var $_errors = false;
     var $_clean = false;
+    var $_source = null;
 
     function getId() {
         return $this->get('id');
@@ -572,10 +573,19 @@ class DynamicFormEntry extends VerySimpleModel {
     function getFields() {
         if (!isset($this->_fields)) {
             $this->_fields = array();
-            foreach ($this->getAnswers() as $a)
-                $this->_fields[] = $a->getField();
+            foreach ($this->getAnswers() as $a) {
+                $T = $this->_fields[] = $a->getField();
+                $T->setForm($this);
+            }
         }
         return $this->_fields;
+    }
+
+    function getSource() {
+        return $this->_source ?: (isset($this->id) ? false : $_POST);
+    }
+    function setSource($source) {
+        $this->_source = $source;
     }
 
     function getField($name) {
@@ -768,8 +778,8 @@ class DynamicFormEntry extends VerySimpleModel {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         parent::save();
-        foreach ($this->getAnswers() as $a) {
-            $field = $a->getField();
+        foreach ($this->getFields() as $field) {
+            $a = $field->getAnswer();
             if ($this->object_type == 'U'
                     && in_array($field->get('name'), array('name','email')))
                 continue;
