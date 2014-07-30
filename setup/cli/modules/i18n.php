@@ -30,9 +30,15 @@ class i18n_Compiler extends Module {
             'help' => "Language pack to be signed"),
         'pkey' => array('-P', '--pkey', 'metavar'=>'key-file',
             'help' => 'Private key for signing'),
+        'root' => array('-R', '--root', 'matavar'=>'path',
+            'help' => 'Specify a root folder for `make-pot`'),
+        'domain' => array('-D', '--domain', 'metavar'=>'name',
+            'default' => '',
+            'help' => 'Add a domain to the path/context of PO strings'),
     );
 
-    static $crowdin_api_url = 'http://i18n.osticket.com/api/project/osticket-official/{command}';
+    static $project = 'osticket-official';
+    static $crowdin_api_url = 'http://i18n.osticket.com/api/project/{project}/{command}';
 
     function _http_get($url) {
         #curl post
@@ -51,7 +57,9 @@ class i18n_Compiler extends Module {
 
     function _request($command, $args=array()) {
 
-        $url = str_replace('{command}', $command, self::$crowdin_api_url);
+        $url = str_replace(array('{command}', '{project}'),
+            array($command, self::$project),
+            self::$crowdin_api_url);
 
         $args += array('key' => $this->key);
         foreach ($args as &$a)
@@ -84,7 +92,7 @@ class i18n_Compiler extends Module {
             $this->_build($options['lang']);
             break;
         case 'make-pot':
-            $this->_make_pot();
+            $this->_make_pot($options);
             break;
         case 'sign':
             if (!$options['file'] || !file_exists($options['file']))
@@ -196,17 +204,13 @@ class i18n_Compiler extends Module {
             if (is_resource($msgfmt)) {
                 fwrite($pipes[0], $po_file);
                 fclose($pipes[0]);
-                $mo_output = fopen('php://temp', 'r+b');
                 $mo_input = fopen('php://temp', 'r+b');
                 fwrite($mo_input, stream_get_contents($pipes[1]));
                 rewind($mo_input);
                 require_once INCLUDE_DIR . 'class.translation.php';
-                Translation::buildHashFile($mo_input, $mo_output);
-                rewind($mo_output);
-                $mo = stream_get_contents($mo_output);
+                $mo = Translation::buildHashFile($mo_input, false, true);
                 $phar->addFromString('LC_MESSAGES/messages.mo.php', $mo);
                 fclose($mo_input);
-                fclose($mo_output);
             }
         }
 
@@ -379,8 +383,9 @@ class i18n_Compiler extends Module {
         while (list(,$T) = each($tokens)) {
             switch ($T[0]) {
             case T_STRING:
+            case T_VARIABLE:
                 if ($funcdef)
-                    break;;
+                    break;
                 if ($T[1] == 'sprintf') {
                     foreach ($this->__find_strings($tokens, $funcs) as $i=>$f) {
                         // Only the first on gets the php-format flag
@@ -430,11 +435,11 @@ class i18n_Compiler extends Module {
         // Unescape single quote (') and escape unescaped double quotes (")
         $string = preg_replace(array("`\\\(['$])`", '`(?<!\\\)"`'), array("$1", '\"'), $string);
         // Preserve embedded newlines
-        $string = str_replace("\n", "\\n\n", $string);
+        $string = preg_replace("`\n\s*`", "\\n\n", $string);
         // Word-wrap long lines
         $string = rtrim(preg_replace('/(?=[\s\p{Ps}])(.{1,76})(\s|$|(\p{Ps}))/uS',
             "$1$2\n", $string), "\n");
-        $strings = explode("\n", $string);
+        $strings = array_filter(explode("\n", $string));
 
         if (count($strings) > 1)
             array_unshift($strings, "");
@@ -494,29 +499,33 @@ class i18n_Compiler extends Module {
         }
     }
 
-    function _make_pot() {
+    function _make_pot($options) {
         error_reporting(E_ALL);
         $funcs = array(
             '__'    => array('forms'=>1),
+            '$__'   => array('forms'=>1),
             '_S'    => array('forms'=>1),
             '_N'    => array('forms'=>2),
+            '$_N'   => array('forms'=>2),
             '_NS'   => array('forms'=>2),
             '_P'    => array('context'=>1, 'forms'=>1),
             '_NP'   => array('context'=>1, 'forms'=>2),
             // This is an error
             '_'     => array('forms'=>0),
         );
-        $files = Test::getAllScripts();
+        $root = realpath($options['root'] ?: ROOT_DIR);
+        $domain = $options['domain'] ? '('.$options['domain'].')/' : '';
+        $files = Test::getAllScripts(true, $root);
         $strings = array();
         foreach ($files as $f) {
-            $F = str_replace(ROOT_DIR, '', $f);
+            $F = str_replace($root.'/', $domain, $f);
             $this->stderr->write("$F\n");
             $tokens = new ArrayObject(token_get_all(fread(fopen($f, 'r'), filesize($f))));
             foreach ($this->__find_strings($tokens, $funcs, 1) as $call) {
                 self::__addString($strings, $call, $F);
             }
         }
-        $strings = array_merge($strings, $this->__getAllJsPhrases());
+        $strings = array_merge($strings, $this->__getAllJsPhrases($root));
         $this->__write_pot($strings);
     }
 
@@ -544,12 +553,12 @@ class i18n_Compiler extends Module {
             $E['context'] = $call['context'];
     }
 
-    function __getAllJsPhrases() {
+    function __getAllJsPhrases($root=ROOT_DIR) {
         $strings = array();
         $funcs = array('__'=>array('forms'=>1));
-        foreach (glob_recursive(ROOT_DIR . "*.js") as $s) {
+        foreach (glob_recursive($root . "*.js") as $s) {
             $script = file_get_contents($s);
-            $s = str_replace(ROOT_DIR, '', $s);
+            $s = str_replace($root, '', $s);
             $this->stderr->write($s."\n");
             $calls = array();
             preg_match_all('/__\(\s*[^\'"]*(([\'"])(?:(?<!\\\\)\2|.)+\2)\s*[^)]*\)/',

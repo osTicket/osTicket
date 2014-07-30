@@ -15,6 +15,9 @@ class Test {
         '/include/plugins/',
         '/include/h2o/',
         '/include/mpdf/',
+
+        # Includes in the core-plugins project
+        '/lib/',
     );
 
     function __construct() {
@@ -28,8 +31,8 @@ class Test {
     function teardown() {
     }
 
-    static function getAllScripts($excludes=true) {
-        $root = get_osticket_root_path();
+    static function getAllScripts($excludes=true, $root=false) {
+        $root = $root ?: get_osticket_root_path();
         $scripts = array();
         foreach (glob_recursive("$root/*.php") as $s) {
             $found = false;

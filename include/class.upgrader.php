@@ -406,7 +406,7 @@ class StreamUpgrader extends SetupWizard {
             $shash = substr($phash, 9, 8);
 
             //Log the patch info
-            $logMsg = sprintf(_S("Patch %s applied successfully "), $phash);
+            $logMsg = sprintf(_S("Patch %s applied successfully"), $phash);
             if(($info = $this->readPatchInfo($patch)) && $info['version'])
                 $logMsg.= ' ('.$info['version'].') ';
 

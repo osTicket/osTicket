@@ -333,10 +333,11 @@ abstract class Plugin {
     }
 
     function getId() { return $this->id; }
-    function getName() { return $this->info['name']; }
+    function getName() { return $this->__($this->info['name']); }
     function isActive() { return $this->ht['isactive']; }
     function isPhar() { return $this->ht['isphar']; }
     function getInstallDate() { return $this->ht['installed']; }
+    function getInstallPath() { return $this->ht['install_path']; }
 
     function getIncludePath() {
         return realpath(INCLUDE_DIR . $this->info['install_path'] . '/'
@@ -446,7 +447,8 @@ abstract class Plugin {
      * `7afc8bf80b0555bed88823306744258d6030f0d9 `, which will resolve to a
      * string like the following:
      * ```
-     * "v=1; i=storage:s3; s=MEUCIFw6A489eX4Oq17BflxCZ8+MH6miNjtcpScUoKDjmblsAiEAjiBo9FzYtV3WQtW6sbhPlJXcoPpDfYyQB+BFVBMps4c=; V=0.1;"
+     * "v=1; i=storage:s3; s=MEUCIFw6A489eX4Oq17BflxCZ8+MH6miNjtcpScUoKDjmb
+     * lsAiEAjiBo9FzYtV3WQtW6sbhPlJXcoPpDfYyQB+BFVBMps4c=; V=0.1;"
      * ```
      * Which is a simple semicolon separated key-value pair string with the
      * following keys
@@ -553,6 +555,98 @@ abstract class Plugin {
             ?>"><i class="icon icon-warning-sign"></i></span>
 <?php       break;
         }
+    }
+
+    /**
+     * Function: __
+     *
+     * Translate a single string (without plural alternatives) from the
+     * langauge pack installed in this plugin. The domain is auto-configured
+     * and detected from the plugin install path.
+     */
+    function __($msgid) {
+        if (!isset($this->translation)) {
+            // Detect the domain from the plugin install-path
+            $groups = array();
+            preg_match('`plugins/(\w+)(?:.phar)?`', $this->getInstallPath(), $groups);
+
+            $domain = $groups[1];
+            if (!$domain)
+                return $msgid;
+
+            $this->translation = self::translate($domain);
+        }
+        list($__, $_N) = $this->translation;
+        return $__($msgid);
+    }
+
+    // Domain-specific translations (plugins)
+    /**
+     * Function: translate
+     *
+     * Convenience function to setup translation functions for other
+     * domains. This is of greatest benefit for plugins. This will return
+     * two functions to perform the translations. The first will translate a
+     * single string, the second will translate a plural string.
+     *
+     * Parameters:
+     * $domain - (string) text domain. The location of the MO.php file
+     *      will be (path)/LC_MESSAGES/(locale)/(domain).mo.php. The (path)
+     *      can be set via the $options parameter
+     * $options - (array<string:mixed>) Extra options for the setup
+     *      "path" - (string) path to the folder containing the LC_MESSAGES
+     *          folder. The (locale) setting is set externally respective to
+     *          the user. If this is not set, the directory of the caller is
+     *          assumed, plus '/i18n'.  This is geared for plugins to be
+     *          built with i18n content inside the '/i18n/' folder.
+     *
+     * Returns:
+     * Translation utility functions which mimic the __() and _N()
+     * functions. Note that two functions are returned. Capture them with a
+     * PHP list() construct.
+     *
+     * Caveats:
+     * When desiging plugins which might be installed in versions of
+     * osTicket which don't provide this function, use this compatibility
+     * interface:
+     *
+     * // Provide compatibility function for versions of osTicket prior to
+     * // translation support (v1.9.4)
+     * function translate($domain) {
+     *     if (!method_exists('Plugin', 'translate')) {
+     *         return array(
+     *             function($x) { return $x; },
+     *             function($x, $y, $n) { return $n != 1 ? $y : $x; },
+     *         );
+     *     }
+     *     return Plugin::translate($domain);
+     * }
+     */
+    static function translate($domain, $options=array()) {
+
+        // Configure the path for the domain. If no
+        $path = @$options['path'];
+        if (!$path) {
+            # Fetch the working path of the caller
+            $bt = debug_backtrace(false);
+            $path = dirname($bt[0]["file"]) . '/i18n';
+        }
+        $path = rtrim($path, '/') . '/';
+
+        $D = TextDomain::lookup($domain);
+        $D->setPath($path);
+        $trans = $D->getTranslation();
+
+        return array(
+            // __()
+            function($msgid) use ($trans) {
+                return $trans->translate($msgid);
+            },
+            // _N()
+            function($singular, $plural, $n) use ($trans) {
+                return $trans->ngettext($singular, $plural, $n);
+            },
+        );
     }
 }
 

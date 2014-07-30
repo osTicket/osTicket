@@ -362,9 +362,9 @@ class Internationalization {
             return TextDomain::lookup()->getTranslation($locale)
                 ->translate($msgid);
         }
-        function _NL($msgid, $plural, $count, $locale) {
+        function _NL($msgid, $plural, $n, $locale) {
             return TextDomain::lookup()->getTranslation($locale)
-                ->ngettext($msgid);
+                ->ngettext($msgid, $plural, $n);
         }
     }
 }

@@ -147,7 +147,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <option value="<?php echo $ab::$id; ?>" <?php
                     if ($info['backend'] == $ab::$id)
                         echo 'selected="selected"'; ?>><?php
-                    echo $ab::$name; ?></option>
+                    echo $ab->getName(); ?></option>
             <?php } ?>
             </select>
             </td>

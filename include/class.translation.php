@@ -573,7 +573,7 @@ class Translation extends gettext_reader {
         return Format::encode($string, 'utf-8', $this->charset);
     }
 
-    static function buildHashFile($mofile, $outfile=false) {
+    static function buildHashFile($mofile, $outfile=false, $return=false) {
         if (!$outfile) {
             $stream = fopen('php://stdout', 'w');
         }
@@ -638,7 +638,11 @@ class Translation extends gettext_reader {
         );
 
         // Serialize the PHP array and write to output
-        fwrite($stream, sprintf('<?php return %s;', var_export($table, true)));
+        $contents = sprintf('<?php return %s;', var_export($table, true));
+        if ($return)
+            return $contents;
+        else
+            fwrite($stream, $contents);
     }
 }
 
@@ -694,10 +698,12 @@ class TextDomain {
             $locale_names = self::get_list_of_locales($locale);
             $input = null;
             foreach ($locale_names as $T) {
-                $phar_path = 'phar://' . $bound_path . $T . ".phar/" . $subpath;
-                if (file_exists($phar_path)) {
-                    $input = $phar_path;
-                    break;
+                if (substr($bound_path, 7) != 'phar://') {
+                    $phar_path = 'phar://' . $bound_path . $T . ".phar/" . $subpath;
+                    if (file_exists($phar_path)) {
+                        $input = $phar_path;
+                        break;
+                    }
                 }
                 $full_path = $bound_path . $T . "/" . $subpath;
                 if (file_exists($full_path)) {

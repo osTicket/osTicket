@@ -79,7 +79,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <input type="hidden" name="username" value="<?php echo $info['username']; ?>"/>
 <?php foreach (UserAuthenticationBackend::allRegistered() as $bk) {
     if ($bk::$id == $info['backend']) {
-        echo $bk::$name;
+        echo $bk->getName();
         break;
     }
 } ?>
