@@ -240,7 +240,8 @@ class i18n_Compiler extends Module {
             #'Translated' =>
             #'Approved' =>
             'Id' => 'lang:' . $lang,
-            'Version' => strtotime($po_header['PO-Revision-Date']),
+            'Last-Revision' => $po_header['PO-Revision-Date'],
+            'Version' => strtotime($po_header['PO-Revision-Date']) / 10000,
         );
         $phar->addFromString(
             'MANIFEST.php',
@@ -315,6 +316,9 @@ class i18n_Compiler extends Module {
                 case '.':
                     $string['constant'] = false;
                     break;
+                case '[':
+                    // Not intended to be translated — array index
+                    return null;
                 default:
                     return array($string, $T);
             }
@@ -348,6 +352,7 @@ class i18n_Compiler extends Module {
                 $args['comments'] = array_merge(
                     @$args['comments'] ?: array(), $string['comments']);
 
+            // Handle the terminating token from ::__read_next_string()
             switch ($T[0]) {
             case ')':
                 return $args;

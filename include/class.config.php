@@ -445,7 +445,7 @@ class OsticketConfig extends Config {
         $modes = static::allTopicSortModes();
         if (!isset($modes[$mode]))
             throw new InvalidArgumentException(sprintf(
-                __('%s: Unsupport help topic sort mode'), $mode));
+                '%s: Unsupported help topic sort mode', $mode));
 
         $this->update('help_topic_sort_mode', $mode);
     }
