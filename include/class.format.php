@@ -269,13 +269,19 @@ class Format {
     }
 
     function htmlencode($var) {
+
+        if (is_array($var))
+            return array_map(array('Format', 'htmlencode'), $var);
+
         $flags = ENT_COMPAT;
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
 
-        return is_array($var)
-            ? array_map(array('Format', 'htmlencode'), $var)
-            : htmlentities( (string) $var, $flags, 'UTF-8', false);
+        try {
+            return htmlentities( (string) $var, $flags, 'UTF-8', false);
+        } catch(Exception $e) {
+            return $var;
+        }
     }
 
     function htmldecode($var) {

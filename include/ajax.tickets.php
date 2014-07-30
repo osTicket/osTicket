@@ -390,7 +390,7 @@ class TicketsAjaxAPI extends AjaxController {
         if ($user) {
             if ($user->getId() == $ticket->getOwnerId())
                 $errors['err'] = sprintf('Ticket owner, %s, is a collaborator by default!',
-                        $user->getName());
+                        Format::htmlchars($user->getName()));
             elseif (($c=$ticket->addCollaborator($user,
                             array('isactive'=>1), $errors))) {
                 $note = Format::htmlchars(sprintf('%s <%s> added as a collaborator',
@@ -398,7 +398,7 @@ class TicketsAjaxAPI extends AjaxController {
                 $ticket->logNote('New Collaborator Added', $note,
                     $thisstaff, false);
                 $info = array('msg' => sprintf('%s added as a collaborator',
-                            $c->getName()));
+                            Format::htmlchars($c->getName())));
                 return self::_collaborators($ticket, $info);
             }
         }
@@ -427,7 +427,7 @@ class TicketsAjaxAPI extends AjaxController {
             return self::_collaborator($c ,$user->getForms($_POST), $errors);
 
         $info = array('msg' => sprintf('%s updated successfully',
-                    $c->getName()));
+                    Format::htmlchars($c->getName())));
 
         return self::_collaborators($ticket, $info);
     }

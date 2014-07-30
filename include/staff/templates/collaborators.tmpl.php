@@ -27,7 +27,7 @@ if(($users=$ticket->getCollaborators())) {?>
                     $user->getId(),
                     $checked,
                     $user->getId(),
-                    $user->getName(),
+                    Format::htmlchars($user->getName()),
                     $user->getEmail(),
                     $user->getId(),
                     $user->getId());
