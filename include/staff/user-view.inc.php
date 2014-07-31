@@ -14,7 +14,7 @@ $org = $user->getOrganization();
         </td>
         <td width="50%" class="right_align has_bottom_border">
             <span class="action-button" data-dropdown="#action-dropdown-more">
-                <span ><i class="icon-cog"></i> More</span>
+                <span ><i class="icon-cog"></i> <?php echo __('More'); ?></span>
                 <i class="icon-caret-down"></i>
             </span>
             <a id="user-delete" class="action-button user-action"

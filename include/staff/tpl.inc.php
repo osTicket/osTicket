@@ -59,12 +59,12 @@ $tpl=$msgtemplates[$selected];
                     echo "</optgroup>";
                 $current_group = $nfo['group']; ?>
                 <optgroup label="<?php echo isset($_groups[$current_group])
-                    ? $_groups[$current_group] : $current_group; ?>">
+                    ? __($_groups[$current_group]) : $current_group; ?>">
             <?php }
             $sel=($selected==$cn)?'selected="selected"':'';
             echo sprintf('<option value="%s" %s>%s</option>',
                 isset($impl[$cn]) ? $impl[$cn]->getId() : $cn,
-                $sel,$nfo['name']);
+                $sel,__($nfo['name']));
         }
         if ($current_group)
             echo "</optgroup>";
@@ -86,10 +86,10 @@ $tpl=$msgtemplates[$selected];
 
 <div style="border:1px solid #ccc;background:#f0f0f0;padding:5px 10px;
     margin:10px 0;">
-<h3 style="font-size:12pt;margin:0"><?php echo $desc['name']; ?>
+<h3 style="font-size:12pt;margin:0"><?php echo __($desc['name']); ?>
     &nbsp;<i class="help-tip icon-question-sign"
-        data-content="<?php echo Format::htmlchars($desc['desc']); ?>"
-        data-title="<?php echo Format::htmlchars($desc['name']); ?>"></i>
+        data-content="<?php echo Format::htmlchars(__($desc['desc'])); ?>"
+        data-title="<?php echo Format::htmlchars(__($desc['name'])); ?>"></i>
     <a style="font-size:10pt" class="tip pull-right" href="#ticket_variables.txt">
     <i class="icon-tags"></i>
     <?php echo __('Supported Variables'); ?></a>

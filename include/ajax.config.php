@@ -20,7 +20,10 @@ class ConfigAjaxAPI extends AjaxController {
 
     //config info UI might need.
     function scp() {
-        global $cfg, $thisstaff;
+        global $cfg;
+
+        $lang = Internationalization::getCurrentLanguage();
+        list($sl, $locale) = explode('_', $lang);
 
         $config=array(
               'lock_time'       => ($cfg->getLockTime()*3600),
@@ -28,7 +31,8 @@ class ConfigAjaxAPI extends AjaxController {
               'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
               'date_format'     => ($cfg->getDateFormat()),
               'allow_attachments' => (bool) $cfg->allowAttachments(),
-              'lang'            => $thisstaff->getLanguage(),
+              'lang'            => $lang,
+              'short_lang'      => $sl,
         );
         return $this->json_encode($config);
     }
