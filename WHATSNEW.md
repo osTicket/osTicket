@@ -1,3 +1,15 @@
+osTicket v1.8.5
+===============
+### Improvements
+  * Fix missing `%{recipient}` variable used in canned reply (filters) (#1047)
+  * Fix `%{ticket.close_date}` variable in email message templates (#1090)
+  * Fix premature session expiration (#1111)
+  * Correctly handle custom data for help topics (#1105)
+  * Avoid system alert notices bouncing and creating tickets (#1115)
+
+### Performance and Security
+  * Fix XSS vulnerability in user name (#1108, #1131)
+
 osTicket v1.8.4
 ===============
 ### Improvements
