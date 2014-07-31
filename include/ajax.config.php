@@ -48,5 +48,20 @@ class ConfigAjaxAPI extends AjaxController {
 
         return $config;
     }
+
+    function templateLinks() {
+        $links = $this->json_encode(array(
+            array('name'=>'Select ...', 'url'=> false),
+            array('name'=>'Agent Ticket Link', 'url'=> '%{ticket.staff_link}'),
+            array('name'=>'Agent Login Page', 'url'=> '%{url}/scp'),
+            array('name'=>'End-User Ticket Link', 'url'=> '%{recipient.ticket_link}'),
+            array('name'=>'End-User Login Page', 'url'=> '%{url}/login.php'),
+        ));
+
+        Http::cacheable(md5($links), filemtime(__file__));
+        header('Content-Type: application/json; charset=UTF-8');
+
+        return $links;
+    }
 }
 ?>
