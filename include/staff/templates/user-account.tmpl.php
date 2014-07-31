@@ -39,7 +39,7 @@ if ($info['error']) {
                 <td width="180">
                     Name:
                 </td>
-                <td> <?php echo $user->getName(); ?> </td>
+                <td> <?php echo Format::htmlchars($user->getName()); ?> </td>
             </tr>
             <tr>
                 <td width="180">

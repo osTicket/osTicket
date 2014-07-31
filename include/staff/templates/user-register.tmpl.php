@@ -28,7 +28,7 @@ if ($info['error']) {
 } ?>
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp;Complete the form
 below to create a user account for <b><?php echo
-$user->getName()->getOriginal(); ?></b>.</p></div>
+Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
 <div id="user-registration" style="display:block; margin:5px;">
     <form method="post" class="user"
         action="#users/<?php echo $user->getId(); ?>/register">
