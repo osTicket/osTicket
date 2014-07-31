@@ -202,7 +202,8 @@ if($_POST && !$errors):
                 // Don't validate deleted forms
                 if (!in_array($form->getId(), $_POST['forms']))
                     continue;
-                elseif (!$form->isValid())
+                $form->setSource($_POST);
+                if (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
             }
             if(!$ticket || !$thisstaff->canEditTickets())

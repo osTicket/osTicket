@@ -47,9 +47,11 @@ if($_POST && is_object($ticket) && $ticket->getId()):
             $errors['err']='Access Denied. Client updates are currently disabled';
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
-            foreach ($forms as $form)
+            foreach ($forms as $form) {
+                $form->setSource($_POST);
                 if (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
+            }
         }
         if (!$errors) {
             foreach ($forms as $f) $f->save();
