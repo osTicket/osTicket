@@ -555,6 +555,7 @@ class i18n_Compiler extends Module {
 
     function __getAllJsPhrases($root=ROOT_DIR) {
         $strings = array();
+        $root = rtrim($root, '/') . '/';
         $funcs = array('__'=>array('forms'=>1));
         foreach (glob_recursive($root . "*.js") as $s) {
             $script = file_get_contents($s);
