@@ -293,7 +293,7 @@ class i18n_Compiler extends Module {
         while (list(,$T) = each($tokens)) {
             switch ($T[0]) {
                 case T_CONSTANT_ENCAPSED_STRING:
-                    // String leading and trailing ' and " chars
+                    // Strip leading and trailing ' and " chars
                     $string['form'] = preg_replace(array("`^{$T[1][0]}`","`{$T[1][0]}$`"),array("",""), $T[1]);
                     $string['line'] = $T[2];
                     break;
@@ -434,8 +434,8 @@ class i18n_Compiler extends Module {
     function __write_string($string) {
         // Unescape single quote (') and escape unescaped double quotes (")
         $string = preg_replace(array("`\\\(['$])`", '`(?<!\\\)"`'), array("$1", '\"'), $string);
-        // Preserve embedded newlines
-        $string = preg_replace("`\n\s*`", "\\n\n", $string);
+        // Preserve embedded newlines -- preserve up to on
+        $string = preg_replace("`\n\s*`u", "\\n\n", $string);
         // Word-wrap long lines
         $string = rtrim(preg_replace('/(?=[\s\p{Ps}])(.{1,76})(\s|$|(\p{Ps}))/uS',
             "$1$2\n", $string), "\n");
