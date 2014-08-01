@@ -157,7 +157,7 @@ class User extends UserModel {
                 list($name) = explode('@', $vars['email'], 2);
 
             $user = User::create(array(
-                'name' => Format::sanitize($name, false),
+                'name' => Format::htmldecode(Format::sanitize($name, false)),
                 'created' => new SqlFunction('NOW'),
                 'updated' => new SqlFunction('NOW'),
                 //XXX: Do plain create once the cause
