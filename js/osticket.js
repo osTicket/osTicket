@@ -27,7 +27,7 @@ $(document).ready(function(){
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
-                return "Are you sure you want to leave? Any changes or info you've entered will be discarded!";
+                return "Êtes-vous certain de vouloir quitter ? Toute modification ou information que vous avez entrées seront annulées !";
              });
         }
        });
@@ -148,7 +148,7 @@ $(document).ready(function(){
         extra.append($('<a>')
           .addClass("action-button show-images")
           .css({'font-weight':'normal'})
-          .text(' Show Images')
+          .text(' Afficher les images')
           .click(function(ev) {
             imgs.each(function(i, img) {
               showNonLocalImage(img);
@@ -208,7 +208,7 @@ showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Télécharger</a>')
                 );
             e.data('wrapped', true);
         }
