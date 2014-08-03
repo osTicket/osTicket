@@ -16,8 +16,8 @@ $config = array(
 $data = array(
     'name'      =>      'John Doe',
     'email'     =>      'mailbox@host.com',
-    'subject'   =>      'Test API message',
-    'message'   =>      'This is a test of the osTicket API',
+    'subject'   =>      'Message de test de l\'API',
+    'message'   =>      'Ceci est un test de l\'API d\'osTicket',
     'ip'        =>      $_SERVER['REMOTE_ADDR'],
     'attachments' => array(),
 );
@@ -32,8 +32,8 @@ array('filename.pdf' =>
  */
 
 #pre-checks
-function_exists('curl_version') or die('CURL support required');
-function_exists('json_encode') or die('JSON support required');
+function_exists('curl_version') or die('Utilisation de CURL requise');
+function_exists('json_encode') or die('Utilisation de JSON requise');
 
 #set timeout
 set_time_limit(30);
@@ -53,7 +53,7 @@ $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($code != 201)
-    die('Unable to create ticket: '.$result);
+    die('Impossible de créer un ticket : '.$result);
 
 $ticket_id = (int) $result;
 
