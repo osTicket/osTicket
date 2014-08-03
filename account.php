@@ -59,35 +59,35 @@ elseif ($_POST) {
     }
 
     if (!$user_form->isValid(function($f) { return !$f->get('private'); }))
-        $errors['err'] = 'Incomplete client information';
+        $errors['err'] = 'Information client non complète';
     elseif (!$_POST['backend'] && !$_POST['passwd1'])
-        $errors['passwd1'] = 'New password required';
+        $errors['passwd1'] = 'Nouveau mot de passe requis';
     elseif (!$_POST['backend'] && $_POST['passwd2'] != $_POST['passwd1'])
-        $errors['passwd1'] = 'Passwords do not match';
+        $errors['passwd1'] = 'Les mots de passe ne correspondent pas';
 
     // XXX: The email will always be in use already if a guest is logged in
     // and is registering for an account. Instead,
     elseif (($addr = $user_form->getField('email')->getClean())
             && ClientAccount::lookupByUsername($addr)) {
         $user_form->getField('email')->addError(
-            'Email already registered. Would you like to <a href="login.php?e='
-            .urlencode($addr).'" style="color:inherit"><strong>sign in</strong></a>?');
-        $errors['err'] = 'Unable to register account. See messages below';
+            'Adresse de courriel déjà enregistrée. Voulez-vous vous <a href="login.php?e='
+            .urlencode($addr).'" style="color:inherit"><strong>connecter</strong></a>&nbsp;?');
+        $errors['err'] = 'Impossible d\'enregistrer le compte. Voir les messages ci-dessous';
     }
     // Users created from ClientCreateRequest
     elseif (isset($_POST['backend']) && !($user = User::fromVars($user_form->getClean())))
-        $errors['err'] = 'Unable to create local account. See messages below';
+        $errors['err'] = 'Impossible d\'enregistrer le compte. Voir les messages ci-dessous';
     // Registration for existing users
     elseif (!$user && !$thisclient && !($user = User::fromVars($user_form->getClean())))
-        $errors['err'] = 'Unable to register account. See messages below';
+        $errors['err'] = 'Impossible d\'enregistrer le compte. Voir les messages ci-dessous';
     // New users and users registering from a ticket access link
     elseif (!$user && !($user = $thisclient ?: User::fromForm($user_form)))
-        $errors['err'] = 'Unable to register account. See messages below';
+        $errors['err'] = 'Impossible d\'enregistrer le compte. Voir les messages ci-dessous';
     else {
         if (!($acct = ClientAccount::createForUser($user)))
-            $errors['err'] = 'Internal error. Unable to create new account';
+            $errors['err'] = 'Erreur interne. Impossible de créer un nouveau compte';
         elseif (!$acct->update($_POST, $errors))
-            $errors['err'] = 'Errors configuring your profile. See messages below';
+            $errors['err'] = 'Erreurs de configuration du profil. Voir les messages ci-dessous';
     }
 
     if (!$errors) {
