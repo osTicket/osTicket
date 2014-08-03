@@ -1,11 +1,11 @@
 <?php
 
-if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Access Denied!');
+if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Accès Refusé !');
 
 ?>
 
 <h1>
-    Editing Ticket #<?php echo $ticket->getNumber(); ?>
+    Modifier le ticket #<?php echo $ticket->getNumber(); ?>
 </h1>
 
 <form action="tickets.php" method="post">
@@ -22,9 +22,9 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
 </table>
 <hr>
 <p style="text-align: center;">
-    <input type="submit" value="Update"/>
-    <input type="reset" value="Reset"/>
-    <input type="button" value="Cancel" onclick="javascript:
+    <input type="submit" value="Mettre à jour"/>
+    <input type="reset" value="Réinitialiser"/>
+    <input type="button" value="Annuler" onclick="javascript:
         window.location.href='index.php';"/>
 </p>
 </form>
