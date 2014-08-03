@@ -64,7 +64,7 @@ class TnefStreamReader implements Iterator {
 
         // Read header
         if (self::SIGNATURE != $this->_geti(32))
-            throw new TnefException("Invalid signature");
+            throw new TnefException("Signature invalide");
 
         $this->_geti(16); // Attach key
 
@@ -117,7 +117,7 @@ class TnefStreamReader implements Iterator {
             $sum = $sum % 65536;
         }
         if ($block['checksum'] != $sum)
-            throw new TnefException('Corrupted block. Invalid checksum');
+            throw new TnefException('Bloc corrompu. Somme de contrôle invalide');
     }
 
     function next() {
