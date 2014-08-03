@@ -116,7 +116,7 @@ class VariableReplacer {
             return $this->variables[$parts[0]];
 
         //Unknown object or variable - leavig it alone.
-        $this->setError('Unknown obj for "'.$var.'" tag ');
+        $this->setError('Objet inconnu pour "'.$var.'" tag ');
         return false;
     }
 
