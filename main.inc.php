@@ -28,7 +28,7 @@ Bootstrap::loadCode();
 Bootstrap::connect();
 
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
-Bootstrap::croak('Unable to load config info from DB. Get tech support.');
+Bootstrap::croak('Impossible de charger la configuration depuis la base de données. Contactez le support technique.');
 
 //Init
 $session = $ost->getSession();
