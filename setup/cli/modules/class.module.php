@@ -127,7 +127,7 @@ class Module {
     function __construct() {
         $this->options['help'] = array("-h","--help",
             'action'=>'store_true',
-            'help'=>"Display this help message");
+            'help'=>"Affiche ce message d'aide");
         foreach ($this->options as &$opt)
             $opt = new Option($opt);
         $this->stdout = new OutputStream('php://output');
@@ -207,11 +207,11 @@ class Module {
 
         foreach (array_keys($this->arguments) as $idx=>$name)
             if (!isset($this->_args[$idx]))
-                $this->optionError($name . " is a required argument");
+                $this->optionError($name . " est un argument requis");
             elseif (is_array($this->arguments[$name])
                     && isset($this->arguments[$name]['options'])
                     && !isset($this->arguments[$name]['options'][$this->_args[$idx]]))
-                $this->optionError($name . " does not support such a value");
+                $this->optionError($name . " ne supporte pas une telle valeur");
             else
                 $this->_args[$name] = &$this->_args[$idx];
 
@@ -226,7 +226,7 @@ class Module {
     }
 
     function optionError($error) {
-        echo "Error: " . $error . "\n\n";
+        echo "Erreur : " . $error . "\n\n";
         $this->showHelp();
         die();
     }
