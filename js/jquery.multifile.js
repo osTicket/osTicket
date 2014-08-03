@@ -51,20 +51,20 @@
                     fObj.data('files', 0);
 
                 if(fObj.data('files')>=settings.max_uploads || (fObj.data('files')+file.count)>settings.max_uploads) {
-                    alert('Vous avez dépassé le nombre de fichier maximum ('+ settings.max_uploads+') autorisé par chargement');
+                    alert('Vous avez dépassé le nombre de fichier maximum ('+ settings.max_uploads+') autorisé par envoi');
                 } else if(!$.fn.multifile.checkFileTypes(file, settings.allowedFileTypes)) {
-                    var msg = 'Le format de fichier n''est PAS autorisé';
+                    var msg = 'Le format de fichier n\'est PAS autorisé';
                     if(file.count>1)
-                        msg = 'Le format de l''un des fichiers sélectionné ou plus n''est PAS autorisé';
+                        msg = 'Le format de l\'un des fichiers sélectionnés ou plus n\'est PAS autorisé';
 
                     alert('Error: '+msg);
                     $this.replaceWith(new_input);
                 } else if(!$.fn.multifile.checkFileSize(file, settings.max_file_size)) {
                     var msg = 'Le fichier sélectionné dépasse la taille limite autorisée';
                     if(file.count>1)
-                        msg = 'La taille d''un des fichiers sélectionné ou plus dépasse la limite autorisée';
+                        msg = 'La taille d\'un des fichiers sélectionnés ou plus dépasse la limite autorisée';
 
-                    alert('Error: '+msg);
+                    alert('Erreur : '+msg);
                     $this.replaceWith(new_input);
                 } else {
                     $this.hide();
@@ -87,7 +87,7 @@
 
                     event.preventDefault();
            
-                    if(confirm('Êtes vous sur de vouloir supprimer '+file.name+'?')) {
+                    if(confirm('Êtes-vous sûr de vouloir supprimer '+file.name+'?')) {
                         var fObj = $(this).closest('form');
 
                         fObj.data('files', fObj.data('files')-file.count);
