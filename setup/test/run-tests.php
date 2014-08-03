@@ -40,7 +40,7 @@ $fails = array();
 function show_fails() {
     global $fails, $root;
     if ($fails) {
-        echo count($fails) . " FAIL(s)\n";
+        echo count($fails) . " ÉCHEC(s)\n";
         echo "-------------------------------------------------------\n";
         foreach ($fails as $f) {
             list($test, $script, $line, $message) = $f;
@@ -69,7 +69,7 @@ foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
     if($selected_test && ($class != $selected_test))
     	continue;
     $test = new $class();
-    echo "Running: " . $test->name . "\n";
+    echo "En cours d'exécution: " . $test->name . "\n";
     $test->run();
     $fails = array_merge($fails, $test->fails);
     echo " ok\n";
