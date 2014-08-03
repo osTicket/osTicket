@@ -26,7 +26,7 @@ $config = array(
         );
 
 #pre-checks
-function_exists('curl_version') or die('CURL support required');
+function_exists('curl_version') or die('Utilisation de CURL requise');
 
 #set timeout
 set_time_limit(30);
