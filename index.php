@@ -22,23 +22,23 @@ require(CLIENTINC_DIR.'header.inc.php');
     if($cfg && ($page = $cfg->getLandingPage()))
         echo $page->getBodyWithImages();
     else
-        echo  '<h1>Welcome to the Support Center</h1>';
+        echo  '<h1>Bienvenue sur la plate-forme de support</h1>';
     ?>
     <div id="new_ticket">
-        <h3>Open A New Ticket</h3>
+        <h3>Ouvrir un nouveau ticket</h3>
         <br>
-        <div>Please provide as much detail as possible so we can best assist you. To update a previously submitted ticket, please login.</div>
+        <div>Veuillez, s'il-vous-plaît, fournir autant de détails que possible pour que nous puissions vous assister au mieux. Veuillez vous authentifier pour mettre à jour un ticket précédemment créé.</div>
         <p>
-            <a href="open.php" class="green button">Open a New Ticket</a>
+            <a href="open.php" class="green button">Ouvrir un nouveau ticket</a>
         </p>
     </div>
 
     <div id="check_status">
-        <h3>Check Ticket Status</h3>
+        <h3>Vérifier le statut d'un ticket</h3>
         <br>
-        <div>We provide archives and history of all your current and past support requests complete with responses.</div>
+        <div>Nous fournissons des archives et l'historique de toutes vos demandes de support passées et présentes, avec les réponses qui y ont été apportées.</div>
         <p>
-            <a href="view.php" class="blue button">Check Ticket Status</a>
+            <a href="view.php" class="blue button">Vérifier le statut d'un ticket</a>
         </p>
     </div>
 </div>
@@ -47,7 +47,7 @@ require(CLIENTINC_DIR.'header.inc.php');
 if($cfg && $cfg->isKnowledgebaseEnabled()){
     //FIXME: provide ability to feature or select random FAQs ??
 ?>
-<p>Be sure to browse our <a href="kb/index.php">Frequently Asked Questions (FAQs)</a>, before opening a ticket.</p>
+<p>Merci de consulter la <a href="kb/index.php">Foire Aux Questions (FAQs)</a> avant d'ouvrir un ticket.</p>
 </div>
 <?php
 } ?>
