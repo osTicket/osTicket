@@ -38,9 +38,9 @@ class Bootstrap {
                 if(@date_default_timezone_get()) //Let PHP determine the timezone.
                     @date_default_timezone_set(@date_default_timezone_get());
                 else //Default to EST - if PHP can't figure it out.
-                    date_default_timezone_set('America/New_York');
+                    date_default_timezone_set('Europe/Paris');
             } else { //Default when all fails. PHP < 5.
-                ini_set('date.timezone', 'America/New_York');
+                ini_set('date.timezone', 'Europe/Paris');
             }
         }
 
@@ -134,13 +134,13 @@ class Bootstrap {
             //Die gracefully on upgraded v1.6 RC5 installation - otherwise script dies with confusing message.
             if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
                 Http::response(500,
-                    'Please rename config file include/settings.php to '
-                   .'include/ost-config.php to continue!');
+                    'Veuillez renommer le fichier de configuration include/settings.php en '
+                   .'include/ost-config.php pour continuer !');
         } elseif(file_exists(ROOT_DIR.'setup/'))
             Http::redirect(ROOT_PATH.'setup/');
 
         if(!$configfile || !file_exists($configfile))
-            Http::response(500,'<b>Error loading settings. Contact admin.</b>');
+            Http::response(500,'<b>Erreur de chargement de la configuration. Veuillez contacter l\'administrateur.</b>');
 
         require($configfile);
         define('CONFIG_FILE',$configfile); //used in admin.php to check perm.
@@ -165,9 +165,9 @@ class Bootstrap {
             );
 
         if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
-            $ferror='Unable to connect to the database -'.db_connect_error();
+            $ferror='Impossible de se connecter à la base de données -'.db_connect_error();
         }elseif(!db_select_database(DBNAME)) {
-            $ferror='Unknown or invalid database '.DBNAME;
+            $ferror='Base de données inconnue ou invalide '.DBNAME;
         }
 
         if($ferror) //Fatal error
@@ -270,10 +270,10 @@ class Bootstrap {
 
     function croak($message) {
         $msg = $message."\n\n".THISPAGE;
-        Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
-            sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
+        Mailer::sendmail(ADMIN_EMAIL, 'osTicket Erreur fatale', $msg,
+            sprintf('"osTicket Alertes"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
-        Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
+        Http::response(500, "<b>Erreur fatal:</b> Contactez l'administrateur système.");
     }
 }
 
