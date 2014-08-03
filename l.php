@@ -22,7 +22,7 @@ if (!($url=trim($_GET['url'])))
 
 $check = (strpos($url, '//') === 0) ? 'http:' . $url : $url;
 if (!Validator::is_url($check) || !$ost->validateLinkToken($_GET['auth']))
-    Http::response(403, 'URL link not authorized');
+    Http::response(403, 'Lien URL non autorisé');
 elseif (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false)
     Http::redirect($url);
 ?>
