@@ -1,17 +1,16 @@
 <?php
-if(!defined('OSTCLIENTINC')) die('Access Denied');
+if(!defined('OSTCLIENTINC')) die('Accès Refusé');
 
 $email=Format::input($_POST['lemail']?$_POST['lemail']:$_GET['e']);
 $ticketid=Format::input($_POST['lticket']?$_POST['lticket']:$_GET['t']);
 
 if ($cfg->isClientEmailVerificationRequired())
-    $button = "Email Access Link";
+    $button = "Envoyer le lien d'accès";
 else
-    $button = "View Ticket";
+    $button = "Voir le Ticket";
 ?>
-<h1>Check Ticket Status</h1>
-<p>Please provide us with your email address and a ticket number, and an access
-link will be emailed to you.</p>
+<h1>Vérification du statut du ticket</h1>
+<p>Veuillez nous fournir votre adresse de courriel, un numéro de ticket, et nous vous enverrons un lien d'accès.</p>
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">
@@ -19,14 +18,14 @@ link will be emailed to you.</p>
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <br>
     <div>
-        <label for="email">E-Mail Address:
+        <label for="email">Adresse de courriel&nbsp;:
         <input id="email" placeholder="e.g. john.doe@osticket.com" type="text"
             name="lemail" size="30" value="<?php echo $email; ?>"></label>
     </div>
     <div>
-        <label for="ticketno">Ticket Number:</label><br/>
+        <label for="ticketno">Numéro de ticket&nbsp;:
         <input id="ticketno" type="text" name="lticket" placeholder="e.g. 051243"
-            size="30" value="<?php echo $ticketid; ?>"></td>
+            size="30" value="<?php echo $ticketid; ?>"></label>
     </div>
     <p>
         <input class="btn" type="submit" value="<?php echo $button; ?>">
@@ -34,11 +33,11 @@ link will be emailed to you.</p>
     </div>
     <div style="display:table-cell;padding-left: 2em;padding-right:90px;">
 <?php if ($cfg && $cfg->getClientRegistrationMode() !== 'disabled') { ?>
-        Have an account with us?
-        <a href="login.php">Sign In</a> <?php
+        Vous avez déjà un compte chez nous ?
+        <a href="login.php">Connectez-vous</a> <?php
     if ($cfg->isClientRegistrationEnabled()) { ?>
-        or <a href="account.php?do=create">register for an account</a> <?php
-    } ?> to access all your tickets.
+        ou <a href="account.php?do=create">créez un compte</a> <?php
+    } ?> pour accéder à tous vos tickets.
 <?php
 } ?>
     </div>
@@ -46,5 +45,5 @@ link will be emailed to you.</p>
 </form>
 <br>
 <p>
-If this is your first time contacting us or you've lost the ticket number, please <a href="open.php">open a new ticket</a>.
+Si c'est la première fois que vous nous contactez ou si vous avez oublié votre numéro de ticket, veuillez <a href="open.php">ouvrir un nouveau ticket</a>.
 </p>
