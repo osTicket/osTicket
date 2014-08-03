@@ -26,10 +26,10 @@ $config = array(
         );
 
 #pre-checks
-function_exists('file_get_contents') or die('upgrade php >=4.3');
-function_exists('curl_version') or die('CURL support required');
+function_exists('file_get_contents') or die('mettez à jour php >=4.3');
+function_exists('curl_version') or die('Utilisation de CURL requise');
 #read stdin (piped email)
-$data=file_get_contents('php://stdin') or die('Error reading stdin. No message');
+$data=file_get_contents('php://stdin') or die('Erreur d\'entrée. Pas de message');
 
 #set timeout
 set_time_limit(10);
