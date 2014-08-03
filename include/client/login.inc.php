@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC')) die('Access Denied');
+if(!defined('OSTCLIENTINC')) die('Accès Refusé');
 
 $email=Format::input($_POST['luser']?:$_GET['e']);
 $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
@@ -10,9 +10,8 @@ if ($content) {
     list($title, $body) = $ost->replaceTemplateVariables(
         array($content->getName(), $content->getBody()));
 } else {
-    $title = 'Sign In';
-    $body = 'To better serve you, we encourage our clients to register for
-        an account and verify the email address we have on record.';
+    $title = 'Enregistrez-vous';
+    $body = 'Pour mieux vous rendre service, nous vous invitons à ouvrir un compte et vérifier l\'adresse électronique que nous avons enregistrée.';
 }
 
 ?>
@@ -24,15 +23,15 @@ if ($content) {
     <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding:15px;">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <div>
-        <input id="username" placeholder="Email or Username" type="text" name="luser" size="30" value="<?php echo $email; ?>">
+        <input id="username" placeholder="Courriel ou identifiant" type="text" name="luser" size="30" value="<?php echo $email; ?>">
     </div>
     <div>
-        <input id="passwd" placeholder="Password" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
+        <input id="passwd" placeholder="Mot de passe" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
     </div>
     <p>
         <input class="btn" type="submit" value="Sign In">
 <?php if ($suggest_pwreset) { ?>
-        <a style="padding-top:4px;display:inline-block;" href="pwreset.php">Forgot My Password</a>
+        <a style="padding-top:4px;display:inline-block;" href="pwreset.php">J'ai oublié mon mot de passe</a>
 <?php } ?>
     </p>
     </div>
@@ -51,11 +50,11 @@ if (count($ext_bks)) {
 }
 if ($cfg && $cfg->isClientRegistrationEnabled()) {
     if (count($ext_bks)) echo '<hr style="width:70%"/>'; ?>
-    Not yet registered? <a href="account.php?do=create">Create an account</a>
+    Pas encore enregistré&nbsp;? <a href="account.php?do=create">Créer un compte</a>
     <br/>
     <div style="margin-top: 5px;">
-    <b>I'm an agent</b> —
-    <a href="<?php echo ROOT_PATH; ?>scp">sign in here</a>
+    <b>Je suis un agent</b> —
+    <a href="<?php echo ROOT_PATH; ?>scp">connectez-vous ici</a>
     </div>
 <?php } ?>
     </div>
@@ -64,6 +63,6 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
 <br>
 <p>
 <?php if ($cfg && !$cfg->isClientLoginRequired()) { ?>
-If this is your first time contacting us or you've lost the ticket number, please <a href="open.php">open a new ticket</a>.
+Si vous nous contactez pour la première fois ou si vous avez perdu votre numéro de ticket, veuillez <a href="open.php">ouvrir un nouveau ticket</a>.
 <?php } ?>
 </p>
