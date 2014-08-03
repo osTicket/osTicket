@@ -166,7 +166,7 @@ function db_query($query, $logError=true, $buffered=true) {
             return $res;
 
         $msg='['.$query.']'."\n\n".db_error();
-        $ost->logDBError('DB Error #'.db_errno(), $msg);
+        $ost->logDBError('Erreur de la base de données #'.db_errno(), $msg);
         //echo $msg; #uncomment during debuging or dev.
     }
 
@@ -293,7 +293,7 @@ function db_prepare($stmt) {
     if (!$res && $ost) {
         // Include a backtrace in the error email
         $msg='['.$stmt."]\n\n".db_error();
-        $ost->logDBError('DB Error #'.db_errno(), $msg);
+        $ost->logDBError('Erreur de la base de données #'.db_errno(), $msg);
     }
     return $res;
 }
