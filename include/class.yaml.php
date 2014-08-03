@@ -29,7 +29,7 @@ class YamlDataParser {
     /* static */
     function load($file) {
         if (!file_exists($file)) {
-            raise_error("$file: File does not exist", 'YamlParserError');
+            raise_error("$file : Le fichier n'existe pas", 'YamlParserError');
             return false;
         }
         return Spyc::YAMLLoad($file);
@@ -37,6 +37,6 @@ class YamlDataParser {
 }
 
 class YamlParserError extends Error {
-    static $title = 'Error parsing YAML document';
+    static $title = 'Erreur lors du parsing YAML du document';
 }
 ?>
