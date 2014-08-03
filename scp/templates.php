@@ -18,10 +18,10 @@ include_once(INCLUDE_DIR.'class.template.php');
 $template=null;
 if($_REQUEST['tpl_id'] &&
         !($template=EmailTemplateGroup::lookup($_REQUEST['tpl_id'])))
-    $errors['err']='Unknown or invalid template group ID.';
+    $errors['err']='Identifiant de groupe inconnu ou invalide.';
 elseif($_REQUEST['id'] &&
         !($template=EmailTemplate::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid template ID.';
+    $errors['err']='Identifiant de modèle inconnu ou invalide.';
 elseif($_REQUEST['default_for']) {
     $sql = 'SELECT id FROM '.EMAIL_TEMPLATE_TABLE
         .' WHERE tpl_id='.db_input($cfg->getDefaultTemplateId())
@@ -34,50 +34,50 @@ if($_POST){
     switch(strtolower($_POST['do'])){
         case 'updatetpl':
             if(!$template){
-                $errors['err']='Unknown or invalid template';
+                $errors['err']='Modèle inconnu ou invalide';
             }elseif($template->update($_POST,$errors)){
-                $msg='Message template updated successfully';
+                $msg='Modèle de message mis à jour avec succès';
                 // Drop drafts for this template for ALL users
                 Draft::deleteForNamespace('tpl.'.$template->getCodeName()
                     .'.'.$template->getTplId());
             }elseif(!$errors['err']){
-                $errors['err']='Error updating message template. Try again!';
+                $errors['err']='Erreur de mise à jour du modèle de message. Essayez encore !';
             }
             break;
         case 'implement':
             if(!$template){
-                $errors['err']='Unknown or invalid template';
+                $errors['err']='Modèle inconnu ou invalide';
             }elseif($new = EmailTemplate::add($_POST,$errors)){
                 $template = $new;
-                $msg='Message template updated successfully';
+                $msg='Modèle de message mis à jour avec succès';
                 // Drop drafts for this user for this template
                 Draft::deleteForNamespace('tpl.'.$new->getCodeName()
                     .$new->getTplId(), $thisstaff->getId());
             }elseif(!$errors['err']){
-                $errors['err']='Error updating message template. Try again!';
+                $errors['err']='Erreur de mise à jour du modèle de message. Essayez encore !';
             }
             break;
         case 'update':
             if(!$template){
-                $errors['err']='Unknown or invalid template';
+                $errors['err']='Modèle inconnu ou invalide';
             }elseif($template->update($_POST,$errors)){
-                $msg='Template updated successfully';
+                $msg='Modèle mis à jour avec succès';
             }elseif(!$errors['err']){
-                $errors['err']='Error updating template. Try again!';
+                $errors['err']='Erreur de mise à jour du modèle. Essayez encore !';
             }
             break;
         case 'add':
             if(($new=EmailTemplateGroup::add($_POST,$errors))){
                 $template=$new;
-                $msg='Template added successfully';
+                $msg='Modèle ajouté avec succès';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add template. Correct error(s) below and try again.';
+                $errors['err']='Impossible d\'ajouter un modèle. Corrigez les erreurs ci-dessous et essayez encore.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']='You must select at least one template to process.';
+                $errors['err']='Vous devez choisir au moins un modèle pour continuer.';
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -86,11 +86,11 @@ if($_POST){
                             .' WHERE tpl_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
                             if($num==$count)
-                                $msg = 'Selected templates enabled';
+                                $msg = 'Modèles sélectionnés activés';
                             else
-                                $warn = "$num of $count selected templates enabled";
+                                $warn = "$num modèle(s) activés sur $count modèles sélectionnés";
                         } else {
-                            $errors['err'] = 'Unable to enable selected templates';
+                            $errors['err'] = 'Impossible d\'activer les modèles sélectionnés';
                         }
                         break;
                     case 'disable':
@@ -100,11 +100,11 @@ if($_POST){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = 'Selected templates disabled';
+                            $msg = 'Modèles sélectionnés désactivés';
                         elseif($i)
-                            $warn = "$i of $count selected templates disabled (in-use templates can't be disabled)";
+                            $warn = "$i modèle(s) désactivés sur $count modèles sélectionnés (les modèles en cours d'utilisation ne peuvent être désactivés)";
                         else
-                            $errors['err'] = "Unable to disable selected templates (in-use or default template can't be disabled)";
+                            $errors['err'] = "Impossible de désactiver les modèles sélectionnés (les modèles en cours d'utilisation et le modèle par défaut ne peuvent être désactivés)";
                         break;
                     case 'delete':
                         $i=0;
@@ -114,19 +114,19 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = 'Selected templates deleted successfully';
+                            $msg = 'Modèles sélectionnés supprimés avec succès';
                         elseif($i>0)
-                            $warn = "$i of $count selected templates deleted";
+                            $warn = "$i modèle(s) supprimé(s) sur $count modèles sélectionnés";
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected templates';
+                            $errors['err'] = 'Impossible de supprimer les modèles sélectionnés';
                         break;
                     default:
-                        $errors['err']='Unknown template action';
+                        $errors['err']='Action de modèle inconnue';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']='Action inconnue';
             break;
     }
 }
