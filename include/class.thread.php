@@ -482,9 +482,9 @@ Class ThreadEntry {
                 $uploaded[]=$id;
             else {
                 if(!$file['error'])
-                    $error = 'Unable to upload file - '.$file['name'];
+                    $error = 'Impossible d\'envoyer le fichier - '.$file['name'];
                 elseif(is_numeric($file['error']))
-                    $error ='Error #'.$file['error']; //TODO: Transplate to string.
+                    $error ='Erreur #'.$file['error']; //TODO: Transplate to string.
                 else
                     $error = $file['error'];
                 /*
@@ -492,7 +492,7 @@ Class ThreadEntry {
                  XXX: We're doing it here because it will eventually become a thread post comment (hint: comments coming!)
                  XXX: logNote must watch for possible loops
                */
-                $this->getTicket()->logNote('File Upload Error', $error, 'SYSTEM', false);
+                $this->getTicket()->logNote('Erreur d\'envoi de fichier', $error, 'SYSTEM', false);
             }
 
         }
@@ -524,9 +524,9 @@ Class ThreadEntry {
             $error = $attachment['error'];
 
             if(!$error)
-                $error = 'Unable to import attachment - '.$attachment['name'];
+                $error = 'Impossible d\'importer la pièce jointe - '.$attachment['name'];
 
-            $this->getTicket()->logNote('File Import Error', $error, 'SYSTEM', false);
+            $this->getTicket()->logNote('Erreur d\'import de fichier', $error, 'SYSTEM', false);
         }
 
         return $id;
@@ -665,11 +665,11 @@ Class ThreadEntry {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
-            if ($ost) $ost->log(LOG_ERR, 'Email loop detected', sprintf(
-               'It appears as though &lt;%s&gt; is being used as a forwarded or
-                fetched email account and is also being used as a user /
-                system account. Please correct the loop or seek technical
-                assistance.', $mailinfo['email']),
+            if ($ost) $ost->log(LOG_ERR, 'Boucle de courriel détectée', sprintf(
+               'Il semble que &lt;%s&gt; soit utilisé comme un compte de
+                courriel renvoyé ou récupéré et est aussi utilisé comme
+                compte utilisateur ou système. Veuillez corriger la
+                boucle ou demander de l\'assistance technique.', $mailinfo['email']),
                 // This is quite intentional -- don't continue the loop
                 false,
                 // Force the message, even if logging is disabled
@@ -1122,9 +1122,9 @@ class Message extends ThreadEntry {
     function add($vars, &$errors) {
 
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = 'Donnée manquante ou invalide';
         elseif(!$vars['message'])
-            $errors['message'] = 'Message required';
+            $errors['message'] = 'Message requis';
 
         if($errors) return false;
 
@@ -1191,9 +1191,9 @@ class Response extends ThreadEntry {
     function add($vars, &$errors) {
 
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = 'Donnée manquante ou invalide';
         elseif(!$vars['response'])
-            $errors['response'] = 'Response required';
+            $errors['response'] = 'Réponse requise';
 
         if($errors) return false;
 
@@ -1241,9 +1241,9 @@ class Note extends ThreadEntry {
 
         //Check required params.
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = 'Donnée manquante ou invalide';
         elseif(!$vars['note'])
-            $errors['note'] = 'Note required';
+            $errors['note'] = 'Note requise';
 
         if($errors) return false;
 
@@ -1279,7 +1279,7 @@ class ThreadBody /* extends SplString */ {
     function __construct($body, $type='text', $options=array()) {
         $type = strtolower($type);
         if (!in_array($type, static::$types))
-            throw new Exception($type.': Unsupported ThreadBody type');
+            throw new Exception($type.': Type de ThreadBody non supporté');
         $this->body = (string) $body;
         if (strlen($this->body) > 250000) {
             $max_packet = db_get_variable('max_allowed_packet', 'global');
@@ -1358,7 +1358,7 @@ class ThreadBody /* extends SplString */ {
     }
 
     function display($format=false) {
-        throw new Exception('display: Abstract dispplay() method not implemented');
+        throw new Exception('display: Méthode abstraite display() non implémentée');
     }
 
     function getSearchable() {
@@ -1442,7 +1442,7 @@ class HtmlThreadBody extends ThreadBody {
 
     function display($output=false) {
         if ($this->isEmpty())
-            return '(empty)';
+            return '(vide)';
 
         switch ($output) {
         case 'email':

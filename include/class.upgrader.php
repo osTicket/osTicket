@@ -107,7 +107,7 @@ class Upgrader {
         if ($this->getCurrentStream()) {
             $callable = array($this->getCurrentStream(), $what);
             if (!is_callable($callable))
-                throw new Exception('InternalError: Upgrader method not callable: '
+                throw new Exception('Erreur interne : méthode de l\'Upgrader non appelable : '
                     . $what);
             return call_user_func_array($callable, $args);
         }
@@ -215,7 +215,7 @@ class StreamUpgrader extends SetupWizard {
     function onError($error) {
         global $ost, $thisstaff;
 
-        $subject = '['.$this->name.']: Upgrader Error';
+        $subject = '['.$this->name.']: Erreur de l\'Upgrader';
         $ost->logError($subject, $error);
         $this->setError($error);
         $this->upgrader->setState('aborted');
@@ -232,7 +232,7 @@ class StreamUpgrader extends SetupWizard {
         if($email) {
             $email->sendAlert($thisstaff->getEmail(), $subject, $error);
         } else {//no luck - try the system mail.
-            Mailer::sendmail($thisstaff->getEmail(), $subject, $error, sprintf('"osTicket Alerts"<%s>', $thisstaff->getEmail()));
+            Mailer::sendmail($thisstaff->getEmail(), $subject, $error, sprintf('"Alertes osTicket"<%s>', $thisstaff->getEmail()));
         }
 
     }
@@ -318,11 +318,11 @@ class StreamUpgrader extends SetupWizard {
 
     function getNextAction() {
 
-        $action='Upgrade osTicket to '.$this->getVersion();
+        $action='Mettez à jour osTicket vers '.$this->getVersion();
         if($task=$this->getTask()) {
             $action = $task->getDescription() .' ('.$task->getStatus().')';
         } elseif($this->isUpgradable() && ($nextversion = $this->getNextVersion())) {
-            $action = "Upgrade to $nextversion";
+            $action = "Mettez à jour vers $nextversion";
         }
 
         return '['.$this->name.'] '.$action;
@@ -347,7 +347,7 @@ class StreamUpgrader extends SetupWizard {
         if (!isset($this->task)) {
             $class = (include $task_file);
             if (!is_string($class) || !class_exists($class))
-                return $ost->logError("Bogus migration task", "{$this->phash}:{$class}") ;
+                return $ost->logError("Bogus tâche de migration", "{$this->phash}:{$class}") ;
             $this->task = new $class();
             if (isset($_SESSION['ost_upgrader']['task'][$this->phash]))
                 $this->task->wakeup($_SESSION['ost_upgrader']['task'][$this->phash]);
@@ -361,8 +361,8 @@ class StreamUpgrader extends SetupWizard {
             return false; //Nothing to do.
 
         $this->log(
-                sprintf('Upgrader - %s (task pending).', $this->getShash()),
-                sprintf('The %s task reports there is work to do',
+                sprintf('Upgrader - %s (tâche en cours).', $this->getShash()),
+                sprintf('La tâche %s rapporte qu\'il y a du travail à faire',
                     get_class($task))
                 );
         if(!($max_time = ini_get('max_execution_time')))
@@ -405,11 +405,11 @@ class StreamUpgrader extends SetupWizard {
             $shash = substr($phash, 9, 8);
 
             //Log the patch info
-            $logMsg = "Patch $phash applied successfully ";
+            $logMsg = "Le patch $phash a été appliqué avec succès ";
             if(($info = $this->readPatchInfo($patch)) && $info['version'])
                 $logMsg.= ' ('.$info['version'].') ';
 
-            $this->log("Upgrader - $shash applied", $logMsg);
+            $this->log("Upgrader - $shash appliqué", $logMsg);
             $this->signature = $shash; //Update signature to the *new* HEAD
             $this->phash = $phash;
 
@@ -450,12 +450,12 @@ class StreamUpgrader extends SetupWizard {
 
         //We have a cleanup script  ::XXX: Don't abort on error?
         if($this->load_sql_file($file, $this->getTablePrefix(), false, true)) {
-            $this->log("Upgrader - {$this->phash} cleanup",
-                "Applied cleanup script {$file}");
+            $this->log("Upgrader - nettoyage {$this->phash}",
+                "script de nettoyage {$file} appliqué");
             return 0;
         }
 
-        $this->log('Upgrader', sprintf("%s: Unable to process cleanup file",
+        $this->log('Upgrader', sprintf("%s: Impossible de lancer le fichier de nettoyage",
                         $this->phash));
         return 0;
     }

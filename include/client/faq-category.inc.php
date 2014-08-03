@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC') || !$category || !$category->isPublic()) die('Access Denied');
+if(!defined('OSTCLIENTINC') || !$category || !$category->isPublic()) die('Accès refusé');
 ?>
 <h1><strong><?php echo $category->getName() ?></strong></h1>
 <p>
@@ -16,7 +16,7 @@ $sql='SELECT faq.faq_id, question, count(attach.file_id) as attachments '
     .' ORDER BY question';
 if(($res=db_query($sql)) && db_num_rows($res)) {
     echo '
-         <h2>Frequently Asked Questions</h2>
+         <h2>Foire Aux Questions</h2>
          <div id="faq">
             <ol>';
     while($row=db_fetch_array($res)) {
@@ -27,8 +27,8 @@ if(($res=db_query($sql)) && db_num_rows($res)) {
     }
     echo '  </ol>
          </div>
-         <p><a class="back" href="index.php">&laquo; Go Back</a></p>';
+         <p><a class="back" href="index.php">&laquo; Retour en arrière</a></p>';
 }else {
-    echo '<strong>Category does not have any FAQs. <a href="index.php">Back To Index</a></strong>';
+    echo '<strong>Cette catégorie ne dispose pas de FAQ. <a href="index.php">retour à la page Index</a></strong>';
 }
 ?>

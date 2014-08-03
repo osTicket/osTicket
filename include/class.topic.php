@@ -304,17 +304,17 @@ class Topic {
         $vars['topic']=Format::striptags(trim($vars['topic']));
 
         if($id && $id!=$vars['id'])
-            $errors['err']='Internal error. Try again';
+            $errors['err']='Erreur interne. Essayez encore';
 
         if(!$vars['topic'])
-            $errors['topic']='Help topic required';
+            $errors['topic']='Sujet d\'aide requis';
         elseif(strlen($vars['topic'])<5)
-            $errors['topic']='Topic is too short. 5 chars minimum';
+            $errors['topic']='Le sujet est trop court. 5 charactèress minimum';
         elseif(($tid=self::getIdByName($vars['topic'], $vars['topic_pid'])) && $tid!=$id)
-            $errors['topic']='Topic already exists';
+            $errors['topic']='Le sujet existe déjà';
 
         if (!is_numeric($vars['dept_id']))
-            $errors['dept_id']='You must select a department';
+            $errors['dept_id']='Vous devez sélectionner un département';
 
         if($errors) return false;
 
@@ -347,7 +347,7 @@ class Topic {
         if ($id) {
             $sql='UPDATE '.TOPIC_TABLE.' SET '.$sql.' WHERE topic_id='.db_input($id);
             if (!($rv = db_query($sql)))
-                $errors['err']='Unable to update topic. Internal error occurred';
+                $errors['err']='Impossible de mettre le sujet à jour. Une erreur interne est apparue';
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
@@ -363,7 +363,7 @@ class Topic {
             if (db_query($sql) && ($id = db_insert_id()))
                 $rv = $id;
             else
-                $errors['err']='Unable to create the topic. Internal error';
+                $errors['err']='Impossible de créer le sujet. Erreur interne';
         }
         if (!$cfg || $cfg->getTopicSortMode() == 'a') {
             static::updateSortOrder();
@@ -391,4 +391,4 @@ class Topic {
 }
 
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Help Topic', array('topicId' => 'Topic ID'), 100);
+Filter::addSupportedMatches('Sujet d\'aide', array('topicId' => 'Identifiant du sujet'), 100);
