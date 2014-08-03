@@ -198,7 +198,7 @@ class User extends UserModel {
         if (($field=$form->getField('email'))
                 && $field->getClean()
                 && User::lookup(array('emails__address'=>$field->getClean()))) {
-            $field->addError('Email is assigned to another user');
+            $field->addError('L\'adresse de courriel est assignée à un autre utilisateur');
             $valid = false;
         }
 
@@ -351,7 +351,7 @@ class User extends UserModel {
 
     static function importCsv($stream, $defaults=array()) {
         //Read the header (if any)
-        $headers = array('name' => 'Full Name', 'email' => 'Email Address');
+        $headers = array('name' => 'Nom complet', 'email' => 'Adresse de courriel');
         $uform = UserForm::getUserForm();
         $all_fields = $uform->getFields();
         $named_fields = array();
@@ -361,7 +361,7 @@ class User extends UserModel {
                 $named_fields[] = $f;
 
         if (!($data = fgetcsv($stream, 1000, ",")))
-            return 'Whoops. Perhaps you meant to send some CSV records';
+            return 'Whoops. Vous vouliez peut-être envoyer des enregistrement CSV';
 
         if (Validator::is_email($data[1])) {
             $has_header = false; // We don't have an header!
@@ -375,7 +375,7 @@ class User extends UserModel {
                             mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
                         $found = true;
                         if (!$f->get('name'))
-                            return $h.': Field must have `variable` set to be imported';
+                            return $h.': Le champ doit avoir `variable` configurée pour être importé';
                         $headers[$f->get('name')] = $f->get('label');
                         break;
                     }
@@ -391,7 +391,7 @@ class User extends UserModel {
                         break;
                     }
                     else {
-                        return $h.': Unable to map header to a user field';
+                        return $h.' : Impossible de mapper l\'en-tête à un champ utilisateur';
                     }
                 }
             }
@@ -399,7 +399,7 @@ class User extends UserModel {
 
         // 'name' and 'email' MUST be in the headers
         if (!isset($headers['name']) || !isset($headers['email']))
-            return 'CSV file must include `name` and `email` columns';
+            return 'Le fichier CSV doit inclure les colonnes `name` et `email`';
 
         if (!$has_header)
             fseek($stream, 0);
@@ -426,14 +426,14 @@ class User extends UserModel {
                 // Skip empty rows
                 continue;
             elseif (count($data) != count($headers))
-                return 'Bad data. Expected: '.implode(', ', $headers);
+                return 'Mauvaises données. Attendu : '.implode(', ', $headers);
             // Validate according to field configuration
             $i = 0;
             foreach ($headers as $h => $label) {
                 $f = $fields[$h];
                 $T = $f->parse($data[$i]);
                 if ($f->validateEntry($T) && $f->errors())
-                    return $label.': Invalid data: '.implode(', ', $f->errors());
+                    return $label.': Données invalides : '.implode(', ', $f->errors());
                 // Convert to database format
                 $data[$i] = $f->to_database($T);
                 $i++;
@@ -448,7 +448,7 @@ class User extends UserModel {
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
             if (!static::fromVars($vars))
-                return 'Unable to import user: '.print_r($vars, true);
+                return 'Impossible d\'importer l\'utilisateur : '.print_r($vars, true);
         }
 
         return count($users);
@@ -464,7 +464,7 @@ class User extends UserModel {
             rewind($stream);
         }
         else {
-            return 'Unable to parse submitted users';
+            return 'Impossible de parser les utilisateurs soumis';
         }
 
         return User::importCsv($stream, $extra);
@@ -485,7 +485,7 @@ class User extends UserModel {
                         && ($u=User::lookup(array('emails__address'=>$f->getClean())))
                         && $u->id != $this->getId()) {
                 $valid = false;
-                $f->addError('Email is assigned to another user');
+                $f->addError('L\'adresse de courriel est assignée à un autre utilisateur');
             }
         }
 
@@ -860,7 +860,7 @@ class UserAccount extends UserAccountModel {
         $content = Page::lookup(Page::getIdByType($template));
 
         if (!$email ||  !$content)
-            return new Error($template.': Unable to retrieve template');
+            return new Error($template.': Impossible de retrouver le modèle');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
@@ -903,23 +903,23 @@ class UserAccount extends UserAccountModel {
 
 
         if (!$thisstaff) {
-            $errors['err'] = 'Access Denied';
+            $errors['err'] = 'Accès refusé';
             return false;
         }
 
         // TODO: Make sure the username is unique
 
         if (!$vars['timezone_id'])
-            $errors['timezone_id'] = 'Time zone required';
+            $errors['timezone_id'] = 'Timezone requise';
 
         // Changing password?
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
-                $errors['passwd1'] = 'New password required';
+                $errors['passwd1'] = 'Nouveau mot de passe requis';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = 'Must be at least 6 characters';
+                $errors['passwd1'] = 'Doit être long d\'au moins 6 caractères';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = 'Password(s) do not match';
+                $errors['passwd2'] = 'Le(s) mot(s) de passe ne correspond(ent) pas';
         }
 
         if ($errors) return false;
@@ -980,11 +980,11 @@ class UserAccount extends UserAccountModel {
         if ((!$vars['backend'] || $vars['backend'] != 'client')
                 && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
-                $errors['passwd1'] = 'Temp. password required';
+                $errors['passwd1'] = 'Mot de passe temporaire requis';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = 'Must be at least 6 characters';
+                $errors['passwd1'] = 'Doit être long d\'au moins 6 caractères';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = 'Password(s) do not match';
+                $errors['passwd2'] = 'Le(s) mot(s) de passe ne correspond(ent) pas';
         }
 
         if ($errors) return false;
@@ -1051,14 +1051,14 @@ class UserAccountStatus {
     function __toString() {
 
         if ($this->isLocked())
-            return 'Locked (Administrative)';
+            return 'Bloqué (administrativement)';
 
         if (!$this->isConfirmed())
-            return 'Locked (Pending Activation)';
+            return 'Bloqué (activation en attente)';
 
         // ... Other flags here (password reset, etc).
 
-        return 'Active (Registered)';
+        return 'Actif (enregistré)';
     }
 }
 
