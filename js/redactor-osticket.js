@@ -31,11 +31,11 @@ RedactorPlugins.draft = {
             .css({'position':'absolute','top':'3em','right':'0.5em'})
             .hide()
             .append($('<span>')
-                .text('Draft Saved'));
+                .text('Brouillon sauvegardé'));
         // Float the [Draft Saved] box with the toolbar
         this.$toolbar.append(this.$draft_saved);
         if (this.opts.draftDelete) {
-            var trash = this.buttonAdd('deleteDraft', 'Delete Draft', this.deleteDraft);
+            var trash = this.buttonAdd('deleteDraft', 'Supprimer le brouillon', this.deleteDraft);
             this.buttonAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
@@ -299,7 +299,7 @@ $(document).ajaxError(function(event, request, settings) {
             }
         });
         $('#overlay').show();
-        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
+        alert('Impossible de sauvegarder le brouillon. Rafraîchissez la page pour restaurer et continuer votre brouillon.');
         $('#overlay').hide();
     }
 });
