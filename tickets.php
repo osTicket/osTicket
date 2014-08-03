@@ -15,7 +15,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('secure.inc.php');
-if(!is_object($thisclient) || !$thisclient->isValid()) die('Access denied'); //Double check again.
+if(!is_object($thisclient) || !$thisclient->isValid()) die('Accès refusé'); //Double check again.
 
 if ($thisclient->isGuest())
     $_REQUEST['id'] = $thisclient->getTicketId();
@@ -25,9 +25,9 @@ require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
 if($_REQUEST['id']) {
     if (!($ticket = Ticket::lookup($_REQUEST['id']))) {
-        $errors['err']='Unknown or invalid ticket ID.';
+        $errors['err']='Identifiant de ticket inconnu ou invalide.';
     } elseif(!$ticket->checkUserAccess($thisclient)) {
-        $errors['err']='Unknown or invalid ticket.'; //Using generic message on purpose!
+        $errors['err']='Ticket inconnu ou invalide.'; //Using generic message on purpose!
         $ticket=null;
     }
 }
@@ -42,9 +42,9 @@ if($_POST && is_object($ticket) && $ticket->getId()):
     case 'edit':
         if(!$ticket->checkUserAccess($thisclient) //double check perm again!
                 || $thisclient->getId() != $ticket->getUserId())
-            $errors['err']='Access Denied. Possibly invalid ticket ID';
+            $errors['err']='Accès refusé. Il est possible que l\'identifiant du ticket soit invalide';
         elseif (!$cfg || !$cfg->allowClientUpdates())
-            $errors['err']='Access Denied. Client updates are currently disabled';
+            $errors['err']='Accès refusé. Les mises à jour par le client sont actuellement désactivées';
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
             foreach ($forms as $form) {
@@ -56,17 +56,17 @@ if($_POST && is_object($ticket) && $ticket->getId()):
         if (!$errors) {
             foreach ($forms as $f) $f->save();
             $_REQUEST['a'] = null; //Clear edit action - going back to view.
-            $ticket->logNote('Ticket details updated', sprintf(
-                'Ticket details were updated by client %s &lt;%s&gt;',
+            $ticket->logNote('Détails du ticket mis à jour', sprintf(
+                'Les détails du ticket ont été mis à jour par le client %s &lt;%s&gt;',
                 $thisclient->getName(), $thisclient->getEmail()));
         }
         break;
     case 'reply':
         if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
-            $errors['err']='Access Denied. Possibly invalid ticket ID';
+            $errors['err']='Accès refusé. Il est possible que l\'identifiant du ticket soit invalide';
 
         if(!$_POST['message'])
-            $errors['message']='Message required';
+            $errors['message']='Message requis';
 
         if(!$errors) {
             //Everything checked out...do the magic.
@@ -80,20 +80,20 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                 $vars['draft_id'] = $_POST['draft_id'];
 
             if(($msgid=$ticket->postMessage($vars, 'Web'))) {
-                $msg='Message Posted Successfully';
+                $msg='Message envoyé avec succès';
                 // Cleanup drafts for the ticket. If not closed, only clean
                 // for this staff. Else clean all drafts for the ticket.
                 Draft::deleteForNamespace('ticket.client.' . $ticket->getId());
             } else {
-                $errors['err']='Unable to post the message. Try again';
+                $errors['err']='Impossible d\'envoyer le message. Réessayez';
             }
 
         } elseif(!$errors['err']) {
-            $errors['err']='Error(s) occurred. Please try again';
+            $errors['err']='Des erreurs sont apparues. Veuillez réessayer s\'il-vous-plaît';
         }
         break;
     default:
-        $errors['err']='Unknown action';
+        $errors['err']='Action inconnue';
     }
     $ticket->reload();
 endif;
