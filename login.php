@@ -17,7 +17,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once('client.inc.php');
-if(!defined('INCLUDE_DIR')) die('Fatal Error');
+if(!defined('INCLUDE_DIR')) die('Erreur Fatale');
 define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
 define('OSTCLIENTINC',TRUE); //make includes happy
 
@@ -33,7 +33,7 @@ else
 $suggest_pwreset = false;
 if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
-        $errors['err'] = 'Valid username or email address is required';
+        $errors['err'] = 'Identifiant ou adresse de couriel valides requis';
     elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
             $_POST['lpasswd'], $errors))) {
         if ($user instanceof ClientCreateRequest) {
@@ -47,8 +47,8 @@ if ($_POST && isset($_POST['luser'])) {
                 $user_form = UserForm::getUserForm()->getForm($user->getInfo());
             }
             else {
-                $errors['err'] = 'Access Denied. Contact your help desk
-                    administrator to have an account registered for you';
+                $errors['err'] = 'Accès refusé. Veuillez contacter l\'administrateur du centre de support
+                    pour avoir un compte.';
                 // fall through to show login page again
             }
         }
@@ -57,13 +57,13 @@ if ($_POST && isset($_POST['luser'])) {
                 ?: 'tickets.php');
         }
     } elseif(!$errors['err']) {
-        $errors['err'] = 'Invalid username or password - try again!';
+        $errors['err'] = 'Identifiant ou mot de passe invalide - essayez encore !';
     }
     $suggest_pwreset = true;
 }
 elseif ($_POST && isset($_POST['lticket'])) {
     if (!Validator::is_email($_POST['lemail']))
-        $errors['err'] = 'Valid email address and ticket number required';
+        $errors['err'] = 'Adresse de courriel et numéro de ticket valides requis';
     elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
             $_POST['lticket'], $errors))) {
 
@@ -75,11 +75,11 @@ elseif ($_POST && isset($_POST['lticket'])) {
         // We're using authentication backend so we can guard aganist brute
         // force attempts (which doesn't buy much since the link is emailed)
         $user->sendAccessLink();
-        $msg = sprintf("%s - access link sent to your email!",
+        $msg = sprintf("%s - lien d'accès envoyé à votre adresse de courriel !",
             Format::htmlchars($user->getName()->getFirst()));
         $_POST = null;
     } elseif(!$errors['err']) {
-        $errors['err'] = 'Invalid email or ticket number - try again!';
+        $errors['err'] = 'Adresse de courriel ou numéro de ticket invalide - Essayez encore !';
     }
 }
 elseif (isset($_GET['do'])) {
@@ -106,8 +106,8 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
             $inc = 'register.inc.php';
         }
         else {
-            $errors['err'] = 'Access Denied. Contact your help desk
-                administrator to have an account registered for you';
+            $errors['err'] = 'Accès refusé. Veuillez contacter l\'administrateur du centre de support
+                pour avoir un compte.';
             // fall through to show login page again
         }
     }
