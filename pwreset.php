@@ -10,24 +10,24 @@ require_once(INCLUDE_DIR.'class.client.php');
 $inc = 'pwreset.request.php';
 if($_POST) {
     if (!$ost->checkCSRFToken()) {
-        Http::response(400, 'Valid CSRF Token Required');
+        Http::response(400, 'Jeton CSRF valide requis');
         exit;
     }
     switch ($_POST['do']) {
         case 'sendmail':
             if (($acct=ClientAccount::lookupByUsername($_POST['userid']))) {
                 if (!$acct->isPasswdResetEnabled()) {
-                    $banner = 'Password reset is not enabled for your account. '
-                        .'Contact your administrator';
+                    $banner = 'La réinitialisation du mot de passe n\'est pas activée sur votre compte. '
+                        .'Veuillez contacter votre administrateur';
                 }
                 elseif ($acct->sendResetEmail()) {
                     $inc = 'pwreset.sent.php';
                 }
                 else
-                    $banner = 'Unable to send reset email. Internal error';
+                    $banner = 'Impossible de réinitialiser votre adresse de courriel. Erreur interne';
             }
             else
-                $banner = 'Unable to verify username '
+                $banner = 'Impossible de vérifier l\'identifiant '
                     .Format::htmlchars($_POST['userid']);
             break;
         case 'reset':
@@ -43,7 +43,7 @@ if($_POST) {
     }
 }
 elseif ($_GET['token']) {
-    $banner = 'Re-enter your username or email';
+    $banner = 'Entrez de nouveau votre identifiant ou votre adresse de courriel';
     $inc = 'pwreset.login.php';
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
@@ -71,10 +71,10 @@ elseif ($_GET['token']) {
         Http::redirect('index.php');
 }
 elseif ($cfg->allowPasswordReset()) {
-    $banner = 'Enter your username or email address below';
+    $banner = 'Entrez votre identifiant ou votre adresse de courriel ci-dessous';
 }
 else {
-    $_SESSION['_staff']['auth']['msg']='Password resets are disabled';
+    $_SESSION['_staff']['auth']['msg']='La réinitialisation des mots de passe est désactivée';
     return header('Location: index.php');
 }
 
