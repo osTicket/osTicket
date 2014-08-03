@@ -16,11 +16,11 @@
 if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__))) die('kwaheri rafiki!');
 
 $thisdir=str_replace('\\', '/', dirname(__FILE__)).'/';
-if(!file_exists($thisdir.'main.inc.php')) die('Fatal Error.');
+if(!file_exists($thisdir.'main.inc.php')) die('Erreur Fatale.');
 
 require_once($thisdir.'main.inc.php');
 
-if(!defined('INCLUDE_DIR')) die('Fatal error');
+if(!defined('INCLUDE_DIR')) die('Erreur fatale');
 
 /*Some more include defines specific to client only */
 define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
@@ -58,7 +58,7 @@ if($thisclient && $thisclient->getId() && $thisclient->isValid()){
 if ($_POST  && !$ost->checkCSRFToken()) {
     Http::redirect('index.php');
     //just incase redirect fails
-    die('Action denied (400)!');
+    die('Action refusée (400)!');
 }
 
 //Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME]
@@ -73,7 +73,7 @@ $exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.
 
 if (!$exempt && $thisclient && ($acct = $thisclient->getAccount())
         && $acct->isPasswdResetForced()) {
-    $warn = 'Password change required to continue';
+    $warn = 'Changement du mot de passe requis pour continuer';
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
     exit;
 }
