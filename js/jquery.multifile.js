@@ -51,18 +51,18 @@
                     fObj.data('files', 0);
 
                 if(fObj.data('files')>=settings.max_uploads || (fObj.data('files')+file.count)>settings.max_uploads) {
-                    alert('You have reached the maximum number of files ('+ settings.max_uploads+') allowed per upload');
+                    alert('Vous avez dépassé le nombre de fichier maximum ('+ settings.max_uploads+') autorisé par chargement');
                 } else if(!$.fn.multifile.checkFileTypes(file, settings.allowedFileTypes)) {
-                    var msg = 'Selected file type is NOT allowed';
+                    var msg = 'Le format de fichier n''est PAS autorisé';
                     if(file.count>1)
-                        msg = 'File type of one or more of the selected files is NOT allowed';
+                        msg = 'Le format de l''un des fichiers sélectionné ou plus n''est PAS autorisé';
 
                     alert('Error: '+msg);
                     $this.replaceWith(new_input);
                 } else if(!$.fn.multifile.checkFileSize(file, settings.max_file_size)) {
-                    var msg = 'Selected file exceeds allowed size';
+                    var msg = 'Le fichier sélectionné dépasse la taille limite autorisée';
                     if(file.count>1)
-                        msg = 'File size of one or more of the selected files exceeds allowed size';
+                        msg = 'La taille d''un des fichiers sélectionné ou plus dépasse la limite autorisée';
 
                     alert('Error: '+msg);
                     $this.replaceWith(new_input);
@@ -87,7 +87,7 @@
 
                     event.preventDefault();
            
-                    if(confirm('Are you sure you want to remove '+file.name+'?')) {
+                    if(confirm('Êtes vous sur de vouloir supprimer '+file.name+'?')) {
                         var fObj = $(this).closest('form');
 
                         fObj.data('files', fObj.data('files')-file.count);
