@@ -49,7 +49,7 @@ class MockDbSource {
     function query($sql) {
         $hash = md5($sql);
         if (!isset($this->data[$sql]))
-            print ($hash.": No data found:\n".$sql."\n");
+            print ($hash." : Aucune donnée trouvée:\n".$sql."\n");
 
         return new MockDbCursor($this->data[$hash] ?: array());
     }
