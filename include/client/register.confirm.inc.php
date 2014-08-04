@@ -6,12 +6,11 @@
 echo Format::display($body); ?>
 </p>
 <?php } else { ?>
-<h1>Account Registration</h1>
+<h1>S'enregistrer</h1>
 <p>
-<strong>Thanks for registering for an account.</strong>
+<strong>Merci de vous être enregistré(e).</strong>
 </p>
 <p>
-We've just sent you an email to the address you entered. Please follow the
-link in the email to confirm your account and gain access to your tickets.
+Nous venons de vous envoyer un email à l'adresse que vous avez saisie. Veuillez cliquer sur le lien qu'il contient pour confirmer votre enregistrement et avoir accès à vos tickets.
 </p>
 <?php } ?>
