@@ -6,13 +6,13 @@
 echo Format::display($body); ?>
 </p>
 <?php } else { ?>
-<h1>Account Registration</h1>
+<h1>S'enregistrer</h1>
 <p>
-<strong>Thanks for registering for an account.</strong>
+<strong>Merci de vous être enregistré(e).</strong>
 </p>
 <p>
-You've confirmed your email address and successfully activated your account.
-You may proceed to check on previously opened tickets or open a new ticket.
+Vous avez confirmé votre adresse électronique et activé votre compte.
+Vous pouvez maintenant vérifier vos tickets ouverts auparavant ou bien ouvrir un nouveau ticket.
 </p>
-<p><em>Your friendly support center</em></p>
+<p><em>Votre équipe d'assistance</em></p>
 <?php } ?>
