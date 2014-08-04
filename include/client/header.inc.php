@@ -82,7 +82,7 @@ if (($lang = Internationalization::getCurrentLanguage())
             </p>
             <p>
 <?php
-if (($all_langs = Internationalization::availableLanguages())
+if (($all_langs = Internationalization::getConfiguredSystemLanguages())
     && (count($all_langs) > 1)
 ) {
     foreach ($all_langs as $code=>$info) {

@@ -905,17 +905,11 @@ class CustomDataTranslation extends VerySimpleModel {
     static function translate($msgid, $locale=false, $cache=true, $type='phrase') {
         global $thisstaff, $thisclient;
 
-        if (!$locale
-                && ($user = $thisstaff ?: $thisclient)
-                && method_exists($user, 'getLanguage'))
-            $locale = $user->getLanguage();
-
         // Support sending a User as the locale
-        elseif (is_object($locale) && method_exists($locale, 'getLanguage'))
+        if (is_object($locale) && method_exists($locale, 'getLanguage'))
             $locale = $locale->getLanguage();
-
-        else
-            $locale = Internationalization::getDefaultLanguage();
+        elseif (!$locale)
+            $locale = Internationalization::getCurrentLanguage();
 
         // Perhaps a slight optimization would be to check if the selected
         // locale is also the system primary. If so, short-circuit

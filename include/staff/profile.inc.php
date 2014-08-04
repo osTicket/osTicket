@@ -106,7 +106,7 @@ $info['id']=$staff->getId();
             </td>
             <td>
         <?php
-        $langs = Internationalization::availableLanguages(); ?>
+        $langs = Internationalization::getConfiguredSystemLanguages(); ?>
                 <select name="lang">
                     <option value="">&mdash; <?php echo __('Use Browser Preference'); ?> &mdash;</option>
 <?php foreach($langs as $l) {
