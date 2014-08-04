@@ -1,11 +1,9 @@
 <?php
 
 ?>
-<h1>Manage Your Profile Information</h1>
+<h1>Gérer les informations de votre profil</h1>
 <p>
-Use the forms below to update the information we have on file for your
-account
-</p>
+Utilisez les formulaires ci-desssous pour mettre à jour les informations dont nous disposons pour votre compte</p>
 <form action="profile.php" method="post">
   <?php csrf_token(); ?>
 <table width="800" class="padded">
@@ -19,14 +17,14 @@ if ($acct = $thisclient->getAccount()) {
 ?>
 <tr>
     <td colspan="2">
-        <div><hr><h3>Preferences</h3>
+        <div><hr><h3>Préférences</h3>
         </div>
     </td>
 </tr>
-    <td>Time Zone:</td>
+    <td>Fuseau horaire&nbsp;:</td>
     <td>
         <select name="timezone_id" id="timezone_id">
-            <option value="0">&mdash; Select Time Zone &mdash;</option>
+            <option value="0">&mdash; Précisez votre fuseau horaire &mdash;</option>
             <?php
             $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
             if(($res=db_query($sql)) && db_num_rows($res)){
@@ -42,24 +40,24 @@ if ($acct = $thisclient->getAccount()) {
 </tr>
 <tr>
     <td width="180">
-       Daylight Saving:
+       Heure d'été/hiver&nbsp;:
     </td>
     <td>
         <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-        Observe daylight saving
-        <em>(Current Time: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
+        Tenir compte de l'heure d'été/d'hiver
+        <em>(Date et heure&nbsp;: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
     </td>
 </tr>
 <?php if ($acct->isPasswdResetEnabled()) { ?>
 <tr>
     <td colspan=2">
-        <div><hr><h3>Access Credentials</h3></div>
+        <div><hr><h3>Informations d'identification</h3></div>
     </td>
 </tr>
 <?php if (!isset($_SESSION['_client']['reset-token'])) { ?>
 <tr>
     <td width="180">
-        Current Password:
+        Mot de passe actuel&nbsp;:
     </td>
     <td>
         <input type="password" size="18" name="cpasswd" value="<?php echo $info['cpasswd']; ?>">
@@ -69,7 +67,7 @@ if ($acct = $thisclient->getAccount()) {
 <?php } ?>
 <tr>
     <td width="180">
-        New Password:
+        Nouveau mot de passe&nbsp;:
     </td>
     <td>
         <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
@@ -78,7 +76,7 @@ if ($acct = $thisclient->getAccount()) {
 </tr>
 <tr>
     <td width="180">
-        Confirm New Password:
+        Confirmer le nouveau mot de passe&nbsp;:
     </td>
     <td>
         <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
@@ -90,9 +88,9 @@ if ($acct = $thisclient->getAccount()) {
 </table>
 <hr>
 <p style="text-align: center;">
-    <input type="submit" value="Update"/>
-    <input type="reset" value="Reset"/>
-    <input type="button" value="Cancel" onclick="javascript:
+    <input type="submit" value="Mettre à jour"/>
+    <input type="reset" value="Réinitialiser"/>
+    <input type="button" value="Annuler" onclick="javascript:
         window.location.href='index.php';"/>
 </p>
 </form>
