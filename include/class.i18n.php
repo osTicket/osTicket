@@ -245,6 +245,26 @@ class Internationalization {
         return $cache = $installed;
     }
 
+    static function isLanguageInstalled($code) {
+        $langs = self::availableLanguages();
+        return isset($langs[strtolower($code)]);
+    }
+
+    static function getConfiguredSystemLanguages() {
+        global $cfg;
+
+        $langs = array();
+        // Honor sorting preference of ::availableLanguages()
+        foreach (self::availableLanguages() as $k=>$l) {
+            if ($cfg->getPrimaryLanguage() == $l['code']
+                || in_array($l['code'], $cfg->getSecondaryLanguages())
+            ) {
+                $langs[$k] = $l;
+            }
+        }
+        return $langs;
+    }
+
     // TODO: Move this to the REQUEST class or some middleware when that
     // exists.
     // Algorithm borrowed from Drupal 7 (locale.inc)

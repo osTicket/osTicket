@@ -174,6 +174,71 @@ $gmtime = Misc::gmtime();
                 <input type="checkbox" name="enable_daylight_saving" <?php echo $config['enable_daylight_saving'] ? 'checked="checked"': ''; ?>><?php echo __('Observe daylight savings');?>
             </td>
         </tr>
+
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('System Languages'); ?></b>&nbsp;
+                <i class="help-tip icon-question-sign" href="#languages"></i>
+                </em>
+            </th>
+        </tr>
+        <tr><td><?php echo __('Primary Language'); ?>:</td>
+            <td>
+        <?php
+        $langs = Internationalization::availableLanguages(); ?>
+                <select name="system_language">
+                    <option value="">&mdash; <?php echo __('Select a Language'); ?> &mdash;</option>
+<?php foreach($langs as $l) {
+    $selected = ($config['system_language'] == $l['code']) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                        ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
+<?php } ?>
+                </select>
+                <span class="error">&nbsp;<?php echo $errors['system_language']; ?></span>
+                <i class="help-tip icon-question-sign" href="#primary_language"></i>
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top;padding-top:4px;"><?php echo __('Secondary Languages'); ?>:</td>
+            <td><table><?php
+        foreach ($cfg->getSecondaryLanguages() as $lang) { ?>
+            <tr><td style="border:none;">
+            <?php echo Internationalization::getLanguageDescription($lang); ?>
+            <input type="hidden" name="secondary_langs[]" value="<?php echo $lang; ?>"/>
+            </td><td style="border:none;">
+            &nbsp;
+            <a href="#<?php echo $lang; ?>" onclick="javascript:
+                if (confirm(__('You sure?'))) {
+                    $(this).closest('form').find('input[name=\'secondary_langs[]\'][value='
+                        + $(this).attr('href').substr(1) + ']').val('');
+                    $(this).closest('tr').remove();
+                }
+                return false;
+                "><i class="icon-trash"></i></a>
+            &nbsp;
+            &nbsp;
+            <a href="#" onclick="javascript:
+                return false;
+                "><?php echo __('manage all phrases'); ?></a>
+            </td></tr>
+<?php   } ?>
+            </table>
+            <i class="icon-plus-sign"></i>&nbsp;
+            <select name="add_secondary_language">
+                <option value="">&mdash; <?php echo __('Add a Language'); ?> &mdash;</option>
+<?php foreach($langs as $l) {
+    $selected = ($config['add_secondary_language'] == $l['code']) ? 'selected="selected"' : '';
+    if (!$selected && $l['code'] == $cfg->getPrimaryLanguage())
+        continue;
+    if (!$selected && in_array($l['code'], $cfg->getSecondaryLanguages()))
+        continue; ?>
+                <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                    ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
+<?php } ?>
+            </select>
+            <span class="error">&nbsp;<?php echo $errors['add_secondary_langyage']; ?></span>
+            <i class="help-tip icon-question-sign" href="#secondary_language"></i>
+        </td></tr>
     </tbody>
 </table>
 <p style="padding-left:250px;">

@@ -802,7 +802,12 @@ class OsticketConfig extends Config {
     }
 
     function getSecondaryLanguages() {
-        return array('de', 'ja', 'zh_CN');
+        static $langs = null;
+        if (!isset($langs)) {
+            $langs = $this->get('secondary_langs');
+            $langs = (is_string($langs)) ? explode(',', $langs) : array();
+        }
+        return $langs;
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
@@ -867,9 +872,18 @@ class OsticketConfig extends Config {
         $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Datetime format is required'));
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Day, Datetime format is required'));
         $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Timezone is required'));
+        $f['system_language']=array('type'=>'string',   'required'=>1, 'error'=>__('A primary system language is required'));
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
+
+        // Manage secondard languages
+        $vars['secondary_langs'][] = $vars['add_secondary_language'];
+        foreach ($vars['secondary_langs'] as $i=>$lang) {
+            if (!$lang || !Internationalization::isLanguageInstalled($lang))
+                unset($vars['secondary_langs'][$i]);
+        }
+        $secondary_langs = implode(',', $vars['secondary_langs']);
 
         return $this->updateAll(array(
             'isonline'=>$vars['isonline'],
@@ -886,6 +900,8 @@ class OsticketConfig extends Config {
             'daydatetime_format'=>$vars['daydatetime_format'],
             'default_timezone_id'=>$vars['default_timezone_id'],
             'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+            'system_language'=>$vars['system_language'],
+            'secondary_langs'=>$secondary_langs,
         ));
     }
 
