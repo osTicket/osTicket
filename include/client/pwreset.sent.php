@@ -1,13 +1,10 @@
-<h1>Forgot My Password</h1>
+<h1>J'ai oublié mon mot de passe</h1>
 <p>
-Enter your username or email address in the form below and press the
-<strong>Send Email</strong> button to have a password reset link sent to
-your email account on file.
+Saisissez votre nom d'utilisateur ou votre adresse électronique dans les champs ci-dessous et cliquez sur
+le bouton <strong>Envoyer par mail</strong> pour recevoir à votre adresse un lien de réinitialisation de votre mot de passe.
 
 <form action="pwreset.php" method="post" id="clientLogin">
     <div style="width:50%;display:inline-block">
-    We have sent you a reset email to the email address you have on file for
-    your account. If you do not receive the email or cannot reset your
-    password, please ...
+    Nous vous avons envoyé un mail avec un lien de réinitialisation pour votre compte. Si vous n'avez pas reçu ce mail ou ne parvenez pas à réinitialiser votre mot de passe, veuillez…
     </div>
 </form>
