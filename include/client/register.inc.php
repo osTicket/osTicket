@@ -16,10 +16,9 @@ if (isset($user) && $user instanceof ClientCreateRequest) {
 $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<h1>Account Registration</h1>
+<h1>S'enregistrer</h1>
 <p>
-Use the forms below to create or update the information we have on file for
-your account
+Utilisez les champs ci-dessous pour créer ou mettre à jour les informations dont nous disposons pour votre compte
 </p>
 <form action="account.php" method="post">
   <?php csrf_token(); ?>
@@ -33,11 +32,11 @@ your account
 ?>
 <tr>
     <td colspan="2">
-        <div><hr><h3>Preferences</h3>
+        <div><hr><h3>Préférences</h3>
         </div>
     </td>
 </tr>
-    <td>Time Zone:</td>
+    <td>Fuseau horaire&nbsp;:</td>
     <td>
         <select name="timezone_id" id="timezone_id">
             <?php
@@ -55,23 +54,23 @@ your account
 </tr>
 <tr>
     <td width="180">
-       Daylight Saving:
+       Heure d'hiver/d'été:
     </td>
     <td>
         <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-        Observe daylight saving
-        <em>(Current Time: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
+        Tenir compte de l'heure d'hiver/d'été
+        <em>(Date et heure&nbsp;: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
     </td>
 </tr>
 <tr>
     <td colspan=2">
-        <div><hr><h3>Access Credentials</h3></div>
+        <div><hr><h3>Informations d'identification</h3></div>
     </td>
 </tr>
 <?php if ($info['backend']) { ?>
 <tr>
     <td width="180">
-        Login With:
+        Connexion&nbsp;:
     </td>
     <td>
         <input type="hidden" name="backend" value="<?php echo $info['backend']; ?>"/>
@@ -87,7 +86,7 @@ your account
 <?php } else { ?>
 <tr>
     <td width="180">
-        Create a Password:
+        Créer un mot de passe&nbsp;:
     </td>
     <td>
         <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
@@ -96,7 +95,7 @@ your account
 </tr>
 <tr>
     <td width="180">
-        Confirm New Password:
+        Confirmer le nouveau mot de passe&nbsp;:
     </td>
     <td>
         <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
@@ -108,8 +107,8 @@ your account
 </table>
 <hr>
 <p style="text-align: center;">
-    <input type="submit" value="Register"/>
-    <input type="button" value="Cancel" onclick="javascript:
+    <input type="submit" value="S'enregistrer"/>
+    <input type="button" value="Annuler" onclick="javascript:
         window.location.href='index.php';"/>
 </p>
 </form>
