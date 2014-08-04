@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC')) die('Access Denied!');
+if(!defined('OSTCLIENTINC')) die('Accès refusé!');
 $info=array();
 if($thisclient && $thisclient->isValid()) {
     $info=array('name'=>$thisclient->getName(),
@@ -22,22 +22,22 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 }
 
 ?>
-<h1>Open a New Ticket</h1>
-<p>Please fill in the form below to open a new ticket.</p>
+<h1>Ouvrir un nouveau ticket</h1>
+<p>Veuillez remplir le formulaire ci-dessous pour ouvrir un nouveau ticket.</p>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
   <input type="hidden" name="a" value="open">
   <table width="800" cellpadding="1" cellspacing="0" border="0">
     <tbody>
     <tr>
-        <td class="required">Help Topic:</td>
+        <td class="required">Article d'aide&nbsp;:</td>
         <td>
             <select id="topicId" name="topicId" onchange="javascript:
                     var data = $(':input[name]', '#dynamic-form').serialize();
                     $('#dynamic-form').load(
                         'ajax.php/form/help-topic/' + this.value, data);
                     ">
-                <option value="" selected="selected">&mdash; Select a Help Topic &mdash;</option>
+                <option value="" selected="selected">&mdash; Choisissez un article d'aide &mdash;</option>
                 <?php
                 if($topics=Topic::getPublicHelpTopics()) {
                     foreach($topics as $id =>$name) {
@@ -45,7 +45,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                                 $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
                     }
                 } else { ?>
-                    <option value="0" >General Inquiry</option>
+                    <option value="0" >Requête générale</option>
                 <?php
                 } ?>
             </select>
@@ -60,8 +60,8 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
-        <tr><td>Email:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td>Client:</td><td><?php echo $thisclient->getName(); ?></td></tr>
+        <tr><td>Adresse électronique&nbsp;:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
+        <tr><td>Client&nbsp;:</td><td><?php echo $thisclient->getName(); ?></td></tr>
         <?php } ?>
     </tbody>
     <tbody id="dynamic-form">
@@ -78,7 +78,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     <?php
     if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
         if($_POST && $errors && !$errors['captcha'])
-            $errors['captcha']='Please re-enter the text again';
+            $errors['captcha']='Veuillez saisir le texte à nouveau';
         ?>
     <tr class="captchaRow">
         <td class="required">CAPTCHA Text:</td>
@@ -86,7 +86,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             <span class="captcha"><img src="captcha.php" border="0" align="left"></span>
             &nbsp;&nbsp;
             <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
-            <em>Enter the text shown on the image.</em>
+            <em>Saisissez le texte qui apparaît sur l'image.</em>
             <font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font>
         </td>
     </tr>
@@ -97,9 +97,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
   </table>
 <hr/>
   <p style="text-align:center;">
-        <input type="submit" value="Create Ticket">
-        <input type="reset" name="reset" value="Reset">
-        <input type="button" name="cancel" value="Cancel" onclick="javascript:
+        <input type="submit" value="Créer le ticket">
+        <input type="reset" name="reset" value="Réinitialiser">
+        <input type="button" name="cancel" value="Annuler" onclick="javascript:
             $('.richtext').each(function() {
                 var redactor = $(this).data('redactor');
                 if (redactor && redactor.opts.draftDelete)
