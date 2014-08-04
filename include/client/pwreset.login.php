@@ -3,10 +3,10 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 
 $userid=Format::input($_POST['userid']);
 ?>
-<h1>Forgot My Password</h1>
+<h1>J'ai oublié mon mot de passe</h1>
 <p>
-Enter your username or email address again in the form below and press the
-<strong>Login</strong> to access your account and reset your password.
+Saisissez votre nom d'utilisateur et votre adresse électronique dans les champs ci-dessous et cliquez sur
+<strong>Connexion</strong> pour accéder à votre compte et réinitialiser votre mot de passe.
 
 <form action="pwreset.php" method="post" id="clientLogin">
     <div style="width:50%;display:inline-block">
@@ -16,11 +16,11 @@ Enter your username or email address again in the form below and press the
     <strong><?php echo Format::htmlchars($banner); ?></strong>
     <br>
     <div>
-        <label for="username">Username:</label>
+        <label for="username">Nom d'utilisateur&nbsp;:</label>
         <input id="username" type="text" name="userid" size="30" value="<?php echo $userid; ?>">
     </div>
     <p>
-        <input class="btn" type="submit" value="Login">
+        <input class="btn" type="submit" value="Connexion">
     </p>
     </div>
 </form>
