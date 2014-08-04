@@ -104,7 +104,7 @@ class i18nAjaxAPI extends AjaxController {
         global $cfg;
 
         $langs = array();
-        foreach (array('de', 'ja', 'zh_CN') as $l) {
+        foreach ($cfg->getSecondaryLanguages() as $l) {
             $langs[$l] = Internationalization::getLanguageDescription($l);
         }
         $json = JsonDataEncoder::encode($langs);
