@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid()) die('Access Denied');
+if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid()) die('Accès Refusé');
 
 $qstr='&'; //Query string collector
 $status=null;
@@ -94,9 +94,9 @@ $query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageN
 //echo $query;
 $res = db_query($query);
 $showing=($res && db_num_rows($res))?$pageNav->showing():"";
-$showing.=($status)?(' '.ucfirst($status).' Tickets'):' All Tickets';
+$showing.=($status)?(' '.ucfirst($status).' Tickets'):' Tous les tickets';
 if($search)
-    $showing="Search Results: $showing";
+    $showing="Résultats de la recherche : $showing";
 
 $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
 
@@ -107,40 +107,40 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     <input type="hidden" name="a"  value="search">
     <input type="text" name="q" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
     <select name="status">
-        <option value="">&mdash; Any Status &mdash;</option>
+        <option value="">&mdash; Tous les statuts &mdash;</option>
         <option value="open"
-            <?php echo ($status=='open')?'selected="selected"':'';?>>Open (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
+            <?php echo ($status=='open')?'selected="selected"':'';?>>Ouverts (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
         <?php
         if($thisclient->getNumClosedTickets()) {
             ?>
         <option value="closed"
-            <?php echo ($status=='closed')?'selected="selected"':'';?>>Closed (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
+            <?php echo ($status=='closed')?'selected="selected"':'';?>>Clos (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
         <?php
         } ?>
     </select>
     <input type="submit" value="Go">
 </form>
-<a class="refresh" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>">Refresh</a>
+<a class="refresh" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>">Actualiser</a>
 <table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="70" nowrap>
-                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID">Ticket #</a>
+                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Trier par identifiant de ticket">Ticket #</a>
             </th>
             <th width="100">
-                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date">Create Date</a>
+                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Trier par date">Date de création</a>
             </th>
             <th width="80">
-                <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status">Status</a>
+                <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Trier par statut">Statut</a>
             </th>
             <th width="300">
-                <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject">Subject</a>
+                <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Trier par sujet">Sujet</a>
             </th>
             <th width="150">
-                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department">Department</a>
+                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Trier par département">Département</a>
             </th>
-            <th width="100">Phone Number</th>
+            <th width="100">Numéro de téléphone</th>
         </tr>
     </thead>
     <tbody>
@@ -179,7 +179,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
         }
 
      } else {
-         echo '<tr><td colspan="7">Your query did not match any records</td></tr>';
+         echo '<tr><td colspan="7">Aucun résultat pour cette recherche</td></tr>';
      }
     ?>
     </tbody>
