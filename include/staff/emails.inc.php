@@ -41,6 +41,10 @@ if($res && ($num=db_num_rows($res)))
 else
     $showing=__('No emails found!');
 
+$def_dept_id = $cfg->getDefaultDeptId();
+$def_dept_name = $cfg->getDefaultDept()->getName();
+$def_priority = $cfg->getDefaultPriority()->getDesc();
+
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Email Addresses');?></h2>
@@ -85,8 +89,9 @@ else
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>>
                 </td>
                 <td><span class="ltr"><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo Format::htmlchars($email); ?></a></span></td>
-                <td><?php echo $row['priority']; ?></td>
-                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
+                <td><?php echo $row['priority'] ?: $def_priority; ?></td>
+                <td><a href="departments.php?id=<?php $row['dept_id'] ?: $def_dept_id; ?>"><?php
+                    echo $row['department'] ?: $def_dept_name; ?></a></td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>

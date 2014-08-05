@@ -29,7 +29,7 @@ if ($info['error']) {
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp;<?php
 echo sprintf(__(
 'Complete the form below to create a user account for <b>%s</b>.'
-), $user->getName()->getOriginal()
+), Format::htmlchars($user->getName()->getOriginal())
 ); ?>
 </p></div>
 <div id="user-registration" style="display:block; margin:5px;">

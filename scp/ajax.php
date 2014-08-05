@@ -48,7 +48,8 @@ $dispatcher = patterns('',
         url_post('^(?P<id>\d+)(?:/(?P<lang>\w+))?$', 'updateContent')
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
-        url_get('^scp', 'scp')
+        url_get('^scp', 'scp'),
+        url_get('^links', 'templateLinks')
     )),
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getFormsForHelpTopic'),

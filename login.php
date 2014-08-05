@@ -75,7 +75,7 @@ elseif ($_POST && isset($_POST['lticket'])) {
         // force attempts (which doesn't buy much since the link is emailed)
         $user->sendAccessLink();
         $msg = sprintf(__("%s - access link sent to your email!"),
-            $user->getName()->getFirst());
+            Format::htmlchars($user->getName()->getFirst()));
         $_POST = null;
     } elseif(!$errors['err']) {
         $errors['err'] = __('Invalid email or ticket number - try again!');

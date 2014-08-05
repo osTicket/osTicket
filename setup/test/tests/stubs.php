@@ -95,6 +95,7 @@ class Phar {
     function setStub() {}
     function startBuffering() {}
     function stopBuffering() {}
+    function setSignatureAlgorithm() {}
 }
 
 class ZipArchive {

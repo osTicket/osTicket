@@ -1287,10 +1287,10 @@ class Ticket {
 
                 return $duedate;
                 break;
-            case 'close_date';
+            case 'close_date':
                 $closedate ='';
                 if($this->isClosed())
-                    $duedate = Format::date(
+                    $closedate = Format::date(
                             $cfg->getDateTimeFormat(),
                             Misc::db2gmtime($this->getCloseDate()),
                             $cfg->getTZOffset(),
@@ -1717,7 +1717,11 @@ class Ticket {
                 $signature='';
 
             $msg = $this->replaceVars($msg->asArray(),
-                array('response' => $response, 'signature' => $signature));
+                    array(
+                        'response' => $response,
+                        'signature' => $signature,
+                        'recipient' => $this->getOwner(),
+                        ));
 
             $attachments =($cfg->emailAttachments() && $files)?$response->getAttachments():array();
             $options = array(
@@ -2320,9 +2324,11 @@ class Ticket {
 
         if ($vars['topicId'] && ($topic=Topic::lookup($vars['topicId']))) {
             if ($topic_form = $topic->getForm()) {
+                $TF = $topic_form->getForm($vars);
                 $topic_form = $topic_form->instanciate();
-                if (!$topic_form->getForm()->isValid($field_filter('topic')))
-                    $errors = array_merge($errors, $topic_form->getForm()->errors());
+                $topic_form->setSource($vars);
+                if (!$TF->isValid($field_filter('topic')))
+                    $errors = array_merge($errors, $TF->errors());
             }
         }
 
@@ -2350,6 +2356,9 @@ class Ticket {
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] =__('Missing or invalid data - check the errors and try again');
+
+        if ($vars['topicId'] && !$topic)
+            $errors['topicId'] = 'Invalid help topic selected';
 
         //Make sure the due date is valid
         if($vars['duedate']) {
@@ -2449,7 +2458,6 @@ class Ticket {
                 $form->setAnswer('priority', null, $topic->getPriorityId());
             if ($autorespond)
                 $autorespond = $topic->autoRespond();
-            $source = $vars['source'] ?: 'Web';
 
             //Auto assignment.
             if (!isset($vars['staffId']) && $topic->getStaffId())
@@ -2479,8 +2487,9 @@ class Ticket {
         if (!$priority || !$priority->getIdValue())
             $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
         $deptId = $deptId ?: $cfg->getDefaultDeptId();
-        $topicId = $vars['topicId'] ?: 0;
+        $topicId = isset($topic) ? $topic->getId() : 0;
         $ipaddress = $vars['ip'] ?: $_SERVER['REMOTE_ADDR'];
+        $source = $source ?: 'Web';
 
         //We are ready son...hold on to the rails.
         $number = Ticket::genRandTicketNumber();

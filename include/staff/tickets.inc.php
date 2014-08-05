@@ -428,7 +428,8 @@ if ($results) {
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <td nowrap>&nbsp;<?php echo Format::truncate($row['name'],22,strpos($row['name'],'@')); ?>&nbsp;</td>
+                <td nowrap>&nbsp;<?php echo Format::htmlchars(
+                        Format::truncate($row['name'], 22, strpos($row['name'], '@'))); ?>&nbsp;</td>
                 <?php
                 if($search && !$status){
                     $displaystatus=ucfirst($row['status']);

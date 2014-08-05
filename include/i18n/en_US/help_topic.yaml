@@ -18,7 +18,8 @@
 # notes - (string) administrative notes (internally viewable only)
 #
 ---
-- isactive: 1
+- topic_id: 1
+  isactive: 1
   ispublic: 1
   dept_id: 1
   priority_id: 2

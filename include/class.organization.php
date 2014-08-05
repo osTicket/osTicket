@@ -152,7 +152,11 @@ class Organization extends OrganizationModel {
     }
 
     function getInfo() {
-        $base = $this->ht;
+
+        $base = array_filter($this->ht,
+                    function ($e) { return !is_object($e); }
+                );
+
         foreach (array(
                 'collab-all-flag' => Organization::COLLAB_ALL_MEMBERS,
                 'collab-pc-flag' => Organization::COLLAB_PRIMARY_CONTACT,

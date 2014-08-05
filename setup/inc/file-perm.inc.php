@@ -14,7 +14,8 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <?php echo __('Please follow the instructions below to give read and write access to the web server user.');?>
             <ul>
                 <li><b><?php echo __('CLI');?></b>:<br><i>chmod 0666  include/ost-config.php</i></li>
-                <li><b><?php echo __('Windows');?></b>:<br><?php echo __('Add "Full Access" permission for the "Everyone" user'); ?></li>
+                <li><b><?php echo __('Windows PowerShell');?></b>:<br><?php echo __('Add "Full Access" permission for the "Everyone" user'); ?><br>
+                <i>icacls include\ost-config.php /grant 'Everyone:F'</i></li>
                 <li><b><?php echo __('FTP');?></b>:<br><?php echo __('Using WS_FTP this would be right hand clicking on the file, selecting chmod, and then giving all permissions to the file.');?></li>
                 <li><b><?php echo __('Cpanel');?></b>:<br><?php echo __('Click on the file, select change permission, and then giving all permissions to the file.');?></li>
             </ul>

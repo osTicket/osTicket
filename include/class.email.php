@@ -293,10 +293,6 @@ class Email {
                 $errors['mail_fetchfreq']=__('Fetch interval required');
             if(!$vars['mail_fetchmax'] || !is_numeric($vars['mail_fetchmax']))
                 $errors['mail_fetchmax']=__('Maximum emails required');
-            if(!$vars['dept_id'] || !is_numeric($vars['dept_id']))
-                $errors['dept_id']=__('You must select a department');
-            if(!$vars['priority_id'])
-                $errors['priority_id']=__('You must select a priority');
 
             if(!isset($vars['postfetch']))
                 $errors['postfetch']=__('Indicate what to do with fetched emails');

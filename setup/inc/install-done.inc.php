@@ -10,8 +10,8 @@ $url=URL;
         <h2><?php echo __('Config file permission');?>:</h2>
         <?php echo __('Change permission of ost-config.php to remove write access as shown below.');?>
         <ul>
-            <li><b><?php echo __('CLI');?></b>:<br><i>chmod 0664  include/ost-config.php</i></li>
-            <li><b><?php echo __('Windows PowerShell');?></b>:<br><i>icacls include/ost-config.php /grant 'Everyone:(OI)(CI)F'</i></li>
+            <li><b><?php echo __('CLI');?></b>:<br><i>chmod 0644  include/ost-config.php</i></li>
+            <li><b><?php echo __('Windows PowerShell');?></b>:<br><i>icacls include\ost-config.php /reset</i></li>
             <li><b><?php echo __('FTP');?></b>:<br><?php echo __('Using WS_FTP this would be right hand clicking on the file, selecting chmod, and then remove write access');?></li>
             <li><b><?php echo __('Cpanel');?></b>:<br><?php echo __('Click on the file, select change permission, and then remove write access.');?></li>
         </ul>

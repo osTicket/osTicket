@@ -113,7 +113,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $info = array(
-            'title' => sprintf(__('Update %s'), $user->getName())
+            'title' => sprintf(__('Update %s'), Format::htmlchars($user->getName()))
         );
         $forms = $user->getForms();
 
@@ -359,7 +359,8 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $info = array();
-        $info['title'] = sprintf(__('Organization for %s'), $user->getName());
+        $info['title'] = sprintf(__('Organization for %s'),
+            Format::htmlchars($user->getName()));
         $info['action'] = '#users/'.$user->getId().'/org';
         $info['onselect'] = 'ajax.php/users/'.$user->getId().'/org';
 
@@ -383,7 +384,7 @@ class UsersAjaxAPI extends AjaxController {
         } elseif ($orgId)
             $org = Organization::lookup($orgId);
         elseif ($org = $user->getOrganization()) {
-            $info['title'] = sprintf(__('%s &mdash; Organization'), $user->getName());
+            $info['title'] = sprintf(__('%s &mdash; Organization'), Format::htmlchars($user->getName()));
             $info['action'] = $info['onselect'] = '';
             $tmpl = 'org.tmpl.php';
         }
