@@ -163,22 +163,12 @@ if($_POST && !$errors):
              }
             break;
         case 'postnote': /* Post Internal Note */
-            //Make sure the staff can set desired state
-            if($_POST['state']) {
-                if($_POST['state']=='closed' && !$thisstaff->canCloseTickets())
-                    $errors['state'] = "You don't have permission to close tickets";
-                elseif(in_array($_POST['state'], array('overdue', 'notdue', 'unassigned'))
-                        && (!($dept=$ticket->getDept()) || !$dept->isManager($thisstaff)))
-                    $errors['state'] = "You don't have permission to set the state";
-            }
-
             $vars = $_POST;
             if($_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
-
                 $msg='Internal note posted successfully';
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
@@ -235,40 +225,43 @@ if($_POST && !$errors):
                         $errors['err'] = 'Permission Denied. You are not allowed to close tickets.';
                     } elseif($ticket->isClosed()) {
                         $errors['err'] = 'Ticket is already closed!';
-                    } elseif($ticket->close()) {
+                    } elseif (!($status=TicketStatus::lookup($_POST['status_id']))) {
+                        $errors['err'] = 'Unknown status';
+                    } elseif (!in_array($status->getState(), array('resolved', 'closed'))) {
+                        $errors['err'] = 'Invalid status';
+                    } elseif ($ticket->setStatus($status)) {
                         $msg='Ticket #'.$ticket->getNumber().' status set to CLOSED';
-                        //Log internal note
-                        if($_POST['ticket_status_notes'])
-                            $note = $_POST['ticket_status_notes'];
-                        else
-                            $note='Ticket closed (without comments)';
-
-                        $ticket->logNote('Ticket Closed', $note, $thisstaff);
-
+                        if($_POST['ticket_status_notes']) {
+                            $ticket->logNote(
+                                    'Ticket Closed',
+                                    $_POST['ticket_status_notes'],
+                                    $thisstaff);
+                        }
                         //Going back to main listing.
                         TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
                         $page=$ticket=null;
-
                     } else {
                         $errors['err']='Problems closing the ticket. Try again';
                     }
                     break;
                 case 'reopen':
                     //if staff can close or create tickets ...then assume they can reopen.
-                    if(!$thisstaff->canCloseTickets() && !$thisstaff->canCreateTickets()) {
+                    if (!$thisstaff->canCloseTickets() && !$thisstaff->canCreateTickets()) {
                         $errors['err']='Permission Denied. You are not allowed to reopen tickets.';
-                    } elseif($ticket->isOpen()) {
+                    } elseif ($ticket->isOpen()) {
                         $errors['err'] = 'Ticket is already open!';
-                    } elseif($ticket->reopen()) {
+                    } elseif (!($status=TicketStatus::lookup($_POST['status_id']))) {
+                        $errors['err'] = 'Unknown status';
+                    } elseif (strcasecmp($status->getState(), 'open')) {
+                        $errors['err'] = 'Invalid status';
+                    } elseif ($ticket->setStatus($status)) {
                         $msg='Ticket REOPENED';
-
-                        if($_POST['ticket_status_notes'])
-                            $note = $_POST['ticket_status_notes'];
-                        else
-                            $note='Ticket reopened (without comments)';
-
-                        $ticket->logNote('Ticket Reopened', $note, $thisstaff);
-
+                        if($_POST['ticket_status_notes']) {
+                            $ticket->logNote(
+                                    'Ticket Reopened',
+                                    $_POST['ticket_status_notes'],
+                                    $thisstaff);
+                        }
                     } else {
                         $errors['err']='Problems reopening the ticket. Try again';
                     }
@@ -419,24 +412,7 @@ if($_POST && !$errors):
                             }
                             break;
                         case 'close':
-                            if($thisstaff->canCloseTickets()) {
-                                $note='Ticket closed without response by '.$thisstaff->getName();
-                                foreach($_POST['tids'] as $k=>$v) {
-                                    if(($t=Ticket::lookup($v)) && $t->isOpen() && @$t->close()) {
-                                        $i++;
-                                        $t->logNote('Ticket Closed', $note, $thisstaff);
-                                    }
-                                }
-
-                                if($i==$count)
-                                    $msg ="Selected tickets ($i) closed succesfully";
-                                elseif($i)
-                                    $warn = "$i of $count selected tickets closed";
-                                else
-                                    $errors['err'] = 'Unable to close selected tickets';
-                            } else {
-                                $errors['err'] = 'You do not have permission to close tickets';
-                            }
+                            $errors['err'] = 'Support coming soon!';
                             break;
                         case 'mark_overdue':
                             $note='Ticket flagged as overdue by '.$thisstaff->getName();
@@ -567,7 +543,13 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
                         ($_REQUEST['status']=='closed'));
 } else {
 
-    $nav->addSubMenu(array('desc'=>'Closed Tickets ('.number_format($stats['closed']).')',
+    $nav->addSubMenu(array('desc'=>'Resolved ('.number_format($stats['resolved']).')',
+                           'title'=>'Resolved Tickets',
+                           'href'=>'tickets.php?status=resolved',
+                           'iconclass'=>'closedTickets'),
+                        ($_REQUEST['status']=='resolved'));
+
+    $nav->addSubMenu(array('desc'=>'Closed ('.number_format($stats['closed']).')',
                            'title'=>'Closed Tickets',
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),

@@ -19,7 +19,7 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
 }
 
 $sortOptions=array('id'=>'`number`', 'subject'=>'subject.value',
-                    'status'=>'ticket.status', 'dept'=>'dept_name','date'=>'ticket.created');
+                    'status'=>'status.name', 'dept'=>'dept_name','date'=>'ticket.created');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 //Sorting options...
 $order_by=$order=null;
@@ -40,7 +40,7 @@ $$x=' class="'.strtolower($order).'" ';
 
 $qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
     .'dept.ispublic, subject.value as subject,'
-    .'dept_name,ticket. status, ticket.source, ticket.created ';
+    .'dept_name,status.name as status, ticket.source, ticket.created ';
 
 $dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
          'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
@@ -49,6 +49,8 @@ $dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
 $subject_sql = sprintf($dynfields, 'subject');
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
+      .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
+            ON (status.id = ticket.status_id) '
       .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
       .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
         ON (collab.ticket_id = ticket.ticket_id
@@ -58,8 +60,12 @@ $qfrom='FROM '.TICKET_TABLE.' ticket '
 $qwhere = sprintf(' WHERE ( ticket.user_id=%d OR collab.user_id=%d )',
             $thisclient->getId(), $thisclient->getId());
 
-if($status){
-    $qwhere.=' AND ticket.status='.db_input($status);
+$states = array(
+        'open' => 'open',
+        'resolved' => 'resolved',
+        'closed' => 'closed');
+if($status && isset($states[$status])){
+    $qwhere.=' AND status.state='.db_input($states[$status]);
 }
 
 $search=($_REQUEST['a']=='search' && $_REQUEST['q']);
@@ -110,6 +116,14 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
         <option value="">&mdash; Any Status &mdash;</option>
         <option value="open"
             <?php echo ($status=='open')?'selected="selected"':'';?>>Open (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
+        <?php
+        if($thisclient->getNumResolvedTickets()) {
+            ?>
+        <option value="resolved"
+            <?php echo ($status=='resolved')?'selected="selected"':'';?>> Resolved (<?php echo $thisclient->getNumResolvedTickets(); ?>)</option>
+        <?php
+        } ?>
+
         <?php
         if($thisclient->getNumClosedTickets()) {
             ?>

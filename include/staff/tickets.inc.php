@@ -33,6 +33,10 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
         $status='closed';
         $showassigned=true; //closed by.
         break;
+    case 'resolved':
+        $status='resolved';
+        $showassigned=true;
+        break;
     case 'overdue':
         $status='open';
         $showoverdue=true;
@@ -62,20 +66,26 @@ $qwhere ='';
 $depts=$thisstaff->getDepts();
 $qwhere =' WHERE ( '
         .'  ( ticket.staff_id='.db_input($thisstaff->getId())
-        .' AND ticket.status="open")';
+        .' AND status.state="open") ';
 
 if(!$thisstaff->showAssignedOnly())
     $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',', db_input($depts)):0).')';
 
 if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
     $qwhere.=' OR (ticket.team_id IN ('.implode(',', db_input(array_filter($teams)))
-            .') AND ticket.status="open")';
+            .') AND status.state="open") ';
 
 $qwhere .= ' )';
 
-//STATUS
-if($status) {
-    $qwhere.=' AND ticket.status='.db_input(strtolower($status));
+//STATUS to states
+$states = array(
+    'open' => array('open'),
+    'resolved' => array('resolved'),
+    'closed' => array('closed'));
+
+if($status && isset($states[$status])) {
+    $qwhere.=' AND status.state IN (
+                '.implode(',', db_input($states[$status])).' ) ';
 }
 
 if (isset($_REQUEST['uid']) && $_REQUEST['uid']) {
@@ -148,7 +158,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
 
 $sortOptions=array('date'=>'effective_date','ID'=>'ticket.`number`',
     'pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
-    'status'=>'ticket.status','assignee'=>'assigned','staff'=>'staff',
+    'status'=>'status.name','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept.dept_name');
 
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
@@ -201,9 +211,11 @@ if($_GET['limit'])
 $qselect ='SELECT ticket.ticket_id,tlock.lock_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,user.name'
     .' ,email.address as email, dept.dept_name '
-         .' ,ticket.status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created ';
+         .' ,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created ';
 
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
+       ' LEFT JOIN '.TICKET_STATUS_TABLE. ' status
+            ON (status.id = ticket.status_id) '.
        ' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'.
        ' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'.
        ' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id ';

@@ -102,14 +102,16 @@ class TicketsAjaxAPI extends AjaxController {
 
         $result=array();
         $select = 'SELECT ticket.ticket_id';
-        $from = ' FROM '.TICKET_TABLE.' ticket ';
+        $from = ' FROM '.TICKET_TABLE.' ticket
+                  LEFT JOIN '.TICKET_STATUS_TABLE.' status
+                    ON (status.id = ticket.status_id) ';
         //Access control.
         $where = ' WHERE ( (ticket.staff_id='.db_input($thisstaff->getId())
-                    .' AND ticket.status="open" )';
+                    .' AND status.state="open" )';
 
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
             $where.=' OR (ticket.team_id IN ('.implode(',', db_input(array_filter($teams)))
-                   .' ) AND ticket.status="open")';
+                   .' ) AND status.state="open" )';
 
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
             $where.=' OR ticket.dept_id IN ('.implode(',', db_input($depts)).')';
@@ -127,16 +129,19 @@ class TicketsAjaxAPI extends AjaxController {
         //Status
         switch(strtolower($req['status'])) {
             case 'open':
-                $where.=' AND ticket.status="open" ';
+                $where.=' AND status.state="open" ';
                 break;
             case 'answered':
-                $where.=' AND ticket.status="open" AND ticket.isanswered=1 ';
+                $where.=' AND status.state="open" AND ticket.isanswered=1 ';
                 break;
             case 'overdue':
-                $where.=' AND ticket.status="open" AND ticket.isoverdue=1 ';
+                $where.=' AND status.state="open" AND ticket.isoverdue=1 ';
+                break;
+            case 'resolved':
+                $where.=' AND status.state="resolved" ';
                 break;
             case 'closed':
-                $where.=' AND ticket.status="closed" ';
+                $where.=' AND status.state="closed" ';
                 break;
         }
 
@@ -144,7 +149,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(isset($req['assignee']) && strcasecmp($req['status'], 'closed'))  {
             $id=preg_replace("/[^0-9]/", "", $req['assignee']);
             $assignee = $req['assignee'];
-            $where.= ' AND ( ( ticket.status="open" ';
+            $where.= ' AND ( ( status.state="open" ';
             if($assignee[0]=='t')
                 $where.=' AND ticket.team_id='.db_input($id);
             elseif($assignee[0]=='s')
@@ -155,13 +160,15 @@ class TicketsAjaxAPI extends AjaxController {
             $where.=')';
 
             if($req['staffId'] && !$req['status']) //Assigned TO + Closed By
-                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']). ' AND ticket.status="closed") ';
+                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']).
+                    ' AND status.state IN("resolved", "closed")) ';
             elseif(isset($req['staffId'])) // closed by any
-                $where.= ' OR ticket.status="closed" ';
+                $where.= ' OR status.state IN("resolved", "closed") ';
 
             $where.= ' ) ';
         } elseif($req['staffId']) {
-            $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND ticket.status="closed") ';
+            $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND
+                status.state IN("resolved", "closed")) ';
         }
 
         //dates
@@ -210,7 +217,8 @@ class TicketsAjaxAPI extends AjaxController {
         $cdata_search = false;
         foreach (TicketForm::getInstance()->getFields() as $f) {
             if (isset($req[$f->getFormName()])
-                    && ($val = $req[$f->getFormName()])) {
+                    && ($val = $req[$f->getFormName()])
+                    && strlen(trim($val))) {
                 $name = $f->get('name') ? $f->get('name')
                     : 'field_'.$f->get('id');
                 if ($f->getImpl()->hasIdValue() && is_numeric($val))

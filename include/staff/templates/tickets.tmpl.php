@@ -1,7 +1,7 @@
 <?php
 
 $select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id, ticket.user_id '
-        .' ,dept.dept_name,ticket.status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
+        .' ,dept.dept_name,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
         .' ,CAST(GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.reopened, 0), ticket.created) as datetime) as effective_date '
         .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
         .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
@@ -9,6 +9,8 @@ $select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id
         .' ,cdata.priority_id, cdata.subject, user.name, email.address as email';
 
 $from =' FROM '.TICKET_TABLE.' ticket '
+      .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
+        ON status.id = ticket.status_id '
       .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id '
       .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
       .' LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (ticket.user_id=account.user_id) '
@@ -119,9 +121,6 @@ if ($results) { ?>
             $assigned=' ';
 
         $status = ucfirst($row['status']);
-        if(!strcasecmp($row['status'], 'open'))
-            $status = "<b>$status</b>";
-
         $tid=$row['number'];
         $subject = Format::htmlchars(Format::truncate($row['subject'],40));
         $threadcount=$row['thread_count'];

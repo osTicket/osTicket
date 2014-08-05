@@ -248,11 +248,18 @@ class  EndUser extends AuthenticatedUser {
     }
 
     function getNumTickets() {
-        return ($stats=$this->getTicketStats())?($stats['open']+$stats['closed']):0;
+        if (!($stats=$this->getTicketStats()))
+            return 0;
+
+        return $stats['open']+$stats['resolved']+ $stats['closed'];
     }
 
     function getNumOpenTickets() {
         return ($stats=$this->getTicketStats())?$stats['open']:0;
+    }
+
+    function getNumResolvedTickets() {
+        return ($stats=$this->getTicketStats())?$stats['resolved']:0;
     }
 
     function getNumClosedTickets() {
@@ -269,19 +276,44 @@ class  EndUser extends AuthenticatedUser {
 
     private function getStats() {
 
-        $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
-            .' FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.TICKET_TABLE.' open
-                ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\') '
-            .' LEFT JOIN '.TICKET_TABLE.' closed
-                ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\')'
-            .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
-                ON (collab.ticket_id=ticket.ticket_id
-                    AND collab.user_id = '.db_input($this->getId()).' )'
-            .' WHERE ticket.user_id = '.db_input($this->getId())
-            .' OR collab.user_id = '.db_input($this->getId());
+        $where = ' WHERE ticket.user_id = '.db_input($this->getId())
+                .' OR collab.user_id = '.db_input($this->getId()).' ';
 
-        return db_fetch_array(db_query($sql));
+        $join  =  'LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+                    ON (collab.ticket_id=ticket.ticket_id
+                            AND collab.user_id = '.db_input($this->getId()).' ) ';
+
+        $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
+                    ON (ticket.status_id=status.id
+                            AND status.state=\'open\') '
+                . $join
+                . $where
+
+                .'UNION SELECT \'resolved\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
+                    ON (ticket.status_id=status.id
+                            AND status.state=\'resolved\') '
+                . $join
+                . $where
+
+                .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
+                    ON (ticket.status_id=status.id
+                            AND status.state=\'closed\' ) '
+                . $join
+                . $where;
+
+        $res = db_query($sql);
+        $stats = array();
+        while($row = db_fetch_row($res)) {
+            $stats[$row[0]] = $row[1];
+        }
+
+        return $stats;
     }
 }
 
