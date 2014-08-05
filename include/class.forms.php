@@ -2045,10 +2045,7 @@ class ThreadEntryWidget extends Widget {
             $object_id = substr(session_id(), -12);
         }
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
-        ?><div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
-        echo Format::htmlchars($this->field->get('label'));
-        ?></strong>:</div>
-
+        ?>
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
             class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';

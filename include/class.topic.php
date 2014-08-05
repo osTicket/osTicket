@@ -436,6 +436,8 @@ class Topic {
     }
 
     static function updateSortOrder() {
+        global $cfg;
+
         // Fetch (un)sorted names
         if (!($names = static::getHelpTopics(false, true, false)))
             return;
