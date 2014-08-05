@@ -585,28 +585,32 @@ $tcount+= $ticket->getNumNotes();
                     } ?>
                 </td>
             </tr>
-            <?php
-            if($ticket->isClosed() || $thisstaff->canCloseTickets()) { ?>
             <tr>
                 <td width="120">
                     <label><strong>Ticket Status:</strong></label>
                 </td>
                 <td>
+                    <select name="reply_status_id">
                     <?php
-                    $statusChecked=isset($info['reply_ticket_status'])?'checked="checked"':'';
-                    if($ticket->isClosed()) { ?>
-                        <label><input type="checkbox" name="reply_ticket_status" id="reply_ticket_status" value="Open"
-                            <?php echo $statusChecked; ?>> Reopen on Reply</label>
-                   <?php
-                    } elseif($thisstaff->canCloseTickets()) { ?>
-                         <label><input type="checkbox" name="reply_ticket_status" id="reply_ticket_status" value="Closed"
-                              <?php echo $statusChecked; ?>> Close on Reply</label>
-                   <?php
-                    } ?>
+                    $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
+                    $states = array('open', 'resolved');
+                    if ($thisstaff->canCloseTickets())
+                        $states = array_merge($states,
+                                array('closed', 'archived'));
+
+                    foreach (TicketStatusList::getAll($states) as $s) {
+                        if (!$s->isEnabled()) continue;
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                                $s->getId(),
+                                ($statusId == $s->getId())
+                                 ? 'selected="selected"' : '',
+                                $s->getName()
+                                );
+                    }
+                    ?>
+                    </select>
                 </td>
             </tr>
-            <?php
-            } ?>
          </tbody>
         </table>
         <p  style="padding-left:165px;">
@@ -677,47 +681,26 @@ $tcount+= $ticket->getNumNotes();
                 </td>
                 <td>
                     <div class="faded"></div>
-                    <select name="state">
+                    <select name="note_status_id">
                         <option value="" selected="selected">&mdash; unchanged &mdash;</option>
                         <?php
-                        $state = $info['state'];
-                        if($ticket->isClosed()){
-                            echo sprintf('<option value="open" %s>Reopen Ticket</option>',
-                                    ($state=='reopen')?'selected="selelected"':'');
-                        } else {
-                            if($thisstaff->canCloseTickets())
-                                echo sprintf('<option value="closed" %s>Close Ticket</option>',
-                                    ($state=='closed')?'selected="selelected"':'');
-
-                            /* Ticket open - states */
-                            echo '<option value="" disabled="disabled">&mdash; Ticket States &mdash;</option>';
-
-                            //Answer - state
-                            if($ticket->isAnswered())
-                                echo sprintf('<option value="unanswered" %s>Mark As Unanswered</option>',
-                                    ($state=='unanswered')?'selected="selelected"':'');
-                            else
-                                echo sprintf('<option value="answered" %s>Mark As Answered</option>',
-                                    ($state=='answered')?'selected="selelected"':'');
-
-                            //overdue - state
-                            // Only department manager can set/clear overdue flag directly.
-                            // Staff with edit perm. can still set overdue date & change SLA.
-                            if($dept && $dept->isManager($thisstaff)) {
-                                if(!$ticket->isOverdue())
-                                    echo sprintf('<option value="overdue" %s>Flag As Overdue</option>',
-                                        ($state=='answered')?'selected="selelected"':'');
-                                else
-                                    echo sprintf('<option value="notdue" %s>Clear Overdue Flag</option>',
-                                        ($state=='notdue')?'selected="selelected"':'');
-
-                                if($ticket->isAssigned())
-                                    echo sprintf('<option value="unassigned" %s>Release (Unassign) Ticket</option>',
-                                        ($state=='unassigned')?'selected="selelected"':'');
-                            }
-                        }?>
+                        $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
+                        $states = array('open', 'resolved');
+                        if ($thisstaff->canCloseTickets())
+                            $states = array_merge($states,
+                                    array('closed', 'archived'));
+                        foreach (TicketStatusList::getAll($states) as $s) {
+                            if (!$s->isEnabled()) continue;
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $s->getId(),
+                                    ($statusId == $s->getId())
+                                     ? 'selected="selected"' : '',
+                                    $s->getName()
+                                    );
+                        }
+                        ?>
                     </select>
-                    &nbsp;<span class='error'>*&nbsp;<?php echo $errors['state']; ?></span>
+                    &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
                 </td>
             </tr>
             </div>
@@ -927,12 +910,41 @@ $tcount+= $ticket->getNumNotes();
     <h3><?php echo sprintf('%s Ticket #%s', ($ticket->isClosed()?'Reopen':'Close'), $ticket->getNumber()); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <?php echo sprintf('Are you sure you want to <b>%s</b> this ticket?', $ticket->isClosed()?'REOPEN':'CLOSE'); ?>
+    <?php
+        echo sprintf('Are you sure you want to <b>%s</b> this ticket?',
+                $ticket->isClosed()?'REOPEN':'CLOSE');
+        $action = $ticket->isClosed() ? 'reopen': 'close';
+     ?>
+    <br><br>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="status-form" name="status-form">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="process">
-        <input type="hidden" name="do" value="<?php echo $ticket->isClosed()?'reopen':'close'; ?>">
+        <input type="hidden" name="do" value="<?php echo $action; ?>">
+        <fieldset>
+            <div><strong>Ticket Status </strong>
+                <select name="status_id">
+                    <?php
+                    $statusId = $info['status_id'] ?: 0;
+                    if (!$ticket->isOpen())
+                        $states = array('open');
+                    else
+                        $states = array('resolved', 'closed');
+
+                    foreach (TicketStatusList::getAll($states) as $s) {
+                        if (!$s->isEnabled()) continue;
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                                $s->getId(),
+                                ($statusId == $s->getId())
+                                 ? 'selected="selected"' : '',
+                                $s->getName()
+                                );
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class='error'>*&nbsp;<?php echo $errors['status_id']; ?></span>
+            </div>
+        </fieldset>
         <fieldset>
             <div style="margin-bottom:0.5em">
             <em>Reasons for status change (internal note). Optional but highly recommended.</em>

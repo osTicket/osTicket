@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `name` (`name`),
+  KEY `state` ( `state` )
 ) DEFAULT CHARSET=utf8;
 
 ALTER TABLE  `%TABLE_PREFIX%help_topic`
@@ -29,6 +30,10 @@ ALTER TABLE  `%TABLE_PREFIX%help_topic`
 
 ALTER TABLE  `%TABLE_PREFIX%filter`
     ADD  `status_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `email_id`;
+
+ALTER TABLE  `%TABLE_PREFIX%ticket`
+    ADD  `status_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `user_email_id`,
+    ADD INDEX (`status_id`);
 
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = 'cbf8c933d6d2eaaa971042eb2efce247'

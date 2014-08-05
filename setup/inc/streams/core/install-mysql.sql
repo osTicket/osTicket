@@ -573,12 +573,14 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `number` varchar(20),
   `user_id` int(11) unsigned NOT NULL default '0',
   `user_email_id` int(11) unsigned NOT NULL default '0',
+  `status_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `topic_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(11) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
   `status` enum('open','closed') NOT NULL default 'open',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
@@ -595,8 +597,9 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `user_id` (`user_id`),
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`),
-  KEY `team_id` (`staff_id`),
   KEY `status` (`status`),
+  KEY `team_id` (`team_id`),
+  KEY `status_id` (`status_id`),
   KEY `created` (`created`),
   KEY `closed` (`closed`),
   KEY `duedate` (`duedate`),
@@ -667,7 +670,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
+  UNIQUE KEY `name` (`name`),
+  KEY `state` (`state`)
 ) DEFAULT CHARSET=utf8;
 
 

@@ -43,6 +43,7 @@ class Ticket {
 
     var $lastMsgId;
 
+    var $status;
     var $dept;  //Dept obj
     var $sla;   // SLA obj
     var $staff; //Staff obj
@@ -91,6 +92,7 @@ class Ticket {
         $this->loadDynamicData();
 
         //Reset the sub classes (initiated ondemand)...good for reloads.
+        $this->status= null;
         $this->staff = null;
         $this->client = null;
         $this->team  = null;
@@ -118,16 +120,32 @@ class Ticket {
         return $this->load();
     }
 
+    function hasState($state) {
+        return  (strcasecmp($this->getState(), $state)==0);
+    }
+
     function isOpen() {
-        return (strcasecmp($this->getStatus(),'Open')==0);
+        return $this->hasState('open');
     }
 
     function isReopened() {
         return ($this->getReopenDate());
     }
 
+    function isResolved() {
+        return $this->hasState('resolved');
+    }
+
     function isClosed() {
-        return (strcasecmp($this->getStatus(),'Closed')==0);
+         return $this->hasState('closed');
+    }
+
+    function isArchived() {
+         return $this->hasState('archived');
+    }
+
+    function isDeleted() {
+         return $this->hasState('deleted');
     }
 
     function isAssigned() {
@@ -291,8 +309,24 @@ class Ticket {
         return $this->ht['closed'];
     }
 
+    function getStatusId() {
+        return $this->ht['status_id'];
+    }
+
     function getStatus() {
-        return $this->ht['status'];
+
+        if (!$this->status && $this->getStatusId())
+            $this->status = TicketStatus::lookup($this->getStatusId());
+
+        return $this->status;
+    }
+
+    function getState() {
+
+        if (!$this->getStatus())
+            return '';
+
+        return $this->getStatus()->getState();
     }
 
     function getDeptId() {
@@ -785,20 +819,61 @@ class Ticket {
 
     //Status helper.
     function setStatus($status) {
+        global $thisstaff;
 
-        if(strcasecmp($this->getStatus(), $status)==0)
-            return true; //No changes needed.
+        if ($status && is_numeric($status))
+            $status = TicketStatus::lookup($status);
 
-        switch(strtolower($status)) {
-            case 'open':
-                return $this->reopen();
-                break;
+        if (!$status || !$status instanceof TicketStatus)
+            return false;
+
+        if ($this->getStatusId() == $status->getId())
+            return true;
+
+        $sql = 'UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
+               ' ,status_id='.db_input($status->getId());
+
+        $ecb = null;
+        switch($status->getState()) {
             case 'closed':
-                return $this->close();
+                $sql.=', closed=NOW(), duedate=NULL ';
+                if ($thisstaff)
+                    $sql.=', staff_id='.db_input($thisstaff->getId());
+
+                $ecb = function($t) {
+                    $t->reload();
+                    $t->logEvent('closed');
+                    $t->deleteDrafts();
+                };
+                break;
+            case 'open':
+                if ($this->isClosed()) {
+                    $sql.= ',closed=NULL, reopened=NOW() ';
+
+                    $ecb = function ($t) {
+                        $t->logEvent('reopened', 'closed');
+                    };
+                }
                 break;
         }
 
-        return false;
+        $sql.=' WHERE ticket_id='.db_input($this->getId());
+
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
+
+        // Log status change b4 reload
+        $note= sprintf('Status changed from %s to %s by %s',
+                $this->getStatus(),
+                $status,
+                $thisstaff ?: 'SYSTEM');
+
+        $this->logNote('Status Changed', $note, $thisstaff, false);
+
+        // Log events via callback
+        if ($ecb) $ecb($this);
+
+        return true;
     }
 
     function setState($state, $alerts=false) {
@@ -840,42 +915,11 @@ class Ticket {
         return (db_query($sql) && db_affected_rows());
     }
 
-    //Close the ticket
-    function close() {
-        global $thisstaff;
-
-        $sql='UPDATE '.TICKET_TABLE.' SET closed=NOW(),isoverdue=0, duedate=NULL, updated=NOW(), status='.db_input('closed');
-        if($thisstaff) //Give the closing  staff credit.
-            $sql.=', staff_id='.db_input($thisstaff->getId());
-
-        $sql.=' WHERE ticket_id='.db_input($this->getId());
-
-        if(!db_query($sql) || !db_affected_rows())
-            return false;
-
-        $this->reload();
-        $this->logEvent('closed');
-        $this->deleteDrafts();
-
-        return true;
-    }
-
     //set status to open on a closed ticket.
     function reopen($isanswered=0) {
+        global $cfg;
 
-        $sql='UPDATE '.TICKET_TABLE.' SET closed=NULL, updated=NOW(), reopened=NOW() '
-            .' ,status='.db_input('open')
-            .' ,isanswered='.db_input($isanswered)
-            .' WHERE ticket_id='.db_input($this->getId());
-
-        if (!db_query($sql) || !db_affected_rows())
-            return false;
-
-        $this->logEvent('reopened', 'closed');
-        $this->ht['status'] = 'open';
-        $this->ht['isanswerd'] = $isanswered;
-
-        return true;
+        return $this->setStatus($cfg->getDefaultTicketStatusId());
     }
 
     function onNewTicket($message, $autorespond=true, $alertstaff=true) {
@@ -1732,9 +1776,10 @@ class Ticket {
         if(!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
 
-        //Set status - if checked.
-        if(isset($vars['reply_ticket_status']) && $vars['reply_ticket_status'])
-            $this->setStatus($vars['reply_ticket_status']);
+        // Set status - if checked.
+        if ($vars['reply_status_id']
+                && $vars['reply_status_id'] != $this->getStatusId())
+            $this->setStatus($vars['reply_status_id']);
 
         if($thisstaff && $this->isOpen() && !$this->getStaffId()
                 && $cfg->autoClaimTickets())
@@ -1742,7 +1787,7 @@ class Ticket {
 
         $this->onResponse(); //do house cleaning..
 
-        /* email the user??  - if disabled - the bail out */
+        /* email the user??  - if disabled - then bail out */
         if(!$alert) return $response;
 
         $dept = $this->getDept();
@@ -1861,9 +1906,9 @@ class Ticket {
         // Get assigned staff just in case the ticket is closed.
         $assignee = $this->getStaff();
 
-        //Set state: Error on state change not critical!
-        if(isset($vars['state']) && $vars['state']) {
-            if($this->setState($vars['state']))
+        if ($vars['note_status_id']
+                && ($status=TicketStatus::lookup($vars['note_status_id']))) {
+            if ($this->setStatus($status))
                 $this->reload();
         }
 
@@ -2401,6 +2446,7 @@ class Ticket {
         // members can always add more forms now
 
         // OK...just do it.
+        $statusId = $vars['statusId'];
         $deptId = $vars['deptId']; //pre-selected Dept if any.
         $source = ucfirst($vars['source']);
 
@@ -2431,6 +2477,7 @@ class Ticket {
         // Intenal mapping magic...see if we need to override anything
         if (isset($topic)) {
             $deptId = $deptId ?: $topic->getDeptId();
+            $statusId = $statusId ?: $topic->getStatusId();
             $priority = $form->getAnswer('priority');
             if (!$priority || !$priority->getIdValue())
                 $form->setAnswer('priority', null, $topic->getPriorityId());
@@ -2466,6 +2513,7 @@ class Ticket {
         if (!$priority || !$priority->getIdValue())
             $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
         $deptId = $deptId ?: $cfg->getDefaultDeptId();
+        $statusId = $statusId ?: $cfg->getDefaultTicketStatusId();
         $topicId = $vars['topicId'] ?: 0;
         $ipaddress = $vars['ip'] ?: $_SERVER['REMOTE_ADDR'];
 
@@ -2477,6 +2525,7 @@ class Ticket {
             .' ,`number`='.db_input($number)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
+            .' ,status_id='.db_input($statusId)
             .' ,ip_address='.db_input($ipaddress)
             .' ,source='.db_input($source);
 
