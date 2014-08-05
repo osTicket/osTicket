@@ -47,6 +47,9 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
         ?>
         <tr><?php if ($field->isBlockLevel()) { ?>
                 <td colspan="2">
+                <div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
+                echo Format::htmlchars($field->getLocal('label'));
+                ?></strong>:</div>
                 <?php
             }
             else { ?>
