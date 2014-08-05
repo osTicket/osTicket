@@ -544,7 +544,7 @@ body {
 #clientLogin div label {
   display: block;
 }
-label.required {
+label.required, span.required {
   font-weight: bold;
 }
 #ticketForm div label.required,
