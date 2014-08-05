@@ -1336,7 +1336,19 @@ time {
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
     max-height: 72%;
+    min-height: 50px;
     overflow-y: auto;
+}
+
+.dialog .popup-loading {
+    position:absolute;
+    text-align:center;
+    background:rgba(255,255,255,0.8);
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    z-index:1;
 }
 
 .redactor_editor {

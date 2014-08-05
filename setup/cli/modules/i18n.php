@@ -245,7 +245,7 @@ class i18n_Compiler extends Module {
             #'Approved' =>
             'Id' => 'lang:' . $lang,
             'Last-Revision' => $po_header['PO-Revision-Date'],
-            'Version' => strtotime($po_header['PO-Revision-Date']) / 10000,
+            'Version' => (int)(strtotime($po_header['PO-Revision-Date']) / 10000),
         );
         $phar->addFromString(
             'MANIFEST.php',

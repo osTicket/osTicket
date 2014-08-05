@@ -272,7 +272,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <div style="display:none;" class="dialog draggable" id="field-config">
     <div id="popup-loading">
-        <h1><i class="icon-spinner icon-spin icon-large pull-left"></i>
+        <h1><i class="icon-spinner icon-spin icon-large"></i>
         <?php echo __('Loading ...');?></h1>
     </div>
     <div class="body"></div>
@@ -280,10 +280,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <script type="text/javascript">
 $(function() {
-    $('#popup-loading').hide().ajaxStart( function() {
-        $(this).show();  // show Loading Div
-    } ).ajaxStop ( function(){
-        $(this).hide(); // hide loading div
+    var $this = $('#popup-loading').hide();
+    $(document).ajaxStart( function(event) {
+        console.log(1,event);
+        var $h1 = $this.find('h1');
+        $this.show();
+        $h1.css({'margin-top':$this.height()/3-$h1.height()/3});  // show Loading Div
+    }).ajaxStop ( function(){
+        $this.hide(); // hide loading div
     });
 });
 $('form.manage-form').on('submit.inline', function(e) {
