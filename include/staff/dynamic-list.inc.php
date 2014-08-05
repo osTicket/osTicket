@@ -279,7 +279,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             } ?>
             <td>
                 <?php
-                if ($i->isInternal())
+                if (!$i->isDisableable())
                      echo '<i class="icon-ban-circle"></i>';
                 else
                     echo sprintf('<input type="checkbox" name="disable-%s"

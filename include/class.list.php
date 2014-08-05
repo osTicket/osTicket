@@ -488,6 +488,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return true;
     }
 
+    function isDisableable() {
+        return !$this->isInternal();
+    }
+
     function isDeletable() {
         return !$this->isInternal();
     }
@@ -652,8 +656,15 @@ class TicketStatusList extends CustomListHandler {
         return TicketStatus::objects()->count();
     }
 
-    function getAllItems() {
-         return TicketStatus::objects()->order_by($this->getListOrderBy());
+    function getAllItems($states=array()) {
+        if ($states)
+            $items = TicketStatus::objects()->filter(
+                    array('state__in' => $states))
+                    ->order_by($this->getListOrderBy());
+        else
+            $items = TicketStatus::objects()->order_by($this->getListOrderBy());
+
+        return $items;
     }
 
     function getItems($criteria) {
@@ -691,6 +702,16 @@ class TicketStatusList extends CustomListHandler {
         $this->_items = false;
 
         return $item;
+    }
+
+    static function getAll($states=array()) {
+
+        $statuses = array();
+        if (($list = DynamicList::lookup(
+                        array('type' => 'ticket-status'))))
+            $statuses = $list->getAllItems($states);
+
+        return $statuses;
     }
 
     static function __load() {
@@ -787,15 +808,28 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function disable() {
         return (!$this->isInternal()
+                && !$this->isDefault()
                 && $this->clearFlag('mode', self::ENABLED));
+    }
+
+    function isDefault() {
+        global $cfg;
+
+        return ($cfg
+                && $cfg->getDefaultTicketStatusId() == $this->getId());
     }
 
     function isEnableable() {
         return $this->hasProperties();
     }
 
+    function isDisableable() {
+        return !($this->isInternal() || $this->isDefault());
+    }
+
     function isDeletable() {
-        return !$this->isInternal();
+
+        return !($this->isInternal() || $this->isDefault());
     }
 
     function isInternal() {
@@ -808,6 +842,10 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function getName() {
         return $this->get('name');
+    }
+
+    function getState() {
+        return $this->get('state');
     }
 
     function getValue() {

@@ -24,7 +24,7 @@
 
 - id: 2
   name: Resolved
-  state: closed
+  state: resolved
   mode: 3
   sort: 2
   flags: 0
