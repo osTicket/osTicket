@@ -107,6 +107,10 @@ class Filter {
         return $this->ht['dept_id'];
     }
 
+    function getStatusId() {
+        return $this->ht['status_id'];
+    }
+
     function getPriorityId() {
         return $this->ht['priority_id'];
     }
@@ -302,6 +306,8 @@ class Filter {
         if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
         #       Set SLA plan (?)
         if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
+        #       Set status
+        if ($this->getStatusId())   $ticket['statusId']=$this->getStatusId();
         #       Auto-assign to (?)
         #       XXX: Unset the other (of staffId or teamId) (?)
         if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
@@ -509,6 +515,7 @@ class Filter {
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
             .',dept_id='.db_input($vars['dept_id'])
+            .',status_id='.db_input($vars['status_id'])
             .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
             .',topic_id='.db_input($vars['topic_id'])

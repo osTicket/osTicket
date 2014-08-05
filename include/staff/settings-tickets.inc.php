@@ -25,7 +25,50 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 Random
             </td>
         </tr>
+        <tr>
+            <td width="180" class="required">
+                Default Status:
+            </td>
+            <td>
+                <span>
+                <select name="default_ticket_status_id">
+                <?php
+                foreach (TicketStatusList::getAll(array('open')) as $status) {
+                    $name = $status->getName();
+                    if (!($isenabled = $status->isEnabled()))
+                        $name.=' (Disabled)';
 
+                    echo sprintf('<option value="%d" %s %s>%s</option>',
+                            $status->getId(),
+                            ($config['default_ticket_status_id'] ==
+                             $status->getId() && $isenabled)
+                             ? 'selected="selected"' : '',
+                             $isenabled ? '' : 'disabled="disabled"',
+                             $name
+                            );
+                }
+                ?>
+                </select>
+                &nbsp;
+                <span class="error">*&nbsp;<?php echo $errors['default_ticket_status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#default_ticket_status"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">Default Priority:</td>
+            <td>
+                <select name="default_priority_id">
+                    <?php
+                    $priorities= db_query('SELECT priority_id,priority_desc FROM '.TICKET_PRIORITY_TABLE);
+                    while (list($id,$tag) = db_fetch_row($priorities)){ ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($config['default_priority_id']==$id)?'selected':''; ?>><?php echo $tag; ?></option>
+                    <?php
+                    } ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_priority_id']; ?></span> <i class="help-tip icon-question-sign" href="#default_priority"></i>
+             </td>
+        </tr>
         <tr>
             <td width="180" class="required">
                 Default SLA:
@@ -48,20 +91,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_sla_id']; ?></span>  <i class="help-tip icon-question-sign" href="#default_sla"></i>
                 </span>
             </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">Default Priority:</td>
-            <td>
-                <select name="default_priority_id">
-                    <?php
-                    $priorities= db_query('SELECT priority_id,priority_desc FROM '.TICKET_PRIORITY_TABLE);
-                    while (list($id,$tag) = db_fetch_row($priorities)){ ?>
-                        <option value="<?php echo $id; ?>"<?php echo ($config['default_priority_id']==$id)?'selected':''; ?>><?php echo $tag; ?></option>
-                    <?php
-                    } ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_priority_id']; ?></span> <i class="help-tip icon-question-sign" href="#default_priority"></i>
-             </td>
         </tr>
         <tr>
             <td width="180">Default Help Topic:</td>

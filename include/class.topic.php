@@ -106,6 +106,10 @@ class Topic {
         return $this->ht['priority_id'];
     }
 
+    function getStatusId() {
+        return $this->ht['status_id'];
+    }
+
     function getStaffId() {
         return $this->ht['staff_id'];
     }
@@ -327,6 +331,7 @@ class Topic {
             .',topic_pid='.db_input($vars['topic_pid'])
             .',dept_id='.db_input($vars['dept_id'])
             .',priority_id='.db_input($vars['priority_id'])
+            .',status_id='.db_input($vars['status_id'])
             .',sla_id='.db_input($vars['sla_id'])
             .',form_id='.db_input($vars['form_id'])
             .',page_id='.db_input($vars['page_id'])

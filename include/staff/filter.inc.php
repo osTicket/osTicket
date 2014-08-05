@@ -241,6 +241,36 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
+                Status:
+            </td>
+            <td>
+                <span>
+                <select name="status_id">
+                    <option value="">&mdash; Default &mdash;</option>
+                    <?php
+                    foreach (TicketStatusList::getAll() as $status) {
+                        $name = $status->getName();
+                        if (!($isenabled = $status->isEnabled()))
+                            $name.=' (Disabled)';
+
+                        echo sprintf('<option value="%d" %s %s>%s</option>',
+                                $status->getId(),
+                                ($info['status_id'] == $status->getId())
+                                 ? 'selected="selected"' : '',
+                                 $isenabled ? '' : 'disabled="disabled"',
+                                 $name
+                                );
+                    }
+                    ?>
+                </select>
+                &nbsp;
+                <span class="error"><?php echo $errors['status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#status"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                 Priority:
             </td>
             <td>

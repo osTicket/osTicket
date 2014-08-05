@@ -385,6 +385,10 @@ class OsticketConfig extends Config {
         return ($email=$this->getDefaultEmail()) ? $email->getAddress() : null;
     }
 
+    function getDefaultTicketStatusId() {
+        return $this->get('default_ticket_status_id', 1);
+    }
+
     function getDefaultSLAId() {
         return $this->get('default_sla_id');
     }
@@ -930,6 +934,7 @@ class OsticketConfig extends Config {
     function updateTicketsSettings($vars, &$errors) {
         $f=array();
         $f['default_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
+        $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>'Selection required');
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
         $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>'Enter valid numeric value');
         $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>'Enter lock time in minutes');
@@ -979,6 +984,7 @@ class OsticketConfig extends Config {
             'random_ticket_ids'=>$vars['random_ticket_ids'],
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
+            'default_ticket_status_id'=>$vars['default_ticket_status_id'],
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
