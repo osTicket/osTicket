@@ -63,4 +63,13 @@ require_once INCLUDE_DIR.'class.i18n.php';
 
 Internationalization::bootstrap();
 
+// Set browser-preferred language (if installed)
+require_once INCLUDE_DIR.'class.translation.php';
+
+// Support flags in the setup portal too
+if (isset($_GET['lang']) && $_GET['lang']) {
+    $_SESSION['client:lang'] = $_GET['lang'];
+}
+TextDomain::configureForUser();
+
 ?>

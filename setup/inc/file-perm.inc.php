@@ -7,15 +7,15 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <p> <?php
             echo sprintf(
                  __('osTicket installer requires ability to write to the configuration file %s'),
-                 '<b>include/ost-config.php</b>');?>
+                 '<b style="white-space:nowrap">include/ost-config.php</b>');?>
              </p>
             </div>
             <h3><?php echo __('Solution');?>: <font color="red"><?php echo $errors['err']; ?></font></h3>
             <?php echo __('Please follow the instructions below to give read and write access to the web server user.');?>
             <ul>
-                <li><b><?php echo __('CLI');?></b>:<br><i>chmod 0666  include/ost-config.php</i></li>
+                <li><b><?php echo __('CLI');?></b>:<br><i class="ltr">chmod 0666  include/ost-config.php</i></li>
                 <li><b><?php echo __('Windows PowerShell');?></b>:<br><?php echo __('Add "Full Access" permission for the "Everyone" user'); ?><br>
-                <i>icacls include\ost-config.php /grant 'Everyone:F'</i></li>
+                <i class="ltr">icacls include\ost-config.php /grant 'Everyone:F'</i></li>
                 <li><b><?php echo __('FTP');?></b>:<br><?php echo __('Using WS_FTP this would be right hand clicking on the file, selecting chmod, and then giving all permissions to the file.');?></li>
                 <li><b><?php echo __('Cpanel');?></b>:<br><?php echo __('Click on the file, select change permission, and then giving all permissions to the file.');?></li>
             </ul>
@@ -24,7 +24,7 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <div id="bar">
                 <form method="post" action="install.php">
                     <input type="hidden" name="s" value="config">
-                    <input class="btn"  type="submit" name="submit" value="<?php echo __('Done? Continue');?> &raquo;">
+                    <button class="btn"  type="submit" name="submit"><?php echo __('Done? Continue');?> &raquo;</button>
                 </form>
             </div>
     </div>

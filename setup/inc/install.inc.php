@@ -12,7 +12,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                 <span class="subhead"><?php echo __('The URL of your helpdesk, its name, and the default system email address');?></span>
                 <div class="row">
                     <label><?php echo __('Helpdesk URL');?>:</label>
-                    <span><strong><?php echo URL; ?></strong></span>
+                    <span class="ltr"><strong><?php echo URL; ?></strong></span>
                 </div>
                 <div class="row">
                     <label><?php echo __('Helpdesk Name');?>:</label>
@@ -33,7 +33,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
 <?php foreach($langs as $l) {
     $selected = ($info['lang_id'] == $l['code']) ? 'selected="selected"' : ''; ?>
                     <option value="<?php echo $l['code']; ?>" <?php echo $selected;
-                        ?>><?php echo $l['desc']; ?></option>
+                        ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
 <?php } ?>
                 </select>
                 <a class="tip" href="#default_lang"><i class="icon-question-sign help-tip"></i></a>
