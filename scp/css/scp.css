@@ -1340,7 +1340,7 @@ time {
     overflow-y: auto;
 }
 
-.dialog .popup-loading {
+.dialog #popup-loading {
     position:absolute;
     text-align:center;
     background:rgba(255,255,255,0.8);
