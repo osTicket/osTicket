@@ -77,6 +77,7 @@ class Internationalization {
         foreach ($priorities as $name=>$info) {
             $sql = 'INSERT INTO '.PRIORITY_TABLE
                 .' SET priority='.db_input($name)
+                .', priority_id='.db_input($info['priority_id'])
                 .', priority_desc='.db_input($info['priority_desc'])
                 .', priority_color='.db_input($info['priority_color'])
                 .', priority_urgency='.db_input($info['priority_urgency']);
