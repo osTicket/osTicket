@@ -1,4 +1,4 @@
-<h3><i class="icon-paste"></i> Manage Forms</i></h3>
+<h3><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/><?php echo __(
 'Sort the forms on this ticket by click and dragging on them. Use the box below the forms list to add new forms to the ticket.'

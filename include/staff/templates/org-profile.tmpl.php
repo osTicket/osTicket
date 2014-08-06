@@ -53,7 +53,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                             echo __('None'); ?> &mdash;</option><?php
                         if ($users=Staff::getAvailableStaffMembers()) { ?>
                             <optgroup label="<?php
-                                echo sprintf(__('Agents (%d)', count($users))); ?>">
+                                echo sprintf(__('Agents (%d)'), count($users)); ?>">
 <?php                       foreach($users as $id => $name) {
                                 $k = "s$id";
                                 echo sprintf('<option value="%s" %s>%s</option>',
