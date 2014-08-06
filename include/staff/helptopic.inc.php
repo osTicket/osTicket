@@ -45,6 +45,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="30" name="topic" value="<?php echo $info['topic']; ?>"
+                data-primary-lang="<?php echo $cfg->getPrimaryLanguage(); ?>"
                 data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['topic']; ?></span> <i class="help-tip icon-question-sign" href="#topic"></i>
             </td>

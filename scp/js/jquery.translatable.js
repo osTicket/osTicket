@@ -9,22 +9,11 @@
     if (!this.$element.data('translateTag'))
         return;
 
-    this.$translations = $('<ul class="translations"></ul>');
-    this.$status = $('<li class="status"><i class="icon-spinner icon-spin"></i> Loading ...</li>')
-      .appendTo(this.$translations);
-    this.$footer = $('<div class="add-translation"></div>');
-    this.$select = $('<select name="locale"></select>');
-    this.$menu = $(this.options.menu).appendTo('body');
-    this.$element.wrap(
-      $('<span></span>').css({display:'inline-block', 'white-space':'nowrap'})
-    )
-    this.$button = $(this.options.button).insertAfter(this.$element);
-    //this.$menu.append('<a class="close pull-right" href=""><i class="icon-remove-circle"></i></a>')
-    //    .on('click', $.proxy(this.hide, this));
-    this.$menu.append(this.$translations).append(this.$footer);
-    this.shown = false;
-    this.populated = false;
-    this.decorate();
+    var self = this;
+    this.fetch('ajax.php/i18n/langs').then(function(json) {
+      self.langs = json;
+      if (Object.keys(self.langs).length) self.decorate();
+    });
   },
   // Class-static variables
   urlcache = {};
@@ -44,9 +33,33 @@
     },
 
     decorate: function() {
+      this.$translations = $('<ul class="translations"></ul>');
+      this.$status = $('<li class="status"><i class="icon-spinner icon-spin"></i> Loading ...</li>')
+        .appendTo(this.$translations);
+      this.$footer = $('<div class="add-translation"></div>');
+      this.$select = $('<select name="locale"></select>');
+      this.$menu = $(this.options.menu).appendTo('body');
+      this.$container = $('<div class="translatable"></div>')
+          .prependTo(this.$element.parent())
+          .append(this.$element);
+      this.$button = $(this.options.button).insertAfter(this.$container);
+      //this.$menu.append('<a class="close pull-right" href=""><i class="icon-remove-circle"></i></a>')
+      //    .on('click', $.proxy(this.hide, this));
+      this.$menu.append(this.$translations).append(this.$footer);
+      this.shown = false;
+      this.populated = false;
+
       this.$button.on('click', $.proxy(this.toggle, this));
-      var self = this;
-      this.fetch('ajax.php/i18n/langs').then(function(json) { self.langs = json; });
+
+      this.$element
+        .addClass('translatable')
+        .focus($.proxy(function() { this.addClass('focus'); }, this.$container))
+        .blur($.proxy(function() { this.removeClass('focus'); }, this.$container));
+      getConfig().then($.proxy(function(c) {
+        $('<span class="flag"></span>')
+          .addClass('flag-' + c.primary_lang_flag)
+          .insertAfter(this);
+        }, this.$element));
     },
 
     buildAdd: function() {
@@ -143,8 +156,8 @@
       if (this.shown)
           return this;
 
-      var pos = $.extend({}, this.$element.offset(), {
-        height: this.$element[0].offsetHeight
+      var pos = $.extend({}, this.$container.offset(), {
+        height: this.$container[0].offsetHeight
       })
 
       this.$menu.css({
@@ -184,7 +197,7 @@
   };
 
   $.fn.translatable.defaults = {
-    menu: '<div class="translatable dropdown-menu"></div>',
+    menu: '<div class="translations dropdown-menu"></div>',
     button: '<button class="translatable"><i class="fa fa-globe icon-globe"></i></button>'
   };
 
