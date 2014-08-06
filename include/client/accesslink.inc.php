@@ -20,24 +20,23 @@ else
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">
-    <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding-right: 2em;">
-    <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
-    <br>
+    <div class="login-box">
+    <div><strong><?php echo Format::htmlchars($errors['login']); ?></strong></div>
     <div>
         <label for="email"><?php echo __('E-Mail Address'); ?>:
         <input id="email" placeholder="<?php echo __('e.g. john.doe@osticket.com'); ?>" type="text"
             name="lemail" size="30" value="<?php echo $email; ?>"></label>
     </div>
     <div>
-        <label for="ticketno"><?php echo __('Ticket Number'); ?>:</label><br/>
+        <label for="ticketno"><?php echo __('Ticket Number'); ?>:
         <input id="ticketno" type="text" name="lticket" placeholder="<?php echo __('e.g. 051243'); ?>"
-            size="30" value="<?php echo $ticketid; ?>"></td>
+            size="30" value="<?php echo $ticketid; ?>"></label>
     </div>
     <p>
         <input class="btn" type="submit" value="<?php echo $button; ?>">
     </p>
     </div>
-    <div style="display:table-cell;padding-left: 2em;padding-right:90px;">
+    <div class="instructions">
 <?php if ($cfg && $cfg->getClientRegistrationMode() !== 'disabled') { ?>
         <?php echo __('Have an account with us?'); ?>
         <a href="login.php"><?php echo __('Sign In'); ?></a> <?php

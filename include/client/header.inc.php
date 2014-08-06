@@ -32,6 +32,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/jquery.multifile.js"></script>
@@ -48,11 +49,12 @@ if (($lang = Internationalization::getCurrentLanguage())
 <body>
     <div id="container">
         <div id="header">
-            <a id="logo" href="<?php echo ROOT_PATH; ?>index.php"
+            <a class="pull-left" id="logo" href="<?php echo ROOT_PATH; ?>index.php"
             title="<?php echo __('Support Center'); ?>"><img src="<?php
                 echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
                 echo $ost->getConfig()->getTitle(); ?>"
                 style="height: 5em"></a>
+            <div class="pull-right flush-right">
             <p>
              <?php
                 if ($thisclient && is_object($thisclient) && $thisclient->isValid()
@@ -90,11 +92,12 @@ if (($all_langs = Internationalization::availableLanguages())
 <?php }
 } ?>
             </p>
+            </div>
         </div>
         <div class="clear"></div>
         <?php
         if($nav){ ?>
-        <ul id="nav">
+        <ul id="nav" class="flush-left">
             <?php
             if($nav && ($navs=$nav->getNavLinks()) && is_array($navs)){
                 foreach($navs as $name =>$nav) {
