@@ -24,6 +24,7 @@ class ConfigAjaxAPI extends AjaxController {
         global $cfg;
 
         $lang = Internationalization::getCurrentLanguage();
+        $info = Internationalization::getLanguageInfo($lang);
         list($sl, $locale) = explode('_', $lang);
 
         $rtl = false;
@@ -32,6 +33,10 @@ class ConfigAjaxAPI extends AjaxController {
                 $rtl = true;
         }
 
+        $primary = $cfg->getPrimaryLanguage();
+        $primary_info = Internationalization::getLanguageInfo($primary);
+        list($primary_sl, $primary_locale) = explode('_', $primary);
+
         $config=array(
               'lock_time'       => ($cfg->getLockTime()*3600),
               'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
@@ -39,7 +44,9 @@ class ConfigAjaxAPI extends AjaxController {
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
-              'primary_language' => $cfg->getPrimaryLanguage(),
+              'lang_flag'       => $info['flag'] ?: strtolower($locale) ?: $sl,
+              'primary_lang_flag' => $primary_info['flag'] ?: strtolower($primary_locale) ?: $primary_sl,
+              'primary_language' => $primary,
               'secondary_languages' => $cfg->getSecondaryLanguages(),
         );
         return $this->json_encode($config);
