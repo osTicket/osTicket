@@ -760,8 +760,7 @@ class TextDomain {
 
     static function configureForUser($user=false) {
         $lang = Internationalization::getCurrentLanguage($user);
-
-        $info = Internationalization::getLanguageInfo(strtolower($lang));
+        $info = Internationalization::getLanguageInfo($lang);
         if (!$info)
             // Not a supported language
             return;
