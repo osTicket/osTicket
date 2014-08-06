@@ -38,7 +38,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' '._N('filter', 'filters', $count);
+    $showing=$pageNav->showing().' '._N('filter', 'filters', $num);
 else
     $showing=__('No filters found!');
 

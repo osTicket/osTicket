@@ -333,9 +333,9 @@ class Internationalization {
         TextDomain::lookup()->setPath(I18N_DIR);
 
         // User-specific translations
-        function _N($msgid, $plural, $count) {
-            return TextDomain::lookup()->getTranslation(LC_MESSAGES)
-                ->ngettext($msgid, $plural, $count);
+        function _N($msgid, $plural, $n) {
+            return TextDomain::lookup()->getTranslation()
+                ->ngettext($msgid, $plural, is_numeric($n) ? $n : 1);
         }
 
         // System-specific translations
@@ -354,7 +354,7 @@ class Internationalization {
         }
         function _NP($context, $singular, $plural, $n) {
             return TextDomain::lookup()->getTranslation()
-                ->npgettext($context, $singular, $plural, $n);
+                ->npgettext($context, $singular, $plural, is_numeric($n) ? $n : 1);
         }
 
         // Language-specific translations
@@ -364,7 +364,7 @@ class Internationalization {
         }
         function _NL($msgid, $plural, $n, $locale) {
             return TextDomain::lookup()->getTranslation($locale)
-                ->ngettext($msgid, $plural, $n);
+                ->ngettext($msgid, $plural, is_numeric($n) ? $n : 1);
         }
     }
 }
