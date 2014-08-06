@@ -981,6 +981,9 @@ class OsticketConfig extends Config {
             $errors['default_help_topic'] = 'Default help topic must be set to active';
         }
 
+        if (!preg_match('`(?!<\\\)#`', $vars['number_format']))
+            $errors['number_format'] = 'Ticket number format requires at least one hash character (#)';
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 

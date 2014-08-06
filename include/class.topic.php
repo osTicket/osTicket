@@ -341,6 +341,10 @@ class Topic {
         if (!is_numeric($vars['dept_id']))
             $errors['dept_id']='You must select a department';
 
+        if ($vars['custom-numbers'] && !preg_match('`(?!<\\\)#`', $vars['number_format']))
+            $errors['number_format'] =
+                'Ticket number format requires at least one hash character (#)';
+
         if($errors) return false;
 
         foreach (array('sla_id','form_id','page_id','topic_pid') as $f)

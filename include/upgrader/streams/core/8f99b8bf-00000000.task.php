@@ -11,11 +11,10 @@ class SequenceLoader extends MigrationTask {
         $i18n = new Internationalization('en_US');
         $sequences = $i18n->getTemplate('sequence.yaml')->getData();
         foreach ($sequences as $s) {
-            Sequence::create($s);
-            $s->save();
+            Sequence::create($s)->save();
         }
         db_query('UPDATE '.SEQUENCE_TABLE.' SET `next`= '
-            .'(SELECT MAX(ticket_id) FROM '.TICKET_TABLE.') '
+            .'(SELECT MAX(ticket_id)+1 FROM '.TICKET_TABLE.') '
             .'WHERE `id`=1');
     }
 }

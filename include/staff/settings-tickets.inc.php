@@ -31,6 +31,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     echo $seq->current($config['number_format']);
                     ?></span></span>
                 <i class="help-tip icon-question-sign" href="#number_format"></i>
+                <div class="error"><?php echo $errors['number_format']; ?></div>
             </td>
         </tr>
         <tr><td width="220">Default Ticket Number Sequence:</td>

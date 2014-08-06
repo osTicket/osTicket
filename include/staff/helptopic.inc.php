@@ -271,6 +271,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                             $seq = new RandomSequence();
                         echo $seq->current($info['number_format']);
                     } ?></span></span>
+                <div class="error"><?php echo $errors['number_format']; ?></div>
             </td>
         </tr>
         <tr>
