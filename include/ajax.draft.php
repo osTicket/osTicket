@@ -265,11 +265,11 @@ class DraftAjaxAPI extends AjaxController {
 
         $files = array();
         $folders = array(
-            'C' => 'Canned Responses',
-            'F' => 'FAQ Articles',
-            'T' => 'Email Templates',
-            'L' => 'Logos',
-            'P' => 'Pages',
+            'C' => __('Canned Responses'),
+            'F' => __('FAQ Articles'),
+            'T' => __('Email Templates'),
+            'L' => __('Logos'),
+            'P' => __('Pages'),
         );
         while (list($id, $type) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup($id);

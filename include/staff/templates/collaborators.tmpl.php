@@ -1,4 +1,4 @@
-<h3>Ticket Collaborators</h3>
+<h3><?php echo __('Ticket Collaborators'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <?php
 if($info && $info['msg']) {
@@ -36,15 +36,17 @@ if(($users=$ticket->getCollaborators())) {?>
     </table>
     <hr style="margin-top:1em"/>
     <div><a class="collaborator"
-        href="#tickets/<?php echo $ticket->getId(); ?>/add-collaborator" >Add New Collaborator</a></div>
-    <div id="savewarning" style="display:none; padding-top:2px;"><p id="msg_warning">You have made changes that you need to save.</p></div>
+        href="#tickets/<?php echo $ticket->getId(); ?>/add-collaborator"
+        ><i class="icon-plus-sign"></i> <?php echo __('Add New Collaborator'); ?></a></div>
+    <div id="savewarning" style="display:none; padding-top:2px;"><p
+    id="msg_warning"><?php echo __('You have made changes that you need to save.'); ?></p></div>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="Cancel" class="close">
-            <input type="reset" value="Reset">
+        <span class="buttons pull-left">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Save Changes">
+        <span class="buttons pull-right">
+        <input type="submit" value="<?php echo __('Save Changes'); ?>">
         </span>
      </p>
 </form>
@@ -52,11 +54,11 @@ if(($users=$ticket->getCollaborators())) {?>
 </div>
 <?php
 } else {
-    echo "Bro, not sure how you got here!";
+    echo __("Bro, not sure how you got here!");
 }
 
 if ($_POST && $ticket && $ticket->getNumCollaborators()) {
-    $recipients = sprintf('Recipients (%d of %d)',
+    $recipients = sprintf(__('Recipients (%d of %d)'),
           $ticket->getNumActiveCollaborators(),
           $ticket->getNumCollaborators());
     ?>

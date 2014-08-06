@@ -28,7 +28,7 @@ default_priority:
         Choose a default <span class="doc-desc-title">priority</span> for
         tickets not assigned a priority automatically.
         <br/><br/>
-        Prioriy can be assigned via the help topic, routed department, or
+        Priority can be assigned via the help topic, routed department, or
         ticket filter settings.
 
 maximum_open_tickets:

@@ -46,13 +46,18 @@ class DynamicForm extends VerySimpleModel {
     var $_dfields;
 
     function getFields($cache=true) {
-        if (!isset($this->_fields) || !$cache) {
-            $this->_fields = array();
+        if (!$cache)
+            $fields = false;
+        else
+            $fields = &$this->_fields;
+
+        if (!$fields) {
+            $fields = new ArrayObject();
             foreach ($this->getDynamicFields() as $f)
                 // TODO: Index by field name or id
-                $this->_fields[$f->get('id')] = $f->getImpl($f);
+                $fields[$f->get('id')] = $f->getImpl($f);
         }
-        return $this->_fields;
+        return $fields;
     }
 
     function getDynamicFields() {
@@ -70,7 +75,7 @@ class DynamicForm extends VerySimpleModel {
     function __call($what, $args) {
         $delegate = array($this->getForm(), $what);
         if (!is_callable($delegate))
-            throw new Exception($what.': Call to non-existing function');
+            throw new Exception(sprintf(__('%s: Call to non-existing function'), $what));
         return call_user_func_array($delegate, $args);
     }
 
@@ -237,16 +242,16 @@ class UserForm extends DynamicForm {
         return static::$instance;
     }
 }
-Filter::addSupportedMatches('User Data', function() {
+Filter::addSupportedMatches(/* trans */ 'User Data', function() {
     $matches = array();
     foreach (UserForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'User / '.$f->getLabel();
+        $matches['field.'.$f->get('id')] = __('User').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
             foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'User / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('User').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }
@@ -327,16 +332,16 @@ class TicketForm extends DynamicForm {
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Ticket Data', function() {
+Filter::addSupportedMatches(/* trans */ 'Ticket Data', function() {
     $matches = array();
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
+        $matches['field.'.$f->get('id')] = __('Ticket').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
             foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'Ticket / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('Ticket').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }
@@ -457,10 +462,13 @@ class DynamicFormField extends VerySimpleModel {
             return false;
         if (!$this->get('label'))
             $this->addError(
-                "Label is required for custom form fields", "label");
+                __("Label is required for custom form fields"), "label");
         if ($this->get('required') && !$this->get('name'))
             $this->addError(
-                "Variable name is required for required fields", "name");
+                __("Variable name is required for required fields"
+                /* `required` is a flag on fields */
+                /* `variable` is used for automation. Internally it's called `name` */
+                ), "name");
         return count($this->errors()) == 0;
     }
 
@@ -929,9 +937,9 @@ class DynamicList extends VerySimpleModel {
 
     function getSortModes() {
         return array(
-            'Alpha'     => 'Alphabetical',
-            '-Alpha'    => 'Alphabetical (Reversed)',
-            'SortCol'   => 'Manually Sorted'
+            'Alpha'     => __('Alphabetical'),
+            '-Alpha'    => __('Alphabetical (Reversed)'),
+            'SortCol'   => __('Manually Sorted')
         );
     }
 
@@ -1027,7 +1035,8 @@ class DynamicList extends VerySimpleModel {
         return $selections;
     }
 }
-FormField::addFieldTypes('Custom Lists', array('DynamicList', 'getSelections'));
+FormField::addFieldTypes(/* trans */ 'Custom Lists',
+    array('DynamicList', 'getSelections'));
 
 /**
  * Represents a single item in a dynamic list
@@ -1209,23 +1218,23 @@ class SelectionField extends FormField {
         $config = $this->getConfiguration();
         parent::validateEntry($item);
         if ($item && !$item instanceof DynamicListItem)
-            $this->_errors[] = 'Select a value from the list';
+            $this->_errors[] = __('Select a value from the list');
         elseif ($item && $config['typeahead']
                 && $this->getWidget()->getEnteredValue() != $item->get('value'))
-            $this->_errors[] = 'Select a value from the list';
+            $this->_errors[] = __('Select a value from the list');
     }
 
     function getConfigurationOptions() {
         return array(
             'typeahead' => new ChoiceField(array(
-                'id'=>1, 'label'=>'Widget', 'required'=>false,
+                'id'=>1, 'label'=>__('Widget'), 'required'=>false,
                 'default'=>false,
-                'choices'=>array(false=>'Drop Down', true=>'Typeahead'),
-                'hint'=>'Typeahead will work better for large lists'
+                'choices'=>array(false=>__('Drop Down'), true=>__('Typeahead')),
+                'hint'=>__('Typeahead will work better for large lists')
             )),
             'prompt' => new TextboxField(array(
-                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Leading text shown before a value is selected',
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -1238,7 +1247,8 @@ class SelectionField extends FormField {
                 $this->_choices[$i->get('id')] = $i->get('value');
             if ($this->value && !isset($this->_choices[$this->value])) {
                 if ($v = DynamicListItem::lookup($this->value))
-                    $this->_choices[$v->get('id')] = $v->get('value').' (Disabled)';
+                    $this->_choices[$v->get('id')] = $v->get('value')
+                        . ' ' . __('(disabled)');
             }
         }
         return $this->_choices;

@@ -3,16 +3,16 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info=array();
 $qstr='';
 if($sla && $_REQUEST['a']!='add'){
-    $title='Update SLA Plan';
+    $title=__('Update SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='update';
-    $submit_text='Save Changes';
+    $submit_text=__('Save Changes');
     $info=$sla->getInfo();
     $info['id']=$sla->getId();
     $qstr.='&id='.$sla->getId();
 }else {
-    $title='Add New SLA Plan';
+    $title=__('Add New SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='add';
-    $submit_text='Add Plan';
+    $submit_text=__('Add Plan');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['enable_priority_escalation']=isset($info['enable_priority_escalation'])?$info['enable_priority_escalation']:1;
     $info['disable_overdue_alerts']=isset($info['disable_overdue_alerts'])?$info['disable_overdue_alerts']:0;
@@ -25,20 +25,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Service Level Agreement</h2>
+ <h2><?php echo __('Service Level Agreement');?></h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Tickets are marked overdue on grace period violation.</em>
+                <em><?php echo __('Tickets are marked overdue on grace period violation.');?></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td width="180" class="required">
-              Name:
+              <?php echo __('Name');?>:
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
@@ -47,47 +47,49 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-              Grace Period:
+              <?php echo __('Grace Period');?>:
             </td>
             <td>
                 <input type="text" size="10" name="grace_period" value="<?php echo $info['grace_period']; ?>">
-                <em>( in hours )</em>
+                <em>( <?php echo __('in hours');?> )</em>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['grace_period']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#grace_period"></i>
             </td>
         </tr>
         <tr>
             <td width="180" class="required">
-                Status:
+                <?php echo __('Status');?>:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
+                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active');?></strong>
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><?php echo __('Disabled');?>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
             </td>
         </tr>
         <tr>
             <td width="180">
-                Transient:
+                <?php echo __('Transient'); ?>:
             </td>
             <td>
                 <input type="checkbox" name="transient" value="1" <?php echo $info['transient']?'checked="checked"':''; ?> >
-                SLA can be overridden on ticket transfer or help topic
-                change&nbsp;<i class="help-tip icon-question-sign" href="#transient"></i>
+                <?php echo __('SLA can be overridden on ticket transfer or help topic change'); ?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#transient"></i>
             </td>
         </tr>
         <tr>
             <td width="180">
-                Ticket Overdue Alerts:
+                <?php echo __('Ticket Overdue Alerts');?>:
             </td>
             <td>
                 <input type="checkbox" name="disable_overdue_alerts" value="1" <?php echo $info['disable_overdue_alerts']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> overdue alerts notices.
-                    <em>(Override global setting)</em>
+                    <?php echo __('<strong>Disable</strong> overdue alerts notices.'); ?>
+                    <em><?php echo __('(Override global setting)'); ?></em>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
+                <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes.');?>
+                &nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
+                </em>
             </th>
         </tr>
         <tr>
@@ -98,9 +100,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="slas.php"'>
+    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="slas.php"'>
 </p>
 </form>

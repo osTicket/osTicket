@@ -119,20 +119,20 @@ class Category {
 
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
-      
+
         //validate
         if($id && $id!=$vars['id'])
-            $errors['err']='Internal error. Try again';
-      
+            $errors['err']=__('Internal error occurred');
+
         if(!$vars['name'])
-            $errors['name']='Category name is required';
+            $errors['name']=__('Category name is required');
         elseif(strlen($vars['name'])<3)
-            $errors['name']='Name is too short. 3 chars minimum';
+            $errors['name']=__('Name is too short. 3 chars minimum');
         elseif(($cid=self::findIdByName($vars['name'])) && $cid!=$id)
-            $errors['name']='Category already exists';
+            $errors['name']=__('Category already exists');
 
         if(!$vars['description'])
-            $errors['description']='Category description is required';
+            $errors['description']=__('Category description is required');
 
         if($errors) return false;
 
@@ -151,14 +151,15 @@ class Category {
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update FAQ category.';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this FAQ category'));
 
         } else {
             $sql='INSERT INTO '.FAQ_CATEGORY_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']='Unable to create FAQ category. Internal error';
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ category'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

@@ -183,16 +183,15 @@ class Group {
     }
 
     function save($id,$vars,&$errors) {
-
         if($id && $vars['id']!=$id)
-            $errors['err']='Missing or invalid group ID';
+            $errors['err']=__('Missing or invalid group ID');
             
         if(!$vars['name']) {
-            $errors['name']='Group name required';
+            $errors['name']=__('Group name required');
         }elseif(strlen($vars['name'])<3) {
-            $errors['name']='Group name must be at least 3 chars.';
+            $errors['name']=__('Group name must be at least 3 chars.');
         }elseif(($gid=Group::getIdByName($vars['name'])) && $gid!=$id){
-            $errors['name']='Group name already exists';
+            $errors['name']=__('Group name already exists');
         }
         
         if($errors) return false;
@@ -219,16 +218,18 @@ class Group {
             if(($res=db_query($sql)))
                 return true;
 
-            $errors['err']='Unable to update group. Internal error occurred.';
-            
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this group'))
+               .' '.__('Internal error occurred');
+
         }else{
             $sql='INSERT INTO '.GROUP_TABLE.' '.$sql.',created=NOW()';
             if(($res=db_query($sql)) && ($id=db_insert_id()))
                 return $id;
-                
-            $errors['err']='Unable to create the group. Internal error';
+
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this group'))
+               .' '.__('Internal error occurred');
         }
-        
+
         return false;
     }
 }

@@ -12,7 +12,7 @@ if (($users=$ticket->getCollaborators())) {?>
                 $user->getEmail());
     }
 }  else {
-    echo "<strong>Ticket doesn't have collaborators.</strong>";
+    echo "<strong>".__("Ticket doesn't have any collaborators.")."</strong>";
 }?>
 </table>
 <?php
@@ -22,7 +22,7 @@ $options[] = sprintf(
         '<a class="collaborators" id="managecollab" href="#tickets/%d/collaborators">%s</a>',
         $ticket->getId(),
         $ticket->getNumCollaborators()
-        ? 'Manage Collaborators' : 'Add Collaborator'
+        ? __('Manage Collaborators') : __('Add Collaborator')
         );
 
 if ($options) {

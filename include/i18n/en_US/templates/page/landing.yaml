@@ -7,7 +7,7 @@
 ---
 notes: >
     The Landing Page refers to the content of the Customer Portal's
-    intial view. The template modifies the content seen above the two links
+    initial view. The template modifies the content seen above the two links
     <strong>Open a New Ticket</strong> and <strong>Check Ticket Status</strong>.
 
 name: Landing

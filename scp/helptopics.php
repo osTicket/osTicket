@@ -19,25 +19,28 @@ require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 $topic=null;
 if($_REQUEST['id'] && !($topic=Topic::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid help topic ID.';
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('help topic'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$topic){
-                $errors['err']='Unknown or invalid help topic.';
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('help topic'));
             }elseif($topic->update($_POST,$errors)){
-                $msg='Help topic updated successfully';
+                $msg=sprintf(__('Successfully updated %s'),
+                    __('this help topic'));
             }elseif(!$errors['err']){
-                $errors['err']='Error updating help topic. Try again!';
+                $errors['err']=sprintf(__('Error updating %s. Try again!'),
+                    __('this help topic'));
             }
             break;
         case 'create':
             if(($id=Topic::create($_POST,$errors))){
-                $msg='Help topic added successfully';
+                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['topic']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add help topic. Correct error(s) below and try again.';
+                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this help topic'));
             }
             break;
         case 'mass_process':
@@ -47,7 +50,8 @@ if($_POST){
                 break;
             default:
                 if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids']))
-                    $errors['err'] = 'You must select at least one help topic';
+                    $errors['err'] = sprintf(__('You must select at least %s'),
+                        __('one help topic'));
             }
             if (!$errors) {
                 $count=count($_POST['ids']);
@@ -59,11 +63,14 @@ if($_POST){
 
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected help topics enabled';
+                                $msg = sprintf(__('Successfully enabled %s'),
+                                    _N('selected help topic', 'selected help topics', $count));
                             else
-                                $warn = "$num of $count selected help topics enabled";
+                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
+                                    _N('selected help topic', 'selected help topics', $count));
                         } else {
-                            $errors['err'] = 'Unable to enable selected help topics.';
+                            $errors['err'] = sprintf(__('Unable to enable %s.'),
+                                _N('selected help topic', 'selected help topics', $count));
                         }
                         break;
                     case 'disable':
@@ -72,11 +79,14 @@ if($_POST){
                             .' AND topic_id <> '.db_input($cfg->getDefaultTopicId());
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected help topics disabled';
+                                $msg = sprintf(__('Successfully diabled %s'),
+                                    _N('selected help topic', 'selected help topics', $count));
                             else
-                                $warn = "$num of $count selected help topics disabled";
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
+                                    _N('selected help topic', 'selected help topics', $count));
                         } else {
-                            $errors['err'] ='Unable to disable selected help topic(s)';
+                            $errors['err'] = sprintf(__('Unable to disable %s'),
+                                _N('selected help topic', 'selected help topics', $count));
                         }
                         break;
                     case 'delete':
@@ -87,11 +97,14 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = 'Selected help topics deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected help topic', 'selected elp topics', $count));
                         elseif($i>0)
-                            $warn = "$i of $count selected help topics deleted";
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected help topic', 'selected help topics', $count));
                         elseif(!$errors['err'])
-                            $errors['err']  = 'Unable to delete selected help topics';
+                            $errors['err']  = sprintf(__('Unable to delete %s'),
+                                _N('selected help topic', 'selected help topics', $count));
 
                         break;
                     case 'sort':
@@ -105,19 +118,19 @@ if($_POST){
                                         $t->setSortOrder($v);
                                 }
                             }
-                            $msg = 'Successfully set sorting configuration';
+                            $msg = __('Successfully set sorting configuration');
                         }
                         catch (Exception $ex) {
-                            $errors['err'] = 'Unable to set sorting mode';
+                            $errors['err'] = __('Unable to set sorting mode');
                         }
                         break;
                     default:
-                        $errors['err']='Unknown action - get technical help.';
+                        $errors['err']=__('Unknown action - get technical help.');
                 }
             }
             break;
         default:
-            $errors['err']='Unknown command/action';
+            $errors['err']=__('Unknown action');
             break;
     }
     if ($id or $topic) {

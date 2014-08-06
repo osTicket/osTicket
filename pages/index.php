@@ -41,10 +41,10 @@ while (list($id, $name) = db_fetch_row($res)) {
 }
 
 if (!$page_id || !($page = Page::lookup($page_id)))
-    Http::response(404, 'Page Not Found');
+    Http::response(404, __('Page Not Found'));
 
 if (!$page->isActive() || $page->getType() != 'other')
-    Http::response(404, 'Page Not Found');
+    Http::response(404, __('Page Not Found'));
 
 require(CLIENTINC_DIR.'header.inc.php');
 

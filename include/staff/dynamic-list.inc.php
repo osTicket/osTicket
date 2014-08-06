@@ -2,15 +2,15 @@
 
 $info=array();
 if($list && !$errors) {
-    $title = 'Update custom list';
+    $title = __('Update custom list');
     $action = 'update';
-    $submit_text='Save Changes';
+    $submit_text = __('Save Changes');
     $info = $list->ht;
     $newcount=2;
 } else {
-    $title = 'Add new custom list';
+    $title = __('Add new custom list');
     $action = 'add';
-    $submit_text='Add List';
+    $submit_text = __('Add List');
     $newcount=4;
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -21,15 +21,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2>Custom List</h2>
+    <h2><?php echo __('Custom List'); ?></h2>
 
 <ul class="tabs">
     <li><a href="#definition" class="active">
-        <i class="icon-plus"></i> Definition</a></li>
+        <i class="icon-plus"></i> <?php echo __('Definition'); ?></a></li>
     <li><a href="#items">
-        <i class="icon-list"></i> Items</a></li>
+        <i class="icon-list"></i> <?php echo __('Items'); ?></a></li>
     <li><a href="#properties">
-        <i class="icon-asterisk"></i> Properties</a></li>
+        <i class="icon-asterisk"></i> <?php echo __('Properties'); ?></a></li>
 </ul>
 
 <div id="definition" class="tab_content">
@@ -38,22 +38,24 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Custom lists are used to provide drop-down lists for custom forms. &nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
+                <em><?php echo __(
+                'Custom lists are used to provide drop-down lists for custom forms.'
+                ); ?>&nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td width="180" class="required">Name:</td>
+            <td width="180" class="required"><?php echo __('Name'); ?>:</td>
             <td><input size="50" type="text" name="name" value="<?php echo $info['name']; ?>"/>
             <span class="error">*<br/><?php echo $errors['name']; ?></td>
         </tr>
         <tr>
-            <td width="180">Plural Name:</td>
+            <td width="180"><?php echo __('Plural Name'); ?>:</td>
             <td><input size="50" type="text" name="name_plural" value="<?php echo $info['name_plural']; ?>"/></td>
         </tr>
         <tr>
-            <td width="180">Sort Order:</td>
+            <td width="180"><?php echo __('Sort Order'); ?>:</td>
             <td><select name="sort_mode">
                 <?php foreach (DynamicList::getSortModes() as $key=>$desc) { ?>
                 <option value="<?php echo $key; ?>" <?php
@@ -66,7 +68,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="7">
-                <em><strong>Internal Notes:</strong> be liberal, they're internal</em>
+                <em><strong><?php echo __('Internal Notes'); ?>:</strong>
+                <?php echo __("be liberal, they're internal"); ?></em>
             </th>
         </tr>
         <tr>
@@ -83,15 +86,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>Item Properties</strong> properties definable for each item</em>
+                <em><strong><?php echo __('Item Properties'); ?></strong>
+                <?php echo __('properties definable for each item'); ?></em>
             </th>
         </tr>
         <tr>
-            <th nowrap>Sort</th>
-            <th nowrap>Label</th>
-            <th nowrap>Type</th>
-            <th nowrap>Variable</th>
-            <th nowrap>Delete</th>
+            <th nowrap></th>
+            <th nowrap><?php echo __('Label'); ?></th>
+            <th nowrap><?php echo __('Type'); ?></th>
+            <th nowrap><?php echo __('Variable'); ?></th>
+            <th nowrap><?php echo __('Delete'); ?></th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="prop-sort-">
@@ -108,16 +112,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
-            <td nowrap><select name="type-<?php echo $id; ?>" <?php
+            <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
                 if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                        ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                        ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {
                             if ($f->get('type') != $type
                                     && isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>" <?php
                     if ($f->get('type') == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?></option>
+                    <?php echo __($nfo[0]); ?></option>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
@@ -128,10 +132,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         echo $f->get('id'); ?>"
                     onclick="javascript:
                         $('#overlay').show();
-                        $('#field-config .body').load($(this).attr('href').substr(1));
+                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Config</a>
+                    "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
             <?php } ?></td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
@@ -155,14 +159,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     value="<?php echo $info["prop-sort-new-$i"]; ?>"/></td>
             <td><input type="text" size="32" name="prop-label-new-<?php echo $i; ?>"
                 value="<?php echo $info["prop-label-new-$i"]; ?>"/></td>
-            <td><select name="type-new-<?php echo $i; ?>">
+            <td><select style="max-width:150px" name="type-new-<?php echo $i; ?>">
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                    ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                    ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                     foreach ($types as $type=>$nfo) {
                         if (isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>"
                     <?php if ($info["type-new-$i"] == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?>
+                    <?php echo __($nfo[0]); ?>
                 </option>
                     <?php } ?>
                 </optgroup>
@@ -187,10 +191,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $count = $list->getItemCount();
         $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
         $pageNav->setURL('dynamic-list.php', 'id='.urlencode($_REQUEST['id']));
-        $showing=$pageNav->showing().' list items';
-        ?>
-    <?php }
-        else $showing = 'Add a few initial items to the list';
+        $showing=$pageNav->showing().' '.__('list items');
+    }
+        else $showing = __('Add a few initial items to the list');
     ?>
         <tr>
             <th colspan="5">
@@ -199,10 +202,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th></th>
-            <th>Value</th>
-            <th>Extra <em style="display:inline">&mdash; abbreviations and such</em></th>
-            <th>Disabled</th>
-            <th>Delete</th>
+            <th><?php echo __('Value'); ?></th>
+            <th><?php echo __('Extra'); ?> <em style="display:inline">&mdash;
+                <?php echo __('abbreviations and such'); ?></em></th>
+            <th><?php echo __('Disabled'); ?></th>
+            <th><?php echo __('Delete'); ?></th>
         </tr>
     </thead>
 
@@ -226,10 +230,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         echo $i->get('id'); ?>/properties"
                     onclick="javascript:
                         $('#overlay').show();
-                        $('#field-config .body').load($(this).attr('href').substr(1));
+                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Properties</a>
+                    "><i class="icon-edit"></i> <?php echo __('Properties'); ?></a>
                 <?php } ?></td>
             <td><input type="text" size="30" name="extra-<?php echo $id; ?>"
                 value="<?php echo $i->get('extra'); ?>"/></td>
@@ -256,11 +260,30 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </div>
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
+    <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>"
+        onclick='window.location.href="?"'>
 </p>
 </form>
 
 <div style="display:none;" class="dialog draggable" id="field-config">
+    <div id="popup-loading">
+        <h1><i class="icon-spinner icon-spin icon-large"></i>
+        <?php echo __('Loading ...');?></h1>
+    </div>
     <div class="body"></div>
 </div>
+
+<script type="text/javascript">
+$(function() {
+    var $this = $('#popup-loading').hide();
+    $(document).ajaxStart( function(event) {
+        console.log(1,event);
+        var $h1 = $this.find('h1');
+        $this.show();
+        $h1.css({'margin-top':$this.height()/3-$h1.height()/3});  // show Loading Div
+    }).ajaxStop ( function(){
+        $this.hide(); // hide loading div
+    });
+});
+</script>

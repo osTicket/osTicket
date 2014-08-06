@@ -28,10 +28,10 @@ include_once(INCLUDE_DIR.'class.ticket.php');
  */
 class OverviewReportAjaxAPI extends AjaxController {
     function enumTabularGroups() {
-        return $this->encode(array("dept"=>"Department", "topic"=>"Topics",
+        return $this->encode(array("dept"=>__("Department"), "topic"=>__("Topics"),
             # XXX: This will be relative to permissions based on the
             # logged-in-staff. For basic staff, this will be 'My Stats'
-            "staff"=>"Staff"));
+            "staff"=>__("Agent")));
     }
 
     function getData() {
@@ -45,7 +45,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "pk" => "dept_id",
                 "sort" => 'T1.dept_name',
                 "fields" => 'T1.dept_name',
-                "headers" => array('Department'),
+                "headers" => array(__('Department')),
                 "filter" => ('T1.dept_id IN ('.implode(',', db_input($thisstaff->getDepts())).')')
             ),
             "topic" => array(
@@ -55,7 +55,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "fields" => "CONCAT_WS(' / ',"
                     ."(SELECT P.topic FROM ".TOPIC_TABLE." P WHERE P.topic_id = T1.topic_pid),"
                     ."T1.topic) as name ",
-                "headers" => array('Help Topic'),
+                "headers" => array(__('Help Topic')),
                 "filter" => '1'
             ),
             "staff" => array(
@@ -63,7 +63,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 "pk" => 'staff_id',
                 "sort" => 'name',
                 "fields" => "CONCAT_WS(' ', T1.firstname, T1.lastname) as name",
-                "headers" => array('Staff Member'),
+                "headers" => array(__('Agent')),
                 "filter" =>
                     ('T1.staff_id=S1.staff_id
                       AND
@@ -143,8 +143,8 @@ class OverviewReportAjaxAPI extends AjaxController {
                     $r[] = null;
         }
         return array("columns" => array_merge($info['headers'],
-                        array('Opened','Assigned','Overdue','Closed','Reopened',
-                              'Service Time','Response Time')),
+                        array(__('Opened'),__('Assigned'),__('Overdue'),__('Closed'),__('Reopened'),
+                              __('Service Time'),__('Response Time'))),
                      "data" => $rows);
     }
 
@@ -158,7 +158,7 @@ class OverviewReportAjaxAPI extends AjaxController {
         foreach ($data['data'] as $row)
             $csv .= "\n" . '"' . implode('","', $row) . '"';
         Http::download(
-            sprintf('%s-report.csv', $this->get('group', 'Department')),
+            sprintf('%s-report.csv', $this->get('group', __('Department'))),
             'text/csv', $csv);
     }
 

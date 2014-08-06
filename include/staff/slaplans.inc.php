@@ -33,17 +33,19 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' SLA plans';
+    $showing=$pageNav->showing().' '._N('SLA plan',
+        'SLA plans' /* SLA is abbreviation for Service Level Agreement */,
+        $total);
 else
-    $showing='No SLA plans found!';
+    $showing=__('No SLA plans found!' /* SLA is abbreviation for Service Level Agreement */);
 
 ?>
 
-<div style="width:700px;padding-top:5px; float:left;">
- <h2>Service Level Agreements</h2>
+<div class="pull-left" style="width:700px;padding-top:5px;">
+ <h2><?php echo __('Service Level Agreements');?></h2>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="slas.php?a=add" class="Icon newsla">Add New SLA Plan</a></b></div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
+ <b><a href="slas.php?a=add" class="Icon newsla"><?php echo __('Add New SLA Plan');?></a></b></div>
 <div class="clear"></div>
 <form action="slas.php" method="POST" name="slas">
  <?php csrf_token(); ?>
@@ -54,11 +56,11 @@ else
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th width="320"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="100"><a  <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="130"><a  <?php echo $period_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=period">Grace Period (hrs)</a></th>
-            <th width="120" nowrap><a  <?php echo $created_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=created">Date Added</a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="320"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="100"><a <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="130"><a <?php echo $period_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=period"><?php echo __('Grace Period (hrs)');?></a></th>
+            <th width="120" nowrap><a <?php echo $created_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
+            <th width="150" nowrap><a <?php echo $updated_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -84,7 +86,7 @@ else
                 <td>&nbsp;<a href="slas.php?id=<?php echo $row['id'];
                     ?>"><?php echo Format::htmlchars($row['name']);
                     ?></a>&nbsp;<?php echo $default; ?></td>
-                <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
+                <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
                 <td style="text-align:right;padding-right:35px;"><?php echo $row['grace_period']; ?>&nbsp;</td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
@@ -96,12 +98,12 @@ else
      <tr>
         <td colspan="6">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No SLA plans found';
+                echo __('No SLA plans found' /* SLA is abbreviation for Service Level Agreement */);
             } ?>
         </td>
      </tr>
@@ -109,12 +111,12 @@ else
 </table>
 <?php
 if($res && $num): //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="Enable" >
-    <input class="button" type="submit" name="disable" value="Disable" >
-    <input class="button" type="submit" name="delete" value="Delete" >
+    <input class="button" type="submit" name="enable" value="<?php echo __('Enable');?>" >
+    <input class="button" type="submit" name="disable" value="<?php echo __('Disable');?>" >
+    <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>" >
 </p>
 <?php
 endif;
@@ -122,26 +124,29 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        Are you sure want to <b>enable</b> selected SLA plans?
+        <?php echo sprintf(__('Are you sure want to <b>enable</b> %s?'),
+            _N('selected SLA plan', 'selected SLA plans', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        Are you sure want to <b>disable</b> selected SLA plans?
+        <?php echo sprintf(__('Are you sure want to <b>disable</b> %s?'),
+            _N('selected SLA plan', 'selected SLA plans', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected SLA plans?</strong></font>
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected SLA plan', 'selected SLA plans', 2)); ?></strong></font>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

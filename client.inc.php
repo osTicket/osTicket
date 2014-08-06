@@ -46,6 +46,15 @@ $msg='';
 $nav=null;
 //Make sure the user is valid..before doing anything else.
 $thisclient = UserAuthenticationBackend::getUser();
+
+if (isset($_GET['lang']) && $_GET['lang']) {
+    $_SESSION['client:lang'] = $_GET['lang'];
+}
+
+// Bootstrap gettext translations as early as possible, but after attempting
+// to sign on the agent
+TextDomain::configureForUser($thisclient);
+
 //is the user logged in?
 if($thisclient && $thisclient->getId() && $thisclient->isValid()){
      $thisclient->refreshSession();
@@ -73,7 +82,7 @@ $exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.
 
 if (!$exempt && $thisclient && ($acct = $thisclient->getAccount())
         && $acct->isPasswdResetForced()) {
-    $warn = 'Password change required to continue';
+    $warn = __('Password change required to continue');
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
     exit;
 }

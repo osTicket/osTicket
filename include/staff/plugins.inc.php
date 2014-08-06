@@ -1,8 +1,9 @@
-<div style="width:700;padding-top:5px; float:left;">
- <h2>Currently Installed Plugins</h2>
+<div class="pull-left" style="width:700;padding-top:5px;">
+ <h2><?php echo __('Currently Installed Plugins'); ?></h2>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="plugins.php?a=add" class="Icon form-add">Add New Plugin</a></b></div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
+ <b><a href="plugins.php?a=add" class="Icon form-add"><?php
+ echo __('Add New Plugin'); ?></a></b></div>
 <div class="clear"></div>
 
 <?php
@@ -10,7 +11,7 @@ $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = count($ost->plugins->allInstalled());
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('forms.php');
-$showing=$pageNav->showing().' forms';
+$showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
 ?>
 
 <form action="plugins.php" method="POST" name="forms">
@@ -21,9 +22,9 @@ $showing=$pageNav->showing().' forms';
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>Plugin Name</th>
-            <th>Status</td>
-            <th>Date Installed</th>
+            <th><?php echo __('Plugin Name'); ?></th>
+            <th><?php echo __('Status'); ?></td>
+            <th><?php echo __('Date Installed'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -46,12 +47,13 @@ foreach ($ost->plugins->allInstalled() as $p) {
      <tr>
         <td colspan="4">
             <?php if($count){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select'); ?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All'); ?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None'); ?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle'); ?></a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No plugins installed yet &mdash; <a href="?a=add">add one</a>!';
+                echo sprintf(__('No plugins installed yet &mdash; %s add one %s!'),
+                    '<a href="?a=add">','</a>');
             } ?>
         </td>
      </tr>
@@ -59,37 +61,44 @@ foreach ($ost->plugins->allInstalled() as $p) {
 </table>
 <?php
 if ($count) //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Delete">
-    <input class="button" type="submit" name="enable" value="Enable">
-    <input class="button" type="submit" name="disable" value="Disable">
+    <input class="button" type="submit" name="delete" value="<?php echo __('Delete'); ?>">
+    <input class="button" type="submit" name="enable" value="<?php echo __('Enable'); ?>">
+    <input class="button" type="submit" name="disable" value="<?php echo __('Disable'); ?>">
 </p>
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm'); ?></h3>
     <a class="close" href="">&times;</a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected plugins?</strong></font>
-        <br><br>Deleted forms CANNOT be recovered.
+        <font color="red"><strong><?php echo sprintf(
+        __('Are you sure you want to DELETE %s?'),
+        _N('selected plugin', 'selected plugins', 2)); ?></strong></font>
+        <br><br><?php echo __(
+        'Configuration for deleted plugins CANNOT be recovered.'); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        <font color="green"><strong>Are you ready to enable selected plugins?</strong></font>
+        <font color="green"><?php echo sprintf(
+        __('Are you sure want to <b>enable</b> %s?'),
+        _N('selected plugin', 'selected plugins', 2)); ?></font>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        <font color="red"><strong>Are you sure you want to disable selected plugins?</strong></font>
+        <font color="red"><?php echo sprintf(
+        __('Are you sure want to <b>disable</b> %s?'),
+        _N('selected plugin', 'selected plugins', 2)); ?></font>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!'); ?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

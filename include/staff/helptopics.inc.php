@@ -15,9 +15,9 @@ $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $query="$sql ORDER BY $order_by";
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing="Showing $num help topics";
+    $showing=sprintf(_N('Showing %d help topic', 'Showing %d help topics', $num), $num);
 else
-    $showing='No help topic found!';
+    $showing=__('No help topics found!');
 
 // Get the full names and filter for this page
 $topics = array();
@@ -31,20 +31,20 @@ if ($cfg->getTopicSortMode() == 'a')
     usort($topics, function($a, $b) { return strcmp($a['name'], $b['name']); });
 
 ?>
-<div style="width:700px;padding-top:5px; float:left;">
- <h2>Help Topics</h2>
+<div class="pull-left" style="width:700px;padding-top:5px;">
+ <h2><?php echo __('Help Topics');?></h2>
  </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="helptopics.php?a=add" class="Icon newHelpTopic">Add New Help Topic</a></b></div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
+    <b><a href="helptopics.php?a=add" class="Icon newHelpTopic"><?php echo __('Add New Help Topic');?></a></b></div>
 <div class="clear"></div>
 <form action="helptopics.php" method="POST" name="topics">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><span style="display:inline-block;vertical-align:middle"><?php
+    <caption><span class="pull-left" style="display:inline-block;vertical-align:middle"><?php
          echo $showing; ?></span>
-    <div class="pull-right">Sorting Mode:
+         <div class="pull-right"><?php echo __('Sorting Mode'); ?>:
         <select name="help_topic_sort_mode" onchange="javascript:
     var $form = $(this).closest('form');
     $form.find('input[name=a]').val('sort');
@@ -59,12 +59,12 @@ if ($cfg->getTopicSortMode() == 'a')
     <thead>
         <tr>
             <th width="7" style="height:20px;">&nbsp;</th>
-            <th style="padding-left:4px;vertical-align:middle" width="360">Help Topic</th>
-            <th style="padding-left:4px;vertical-align:middle" width="80">Status</th>
-            <th style="padding-left:4px;vertical-align:middle" width="100">Type</th>
-            <th style="padding-left:4px;vertical-align:middle" width="100">Priority</th>
-            <th style="padding-left:4px;vertical-align:middle" width="160">Department</th>
-            <th style="padding-left:4px;vertical-align:middle" width="150" nowrap>Last Updated</th>
+            <th style="padding-left:4px;vertical-align:middle" width="360"><?php echo __('Help Topic'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="80"><?php echo __('Status'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Type'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Priority'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="160"><?php echo __('Department'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="150" nowrap><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody class="<?php if ($cfg->getTopicSortMode() == 'm') echo 'sortable-rows'; ?>"
@@ -103,8 +103,8 @@ if ($cfg->getTopicSortMode() == 'a')
                     <i class="icon-sort"></i>
 <?php } ?>
 <a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>
-                <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
-                <td><?php echo $row['ispublic']?'Public':'<b>Private</b>'; ?></td>
+                <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
+                <td><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
                 <td><?php echo $row['priority']; ?></td>
                 <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
@@ -116,12 +116,12 @@ if ($cfg->getTopicSortMode() == 'a')
      <tr>
         <td colspan="7">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No help topics found';
+                echo __('No help topics found');
             } ?>
         </td>
      </tr>
@@ -134,9 +134,9 @@ if($res && $num): //Show options..
 <?php if ($cfg->getTopicSortMode() != 'a') { ?>
     <input class="button no-confirm" type="submit" name="sort" value="Save"/>
 <?php } ?>
-    <button class="button" type="submit" name="enable" value="Enable" >Enable</button>
-    <button class="button" type="submit" name="disable" value="Disable">Disable</button>
-    <button class="button" type="submit" name="delete" value="Delete">Delete</button>
+    <button class="button" type="submit" name="enable" value="Enable" ><?php echo __('Enable'); ?></button>
+    <button class="button" type="submit" name="disable" value="Disable"><?php echo __('Disable'); ?></button>
+    <button class="button" type="submit" name="delete" value="Delete"><?php echo __('Delete'); ?></button>
 </p>
 <?php
 endif;
@@ -144,27 +144,30 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        Are you sure want to <b>enable</b> selected help topics?
+        <?php echo sprintf(__('Are you sure want to <b>enable</b> %s?'),
+            _N('selected help topic', 'selected help topics', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        Are you sure want to <b>disable</b>  selected help topics?
+        <?php echo sprintf(__('Are you sure want to <b>disable</b> %s?'),
+            _N('selected help topic', 'selected help topics', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected help topics?</strong></font>
-        <br><br>Deleted topics CANNOT be recovered.
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected help topic', 'selected help topics', 2));?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.');?>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

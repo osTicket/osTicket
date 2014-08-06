@@ -30,7 +30,7 @@ new_ticket_priority:
     title: New Ticket Priority
     content: >
         Choose the <span class="doc-desc-title">priority</span> for new
-        tickets created via ths Email Address.
+        tickets created via this Email Address.
 
 new_ticket_department:
     title: New Ticket Department
