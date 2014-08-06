@@ -47,10 +47,12 @@
     padding-right: 0;
     padding-left: 1.5em;
 }
+.rtl #msg_notice,
 .rtl #warning_bar,
 .rtl #msg_error,
 .rtl .error-banner {
     background-position: 99% 50%;
+    background-position: calc(100% - 10px) 50%;
     padding-left: 10px;
     padding-right: 36px;
 }

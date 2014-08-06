@@ -99,7 +99,6 @@ div#header a {
 
 #logo {
     display:block;
-    float:left;
     width:190px;
     height:76px;
     text-decoration:none;
@@ -110,8 +109,8 @@ div#header a {
 
 #header p {
     display:block;
-    width:430px;
-    float:right;
+    width:auto;
+    max-width:630px;
     margin:10px;
     background:#eee;
     border:1px solid #ccc;
