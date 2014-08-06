@@ -807,7 +807,7 @@ class OsticketConfig extends Config {
             $langs = $this->get('secondary_langs');
             $langs = (is_string($langs)) ? explode(',', $langs) : array();
         }
-        return $langs;
+        return array_filter($langs);
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
