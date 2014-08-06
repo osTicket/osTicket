@@ -274,7 +274,7 @@ class Internationalization {
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
             return $cfg->getPrimaryLanguage();
 
-        $languages = self::availableLanguages();
+        $languages = self::getConfiguredSystemLanguages();
 
         // The Accept-Language header contains information about the
         // language preferences configured in the user's browser / operating
@@ -348,18 +348,27 @@ class Internationalization {
           }
         }
 
-        return $best_match_langcode;
+        if (self::isLanguageInstalled($best_match_langcode))
+            return $best_match_langcode;
+        else
+            return $cfg->getPrimaryLanguage();
     }
 
     static function getCurrentLanguage($user=false) {
         global $thisstaff, $thisclient;
+        static $session = null;
+
+        if (!isset($session))
+            $session = &$_SESSION['::lang'];
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
             return $user->getLanguage();
+
         // Support the flag buttons for guests
-        if (isset($_SESSION['client:lang']))
-            return $_SESSION['client:lang'];
+        if ((!$user || $user != $thisstaff) && isset($session))
+            return $session;
+
         return self::getDefaultLanguage();
     }
 
@@ -384,6 +393,14 @@ class Internationalization {
         $rv = array($fonts, $subs);
         Signal::send('config.ttfonts', null, $rv);
         return $rv;
+    }
+
+    static function setCurrentLanguage($lang) {
+        if (!self::isLanguageInstalled($lang))
+            return false;
+
+        $_SESSION['::lang'] = $lang ?: null;
+        return true;
     }
 
     static function bootstrap() {

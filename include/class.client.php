@@ -271,7 +271,6 @@ class  EndUser extends AuthenticatedUser {
 
     function getLanguage() {
         static $cached = false;
-        if (!$cached) $cached = &$_SESSION['client:lang'];
 
         if (!$cached) {
             if ($acct = $this->getAccount())
@@ -396,7 +395,7 @@ class ClientAccount extends UserAccount {
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
         // Change language
         $this->set('lang', $vars['lang'] ?: null);
-        $_SESSION['client:lang'] = null;
+        Internationalization::setCurrentLanguage(null);
         TextDomain::configureForUser($this);
 
         if ($vars['backend']) {
