@@ -16,19 +16,21 @@
 number_format:
     title: Ticket Number Format
     content: >
-        This setting is used to create numbers for new tickets. Use hash
-        signs (`#`) where numbers are to be replaced. For example, for
-        six-digit numbers, use <code>######</code>. Any other text in the
-        number format will be preserved. Number formats can be overridden by
-        each help topic.
+        This setting is used to generate ticket numbers. Use hash signs
+        (`#`) where digits are to be placed. Any other text in the number
+        format will be preserved. <span class="doc-desc-title">Help
+        Topics</span> can define custom number formats.
+        <br/><br/>
+        For example, for six-digit numbers, use <code>######</code>.
 
 sequence_id:
     title: Ticket Number Sequence
-    content:
+    content: >
         Choose a sequence from which to derive new ticket numbers. The
         system has a incrementing sequence and a random sequence by default.
         You may create as many sequences as you wish. Use various sequences
-        in the number format configuration for help topics.
+        in the <span class="doc-desc-title">Ticket Number
+        Format</span> configuration for help topics.
 
 default_sla:
     title: Default SLA

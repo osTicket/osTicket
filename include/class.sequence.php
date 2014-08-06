@@ -201,6 +201,9 @@ class RandomSequence extends Sequence {
     function __construct() {}
 
     function __next($digits=6) {
+        if ($digits < 6)
+            $digits = 6;
+
         return Misc::randNumber($digits);
     }
 

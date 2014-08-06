@@ -1678,6 +1678,9 @@ div.selected-signature .inner {
     border-bottom-right-radius: inherit;
     width: 35px;
 }
+.row-item .delete:empty {
+    visibility: hidden;
+}
 
 .row-item .button-group {
     font-size: 105%;
