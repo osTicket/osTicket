@@ -10,7 +10,8 @@ if ($_REQUEST['id']) {
     if ($list)
          $form = $list->getForm();
     else
-        $errors['err'] = 'Unknown or invalid dynamic list ID.';
+        $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+            __('custom list'));
 }
 
 $errors = array();
@@ -20,7 +21,8 @@ if($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'update':
             if (!$list)
-                $errors['err'] = 'Unknown or invalid list';
+                $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+                    __('custom list'));
             elseif ($list->update($_POST, $errors)) {
                 // Update items
                 $items = array();
@@ -38,9 +40,9 @@ if($_POST) {
                             );
                     $value = mb_strtolower($ht['value']);
                     if (!$value)
-                        $errors["value-$id"] = 'Value required';
+                        $errors["value-$id"] = __('Value required');
                     elseif (in_array($value, $items))
-                        $errors["value-$id"] = 'Value already in-use';
+                        $errors["value-$id"] = __('Value already in-use');
                     elseif ($item->update($ht, $errors)) {
                         if ($_POST["disable-$id"] == 'on')
                             $item->disable();
@@ -75,9 +77,9 @@ if($_POST) {
                             }
                         }
                         if (in_array($field->get('name'), $names))
-                            $field->addError('Field variable name is not unique', 'name');
+                            $field->addError(__('Field variable name is not unique'), 'name');
                         if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
-                            $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
+                            $field->addError(__('Invalid character in variable name. Please use letters and numbers only.'), 'name');
                         if ($field->get('name'))
                             $names[] = $field->get('name');
                         if ($field->isValid())
@@ -91,30 +93,37 @@ if($_POST) {
                 }
 
                 if ($errors)
-                     $errors['err'] = $errors['err'] ?: 'Unable to update custom list items.  Correct any error(s) and try again.';
+                     $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                        __('custom list items'));
                 else
-                    $msg = 'Custom list updated successfully';
+                    $msg = sprintf(__('Successfully updated %s'),
+                        __('this custom list'));
 
             } elseif ($errors)
-                $errors['err'] = 'Unable to update custom list. Correct any error(s) below and try again.';
+                $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                    __('this custom list'));
             else
-                $errors['err'] = 'Unable to update custom list. Unknown internal error';
+                $errors['err']=sprintf(__('Unable to update %s.'), __('this custom list'))
+                    .' '.__('Internal error occurred');
 
             break;
         case 'add':
             if ($list=DynamicList::add($_POST, $errors)) {
-                 $msg = 'Custom list added successfully';
+                 $msg = sprintf(__('Successfully added %s'),
+                    __('this custom list'));
             } elseif ($errors) {
-                $errors['err'] = 'Unable to create custom list. Correct any
-                    error(s) below and try again.';
+                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this custom list'));
             } else {
-                $errors['err'] = 'Unable to create custom list: Unknown internal error';
+                $errors['err']=sprintf(__('Unable to add %s.'), __('this custom list'))
+                    .' '.__('Internal error occurred');
             }
             break;
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one custom list';
+                $errors['err'] = sprintf(__('You must select at least %s'),
+                    __('one custom list'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -125,12 +134,14 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = 'Selected custom lists deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected custom list', 'selected custom lists', $count));
                         elseif ($i > 0)
-                            $warn = "$i of $count selected lists deleted";
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected custom list', 'selected custom lists', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected custom lists'
-                                .' &mdash; they may be in use on a custom form';
+                            $errors['err'] = sprintf(__('Unable to delete %s — they may be in use on a custom form'),
+                                _N('selected custom list', 'selected custom lists', $count));
                         break;
                 }
             }

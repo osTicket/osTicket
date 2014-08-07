@@ -24,7 +24,8 @@ class Error extends Exception {
     function __construct($message) {
         global $ost;
 
-        $message = str_replace(ROOT_DIR, '(root)/', $message);
+        parent::__construct(__($message));
+        $message = str_replace(ROOT_DIR, '(root)/', _S($message));
 
         if ($ost->getConfig()->getLogLevel() == 3)
             $message .= "\n\n" . $this->getBacktrace();
@@ -33,7 +34,7 @@ class Error extends Exception {
     }
 
     function getTitle() {
-        return get_class($this) . ': ' . static::$title;
+        return get_class($this) . ': ' . _S(static::$title);
     }
 
     function getBacktrace() {

@@ -92,6 +92,10 @@ class DateTimeZone {
 
 class Phar {
     static function isValidPharFilename() {}
+    function setStub() {}
+    function startBuffering() {}
+    function stopBuffering() {}
+    function setSignatureAlgorithm() {}
 }
 
 class ZipArchive {
@@ -104,5 +108,9 @@ class ZipArchive {
 class finfo {
     function file() {}
     function buffer() {}
+}
+
+class Locale {
+    function getDisplayName() {}
 }
 ?>

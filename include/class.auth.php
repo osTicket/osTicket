@@ -221,7 +221,7 @@ abstract class AuthenticationBackend {
         }
 
         if (!$result)
-            $result = new AccessDenied('Access denied');
+            $result = new AccessDenied(__('Access denied'));
 
         if ($result && $result instanceof AccessDenied)
             $errors['err'] = $result->reason;
@@ -266,7 +266,7 @@ abstract class AuthenticationBackend {
         }
 
         if (!$result && $forcedAuth)
-            $result = new  AccessDenied('Unknown user');
+            $result = new  AccessDenied(__('Unknown user'));
 
         if ($result && $result instanceof AccessDenied)
             $errors['err'] = $result->reason;
@@ -423,8 +423,8 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             return false;
 
         //Log debug info.
-        $ost->logDebug('Staff login',
-            sprintf("%s logged in [%s], via %s", $staff->getUserName(),
+        $ost->logDebug(_S('Agent login'),
+            sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
         $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() '
@@ -466,8 +466,8 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
         $_SESSION['_auth']['staff'] = array();
         unset($_SESSION[':token']['staff']);
-        $ost->logDebug('Staff logout',
-                sprintf("%s logged out [%s]",
+        $ost->logDebug(_S('Agent logout'),
+                sprintf(_S("%s logged out [%s]"),
                     $staff->getUserName(),
                     $_SERVER['REMOTE_ADDR'])); //Debug.
 
@@ -600,9 +600,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         if ($acct) {
             if (!$acct->isConfirmed())
-                throw new AccessDenied('Account confirmation required');
+                throw new AccessDenied(__('Account confirmation required'));
             elseif ($acct->isLocked())
-                throw new AccessDenied('Account is administratively locked');
+                throw new AccessDenied(__('Account is administratively locked'));
         }
 
         // Tag the user and associated ticket in the SESSION
@@ -620,9 +620,10 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         }
 
         //Log login info...
-        $msg=sprintf('%s (%s) logged in [%s]',
+        $msg=sprintf(_S('%1$s (%2$s) logged in [%3$s]'
+                /* Tokens are <username>, <id>, and <ip> */),
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
-        $ost->logDebug('User login', $msg);
+        $ost->logDebug(_S('User login'), $msg);
 
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
@@ -653,9 +654,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         $_SESSION['_auth']['user'] = array();
         unset($_SESSION[':token']['client']);
-        $ost->logDebug('User logout',
-                sprintf("%s logged out [%s]",
-                    $user->getUserName(), $_SERVER['REMOTE_ADDR']));
+        $ost->logDebug(_S('User logout'),
+            sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
+                $user->getUserName(), $_SERVER['REMOTE_ADDR']));
     }
 
     protected function getAuthKey($user) {
@@ -701,18 +702,18 @@ abstract class ExternalUserAuthenticationBackend
     static $service_name = "External";
 
     function renderExternalLink() { ?>
-        <a class="external-sign-in" title="Sign in with <?php echo static::$service_name; ?>"
+        <a class="external-sign-in" title="<?php echo sprintf(__('Sign in with %s'), __(static::$service_name)); ?>"
                 href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
-            ?>" alt="Sign in with <?php echo static::$service_name; ?>"/>
+            ?>" alt="<?php echo sprintf(__('Sign in with %s'), __(static::$service_name)); ?>"/>
 <?php } else { ?>
             <div class="external-auth-box">
             <span class="external-auth-icon">
                 <i class="icon-<?php echo static::$fa_icon; ?> icon-large icon-fixed-with"></i>
             </span>
             <span class="external-auth-name">
-                Sign in with <?php echo static::$service_name; ?>
+                <?php echo sprintf(__('Sign in with %s'), __(static::$service_name)); ?>
             </span>
             </div>
 <?php } ?>
@@ -803,7 +804,7 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
         //Veto login due to excessive login attempts.
         if((time()-$authsession['laststrike'])<$cfg->getStaffLoginTimeout()) {
             $authsession['laststrike'] = time(); //reset timer.
-            return new AccessDenied('Max. failed login attempts reached');
+            return new AccessDenied(__('Maximum failed login attempts reached'));
         }
 
         //Timeout is over.
@@ -824,22 +825,24 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
         $authsession['strikes']+=1;
         if($authsession['strikes']>$cfg->getStaffMaxLogins()) {
             $authsession['laststrike']=time();
-            $alert='Excessive login attempts by a staff member?'."\n".
-                   'Username: '.$username."\n"
-                   .'IP: '.$_SERVER['REMOTE_ADDR']."\n"
-                   .'TIME: '.date('M j, Y, g:i a T')."\n\n"
-                   .'Attempts #'.$authsession['strikes']."\n"
-                   .'Timeout: '.($cfg->getStaffLoginTimeout()/60)." minutes \n\n";
-            $ost->logWarning('Excessive login attempts ('.$username.')', $alert,
-                    $cfg->alertONLoginError());
-            return new AccessDenied('Forgot your login info? Contact Admin.');
+            $timeout = $cfg->getStaffLoginTimeout()/60;
+            $alert=_S('Excessive login attempts by an agent?')."\n"
+                   ._S('Username').": $username\n"
+                   ._S('IP').": {$_SERVER['REMOTE_ADDR']}\n"
+                   ._S('Time').": ".date('M j, Y, g:i a T')."\n\n"
+                   ._S('Attempts').": {$authsession['strikes']}\n"
+                   ._S('Timeout').": ".sprintf(_N('%d minute', '%d minutes', $timeout), $timeout)."\n\n";
+            $ost->logWarning(sprintf(_S('Excessive login attempts (%s)'),$username),
+                    $alert, $cfg->alertONLoginError());
+            return new AccessDenied(__('Forgot your login info? Contact Admin.'));
         //Log every other third failed login attempt as a warning.
         } elseif($authsession['strikes']%3==0) {
-            $alert='Username: '.$username."\n"
-                    .'IP: '.$_SERVER['REMOTE_ADDR']."\n"
-                    .'TIME: '.date('M j, Y, g:i a T')."\n\n"
-                    .'Attempts #'.$authsession['strikes'];
-            $ost->logWarning('Failed staff login attempt ('.$username.')', $alert, false);
+            $alert=_S('Username').": {$username}\n"
+                    ._S('IP').": {$_SERVER['REMOTE_ADDR']}\n"
+                    ._S('Time').": ".date('M j, Y, g:i a T')."\n\n"
+                    ._S('Attempts').": {$authsession['strikes']}";
+            $ost->logWarning(sprintf(_S('Failed agent login attempt (%s)'),$username),
+                $alert, false);
         }
     }
 }
@@ -862,7 +865,7 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
         //Veto login due to excessive login attempts.
         if ((time()-$authsession['laststrike']) < $cfg->getStaffLoginTimeout()) {
             $authsession['laststrike'] = time(); //reset timer.
-            return new AccessDenied("You've reached maximum failed login attempts allowed.");
+            return new AccessDenied(__("You've reached maximum failed login attempts allowed."));
         }
 
         //Timeout is over.
@@ -884,16 +887,19 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
         $authsession['strikes']+=1;
         if($authsession['strikes']>$cfg->getClientMaxLogins()) {
             $authsession['laststrike'] = time();
-            $alert='Excessive login attempts by a user.'."\n".
-                    'Username: '.$username."\n".
-                    'IP: '.$_SERVER['REMOTE_ADDR']."\n".'Time:'.date('M j, Y, g:i a T')."\n\n".
-                    'Attempts #'.$authsession['strikes'];
-            $ost->logError('Excessive login attempts (user)', $alert, ($cfg->alertONLoginError()));
-            return new AccessDenied('Access Denied');
+            $alert=_S('Excessive login attempts by a user.')."\n".
+                    _S('Username').": {$username}\n".
+                    _S('IP').": {$_SERVER['REMOTE_ADDR']}\n".
+                    _S('Time').": ".date('M j, Y, g:i a T')."\n\n".
+                    _S('Attempts').": {$authsession['strikes']}";
+            $ost->logError(_S('Excessive login attempts (user)'), $alert, ($cfg->alertONLoginError()));
+            return new AccessDenied(__('Access Denied'));
         } elseif($authsession['strikes']%3==0) { //Log every third failed login attempt as a warning.
-            $alert='Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
-                   "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$authsession['strikes'];
-            $ost->logWarning('Failed login attempt (user)', $alert);
+            $alert=_S('Username').": {$username}\n".
+                    _S('IP').": {$_SERVER['REMOTE_ADDR']}\n".
+                    _S('Time').": ".date('M j, Y, g:i a T')."\n\n".
+                    _S('Attempts').": {$authsession['strikes']}";
+            $ost->logWarning(_S('Failed login attempt (user)'), $alert);
         }
 
     }
@@ -939,15 +945,15 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
             return false;
         elseif (($staff = new StaffSession($_POST['userid'])) &&
                 !$staff->getId())
-            $errors['msg'] = 'Invalid user-id given';
+            $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
                 || $id != $staff->getId())
-            $errors['msg'] = 'Invalid reset token';
+            $errors['msg'] = __('Invalid reset token');
         elseif (!($ts = $_config->lastModified($_POST['token']))
                 && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
-            $errors['msg'] = 'Invalid reset token';
+            $errors['msg'] = __('Invalid reset token');
         elseif (!$staff->forcePasswdRest())
-            $errors['msg'] = 'Unable to reset password';
+            $errors['msg'] = __('Unable to reset password');
         else
             return $staff;
     }
@@ -1152,15 +1158,15 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
         elseif (!($acct = ClientAccount::lookupByUsername($_POST['userid']))
                 || !$acct->getId()
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
-            $errors['msg'] = 'Invalid user-id given';
+            $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
                 || $id != $client->getId())
-            $errors['msg'] = 'Invalid reset token';
+            $errors['msg'] = __('Invalid reset token');
         elseif (!($ts = $_config->lastModified($_POST['token']))
                 && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
-            $errors['msg'] = 'Invalid reset token';
+            $errors['msg'] = __('Invalid reset token');
         elseif (!$acct->forcePasswdReset())
-            $errors['msg'] = 'Unable to reset password';
+            $errors['msg'] = __('Unable to reset password');
         else
             return $client;
     }

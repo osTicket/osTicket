@@ -15,7 +15,7 @@ if($search) {
   if( ($_REQUEST['query'] && strlen($_REQUEST['query'])<3)
       || (!$_REQUEST['query'] && isset($_REQUEST['basic_search'])) ){ //Why do I care about this crap...
       $search=false; //Instead of an error page...default back to regular query..with no search.
-      $errors['err']='Search term must be more than 3 chars';
+      $errors['err']=__('Search term must be more than 3 chars');
       $searchTerm='';
   }
 }
@@ -28,9 +28,11 @@ $status=null;
 switch(strtolower($_REQUEST['status'])){ //Status is overloaded
     case 'open':
         $status='open';
+		$results_type=__('Open Tickets');
         break;
     case 'closed':
         $status='closed';
+		$results_type=__('Closed Tickets');
         $showassigned=true; //closed by.
         break;
     case 'resolved':
@@ -40,21 +42,22 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
     case 'overdue':
         $status='open';
         $showoverdue=true;
-        $results_type='Overdue Tickets';
+        $results_type=__('Overdue Tickets');
         break;
     case 'assigned':
         $status='open';
         $staffId=$thisstaff->getId();
-        $results_type='My Tickets';
+        $results_type=__('My Tickets');
         break;
     case 'answered':
         $status='open';
         $showanswered=true;
-        $results_type='Answered Tickets';
+        $results_type=__('Answered Tickets');
         break;
     default:
         if(!$search && !isset($_REQUEST['advsid']))
             $_REQUEST['status']=$status='open';
+		$results_type=__('Open Tickets');
 }
 
 $qwhere ='';
@@ -96,7 +99,7 @@ if (isset($_REQUEST['uid']) && $_REQUEST['uid']) {
 
 //Queues: Overloaded sub-statuses  - you've got to just have faith!
 if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
-    $results_type='Assigned Tickets';
+    $results_type=__('Assigned Tickets');
     $qwhere.=' AND ticket.staff_id='.db_input($staffId);
     $showassigned=false; //My tickets...already assigned to the staff.
 }elseif($showoverdue) { //overdue
@@ -266,10 +269,11 @@ $_SESSION['search_'.$hash] = $query;
 $res = db_query($query);
 $showing=db_num_rows($res)?$pageNav->showing():"";
 if(!$results_type)
-    $results_type = ucfirst($status).' Tickets';
+    $results_type = sprintf(__('%s Tickets' /* %s will be a status such as 'open' */),
+        mb_convert_case($status, MB_CASE_TITLE));
 
 if($search)
-    $results_type.= ' (Search Results)';
+    $results_type.= ' ('.__('Search Results').')';
 
 $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting..
 
@@ -309,8 +313,8 @@ if ($results) {
         <tr>
             <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-            <td><input type="submit" name="basic_search" class="button" value="Search"></td>
-            <td>&nbsp;&nbsp;<a href="#" id="go-advanced">[advanced]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
+            <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
+            <td>&nbsp;&nbsp;<a href="#" id="go-advanced">[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
         </tr>
     </table>
     </form>
@@ -320,7 +324,7 @@ if ($results) {
 <div style="margin-bottom:20px">
 <form action="tickets.php" method="POST" name='tickets'>
 <?php csrf_token(); ?>
- <a class="refresh" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>">Refresh</a>
+ <a class="refresh pull-right" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"><?php echo __('Refresh'); ?></a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
@@ -333,26 +337,26 @@ if ($results) {
             <?php } ?>
 	        <th width="70">
                 <a <?php echo $id_sort; ?> href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                    title="Sort By Ticket ID <?php echo $negorder; ?>">Ticket</a></th>
+                    title="<?php echo sprintf(__('Sort by %s %s'), __('Ticket ID'), __($negorder)); ?>"><?php echo __('Ticket'); ?></a></th>
 	        <th width="70">
                 <a  <?php echo $date_sort; ?> href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                    title="Sort By Date <?php echo $negorder; ?>">Date</a></th>
+                    title="<?php echo sprintf(__('Sort by %s %s'), __('Date'), __($negorder)); ?>"><?php echo __('Date'); ?></a></th>
 	        <th width="280">
                  <a <?php echo $subj_sort; ?> href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                    title="Sort By Subject <?php echo $negorder; ?>">Subject</a></th>
+                    title="<?php echo sprintf(__('Sort by %s %s'), __('Subject'), __($negorder)); ?>"><?php echo __('Subject'); ?></a></th>
             <th width="170">
                 <a <?php echo $name_sort; ?> href="tickets.php?sort=name&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                     title="Sort By Name <?php echo $negorder; ?>">From</a></th>
+                     title="<?php echo sprintf(__('Sort by %s %s'), __('Name'), __($negorder)); ?>"><?php echo __('From');?></a></th>
             <?php
             if($search && !$status) { ?>
                 <th width="60">
                     <a <?php echo $status_sort; ?> href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                        title="Sort By Status <?php echo $negorder; ?>">Status</a></th>
+                        title="<?php echo sprintf(__('Sort by %s %s'), __('Status'), __($negorder)); ?>"><?php echo __('Status');?></a></th>
             <?php
             } else { ?>
                 <th width="60" <?php echo $pri_sort;?>>
                     <a <?php echo $pri_sort; ?> href="tickets.php?sort=pri&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                        title="Sort By Priority <?php echo $negorder; ?>">Priority</a></th>
+                        title="<?php echo sprintf(__('Sort by %s %s'), __('Priority'), __($negorder)); ?>"><?php echo __('Priority');?></a></th>
             <?php
             }
 
@@ -361,18 +365,18 @@ if ($results) {
                 if(!strcasecmp($status,'closed')) { ?>
                     <th width="150">
                         <a <?php echo $staff_sort; ?> href="tickets.php?sort=staff&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                            title="Sort By Closing Staff Name <?php echo $negorder; ?>">Closed By</a></th>
+                            title="<?php echo sprintf(__('Sort by %s %s'), __("Closing Agent's Name"), __($negorder)); ?>"><?php echo __('Closed By'); ?></a></th>
                 <?php
                 } else { //assigned to ?>
                     <th width="150">
                         <a <?php echo $assignee_sort; ?> href="tickets.php?sort=assignee&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                            title="Sort By Assignee <?php echo $negorder;?>">Assigned To</a></th>
+                            title="<?php echo sprintf(__('Sort by %s %s'), __('Assignee'), __($negorder)); ?>"><?php echo __('Assigned To'); ?></a></th>
                 <?php
                 }
             } else { ?>
                 <th width="150">
                     <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
-                        title="Sort By Department <?php echo $negorder; ?>">Department</a></th>
+                        title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
             <?php
             } ?>
         </tr>
@@ -436,7 +440,8 @@ if ($results) {
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <td nowrap>&nbsp;<?php echo Format::truncate($row['name'],22,strpos($row['name'],'@')); ?>&nbsp;</td>
+                <td nowrap>&nbsp;<?php echo Format::htmlchars(
+                        Format::truncate($row['name'], 22, strpos($row['name'], '@'))); ?>&nbsp;</td>
                 <?php
                 if($search && !$status){
                     $displaystatus=ucfirst($row['status']);
@@ -454,20 +459,20 @@ if ($results) {
             <?php
             } //end of while.
         else: //not tickets found!! set fetch error.
-            $ferror='There are no tickets here. (Leave a little early today).';
+            $ferror=__('There are no tickets matching your criteria.');
         endif; ?>
     </tbody>
     <tfoot>
      <tr>
         <td colspan="7">
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
                 echo '<i>';
-                echo $ferror?Format::htmlchars($ferror):'Query returned 0 results.';
+                echo $ferror?Format::htmlchars($ferror):__('Query returned 0 results.');
                 echo '</i>';
             } ?>
         </td>
@@ -476,9 +481,9 @@ if ($results) {
     </table>
     <?php
     if($num>0){ //if we actually had any tickets returned.
-        echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;';
+        echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         echo '<a class="export-csv no-pjax" href="?a=export&h='
-            .$hash.'&status='.$_REQUEST['status'] .'">Export</a>&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
+            .$hash.'&status='.$_REQUEST['status'] .'">'.__('Export').'</a>&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
     ?>
         <?php
          if($thisstaff->canManageTickets()) { ?>
@@ -487,30 +492,30 @@ if ($results) {
             $status=$_REQUEST['status']?$_REQUEST['status']:$status;
             switch (strtolower($status)) {
                 case 'closed': ?>
-                    <input class="button" type="submit" name="reopen" value="Reopen" >
+                    <input class="button" type="submit" name="reopen" value="<?php echo __('Reopen');?>" >
                     <?php
                     break;
                 case 'open':
                 case 'answered':
                 case 'assigned':
                     ?>
-                    <input class="button" type="submit" name="mark_overdue" value="Overdue" >
-                    <input class="button" type="submit" name="close" value="Close">
+                    <input class="button" type="submit" name="mark_overdue" value="<?php echo __('Overdue');?>" >
+                    <input class="button" type="submit" name="close" value="<?php echo __('Close');?>">
                     <?php
                     break;
                 case 'overdue':
                     ?>
-                    <input class="button" type="submit" name="close" value="Close">
+                    <input class="button" type="submit" name="close" value="<?php echo __('Close');?>">
                     <?php
                     break;
                 default: //search??
                     ?>
-                    <input class="button" type="submit" name="close" value="Close" >
-                    <input class="button" type="submit" name="reopen" value="Reopen">
+                    <input class="button" type="submit" name="close" value="<?php echo __('Close');?>" >
+                    <input class="button" type="submit" name="reopen" value="<?php echo __('Reopen');?>">
             <?php
             }
             if($thisstaff->canDeleteTickets()) { ?>
-                <input class="button" type="submit" name="delete" value="Delete">
+                <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>">
             <?php } ?>
         </p>
         <?php
@@ -520,60 +525,61 @@ if ($results) {
 </div>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="close-confirm">
-        Are you sure want to <b>close</b> selected open tickets?
+        <?php echo __('Are you sure want to <b>close</b> selected open tickets?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="reopen-confirm">
-        Are you sure want to <b>reopen</b> selected closed tickets?
+        <?php echo __('Are you sure want to <b>reopen</b> selected closed tickets?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="mark_overdue-confirm">
-        Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?
+        <?php echo __('Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected tickets?</strong></font>
-        <br><br>Deleted tickets CANNOT be recovered, including any associated attachments.
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected ticket', 'selected tickets', 2));?></strong></font>
+        <br><br><?php echo __('Deleted tickets CANNOT be recovered, including any associated attachments.');?>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
 </div>
 
 <div class="dialog" style="display:none;" id="advanced-search">
-    <h3>Advanced Ticket Search</h3>
+    <h3><?php echo __('Advanced Ticket Search');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <form action="tickets.php" method="post" id="search" name="search">
         <input type="hidden" name="a" value="search">
         <fieldset class="query">
-            <label for="query">Keyword:</label>
-            <input type="input" id="query" name="query" size="20"> <em>Optional</em>
+            <label for="query"><?php echo __('Keyword');?>:</label>
+            <input type="input" id="query" name="query" size="20"> <em><?php echo __('Optional');?></em>
         </fieldset>
         <fieldset>
-            <label for="status">Status:</label>
+            <label for="status"><?php echo __('Status');?>:</label>
             <select id="status" name="status">
-                <option value="">&mdash; Any Status &mdash;</option>
-                <option value="open">Open</option>
+                <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
+                <option value="open"><?php echo _P('ticket-status', 'Open');?></option>
                 <?php
                 if(!$cfg->showAnsweredTickets()) {?>
-                <option value="answered">Answered</option>
+                <option value="answered"><?php echo __('Answered');?></option>
                 <?php
                 } ?>
-                <option value="overdue">Overdue</option>
-                <option value="closed">Closed</option>
+                <option value="overdue"><?php echo __('Overdue');?></option>
+                <option value="closed"><?php echo __('Closed');?></option>
             </select>
-            <label for="deptId">Dept:</label>
+            <label for="deptId"><?php echo __('Dept');?>:</label>
             <select id="deptId" name="deptId">
-                <option value="">&mdash; All Departments &mdash;</option>
+                <option value="">&mdash; <?php echo __('All Departments');?> &mdash;</option>
                 <?php
                 if(($mydepts = $thisstaff->getDepts()) && ($depts=Dept::getDepartments())) {
                     foreach($depts as $id =>$name) {
@@ -585,14 +591,14 @@ if ($results) {
             </select>
         </fieldset>
         <fieldset class="owner">
-            <label for="assignee">Assigned To:</label>
+            <label for="assignee"><?php echo __('Assigned To');?>:</label>
             <select id="assignee" name="assignee">
-                <option value="">&mdash; Anyone &mdash;</option>
-                <option value="0">&mdash; Unassigned &mdash;</option>
-                <option value="<?php echo $thisstaff->getId(); ?>">Me</option>
+                <option value="">&mdash; <?php echo __('Anyone');?> &mdash;</option>
+                <option value="0">&mdash; <?php echo __('Unassigned');?> &mdash;</option>
+                <option value="<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
-                    echo '<OPTGROUP label="Staff Members ('.count($users).')">';
+                    echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'),count($users)).'">';
                     foreach($users as $id => $name) {
                         $k="s$id";
                         echo sprintf('<option value="%s">%s</option>', $k, $name);
@@ -601,7 +607,7 @@ if ($results) {
                 }
 
                 if(($teams=Team::getTeams())) {
-                    echo '<OPTGROUP label="Teams ('.count($teams).')">';
+                    echo '<OPTGROUP label="'.__('Teams').' ('.count($teams).')">';
                     foreach($teams as $id => $name) {
                         $k="t$id";
                         echo sprintf('<option value="%s">%s</option>', $k, $name);
@@ -610,10 +616,10 @@ if ($results) {
                 }
                 ?>
             </select>
-            <label for="staffId">Closed By:</label>
+            <label for="staffId"><?php echo __('Closed By');?>:</label>
             <select id="staffId" name="staffId">
-                <option value="0">&mdash; Anyone &mdash;</option>
-                <option value="<?php echo $thisstaff->getId(); ?>">Me</option>
+                <option value="0">&mdash; <?php echo __('Anyone');?> &mdash;</option>
+                <option value="<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
                     foreach($users as $id => $name)
@@ -623,9 +629,9 @@ if ($results) {
             </select>
         </fieldset>
         <fieldset>
-            <label for="topicId">Help Topic:</label>
+            <label for="topicId"><?php echo __('Help Topic');?>:</label>
             <select id="topicId" name="topicId">
-                <option value="" selected >&mdash; All Help Topics &mdash;</option>
+                <option value="" selected >&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
                 <?php
                 if($topics=Topic::getHelpTopics()) {
                     foreach($topics as $id =>$name)
@@ -635,9 +641,9 @@ if ($results) {
             </select>
         </fieldset>
         <fieldset class="date_range">
-            <label>Date Range:</label>
+            <label><?php echo __('Date Range');?>:</label>
             <input class="dp" type="input" size="20" name="startDate">
-            <span>TO</span>
+            <span><?php echo __('TO');?></span>
             <input class="dp" type="input" size="20" name="endDate">
         </fieldset>
         <fieldset>
@@ -654,9 +660,9 @@ if ($results) {
         </fieldset>
         <p>
             <span class="buttons">
-                <input type="submit" value="Search">
-                <input type="reset" value="Reset">
-                <input type="button" value="Cancel" class="close">
+                <input type="submit" value="<?php echo __('Search');?>">
+                <input type="reset" value="<?php echo __('Reset');?>">
+                <input type="button" value="<?php echo __('Cancel');?>" class="close">
             </span>
             <span class="spinner">
                 <img src="./images/ajax-loader.gif" width="16" height="16">

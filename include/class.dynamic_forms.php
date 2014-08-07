@@ -47,13 +47,18 @@ class DynamicForm extends VerySimpleModel {
     var $_dfields;
 
     function getFields($cache=true) {
-        if (!isset($this->_fields) || !$cache) {
-            $this->_fields = array();
+        if (!$cache)
+            $fields = false;
+        else
+            $fields = &$this->_fields;
+
+        if (!$fields) {
+            $fields = new ArrayObject();
             foreach ($this->getDynamicFields() as $f)
                 // TODO: Index by field name or id
-                $this->_fields[$f->get('id')] = $f->getImpl($f);
+                $fields[$f->get('id')] = $f->getImpl($f);
         }
-        return $this->_fields;
+        return $fields;
     }
 
     function getDynamicFields() {
@@ -71,7 +76,7 @@ class DynamicForm extends VerySimpleModel {
     function __call($what, $args) {
         $delegate = array($this->getForm(), $what);
         if (!is_callable($delegate))
-            throw new Exception($what.': Call to non-existing function');
+            throw new Exception(sprintf(__('%s: Call to non-existing function'), $what));
         return call_user_func_array($delegate, $args);
     }
 
@@ -238,16 +243,16 @@ class UserForm extends DynamicForm {
         return static::$instance;
     }
 }
-Filter::addSupportedMatches('User Data', function() {
+Filter::addSupportedMatches(/* trans */ 'User Data', function() {
     $matches = array();
     foreach (UserForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'User / '.$f->getLabel();
+        $matches['field.'.$f->get('id')] = __('User').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
             foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'User / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('User').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }
@@ -328,16 +333,16 @@ class TicketForm extends DynamicForm {
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Ticket Data', function() {
+Filter::addSupportedMatches(/* trans */ 'Ticket Data', function() {
     $matches = array();
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'Ticket / '.$f->getLabel();
+        $matches['field.'.$f->get('id')] = __('Ticket').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
             foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'Ticket / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('Ticket').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }
@@ -466,10 +471,13 @@ class DynamicFormField extends VerySimpleModel {
             return false;
         if (!$this->get('label'))
             $this->addError(
-                "Label is required for custom form fields", "label");
+                __("Label is required for custom form fields"), "label");
         if ($this->get('required') && !$this->get('name'))
             $this->addError(
-                "Variable name is required for required fields", "name");
+                __("Variable name is required for required fields"
+                /* `required` is a flag on fields */
+                /* `variable` is used for automation. Internally it's called `name` */
+                ), "name");
         return count($this->errors()) == 0;
     }
 
@@ -528,6 +536,7 @@ class DynamicFormEntry extends VerySimpleModel {
     var $_form;
     var $_errors = false;
     var $_clean = false;
+    var $_source = null;
 
     function getId() {
         return $this->get('id');
@@ -581,10 +590,19 @@ class DynamicFormEntry extends VerySimpleModel {
     function getFields() {
         if (!isset($this->_fields)) {
             $this->_fields = array();
-            foreach ($this->getAnswers() as $a)
-                $this->_fields[] = $a->getField();
+            foreach ($this->getAnswers() as $a) {
+                $T = $this->_fields[] = $a->getField();
+                $T->setForm($this);
+            }
         }
         return $this->_fields;
+    }
+
+    function getSource() {
+        return $this->_source ?: (isset($this->id) ? false : $_POST);
+    }
+    function setSource($source) {
+        $this->_source = $source;
     }
 
     function getField($name) {
@@ -777,8 +795,8 @@ class DynamicFormEntry extends VerySimpleModel {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         parent::save();
-        foreach ($this->getAnswers() as $a) {
-            $field = $a->getField();
+        foreach ($this->getFields() as $field) {
+            $a = $field->getAnswer();
             if ($this->object_type == 'U'
                     && in_array($field->get('name'), array('name','email')))
                 continue;
@@ -977,36 +995,37 @@ class SelectionField extends FormField {
         if (!$this->errors()) {
             $config = $this->getConfiguration();
             if (!$entry || count($entry) == 0)
-                $this->_errors[] = 'Select a value from the list';
+                $this->_errors[] = __('Select a value from the list');
             elseif ($config['typeahead']
                     && !in_array($this->getWidget()->getEnteredValue(), $entry))
-                $this->_errors[] = 'Select a value from the list';
+                $this->_errors[] = __('Select a value from the list');
         }
     }
 
     function getConfigurationOptions() {
         return array(
             'widget' => new ChoiceField(array(
-                'id'=>1, 'label'=>'Widget', 'required'=>false,
+                'id'=>1, 'label'=>__('Widget'), 'required'=>false,
                 'default' => 'dropdown',
                 'choices'=>array(
-                    'dropdown' => 'Drop Down',
-                    'typeahead' =>'Typeahead',
+                    'dropdown' => __('Drop Down'),
+                    'typeahead' =>__('Typeahead'),
                 ),
                 'configuration'=>array(
                     'multiselect' => false,
                 ),
-                'hint'=>'Typeahead will work better for large lists'
+                'hint'=>__('Typeahead will work better for large lists')
             )),
             'multiselect' => new BooleanField(array(
-                'id'=>1, 'label'=>'Multiselect', 'required'=>false, 'default'=>false,
+                'id'=>1, 'label'=>__(/* Type of widget allowing multiple selections */ 'Multiselect'),
+                'required'=>false, 'default'=>false,
                 'configuration'=>array(
-                    'desc'=>'Allow multiple selections'),
-                'hint' => 'Dropdown only',
+                    'desc'=>__('Allow multiple selections')),
+                'hint' => __('Dropdown only'),
             )),
             'prompt' => new TextboxField(array(
-                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Leading text shown before a value is selected',
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -1036,7 +1055,7 @@ class SelectionField extends FormField {
             if ($values && is_array($values)) {
                 foreach ($values as $k => $v) {
                     if (!isset($this->_choices[$k])) {
-                        if ($verbose) $v .= ' (retired)';
+                        if ($verbose) $v .= ' '.__('(retired)');
                         $this->_choices[$k] = $v;
                     }
                 }

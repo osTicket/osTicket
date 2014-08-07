@@ -99,7 +99,6 @@ div#header a {
 
 #logo {
     display:block;
-    float:left;
     width:190px;
     height:76px;
     text-decoration:none;
@@ -110,8 +109,8 @@ div#header a {
 
 #header p {
     display:block;
-    width:430px;
-    float:right;
+    width:auto;
+    max-width:630px;
     margin:10px;
     background:#eee;
     border:1px solid #ccc;
@@ -130,7 +129,6 @@ div#header a {
 }
 
 #nav .active, #sub_nav li {
-    margin:0;
     padding:0;
     list-style:none;
     display:inline;
@@ -144,17 +142,23 @@ div#header a {
     border-bottom:1px solid #c5d9ec;
 }
 
-#nav .active a, #nav .inactive {
+#nav .active, #nav .inactive {
     display:block;
     float:left;
-    width:115px;
+    min-width:95px;
+    width: auto;
+    padding-left: 10px;
+    padding-right: 10px;
     height:26px;
     color:#555;
     text-align:center;
     font-weight:bold;
-    margin-top:1px;
-    margin-right:5px;
     position:relative;
+
+    border-radius:5px 5px 0 0;
+    border-style: solid;
+    border-width: 1px 1px 0;
+    border-color: transparent;
 }
 
 #nav .inactive a {
@@ -163,21 +167,47 @@ div#header a {
 }
 
 #nav .active a {
-    background:url(../images/tab-bg.png) top left no-repeat;
     color:#004a80;
 }
 
-#nav .inactive ul {
-    display:none;
+#nav > li + li {
+    margin-left: 8px;
+}
+
+#nav li.active, #nav li.inactive:hover {
+    box-shadow: 4px -3px 6px -3px rgba(0,0,0,0.3);
+    border-color: #c5d9ec;
+}
+#nav li.active {
+    background-color: #f7f7f7;
+}
+#nav li.inactive:hover {
+    background-color: #fbfbfb;
+}
+
+#nav li.inactive > ul {
     width:230px;
     background:#fbfbfb;
     margin:0;
     padding:0;
-    position:relative;
+    position:absolute;
+    left: -1px;
     z-index:500;
     border-bottom:1px solid #ccc;
     border-left:1px solid #ccc;
     border-right:1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+
+    display:block;
+    padding-left: 5px;
+    -moz-box-shadow: 3px 3px 3px #ccc;
+    -webkit-box-shadow: 3px 3px 3px #ccc;
+    box-shadow: 3px 3px 3px #ccc;
+    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.25);
+
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear, opacity 0.1s linear;
 }
 
 #nav .inactive li {
@@ -188,15 +218,10 @@ div#header a {
     text-align:left;
 }
 
-#nav .inactive:hover {
-    background:url(../images/tab-bg.png) bottom left no-repeat;
-}
-
-#nav .inactive:hover ul {
-    display:block;
-    -moz-box-shadow: 3px 3px 3px #ccc;
-    -webkit-box-shadow: 3px 3px 3px #ccc;
-    box-shadow: 3px 3px 3px #ccc;
+#nav li.inactive:hover > ul {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0.25s;
 }
 
 .ieshadow {
@@ -211,16 +236,11 @@ div#header a {
     left:0;
 }
 
-#nav .inactive li {
-    background:#fbfbfb;
-}
-
 #nav .inactive li a {
     padding-left:24px;
     background-position:0 50%;
     background-repeat:no-repeat;
     font-weight:normal;
-    background-color:#fbfbfb;
 }
 
 #nav .inactive li a:hover {
@@ -235,11 +255,13 @@ div#header a {
 #sub_nav a {
     display:block;
     float:left;
-    margin-right:10px;
     padding:0 10px 0 21px;
     background-position:0 50%;
     background-repeat:no-repeat;
     color:#000;
+}
+#sub_nav li + li > a {
+    margin-left:10px;
 }
 
 #sub_nav a:hover {
@@ -434,6 +456,7 @@ table.list thead th {
     color:#000;
     text-align:left;
     vertical-align:top;
+    padding: 0 4px;
 }
 
 table.list th a {
@@ -442,7 +465,7 @@ table.list th a {
     color:#000;
 }
 
-table.list thead th a { padding: 3px; display: block; color: #000; background: url('../images/asc_desc.gif') 100% 50% no-repeat; }
+table.list thead th a { padding: 3px; padding-right: 15px; display: block; white-space: nowrap; color: #000; background: url('../images/asc_desc.gif') 100% 50% no-repeat; }
 
 table.list thead th a.asc { background: url('../images/asc.gif') 100% 50% no-repeat #cfe6ff; }
 table.list thead th a.desc { background: url('../images/desc.gif') 100% 50% no-repeat #cfe6ff; }
@@ -453,7 +476,7 @@ table.list tbody td {
     vertical-align:top;
 }
 
-table.list tbody td { background: #fff; padding: 1px; padding-left:2px; vertical-align: top; }
+table.list tbody td { background: #fff; padding: 1px 3px; vertical-align: top; }
 table.list tbody tr:nth-child(2n+1) td { background-color: #f0faff; }
 table.list tbody tr:hover td { background: #ffe; }
 table.list tbody tr:nth-child(2n+1):hover td { background: #ffd; }
@@ -891,7 +914,7 @@ ul.tabs li {
 }
 
 ul.tabs li a {
-    width:130px;
+    min-width:130px;
     font-weight:bold;
     padding:5px;
     height:18px;
@@ -1312,7 +1335,19 @@ time {
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
     max-height: 72%;
+    min-height: 50px;
     overflow-y: auto;
+}
+
+.dialog #popup-loading {
+    position:absolute;
+    text-align:center;
+    background:rgba(255,255,255,0.8);
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    z-index:1;
 }
 
 .redactor_editor {
@@ -1375,7 +1410,14 @@ time {
     overflow:hidden;
 }
 
-.dialog label {
+.dialog .custom-field .field-label {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+.dialog .custom-field + .custom-field {
+    margin-top: 8px;
+}
+.dialog label.fixed-size {
     width:100px;
     display:inline-block;
     text-align:right;
@@ -1773,6 +1815,20 @@ tr.disabled th {
 .label-info {
   background-color: #3a87ad;
 }
+.label-verified {
+    border:1px solid green;
+    background-color:transparent;
+    background-color:rgba(0,0,0,0);
+    color:green;
+    text-shadow:none;
+}
+.label-danger {
+    border:1px solid red;
+    background-color:transparent;
+    background-color:rgba(0,0,0,0);
+    color:red;
+    text-shadow:none;
+}
 
 .tab_content {
     position: relative;
@@ -1838,4 +1894,17 @@ table.custom-info td {
 
 .delete-draft:hover {
     background-color: #fc9f41 !important;
+}
+.pull-right {
+    float: right;
+}
+.flush-right {
+    text-align: right;
+}
+.flush-left {
+    text-align: left;
+}
+.ltr {
+    direction: ltr;
+    unicode-bidi: embed;
 }

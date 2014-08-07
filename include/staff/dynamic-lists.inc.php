@@ -1,8 +1,9 @@
-<div style="width:700;padding-top:5px; float:left;">
- <h2>Custom Lists</h2>
+<div class="pull-left" style="width:700;padding-top:5px;">
+ <h2><?php echo __('Custom Lists'); ?></h2>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="lists.php?a=add" class="Icon list-add">Add New Custom List</a></b></div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
+ <b><a href="lists.php?a=add" class="Icon list-add"><?php
+ echo __('Add New Custom List'); ?></a></b></div>
 <div class="clear"></div>
 
 <?php
@@ -10,7 +11,7 @@ $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = DynamicList::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('lists.php');
-$showing=$pageNav->showing().' Dynamic Lists';
+$showing=$pageNav->showing().' '._N('custom list', 'custom lists', $count);
 
 ?>
 <form action="lists.php" method="POST" name="lists">
@@ -22,9 +23,9 @@ $showing=$pageNav->showing().' Dynamic Lists';
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>&nbsp;Dynamic Lists</th>
-            <th width="250">Created</th>
-            <th width="250">Last Updated</th>
+            <th><?php echo __('List Name'); ?></th>
+            <th><?php echo __('Created') ?></th>
+            <th><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -59,12 +60,13 @@ $showing=$pageNav->showing().' Dynamic Lists';
      <tr>
         <td colspan="4">
             <?php if($count){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select'); ?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All'); ?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None'); ?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle'); ?></a>&nbsp;&nbsp;
             <?php } else {
-                echo 'No custom lists defined yet &mdash; add one!';
+                echo sprintf(__('No custom lists defined yet &mdash; %s add one %s!'),
+                    '<a href="lists.php?a=add">','</a>');
             } ?>
         </td>
      </tr>
@@ -72,29 +74,31 @@ $showing=$pageNav->showing().' Dynamic Lists';
 </table>
 <?php
 if ($count) //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="delete" value="<?php echo __('Delete'); ?>">
 </p>
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected lists?</strong></font>
-        <br><br>Deleted list CANNOT be recovered.
+        <font color="red"><strong><?php echo sprintf(
+        __('Are you sure you want to DELETE %s?'),
+        _N('selected custom list', 'selected custom lists', 2)); ?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.'); ?>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="No, Cancel" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="Yes, Do it!" class="confirm">
         </span>
     </p>

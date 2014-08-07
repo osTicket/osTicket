@@ -24,28 +24,32 @@
 require_once('../main.inc.php');
 if(!defined('INCLUDE_DIR')) die('Fatal Error. Kwaheri!');
 
+// Bootstrap gettext translations. Since no one is yet logged in, use the
+// system or browser default
+TextDomain::configureForUser();
+
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 $tpl = 'pwreset.php';
 if($_POST) {
     if (!$ost->checkCSRFToken()) {
-        Http::response(400, 'Valid CSRF Token Required');
+        Http::response(400, __('Valid CSRF Token Required'));
         exit;
     }
     switch ($_POST['do']) {
         case 'sendmail':
             if (($staff=Staff::lookup($_POST['userid']))) {
                 if (!$staff->hasPassword()) {
-                    $msg = 'Unable to reset password. Contact your administrator';
+                    $msg = __('Unable to reset password. Contact your administrator');
                 }
                 elseif (!$staff->sendResetEmail()) {
                     $tpl = 'pwreset.sent.php';
                 }
             }
             else
-                $msg = 'Unable to verify username '
-                    .Format::htmlchars($_POST['userid']);
+                $msg = sprintf(__('Unable to verify username %s'),
+                    Format::htmlchars($_POST['userid']));
             break;
         case 'newpasswd':
             // TODO: Compare passwords
@@ -62,7 +66,7 @@ if($_POST) {
     }
 }
 elseif ($_GET['token']) {
-    $msg = 'Please enter your username or email';
+    $msg = __('Please enter your username or email');
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
             && ($staff = Staff::lookup($id)))
@@ -72,10 +76,10 @@ elseif ($_GET['token']) {
         header('Location: index.php');
 }
 elseif ($cfg->allowPasswordReset()) {
-    $msg = 'Enter your username or email address below';
+    $msg = __('Enter your username or email address below');
 }
 else {
-    $_SESSION['_staff']['auth']['msg']='Password resets are disabled';
+    $_SESSION['_staff']['auth']['msg']=__('Password resets are disabled');
     return header('Location: index.php');
 }
 define("OSTSCPINC",TRUE); //Make includes happy!

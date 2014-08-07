@@ -22,15 +22,16 @@ class osTicketSession {
     var $id = '';
 
     function osTicketSession($ttl=0){
-        $this->ttl =$ttl?$ttl:get_cfg_var('session.gc_maxlifetime');
-        if(!$this->ttl)
-            $this->ttl=SESSION_TTL;
+        $this->ttl = $ttl ?: ini_get('session.gc_maxlifetime') ?: SESSION_TTL;
 
         // Set osTicket specific session name.
         session_name('OSTSESSID');
 
         // Forced cleanup on shutdown
         register_shutdown_function('session_write_close');
+
+        // Set session cleanup time to match TTL
+        ini_set('session.gc_maxlifetime', $ttl);
 
         if (OsticketConfig::getDBVersion())
             return session_start();
@@ -45,7 +46,7 @@ class osTicketSession {
             // Remote port specification, as it will make an invalid domain
             list($domain) = explode(':', $_SERVER['HTTP_HOST']);
 
-        session_set_cookie_params(86400, ROOT_PATH, $domain,
+        session_set_cookie_params($ttl, ROOT_PATH, $domain,
             osTicket::is_https());
 
         //Set handlers.

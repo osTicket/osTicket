@@ -272,7 +272,7 @@ class Topic {
             if (!$disabled && $info['disabled'])
                 continue;
             if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
-                $n .= " &mdash; (disabled)";
+                $n .= " &mdash; ".__("(disabled)");
             $requested_names[$id] = $n;
         }
 
@@ -308,17 +308,17 @@ class Topic {
         $vars['topic']=Format::striptags(trim($vars['topic']));
 
         if($id && $id!=$vars['id'])
-            $errors['err']='Internal error. Try again';
+            $errors['err']=__('Internal error occurred');
 
         if(!$vars['topic'])
-            $errors['topic']='Help topic required';
+            $errors['topic']=__('Help topic name is required');
         elseif(strlen($vars['topic'])<5)
-            $errors['topic']='Topic is too short. 5 chars minimum';
+            $errors['topic']=__('Topic is too short. Five characters minimum');
         elseif(($tid=self::getIdByName($vars['topic'], $vars['topic_pid'])) && $tid!=$id)
-            $errors['topic']='Topic already exists';
+            $errors['topic']=__('Topic already exists');
 
         if (!is_numeric($vars['dept_id']))
-            $errors['dept_id']='You must select a department';
+            $errors['dept_id']=__('Department selection is required');
 
         if($errors) return false;
 
@@ -352,7 +352,8 @@ class Topic {
         if ($id) {
             $sql='UPDATE '.TOPIC_TABLE.' SET '.$sql.' WHERE topic_id='.db_input($id);
             if (!($rv = db_query($sql)))
-                $errors['err']='Unable to update topic. Internal error occurred';
+                $errors['err']=sprintf(__('Unable to update %s.'), __('this help topic'))
+                .' '.__('Internal error occurred');
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
@@ -368,7 +369,8 @@ class Topic {
             if (db_query($sql) && ($id = db_insert_id()))
                 $rv = $id;
             else
-                $errors['err']='Unable to create the topic. Internal error';
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this help topic'))
+               .' '.__('Internal error occurred');
         }
         if (!$cfg || $cfg->getTopicSortMode() == 'a') {
             static::updateSortOrder();
@@ -387,6 +389,9 @@ class Topic {
         foreach ($update as $idx=>&$id) {
             $id = sprintf("(%s,%s)", db_input($id), db_input($idx+1));
         }
+        if (!count($update))
+            return;
+
         // Thanks, http://stackoverflow.com/a/3466
         $sql = sprintf('INSERT INTO `%s` (topic_id,`sort`) VALUES %s
             ON DUPLICATE KEY UPDATE `sort`=VALUES(`sort`)',
@@ -396,4 +401,4 @@ class Topic {
 }
 
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches('Help Topic', array('topicId' => 'Topic ID'), 100);
+Filter::addSupportedMatches(/* trans */ 'Help Topic', array('topicId' => 'Topic ID'), 100);

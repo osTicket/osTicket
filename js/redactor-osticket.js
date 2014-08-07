@@ -31,11 +31,11 @@ RedactorPlugins.draft = {
             .css({'position':'absolute','top':'3em','right':'0.5em'})
             .hide()
             .append($('<span>')
-                .text('Draft Saved'));
+                .text(__('Draft Saved')));
         // Float the [Draft Saved] box with the toolbar
         this.$toolbar.append(this.$draft_saved);
         if (this.opts.draftDelete) {
-            var trash = this.buttonAdd('deleteDraft', 'Delete Draft', this.deleteDraft);
+            var trash = this.buttonAdd('deleteDraft', __('Delete Draft'), this.deleteDraft);
             this.buttonAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
@@ -241,7 +241,9 @@ $(function() {
                 'linebreaks': true,
                 'tabFocus': false,
                 'toolbarFixedBox': true,
-                'focusCallback': function() { this.$box.addClass('no-pjax'); }
+                'focusCallback': function() { this.$box.addClass('no-pjax'); },
+                'linkSize': 100000,
+                'predefinedLinks': 'ajax.php/config/links'
             }, options||{});
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
@@ -258,7 +260,12 @@ $(function() {
             options['plugins'].push('draft');
             options.draftDelete = el.hasClass('draft-delete');
         }
-        el.redactor(options);
+        getConfig().then(function(c) {
+            if (c.lang && c.lang.toLowerCase() != 'en_us' &&
+                    $.Redactor.opts.langs[c.short_lang])
+                options['lang'] = c.short_lang;
+            el.redactor(options);
+        });
     },
     findRichtextBoxes = function() {
         $('.richtext').each(function(i,el) {
@@ -297,7 +304,7 @@ $(document).ajaxError(function(event, request, settings) {
             }
         });
         $('#overlay').show();
-        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
+        alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
         $('#overlay').hide();
     }
 });
