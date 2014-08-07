@@ -16,6 +16,7 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
+include_once(INCLUDE_DIR.'class.fuzzyhash.php');
 
 //Ticket thread.
 class Thread {
@@ -982,14 +983,16 @@ Class ThreadEntry {
 
     function addHash($body, $type='text') {
         switch ($type) {
-            case 'text':
-                $hash = FuzzyHash::fromText($body);
-                break;
-            case 'html':
-                $hash = HtmlFuzzyHash::fromHtml($body);
-                break;
-            default:
-                return false;
+        case 'text':
+            $tokens = new TextTokenizer();
+            $hash = FuzzyHash::fromTokens($tokens->load($body));
+            break;
+        case 'html':
+            $tokens = new HtmlTokenizer();
+            $hash = HtmlFuzzyHash::fromTokens($tokens->load($body));
+            break;
+        default:
+            return false;
         }
         $hash = (string) $hash;
         if (strpos($this->ht['hashes'], $hash) !== false)
@@ -1358,11 +1361,11 @@ class ThreadBody /* extends SplString */ {
             PREG_PATTERN_ORDER);
 
         // Generate hashes from this body
-        $hash = new SmartFuzzyHash();
+        $hash = new AdaptiveFuzzyHash();
         switch ($this->type) {
         case 'html':
             // HTML is already strubbed in constructor
-            $hash->addHtml($this->body, ~SmartFuzzyHash::SCRUB_SAFE_HTML);
+            $hash->addHtml($this->body, HtmlTokenizer::FLAG_SAFE_HTML);
             break;
         case 'text':
             $hash->addText($this->body);
@@ -1372,8 +1375,7 @@ class ThreadBody /* extends SplString */ {
         }
 
         // Remove best hash
-        $this->body = $hash->remove($hashes);
-        var_dump($this->body); die();
+        $this->body = $hash->remove(explode(',',$hashes));
 
         // Capture a list of dropped inline images
         if ($images_before) {
