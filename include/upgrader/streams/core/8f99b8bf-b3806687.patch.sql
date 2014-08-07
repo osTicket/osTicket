@@ -1,6 +1,6 @@
 /**
  * @version v1.9.4
- * @signature 00000000000000000000000000000000
+ * @signature b38066879371ed792958b4ba9bc8de4a
  * @title Custom Ticket Numbers and Statuses
  *
  * This patch adds support for ticket number sequences to the database
@@ -74,5 +74,5 @@ ALTER TABLE  `%TABLE_PREFIX%ticket`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '00000000000000000000000000000000'
+    SET `value` = 'b38066879371ed792958b4ba9bc8de4a'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
