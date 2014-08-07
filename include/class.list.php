@@ -132,12 +132,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
         'pk' => array('id'),
     );
 
-    static $sort_modes = array(
-            'Alpha'     => 'Alphabetical',
-            '-Alpha'    => 'Alphabetical (Reversed)',
-            'SortCol'   => 'Manually Sorted'
-            );
-
     // Required fields
     static $fields = array('name', 'name_plural', 'sort_mode', 'notes');
 
@@ -169,7 +163,11 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function getSortModes() {
-       return static::$sort_modes;
+        return array(
+            'Alpha'     => __('Alphabetical'),
+            '-Alpha'    => __('Alphabetical (Reversed)'),
+            'SortCol'   => __('Manually Sorted')
+        );
     }
 
     function getSortMode() {
@@ -435,7 +433,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
 }
-FormField::addFieldTypes('Custom Lists', array('DynamicList', 'getSelections'));
+FormField::addFieldTypes(/* trans */ 'Custom Lists', array('DynamicList', 'getSelections'));
 
 /**
  * Represents a single item in a dynamic list
@@ -915,14 +913,14 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
                         }
                         $this->set('flags', $flags);
                     } elseif ($val && !$f->errors()) {
-                        $f->addError('Unknown or invalid flag format', $name);
+                        $f->addError(__('Unknown or invalid flag format'), $name);
                     }
                     break;
                 case 'state':
                     if ($val && is_array($val))
                         $this->set('state', key($val));
                     else
-                        $f->addError('Unknown or invalid state', $name);
+                        $f->addError(__('Unknown or invalid state'), $name);
                     break;
                 default: //Custom properties the user might add.
                     $properties[$f->get('id')] = $f->to_php($val);
