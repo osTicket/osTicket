@@ -65,6 +65,7 @@ class Internationalization {
             // Note that group requires department
             'group.yaml' =>         'Group::create',
             'file.yaml' =>          'AttachmentFile::create',
+            'sequence.yaml' =>      'Sequence::__create',
         );
 
         $errors = array();

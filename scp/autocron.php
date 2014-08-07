@@ -49,6 +49,9 @@ if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enab
     $ost->logDebug(_S('Auto Cron'), sprintf(_S('Mail fetcher cron call [%s]'), $caller));
 }
 
+$data = array('autocron'=>true);
+Signal::send('cron', $data);
+
 $_SESSION['lastcroncall']=time();
 endif;
 ob_end_clean();

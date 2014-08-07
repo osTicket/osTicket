@@ -33,7 +33,7 @@ abstract class SearchBackend {
     abstract function update($model, $id, $content, $new=false, $attrs=array());
     abstract function find($query, $criteria, $model=false, $sort=array());
 
-    function register($backend=false) {
+    static function register($backend=false) {
         $backend = $backend ?: get_called_class();
 
         if ($backend::$id == false)
@@ -362,7 +362,17 @@ class MysqlSearchBackend extends SearchBackend {
                 . ' LIMIT 500';
         }
 
-        $res = db_query($sql);
+        $class = get_class();
+        $auto_create = function($db_error) use ($class) {
+
+            if ($db_error != 1146)
+                // Perform the standard error handling
+                return true;
+
+            // Create the search table automatically
+            $class::createSearchTable();
+        };
+        $res = db_query($sql, $auto_create);
         $object_ids = array();
 
         while ($row = db_fetch_row($res))

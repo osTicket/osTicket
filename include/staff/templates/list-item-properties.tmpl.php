@@ -38,7 +38,6 @@
                 } ?>
             </div><div>
             <?php
-            $f->render();
             if ($internal && !$f->isEditable())
                 $f->render('view');
             else {

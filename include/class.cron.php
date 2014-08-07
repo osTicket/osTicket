@@ -102,7 +102,8 @@ class Cron {
         self::PurgeDrafts();
         self::MaybeOptimizeTables();
 
-        Signal::send('cron', null);
+        $data = array('autocron'=>false);
+        Signal::send('cron', $data);
     }
 }
 ?>

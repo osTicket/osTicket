@@ -192,6 +192,12 @@ class Sequence extends VerySimpleModel {
             return $this->current();
         return parent::__get($what);
     }
+
+    function __create($data) {
+        $instance = parent::create($data);
+        $instance->save();
+        return $instance;
+    }
 }
 
 class RandomSequence extends Sequence {
