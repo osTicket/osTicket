@@ -7,35 +7,15 @@ $selected_test = (isset($argv[1])) ? $argv[1] : false;
 
 require_once "tests/class.test.php";
 
-if (!function_exists('get_osticket_root_path')) {
-    function get_osticket_root_path() {
-        # Hop up to the root folder
-        $start = dirname(__file__);
-        for (;;) {
-            if (file_exists($start . '/main.inc.php')) break;
-            $start .= '/..';
-        }
-        return realpath($start);
-    }
-}
 $root = get_osticket_root_path();
 define('INCLUDE_DIR', "$root/include/");
 define('PEAR_DIR', INCLUDE_DIR."pear/");
 ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
 
-if (!function_exists('glob_recursive')) {
-    # Check PHP syntax across all php files
-    function glob_recursive($pattern, $flags = 0) {
-        $files = glob($pattern, $flags);
-        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-            $files = array_merge($files,
-                glob_recursive($dir.'/'.basename($pattern), $flags));
-        }
-        return $files;
-    }
-}
-
 $fails = array();
+
+require_once INCLUDE_DIR . 'class.i18n.php';
+Internationalization::bootstrap();
 
 function show_fails() {
     global $fails, $root;

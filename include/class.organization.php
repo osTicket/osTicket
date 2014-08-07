@@ -257,14 +257,14 @@ class Organization extends OrganizationModel {
                         && ($o=Organization::lookup(array('name'=>$f->getClean())))
                         && $o->id != $this->getId()) {
                 $valid = false;
-                $f->addError('Organization with the same name already exists');
+                $f->addError(__('Organization with the same name already exists'));
             }
         }
 
         if ($vars['domain']) {
             foreach (explode(',', $vars['domain']) as $d) {
                 if (!Validator::is_email('t@' . trim($d))) {
-                    $errors['domain'] = 'Enter a valid email domain, like domain.com';
+                    $errors['domain'] = __('Enter a valid email domain, like domain.com');
                 }
             }
         }
@@ -279,7 +279,7 @@ class Organization extends OrganizationModel {
                         && $team = Team::lookup(substr($vars['manager'], 1)))
                     break;
             default:
-                $errors['manager'] = 'Select a staff member or team from the list';
+                $errors['manager'] = __('Select an agent or team from the list');
             }
         }
 
@@ -349,7 +349,7 @@ class Organization extends OrganizationModel {
         if (($field=$form->getField('name'))
                 && $field->getClean()
                 && Organization::lookup(array('name' => $field->getClean()))) {
-            $field->addError('Organization with the same name already exists');
+            $field->addError(__('Organization with the same name already exists'));
             $valid = false;
         }
 
@@ -428,16 +428,16 @@ class OrganizationForm extends DynamicForm {
     }
 
 }
-Filter::addSupportedMatches('Organization Data', function() {
+Filter::addSupportedMatches(/*trans*/ 'Organization Data', function() {
     $matches = array();
     foreach (OrganizationForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'Organization / '.$f->getLabel();
+        $matches['field.'.$f->get('id')] = __('Organization').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
             foreach ($fi->getList()->getProperties() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'Organization / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('Organization').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }

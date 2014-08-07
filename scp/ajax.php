@@ -163,6 +163,9 @@ $dispatcher = patterns('',
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
         url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
+    )),
+    url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('(?P<tag>\w+)$', 'getLanguageFile')
     ))
 );
 

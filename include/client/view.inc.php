@@ -13,12 +13,13 @@ if ($thisclient && $thisclient->isGuest()
 
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
-    <strong>Looking for your other tickets?</strong></br>
+    <strong><?php echo __('Looking for your other tickets?'); ?></strong></br>
     <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
         echo urlencode($thisclient->getEmail());
-        ?>" style="text-decoration:underline">Sign in</a> or
-    <a href="account.php?do=create" style="text-decoration:underline">register for an account</a>
-    for the best experience on our help desk.</div>
+    ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a> or
+    <?php echo sprintf(__('or %s register for an account %s for the best experience on our help desk.'),
+        '<a href="account.php?do=create" style="text-decoration:underline">','</a>'); ?>
+    </div>
 
 <?php } ?>
 
@@ -26,7 +27,7 @@ if ($thisclient && $thisclient->isGuest()
     <tr>
         <td colspan="2" width="100%">
             <h1>
-                Ticket #<?php echo $ticket->getNumber(); ?> &nbsp;
+                <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?> &nbsp;
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
 <?php if ($cfg->allowClientUpdates()
         // Only ticket owners can edit the ticket details (and other forms)
@@ -41,15 +42,29 @@ if ($thisclient && $thisclient->isGuest()
         <td width="50%">
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                 <tr>
-                    <th width="100">Ticket Status:</th>
-                    <td><?php echo ucfirst($ticket->getStatus()); ?></td>
+                    <th width="100"><?php echo __('Ticket Status');?>:</th>
+					<?php
+
+						$ticketstatus='';
+						switch($ticket->getStatus()) {
+							case 'open':
+								$ticketstatus=__('open');
+								break;
+							case 'closed':
+								$ticketstatus=__('closed');
+								break;
+							default:
+								$ticketstatus=__('open');
+						}
+					?>
+                    <td><?php echo ucfirst($ticketstatus); ?></td>
                 </tr>
                 <tr>
-                    <th>Department:</th>
+                    <th><?php echo __('Department');?>:</th>
                     <td><?php echo Format::htmlchars($dept instanceof Dept ? $dept->getName() : ''); ?></td>
                 </tr>
                 <tr>
-                    <th>Create Date:</th>
+                    <th><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
                 </tr>
            </table>
@@ -57,15 +72,15 @@ if ($thisclient && $thisclient->isGuest()
        <td width="50%">
            <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                <tr>
-                   <th width="100">Name:</th>
-                   <td><?php echo ucfirst(Format::htmlchars($ticket->getName())); ?></td>
+                   <th width="100"><?php echo __('Name');?>:</th>
+                   <td><?php echo mb_convert_case(Format::htmlchars($ticket->getName()), MB_CASE_TITLE); ?></td>
                </tr>
                <tr>
-                   <th width="100">Email:</th>
+                   <th width="100"><?php echo __('Email');?>:</th>
                    <td><?php echo Format::htmlchars($ticket->getEmail()); ?></td>
                </tr>
                <tr>
-                   <th>Phone:</th>
+                   <th><?php echo __('Phone');?>:</th>
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
             </table>
@@ -97,7 +112,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
 </tr>
 </table>
 <br>
-<div class="subject">Subject: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
+<div class="subject"><?php echo __('Subject'); ?>: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
 <div id="ticketThread">
 <?php
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
@@ -147,7 +162,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
 <?php } ?>
 <form id="reply" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>
-    <h2>Post a Reply</h2>
+    <h2><?php echo __('Post a Reply');?></h2>
     <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
     <input type="hidden" name="a" value="reply">
     <table border="0" cellspacing="0" cellpadding="3" style="width:100%">
@@ -155,9 +170,9 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
             <td colspan="2">
                 <?php
                 if($ticket->isClosed()) {
-                    $msg='<b>Ticket will be reopened on message post</b>';
+                    $msg='<b>'.__('Ticket will be reopened on message post').'</b>';
                 } else {
-                    $msg='To best assist you, please be specific and detailed';
+                    $msg=__('To best assist you, we request that you be specific and detailed');
                 }
                 ?>
                 <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
@@ -172,7 +187,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         if($cfg->allowOnlineAttachments()) { ?>
         <tr>
             <td width="160">
-                <label for="attachment">Attachments:</label>
+                <label for="attachment"><?php echo __('Attachments');?>:</label>
             </td>
             <td width="640" id="reply_form_attachments" class="attachments">
                 <div class="uploads">
@@ -186,8 +201,8 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         } ?>
     </table>
     <p style="padding-left:165px;">
-        <input type="submit" value="Post Reply">
-        <input type="reset" value="Reset">
-        <input type="button" value="Cancel" onClick="history.go(-1)">
+        <input type="submit" value="<?php echo __('Post Reply');?>">
+        <input type="reset" value="<?php echo __('Reset');?>">
+        <input type="button" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
     </p>
 </form>

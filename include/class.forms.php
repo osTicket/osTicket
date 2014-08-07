@@ -20,7 +20,7 @@
  */
 class Form {
     var $fields = array();
-    var $title = 'Unnamed';
+    var $title = '';
     var $instructions = '';
 
     var $_errors = null;
@@ -131,15 +131,15 @@ class FormField {
     var $presentation_only = false;
 
     static $types = array(
-        'Basic Fields' => array(
-            'text'  => array('Short Answer', 'TextboxField'),
-            'memo' => array('Long Answer', 'TextareaField'),
-            'thread' => array('Thread Entry', 'ThreadEntryField', false),
-            'datetime' => array('Date and Time', 'DatetimeField'),
-            'phone' => array('Phone Number', 'PhoneField'),
-            'bool' => array('Checkbox', 'BooleanField'),
-            'choices' => array('Choices', 'ChoiceField'),
-            'break' => array('Section Break', 'SectionBreakField'),
+        /* trans */ 'Basic Fields' => array(
+            'text'  => array(   /* trans */ 'Short Answer', 'TextboxField'),
+            'memo' => array(    /* trans */ 'Long Answer', 'TextareaField'),
+            'thread' => array(  /* trans */ 'Thread Entry', 'ThreadEntryField', false),
+            'datetime' => array(/* trans */ 'Date and Time', 'DatetimeField'),
+            'phone' => array(   /* trans */ 'Phone Number', 'PhoneField'),
+            'bool' => array(    /* trans */ 'Checkbox', 'BooleanField'),
+            'choices' => array( /* trans */ 'Choices', 'ChoiceField'),
+            'break' => array(   /* trans */ 'Section Break', 'SectionBreakField'),
         ),
     );
     static $more_types = array();
@@ -231,7 +231,8 @@ class FormField {
         # Validates a user-input into an instance of this field on a dynamic
         # form
         if ($this->get('required') && !$value && $this->hasData())
-            $this->_errors[] = sprintf('%s is a required field', $this->getLabel());
+            $this->_errors[] = sprintf(__('%s is a required field'),
+                $this->getLabel());
 
         # Perform declared validators for the field
         if ($vs = $this->get('validators')) {
@@ -357,7 +358,8 @@ class FormField {
     function __call($what, $args) {
         // XXX: Throw exception if $this->parent is not set
         if (!$this->parent)
-            throw new Exception($what.': Call to undefined function');
+            throw new Exception(sprintf(__('%s: Call to undefined function'),
+                $what));
         // BEWARE: DynamicFormField has a __call() which will create a new
         //      FormField instance and invoke __call() on it or bounce
         //      immediately back
@@ -495,7 +497,7 @@ class FormField {
 
     function getWidget() {
         if (!static::$widget)
-            throw new Exception('Widget not defined for this field');
+            throw new Exception(__('Widget not defined for this field'));
         if (!isset($this->_widget)) {
             $wc = $this->get('widget') ? $this->get('widget') : static::$widget;
             $this->_widget = new $wc($this);
@@ -519,22 +521,22 @@ class TextboxField extends FormField {
     function getConfigurationOptions() {
         return array(
             'size'  =>  new TextboxField(array(
-                'id'=>1, 'label'=>'Size', 'required'=>false, 'default'=>16,
+                'id'=>1, 'label'=>__('Size'), 'required'=>false, 'default'=>16,
                     'validator' => 'number')),
             'length' => new TextboxField(array(
-                'id'=>2, 'label'=>'Max Length', 'required'=>false, 'default'=>30,
+                'id'=>2, 'label'=>__('Max Length'), 'required'=>false, 'default'=>30,
                     'validator' => 'number')),
             'validator' => new ChoiceField(array(
-                'id'=>3, 'label'=>'Validator', 'required'=>false, 'default'=>'',
-                'choices' => array('phone'=>'Phone Number','email'=>'Email Address',
-                    'ip'=>'IP Address', 'number'=>'Number', ''=>'None'))),
+                'id'=>3, 'label'=>__('Validator'), 'required'=>false, 'default'=>'',
+                'choices' => array('phone'=>__('Phone Number'),'email'=>__('Email Address'),
+                    'ip'=>__('IP Address'), 'number'=>__('Number'), ''=>__('None')))),
             'validator-error' => new TextboxField(array(
-                'id'=>4, 'label'=>'Validation Error', 'default'=>'',
+                'id'=>4, 'label'=>__('Validation Error'), 'default'=>'',
                 'configuration'=>array('size'=>40, 'length'=>60),
-                'hint'=>'Message shown to user if the input does not match the validator')),
+                'hint'=>__('Message shown to user if the input does not match the validator'))),
             'placeholder' => new TextboxField(array(
-                'id'=>5, 'label'=>'Placeholder', 'required'=>false, 'default'=>'',
-                'hint'=>'Text shown in before any input from the user',
+                'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Text shown in before any input from the user'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -546,12 +548,12 @@ class TextboxField extends FormField {
         $validators = array(
             '' =>       null,
             'email' =>  array(array('Validator', 'is_email'),
-                'Enter a valid email address'),
+                __('Enter a valid email address')),
             'phone' =>  array(array('Validator', 'is_phone'),
-                'Enter a valid phone number'),
+                __('Enter a valid phone number')),
             'ip' =>     array(array('Validator', 'is_ip'),
-                'Enter a valid IP address'),
-            'number' => array('is_numeric', 'Enter a number')
+                __('Enter a valid IP address')),
+            'number' => array('is_numeric', __('Enter a number'))
         );
         // Support configuration forms, as well as GUI-based form fields
         $valid = $this->get('validator');
@@ -588,17 +590,17 @@ class TextareaField extends FormField {
     function getConfigurationOptions() {
         return array(
             'cols'  =>  new TextboxField(array(
-                'id'=>1, 'label'=>'Width (chars)', 'required'=>true, 'default'=>40)),
+                'id'=>1, 'label'=>__('Width').' '.__('(chars)'), 'required'=>true, 'default'=>40)),
             'rows'  =>  new TextboxField(array(
-                'id'=>2, 'label'=>'Height (rows)', 'required'=>false, 'default'=>4)),
+                'id'=>2, 'label'=>__('Height').' '.__('(rows)'), 'required'=>false, 'default'=>4)),
             'length' => new TextboxField(array(
-                'id'=>3, 'label'=>'Max Length', 'required'=>false, 'default'=>0)),
+                'id'=>3, 'label'=>__('Max Length'), 'required'=>false, 'default'=>0)),
             'html' => new BooleanField(array(
-                'id'=>4, 'label'=>'HTML', 'required'=>false, 'default'=>true,
-                'configuration'=>array('desc'=>'Allow HTML input in this box'))),
+                'id'=>4, 'label'=>__('HTML'), 'required'=>false, 'default'=>true,
+                'configuration'=>array('desc'=>__('Allow HTML input in this box')))),
             'placeholder' => new TextboxField(array(
-                'id'=>5, 'label'=>'Placeholder', 'required'=>false, 'default'=>'',
-                'hint'=>'Text shown in before any input from the user',
+                'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Text shown in before any input from the user'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -624,20 +626,20 @@ class PhoneField extends FormField {
     function getConfigurationOptions() {
         return array(
             'ext' => new BooleanField(array(
-                'label'=>'Extension', 'default'=>true,
+                'label'=>__('Extension'), 'default'=>true,
                 'configuration'=>array(
-                    'desc'=>'Add a separate field for the extension',
+                    'desc'=>__('Add a separate field for the extension'),
                 ),
             )),
             'digits' => new TextboxField(array(
-                'label'=>'Minimum length', 'default'=>7,
-                'hint'=>'Fewest digits allowed in a valid phone number',
+                'label'=>__('Minimum length'), 'default'=>7,
+                'hint'=>__('Fewest digits allowed in a valid phone number'),
                 'configuration'=>array('validator'=>'number', 'size'=>5),
             )),
             'format' => new ChoiceField(array(
-                'label'=>'Display format', 'default'=>'us',
-                'choices'=>array(''=>'-- Unformatted --',
-                    'us'=>'United States'),
+                'label'=>__('Display format'), 'default'=>'us',
+                'choices'=>array(''=>'-- '.__('Unformatted').' --',
+                    'us'=>__('United States')),
             )),
         );
     }
@@ -650,12 +652,12 @@ class PhoneField extends FormField {
         if ($phone && (
                 !is_numeric($phone) ||
                 strlen($phone) < $config['digits']))
-            $this->_errors[] = "Enter a valid phone number";
+            $this->_errors[] = __("Enter a valid phone number");
         if ($ext && $config['ext']) {
             if (!is_numeric($ext))
-                $this->_errors[] = "Enter a valid phone extension";
+                $this->_errors[] = __("Enter a valid phone extension");
             elseif (!$phone)
-                $this->_errors[] = "Enter a phone number for the extension";
+                $this->_errors[] = __("Enter a phone number for the extension");
         }
     }
 
@@ -687,8 +689,8 @@ class BooleanField extends FormField {
     function getConfigurationOptions() {
         return array(
             'desc' => new TextareaField(array(
-                'id'=>1, 'label'=>'Description', 'required'=>false, 'default'=>'',
-                'hint'=>'Text shown inline with the widget',
+                'id'=>1, 'label'=>__('Description'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Text shown inline with the widget'),
                 'configuration'=>array('rows'=>2)))
         );
     }
@@ -705,7 +707,7 @@ class BooleanField extends FormField {
     }
 
     function toString($value) {
-        return ($value) ? 'Yes' : 'No';
+        return ($value) ? __('Yes') : __('No');
     }
 }
 
@@ -715,20 +717,18 @@ class ChoiceField extends FormField {
     function getConfigurationOptions() {
         return array(
             'choices'  =>  new TextareaField(array(
-                'id'=>1, 'label'=>'Choices', 'required'=>false, 'default'=>'',
-                'hint'=>'List choices, one per line. To protect against
-                spelling changes, specify key:value names to preserve
-                entries if the list item names change',
+                'id'=>1, 'label'=>__('Choices'), 'required'=>false, 'default'=>'',
+                'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change'),
                 'configuration'=>array('html'=>false)
             )),
             'default' => new TextboxField(array(
-                'id'=>3, 'label'=>'Default', 'required'=>false, 'default'=>'',
-                'hint'=>'(Enter a key). Value selected from the list initially',
+                'id'=>3, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
+                'hint'=>__('(Enter a key). Value selected from the list initially'),
                 'configuration'=>array('size'=>20, 'length'=>40),
             )),
             'prompt' => new TextboxField(array(
-                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Leading text shown before a value is selected',
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
@@ -817,23 +817,23 @@ class DatetimeField extends FormField {
     function getConfigurationOptions() {
         return array(
             'time' => new BooleanField(array(
-                'id'=>1, 'label'=>'Time', 'required'=>false, 'default'=>false,
+                'id'=>1, 'label'=>__('Time'), 'required'=>false, 'default'=>false,
                 'configuration'=>array(
-                    'desc'=>'Show time selection with date picker'))),
+                    'desc'=>__('Show time selection with date picker')))),
             'gmt' => new BooleanField(array(
-                'id'=>2, 'label'=>'Timezone Aware', 'required'=>false,
+                'id'=>2, 'label'=>__('Timezone Aware'), 'required'=>false,
                 'configuration'=>array(
-                    'desc'=>"Show date/time relative to user's timezone"))),
+                    'desc'=>__("Show date/time relative to user's timezone")))),
             'min' => new DatetimeField(array(
-                'id'=>3, 'label'=>'Earliest', 'required'=>false,
-                'hint'=>'Earliest date selectable')),
+                'id'=>3, 'label'=>__('Earliest'), 'required'=>false,
+                'hint'=>__('Earliest date selectable'))),
             'max' => new DatetimeField(array(
-                'id'=>4, 'label'=>'Latest', 'required'=>false,
+                'id'=>4, 'label'=>__('Latest'), 'required'=>false,
                 'default'=>null)),
             'future' => new BooleanField(array(
-                'id'=>5, 'label'=>'Allow Future Dates', 'required'=>false,
+                'id'=>5, 'label'=>__('Allow Future Dates'), 'required'=>false,
                 'default'=>true, 'configuration'=>array(
-                    'desc'=>'Allow entries into the future'))),
+                    'desc'=>__('Allow entries into the future' /* Used in the date field */)))),
         );
     }
 
@@ -842,12 +842,12 @@ class DatetimeField extends FormField {
         parent::validateEntry($value);
         if (!$value) return;
         if ($config['min'] and $value < $config['min'])
-            $this->_errors[] = 'Selected date is earlier than permitted';
+            $this->_errors[] = __('Selected date is earlier than permitted');
         elseif ($config['max'] and $value > $config['max'])
-            $this->_errors[] = 'Selected date is later than permitted';
+            $this->_errors[] = __('Selected date is later than permitted');
         // strtotime returns -1 on error for PHP < 5.1.0 and false thereafter
         elseif ($value === -1 or $value === false)
-            $this->_errors[] = 'Enter a valid date';
+            $this->_errors[] = __('Enter a valid date');
     }
 }
 
@@ -921,7 +921,7 @@ class PriorityField extends ChoiceField {
         return $this->to_php(null, $id);
     }
 
-    function to_php($value, $id) {
+    function to_php($value, $id=false) {
         return Priority::lookup($id);
     }
 
@@ -938,16 +938,16 @@ class PriorityField extends ChoiceField {
     function getConfigurationOptions() {
         return array(
             'prompt' => new TextboxField(array(
-                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Leading text shown before a value is selected',
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
     }
 }
-FormField::addFieldTypes('Built-in Lists', function() {
+FormField::addFieldTypes(/*trans*/ 'Built-in Lists', function() {
     return array(
-        'priority' => array('Priority Level', PriorityField),
+        'priority' => array(__('Priority Level'), PriorityField),
     );
 });
 
@@ -1086,12 +1086,13 @@ class ChoicesWidget extends Widget {
             $have_def = isset($choices[$def_key]);
             if (!$have_def)
                 $def_val = ($config['prompt'])
-                   ? $config['prompt'] : 'Select';
+                    ? $config['prompt'] : __('Select'
+                    /* Used as a default prompt for a custom drop-down list */);
             else
                 $def_val = $choices[$def_key];
         } else {
             $def_val = ($config['prompt'])
-                ? $config['prompt'] : 'Select';
+                ? $config['prompt'] : __('Select');
         }
         $value = $this->value;
         if ($value === null && $have_def)
@@ -1157,7 +1158,7 @@ class DatetimePickerWidget extends Widget {
                     $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
 
             list($hr, $min) = explode(':', date('H:i', $this->value));
-            $this->value = date($cfg->getDateFormat(), $this->value);
+            $this->value = Format::date($cfg->getDateFormat(), $this->value);
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
@@ -1178,7 +1179,7 @@ class DatetimePickerWidget extends Widget {
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>'),
+                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>')
                 });
             });
         </script>
@@ -1254,7 +1255,8 @@ class ThreadEntryWidget extends Widget {
                 && ($thisclient && $thisclient->isValid()))) { ?>
         <div class="clear"></div>
         <hr/>
-        <div><strong style="padding-right:1em;vertical-align:top">Attachments: </strong>
+        <div><strong style="padding-right:1em;vertical-align:top"><?php
+        echo __('Attachments'); ?>: </strong>
         <div style="display:inline-block">
         <div class="uploads" style="display:block"></div>
         <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />

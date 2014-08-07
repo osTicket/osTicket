@@ -38,7 +38,7 @@ class Dispatcher {
                 return $matcher->dispatch($url, $args);
             }
         }
-        Http::response(400, "URL not supported");
+        Http::response(400, __("URL not supported"));
     }
     /**
      * Returns the url for the given function and arguments (arguments
@@ -140,7 +140,7 @@ class UrlMatcher {
         }
 
         if (!is_callable($func))
-            Http::response(500, 'Dispatcher compile error. Function not callable');
+            Http::response(500, __('Dispatcher compile error. Function not callable'));
 
         return call_user_func_array($func, $args);
     }

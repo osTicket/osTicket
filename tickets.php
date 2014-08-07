@@ -25,9 +25,9 @@ require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
 if($_REQUEST['id']) {
     if (!($ticket = Ticket::lookup($_REQUEST['id']))) {
-        $errors['err']='Unknown or invalid ticket ID.';
+        $errors['err']=__('Unknown or invalid ticket ID.');
     } elseif(!$ticket->checkUserAccess($thisclient)) {
-        $errors['err']='Unknown or invalid ticket.'; //Using generic message on purpose!
+        $errors['err']=__('Unknown or invalid ticket ID.'); //Using generic message on purpose!
         $ticket=null;
     }
 }
@@ -42,9 +42,9 @@ if($_POST && is_object($ticket) && $ticket->getId()):
     case 'edit':
         if(!$ticket->checkUserAccess($thisclient) //double check perm again!
                 || $thisclient->getId() != $ticket->getUserId())
-            $errors['err']='Access Denied. Possibly invalid ticket ID';
+            $errors['err']=__('Access Denied. Possibly invalid ticket ID');
         elseif (!$cfg || !$cfg->allowClientUpdates())
-            $errors['err']='Access Denied. Client updates are currently disabled';
+            $errors['err']=__('Access Denied. Client updates are currently disabled');
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
             foreach ($forms as $form) {
@@ -56,17 +56,18 @@ if($_POST && is_object($ticket) && $ticket->getId()):
         if (!$errors) {
             foreach ($forms as $f) $f->save();
             $_REQUEST['a'] = null; //Clear edit action - going back to view.
-            $ticket->logNote('Ticket details updated', sprintf(
-                'Ticket details were updated by client %s &lt;%s&gt;',
+            $ticket->logNote(__('Ticket details updated'), sprintf(
+                __('Ticket details were updated by client %s &lt;%s&gt;'),
                 $thisclient->getName(), $thisclient->getEmail()));
         }
         break;
     case 'reply':
         if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
-            $errors['err']='Access Denied. Possibly invalid ticket ID';
+            $errors['err']=__('Access Denied. Possibly invalid ticket ID');
 
         if(!$_POST['message'])
-            $errors['message']='Message required';
+
+            $errors['message']=__('Message required');
 
         if(!$errors) {
             //Everything checked out...do the magic.
@@ -80,20 +81,20 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                 $vars['draft_id'] = $_POST['draft_id'];
 
             if(($msgid=$ticket->postMessage($vars, 'Web'))) {
-                $msg='Message Posted Successfully';
+                $msg=__('Message Posted Successfully');
                 // Cleanup drafts for the ticket. If not closed, only clean
                 // for this staff. Else clean all drafts for the ticket.
                 Draft::deleteForNamespace('ticket.client.' . $ticket->getId());
             } else {
-                $errors['err']='Unable to post the message. Try again';
+                $errors['err']=__('Unable to post the message. Try again');
             }
 
         } elseif(!$errors['err']) {
-            $errors['err']='Error(s) occurred. Please try again';
+            $errors['err']=__('Error(s) occurred. Please try again');
         }
         break;
     default:
-        $errors['err']='Unknown action';
+        $errors['err']=__('Unknown action');
     }
     $ticket->reload();
 endif;

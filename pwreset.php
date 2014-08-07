@@ -10,25 +10,24 @@ require_once(INCLUDE_DIR.'class.client.php');
 $inc = 'pwreset.request.php';
 if($_POST) {
     if (!$ost->checkCSRFToken()) {
-        Http::response(400, 'Valid CSRF Token Required');
+        Http::response(400, __('Valid CSRF Token Required'));
         exit;
     }
     switch ($_POST['do']) {
         case 'sendmail':
             if (($acct=ClientAccount::lookupByUsername($_POST['userid']))) {
                 if (!$acct->isPasswdResetEnabled()) {
-                    $banner = 'Password reset is not enabled for your account. '
-                        .'Contact your administrator';
+                    $banner = __('Password reset is not enabled for your account. Contact your administrator');
                 }
                 elseif ($acct->sendResetEmail()) {
                     $inc = 'pwreset.sent.php';
                 }
                 else
-                    $banner = 'Unable to send reset email. Internal error';
+                    $banner = __('Unable to send reset email. Internal error');
             }
             else
-                $banner = 'Unable to verify username '
-                    .Format::htmlchars($_POST['userid']);
+                $banner = sprintf(__('Unable to verify username: %s'),
+                    Format::htmlchars($_POST['userid']));
             break;
         case 'reset':
             $inc = 'pwreset.login.php';
@@ -43,7 +42,7 @@ if($_POST) {
     }
 }
 elseif ($_GET['token']) {
-    $banner = 'Re-enter your username or email';
+    $banner = __('Re-enter your username or email');
     $inc = 'pwreset.login.php';
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
@@ -71,10 +70,10 @@ elseif ($_GET['token']) {
         Http::redirect('index.php');
 }
 elseif ($cfg->allowPasswordReset()) {
-    $banner = 'Enter your username or email address below';
+    $banner = __('Enter your username or email address below');
 }
 else {
-    $_SESSION['_staff']['auth']['msg']='Password resets are disabled';
+    $_SESSION['_staff']['auth']['msg']=__('Password resets are disabled');
     return header('Location: index.php');
 }
 

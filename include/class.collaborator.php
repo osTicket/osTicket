@@ -96,9 +96,9 @@ class Collaborator extends TicketUser {
     static function add($info, &$errors) {
 
         if (!$info || !$info['ticketId'] || !$info['userId'])
-            $errors['err'] = 'Invalid or missing information';
+            $errors['err'] = __('Invalid or missing information');
         elseif (($c=self::lookup($info)))
-            $errors['err'] = sprintf('%s is already a collaborator',
+            $errors['err'] = sprintf(__('%s is already a collaborator'),
                     $c->getName());
 
         if ($errors) return false;
@@ -112,7 +112,7 @@ class Collaborator extends TicketUser {
         if(db_query($sql) && ($id=db_insert_id()))
             return self::lookup($id);
 
-        $errors['err'] = 'Unable to add collaborator. Internal error';
+        $errors['err'] = __('Unable to add collaborator. Internal error');
 
         return false;
     }

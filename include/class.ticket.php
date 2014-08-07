@@ -53,6 +53,12 @@ class Ticket {
 
     var $thread; //Thread obj.
 
+    // Status -- listed here until we have a formal status class
+    static $STATUSES = array(
+        /* trans */ 'open',
+        /* trans */ 'closed',
+    );
+
     function Ticket($id) {
         $this->id = 0;
         $this->load($id);
@@ -666,7 +672,7 @@ class Ticket {
                      $collabs[] = $c;
             }
 
-            $this->logNote('Collaborators Removed',
+            $this->logNote(_S('Collaborators Removed'),
                     implode("<br>", $collabs), $thisstaff, false);
         }
 
@@ -970,8 +976,10 @@ class Ticket {
         global $ost, $cfg;
 
         //Log the limit notice as a warning for admin.
-        $msg=sprintf('Max open tickets (%d) reached  for %s ', $cfg->getMaxOpenTickets(), $this->getEmail());
-        $ost->logWarning('Max. Open Tickets Limit ('.$this->getEmail().')', $msg);
+        $msg=sprintf(_S('Maximum open tickets (%1$d) reached for %2$s'),
+            $cfg->getMaxOpenTickets(), $this->getEmail());
+        $ost->logWarning(sprintf(_S('Maximum Open Tickets Limit (%s)'),$this->getEmail()),
+            $msg);
 
         if(!$sendNotice || !$cfg->sendOverLimitNotice())
             return true;
@@ -991,11 +999,12 @@ class Ticket {
         $user = $this->getOwner();
 
         //Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
-        $alert='Max. open tickets reached for '.$this->getEmail()."\n"
-              .'Open ticket: '.$user->getNumOpenTickets()."\n"
-              .'Max Allowed: '.$cfg->getMaxOpenTickets()."\n\nNotice sent to the user.";
+        $alert=sprintf(__('Maximum open tickets reached for %s.'), $this->getEmail())."\n"
+              .sprintf(__('Open tickets: %d'), $user->getNumOpenTickets())."\n"
+              .sprintf(__('Max allowed: %d'), $cfg->getMaxOpenTickets())
+              ."\n\n".__("Notice sent to the user.");
 
-        $ost->alertAdmin('Overlimit Notice', $alert);
+        $ost->alertAdmin(__('Overlimit Notice'), $alert);
 
         return true;
     }
@@ -1035,7 +1044,7 @@ class Ticket {
 
         $vars = array_merge($vars, array(
                     'message' => (string) $entry,
-                    'poster' => $poster? $poster : 'A collaborator',
+                    'poster' => $poster ?: _S('A collaborator'),
                     )
                 );
 
@@ -1127,11 +1136,12 @@ class Ticket {
 
         $this->reload();
 
-        $comments = $comments?$comments:'Ticket assignment';
-        $assigner = $thisstaff?$thisstaff:'SYSTEM (Auto Assignment)';
+        $comments = $comments ?: _S('Ticket assignment');
+        $assigner = $thisstaff ?: _S('SYSTEM (Auto Assignment)');
 
         //Log an internal note - no alerts on the internal note.
-        $note = $this->logNote('Ticket Assigned to '.$assignee->getName(),
+        $note = $this->logNote(
+            sprintf(_S('Ticket Assigned to %s'), $assignee->getName()),
             $comments, $assigner, false);
 
         //See if we need to send alerts
@@ -1383,7 +1393,8 @@ class Ticket {
             $this->selectSLAId();
 
         /*** log the transfer comments as internal note - with alerts disabled - ***/
-        $title='Ticket transfered from '.$currentDept.' to '.$this->getDeptName();
+        $title=sprintf(_S('Ticket transferred from %1$s to %2$s'),
+            $currentDept, $this->getDeptName());
         $comments=$comments?$comments:$title;
         $note = $this->logNote($title, $comments, $thisstaff, false);
 
@@ -1532,14 +1543,14 @@ class Ticket {
         $this->recipients = null;
 
         //Log an internal note
-        $note = sprintf('%s changed ticket ownership to %s',
+        $note = sprintf(_S('%s changed ticket ownership to %s'),
                 $thisstaff->getName(), $user->getName());
 
         //Remove the new owner from list of collaborators
         $c = Collaborator::lookup(array('userId' => $user->getId(),
                     'ticketId' => $this->getId()));
         if ($c && $c->remove())
-            $note.= ' (removed as collaborator)';
+            $note.= ' '._S('(removed as collaborator)');
 
         $this->logNote('Ticket ownership changed', $note);
 
@@ -1580,15 +1591,17 @@ class Ticket {
                 if (($user=User::fromVars($recipient)))
                     if ($c=$this->addCollaborator($user, $info, $errors))
                         $collabs[] = sprintf('%s%s',
-                                (string) $c,
-                                $recipient['source'] ? " via {$recipient['source']}" : ''
-                                );
+                            (string) $c,
+                            $recipient['source']
+                                ? " ".sprintf(_S('via %s'), $recipient['source'])
+                                : ''
+                            );
             }
             //TODO: Can collaborators add others?
             if ($collabs) {
                 //TODO: Change EndUser to name of  user.
-                $this->logNote('Collaborators added by enduser',
-                        implode("<br>", $collabs), 'EndUser', false);
+                $this->logNote(_S('Collaborators added by end user'),
+                        implode("<br>", $collabs), _S('End User'), false);
             }
         }
 
@@ -1680,7 +1693,7 @@ class Ticket {
                     $this->replaceVars($canned->getPlainText()));
 
         $info = array('msgId' => $msgId,
-                      'poster' => 'SYSTEM (Canned Reply)',
+                      'poster' => __('SYSTEM (Canned Reply)'),
                       'response' => $response,
                       'cannedattachments' => $files);
 
@@ -1983,25 +1996,25 @@ class Ticket {
             return false;
 
         $fields=array();
-        $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>'Help topic required');
-        $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>'Select SLA');
-        $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
+        $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>__('Help topic selection is required'));
+        $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>__('Select a valid SLA'));
+        $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>__('Invalid date format - must be MM/DD/YY'));
 
-        $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>'Reason for the update required');
-        $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>'Invalid user-id');
+        $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>__('A reason for the update is required'));
+        $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>__('Invalid user-id'));
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] = 'Missing or invalid data - check the errors and try again';
+            $errors['err'] = __('Missing or invalid data - check the errors and try again');
 
         if($vars['duedate']) {
             if($this->isClosed())
-                $errors['duedate']='Due date can NOT be set on a closed ticket';
+                $errors['duedate']=__('Due date can NOT be set on a closed ticket');
             elseif(!$vars['time'] || strpos($vars['time'],':')===false)
-                $errors['time']='Select time';
+                $errors['time']=__('Select a time from the list');
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
-                $errors['duedate']='Invalid due date';
+                $errors['duedate']=__('Invalid due date');
             elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
-                $errors['duedate']='Due date must be in the future';
+                $errors['duedate']=__('Due date must be in the future');
         }
 
         if($errors) return false;
@@ -2024,9 +2037,9 @@ class Ticket {
             return false;
 
         if(!$vars['note'])
-            $vars['note']=sprintf('Ticket Updated by %s', $thisstaff->getName());
+            $vars['note']=sprintf(_S('Ticket details updated by %s'), $thisstaff->getName());
 
-        $this->logNote('Ticket Updated', $vars['note'], $thisstaff);
+        $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
 
         // Decide if we need to keep the just selected SLA
         $keepSLA = ($this->getSLAId() != $vars['slaId']);
@@ -2226,8 +2239,8 @@ class Ticket {
             global $ost;
             $errors = array(
                 'errno' => 403,
-                'err' => 'This help desk is for use by authorized users only');
-            $ost->logWarning('Ticket Denied', $message, false);
+                'err' => __('This help desk is for use by authorized users only'));
+            $ost->logWarning(_S('Ticket Denied'), $message, false);
             return 0;
         };
 
@@ -2279,7 +2292,7 @@ class Ticket {
 
             //Make sure the email address is not banned
             if (TicketFilter::isBanned($vars['email'])) {
-                return $reject_ticket('Banned email - '.$vars['email']);
+                return $reject_ticket(sprintf(_S('Banned email - %s'), $vars['email']));
             }
 
             //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
@@ -2289,9 +2302,9 @@ class Ticket {
                     && ($openTickets=$_user->getNumOpenTickets())
                     && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
 
-                $errors = array('err' => "You've reached the maximum open tickets allowed.");
-                $ost->logWarning('Ticket denied -'.$vars['email'],
-                        sprintf('Max open tickets (%d) reached for %s ',
+                $errors = array('err' => __("You've reached the maximum open tickets allowed."));
+                $ost->logWarning(sprintf(_S('Ticket denied - %s'), $vars['email']),
+                        sprintf(_S('Max open tickets (%1$d) reached for %2$s'),
                             $cfg->getMaxOpenTickets(), $vars['email']),
                         false);
 
@@ -2305,7 +2318,7 @@ class Ticket {
         if ($ticket_filter
                 && ($filter=$ticket_filter->shouldReject())) {
             return $reject_ticket(
-                sprintf('Ticket rejected ( %s) by filter "%s"',
+                sprintf(_S('Ticket rejected (%s) by filter "%s"'),
                     $vars['email'], $filter->getName()));
         }
 
@@ -2321,28 +2334,28 @@ class Ticket {
 
         $id=0;
         $fields=array();
-        $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>'Message required');
+        $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>__('Message content is required'));
         switch (strtolower($origin)) {
             case 'web':
-                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Select help topic');
+                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Select a help topic'));
                 break;
             case 'staff':
-                $fields['deptId']   = array('type'=>'int',  'required'=>0, 'error'=>'Dept. required');
-                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>'Topic required');
-                $fields['duedate']  = array('type'=>'date', 'required'=>0, 'error'=>'Invalid date - must be MM/DD/YY');
+                $fields['deptId']   = array('type'=>'int',  'required'=>0, 'error'=>__('Department selection is required'));
+                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Help topic selection is required'));
+                $fields['duedate']  = array('type'=>'date', 'required'=>0, 'error'=>__('Invalid date format - must be MM/DD/YY'));
             case 'api':
-                $fields['source']   = array('type'=>'string', 'required'=>1, 'error'=>'Indicate source');
+                $fields['source']   = array('type'=>'string', 'required'=>1, 'error'=>__('Indicate ticket source'));
                 break;
             case 'email':
-                $fields['emailId']  = array('type'=>'int',  'required'=>1, 'error'=>'Email unknown');
+                $fields['emailId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Unknown system email'));
                 break;
             default:
                 # TODO: Return error message
-                $errors['err']=$errors['origin'] = 'Invalid origin given';
+                $errors['err']=$errors['origin'] = __('Invalid ticket origin given');
         }
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] ='Missing or invalid data - check the errors and try again';
+            $errors['err'] =__('Missing or invalid data - check the errors and try again');
 
         if ($vars['topicId'] && !$topic)
             $errors['topicId'] = 'Invalid help topic selected';
@@ -2350,11 +2363,11 @@ class Ticket {
         //Make sure the due date is valid
         if($vars['duedate']) {
             if(!$vars['time'] || strpos($vars['time'],':')===false)
-                $errors['time']='Select time';
+                $errors['time']=__('Select a time from the list');
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
-                $errors['duedate']='Invalid due date';
+                $errors['duedate']=__('Invalid due date');
             elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
-                $errors['duedate']='Due date must be in the future';
+                $errors['duedate']=__('Due date must be in the future');
         }
 
         if (!$errors) {
@@ -2377,7 +2390,7 @@ class Ticket {
                     // are still acceptable
                     if (!Organization::forDomain($domain)) {
                         return $reject_ticket(
-                            sprintf('Ticket rejected (%s) (unregistered client)',
+                            sprintf(_S('Ticket rejected (%s) (unregistered client)'),
                                 $vars['email']));
                     }
                 }
@@ -2385,7 +2398,7 @@ class Ticket {
                 $user_form = UserForm::getUserForm()->getForm($vars);
                 if (!$user_form->isValid($field_filter('user'))
                         || !($user=User::fromVars($user_form->getClean())))
-                    $errors['user'] = 'Incomplete client information';
+                    $errors['user'] = __('Incomplete client information');
             }
         }
 
@@ -2539,7 +2552,7 @@ class Ticket {
             //TODO: Can collaborators add others?
             if ($collabs) {
                 //TODO: Change EndUser to name of  user.
-                $ticket->logNote(sprintf('Collaborators for %s organization added',
+                $ticket->logNote(sprintf(_S('Collaborators for %s organization added'),
                         $org->getName()),
                     implode("<br>", $collabs), $org->getName(), false);
             }
@@ -2562,9 +2575,9 @@ class Ticket {
             // Auto assign staff or team - auto assignment based on filter
             // rules. Both team and staff can be assigned
             if ($vars['staffId'])
-                 $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
+                 $ticket->assignToStaff($vars['staffId'], _S('Auto Assignment'));
             if ($vars['teamId'])
-                $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+                $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'));
         }
 
         /**********   double check auto-response  ************/
@@ -2621,15 +2634,15 @@ class Ticket {
         if(!$thisstaff || !$thisstaff->canCreateTickets()) return false;
 
         if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
-            $errors['source']='Invalid source - '.Format::htmlchars($vars['source']);
+            $errors['source']=sprintf(__('Invalid source given - %s'),Format::htmlchars($vars['source']));
 
         if (!$vars['uid']) {
             //Special validation required here
             if (!$vars['email'] || !Validator::is_email($vars['email']))
-                $errors['email'] = 'Valid email required';
+                $errors['email'] = __('Valid email address is required');
 
             if (!$vars['name'])
-                $errors['name'] = 'Name required';
+                $errors['name'] = __('Name is required');
         }
 
         if (!$thisstaff->canAssignTickets())
@@ -2658,12 +2671,12 @@ class Ticket {
 
         // Not assigned...save optional note if any
         if (!$vars['assignId'] && $vars['note']) {
-            $ticket->logNote('New Ticket', $vars['note'], $thisstaff, false);
+            $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }
         else {
             // Not assignment and no internal note - log activity
-            $ticket->logActivity('New Ticket by Staff',
-                'Ticket created by staff -'.$thisstaff->getName());
+            $ticket->logActivity(_S('New Ticket by Agent'),
+                sprintf(_S('Ticket created by agent - %s'), $thisstaff->getName()));
         }
 
         $ticket->reload();
@@ -2731,7 +2744,8 @@ class Ticket {
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
                 if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())
-                    $ticket->logActivity('Ticket Marked Overdue', 'Ticket flagged as overdue by the system.');
+                    $ticket->logActivity(_S('Ticket Marked Overdue'),
+                        _S('Ticket flagged as overdue by the system.'));
             }
         } else {
             //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.

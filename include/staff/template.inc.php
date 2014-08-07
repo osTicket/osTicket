@@ -4,16 +4,16 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info=array();
 $qstr='';
 if($template && $_REQUEST['a']!='add'){
-    $title='Update Template';
+    $title=__('Update Template');
     $action='update';
-    $submit_text='Save Changes';
+    $submit_text=__('Save Changes');
     $info=$template->getInfo();
     $info['tpl_id']=$template->getId();
     $qstr.='&tpl_id='.$template->getId();
 }else {
-    $title='Add New Template';
+    $title=__('Add New Template');
     $action='add';
-    $submit_text='Add Template';
+    $submit_text=__('Add Template');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
     $info['lang_id'] = $cfg->getSystemLanguage();
     $qstr.='&a='.urlencode($_REQUEST['a']);
@@ -25,20 +25,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="tpl_id" value="<?php echo $info['tpl_id']; ?>">
- <h2>Email Template</h2>
+ <h2><?php echo __('Email Template');?></h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Template information.</em>
+                <em><?php echo __('Template information');?></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td width="180" class="required">
-              Name:
+              <?php echo __('Name');?>:
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
@@ -47,13 +47,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                Status:
+                <?php echo __('Status');?>:
             </td>
             <td>
                 <span>
-                <label><input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>&nbsp;Enabled</strong></label>
+                <label><input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>&nbsp;<?php echo __('Enabled'); ?></strong></label>
                 &nbsp;
-                <label><input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>&nbsp;Disabled</label>
+                <label><input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>&nbsp;<?php echo __('Disabled'); ?></label>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#status"></i>
                 </span>
             </td>
@@ -62,7 +62,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         if($template){ ?>
         <tr>
             <td width="180" class="required">
-                Language:
+                <?php echo __('Language');?>:
             </td>
             <td><?php
             echo Internationalization::getLanguageDescription($info['lang']);
@@ -85,27 +85,27 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th colspan="2">
             <em><strong><?php echo isset($_groups[$current_group])
             ? $_groups[$current_group] : $current_group; ?></strong>
-            :: Click on the title to edit.&nbsp;</em>
+            :: <?php echo __('Click on the title to edit.'); ?></em>
             </th>
         </tr>
 <?php } # end if ($current_group)
             if (isset($impl[$cn])) {
-                echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">Updated %s</span><br/>&nbsp;%s</td></tr>',
-                $impl[$cn]->getId(), Format::htmlchars($info['name']),
-                Format::db_datetime($impl[$cn]->getLastUpdated()),
-                Format::htmlchars($info['desc']));
+                echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">%s</span><br/>&nbsp;%s</td></tr>',
+                $impl[$cn]->getId(), Format::htmlchars(__($info['name'])),
+                sprintf(__('Updated %s'), Format::db_datetime($impl[$cn]->getLastUpdated())),
+                Format::htmlchars(__($info['desc'])));
             } else {
                 echo sprintf('<tr><td colspan=2>&nbsp;<strong><a
                     href="templates.php?tpl_id=%d&a=implement&code_name=%s"
                     >%s</a></strong><br/>&nbsp%s</td></tr>',
-                    $template->getid(),$cn,format::htmlchars($info['name']),
-                    format::htmlchars($info['desc']));
+                    $template->getid(),$cn,format::htmlchars(__($info['name'])),
+                    format::htmlchars(__($info['desc'])));
             }
          } # endfor
         } else { ?>
         <tr>
             <td width="180" class="required">
-                Template Set To Clone:
+                <?php echo __('Template Set To Clone');?>:
             </td>
             <td>
                 <select name="tpl_id" onchange="javascript:
@@ -114,7 +114,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     else
         $('#language').hide();
 ">
-                    <option value="0">&mdash; Stock Templates &dash;</option>
+                    <option value="0">&mdash; <?php echo __('Stock Templates'); ?> &mdash;</option>
                     <?php
                     $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -132,7 +132,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <tbody id="language">
         <tr>
             <td width="180" class="required">
-                Language:
+                <?php echo __('Language'); ?>:
             </td>
             <td>
         <?php
@@ -153,7 +153,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes </strong>: Internal notes.</em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __(
+                "be liberal, they're internal");?></em>
             </th>
         </tr>
         <tr>
@@ -166,7 +167,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
 <p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="templates.php"'>
+    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="templates.php"'>
 </p>
 </form>

@@ -35,13 +35,14 @@ $tpl=$msgtemplates[$selected];
 
 ?>
 <form method="get" action="templates.php?">
-<h2><span>Email Template Set &nbsp;/&nbsp; <span><a href="templates.php?tpl_id=<?php echo $tpl_id; ?>"><?php echo $name; ?></a>
+<h2><span><?php echo __('Email Template Set');
+    ?> &nbsp;/&nbsp; <span><a href="templates.php?tpl_id=<?php echo $tpl_id; ?>"><?php echo $name; ?></a>
     <input type="hidden" name="a" value="manage">
     <input type="hidden" name="tpl_id" value="<?php echo $tpl_id; ?>">
 <div class="pull-right">
-    <span style="font-size:10pt">Viewing:</span>
+    <span style="font-size:10pt"><?php echo __('Viewing'); ?>:</span>
     <select id="tpl_options" name="id" style="width:300px;">
-        <option value="">&mdash; Select Setting Group &mdash;</option>
+        <option value="">&mdash; <?php echo __('Select Setting Group'); ?> &mdash;</option>
         <?php
         $impl = $group->getTemplates();
         $current_group = false;
@@ -58,12 +59,12 @@ $tpl=$msgtemplates[$selected];
                     echo "</optgroup>";
                 $current_group = $nfo['group']; ?>
                 <optgroup label="<?php echo isset($_groups[$current_group])
-                    ? $_groups[$current_group] : $current_group; ?>">
+                    ? __($_groups[$current_group]) : $current_group; ?>">
             <?php }
             $sel=($selected==$cn)?'selected="selected"':'';
             echo sprintf('<option value="%s" %s>%s</option>',
                 isset($impl[$cn]) ? $impl[$cn]->getId() : $cn,
-                $sel,$nfo['name']);
+                $sel,__($nfo['name']));
         }
         if ($current_group)
             echo "</optgroup>";
@@ -85,20 +86,20 @@ $tpl=$msgtemplates[$selected];
 
 <div style="border:1px solid #ccc;background:#f0f0f0;padding:5px 10px;
     margin:10px 0;">
-<h3 style="font-size:12pt;margin:0"><?php echo $desc['name']; ?>
+<h3 style="font-size:12pt;margin:0"><?php echo __($desc['name']); ?>
     &nbsp;<i class="help-tip icon-question-sign"
-        data-content="<?php echo Format::htmlchars($desc['desc']); ?>"
-        data-title="<?php echo Format::htmlchars($desc['name']); ?>"></i>
+        data-content="<?php echo Format::htmlchars(__($desc['desc'])); ?>"
+        data-title="<?php echo Format::htmlchars(__($desc['name'])); ?>"></i>
     <a style="font-size:10pt" class="tip pull-right" href="#ticket_variables.txt">
     <i class="icon-tags"></i>
-    Supported Variables</a>
+    <?php echo __('Supported Variables'); ?></a>
     </h3>
 <?php if ($errors) { ?>
     <font class="error"><?php echo $errors['subject']; ?>&nbsp;<?php echo $errors['body']; ?></font>
 <?php } ?>
 </div>
 
-<div style="padding-bottom:3px;" class="faded"><strong>Email Subject and Body:</strong></div>
+<div style="padding-bottom:3px;" class="faded"><strong><?php echo __('Email Subject and Body'); ?>:</strong></div>
 <div id="toolbar"></div>
 <div id="save" style="padding-top:5px;">
     <input type="text" name="subject" size="65" value="<?php echo $info['subject']; ?>"
@@ -113,10 +114,10 @@ $tpl=$msgtemplates[$selected];
 </div>
 
 <p style="text-align:center">
-    <input class="button" type="submit" name="submit" value="Save Changes">
-    <input class="button" type="reset" name="reset" value="Reset Changes" onclick="javascript:
+    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
+    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>" onclick="javascript:
         setTimeout('location.reload()', 25);" />
-    <input class="button" type="button" name="cancel" value="Cancel Changes"
+    <input class="button" type="button" name="cancel" value="<?php echo __('Cancel Changes'); ?>"
         onclick='window.location.href="templates.php?tpl_id=<?php echo $tpl_id; ?>"'>
 </p>
 </form>

@@ -45,9 +45,9 @@ class KbaseAjaxAPI extends AjaxController {
                 '<div style="width:650px;">
                  <strong>%s</strong><div class="thread-body">%s</div>
                  <div class="clear"></div>
-                 <div class="faded">Last updated %s</div>
+                 <div class="faded">'.__('Last updated %s').'</div>
                  <hr>
-                 <a href="faq.php?id=%d">View</a> | <a href="faq.php?id=%d">Attachments (%s)</a>',
+                 <a href="faq.php?id=%d">'.__('View').'</a> | <a href="faq.php?id=%d">'.__('Attachments (%d)').'</a>',
                 $faq->getQuestion(),
                 $faq->getAnswerWithImages(),
                 Format::db_daydatetime($faq->getUpdateDate()),
@@ -55,7 +55,7 @@ class KbaseAjaxAPI extends AjaxController {
                 $faq->getId(),
                 $faq->getNumAttachments());
         if($thisstaff && $thisstaff->canManageFAQ()) {
-            $resp.=sprintf(' | <a href="faq.php?id=%d&a=edit">Edit</a>',$faq->getId());
+            $resp.=sprintf(' | <a href="faq.php?id=%d&a=edit">'.__('Edit').'</a>',$faq->getId());
 
         }
         $resp.='</div>';

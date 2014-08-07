@@ -13,10 +13,6 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-add_new_staff:
-    title: Add New Staff
-    content: >
-
 staff_members:
     title: Staff Members
     content: >
@@ -26,48 +22,8 @@ staff_members:
         broken up by pages. See the pages section below to navigate through more
         results.
 
-checkbox_column:
-    title: Manage Multiple Agents
-    content: >
-        By choosing a checkbox next to the name of the <span
-        class="doc-desc-title">Agent</span>(s), you may alter the <span
-        class="doc-desc-title">Account Status</span> to either Locked or Enabled.
-        If you change the <span class="doc-desc-title">agent</span>’s status to
-        Locked, then he/she will not be able to login.<br/>
-        <br/>
-        If you change the <span class="doc-desc-title">agent</span>’s status to
-        Enabled, then all normal account settings established for that <span
-        class="doc-desc-title">Agent</span> will resume.<br/>
-        <br/>
-        If you change the <span class="doc-desc-title">agent</span>’s status to
-        Locked, then he/she will not be able to login.
-
-name:
-    title: Name
-    content: >
-
-username:
-    title: Username
-    content: >
-
 status:
     title: Status
     content: >
         This will display whether the <span class="doc-desc-title">Agent</span> is
         Locked, Active, or Active (Vacation).
-
-group:
-    title: Group
-    content: >
-
-department:
-    title: Department
-    content: >
-
-created:
-    title: Created
-    content: >
-
-last_login:
-    title: Last Login
-    content: >

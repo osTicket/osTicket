@@ -105,8 +105,8 @@ class Page {
     function update($vars, &$errors) {
 
         if(!$vars['isactive'] && $this->isInUse()) {
-            $errors['err'] = 'A page currently in-use CANNOT be disabled!';
-            $errors['isactive'] = 'Page is in-use!';
+            $errors['err'] = __('A page currently in-use CANNOT be disabled!');
+            $errors['isactive'] = __('Page is in-use!');
         }
 
         if($errors || !$this->save($this->getId(), $vars, $errors))
@@ -236,18 +236,18 @@ class Page {
 
         //validate
         if($id && $id!=$vars['id'])
-            $errors['err'] = 'Internal error. Try again';
+            $errors['err'] = __('Internal error. Try again');
 
         if(!$vars['type'])
-            $errors['type'] = 'Type required';
+            $errors['type'] = __('Type is required');
 
         if(!$vars['name'])
-            $errors['name'] = 'Name required';
+            $errors['name'] = __('Name is required');
         elseif(($pid=self::getIdByName($vars['name'])) && $pid!=$id)
-            $errors['name'] = 'Name already exists';
+            $errors['name'] = __('Name already exists');
 
         if(!$vars['body'])
-            $errors['body'] = 'Page body is required';
+            $errors['body'] = __('Page body is required');
 
         if($errors) return false;
 
@@ -264,12 +264,13 @@ class Page {
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update page.';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this site page'));
 
         } else {
             $sql='INSERT INTO '.PAGE_TABLE.' SET '.$sql.', created=NOW()';
             if (!db_query($sql) || !($id=db_insert_id())) {
-                $errors['err']='Unable to create page. Internal error';
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this site page'))
+                   .' '.__('Internal error occurred');
                 return false;
             }
 

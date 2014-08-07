@@ -1,8 +1,8 @@
-<h3><i class="icon-paste"></i> Manage Forms</i></h3>
+<h3><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
-<hr/>
-Sort the forms on this ticket by click and dragging on them. Use the box
-below the forms list to add new forms to the ticket.
+<hr/><?php echo __(
+'Sort the forms on this ticket by click and dragging on them. Use the box below the forms list to add new forms to the ticket.'
+); ?>
 <br/>
 <br/>
 <form method="post" action="<?php echo $info['action']; ?>">
@@ -34,7 +34,8 @@ foreach ($forms as $e) { ?>
         )
     );
     $sel.prop('disabled',true);">
-<option selected="selected" disabled="disabled">Add a new form to this ticket</option>
+<option selected="selected" disabled="disabled"><?php
+    echo __('Add a form'); ?></option>
 <?php foreach (DynamicForm::objects()->filter(array(
     'type'=>'G')) as $f
 ) {
@@ -46,19 +47,20 @@ foreach ($forms as $e) { ?>
 </select>
 <div id="delete-warning" style="display:none">
 <hr>
-    <div id="msg_warning">
-    Clicking <strong>Save Changes</strong> will permanently delete data
-    associated with the deleted forms
+    <div id="msg_warning"><?php echo __(
+    'Clicking <strong>Save Changes</strong> will permanently delete data associated with the deleted forms'
+    ); ?>
     </div>
 </div>
     <hr>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
-            <input type="button" name="cancel" class="<?php echo $user ? 'cancel' : 'close' ?>"  value="Cancel">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" name="cancel" class="<?php
+                echo $user ? 'cancel' : 'close' ?>" value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons" style="float:right">
-            <input type="submit" value="Save Changes">
+            <input type="submit" value="<?php echo __('Save Changes'); ?>">
         </span>
      </p>
 
