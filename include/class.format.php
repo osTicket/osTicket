@@ -30,7 +30,7 @@ class Format {
         return round(($bytes/1048576),1).' mb';
     }
 
-    /* encode text into desired encoding - taking into accout charset when available. */
+	/* encode text into desired encoding - taking into accout charset when available. */
     function encode($text, $charset=null, $encoding='utf-8') {
 
         //Try auto-detecting charset/encoding
@@ -269,13 +269,19 @@ class Format {
     }
 
     function htmlencode($var) {
+
+        if (is_array($var))
+            return array_map(array('Format', 'htmlencode'), $var);
+
         $flags = ENT_COMPAT;
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
 
-        return is_array($var)
-            ? array_map(array('Format','htmlencode'), $var)
-            : htmlentities($var, $flags, 'UTF-8');
+        try {
+            return htmlentities( (string) $var, $flags, 'UTF-8', false);
+        } catch(Exception $e) {
+            return $var;
+        }
     }
 
     function htmldecode($var) {

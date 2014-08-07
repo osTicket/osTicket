@@ -13,15 +13,17 @@ function checkbox_checker(formObj, min, max) {
     var checked=$('input:checkbox:checked', formObj).length;
     var action= action?action:"process";
     if (max>0 && checked > max ){
-        msg="You're limited to only " + max + " selections.\n"
-        msg=msg + "You have made " + checked + " selections.\n"
-        msg=msg + "Please remove " + (checked-max) + " selection(s)."
+        msg=__("You're limited to only {0} selections.\n") .replace('{0}', max);
+        msg=msg + __("You have made {0} selections.\n").replace('{0}', checked);
+        msg=msg + __("Please remove {0} selection(s).").replace('{0}', checked-max);
         alert(msg)
         return (false);
     }
 
     if (checked< min ){
-        alert("Please make at least " + min + " selections. " + checked + " checked so far.")
+        alert(__("Please make at least {0} selections. {1} checked so far.")
+            .replace('{0}', min)
+            .replace('{1}', checked));
         return (false);
     }
 
@@ -138,10 +140,10 @@ var scp_prep = function() {
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
-                return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
+                return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
             });
             $(document).on('pjax:beforeSend.changed', function(e) {
-                return confirm('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
+                return confirm(__('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!'));
             });
         }
     };
@@ -185,7 +187,7 @@ var scp_prep = function() {
     //Canned attachments.
     $('.canned_attachments, .faq_attachments').delegate('input:checkbox', 'click', function(e) {
         var elem = $(this);
-        if(!$(this).is(':checked') && confirm("Are you sure you want to remove this attachment?")==true) {
+        if(!$(this).is(':checked') && confirm(__("Are you sure you want to remove this attachment?"))==true) {
             elem.parent().addClass('strike');
         } else {
             elem.attr('checked', 'checked');
@@ -412,7 +414,8 @@ var scp_prep = function() {
             .done( function () {
              })
             .fail( function () {
-                $('#result-count').html('<div class="fail">Advanced search failed - try again!</div>');
+                $('#result-count').html('<div class="fail">'
+                    + __('Advanced search failed - try again!') + '</div>');
             })
             .always( function () {
                 $('.spinner', elem).hide();
@@ -747,7 +750,7 @@ $('.quicknote .delete').live('click.note', function() {
 $('#new-note').live('click', function() {
   var note = $(this).closest('.quicknote'),
     T = $('<textarea>'),
-    button = $('<input type="button">').val('Create');
+    button = $('<input type="button">').val(__('Create'));
     button.click(function() {
       $.post('ajax.php/' + note.data('url'),
         { note: T.redactor('get'), no_options: note.hasClass('no-options') },
@@ -768,3 +771,9 @@ $('#new-note').live('click', function() {
     $(T).redactor('focus');
     return false;
 });
+
+function __(s) {
+  if ($.oststrings && $.oststrings[s])
+    return $.oststrings[s];
+  return s;
+}

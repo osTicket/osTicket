@@ -17,9 +17,9 @@ if ($info['error']) {
 } ?>
 <ul class="tabs">
     <li><a href="#user-account" <?php echo !$access? 'class="active"' : ''; ?>
-        ><i class="icon-user"></i>&nbsp;User Information</a></li>
+        ><i class="icon-user"></i>&nbsp;<?php echo __('User Information'); ?></a></li>
     <li><a href="#user-access" <?php echo $access? 'class="active"' : ''; ?>
-        ><i class="icon-fixed-width icon-lock faded"></i>&nbsp;Manage Access</a></li>
+        ><i class="icon-fixed-width icon-lock faded"></i>&nbsp;<?php echo __('Manage Access'); ?></a></li>
 </ul>
 
 
@@ -32,24 +32,24 @@ if ($info['error']) {
         <tbody>
             <tr>
                 <th colspan="2">
-                    <em><strong>User Information</strong></em>
+                    <em><strong><?php echo __('User Information'); ?></strong></em>
                 </th>
             </tr>
             <tr>
                 <td width="180">
-                    Name:
+                    <?php echo __('Name'); ?>:
                 </td>
-                <td> <?php echo $user->getName(); ?> </td>
+                <td> <?php echo Format::htmlchars($user->getName()); ?> </td>
             </tr>
             <tr>
                 <td width="180">
-                    Email:
+                    <?php echo __('Email'); ?>:
                 </td>
                 <td> <?php echo $user->getEmail(); ?> </td>
             </tr>
             <tr>
                 <td width="180">
-                    Organization:
+                    <?php echo __('Organization'); ?>:
                 </td>
                 <td>
                     <input type="text" size="35" name="org" value="<?php echo $info['org']; ?>">
@@ -59,9 +59,9 @@ if ($info['error']) {
         </tbody>
         <tbody>
             <tr>
-                <th colspan="2"><em><strong>User Preferences</strong></em></th>
+                <th colspan="2"><em><strong><?php echo __('User Preferences'); ?></strong></em></th>
             </tr>
-                <td>Time Zone:</td>
+                <td><?php echo __('Time Zone'); ?>:</td>
                 <td>
                     <select name="timezone_id" id="timezone_id">
                         <?php
@@ -79,11 +79,11 @@ if ($info['error']) {
             </tr>
             <tr>
                 <td width="180">
-                   Daylight Saving:
+                   <?php echo __('Daylight Saving'); ?>:
                 </td>
                 <td>
                     <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-                    Observe daylight saving
+                    <?php echo __('Observe daylight saving'); ?>
                 </td>
             </tr>
         </tbody>
@@ -93,15 +93,15 @@ if ($info['error']) {
         <table width="100%">
         <tbody>
             <tr>
-                <th colspan="2"><em><strong>Account Access</strong></em></th>
+                <th colspan="2"><em><strong><?php echo __('Account Access'); ?></strong></em></th>
             </tr>
             <tr>
-                <td width="180"> Status: </td>
+                <td width="180"><?php echo __('Status'); ?>:</td>
                 <td> <?php echo $user->getAccountStatus(); ?> </td>
             </tr>
             <tr>
                 <td width="180">
-                    Username:
+                    <?php echo __('Username'); ?>:
                 </td>
                 <td>
                     <input type="text" size="35" name="username" value="<?php echo $info['username'] ?: $user->getEmail(); ?>">
@@ -110,7 +110,7 @@ if ($info['error']) {
             </tr>
             <tr>
                 <td width="180">
-                    New Password:
+                    <?php echo __('New Password'); ?>:
                 </td>
                 <td>
                     <input type="password" size="35" name="passwd1" value="<?php echo $info['passwd1']; ?>">
@@ -120,7 +120,7 @@ if ($info['error']) {
             </tr>
             <tr>
                 <td width="180">
-                   Confirm Password:
+                   <?php echo __('Confirm Password'); ?>:
                 </td>
                 <td>
                     <input type="password" size="35" name="passwd2" value="<?php echo $info['passwd2']; ?>">
@@ -130,22 +130,23 @@ if ($info['error']) {
         </tbody>
         <tbody>
             <tr>
-                <th colspan="2"><em><strong>Account Flags</strong></em></th>
+                <th colspan="2"><em><strong><?php echo __('Account Flags'); ?></strong></em></th>
             </tr>
             <tr>
                 <td colspan="2">
                 <?php
                   echo sprintf('<div><input type="checkbox" name="locked-flag" %s
-                       value="1"> Administratively Locked</div>',
-                       $account->isLocked() ?  'checked="checked"' : ''
+                       value="1"> %s</div>',
+                       $account->isLocked() ?  'checked="checked"' : '',
+                       __('Administratively Locked')
                        );
                   ?>
                    <div><input type="checkbox" name="pwreset-flag" value="1" <?php
                     echo $account->isPasswdResetForced() ?
-                    'checked="checked"' : ''; ?>> Password Reset Required</div>
+                    'checked="checked"' : ''; ?>> <?php echo __('Password Reset Required'); ?></div>
                    <div><input type="checkbox" name="forbid-pwchange-flag" value="1" <?php
                     echo !$account->isPasswdResetEnabled() ?
-                    'checked="checked"' : ''; ?>> User Cannot Change Password</div>
+                    'checked="checked"' : ''; ?>> <?php echo __('User Cannot Change Password'); ?></div>
                 </td>
             </tr>
         </tbody>
@@ -154,12 +155,12 @@ if ($info['error']) {
    <hr>
    <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
-            <input type="button" name="cancel" class="close" value="Cancel">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" name="cancel" class="close" value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons" style="float:right">
             <input type="submit"
-                value="Save Changes">
+                value="<?php echo __('Save Changes'); ?>">
         </span>
     </p>
 </form>

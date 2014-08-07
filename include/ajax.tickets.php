@@ -102,14 +102,16 @@ class TicketsAjaxAPI extends AjaxController {
 
         $result=array();
         $select = 'SELECT ticket.ticket_id';
-        $from = ' FROM '.TICKET_TABLE.' ticket ';
+        $from = ' FROM '.TICKET_TABLE.' ticket
+                  LEFT JOIN '.TICKET_STATUS_TABLE.' status
+                    ON (status.id = ticket.status_id) ';
         //Access control.
         $where = ' WHERE ( (ticket.staff_id='.db_input($thisstaff->getId())
-                    .' AND ticket.status="open" )';
+                    .' AND status.state="open" )';
 
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
             $where.=' OR (ticket.team_id IN ('.implode(',', db_input(array_filter($teams)))
-                   .' ) AND ticket.status="open")';
+                   .' ) AND status.state="open" )';
 
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
             $where.=' OR ticket.dept_id IN ('.implode(',', db_input($depts)).')';
@@ -127,16 +129,19 @@ class TicketsAjaxAPI extends AjaxController {
         //Status
         switch(strtolower($req['status'])) {
             case 'open':
-                $where.=' AND ticket.status="open" ';
+                $where.=' AND status.state="open" ';
                 break;
             case 'answered':
-                $where.=' AND ticket.status="open" AND ticket.isanswered=1 ';
+                $where.=' AND status.state="open" AND ticket.isanswered=1 ';
                 break;
             case 'overdue':
-                $where.=' AND ticket.status="open" AND ticket.isoverdue=1 ';
+                $where.=' AND status.state="open" AND ticket.isoverdue=1 ';
+                break;
+            case 'resolved':
+                $where.=' AND status.state="resolved" ';
                 break;
             case 'closed':
-                $where.=' AND ticket.status="closed" ';
+                $where.=' AND status.state="closed" ';
                 break;
         }
 
@@ -144,7 +149,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(isset($req['assignee']) && strcasecmp($req['status'], 'closed'))  {
             $id=preg_replace("/[^0-9]/", "", $req['assignee']);
             $assignee = $req['assignee'];
-            $where.= ' AND ( ( ticket.status="open" ';
+            $where.= ' AND ( ( status.state="open" ';
             if($assignee[0]=='t')
                 $where.=' AND ticket.team_id='.db_input($id);
             elseif($assignee[0]=='s')
@@ -155,13 +160,15 @@ class TicketsAjaxAPI extends AjaxController {
             $where.=')';
 
             if($req['staffId'] && !$req['status']) //Assigned TO + Closed By
-                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']). ' AND ticket.status="closed") ';
+                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']).
+                    ' AND status.state IN("resolved", "closed")) ';
             elseif(isset($req['staffId'])) // closed by any
-                $where.= ' OR ticket.status="closed" ';
+                $where.= ' OR status.state IN("resolved", "closed") ';
 
             $where.= ' ) ';
         } elseif($req['staffId']) {
-            $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND ticket.status="closed") ';
+            $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND
+                status.state IN("resolved", "closed")) ';
         }
 
         //dates
@@ -210,7 +217,8 @@ class TicketsAjaxAPI extends AjaxController {
         $cdata_search = false;
         foreach (TicketForm::getInstance()->getFields() as $f) {
             if (isset($req[$f->getFormName()])
-                    && ($val = $req[$f->getFormName()])) {
+                    && ($val = $req[$f->getFormName()])
+                    && strlen(trim($val))) {
                 $name = $f->get('name') ? $f->get('name')
                     : 'field_'.$f->get('id');
                 if ($f->getImpl()->hasIdValue() && is_numeric($val))
@@ -250,13 +258,12 @@ class TicketsAjaxAPI extends AjaxController {
         if (count($tickets)) {
             $uid = md5($_SERVER['QUERY_STRING']);
             $_SESSION["adv_$uid"] = $tickets;
-            $result['success'] =sprintf(
-                "Search criteria matched %d %s - <a href='tickets.php?%s'>view</a>",
-                count($tickets), (count($tickets)>1?"tickets":"ticket"),
-                'advsid='.$uid
-            );
+            $result['success'] = sprintf(__("Search criteria matched %s"),
+                    sprintf(_N('%d ticket', '%d tickets'), count($tickets),
+                        $tickets))
+                . " - <a href='tickets.php?advsid=$uid'>".__('view')."</a>";
         } else {
-            $result['fail']='No tickets found matching your search criteria.';
+            $result['fail']=__('No tickets found matching your search criteria.');
         }
 
         return $this->json_encode($result);
@@ -269,14 +276,14 @@ class TicketsAjaxAPI extends AjaxController {
             return 0;
 
         if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
-            return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>'Lock denied!'));
+            return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Lock denied!')));
 
         //is the ticket already locked?
         if($ticket->isLocked() && ($lock=$ticket->getLock()) && !$lock->isExpired()) {
             /*Note: Ticket->acquireLock does the same logic...but we need it here since we need to know who owns the lock up front*/
             //Ticket is locked by someone else.??
             if($lock->getStaffId()!=$thisstaff->getId())
-                return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>'Unable to acquire lock.'));
+                return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Unable to acquire lock.')));
 
             //Ticket already locked by staff...try renewing it.
             $lock->renew(); //New clock baby!
@@ -333,10 +340,9 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if(!$thisstaff || !($ticket=Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
-            Http::response(404, 'No such ticket');
+            Http::response(404, __('No such ticket'));
 
         ob_start();
-        include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
         $resp = ob_get_contents();
         ob_end_clean();
 
@@ -358,7 +364,7 @@ class TicketsAjaxAPI extends AjaxController {
         $form = UserForm::getUserForm()->getForm($user_info);
         $info = array();
         if (!$user_info)
-            $info['error'] = 'Unable to find user in directory';
+            $info['error'] = __('Unable to find user in directory');
 
         return self::_addcollaborator($ticket, null, $form, $info);
     }
@@ -369,7 +375,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffAccess($thisstaff))
-            Http::response(404, 'No such ticket');
+            Http::response(404, __('No such ticket'));
 
 
         $user = $uid? User::lookup($uid) : null;
@@ -389,16 +395,16 @@ class TicketsAjaxAPI extends AjaxController {
         $errors = $info = array();
         if ($user) {
             if ($user->getId() == $ticket->getOwnerId())
-                $errors['err'] = sprintf('Ticket owner, %s, is a collaborator by default!',
-                        $user->getName());
+                $errors['err'] = sprintf(__('Ticket owner, %s, is a collaborator by default!'),
+                        Format::htmlchars($user->getName()));
             elseif (($c=$ticket->addCollaborator($user,
                             array('isactive'=>1), $errors))) {
-                $note = Format::htmlchars(sprintf('%s <%s> added as a collaborator',
-                            $c->getName(), $c->getEmail()));
-                $ticket->logNote('New Collaborator Added', $note,
+                $note = Format::htmlchars(sprintf(__('%s <%s> added as a collaborator'),
+                            Format::htmlchars($c->getName()), $c->getEmail()));
+                $ticket->logNote(__('New Collaborator Added'), $note,
                     $thisstaff, false);
-                $info = array('msg' => sprintf('%s added as a collaborator',
-                            $c->getName()));
+                $info = array('msg' => sprintf(__('%s added as a collaborator'),
+                            Format::htmlchars($c->getName())));
                 return self::_collaborators($ticket, $info);
             }
         }
@@ -406,7 +412,7 @@ class TicketsAjaxAPI extends AjaxController {
         if($errors && $errors['err']) {
             $info +=array('error' => $errors['err']);
         } else {
-            $info +=array('error' =>'Unable to add collaborator - try again');
+            $info +=array('error' =>__('Unable to add collaborator. Internal error'));
         }
 
         return self::_addcollaborator($ticket, $user, $form, $info);
@@ -427,7 +433,7 @@ class TicketsAjaxAPI extends AjaxController {
             return self::_collaborator($c ,$user->getForms($_POST), $errors);
 
         $info = array('msg' => sprintf('%s updated successfully',
-                    $c->getName()));
+                    Format::htmlchars($c->getName())));
 
         return self::_collaborators($ticket, $info);
     }
@@ -474,7 +480,7 @@ class TicketsAjaxAPI extends AjaxController {
     function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
 
         $info += array(
-                    'title' => sprintf('Ticket #%s: Add a collaborator', $ticket->getNumber()),
+                    'title' => sprintf(__('Ticket #%s: Add a collaborator'), $ticket->getNumber()),
                     'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId()),
                     'onselect' => sprintf('ajax.php/tickets/%d/add-collaborator/', $ticket->getId()),
                     );
@@ -541,7 +547,7 @@ class TicketsAjaxAPI extends AjaxController {
 
 
         $info = array(
-            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -570,7 +576,7 @@ class TicketsAjaxAPI extends AjaxController {
         $forms = $user->getForms();
 
         $info = array(
-            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -593,7 +599,7 @@ class TicketsAjaxAPI extends AjaxController {
         $user = User::lookup($ticket->getOwnerId());
 
         $info = array(
-                'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
+                'title' => sprintf(__('Change user for ticket #%s'), $ticket->getNumber())
                 );
 
         return self::_userlookup($user, null, $info);

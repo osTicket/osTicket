@@ -4,7 +4,7 @@ require_once(INCLUDE_DIR."/class.dynamic_forms.php");
 
 $form=null;
 if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid dynamic form ID.';
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('custom form'));
 
 if($_POST) {
     $fields = array('title', 'notes', 'instructions');
@@ -15,7 +15,7 @@ if($_POST) {
         case 'update':
             foreach ($fields as $f)
                 if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
+                    $errors[$f] = sprintf(__('%s is required'),
                         mb_convert_case($f, MB_CASE_TITLE));
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
@@ -48,14 +48,13 @@ if($_POST) {
                     }
                 }
                 if (in_array($field->get('name'), $names))
-                    $field->addError('Field variable name is not unique', 'name');
+                    $field->addError(__('Field variable name is not unique'), 'name');
                 if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
-                    $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
+                    $field->addError(__('Invalid character in variable name. Please use letters and numbers only.'), 'name');
                 // Subject (Issue Summary) must always have data
                 if ($form->get('type') == 'T' && $field->get('name') == 'subject') {
                     if (($f = $field->getField(false)->getImpl()) && !$f->hasData())
-                        $field->addError('The issue summary must be a field '
-                            .'that supports user input, such as short answer',
+                        $field->addError(__('The issue summary must be a field that supports user input, such as short answer'),
                             'type');
                 }
                 if ($field->get('name'))
@@ -64,7 +63,7 @@ if($_POST) {
                     $form_fields[] = $field;
                 else
                     # notrans (not shown)
-                    $errors["field-$id"] = 'Field has validation errors';
+                    $errors["field-$id"] = __('Field has validation errors');
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
@@ -82,7 +81,7 @@ if($_POST) {
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one API key';
+                $errors['err'] = sprintf(__('You must select at least %s'), __('one custom form'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -93,11 +92,14 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = 'Selected custom forms deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected custom form', 'selected custom forms', $count));
                         elseif ($i > 0)
-                            $warn = "$i of $count selected forms deleted";
+                            $warn = sprintf(__('%1$d of %1$d %3$s deleted'), $i, $count,
+                                _N('selected custom form', 'selected custom forms', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected custom forms';
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                _N('selected custom form', 'selected custom forms', $count));
                         break;
                 }
             }
@@ -135,9 +137,10 @@ if($_POST) {
         }
     }
     if ($errors)
-        $errors['err'] = 'Unable to commit form. Check validation errors';
+        $errors['err'] = sprintf(__('Unable to commit %s. Check validation errors'), __('this custom form'));
     else
-        $msg = 'Custom form successfully updated';
+        $msg = sprintf(__('Successfully updated %s'),
+            __('this custom form'));
 }
 
 $page='dynamic-forms.inc.php';

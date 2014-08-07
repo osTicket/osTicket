@@ -1,0 +1,67 @@
+.rtl {
+    direction: rtl;
+    unicode-bidi: embed;
+}
+.rtl .pull-left {
+    float: right;
+}
+.rtl .pull-right {
+    float: left;
+}
+.rtl table.list thead th a {
+    background-position: 0% 50%;
+    padding-right: 3px;
+    padding-left: 15px;
+}
+.rtl table.list thead th,
+.rtl table.list caption,
+.rtl .dialog th,
+.rtl .tip_box th {
+    text-align: right;
+}
+.rtl .dialog h3 {
+    padding-right: inherit;
+    padding-left: 3em;
+}
+.rtl .dialog a.close {
+    right: auto;
+    left: 1em;
+}
+.rtl #nav .inactive li {
+    text-align: right;
+}
+.rtl #nav .inactive li a {
+    background-position: 100% 50%;
+    padding-left: 0;
+    padding-right: 24px;
+}
+.rtl #nav li.inactive > ul {
+    left: auto;
+    right: -1px;
+}
+.rtl .tip_close {
+    right: auto;
+    left: 0.5em;
+}
+.rtl .tip_content h1 {
+    padding-right: 0;
+    padding-left: 1.5em;
+}
+.rtl #msg_notice,
+.rtl #warning_bar,
+.rtl #msg_error,
+.rtl .error-banner {
+    background-position: 99% 50%;
+    background-position: calc(100% - 10px) 50%;
+    padding-left: 10px;
+    padding-right: 36px;
+}
+.rtl .form_table th, .rtl div.section-break {
+    text-align: right;
+}
+.rtl .flush-right {
+    text-align: left;
+}
+.rtl .flush-left {
+    text-align: right;
+}

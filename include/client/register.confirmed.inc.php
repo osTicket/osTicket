@@ -6,13 +6,13 @@
 echo Format::display($body); ?>
 </p>
 <?php } else { ?>
-<h1>Account Registration</h1>
+<h1><?php echo __('Account Registration'); ?></h1>
 <p>
-<strong>Thanks for registering for an account.</strong>
+<strong><?php echo __('Thanks for registering for an account.'); ?></strong>
 </p>
-<p>
-You've confirmed your email address and successfully activated your account.
-You may proceed to check on previously opened tickets or open a new ticket.
+<p><?php echo __(
+"You've confirmed your email address and successfully activated your account.  You may proceed to check on previously opened tickets or open a new ticket."
+); ?>
 </p>
-<p><em>Your friendly support center</em></p>
+<p><em><?php echo __('Your friendly support center'); ?></em></p>
 <?php } ?>

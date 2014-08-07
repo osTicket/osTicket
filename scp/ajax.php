@@ -48,7 +48,8 @@ $dispatcher = patterns('',
         url_post('^(?P<id>\d+)(?:/(?P<lang>\w+))?$', 'updateContent')
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
-        url_get('^scp', 'scp')
+        url_get('^scp', 'scp'),
+        url_get('^links', 'templateLinks')
     )),
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getFormsForHelpTopic'),
@@ -57,8 +58,8 @@ $dispatcher = patterns('',
         url_delete('^answer/(?P<entry>\d+)/(?P<field>\d+)$', 'deleteAnswer')
     )),
     url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
-        url_get('^item/(?P<id>\d+)/properties$', 'getListItemProperties'),
-        url_post('^item/(?P<id>\d+)/properties$', 'saveListItemProperties')
+        url_get('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'getListItemProperties'),
+        url_post('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'saveListItemProperties')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
@@ -167,6 +168,9 @@ $dispatcher = patterns('',
     url('^/help/', patterns('ajax.tips.php:HelpTipAjaxAPI',
         url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
+    )),
+    url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('(?P<tag>\w+)$', 'getLanguageFile')
     ))
 );
 

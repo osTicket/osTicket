@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+
 class Validator {
 
     var $input=array();
@@ -34,13 +35,12 @@ class Validator {
 
 
     function validate($source,$userinput=true){
-
         $this->errors=array();
         //Check the input and make sure the fields are specified.
         if(!$source || !is_array($source))
-            $this->errors['err']='Invalid input';
+            $this->errors['err']=__('Invalid input');
         elseif(!$this->fields || !is_array($this->fields))
-            $this->errors['err']='No fields set up';
+            $this->errors['err']=__('No fields set up');
         //Abort on error
         if($this->errors)
             return false;
@@ -112,7 +112,7 @@ class Validator {
                 break;
             case 'password':
                 if(strlen($this->input[$k])<5)
-                    $this->errors[$k]=$field['error'].' (5 chars min)';
+                    $this->errors[$k]=$field['error'].' '.__('(Five characters min)');
                 break;
             case 'username':
                 $error = '';
@@ -124,7 +124,7 @@ class Validator {
                     $this->errors[$k]=$field['error'];
                 break;
             default://If param type is not set...or handle..error out...
-                $this->errors[$k]=$field['error'].' (type not set)';
+                $this->errors[$k]=$field['error'].' '.__('(type not set)');
             endswitch;
         }
         return ($this->errors)?(FALSE):(TRUE);
@@ -191,9 +191,9 @@ class Validator {
 
     function is_username($username, &$error='') {
         if (strlen($username)<2)
-            $error = 'At least two (2) characters';
+            $error = __('Username must have at least two (2) characters');
         elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))
-            $error = 'Username contains invalid characters';
+            $error = __('Username contains invalid characters');
         return $error == '';
     }
 

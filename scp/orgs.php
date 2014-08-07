@@ -23,22 +23,23 @@ if ($_POST) {
     switch ($_REQUEST['a']) {
     case 'import-users':
         if (!$org) {
-            $errors['err'] = 'Organization ID must be specified for import';
+            $errors['err'] = __('Organization ID must be specified for import');
             break;
         }
         $status = User::importFromPost($_FILES['import'] ?: $_POST['pasted'],
             array('org_id'=>$org->getId()));
         if (is_numeric($status))
-            $msg = "Successfully imported $status clients";
+            $msg = sprintf(__('Successfully imported %1$d %2$s'), $status,
+                _N('end user', 'end users', $status));
         else
             $errors['err'] = $status;
         break;
     case 'remove-users':
         if (!$org)
-            $errors['err'] = ' Trying to remove users from unknown
-                 organization';
+            $errors['err'] = __('Trying to remove end users from an unknown organization');
         elseif (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-            $errors['err'] = 'You must select at least one user to remove';
+            $errors['err'] = sprintf(__('You must select at least %s'),
+                __('one end user'));
         } else {
             $i = 0;
             foreach ($_POST['ids'] as $k=>$v) {
@@ -47,25 +48,28 @@ if ($_POST) {
             }
             $num = count($_POST['ids']);
             if ($i && $i == $num)
-                $msg = 'Selected users removed successfully';
+                $msg = sprintf(__('Successfully removed %s'),
+                    _N('selected end user', 'selected end users', $count));
             elseif ($i > 0)
-                $warn = "$i of $num selected users removed";
+                $warn = sprintf(__('%1$d of %2$d %3$s removed'), $i, $count,
+                    _N('selected end user', 'selected end users', $count));
             elseif (!$errors['err'])
-                $errors['err'] = 'Unable to remove selected users';
+                $errors['err'] = sprintf(__('Unable to remove %s'),
+                    _N('selected end user', 'selected end users', $count));
         }
         break;
     default:
-        $errors['err'] = 'Unknown action';
+        $errors['err'] = __('Unknown action');
     }
 } elseif ($_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
     $ts = strftime('%Y%m%d');
     if (!($token=$_REQUEST['qh']))
-        $errors['err'] = 'Query token required';
+        $errors['err'] = __('Query token required');
     elseif (!($query=$_SESSION['orgs_qs_'.$token]))
-        $errors['err'] = 'Query token not found';
-    elseif (!Export::saveOrganizations($query, "organizations-$ts.csv", 'csv'))
-        $errors['err'] = 'Internal error: Unable to export results';
+        $errors['err'] = __('Query token not found');
+    elseif (!Export::saveOrganizations($query, __('organizations')."-$ts.csv", 'csv'))
+        $errors['err'] = __('Internal error: Unable to export results');
 }
 
 $page = $org? 'org-view.inc.php' : 'orgs.inc.php';

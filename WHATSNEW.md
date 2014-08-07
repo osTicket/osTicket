@@ -1,3 +1,23 @@
+osTicket v1.9.3
+===============
+### Enhancements
+  * Redactor link dialog has a few common links selectable (#1135)
+
+### Improvements
+  * Fix missing `%{recipient}` variable used in canned reply (filters) (#1047)
+  * Fix `%{ticket.close_date}` variable in email message templates (#1090)
+  * Fix timezone offset used in time drop down (#1103)
+  * Fix premature session expiration (#1111)
+  * Correctly tag emails with source `email` (#1104)
+  * Correctly handle custom data for help topics (#1105)
+  * Fix validation and display issues for email mailboxes with system default priority and department (#1114)
+  * Fix crash when rendering custom list drop-downs with retired list items (#1113)
+  * Avoid system alert notices bouncing and creating tickets (#1115)
+  * Redactor no longer shortens URLs (#1135)
+
+### Performance and Security
+  * Fix XSS vulnerability in user name (#1108, #1131)
+
 osTicket v1.9.2
 ===============
 ### Enhancements

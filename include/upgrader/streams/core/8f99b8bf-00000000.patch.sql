@@ -1,7 +1,7 @@
 /**
- * @version v1.10.0
+ * @version v1.9.4
  * @signature 00000000000000000000000000000000
- * @title Custom Ticket Numbers
+ * @title Custom Ticket Numbers and Statuses
  *
  * This patch adds support for ticket number sequences to the database
  * rather than the original implementation which had support for generating
@@ -41,6 +41,36 @@ ALTER TABLE `%TABLE_PREFIX%help_topic`
   ADD `flags` int(10) unsigned DEFAULT '0' AFTER `noautoresp`,
   ADD `sequence_id` int(10) unsigned NOT NULL DEFAULT '0' AFTER `form_id`,
   ADD `number_format` varchar(32) DEFAULT NULL AFTER `topic`;
+
+ALTER TABLE  `%TABLE_PREFIX%list`
+    ADD  `masks` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `sort_mode`,
+    ADD `type` VARCHAR( 16 ) NULL DEFAULT NULL AFTER `masks`,
+    ADD INDEX ( `type` );
+
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL DEFAULT '',
+  `state` varchar(16) NOT NULL DEFAULT 'open',
+  `mode` int(11) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `sort` int(11) unsigned NOT NULL DEFAULT '0',
+  `notes` text NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `state` ( `state` )
+) DEFAULT CHARSET=utf8;
+
+ALTER TABLE  `%TABLE_PREFIX%help_topic`
+    ADD  `status_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `noautoresp`;
+
+ALTER TABLE  `%TABLE_PREFIX%filter`
+    ADD  `status_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `email_id`;
+
+ALTER TABLE  `%TABLE_PREFIX%ticket`
+    ADD  `status_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `user_email_id`,
+    ADD INDEX (`status_id`);
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`

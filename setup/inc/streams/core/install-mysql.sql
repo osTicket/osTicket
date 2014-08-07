@@ -167,10 +167,13 @@ CREATE TABLE `%TABLE_PREFIX%list` (
     `name` varchar(255) NOT NULL,
     `name_plural` varchar(255),
     `sort_mode` enum('Alpha', '-Alpha', 'SortCol') NOT NULL DEFAULT 'Alpha',
+    `masks` int(11) unsigned NOT NULL DEFAULT 0,
+    `type` VARCHAR( 16 ) NULL DEFAULT NULL,
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `type` (`type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%list_items`;
@@ -293,6 +296,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `disable_autoresponder` tinyint(1) unsigned NOT NULL default '0',
   `canned_response_id` int(11) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
+  `status_id` int(10) unsigned NOT NULL default '0',
   `priority_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
@@ -419,8 +423,9 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `noautoresp` tinyint(3) unsigned NOT NULL default '0',
   `flags` int(10) unsigned DEFAULT '0',
-  `priority_id` tinyint(3) unsigned NOT NULL default '0',
-  `dept_id` tinyint(3) unsigned NOT NULL default '0',
+  `status_id` int(10) unsigned NOT NULL default '0',
+  `priority_id` int(10) unsigned NOT NULL default '0',
+  `dept_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
@@ -585,12 +590,14 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `number` varchar(20),
   `user_id` int(11) unsigned NOT NULL default '0',
   `user_email_id` int(11) unsigned NOT NULL default '0',
+  `status_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `topic_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(11) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
   `status` enum('open','closed') NOT NULL default 'open',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
@@ -607,8 +614,9 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `user_id` (`user_id`),
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`),
-  KEY `team_id` (`staff_id`),
   KEY `status` (`status`),
+  KEY `team_id` (`team_id`),
+  KEY `status_id` (`status_id`),
   KEY `created` (`created`),
   KEY `closed` (`closed`),
   KEY `duedate` (`duedate`),
@@ -666,6 +674,23 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
 ) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_status`;
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL DEFAULT '',
+  `state` varchar(16) NOT NULL DEFAULT 'open',
+  `mode` int(11) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `sort` int(11) unsigned NOT NULL DEFAULT '0',
+  `notes` text NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `state` (`state`)
+) DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_priority`;
 CREATE TABLE `%TABLE_PREFIX%ticket_priority` (

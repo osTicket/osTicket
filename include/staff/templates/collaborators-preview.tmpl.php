@@ -8,11 +8,11 @@ if (($users=$ticket->getCollaborators())) {?>
         echo sprintf('<tr><td %s><i class="icon-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
                 ($user->isActive()? '' : 'class="faded"'),
                 ($user->isActive()? 'comments' :  'comment-alt'),
-                $user->getName(),
+                Format::htmlchars($user->getName()),
                 $user->getEmail());
     }
 }  else {
-    echo "<strong>Ticket doesn't have collaborators.</strong>";
+    echo "<strong>".__("Ticket doesn't have any collaborators.")."</strong>";
 }?>
 </table>
 <?php
@@ -22,7 +22,7 @@ $options[] = sprintf(
         '<a class="collaborators" id="managecollab" href="#tickets/%d/collaborators">%s</a>',
         $ticket->getId(),
         $ticket->getNumCollaborators()
-        ? 'Manage Collaborators' : 'Add Collaborator'
+        ? __('Manage Collaborators') : __('Add Collaborator')
         );
 
 if ($options) {

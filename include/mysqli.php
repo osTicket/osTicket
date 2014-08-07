@@ -263,8 +263,12 @@ function db_free_result($res) {
 }
 
 function db_output($var) {
+    static $no_magic_quotes = null;
 
-    if(!function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime()) //Sucker is NOT on - thanks.
+    if (!isset($no_magic_quotes))
+        $no_magic_quotes = !function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime();
+
+    if ($no_magic_quotes) //Sucker is NOT on - thanks.
         return $var;
 
     if (is_array($var))

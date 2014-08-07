@@ -17,7 +17,7 @@
 require('setup.inc.php');
 
 if(!defined('INCLUDE_DIR'))
-    Http::response(500, 'Server configuration error');
+    Http::response(500, __('Server configuration error'));
 require_once INCLUDE_DIR.'/class.dispatcher.php';
 require_once INCLUDE_DIR.'/class.ajax.php';
 
