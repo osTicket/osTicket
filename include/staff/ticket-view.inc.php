@@ -37,6 +37,18 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
 if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">Marked overdue!</span>';
 
+//Check if ticket is missing required fields
+$forms=DynamicFormEntry::forTicket($id);
+foreach ($forms as $form) {
+    foreach ($form->getFields() as $field) {
+        if ($field->get('required')) {
+            if (!($field->answer->get('value'))) {
+                $errors['incomplete'] = "<font color=\"red\"><b>CANNOT CLOSE!</b>  Missing \"<u>" . $field->get('label') . "</u>\" field. Please <a href=\"tickets.php?id=" . $ticket->getId() . "&a=edit\">EDIT</a> ticket!</font>";
+            }
+        }
+    }
+}
+
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
@@ -599,7 +611,7 @@ $tcount+= $ticket->getNumNotes();
                             <?php echo $statusChecked; ?>> Reopen on Reply</label>
                    <?php
                     } elseif($thisstaff->canCloseTickets()) { ?>
-                         <label><input type="checkbox" name="reply_ticket_status" id="reply_ticket_status" value="Closed"
+                         <label><input type="checkbox" name="reply_ticket_status" id="reply_ticket_status" value="Closed" <?php if ($errors['incomplete']) print 'disabled'; ?>
                               <?php echo $statusChecked; ?>> Close on Reply</label>
                    <?php
                     } ?>
@@ -927,7 +939,7 @@ $tcount+= $ticket->getNumNotes();
     <h3><?php echo sprintf('%s Ticket #%s', ($ticket->isClosed()?'Reopen':'Close'), $ticket->getNumber()); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <?php echo sprintf('Are you sure you want to <b>%s</b> this ticket?', $ticket->isClosed()?'REOPEN':'CLOSE'); ?>
+    <?php if ($errors['incomplete']) print $errors['incomplete']; else echo sprintf('Are you sure you want to <b>%s</b> this ticket?', $ticket->isClosed()?'REOPEN':'CLOSE');?>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="status-form" name="status-form">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -948,7 +960,7 @@ $tcount+= $ticket->getNumNotes();
                 <input type="button" value="Cancel" class="close">
             </span>
             <span class="buttons" style="float:right">
-                <input type="submit" value="<?php echo $ticket->isClosed()?'Reopen':'Close'; ?>">
+                <input type="submit" <?php if ($errors['incomplete']) print 'style=\'display: none;\'';?> value="<?php echo $ticket->isClosed()?'Reopen':'Close';?>">
             </span>
          </p>
     </form>
