@@ -208,7 +208,7 @@ $gmtime = Misc::gmtime();
             </td><td style="border:none;">
             &nbsp;
             <a href="#<?php echo $lang; ?>" onclick="javascript:
-                if (confirm(__('You sure?'))) {
+                if (confirm('<?php echo __('You sure?'); ?>'))) {
                     $(this).closest('form').find('input[name=\'secondary_langs[]\'][value='
                         + $(this).attr('href').substr(1) + ']').val('');
                     $(this).closest('tr').remove();
