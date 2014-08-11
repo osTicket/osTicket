@@ -141,7 +141,7 @@ class SLA {
                         /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
                         $row['name'],
                         $row['grace_period'],
-                        $row['isactive']?'Active':'Disabled');
+                        $row['isactive']?__('Active'):__('Disabled'));
         }
 
         return $slas;

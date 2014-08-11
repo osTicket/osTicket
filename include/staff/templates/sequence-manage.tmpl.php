@@ -1,8 +1,8 @@
-<h3><i class="icon-wrench"></i> Manage Sequences</i></h3>
+<h3><i class="icon-wrench"></i> <?php echo __('Manage Sequences'); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
-<hr/>
-Sequences are used to generate sequential numbers. Various sequences can be
-used to generate sequences for different purposes.
+<hr/><?php echo __(
+'Sequences are used to generate sequential numbers. Various sequences can be
+used to generate sequences for different purposes.'); ?>
 <br/>
 <br/>
 <form method="post" action="<?php echo $info['action']; ?>">
@@ -30,10 +30,10 @@ foreach ($sequences as $e) {
         </div>
         <div class="management hidden" data-id="<?php echo $e->id; ?>">
             <table width="100%"><tbody>
-                <tr><td><label style="padding:0">Increment:
+                <tr><td><label style="padding:0"><?php echo __('Increment'); ?>:
                     <input class="-increment" type="text" size="4" value="<?php echo Format::htmlchars($e->increment); ?>"/>
                     </label></td>
-                    <td><label style="padding:0">Padding Character:
+                    <td><label style="padding:0"><?php echo __('Padding Character'); ?>:
                     <input class="-padding" maxlength="1" type="text" size="4" value="<?php echo Format::htmlchars($e->padding); ?>"/>
                     </label></td></tr>
             </tbody></table>
@@ -44,7 +44,7 @@ foreach ($sequences as $e) {
 
 <div class="row-item hidden" id="template">
     <i class="icon-sort-by-order"></i>
-    <div style="display:inline-block" class="name"> New Sequence </div>
+    <div style="display:inline-block" class="name"> <?php echo __('New Sequence'); ?> </div>
     <div style="display:inline-block;margin-right:60px" class="pull-right">
         <span class="faded">next</span>
         <span class="next">1</span>
@@ -55,10 +55,10 @@ foreach ($sequences as $e) {
     </div>
     <div class="management hidden" data-id="<?php echo $e->id; ?>">
         <table width="100%"><tbody>
-            <tr><td><label style="padding:0">Increment:
+            <tr><td><label style="padding:0"><?php echo __('Increment'); ?>:
                 <input class="-increment" type="text" size="4" value="1"/>
                 </label></td>
-                <td><label style="padding:0">Padding:
+                <td><label style="padding:0"><?php echo __('Padding Character'); ?>:
                 <input class="-padding" maxlength="1" type="text" size="4" value="0"/>
                 </label></td></tr>
         </tbody></table>
@@ -71,24 +71,24 @@ foreach ($sequences as $e) {
   var clone = $('.row-item#template').clone()
     .appendTo($('#sequences'))
     .removeClass('hidden')
-    .append($('<input>').attr({type:'hidden',class:'fname',name:base+'[name]',value:'New Sequence'}))
+    .append($('<input>').attr({type:'hidden',class:'fname',name:base+'[name]',value:'<?php echo __('New Sequence'); ?>'}))
     .append($('<input>').attr({type:'hidden',class:'fcurrent',name:base+'[current]',value:'1'}))
     .append($('<input>').attr({type:'hidden',class:'fincrement',name:base+'[increment]',value:'1'}))
     .append($('<input>').attr({type:'hidden',class:'fpadding',name:base+'[padding]',value:'0'})) ;
   clone.find('.manage a').trigger('click');
   return false;
-"><i class="icon-plus"></i> Add New Sequence</button>
+  "><i class="icon-plus"></i> <?php echo __('Add New Sequence'); ?></button>
 <div id="delete-warning" style="display:none">
 <hr>
-    <div id="msg_warning">
-    Clicking <strong>Save Changes</strong> will permanently remove the
-    deleted sequences.
+    <div id="msg_warning"><?php echo __(
+    'Clicking <strong>Save Changes</strong> will permanently remove the
+    deleted sequences.'); ?>
     </div>
 </div>
 <hr>
 <div>
     <span class="buttons pull-right">
-        <input type="submit" value="Save Changes" onclick="javascript:
+        <input type="submit" value="<?php echo __('Save Changes'); ?>" onclick="javascript:
 $('#sequences .save a').each(function() { $(this).trigger('click'); });
 ">
     </span>
@@ -137,11 +137,6 @@ $(function() {
   $(document).on('click.seq', '#sequences .delete a', remove);
   $('.close, input:submit').click(function() {
       $(document).die('click.seq');
-      /*
-      $('#sequences .manage a').die();
-      $('#sequences .save a').die();
-      $('#sequences .delete a').die();
-       */
   });
 });
 </script>

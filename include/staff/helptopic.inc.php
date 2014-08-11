@@ -274,15 +274,15 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <td>
-                Ticket Number Format:
+                <?php echo __('Ticket Number Format'); ?>:
             </td>
             <td>
                 <label>
                 <input type="radio" name="custom-numbers" value="0" <?php echo !$info['custom-numbers']?'checked="checked"':''; ?>
-                    onchange="javascript:$('#custom-numbers').hide();"> System Default
+                    onchange="javascript:$('#custom-numbers').hide();"> <?php echo __('System Default'); ?>
                 </label>&nbsp;<label>
                 <input type="radio" name="custom-numbers" value="1" <?php echo $info['custom-numbers']?'checked="checked"':''; ?>
-                    onchange="javascript:$('#custom-numbers').show(200);"> Custom
+                    onchange="javascript:$('#custom-numbers').show(200);"> <?php echo __('Custom'); ?>
                 </label>&nbsp; <i class="help-tip icon-question-sign" href="#custom_numbers"></i>
             </td>
         </tr>
@@ -290,11 +290,11 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
     <tbody id="custom-numbers" style="<?php if (!$info['custom-numbers']) echo 'display:none'; ?>">
         <tr>
             <td style="padding-left:20px">
-                Format:
+                <?php echo __('Format'); ?>:
             </td>
             <td>
                 <input type="text" name="number_format" value="<?php echo $info['number_format']; ?>"/>
-                <span class="faded">e.g. <span id="format-example"><?php
+                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example"><?php
                     if ($info['custom-numbers']) {
                         if ($info['sequence_id'])
                             $seq = Sequence::lookup($info['sequence_id']);
@@ -308,12 +308,12 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         <tr>
 <?php $selected = 'selected="selected"'; ?>
             <td style="padding-left:20px">
-                Sequence:
+                <?php echo __('Sequence'); ?>:
             </td>
             <td>
                 <select name="sequence_id">
                 <option value="0" <?php if ($info['sequence_id'] == 0) echo $selected;
-                    ?>>&mdash; Random &mdash;</option>
+                    ?>>&mdash; <?php echo __('Random'); ?> &mdash;</option>
 <?php foreach (Sequence::objects() as $s) { ?>
                 <option value="<?php echo $s->id; ?>" <?php
                     if ($info['sequence_id'] == $s->id) echo $selected;
@@ -323,7 +323,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                 <button class="action-button" onclick="javascript:
                 $.dialog('ajax.php/sequence/manage', 205);
                 return false;
-                "><i class="icon-gear"></i> Manage</button>
+                "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
             </td>
         </tr>
     </tbody>

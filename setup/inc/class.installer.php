@@ -211,7 +211,7 @@ class Installer extends SetupWizard {
                 'helpdesk_title'=>$vars['name']);
             $config = new Config('core');
             if (!$config->updateAll($defaults))
-                $this->errors['err']='Unable to create config settings (#7)';
+                $this->errors['err']=__('Unable to create config settings').' (#7)';
 
             // Set company name
             require_once(INCLUDE_DIR.'class.company.php');
@@ -223,7 +223,7 @@ class Installer extends SetupWizard {
 				if ($stream != 'core') {
                     $config = new Config($stream);
                     if (!$config->update('schema_signature', $signature))
-                        $this->errors['err']=__('Unable to create config settings (#8)');
+                        $this->errors['err']=__('Unable to create config settings').' (#8)';
 				}
 			}
         }
