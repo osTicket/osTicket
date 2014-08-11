@@ -781,7 +781,8 @@ class TextareaField extends FormField {
             'placeholder' => new TextboxField(array(
                 'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Text shown in before any input from the user'),
-                'configuration'=>array('size'=>40, 'length'=>40),
+                'configuration'=>array('size'=>40, 'length'=>40,
+                    'translatable'=>$this->getTranslateTag('placeholder')),
             )),
         );
     }

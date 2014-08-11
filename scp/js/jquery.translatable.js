@@ -9,11 +9,13 @@
     if (!this.$element.data('translateTag'))
         return;
 
-    var self = this;
-    this.fetch('ajax.php/i18n/langs').then(function(json) {
-      self.langs = json;
-      if (Object.keys(self.langs).length) self.decorate();
-    });
+    this.shown = false;
+    this.populated = false;
+
+    this.fetch('ajax.php/i18n/langs').then($.proxy(function(json) {
+      this.langs = json;
+      if (Object.keys(this.langs).length) this.decorate();
+    }, this));
   },
   // Class-static variables
   urlcache = {};
@@ -42,12 +44,14 @@
       this.$container = $('<div class="translatable"></div>')
           .prependTo(this.$element.parent())
           .append(this.$element);
+      this.$container.wrap('<div style="display:inline-block;position:relative;width:inherit"></div>');
       this.$button = $(this.options.button).insertAfter(this.$container);
-      //this.$menu.append('<a class="close pull-right" href=""><i class="icon-remove-circle"></i></a>')
-      //    .on('click', $.proxy(this.hide, this));
+      this.$menu.append($('<span class="close"><i class="icon-remove"></i></span>')
+          .on('click', $.proxy(this.hide, this)));
+      if (this.$element.is('textarea')) {
+          this.$container.addClass('textarea');
+      }
       this.$menu.append(this.$translations).append(this.$footer);
-      this.shown = false;
-      this.populated = false;
 
       this.$button.on('click', $.proxy(this.toggle, this));
 
