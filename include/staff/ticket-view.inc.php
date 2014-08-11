@@ -157,7 +157,7 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
-                    <td><?php echo mb_convert_case(__($ticket->getStatus()), MB_CASE_TITLE); ?></td>
+                    <td><?php echo $ticket->getStatus(); ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Priority');?>:</th>
