@@ -97,7 +97,7 @@ class Ticket2PDF extends mPDF
 		$this->SetY(-15);
         $this->WriteCell(0, 2, '', "T", 2, 'L');
 		$this->SetFont('Arial', 'I', 9);
-        $this->WriteCell(0, 7, sprintf(__('Ticket #%1$s printed by %$2s on %$3s'),
+        $this->WriteCell(0, 7, sprintf(__('Ticket #%1$s printed by %2$s on %3$s'),
             $this->getTicket()->getNumber(), $thisstaff->getUserName(), date('r')), 0, 0, 'L');
 		//$this->WriteCell(0,10,'Page '.($this->PageNo()-$this->pageOffset).' of {nb} '.$this->pageOffset.' '.$this->PageNo(),0,0,'R');
 		$this->WriteCell(0, 7, sprintf(__('Page %d'), ($this->PageNo() - $this->pageOffset)), 0, 0, 'R');
@@ -160,7 +160,7 @@ class Ticket2PDF extends mPDF
         $this->SetFont('Arial', 'B', 11);
         $this->WriteCell($l, 7, __('Status'), 1, 0, 'L', true);
         $this->SetFont('');
-        $this->WriteCell($c, 7, $ticket->getStatus(), 1, 0, 'L', true);
+        $this->WriteCell($c, 7, (string)$ticket->getStatus(), 1, 0, 'L', true);
         $this->SetFont('Arial', 'B', 11);
         $this->WriteCell($l, 7, __('Name'), 1, 0, 'L', true);
         $this->SetFont('');
