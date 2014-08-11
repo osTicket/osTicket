@@ -57,7 +57,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
             if (($a = $field->getAnswer()) && $a->isDeleted()) {
                 ?><a class="action-button danger overlay" title="Delete this data"
                     href="#delete-answer"
-                    onclick="javascript:if (confirm('You sure?'))
+                    onclick="javascript:if (confirm('<?php echo __('You sure?'); ?>'))
                         $.ajax({
                             url: 'ajax.php/form/answer/'
                                 +$(this).data('entryId') + '/' + $(this).data('fieldId'),

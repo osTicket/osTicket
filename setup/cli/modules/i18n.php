@@ -435,7 +435,7 @@ class i18n_Compiler extends Module {
         // Unescape single quote (') and escape unescaped double quotes (")
         $string = preg_replace(array("`\\\(['$])`", '`(?<!\\\)"`'), array("$1", '\"'), $string);
         // Preserve embedded newlines -- preserve up to on
-        $string = preg_replace("`\n\s*`u", "\\n\n", $string);
+        $string = preg_replace("`\n`u", "\\n\n", $string);
         // Word-wrap long lines
         $string = rtrim(preg_replace('/(?=[\s\p{Ps}])(.{1,76})(\s|$|(\p{Ps}))/uS',
             "$1$2\n", $string), "\n");
