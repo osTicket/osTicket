@@ -50,7 +50,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180"><?php echo __('Instructions'); ?>:</td>
-            <td><textarea name="instructions" rows="3" cols="40"><?php
+            <td><textarea name="instructions" rows="3" cols="40"
+                data-translate-tag="<?php echo $trans['instructions']; ?>"><?php
                 echo $info['instructions']; ?></textarea>
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
             </td>

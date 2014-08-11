@@ -44,8 +44,9 @@
             <em style="color:gray;display:inline-block">
                 <?php echo __('Help text shown with the field'); ?></em>
         </div>
-        <div>
-        <textarea style="width:100%" name="hint" rows="2" cols="40"><?php
+        <div style="width:100%">
+        <textarea style="width:90%; width:calc(100% - 20px)" name="hint" rows="2" cols="40"
+            data-translate-tag="<?php echo $field->getTranslateTag('hint'); ?>"><?php
             echo Format::htmlchars($field->get('hint')); ?></textarea>
         </div>
         </div>
@@ -63,5 +64,5 @@
     <div class="clear"></div>
 <script type="text/javascript">
    // Make translatable fields translatable
-   $('input[data-translate-tag]').translatable();
+   $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
 </script>
