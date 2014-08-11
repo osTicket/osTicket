@@ -318,7 +318,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
         foreach (static::$fields as $f) {
             if (in_array($f, $required) && !$vars[$f])
-                $errors[$f] = sprintf('%s is required', mb_convert_case($f, MB_CASE_TITLE));
+                $errors[$f] = sprintf(__('%s is required'), mb_convert_case($f, MB_CASE_TITLE));
             elseif (isset($vars[$f]))
                 $this->set($f, $vars[$f]);
         }
@@ -363,7 +363,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         $ht = array();
         foreach (static::$fields as $f) {
             if (in_array($f, $required) && !$vars[$f])
-                $errors[$f] = sprintf('%s is required', mb_convert_case($f, MB_CASE_TITLE));
+                $errors[$f] = sprintf(__('%s is required'), mb_convert_case($f, MB_CASE_TITLE));
             elseif(isset($vars[$f]))
                 $ht[$f] = $vars[$f];
         }
@@ -581,7 +581,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     function update($vars, &$errors=array()) {
 
         if (!$vars['value']) {
-            $errors['value-'.$this->getId()] = 'Value required';
+            $errors['value-'.$this->getId()] = __('Value required');
             return false;
         }
 
@@ -619,13 +619,8 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
                     if (!isset($ht['configuration'][$f->get('name')]))
                         continue;
 
-                    if (is_array($ht['configuration'][$f->get('name')]))
-                        $val = JsonDataEncoder::encode(
-                                $ht['configuration'][$f->get('name')]);
-                    else
-                        $val = $ht['configuration'][$f->get('name')];
-
-                    $config[$f->get('id')] = $val;
+                    $config[$f->get('id')] =
+                        $ht['configuration'][$f->get('name')];
                 }
             }
 
@@ -909,7 +904,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
                             if (isset(TicketFlagField::$_flags[$k]))
                                 $flags += TicketFlagField::$_flags[$k]['flag'];
                             elseif (!$f->errors())
-                                $f->addError('Unknown or invalid flag', $name);
+                                $f->addError(__('Unknown or invalid flag'), $name);
                         }
                         $this->set('flags', $flags);
                     } elseif ($val && !$f->errors()) {
