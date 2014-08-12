@@ -7,29 +7,24 @@ require_once(INCLUDE_DIR.'class.draft.php');
 class DraftAjaxAPI extends AjaxController {
 
     function _createDraft($vars) {
-        $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue');
-        foreach ($field_list as $field) {
-            if (isset($_POST[$field])) {
-                $vars['body'] = urldecode($_POST[$field]);
-                break;
+        if (!isset($vars['body'])) {
+            $field_list = array('response', 'note', 'answer', 'body',
+                 'message', 'issue');
+            foreach ($field_list as $field) {
+                if (isset($_POST[$field])) {
+                    $vars['body'] = $_POST[$field];
+                    break;
+                }
             }
         }
-        if (!isset($vars['body']))
-            return Http::response(422, "Draft body not found in request");
+        if (!isset($vars['body']) || !$vars['body'])
+            return JsonDataEncoder::encode(array(
+                'error' => __("Draft body not found in request"),
+                'code' => 422,
+                ));
 
-        $errors = array();
-        if (!($draft = Draft::create($vars, $errors)))
-            Http::response(500, print_r($errors, true));
-
-        // If the draft is created from an existing document, ensure inline
-        // attachments from the cloned document are attachned to the draft
-        // XXX: Actually, I think this is just wasting time, because the
-        //     other object already has the items attached, so the database
-        //     won't clean up the files. They don't have to be attached to
-        //     the draft for Draft::getAttachmentIds to return the id of the
-        //     attached file
-        //$draft->syncExistingAttachments();
+        if (!($draft = Draft::create($vars)) || !$draft->save())
+            Http::response(500, 'Unable to create draft');
 
         echo JsonDataEncoder::encode(array(
             'draft_id' => $draft->getId(),
@@ -231,6 +226,9 @@ class DraftAjaxAPI extends AjaxController {
             'staff_id' => $thisstaff->getId(),
             'namespace' => $namespace,
         );
+
+        if (isset($_POST['name']))
+            $vars['body'] = $_POST[$_POST['name']];
 
         return self::_createDraft($vars);
     }
