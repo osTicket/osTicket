@@ -1,28 +1,57 @@
 <?php
 
-class Draft {
+/**
+ * Class: Draft
+ *
+ * Defines a simple draft-saving mechanism for osTicket which supports draft
+ * fetch and update via an ajax mechanism (include/ajax.draft.php).
+ *
+ * Fields:
+ * id - (int:auto:pk) Draft ID number
+ * body - (text) Body of the draft
+ * namespace - (string) Identifier of draft grouping — useful for multiple
+ *      drafts on the same document by different users
+ * staff_id - (int:null) Staff owner of the draft
+ * extra - (text:json) Extra attributes of the draft
+ * created - (date) Date draft was initially created
+ * updated - (date:null) Date draft was last updated
+ */
+class Draft extends VerySimpleModel {
 
-    var $id;
-    var $ht;
+    static $meta = array(
+        'table' => DRAFT_TABLE,
+        'pk' => array('id'),
+    );
 
-    var $_attachments;
+    var $attachments;
 
-    function Draft($id) {
-        $this->id = $id;
-        $this->load();
-    }
-
-    function load() {
-        $this->attachments = new GenericAttachments($this->id, 'D');
-        $sql = 'SELECT * FROM '.DRAFT_TABLE.' WHERE id='.db_input($this->id);
-        return (($res = db_query($sql))
-            && ($this->ht = db_fetch_array($res)));
+    function __construct() {
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+        if (isset($this->id))
+            $this->attachments = new GenericAttachments($this->id, 'D');
     }
 
     function getId() { return $this->id; }
-    function getBody() { return $this->ht['body']; }
-    function getStaffId() { return $this->ht['staff_id']; }
-    function getNamespace() { return $this->ht['namespace']; }
+    function getBody() { return $this->body; }
+    function getStaffId() { return $this->staff_id; }
+    function getNamespace() { return $this->namespace; }
+
+    static function getDraftAndDataAttrs($namespace, $id=0, $original='') {
+        $draft_body = null;
+        $attrs = array(sprintf('data-draft-namespace="%s"', $namespace));
+        $criteria = array('namespace'=>$namespace);
+        if ($id) {
+            $attrs[] = sprintf('data-draft-object-id="%s"', $id);
+            $criteria['namespace'] .= '.' . $id;
+        }
+        if ($draft = static::lookup($criteria)) {
+            $attrs[] = sprintf('data-draft-id="%s"', $draft->getId());
+            $draft_body = $draft->getBody();
+        }
+        $attrs[] = sprintf('data-draft-original="%s"', Format::htmlchars($original));
+
+        return array($draft_body, implode(' ', $attrs));
+    }
 
     function getAttachmentIds($body=false) {
         $attachments = array();
@@ -63,69 +92,49 @@ class Draft {
     function setBody($body) {
         // Change image.php urls back to content-id's
         $body = Format::sanitize($body, false);
-        $this->ht['body'] = $body;
 
-        $sql='UPDATE '.DRAFT_TABLE.' SET updated=NOW()'
-            .',body='.db_input($body)
-            .' WHERE id='.db_input($this->getId());
-        return db_query($sql) && db_affected_rows() == 1;
+        $this->body = $body;
+        $this->updated = SqlFunction::NOW();
+        return $this->save();
     }
 
     function delete() {
         $this->attachments->deleteAll();
-        $sql = 'DELETE FROM '.DRAFT_TABLE
-            .' WHERE id='.db_input($this->getId());
-        return (db_query($sql) && db_affected_rows() == 1);
+        return parent::delete();
     }
 
-    function save($id, $vars, &$errors) {
+    function isValid() {
         // Required fields
-        if (!$vars['namespace'] || !isset($vars['body']) || !isset($vars['staff_id']))
+        return $this->namespace && isset($this->body) && isset($this->staff_id);
+    }
+
+    function save($refetch=false) {
+        if (!$this->isValid())
             return false;
 
-        $sql = ' SET `namespace`='.db_input($vars['namespace'])
-            .' ,body='.db_input(Format::sanitize($vars['body'], false))
-            .' ,staff_id='.db_input($vars['staff_id']);
-
-        if (!$id) {
-            $sql = 'INSERT INTO '.DRAFT_TABLE.$sql
-                .' ,created=NOW()';
-            if(!db_query($sql) || !($draft=self::lookup(db_insert_id())))
-                return false;
-
-            // Cloned attachments...
-            if($vars['attachments'] && is_array($vars['attachments']))
-                $draft->attachments->upload($vars['attachments'], true);
-
-            return $draft;
-        }
-        else {
-            $sql = 'UPDATE '.DRAFT_TABLE.$sql
-                .' WHERE id='.db_input($id);
-            if (db_query($sql) && db_affected_rows() == 1)
-                return $this;
-        }
+        return parent::save($refetch);
     }
 
-    function create($vars, &$errors) {
-        return self::save(0, $vars, $errors);
+    static function create($vars) {
+        $attachments = @$vars['attachments'];
+        unset($vars['attachments']);
+
+        $vars['created'] = SqlFunction::NOW();
+        $draft = parent::create($vars);
+
+        // Cloned attachments ...
+        if (false && $attachments && is_array($attachments))
+            // XXX: This won't work until the draft is saved
+            $draft->attachments->upload($attachments, true);
+
+        return $draft;
     }
 
-    function lookup($id) {
-        return ($id && is_numeric($id)
-                && ($d = new Draft($id))
-                && $d->getId()==$id
-                ) ? $d : null;
-    }
-
-    function findByNamespaceAndStaff($namespace, $staff_id) {
-        $sql = 'SELECT id FROM '.DRAFT_TABLE
-            .' WHERE `namespace`='.db_input($namespace)
-            .' AND staff_id='.db_input($staff_id);
-        if (($res = db_query($sql)) && (list($id) = db_fetch_row($res)))
-            return $id;
-        else
-            return false;
+    static function lookupByNamespaceAndStaff($namespace, $staff_id) {
+        return static::lookup(array(
+            'namespace'=>$namespace,
+            'staff_id'=>$staff_id
+        ));
     }
 
     /**
