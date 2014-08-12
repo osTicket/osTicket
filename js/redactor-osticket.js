@@ -25,13 +25,18 @@ RedactorPlugins.draft = {
         this.opts.autosaveInterval = 10;
         this.opts.autosaveCallback = this.afterUpdateDraft;
         this.opts.autosaveErrorCallback = this.autosaveFailed;
+        this.opts.imageUploadErrorCallback = this.displayError;
         if (this.opts.draftId) {
             this.opts.autosave = 'ajax.php/draft/'+this.opts.draftId;
             this.opts.clipboardUploadUrl =
             this.opts.imageUpload =
                 'ajax.php/draft/'+this.opts.draftId+'/attach';
         }
-        this.opts.imageUploadErrorCallback = this.displayError;
+        else {
+            // Autosave quickly to and setup image upload in the
+            // afterUpdateDraft callback
+            this.opts.autosaveInterval = 1;
+        }
 
         this.$draft_saved = $('<span>')
             .addClass("pull-right draft-saved")
@@ -65,11 +70,18 @@ RedactorPlugins.draft = {
         if (data.draft_id) {
             this.opts.draftId = data.draft_id;
             this.opts.autosave = 'ajax.php/draft/' + data.draft_id;
+            this.opts.clipboardUploadUrl =
+            this.opts.imageUpload =
+                'ajax.php/draft/'+this.opts.draftId+'/attach';
+            if (this.opts.autosaveInterval < 10) {
+                clearInterval(this.autosaveInterval);
+                this.opts.autosaveInterval = 10;
+                this.autosave();
+            }
         }
-
         // Only show the [Draft Saved] notice if there is content in the
         // field that has been touched
-        if (this.opts.draftOriginal && this.opts.draftOriginal == this.get()) {
+        if (!this.opts.draftOriginal || this.opts.draftOriginal == this.get()) {
             // No change yet — dont't show the button
             return;
         }
@@ -108,7 +120,7 @@ RedactorPlugins.draft = {
             type: 'delete',
             async: false,
             success: function() {
-                self.draft_id = undefined;
+                self.draft_id = this.opts.draftId = undefined;
                 self.hideDraftSaved();
                 self.set(self.opts.draftOriginal || '', false, false);
                 self.opts.autosave = self.opts.autoCreateUrl;
