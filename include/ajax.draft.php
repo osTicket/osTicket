@@ -44,16 +44,32 @@ class DraftAjaxAPI extends AjaxController {
     }
 
     function _updateDraft($draft) {
-        $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue');
-        foreach ($field_list as $field) {
-            if (isset($_POST[$field])) {
-                $body = urldecode($_POST[$field]);
-                break;
+        if (isset($_POST['name'])) {
+            $parts = array();
+            if (preg_match('`(\w+)\[(\w+)\]`', $_POST['name'], $parts)) {
+                $body = urldecode($_POST[$parts[1]][$parts[2]]);
+            }
+            else {
+                $body = urldecode($_POST[$_POST['name']]);
+            }
+        }
+        else {
+            $field_list = array('response', 'note', 'answer', 'body',
+                 'message', 'issue');
+            foreach ($field_list as $field) {
+                if (isset($_POST[$field])) {
+                    $body = urldecode($_POST[$field]);
+                    break;
+                }
             }
         }
         if (!isset($body))
-            return Http::response(422, "Draft body not found in request");
+            return JsonDataEncoder::encode(array(
+                'error' => array(
+                    'message' => "Draft body not found in request",
+                    'code' => 422,
+                )
+            ));
 
         if (!$draft->setBody($body))
             return Http::response(500, "Unable to update draft body");
@@ -227,8 +243,15 @@ class DraftAjaxAPI extends AjaxController {
             'namespace' => $namespace,
         );
 
-        if (isset($_POST['name']))
-            $vars['body'] = urldecode($_POST[$_POST['name']]);
+        if (isset($_POST['name'])) {
+            $parts = array();
+            if (preg_match('`(\w+)\[(\w+)\]`', $_POST['name'], $parts)) {
+                $vars['body'] = urldecode($_POST[$parts[1]][$parts[2]]);
+            }
+            else {
+                $vars['body'] = urldecode($_POST[$_POST['name']]);
+            }
+        }
 
         return self::_createDraft($vars);
     }

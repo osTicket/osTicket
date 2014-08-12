@@ -81,7 +81,8 @@ RedactorPlugins.draft = {
         }
         // Only show the [Draft Saved] notice if there is content in the
         // field that has been touched
-        if (!this.opts.draftOriginal || this.opts.draftOriginal == this.get()) {
+        if (!this.firstSave) {
+            this.firstSave = true;
             // No change yet — dont't show the button
             return;
         }
@@ -120,7 +121,7 @@ RedactorPlugins.draft = {
             type: 'delete',
             async: false,
             success: function() {
-                self.draft_id = this.opts.draftId = undefined;
+                self.draft_id = self.opts.draftId = undefined;
                 self.hideDraftSaved();
                 self.set(self.opts.draftOriginal || '', false, false);
                 self.opts.autosave = self.opts.autoCreateUrl;
