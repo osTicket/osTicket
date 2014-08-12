@@ -105,13 +105,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
          <tr>
             <td colspan=2 style="padding-left:3px;">
                 <textarea name="body" cols="21" rows="12" style="width:98%;" class="richtext draft"
-                    data-draft-namespace="page" data-draft-object-id="<?php echo $info['id']; ?>"
-                    ><?php echo $info['body']; ?></textarea>
+<?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'], $info['body']);
+    echo $attrs; ?>><?php echo $draft ?: $info['body']; ?></textarea>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Internal Notes'); ?></strong>: 
+                <em><strong><?php echo __('Internal Notes'); ?></strong>:
                 <?php echo __("be liberal, they're internal"); ?></em>
             </th>
         </tr>

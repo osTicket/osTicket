@@ -561,17 +561,18 @@ $tcount+= $ticket->getNumNotes();
                     } ?>
                     <input type="hidden" name="draft_id" value=""/>
                     <textarea name="response" id="response" cols="50"
-                        data-draft-namespace="ticket.response"
                         data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
                         data-signature="<?php
                             echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                         placeholder="<?php echo __(
                         'Start writing your response here. Use canned responses from the drop-down above'
                         ); ?>"
-                        data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"
-                        class="richtext ifhtml draft draft-delete"><?php
-                        echo $info['response']; ?></textarea>
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> draft draft-delete" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
+    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+                    ?></textarea>
                 <div id="reply_form_attachments" class="attachments">
 <?php
 print $response_form->getField('attachments')->render();
@@ -671,9 +672,11 @@ print $response_form->getField('attachments')->render();
                     <div class="error"><?php echo $errors['note']; ?></div>
                     <textarea name="note" id="internal_note" cols="80"
                         placeholder="<?php echo __('Note details'); ?>"
-                        rows="9" wrap="soft" data-draft-namespace="ticket.note"
-                        data-draft-object-id="<?php echo $ticket->getId(); ?>"
-                        class="richtext ifhtml draft draft-delete"><?php echo $info['note'];
+                        rows="9" wrap="soft"
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> draft draft-delete" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.note', $ticket->getId(), $info['note']);
+    echo $attrs; ?>><?php echo $draft ?: $info['note'];
                         ?></textarea>
                 <div class="attachments">
 <?php
@@ -764,7 +767,8 @@ print $note_form->getField('attachments')->render();
                 <td>
                     <textarea name="transfer_comments" id="transfer_comments"
                         placeholder="<?php echo __('Enter reasons for the transfer'); ?>"
-                        class="richtext ifhtml no-bar" cols="80" rows="7" wrap="soft"><?php
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> no-bar" cols="80" rows="7" wrap="soft"><?php
                         echo $info['transfer_comments']; ?></textarea>
                     <span class="error"><?php echo $errors['transfer_comments']; ?></span>
                 </td>
@@ -861,7 +865,8 @@ print $note_form->getField('attachments')->render();
                     <textarea name="assign_comments" id="assign_comments"
                         cols="80" rows="7" wrap="soft"
                         placeholder="<?php echo __('Enter reasons for the assignment or instructions for assignee'); ?>"
-                        class="richtext ifhtml no-bar"><?php echo $info['assign_comments']; ?></textarea>
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> no-bar"><?php echo $info['assign_comments']; ?></textarea>
                     <span class="error"><?php echo $errors['assign_comments']; ?></span><br>
                 </td>
             </tr>
