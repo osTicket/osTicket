@@ -145,8 +145,7 @@ class Draft extends VerySimpleModel {
      * closing a ticket, the staff_id should be left null so that all drafts
      * are cleaned up.
      */
-    /* static */
-    function deleteForNamespace($namespace, $staff_id=false) {
+    static function deleteForNamespace($namespace, $staff_id=false) {
         $sql = 'DELETE attach FROM '.ATTACHMENT_TABLE.' attach
                 INNER JOIN '.DRAFT_TABLE.' draft
                 ON (attach.object_id = draft.id AND attach.`type`=\'D\')
@@ -156,11 +155,10 @@ class Draft extends VerySimpleModel {
         if (!db_query($sql))
             return false;
 
-        $sql = 'DELETE FROM '.DRAFT_TABLE
-             .' WHERE `namespace` LIKE '.db_input($namespace);
+        $criteria = array('namespace__like'=>$namespace);
         if ($staff_id)
-            $sql .= ' AND staff_id='.db_input($staff_id);
-        return (!db_query($sql) || !db_affected_rows());
+            $criteria['staff_id'] = $staff_id;
+        return static::objects()->filter($criteria)->delete();
     }
 
     static function cleanup() {
