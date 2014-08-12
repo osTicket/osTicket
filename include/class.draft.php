@@ -48,9 +48,11 @@ class Draft extends VerySimpleModel {
             $attrs[] = sprintf('data-draft-id="%s"', $draft->getId());
             $draft_body = $draft->getBody();
         }
-        $attrs[] = sprintf('data-draft-original="%s"', Format::htmlchars($original));
+        $attrs[] = sprintf('data-draft-original="%s"',
+            Format::htmlchars(Format::viewableImages($original)));
 
-        return array($draft_body, implode(' ', $attrs));
+        return array(Format::htmlchars(Format::viewableImages($draft_body)),
+            implode(' ', $attrs));
     }
 
     function getAttachmentIds($body=false) {
@@ -105,7 +107,7 @@ class Draft extends VerySimpleModel {
 
     function isValid() {
         // Required fields
-        return $this->namespace && isset($this->body) && isset($this->staff_id);
+        return $this->namespace && isset($this->staff_id);
     }
 
     function save($refetch=false) {
