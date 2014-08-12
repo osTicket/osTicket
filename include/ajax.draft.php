@@ -17,7 +17,7 @@ class DraftAjaxAPI extends AjaxController {
                 }
             }
         }
-        if (!isset($vars['body']) || !$vars['body'])
+        if (!isset($vars['body']))
             return JsonDataEncoder::encode(array(
                 'error' => __("Draft body not found in request"),
                 'code' => 422,
@@ -228,7 +228,7 @@ class DraftAjaxAPI extends AjaxController {
         );
 
         if (isset($_POST['name']))
-            $vars['body'] = $_POST[$_POST['name']];
+            $vars['body'] = urldecode($_POST[$_POST['name']]);
 
         return self::_createDraft($vars);
     }
