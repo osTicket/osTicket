@@ -150,8 +150,10 @@ $($('option:selected', this).val()).show(); ">
     foreach ($langs as $tag) { ?>
         <div id="translation-<?php echo $tag; ?>" style="display:none" lang="<?php echo $tag; ?>">
         <textarea name="trans[<?php echo $tag; ?>]" cols="21" rows="12"
-            style="width:98%;" class="richtext"
-            ><?php echo $info['trans'][$tag]; ?></textarea>
+            style="width:98%;" class="richtext draft"
+<?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'].'.'.$tag, $info['trans'][$tag]);
+    echo $attrs; ?>><?php echo $draft ?: $info['trans'][$tag]; ?></textarea>
         </div>
 <?php }
 } ?>
