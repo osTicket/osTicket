@@ -116,8 +116,10 @@ require(STAFFINC_DIR.'header.inc.php');
                 <div style="padding-top:0.5em;padding-bottom:0.5em">
                 <em><strong><?php echo __('Message');?></strong>: <?php echo __('email message to send.');?></em>&nbsp;<span class="error">*&nbsp;<?php echo $errors['message']; ?></span></div>
                 <textarea class="richtext draft draft-delete" name="message" cols="21"
-                    data-draft-namespace="email.diag"
-                    rows="10" style="width: 90%;"><?php echo $info['message']; ?></textarea>
+                    rows="10" style="width: 90%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('email.diag', false, $info['message']);
+    echo $attrs; ?>><?php echo $draft ?: $info['message'];
+                 ?></textarea>
             </td>
         </tr>
     </tbody>

@@ -2014,20 +2014,25 @@ class ThreadEntryWidget extends Widget {
     function render($client=null) {
         global $cfg;
 
+        $object_id = false;
+        if (!$client) {
+            $namespace = 'ticket.staff';
+        }
+        else {
+            $namespace = 'ticket.client';
+            $object_id = substr(session_id(), -12);
+        }
+        list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?><div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
         echo Format::htmlchars($this->field->get('label'));
         ?></strong>:</div>
+
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
-            <?php if (!$client) { ?>
-                data-draft-namespace="ticket.staff"
-            <?php } else { ?>
-                data-draft-namespace="ticket.client"
-                data-draft-object-id="<?php echo substr(session_id(), -12); ?>"
-            <?php } ?>
-            class="richtext draft draft-delete ifhtml"
+            class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
-            Format::htmlchars($this->value); ?></textarea>
+            Format::htmlchars($draft ?: $this->value); ?></textarea>
     <?php
         $config = $this->field->getConfiguration();
         if (!$config['attachments'])

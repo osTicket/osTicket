@@ -38,10 +38,10 @@ class Draft extends VerySimpleModel {
 
     static function getDraftAndDataAttrs($namespace, $id=0, $original='') {
         $draft_body = null;
-        $attrs = array(sprintf('data-draft-namespace="%s"', $namespace));
+        $attrs = array(sprintf('data-draft-namespace="%s"', Format::htmlchars($namespace)));
         $criteria = array('namespace'=>$namespace);
         if ($id) {
-            $attrs[] = sprintf('data-draft-object-id="%s"', $id);
+            $attrs[] = sprintf('data-draft-object-id="%s"', Format::htmlchars($id));
             $criteria['namespace'] .= '.' . $id;
         }
         if ($draft = static::lookup($criteria)) {

@@ -302,13 +302,17 @@ if ($_POST)
                 $signature = '';
                 if ($thisstaff->getDefaultSignatureType() == 'mine')
                     $signature = $thisstaff->getSignature(); ?>
-                <textarea class="richtext ifhtml draft draft-delete"
-                    data-draft-namespace="ticket.staff.response"
-                    data-signature="<?php
+                <textarea
+                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        ?> draft draft-delete" data-signature="<?php
                         echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                     data-signature-field="signature" data-dept-field="deptId"
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
+                    style="width:80%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
+    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+                ?></textarea>
                     style="width:80%;"><?php echo $info['response']; ?></textarea>
                     <div class="attachments">
 <?php
@@ -371,11 +375,14 @@ print $response_form->getField('attachments')->render();
         </tr>
         <tr>
             <td colspan=2>
-                <textarea class="richtext ifhtml draft draft-delete"
+                <textarea
+                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        ?> draft draft-delete"
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
-                    data-draft-namespace="ticket.staff.note" name="note"
-                    cols="21" rows="6" style="width:80%;"
-                    ><?php echo $info['note']; ?></textarea>
+                    name="note" cols="21" rows="6" style="width:80%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
+    echo $attrs; ?>><?php echo $draft ?: $info['note'];
+                ?></textarea>
             </td>
         </tr>
     </tbody>

@@ -172,9 +172,13 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
                 <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
                 <br/>
                 <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
-                    data-draft-namespace="ticket.client"
-                    data-draft-object-id="<?php echo $ticket->getId(); ?>"
-                    class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
+                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        ?> draft" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);
+    echo $attrs; ?>><?php echo $draft ?: $info['message'];
+                ?></textarea>
+            </td>
+        </tr>
         <?php
         if ($messageField->isAttachmentsEnabled()) { ?>
 <?php
