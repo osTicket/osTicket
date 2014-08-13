@@ -277,17 +277,7 @@ class Staff extends AuthenticatedUser {
     }
 
     function getLanguage() {
-        // XXX: This should just return the language preference. Caching
-        //      should be done elsewhere
-        static $cached = false;
-        if (!$cached)
-            $cached = &$_SESSION['staff:lang'];
-
-        if (!$cached) {
-            $cached = $this->ht['lang']
-                ?: Internationalization::getDefaultLanguage();
-        }
-        return $cached;
+        return $this->ht['lang'];
     }
 
     function isManager() {
@@ -435,11 +425,11 @@ class Staff extends AuthenticatedUser {
         return ($stats=$this->getTicketsStats())?$stats['closed']:0;
     }
 
-    function getExtraAttr($attr=false) {
-        if (!isset($this->extra))
-            $this->extra = JsonDataParser::decode($this->ht['extra']);
+    function getExtraAttr($attr=false, $default=null) {
+        if (!isset($this->_extra))
+            $this->_extra = JsonDataParser::decode($this->ht['extra']);
 
-        return $attr ? $this->extra[$attr] : $this->extra;
+        return $attr ? (@$this->_extra[$attr] ?: $default) : $this->_extra;
     }
 
     function setExtraAttr($attr, $value, $commit=true) {
@@ -735,9 +725,10 @@ class Staff extends AuthenticatedUser {
                 $email->getEmail()
             ), false);
 
+        $lang = $this->ht['lang'] ?: $this->getExtraAttr('browser_lang');
         $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getName(),
-            'body' => $content->getBody(),
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
         ), $vars);
 
         $_config = new Config('pwreset');

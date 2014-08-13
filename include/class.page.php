@@ -66,17 +66,39 @@ class Page {
     function getName() {
         return $this->ht['name'];
     }
+    function getLocalName($lang=false) {
+        return $this->_getLocal('name', $lang);
+    }
 
     function getBody() {
         return $this->ht['body'];
     }
-    function getLocalBody() {
-        $tag = $this->getTranslateTag('body');
-        $T = CustomDataTranslation::translateArticle($tag);
-        return $T != $tag ? $T : $this->getBody();
+    function getLocalBody($lang=false) {
+        return $this->_getLocal('body', $lang);
     }
     function getBodyWithImages() {
         return Format::viewableImages($this->getLocalBody(), ROOT_PATH.'image.php');
+    }
+
+    function _fetchTranslation($lang=false) {
+        if (!isset($this->_local) || $lang) {
+            $tags = array(
+                $this->getTranslateTag('body'),
+                $this->getTranslateTag('article'),
+            );
+            if (!$lang)
+                $lang = Internationalization::getCurrentLanguage();
+            $this->_local = CustomDataTranslation::allTranslations($tags, 'article', $lang);
+        }
+        return $this->_local;
+    }
+    function _getLocal($what, $lang=false) {
+        $tag = $this->getTranslateTag($what);
+        foreach ($this->_fetchTranslation($lang) as $t)
+            if ($tag == $t->object_hash)
+                return $t->text;
+
+        return $this->ht[$what];
     }
 
     function getNotes() {
