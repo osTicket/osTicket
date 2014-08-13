@@ -868,12 +868,59 @@ class UserAccountModel extends VerySimpleModel {
         return $this->user;
     }
 
-    function getLanguage() {
-        return $this->get('lang');
+    function getExtraAttr($attr=false, $default=null) {
+        if (!isset($this->_extra))
+            $this->_extra = JsonDataParser::decode($this->extra);
+
+        return $attr ? (@$this->_extra[$attr] ?: $default) : $this->_extra;
+    }
+
+    function setExtraAttr($attr, $value) {
+        $this->getExtraAttr();
+        $this->_extra[$attr] = $value;
+    }
+
+    /**
+     * Function: getLanguage
+     *
+     * Returns the language preference for the user or false if no
+     * preference is defined. False indicates the browser indicated
+     * preference should be used. For requests apart from browser requests,
+     * the last language preference of the browser is set in the
+     * 'browser_lang' extra attribute upon logins. Send the LANG_MAILOUTS
+     * flag to also consider this saved value. Such is useful when sending
+     * the user a message (such as an email), and the user's browser
+     * preference is not available in the HTTP request.
+     *
+     * Parameters:
+     * $flags - (int) Send UserAccount::LANG_MAILOUTS if the user's
+     *      last-known browser preference should be considered. Normally
+     *      only the user's saved language preference is considered.
+     *
+     * Returns:
+     * Current or last-known language preference or false if no language
+     * preference is currently set or known.
+     */
+    function getLanguage($flags=false) {
+        $lang = $this->get('lang', false);
+        if (!$lang && ($flags & UserAccount::LANG_MAILOUTS))
+            $lang = $this->getExtraAttr('browser_lang', false);
+
+        return $lang;
+    }
+
+    function save($refetch=false) {
+        // Serialize the extra column on demand
+        if (isset($this->_extra)) {
+            $this->extra = JsonDataEncoder::encode($this->_extra);
+        }
+        return parent::save($refetch);
     }
 }
 
 class UserAccount extends UserAccountModel {
+
+    const LANG_MAILOUTS = 1;            // Language preference for mailouts
 
     function hasPassword() {
         return (bool) $this->get('passwd');
@@ -914,9 +961,10 @@ class UserAccount extends UserAccountModel {
         $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
         Signal::send('auth.pwreset.email', $this->getUser(), $info);
 
+        $lang = $this->getLanguage(UserAccount::LANG_MAILOUTS);
         $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getName(),
-            'body' => $content->getBody(),
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
         ), $vars);
 
         $_config = new Config('pwreset');

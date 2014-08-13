@@ -64,9 +64,12 @@ abstract class TicketUser {
             'user' => $this,
             'recipient' => $this);
 
+        $lang = false;
+        if (is_callable(array($this, 'getLanguage')))
+            $lang = $this->getLanguage(UserAccount::LANG_MAILOUTS);
         $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getName(),
-            'body' => $content->getBody(),
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
         ), $vars);
 
         $email->send($this->getEmail(), Format::striptags($msg['subj']),
@@ -269,16 +272,9 @@ class  EndUser extends AuthenticatedUser {
         return $this->_account;
     }
 
-    function getLanguage() {
-        static $cached = false;
-
-        if (!$cached) {
-            if ($acct = $this->getAccount())
-                $cached = $acct->getLanguage();
-            if (!$cached)
-                $cached = Internationalization::getDefaultLanguage();
-        }
-        return $cached;
+    function getLanguage($flags=false) {
+        if ($acct = $this->getAccount())
+            return $acct->getLanguage($flags);
     }
 
     private function getStats() {
@@ -360,30 +356,10 @@ class ClientAccount extends UserAccount {
         unset($_SESSION['_client']['reset-token']);
     }
 
-    function getExtraAttr($attr=false) {
-        if (!isset($this->_extra))
-            $this->_extra = JsonDataParser::decode($this->ht['extra']);
-
-        return $attr ? $this->_extra[$attr] : $this->_extra;
-    }
-
-    function setExtraAttr($attr, $value) {
-        $this->getExtraAttr();
-        $this->_extra[$attr] = $value;
-    }
-
     function onLogin($bk) {
         $this->setExtraAttr('browser_lang',
             Internationalization::getCurrentLanguage());
         $this->save();
-    }
-
-    function save($refetch=false) {
-        // Serialize the extra column on demand
-        if (isset($this->_extra)) {
-            $this->extra = JsonDataEncoder::encode($this->_extra);
-        }
-        return parent::save($refetch);
     }
 
     function update($vars, &$errors) {

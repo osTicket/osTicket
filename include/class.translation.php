@@ -934,13 +934,16 @@ class CustomDataTranslation extends VerySimpleModel {
         return static::translate($msgid, $locale, false, 'article');
     }
 
-    static function allTranslations($msgid, $type='phrase') {
+    static function allTranslations($msgid, $type='phrase', $lang=false) {
         $criteria = array('type' => $type);
 
         if (is_array($msgid))
             $criteria['object_hash__in'] = $msgid;
         else
             $criteria['object_hash'] = $msgid;
+
+        if ($lang)
+            $criteria['lang'] = $lang;
 
         return static::objects()->filter($criteria)->all();
     }
