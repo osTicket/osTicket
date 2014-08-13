@@ -86,7 +86,7 @@ RedactorPlugins.draft = {
             // No change yet — dont't show the button
             return;
         }
-        if (data) {
+        if (data && this.get()) {
             this.$draft_saved.show().delay(5000).fadeOut();
         }
         // Show the button if there is a draft to delete
@@ -126,6 +126,7 @@ RedactorPlugins.draft = {
                 self.set(self.opts.draftOriginal || '', false, false);
                 self.opts.autosave = self.opts.autoCreateUrl;
                 self.draftDeleteButton.hide();
+                self.firstSave = false;
             }
         });
     }
