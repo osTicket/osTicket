@@ -126,7 +126,7 @@ class SearchInterface {
 
         case $model instanceof User:
             $cdata = array();
-            foreach ($model->getDynamicData() as $e)
+            foreach ($model->getDynamicData($false) as $e)
                 foreach ($e->getAnswers() as $tag=>$a)
                     if ($tag != 'subject' && ($v = $a->getSearchable()))
                         $cdata[] = $v;
@@ -144,7 +144,7 @@ class SearchInterface {
 
         case $model instanceof Organization:
             $cdata = array();
-            foreach ($model->getDynamicData() as $e)
+            foreach ($model->getDynamicData(false) as $e)
                 foreach ($e->getAnswers() as $a)
                     if ($v = $a->getSearchable())
                         $cdata[] = $v;

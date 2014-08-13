@@ -287,10 +287,10 @@ class User extends UserModel {
         return $uf;
     }
 
-    function getDynamicData() {
+    function getDynamicData($create=true) {
         if (!isset($this->_entries)) {
             $this->_entries = DynamicFormEntry::forClient($this->id)->all();
-            if (!$this->_entries) {
+            if (!$this->_entries && $create) {
                 $g = UserForm::getNewInstance();
                 $g->setClientId($this->id);
                 $g->save();
@@ -298,7 +298,7 @@ class User extends UserModel {
             }
         }
 
-        return $this->_entries;
+        return $this->_entries ?: array();
     }
 
     function getFilterData() {
