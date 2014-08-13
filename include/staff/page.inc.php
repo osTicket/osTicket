@@ -149,7 +149,7 @@ $($('option:selected', this).val()).show(); ">
 <?php if ($langs && $page) {
     foreach ($langs as $tag) { ?>
         <div id="translation-<?php echo $tag; ?>" style="display:none" lang="<?php echo $tag; ?>">
-        <textarea name="trans[<?php echo $tag; ?>]" cols="21" rows="12"
+        <textarea name="trans[<?php echo $tag; ?>][body]" cols="21" rows="12"
             style="width:98%;" class="richtext draft"
 <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'].'.'.$tag, $info['trans'][$tag]);
