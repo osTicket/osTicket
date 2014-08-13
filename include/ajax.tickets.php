@@ -343,11 +343,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$thisstaff || !($ticket=Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, __('No such ticket'));
 
-        ob_start();
-        $resp = ob_get_contents();
-        ob_end_clean();
-
-        return $resp;
+        include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
     }
 
     function addRemoteCollaborator($tid, $bk, $id) {
