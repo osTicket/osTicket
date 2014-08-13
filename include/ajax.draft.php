@@ -7,17 +7,7 @@ require_once(INCLUDE_DIR.'class.draft.php');
 class DraftAjaxAPI extends AjaxController {
 
     function _createDraft($vars) {
-        if (!isset($vars['body'])) {
-            $field_list = array('response', 'note', 'answer', 'body',
-                 'message', 'issue');
-            foreach ($field_list as $field) {
-                if (isset($_POST[$field])) {
-                    $vars['body'] = $_POST[$field];
-                    break;
-                }
-            }
-        }
-        if (!isset($vars['body']))
+        if (!($vars['body'] = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => __("Draft body not found in request"),
                 'code' => 422,
@@ -44,26 +34,7 @@ class DraftAjaxAPI extends AjaxController {
     }
 
     function _updateDraft($draft) {
-        if (isset($_POST['name'])) {
-            $parts = array();
-            if (preg_match('`(\w+)\[(\w+)\]`', $_POST['name'], $parts)) {
-                $body = urldecode($_POST[$parts[1]][$parts[2]]);
-            }
-            else {
-                $body = urldecode($_POST[$_POST['name']]);
-            }
-        }
-        else {
-            $field_list = array('response', 'note', 'answer', 'body',
-                 'message', 'issue');
-            foreach ($field_list as $field) {
-                if (isset($_POST[$field])) {
-                    $body = urldecode($_POST[$field]);
-                    break;
-                }
-            }
-        }
-        if (!isset($body))
+        if (!($body = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => array(
                     'message' => "Draft body not found in request",
@@ -243,16 +214,6 @@ class DraftAjaxAPI extends AjaxController {
             'namespace' => $namespace,
         );
 
-        if (isset($_POST['name'])) {
-            $parts = array();
-            if (preg_match('`(\w+)\[(\w+)\]`', $_POST['name'], $parts)) {
-                $vars['body'] = urldecode($_POST[$parts[1]][$parts[2]]);
-            }
-            else {
-                $vars['body'] = urldecode($_POST[$_POST['name']]);
-            }
-        }
-
         return self::_createDraft($vars);
     }
 
@@ -339,6 +300,26 @@ class DraftAjaxAPI extends AjaxController {
             );
         }
         echo JsonDataEncoder::encode($files);
+    }
+
+    function _findDraftBody($vars) {
+        if (isset($vars['name'])) {
+            $parts = array();
+            if (preg_match('`(\w+)(?:\[(\w+)\])?(?:\[(\w+)\])?`', $_POST['name'], $parts)) {
+                array_shift($parts);
+                $focus = $vars;
+                foreach ($parts as $p)
+                    $focus = $focus[$p];
+                return urldecode($focus);
+            }
+        }
+        $field_list = array('response', 'note', 'answer', 'body',
+             'message', 'issue');
+        foreach ($field_list as $field) {
+            if (isset($vars[$field])) {
+                return urldecode($vars[$field]);
+            }
+        }
     }
 
 }
