@@ -935,10 +935,14 @@ class CustomDataTranslation extends VerySimpleModel {
     }
 
     static function allTranslations($msgid, $type='phrase') {
-        return static::objects()->filter(array(
-            'type' => $type,
-            'object_hash' => $msgid
-        ))->all();
+        $criteria = array('type' => $type);
+
+        if (is_array($msgid))
+            $criteria['object_hash__in'] = $msgid;
+        else
+            $criteria['object_hash'] = $msgid;
+
+        return static::objects()->filter($criteria)->all();
     }
 
     static function getDepartmentNames($ids) {
