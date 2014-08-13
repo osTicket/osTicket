@@ -130,20 +130,34 @@ class ContentAjaxAPI extends AjaxController {
     }
 
     function manageContent($id, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
 
         $content = Page::lookup($id, $lang);
+
+        $langs = $cfg->getSecondaryLanguages();
+        $tags = array(
+            $content->getTranslateTag('body') => 'body',
+            $content->getTranslateTag('title') => 'title',
+        );
+        $translations = CustomDataTranslation::allTranslations(
+            array_keys($tags), 'article');
+        foreach ($translations as $t) {
+            $info[$tags[$t->object_hash]][$t->lang] = $t->text;
+        }
+
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
     function manageNamedContent($type, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+
+        $langs = $cfg->getSecondaryLanguages();
 
         $content = Page::lookup(Page::getIdByType($type, $lang));
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
