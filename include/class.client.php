@@ -314,9 +314,16 @@ class  EndUser extends AuthenticatedUser {
 
         return $stats;
     }
+
+    function onLogin($bk) {
+        if ($account = $this->getAccount())
+            $account->onLogin($bk);
+    }
 }
 
 class ClientAccount extends UserAccount {
+
+    var $_extra;
 
     function checkPassword($password, $autoupdate=true) {
 
@@ -351,6 +358,32 @@ class ClientAccount extends UserAccount {
             return false;
 
         unset($_SESSION['_client']['reset-token']);
+    }
+
+    function getExtraAttr($attr=false) {
+        if (!isset($this->_extra))
+            $this->_extra = JsonDataParser::decode($this->ht['extra']);
+
+        return $attr ? $this->_extra[$attr] : $this->_extra;
+    }
+
+    function setExtraAttr($attr, $value) {
+        $this->getExtraAttr();
+        $this->_extra[$attr] = $value;
+    }
+
+    function onLogin($bk) {
+        $this->setExtraAttr('browser_lang',
+            Internationalization::getCurrentLanguage());
+        $this->save();
+    }
+
+    function save($refetch=false) {
+        // Serialize the extra column on demand
+        if (isset($this->_extra)) {
+            $this->extra = JsonDataEncoder::encode($this->_extra);
+        }
+        return parent::save($refetch);
     }
 
     function update($vars, &$errors) {

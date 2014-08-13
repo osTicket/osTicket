@@ -67,7 +67,6 @@ class Staff extends AuthenticatedUser {
         $this->teams = $this->ht['teams'] = array();
         $this->group = $this->dept = null;
         $this->departments = $this->stats = array();
-        $this->config = new Config('staff.'.$this->id);
 
         //WE have to patch info here to support upgrading from old versions.
         if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
@@ -98,7 +97,7 @@ class Staff extends AuthenticatedUser {
     }
 
     function getInfo() {
-        return $this->config->getInfo() + $this->getHashtable();
+        return $this->getHashtable();
     }
 
     // AuthenticatedUser implementation...
@@ -278,13 +277,15 @@ class Staff extends AuthenticatedUser {
     }
 
     function getLanguage() {
+        // XXX: This should just return the language preference. Caching
+        //      should be done elsewhere
         static $cached = false;
         if (!$cached)
             $cached = &$_SESSION['staff:lang'];
 
         if (!$cached) {
-            $cached = $this->config->get('lang',
-                Internationalization::getDefaultLanguage());
+            $cached = $this->ht['lang']
+                ?: Internationalization::getDefaultLanguage();
         }
         return $cached;
     }
@@ -434,6 +435,39 @@ class Staff extends AuthenticatedUser {
         return ($stats=$this->getTicketsStats())?$stats['closed']:0;
     }
 
+    function getExtraAttr($attr=false) {
+        if (!isset($this->extra))
+            $this->extra = JsonDataParser::decode($this->ht['extra']);
+
+        return $attr ? $this->extra[$attr] : $this->extra;
+    }
+
+    function setExtraAttr($attr, $value, $commit=true) {
+        $this->getExtraAttr();
+        $this->extra[$attr] = $value;
+
+        if ($commit) {
+            $sql='UPDATE '.STAFF_TABLE.' SET '
+                .'`extra`='.db_input(JsonDataEncoder::encode($this->extra))
+                .' WHERE staff_id='.db_input($this->getId());
+            db_query($sql);
+        }
+    }
+
+    function onLogin($bk) {
+        // Update last apparent language preference
+        $this->setExtraAttr('browser_lang',
+            Internationalization::getCurrentLanguage(),
+            false);
+
+        $sql='UPDATE '.STAFF_TABLE.' SET '
+            // Update time of last login
+            .'  `lastlogin`=NOW() '
+            .', `extra`='.db_input(JsonDataEncoder::encode($this->extra))
+            .' WHERE staff_id='.db_input($this->getId());
+         db_query($sql);
+    }
+
     //Staff profile update...unfortunately we have to separate it from admin update to avoid potential issues
     function updateProfile($vars, &$errors) {
         global $cfg;
@@ -498,7 +532,6 @@ class Staff extends AuthenticatedUser {
 
         if($errors) return false;
 
-        $this->config->set('lang', $vars['lang']);
         $_SESSION['staff:lang'] = null;
         TextDomain::configureForUser($this);
 
@@ -516,8 +549,8 @@ class Staff extends AuthenticatedUser {
             .' ,max_page_size='.db_input($vars['max_page_size'])
             .' ,auto_refresh_rate='.db_input($vars['auto_refresh_rate'])
             .' ,default_signature_type='.db_input($vars['default_signature_type'])
-            .' ,default_paper_size='.db_input($vars['default_paper_size']);
-
+            .' ,default_paper_size='.db_input($vars['default_paper_size'])
+            .' ,lang='.db_input($vars['lang']);
 
         if($vars['passwd1']) {
             $sql.=' ,change_passwd=0, passwdreset=NOW(), passwd='.db_input(Passwd::hash($vars['passwd1']));
@@ -586,9 +619,6 @@ class Staff extends AuthenticatedUser {
 
             //Cleanup Team membership table.
             db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($this->getId()));
-
-            // Destrory config settings
-            $this->config->destroy();
         }
 
         Signal::send('model.deleted', $this);
