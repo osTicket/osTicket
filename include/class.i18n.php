@@ -363,10 +363,11 @@ class Internationalization {
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
-            return $user->getLanguage();
+            if ($lang = $user->getLanguage())
+                return $lang;
 
         // Support the flag buttons for guests
-        if ((!$user || $user != $thisstaff) && isset($session))
+        if ((!$user || $user != $thisstaff) && $session)
             return $session;
 
         return self::getDefaultLanguage();

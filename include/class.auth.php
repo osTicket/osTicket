@@ -32,6 +32,10 @@ abstract class AuthenticatedUser {
 
         return false;
     }
+
+    // Signal method to allow performing extra things when a user is logged
+    // into the sysem
+    function onLogin($bk) {}
 }
 
 interface AuthDirectorySearch {
@@ -427,14 +431,10 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
-        $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() '
-            .' WHERE staff_id='.db_input($staff->getId());
-        db_query($sql);
-
-        //Tag the authkey.
+        // Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
 
-        //Now set session crap and lets roll baby!
+        // Now set session crap and lets roll baby!
         $authsession = &$_SESSION['_auth']['staff'];
 
         $authsession = array(); //clear.
@@ -451,6 +451,9 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
         if ($bk->supportsInteractiveAuthentication())
             $staff->cancelResetTokens();
+
+        // Update last-used language, login time, etc
+        $staff->onLogin($bk);
 
         return true;
     }
@@ -627,6 +630,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
+
+        // Update last-used language, login time, etc
+        $user->onLogin($bk);
 
         return true;
     }
