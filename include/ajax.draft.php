@@ -7,7 +7,7 @@ require_once(INCLUDE_DIR.'class.draft.php');
 class DraftAjaxAPI extends AjaxController {
 
     function _createDraft($vars) {
-        if (!($vars['body'] = self::_findDraftBody($_POST)))
+        if (false === ($vars['body'] = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => __("Draft body not found in request"),
                 'code' => 422,
@@ -34,7 +34,7 @@ class DraftAjaxAPI extends AjaxController {
     }
 
     function _updateDraft($draft) {
-        if (!($body = self::_findDraftBody($_POST)))
+        if (false === ($body = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => array(
                     'message' => "Draft body not found in request",
@@ -127,8 +127,7 @@ class DraftAjaxAPI extends AjaxController {
             'namespace' => $namespace,
         );
 
-        $info = self::_createDraft($vars);
-        $info['draft_id'] = $namespace;
+        return self::_createDraft($vars);
     }
 
     function getDraftClient($namespace) {
@@ -320,6 +319,8 @@ class DraftAjaxAPI extends AjaxController {
                 return urldecode($vars[$field]);
             }
         }
+
+        return false;
     }
 
 }
