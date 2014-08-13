@@ -10,12 +10,14 @@
 <?php
 $current_list = array();
 foreach ($forms as $e) { ?>
-<div class="sortable-row-item" data-id="<?php echo $e->get('id'); ?>">
+<div class="sortable row-item" data-id="<?php echo $e->get('id'); ?>">
     <input type="hidden" name="forms[]" value="<?php echo $e->get('form_id'); ?>" />
     <i class="icon-reorder"></i> <?php echo $e->getForm()->getTitle();
     $current_list[] = $e->get('form_id');
     if ($e->getForm()->get('type') == 'G') { ?>
+    <div class="button-group">
     <div class="delete"><a href="#"><i class="icon-trash"></i></a></div>
+    </div>
     <?php } ?>
 </div>
 <?php } ?>
@@ -24,14 +26,15 @@ foreach ($forms as $e) { ?>
 <i class="icon-plus"></i>&nbsp;
 <select name="new-form" onchange="javascript:
     var $sel = $(this).find('option:selected');
-    $('#ticket-entries').append($('<div></div>').addClass('sortable-row-item')
+    $('#ticket-entries').append($('<div></div>').addClass('sortable row-item')
         .text(' '+$sel.text())
         .data('id', $sel.val())
         .prepend($('<i>').addClass('icon-reorder'))
         .append($('<input/>').attr({name:'forms[]', type:'hidden'}).val($sel.val()))
-        .append($('<div></div>').addClass('delete')
+        .append($('<div></div>').addClass('button-group')
+          .append($('<div></div>').addClass('delete')
             .append($('<a href=\'#\'>').append($('<i>').addClass('icon-trash')))
-        )
+        ))
     );
     $sel.prop('disabled',true);">
 <option selected="selected" disabled="disabled"><?php
@@ -68,7 +71,7 @@ foreach ($forms as $e) { ?>
 $(function() {
     $('#ticket-entries').sortable({containment:'parent',tolerance:'pointer'});
     $('#ticket-entries .delete a').live('click', function() {
-        var $div = $(this).closest('.sortable-row-item');
+        var $div = $(this).closest('.sortable.row-item');
         $('select[name=new-form]').find('option[data-id='+$div.data('id')+']')
             .prop('disabled',false);
         $div.remove();
