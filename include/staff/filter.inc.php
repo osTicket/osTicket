@@ -258,7 +258,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="status_id">
                     <option value="">&mdash; <?php echo __('Default'); ?> &mdash;</option>
                     <?php
-                    foreach (TicketStatusList::getAll() as $status) {
+                    foreach (TicketStatusList::getStatuses() as $status) {
                         $name = $status->getName();
                         if (!($isenabled = $status->isEnabled()))
                             $name.=' '.__('(disabled)');

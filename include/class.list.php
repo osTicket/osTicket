@@ -649,30 +649,36 @@ class TicketStatusList extends CustomListHandler {
         return TicketStatus::objects()->count();
     }
 
-    function getAllItems($states=array()) {
-        if ($states)
-            $items = TicketStatus::objects()->filter(
-                    array('state__in' => $states))
-                    ->order_by($this->getListOrderBy());
-        else
-            $items = TicketStatus::objects()->order_by($this->getListOrderBy());
-
-        return $items;
-    }
-
-    function getItems($criteria) {
-
-        if (!$this->_items) {
-            $this->_items = TicketStatus::objects()->filter(
-                array('flags__hasbit' => TicketStatus::ENABLED))
-                ->order_by($this->getListOrderBy());
-            if ($criteria['limit'])
-                $this->_items->limit($criteria['limit']);
-            if ($criteria['offset'])
-                $this->_items->offset($criteria['offset']);
-        }
+    function getAllItems() {
+        if (!$this->_items)
+            $this->_items = TicketStatus::objects()->order_by($this->getListOrderBy());
 
         return $this->_items;
+    }
+
+    function getItems($criteria = array()) {
+
+        // Default to only enabled items
+        if (!isset($criteria['enabled']))
+            $criteria['enabled'] = true;
+
+        $filters =  array();
+        if ($criteria['enabled'])
+            $filters['mode__hasbit'] = TicketStatus::ENABLED;
+        if ($criteria['states'] && is_array($criteria['states']))
+            $filters['state__in'] = $criteria['states'];
+
+        $items = TicketStatus::objects();
+        if ($filters)
+            $items->filter($filters);
+        if ($criteria['limit'])
+            $items->limit($criteria['limit']);
+        if ($criteria['offset'])
+            $items->offset($criteria['offset']);
+
+        $items->order_by($this->getListOrderBy());
+
+        return $items;
     }
 
     function getItem($val) {
@@ -697,12 +703,12 @@ class TicketStatusList extends CustomListHandler {
         return $item;
     }
 
-    static function getAll($states=array()) {
+    static function getStatuses($criteria=array()) {
 
         $statuses = array();
         if (($list = DynamicList::lookup(
                         array('type' => 'ticket-status'))))
-            $statuses = $list->getAllItems($states);
+            $statuses = $list->getItems($criteria);
 
         return $statuses;
     }

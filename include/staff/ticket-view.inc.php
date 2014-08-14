@@ -623,7 +623,8 @@ $tcount+= $ticket->getNumNotes();
                         $states = array_merge($states,
                                 array('closed', 'archived'));
 
-                    foreach (TicketStatusList::getAll($states) as $s) {
+                    foreach (TicketStatusList::getStatuses(
+                                array('states' => $states)) as $s) {
                         if (!$s->isEnabled()) continue;
                         echo sprintf('<option value="%d" %s>%s</option>',
                                 $s->getId(),
@@ -713,7 +714,8 @@ $tcount+= $ticket->getNumNotes();
                         if ($thisstaff->canCloseTickets())
                             $states = array_merge($states,
                                     array('closed', 'archived'));
-                        foreach (TicketStatusList::getAll($states) as $s) {
+                        foreach (TicketStatusList::getStatuses(
+                                    array('states' => $states)) as $s) {
                             if (!$s->isEnabled()) continue;
                             $selected = $statusId == $s->getID();
                             echo sprintf('<option value="%d" %s>%s%s</option>',
