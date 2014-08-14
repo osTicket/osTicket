@@ -995,7 +995,7 @@ class SelectionField extends FormField {
 
     function toString($items) {
         return ($items && is_array($items))
-            ? explode(', ', $items) : (string) $items;
+            ? implode(', ', $items) : (string) $items;
     }
 
     function validateEntry($entry) {
