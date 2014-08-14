@@ -828,7 +828,7 @@ class Ticket {
     }
 
     //Status helper.
-    function setStatus($status) {
+    function setStatus($status, $comments='') {
         global $thisstaff;
 
         if ($status && is_numeric($status))
@@ -857,6 +857,7 @@ class Ticket {
                 };
                 break;
             case 'open':
+                // TODO: check current status if it allows for reopening
                 if ($this->isClosed()) {
                     $sql.= ',closed=NULL, reopened=NOW() ';
 
@@ -873,12 +874,19 @@ class Ticket {
             return false;
 
         // Log status change b4 reload
-        $note= sprintf('Status changed from %s to %s by %s',
+        $note = sprintf(__('Status changed from %s to %s by %s'),
                 $this->getStatus(),
                 $status,
                 $thisstaff ?: 'SYSTEM');
 
-        $this->logNote('Status Changed', $note, $thisstaff, false);
+        $alert = false;
+        if ($comments) {
+            $note .= sprintf('<hr>%s', $comments);
+            // Send out alerts if comments are included
+            $alert = true;
+        }
+
+        $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
 
         // Log events via callback
         if ($ecb) $ecb($this);
