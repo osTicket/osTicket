@@ -43,4 +43,12 @@ $_POST=Format::strip_slashes($_POST);
 $_GET=Format::strip_slashes($_GET);
 $_REQUEST=Format::strip_slashes($_REQUEST);
 }
+
+// extract system messages
+$errors = array();
+$msg=$warn=$sysnotice='';
+if ($_SESSION['::sysmsgs']) {
+    extract($_SESSION['::sysmsgs']);
+    unset($_SESSION['::sysmsgs']);
+}
 ?>
