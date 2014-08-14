@@ -695,5 +695,274 @@ class TicketsAjaxAPI extends AjaxController {
 
         return $canned->getFormattedResponse($format, $varReplacer);
     }
+
+    function changeTicketStatus($tid, $status) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+        elseif (!$tid
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket #');
+
+        $info = array();
+        switch($status) {
+            case 'open':
+            case 'reopen':
+                $state = 'open';
+                $info['title'] =  __('Reopen');
+                break;
+            case 'resolve':
+                $state = 'resolved';
+                $info['title'] = __('Resolve');
+                break;
+            case 'close':
+                if (!$thisstaff->canCloseTickets())
+                    Http::response(403, 'Access denied');
+                $state = 'closed';
+                $info['title'] = __('Close');
+                break;
+            case 'archive':
+                if (!$thisstaff->canCloseTickets())
+                    Http::response(403, 'Access denied');
+
+                $state = 'archived';
+                $info['title'] = __('Archive');
+                break;
+            case 'delete':
+                if (!$thisstaff->canDeleteTickets())
+                    Http::response(403, 'Access denied');
+                $state = 'deleted';
+                $info = array(
+                        'title' => __('Delete'),
+                        'warn'  => sprintf(__('Are you sure you want to DELETE %s?'),
+                            __('this ticket')),
+                        //TODO: remove message below once we ship data retention plug
+                        'extra' => sprintf('<strong>%s</strong>',
+                            __('Deleted tickets CANNOT be recovered,
+                                including any associated attachments.')));
+                break;
+            default:
+                Http::response(404, 'Unknown status/action');
+        }
+
+        $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $status);
+        $info['title'] .= sprintf(' %s #%s', __('Ticket'), $ticket->getNumber());
+        $info['status_id'] = $_REQUEST['status_id'] ?: $ticket->getStatusId();
+
+        return self::_setStatus($state, $info);
+    }
+
+    function setTicketStatus($tid, $state) {
+        global $thisstaff, $ost;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+        elseif (!$tid
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket #');
+
+        if (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
+            $errors['status_id'] = sprintf('%s %s',
+                    __('Unknown or invalid'), __('status'));
+        elseif (!$errors) {
+            // Make sure the agent has permission to set the status
+            switch(mb_strtolower($status->getState())) {
+                case 'open':
+                    if (!$thisstaff->canCloseTickets()
+                            && !$thisstaff->canCreateTickets())
+                        $errors['err'] = sprintf(__('You do not have
+                                    permission to %s.'),
+                                __('reopen tickets'));
+                    break;
+                case 'resolved':
+                case 'closed':
+                    if (!$thisstaff->canCloseTickets())
+                        $errors['err'] = sprintf(__('You do not have
+                                    permission to %s.'),
+                                __('resolve/close tickets'));
+                    break;
+                case 'archived':
+                case 'deleted':
+                    if (!$thisstaff->canDeleteTickets())
+                        $errors['err'] = sprintf(__('You do not have
+                                    permission to %s.'),
+                                __('archive/delete tickets'));
+                    break;
+            }
+        }
+
+        if ($ticket->setStatus($status, $_REQUEST['comments'])) {
+            $_SESSION['::sysmsgs']['msg'] = sprintf(
+                    __('Successfully updated status to %s'),
+                    $status->getName());
+            Http::response(201, 'Successfully processed');
+        }
+
+        $errors['err'] = __('Error updating ticket status');
+        $info['errors'] = $errors;
+        return self::_setStatus($state, $info);
+    }
+    function changeTicketsStatus($status, $id=0) {
+        global $thisstaff, $cfg;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+
+        $state = null;
+        $info = array();
+        switch($status) {
+            case 'open':
+            case 'reopen':
+                $state = 'open';
+                $info = array(
+                        'title' => sprintf('%s %s',
+                            __('Reopen'), __('Tickets'))
+                        );
+                break;
+            case 'resolve':
+                $state = 'resolved';
+                $info = array(
+                        'title' => sprintf('%s %s',
+                            __('Resolve'), __('Tickets'))
+                        );
+                break;
+            case 'close':
+                if (!$thisstaff->canCloseTickets())
+                    Http::response(403, 'Access denied');
+                $state = 'closed';
+                $info = array(
+                        'title' => sprintf('%s %s',
+                            __('Close'), __('Tickets'))
+                        );
+                break;
+            case 'archive':
+                if (!$thisstaff->canCloseTickets())
+                    Http::response(403, 'Access denied');
+
+                $state = 'archived';
+                $info = array(
+                        'title' => sprintf('%s %s',
+                            __('Archive'), __('Tickets')),
+                        );
+                break;
+            case 'delete':
+                if (!$thisstaff->canDeleteTickets())
+                    Http::response(403, 'Access denied');
+
+                $state = 'deleted';
+                $info = array(
+                        'title' => sprintf('%s %s',
+                            __('Delete'), __('Tickets')),
+                        'warn'  => sprintf(__('Are you sure you want to DELETE %s?'),
+                            _N('selected ticket', 'selected tickets', $_REQUEST['count'])),
+                        //TODO: remove message below once we ship data retention plug
+                        'extra' => sprintf('<strong>%s</strong>',
+                            __('Deleted tickets CANNOT be recovered,
+                                including any associated attachments.')));
+                break;
+            default:
+                Http::response(404, 'Unknown status/action');
+        }
+
+        if ($_REQUEST['count'])
+            $info['title'] .= sprintf(' &mdash; %d selected', $_REQUEST['count']);
+
+        $info['status_id'] = $id;
+
+        return self::_setStatus($state, $info);
+    }
+
+    function setTicketsStatus($state) {
+        global $thisstaff, $ost;
+
+        $errors = array();
+        if (!$thisstaff || !$thisstaff->canManageTickets())
+            $errors['err']=__('You do not have permission to mass manage tickets. Contact admin for such access');
+        elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
+            $errors['err']=sprintf(__('You must select at least %s.'),
+                    __('one ticket'));
+        elseif (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
+            $errors['status_id'] = sprintf('%s %s',
+                    __('Unknown or invalid'), __('status'));
+        elseif (!$errors) {
+            // Make sure the agent has permission to set the status
+            switch(mb_strtolower($status->getState())) {
+                case 'open':
+                    if (!$thisstaff->canCloseTickets()
+                            && !$thisstaff->canCreateTickets())
+                        $errors['err'] = sprintf(__('You do not have
+                                    permission to %s.'),
+                                __('reopen tickets'));
+                    break;
+                case 'resolved':
+                case 'closed':
+                    if (!$thisstaff->canCloseTickets())
+                        $errors['err'] = sprintf(__('You do not have
+                                    permission to %s.'),
+                                __('resolve/close tickets'));
+                    break;
+                case 'archived':
+                case 'deleted':
+                    if (!$thisstaff->canDeleteTickets())
+                        $errors['err'] = sprintf(__('You do not have
+                                    permission to %s.'),
+                                __('archive/delete tickets'));
+                    break;
+            }
+        }
+
+        if (!$errors) {
+            $i = 0;
+            $count = count($_REQUEST['tids']);
+            $comments = $_REQUEST['comments'];
+            foreach ($_REQUEST['tids'] as $tid) {
+                if (($ticket=Ticket::lookup($tid))
+                        && $ticket->getStatusId() != $status->getId()
+                        && $ticket->checkStaffAccess($thisstaff)
+                        && $ticket->setStatus($status, $comments))
+                    $i++;
+            }
+
+            if (!$i)
+                $errors['err'] = sprintf(__('Unable to set status for %s'),
+                        _N('selected ticket', 'selected tickets', $count));
+            else {
+                // Assume success
+                if ($i==$count) {
+                    $_SESSION['::sysmsgs']['msg'] = sprintf(
+                            __('Successfully updated %s status to %s'),
+                            _N('selected ticket', 'selected tickets',
+                                $count),
+                            $status->getName());
+                } else {
+                    $_SESSION['::sysmsgs']['warn'] = sprintf(
+                            __('%1$d of %2$d %3$s status updated to %4$s'),$i, $count,
+                            _N('selected ticket', 'selected tickets',
+                                $count),
+                            $status->getName());
+                }
+
+                Http::response(201, 'Successfully processed');
+            }
+        }
+
+        $info['errors'] = $errors;
+        return self::_setStatus($state, $info);
+    }
+
+    function _setStatus($state, $info=array()) {
+
+        $errors = array();
+        if ($info && isset($info['errors']))
+            $errors = $info['errors'];
+
+        if (!$info['error'] && isset($errors['err']))
+            $info['error'] = $errors['err'];
+
+        include(STAFFINC_DIR . 'templates/ticket-status.tmpl.php');
+    }
 }
 ?>

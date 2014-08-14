@@ -201,52 +201,6 @@ if($_POST && !$errors):
             break;
         case 'process':
             switch(strtolower($_POST['do'])):
-                case 'close':
-                    if(!$thisstaff->canCloseTickets()) {
-                        $errors['err'] = __('Permission Denied. You are not allowed to close tickets.');
-                    } elseif($ticket->isClosed()) {
-                        $errors['err'] = __('Ticket is already closed!');
-                    } elseif (!($status=TicketStatus::lookup($_POST['status_id']))) {
-                        $errors['err'] = __('Unknown status');
-                    } elseif (!in_array($status->getState(), array('resolved', 'closed'))) {
-                        $errors['err'] = __('Invalid status');
-                    } elseif ($ticket->setStatus($status)) {
-                        $msg=sprintf(__('Ticket #%s status set to CLOSED'),$ticket->getNumber());
-                        if($_POST['ticket_status_notes']) {
-                            $ticket->logNote(
-                                    __('Ticket Closed'),
-                                    $_POST['ticket_status_notes'],
-                                    $thisstaff);
-                        }
-                        //Going back to main listing.
-                        TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
-                        $page=$ticket=null;
-                    } else {
-                        $errors['err']=__('Problems closing the ticket. Try again');
-                    }
-                    break;
-                case 'reopen':
-                    //if staff can close or create tickets ...then assume they can reopen.
-                    if (!$thisstaff->canCloseTickets() && !$thisstaff->canCreateTickets()) {
-                        $errors['err']=__('Permission Denied. You are not allowed to reopen tickets.');
-                    } elseif ($ticket->isOpen()) {
-                        $errors['err'] = __('Ticket is already open!');
-                    } elseif (!($status=TicketStatus::lookup($_POST['status_id']))) {
-                        $errors['err'] = __('Unknown status');
-                    } elseif (strcasecmp($status->getState(), 'open')) {
-                        $errors['err'] = __('Invalid status');
-                    } elseif ($ticket->setStatus($status)) {
-                        $msg=__('Ticket Reopened');
-                        if($_POST['ticket_status_notes']) {
-                            $ticket->logNote(
-                                    __('Ticket Reopened'),
-                                    $_POST['ticket_status_notes'],
-                                    $thisstaff);
-                        }
-                    } else {
-                        $errors['err']=__('Problems reopening the ticket. Try again');
-                    }
-                    break;
                 case 'release':
                     if(!$ticket->isAssigned() || !($assigned=$ticket->getAssigned())) {
                         $errors['err'] = __('Ticket is not assigned!');
@@ -336,21 +290,6 @@ if($_POST && !$errors):
                         $errors['err'] = 'Unable to change tiket ownership. Try again';
                     }
                     break;
-                case 'delete': // Dude what are you trying to hide? bad customer support??
-                    if(!$thisstaff->canDeleteTickets()) {
-                        $errors['err']=__('Permission Denied. You are not allowed to DELETE tickets!!');
-                    } elseif($ticket->delete()) {
-                        $msg=sprintf(__('Ticket #%s deleted successfully'),$ticket->getNumber());
-                        //Log a debug note
-                        $ost->logDebug(sprintf(__('Ticket #%s deleted'),$ticket->getNumber()),
-                                sprintf(__('Ticket #%1$s deleted by %2$s'),
-                                    $ticket->getNumber(), $thisstaff->getName())
-                                );
-                        $ticket=null; //clear the object.
-                    } else {
-                        $errors['err']=__('Problems deleting the ticket. Try again');
-                    }
-                    break;
                 default:
                     $errors['err']=__('You must select action to perform');
             endswitch;
@@ -363,90 +302,6 @@ if($_POST && !$errors):
     }elseif($_POST['a']) {
 
         switch($_POST['a']) {
-            case 'mass_process':
-                if(!$thisstaff->canManageTickets())
-                    $errors['err']=__('You do not have permission to mass manage tickets. Contact admin for such access');
-                elseif(!$_POST['tids'] || !is_array($_POST['tids']))
-                    $errors['err']=sprintf(__('You must select at least %s.'),
-                        __('one ticket'));
-                else {
-                    $count=count($_POST['tids']);
-                    $i = 0;
-                    switch(strtolower($_POST['do'])) {
-                        case 'reopen':
-                            if($thisstaff->canCloseTickets() || $thisstaff->canCreateTickets()) {
-                                $note=sprintf(__('Ticket reopened by %s'),$thisstaff->getName());
-                                foreach($_POST['tids'] as $k=>$v) {
-                                    if(($t=Ticket::lookup($v)) && $t->isClosed() && @$t->reopen()) {
-                                        $i++;
-                                        $t->logNote(__('Ticket Reopened'), $note, $thisstaff);
-                                    }
-                                }
-
-                                if($i==$count)
-                                    $msg = sprintf(__('Successfully reopened %s'),
-                                        _N('selected ticket', 'selected tickets', $count));
-                                elseif($i)
-                                    $warn = sprintf(__('%1$d of %2$d %3$s reopened'),$i, $count,
-                                        _N('selected ticket', 'selected tickets', $count));
-                                else
-                                    $errors['err'] = sprintf(__('Unable to reopen %s'),
-                                        _N('selected ticket', 'selected tickets', $count));
-                            } else {
-                                $errors['err'] = __('You do not have permission to reopen tickets');
-                            }
-                            break;
-                        case 'close':
-                            $errors['err'] = 'Support coming soon!';
-                            break;
-                        case 'mark_overdue':
-                            $note=sprintf(__('Ticket flagged as overdue by %s'),$thisstaff->getName());
-                            foreach($_POST['tids'] as $k=>$v) {
-                                if(($t=Ticket::lookup($v)) && !$t->isOverdue() && $t->markOverdue()) {
-                                    $i++;
-                                    $t->logNote(__('Ticket Marked Overdue'), $note, $thisstaff);
-                                }
-                            }
-
-                            if($i==$count)
-                                $msg = sprintf(__('Selected tickets (%d) marked overdue'), $i);
-                            elseif($i)
-                                $warn = sprintf(__('%1$d of %2$d selected tickets marked overdue'), $i, $count);
-                            else
-                                $errors['err'] = __('Unable to flag selected tickets as overdue');
-                            break;
-                        case 'delete':
-                            if($thisstaff->canDeleteTickets()) {
-                                foreach($_POST['tids'] as $k=>$v) {
-                                    if(($t=Ticket::lookup($v)) && @$t->delete()) $i++;
-                                }
-
-                                //Log a warning
-                                if($i) {
-                                    $log = sprintf(_S('%1$s (%2$s) just deleted %3$d ticket(s)'),
-                                            $thisstaff->getName(), $thisstaff->getUserName(), $i);
-                                    $ost->logWarning(_S('Tickets deleted'), $log, false);
-
-                                }
-
-                                if($i==$count)
-                                    $msg = sprintf(__('Successfully deleted %s'),
-                                        _N('selected ticket', 'selected tickets', $count));
-                                elseif($i)
-                                    $warn = sprintf(__('%1$d of %2$d %3$s deleted'),$i, $count,
-                                        _N('selected ticket', 'selected tickets', $count));
-                                else
-                                    $errors['err'] = sprintf(__('Unable to delete %s'),
-                                        _N('selected ticket', 'selected tickets', $count));
-                            } else {
-                                $errors['err'] = __('You do not have permission to delete tickets');
-                            }
-                            break;
-                        default:
-                            $errors['err']=__('Unknown action - get technical help.');
-                    }
-                }
-                break;
             case 'open':
                 $ticket=null;
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {

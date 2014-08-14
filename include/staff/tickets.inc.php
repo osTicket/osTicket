@@ -327,10 +327,24 @@ if ($results) {
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
-<div style="margin-bottom:20px">
-<form action="tickets.php" method="POST" name='tickets'>
+<div style="margin-bottom:20px; padding-top:3px;">
+<table width="940" cellpadding="1" cellspacing="0" border="0">
+    <tr>
+        <td width="20%">
+            <h2><a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
+                title="Reload"><i class="icon-refresh"></i></a></h2>
+        </td>
+        <td width="80%" class="right_align">
+            <?php
+            if ($res && $results && $thisstaff->canManageTickets()) {
+                echo TicketStatus::options();
+            }
+            ?>
+        </td>
+    </tr>
+</table>
+<form action="tickets.php" method="POST" name='tickets' id="tickets">
 <?php csrf_token(); ?>
- <a class="refresh pull-right" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"><?php echo __('Refresh'); ?></a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
@@ -427,7 +441,8 @@ if ($results) {
                         $sel=true;
                     ?>
                 <td align="center" class="nohover">
-                    <input class="ckb" type="checkbox" name="tids[]" value="<?php echo $row['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
+                    <input class="ckb" type="checkbox" name="tids[]"
+                        value="<?php echo $row['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <?php } ?>
                 <td title="<?php echo $row['email']; ?>" nowrap>
@@ -490,42 +505,6 @@ if ($results) {
         echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         echo '<a class="export-csv no-pjax" href="?a=export&h='
             .$hash.'&status='.$_REQUEST['status'] .'">'.__('Export').'</a>&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
-    ?>
-        <?php
-         if($thisstaff->canManageTickets()) { ?>
-           <p class="centered" id="actions">
-            <?php
-            $status=$_REQUEST['status']?$_REQUEST['status']:$status;
-            switch (strtolower($status)) {
-                case 'closed': ?>
-                    <input class="button" type="submit" name="reopen" value="<?php echo __('Reopen');?>" >
-                    <?php
-                    break;
-                case 'open':
-                case 'answered':
-                case 'assigned':
-                    ?>
-                    <input class="button" type="submit" name="mark_overdue" value="<?php echo __('Overdue');?>" >
-                    <input class="button" type="submit" name="close" value="<?php echo __('Close');?>">
-                    <?php
-                    break;
-                case 'overdue':
-                    ?>
-                    <input class="button" type="submit" name="close" value="<?php echo __('Close');?>">
-                    <?php
-                    break;
-                default: //search??
-                    ?>
-                    <input class="button" type="submit" name="close" value="<?php echo __('Close');?>" >
-                    <input class="button" type="submit" name="reopen" value="<?php echo __('Reopen');?>">
-            <?php
-            }
-            if($thisstaff->canDeleteTickets()) { ?>
-                <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>">
-            <?php } ?>
-        </p>
-        <?php
-       }
     } ?>
     </form>
 </div>
@@ -534,19 +513,8 @@ if ($results) {
     <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <p class="confirm-action" style="display:none;" id="close-confirm">
-        <?php echo __('Are you sure want to <b>close</b> selected open tickets?');?>
-    </p>
-    <p class="confirm-action" style="display:none;" id="reopen-confirm">
-        <?php echo __('Are you sure want to <b>reopen</b> selected closed tickets?');?>
-    </p>
     <p class="confirm-action" style="display:none;" id="mark_overdue-confirm">
         <?php echo __('Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?');?>
-    </p>
-    <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
-            _N('selected ticket', 'selected tickets', 2));?></strong></font>
-        <br><br><?php echo __('Deleted tickets CANNOT be recovered, including any associated attachments.');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
@@ -683,3 +651,22 @@ if ($results) {
         </p>
     </form>
 </div>
+<script type="text/javascript">
+$(function() {
+    $(document).off('.tickets');
+    $(document).on('click.tickets', 'a.tickets-action', function(e) {
+        e.preventDefault();
+        var count = checkbox_checker($('form#tickets'), 1);
+        if (count) {
+            var url = 'ajax.php/'
+            +$(this).attr('href').substr(1)
+            +'?count='+count
+            +'&_uid='+new Date().getTime();
+            $.dialog(url, [201], function (xhr) {
+                window.location.href = window.location.href;
+             });
+        }
+        return false;
+    });
+});
+</script>

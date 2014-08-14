@@ -999,9 +999,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
         return $status;
     }
+
+    static function options() {
+        include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
+    }
 }
-
-
-
-
 ?>

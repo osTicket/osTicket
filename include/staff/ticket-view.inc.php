@@ -56,17 +56,17 @@ if($ticket->isOverdue())
             </span>
             <?php
             }
-            if ($thisstaff->canDeleteTickets()) { ?>
-                <a id="ticket-delete" class="action-button confirm-action" href="#delete"><i class="icon-trash"></i> <?php
-                    echo __('Delete'); ?></a>
-            <?php
-            }
             if($thisstaff->canCloseTickets()) {
                 if($ticket->isOpen()) {?>
-                <a id="ticket-close" class="action-button" href="#close"><i class="icon-remove-circle"></i> <?php echo __('Close');?></a>
+                <a class="action-button ticket-action"
+                    href="#tickets/<?php echo $ticket->getId()
+                    ?>/status/close"><i class="icon-remove-circle"></i> <?php echo __('Close');?></a>
                 <?php
                 } else { ?>
-                <a id="ticket-reopen" class="action-button" href="#reopen"><i class="icon-undo"></i> <?php echo __('Reopen');?></a>
+                <a class="action-button ticket-action"
+                    href="#tickets/<?php echo $ticket->getId()
+                    ?>/status/reopen"><i class="icon-undo"></i> <?php echo
+                    __('Reopen');?></a>
                 <?php
                 }
             }
@@ -100,7 +100,19 @@ if($ticket->isOverdue())
                  if($thisstaff->canEditTickets()) { ?>
                     <li><a class="change-user" href="#tickets/<?php
                     echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
-                    echo __('Change Ticket Owner'); ?></a></li>
+                    echo __('Change Owner'); ?></a></li>
+                <?php
+                 }
+                 if($thisstaff->canDeleteTickets()) {
+                     if (!$ticket->isArchived()) { ?>
+                    <li><a class="ticket-action" href="#tickets/<?php
+                    echo $ticket->getId(); ?>/status/archive"><i class="icon-archive"></i> <?php
+                    echo __('Archive Ticket'); ?></a></li>
+                    <?php
+                     } ?>
+                    <li><a class="ticket-action" href="#tickets/<?php
+                    echo $ticket->getId(); ?>/status/delete"><i class="icon-trash"></i> <?php
+                    echo __('Delete Ticket'); ?></a></li>
                 <?php
                  }
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
@@ -927,67 +939,6 @@ $tcount+= $ticket->getNumNotes();
             </span>
             <span class="buttons pull-right">
                 <input type="submit" value="<?php echo __('Print');?>">
-            </span>
-         </p>
-    </form>
-    <div class="clear"></div>
-</div>
-<div style="display:none;" class="dialog" id="ticket-status">
-    <h3><?php echo sprintf($ticket->isClosed() ? __('Reopen Ticket #%s') : __('Close Ticket #%s'),
-        $ticket->getNumber()); ?></h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
-    <hr/>
-    <?php
-        echo sprintf(__('Are you sure you want to <b>%s</b> this ticket?'),
-            $ticket->isClosed()?__('REOPEN'):__('CLOSE'));
-        $action = $ticket->isClosed() ? 'reopen': 'close';
-    ?>
-    <br><br>
-    <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="status-form" name="status-form">
-        <?php csrf_token(); ?>
-        <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
-        <input type="hidden" name="a" value="process">
-        <input type="hidden" name="do" value="<?php echo $action; ?>">
-        <fieldset>
-            <div><strong>Ticket Status </strong>
-                <select name="status_id">
-                    <?php
-                    $statusId = $info['status_id'] ?: 0;
-                    if (!$ticket->isOpen())
-                        $states = array('open');
-                    else
-                        $states = array('resolved', 'closed');
-
-                    foreach (TicketStatusList::getAll($states) as $s) {
-                        if (!$s->isEnabled()) continue;
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                $s->getId(),
-                                ($statusId == $s->getId())
-                                 ? 'selected="selected"' : '',
-                                $s->getName()
-                                );
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class='error'>*&nbsp;<?php echo $errors['status_id']; ?></span>
-            </div>
-        </fieldset>
-        <fieldset>
-            <div style="margin-bottom:0.5em">
-            <em><?php echo __('Reasons for status change (internal note). Optional but highly recommended.');?></em><br>
-            </div>
-            <textarea name="ticket_status_notes" id="ticket_status_notes" cols="50" rows="5" wrap="soft"
-                style="width:100%"
-                class="richtext ifhtml no-bar"><?php echo $info['ticket_status_notes']; ?></textarea>
-        </fieldset>
-        <hr style="margin-top:1em"/>
-        <p class="full-width">
-            <span class="buttons pull-left">
-                <input type="reset" value="<?php echo __('Reset');?>">
-                <input type="button" value="<?php echo __('Cancel');?>" class="close">
-            </span>
-            <span class="buttons pull-right">
-                <input type="submit" value="<?php echo $ticket->isClosed()?__('Reopen'):__('Close'); ?>">
             </span>
          </p>
     </form>
