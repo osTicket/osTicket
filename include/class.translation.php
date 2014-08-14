@@ -304,7 +304,7 @@ class gettext_reader {
     $expr .= ';';
     $res = '';
     $p = 0;
-    for ($i = 0; $i < strlen($expr); $i++) {
+    for ($i = 0, $k = strlen($expr); $i < $k; $i++) {
       $ch = $expr[$i];
       switch ($ch) {
       case '?':
@@ -372,17 +372,23 @@ class gettext_reader {
    * @return int array index of the right plural form
    */
   function select_string($n) {
-    $string = $this->get_plural_forms();
-    $string = str_replace('nplurals',"\$total",$string);
-    $string = str_replace("n",$n,$string);
-    $string = str_replace('plural',"\$plural",$string);
+      // Expression reads
+      // nplurals=X; plural= n != 1
+      if (!isset($this->plural_expression)) {
+          $matches = array();
+          if (!preg_match('`nplurals\s*=\s*(\d+)\s*;\s*plural\s*=\s*(.+$)`',
+                  $this->get_plural_forms(), $matches))
+              return 1;
 
-    $total = 0;
-    $plural = 0;
-
-    eval("$string");
-    if ($plural >= $total) $plural = $total - 1;
-    return $plural;
+          $this->plural_expression = create_function('$n',
+              sprintf('return %s;', str_replace('n', '($n)', $matches[2])));
+          $this->plural_total = (int) $matches[1];
+      }
+      $func = $this->plural_expression;
+      $plural = $func($n);
+      return ($plural > $this->plural_total)
+          ? $this->plural_total - 1
+          : $plural;
   }
 
   /**
@@ -531,7 +537,7 @@ class FileReader {
  * source gettext library implementation which should be roughly the same
  * performance as the libc gettext library.
  */
-class Translation extends gettext_reader {
+class Translation extends gettext_reader implements Serializable {
 
     var $charset;
 
@@ -644,6 +650,30 @@ class Translation extends gettext_reader {
         else
             fwrite($stream, $contents);
     }
+
+    static function resurrect($key) {
+        if (!function_exists('apc_fetch'))
+            return false;
+
+        $success = true;
+        if (($translation = apc_fetch($key, $success)) && $success)
+            return $translation;
+    }
+    function cache($key) {
+        if (function_exists('apc_add'))
+            apc_add($key, $this);
+    }
+
+
+    function serialize() {
+        return serialize(array($this->charset, $this->encode, $this->cache_translations));
+    }
+    function unserialize($what) {
+        list($this->charset, $this->encode, $this->cache_translations)
+            = unserialize($what);
+        $this->short_circuit = ! $this->enable_cache
+            = 0 < count($this->cache_translations);
+    }
 }
 
 if (!defined('LC_MESSAGES')) {
@@ -695,6 +725,12 @@ class TextDomain {
             $subpath = self::$LC_CATEGORIES[$category] .
                 '/'.$this->domain.'.mo.php';
 
+            // APC short-circuit (if supported)
+            $key = sha1($locale .':lang:'. $subpath);
+            if ($T = Translation::resurrect($key)) {
+                return $this->l10n[$locale] = $T;
+            }
+
             $locale_names = self::get_list_of_locales($locale);
             $input = null;
             foreach ($locale_names as $T) {
@@ -712,7 +748,8 @@ class TextDomain {
                 }
             }
             // TODO: Handle charset hint from the environment
-            $this->l10n[$locale] = new Translation($input);
+            $this->l10n[$locale] = $T = new Translation($input);
+            $T->cache($key);
         }
         return $this->l10n[$locale];
     }

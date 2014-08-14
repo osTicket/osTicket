@@ -269,12 +269,16 @@ class Format {
     }
 
     function htmlencode($var) {
+        static $phpversion = null;
 
         if (is_array($var))
             return array_map(array('Format', 'htmlencode'), $var);
 
+        if (!isset($phpversion))
+            $phpversion = phpversion();
+
         $flags = ENT_COMPAT;
-        if (phpversion() >= '5.4.0')
+        if ($phpversion >= '5.4.0')
             $flags |= ENT_HTML401;
 
         try {
