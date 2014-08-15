@@ -22,6 +22,20 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <div class="dialog" style="display:none;width:650px;" id="popup">
     <div class="body"></div>
 </div>
+<div style="display:none;" class="dialog" id="alert">
+    <h3><i class="icon-warning-sign"></i> <span id="title"></span></h3>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <hr/>
+    <div id="body" style="min-height: 20px;"></div>
+    <hr style="margin-top:3em"/>
+    <p class="full-width">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('OK');?>" class="close">
+        </span>
+     </p>
+    <div class="clear"></div>
+</div>
+
 <script type="text/javascript">
 if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
