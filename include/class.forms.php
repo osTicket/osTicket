@@ -1277,7 +1277,6 @@ class ChoicesWidget extends Widget {
             $values = $have_def ? array($def_key => $choices[$def_key]) : array();
 
         ?>
-        <span style="display:inline-block">
         <select name="<?php echo $this->name; ?>[]"
             id="<?php echo $this->name; ?>"
             data-prompt="<?php echo $prompt; ?>"
@@ -1295,7 +1294,6 @@ class ChoicesWidget extends Widget {
                 ?>><?php echo $name; ?></option>
             <?php } ?>
         </select>
-        </span>
         <?php
         if ($config['multiselect']) {
          ?>

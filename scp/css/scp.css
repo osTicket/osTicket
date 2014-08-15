@@ -1429,12 +1429,7 @@ time {
     background:#fff;
 }
 
-.dialog fieldset select {
-    width:170px;
-    display:inline-block;
-}
-
-.dialog fieldset span {
+.dialog fieldset span.between {
     width:50px;
     display:inline-block;
     text-align:center;
@@ -1452,12 +1447,32 @@ time {
     cursor: crosshair;
 }
 
-#advanced-search .query input {
-    width:350px;
+#advanced-search fieldset.span6 {
+    display: inline-block;
+    width: 49%;
+    margin-bottom: 5px;
+}
+#advanced-search fieldset label {
+    display: block;
+}
+#advanced-search fieldset.span6 select,
+#advanced-search fieldset.span6 input {
+    max-width: 100%;
+    min-width: 75%;
 }
 
+#advanced-search .query input {
+    width:100%;
+    padding: 4px;
+    margin-bottom: 10px;
+}
+
+#advanced-search .date_range {
+    margin-bottom: 5px;
+}
 #advanced-search .date_range input {
-    width:175px;
+    width:227px;
+    width: calc(49% - 73px);
 }
 
 #advanced-search .date_range i {
