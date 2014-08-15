@@ -599,7 +599,7 @@ $tcount+= $ticket->getNumNotes();
                             <?php echo $statusChecked; ?>> Reopen on Reply</label>
                    <?php
                     } elseif($thisstaff->canCloseTickets()) { ?>
-                         <label><input type="checkbox" name="reply_ticket_status" id="reply_ticket_status" value="Closed"
+                         <label><input type="checkbox" name="reply_ticket_status" id="reply_ticket_status" value="Closed" <?php if ($ticket->getMissingRequiredFields()) print 'disabled'; ?>
                               <?php echo $statusChecked; ?>> Close on Reply</label>
                    <?php
                     } ?>
@@ -927,7 +927,13 @@ $tcount+= $ticket->getNumNotes();
     <h3><?php echo sprintf('%s Ticket #%s', ($ticket->isClosed()?'Reopen':'Close'), $ticket->getNumber()); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <?php echo sprintf('Are you sure you want to <b>%s</b> this ticket?', $ticket->isClosed()?'REOPEN':'CLOSE'); ?>
+    <?php
+        if ($ticket->getMissingRequiredFields() && $ticket->isOpen()) {
+            print '<font color="red"><b>CANNOT CLOSE!</b>  Missing "<u>'.$ticket->getMissingRequiredField().'</u>" field. Please <a href="tickets.php?id='.$ticket->getId().'&a=edit">EDIT</a> ticket!</font>';
+        } else {
+            echo sprintf('Are you sure you want to <b>%s</b> this ticket?', $ticket->isClosed()?'REOPEN':'CLOSE');
+        }
+    ?>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="post" id="status-form" name="status-form">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -948,7 +954,7 @@ $tcount+= $ticket->getNumNotes();
                 <input type="button" value="Cancel" class="close">
             </span>
             <span class="buttons" style="float:right">
-                <input type="submit" value="<?php echo $ticket->isClosed()?'Reopen':'Close'; ?>">
+                <input type="submit" value="<?php echo $ticket->isClosed()?'Reopen':'Close'; ?>" <?php if ($ticket->getMissingRequiredFields()) print 'style="display: none;"';?>>
             </span>
          </p>
     </form>

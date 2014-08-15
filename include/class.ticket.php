@@ -632,6 +632,25 @@ class Ticket {
         return $this->recipients;
     }
 
+    function getMissingRequiredFields() {
+        $returnArray = array();
+        $forms=DynamicFormEntry::forTicket($this->getId());
+        foreach ($forms as $form) {
+            foreach ($form->getFields() as $field) {
+                if ($field->get('required')) {
+                    if (!($field->answer->get('value'))) {
+                        array_push($returnArray, $field->get('label'));
+                    }
+                }
+            }
+        }
+        return $returnArray;
+    }
+
+    function getMissingRequiredField() {
+        $fields = $this->getMissingRequiredFields();
+        return $fields[0];
+    }
 
     function addCollaborator($user, $vars, &$errors) {
 
