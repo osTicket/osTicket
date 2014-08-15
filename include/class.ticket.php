@@ -801,6 +801,26 @@ class Ticket {
         }
     }
 
+    function getMissingRequiredFields() {
+        $returnArray = array();
+        $forms=DynamicFormEntry::forTicket($this->getId());
+        foreach ($forms as $form) {
+            foreach ($form->getFields() as $field) {
+                if ($field->isRequiredForClose()) {
+                    if (!($field->answer->get('value'))) {
+                        array_push($returnArray, $field->get('label'));
+                    }
+                }
+            }
+        }
+        return $returnArray;
+    }
+
+    function getMissingRequiredField() {
+        $fields = $this->getMissingRequiredFields();
+        return $fields[0];
+    }
+
     function addCollaborator($user, $vars, &$errors) {
 
         if (!$user || $user->getId()==$this->getOwnerId())
@@ -957,7 +977,7 @@ class Ticket {
     }
 
     //Status helper.
-    function setStatus($status, $comments='') {
+    function setStatus($status, $comments='', &$errors=array()) {
         global $thisstaff;
 
         if ($status && is_numeric($status))
@@ -979,6 +999,12 @@ class Ticket {
         $ecb = null;
         switch($status->getState()) {
             case 'closed':
+                if ($this->getMissingRequiredFields()) {
+                    $errors['err'] = sprintf(__(
+                        'This ticket is missing data on %s one or more required fields %s and cannot be closed'),
+                    '', '');
+                    return false;
+                }
                 $sql.=', closed=NOW(), lastupdate=NOW(), duedate=NULL ';
                 if ($thisstaff)
                     $sql.=', staff_id='.db_input($thisstaff->getId());

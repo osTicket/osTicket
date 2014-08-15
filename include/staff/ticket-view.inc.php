@@ -605,15 +605,23 @@ print $response_form->getField('attachments')->render();
                 </td>
             </tr>
             <tr>
-                <td width="120">
+                <td width="120" style="vertical-align:top">
                     <label><strong><?php echo __('Ticket Status');?>:</strong></label>
                 </td>
                 <td>
+                    <?php
+                    if ($outstanding = $ticket->getMissingRequiredFields()) { ?>
+                    <div class="warning-banner"><?php echo sprintf(__(
+                        'This ticket is missing data on %s one or more required fields %s and cannot be closed'),
+                        "<a href=\"tickets.php?id={$ticket->getId()}&a=edit\">",
+                        '</a>'
+                    ); ?></div>
+<?php               } ?>
                     <select name="reply_status_id">
                     <?php
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
-                    if ($thisstaff->canCloseTickets())
+                    if ($thisstaff->canCloseTickets() && !$outstanding)
                         $states = array_merge($states, array('closed'));
 
                     foreach (TicketStatusList::getStatuses(

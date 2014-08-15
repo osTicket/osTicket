@@ -2018,7 +2018,8 @@ button a:hover {
     font-style: italic;
 }
 
-.form_table tr:hover i.help-tip {
+.form_table tr:hover i.help-tip,
+.form_table tr i.help-tip.warning {
     opacity: 1;
     color: #ffc20f;
 }

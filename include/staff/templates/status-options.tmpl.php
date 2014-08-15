@@ -12,6 +12,23 @@ $actions= array(
             'action' => 'reopen'
             ),
         );
+
+$states = array('open');
+if ($thisstaff->canCloseTickets() && (!$ticket || !$ticket->getMissingRequiredFields()))
+    $states = array_merge($states, array('closed'));
+
+$statusId = $ticket ? $ticket->getStatusId() : 0;
+$nextStatuses = array();
+foreach (TicketStatusList::getStatuses(
+            array('states' => $states)) as $status) {
+    if (!isset($actions[$status->getState()])
+            || $statusId == $status->getId())
+        continue;
+    $nextStatuses[] = $status;
+}
+
+if (!$nextStatuses)
+    return;
 ?>
 
 <span
@@ -26,18 +43,7 @@ $actions= array(
 <div id="action-dropdown-statuses"
     class="action-dropdown anchor-right">
     <ul>
-    <?php
-    $states = array('open');
-    if ($thisstaff->canCloseTickets())
-        $states = array_merge($states, array('closed'));
-
-    $statusId = $ticket ? $ticket->getStatusId() : 0;
-    foreach (TicketStatusList::getStatuses(
-                array('states' => $states))->all() as $status) {
-        if (!isset($actions[$status->getState()])
-                || $statusId == $status->getId())
-            continue;
-        ?>
+<?php foreach ($nextStatuses as $status) { ?>
         <li>
             <a class="no-pjax <?php
                 echo $ticket? 'ticket-action' : 'tickets-action'; ?>"

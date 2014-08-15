@@ -622,6 +622,9 @@ class DynamicFormField extends VerySimpleModel {
     function isRequiredForUsers() {
         return $this->hasFlag(self::FLAG_CLIENT_REQUIRED);
     }
+    function isRequiredForClose() {
+        return $this->hasFlag(self::FLAG_CLOSE_REQUIRED);
+    }
     function isEditableToStaff() {
         return $this->hasFlag(self::FLAG_ENABLED)
             && $this->hasFlag(self::FLAG_AGENT_EDIT);

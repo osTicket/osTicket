@@ -50,7 +50,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <?php
             }
             else { ?>
-                <td class="multi-line <?php if ($field->isRequiredForStaff()) echo 'required';
+                <td class="multi-line <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'required';
                 ?>" style="min-width:120px;" <?php if ($options['width'])
                     echo "width=\"{$options['width']}\""; ?>>
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
@@ -76,6 +76,12 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                     data-field-id="<?php echo $field->getAnswer()->get('field_id');
                 ?>" data-entry-id="<?php echo $field->getAnswer()->get('entry_id');
                 ?>"> <i class="icon-trash"></i> </a></div><?php
+            }
+            if (!$a->getValue() && $field->isRequiredForClose()) {
+?><i class="icon-warning-sign help-tip warning"
+    data-title="<?php echo __('Required to close ticket'); ?>"
+    data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
+/></i><?php
             }
             if ($field->get('hint') && !$field->isBlockLevel()) { ?>
                 <br /><em style="color:gray;display:inline-block"><?php
