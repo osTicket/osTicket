@@ -173,8 +173,10 @@ class TicketsAjaxAPI extends AjaxController {
         if($startTime)
             $where.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
 
-        if($endTime)
+        if($endTime) {
+            $endTime = strtotime('tomorrow', $endTime) - 1;
             $where.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
+        }
 
         //Query
         $joins = array();
