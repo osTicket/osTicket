@@ -668,6 +668,7 @@ if ($results) {
             </fieldset>
         <?php } ?>
         <hr/>
+        <div id="result-count" class="clear"></div>
         <p>
             <span class="buttons pull-right">
                 <input type="submit" value="<?php echo __('Search');?>">
@@ -681,6 +682,4 @@ if ($results) {
             </span>
         </p>
     </form>
-    <div id="result-count">
-    </div>
 </div>
