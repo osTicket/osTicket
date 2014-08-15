@@ -51,7 +51,8 @@
   flags: 0
   properties:
     description: >
-        Tickets only adminstratively available but nolonger accessible on ticket queues.
+        Tickets only adminstratively available but no longer accessible on
+        ticket queues.
 
 - id: 5
   name: Deleted
