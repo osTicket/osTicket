@@ -102,6 +102,8 @@ class StaffNav {
 
     function addSubMenu($item,$active=false){
 
+        // Triger lazy loading if submenus haven't been initialized
+        isset($this->submenus[$this->getPanel().'.'.$this->activetab]);
         $this->submenus[$this->getPanel().'.'.$this->activetab][]=$item;
         if($active)
             $this->activeMenu=sizeof($this->submenus[$this->getPanel().'.'.$this->activetab]);

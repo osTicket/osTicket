@@ -344,7 +344,8 @@ if($cfg->showAnsweredTickets()) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
 } else {
 
-    if($stats) {
+    if ($stats) {
+
         $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
                                'title'=>__('Open Tickets'),
                                'href'=>'tickets.php',
@@ -389,13 +390,13 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
                         ($_REQUEST['status']=='closed'));
 } else {
 
-    $nav->addSubMenu(array('desc'=>sprintf(__('Resolved (%s)'), number_format($stats['resolved'])),
+    $nav->addSubMenu(array('desc' => __('Resolved').' ('.number_format($stats['resolved']).')',
                            'title'=>__('Resolved Tickets'),
                            'href'=>'tickets.php?status=resolved',
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='resolved'));
 
-    $nav->addSubMenu(array('desc'=>sprintf(__('Closed Tickets (%s)'), number_format($stats['closed'])),
+    $nav->addSubMenu(array('desc' => __('Closed').' ('.number_format($stats['closed']).')',
                            'title'=>__('Closed Tickets'),
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),
