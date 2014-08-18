@@ -67,6 +67,7 @@
     </div>
     <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
 <?php } else {
+    header('X-PJAX-Version: ' . GIT_VERSION);
     if ($pjax = $ost->getExtraPjax()) { ?>
     <script type="text/javascript">
     <?php foreach (array_filter($pjax) as $s) echo $s.";"; ?>
@@ -77,7 +78,6 @@
             echo $h;
     } ?>
     <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: Staff Control Panel'; ?></title><?php
-    header('X-PJAX-Version: ' . GIT_VERSION);
 } # endif X_PJAX ?>
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
