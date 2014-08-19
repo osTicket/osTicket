@@ -748,6 +748,11 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         'table' => TICKET_STATUS_TABLE,
         'ordering' => array('name'),
         'pk' => array('id'),
+        'joins' => array(
+            'tickets' => array(
+                'reverse' => 'TicketModel.status',
+                )
+        )
     );
 
     var $_list;
@@ -831,11 +836,19 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function isDeletable() {
 
-        return !($this->isInternal() || $this->isDefault());
+        return !($this->isInternal()
+                || $this->isDefault()
+                || $this->getNumTickets());
     }
 
     function isInternal() {
-        return ($this->hasFlag('mode', self::INTERNAL));
+        return ($this->isDefault()
+                || $this->hasFlag('mode', self::INTERNAL));
+    }
+
+
+    function getNumTickets() {
+        return $this->tickets->count();
     }
 
     function getId() {
@@ -961,11 +974,11 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function delete() {
 
+        // Statuses with tickets are not deletable
         if (!$this->isDeletable())
             return false;
 
-        // TODO: Delete and do house cleaning (move tickets..etc)
-
+        return parent::delete();
     }
 
     function toString() {
@@ -976,6 +989,15 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->toString();
     }
 
+    static function create($ht) {
+
+        if (!isset($ht['mode']))
+            $ht['mode'] = 1;
+
+        $ht['created'] = new SqlFunction('NOW');
+
+        return  parent::create($ht);
+    }
 
     static function lookup($var, $list= false) {
 
@@ -993,7 +1015,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
         $properties = JsonDataEncoder::encode($ht['properties']);
         unset($ht['properties']);
-        $ht['created'] = new SqlFunction('NOW');
         if ($status = TicketStatus::create($ht)) {
             $status->save(true);
             $status->_config = new Config('TS.'.$status->getId());
@@ -1007,4 +1028,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
     }
 }
+
+TicketStatus::_inspect();
 ?>

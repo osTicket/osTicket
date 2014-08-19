@@ -44,7 +44,7 @@ foreach($actions as $k => $v) {
                  <a class="no-pjax tickets-action"
                     href="#tickets/status/<?php echo $k; ?>/<?php
                     echo $s->getId(); ?>"> <i
-                        class="icon-tag"></i> <?php echo $s->getName(); ?></a> </li>
+                        class="icon-tag"></i> <?php echo __($s->getName()); ?></a> </li>
             <?php
             } ?>
           </ul>

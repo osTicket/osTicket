@@ -39,6 +39,9 @@ class TicketModel extends VerySimpleModel {
         'joins' => array(
             'user' => array(
                 'constraint' => array('user_id' => 'UserModel.id')
+            ),
+            'status' => array(
+                'constraint' => array('status_id' => 'TicketStatus.id')
             )
         )
     );
