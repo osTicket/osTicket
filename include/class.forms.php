@@ -787,6 +787,10 @@ class ChoiceField extends FormField {
     }
 
     function toString($value) {
+        return (string) $this->getChoice($value);
+    }
+
+    function getChoice($value) {
 
         $choices = $this->getChoices();
         $selection = array();
@@ -1021,12 +1025,14 @@ FormField::addFieldTypes(/*trans*/ 'Dynamic Fields', function() {
 
 class TicketStateField extends ChoiceField {
 
-    static $_choices = array(
-            'open' => 'Open',
-            'resolved' => 'Resolved',
-            'closed' => 'Closed',
-            'archived' => 'Archived',
-            'deleted' => 'Deleted'
+    static $_states = array(
+            'open' => /* trans */ 'Open',
+            'resolved' => /* trans */ 'Resolved',
+            'closed' => /* trans */ 'Closed');
+    // Private states
+    static $_privatestates = array(
+            'archived' => /* trans */ 'Archived',
+            'deleted' => /* trans */ 'Deleted'
             );
 
     function hasIdValue() {
@@ -1038,16 +1044,36 @@ class TicketStateField extends ChoiceField {
     }
 
     function getChoices() {
-        $this->ht['default'] =  '';
+        static $_choices;
 
-        return static::$_choices;
+        if (!isset($_choices)) {
+            // Translate and cache the choices
+            $_choices = array_map('__', static::$_states);
+            $this->ht['default'] =  '';
+        }
+
+        return $_choices;
+    }
+
+    function getChoice($state) {
+
+        if ($state && is_array($state))
+            $state = key($state);
+
+        if (isset(static::$_states[$state]))
+            return __(static::$_states[$state]);
+
+        if (isset(static::$_privatestates[$state]))
+            return __(static::$_privatestates[$state]);
+
+        return $state;
     }
 
     function getConfigurationOptions() {
         return array(
             'prompt' => new TextboxField(array(
-                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
-                'hint'=>'Leading text shown before a value is selected',
+                'id'=>2, 'label'=> __('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=> __('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
