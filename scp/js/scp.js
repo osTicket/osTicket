@@ -538,6 +538,7 @@ $.dialog = function (url, codes, cb, options) {
     $popup.show();
     $('div.body', $popup).load(url, function () {
         $('div#popup-loading', $popup).hide();
+        $('#overlay').show();
         $('div.body', $popup).show({
             duration: 0,
             complete: function() { if (options.onshow) options.onshow(); }
