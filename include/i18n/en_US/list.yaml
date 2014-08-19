@@ -42,15 +42,6 @@
         edit_mask: 63
         configuration:
             prompt: State of a ticket
-      - type: flags # notrans
-        name: flags # notrans
-        label: Flags
-        required: false
-        sort: 2
-        edit_mask: 63
-        configuration:
-            prompt: Ticket Flags
-            multiselect: true
       - type: memo # notrans
         name: description # notrans
         label: Description
@@ -64,68 +55,3 @@
             length: 100
   configuration:
     handler: TicketStatusList
-
-# Ticket flags
-- type: ticket-flag # notrans
-  name: Ticket Flag
-  name_plural: Ticket Flags
-  sort_mode: Alpha  # notrans
-  masks: 15
-  notes: |
-    Flags that can be set on tickets
-  properties:
-    title: Flag Properties
-    instructions: Properties that can be set on a flag.
-    deletable: false
-    fields:
-      - type: state # notrans
-        name: states # notrans
-        label: Allowed States
-        required: true
-        sort: 1
-        edit_mask: 63
-        configuration:
-            prompt: Allowed Ticket States
-            multiselect: true
-      - type: memo # notrans
-        name: description # notrans
-        label: Description
-        required: false
-        sort: 2
-        edit_mask: 15
-        configuration:
-            rows: 2
-            cols: 40
-            html: false
-            length: 100
-  items: # Note that id doubles as a bit mask for the flag (must be preset)
-    - id: 1 # notrans
-      value: Answered
-      extra: answered
-      status: 3
-      sort: 1
-      configuration:
-        states:
-            open: Open
-        description:|
-            Marked as Answered
-    - id: 2 # notrans
-      value: Onhold
-      extra: onhold
-      status: 3
-      sort: 2
-      configuration:
-        states:
-            open: Open
-        description:|
-            Put on hold
-    - id: 4  # notrans
-      value: Overdue
-      extra: overdue
-      status: 3
-      sort: 3
-      configuration:
-        states:
-            open: Open
-        description:|
-            Marked overdue
