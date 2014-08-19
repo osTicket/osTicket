@@ -30,6 +30,9 @@ class SequenceLoader extends MigrationTask {
         foreach ($statuses as $s) {
             TicketStatus::__create($s);
         }
+
+        // Initialize MYSQL search backend
+        MysqlSearchBackend::__init();
     }
 }
 
