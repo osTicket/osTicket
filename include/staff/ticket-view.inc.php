@@ -104,14 +104,10 @@ if($ticket->isOverdue())
                 <?php
                  }
                  if($thisstaff->canDeleteTickets()) {
-                     if (!$ticket->isArchived()) { ?>
+                     ?>
                     <li><a class="ticket-action" href="#tickets/<?php
-                    echo $ticket->getId(); ?>/status/archive"><i class="icon-archive"></i> <?php
-                    echo __('Archive Ticket'); ?></a></li>
-                    <?php
-                     } ?>
-                    <li><a class="ticket-action" href="#tickets/<?php
-                    echo $ticket->getId(); ?>/status/delete"><i class="icon-trash"></i> <?php
+                    echo $ticket->getId(); ?>/status/delete"
+                    data-href="tickets.php"><i class="icon-trash"></i> <?php
                     echo __('Delete Ticket'); ?></a></li>
                 <?php
                  }
@@ -632,17 +628,19 @@ $tcount+= $ticket->getNumNotes();
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open', 'resolved');
                     if ($thisstaff->canCloseTickets())
-                        $states = array_merge($states,
-                                array('closed', 'archived'));
+                        $states = array_merge($states, array('closed'));
 
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
                         if (!$s->isEnabled()) continue;
-                        echo sprintf('<option value="%d" %s>%s</option>',
+                        $selected = ($statusId == $s->getId());
+                        echo sprintf('<option value="%d" %s>%s%s</option>',
                                 $s->getId(),
-                                ($statusId == $s->getId())
+                                $selected
                                  ? 'selected="selected"' : '',
-                                $s->getName()
+                                $s->getName(),
+                                $selected
+                                ? (' ('.__('current').')') : ''
                                 );
                     }
                     ?>
@@ -724,17 +722,16 @@ $tcount+= $ticket->getNumNotes();
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
                         $states = array('open', 'resolved');
                         if ($thisstaff->canCloseTickets())
-                            $states = array_merge($states,
-                                    array('closed', 'archived'));
+                            $states = array_merge($states, array('closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {
                             if (!$s->isEnabled()) continue;
-                            $selected = $statusId == $s->getID();
+                            $selected = $statusId == $s->getId();
                             echo sprintf('<option value="%d" %s>%s%s</option>',
                                     $s->getId(),
                                     $selected ? 'selected="selected"' : '',
                                     $s->getName(),
-                                    $selected ? ' '.__('(current)') : ''
+                                    $selected ? (' ('.__('current').')') : ''
                                     );
                         }
                         ?>

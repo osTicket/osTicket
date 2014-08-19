@@ -667,6 +667,8 @@ class TicketStatusList extends CustomListHandler {
             $filters['mode__hasbit'] = TicketStatus::ENABLED;
         if ($criteria['states'] && is_array($criteria['states']))
             $filters['state__in'] = $criteria['states'];
+        else
+            $filters['state__isnull'] = false;
 
         $items = TicketStatus::objects();
         if ($filters)
@@ -692,6 +694,7 @@ class TicketStatusList extends CustomListHandler {
     function addItem($vars, &$errors) {
 
         $item = TicketStatus::create(array(
+            'mode' => 1,
             'flags' => 0,
             'sort'  => $vars['sort'],
             'name' => $vars['value'],
@@ -819,7 +822,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     function isEnableable() {
-        return $this->hasProperties();
+        return ($this->getState());
     }
 
     function isDisableable() {

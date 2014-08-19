@@ -335,6 +335,9 @@ if ($results) {
                 title="Reload"><i class="icon-refresh"></i></a></h2>
         </td>
         <td width="80%" class="right_align">
+            <a id="tickets-delete" class="action-button tickets-action"
+                href="#tickets/status/delete"><i
+            class="icon-trash"></i> <?php echo __('Delete'); ?></a>
             <?php
             if ($res && $results && $thisstaff->canManageTickets()) {
                 echo TicketStatus::options();

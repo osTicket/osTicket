@@ -845,6 +845,7 @@ class Ticket {
 
         $ecb = null;
         switch($status->getState()) {
+            case 'resolved':
             case 'closed':
                 $sql.=', closed=NOW(), duedate=NULL ';
                 if ($thisstaff)
@@ -866,6 +867,9 @@ class Ticket {
                     };
                 }
                 break;
+            default:
+                return false;
+
         }
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());

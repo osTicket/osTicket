@@ -1,15 +1,5 @@
 <?php
 $actions= array(
-        'delete' => array(
-            'action'  => __('Delete'),
-            'icon'  => 'icon-trash',
-            'states' => array('deleted'),
-            ),
-        'archive' => array(
-            'action'  => __('Archive'),
-            'icon' => 'icon-archive',
-            'states' => array('archived')
-            ),
         'close' => array(
             'action' => __('Close'),
             'icon'  => 'icon-repeat',

@@ -723,13 +723,6 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'closed';
                 $info['title'] = __('Close');
                 break;
-            case 'archive':
-                if (!$thisstaff->canCloseTickets())
-                    Http::response(403, 'Access denied');
-
-                $state = 'archived';
-                $info['title'] = __('Archive');
-                break;
             case 'delete':
                 if (!$thisstaff->canDeleteTickets())
                     Http::response(403, 'Access denied');
@@ -744,7 +737,8 @@ class TicketsAjaxAPI extends AjaxController {
                                 including any associated attachments.')));
                 break;
             default:
-                Http::response(404, 'Unknown status/action');
+                $info['warn'] = sprintf('%s %s',
+                        __('Unknown or invalid'), __('status'));
         }
 
         $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $status);
@@ -764,6 +758,7 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'Unknown ticket #');
 
+        $errors = $info = array();
         if (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
             $errors['status_id'] = sprintf('%s %s',
                     __('Unknown or invalid'), __('status'));
@@ -784,13 +779,15 @@ class TicketsAjaxAPI extends AjaxController {
                                     permission to %s.'),
                                 __('resolve/close tickets'));
                     break;
-                case 'archived':
                 case 'deleted':
                     if (!$thisstaff->canDeleteTickets())
                         $errors['err'] = sprintf(__('You do not have
                                     permission to %s.'),
                                 __('archive/delete tickets'));
                     break;
+                default:
+                    $errors['err'] = sprintf('%s %s',
+                            __('Unknown or invalid'), __('status'));
             }
         }
 
@@ -838,16 +835,6 @@ class TicketsAjaxAPI extends AjaxController {
                             __('Close'), __('Tickets'))
                         );
                 break;
-            case 'archive':
-                if (!$thisstaff->canCloseTickets())
-                    Http::response(403, 'Access denied');
-
-                $state = 'archived';
-                $info = array(
-                        'title' => sprintf('%s %s',
-                            __('Archive'), __('Tickets')),
-                        );
-                break;
             case 'delete':
                 if (!$thisstaff->canDeleteTickets())
                     Http::response(403, 'Access denied');
@@ -864,7 +851,8 @@ class TicketsAjaxAPI extends AjaxController {
                                 including any associated attachments.')));
                 break;
             default:
-                Http::response(404, 'Unknown status/action');
+                $info['warn'] = sprintf('%s %s',
+                        __('Unknown or invalid'), __('status'));
         }
 
         if ($_REQUEST['count'])
@@ -878,7 +866,7 @@ class TicketsAjaxAPI extends AjaxController {
     function setTicketsStatus($state) {
         global $thisstaff, $ost;
 
-        $errors = array();
+        $errors = $info = array();
         if (!$thisstaff || !$thisstaff->canManageTickets())
             $errors['err']=__('You do not have permission to mass manage tickets. Contact admin for such access');
         elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
@@ -904,13 +892,15 @@ class TicketsAjaxAPI extends AjaxController {
                                     permission to %s.'),
                                 __('resolve/close tickets'));
                     break;
-                case 'archived':
                 case 'deleted':
                     if (!$thisstaff->canDeleteTickets())
                         $errors['err'] = sprintf(__('You do not have
                                     permission to %s.'),
                                 __('archive/delete tickets'));
                     break;
+                default:
+                    $errors['err'] = sprintf('%s %s',
+                            __('Unknown or invalid'), __('status'));
             }
         }
 
