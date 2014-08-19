@@ -837,6 +837,10 @@ class Ticket {
         if (!$status || !$status instanceof TicketStatus)
             return false;
 
+        // XXX: intercept deleted status and do hard delete
+        if (!strcasecmp($status->getState(), 'deleted'))
+            return $this->delete($comments);
+
         if ($this->getStatusId() == $status->getId())
             return true;
 
@@ -2025,7 +2029,8 @@ class Ticket {
         exit;
     }
 
-    function delete() {
+    function delete($comments='') {
+        global $ost, $thisstaff;
 
         //delete just orphaned ticket thread & associated attachments.
         // Fetch thread prior to removing ticket entry
@@ -2041,6 +2046,18 @@ class Ticket {
             $form->delete();
 
         $this->deleteDrafts();
+
+        // Log delete
+        $log = sprintf(__('Ticket #%1$s deleted by %2$s'),
+                $this->getNumber(),
+                $thisstaff ? $thisstaff->getName() : __('SYSTEM'));
+
+        if ($comments)
+            $log .= sprintf('<hr>%s', $comments);
+
+        $ost->logDebug(
+                sprintf( __('Ticket #%s deleted'), $this->getNumber()),
+                $log);
 
         return true;
     }

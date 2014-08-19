@@ -396,8 +396,9 @@ var ticket_onload = function($) {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
+        var $redirect = $(this).data('href');
         $.dialog(url, [201], function (xhr) {
-            window.location.href = window.location.href;
+            window.location.href = $redirect ? $redirect : window.location.href;
         });
 
         return false;
