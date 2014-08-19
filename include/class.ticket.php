@@ -2411,16 +2411,6 @@ class Ticket {
                     $vars['email'], $filter->getName()));
         }
 
-        if ($vars['topicId'] && ($topic=Topic::lookup($vars['topicId']))) {
-            if ($topic_form = $topic->getForm()) {
-                $TF = $topic_form->getForm($vars);
-                $topic_form = $topic_form->instanciate();
-                $topic_form->setSource($vars);
-                if (!$TF->isValid($field_filter('topic')))
-                    $errors = array_merge($errors, $TF->errors());
-            }
-        }
-
         $id=0;
         $fields=array();
         $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>__('Message content is required'));
@@ -2445,9 +2435,6 @@ class Ticket {
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] =__('Missing or invalid data - check the errors and try again');
-
-        if ($vars['topicId'] && !$topic)
-            $errors['topicId'] = 'Invalid help topic selected';
 
         //Make sure the due date is valid
         if($vars['duedate']) {
@@ -2488,6 +2475,21 @@ class Ticket {
                 if (!$user_form->isValid($field_filter('user'))
                         || !($user=User::fromVars($user_form->getClean())))
                     $errors['user'] = __('Incomplete client information');
+            }
+        }
+
+        if ($vars['topicId']) {
+            if ($topic=Topic::lookup($vars['topicId'])) {
+                if ($topic_form = $topic->getForm()) {
+                    $TF = $topic_form->getForm($vars);
+                    $topic_form = $topic_form->instanciate();
+                    $topic_form->setSource($vars);
+                    if (!$TF->isValid($field_filter('topic')))
+                        $errors = array_merge($errors, $TF->errors());
+                }
+            }
+            else  {
+                $errors['topicId'] = 'Invalid help topic selected';
             }
         }
 

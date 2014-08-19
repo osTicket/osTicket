@@ -74,6 +74,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     </div>
     <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
 <?php } else {
+    header('X-PJAX-Version: ' . GIT_VERSION);
     if ($pjax = $ost->getExtraPjax()) { ?>
     <script type="text/javascript">
     <?php foreach (array_filter($pjax) as $s) echo $s.";"; ?>
@@ -84,7 +85,6 @@ if (($lang = Internationalization::getCurrentLanguage())
             echo $h;
     } ?>
     <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: '.__('Staff Control Panel'); ?></title><?php
-    header('X-PJAX-Version: ' . GIT_VERSION);
 } # endif X_PJAX ?>
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>

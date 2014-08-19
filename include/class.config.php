@@ -1092,6 +1092,7 @@ class OsticketConfig extends Config {
 
         $company = $ost->company;
         $company_form = $company->getForm();
+        $company_form->setSource($_POST);
         if (!$company_form->isValid())
             $errors += $company_form->errors();
 

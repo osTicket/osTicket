@@ -55,7 +55,7 @@ $commit = GIT_VERSION != '$git' ? GIT_VERSION : (
     <tr><td><?php echo __('PHP Settings'); ?></td>
         <td><table><tbody>
         <tr><td><i class="icon icon-<?php
-                echo extension_loaded('mbstring')?'check':'warning-sign'; ?>"></i>
+                echo ini_get('cgi.fix_pathinfo') == 1 ?'check':'warning-sign'; ?>"></i>
             </td><td>
             <span class="ltr"><code>cgi.fix_pathinfo</code> =
                 <?php echo ini_get('cgi.fix_pathinfo'); ?>

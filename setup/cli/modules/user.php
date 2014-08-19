@@ -31,6 +31,9 @@ class UserManager extends Module {
 
         switch ($args['action']) {
             case 'import':
+                // Properly detect Macintosh style line endings
+                ini_set('auto_detect_line_endings', true);
+
                 if (!$options['file'])
                     $this->fail('CSV file to import users from is required!');
                 elseif (!($this->stream = fopen($options['file'], 'rb')))

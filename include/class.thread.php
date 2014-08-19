@@ -1286,7 +1286,7 @@ class ThreadBody /* extends SplString */ {
         if (strlen($this->body) > 250000) {
             $max_packet = db_get_variable('max_allowed_packet', 'global');
             // Truncate just short of the max_allowed_packet
-            $this->body = substr($this->body, $max_packet - 2048) . ' ... '
+            $this->body = substr($this->body, 0, $max_packet - 2048) . ' ... '
                . _S('(truncated)');
         }
         $this->type = $type;
