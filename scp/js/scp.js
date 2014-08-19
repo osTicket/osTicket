@@ -530,12 +530,19 @@ $.dialog = function (url, codes, cb, options) {
     if (codes && !$.isArray(codes))
         codes = [codes];
 
-    $('.dialog#popup .body').load(url, function () {
-        $('#overlay').show();
-        $('.dialog#popup').show({
+    var $popup = $('.dialog#popup');
+
+    $('#overlay').show();
+    $('div.body', $popup).empty().hide();
+    $('div#popup-loading', $popup).show();
+    $popup.show();
+    $('div.body', $popup).load(url, function () {
+        $('div#popup-loading', $popup).hide();
+        $('div.body', $popup).show({
             duration: 0,
             complete: function() { if (options.onshow) options.onshow(); }
         });
+        $popup.show();
         $(document).off('.dialog');
         $(document).on('submit.dialog', '.dialog#popup form', function(e) {
             e.preventDefault();
