@@ -60,7 +60,10 @@ if($ticket->isOverdue())
                 if($ticket->isOpen()) {?>
                 <a class="action-button ticket-action"
                     href="#tickets/<?php echo $ticket->getId()
-                    ?>/status/close"><i class="icon-remove-circle"></i> <?php echo __('Close');?></a>
+                    ?>/status/close"><i class="icon-repeat"></i> <?php echo __('Close');?></a>
+                <a class="action-button ticket-action"
+                    href="#tickets/<?php echo $ticket->getId()
+                    ?>/status/resolve"><i class="icon-ok-circle"></i> <?php echo __('Resolve');?></a>
                 <?php
                 } else { ?>
                 <a class="action-button ticket-action"

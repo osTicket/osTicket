@@ -2856,13 +2856,15 @@ class Ticket {
     function checkOverdue() {
 
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
+                ON (status.id=T1.status_id AND status.state="open") '
             .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
-            .' WHERE status=\'open\' AND isoverdue=0 '
+            .' WHERE isoverdue=0 '
             .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
             .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
             .' OR (duedate is NOT NULL AND duedate<NOW()) '
             .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
-        //echo $sql;
+
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
                 if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())

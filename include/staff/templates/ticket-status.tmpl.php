@@ -34,7 +34,6 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
             <tbody>
                 <tr><td colspan="2"><strong><?php echo $info['extra'];
                 ?></strong></td> </tr>
-                <tr><td colspan="2">&nbsp;</td></tr>
             </tbody>
             <?php
             }
@@ -47,9 +46,9 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                 <tr>
                     <td colspan=2>
                         <span>
-                        <?php echo __('Status') ?>:&nbsp;
                         <?php
                         if (count($statuses) > 1) { ?>
+                            <strong><?php echo __('Status') ?>:&nbsp;</strong>
                             <select name="status_id">
                             <?php
                             foreach ($statuses as $s) {
@@ -65,7 +64,6 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                             <font class="error">*&nbsp;<?php echo $errors['status_id']; ?></font>
                         <?php
                         } elseif ($statuses[0]) {
-                            echo __($statuses[0]->getName());
                             echo  "<input type='hidden' name='status_id' value={$statuses[0]->getId()} />";
                         } ?>
                         </span>
@@ -77,14 +75,13 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
             <tbody>
                 <tr>
                     <td colspan="2">
-                        <em>Reasons for status change (internal note): Optional but highly recommended.</em>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
+                        <?php
+                        $placeholder = __('Optional reason for status change (internal note)');
+                        ?>
                         <textarea name="comments" id="comments"
                             cols="50" rows="3" wrap="soft" style="width:100%"
-                            class="richtext ifhtml no-bar"><?php
+                            class="richtext ifhtml no-bar"
+                            placeholder="<?php echo $placeholder; ?>"><?php
                             echo $info['notes']; ?></textarea>
                     </td>
                 </tr>
