@@ -11,7 +11,7 @@
       progressUpdated: $.proxy(this.progressUpdated, this),
       speedUpdated: $.proxy(this.speedUpdated, this),
       dragOver: $.proxy(this.dragOver, this),
-      drop: $.proxy(this.dragLeave, this),
+      drop: $.proxy(this.drop, this),
       error: $.proxy(this.handleError, this)
     };
 
@@ -77,14 +77,14 @@
         size /= 1024;
         suffix = sizes.shift();
       }
-      return size.toPrecision(3) + suffix + 'B';
+      return (suffix ? size.toPrecision(3) + suffix : size) + 'B';
     },
     addNode: function(file) {
       var filenode = $('<div class="file"></div>')
           .append($('<div class="filetype"></div>').addClass())
           .append($('<div class="filename"></div>').text(file.name)
             .append($('<span class="filesize"></span>').text(
-              this.fileSize(file.size)
+              this.fileSize(parseInt(file.size))
             )).append($('<div class="upload-rate pull-right"></div>'))
           ).append($('<div class="progress"></div>')
             .append($('<div class="progress-bar"></div>'))
@@ -210,6 +210,7 @@
 
     (opts.link || this).on('click', function(e){
       $('#' + opts.fallback_id).trigger(e);
+      return false;
     });
 
     $('#' + opts.fallback_id).change(function(e) {

@@ -417,7 +417,7 @@ class FormField {
             return substr(md5(
                 session_id() . '-field-id-'.$this->get('id')), -16);
         else
-            return $this->get('id');
+            return $this->get('name') ?: $this->get('id');
     }
 
     function setForm($form) {
@@ -1263,11 +1263,15 @@ class FileUploadField extends FormField {
 
     function loadSystemDefaultConfig() {
         global $cfg;
-        $this->_config = array(
+        return array(
             'max' => $cfg->getStaffMaxFileUploads(),
             'size' => $cfg->getMaxFileSize(),
             'extensions' => $cfg->getAllowedFileTypes(),
         );
+    }
+
+    function getConfiguration() {
+        return parent::getConfiguration() ?: $this->loadSystemDefaultConfig();
     }
 
     function upload() {
@@ -1722,6 +1726,7 @@ class FileUploadWidget extends Widget {
     function render($how) {
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
+        $id = substr(md5(spl_object_hash($this)), 10);
         $attachments = $this->field->getFiles();
         $files = array();
         foreach ($this->value ?: array() as $id) {
@@ -1742,18 +1747,18 @@ class FileUploadWidget extends Widget {
                 );
             }
         }
-        ?><div id="filedrop-<?php echo $name;
+        ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
             <div class="dropzone"><i class="icon-upload"></i>
             Drop files here or <a href="#" class="manual">choose
             them</a></div></div>
-        <input type="file" id="file-<?php echo $name; ?>" style="display:none;"/>
+        <input type="file" multiple id="file-<?php echo $id; ?>" style="display:none;"/>
         <script type="text/javascript">
-        $(function(){$('#filedrop-<?php echo $name; ?> .dropzone').filedropbox({
+        $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
           url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
-          link: $('#filedrop-<?php echo $name; ?>').find('a.manual'),
+          link: $('#<?php echo $id; ?>').find('a.manual'),
           paramname: 'upload[]',
-          fallback_id: 'file-<?php echo $name; ?>',
+          fallback_id: 'file-<?php echo $id; ?>',
           allowedfileextensions: '<?php echo $config['extensions'];
           ?>'.split(/,\s*/),
           maxfiles: <?php echo $config['max'] ?: 20; ?>,

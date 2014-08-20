@@ -695,7 +695,6 @@ print $response_form->getField('attachments')->render();
                         class="richtext ifhtml draft draft-delete"><?php echo $info['note'];
                         ?></textarea>
                         <span class="error"><?php echo $errors['note']; ?></span>
-                        <br>
                 </td>
             </tr>
             <?php
@@ -705,11 +704,9 @@ print $response_form->getField('attachments')->render();
                     <label for="attachment"><?php echo __('Attachments');?>:</label>
                 </td>
                 <td class="attachments">
-                    <div class="uploads">
-                    </div>
-                    <div class="file_input">
-                        <input type="file" class="multifile" name="attachments[]" size="30" value="" />
-                    </div>
+<?php
+print $note_form->getField('attachments')->render();
+?>
                 </td>
             </tr>
             <?php

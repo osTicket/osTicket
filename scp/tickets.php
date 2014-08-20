@@ -43,6 +43,9 @@ if ($_REQUEST['uid'])
 $response_form = new Form(array(
     'attachments' => new FileUploadField(array('id'=>'attach'))
 ));
+$note_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach'))
+));
 
 //At this stage we know the access status. we can process the post.
 if($_POST && !$errors):
@@ -179,13 +182,18 @@ if($_POST && !$errors):
             break;
         case 'postnote': /* Post Internal Note */
             $vars = $_POST;
-            if($_FILES['attachments'])
-                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+            $attachments = $response_form->getField('attachments')->getClean();
+            $vars['cannedattachments'] = array_merge(
+                $vars['cannedattachments'] ?: array(), $attachments);
 
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 
                 $msg=__('Internal note posted successfully');
+                // Clear attachment list
+                $note_form->setSource(array());
+                $note_form->getField('attachments')->reset();
+
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
                 else
