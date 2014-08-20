@@ -2,6 +2,7 @@
 
 require_once(INCLUDE_DIR . 'class.topic.php');
 require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
+require_once(INCLUDE_DIR . 'class.forms.php');
 
 class DynamicFormsAjaxAPI extends AjaxController {
     function getForm($form_id) {
@@ -80,6 +81,23 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $item->save();
 
         Http::response(201, 'Successfully updated record');
+    }
+
+    function upload($id) {
+        if (!$field = DynamicFormField::lookup($id))
+            Http::response(400, 'No such field');
+
+        $impl = $field->getImpl();
+        if (!$impl instanceof FileUploadField)
+            Http::response(400, 'Upload to a non file-field');
+
+        return $impl->upload();
+    }
+
+    function attach() {
+        $field = new FileUploadField();
+        $field->loadSystemDefaultConfig();
+        return $field->upload();
     }
 }
 ?>
