@@ -587,7 +587,7 @@ class AttachmentFile {
                 .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
                 .' UNION '
                 .'SELECT file_id FROM '.ATTACHMENT_TABLE
-            .") AND `ft` = 'T'";
+            .") AND `ft` = 'T' AND TIMESTAMPDIFF(DAY, `created`, CURRENT_TIMESTAMP) > 1";
 
         if (!($res = db_query($sql)))
             return false;
