@@ -629,9 +629,9 @@ $tcount+= $ticket->getNumNotes();
                     <select name="reply_status_id">
                     <?php
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
-                    $states = array('open', 'resolved');
+                    $states = array('open');
                     if ($thisstaff->canCloseTickets())
-                        $states = array_merge($states, array('closed'));
+                        $states = array_merge($states, array('resolved', 'closed'));
 
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
@@ -641,7 +641,7 @@ $tcount+= $ticket->getNumNotes();
                                 $s->getId(),
                                 $selected
                                  ? 'selected="selected"' : '',
-                                $s->getName(),
+                                __($s->getName()),
                                 $selected
                                 ? (' ('.__('current').')') : ''
                                 );
@@ -723,9 +723,9 @@ $tcount+= $ticket->getNumNotes();
                     <select name="note_status_id">
                         <?php
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
-                        $states = array('open', 'resolved');
+                        $states = array('open');
                         if ($thisstaff->canCloseTickets())
-                            $states = array_merge($states, array('closed'));
+                            $states = array_merge($states, array('resolved', 'closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {
                             if (!$s->isEnabled()) continue;
@@ -733,7 +733,7 @@ $tcount+= $ticket->getNumNotes();
                             echo sprintf('<option value="%d" %s>%s%s</option>',
                                     $s->getId(),
                                     $selected ? 'selected="selected"' : '',
-                                    $s->getName(),
+                                    __($s->getName()),
                                     $selected ? (' ('.__('current').')') : ''
                                     );
                         }
