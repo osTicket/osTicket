@@ -810,6 +810,9 @@ class DynamicFormEntry extends VerySimpleModel {
                     && in_array($field->get('name'), array('name')))
                 continue;
 
+            // Set the entry ID here so that $field->getClean() can use the
+            // entry-id if necessary
+            $a->set('entry_id', $this->get('id'));
             $val = $field->to_database($field->getClean());
             if (is_array($val)) {
                 $a->set('value', $val[0]);
@@ -817,7 +820,6 @@ class DynamicFormEntry extends VerySimpleModel {
             }
             else
                 $a->set('value', $val);
-            $a->set('entry_id', $this->get('id'));
             // Don't save answers for presentation-only fields
             if ($field->hasData() && !$field->isPresentationOnly())
                 $a->save();

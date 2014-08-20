@@ -107,6 +107,35 @@ class Form {
         else
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
     }
+
+    function getMedia() {
+        static $dedup = array();
+
+        foreach ($this->getFields() as $f) {
+            if (($M = $f->getImpl()->getMedia()) && is_array($M)) {
+                foreach ($M as $type=>$files) {
+                    foreach ($files as $url) {
+                        $key = strtolower($type.$url);
+                        if (isset($dedup[$key]))
+                            continue;
+                        if ($url[0] == '/')
+                            $url = ROOT_PATH . $url;
+
+                        switch (strtolower($type)) {
+                        case 'css': ?>
+            <link rel="stylesheet" type="text/css" href="<?php echo $url; ?>"/><?php
+                            break;
+                        case 'js': ?>
+            <script type="text/javascript" src="<?php echo $url; ?>"></script><?php
+                            break;
+                        }
+
+                        $dedup[$key] = true;
+                    }
+                }
+            }
+        }
+    }
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
@@ -410,11 +439,16 @@ class FormField {
     }
 
     function render($mode=null) {
-        $this->getWidget()->render($mode);
+        return $this->getWidget()->render($mode);
     }
 
     function renderExtras($mode=null) {
         return;
+    }
+
+    function getMedia() {
+        $widget = $this->getWidget();
+        return $widget::$media;
     }
 
     function getConfigurationOptions() {
@@ -1173,6 +1207,7 @@ FormField::addFieldTypes('Dynamic Fields', function() {
 });
 
 class Widget {
+    static $media = null;
 
     function __construct($field) {
         $this->field = $field;
