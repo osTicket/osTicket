@@ -39,6 +39,11 @@ if($_REQUEST['id']) {
 if ($_REQUEST['uid'])
     $user = User::lookup($_REQUEST['uid']);
 
+// Configure form for file uploads
+$response_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach'))
+));
+
 //At this stage we know the access status. we can process the post.
 if($_POST && !$errors):
 
@@ -65,8 +70,10 @@ if($_POST && !$errors):
 
             //If no error...do the do.
             $vars = $_POST;
-            if(!$errors && $_FILES['attachments'])
-                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+            $attachments = $response_form->getField('attachments')->getClean();
+            if(!$errors && $attachments)
+                $vars['cannedattachments'] = array_merge(
+                    $vars['cannedattachments'] ?: array(), $attachments);
 
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
@@ -74,6 +81,10 @@ if($_POST && !$errors):
                             sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
                                 $ticket->getId(), $ticket->getNumber()))
                         );
+
+                // Clear attachment list
+                $response_form->setSource(array());
+                $response_form->getField('attachments')->reset();
 
                 // Remove staff's locks
                 TicketLock::removeStaffLocks($thisstaff->getId(),
@@ -465,4 +476,5 @@ if($ticket) {
 
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
+print $response_form->getMedia();
 require_once(STAFFINC_DIR.'footer.inc.php');

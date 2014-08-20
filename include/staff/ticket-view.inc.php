@@ -591,7 +591,9 @@ $tcount+= $ticket->getNumNotes();
                     <div class="uploads">
                     </div>
                     <div class="file_input">
-                        <input type="file" class="multifile" name="attachments[]" size="30" value="" />
+<?php
+print $response_form->getField('attachments')->render();
+?>
                     </div>
                 </td>
             </tr>
