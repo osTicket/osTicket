@@ -45,7 +45,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                     __('this canned response'));
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
-                $keepers = $_POST['files']?$_POST['files']:array();
+                $keepers = $canned_form->getField('attachments')->getClean();
                 $attachments = $canned->attachments->getSeparates(); //current list of attachments.
                 foreach($attachments as $k=>$file) {
                     if($file['id'] && !in_array($file['id'], $keepers)) {
@@ -53,8 +53,7 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                     }
                 }
                 //Upload NEW attachments IF ANY - TODO: validate attachment types??
-                $attachments = $canned_form->getField('attachments')->getClean();
-                if ($attachments)
+                if ($keepers)
                     $canned->attachments->upload($attachments);
 
                 // Attach inline attachments from the editor
@@ -85,8 +84,9 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['title']));
                 $_REQUEST['a']=null;
                 //Upload attachments
-                if($_FILES['attachments'] && ($c=Canned::lookup($id)) && ($files=AttachmentFile::format($_FILES['attachments'])))
-                    $c->attachments->upload($files);
+                $keepers = $canned_form->getField('attachments')->getClean();
+                if ($keepers && ($c=Canned::lookup($id)))
+                    $c->attachments->upload($keepers);
 
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
