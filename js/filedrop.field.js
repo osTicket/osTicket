@@ -55,11 +55,13 @@
       this.uploads.push(node);
       this.progressUpdated(i, file, 0);
     },
-    uploadFinished: function(i, file, response, time, xhr) {
+    uploadFinished: function(i, file, json, time, xhr) {
       var that = this;
       this.uploads.some(function(e) {
         if (e.data('file') == file) {
-          e.find('[name="'+that.options.name+'"]').val(response);
+          if (!json || !json.id)
+            return e.remove();
+          e.find('[name="'+that.options.name+'"]').val(json.id);
           e.find('.progress-bar')
             .width('100%')
             .attr({'aria-valuenow': 100})

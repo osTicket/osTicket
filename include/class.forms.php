@@ -1279,7 +1279,7 @@ class FileUploadField extends FormField {
 
         $files = AttachmentFile::format($_FILES['upload'],
             // For numeric fields assume configuration exists
-            is_numeric($this->get('id')));
+            !is_numeric($this->get('id')));
         if (count($files) != 1)
             Http::response(400, 'Send one file at a time');
         $file = array_shift($files);
@@ -1289,9 +1289,9 @@ class FileUploadField extends FormField {
         //       Return HTTP/413, 415, 417 or similar
 
         if (!($id = AttachmentFile::upload($file)))
-            Http::response(500, 'Unable to store file');
+            Http::response(500, 'Unable to store file: '. $file['error']);
 
-        Http::response(200, $id);
+        return $id;
     }
 
     function getFiles() {
@@ -1762,7 +1762,7 @@ class FileUploadWidget extends Widget {
           allowedfileextensions: '<?php echo $config['extensions'];
           ?>'.split(/,\s*/),
           maxfiles: <?php echo $config['max'] ?: 20; ?>,
-          maxfilesize: <?php echo $config['filesize'] ?: 1048576 / 1048576; ?>,
+          maxfilesize: <?php echo ($config['size'] ?: 1048576) / 1048576; ?>,
           name: '<?php echo $name; ?>[]',
           files: <?php echo JsonDataEncoder::encode($files); ?>
         });});
