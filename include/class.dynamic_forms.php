@@ -250,7 +250,7 @@ Filter::addSupportedMatches(/* trans */ 'User Data', function() {
             continue;
         $matches['field.'.$f->get('id')] = __('User').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
-            foreach ($fi->getList()->getProperties() as $p) {
+            foreach ($fi->getList()->getForm()->getFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = __('User').' / '.$f->getLabel().' / '.$p->getLabel();
             }
@@ -340,7 +340,7 @@ Filter::addSupportedMatches(/* trans */ 'Ticket Data', function() {
             continue;
         $matches['field.'.$f->get('id')] = __('Ticket').' / '.$f->getLabel();
         if (($fi = $f->getImpl()) instanceof SelectionField) {
-            foreach ($fi->getList()->getProperties() as $p) {
+            foreach ($fi->getList()->getForm()->getFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = __('Ticket').' / '.$f->getLabel().' / '.$p->getLabel();
             }
