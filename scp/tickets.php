@@ -41,10 +41,12 @@ if ($_REQUEST['uid'])
 
 // Configure form for file uploads
 $response_form = new Form(array(
-    'attachments' => new FileUploadField(array('id'=>'attach'))
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'name'=>'attach:response'))
 ));
 $note_form = new Form(array(
-    'attachments' => new FileUploadField(array('id'=>'attach'))
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'name'=>'attach:note'))
 ));
 
 //At this stage we know the access status. we can process the post.
@@ -73,10 +75,7 @@ if($_POST && !$errors):
 
             //If no error...do the do.
             $vars = $_POST;
-            $attachments = $response_form->getField('attachments')->getClean();
-            if(!$errors && $attachments)
-                $vars['cannedattachments'] = array_merge(
-                    $vars['cannedattachments'] ?: array(), $attachments);
+            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
 
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
@@ -334,12 +333,17 @@ if($_POST && !$errors):
                     $vars = $_POST;
                     $vars['uid'] = $user? $user->getId() : 0;
 
+                    $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg=__('Ticket created successfully');
                         $_REQUEST['a']=null;
                         if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
+                        // Drop files from the response attachments widget
+                        $response_form->setSource(array());
+                        $response_form->getField('attachments')->reset();
                         unset($_SESSION[':form-data']);
                     } elseif(!$errors['err']) {
                         $errors['err']=__('Unable to create the ticket. Correct the error(s) and try again');

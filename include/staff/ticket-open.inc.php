@@ -305,26 +305,10 @@ if ($_POST)
                 <table border="0" cellspacing="0" cellpadding="2" width="100%">
                 <?php
                 if($cfg->allowAttachments()) { ?>
-                    <tr><td width="100" valign="top"><?php echo __('Attachments');?>:</td>
-                        <td>
-                            <div class="canned_attachments">
-                            <?php
-                            if($info['cannedattachments']) {
-                                foreach($info['cannedattachments'] as $k=>$id) {
-                                    if(!($file=AttachmentFile::lookup($id))) continue;
-                                    $hash=$file->getKey().md5($file->getId().session_id().$file->getKey());
-                                    echo sprintf('<label><input type="checkbox" name="cannedattachments[]"
-                                            id="f%d" value="%d" checked="checked"
-                                            <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',
-                                            $file->getId(), $file->getId() , $hash, $file->getName());
-                                }
-                            }
-                            ?>
-                            </div>
-                            <div class="uploads"></div>
-                            <div class="file_input">
-                                <input type="file" class="multifile" name="attachments[]" size="30" value="" />
-                            </div>
+                    <tr><td class="attachments" colspan="2">
+<?php
+print $response_form->getField('attachments')->render();
+?>
                         </td>
                     </tr>
                 <?php

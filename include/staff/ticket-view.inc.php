@@ -586,15 +586,9 @@ $tcount+= $ticket->getNumNotes();
                     <label for="attachment"><?php echo __('Attachments');?>:</label>
                 </td>
                 <td id="reply_form_attachments" class="attachments">
-                    <div class="canned_attachments">
-                    </div>
-                    <div class="uploads">
-                    </div>
-                    <div class="file_input">
 <?php
 print $response_form->getField('attachments')->render();
 ?>
-                    </div>
                 </td>
             </tr>
             <?php

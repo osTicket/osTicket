@@ -1696,13 +1696,23 @@ class ThreadEntryWidget extends Widget {
         if (!$config['attachments'])
             return;
 
-        $attachments = new FileUploadField(array('id'=>'attach',
-            'configuration'=>$config));
+        $attachments = $this->getAttachments($config);
         print $attachments->render($client);
         foreach ($attachments->getMedia() as $type=>$urls) {
             foreach ($urls as $url)
                 Form::emitMedia($url, $type);
         }
+    }
+
+    function getAttachments($config=false) {
+        if (!$config)
+            $config = $this->field->getConfiguration();
+
+        return new FileUploadField(array(
+            'id'=>'attach',
+            'name'=>'attach:' + $this->field->get('id'),
+            'configuration'=>$config)
+        );
     }
 }
 
@@ -1722,16 +1732,16 @@ class FileUploadWidget extends Widget {
         $id = substr(md5(spl_object_hash($this)), 10);
         $attachments = $this->field->getFiles();
         $files = array();
-        foreach ($this->value ?: array() as $id) {
+        foreach ($this->value ?: array() as $fid) {
             $found = false;
             foreach ($attachments as $f) {
-                if ($f['id'] == $id) {
+                if ($f['id'] == $fid) {
                     $files[] = $f;
                     $found = true;
                     break;
                 }
             }
-            if (!$found && ($file = AttachmentFile::lookup($id))) {
+            if (!$found && ($file = AttachmentFile::lookup($fid))) {
                 $files[] = array(
                     'id' => $file->getId(),
                     'name' => $file->getName(),

@@ -2773,7 +2773,10 @@ class Ticket {
             unset($vars['assignId']);
 
         $create_vars = $vars;
-        unset($create_vars['cannedattachments']);
+        $tform = TicketForm::objects()->one()->getForm($create_vars);
+        $create_vars['cannedattachments']
+            = $tform->getField('message')->getWidget()->getAttachments()->getClean();
+
         if(!($ticket=Ticket::create($create_vars, $errors, 'staff', false)))
             return false;
 
@@ -2783,11 +2786,9 @@ class Ticket {
         $response = null;
         if($vars['response'] && $thisstaff->canPostReply()) {
 
-            // unpack any uploaded files into vars.
-            if ($_FILES['attachments'])
-                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
-
             $vars['response'] = $ticket->replaceVars($vars['response']);
+            // $vars['cannedatachments'] contains the attachments placed on
+            // the response form.
             if(($response=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
                 if(isset($vars['ticket_state']) && $thisstaff->canCloseTickets())

@@ -79,8 +79,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                     'userId' => $thisclient->getId(),
                     'poster' => (string) $thisclient->getName(),
                     'message' => $_POST['message']);
-            if ($cfg->allowOnlineAttachments())
-                $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
             if (isset($_POST['draft_id']))
                 $vars['draft_id'] = $_POST['draft_id'];
 

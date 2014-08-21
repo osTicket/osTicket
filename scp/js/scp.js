@@ -229,9 +229,9 @@ var scp_prep = function() {
                             redactor.observeStart();
                     }
                     //Canned attachments.
-                    var ca = $('.canned_attachments', fObj);
+                    var ca = $('.attachments', fObj);
                     if(canned.files && ca.length) {
-                        var fdb = ca.parent().find('.dropzone').data('dropbox');
+                        var fdb = ca.find('.dropzone').data('dropbox');
                         $.each(canned.files,function(i, j) {
                           fdb.addNode(j);
                         });
