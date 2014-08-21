@@ -52,7 +52,6 @@
     uploadStarted: function(i, file, n) {
       var node = this.addNode(file).data('file', file);
       node.find('.trash').hide();
-      this.uploads.push(node);
       this.progressUpdated(i, file, 0);
     },
     uploadFinished: function(i, file, json, time, xhr) {
@@ -62,6 +61,7 @@
           if (!json || !json.id)
             return e.remove();
           e.find('[name="'+that.options.name+'"]').val(json.id);
+          e.data('fileId', json.id);
           e.find('.progress-bar')
             .width('100%')
             .attr({'aria-valuenow': 100})
@@ -82,6 +82,17 @@
       return (suffix ? size.toPrecision(3) + suffix : size) + 'B';
     },
     addNode: function(file) {
+      // Check if the file is already in the list of files for this dropbox
+      var already_added = false;
+      this.uploads.some(function(e) {
+        if (file.id && e.data('fileId') == file.id) {
+          already_added = true;
+          return true;
+        }
+      });
+      if (already_added)
+          return;
+
       var filenode = $('<div class="file"></div>')
           .append($('<div class="filetype"></div>').addClass())
           .append($('<div class="filename"></div>').text(file.name)
@@ -100,7 +111,10 @@
           .click($.proxy(this.deleteNode, this, filenode))
         );
       }
+      if (file.id)
+        filenode.data('fileId', file.id);
       this.$element.parent().find('.files').append(filenode);
+      this.uploads.push(filenode);
       return filenode;
     },
     deleteNode: function(filenode, e) {
