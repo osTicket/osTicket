@@ -987,10 +987,21 @@ class ThreadEntryField extends FormField {
     function isPresentationOnly() {
         return true;
     }
-    function renderExtras($mode=null) {
-        if ($mode == 'client')
-            // TODO: Pass errors arrar into showAttachments
-            $this->getWidget()->showAttachments();
+
+    function getConfigurationOptions() {
+        global $cfg;
+
+        $attachments = new FileUploadField();
+        return array(
+            'attachments' => new BooleanField(array(
+                'label'=>__('Enable Attachments'),
+                'default'=>$cfg->allowOnlineAttachments(),
+                'configuration'=>array(
+                    'desc'=>__('Enables attachments submitted with the issue details'),
+                ),
+            )),
+        )
+        + $attachments->getConfigurationOptions();
     }
 }
 
@@ -1681,12 +1692,12 @@ class ThreadEntryWidget extends Widget {
             cols="21" rows="8" style="width:80%;"><?php echo
             Format::htmlchars($this->value); ?></textarea>
     <?php
-    }
+        $config = $this->field->getConfiguration();
+        if (!$config['attachments'])
+            return;
 
-    function showAttachments($errors=array()) {
-        global $cfg, $thisclient;
-
-        $attachments = new FileUploadField(array('id'=>'attach'));
+        $attachments = new FileUploadField(array('id'=>'attach',
+            'configuration'=>$config));
         print $attachments->render($client);
         foreach ($attachments->getMedia() as $type=>$urls) {
             foreach ($urls as $url)
