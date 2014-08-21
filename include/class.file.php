@@ -107,13 +107,17 @@ class AttachmentFile {
         return $this->ht['created'];
     }
 
+    static function getDownloadForIdAndKey($id, $key) {
+        return strtolower($key . md5($id.session_id().strtolower($key)));
+    }
+
+
     /**
      * Retrieve a signature that can be sent to scp/file.php?h= in order to
      * download this file
      */
     function getDownloadHash() {
-        return strtolower($this->getKey()
-            . md5($this->getId().session_id().strtolower($this->getKey())));
+        return self::getDownloadForIdAndKey($this->getId(), $this->getKey());
     }
 
     function open() {

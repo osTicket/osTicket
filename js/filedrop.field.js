@@ -95,7 +95,7 @@
 
       var filenode = $('<div class="file"></div>')
           .append($('<div class="filetype"></div>').addClass())
-          .append($('<div class="filename"></div>').text(file.name)
+          .append($('<div class="filename"></div>')
             .append($('<span class="filesize"></span>').text(
               this.fileSize(parseInt(file.size))
             )).append($('<div class="upload-rate pull-right"></div>'))
@@ -113,6 +113,13 @@
       }
       if (file.id)
         filenode.data('fileId', file.id);
+      if (file.download)
+        filenode.find('.filename').prepend(
+          $('<a class="no-pjax" target="_blank"></a>').text(file.name)
+            .attr('href', 'file.php?h='+escape(file.download))
+        );
+      else
+        filenode.find('.filename').prepend(document.createTextNode(file.name));
       this.$element.parent().find('.files').append(filenode);
       this.uploads.push(filenode);
       return filenode;

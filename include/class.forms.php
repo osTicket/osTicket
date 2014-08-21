@@ -1235,11 +1235,12 @@ class FileUploadField extends FormField {
         if ($next < $limit * 2)
             $sizes[$limit] = Format::file_size($limit);
 
+        global $cfg;
         return array(
             'size' => new ChoiceField(array(
                 'label'=>'Maximum File Size',
                 'hint'=>'Maximum size of a single file uploaded to this field',
-                'default'=>'262144',
+                'default'=>$cfg->getMaxFileSize(),
                 'choices'=>$sizes
             )),
             'extensions' => new TextareaField(array(
@@ -1247,7 +1248,7 @@ class FileUploadField extends FormField {
                 'hint'=>'Enter allowed file extensions separated by a comma.
                 e.g .doc, .pdf. To accept all files enter wildcard
                 <b><i>.*</i></b> — i.e dotStar (NOT Recommended).',
-                'default'=>'.doc, .pdf, .jpg, .jpeg, .gif, .png, .xls, .docx, .xlsx, .txt',
+                'default'=>$cfg->getAllowedFileTypes(),
                 'configuration'=>array('html'=>false, 'rows'=>2),
             )),
             'max' => new TextboxField(array(
@@ -1259,19 +1260,6 @@ class FileUploadField extends FormField {
                 'configuration'=>array('size'=>4, 'length'=>4),
             ))
         );
-    }
-
-    function loadSystemDefaultConfig() {
-        global $cfg;
-        return array(
-            'max' => $cfg->getStaffMaxFileUploads(),
-            'size' => $cfg->getMaxFileSize(),
-            'extensions' => $cfg->getAllowedFileTypes(),
-        );
-    }
-
-    function getConfiguration() {
-        return parent::getConfiguration() ?: $this->loadSystemDefaultConfig();
     }
 
     function upload() {

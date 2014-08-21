@@ -167,6 +167,8 @@ class GenericAttachments {
                 .' AND a.object_id='.db_input($this->getId());
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while($rec=db_fetch_array($res)) {
+                    $rec['download'] = AttachmentFile::getDownloadForIdAndKey(
+                        $rec['id'], $rec['key']);
                     $this->attachments[] = $rec;
                 }
             }
