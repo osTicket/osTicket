@@ -451,7 +451,7 @@
               opts.beforeSend(files[fileIndex], fileIndex, function () { send(e); });
             };
 
-            reader.readAsDataURL(files[fileIndex]);
+            reader.readAsBinaryString(files[fileIndex]);
 
           } else {
             filesRejected++;
@@ -498,7 +498,7 @@
           xhr.withCredentials = opts.withCredentials;
         }
 
-        var data = atob(e.target.result.split(',')[1]);
+        var data = e.target.result;
         if (typeof newName === "string") {
           builder = getBuilder(newName, data, mime, boundary);
         } else {
