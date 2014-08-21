@@ -113,28 +113,33 @@ class Form {
         static $dedup = array();
 
         foreach ($this->getFields() as $f) {
-            if (($M = $f->getImpl()->getMedia()) && is_array($M)) {
+            if (($M = $f->getMedia()) && is_array($M)) {
                 foreach ($M as $type=>$files) {
                     foreach ($files as $url) {
                         $key = strtolower($type.$url);
                         if (isset($dedup[$key]))
                             continue;
-                        if ($url[0] == '/')
-                            $url = ROOT_PATH . $url;
 
-                        switch (strtolower($type)) {
-                        case 'css': ?>
-            <link rel="stylesheet" type="text/css" href="<?php echo $url; ?>"/><?php
-                            break;
-                        case 'js': ?>
-            <script type="text/javascript" src="<?php echo $url; ?>"></script><?php
-                            break;
-                        }
+                        self::emitMedia($url, $type);
 
                         $dedup[$key] = true;
                     }
                 }
             }
+        }
+    }
+
+    static function emitMedia($url, $type) {
+        if ($url[0] == '/')
+            $url = ROOT_PATH . substr($url, 1);
+
+        switch (strtolower($type)) {
+        case 'css': ?>
+        <link rel="stylesheet" type="text/css" href="<?php echo $url; ?>"/><?php
+            break;
+        case 'js': ?>
+        <script type="text/javascript" src="<?php echo $url; ?>"></script><?php
+            break;
         }
     }
 }
@@ -1681,22 +1686,11 @@ class ThreadEntryWidget extends Widget {
     function showAttachments($errors=array()) {
         global $cfg, $thisclient;
 
-        if(($cfg->allowOnlineAttachments()
-            && !$cfg->allowAttachmentsOnlogin())
-            || ($cfg->allowAttachmentsOnlogin()
-                && ($thisclient && $thisclient->isValid()))) { ?>
-        <div class="clear"></div>
-        <hr/>
-        <div><strong style="padding-right:1em;vertical-align:top"><?php
-        echo __('Attachments'); ?>: </strong>
-        <div style="display:inline-block">
-        <div class="uploads" style="display:block"></div>
-        <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />
-        </div>
-        <font class="error">&nbsp;<?php echo $errors['attachments']; ?></font>
-        </div>
-        <hr/>
-        <?php
+        $attachments = new FileUploadField(array('id'=>'attach'));
+        print $attachments->render($client);
+        foreach ($attachments->getMedia() as $type=>$urls) {
+            foreach ($urls as $url)
+                Form::emitMedia($url, $type);
         }
     }
 }

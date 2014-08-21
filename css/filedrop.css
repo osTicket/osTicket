@@ -1,3 +1,6 @@
+.filedrop {
+    padding-bottom: 10px;
+}
 .filedrop .dropzone {
     border: 2px dashed rgba(0, 0, 0, 0.2);
     padding: 8px;

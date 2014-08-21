@@ -2681,7 +2681,6 @@ class Ticket {
         }
 
         //post the message.
-        unset($vars['cannedattachments']); //Ticket::open() might have it set as part of  open & respond.
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
         $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
@@ -2773,7 +2772,9 @@ class Ticket {
         if (!$thisstaff->canAssignTickets())
             unset($vars['assignId']);
 
-        if(!($ticket=Ticket::create($vars, $errors, 'staff', false)))
+        $create_vars = $vars;
+        unset($create_vars['cannedattachments']);
+        if(!($ticket=Ticket::create($create_vars, $errors, 'staff', false)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();

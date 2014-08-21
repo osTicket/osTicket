@@ -186,15 +186,10 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         <?php
         if($cfg->allowOnlineAttachments()) { ?>
         <tr>
-            <td width="160">
-                <label for="attachment"><?php echo __('Attachments');?>:</label>
-            </td>
-            <td width="640" id="reply_form_attachments" class="attachments">
-                <div class="uploads">
-                </div>
-                <div class="file_input">
-                    <input class="multifile" type="file" name="attachments[]" size="30" value="" />
-                </div>
+            <td colspan="2">
+<?php
+            print $response_form->getField('attachments')->render(true);
+?>
             </td>
         </tr>
         <?php

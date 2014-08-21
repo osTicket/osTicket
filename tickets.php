@@ -35,6 +35,10 @@ if($_REQUEST['id']) {
 if (!$ticket && $thisclient->isGuest())
     Http::redirect('view.php');
 
+$response_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach'))
+));
+
 //Process post...depends on $ticket object above.
 if($_POST && is_object($ticket) && $ticket->getId()):
     $errors=array();
@@ -75,8 +79,8 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                     'userId' => $thisclient->getId(),
                     'poster' => (string) $thisclient->getName(),
                     'message' => $_POST['message']);
-            if($cfg->allowOnlineAttachments() && $_FILES['attachments'])
-                $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
+            if ($cfg->allowOnlineAttachments())
+                $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
             if (isset($_POST['draft_id']))
                 $vars['draft_id'] = $_POST['draft_id'];
 
@@ -85,6 +89,9 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                 // Cleanup drafts for the ticket. If not closed, only clean
                 // for this staff. Else clean all drafts for the ticket.
                 Draft::deleteForNamespace('ticket.client.' . $ticket->getId());
+                // Drop attachments
+                $response_form->getField('attachments')->reset();
+                $response_form->setSource(array());
             } else {
                 $errors['err']=__('Unable to post the message. Try again');
             }
@@ -117,5 +124,6 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
 }
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
+print $response_form->getMedia();
 include(CLIENTINC_DIR.'footer.inc.php');
 ?>

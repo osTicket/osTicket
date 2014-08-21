@@ -29,8 +29,9 @@ if ($_POST) {
             $errors['captcha']=__('Invalid - try again!');
     }
 
-    if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
-        $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
+    $attachments = new FileUploadField(array('id'=>'attach'));
+    if (!$errors && $cfg->allowOnlineAttachments())
+        $vars['cannedattachments'] = $attachments->getClean();
 
     // Drop the draft.. If there are validation errors, the content
     // submitted will be displayed back to the user
