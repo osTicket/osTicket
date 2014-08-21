@@ -182,7 +182,7 @@ if($_POST && !$errors):
             break;
         case 'postnote': /* Post Internal Note */
             $vars = $_POST;
-            $attachments = $response_form->getField('attachments')->getClean();
+            $attachments = $note_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
 

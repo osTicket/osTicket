@@ -28,6 +28,13 @@ $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('canned response'));
 
+$canned_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'configuration'=>array('extensions'=>false,
+            'size'=>$cfg->getMaxFileSize())
+   )),
+));
+
 if($_POST && $thisstaff->canManageCannedResponses()) {
     switch(strtolower($_POST['do'])) {
         case 'update':
@@ -46,8 +53,9 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                     }
                 }
                 //Upload NEW attachments IF ANY - TODO: validate attachment types??
-                if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-                    $canned->attachments->upload($files);
+                $attachments = $canned_form->getField('attachments')->getClean();
+                if ($attachments)
+                    $canned->attachments->upload($attachments);
 
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
@@ -169,5 +177,6 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
+print $canned_form->getMedia();
 include(STAFFINC_DIR.'footer.inc.php');
 ?>
