@@ -49,9 +49,10 @@
         }
       });
     },
-    uploadStarted: function(i, file, n) {
-      var node = this.addNode(file).data('file', file);
+    uploadStarted: function(i, file, n, xhr) {
+      var node = this.addNode(file).data('file', file).data('xhr', xhr);
       node.find('.trash').hide();
+      node.find('.cancel').show();
       this.progressUpdated(i, file, 0);
     },
     uploadFinished: function(i, file, json, time, xhr) {
@@ -67,6 +68,7 @@
             .attr({'aria-valuenow': 100})
           e.find('.trash').show();
           e.find('.upload-rate').hide();
+          e.find('.cancel').hide();
           setTimeout(function() { e.find('.progress').hide(); }, 600);
           return true;
         }
@@ -93,12 +95,21 @@
       if (already_added)
           return;
 
-      var filenode = $('<div class="file"></div>')
+      var filenode = $('<div class="file"></div>');
+      filenode
           .append($('<div class="filetype"></div>').addClass())
           .append($('<div class="filename"></div>')
             .append($('<span class="filesize"></span>').text(
               this.fileSize(parseInt(file.size))
-            )).append($('<div class="upload-rate pull-right"></div>'))
+            ))
+            .append($('<div class="pull-right cancel"></div>')
+              .append($('<i class="icon-remove"></i>')
+                .attr('title', __('Cancel'))
+              )
+              .click($.proxy(this.cancelUpload, this, filenode))
+              .hide()
+            )
+            .append($('<div class="upload-rate pull-right"></div>'))
           ).append($('<div class="progress"></div>')
             .append($('<div class="progress-bar"></div>'))
             .attr({'aria-valuemin':0,'aria-valuemax':100})
@@ -125,8 +136,14 @@
       return filenode;
     },
     deleteNode: function(filenode, e) {
-      if (confirm(__('You sure?')))
+      if (!e || confirm(__('You sure?')))
         filenode.remove();
+    },
+    cancelUpload: function(node) {
+      if (node.data('xhr')) {
+        node.data('xhr').abort();
+        return this.deleteNode(node, false);
+      }
     }
   };
 
@@ -557,7 +574,7 @@
         global_progress[global_progress_index] = 0;
         globalProgress();
 
-        opts.uploadStarted(index, file, files_count);
+        opts.uploadStarted(index, file, files_count, xhr);
 
         xhr.onload = function() {
             var serverResponse = null;

@@ -40,6 +40,12 @@
 .filedrop .files .file .trash {
   cursor: pointer;
 }
+.filedrop .progress {
+  margin-top: 5px;
+}
+.filedrop .cancel {
+  cursor: pointer;
+}
 
 /* Bootstrap 3.2 progress-bar */
 @-webkit-keyframes progress-bar-stripes {
