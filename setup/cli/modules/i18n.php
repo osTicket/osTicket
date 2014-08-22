@@ -164,22 +164,25 @@ class i18n_Compiler extends Module {
         // TODO: Add i18n extras (like fonts)
         // Redactor language pack
         //
-        list($short_lang, $locale) = explode('_', $lang);
-        list($code, $js) = $this->_http_get(
-            'http://imperavi.com/webdownload/redactor/lang/?lang='
-            .strtolower($short_lang));
-        if ($code == 200 && ($js != 'File not found'))
-            $phar->addFromString('js/redactor.js', $js);
-        else
-            $this->stderr->write("Unable to fetch Redactor language file\n");
-
-        // JQuery UI Datepicker
-        // http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-de.js
         $langs = array($lang);
         if (strpos($lang, '_') !== false) {
             @list($short) = explode('_', $lang);
             $langs[] = $short;
         }
+        foreach ($langs as $l) {
+            list($code, $js) = $this->_http_get(
+                'http://imperavi.com/webdownload/redactor/lang/?lang='
+                .strtolower($l));
+            if ($code == 200 && ($js != 'File not found')) {
+                $phar->addFromString('js/redactor.js', $js);
+                break;
+            }
+        }
+        if ($code != 200)
+            $this->stderr->write($lang . ": Unable to fetch Redactor language file\n");
+
+        // JQuery UI Datepicker
+        // http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-de.js
         foreach ($langs as $l) {
             list($code, $js) = $this->_http_get(
                 'http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-'
