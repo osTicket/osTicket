@@ -245,14 +245,6 @@ var scp_prep = function() {
 
     /* Get config settings from the backend */
     getConfig().then(function(c) {
-        // Multifile uploads
-        $('.multifile').multifile({
-            container:   '.uploads',
-            max_uploads: c.max_file_uploads || 1,
-            file_types:  c.file_types || ".*",
-            max_file_size: c.max_file_size || 0
-        });
-
         // Datepicker
         $('.dp').datepicker({
             numberOfMonths: 2,

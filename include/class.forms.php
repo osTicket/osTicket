@@ -1718,9 +1718,6 @@ class ThreadEntryWidget extends Widget {
 
 class FileUploadWidget extends Widget {
     static $media = array(
-        'js' => array(
-            '/js/filedrop.field.js'
-        ),
         'css' => array(
             '/css/filedrop.css',
         ),
