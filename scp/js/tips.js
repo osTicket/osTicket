@@ -36,7 +36,7 @@ jQuery(function() {
                 || $('#content').data('tipNamespace')
                 || $('meta[name=tip-namespace]').attr('content');
             if (!namespace)
-                return false;
+                return $.Deferred().resolve().promise();
             else if (!cache[namespace])
                 cache[namespace] = {
                   dfd: dfd = $.Deferred(),
