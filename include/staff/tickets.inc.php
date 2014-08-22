@@ -273,7 +273,7 @@ $query="$qselect $qfrom $qwhere ORDER BY $order_by $order LIMIT ".$pageNav->getS
 $hash = md5($query);
 $_SESSION['search_'.$hash] = $query;
 $res = db_query($query);
-$showing=db_num_rows($res)?$pageNav->showing():"";
+$showing=db_num_rows($res)? ' &mdash; '.$pageNav->showing():"";
 if(!$results_type)
     $results_type = sprintf(__('%s Tickets' /* %s will be a status such as 'open' */),
         mb_convert_case($status, MB_CASE_TITLE));
@@ -327,14 +327,14 @@ if ($results) {
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:3px;">
-<table width="940" cellpadding="1" cellspacing="0" border="0">
-    <tr>
-        <td width="20%">
+<div style="margin-bottom:20px; padding-top:10px;">
+<div>
+        <div class="pull-left flush-left">
             <h2><a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
-                title="Reload"><i class="icon-refresh"></i></a></h2>
-        </td>
-        <td width="80%" class="right_align">
+                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
+                $results_type.$showing; ?></a></h2>
+        </div>
+        <div class="pull-right flush-right">
             <a id="tickets-delete" class="action-button tickets-action"
                 href="#tickets/status/delete"><i
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
@@ -343,16 +343,15 @@ if ($results) {
                 echo TicketStatus::options();
             }
             ?>
-        </td>
-    </tr>
-</table>
+        </div>
+</div>
+<div class="clear" style="margin-bottom:10px;"></div>
 <form action="tickets.php" method="POST" name='tickets' id="tickets">
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
-    <caption><?php echo $showing; ?>&nbsp;&nbsp;&nbsp;<?php echo $results_type; ?></caption>
     <thead>
         <tr>
             <?php if($thisstaff->canManageTickets()) { ?>
