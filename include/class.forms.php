@@ -1353,6 +1353,14 @@ class FileUploadField extends FormField {
         }
         return implode('<br/>', $links);
     }
+
+    function toString($value) {
+        $files = array();
+        foreach ($this->getFiles() as $f) {
+            $files[] = $f['name'];
+        }
+        return implode(', ', $files);
+    }
 }
 
 class Widget {
