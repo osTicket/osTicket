@@ -37,8 +37,12 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
             </tbody>
             <?php
             }
-            if ($state)
+
+            $verb = '';
+            if ($state) {
                 $statuses = TicketStatusList::getStatuses(array('states'=>array($state)))->all();
+                $verb = TicketStateField::getVerb($state);
+            }
 
             if ($statuses) {
             ?>
@@ -95,7 +99,8 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                 value="<?php echo __('Cancel'); ?>">
             </span>
             <span class="buttons" style="float:right">
-                <input type="submit" value="<?php echo __('Submit'); ?>">
+                <input type="submit" value="<?php
+                echo $verb ?: __('Submit'); ?>">
             </span>
          </p>
     </form>

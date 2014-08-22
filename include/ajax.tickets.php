@@ -711,24 +711,20 @@ class TicketsAjaxAPI extends AjaxController {
             case 'open':
             case 'reopen':
                 $state = 'open';
-                $info['title'] =  __('Reopen');
                 break;
             case 'resolve':
                 $state = 'resolved';
-                $info['title'] = __('Resolve');
                 break;
             case 'close':
                 if (!$thisstaff->canCloseTickets())
                     Http::response(403, 'Access denied');
                 $state = 'closed';
-                $info['title'] = __('Close');
                 break;
             case 'delete':
                 if (!$thisstaff->canDeleteTickets())
                     Http::response(403, 'Access denied');
                 $state = 'deleted';
                 $info = array(
-                        'title' => __('Delete'),
                         'warn'  => sprintf(__('Are you sure you want to DELETE %s?'),
                             __('this ticket')),
                         //TODO: remove message below once we ship data retention plug
@@ -741,8 +737,12 @@ class TicketsAjaxAPI extends AjaxController {
                         __('Unknown or invalid'), __('status'));
         }
 
+        $verb = TicketStateField::getVerb($state);
+
         $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $status);
-        $info['title'] .= sprintf(' %s #%s', __('Ticket'), $ticket->getNumber());
+        $info['title'] = sprintf('%s %s #%s',
+                $verb ?: $status,
+                __('Ticket'), $ticket->getNumber());
         $info['status_id'] = $_REQUEST['status_id'] ?: $ticket->getStatusId();
 
         return self::_setStatus($state, $info);
@@ -802,6 +802,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info['errors'] = $errors;
         return self::_setStatus($state, $info);
     }
+
     function changeTicketsStatus($status, $id=0) {
         global $thisstaff, $cfg;
 
@@ -814,26 +815,14 @@ class TicketsAjaxAPI extends AjaxController {
             case 'open':
             case 'reopen':
                 $state = 'open';
-                $info = array(
-                        'title' => sprintf('%s %s',
-                            __('Reopen'), __('Tickets'))
-                        );
                 break;
             case 'resolve':
                 $state = 'resolved';
-                $info = array(
-                        'title' => sprintf('%s %s',
-                            __('Resolve'), __('Tickets'))
-                        );
                 break;
             case 'close':
                 if (!$thisstaff->canCloseTickets())
                     Http::response(403, 'Access denied');
                 $state = 'closed';
-                $info = array(
-                        'title' => sprintf('%s %s',
-                            __('Close'), __('Tickets'))
-                        );
                 break;
             case 'delete':
                 if (!$thisstaff->canDeleteTickets())
@@ -841,8 +830,6 @@ class TicketsAjaxAPI extends AjaxController {
 
                 $state = 'deleted';
                 $info = array(
-                        'title' => sprintf('%s %s',
-                            __('Delete'), __('Tickets')),
                         'warn'  => sprintf(__('Are you sure you want to DELETE %s?'),
                             _N('selected ticket', 'selected tickets', $_REQUEST['count'])),
                         //TODO: remove message below once we ship data retention plug
@@ -855,8 +842,13 @@ class TicketsAjaxAPI extends AjaxController {
                         __('Unknown or invalid'), __('status'));
         }
 
+        $info['title'] = sprintf('%s %s',
+                TicketStateField::getVerb($state),
+                 __('Tickets'));
+
         if ($_REQUEST['count'])
-            $info['title'] .= sprintf(' &mdash; %d selected', $_REQUEST['count']);
+            $info['title'] .= sprintf(' &mdash; %d %s',
+                    $_REQUEST['count'], __('selected'));
 
         $info['status_id'] = $id;
 

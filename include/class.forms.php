@@ -1026,13 +1026,29 @@ FormField::addFieldTypes(/*trans*/ 'Dynamic Fields', function() {
 class TicketStateField extends ChoiceField {
 
     static $_states = array(
-            'open' => /* trans */ 'Open',
-            'resolved' => /* trans */ 'Resolved',
-            'closed' => /* trans */ 'Closed');
+            'open' => array(
+                'name' => /* trans */ 'Open',
+                'verb' => /* trans */ 'Open'
+                ),
+            'resolved' => array(
+                'name' => /* trans */ 'Resolved',
+                'verb' => /* trans */ 'Resolve'
+                ),
+            'closed' => array(
+                'name' => /* trans */ 'Closed',
+                'verb' => /* trans */ 'Close'
+                )
+            );
     // Private states
     static $_privatestates = array(
-            'archived' => /* trans */ 'Archived',
-            'deleted' => /* trans */ 'Deleted'
+            'archived' => array(
+                'name' => /* trans */ 'Archived',
+                'verb' => /* trans */ 'Archive'
+                ),
+            'deleted'  => array(
+                'name' => /* trans */ 'Deleted',
+                'verb' => /* trans */ 'Delete'
+                )
             );
 
     function hasIdValue() {
@@ -1048,7 +1064,9 @@ class TicketStateField extends ChoiceField {
 
         if (!isset($_choices)) {
             // Translate and cache the choices
-            $_choices = array_map('__', static::$_states);
+            foreach (static::$_states as $k => $v)
+                $_choices[$k] =  __($v['name']);
+
             $this->ht['default'] =  '';
         }
 
@@ -1061,10 +1079,10 @@ class TicketStateField extends ChoiceField {
             $state = key($state);
 
         if (isset(static::$_states[$state]))
-            return __(static::$_states[$state]);
+            return __(static::$_states[$state]['name']);
 
         if (isset(static::$_privatestates[$state]))
-            return __(static::$_privatestates[$state]);
+            return __(static::$_privatestates[$state]['name']);
 
         return $state;
     }
@@ -1077,6 +1095,15 @@ class TicketStateField extends ChoiceField {
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
+    }
+
+    static function getVerb($state) {
+
+        if (isset(static::$_states[$state]))
+            return __(static::$_states[$state]['verb']);
+
+        if (isset(static::$_privatestates[$state]))
+            return __(static::$_privatestates[$state]['verb']);
     }
 }
 FormField::addFieldTypes('Dynamic Fields', function() {

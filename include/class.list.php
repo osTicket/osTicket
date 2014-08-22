@@ -759,6 +759,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     var $_form;
     var $_config;
     var $_settings;
+    var $_properties;
 
     const ENABLED   = 0x0001;
     const INTERNAL  = 0x0002; // Forbid deletion or name and status change.
@@ -875,14 +876,25 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->get('sort');
     }
 
+    private function getProperties() {
+
+        if (!isset($this->_properties)) {
+            $this->_properties = $this->_config->get('properties');
+            if (is_string($this->_properties))
+                $this->_properties = JsonDataParser::parse($this->_properties);
+            elseif (!$this->_properties)
+                $this->_properties = array();
+        }
+
+        return $this->_properties;
+    }
+
     function getConfiguration() {
 
         if (!$this->_settings) {
-             $this->_settings = $this->_config->get('properties');
-             if (is_string($this->_settings))
-                 $this->_settings = JsonDataParser::parse($this->_settings);
-             elseif (!$this->_settings)
-                 $this->_settings = array();
+            $this->_settings = $this->getProperties();
+            if (!$this->_settings)
+                $this->_settings = array();
 
             if ($this->getConfigurationForm()) {
                 foreach ($this->getConfigurationForm()->getFields() as $f)  {
