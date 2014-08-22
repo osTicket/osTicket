@@ -68,6 +68,8 @@ class PluginConfig extends Config {
     }
 
     function commitForm(&$errors=array()) {
+        global $msg;
+
         $f = $this->getForm();
         $commit = false;
         if ($f->isValid()) {

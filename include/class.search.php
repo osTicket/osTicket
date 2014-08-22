@@ -296,6 +296,7 @@ class MysqlSearchBackend extends SearchBackend {
             $key = 'COALESCE(B1.ticket_id, B2.ticket_id, B3.ticket_id, B4.ticket_id)';
             $tables[] = "{$P}ticket A1 ON (A1.ticket_id = {$key})";
             $cdata_search = false;
+            $where = array();
 
             if ($criteria) {
                 foreach ($criteria as $name=>$value) {

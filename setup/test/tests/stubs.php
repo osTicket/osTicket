@@ -10,6 +10,7 @@ class mysqli {
     function real_connect() {}
     function select_db() {}
     function set_charset() {}
+    function autocommit() {}
 }
 
 class mysqli_stmt {
@@ -112,5 +113,13 @@ class finfo {
 
 class Locale {
     function getDisplayName() {}
+}
+class IntlBreakIterator {
+    static function createWordInstance() {}
+    function setText() {}
+}
+
+class SqlFunction {
+    static function NOW() {}
 }
 ?>
