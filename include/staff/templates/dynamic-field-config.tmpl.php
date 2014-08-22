@@ -1,19 +1,8 @@
     <h3><?php echo __('Field Configuration'); ?> &mdash; <?php echo $field->get('label') ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <form method="post" action="ajax.php/form/field-config/<?php
-            echo $field->get('id'); ?>" onsubmit="javascript:
-            var form = $(this);
-            $.post(this.action, form.serialize(), function(data, status, xhr) {
-                    if (!data.length) {
-                        form.closest('.dialog').hide();
-                        $('#overlay').hide();
-                    } else {
-                        form.closest('.dialog').empty().append(data);
-                    }
-            });
-            return false;
-            ">
+    <form method="post" action="#form/field-config/<?php
+            echo $field->get('id'); ?>">
         <?php
         echo csrf_token();
         $config = $field->getConfiguration();

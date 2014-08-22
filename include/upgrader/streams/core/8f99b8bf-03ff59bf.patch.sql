@@ -1,6 +1,6 @@
 /**
  * @version v1.9.4
- * @signature b38066879371ed792958b4ba9bc8de4a
+ * @signature 03ff59bf35a58a102e9b32ad33c2839f
  * @title Custom Ticket Numbers and Statuses
  *
  * This patch adds support for ticket number sequences to the database
@@ -26,21 +26,18 @@ CREATE TABLE `%TABLE_PREFIX%sequence` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET @random = (SELECT `value` FROM `%TABLE_PREFIX%config`
-    WHERE `namespace` = 'core' AND `key` = 'use_random_ids');
+    WHERE `namespace` = 'core' AND `key` = 'random_ticket_ids');
 
 -- Sequence (id=1) will be loaded in the task file
 INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`)
     VALUES
-    ('core', 'number_format', CASE WHEN @random THEN '######' ELSE '#' END),
-    ('core', 'sequence_id', CASE WHEN @random THEN 0 ELSE 1 END);
-
-DELETE FROM `%TABLE_PREFIX%config`
-WHERE `namespace`='core' AND `key` = 'use_random_ids';
+    ('core', 'number_format', IF(@random, '######', '#')),
+    ('core', 'sequence_id', IF(@random, 0, 1));
 
 ALTER TABLE `%TABLE_PREFIX%help_topic`
-  ADD `flags` int(10) unsigned DEFAULT '0' AFTER `noautoresp`,
-  ADD `sequence_id` int(10) unsigned NOT NULL DEFAULT '0' AFTER `form_id`,
-  ADD `number_format` varchar(32) DEFAULT NULL AFTER `topic`;
+    ADD `flags` int(10) unsigned DEFAULT '0' AFTER `noautoresp`,
+    ADD `sequence_id` int(10) unsigned NOT NULL DEFAULT '0' AFTER `form_id`,
+    ADD `number_format` varchar(32) DEFAULT NULL AFTER `topic`;
 
 ALTER TABLE  `%TABLE_PREFIX%list`
     ADD  `masks` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `sort_mode`,
@@ -50,9 +47,9 @@ ALTER TABLE  `%TABLE_PREFIX%list`
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(60) NOT NULL DEFAULT '',
-  `state` varchar(16) NOT NULL DEFAULT 'open',
+  `state` varchar(16) DEFAULT NULL,
   `mode` int(11) unsigned NOT NULL DEFAULT '0',
-  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `flags` int(11) unsigned NOT NULL DEFAULT '0',
   `sort` int(11) unsigned NOT NULL DEFAULT '0',
   `notes` text NOT NULL,
   `created` datetime NOT NULL,
@@ -72,7 +69,13 @@ ALTER TABLE  `%TABLE_PREFIX%ticket`
     ADD  `status_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `user_email_id`,
     ADD INDEX (`status_id`);
 
+UPDATE `%TABLE_PREFIX%ticket` SET  `status_id` = 3
+    WHERE  `status` = 'closed';
+
+UPDATE `%TABLE_PREFIX%ticket` SET  `status_id` = 1
+        WHERE  `status` = 'open';
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = 'b38066879371ed792958b4ba9bc8de4a'
+    SET `value` = '03ff59bf35a58a102e9b32ad33c2839f'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

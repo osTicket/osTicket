@@ -828,7 +828,7 @@ class Ticket {
     }
 
     //Status helper.
-    function setStatus($status) {
+    function setStatus($status, $comments='') {
         global $thisstaff;
 
         if ($status && is_numeric($status))
@@ -836,6 +836,10 @@ class Ticket {
 
         if (!$status || !$status instanceof TicketStatus)
             return false;
+
+        // XXX: intercept deleted status and do hard delete
+        if (!strcasecmp($status->getState(), 'deleted'))
+            return $this->delete($comments);
 
         if ($this->getStatusId() == $status->getId())
             return true;
@@ -845,6 +849,7 @@ class Ticket {
 
         $ecb = null;
         switch($status->getState()) {
+            case 'resolved':
             case 'closed':
                 $sql.=', closed=NOW(), duedate=NULL ';
                 if ($thisstaff)
@@ -857,6 +862,7 @@ class Ticket {
                 };
                 break;
             case 'open':
+                // TODO: check current status if it allows for reopening
                 if ($this->isClosed()) {
                     $sql.= ',closed=NULL, reopened=NOW() ';
 
@@ -865,6 +871,9 @@ class Ticket {
                     };
                 }
                 break;
+            default:
+                return false;
+
         }
 
         $sql.=' WHERE ticket_id='.db_input($this->getId());
@@ -873,12 +882,19 @@ class Ticket {
             return false;
 
         // Log status change b4 reload
-        $note= sprintf('Status changed from %s to %s by %s',
+        $note = sprintf(__('Status changed from %s to %s by %s'),
                 $this->getStatus(),
                 $status,
                 $thisstaff ?: 'SYSTEM');
 
-        $this->logNote('Status Changed', $note, $thisstaff, false);
+        $alert = false;
+        if ($comments) {
+            $note .= sprintf('<hr>%s', $comments);
+            // Send out alerts if comments are included
+            $alert = true;
+        }
+
+        $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
 
         // Log events via callback
         if ($ecb) $ecb($this);
@@ -2013,7 +2029,8 @@ class Ticket {
         exit;
     }
 
-    function delete() {
+    function delete($comments='') {
+        global $ost, $thisstaff;
 
         //delete just orphaned ticket thread & associated attachments.
         // Fetch thread prior to removing ticket entry
@@ -2029,6 +2046,18 @@ class Ticket {
             $form->delete();
 
         $this->deleteDrafts();
+
+        // Log delete
+        $log = sprintf(__('Ticket #%1$s deleted by %2$s'),
+                $this->getNumber(),
+                $thisstaff ? $thisstaff->getName() : __('SYSTEM'));
+
+        if ($comments)
+            $log .= sprintf('<hr>%s', $comments);
+
+        $ost->logDebug(
+                sprintf( __('Ticket #%s deleted'), $this->getNumber()),
+                $log);
 
         return true;
     }
@@ -2827,13 +2856,15 @@ class Ticket {
     function checkOverdue() {
 
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
+                ON (status.id=T1.status_id AND status.state="open") '
             .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
-            .' WHERE status=\'open\' AND isoverdue=0 '
+            .' WHERE isoverdue=0 '
             .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
             .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
             .' OR (duedate is NOT NULL AND duedate<NOW()) '
             .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
-        //echo $sql;
+
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
                 if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())

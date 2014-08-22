@@ -95,9 +95,11 @@ if($_POST) {
                 if ($errors)
                      $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
                         __('custom list items'));
-                else
+                else {
+                    $list->_items = null;
                     $msg = sprintf(__('Successfully updated %s'),
                         __('this custom list'));
+                }
 
             } elseif ($errors)
                 $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),

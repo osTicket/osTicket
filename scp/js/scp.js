@@ -16,18 +16,22 @@ function checkbox_checker(formObj, min, max) {
         msg=__("You're limited to only {0} selections.\n") .replace('{0}', max);
         msg=msg + __("You have made {0} selections.\n").replace('{0}', checked);
         msg=msg + __("Please remove {0} selection(s).").replace('{0}', checked-max);
-        alert(msg)
+        $.sysAlert(__('Alert'), msg);
+
         return (false);
     }
 
     if (checked< min ){
-        alert(__("Please make at least {0} selections. {1} checked so far.")
-            .replace('{0}', min)
-            .replace('{1}', checked));
+        $.sysAlert( __('Alert'),
+                __("Please make at least {0} selections. {1} checked so far.")
+                .replace('{0}', min)
+                .replace('{1}', checked)
+                );
+
         return (false);
     }
 
-    return (true);
+    return checked;
 }
 
 
@@ -526,12 +530,20 @@ $.dialog = function (url, codes, cb, options) {
     if (codes && !$.isArray(codes))
         codes = [codes];
 
-    $('.dialog#popup .body').load(url, function () {
+    var $popup = $('.dialog#popup');
+
+    $('#overlay').show();
+    $('div.body', $popup).empty().hide();
+    $('div#popup-loading', $popup).show();
+    $popup.show();
+    $('div.body', $popup).load(url, function () {
+        $('div#popup-loading', $popup).hide();
         $('#overlay').show();
-        $('.dialog#popup').show({
+        $('div.body', $popup).show({
             duration: 0,
             complete: function() { if (options.onshow) options.onshow(); }
         });
+        $popup.show();
         $(document).off('.dialog');
         $(document).on('submit.dialog', '.dialog#popup form', function(e) {
             e.preventDefault();
@@ -562,6 +574,18 @@ $.dialog = function (url, codes, cb, options) {
      });
     if (options.onload) { options.onload(); }
  };
+
+$.sysAlert = function (title, msg, cb) {
+    var $dialog =  $('.dialog#alert');
+    if ($dialog.length) {
+        $('#overlay').show();
+        $('#title', $dialog).html(title);
+        $('#body', $dialog).html(msg);
+        $dialog.show();
+    } else {
+        alert(msg);
+    }
+};
 
 $.userLookup = function (url, cb) {
     $.dialog(url, 201, function (xhr) {

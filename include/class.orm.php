@@ -42,10 +42,14 @@ class VerySimpleModel {
         elseif (isset(static::$meta['joins'][$field])) {
             // TODO: Support instrumented lists and such
             $j = static::$meta['joins'][$field];
-            $class = $j['fkey'][0];
-            $v = $this->ht[$field] = $class::lookup(
-                array($j['fkey'][1] => $this->ht[$j['local']]));
-            return $v;
+            // Make sure joins were inspected
+            if (isset($j['fkey'])
+                    && ($class = $j['fkey'][0])
+                    && class_exists($class)) {
+                $v = $this->ht[$field] = $class::lookup(
+                    array($j['fkey'][1] => $this->ht[$j['local']]));
+                return $v;
+            }
         }
         if (isset($default))
             return $default;

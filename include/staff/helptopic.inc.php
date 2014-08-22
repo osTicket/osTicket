@@ -138,7 +138,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                 <select name="status_id">
                     <option value="">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
-                    foreach (TicketStatusList::getAll() as $status) {
+                    foreach (TicketStatusList::getStatuses() as $status) {
                         $name = $status->getName();
                         if (!($isenabled = $status->isEnabled()))
                             $name.=' '.__('(disabled)');

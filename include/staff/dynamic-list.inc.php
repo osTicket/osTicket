@@ -17,7 +17,7 @@ if ($list) {
 $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info);
 
 ?>
-<form action="?" method="post" id="save">
+<form action="" method="post" id="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -150,16 +150,11 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 <?php } ?>
             </select>
             <?php if ($f->isConfigurable()) { ?>
-                <a class="action-button" style="float:none;overflow:inherit"
-                    href="#ajax.php/form/field-config/<?php
-                        echo $f->get('id'); ?>"
-                    onclick="javascript:
-                        $('#overlay').show();
-                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
-                        $('#field-config').show();
-                        return false;
-                    "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
-            <?php } ?></td>
+                <a class="action-button field-config"
+                    style="float:none;overflow:inherit"
+                    href="#form/field-config/<?php
+                        echo $f->get('id'); ?>"><i
+                        class="icon-cog"></i> <?php echo __('Config'); ?></a> <?php } ?></td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
                     value="<?php echo Format::htmlchars($f->get('name'));
@@ -258,15 +253,18 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td><input type="text" size="40" name="value-<?php echo $id; ?>"
                 value="<?php echo $i->getValue(); ?>"/>
                 <?php if ($list->hasProperties()) { ?>
-                <a class="action-button" style="float:none;overflow:inherit"
-                    href="#ajax.php/list/<?php
-                        echo $list->getId(); ?>/item/<?php echo $id ?>/properties"
-                    onclick="javascript:
-                        $('#overlay').show();
-                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
-                        $('#field-config').show();
-                        return false;
-                    "><i class="icon-edit"></i> <?php echo __('Properties'); ?></a>
+                   <a class="action-button field-config"
+                       style="float:none;overflow:inherit"
+                       href="#list/<?php
+                        echo $list->getId(); ?>/item/<?php
+                        echo $id ?>/properties"
+                       id="item-<?php echo $id; ?>"
+                    ><?php
+                        echo sprintf('<i class="icon-edit" %s></i> ',
+                                $i->getConfiguration()
+                                ? '': 'style="color:red; font-weight:bold;"');
+                        echo __('Properties');
+                   ?></a>
                 <?php
                 }
 
@@ -335,24 +333,16 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
 </p>
 </form>
 
-<div style="display:none;" class="dialog draggable" id="field-config">
-    <div id="popup-loading">
-        <h1><i class="icon-spinner icon-spin icon-large"></i>
-        <?php echo __('Loading ...');?></h1>
-    </div>
-    <div class="body"></div>
-</div>
-
 <script type="text/javascript">
 $(function() {
-    var $this = $('#popup-loading').hide();
-    $(document).ajaxStart( function(event) {
-        console.log(1,event);
-        var $h1 = $this.find('h1');
-        $this.show();
-        $h1.css({'margin-top':$this.height()/3-$h1.height()/3});  // show Loading Div
-    }).ajaxStop ( function(){
-        $this.hide(); // hide loading div
+    $('a.field-config').click( function(e) {
+        e.preventDefault();
+        var $id = $(this).attr('id');
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $.dialog(url, [200], function (xhr) {
+            $('a#'+$id+' i').removeAttr('style');
+        });
+        return false;
     });
 });
 </script>

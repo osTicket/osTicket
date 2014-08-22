@@ -115,8 +115,8 @@ class Installer extends SetupWizard {
 
         /*************** We're ready to install ************************/
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
-        define('PREFIX',$vars['prefix']); //Table prefix
-        Bootstrap::defineTables(PREFIX);
+        define('TABLE_PREFIX',$vars['prefix']); //Table prefix
+        Bootstrap::defineTables(TABLE_PREFIX);
         Bootstrap::loadCode();
 
         $debug = true; // Change it to false to squelch SQL errors.
@@ -157,23 +157,25 @@ class Installer extends SetupWizard {
             $i18n = new Internationalization($vars['lang_id']);
             $i18n->loadDefaultData();
 
-            $sql='SELECT `id` FROM '.PREFIX.'sla ORDER BY `id` LIMIT 1';
+            Signal::send('system.install', $this);
+
+            $sql='SELECT `id` FROM '.TABLE_PREFIX.'sla ORDER BY `id` LIMIT 1';
             $sla_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `dept_id` FROM '.PREFIX.'department ORDER BY `dept_id` LIMIT 1';
+            $sql='SELECT `dept_id` FROM '.TABLE_PREFIX.'department ORDER BY `dept_id` LIMIT 1';
             $dept_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `tpl_id` FROM '.PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
+            $sql='SELECT `tpl_id` FROM '.TABLE_PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
             $template_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `group_id` FROM '.PREFIX.'groups ORDER BY `group_id` LIMIT 1';
+            $sql='SELECT `group_id` FROM '.TABLE_PREFIX.'groups ORDER BY `group_id` LIMIT 1';
             $group_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `value` FROM '.PREFIX.'config WHERE namespace=\'core\' and `key`=\'default_timezone_id\' LIMIT 1';
+            $sql='SELECT `value` FROM '.TABLE_PREFIX.'config WHERE namespace=\'core\' and `key`=\'default_timezone_id\' LIMIT 1';
             $default_timezone = db_result(db_query($sql, false));
 
             //Create admin user.
-            $sql='INSERT INTO '.PREFIX.'staff SET created=NOW() '
+            $sql='INSERT INTO '.TABLE_PREFIX.'staff SET created=NOW() '
                 .", isactive=1, isadmin=1, group_id='$group_id_1', dept_id='$dept_id_1'"
                 .", timezone_id='$default_timezone', max_page_size=25"
                 .', email='.db_input($vars['admin_email'])
@@ -189,14 +191,14 @@ class Installer extends SetupWizard {
             //Create default emails!
             $email = $vars['email'];
             list(,$domain)=explode('@',$vars['email']);
-            $sql='INSERT INTO '.PREFIX.'email (`name`,`email`,`created`,`updated`) VALUES '
+            $sql='INSERT INTO '.TABLE_PREFIX.'email (`name`,`email`,`created`,`updated`) VALUES '
                     ." ('Support','$email',NOW(),NOW())"
                     .",('osTicket Alerts','alerts@$domain',NOW(),NOW())"
                     .",('','noreply@$domain',NOW(),NOW())";
             $support_email_id = db_query($sql, false) ? db_insert_id() : 0;
 
 
-            $sql='SELECT `email_id` FROM '.PREFIX."email WHERE `email`='alerts@$domain' LIMIT 1";
+            $sql='SELECT `email_id` FROM '.TABLE_PREFIX."email WHERE `email`='alerts@$domain' LIMIT 1";
             $alert_email_id = db_result(db_query($sql, false));
 
             //Create config settings---default settings!
@@ -248,7 +250,7 @@ class Installer extends SetupWizard {
 
         /************* Make the system happy ***********************/
 
-        $sql='UPDATE '.PREFIX."email SET dept_id=$dept_id_1";
+        $sql='UPDATE '.TABLE_PREFIX."email SET dept_id=$dept_id_1";
         db_query($sql, false);
 
         global $cfg;
@@ -271,7 +273,7 @@ class Installer extends SetupWizard {
 
         //Log a message.
         $msg=__("Congratulations osTicket basic installation completed!\n\nThank you for choosing osTicket!");
-        $sql='INSERT INTO '.PREFIX.'syslog SET created=NOW(), updated=NOW(), log_type="Debug" '
+        $sql='INSERT INTO '.TABLE_PREFIX.'syslog SET created=NOW(), updated=NOW(), log_type="Debug" '
             .', title="osTicket installed!"'
             .', log='.db_input($msg)
             .', ip_address='.db_input($_SERVER['REMOTE_ADDR']);

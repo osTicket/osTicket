@@ -381,7 +381,7 @@ var ticket_onload = function($) {
     autoLock.Init();
 
     /*** Ticket Actions **/
-    //print options
+    //print options TODO: move to backend
     $('a#ticket-print').click(function(e) {
         e.preventDefault();
         $('#overlay').show();
@@ -389,11 +389,18 @@ var ticket_onload = function($) {
         return false;
     });
 
-    //ticket status (close & reopen) xxx: move to backend ticket-action
-    $('a#ticket-close, a#ticket-reopen').click(function(e) {
+
+    $(document).off('.ticket-action');
+    $(document).on('click.ticket-action', 'a.ticket-action', function(e) {
         e.preventDefault();
-        $('#overlay').show();
-        $('.dialog#ticket-status').show();
+        var url = 'ajax.php/'
+        +$(this).attr('href').substr(1)
+        +'?_uid='+new Date().getTime();
+        var $redirect = $(this).data('href');
+        $.dialog(url, [201], function (xhr) {
+            window.location.href = $redirect ? $redirect : window.location.href;
+        });
+
         return false;
     });
 

@@ -1,19 +1,9 @@
     <h3><?php echo __('Item Properties'); ?> &mdash; <?php echo $item->getValue() ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <form method="post" action="ajax.php/list/<?php
+    <form method="post" action="#list/<?php
             echo $list->getId(); ?>/item/<?php
-            echo $item->getId(); ?>/properties" onsubmit="javascript:
-            var form = $(this);
-            $.post(this.action, form.serialize(), function(data, status, xhr) {
-                if (!data.length) {
-                    form.closest('.dialog').hide();
-                    $('#overlay').hide();
-                } else {
-                    form.closest('.dialog .body').empty().append(data);
-                }
-            });
-            return false;">
+            echo $item->getId(); ?>/properties">
         <?php
         echo csrf_token();
         $config = $item->getConfiguration();

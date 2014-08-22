@@ -330,17 +330,29 @@ if ($_POST)
                 <?php
                 } ?>
 
-            <?php
-            if($thisstaff->canCloseTickets()) { ?>
-                <tr>
-                    <td width="100"><?php echo __('Ticket Status');?>:</td>
-                    <td>
-                        <input type="checkbox" name="ticket_state" value="closed" <?php echo $info['ticket_state']?'checked="checked"':''; ?>>
-                        <b><?php echo __('Close On Response');?></b>&nbsp;<em>(<?php echo __('Only applicable if response is entered');?>)</em>
-                    </td>
-                </tr>
-            <?php
-            } ?>
+            <tr>
+                <td width="100"><?php echo __('Ticket Status');?>:</td>
+                <td>
+                    <select name="statusId">
+                    <?php
+                    $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
+                    $states = array('open');
+                    if ($thisstaff->canCloseTickets())
+                        $states = array_merge($states, array('resolved', 'closed'));
+                    foreach (TicketStatusList::getStatuses(
+                                array('states' => $states)) as $s) {
+                        if (!$s->isEnabled()) continue;
+                        $selected = ($statusId == $s->getId());
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                                $s->getId(),
+                                $selected
+                                 ? 'selected="selected"' : '',
+                                __($s->getName()));
+                    }
+                    ?>
+                    </select>
+                </td>
+            </tr>
              <tr>
                 <td width="100"><?php echo __('Signature');?>:</td>
                 <td>

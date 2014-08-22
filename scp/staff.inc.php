@@ -110,9 +110,6 @@ $_SESSION['TZ_DST']=$thisstaff->observeDaylight();
 
 define('PAGE_LIMIT', $thisstaff->getPageLimit()?$thisstaff->getPageLimit():DEFAULT_PAGE_LIMIT);
 
-//Clear some vars. we use in all pages.
-$errors=array();
-$msg=$warn=$sysnotice='';
 $tabs=array();
 $submenu=array();
 $exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.php', 'logs.php', 'upgrade.php'));

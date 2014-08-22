@@ -382,7 +382,7 @@ class MysqlSearchBackend extends SearchBackend {
     }
 
     static function createSearchTable() {
-        $sql = 'CREATE TABLE '.TABLE_PREFIX.'_search (
+        $sql = 'CREATE TABLE IF NOT EXISTS '.TABLE_PREFIX.'_search (
             `object_type` varchar(8) not null,
             `object_id` int(11) unsigned not null,
             `title` text collate utf8_general_ci,
@@ -406,7 +406,8 @@ class MysqlSearchBackend extends SearchBackend {
                 return true;
 
             // Create the search table automatically
-            $class::createSearchTable();
+            $class::__init();
+
         };
 
         // THREADS ----------------------------------
@@ -558,5 +559,14 @@ class MysqlSearchBackend extends SearchBackend {
 
         return true;
     }
+
+    static function __init() {
+        self::createSearchTable();
+    }
+
 }
+
+Signal::connect('system.install',
+        array('MysqlSearchBackend', '__init'));
+
 MysqlSearchBackend::register();

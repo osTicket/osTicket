@@ -61,7 +61,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <span>
                 <select name="default_ticket_status_id">
                 <?php
-                foreach (TicketStatusList::getAll(array('open')) as $status) {
+                $criteria = array('states' => array('open'));
+                foreach (TicketStatusList::getStatuses($criteria) as $status) {
                     $name = $status->getName();
                     if (!($isenabled = $status->isEnabled()))
                         $name.=' '.__('(disabled)');

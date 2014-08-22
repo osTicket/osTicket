@@ -649,30 +649,38 @@ class TicketStatusList extends CustomListHandler {
         return TicketStatus::objects()->count();
     }
 
-    function getAllItems($states=array()) {
-        if ($states)
-            $items = TicketStatus::objects()->filter(
-                    array('state__in' => $states))
-                    ->order_by($this->getListOrderBy());
-        else
-            $items = TicketStatus::objects()->order_by($this->getListOrderBy());
-
-        return $items;
-    }
-
-    function getItems($criteria) {
-
-        if (!$this->_items) {
-            $this->_items = TicketStatus::objects()->filter(
-                array('flags__hasbit' => TicketStatus::ENABLED))
-                ->order_by($this->getListOrderBy());
-            if ($criteria['limit'])
-                $this->_items->limit($criteria['limit']);
-            if ($criteria['offset'])
-                $this->_items->offset($criteria['offset']);
-        }
+    function getAllItems() {
+        if (!$this->_items)
+            $this->_items = TicketStatus::objects()->order_by($this->getListOrderBy());
 
         return $this->_items;
+    }
+
+    function getItems($criteria = array()) {
+
+        // Default to only enabled items
+        if (!isset($criteria['enabled']))
+            $criteria['enabled'] = true;
+
+        $filters =  array();
+        if ($criteria['enabled'])
+            $filters['mode__hasbit'] = TicketStatus::ENABLED;
+        if ($criteria['states'] && is_array($criteria['states']))
+            $filters['state__in'] = $criteria['states'];
+        else
+            $filters['state__isnull'] = false;
+
+        $items = TicketStatus::objects();
+        if ($filters)
+            $items->filter($filters);
+        if ($criteria['limit'])
+            $items->limit($criteria['limit']);
+        if ($criteria['offset'])
+            $items->offset($criteria['offset']);
+
+        $items->order_by($this->getListOrderBy());
+
+        return $items;
     }
 
     function getItem($val) {
@@ -686,6 +694,7 @@ class TicketStatusList extends CustomListHandler {
     function addItem($vars, &$errors) {
 
         $item = TicketStatus::create(array(
+            'mode' => 1,
             'flags' => 0,
             'sort'  => $vars['sort'],
             'name' => $vars['value'],
@@ -697,12 +706,12 @@ class TicketStatusList extends CustomListHandler {
         return $item;
     }
 
-    static function getAll($states=array()) {
+    static function getStatuses($criteria=array()) {
 
         $statuses = array();
         if (($list = DynamicList::lookup(
                         array('type' => 'ticket-status'))))
-            $statuses = $list->getAllItems($states);
+            $statuses = $list->getItems($criteria);
 
         return $statuses;
     }
@@ -739,12 +748,18 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         'table' => TICKET_STATUS_TABLE,
         'ordering' => array('name'),
         'pk' => array('id'),
+        'joins' => array(
+            'tickets' => array(
+                'reverse' => 'TicketModel.status',
+                )
+        )
     );
 
     var $_list;
     var $_form;
     var $_config;
     var $_settings;
+    var $_properties;
 
     const ENABLED   = 0x0001;
     const INTERNAL  = 0x0002; // Forbid deletion or name and status change.
@@ -813,7 +828,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     function isEnableable() {
-        return $this->hasProperties();
+        return ($this->getState());
     }
 
     function isDisableable() {
@@ -822,11 +837,19 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function isDeletable() {
 
-        return !($this->isInternal() || $this->isDefault());
+        return !($this->isInternal()
+                || $this->isDefault()
+                || $this->getNumTickets());
     }
 
     function isInternal() {
-        return ($this->hasFlag('mode', self::INTERNAL));
+        return ($this->isDefault()
+                || $this->hasFlag('mode', self::INTERNAL));
+    }
+
+
+    function getNumTickets() {
+        return $this->tickets->count();
     }
 
     function getId() {
@@ -853,14 +876,25 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->get('sort');
     }
 
+    private function getProperties() {
+
+        if (!isset($this->_properties)) {
+            $this->_properties = $this->_config->get('properties');
+            if (is_string($this->_properties))
+                $this->_properties = JsonDataParser::parse($this->_properties);
+            elseif (!$this->_properties)
+                $this->_properties = array();
+        }
+
+        return $this->_properties;
+    }
+
     function getConfiguration() {
 
         if (!$this->_settings) {
-             $this->_settings = $this->_config->get('properties');
-             if (is_string($this->_settings))
-                 $this->_settings = JsonDataParser::parse($this->_settings);
-             elseif (!$this->_settings)
-                 $this->_settings = array();
+            $this->_settings = $this->getProperties();
+            if (!$this->_settings)
+                $this->_settings = array();
 
             if ($this->getConfigurationForm()) {
                 foreach ($this->getConfigurationForm()->getFields() as $f)  {
@@ -952,11 +986,11 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function delete() {
 
+        // Statuses with tickets are not deletable
         if (!$this->isDeletable())
             return false;
 
-        // TODO: Delete and do house cleaning (move tickets..etc)
-
+        return parent::delete();
     }
 
     function toString() {
@@ -967,6 +1001,15 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->toString();
     }
 
+    static function create($ht) {
+
+        if (!isset($ht['mode']))
+            $ht['mode'] = 1;
+
+        $ht['created'] = new SqlFunction('NOW');
+
+        return  parent::create($ht);
+    }
 
     static function lookup($var, $list= false) {
 
@@ -984,7 +1027,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
         $properties = JsonDataEncoder::encode($ht['properties']);
         unset($ht['properties']);
-        $ht['created'] = new SqlFunction('NOW');
         if ($status = TicketStatus::create($ht)) {
             $status->save(true);
             $status->_config = new Config('TS.'.$status->getId());
@@ -993,9 +1035,11 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
         return $status;
     }
+
+    static function options() {
+        include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
+    }
 }
 
-
-
-
+TicketStatus::_inspect();
 ?>
