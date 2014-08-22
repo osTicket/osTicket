@@ -523,6 +523,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `phone_ext` varchar(6) default NULL,
   `mobile` varchar(24) NOT NULL default '',
   `signature` text NOT NULL,
+  `lang` varchar(16) DEFAULT NULL,
   `notes` text,
   `isactive` tinyint(1) NOT NULL default '1',
   `isadmin` tinyint(1) NOT NULL default '0',
@@ -536,6 +537,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `auto_refresh_rate` int(10) unsigned NOT NULL default '0',
   `default_signature_type` ENUM( 'none', 'mine', 'dept' ) NOT NULL DEFAULT 'none',
   `default_paper_size` ENUM( 'Letter', 'Legal', 'Ledger', 'A4', 'A3' ) NOT NULL DEFAULT 'Letter',
+  `extra` text,
   `created` datetime NOT NULL,
   `lastlogin` datetime default NULL,
   `passwdreset` datetime default NULL,
@@ -811,6 +813,23 @@ CREATE TABLE `%TABLE_PREFIX%plugin` (
   primary key (`id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%translation`;
+CREATE TABLE `%TABLE_PREFIX%translation` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `object_hash` char(16) CHARACTER SET ascii DEFAULT NULL,
+  `type` enum('phrase','article','override') DEFAULT NULL,
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `revision` int(11) unsigned DEFAULT NULL,
+  `agent_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `lang` varchar(16) NOT NULL DEFAULT '',
+  `text` mediumtext NOT NULL,
+  `source_text` text,
+  `updated` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `type` (`type`,`lang`),
+  KEY `object_hash` (`object_hash`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user`;
 CREATE TABLE `%TABLE_PREFIX%user` (
   `id` int(10) unsigned NOT NULL auto_increment,
@@ -845,6 +864,7 @@ CREATE TABLE `%TABLE_PREFIX%user_account` (
   `username` varchar(64) DEFAULT NULL,
   `passwd` varchar(128) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,
   `backend` varchar(32) DEFAULT NULL,
+  `extra` text,
   `registered` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
