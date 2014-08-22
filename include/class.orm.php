@@ -808,7 +808,7 @@ class MySqlCompiler extends SqlCompiler {
         'lt' => '%1$s < %2$s',
         'gte' => '%1$s >= %2$s',
         'lte' => '%1$s <= %2$s',
-        'isnull' => '%1$s IS NULL',
+        'isnull' => array('self', '__isnull'),
         'like' => '%1$s LIKE %2$s',
         'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
@@ -828,6 +828,12 @@ class MySqlCompiler extends SqlCompiler {
             $b = $this->input($b);
         }
         return sprintf('%s IN (%s)', $a, $b);
+    }
+
+    function __isnull($a, $b) {
+        return $b
+            ? sprintf('%s IS NULL', $a)
+            : sprintf('%s IS NOT NULL', $a);
     }
 
     function compileJoin($tip, $model, $alias, $info) {
