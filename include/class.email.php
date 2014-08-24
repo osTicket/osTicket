@@ -100,9 +100,13 @@ class Email {
         return (!$this->ht['noautoresp']);
     }
 
-    function getPasswd() {
-        return $this->ht['userpass']?Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid']):'';
-    }
+	function getPasswd() {
+		return $this->ht['userpass']?Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid']):'';
+	}
+
+	function getSMTPPasswd() {
+		return $this->ht['smtp_userpass']?Crypto::decrypt($this->ht['smtp_userpass'], SECRET_SALT, $this->ht['smtp_userid']):'';
+	}
 
     function getHashtable() {
         return $this->ht;
@@ -152,8 +156,8 @@ class Email {
                 'host' => $this->ht['smtp_host'],
                 'port' => $this->ht['smtp_port'],
                 'auth' => (bool) $this->ht['smtp_auth'],
-                'username' => $this->ht['userid'],
-                'password' => Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid'])
+                'username' => empty( $this->ht['smtp_userid'] ) ?  $this->ht['userid'] : $this->ht['smtp_userid'],
+                'password' => empty( $this->ht['smtp_userpass'] ) ? Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid']) : Crypto::decrypt($this->ht['smtp_userpass'], SECRET_SALT, $this->ht['smtp_userid'])
                 );
 
         return $info;
@@ -180,7 +184,8 @@ class Email {
 
     function update($vars,&$errors) {
         $vars=$vars;
-        $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
+	    $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
+	    $vars['csmtppasswd']=$this->getSMTPPasswd(); //Current decrypted password.
 
         if(!$this->save($this->getId(), $vars, $errors))
             return false;
@@ -319,7 +324,8 @@ class Email {
                 $errors['userid']=$errors['host']='Host/userid combination already in use.';
         }
 
-        $passwd=$vars['passwd']?$vars['passwd']:$vars['cpasswd'];
+	    $passwd=$vars['passwd']?$vars['passwd']:$vars['cpasswd'];
+	    $smtppasswd=$vars['smtp_passwd']?$vars['smtp_passwd']:$vars['csmtppasswd'];
         if(!$errors && $vars['mail_active']) {
             //note: password is unencrypted at this point...MailFetcher expect plain text.
             $fetcher = new MailFetcher(
@@ -347,8 +353,8 @@ class Email {
                     array ('host' => $vars['smtp_host'],
                            'port' => $vars['smtp_port'],
                            'auth' => (bool) $vars['smtp_auth'],
-                           'username' =>$vars['userid'],
-                           'password' =>$passwd,
+                           'username' => empty($vars['smtp_userid'])?$vars['userid']:$vars['smtp_userid'],
+                           'password' => empty($vars['smtp_userid'])?$passwd:$smtppasswd,
                            'timeout'  =>20,
                            'debug' => false,
                            ));
@@ -379,7 +385,8 @@ class Email {
              ',mail_fetchfreq='.db_input($vars['mail_fetchfreq']?$vars['mail_fetchfreq']:0).
              ',mail_fetchmax='.db_input($vars['mail_fetchmax']?$vars['mail_fetchmax']:0).
              ',smtp_active='.db_input($vars['smtp_active']).
-             ',smtp_host='.db_input($vars['smtp_host']).
+	         ',smtp_host='.db_input($vars['smtp_host']).
+	         ',smtp_userid='.db_input($vars['smtp_userid']).
              ',smtp_port='.db_input($vars['smtp_port']?$vars['smtp_port']:0).
              ',smtp_auth='.db_input($vars['smtp_auth']).
              ',smtp_spoofing='.db_input(isset($vars['smtp_spoofing'])?1:0).
@@ -393,8 +400,11 @@ class Email {
         else
             $sql.=',mail_delete=0,mail_archivefolder=NULL';
 
-        if($vars['passwd']) //New password - encrypt.
-            $sql.=',userpass='.db_input(Crypto::encrypt($vars['passwd'],SECRET_SALT, $vars['userid']));
+	    if($vars['passwd']) //New password - encrypt.
+		    $sql.=',userpass='.db_input(Crypto::encrypt($vars['passwd'],SECRET_SALT, $vars['userid']));
+
+	    if($vars['smtp_passwd']) //New password - encrypt.
+		    $sql.=',smtp_userpass='.db_input(Crypto::encrypt($vars['smtp_passwd'],SECRET_SALT, $vars['smtp_userid']));
 
         if($id) { //update
             $sql='UPDATE '.EMAIL_TABLE.' SET '.$sql.' WHERE email_id='.db_input($id);

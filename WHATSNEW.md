@@ -1,3 +1,8 @@
+osTicket v1.9.x
+===============
+### Enhancements
+  * Added ability for differentiated smtp settings for Receive/Send
+
 osTicket v1.9.3
 ===============
 ### Enhancements

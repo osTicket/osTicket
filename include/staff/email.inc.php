@@ -287,6 +287,27 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
             </td>
         </tr>
+        <tr>
+	        <td width="180">
+		        Username
+	        </td>
+	        <td>
+		        <input type="text" size="35" name="smtp_userid" value="<?php echo $info['smtp_userid']; ?>"
+		               autocomplete="off" autocorrect="off">
+		        &nbsp;<span class="error">&nbsp;<?php echo $errors['smtp_userid']; ?>&nbsp;</span>
+	        </td>
+        </tr>
+        <tr>
+	        <td width="180">
+		        Password
+	        </td>
+	        <td>
+		        <input type="password" size="35" name="smtp_passwd" value="<?php echo $info['smtp_passwd']; ?>"
+		               autocomplete="off">
+		        &nbsp;<span class="error">&nbsp;<?php echo $errors['smtp_passwd']; ?>&nbsp;</span>
+		        <br><em><?php echo $passwdtxt; ?></em>
+	        </td>
+        </tr>
         <tr><td>Authentication Required</td>
             <td>
 
