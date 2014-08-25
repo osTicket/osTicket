@@ -46,6 +46,15 @@
 .filedrop .cancel {
   cursor: pointer;
 }
+.filedrop .preview {
+  width: auto;
+  height: auto;
+  max-width: 60px;
+  max-height: 40px;
+  display: inline-block;
+  float: left;
+  padding-right: 10px;
+}
 
 /* Bootstrap 3.2 progress-bar */
 @-webkit-keyframes progress-bar-stripes {

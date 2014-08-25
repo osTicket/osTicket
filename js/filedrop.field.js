@@ -12,6 +12,7 @@
       speedUpdated: $.proxy(this.speedUpdated, this),
       dragOver: $.proxy(this.dragOver, this),
       drop: $.proxy(this.drop, this),
+      beforeSend: $.proxy(this.beforeSend, this),
       error: $.proxy(this.handleError, this)
     };
 
@@ -26,6 +27,16 @@
     },
     dragOver: function(box, e) {
         this.$element.css('background-color', 'rgba(0, 0, 0, 0.3)');
+    },
+    beforeSend: function (file, i, reader) {
+      var node = this.addNode(file).data('file', file);
+      node.find('.progress').show();
+      node.find('.progress-bar').addClass('progress-bar-striped active')
+
+      if (file.type.indexOf('image/') === 0 && file.size < 1e6) {
+        node.find('.preview').attr('src', 'data:' + file.type + ';base64,' +
+          btoa(reader.result));
+      }
     },
     speedUpdated: function(i, file, speed) {
       var that = this;
@@ -43,17 +54,24 @@
           e.find('.progress-bar')
             .width(value + '%')
             .attr({'aria-valuenow': value})
+            .removeClass('progress-bar-striped active');
           if (value > 99)
-            e.find('.progress-bar').addClass('progress-bar-striped active')
+            e.find('.progress-bar').addClass('progress-bar-striped active');
           return true;
         }
       });
     },
     uploadStarted: function(i, file, n, xhr) {
-      var node = this.addNode(file).data('file', file).data('xhr', xhr);
-      node.find('.trash').hide();
-      node.find('.cancel').show();
-      this.progressUpdated(i, file, 0);
+      var that = this;
+      this.uploads.some(function(e) {
+        if (e.data('file') == file) {
+          e.data('xhr', xhr);
+          e.find('.trash').hide();
+          e.find('.cancel').show();
+          that.progressUpdated(i, file, 0);
+          return true;
+        }
+      });
     },
     uploadFinished: function(i, file, json, time, xhr) {
       var that = this;
@@ -65,7 +83,7 @@
           e.data('fileId', json.id);
           e.find('.progress-bar')
             .width('100%')
-            .attr({'aria-valuenow': 100})
+            .attr({'aria-valuenow': 100});
           e.find('.trash').show();
           e.find('.upload-rate').hide();
           e.find('.cancel').hide();
@@ -98,6 +116,7 @@
       var filenode = $('<div class="file"></div>');
       filenode
           .append($('<div class="filetype"></div>').addClass())
+          .append($('<img class="preview" />'))
           .append($('<div class="filename"></div>')
             .append($('<span class="filesize"></span>').text(
               this.fileSize(parseInt(file.size))
@@ -115,7 +134,8 @@
             .attr({'aria-valuemin':0,'aria-valuemax':100})
             .hide())
           .append($('<input type="hidden"/>').attr('name', this.options.name)
-            .val(file.id));
+            .val(file.id))
+          .append($('<div class="clear"></div>'));
       if (this.options.deletable) {
         filenode.prepend($('<span><i class="icon-trash"></i></span>')
           .addClass('trash pull-right')
@@ -487,8 +507,10 @@
                 };
             };
 
-            reader.onloadend = !opts.beforeSend ? send : function (e) {
-              opts.beforeSend(files[fileIndex], fileIndex, function () { send(e); });
+            reader.onloadend = function(e) {
+              if (!opts.beforeSend
+                  || false !== opts.beforeSend(files[fileIndex], fileIndex, e.target))
+                return send(e);
             };
 
             reader.readAsBinaryString(files[fileIndex]);
