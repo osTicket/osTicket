@@ -39,9 +39,10 @@ class DynamicFormsAjaxAPI extends AjaxController {
     function saveFieldConfiguration($field_id) {
         $field = DynamicFormField::lookup($field_id);
         if (!$field->setConfiguration())
-            include(STAFFINC_DIR . 'templates/dynamic-field-config.tmpl.php');
+            return (include STAFFINC_DIR . 'templates/dynamic-field-config.tmpl.php');
         else
             $field->save();
+        Http::response(201, 'Field successfully updated');
     }
 
     function deleteAnswer($entry_id, $field_id) {
@@ -74,9 +75,11 @@ class DynamicFormsAjaxAPI extends AjaxController {
             Http::response(404, 'No such list item');
 
         if (!$item->setConfiguration())
-            include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+            return (include STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
         else
             $item->save();
+
+        Http::response(201, 'Successfully updated record');
     }
 }
 ?>
