@@ -752,7 +752,7 @@ class DynamicFormEntry extends VerySimpleModel {
         foreach ($this->getAnswers() as $answer)
             $answer->deleted = true;
 
-        foreach ($this->getFields() as $field) {
+        foreach ($this->getForm()->getDynamicFields() as $field) {
             $found = false;
             foreach ($this->getAnswers() as $answer) {
                 if ($answer->get('field_id') == $field->get('id')) {
@@ -1053,7 +1053,7 @@ class SelectionField extends FormField {
 
         $config = parent::getConfiguration();
         if ($config['widget'])
-            $config['typeahead'] = isset($config['widget']['typeahead']);
+            $config['typeahead'] = $config['widget'] == 'typeahead';
 
         //Typeahed doesn't support multiselect for now  TODO: Add!
         if ($config['typeahead'])
