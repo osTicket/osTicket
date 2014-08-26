@@ -13,11 +13,14 @@
       dragOver: $.proxy(this.dragOver, this),
       drop: $.proxy(this.drop, this),
       beforeSend: $.proxy(this.beforeSend, this),
+      beforeEach: $.proxy(this.beforeEach, this),
       error: $.proxy(this.handleError, this)
     };
 
     this.options = $.extend({}, $.fn.filedropbox.defaults, events, options);
     this.$element.filedrop(this.options);
+    if (!window.FileReader)
+      $('input[type=file]', this.$element).attr('name', this.options.name).show();
     (this.options.files || []).forEach($.proxy(this.addNode, this));
   };
 
@@ -28,15 +31,23 @@
     dragOver: function(box, e) {
         this.$element.css('background-color', 'rgba(0, 0, 0, 0.3)');
     },
-    beforeSend: function (file, i, reader) {
+    beforeEach: function (file) {
       var node = this.addNode(file).data('file', file);
       node.find('.progress').show();
-      node.find('.progress-bar').addClass('progress-bar-striped active')
-
-      if (file.type.indexOf('image/') === 0 && file.size < 1e6) {
-        node.find('.preview').attr('src', 'data:' + file.type + ';base64,' +
-          btoa(reader.result));
-      }
+      node.find('.progress-bar').width('100%').addClass('progress-bar-striped active');
+    },
+    beforeSend: function (file, i, reader) {
+      this.uploads.some(function(e) {
+        if (e.data('file') == file) {
+          if (file.type.indexOf('image/') === 0 && file.size < 1e6) {
+            e.find('.preview').attr('src', 'data:' + file.type + ';base64,' +
+              btoa(reader.result)).tooltip({items:'img',
+                tooltipClass: 'tooltip-preview',
+                content:function(){ return $(this).clone().wrap('<div>'); }});
+          }
+          return true;
+        }
+      });
     },
     speedUpdated: function(i, file, speed) {
       var that = this;

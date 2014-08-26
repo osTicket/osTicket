@@ -55,6 +55,18 @@
   float: left;
   padding-right: 10px;
 }
+.redactor_box + .filedrop .dropzone,
+.redactor_box + div > .filedrop .dropzone,
+.redactor_box + div > .filedrop .files {
+    border-top-width: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.tooltip-preview,
+.tooltip-preview img {
+    max-width: 300px;
+    max-height: 300px;
+}
 
 /* Bootstrap 3.2 progress-bar */
 @-webkit-keyframes progress-bar-stripes {

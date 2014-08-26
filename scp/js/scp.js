@@ -93,12 +93,12 @@ var scp_prep = function() {
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
                 e.preventDefault();
                 $('.dialog#confirm-action').hide();
-                $('#overlay').hide();
+                $.toggleOverlay(false);
                 $('input#action', formObj).val(action);
                 formObj.submit();
                 return false;
              });
-            $('#overlay').show();
+            $.toggleOverlay(true);
             $('.dialog#confirm-action .confirm-action').hide();
             $('.dialog#confirm-action p#'+this.name+'-confirm')
             .show()
@@ -115,7 +115,7 @@ var scp_prep = function() {
             var action = $(this).attr('href').substr(1, $(this).attr('href').length);
 
             $('input#action', $dialog).val(action);
-            $('#overlay').show();
+            $.toggleOverlay(true);
             $('.confirm-action', $dialog).hide();
             $('p'+$(this).attr('href')+'-confirm', $dialog)
             .show()
@@ -333,7 +333,7 @@ var scp_prep = function() {
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
         e.preventDefault();
         $(this).parents('div.dialog').hide()
-        $('#overlay').hide();
+        $.toggleOverlay(false);
 
         return false;
     });
@@ -353,7 +353,7 @@ var scp_prep = function() {
     $('#go-advanced').click(function(e) {
         e.preventDefault();
         $('#result-count').html('');
-        $('#overlay').show();
+        $.toggleOverlay(true);
         $('#advanced-search').show();
     });
 
@@ -513,13 +513,27 @@ $(document).keydown(function(e) {
 
     if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
         $('div.dialog').hide();
-        $('#overlay').hide();
+        $.toggleOverlay(false);
 
         e.preventDefault();
         e.stopPropagation();
         return false;
     }
 });
+
+$.toggleOverlay = function (show) {
+  if (typeof(show) === 'undefined') {
+    return $.toggleOverlay(!$('#overlay').is(':visible'));
+  }
+  if (show) {
+    $('#overlay').fadeIn();
+    $('body').css('overflow', 'hidden');
+  }
+  else {
+    $('#overlay').fadeOut();
+    $('body').css('overflow', 'auto');
+  }
+};
 
 $.dialog = function (url, codes, cb, options) {
     options = options||{};
@@ -529,19 +543,17 @@ $.dialog = function (url, codes, cb, options) {
 
     var $popup = $('.dialog#popup');
 
-    $('#overlay').show();
+    $.toggleOverlay(true);
     $('div.body', $popup).empty().hide();
-    $('div#popup-loading', $popup).show()
+    $('div#popup-loading', $popup).slideDown()
         .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
-    $popup.show();
+    $popup.slideDown();
     $('div.body', $popup).load(url, function () {
         $('div#popup-loading', $popup).hide();
-        $('#overlay').show();
-        $('div.body', $popup).show({
-            duration: 0,
+        $('div.body', $popup).slideDown({
+            duration: 200,
             complete: function() { if (options.onshow) options.onshow(); }
         });
-        $popup.show();
         $(document).off('.dialog');
         $(document).on('submit.dialog', '.dialog#popup form', function(e) {
             e.preventDefault();
@@ -556,12 +568,13 @@ $.dialog = function (url, codes, cb, options) {
                 success: function(resp, status, xhr) {
                     if (xhr && xhr.status && codes
                         && $.inArray(xhr.status, codes) != -1) {
-                        $('div.body', $popup).empty();
+                        $.toggleOverlay(false);
                         $popup.hide();
-                        $('#overlay').hide();
+                        $('div.body', $popup).empty();
                         if(cb) cb(xhr);
                     } else {
                         $('div.body', $popup).html(resp);
+                        $popup.effect('shake');
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
                     }
                 }
@@ -579,7 +592,7 @@ $.dialog = function (url, codes, cb, options) {
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
     if ($dialog.length) {
-        $('#overlay').show();
+        $.toggleOverlay(true);
         $('#title', $dialog).html(title);
         $('#body', $dialog).html(msg);
         $dialog.show();
