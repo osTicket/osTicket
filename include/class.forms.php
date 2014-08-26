@@ -786,7 +786,9 @@ class ChoiceField extends FormField {
     }
 
     function toString($value) {
-        return (string) $this->getChoice($value);
+        $selection = $this->getChoice($value);
+        return is_array($selection) ? implode(', ', array_filter($selection))
+            : (string) $selection;
     }
 
     function getChoice($value) {
@@ -800,7 +802,7 @@ class ChoiceField extends FormField {
         elseif ($this->get('default'))
             $selection[] = $choices[$this->get('default')];
 
-        return $selection ? implode(', ', array_filter($selection)) : '';
+        return $selection;
     }
 
     function getChoices($verbose=false) {
