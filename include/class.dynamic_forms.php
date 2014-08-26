@@ -1011,10 +1011,9 @@ class SelectionField extends FormField {
         parent::validateEntry($entry);
         if (!$this->errors()) {
             $config = $this->getConfiguration();
-            if (!$entry || count($entry) == 0)
-                $this->_errors[] = __('Select a value from the list');
-            elseif ($config['typeahead']
-                    && !in_array($this->getWidget()->getEnteredValue(), $entry))
+            if ($config['typeahead']
+                    && ($entered = $this->getWidget()->getEnteredValue())
+                    && !in_array($entered, $entry))
                 $this->_errors[] = __('Select a value from the list');
         }
     }
