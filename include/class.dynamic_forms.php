@@ -696,9 +696,14 @@ class DynamicFormEntry extends VerySimpleModel {
 
     function forTicket($ticket_id, $force=false) {
         static $entries = array();
-        if (!isset($entries[$ticket_id]) || $force)
-            $entries[$ticket_id] = DynamicFormEntry::objects()
+        if (!isset($entries[$ticket_id]) || $force) {
+            $stuff = DynamicFormEntry::objects()
                 ->filter(array('object_id'=>$ticket_id, 'object_type'=>'T'));
+            // If forced, don't cache the result
+            if ($force)
+                return $stuff;
+            $entries[$ticket_id] = &$stuff;
+        }
         return $entries[$ticket_id];
     }
     function setTicketId($ticket_id) {
@@ -747,7 +752,7 @@ class DynamicFormEntry extends VerySimpleModel {
         foreach ($this->getAnswers() as $answer)
             $answer->deleted = true;
 
-        foreach ($this->getForm()->getDynamicFields() as $field) {
+        foreach ($this->getFields() as $field) {
             $found = false;
             foreach ($this->getAnswers() as $answer) {
                 if ($answer->get('field_id') == $field->get('id')) {
