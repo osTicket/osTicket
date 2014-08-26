@@ -7,7 +7,7 @@
 
 
 -- Add extra SMTP settings
-ALTER TABLE `%TABLE_PREFIX%email` ADD `smtp_userid` VARCHAR(255) NOT NULL DEFAULT ''  AFTER `smtp_port`
+ALTER TABLE `%TABLE_PREFIX%email` ADD `smtp_userid` VARCHAR(255) NOT NULL DEFAULT ''  AFTER `smtp_port`;
 ALTER TABLE `%TABLE_PREFIX%email` ADD `smtp_userpass` VARCHAR(255) NOT NULL DEFAULT ''  AFTER `smtp_userid`;
 
 
