@@ -983,10 +983,15 @@ class SelectionField extends FormField {
     }
 
     function to_database($value) {
+        $id = null;
+        if (is_array($value)) {
+            reset($value);
+            $id = key($value);
+        }
         if ($value && is_array($value))
             $value = JsonDataEncoder::encode($value);
 
-        return $value;
+        return array($value, $id);
     }
 
     function to_php($value, $id=false) {
