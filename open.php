@@ -29,7 +29,8 @@ if ($_POST) {
             $errors['captcha']=__('Invalid - try again!');
     }
 
-    $attachments = new FileUploadField(array('id'=>'attach'));
+    $tform = TicketForm::objects()->one()->getForm($create_vars);
+    $attachments = $tform->getField('message')->getWidget()->getAttachments();
     if (!$errors && $cfg->allowOnlineAttachments())
         $vars['cannedattachments'] = $attachments->getClean();
 

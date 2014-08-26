@@ -19,8 +19,11 @@
 
     this.options = $.extend({}, $.fn.filedropbox.defaults, events, options);
     this.$element.filedrop(this.options);
-    if (!window.FileReader)
-      $('input[type=file]', this.$element).attr('name', this.options.name).show();
+    if (this.options.shim) {
+      $('input[type=file]', this.$element).attr('name', this.options.name)
+          .addClass('shim').css('display', 'inline-block').show();
+      $('a.manual', this.$element).hide();
+    }
     (this.options.files || []).forEach($.proxy(this.addNode, this));
   };
 
@@ -190,7 +193,8 @@
 
   $.fn.filedropbox.defaults = {
     files: [],
-    deletable: true
+    deletable: true,
+    shim: !window.FileReader
   };
 
   $.fn.filedropbox.Constructor = FileDropbox;
@@ -270,11 +274,12 @@
         files_count = 0,
         files;
 
-    $('#' + opts.fallback_id).css({
-      display: 'none',
-      width: 0,
-      height: 0
-    });
+    if (window.FileReader)
+      $('#' + opts.fallback_id).css({
+        display: 'none',
+        width: 0,
+        height: 0
+      });
 
     this.on('drop', drop).on('dragstart', opts.dragStart).on('dragenter', dragEnter).on('dragover', dragOver).on('dragleave', dragLeave);
     $(document).on('drop', docDrop).on('dragenter', docEnter).on('dragover', docOver).on('dragleave', docLeave);

@@ -1718,7 +1718,7 @@ class ThreadEntryWidget extends Widget {
 
         return new FileUploadField(array(
             'id'=>'attach',
-            'name'=>'attach:' + $this->field->get('id'),
+            'name'=>'attach:' . $this->field->get('id'),
             'configuration'=>$config)
         );
     }
@@ -1759,8 +1759,9 @@ class FileUploadWidget extends Widget {
             ?>" class="filedrop"><div class="files"></div>
             <div class="dropzone"><i class="icon-upload"></i>
             Drop files here or <a href="#" class="manual">choose
-            them</a></div></div>
-        <input type="file" multiple id="file-<?php echo $id; ?>" style="display:none;"/>
+            them</a>
+        <input type="file" class="multifile" multiple id="file-<?php echo $id; ?>" style="display:none;"/>
+        </div></div>
         <script type="text/javascript">
         $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
           url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
@@ -1780,9 +1781,19 @@ class FileUploadWidget extends Widget {
 
     function getValue() {
         $data = $this->field->getSource();
+        $ids = array();
+        // Handle manual uploads (IE<10)
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
+            foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
+                if ($id = AttachmentFile::upload($file))
+                    $ids[] = $id;
+            }
+            return array_merge($ids, parent::getValue() ?: array());
+        }
         // If no value was sent, assume an empty list
-        if ($data && is_array($data) && !isset($data[$this->name]))
+        elseif ($data && is_array($data) && !isset($data[$this->name]))
             return array();
+
         return parent::getValue();
     }
 }
