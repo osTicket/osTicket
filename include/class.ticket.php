@@ -2299,6 +2299,16 @@ class Ticket {
             }
         }
 
+        if ($vars['topicId']) {
+            if (($__topic=Topic::lookup($vars['topicId']))
+                && $__form = $__topic->getForm()
+            ) {
+                $__form = $__form->instanciate();
+                $__form->setSource($vars);
+                $vars += $__form->getFilterData();
+            }
+        }
+
         //Init ticket filters...
         $ticket_filter = new TicketFilter($origin, $vars);
         // Make sure email contents should not be rejected

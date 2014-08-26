@@ -368,6 +368,24 @@ Signal::connect('model.updated',
     function($o, $d) { return isset($d['dirty'])
         && (isset($d['dirty']['name']) || isset($d['dirty']['type'])); });
 
+Filter::addSupportedMatches(/* trans */ 'Custom Forms', function() {
+    $matches = array();
+    foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $form) {
+        foreach ($form->getFields() as $f) {
+            if (!$f->hasData())
+                continue;
+            $matches['field.'.$f->get('id')] = $form->getTitle().' / '.$f->getLabel();
+            if (($fi = $f->getImpl()) instanceof SelectionField) {
+                foreach ($fi->getList()->getProperties() as $p) {
+                    $matches['field.'.$f->get('id').'.'.$p->get('id')]
+                        = $form->getTitle().' / '.$f->getLabel().' / '.$p->getLabel();
+                }
+            }
+        }
+    }
+    return $matches;
+}, 9900);
+
 require_once(INCLUDE_DIR . "class.json.php");
 
 class DynamicFormField extends VerySimpleModel {
