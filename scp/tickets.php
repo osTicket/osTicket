@@ -63,24 +63,29 @@ if($_POST && !$errors):
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
 
-            $wasOpen =($ticket->isOpen());
-
             //If no error...do the do.
             $vars = $_POST;
             if(!$errors && $_FILES['attachments'])
                 $vars['files'] = AttachmentFile::format($_FILES['attachments']);
 
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
-                $msg=__('Reply posted successfully');
-                $ticket->reload();
+                $msg = sprintf(__('%s: Reply posted successfully'),
+                        sprintf(__('Ticket #%s'),
+                            sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                $ticket->getId(), $ticket->getNumber()))
+                        );
 
-                if($ticket->isClosed() && $wasOpen)
-                    $ticket=null;
-                else
-                    // Still open -- cleanup response draft for this user
-                    Draft::deleteForNamespace(
-                        'ticket.response.' . $ticket->getId(),
-                        $thisstaff->getId());
+                // Remove staff's locks
+                TicketLock::removeStaffLocks($thisstaff->getId(),
+                        $ticket->getId());
+
+                // Cleanup response draft for this user
+                Draft::deleteForNamespace(
+                    'ticket.response.' . $ticket->getId(),
+                    $thisstaff->getId());
+
+                // Go back to the ticket listing page on reply
+                $ticket = null;
 
             } elseif(!$errors['err']) {
                 $errors['err']=__('Unable to post the reply. Correct the errors below and try again!');
