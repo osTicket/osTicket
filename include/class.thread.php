@@ -16,6 +16,7 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
+include_once(INCLUDE_DIR.'class.fuzzyhash.php');
 
 //Ticket thread.
 class Thread {
@@ -249,7 +250,7 @@ Class ThreadEntry {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT thread.*, info.email_mid, info.headers '
+        $sql='SELECT thread.*, info.email_mid, info.headers, info.hashes '
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
             .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
@@ -695,6 +696,8 @@ Class ThreadEntry {
             $vars['attachments'] = $mailinfo['attachments'];
 
         $body = $mailinfo['message'];
+        if ($body instanceof ThreadBody)
+            $body->stripQuotedReply($this);
 
         // Disambiguate if the user happens also to be a staff member of the
         // system. The current ticket owner should _always_ post messages
@@ -972,6 +975,39 @@ Class ThreadEntry {
             substr(md5($to . $ticket->getNumber() . $ticket->getId()), -10),
             substr($domain, -10)
         );
+    }
+
+    function getHashes() {
+        return $this->ht['hashes'];
+    }
+
+    function addHash($body, $type='text') {
+        switch ($type) {
+        case 'text':
+            $tokens = new TextTokenizer();
+            $hash = FuzzyHash::fromTokens($tokens->load($body));
+            break;
+        case 'html':
+            $tokens = new HtmlTokenizer();
+            $hash = HtmlFuzzyHash::fromTokens($tokens->load($body));
+            break;
+        default:
+            return false;
+        }
+        $hash = (string) $hash;
+        if (strpos($this->ht['hashes'], $hash) !== false)
+            // No sense in storing a duplicate hash
+            return;
+
+        if ($this->ht['hashes'])
+            $this->ht['hashes'] .= ',';
+        $this->ht['hashes'] .= $hash;
+
+        // TODO: Defer storing new hashes (as many will be added at once)
+        $sql = 'UPDATE '.TICKET_EMAIL_INFO_TABLE.' SET hashes='
+            .db_input($this->ht['hashes'])
+            .' WHERE thread_id = '.db_input($this->getId());
+        return db_query($sql) && db_affected_rows();
     }
 
     //new entry ... we're trusting the caller to check validity of the data.
@@ -1311,10 +1347,12 @@ class ThreadBody /* extends SplString */ {
         }
     }
 
-    function stripQuotedReply($tag) {
+    function stripQuotedReply($thread) {
+        // Get hash list from the thread
+        if (!$thread instanceof ThreadEntry)
+            return;
 
-        //Strip quoted reply...on emailed  messages
-        if (!$tag || strpos($this->body, $tag) === false)
+        if (!($hashes = $thread->getHashes()))
             return;
 
         // Capture a list of inline images
@@ -1322,17 +1360,29 @@ class ThreadBody /* extends SplString */ {
         preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body, $images_before,
             PREG_PATTERN_ORDER);
 
-        // Strip the quoted part of the body
-        if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg)) {
-            $this->body = $msg;
+        // Generate hashes from this body
+        $hash = new AdaptiveFuzzyHash();
+        switch ($this->type) {
+        case 'html':
+            // HTML is already strubbed in constructor
+            $hash->addHtml($this->body, HtmlTokenizer::FLAG_SAFE_HTML);
+            break;
+        case 'text':
+            $hash->addText($this->body);
+            break;
+        default:
+            return;
+        }
 
-            // Capture a list of dropped inline images
-            if ($images_before) {
-                preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body,
-                    $images_after, PREG_PATTERN_ORDER);
-                $this->stripped_images = array_diff($images_before[2],
-                    $images_after[2]);
-            }
+        // Remove best hash
+        $this->body = $hash->remove(explode(',',$hashes));
+
+        // Capture a list of dropped inline images
+        if ($images_before) {
+            preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body,
+                $images_after, PREG_PATTERN_ORDER);
+            $this->stripped_images = array_diff($images_before[2],
+                $images_after[2]);
         }
     }
 
