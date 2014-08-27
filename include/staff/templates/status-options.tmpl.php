@@ -1,24 +1,21 @@
 <?php
 $actions= array(
         'close' => array(
-            'action' => __('Close'),
             'icon'  => 'icon-repeat',
-            'states' => array('closed')
+            'state' => 'closed'
             ),
         'resolve' => array(
-            'action' => __('Resolve'),
             'icon'  => 'icon-ok-circle',
-            'states' => array('resolved')
+            'state' => 'resolved'
             ),
         'reopen' => array(
-            'action' =>  __('Reopen'),
             'icon'  => 'icon-undo',
-            'states' => array('open')
+            'state' => 'open'
             ),
         );
 
 foreach($actions as $k => $v) {
-    $criteria = array('states' => $v['states']);
+    $criteria = array('states' => array($v['state']));
     if (!($statuses = TicketStatusList::getStatuses($criteria)->all()))
         continue;
 
@@ -30,7 +27,8 @@ foreach($actions as $k => $v) {
             <a id="tickets-<?php echo $k; ?>"
                 class="tickets-action"
                 href="#tickets/status/<?php echo $k; ?>"><i
-                class="<?php echo $v['icon']; ?>"></i> <?php echo $v['action']; ?></a>
+                class="<?php echo $v['icon']; ?>"></i> <?php
+                echo TicketStateField::getVerb($v['state']); ?></a>
             <i class="icon-caret-down"></i>
         </span>
         <div id="action-dropdown-<?php echo $k; ?>"
@@ -54,7 +52,8 @@ foreach($actions as $k => $v) {
     ?>
         <a id="tickets-<?php echo $k; ?>" class="action-button tickets-action"
             href="#tickets/status/<?php echo $k; ?>"><i
-            class="<?php echo $v['icon']; ?>"></i> <?php echo $v['action']; ?></a>
+            class="<?php echo $v['icon']; ?>"></i> <?php
+            echo TicketStateField::getVerb($v['state']); ?></a>
 <?php
     }
 }
