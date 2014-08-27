@@ -577,15 +577,11 @@ $tcount+= $ticket->getNumNotes();
                         rows="9" wrap="soft"
                         class="richtext ifhtml draft draft-delete"><?php
                         echo $info['response']; ?></textarea>
-            <?php
-            if($cfg->allowAttachments()) { ?>
                 <div id="reply_form_attachments" class="attachments">
 <?php
 print $response_form->getField('attachments')->render();
 ?>
                 </div>
-            <?php
-            }?>
                 </td>
             </tr>
             <tr>
@@ -686,8 +682,6 @@ print $response_form->getField('attachments')->render();
                         <span class="error"><?php echo $errors['note']; ?></span>
                 </td>
             </tr>
-            <?php
-            if($cfg->allowAttachments()) { ?>
             <tr>
                 <td width="120">
                     <label for="attachment"><?php echo __('Attachments');?>:</label>
@@ -698,9 +692,6 @@ print $note_form->getField('attachments')->render();
 ?>
                 </td>
             </tr>
-            <?php
-            }
-            ?>
             <tr><td colspan="2">&nbsp;</td></tr>
             <tr>
                 <td width="120">

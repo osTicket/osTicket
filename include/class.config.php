@@ -152,9 +152,6 @@ class OsticketConfig extends Config {
         'pw_reset_window' =>    30,
         'enable_html_thread' => true,
         'allow_attachments' =>  true,
-        'allow_email_attachments' => true,
-        'allow_online_attachments' => true,
-        'allow_online_attachments_onlogin' => false,
         'name_format' =>        'full', # First Last
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
@@ -809,26 +806,8 @@ class OsticketConfig extends Config {
         return ($this->get('allow_attachments'));
     }
 
-    function allowOnlineAttachments() {
-        return ($this->allowAttachments() && $this->get('allow_online_attachments'));
-    }
-
-    function allowAttachmentsOnlogin() {
-        return ($this->allowOnlineAttachments() && $this->get('allow_online_attachments_onlogin'));
-    }
-
-    function allowEmailAttachments() {
-        return ($this->allowAttachments() && $this->get('allow_email_attachments'));
-    }
-
     function getSystemLanguage() {
         return $this->get('system_language');
-    }
-
-    //TODO: change db field to allow_api_attachments - which will include  email/json/xml attachments
-    //       terminology changed on the UI
-    function allowAPIAttachments() {
-        return $this->allowEmailAttachments();
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
@@ -959,27 +938,6 @@ class OsticketConfig extends Config {
                 $errors['enable_captcha']=__('PNG support is required for Image Captcha');
         }
 
-        if($vars['allow_attachments']) {
-
-            if(!ini_get('file_uploads'))
-                $errors['err']=__('The "file_uploads" directive is disabled in php.ini');
-
-            if(!is_numeric($vars['max_file_size']))
-                $errors['max_file_size']=__('Maximum file size required');
-
-            if(!$vars['allowed_filetypes'])
-                $errors['allowed_filetypes']=__('Allowed file extentions required');
-
-            if(!($maxfileuploads=ini_get('max_file_uploads')))
-                $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
-
-            if(!$vars['max_user_file_uploads'] || $vars['max_user_file_uploads']>$maxfileuploads)
-                $errors['max_user_file_uploads']=sprintf(__('Invalid selection. Must be less than %d'),$maxfileuploads);
-
-            if(!$vars['max_staff_file_uploads'] || $vars['max_staff_file_uploads']>$maxfileuploads)
-                $errors['max_staff_file_uploads']=sprintf(__('Invalid selection. Must be less than %d'),$maxfileuploads);
-        }
-
         if ($vars['default_help_topic']
                 && ($T = Topic::lookup($vars['default_help_topic']))
                 && !$T->isActive()) {
@@ -1012,15 +970,8 @@ class OsticketConfig extends Config {
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
-            'allow_attachments'=>isset($vars['allow_attachments'])?1:0,
-            'allowed_filetypes'=>strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))),
             'max_file_size'=>$vars['max_file_size'],
-            'max_user_file_uploads'=>$vars['max_user_file_uploads'],
-            'max_staff_file_uploads'=>$vars['max_staff_file_uploads'],
             'email_attachments'=>isset($vars['email_attachments'])?1:0,
-            'allow_email_attachments'=>isset($vars['allow_email_attachments'])?1:0,
-            'allow_online_attachments'=>isset($vars['allow_online_attachments'])?1:0,
-            'allow_online_attachments_onlogin'=>isset($vars['allow_online_attachments_onlogin'])?1:0,
         ));
     }
 

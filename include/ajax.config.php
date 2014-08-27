@@ -27,10 +27,8 @@ class ConfigAjaxAPI extends AjaxController {
 
         $config=array(
               'lock_time'       => ($cfg->getLockTime()*3600),
-              'max_file_uploads'=> (int) $cfg->getStaffMaxFileUploads(),
               'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
               'date_format'     => ($cfg->getDateFormat()),
-              'allow_attachments' => (bool) $cfg->allowAttachments(),
               'lang'            => $lang,
               'short_lang'      => $sl,
         );
@@ -44,10 +42,6 @@ class ConfigAjaxAPI extends AjaxController {
         list($sl, $locale) = explode('_', $lang);
 
         $config=array(
-            'allow_attachments' => (bool) $cfg->allowOnlineAttachments(),
-            'file_types'      => $cfg->getAllowedFileTypes(),
-            'max_file_size'   => (int) $cfg->getMaxFileSize(),
-            'max_file_uploads'=> (int) $cfg->getClientMaxFileUploads(),
             'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
             'lang'            => $lang,
             'short_lang'      => $sl,

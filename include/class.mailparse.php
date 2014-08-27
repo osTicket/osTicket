@@ -672,8 +672,7 @@ class EmailDataParser {
                 $data['reply-to-name'] = trim($replyto->personal, " \t\n\r\0\x0B\x22");
         }
 
-        if($cfg && $cfg->allowEmailAttachments())
-            $data['attachments'] = $parser->getAttachments();
+        $data['attachments'] = $parser->getAttachments();
 
         return $data;
     }

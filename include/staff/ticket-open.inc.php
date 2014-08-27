@@ -302,15 +302,11 @@ if ($_POST)
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;"><?php echo $info['response']; ?></textarea>
-                <?php
-                if($cfg->allowAttachments()) { ?>
                     <div class="attachments">
 <?php
 print $response_form->getField('attachments')->render();
 ?>
                     </div>
-                <?php
-                } ?>
 
                 <table border="0" cellspacing="0" cellpadding="2" width="100%">
             <tr>

@@ -995,10 +995,14 @@ class ThreadEntryField extends FormField {
         return array(
             'attachments' => new BooleanField(array(
                 'label'=>__('Enable Attachments'),
-                'default'=>$cfg->allowOnlineAttachments(),
+                'default'=>$cfg->allowAttachments(),
                 'configuration'=>array(
                     'desc'=>__('Enables attachments on tickets, regardless of channel'),
                 ),
+                'validators' => function($self, $value) {
+                    if (!ini_get('file_uploads'))
+                        $self->addError(__('The "file_uploads" directive is disabled in php.ini'));
+                }
             )),
         )
         + $attachments->getConfigurationOptions();

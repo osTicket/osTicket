@@ -35,9 +35,9 @@ if($_REQUEST['id']) {
 if (!$ticket && $thisclient->isGuest())
     Http::redirect('view.php');
 
-$response_form = new Form(array(
-    'attachments' => new FileUploadField(array('id'=>'attach'))
-));
+$tform = TicketForm::objects()->one();
+$messageField = $tform->getField('message');
+$attachments = $messageField->getWidget()->getAttachments();
 
 //Process post...depends on $ticket object above.
 if($_POST && is_object($ticket) && $ticket->getId()):

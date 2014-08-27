@@ -184,11 +184,11 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
             </td>
         </tr>
         <?php
-        if($cfg->allowOnlineAttachments()) { ?>
+        if ($messageField->isAttachmentsEnabled()) { ?>
         <tr>
             <td colspan="2">
 <?php
-            print $response_form->getField('attachments')->render(true);
+            print $attachments->render(true);
 ?>
             </td>
         </tr>
