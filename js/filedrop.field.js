@@ -178,6 +178,13 @@
         node.data('xhr').abort();
         return this.deleteNode(node, false);
       }
+    },
+    handleError: function(err, i, file, status) {
+      var message = $.fn.filedropbox.messages[err];
+      if (file instanceof File) {
+        message = '<b>' + file.name + '</b><br/>' + message;
+      }
+      $.sysAlert(__('File Upload Error'), message);
     }
   };
 
@@ -195,6 +202,17 @@
     files: [],
     deletable: true,
     shim: !window.FileReader
+  };
+
+  $.fn.filedropbox.messages = {
+    'BrowserNotSupported': __('Your browser is not supported'),
+    'TooManyFiles': __('You are trying to upload too many files'),
+    'FileTooLarge': __('File is too large'),
+    'FileTypeNotAllowed': __('This type of file is not allowed'),
+    'FileExtensionNotAllowed': __('This type of file is not allowed'),
+    'NotFound': __('Could not find or read this file'),
+    'NotReadable': __('Could not find or read this file'),
+    'AbortError': __('Could not find or read this file')
   };
 
   $.fn.filedropbox.Constructor = FileDropbox;
@@ -416,7 +434,7 @@
       if (opts.allowedfiletypes.push && opts.allowedfiletypes.length) {
         for(var fileIndex = files.length;fileIndex--;) {
           if(!files[fileIndex].type || $.inArray(files[fileIndex].type, opts.allowedfiletypes) < 0) {
-            opts.error(errors[3], files[fileIndex]);
+            opts.error(errors[3], files[fileIndex], fileIndex);
             return false;
           }
         }
@@ -433,7 +451,7 @@
             }
           }
           if (!allowedextension){
-            opts.error(errors[8], files[fileIndex]);
+            opts.error(errors[8], files[fileIndex], fileIndex);
             return false;
           }
         }
@@ -509,16 +527,16 @@
             reader.onerror = function(e) {
                 switch(e.target.error.code) {
                     case e.target.error.NOT_FOUND_ERR:
-                        opts.error(errors[4]);
+                        opts.error(errors[4], files[fileIndex], fileIndex);
                         return false;
                     case e.target.error.NOT_READABLE_ERR:
-                        opts.error(errors[5]);
+                        opts.error(errors[5], files[fileIndex], fileIndex);
                         return false;
                     case e.target.error.ABORT_ERR:
-                        opts.error(errors[6]);
+                        opts.error(errors[6], files[fileIndex], fileIndex);
                         return false;
                     default:
-                        opts.error(errors[7]);
+                        opts.error(errors[7], files[fileIndex], fileIndex);
                         return false;
                 };
             };
@@ -541,7 +559,7 @@
               processingQueue.splice(key, 1);
             }
           });
-          opts.error(errors[0]);
+          opts.error(errors[0], files[fileIndex], fileIndex, err);
           return false;
         }
 
