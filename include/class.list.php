@@ -946,8 +946,8 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
                     }
                     break;
                 case 'state':
-                    if ($val && is_array($val))
-                        $this->set('state', key($val));
+                    if ($val)
+                        $this->set('state', $val);
                     else
                         $f->addError(__('Unknown or invalid state'), $name);
                     break;

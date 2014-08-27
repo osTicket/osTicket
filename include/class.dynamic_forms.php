@@ -696,9 +696,14 @@ class DynamicFormEntry extends VerySimpleModel {
 
     function forTicket($ticket_id, $force=false) {
         static $entries = array();
-        if (!isset($entries[$ticket_id]) || $force)
-            $entries[$ticket_id] = DynamicFormEntry::objects()
+        if (!isset($entries[$ticket_id]) || $force) {
+            $stuff = DynamicFormEntry::objects()
                 ->filter(array('object_id'=>$ticket_id, 'object_type'=>'T'));
+            // If forced, don't cache the result
+            if ($force)
+                return $stuff;
+            $entries[$ticket_id] = &$stuff;
+        }
         return $entries[$ticket_id];
     }
     function setTicketId($ticket_id) {
@@ -936,7 +941,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 }
 
 class SelectionField extends FormField {
-    static $widget = 'SelectionWidget';
+    static $widget = 'ChoicesWidget';
 
     function getListId() {
         list(,$list_id) = explode('-', $this->get('type'));
@@ -950,6 +955,14 @@ class SelectionField extends FormField {
         return $this->_list;
     }
 
+    function getWidget() {
+        $config = $this->getConfiguration();
+        $widgetClass = false;
+        if ($config['widget'] == 'typeahead')
+            $widgetClass = 'TypeaheadSelectionWidget';
+        return parent::getWidget($widgetClass);
+    }
+
     function parse($value) {
 
         if (!($list=$this->getList()))
@@ -958,16 +971,9 @@ class SelectionField extends FormField {
         $config = $this->getConfiguration();
         $choices = $this->getChoices();
         $selection = array();
-        if ($config['typeahead']) {
-            // Entered value
-            $val = $this->getWidget()->getEnteredValue();
-            if (($i=$list->getItem($val)) && $i->getId() == $value)
-                $selection[$i->getId()] = $i->getValue();
-            elseif ($val && isset($choices[$value])) //perhaps old deleted item...
-                $selection[$value] = $choices[$value];
-        } elseif ($value && is_array($value)) {
-            foreach ($value as $v) {
-                if (($i=$list->getItem((int) $v)))
+        if ($value && is_array($value)) {
+            foreach ($value as $k=>$v) {
+                if (($i=$list->getItem((int) $k)))
                     $selection[$i->getId()] = $i->getValue();
                 elseif (isset($choices[$v]))
                     $selection[$v] = $choices[$v];
@@ -978,15 +984,26 @@ class SelectionField extends FormField {
     }
 
     function to_database($value) {
+        $id = null;
+        if (is_array($value)) {
+            reset($value);
+            $id = key($value);
+        }
         if ($value && is_array($value))
             $value = JsonDataEncoder::encode($value);
 
-        return $value;
+        return array($value, $id);
     }
 
     function to_php($value, $id=false) {
-        return ($value && !is_array($value))
+        $value = ($value && !is_array($value))
             ? JsonDataParser::parse($value) : $value;
+        if (!is_array($value)) {
+            $choices = $this->getChoices();
+            if (isset($choices[$value]))
+                $value = $choices[$value];
+        }
+        return $value;
     }
 
     function hasIdValue() {
@@ -1002,10 +1019,9 @@ class SelectionField extends FormField {
         parent::validateEntry($entry);
         if (!$this->errors()) {
             $config = $this->getConfiguration();
-            if (!$entry || count($entry) == 0)
-                $this->_errors[] = __('Select a value from the list');
-            elseif ($config['typeahead']
-                    && !in_array($this->getWidget()->getEnteredValue(), $entry))
+            if ($config['typeahead']
+                    && ($entered = $this->getWidget()->getEnteredValue())
+                    && !in_array($entered, $entry))
                 $this->_errors[] = __('Select a value from the list');
         }
     }
@@ -1043,7 +1059,7 @@ class SelectionField extends FormField {
 
         $config = parent::getConfiguration();
         if ($config['widget'])
-            $config['typeahead'] = isset($config['widget']['typeahead']);
+            $config['typeahead'] = $config['widget'] == 'typeahead';
 
         //Typeahed doesn't support multiselect for now  TODO: Add!
         if ($config['typeahead'])
@@ -1072,6 +1088,18 @@ class SelectionField extends FormField {
         return $this->_choices;
     }
 
+    function getChoice($value) {
+        $choices = $this->getChoices();
+        if ($value && is_array($value)) {
+            $selection = $value;
+        } elseif (isset($choices[$value]))
+            $selection[] = $choices[$value];
+        elseif ($this->get('default'))
+            $selection[] = $choices[$this->get('default')];
+
+        return $selection;
+    }
+
     function export($value) {
         if ($value && is_numeric($value)
                 && ($item = DynamicListItem::lookup($value)))
@@ -1088,23 +1116,15 @@ class SelectionField extends FormField {
     }
 }
 
-class SelectionWidget extends ChoicesWidget {
-    function render($mode=false) {
+class TypeaheadSelectionWidget extends ChoicesWidget {
+    function render($how) {
+        if ($how == 'search')
+            return parent::render($how);
 
-        $config = $this->field->getConfiguration();
-        if (($value=$this->getValue()))
-            $value =  $this->field->parse($value);
-        elseif ($this->value)
-            $value = $this->value;
-
-        if (!$config['typeahead'] || $mode=='search') {
-            $this->value = $value;
-            return parent::render($mode);
-        }
-
-        if ($value && is_array($value)) {
-            $name = current($value);
-            $value = key($value);
+        $name = $this->getEnteredValue();
+        if (is_array($this->value)) {
+            $name = $name ?: current($this->value);
+            $value = key($this->value);
         }
 
         $source = array();
@@ -1117,20 +1137,23 @@ class SelectionWidget extends ChoicesWidget {
             );
         ?>
         <span style="display:inline-block">
-        <input type="text" size="30" name="<?php echo $this->name; ?>"
-            id="<?php echo $this->name; ?>" value="<?php echo $name; ?>"
+        <input type="text" size="30" name="<?php echo $this->name; ?>_name"
+            id="<?php echo $this->name; ?>" value="<?php echo Format::htmlchars($name); ?>"
             placeholder="<?php echo $config['prompt'];
             ?>" autocomplete="off" />
         <input type="hidden" name="<?php echo $this->name;
-            ?>_id" id="<?php echo $this->name; ?>_id" value="<?php echo $value; ?>"/>
+            ?>[<?php echo $value; ?>]" id="<?php echo $this->name;
+            ?>_id" value="<?php echo Format::htmlchars($name); ?>"/>
         <script type="text/javascript">
         $(function() {
             $('input#<?php echo $this->name; ?>').typeahead({
                 source: <?php echo JsonDataEncoder::encode($source); ?>,
                 property: 'info',
                 onselect: function(item) {
-                    $('input#<?php echo $this->name; ?>').val(item['value'])
-                    $('input#<?php echo $this->name; ?>_id').val(item['id'])
+                    $('input#<?php echo $this->name; ?>_name').val(item['value'])
+                    $('input#<?php echo $this->name; ?>_id')
+                      .attr('name', '<?php echo $this->name; ?>[' + item['id'] + ']')
+                      .val(item['value']);
                 }
             });
         });
@@ -1141,14 +1164,16 @@ class SelectionWidget extends ChoicesWidget {
 
     function getValue() {
         $data = $this->field->getSource();
-        // Search for HTML form name first
-        if (isset($data[$this->name.'_id']))
-            return (int) $data[$this->name.'_id'];
+        if (isset($data[$this->name]))
+            return $data[$this->name];
         return parent::getValue();
     }
 
     function getEnteredValue() {
         // Used to verify typeahead fields
+        $data = $this->field->getSource();
+        if (isset($data[$this->name.'_name']))
+            return trim($data[$this->name.'_name']);
         return parent::getValue();
     }
 }

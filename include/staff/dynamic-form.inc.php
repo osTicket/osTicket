@@ -150,13 +150,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php } ?>
             </select>
             <?php if ($f->isConfigurable()) { ?>
-                <a class="action-button" style="float:none;overflow:inherit"
+                <a class="action-button field-config" style="float:none;overflow:inherit"
                     href="#ajax.php/form/field-config/<?php
                         echo $f->get('id'); ?>"
                     onclick="javascript:
-                        $('#overlay').show();
-                        $('#field-config .body').empty().load($(this).attr('href').substr(1));
-                        $('#field-config').show();
+                        $.dialog($(this).attr('href').substr(1), [201]);
                         return false;
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
             <?php } ?>

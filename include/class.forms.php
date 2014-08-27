@@ -506,11 +506,11 @@ class FormField {
         $this->_config[$prop] = $value;
     }
 
-    function getWidget() {
+    function getWidget($widgetClass=false) {
         if (!static::$widget)
             throw new Exception(__('Widget not defined for this field'));
         if (!isset($this->_widget)) {
-            $wc = $this->get('widget') ? $this->get('widget') : static::$widget;
+            $wc = $widgetClass ?: $this->get('widget') ?: static::$widget;
             $this->_widget = new $wc($this);
             $this->_widget->parseValue();
         }
@@ -757,37 +757,38 @@ class ChoiceField extends FormField {
     }
 
     function parse($value) {
-
-        if (!$value) return null;
-
-        // Assume multiselect
-        $values = array();
-        $choices = $this->getChoices();
-        if (is_array($value)) {
-            foreach($value as $k => $v)
-                if (isset($choices[$v]))
-                    $values[$v] = $choices[$v];
-        } elseif(isset($choices[$value])) {
-            $values[$value] = $choices[$value];
-        }
-
-        return $values ?: null;
+        return $this->to_php($value ?: null);
     }
 
     function to_database($value) {
-        if ($value && is_array($value))
+        if (!is_array($value)) {
+            $choices = $this->getChoices();
+            if (isset($choices[$value]))
+                $value = array($value => $choices[$value]);
+        }
+        if (is_array($value))
             $value = JsonDataEncoder::encode($value);
 
         return $value;
     }
 
     function to_php($value) {
-        return ($value && !is_array($value))
-            ? JsonDataParser::parse($value) : $value;
+        if (is_string($value))
+            $array = JsonDataParser::parse($value) ?: $value;
+        else
+            $array = $value;
+        $config = $this->getConfiguration();
+        if (is_array($array) && !$config['multiselect'] && count($array) < 2) {
+            reset($array);
+            return key($array);
+        }
+        return $array;
     }
 
     function toString($value) {
-        return (string) $this->getChoice($value);
+        $selection = $this->getChoice($value);
+        return is_array($selection) ? implode(', ', array_filter($selection))
+            : (string) $selection;
     }
 
     function getChoice($value) {
@@ -801,7 +802,7 @@ class ChoiceField extends FormField {
         elseif ($this->get('default'))
             $selection[] = $choices[$this->get('default')];
 
-        return $selection ? implode(', ', array_filter($selection)) : '';
+        return $selection;
     }
 
     function getChoices($verbose=false) {
@@ -1171,7 +1172,6 @@ FormField::addFieldTypes('Dynamic Fields', function() {
     );
 });
 
-
 class Widget {
 
     function __construct($field) {
@@ -1321,10 +1321,10 @@ class ChoicesWidget extends Widget {
             $def_val = $have_def ? $choices[$def_key] : $prompt;
         }
 
-        if (($value=$this->getValue()))
-            $values = $this->field->parse($value);
-        elseif ($this->value)
-             $values = $this->value;
+        $values = $this->value;
+        if (!is_array($values)) {
+            $values = array($values => $this->field->getChoice($values));
+        }
 
         if ($values === null)
             $values = $have_def ? array($def_key => $choices[$def_key]) : array();
@@ -1360,6 +1360,23 @@ class ChoicesWidget extends Widget {
         </script>
        <?php
         }
+    }
+
+    function getValue() {
+        $value = parent::getValue();
+
+        if (!$value) return null;
+
+        // Assume multiselect
+        $values = array();
+        $choices = $this->field->getChoices();
+        if (is_array($value)) {
+            foreach($value as $k => $v) {
+                if (isset($choices[$v]))
+                    $values[$v] = $choices[$v];
+            }
+        }
+        return $values;
     }
 }
 

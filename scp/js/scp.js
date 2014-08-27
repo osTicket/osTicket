@@ -534,7 +534,8 @@ $.dialog = function (url, codes, cb, options) {
 
     $('#overlay').show();
     $('div.body', $popup).empty().hide();
-    $('div#popup-loading', $popup).show();
+    $('div#popup-loading', $popup).show()
+        .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
     $popup.show();
     $('div.body', $popup).load(url, function () {
         $('div#popup-loading', $popup).hide();
@@ -548,7 +549,8 @@ $.dialog = function (url, codes, cb, options) {
         $(document).on('submit.dialog', '.dialog#popup form', function(e) {
             e.preventDefault();
             var $form = $(this);
-            var $dialog = $form.closest('.dialog');
+            $('div#popup-loading', $popup).show()
+                .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
             $.ajax({
                 type:  $form.attr('method'),
                 url: 'ajax.php/'+$form.attr('action').substr(1),
@@ -557,17 +559,19 @@ $.dialog = function (url, codes, cb, options) {
                 success: function(resp, status, xhr) {
                     if (xhr && xhr.status && codes
                         && $.inArray(xhr.status, codes) != -1) {
-                        $('div.body', $dialog).empty();
-                        $dialog.hide();
+                        $('div.body', $popup).empty();
+                        $popup.hide();
                         $('#overlay').hide();
                         if(cb) cb(xhr);
                     } else {
-                        $('div.body', $dialog).html(resp);
-                        $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
+                        $('div.body', $popup).html(resp);
+                        $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
                     }
                 }
             })
-            .done(function() { })
+            .done(function() {
+                $('div#popup-loading', $popup).hide();
+            })
             .fail(function() { });
             return false;
         });

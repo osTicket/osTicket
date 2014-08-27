@@ -339,7 +339,7 @@ $(function() {
         e.preventDefault();
         var $id = $(this).attr('id');
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, [200], function (xhr) {
+        $.dialog(url, [201], function (xhr) {
             $('a#'+$id+' i').removeAttr('style');
         });
         return false;
