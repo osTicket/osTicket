@@ -506,11 +506,11 @@ class FormField {
         $this->_config[$prop] = $value;
     }
 
-    function getWidget() {
+    function getWidget($widgetClass=false) {
         if (!static::$widget)
             throw new Exception(__('Widget not defined for this field'));
         if (!isset($this->_widget)) {
-            $wc = $this->get('widget') ? $this->get('widget') : static::$widget;
+            $wc = $widgetClass ?: $this->get('widget') ?: static::$widget;
             $this->_widget = new $wc($this);
             $this->_widget->parseValue();
         }

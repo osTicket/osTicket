@@ -941,7 +941,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 }
 
 class SelectionField extends FormField {
-    static $widget = 'SelectionWidget';
+    static $widget = 'ChoicesWidget';
 
     function getListId() {
         list(,$list_id) = explode('-', $this->get('type'));
@@ -953,6 +953,14 @@ class SelectionField extends FormField {
             $this->_list = DynamicList::lookup($this->getListId());
 
         return $this->_list;
+    }
+
+    function getWidget() {
+        $config = $this->getConfiguration();
+        $widgetClass = false;
+        if ($config['widget'] == 'typeahead')
+            $widgetClass = 'TypeaheadSelectionWidget';
+        return parent::getWidget($widgetClass);
     }
 
     function parse($value) {
@@ -1108,19 +1116,15 @@ class SelectionField extends FormField {
     }
 }
 
-class SelectionWidget extends ChoicesWidget {
-    function render($mode=false) {
+class TypeaheadSelectionWidget extends ChoicesWidget {
+    function render($how) {
+        if ($how == 'search')
+            return parent::render($how);
 
-        $config = $this->field->getConfiguration();
-        $value = $this->value;
-
-        if (!$config['typeahead'] || $mode=='search') {
-            return parent::render($mode);
-        }
-
-        if ($value && is_array($value)) {
-            $name = $this->getEnteredValue() ?: current($value);
-            $value = key($value);
+        $name = $this->getEnteredValue();
+        if (is_array($this->value)) {
+            $name = $name ?: current($this->value);
+            $value = key($this->value);
         }
 
         $source = array();
@@ -1156,6 +1160,13 @@ class SelectionWidget extends ChoicesWidget {
         </script>
         </span>
         <?php
+    }
+
+    function getValue() {
+        $data = $this->field->getSource();
+        if (isset($data[$this->name]))
+            return $data[$this->name];
+        return parent::getValue();
     }
 
     function getEnteredValue() {
