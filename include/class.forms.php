@@ -1260,6 +1260,13 @@ class FileUploadField extends FormField {
         if ($next < $limit * 2)
             $sizes[$limit] = Format::file_size($limit);
 
+        // Load file types
+        $_types = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        $types = array();
+        foreach ($_types as $type=>$info) {
+            $types[$type] = $info['description'];
+        }
+
         global $cfg;
         return array(
             'size' => new ChoiceField(array(
@@ -1268,11 +1275,16 @@ class FileUploadField extends FormField {
                 'default'=>$cfg->getMaxFileSize(),
                 'choices'=>$sizes
             )),
+            'mimetypes' => new ChoiceField(array(
+                'label'=>'Allowed File Types',
+                'hint'=>'Choose file types to accept. To accept any file, leave all unchecked',
+                'required'=>false,
+                'choices'=>$types,
+                'configuration'=>array('multiselect'=>true)
+            )),
             'extensions' => new TextareaField(array(
-                'label'=>'Allowed Extensions',
-                'hint'=>'Enter allowed file extensions separated by a comma.
-                e.g .doc, .pdf. To accept all files enter wildcard
-                <b><i>.*</i></b> — i.e dotStar (NOT Recommended).',
+                'label'=>'Allowed File Extensions',
+                'hint'=>'Accept files based only on the file extension. Enter comma-separated list of extensions. (e.g .doc, .pdf).',
                 'default'=>$cfg->getAllowedFileTypes(),
                 'configuration'=>array('html'=>false, 'rows'=>2),
             )),
@@ -1301,7 +1313,7 @@ class FileUploadField extends FormField {
         $file = array_shift($files);
         $file['name'] = urldecode($file['name']);
 
-        if (!$bypass && !$this->isValidFileType($file['name']))
+        if (!$bypass && !$this->isValidFileType($file['name'], $file['type']))
             Http::response(415, 'File type is not allowed');
 
         $config = $this->getConfiguration();
@@ -1319,7 +1331,7 @@ class FileUploadField extends FormField {
      * for browsers which do not support the HTML5 way of uploading async.
      */
     function uploadFile($file) {
-        if (!$this->isValidFileType($file['name']))
+        if (!$this->isValidFileType($file['name'], $file['type']))
             throw new FileUploadError(__('File type is not allowed'));
 
         $config = $this->getConfiguration();
@@ -1334,7 +1346,7 @@ class FileUploadField extends FormField {
      * sent other than via web upload
      */
     function uploadAttachment(&$file) {
-        if (!$this->isValidFileType($file['name']))
+        if (!$this->isValidFileType($file['name'], $file['type']))
             throw new FileUploadError(__('File type is not allowed'));
 
         if (is_callable($file['data']))
@@ -1360,15 +1372,17 @@ class FileUploadField extends FormField {
     function isValidFileType($name, $type=false) {
         $config = $this->getConfiguration();
 
-        // Return true if all file types are allowed (.*)
-        if (strpos($config['extensions'], '.*') || !$config['extensions'])
+        // Check MIME type - file ext. shouldn't be solely trusted.
+        if ($type && $config['__mimetypes']
+                && in_array($type, $config['__mimetypes']))
             return true;
 
-        $allowed = array_map('trim', explode(',', strtolower($config['extensions'])));
+        // Return true if all file types are allowed (.*)
+        if (strpos($config['__extensions'], '.*') || !$config['__extensions'])
+            return true;
 
+        $allowed = $config['__extensions'];
         $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-
-        //TODO: Check MIME type - file ext. shouldn't be solely trusted.
 
         return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
@@ -1383,6 +1397,49 @@ class FileUploadField extends FormField {
                 'E');
         }
         return $this->attachments ? $this->attachments->getAll() : array();
+    }
+
+    function getConfiguration() {
+        $config = parent::getConfiguration();
+        $_types = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        $mimetypes = array();
+        $extensions = array();
+        if (isset($config['mimetypes']) && is_array($config['mimetypes'])) {
+            foreach ($config['mimetypes'] as $type=>$desc) {
+                foreach ($_types[$type]['types'] as $mime=>$exts) {
+                    $mimetypes[$mime] = true;
+                    foreach ($exts as $ext)
+                        $extensions['.'.$ext] = true;
+                }
+            }
+        }
+        if (strpos($config['extensions'], '.*') !== false)
+            $config['extensions'] = '';
+
+        foreach (preg_split('/\s+/', str_replace(',',' ', $config['extensions'])) as $ext) {
+            if (!$ext) {
+                continue;
+            }
+            elseif (strpos($ext, '/')) {
+                $mimetypes[$ext] = true;
+            }
+            else {
+                if ($ext[0] != '.')
+                    $ext = '.' . $ext;
+                // Add this to the MIME types list so it can be exported to
+                // the @accept attribute
+                if (!isset($extensions[$ext]))
+                    $mimetypes[$ext] = true;
+
+                $extensions[$ext] = true;
+            }
+        }
+        $config['__extensions'] = array_keys($extensions);
+
+        // 'mimetypes' is the array represented from the user interface,
+        // '__mimetypes' is a complete list of supported MIME types.
+        $config['__mimetypes'] = array_keys($mimetypes);
+        return $config;
     }
 
     // When the field is saved to database, encode the ID listing as a json
@@ -1835,7 +1892,8 @@ class FileUploadWidget extends Widget {
             <div class="dropzone"><i class="icon-upload"></i>
             Drop files here or <a href="#" class="manual">choose
             them</a>
-        <input type="file" class="multifile" multiple id="file-<?php echo $id; ?>" style="display:none;"/>
+        <input type="file" class="multifile" multiple id="file-<?php echo $id; ?>" style="display:none;"
+            accept="<?php echo implode(',', $config['__mimetypes']); ?>"/>
         </div></div>
         <script type="text/javascript">
         $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
@@ -1843,8 +1901,10 @@ class FileUploadWidget extends Widget {
           link: $('#<?php echo $id; ?>').find('a.manual'),
           paramname: 'upload[]',
           fallback_id: 'file-<?php echo $id; ?>',
-          allowedfileextensions: '<?php echo $config['extensions'];
-          ?>'.split(/,\s*/),
+          allowedfileextensions: <?php echo JsonDataEncoder::encode(
+            $config['__extensions']); ?>,
+          allowedfiletypes: <?php echo JsonDataEncoder::encode(
+            $config['__mimetypes']); ?>,
           maxfiles: <?php echo $config['max'] ?: 20; ?>,
           maxfilesize: <?php echo ($config['size'] ?: 1048576) / 1048576; ?>,
           name: '<?php echo $name; ?>[]',
