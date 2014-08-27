@@ -92,14 +92,14 @@ class DynamicFormsAjaxAPI extends AjaxController {
             Http::response(400, 'Upload to a non file-field');
 
         return JsonDataEncoder::encode(
-            array('id'=>$impl->upload())
+            array('id'=>$impl->ajaxUpload())
         );
     }
 
     function attach() {
         $field = new FileUploadField();
         return JsonDataEncoder::encode(
-            array('id'=>$field->upload())
+            array('id'=>$field->ajaxUpload(true))
         );
     }
 }

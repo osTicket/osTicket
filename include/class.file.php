@@ -534,9 +534,8 @@ class AttachmentFile {
 
     /*
       Method formats http based $_FILE uploads - plus basic validation.
-      @restrict - make sure file type & size are allowed.
      */
-    function format($files, $restrict=false) {
+    function format($files) {
         global $ost;
 
         if(!$files || !is_array($files))
@@ -562,16 +561,6 @@ class AttachmentFile {
                 $file['error'] = 'File upload error #'.$file['error'];
             elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
                 $file['error'] = 'Invalid or bad upload POST';
-            elseif($restrict) { // make sure file type & size are allowed.
-                if(!$ost->isFileTypeAllowed($file))
-                    $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
-                elseif($ost->getConfig()->getMaxFileSize()
-                        && $file['size']>$ost->getConfig()->getMaxFileSize())
-                    $file['error'] = sprintf('File %s (%s) is too big. Maximum of %s allowed',
-                            Format::htmlchars($file['name']),
-                            Format::file_size($file['size']),
-                            Format::file_size($ost->getConfig()->getMaxFileSize()));
-            }
         }
         unset($file);
 

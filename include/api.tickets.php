@@ -60,30 +60,33 @@ class TicketApiController extends ApiController {
         if(!parent::validate($data, $format, $strict) && $strict)
             $this->exerr(400, __('Unexpected or invalid data received'));
 
-        //Nuke attachments IF API files are not allowed.
-        if(!$ost->getConfig()->allowAPIAttachments())
+        // Use the settings on the thread entry on the ticket details
+        // form to validate the attachments in the email
+        $tform = TicketForm::objects()->one()->getForm();
+        $messageField = $tform->getField('message');
+        $fileField = $messageField->getWidget()->getAttachments();
+
+        // Nuke attachments IF API files are not allowed.
+        if (!$messageField->isAttachmentsEnabled())
             $data['attachments'] = array();
 
         //Validate attachments: Do error checking... soft fail - set the error and pass on the request.
-        if($data['attachments'] && is_array($data['attachments'])) {
-            foreach($data['attachments'] as &$attachment) {
-                if(!$ost->isFileTypeAllowed($attachment))
-                    $attachment['error'] = sprintf(__('Invalid file type (ext) for %s'),Format::htmlchars($attachment['name']));
-                elseif ($attachment['encoding'] && !strcasecmp($attachment['encoding'], 'base64')) {
-                    if(!($attachment['data'] = base64_decode($attachment['data'], true)))
-                        $attachment['error'] = sprintf(__('%s: Poorly encoded base64 data'), Format::htmlchars($attachment['name']));
+        if ($data['attachments'] && is_array($data['attachments'])) {
+            foreach($data['attachments'] as &$file) {
+                if ($file['encoding'] && !strcasecmp($file['encoding'], 'base64')) {
+                    if(!($file['data'] = base64_decode($file['data'], true)))
+                        $file['error'] = sprintf(__('%s: Poorly encoded base64 data'),
+                            Format::htmlchars($file['name']));
                 }
-                if (!$attachment['error']
-                        && ($size = $ost->getConfig()->getMaxFileSize())
-                        && ($fsize = $attachment['size'] ?: strlen($attachment['data']))
-                        && $fsize > $size) {
-                    $attachment['error'] = sprintf('File %s (%s) is too big. Maximum of %s allowed',
-                            Format::htmlchars($attachment['name']),
-                            Format::file_size($fsize),
-                            Format::file_size($size));
+                // Validate and save immediately
+                try {
+                    $file['id'] = $fileField->uploadAttachment($file);
+                }
+                catch (FileUploadError $ex) {
+                    $file['error'] = $file['name'] . ': ' . $ex->getMessage();
                 }
             }
-            unset($attachment);
+            unset($file);
         }
 
         return true;

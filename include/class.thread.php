@@ -539,7 +539,11 @@ Class ThreadEntry {
     */
     function saveAttachment(&$file) {
 
-        if(!($fileId=is_numeric($file)?$file:AttachmentFile::save($file)))
+        if (is_numeric($file))
+            $fileId = $file;
+        elseif (is_array($file) && isset($file['id']))
+            $fileId = $file['id'];
+        elseif (!($fileId = AttachmentFile::save($file)))
             return 0;
 
         $inline = is_array($file) && @$file['inline'];

@@ -997,11 +997,16 @@ class ThreadEntryField extends FormField {
                 'label'=>__('Enable Attachments'),
                 'default'=>$cfg->allowOnlineAttachments(),
                 'configuration'=>array(
-                    'desc'=>__('Enables attachments submitted with the issue details'),
+                    'desc'=>__('Enables attachments on tickets, regardless of channel'),
                 ),
             )),
         )
         + $attachments->getConfigurationOptions();
+    }
+
+    function isAttachmentsEnabled() {
+        $config = $this->getConfiguration();
+        return $config['attachments'];
     }
 }
 
@@ -1278,7 +1283,10 @@ class FileUploadField extends FormField {
         );
     }
 
-    function upload() {
+    /**
+     * Called from the ajax handler for async uploads via web clients.
+     */
+    function ajaxUpload($bypass=false) {
         $config = $this->getConfiguration();
 
         $files = AttachmentFile::format($_FILES['upload'],
@@ -1289,13 +1297,76 @@ class FileUploadField extends FormField {
         $file = array_shift($files);
         $file['name'] = urldecode($file['name']);
 
-        // TODO: Check allowed type / size.
-        //       Return HTTP/413, 415, 417 or similar
+        if (!$bypass && !$this->isValidFileType($file['name']))
+            Http::response(415, 'File type is not allowed');
+
+        $config = $this->getConfiguration();
+        if (!$bypass && $file['size'] > $config['size'])
+            Http::response(413, 'File is too large');
 
         if (!($id = AttachmentFile::upload($file)))
             Http::response(500, 'Unable to store file: '. $file['error']);
 
         return $id;
+    }
+
+    /**
+     * Called from FileUploadWidget::getValue() when manual upload is used
+     * for browsers which do not support the HTML5 way of uploading async.
+     */
+    function uploadFile($file) {
+        if (!$this->isValidFileType($file['name']))
+            throw new FileUploadError(__('File type is not allowed'));
+
+        $config = $this->getConfiguration();
+        if ($file['size'] > $config['size'])
+            throw new FileUploadError(__('File size is too large'));
+
+        return AttachmentFile::upload($file);
+    }
+
+    /**
+     * Called from API and email routines and such to handle attachments
+     * sent other than via web upload
+     */
+    function uploadAttachment(&$file) {
+        if (!$this->isValidFileType($file['name']))
+            throw new FileUploadError(__('File type is not allowed'));
+
+        if (is_callable($file['data']))
+            $file['data'] = $file['data']();
+        if (!isset($file['size'])) {
+            // bootstrap.php include a compat version of mb_strlen
+            if (extension_loaded('mbstring'))
+                $file['size'] = mb_strlen($file['data'], '8bit');
+            else
+                $file['size'] = strlen($file['data']);
+        }
+
+        $config = $this->getConfiguration();
+        if ($file['size'] > $config['size'])
+            throw new FileUploadError(__('File size is too large'));
+
+        if (!$id = AttachmentFile::save($file))
+            throw new FileUploadError(__('Unable to save file'));
+
+        return $id;
+    }
+
+    function isValidFileType($name, $type=false) {
+        $config = $this->getConfiguration();
+
+        // Return true if all file types are allowed (.*)
+        if (strpos($config['extensions'], '.*') || !$config['extensions'])
+            return true;
+
+        $allowed = array_map('trim', explode(',', strtolower($config['extensions'])));
+
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+        //TODO: Check MIME type - file ext. shouldn't be solely trusted.
+
+        return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
 
     function getFiles() {
@@ -1785,8 +1856,10 @@ class FileUploadWidget extends Widget {
         // Handle manual uploads (IE<10)
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
-                if ($id = AttachmentFile::upload($file))
-                    $ids[] = $id;
+                try {
+                    $ids[] = $this->field->uploadFile($file);
+                }
+                catch (FileUploadError $ex) {}
             }
             return array_merge($ids, parent::getValue() ?: array());
         }
@@ -1797,5 +1870,7 @@ class FileUploadWidget extends Widget {
         return parent::getValue();
     }
 }
+
+class FileUploadError extends Exception {}
 
 ?>

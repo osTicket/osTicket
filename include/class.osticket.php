@@ -133,24 +133,6 @@ class osTicket {
             return ($token && !strcasecmp($token, $this->getLinkToken()));
     }
 
-    function isFileTypeAllowed($file, $mimeType='') {
-
-        if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
-            return false;
-
-        //Return true if all file types are allowed (.*)
-        if(trim($allowedFileTypes)=='.*') return true;
-
-        $allowed = array_map('trim', explode(',', strtolower($allowedFileTypes)));
-        $filename = is_array($file)?$file['name']:$file;
-
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        //TODO: Check MIME type - file ext. shouldn't be solely trusted.
-
-        return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
-    }
-
     /* Replace Template Variables */
     function replaceTemplateVariables($input, $vars=array()) {
 
