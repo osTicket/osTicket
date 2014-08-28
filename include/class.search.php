@@ -295,13 +295,19 @@ class MysqlSearchBackend extends SearchBackend {
             ) B4 ON (B4.org_id = search.object_id and search.object_type = 'O')";
             $key = 'COALESCE(B1.ticket_id, B2.ticket_id, B3.ticket_id, B4.ticket_id)';
             $tables[] = "{$P}ticket A1 ON (A1.ticket_id = {$key})";
+            $tables[] = "{$P}ticket_status A2 ON (A1.status_id = A2.id)";
             $cdata_search = false;
             $where = array();
 
             if ($criteria) {
                 foreach ($criteria as $name=>$value) {
                     switch ($name) {
-                    case 'status':
+                    case 'status_id':
+                        $where[] = 'A2.id = '.db_input($value);
+                        break;
+                    case 'state':
+                        $where[] = 'A2.state = '.db_input($value);
+                        break;
                     case 'topic_id':
                     case 'staff_id':
                     case 'dept_id':
@@ -338,7 +344,7 @@ class MysqlSearchBackend extends SearchBackend {
             $thisstaff->getDepts();
             $access = array();
             $access[] = '(A1.staff_id=' . db_input($thisstaff->getId())
-                .' AND A1.status="open")';
+                .' AND A2.state="open")';
 
             if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
                 $access[] = 'A1.dept_id IN ('
@@ -348,7 +354,7 @@ class MysqlSearchBackend extends SearchBackend {
             if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
                 $access[] = 'A1.team_id IN ('
                     .implode(',', db_input(array_filter($teams)))
-                    .') AND A1.status="open"';
+                    .') AND A2.state="open"';
 
             $where[] = '(' . implode(' OR ', $access) . ')';
 
