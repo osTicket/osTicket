@@ -2,8 +2,7 @@
 if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 
 ?>
-<h2><?php echo __('Frequently Asked Questions');?>
-&nbsp;<i class="help-tip icon-question-sign" href="#page_header"></i></h2>
+<h2><?php echo __('Frequently Asked Questions');?></h2>
 <form id="kbSearch" action="kb.php" method="get">
     <input type="hidden" name="a" value="search">
     <div>

@@ -49,7 +49,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <button class="action-button" onclick="javascript:
                 $.dialog('ajax.php/sequence/manage', 205);
                 return false;
-                "><i class="icon-gear"></i> Manage</button>
+                "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
                 <i class="help-tip icon-question-sign" href="#sequence_id"></i>
             </td>
         </tr>
