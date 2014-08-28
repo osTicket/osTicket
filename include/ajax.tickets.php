@@ -132,28 +132,30 @@ class TicketsAjaxAPI extends AjaxController {
             $criteria['topic_id'] = $req['topicId'];
         }
 
-        //Status
-        switch(strtolower($req['status'])) {
-            case 'open':
-                $where.=' AND status.state="open" ';
-                $criteria['status'] = 'open';
-                break;
-            case 'answered':
-                $where.=' AND status.state="open" AND ticket.isanswered=1 ';
-                $criteria += array('status' => 'open', 'isanswered'=>1);
-                break;
-            case 'overdue':
-                $where.=' AND status.state="open" AND ticket.isoverdue=1 ';
-                $criteria += array('status' => 'open', 'isoverdue'=>1);
-                break;
-            case 'resolved':
-                $where.=' AND status.state="resolved" ';
-                $criteria += array('status' => 'resolved', 'isoverdue'=>1);
-                break;
-            case 'closed':
-                $where.=' AND status.state="closed" ';
-                $criteria['status'] = 'closed';
-                break;
+        // Status
+        if ($req['statusId']
+                && ($status=TicketStatus::lookup($req['statusId']))) {
+            $where .= sprintf(' AND status.state="%s" ',
+                    $status->getState());
+            $criteria['status_id'] = $status->getId();
+        }
+
+        // Flags
+        if ($req['flag']) {
+            switch (strtolower($req['flag'])) {
+                case 'answered':
+                    $where .= ' AND ticket.isanswered =1 ';
+                    $criteria['isanswered'] = 1;
+                    $criteria['state'] = 'open';
+                    $where .= ' AND status.state="open" ';
+                    break;
+                case 'overdue':
+                    $where .= ' AND ticket.isoverdue =1 ';
+                    $criteria['isoverdue'] = 1;
+                    $criteria['state'] = 'open';
+                    $where .= ' AND status.state="open" ';
+                    break;
+            }
         }
 
         //Assignee

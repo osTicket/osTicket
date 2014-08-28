@@ -370,23 +370,32 @@ var scp_prep = function() {
     });
 
 
-    $('#advanced-search').delegate('#status', 'change', function() {
-        switch($(this).val()) {
+    $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
+        switch($(this).children('option:selected').data('state')) {
             case 'closed':
-                $('select#assignee').find('option:first').attr('selected', 'selected').parent('select');
-                $('select#assignee').attr('disabled','disabled');
+                $('select#assignee')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
+                $('select#flag')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
                 $('select#staffId').removeAttr('disabled');
                 break;
             case 'open':
-            case 'overdue':
-            case 'answered':
-                $('select#staffId').find('option:first').attr('selected', 'selected').parent('select');
-                $('select#staffId').attr('disabled','disabled');
+            case 'resolved':
+                $('select#staffId')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
                 $('select#assignee').removeAttr('disabled');
+                $('select#flag').removeAttr('disabled');
                 break;
             default:
                 $('select#staffId').removeAttr('disabled');
                 $('select#assignee').removeAttr('disabled');
+                $('select#flag').removeAttr('disabled');
         }
     });
 

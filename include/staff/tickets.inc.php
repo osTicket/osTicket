@@ -541,21 +541,21 @@ if ($results) {
             <input type="input" id="query" name="query" size="20" placeholder="<?php echo __('Keywords') . ' &mdash; ' . __('Optional'); ?>">
         </fieldset>
         <fieldset class="span6">
-            <label for="status"><?php echo __('Status');?>:</label>
-            <select id="status" name="status">
-                <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
-                <option value="open"><?php echo _P('ticket-status', 'Open');?></option>
+            <label for="statusId"><?php echo __('Statuses');?>:</label>
+            <select id="statusId" name="statusId">
+                 <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
                 <?php
-                if(!$cfg->showAnsweredTickets()) {?>
-                <option value="answered"><?php echo __('Answered');?></option>
-                <?php
-                } ?>
-                <option value="overdue"><?php echo __('Overdue');?></option>
-                <option value="closed"><?php echo __('Closed');?></option>
+                foreach (TicketStatusList::getStatuses(
+                            array('states' =>
+                                array('open', 'resolved', 'closed'))) as $s) {
+                    echo sprintf('<option data-state="%s" value="%d">%s</option>',
+                            $s->getState(), $s->getId(), __($s->getName()));
+                }
+                ?>
             </select>
         </fieldset>
         <fieldset class="span6">
-            <label for="deptId"><?php echo __('Dept');?>:</label>
+            <label for="deptId"><?php echo __('Departments');?>:</label>
             <select id="deptId" name="deptId">
                 <option value="">&mdash; <?php echo __('All Departments');?> &mdash;</option>
                 <?php
@@ -566,6 +566,18 @@ if ($results) {
                     }
                 }
                 ?>
+            </select>
+        </fieldset>
+        <fieldset class="span6">
+            <label for="flag"><?php echo __('Flags');?>:</label>
+            <select id="flag" name="flag">
+                 <option value="">&mdash; <?php echo __('Any Flags');?> &mdash;</option>
+                 <?php
+                 if (!$cfg->showAnsweredTickets()) { ?>
+                 <option data-state="open" value="answered"><?php echo __('Answered');?></option>
+                 <?php
+                 } ?>
+                 <option data-state="open" value="overdue"><?php echo __('Overdue');?></option>
             </select>
         </fieldset>
         <fieldset class="owner span6">
@@ -595,6 +607,18 @@ if ($results) {
                 ?>
             </select>
         </fieldset>
+        <fieldset class="span6">
+            <label for="topicId"><?php echo __('Help Topics');?>:</label>
+            <select id="topicId" name="topicId">
+                <option value="" selected >&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
+                <?php
+                if($topics=Topic::getHelpTopics()) {
+                    foreach($topics as $id =>$name)
+                        echo sprintf('<option value="%d" >%s</option>', $id, $name);
+                }
+                ?>
+            </select>
+        </fieldset>
         <fieldset class="owner span6">
             <label for="staffId"><?php echo __('Closed By');?>:</label>
             <select id="staffId" name="staffId">
@@ -608,20 +632,8 @@ if ($results) {
                 ?>
             </select>
         </fieldset>
-        <fieldset class="span6">
-            <label for="topicId"><?php echo __('Help Topic');?>:</label>
-            <select id="topicId" name="topicId">
-                <option value="" selected >&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
-                <?php
-                if($topics=Topic::getHelpTopics()) {
-                    foreach($topics as $id =>$name)
-                        echo sprintf('<option value="%d" >%s</option>', $id, $name);
-                }
-                ?>
-            </select>
-        </fieldset>
         <fieldset class="date_range">
-            <label><?php echo __('Date Range');?>:</label>
+            <label><?php echo __('Date Range').' &mdash; '.__('Create Date');?>:</label>
             <input class="dp" type="input" size="20" name="startDate">
             <span class="between"><?php echo __('TO');?></span>
             <input class="dp" type="input" size="20" name="endDate">
