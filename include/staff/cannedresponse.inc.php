@@ -48,7 +48,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <label><input type="radio" name="isenabled" value="0" <?php
                         echo !$info['isenabled']?'checked="checked"':''; ?>>&nbsp;<?php echo __('Disabled'); ?>&nbsp;</label>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isenabled']; ?></span>
-                &nbsp;<i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
         <tr>

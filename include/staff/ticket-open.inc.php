@@ -299,7 +299,7 @@ if ($_POST)
                     data-signature="<?php
                         echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                     data-signature-field="signature" data-dept-field="deptId"
-                    placeholder="Intial response for the ticket"
+                    placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;"><?php echo $info['response']; ?></textarea>
                 <table border="0" cellspacing="0" cellpadding="2" width="100%">

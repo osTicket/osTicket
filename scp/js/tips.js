@@ -129,6 +129,8 @@ jQuery(function() {
                 clearTimeout(tip_timer);
                 return;
             }
+            if (!section)
+                return;
             tip_content.append(
                 $('<h1>')
                     .append('<i class="icon-info-sign faded"> ')
