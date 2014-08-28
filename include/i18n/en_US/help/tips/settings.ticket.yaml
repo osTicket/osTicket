@@ -20,7 +20,7 @@ default_sla:
         can remain Open before it is rendered Overdue.
     links:
       - title: Create more SLA Plans
-        href: scp/slas.php
+        href: /scp/slas.php
 
 default_priority:
     title: Default Priority

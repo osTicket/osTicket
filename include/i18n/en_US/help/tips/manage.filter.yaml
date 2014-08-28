@@ -94,7 +94,7 @@ department:
         assigned.
     links:
       - title: Manage Departments
-        href: /scp/canned.php
+        href: /scp/departments.php
 
 priority:
     title: Priority
@@ -114,7 +114,7 @@ sla_plan:
         Filter</span>.
     links:
       - title: Manage SLA Plans
-        href: /scp/slaplan.php
+        href: /scp/slas.php
 
 auto_assign:
     title: Auto-Assign
