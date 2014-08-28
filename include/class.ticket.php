@@ -864,12 +864,15 @@ class Ticket {
             case 'open':
                 // TODO: check current status if it allows for reopening
                 if ($this->isClosed()) {
-                    $sql.= ',closed=NULL, reopened=NOW() ';
-
+                    $sql .= ',closed=NULL, reopened=NOW() ';
                     $ecb = function ($t) {
                         $t->logEvent('reopened', 'closed');
                     };
                 }
+
+                // If the ticket is not open then clear answered flag
+                if (!$this->isOpen())
+                    $sql .= ', isanswered = 0 ';
                 break;
             default:
                 return false;
