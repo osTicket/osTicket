@@ -526,7 +526,7 @@ $.toggleOverlay = function (show) {
     return $.toggleOverlay(!$('#overlay').is(':visible'));
   }
   if (show) {
-    $('#overlay').fadeIn();
+    $('#overlay').show().fadeIn();
     $('body').css('overflow', 'hidden');
   }
   else {
@@ -545,13 +545,14 @@ $.dialog = function (url, codes, cb, options) {
 
     $.toggleOverlay(true);
     $('div.body', $popup).empty().hide();
-    $('div#popup-loading', $popup).slideDown()
+    $('div#popup-loading', $popup).show()
         .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
-    $popup.slideDown();
+    $popup.show();
     $('div.body', $popup).load(url, function () {
         $('div#popup-loading', $popup).hide();
         $('div.body', $popup).slideDown({
-            duration: 200,
+            duration: 300,
+            queue: false,
             complete: function() { if (options.onshow) options.onshow(); }
         });
         $(document).off('.dialog');
@@ -704,23 +705,19 @@ $(document).on('pjax:send', function(event) {
     $('#overlay').css('background-color','white').fadeIn();
 });
 
+$(document).on('pjax:beforeReplace', function() {
+    // Close popups
+    // Close tooltips
+    $('.tip_box').remove();
+    $('.dialog .body').empty().parent().hide();
+});
+
 $(document).on('pjax:complete', function() {
     // right
     $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
         $(this).remove();
     });
-
-    $('.tip_box').remove();
-    $('.dialog .body').empty().parent().hide();
-    $('#overlay').stop(false, true).hide().removeAttr('style');
-});
-
-$(document).on('pjax:end', function() {
-    // Close popups
-    // Close tooltips
-    $('.tip_box').remove();
-    $('.dialog .body').empty().parent().hide();
-    $('#overlay').hide();
+    $('#overlay').fadeOut(100).removeAttr('style');
 });
 
 // Quick note interface

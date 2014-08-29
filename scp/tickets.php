@@ -42,11 +42,13 @@ if ($_REQUEST['uid'])
 // Configure form for file uploads
 $response_form = new Form(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
-        'name'=>'attach:response'))
+        'name'=>'attach:response',
+        'configuration' => array('extensions'=>'')))
 ));
 $note_form = new Form(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
-        'name'=>'attach:note'))
+        'name'=>'attach:note',
+        'configuration' => array('extensions'=>'')))
 ));
 
 //At this stage we know the access status. we can process the post.

@@ -409,9 +409,11 @@ $(function() {
     // Popup user lookup on the initial page load (not post) if we don't have a
     // user selected
     if (!$_POST && !$user) {?>
-    $.userLookup('ajax.php/users/lookup/form', function (user) {
+    setTimeout(function() {
+      $.userLookup('ajax.php/users/lookup/form', function (user) {
         window.location.href = window.location.href+'&uid='+user.id;
-     });
+      });
+    }, 100);
     <?php
     } ?>
 });

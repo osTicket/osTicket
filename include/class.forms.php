@@ -1378,7 +1378,7 @@ class FileUploadField extends FormField {
             return true;
 
         // Return true if all file types are allowed (.*)
-        if (strpos($config['__extensions'], '.*') || !$config['__extensions'])
+        if (!$config['__extensions'] || in_array('.*', $config['__extensions']))
             return true;
 
         $allowed = $config['__extensions'];
@@ -1416,25 +1416,30 @@ class FileUploadField extends FormField {
         if (strpos($config['extensions'], '.*') !== false)
             $config['extensions'] = '';
 
-        foreach (preg_split('/\s+/', str_replace(',',' ', $config['extensions'])) as $ext) {
-            if (!$ext) {
-                continue;
-            }
-            elseif (strpos($ext, '/')) {
-                $mimetypes[$ext] = true;
-            }
-            else {
-                if ($ext[0] != '.')
-                    $ext = '.' . $ext;
-                // Add this to the MIME types list so it can be exported to
-                // the @accept attribute
-                if (!isset($extensions[$ext]))
+        if (is_string($config['extensions'])) {
+            foreach (preg_split('/\s+/', str_replace(',',' ', $config['extensions'])) as $ext) {
+                if (!$ext) {
+                    continue;
+                }
+                elseif (strpos($ext, '/')) {
                     $mimetypes[$ext] = true;
+                }
+                else {
+                    if ($ext[0] != '.')
+                        $ext = '.' . $ext;
+                    // Add this to the MIME types list so it can be exported to
+                    // the @accept attribute
+                    if (!isset($extensions[$ext]))
+                        $mimetypes[$ext] = true;
 
-                $extensions[$ext] = true;
+                    $extensions[$ext] = true;
+                }
             }
+            $config['__extensions'] = array_keys($extensions);
         }
-        $config['__extensions'] = array_keys($extensions);
+        elseif (is_array($config['extensions'])) {
+            $config['__extensions'] = $config['extensions'];
+        }
 
         // 'mimetypes' is the array represented from the user interface,
         // '__mimetypes' is a complete list of supported MIME types.
