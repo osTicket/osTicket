@@ -66,7 +66,7 @@ class Export {
         return self::dumpQuery($sql,
             array(
                 'number' =>         __('Ticket Number'),
-                'created' =>        __('Date'),
+                'ticket_created' => __('Date'),
                 'subject' =>        __('Subject'),
                 'name' =>           __('From'),
                 'email' =>          __('From Email'),

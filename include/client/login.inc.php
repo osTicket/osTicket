@@ -50,13 +50,14 @@ if (count($ext_bks)) {
 }
 if ($cfg && $cfg->isClientRegistrationEnabled()) {
     if (count($ext_bks)) echo '<hr style="width:70%"/>'; ?>
+    <div style="margin-bottom: 5px">
     <?php echo __('Not yet registered?'); ?> <a href="account.php?do=create"><?php echo __('Create an account'); ?></a>
-    <br/>
-    <div style="margin-top: 5px;">
+    </div>
+<?php } ?>
+    <div>
     <b><?php echo __("I'm an agent"); ?></b> —
     <a href="<?php echo ROOT_PATH; ?>scp"><?php echo __('sign in here'); ?></a>
     </div>
-<?php } ?>
     </div>
 </div>
 </form>

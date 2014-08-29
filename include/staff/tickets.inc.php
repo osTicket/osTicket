@@ -251,7 +251,7 @@ $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&ord
 //ADD attachment,priorities, lock and other crap
 $qselect.=' ,IF(ticket.duedate IS NULL,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)), ticket.duedate) as duedate '
          .' ,CAST(GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.closed, 0), IFNULL(ticket.reopened, 0), ticket.created) as datetime) as effective_date '
-         .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
+         .' ,ticket.created as ticket_created, CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
          .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
          .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic '
          .' ,cdata.priority_id, cdata.subject, pri.priority_desc, pri.priority_color';

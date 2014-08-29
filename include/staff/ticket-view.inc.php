@@ -541,8 +541,8 @@ $tcount+= $ticket->getNumNotes();
                 <td>
                     <select id="cannedResp" name="cannedResp">
                         <option value="0" selected="selected"><?php echo __('Select a canned response');?></option>
-                        <option value='lastmessage'><?php echo __('Original Message'); ?></option>
-                        <option value='original'><?php echo __('Last Message'); ?></option>
+                        <option value='original'><?php echo __('Original Message'); ?></option>
+                        <option value='lastmessage'><?php echo __('Last Message'); ?></option>
                         <?php
                         if(($cannedResponses=Canned::responsesByDeptId($ticket->getDeptId()))) {
                             echo '<option value="0" disabled="disabled">
@@ -721,7 +721,6 @@ print $note_form->getField('attachments')->render();
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
                 </td>
             </tr>
-            </div>
         </table>
 
        <p  style="padding-left:165px;">

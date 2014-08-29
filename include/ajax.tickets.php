@@ -676,9 +676,12 @@ class TicketsAjaxAPI extends AjaxController {
 
             // Ticket thread variables are assumed to be quotes
             $response = "<br/><blockquote>$response</blockquote><br/>";
+
             //  Return text if html thread is not enabled
             if (!$cfg->isHtmlThreadEnabled())
                 $response = Format::html2text($response, 90);
+            else
+                $response = Format::viewableImages($response);
 
             // XXX: assuming json format for now.
             return Format::json_encode(array('response' => $response));
