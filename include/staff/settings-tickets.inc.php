@@ -227,7 +227,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                         $.dialog($(this).attr('href').substr(1), [201]);
                         return false;
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
-                <i class="help-tip icon-question-sign" href="#attachment_settings"></i>
+                <i class="help-tip icon-question-sign" href="#ticket_attachment_settings"></i>
             </td>
         </tr>
         <tr>
@@ -264,7 +264,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     }
                     ?>
                 </select>
-                <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
+                <i class="help-tip icon-question-sign" href="#max_file_size"></i>
+                <div class="error"><?php echo $errors['max_file_size']; ?></div>
             </td>
         </tr>
         <tr>

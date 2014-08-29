@@ -128,40 +128,23 @@ enable_html_ticket_thread:
         If enabled, this will permit the use of rich text formatting between
         Clients and Agents.
 
-attachments:
-    title: Attachments
+ticket_attachment_settings:
+    title: Ticket Thread Attachments
     content: >
+        Configure settings for files attached to the <span
+        class="doc-desc-title">issue details</span> field. These settings
+        are used for all new tickets and new messages regardless of the
+        source channel (web portal, email, api, etc.).
 
-allow_attachments:
-    title: Allow Attachments
-    content: >
-
-emailed_api_attachments:
-    title: Emailed/API Attachments
-    content: >
-
-online_web_attachments:
-    title: Online/Web Attachments
-    content: >
-
-max_user_file_uploads:
-    title: Max. User File Uploads
-    content: >
-
-max_staff_file_uploads:
-    title: Max. Staff File Uploads
-    content: >
-
-maximum_file_size:
+max_file_size:
     title: Maximum File Size
     content: >
+        Choose a maximum file size for attachments uploaded by agents. This
+        includes canned attachments, knowledge base articles, and
+        attachments to ticket replies.
 
 ticket_response_files:
     title: Ticket Response Files
     content: >
         If enabled, any attachments an Agent may attach to a ticket response will
         be also included in the email to the User.
-
-accepted_file_types:
-    title: Accepted File Types
-    content: >
