@@ -16,7 +16,7 @@ if ($thisclient && $thisclient->isGuest()
     <strong><?php echo __('Looking for your other tickets?'); ?></strong></br>
     <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
         echo urlencode($thisclient->getEmail());
-    ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a> or
+    ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a>
     <?php echo sprintf(__('or %s register for an account %s for the best experience on our help desk.'),
         '<a href="account.php?do=create" style="text-decoration:underline">','</a>'); ?>
     </div>

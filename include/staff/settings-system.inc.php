@@ -114,7 +114,7 @@ $gmtime = Misc::gmtime();
     list($desc, $func) = $f;
     $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
                     <option value="<?php echo $n; ?>" <?php echo $selected;
-                        ?>><?php echo $desc; ?></option>
+                        ?>><?php echo __($desc); ?></option>
 <?php } ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
