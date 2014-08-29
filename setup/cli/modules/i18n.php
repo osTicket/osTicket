@@ -406,13 +406,29 @@ class i18n_Compiler extends Module {
                 break;
             case T_COMMENT:
             case T_DOC_COMMENT:
-                if (preg_match('`\*\s*trans\s*\*`', $T[1])) {
+                $translate = false;
+                $hints = array();
+                if (preg_match('`^/\*+\s*@(\w+)`m', $T[1])) {
+                    foreach (preg_split('`,\s*`m', $T[1]) as $command) {
+                        $command = trim($command, " \n\r\t\"*/\\");
+                        @list($command, $args) = explode(' ', $command, 2);
+                        switch ($command) {
+                        case '@context':
+                            $hints['context'] = trim($args, " \"*\n\t\r");
+                        case '@trans':
+                            $translate = true;
+                        default:
+                            continue;
+                        }
+                    }
+                }
+                if ($translate) {
                     // Find the next textual token
                     list($S, $T) = $this->__read_next_string($tokens);
-                    $string = array('forms'=>array($S['form']), 'line'=>$S['line']);
+                    $string = array('forms'=>array($S['form']), 'line'=>$S['line'])
+                        + $hints;
                     if (isset($S['comments']))
-                        $string['comments'] = array_merge(
-                            @$string['comments'] ?: array(), $S['comments']);
+                        $string['comments'] = $S['comments'];
                     $T_funcs[] = $string;
                 }
                 break;

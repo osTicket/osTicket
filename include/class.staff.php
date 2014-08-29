@@ -671,7 +671,7 @@ class Staff extends AuthenticatedUser {
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)
-            return new Error(/* trans */ 'Unable to retrieve password reset email template');
+            return new Error(/* @trans */ 'Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),

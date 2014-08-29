@@ -27,8 +27,8 @@ class QuickNoteModel extends VerySimpleModel {
 class QuickNote extends QuickNoteModel {
 
     static $types = array(
-        'U' => /* trans */ 'User',
-        'O' => /* trans */ 'Organization',
+        'U' => /* @trans */ 'User',
+        'O' => /* @trans */ 'Organization',
     );
     var $_staff;
 

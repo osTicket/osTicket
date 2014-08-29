@@ -131,15 +131,15 @@ class FormField {
     var $presentation_only = false;
 
     static $types = array(
-        /* trans */ 'Basic Fields' => array(
-            'text'  => array(   /* trans */ 'Short Answer', 'TextboxField'),
-            'memo' => array(    /* trans */ 'Long Answer', 'TextareaField'),
-            'thread' => array(  /* trans */ 'Thread Entry', 'ThreadEntryField', false),
-            'datetime' => array(/* trans */ 'Date and Time', 'DatetimeField'),
-            'phone' => array(   /* trans */ 'Phone Number', 'PhoneField'),
-            'bool' => array(    /* trans */ 'Checkbox', 'BooleanField'),
-            'choices' => array( /* trans */ 'Choices', 'ChoiceField'),
-            'break' => array(   /* trans */ 'Section Break', 'SectionBreakField'),
+        /* @trans */ 'Basic Fields' => array(
+            'text'  => array(   /* @trans */ 'Short Answer', 'TextboxField'),
+            'memo' => array(    /* @trans */ 'Long Answer', 'TextareaField'),
+            'thread' => array(  /* @trans */ 'Thread Entry', 'ThreadEntryField', false),
+            'datetime' => array(/* @trans */ 'Date and Time', 'DatetimeField'),
+            'phone' => array(   /* @trans */ 'Phone Number', 'PhoneField'),
+            'bool' => array(    /* @trans */ 'Checkbox', 'BooleanField'),
+            'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
+            'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
         ),
     );
     static $more_types = array();
@@ -1017,7 +1017,7 @@ class PriorityField extends ChoiceField {
         );
     }
 }
-FormField::addFieldTypes(/*trans*/ 'Dynamic Fields', function() {
+FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
         'priority' => array(__('Priority Level'), PriorityField),
     );
@@ -1028,27 +1028,27 @@ class TicketStateField extends ChoiceField {
 
     static $_states = array(
             'open' => array(
-                'name' => /* trans */ 'Open',
-                'verb' => /* trans */ 'Open'
+                'name' => /* @trans */ 'Open',
+                'verb' => /* @trans */ 'Open'
                 ),
             'resolved' => array(
-                'name' => /* trans */ 'Resolved',
-                'verb' => /* trans */ 'Resolve'
+                'name' => /* @trans */ 'Resolved',
+                'verb' => /* @trans */ 'Resolve'
                 ),
             'closed' => array(
-                'name' => /* trans */ 'Closed',
-                'verb' => /* trans */ 'Close'
+                'name' => /* @trans */ 'Closed',
+                'verb' => /* @trans */ 'Close'
                 )
             );
     // Private states
     static $_privatestates = array(
             'archived' => array(
-                'name' => /* trans */ 'Archived',
-                'verb' => /* trans */ 'Archive'
+                'name' => /* @trans */ 'Archived',
+                'verb' => /* @trans */ 'Archive'
                 ),
             'deleted'  => array(
-                'name' => /* trans */ 'Deleted',
-                'verb' => /* trans */ 'Delete'
+                'name' => /* @trans */ 'Deleted',
+                'verb' => /* @trans */ 'Delete'
                 )
             );
 

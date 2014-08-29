@@ -56,8 +56,8 @@ class Ticket {
 
     // Status -- listed here until we have a formal status class
     static $STATUSES = array(
-        /* trans */ 'open',
-        /* trans */ 'closed',
+        /* @trans */ 'open',
+        /* @trans */ 'closed',
     );
 
     function Ticket($id) {
