@@ -1903,7 +1903,8 @@ class FileUploadWidget extends Widget {
             <div class="dropzone"><i class="icon-upload"></i>
             Drop files here or <a href="#" class="manual">choose
             them</a>
-        <input type="file" class="multifile" multiple id="file-<?php echo $id; ?>" style="display:none;"
+        <input type="file" multiple="multiple"
+            id="file-<?php echo $id; ?>" style="display:none;"
             accept="<?php echo implode(',', $config['__mimetypes']); ?>"/>
         </div></div>
         <script type="text/javascript">
