@@ -32,6 +32,16 @@ sequence_id:
         in the <span class="doc-desc-title">Ticket Number
         Format</span> configuration for help topics.
 
+default_ticket_status:
+    title: Default Status for new Tickets
+    content: >
+        Choose a status as the default for new tickets. This can be defined
+        for each help topic, if desired. It can also be overridden by a
+        ticket filter.
+    links:
+      - title: Manage Ticket Statuses
+        href: /scp/lists.php?type=ticket-status
+
 default_sla:
     title: Default SLA
     content: >

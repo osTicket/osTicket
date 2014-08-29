@@ -131,15 +131,15 @@ class FormField {
     var $presentation_only = false;
 
     static $types = array(
-        /* trans */ 'Basic Fields' => array(
-            'text'  => array(   /* trans */ 'Short Answer', 'TextboxField'),
-            'memo' => array(    /* trans */ 'Long Answer', 'TextareaField'),
-            'thread' => array(  /* trans */ 'Thread Entry', 'ThreadEntryField', false),
-            'datetime' => array(/* trans */ 'Date and Time', 'DatetimeField'),
-            'phone' => array(   /* trans */ 'Phone Number', 'PhoneField'),
-            'bool' => array(    /* trans */ 'Checkbox', 'BooleanField'),
-            'choices' => array( /* trans */ 'Choices', 'ChoiceField'),
-            'break' => array(   /* trans */ 'Section Break', 'SectionBreakField'),
+        /* @trans */ 'Basic Fields' => array(
+            'text'  => array(   /* @trans */ 'Short Answer', 'TextboxField'),
+            'memo' => array(    /* @trans */ 'Long Answer', 'TextareaField'),
+            'thread' => array(  /* @trans */ 'Thread Entry', 'ThreadEntryField', false),
+            'datetime' => array(/* @trans */ 'Date and Time', 'DatetimeField'),
+            'phone' => array(   /* @trans */ 'Phone Number', 'PhoneField'),
+            'bool' => array(    /* @trans */ 'Checkbox', 'BooleanField'),
+            'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
+            'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
         ),
     );
     static $more_types = array();
@@ -1017,7 +1017,7 @@ class PriorityField extends ChoiceField {
         );
     }
 }
-FormField::addFieldTypes(/*trans*/ 'Dynamic Fields', function() {
+FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
         'priority' => array(__('Priority Level'), PriorityField),
     );
@@ -1028,27 +1028,27 @@ class TicketStateField extends ChoiceField {
 
     static $_states = array(
             'open' => array(
-                'name' => /* trans */ 'Open',
-                'verb' => /* trans */ 'Open'
+                'name' => /* @trans, @context "ticket state name" */ 'Open',
+                'verb' => /* @trans, @context "ticket state action" */ 'Open'
                 ),
             'resolved' => array(
-                'name' => /* trans */ 'Resolved',
-                'verb' => /* trans */ 'Resolve'
+                'name' => /* @trans, @context "ticket state name" */ 'Resolved',
+                'verb' => /* @trans, @context "ticket state action" */ 'Resolve'
                 ),
             'closed' => array(
-                'name' => /* trans */ 'Closed',
-                'verb' => /* trans */ 'Close'
+                'name' => /* @trans, @context "ticket state name" */ 'Closed',
+                'verb' => /* @trans, @context "ticket state action" */ 'Close'
                 )
             );
     // Private states
     static $_privatestates = array(
             'archived' => array(
-                'name' => /* trans */ 'Archived',
-                'verb' => /* trans */ 'Archive'
+                'name' => /* @trans, @context "ticket state name" */ 'Archived',
+                'verb' => /* @trans, @context "ticket state action" */ 'Archive'
                 ),
             'deleted'  => array(
-                'name' => /* trans */ 'Deleted',
-                'verb' => /* trans */ 'Delete'
+                'name' => /* @trans, @context "ticket state name" */ 'Deleted',
+                'verb' => /* @trans, @context "ticket state action" */ 'Delete'
                 )
             );
 
@@ -1066,7 +1066,7 @@ class TicketStateField extends ChoiceField {
         if (!isset($_choices)) {
             // Translate and cache the choices
             foreach (static::$_states as $k => $v)
-                $_choices[$k] =  __($v['name']);
+                $_choices[$k] =  _P('ticket state name', $v['name']);
 
             $this->ht['default'] =  '';
         }
@@ -1080,10 +1080,10 @@ class TicketStateField extends ChoiceField {
             $state = key($state);
 
         if (isset(static::$_states[$state]))
-            return __(static::$_states[$state]['name']);
+            return _P('ticket state name', static::$_states[$state]['name']);
 
         if (isset(static::$_privatestates[$state]))
-            return __(static::$_privatestates[$state]['name']);
+            return _P('ticket state name', static::$_privatestates[$state]['name']);
 
         return $state;
     }
@@ -1101,10 +1101,10 @@ class TicketStateField extends ChoiceField {
     static function getVerb($state) {
 
         if (isset(static::$_states[$state]))
-            return __(static::$_states[$state]['verb']);
+            return _P('ticket state action', static::$_states[$state]['verb']);
 
         if (isset(static::$_privatestates[$state]))
-            return __(static::$_privatestates[$state]['verb']);
+            return _P('ticket state action', static::$_privatestates[$state]['verb']);
     }
 }
 FormField::addFieldTypes('Dynamic Fields', function() {
@@ -1273,7 +1273,7 @@ class PhoneNumberWidget extends Widget {
         echo Format::htmlchars($phone); ?>"/><?php
         // Allow display of extension field even if disabled if the phone
         // number being edited has an extension
-        if ($ext || $config['ext']) { ?> Ext:
+        if ($ext || $config['ext']) { ?> <?php echo __('Ext'); ?>:
             <input type="text" name="<?php
             echo $this->name; ?>-ext" value="<?php echo Format::htmlchars($ext);
                 ?>" size="5"/>

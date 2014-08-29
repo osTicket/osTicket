@@ -49,8 +49,7 @@ else
 
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
- <h2><?php echo __('Canned Responses');?>
- &nbsp;<i class="help-tip icon-question-sign" href="#canned_responses"></i></h2>
+ <h2><?php echo __('Canned Responses');?></h2>
  </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
     <b><a href="canned.php?a=add" class="Icon newReply"><?php echo __('Add New Response');?></a></b></div>

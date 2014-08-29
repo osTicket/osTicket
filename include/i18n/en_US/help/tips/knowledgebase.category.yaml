@@ -13,22 +13,3 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-category_information:
-    title: Category Information
-    content: >
-        Once you have created categories, you can select the category that the FAQ
-        pertains to then select “Add New FAQ”.  Type in the Question that will be
-        visible, if the FAQ will be Public or Internal and type the Answer in the
-        text box. You can also attach a file to the FAQ.
-
-category_type:
-    title: Category Type
-    content: >
-
-category_name:
-    title: Category Name
-    content: >
-
-category_description:
-    title: Category Description
-    content: >
