@@ -35,6 +35,12 @@
         this.$element.css('background-color', 'rgba(0, 0, 0, 0.3)');
     },
     beforeEach: function (file) {
+      if (this.options.maxfiles && this.uploads.length >= this.options.maxfiles) {
+          // This file is not allowed to be added to the list. It's over the
+          // limit
+          this.handleError('TooManyFiles', file);
+          return false;
+      }
       var node = this.addNode(file).data('file', file);
       node.find('.progress').show();
       node.find('.progress-bar').width('100%').addClass('progress-bar-striped active');
@@ -201,7 +207,8 @@
   $.fn.filedropbox.defaults = {
     files: [],
     deletable: true,
-    shim: !window.FileReader
+    shim: !window.FileReader,
+    queuefiles: 2
   };
 
   $.fn.filedropbox.messages = {
