@@ -243,7 +243,7 @@ class UserForm extends DynamicForm {
         return static::$instance;
     }
 }
-Filter::addSupportedMatches(/* trans */ 'User Data', function() {
+Filter::addSupportedMatches(/* @trans */ 'User Data', function() {
     $matches = array();
     foreach (UserForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
@@ -333,7 +333,7 @@ class TicketForm extends DynamicForm {
     }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches(/* trans */ 'Ticket Data', function() {
+Filter::addSupportedMatches(/* @trans */ 'Ticket Data', function() {
     $matches = array();
     foreach (TicketForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())

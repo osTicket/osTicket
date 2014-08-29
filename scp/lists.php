@@ -4,8 +4,14 @@ require_once(INCLUDE_DIR.'class.list.php');
 
 
 $list=null;
-if ($_REQUEST['id']) {
-    $list = DynamicList::lookup($_REQUEST['id']);
+$criteria=array();
+if ($_REQUEST['id'])
+    $criteria['id'] = $_REQUEST['id'];
+elseif ($_REQUEST['type'])
+    $criteria['type'] = $_REQUEST['type'];
+
+if ($criteria) {
+    $list = DynamicList::lookup($criteria);
 
     if ($list)
          $form = $list->getForm();

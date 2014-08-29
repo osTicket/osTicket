@@ -41,8 +41,7 @@ else
 
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
- <h2><?php echo __('FAQ Categories');?>
- &nbsp;<i class="help-tip icon-question-sign" href="#faq_categories"></i></h2>
+ <h2><?php echo __('FAQ Categories');?></h2>
  </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
     <b><a href="categories.php?a=add" class="Icon newCategory"><?php echo __('Add New Category');?></a></b></div>
