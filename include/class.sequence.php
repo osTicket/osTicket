@@ -42,11 +42,17 @@ class Sequence extends VerySimpleModel {
      */
     function next($format=false, $check=false) {
         $digits = $format ? $this->getDigitCount($format) : false;
+
+        if ($check && !is_callable($check))
+            $check = false;
+
         do {
             $next = $this->__next($digits);
             $formatted = $format ? $this->format($format, $next) : $next;
         }
-        while ($check && !$check($formatted, $next));
+        while ($check
+                && !call_user_func_array($check, array($formatted, $next)));
+
         return $formatted;
     }
 
