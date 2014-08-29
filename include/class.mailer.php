@@ -176,10 +176,12 @@ class Mailer {
         $mid_token = (isset($options['thread']))
             ? $options['thread']->asMessageId($to) : '';
         if (!(isset($options['text']) && $options['text'])) {
-            if ($cfg && $cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator())
+            $tag = '';
+            if ($cfg && $cfg->stripQuotedReply()
                     && (!isset($options['reply-tag']) || $options['reply-tag']))
-                $message = "<div style=\"display:none\"
-                    data-mid=\"$mid_token\">$tag<br/><br/></div>$message";
+                $tag = $cfg->getReplySeparator() . '<br/><br/>';
+            $message = "<div style=\"display:none\"
+                data-mid=\"$mid_token\">$tag</div>$message";
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
             $mime->setTXTBody($txtbody);
