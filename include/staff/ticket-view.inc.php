@@ -720,9 +720,9 @@ $tcount+= $ticket->getNumNotes();
                         }?>
                     </select>
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['state']; ?></span>
+                    </div>
                 </td>
             </tr>
-            </div>
         </table>
 
        <p  style="padding-left:165px;">

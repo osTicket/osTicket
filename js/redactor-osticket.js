@@ -255,6 +255,13 @@ $(function() {
                     el.redactor('set', '', false, false);
             });
         }
+        $('input[type=submit]', el.closest('form')).on('click', function() {
+            // Some setups (IE v10 on Windows 7 at least) seem to have a bug
+            // where Redactor does not sync properly after adding an image.
+            // Therefore, the ::get() call will not include text added after
+            // the image was inserted.
+            el.redactor('sync');
+        });
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
             options['plugins'].push('draft');
