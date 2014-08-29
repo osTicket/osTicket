@@ -60,7 +60,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{ticket.phone}</td><td>'.__('Phone number | ext').'</td></tr>
                     <tr><td>%{ticket.status}</td><td>'.__('Status').'</td></tr>
                     <tr><td>%{ticket.priority}</td><td>'.__('Priority').'</td></tr>
-                    <tr><td>%{ticket.assigned}</td><td>'.__('Assigned agent and/or team').__'</td></tr>
+                    <tr><td>%{ticket.assigned}</td><td>'.__('Assigned agent and/or team').'</td></tr>
                     <tr><td>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
                     <tr><td>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
                     <tr><td>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>

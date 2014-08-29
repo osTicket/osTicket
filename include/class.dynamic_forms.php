@@ -1127,6 +1127,7 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
             $value = key($this->value);
         }
 
+        $config = $this->getConfiguration();
         $source = array();
         foreach ($this->field->getList()->getItems() as $i)
             $source[] = array(
