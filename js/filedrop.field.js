@@ -14,7 +14,8 @@
       drop: $.proxy(this.drop, this),
       beforeSend: $.proxy(this.beforeSend, this),
       beforeEach: $.proxy(this.beforeEach, this),
-      error: $.proxy(this.handleError, this)
+      error: $.proxy(this.handleError, this),
+      globalProgressUpdated: $.proxy(this.lockSubmit, this)
     };
 
     this.options = $.extend({}, $.fn.filedropbox.defaults, events, options);
@@ -44,6 +45,7 @@
       var node = this.addNode(file).data('file', file);
       node.find('.progress').show();
       node.find('.progress-bar').width('100%').addClass('progress-bar-striped active');
+      node.find('.trash').hide();
     },
     beforeSend: function (file, i, reader) {
       this.uploads.some(function(e) {
@@ -86,9 +88,9 @@
       this.uploads.some(function(e) {
         if (e.data('file') == file) {
           e.data('xhr', xhr);
-          e.find('.trash').hide();
           e.find('.cancel').show();
           that.progressUpdated(i, file, 0);
+          that.lockSubmit(1);
           return true;
         }
       });
@@ -176,8 +178,12 @@
       return filenode;
     },
     deleteNode: function(filenode, e) {
-      if (!e || confirm(__('You sure?')))
-        filenode.remove();
+      if (!e || confirm(__('You sure?'))) {
+        var i = this.uploads.indexOf(filenode);
+        if (i !== -1)
+            this.uploads.splice(i,1);
+        filenode.slideUp('fast', function() { this.remove(); });
+      }
     },
     cancelUpload: function(node) {
       if (node.data('xhr')) {
@@ -191,6 +197,19 @@
         message = '<b>' + file.name + '</b><br/>' + message;
       }
       $.sysAlert(__('File Upload Error'), message);
+    },
+    lockSubmit: function(total_progress) {
+      var submit = this.$element.closest('form').find('input[type=submit]'),
+          $submit = $(submit);
+      if (0 < total_progress  && total_progress < 100) {
+        if (!$submit.data('original')) {
+          $submit.data('original', $submit.val());
+        }
+        $submit.val(__('Uploading ...')).prop('disabled', true);
+      }
+      else if ($submit.data('original')) {
+        $submit.val($submit.data('original')).prop('disabled', false);
+      }
     }
   };
 
@@ -208,7 +227,7 @@
     files: [],
     deletable: true,
     shim: !window.FileReader,
-    queuefiles: 2
+    queuefiles: 4
   };
 
   $.fn.filedropbox.messages = {
@@ -392,8 +411,8 @@
 
     function progress(e) {
       if (e.lengthComputable) {
-        var percentage = Math.round((e.loaded * 100) / e.total);
-        if (this.currentProgress !== percentage) {
+        var percentage = ((e.loaded * 100) / e.total).toFixed(1);
+        if (this.currentProgress != percentage) {
 
           this.currentProgress = percentage;
           opts.progressUpdated(this.index, this.file, this.currentProgress);
@@ -412,6 +431,11 @@
           }
         }
       }
+    }
+
+    function abort(e) {
+      global_progress[this.global_progress_index] = 100;
+      globalProgress();
     }
 
     function globalProgress() {
@@ -616,6 +640,7 @@
         upload.global_progress_index = global_progress_index;
         upload.startData = 0;
         upload.addEventListener("progress", progress, false);
+        upload.addEventListener("abort", abort, false);
 
         // Allow url to be a method
         if (jQuery.isFunction(opts.url)) {
