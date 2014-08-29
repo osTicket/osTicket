@@ -181,19 +181,15 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                     data-draft-namespace="ticket.client"
                     data-draft-object-id="<?php echo $ticket->getId(); ?>"
                     class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
-            </td>
-        </tr>
         <?php
         if ($messageField->isAttachmentsEnabled()) { ?>
-        <tr>
-            <td colspan="2">
 <?php
             print $attachments->render(true);
 ?>
-            </td>
-        </tr>
         <?php
         } ?>
+            </td>
+        </tr>
     </table>
     <p style="padding-left:165px;">
         <input type="submit" value="<?php echo __('Post Reply');?>">

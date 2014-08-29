@@ -123,6 +123,6 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
 }
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
-print $response_form->getMedia();
+print $tform->getMedia();
 include(CLIENTINC_DIR.'footer.inc.php');
 ?>
