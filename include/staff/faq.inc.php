@@ -96,24 +96,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div><b><?php echo __('Attachments');?></b> (<?php echo __('optional');?>) <font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
-                <?php
-                if($faq && ($files=$faq->attachments->getSeparates())) {
-                    echo '<div class="faq_attachments"><span class="faded">'.__('Uncheck to delete the attachment on submit').'</span><br>';
-                    foreach($files as $file) {
-                        $hash=$file['key'].md5($file['id'].session_id().strtolower($file['key']));
-                        echo sprintf('<label><input type="checkbox" name="files[]" id="f%d" value="%d" checked="checked">
-                                      <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',
-                                      $file['id'], $file['id'], $hash, $file['name']);
-                    }
-                    echo '</div><br>';
-                }
-                ?>
-                <div class="faded"><?php echo __('Select files to upload.');?></div>
-                <div class="uploads"></div>
-                <div class="file_input">
-                    <input type="file" class="multifile" name="attachments[]" size="30" value="" />
+                <div><h3><?php echo __('Attachments');?>
+                    <span class="faded">(<?php echo __('optional');?>)</span></h3>
+                    <div class="error"><?php echo $errors['files']; ?></div>
                 </div>
+                <?php
+                $attachments = $faq_form->getField('attachments');
+                if ($faq && ($files=$faq->attachments->getSeparates())) {
+                    $ids = array();
+                    foreach ($files as $f)
+                        $ids[] = $f['id'];
+                    $attachments->value = $ids;
+                }
+                print $attachments->render(); ?>
+                <br/>
             </td>
         </tr>
         <?php

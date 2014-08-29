@@ -39,6 +39,18 @@ if($_REQUEST['id']) {
 if ($_REQUEST['uid'])
     $user = User::lookup($_REQUEST['uid']);
 
+// Configure form for file uploads
+$response_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'name'=>'attach:response',
+        'configuration' => array('extensions'=>'')))
+));
+$note_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'name'=>'attach:note',
+        'configuration' => array('extensions'=>'')))
+));
+
 //At this stage we know the access status. we can process the post.
 if($_POST && !$errors):
 
@@ -65,8 +77,7 @@ if($_POST && !$errors):
 
             //If no error...do the do.
             $vars = $_POST;
-            if(!$errors && $_FILES['attachments'])
-                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
 
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
@@ -74,6 +85,10 @@ if($_POST && !$errors):
                             sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
                                 $ticket->getId(), $ticket->getNumber()))
                         );
+
+                // Clear attachment list
+                $response_form->setSource(array());
+                $response_form->getField('attachments')->reset();
 
                 // Remove staff's locks
                 TicketLock::removeStaffLocks($thisstaff->getId(),
@@ -168,13 +183,18 @@ if($_POST && !$errors):
             break;
         case 'postnote': /* Post Internal Note */
             $vars = $_POST;
-            if($_FILES['attachments'])
-                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
+            $attachments = $note_form->getField('attachments')->getClean();
+            $vars['cannedattachments'] = array_merge(
+                $vars['cannedattachments'] ?: array(), $attachments);
 
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 
                 $msg=__('Internal note posted successfully');
+                // Clear attachment list
+                $note_form->setSource(array());
+                $note_form->getField('attachments')->reset();
+
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
                 else
@@ -315,12 +335,17 @@ if($_POST && !$errors):
                     $vars = $_POST;
                     $vars['uid'] = $user? $user->getId() : 0;
 
+                    $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg=__('Ticket created successfully');
                         $_REQUEST['a']=null;
                         if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
+                        // Drop files from the response attachments widget
+                        $response_form->setSource(array());
+                        $response_form->getField('attachments')->reset();
                         unset($_SESSION[':form-data']);
                     } elseif(!$errors['err']) {
                         $errors['err']=__('Unable to create the ticket. Correct the error(s) and try again');
@@ -465,4 +490,5 @@ if($ticket) {
 
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
+print $response_form->getMedia();
 require_once(STAFFINC_DIR.'footer.inc.php');

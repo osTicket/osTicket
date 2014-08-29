@@ -171,7 +171,7 @@ class FAQ {
         $this->updateTopics($vars['topics']);
 
         //Delete removed attachments.
-        $keepers = $vars['files']?$vars['files']:array();
+        $keepers = $vars['files'];
         if(($attachments = $this->attachments->getSeparates())) {
             foreach($attachments as $file) {
                 if($file['id'] && !in_array($file['id'], $keepers))
@@ -179,9 +179,8 @@ class FAQ {
             }
         }
 
-        //Upload new attachments IF any.
-        if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-            $this->attachments->upload($files);
+        // Upload new attachments IF any.
+        $this->attachments->upload($keepers);
 
         // Inline images (attached to the draft)
         $this->attachments->deleteInlines();

@@ -23,8 +23,16 @@ if($_REQUEST['id'] && !($faq=FAQ::lookup($_REQUEST['id'])))
 if($_REQUEST['cid'] && !$faq && !($category=Category::lookup($_REQUEST['cid'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid'), __('FAQ category'));
 
+$faq_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'configuration'=>array('extensions'=>false,
+            'size'=>$cfg->getMaxFileSize())
+   )),
+));
+
 if($_POST):
     $errors=array();
+    $_POST['files'] = $faq_form->getField('attachments')->getClean();
     switch(strtolower($_POST['do'])) {
         case 'create':
         case 'add':
@@ -108,5 +116,6 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
+print $faq_form->getMedia();
 require_once(STAFFINC_DIR.'footer.inc.php');
 ?>

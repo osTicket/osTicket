@@ -214,61 +214,20 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </th>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Allow Attachments');?>:</td>
+            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
             <td>
-              <input type="checkbox" name="allow_attachments" <?php echo
-              $config['allow_attachments']?'checked="checked"':''; ?>> <b><?php echo __('Allow Attachments'); ?></b>
-              &nbsp; <em>(<?php echo __('Global Setting'); ?>)</em>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_attachments']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180"><?php echo __('Emailed/API Attachments');?>:</td>
-            <td>
-                <input type="checkbox" name="allow_email_attachments" <?php echo $config['allow_email_attachments']?'checked="checked"':''; ?>> <?php echo __('Accept emailed files');?>
-                    &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_email_attachments']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180"><?php echo __('Online/Web Attachments');?>:</td>
-            <td>
-                <input type="checkbox" name="allow_online_attachments" <?php echo $config['allow_online_attachments']?'checked="checked"':''; ?> >
-                    <?php echo __('Allow web upload');?> &nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="checkbox" name="allow_online_attachments_onlogin" <?php echo $config['allow_online_attachments_onlogin'] ?'checked="checked"':''; ?> >
-                    <?php echo __('Limit to authenticated users only. <em>(User must be logged in to upload files)</em>');?>
-                    <font class="error">&nbsp;<?php echo $errors['allow_online_attachments']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Maximum User File Uploads');?>:</td>
-            <td>
-                <select name="max_user_file_uploads">
-                    <?php
-                    for($i = 1; $i <=$maxfileuploads; $i++) {
-                        ?>
-                        <option <?php echo $config['max_user_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
-                            <?php echo sprintf(_N('%d file', '%d files', $i), $i); ?></option>
-                        <?php
-                    } ?>
-                </select>
-                <em><?php echo __('(Number of files the user is allowed to upload simultaneously)');?></em>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['max_user_file_uploads']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Maximum Agent File Uploads');?>:</td>
-            <td>
-                <select name="max_staff_file_uploads">
-                    <?php
-                    for($i = 1; $i <=$maxfileuploads; $i++) {
-                        ?>
-                        <option <?php echo $config['max_staff_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
-                            <?php echo sprintf(_N('%d file', '%d files', $i), $i); ?></option>
-                        <?php
-                    } ?>
-                </select>
-                <em><?php echo __('(Number of files an agent is allowed to upload simultaneously)');?></em>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['max_staff_file_uploads']; ?></font>
+<?php
+                $tform = TicketForm::objects()->one()->getForm();
+                $f = $tform->getField('message');
+?>
+                <a class="action-button field-config" style="float:none;overflow:inherit"
+                    href="#ajax.php/form/field-config/<?php
+                        echo $f->get('id'); ?>"
+                    onclick="javascript:
+                        $.dialog($(this).attr('href').substr(1), [201]);
+                        return false;
+                    "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
+                <i class="help-tip icon-question-sign" href="#ticket_attachment_settings"></i>
             </td>
         </tr>
         <tr>
@@ -305,7 +264,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     }
                     ?>
                 </select>
-                <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
+                <i class="help-tip icon-question-sign" href="#max_file_size"></i>
+                <div class="error"><?php echo $errors['max_file_size']; ?></div>
             </td>
         </tr>
         <tr>
@@ -330,18 +290,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <?php } ?>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Accepted File Types');?></strong>: <?php echo __('Limit the type of files users are allowed to submit.');?>
-                <font class="error">&nbsp;<?php echo $errors['allowed_filetypes']; ?></font></em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <em><?php echo __('Enter allowed file extensions separated by a comma. e.g .doc, .pdf. To accept all files enter wildcard <b><i>.*</i></b>&nbsp;i.e dotStar (NOT Recommended).');?></em><br>
-                <textarea name="allowed_filetypes" cols="21" rows="4" style="width: 65%;" wrap="hard" ><?php echo $config['allowed_filetypes']; ?></textarea>
-            </td>
-        </tr>
     </tbody>
 </table>
 <p style="padding-left:250px;">

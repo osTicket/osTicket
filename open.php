@@ -29,8 +29,11 @@ if ($_POST) {
             $errors['captcha']=__('Invalid - try again!');
     }
 
-    if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
-        $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
+    $tform = TicketForm::objects()->one()->getForm($vars);
+    $messageField = $tform->getField('message');
+    $attachments = $messageField->getWidget()->getAttachments();
+    if (!$errors && $messageField->isAttachmentsEnabled())
+        $vars['cannedattachments'] = $attachments->getClean();
 
     // Drop the draft.. If there are validation errors, the content
     // submitted will be displayed back to the user

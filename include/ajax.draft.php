@@ -67,6 +67,8 @@ class DraftAjaxAPI extends AjaxController {
     }
 
     function _uploadInlineImage($draft) {
+        global $cfg;
+
         if (!isset($_POST['data']) && !isset($_FILES['file']))
             Http::response(422, "File not included properly");
 
@@ -76,9 +78,26 @@ class DraftAjaxAPI extends AjaxController {
                 $_FILES['image'][$k] = array($v);
             unset($_FILES['file']);
 
-            $file = AttachmentFile::format($_FILES['image'], true);
+            $file = AttachmentFile::format($_FILES['image']);
             # TODO: Detect unacceptable attachment extension
             # TODO: Verify content-type and check file-content to ensure image
+            $type = $file[0]['type'];
+            if (strpos($file[0]['type'], 'image/') !== 0)
+                return Http::response(403,
+                    JsonDataEncoder::encode(array(
+                        'error' => 'File type is not allowed',
+                    ))
+                );
+
+            # TODO: Verify file size is acceptable
+            if ($file[0]['size'] > $cfg->getMaxFileSize())
+                return Http::response(403,
+                    JsonDataEncoder::encode(array(
+                        'error' => 'File is too large',
+                    ))
+                );
+
+
             if (!($ids = $draft->attachments->upload($file))) {
                 if ($file[0]['error']) {
                     return Http::response(403,

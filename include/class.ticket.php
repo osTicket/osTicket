@@ -2681,7 +2681,6 @@ class Ticket {
         }
 
         //post the message.
-        unset($vars['cannedattachments']); //Ticket::open() might have it set as part of  open & respond.
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
         $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
@@ -2773,7 +2772,12 @@ class Ticket {
         if (!$thisstaff->canAssignTickets())
             unset($vars['assignId']);
 
-        if(!($ticket=Ticket::create($vars, $errors, 'staff', false)))
+        $create_vars = $vars;
+        $tform = TicketForm::objects()->one()->getForm($create_vars);
+        $create_vars['cannedattachments']
+            = $tform->getField('message')->getWidget()->getAttachments()->getClean();
+
+        if(!($ticket=Ticket::create($create_vars, $errors, 'staff', false)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();
@@ -2782,11 +2786,9 @@ class Ticket {
         $response = null;
         if($vars['response'] && $thisstaff->canPostReply()) {
 
-            // unpack any uploaded files into vars.
-            if ($_FILES['attachments'])
-                $vars['files'] = AttachmentFile::format($_FILES['attachments']);
-
             $vars['response'] = $ticket->replaceVars($vars['response']);
+            // $vars['cannedatachments'] contains the attachments placed on
+            // the response form.
             if(($response=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
                 if(isset($vars['ticket_state']) && $thisstaff->canCloseTickets())

@@ -1444,7 +1444,7 @@ time {
 }
 
 .dialog.draggable h3:hover {
-    cursor: crosshair;
+    cursor: move;
 }
 
 #advanced-search fieldset.span6 {

@@ -87,31 +87,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     data-draft-object-id="<?php if (isset($canned)) echo $canned->getId(); ?>"
                     style="width:98%;" class="richtext draft"><?php
                         echo $info['response']; ?></textarea>
-                <br><br>
-                <div><b><?php echo __('Canned Attachments'); ?></b> <?php echo __('(optional)'); ?>
-                &nbsp;<i class="help-tip icon-question-sign" href="#canned_attachments"></i>
-                <font class="error"><?php echo $errors['files']; ?></font></div>
-                <?php
-                if($canned && ($files=$canned->attachments->getSeparates())) {
-                    echo '<div id="canned_attachments"><span class="faded">'.__('Uncheck to delete the attachment on submit').'</span><br>';
-                    foreach($files as $file) {
-                        $hash=$file['key'].md5($file['id'].session_id().strtolower($file['key']));
-                        echo sprintf('<label><input type="checkbox" name="files[]" id="f%d" value="%d" checked="checked">
-                                      <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',
-                                      $file['id'], $file['id'], $hash, $file['name']);
-                    }
-                    echo '</div><br>';
-
-                }
-                //Hardcoded limit... TODO: add a setting on admin panel - what happens on tickets page??
-                if(count($files)<10) {
-                ?>
-                <div>
-                    <input type="file" name="attachments[]" value=""/>
+                <div><h3><?php echo __('Canned Attachments'); ?> <?php echo __('(optional)'); ?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#canned_attachments"></i></h3>
+                <div class="error"><?php echo $errors['files']; ?></div>
                 </div>
                 <?php
-                }?>
-                <div class="faded"><?php echo __('You can upload up to 10 attachments per canned response.');?></div>
+                $attachments = $canned_form->getField('attachments');
+                if ($canned && ($files=$canned->attachments->getSeparates())) {
+                    $ids = array();
+                    foreach ($files as $f)
+                        $ids[] = $f['id'];
+                    $attachments->value = $ids;
+                }
+                print $attachments->render(); ?>
+                <br/>
             </td>
         </tr>
         <tr>

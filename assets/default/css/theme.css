@@ -703,25 +703,6 @@ label.required {
   border: 1px solid #aaa;
   background: #fff;
 }
-#reply .attachments .uploads div {
-  display: inline-block;
-  padding-right: 20px;
-}
-#reply .file {
-  display: inline-block;
-  padding-left: 20px;
-  margin-right: 20px;
-  background: url('../images/icons/file.gif') 0 50% no-repeat;
-}
-.uploads {
-  display: inline-block;
-  padding-right: 20px;
-}
-.uploads label {
-  padding: 3px;
-  padding-right: 10px;
-  width: auto !important;
-}
 /* Ticket icons */
 .Icon {
   width: auto;

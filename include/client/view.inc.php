@@ -181,24 +181,15 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                     data-draft-namespace="ticket.client"
                     data-draft-object-id="<?php echo $ticket->getId(); ?>"
                     class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
-            </td>
-        </tr>
         <?php
-        if($cfg->allowOnlineAttachments()) { ?>
-        <tr>
-            <td width="160">
-                <label for="attachment"><?php echo __('Attachments');?>:</label>
-            </td>
-            <td width="640" id="reply_form_attachments" class="attachments">
-                <div class="uploads">
-                </div>
-                <div class="file_input">
-                    <input class="multifile" type="file" name="attachments[]" size="30" value="" />
-                </div>
-            </td>
-        </tr>
+        if ($messageField->isAttachmentsEnabled()) { ?>
+<?php
+            print $attachments->render(true);
+?>
         <?php
         } ?>
+            </td>
+        </tr>
     </table>
     <p style="padding-left:165px;">
         <input type="submit" value="<?php echo __('Post Reply');?>">

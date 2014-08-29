@@ -302,34 +302,13 @@ if ($_POST)
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;"><?php echo $info['response']; ?></textarea>
-                <table border="0" cellspacing="0" cellpadding="2" width="100%">
-                <?php
-                if($cfg->allowAttachments()) { ?>
-                    <tr><td width="100" valign="top"><?php echo __('Attachments');?>:</td>
-                        <td>
-                            <div class="canned_attachments">
-                            <?php
-                            if($info['cannedattachments']) {
-                                foreach($info['cannedattachments'] as $k=>$id) {
-                                    if(!($file=AttachmentFile::lookup($id))) continue;
-                                    $hash=$file->getKey().md5($file->getId().session_id().$file->getKey());
-                                    echo sprintf('<label><input type="checkbox" name="cannedattachments[]"
-                                            id="f%d" value="%d" checked="checked"
-                                            <a href="file.php?h=%s">%s</a>&nbsp;&nbsp;</label>&nbsp;',
-                                            $file->getId(), $file->getId() , $hash, $file->getName());
-                                }
-                            }
-                            ?>
-                            </div>
-                            <div class="uploads"></div>
-                            <div class="file_input">
-                                <input type="file" class="multifile" name="attachments[]" size="30" value="" />
-                            </div>
-                        </td>
-                    </tr>
-                <?php
-                } ?>
+                    <div class="attachments">
+<?php
+print $response_form->getField('attachments')->render();
+?>
+                    </div>
 
+                <table border="0" cellspacing="0" cellpadding="2" width="100%">
             <tr>
                 <td width="100"><?php echo __('Ticket Status');?>:</td>
                 <td>
@@ -430,9 +409,11 @@ $(function() {
     // Popup user lookup on the initial page load (not post) if we don't have a
     // user selected
     if (!$_POST && !$user) {?>
-    $.userLookup('ajax.php/users/lookup/form', function (user) {
+    setTimeout(function() {
+      $.userLookup('ajax.php/users/lookup/form', function (user) {
         window.location.href = window.location.href+'&uid='+user.id;
-     });
+      });
+    }, 100);
     <?php
     } ?>
 });

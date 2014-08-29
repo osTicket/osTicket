@@ -94,20 +94,6 @@ $(document).ready(function(){
         }
     })();
 
-    /* Multifile uploads */
-    var elems = $('.multifile');
-    if (elems.exists()) {
-        /* Get config settings from the backend */
-        getConfig().then(function(c) {
-            elems.multifile({
-                container:   '.uploads',
-                max_uploads: c.max_file_uploads || 1,
-                file_types:  c.file_types || ".*",
-                max_file_size: c.max_file_size || 0
-            });
-        });
-    }
-
     $.translate_format = function(str) {
         var translation = {
             'd':'dd',

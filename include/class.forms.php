@@ -59,6 +59,7 @@ class Form {
     function getTitle() { return $this->title; }
     function getInstructions() { return $this->instructions; }
     function getSource() { return $this->_source; }
+    function setSource($source) { $this->_source = $source; }
 
     /**
      * Validate the form and indicate if there no errors.
@@ -107,6 +108,40 @@ class Form {
         else
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
     }
+
+    function getMedia() {
+        static $dedup = array();
+
+        foreach ($this->getFields() as $f) {
+            if (($M = $f->getMedia()) && is_array($M)) {
+                foreach ($M as $type=>$files) {
+                    foreach ($files as $url) {
+                        $key = strtolower($type.$url);
+                        if (isset($dedup[$key]))
+                            continue;
+
+                        self::emitMedia($url, $type);
+
+                        $dedup[$key] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    static function emitMedia($url, $type) {
+        if ($url[0] == '/')
+            $url = ROOT_PATH . substr($url, 1);
+
+        switch (strtolower($type)) {
+        case 'css': ?>
+        <link rel="stylesheet" type="text/css" href="<?php echo $url; ?>"/><?php
+            break;
+        case 'js': ?>
+        <script type="text/javascript" src="<?php echo $url; ?>"></script><?php
+            break;
+        }
+    }
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
@@ -139,6 +174,7 @@ class FormField {
             'phone' => array(   /* @trans */ 'Phone Number', 'PhoneField'),
             'bool' => array(    /* @trans */ 'Checkbox', 'BooleanField'),
             'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
+            'files' => array(   /* @trans */ 'File Upload', 'FileUploadField'),
             'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
         ),
     );
@@ -180,6 +216,9 @@ class FormField {
 
     function get($what) {
         return $this->ht[$what];
+    }
+    function set($field, $value) {
+        $this->ht[$field] = $value;
     }
 
     /**
@@ -386,7 +425,7 @@ class FormField {
             return substr(md5(
                 session_id() . '-field-id-'.$this->get('id')), -16);
         else
-            return $this->get('id');
+            return $this->get('name') ?: $this->get('id');
     }
 
     function setForm($form) {
@@ -410,11 +449,16 @@ class FormField {
     }
 
     function render($mode=null) {
-        $this->getWidget()->render($mode);
+        return $this->getWidget()->render($mode);
     }
 
     function renderExtras($mode=null) {
         return;
+    }
+
+    function getMedia() {
+        $widget = $this->getWidget();
+        return $widget::$media;
     }
 
     function getConfigurationOptions() {
@@ -946,10 +990,32 @@ class ThreadEntryField extends FormField {
     function isPresentationOnly() {
         return true;
     }
-    function renderExtras($mode=null) {
-        if ($mode == 'client')
-            // TODO: Pass errors arrar into showAttachments
-            $this->getWidget()->showAttachments();
+
+    function getConfigurationOptions() {
+        global $cfg;
+
+        $attachments = new FileUploadField();
+        $fileupload_config = $attachments->getConfigurationOptions();
+        $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
+        return array(
+            'attachments' => new BooleanField(array(
+                'label'=>__('Enable Attachments'),
+                'default'=>$cfg->allowAttachments(),
+                'configuration'=>array(
+                    'desc'=>__('Enables attachments on tickets, regardless of channel'),
+                ),
+                'validators' => function($self, $value) {
+                    if (!ini_get('file_uploads'))
+                        $self->addError(__('The "file_uploads" directive is disabled in php.ini'));
+                }
+            )),
+        )
+        + $fileupload_config;
+    }
+
+    function isAttachmentsEnabled() {
+        $config = $this->getConfiguration();
+        return $config['attachments'];
     }
 }
 
@@ -1172,7 +1238,273 @@ FormField::addFieldTypes('Dynamic Fields', function() {
     );
 });
 
+class FileUploadField extends FormField {
+    static $widget = 'FileUploadWidget';
+
+    protected $attachments;
+
+    function getConfigurationOptions() {
+        // Compute size selections
+        $sizes = array('262144' => '— '.__('Small').' —');
+        $next = 512 << 10;
+        $max = strtoupper(ini_get('upload_max_filesize'));
+        $limit = (int) $max;
+        if (!$limit) $limit = 2 << 20; # 2M default value
+        elseif (strpos($max, 'K')) $limit <<= 10;
+        elseif (strpos($max, 'M')) $limit <<= 20;
+        elseif (strpos($max, 'G')) $limit <<= 30;
+        while ($next <= $limit) {
+            // Select the closest, larger value (in case the
+            // current value is between two)
+            $sizes[$next] = Format::file_size($next);
+            $next *= 2;
+        }
+        // Add extra option if top-limit in php.ini doesn't fall
+        // at a power of two
+        if ($next < $limit * 2)
+            $sizes[$limit] = Format::file_size($limit);
+
+        // Load file types
+        $_types = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        $types = array();
+        foreach ($_types as $type=>$info) {
+            $types[$type] = $info['description'];
+        }
+
+        global $cfg;
+        return array(
+            'size' => new ChoiceField(array(
+                'label'=>__('Maximum File Size'),
+                'hint'=>__('Choose maximum size of a single file uploaded to this field'),
+                'default'=>$cfg->getMaxFileSize(),
+                'choices'=>$sizes
+            )),
+            'mimetypes' => new ChoiceField(array(
+                'label'=>__('Restrict by File Type'),
+                'hint'=>__('Optionally, choose acceptable file types.'),
+                'required'=>false,
+                'choices'=>$types,
+                'configuration'=>array('multiselect'=>true,'prompt'=>__('No restrictions'))
+            )),
+            'extensions' => new TextareaField(array(
+                'label'=>__('Additional File Type Filters'),
+                'hint'=>__('Optionally, enter comma-separated list of additional file types, by extension. (e.g .doc, .pdf).'),
+                'configuration'=>array('html'=>false, 'rows'=>2),
+            )),
+            'max' => new TextboxField(array(
+                'label'=>__('Maximum Files'),
+                'hint'=>__('Users cannot upload more than this many files.'),
+                'default'=>false,
+                'required'=>false,
+                'validator'=>'number',
+                'configuration'=>array('size'=>8, 'length'=>4, 'placeholder'=>__('No limit')),
+            ))
+        );
+    }
+
+    /**
+     * Called from the ajax handler for async uploads via web clients.
+     */
+    function ajaxUpload($bypass=false) {
+        $config = $this->getConfiguration();
+
+        $files = AttachmentFile::format($_FILES['upload'],
+            // For numeric fields assume configuration exists
+            !is_numeric($this->get('id')));
+        if (count($files) != 1)
+            Http::response(400, 'Send one file at a time');
+        $file = array_shift($files);
+        $file['name'] = urldecode($file['name']);
+
+        if (!$bypass && !$this->isValidFileType($file['name'], $file['type']))
+            Http::response(415, 'File type is not allowed');
+
+        $config = $this->getConfiguration();
+        if (!$bypass && $file['size'] > $config['size'])
+            Http::response(413, 'File is too large');
+
+        if (!($id = AttachmentFile::upload($file)))
+            Http::response(500, 'Unable to store file: '. $file['error']);
+
+        return $id;
+    }
+
+    /**
+     * Called from FileUploadWidget::getValue() when manual upload is used
+     * for browsers which do not support the HTML5 way of uploading async.
+     */
+    function uploadFile($file) {
+        if (!$this->isValidFileType($file['name'], $file['type']))
+            throw new FileUploadError(__('File type is not allowed'));
+
+        $config = $this->getConfiguration();
+        if ($file['size'] > $config['size'])
+            throw new FileUploadError(__('File size is too large'));
+
+        return AttachmentFile::upload($file);
+    }
+
+    /**
+     * Called from API and email routines and such to handle attachments
+     * sent other than via web upload
+     */
+    function uploadAttachment(&$file) {
+        if (!$this->isValidFileType($file['name'], $file['type']))
+            throw new FileUploadError(__('File type is not allowed'));
+
+        if (is_callable($file['data']))
+            $file['data'] = $file['data']();
+        if (!isset($file['size'])) {
+            // bootstrap.php include a compat version of mb_strlen
+            if (extension_loaded('mbstring'))
+                $file['size'] = mb_strlen($file['data'], '8bit');
+            else
+                $file['size'] = strlen($file['data']);
+        }
+
+        $config = $this->getConfiguration();
+        if ($file['size'] > $config['size'])
+            throw new FileUploadError(__('File size is too large'));
+
+        if (!$id = AttachmentFile::save($file))
+            throw new FileUploadError(__('Unable to save file'));
+
+        return $id;
+    }
+
+    function isValidFileType($name, $type=false) {
+        $config = $this->getConfiguration();
+
+        // Check MIME type - file ext. shouldn't be solely trusted.
+        if ($type && $config['__mimetypes']
+                && in_array($type, $config['__mimetypes']))
+            return true;
+
+        // Return true if all file types are allowed (.*)
+        if (!$config['__extensions'] || in_array('.*', $config['__extensions']))
+            return true;
+
+        $allowed = $config['__extensions'];
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+        return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
+    }
+
+    function getFiles() {
+        if (!isset($this->attachments) && ($a = $this->getAnswer())
+            && ($e = $a->getEntry()) && ($e->get('id'))
+        ) {
+            $this->attachments = new GenericAttachments(
+                // Combine the field and entry ids to make the key
+                sprintf('%u', crc32('E'.$this->get('id').$e->get('id'))),
+                'E');
+        }
+        return $this->attachments ? $this->attachments->getAll() : array();
+    }
+
+    function getConfiguration() {
+        $config = parent::getConfiguration();
+        $_types = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        $mimetypes = array();
+        $extensions = array();
+        if (isset($config['mimetypes']) && is_array($config['mimetypes'])) {
+            foreach ($config['mimetypes'] as $type=>$desc) {
+                foreach ($_types[$type]['types'] as $mime=>$exts) {
+                    $mimetypes[$mime] = true;
+                    foreach ($exts as $ext)
+                        $extensions['.'.$ext] = true;
+                }
+            }
+        }
+        if (strpos($config['extensions'], '.*') !== false)
+            $config['extensions'] = '';
+
+        if (is_string($config['extensions'])) {
+            foreach (preg_split('/\s+/', str_replace(',',' ', $config['extensions'])) as $ext) {
+                if (!$ext) {
+                    continue;
+                }
+                elseif (strpos($ext, '/')) {
+                    $mimetypes[$ext] = true;
+                }
+                else {
+                    if ($ext[0] != '.')
+                        $ext = '.' . $ext;
+                    // Add this to the MIME types list so it can be exported to
+                    // the @accept attribute
+                    if (!isset($extensions[$ext]))
+                        $mimetypes[$ext] = true;
+
+                    $extensions[$ext] = true;
+                }
+            }
+            $config['__extensions'] = array_keys($extensions);
+        }
+        elseif (is_array($config['extensions'])) {
+            $config['__extensions'] = $config['extensions'];
+        }
+
+        // 'mimetypes' is the array represented from the user interface,
+        // '__mimetypes' is a complete list of supported MIME types.
+        $config['__mimetypes'] = array_keys($mimetypes);
+        return $config;
+    }
+
+    // When the field is saved to database, encode the ID listing as a json
+    // array. Then, inspect the difference between the files actually
+    // attached to this field
+    function to_database($value) {
+        $this->getFiles();
+        if (isset($this->attachments)) {
+            $ids = array();
+            // Handle deletes
+            foreach ($this->attachments->getAll() as $f) {
+                if (!in_array($f['id'], $value))
+                    $this->attachments->delete($f['id']);
+                else
+                    $ids[] = $f['id'];
+            }
+            // Handle new files
+            foreach ($value as $id) {
+                if (!in_array($id, $ids))
+                    $this->attachments->upload($id);
+            }
+        }
+        return JsonDataEncoder::encode($value);
+    }
+
+    function parse($value) {
+        // Values in the database should be integer file-ids
+        return array_map(function($e) { return (int) $e; },
+            $value ?: array());
+    }
+
+    function to_php($value) {
+        return JsonDataParser::decode($value);
+    }
+
+    function display($value) {
+        $links = array();
+        foreach ($this->getFiles() as $f) {
+            $hash = strtolower($f['key']
+                . md5($f['id'].session_id().strtolower($f['key'])));
+            $links[] = sprintf('<a class="no-pjax" href="file.php?h=%s">%s</a>',
+                $hash, Format::htmlchars($f['name']));
+        }
+        return implode('<br/>', $links);
+    }
+
+    function toString($value) {
+        $files = array();
+        foreach ($this->getFiles() as $f) {
+            $files[] = $f['name'];
+        }
+        return implode(', ', $files);
+    }
+}
+
 class Widget {
+    static $media = null;
 
     function __construct($field) {
         $this->field = $field;
@@ -1508,29 +1840,112 @@ class ThreadEntryWidget extends Widget {
             cols="21" rows="8" style="width:80%;"><?php echo
             Format::htmlchars($this->value); ?></textarea>
     <?php
-    }
+        $config = $this->field->getConfiguration();
+        if (!$config['attachments'])
+            return;
 
-    function showAttachments($errors=array()) {
-        global $cfg, $thisclient;
-
-        if(($cfg->allowOnlineAttachments()
-            && !$cfg->allowAttachmentsOnlogin())
-            || ($cfg->allowAttachmentsOnlogin()
-                && ($thisclient && $thisclient->isValid()))) { ?>
-        <div class="clear"></div>
-        <hr/>
-        <div><strong style="padding-right:1em;vertical-align:top"><?php
-        echo __('Attachments'); ?>: </strong>
-        <div style="display:inline-block">
-        <div class="uploads" style="display:block"></div>
-        <input type="file" class="multifile" name="attachments[]" id="attachments" size="30" value="" />
-        </div>
-        <font class="error">&nbsp;<?php echo $errors['attachments']; ?></font>
-        </div>
-        <hr/>
-        <?php
+        $attachments = $this->getAttachments($config);
+        print $attachments->render($client);
+        foreach ($attachments->getMedia() as $type=>$urls) {
+            foreach ($urls as $url)
+                Form::emitMedia($url, $type);
         }
     }
+
+    function getAttachments($config=false) {
+        if (!$config)
+            $config = $this->field->getConfiguration();
+
+        return new FileUploadField(array(
+            'id'=>'attach',
+            'name'=>'attach:' . $this->field->get('id'),
+            'configuration'=>$config)
+        );
+    }
 }
+
+class FileUploadWidget extends Widget {
+    static $media = array(
+        'css' => array(
+            '/css/filedrop.css',
+        ),
+    );
+
+    function render($how) {
+        $config = $this->field->getConfiguration();
+        $name = $this->field->getFormName();
+        $id = substr(md5(spl_object_hash($this)), 10);
+        $attachments = $this->field->getFiles();
+        $mimetypes = array_filter($config['__mimetypes'],
+            function($t) { return strpos($t, '/') !== false; }
+        );
+        $files = array();
+        foreach ($this->value ?: array() as $fid) {
+            $found = false;
+            foreach ($attachments as $f) {
+                if ($f['id'] == $fid) {
+                    $files[] = $f;
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found && ($file = AttachmentFile::lookup($fid))) {
+                $files[] = array(
+                    'id' => $file->getId(),
+                    'name' => $file->getName(),
+                    'type' => $file->getType(),
+                    'size' => $file->getSize(),
+                );
+            }
+        }
+        ?><div id="<?php echo $id;
+            ?>" class="filedrop"><div class="files"></div>
+            <div class="dropzone"><i class="icon-upload"></i>
+            Drop files here or <a href="#" class="manual">choose
+            them</a>
+        <input type="file" class="multifile" multiple id="file-<?php echo $id; ?>" style="display:none;"
+            accept="<?php echo implode(',', $config['__mimetypes']); ?>"/>
+        </div></div>
+        <script type="text/javascript">
+        $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
+          url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
+          link: $('#<?php echo $id; ?>').find('a.manual'),
+          paramname: 'upload[]',
+          fallback_id: 'file-<?php echo $id; ?>',
+          allowedfileextensions: <?php echo JsonDataEncoder::encode(
+            $config['__extensions']); ?>,
+          allowedfiletypes: <?php echo JsonDataEncoder::encode(
+            $mimetypes); ?>,
+          maxfiles: <?php echo $config['max'] ?: 20; ?>,
+          maxfilesize: <?php echo ($config['size'] ?: 1048576) / 1048576; ?>,
+          name: '<?php echo $name; ?>[]',
+          files: <?php echo JsonDataEncoder::encode($files); ?>
+        });});
+        </script>
+<?php
+    }
+
+    function getValue() {
+        $data = $this->field->getSource();
+        $ids = array();
+        // Handle manual uploads (IE<10)
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
+            foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
+                try {
+                    $ids[] = $this->field->uploadFile($file);
+                }
+                catch (FileUploadError $ex) {}
+            }
+            return array_merge($ids, parent::getValue() ?: array());
+        }
+        // If no value was sent, assume an empty list
+        elseif ($data && is_array($data) && !isset($data[$this->name]))
+            return array();
+
+        return parent::getValue();
+    }
+}
+
+class FileUploadError extends Exception {}
 
 ?>

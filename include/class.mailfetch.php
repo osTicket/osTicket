@@ -665,8 +665,14 @@ class MailFetcher {
         $errors=array();
         $seen = false;
 
+        // Use the settings on the thread entry on the ticket details
+        // form to validate the attachments in the email
+        $tform = TicketForm::objects()->one()->getForm();
+        $messageField = $tform->getField('message');
+        $fileField = $messageField->getWidget()->getAttachments();
+
         // Fetch attachments if any.
-        if($ost->getConfig()->allowEmailAttachments()) {
+        if ($messageField->isAttachmentsEnabled()) {
             // Include TNEF attachments in the attachments list
             if ($this->tnef) {
                 foreach ($this->tnef->attachments as $at) {
@@ -680,15 +686,11 @@ class MailFetcher {
                 }
             }
             $vars['attachments'] = array();
-            foreach($attachments as $a ) {
+
+            foreach ($attachments as $a) {
                 $file = array('name' => $a['name'], 'type' => $a['type']);
 
-                //Check the file  type
-                if(!$ost->isFileTypeAllowed($file)) {
-                    $file['error'] = sprintf(_S('Invalid file type (ext) for %s'),
-                        Format::htmlchars($file['name']));
-                }
-                elseif (@$a['data'] instanceof TnefAttachment) {
+                if (@$a['data'] instanceof TnefAttachment) {
                     $file['data'] = $a['data']->getData();
                 }
                 else {
@@ -701,6 +703,15 @@ class MailFetcher {
                 }
                 // Include the Content-Id if specified (for inline images)
                 $file['cid'] = isset($a['cid']) ? $a['cid'] : false;
+
+                // Validate and save immediately
+                try {
+                    $file['id'] = $fileField->uploadAttachment($file);
+                }
+                catch (FileUploadError $ex) {
+                    $file['error'] = $file['name'] . ': ' . $ex->getMessage();
+                }
+
                 $vars['attachments'][] = $file;
             }
         }

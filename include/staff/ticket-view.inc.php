@@ -577,26 +577,13 @@ $tcount+= $ticket->getNumNotes();
                         rows="9" wrap="soft"
                         class="richtext ifhtml draft draft-delete"><?php
                         echo $info['response']; ?></textarea>
+                <div id="reply_form_attachments" class="attachments">
+<?php
+print $response_form->getField('attachments')->render();
+?>
+                </div>
                 </td>
             </tr>
-            <?php
-            if($cfg->allowAttachments()) { ?>
-            <tr>
-                <td width="120" style="vertical-align:top">
-                    <label for="attachment"><?php echo __('Attachments');?>:</label>
-                </td>
-                <td id="reply_form_attachments" class="attachments">
-                    <div class="canned_attachments">
-                    </div>
-                    <div class="uploads">
-                    </div>
-                    <div class="file_input">
-                        <input type="file" class="multifile" name="attachments[]" size="30" value="" />
-                    </div>
-                </td>
-            </tr>
-            <?php
-            }?>
             <tr>
                 <td width="120">
                     <label for="signature" class="left"><?php echo __('Signature');?>:</label>
@@ -693,26 +680,18 @@ $tcount+= $ticket->getNumNotes();
                         class="richtext ifhtml draft draft-delete"><?php echo $info['note'];
                         ?></textarea>
                         <span class="error"><?php echo $errors['note']; ?></span>
-                        <br>
                 </td>
             </tr>
-            <?php
-            if($cfg->allowAttachments()) { ?>
             <tr>
                 <td width="120">
                     <label for="attachment"><?php echo __('Attachments');?>:</label>
                 </td>
                 <td class="attachments">
-                    <div class="uploads">
-                    </div>
-                    <div class="file_input">
-                        <input type="file" class="multifile" name="attachments[]" size="30" value="" />
-                    </div>
+<?php
+print $note_form->getField('attachments')->render();
+?>
                 </td>
             </tr>
-            <?php
-            }
-            ?>
             <tr><td colspan="2">&nbsp;</td></tr>
             <tr>
                 <td width="120">
