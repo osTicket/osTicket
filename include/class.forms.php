@@ -1245,7 +1245,7 @@ class FileUploadField extends FormField {
 
     function getConfigurationOptions() {
         // Compute size selections
-        $sizes = array('262144' => '— Small —');
+        $sizes = array('262144' => '— '.__('Small').' —');
         $next = 512 << 10;
         $max = strtoupper(ini_get('upload_max_filesize'));
         $limit = (int) $max;
@@ -1256,7 +1256,6 @@ class FileUploadField extends FormField {
         while ($next <= $limit) {
             // Select the closest, larger value (in case the
             // current value is between two)
-            $diff = $next - $config['max_file_size'];
             $sizes[$next] = Format::file_size($next);
             $next *= 2;
         }
