@@ -217,6 +217,9 @@ class FormField {
     function get($what) {
         return $this->ht[$what];
     }
+    function set($field, $value) {
+        $this->ht[$field] = $value;
+    }
 
     /**
      * getClean
@@ -992,6 +995,8 @@ class ThreadEntryField extends FormField {
         global $cfg;
 
         $attachments = new FileUploadField();
+        $fileupload_config = $attachments->getConfigurationOptions();
+        $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
         return array(
             'attachments' => new BooleanField(array(
                 'label'=>__('Enable Attachments'),
@@ -1005,7 +1010,7 @@ class ThreadEntryField extends FormField {
                 }
             )),
         )
-        + $attachments->getConfigurationOptions();
+        + $fileupload_config;
     }
 
     function isAttachmentsEnabled() {
@@ -1270,31 +1275,30 @@ class FileUploadField extends FormField {
         global $cfg;
         return array(
             'size' => new ChoiceField(array(
-                'label'=>'Maximum File Size',
-                'hint'=>'Maximum size of a single file uploaded to this field',
+                'label'=>__('Maximum File Size'),
+                'hint'=>__('Choose maximum size of a single file uploaded to this field'),
                 'default'=>$cfg->getMaxFileSize(),
                 'choices'=>$sizes
             )),
             'mimetypes' => new ChoiceField(array(
-                'label'=>'Allowed File Types',
-                'hint'=>'Choose file types to accept. To accept any file, leave all unchecked',
+                'label'=>__('Restrict by File Type'),
+                'hint'=>__('Optionally, choose acceptable file types.'),
                 'required'=>false,
                 'choices'=>$types,
-                'configuration'=>array('multiselect'=>true)
+                'configuration'=>array('multiselect'=>true,'prompt'=>__('No restrictions'))
             )),
             'extensions' => new TextareaField(array(
-                'label'=>'Allowed File Extensions',
-                'hint'=>'Accept files based only on the file extension. Enter comma-separated list of extensions. (e.g .doc, .pdf).',
-                'default'=>$cfg->getAllowedFileTypes(),
+                'label'=>__('Additional File Type Filters'),
+                'hint'=>__('Optionally, enter comma-separated list of additional file types, by extension. (e.g .doc, .pdf).'),
                 'configuration'=>array('html'=>false, 'rows'=>2),
             )),
             'max' => new TextboxField(array(
-                'label'=>'Maximum Files',
-                'hint'=>'Users cannot upload more than this many files',
+                'label'=>__('Maximum Files'),
+                'hint'=>__('Users cannot upload more than this many files.'),
                 'default'=>false,
                 'required'=>false,
                 'validator'=>'number',
-                'configuration'=>array('size'=>4, 'length'=>4),
+                'configuration'=>array('size'=>8, 'length'=>4, 'placeholder'=>__('No limit')),
             ))
         );
     }
@@ -1873,6 +1877,9 @@ class FileUploadWidget extends Widget {
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
         $attachments = $this->field->getFiles();
+        $mimetypes = array_filter($config['__mimetypes'],
+            function($t) { return strpos($t, '/') !== false; }
+        );
         $files = array();
         foreach ($this->value ?: array() as $fid) {
             $found = false;
@@ -1909,7 +1916,7 @@ class FileUploadWidget extends Widget {
           allowedfileextensions: <?php echo JsonDataEncoder::encode(
             $config['__extensions']); ?>,
           allowedfiletypes: <?php echo JsonDataEncoder::encode(
-            $config['__mimetypes']); ?>,
+            $mimetypes); ?>,
           maxfiles: <?php echo $config['max'] ?: 20; ?>,
           maxfilesize: <?php echo ($config['size'] ?: 1048576) / 1048576; ?>,
           name: '<?php echo $name; ?>[]',
