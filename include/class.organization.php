@@ -433,7 +433,7 @@ class OrganizationForm extends DynamicForm {
     }
 
 }
-Filter::addSupportedMatches(/*trans*/ 'Organization Data', function() {
+Filter::addSupportedMatches(/*@trans*/ 'Organization Data', function() {
     $matches = array();
     foreach (OrganizationForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())

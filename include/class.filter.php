@@ -20,16 +20,16 @@ class Filter {
     var $ht;
 
     static $match_types = array(
-        /* trans */ 'User Information' => array(
-            array('name'      =>    /* trans */ 'Name',
-                'email'     =>      /* trans */ 'Email',
+        /* @trans */ 'User Information' => array(
+            array('name'      =>    /* @trans */ 'Name',
+                'email'     =>      /* @trans */ 'Email',
             ),
             900
         ),
-        /* trans */ 'Email Meta-Data' => array(
-            array('reply-to'  =>    /* trans */ 'Reply-To Email',
-                'reply-to-name' =>  /* trans */ 'Reply-To Name',
-                'addressee' =>      /* trans */ 'Addressee (To and Cc)',
+        /* @trans */ 'Email Meta-Data' => array(
+            array('reply-to'  =>    /* @trans */ 'Reply-To Email',
+                'reply-to-name' =>  /* @trans */ 'Reply-To Name',
+                'addressee' =>      /* @trans */ 'Addressee (To and Cc)',
             ),
             200
         ),

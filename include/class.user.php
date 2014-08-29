@@ -586,16 +586,16 @@ class PersonsName {
     var $name;
 
     static $formats = array(
-        'first' => array(     /*trans*/ "First", 'getFirst'),
-        'last' => array(      /*trans*/ "Last", 'getLast'),
-        'full' => array(      /*trans*/ "First Last", 'getFull'),
-        'legal' => array(     /*trans*/ "First M. Last", 'getLegal'),
-        'lastfirst' => array( /*trans*/ "Last, First", 'getLastFirst'),
-        'formal' => array(    /*trans*/ "Mr. Last", 'getFormal'),
-        'short' => array(     /*trans*/ "First L.", 'getShort'),
-        'shortformal' => array(/*trans*/ "F. Last", 'getShortFormal'),
-        'complete' => array(  /*trans*/ "Mr. First M. Last Sr.", 'getComplete'),
-        'original' => array(  /*trans*/ '-- As Entered --', 'getOriginal'),
+        'first' => array(     /*@trans*/ "First", 'getFirst'),
+        'last' => array(      /*@trans*/ "Last", 'getLast'),
+        'full' => array(      /*@trans*/ "First Last", 'getFull'),
+        'legal' => array(     /*@trans*/ "First M. Last", 'getLegal'),
+        'lastfirst' => array( /*@trans*/ "Last, First", 'getLastFirst'),
+        'formal' => array(    /*@trans*/ "Mr. Last", 'getFormal'),
+        'short' => array(     /*@trans*/ "First L.", 'getShort'),
+        'shortformal' => array(/*@trans*/ "F. Last", 'getShortFormal'),
+        'complete' => array(  /*@trans*/ "Mr. First M. Last Sr.", 'getComplete'),
+        'original' => array(  /*@trans*/ '-- As Entered --', 'getOriginal'),
     );
 
     function __construct($name, $format=null) {
