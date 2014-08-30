@@ -72,12 +72,10 @@
     progressUpdated: function(i, file, value) {
       this.uploads.some(function(e) {
         if (e.data('file') == file) {
-          e.find('.progress').show();
           e.find('.progress-bar')
-            .width(value + '%')
             .attr({'aria-valuenow': value})
-            .removeClass('progress-bar-striped active');
-          if (value > 99)
+            .width(value + '%');
+          if (value == 100)
             e.find('.progress-bar').addClass('progress-bar-striped active');
           return true;
         }
@@ -89,8 +87,12 @@
         if (e.data('file') == file) {
           e.data('xhr', xhr);
           e.find('.cancel').show();
-          that.progressUpdated(i, file, 0);
           that.lockSubmit(1);
+          that.progressUpdated(i, file, 0);
+          setTimeout(function() {
+            e.find('.progress-bar')
+             .removeClass('progress-bar-striped active');
+          }, 50);
           return true;
         }
       });

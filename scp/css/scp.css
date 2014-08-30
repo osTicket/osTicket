@@ -1657,14 +1657,30 @@ div.patch {
 }
 
 div.selected-signature {
-    border-top: 1px dotted #aaa;
+    border: 1px solid #ddd;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-top-style: dotted;
     padding: 0.3em 10px 5px;
-    background-color: #f9f9f9;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.6) 10px,
+      rgba(255, 255, 255, 0.6) 20px),
+      #f9f9f9;
     height: 2.5em;
     overflow-y: hidden;
-    box-shadow: inset 0px -5px 5px -5px rgba(206, 199, 182, 1.0);
     font-size: 15px;
     line-height: 1.25rem;
+}
+div.selected-signature::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: '';
+    box-shadow: rgba(0, 0, 0, 0.2) 0px -15px 15px -19px inset;
 }
 div.selected-signature .inner {
     opacity: 0.5;

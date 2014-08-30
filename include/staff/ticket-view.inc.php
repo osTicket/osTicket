@@ -673,23 +673,18 @@ print $response_form->getField('attachments')->render();
                         <span class="error">&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
                     <br/>
+                    <div class="error"><?php echo $errors['note']; ?></div>
                     <textarea name="note" id="internal_note" cols="80"
                         placeholder="<?php echo __('Note details'); ?>"
                         rows="9" wrap="soft" data-draft-namespace="ticket.note"
                         data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         class="richtext ifhtml draft draft-delete"><?php echo $info['note'];
                         ?></textarea>
-                        <span class="error"><?php echo $errors['note']; ?></span>
-                </td>
-            </tr>
-            <tr>
-                <td width="120">
-                    <label for="attachment"><?php echo __('Attachments');?>:</label>
-                </td>
-                <td class="attachments">
+                <div class="attachments">
 <?php
 print $note_form->getField('attachments')->render();
 ?>
+                </div>
                 </td>
             </tr>
             <tr><td colspan="2">&nbsp;</td></tr>

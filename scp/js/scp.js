@@ -526,7 +526,7 @@ $.toggleOverlay = function (show) {
     return $.toggleOverlay(!$('#overlay').is(':visible'));
   }
   if (show) {
-    $('#overlay').show().fadeIn();
+    $('#overlay').fadeIn();
     $('body').css('overflow', 'hidden');
   }
   else {
@@ -688,6 +688,9 @@ $(document).on('pjax:start', function() {
     // Cancel save-changes warning banner
     $(document).unbind('pjax:beforeSend.changed');
     $(window).unbind('beforeunload');
+    // Close popups
+    $('.dialog .body').empty().parent().hide();
+    // Close tooltips
     $('.tip_box').remove();
 });
 
@@ -705,19 +708,13 @@ $(document).on('pjax:send', function(event) {
     $('#overlay').css('background-color','white').fadeIn();
 });
 
-$(document).on('pjax:beforeReplace', function() {
-    // Close popups
-    // Close tooltips
-    $('.tip_box').remove();
-    $('.dialog .body').empty().parent().hide();
-});
-
 $(document).on('pjax:complete', function() {
     // right
     $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
         $(this).remove();
     });
-    $('#overlay').fadeOut(100).removeAttr('style');
+    $.toggleOverlay(false);
+    $('#overlay').removeAttr('style');
 });
 
 // Quick note interface

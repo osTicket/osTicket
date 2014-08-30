@@ -1411,8 +1411,9 @@ class FileUploadField extends FormField {
             foreach ($config['mimetypes'] as $type=>$desc) {
                 foreach ($_types[$type]['types'] as $mime=>$exts) {
                     $mimetypes[$mime] = true;
-                    foreach ($exts as $ext)
-                        $extensions['.'.$ext] = true;
+                    if (is_array($exts))
+                        foreach ($exts as $ext)
+                            $extensions['.'.$ext] = true;
                 }
             }
         }
