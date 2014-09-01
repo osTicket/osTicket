@@ -639,7 +639,9 @@ if ($results) {
             <input class="dp" type="input" size="20" name="endDate">
         </fieldset>
         <?php
-        foreach (TicketForm::getInstance()->getFields() as $f) {
+        $tform = TicketForm::objects()->one();
+        echo $tform->getForm()->getMedia();
+        foreach ($tform->getInstance()->getFields() as $f) {
             if (in_array($f->get('type'), array('text', 'memo', 'phone', 'thread')))
                 continue;
             elseif (!$f->hasData())

@@ -6,7 +6,9 @@
         <?php
         echo csrf_token();
         $config = $field->getConfiguration();
-        foreach ($field->getConfigurationForm() as $name=>$f) {
+        $form = new Form($field->getConfigurationForm());
+        echo $form->getMedia();
+        foreach ($form->getFields() as $name=>$f) {
             if (isset($config[$name]))
                 $f->value = $config[$name];
             else if ($f->get('default'))

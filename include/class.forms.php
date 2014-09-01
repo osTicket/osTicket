@@ -1626,6 +1626,12 @@ class PhoneNumberWidget extends Widget {
 }
 
 class ChoicesWidget extends Widget {
+    static $media = array(
+        'css' => array(
+            '/css/jquery.multiselect.css',
+        ),
+    );
+
     function render($mode=false) {
 
         if ($mode && $mode == 'view') {
@@ -1683,8 +1689,6 @@ class ChoicesWidget extends Widget {
         <?php
         if ($config['multiselect']) {
          ?>
-        <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.min.js"></script>
-        <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
         <script type="text/javascript">
         $(function() {
             $("#<?php echo $this->name; ?>")
