@@ -177,6 +177,7 @@ RedactorPlugins.signature = {
                 }, 'fast');
                 $(this).css('box-shadow', originalShadow);
             });
+            this.$box.find('.redactor_editor').css('border-bottom-style', 'none', true);
         }
     },
     updateSignature: function(e) {
