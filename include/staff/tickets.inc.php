@@ -335,12 +335,17 @@ if ($results) {
                 $results_type.$showing; ?></a></h2>
         </div>
         <div class="pull-right flush-right">
+
+            <?php
+            if ($thisstaff->canDeleteTickets()) { ?>
             <a id="tickets-delete" class="action-button tickets-action"
                 href="#tickets/status/delete"><i
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
             <?php
-            if ($res && $results && $thisstaff->canManageTickets()) {
-                echo TicketStatus::options();
+            } ?>
+            <?php
+            if ($thisstaff->canManageTickets()) {
+                echo TicketStatus::status_options();
             }
             ?>
         </div>

@@ -701,7 +701,7 @@ class TicketsAjaxAPI extends AjaxController {
         return $canned->getFormattedResponse($format, $varReplacer);
     }
 
-    function changeTicketStatus($tid, $status) {
+    function changeTicketStatus($tid, $status, $id=0) {
         global $thisstaff;
 
         if (!$thisstaff)
@@ -748,7 +748,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info['title'] = sprintf('%s %s #%s',
                 $verb ?: $status,
                 __('Ticket'), $ticket->getNumber());
-        $info['status_id'] = $_REQUEST['status_id'] ?: $ticket->getStatusId();
+        $info['status_id'] = $_REQUEST['status_id'] ?: $id ?: $ticket->getStatusId();
 
         return self::_setStatus($state, $info);
     }

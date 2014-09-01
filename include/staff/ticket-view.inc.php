@@ -56,29 +56,15 @@ if($ticket->isOverdue())
             </span>
             <?php
             }
-            if($thisstaff->canCloseTickets()) {
-                if($ticket->isOpen()) {?>
-                <a class="action-button ticket-action"
-                    href="#tickets/<?php echo $ticket->getId()
-                    ?>/status/close"><i class="icon-repeat"></i> <?php echo __('Close');?></a>
-                <a class="action-button ticket-action"
-                    href="#tickets/<?php echo $ticket->getId()
-                    ?>/status/resolve"><i class="icon-ok-circle"></i> <?php echo __('Resolve');?></a>
-                <?php
-                } else { ?>
-                <a class="action-button ticket-action"
-                    href="#tickets/<?php echo $ticket->getId()
-                    ?>/status/reopen"><i class="icon-undo"></i> <?php echo
-                    __('Reopen');?></a>
-                <?php
-                }
-            }
-            if($thisstaff->canEditTickets()) { ?>
+            // Status change options
+            echo TicketStatus::status_options();
+
+            if ($thisstaff->canEditTickets()) { ?>
                 <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
                     echo __('Edit'); ?></a>
             <?php
             }
-            if($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
+            if ($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
                 <a id="ticket-claim" class="action-button confirm-action" href="#claim"><i class="icon-user"></i> <?php
                     echo __('Claim'); ?></a>
 
