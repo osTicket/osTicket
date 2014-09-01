@@ -135,8 +135,8 @@ class TicketsAjaxAPI extends AjaxController {
         // Status
         if ($req['statusId']
                 && ($status=TicketStatus::lookup($req['statusId']))) {
-            $where .= sprintf(' AND status.state="%s" ',
-                    $status->getState());
+            $where .= sprintf(' AND status.id="%d" ',
+                    $status->getId());
             $criteria['status_id'] = $status->getId();
         }
 

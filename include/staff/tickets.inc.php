@@ -55,9 +55,10 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
         $results_type=__('Answered Tickets');
         break;
     default:
-        if(!$search && !isset($_REQUEST['advsid']))
+        if (!$search && !isset($_REQUEST['advsid'])) {
             $_REQUEST['status']=$status='open';
-		$results_type=__('Open Tickets');
+            $results_type=__('Open Tickets');
+        }
 }
 
 $qwhere ='';
