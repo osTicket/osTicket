@@ -134,12 +134,14 @@ if($ticket->isOverdue())
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> <?php echo sprintf(
-                                __('Ban Email <%s>'), $ticket->getEmail()); ?></a></li>
+                                Format::htmlchars(__('Ban Email <%s>')),
+                                $ticket->getEmail()); ?></a></li>
                 <?php
                      } elseif($unbannable) { ?>
                         <li><a  class="confirm-action" id="ticket-banemail"
                             href="#unbanemail"><i class="icon-undo"></i> <?php echo sprintf(
-                                __('Unban Email <%s>'), $ticket->getEmail()); ?></a></li>
+                                Format::htmlchars(__('Unban Email <%s>')),
+                                $ticket->getEmail()); ?></a></li>
                     <?php
                      }
                 }?>

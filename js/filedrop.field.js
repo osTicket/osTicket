@@ -15,7 +15,7 @@
       beforeSend: $.proxy(this.beforeSend, this),
       beforeEach: $.proxy(this.beforeEach, this),
       error: $.proxy(this.handleError, this),
-      globalProgressUpdated: $.proxy(this.lockSubmit, this)
+      afterAll: $.proxy(this.afterAll, this)
     };
 
     this.options = $.extend({}, $.fn.filedropbox.defaults, events, options);
@@ -102,6 +102,8 @@
       this.uploads.some(function(e) {
         if (e.data('file') == file) {
           if (!json || !json.id)
+            // Upload failed. TODO: Add a button to the UI to retry on
+            // HTTP 500
             return e.remove();
           e.find('[name="'+that.options.name+'"]').val(json.id);
           e.data('fileId', json.id);
@@ -124,6 +126,12 @@
         suffix = sizes.shift();
       }
       return (suffix ? size.toPrecision(3) + suffix : size) + 'B';
+    },
+    findNode: function(file) {
+      var nodes = $.grep(this.uploads, function(e) {
+        return e.data('file') == file;
+      });
+      return nodes ? nodes[0] : null;
     },
     addNode: function(file) {
       // Check if the file is already in the list of files for this dropbox
@@ -190,28 +198,32 @@
     cancelUpload: function(node) {
       if (node.data('xhr')) {
         node.data('xhr').abort();
-        return this.deleteNode(node, false);
       }
+      return this.deleteNode(node, false);
     },
-    handleError: function(err, i, file, status) {
-      var message = $.fn.filedropbox.messages[err];
+    handleError: function(err, file, i, status) {
+      var message = $.fn.filedropbox.messages[err],
+          filenode = this.findNode(file);
       if (file instanceof File) {
         message = '<b>' + file.name + '</b><br/>' + message;
       }
       $.sysAlert(__('File Upload Error'), message);
+      if (filenode) this.cancelUpload(filenode);
     },
-    lockSubmit: function(total_progress) {
+    afterAll: function() {
       var submit = this.$element.closest('form').find('input[type=submit]'),
           $submit = $(submit);
-      if (0 < total_progress  && total_progress < 100) {
-        if (!$submit.data('original')) {
-          $submit.data('original', $submit.val());
-        }
-        $submit.val(__('Uploading ...')).prop('disabled', true);
-      }
-      else if ($submit.data('original')) {
+      if ($submit.data('original')) {
         $submit.val($submit.data('original')).prop('disabled', false);
       }
+    },
+    lockSubmit: function() {
+      var submit = this.$element.closest('form').find('input[type=submit]'),
+          $submit = $(submit);
+      if (!$submit.data('original')) {
+        $submit.data('original', $submit.val());
+      }
+      $submit.val(__('Uploading ...')).prop('disabled', true);
     }
   };
 
@@ -435,11 +447,6 @@
       }
     }
 
-    function abort(e) {
-      global_progress[this.global_progress_index] = 100;
-      globalProgress();
-    }
-
     function globalProgress() {
       if (global_progress.length === 0) {
         return;
@@ -642,7 +649,6 @@
         upload.global_progress_index = global_progress_index;
         upload.startData = 0;
         upload.addEventListener("progress", progress, false);
-        upload.addEventListener("abort", abort, false);
 
         // Allow url to be a method
         if (jQuery.isFunction(opts.url)) {
@@ -666,6 +672,32 @@
 
         opts.uploadStarted(index, file, files_count, xhr);
 
+        var afterComplete = function() {
+          filesDone++;
+
+          // Remove from processing queue
+          processingQueue.forEach(function(value, key) {
+            if (value === fileIndex) {
+              processingQueue.splice(key, 1);
+            }
+          });
+
+          // Add to donequeue
+          doneQueue.push(fileIndex);
+
+          // Make sure the global progress is updated
+          global_progress[global_progress_index] = 100;
+          globalProgress();
+
+          if (filesDone === (files_count - filesRejected)) {
+            afterAll();
+          }
+          if (result === false) {
+            stop_loop = true;
+          }
+        };
+
+        xhr.onabort = afterComplete;
         xhr.onload = function() {
             var serverResponse = null;
 
@@ -681,29 +713,8 @@
             var now = new Date().getTime(),
                 timeDiff = now - start_time,
                 result = opts.uploadFinished(index, file, serverResponse, timeDiff, xhr);
-            filesDone++;
 
-            // Remove from processing queue
-            processingQueue.forEach(function(value, key) {
-              if (value === fileIndex) {
-                processingQueue.splice(key, 1);
-              }
-            });
-
-            // Add to donequeue
-            doneQueue.push(fileIndex);
-
-            // Make sure the global progress is updated
-            global_progress[global_progress_index] = 100;
-            globalProgress();
-
-            if (filesDone === (files_count - filesRejected)) {
-              afterAll();
-            }
-            if (result === false) {
-              stop_loop = true;
-            }
-
+            afterComplete();
 
           // Pass any errors to the error option
           if (xhr.status < 200 || xhr.status > 299) {

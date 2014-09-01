@@ -201,6 +201,18 @@ showImagesInline = function(urls, thread_id) {
     });
 }
 
+$.sysAlert = function (title, msg, cb) {
+    var $dialog =  $('.dialog#alert');
+    if ($dialog.length) {
+        $('#title', $dialog).html(title);
+        $('#body', $dialog).html(msg);
+        $dialog.show();
+    } else {
+        msg = msg.replace(/<br\s*\/?>/, "\n").replace(/<\/?\w+[^>]*>/g, '');
+        alert(title+':\n'+msg);
+    }
+};
+
 function __(s) {
   if ($.oststrings && $.oststrings[s])
     return $.oststrings[s];

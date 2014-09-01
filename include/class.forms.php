@@ -1919,7 +1919,7 @@ class FileUploadWidget extends Widget {
           paramname: 'upload[]',
           fallback_id: 'file-<?php echo $id; ?>',
           allowedfileextensions: <?php echo JsonDataEncoder::encode(
-            $config['__extensions']); ?>,
+            $config['__extensions'] ?: array()); ?>,
           allowedfiletypes: <?php echo JsonDataEncoder::encode(
             $mimetypes); ?>,
           maxfiles: <?php echo $config['max'] ?: 20; ?>,
