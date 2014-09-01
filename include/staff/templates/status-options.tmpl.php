@@ -1,60 +1,60 @@
 <?php
+global $thisstaff, $ticket;
+// Map states to actions
 $actions= array(
-        'close' => array(
+        'closed' => array(
             'icon'  => 'icon-repeat',
-            'state' => 'closed'
+            'action' => 'close'
             ),
-        'resolve' => array(
+        'resolved' => array(
             'icon'  => 'icon-ok-circle',
-            'state' => 'resolved'
+            'action' => 'resolve'
             ),
-        'reopen' => array(
+        'open' => array(
             'icon'  => 'icon-undo',
-            'state' => 'open'
+            'action' => 'reopen'
             ),
         );
-
-foreach($actions as $k => $v) {
-    $criteria = array('states' => array($v['state']));
-    if (!($statuses = TicketStatusList::getStatuses($criteria)->all()))
-        continue;
-
-    if ($statuses && count($statuses) > 1) {
-    ?>
-        <span
-            class="action-button"
-            data-dropdown="#action-dropdown-<?php echo $k; ?>">
-            <a id="tickets-<?php echo $k; ?>"
-                class="tickets-action"
-                href="#tickets/status/<?php echo $k; ?>"><i
-                class="<?php echo $v['icon']; ?>"></i> <?php
-                echo TicketStateField::getVerb($v['state']); ?></a>
-            <i class="icon-caret-down"></i>
-        </span>
-        <div id="action-dropdown-<?php echo $k; ?>"
-            class="action-dropdown anchor-right">
-          <ul>
-            <?php
-            foreach ($statuses as $s) {
-                ?>
-
-             <li>
-                 <a class="no-pjax tickets-action"
-                    href="#tickets/status/<?php echo $k; ?>/<?php
-                    echo $s->getId(); ?>"> <i
-                        class="icon-tag"></i> <?php echo __($s->getName()); ?></a> </li>
-            <?php
-            } ?>
-          </ul>
-        </div>
-    <?php
-    } else {
-    ?>
-        <a id="tickets-<?php echo $k; ?>" class="action-button tickets-action"
-            href="#tickets/status/<?php echo $k; ?>"><i
-            class="<?php echo $v['icon']; ?>"></i> <?php
-            echo TicketStateField::getVerb($v['state']); ?></a>
-<?php
-    }
-}
 ?>
+
+<span
+    class="action-button"
+    data-dropdown="#action-dropdown-statuses">
+    <a class="tickets-action"
+        href="#statuses"><i
+        class="icon-flag"></i> <?php
+        echo __('Change Status'); ?></a>
+    <i class="icon-caret-down"></i>
+</span>
+<div id="action-dropdown-statuses"
+    class="action-dropdown anchor-right">
+    <ul>
+    <?php
+    $states = array('open');
+    if ($thisstaff->canCloseTickets())
+        $states = array_merge($states,
+                array('resolved', 'closed'));
+
+    $statusId = $ticket ? $ticket->getStatusId() : 0;
+    foreach (TicketStatusList::getStatuses(
+                array('states' => $states))->all() as $status) {
+        if (!isset($actions[$status->getState()])
+                || $statusId == $status->getId())
+            continue;
+        ?>
+        <li>
+            <a class="no-pjax <?php
+                echo $ticket? 'ticket-action' : 'tickets-action'; ?>"
+                href="<?php
+                    echo sprintf('#%s/status/%s/%d',
+                            $ticket ? ('tickets/'.$ticket->getId()) : 'tickets',
+                            $actions[$status->getState()]['action'],
+                            $status->getId()); ?>"><i class=" aaa <?php
+                        echo $actions[$status->getState()]['icon'] ?: 'icon-tag';
+                    ?>"></i> <?php
+                        echo __($status->getName()); ?></a>
+        </li>
+    <?php
+    } ?>
+    </ul>
+</div>

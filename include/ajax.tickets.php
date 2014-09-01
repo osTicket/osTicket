@@ -135,8 +135,8 @@ class TicketsAjaxAPI extends AjaxController {
         // Status
         if ($req['statusId']
                 && ($status=TicketStatus::lookup($req['statusId']))) {
-            $where .= sprintf(' AND status.state="%s" ',
-                    $status->getState());
+            $where .= sprintf(' AND status.id="%d" ',
+                    $status->getId());
             $criteria['status_id'] = $status->getId();
         }
 
@@ -701,7 +701,7 @@ class TicketsAjaxAPI extends AjaxController {
         return $canned->getFormattedResponse($format, $varReplacer);
     }
 
-    function changeTicketStatus($tid, $status) {
+    function changeTicketStatus($tid, $status, $id=0) {
         global $thisstaff;
 
         if (!$thisstaff)
@@ -748,7 +748,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info['title'] = sprintf('%s %s #%s',
                 $verb ?: $status,
                 __('Ticket'), $ticket->getNumber());
-        $info['status_id'] = $_REQUEST['status_id'] ?: $ticket->getStatusId();
+        $info['status_id'] = $_REQUEST['status_id'] ?: $id ?: $ticket->getStatusId();
 
         return self::_setStatus($state, $info);
     }
@@ -901,9 +901,9 @@ class TicketsAjaxAPI extends AjaxController {
             }
         }
 
+        $count = count($_REQUEST['tids']);
         if (!$errors) {
             $i = 0;
-            $count = count($_REQUEST['tids']);
             $comments = $_REQUEST['comments'];
             foreach ($_REQUEST['tids'] as $tid) {
                 if (($ticket=Ticket::lookup($tid))
@@ -914,8 +914,8 @@ class TicketsAjaxAPI extends AjaxController {
             }
 
             if (!$i)
-                $errors['err'] = sprintf(__('Unable to set status for %s'),
-                        _N('selected ticket', 'selected tickets', $count));
+                $errors['err'] = sprintf(__('Unable to change status for %s'),
+                        _N('the selected ticket', 'any of the selected tickets', $count));
             else {
                 // Assume success
                 if ($i==$count) {
@@ -936,6 +936,17 @@ class TicketsAjaxAPI extends AjaxController {
             }
         }
 
+        $info['title'] = sprintf('%s %s',
+                TicketStateField::getVerb($state),
+                 __('Tickets'));
+
+        if ($count)
+            $info['title'] .= sprintf(' &mdash; %d %s',
+                    $count, __('selected'));
+
+
+        $info['status_id'] = $_REQUEST['status_id'];
+        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
         $info['errors'] = $errors;
         return self::_setStatus($state, $info);
     }

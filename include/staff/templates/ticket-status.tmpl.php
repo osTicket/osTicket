@@ -86,7 +86,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                             cols="50" rows="3" wrap="soft" style="width:100%"
                             class="richtext ifhtml no-bar"
                             placeholder="<?php echo $placeholder; ?>"><?php
-                            echo $info['notes']; ?></textarea>
+                            echo $info['comments']; ?></textarea>
                     </td>
                 </tr>
             </tbody>
