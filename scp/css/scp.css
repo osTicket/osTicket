@@ -10,6 +10,7 @@ body {
 a {
     color:#184E81;
     text-decoration:none;
+    display: inline-block;
 }
 
 a:hover {
