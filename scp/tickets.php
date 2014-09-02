@@ -230,7 +230,10 @@ if($_POST && !$errors):
                     if(!$ticket->isAssigned() || !($assigned=$ticket->getAssigned())) {
                         $errors['err'] = __('Ticket is not assigned!');
                     } elseif($ticket->release()) {
-                        $msg=sprintf(__('Ticket released (unassigned) from %1$s by %2$s'),$assigned,$thisstaff->getName());
+                        $msg=sprintf(__(
+                            /* 1$ is the current assignee, 2$ is the agent removing the assignment */
+                            'Ticket released (unassigned) from %1$s by %2$s'),
+                            $assigned, $thisstaff->getName());
                         $ticket->logActivity(__('Ticket unassigned'),$msg);
                     } else {
                         $errors['err'] = __('Problems releasing the ticket. Try again');
