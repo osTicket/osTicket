@@ -28,8 +28,11 @@ class Form {
 
     function __construct($fields=array(), $source=null, $options=array()) {
         $this->fields = $fields;
-        foreach ($fields as $f)
+        foreach ($fields as $k=>$f) {
             $f->setForm($this);
+            if (!$f->get('name') && $k)
+                $f->set('name', $k);
+        }
         if (isset($options['title']))
             $this->title = $options['title'];
         if (isset($options['instructions']))
@@ -535,12 +538,21 @@ class FormField {
         return false;
     }
 
-    function getConfigurationForm() {
+    function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
             $clazz = $type[1];
             $T = new $clazz();
-            $this->_cform = $T->getConfigurationOptions();
+            $config = $this->getConfiguration();
+            $this->_cform = new Form($T->getConfigurationOptions(), $source);
+            if (!$source && $config) {
+                foreach ($this->_cform->getFields() as $name=>$f) {
+                    if (isset($config[$name]))
+                        $f->value = $config[$name];
+                    elseif ($f->get('default'))
+                        $f->value = $f->get('default');
+                }
+            }
         }
         return $this->_cform;
     }

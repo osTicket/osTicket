@@ -5,15 +5,9 @@
             echo $field->get('id'); ?>">
         <?php
         echo csrf_token();
-        $config = $field->getConfiguration();
-        $form = new Form($field->getConfigurationForm());
+        $form = $field->getConfigurationForm();
         echo $form->getMedia();
-        foreach ($form->getFields() as $name=>$f) {
-            if (isset($config[$name]))
-                $f->value = $config[$name];
-            else if ($f->get('default'))
-                $f->value = $f->get('default');
-            ?>
+        foreach ($form->getFields() as $name=>$f) { ?>
             <div class="flush-left custom-field">
             <div class="field-label">
             <label for="<?php echo $f->getWidget()->name; ?>">

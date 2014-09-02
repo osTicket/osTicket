@@ -448,7 +448,7 @@ class DynamicFormField extends VerySimpleModel {
      */
     function setConfiguration(&$errors=array()) {
         $config = array();
-        foreach ($this->getConfigurationForm() as $name=>$field) {
+        foreach ($this->getConfigurationForm($_POST)->getFields() as $name=>$field) {
             $config[$name] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
