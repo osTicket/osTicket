@@ -265,8 +265,8 @@ class TicketsAjaxAPI extends AjaxController {
             $uid = md5($_SERVER['QUERY_STRING']);
             $_SESSION["adv_$uid"] = $tickets;
             $result['success'] = sprintf(__("Search criteria matched %s"),
-                    sprintf(_N('%d ticket', '%d tickets'), count($tickets),
-                        $tickets))
+                    sprintf(_N('%d ticket', '%d tickets', count($tickets)), count($tickets)
+                ))
                 . " - <a href='tickets.php?advsid=$uid'>".__('view')."</a>";
         } else {
             $result['fail']=__('No tickets found matching your search criteria.');
