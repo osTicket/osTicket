@@ -946,9 +946,11 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getSearchKeys() {
-        $val = $this->getField()->to_php($this->getValue());
+        $val = $this->getValue();
         if (is_array($val))
             return array_keys($val);
+        elseif (is_object($val) && method_exists($val, 'getId'))
+            return [$val->getId()];
 
         return [$val];
     }
