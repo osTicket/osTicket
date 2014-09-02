@@ -331,7 +331,17 @@ class MysqlSearchBackend extends SearchBackend {
                             // Search ticket CDATA table
                             $cdata_search = true;
                             $name = substr($name, 6);
-                            $where[] = sprintf("cdata.%s = %s", $name, db_input($value));
+                            if (is_array($value)) {
+                                $where[] = '(' . implode(' OR ', array_map(
+                                    function($k) use ($name) {
+                                        return sprintf('FIND_IN_SET(%s, cdata.`%s`)',
+                                            db_input($k), $name);
+                                    }, $value)
+                                ) . ')';
+                            }
+                            else {
+                                $where[] = sprintf("cdata.%s = %s", $name, db_input($value));
+                            }
                         }
                     }
                 }

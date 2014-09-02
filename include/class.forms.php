@@ -1688,7 +1688,7 @@ class ChoicesWidget extends Widget {
 
     function render($mode=false) {
 
-        if ($mode && $mode == 'view') {
+        if ($mode == 'view') {
             if (!($val = (string) $this->field))
                 $val = sprintf('<span class="faded">%s</span>', __('None'));
 
@@ -1697,6 +1697,10 @@ class ChoicesWidget extends Widget {
         }
 
         $config = $this->field->getConfiguration();
+        if ($mode == 'search') {
+            $config['multiselect'] = true;
+        }
+
         // Determine the value for the default (the one listed if nothing is
         // selected)
         $choices = $this->field->getChoices(true);

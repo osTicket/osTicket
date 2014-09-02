@@ -196,16 +196,19 @@ class DynamicForm extends VerySimpleModel {
             if (!$impl->hasData() || $impl->isPresentationOnly())
                 continue;
 
+            $id = $f->get('id');
             $name = ($f->get('name')) ? $f->get('name')
-                : 'field_'.$f->get('id');
+                : 'field_'.$id;
 
-            $fields[] = sprintf(
-                'MAX(IF(field.name=\'%1$s\',ans.value,NULL)) as `%1$s`',
-                $name);
-            if ($impl->hasIdValue()) {
+            if ($impl instanceof ChoiceField || $impl instanceof SelectionField) {
                 $fields[] = sprintf(
-                    'MAX(IF(field.name=\'%1$s\',ans.value_id,NULL)) as `%1$s_id`',
-                    $name);
+                    'MAX(CASE WHEN field.id=\'%1$s\' THEN REPLACE(REPLACE(REPLACE(REPLACE(coalesce(ans.value_id, ans.value), \'{\', \'\'), \'}\', \'\'), \'"\', \'\'), \':\', \',\') ELSE NULL END) as `%2$s`',
+                    $id, $name);
+            }
+            else {
+                $fields[] = sprintf(
+                    'MAX(IF(field.id=\'%1$s\',coalesce(ans.value_id, ans.value),NULL)) as `%2$s`',
+                    $id, $name);
             }
         }
         return $fields;
@@ -321,10 +324,8 @@ class TicketForm extends DynamicForm {
         $f = $answer->getField();
         $name = $f->get('name') ? $f->get('name')
             : 'field_'.$f->get('id');
-        $ids = $f->hasIdValue();
-        $fields = sprintf('`%s`=', $name) . db_input($answer->get('value'));
-        if ($f->hasIdValue())
-            $fields .= sprintf(',`%s_id`=', $name) . db_input($answer->getIdValue());
+        $fields = sprintf('`%s`=', $name) . db_input(
+            implode(',', $answer->getSearchKeys()));
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
             .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
             .' ON DUPLICATE KEY UPDATE '.$fields;
@@ -944,6 +945,14 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         );
     }
 
+    function getSearchKeys() {
+        $val = $this->getField()->to_php($this->getValue());
+        if (is_array($val))
+            return array_keys($val);
+
+        return [$val];
+    }
+
     function asVar() {
         return (is_object($this->getValue()))
             ? $this->getValue() : $this->toString();
@@ -1004,15 +1013,13 @@ class SelectionField extends FormField {
     }
 
     function to_database($value) {
-        $id = null;
         if (is_array($value)) {
             reset($value);
-            $id = key($value);
         }
         if ($value && is_array($value))
             $value = JsonDataEncoder::encode($value);
 
-        return array($value, $id);
+        return $value;
     }
 
     function to_php($value, $id=false) {
@@ -1023,11 +1030,9 @@ class SelectionField extends FormField {
             if (isset($choices[$value]))
                 $value = $choices[$value];
         }
+        // Don't set the ID here as multiselect prevents using exactly one
+        // ID value. Instead, stick with the JSON value only.
         return $value;
-    }
-
-    function hasIdValue() {
-        return true;
     }
 
     function hasSubFields() {

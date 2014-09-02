@@ -208,13 +208,16 @@ class TicketsAjaxAPI extends AjaxController {
         $cdata_search = false;
         foreach (TicketForm::getInstance()->getFields() as $f) {
             if (isset($req[$f->getFormName()])
-                    && ($val = $req[$f->getFormName()])
-                    && strlen(trim($val))) {
+                    && ($val = $req[$f->getFormName()])) {
                 $name = $f->get('name') ? $f->get('name')
                     : 'field_'.$f->get('id');
-                if ($f->getImpl()->hasIdValue() && is_numeric($val)) {
-                    $cwhere = "cdata.`{$name}_id` = ".db_input($val);
-                    $criteria["cdata.{$name}_id"] = $val;
+                if (is_array($val)) {
+                    $cwhere = '(' . implode(' OR ', array_map(
+                        function($k) use ($name) {
+                            return sprintf('FIND_IN_SET(%s, `%s`)', db_input($k), $name);
+                        }, $val)
+                    ) . ')';
+                    $criteria["cdata.{$name}"] = $val;
                 }
                 else {
                     $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
