@@ -28,8 +28,11 @@ class Form {
 
     function __construct($fields=array(), $source=null, $options=array()) {
         $this->fields = $fields;
-        foreach ($fields as $f)
+        foreach ($fields as $k=>$f) {
             $f->setForm($this);
+            if (!$f->get('name') && $k)
+                $f->set('name', $k);
+        }
         if (isset($options['title']))
             $this->title = $options['title'];
         if (isset($options['instructions']))
@@ -535,12 +538,44 @@ class FormField {
         return false;
     }
 
-    function getConfigurationForm() {
+    /**
+     * Indicates if the field has subfields accessible via getSubFields()
+     * method. Useful for filter integration. Should connect with
+     * getFilterData()
+     */
+    function hasSubFields() {
+        return false;
+    }
+    function getSubFields() {
+        return null;
+    }
+
+    /**
+     * Indicates if the field provides for searching for something other
+     * than keywords. For instance, textbox fields can have hits by keyword
+     * searches alone, but selection fields should provide the option to
+     * match a specific value or set of values and therefore need to
+     * participate on any search builder.
+     */
+    function hasSpecialSearch() {
+        return true;
+    }
+
+    function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
             $clazz = $type[1];
             $T = new $clazz();
-            $this->_cform = $T->getConfigurationOptions();
+            $config = $this->getConfiguration();
+            $this->_cform = new Form($T->getConfigurationOptions(), $source);
+            if (!$source && $config) {
+                foreach ($this->_cform->getFields() as $name=>$f) {
+                    if (isset($config[$name]))
+                        $f->value = $config[$name];
+                    elseif ($f->get('default'))
+                        $f->value = $f->get('default');
+                }
+            }
         }
         return $this->_cform;
     }
@@ -595,6 +630,10 @@ class TextboxField extends FormField {
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
+    }
+
+    function hasSpecialSearch() {
+        return false;
     }
 
     function validateEntry($value) {
@@ -661,6 +700,10 @@ class TextareaField extends FormField {
         );
     }
 
+    function hasSpecialSearch() {
+        return false;
+    }
+
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -703,6 +746,10 @@ class PhoneField extends FormField {
                     'us'=>__('United States')),
             )),
         );
+    }
+
+    function hasSpecialSearch() {
+        return false;
     }
 
     function validateEntry($value) {
@@ -989,6 +1036,9 @@ class ThreadEntryField extends FormField {
     }
     function isPresentationOnly() {
         return true;
+    }
+    function hasSpecialSearch() {
+        return false;
     }
 
     function getConfigurationOptions() {
@@ -1300,6 +1350,10 @@ class FileUploadField extends FormField {
                 'configuration'=>array('size'=>8, 'length'=>4, 'placeholder'=>__('No limit')),
             ))
         );
+    }
+
+    function hasSpecialSearch() {
+        return false;
     }
 
     /**
@@ -1634,7 +1688,7 @@ class ChoicesWidget extends Widget {
 
     function render($mode=false) {
 
-        if ($mode && $mode == 'view') {
+        if ($mode == 'view') {
             if (!($val = (string) $this->field))
                 $val = sprintf('<span class="faded">%s</span>', __('None'));
 
@@ -1643,6 +1697,10 @@ class ChoicesWidget extends Widget {
         }
 
         $config = $this->field->getConfiguration();
+        if ($mode == 'search') {
+            $config['multiselect'] = true;
+        }
+
         // Determine the value for the default (the one listed if nothing is
         // selected)
         $choices = $this->field->getChoices(true);

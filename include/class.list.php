@@ -66,7 +66,7 @@ interface CustomListItem {
     function getSortOrder();
 
     function getConfiguration();
-    function getConfigurationForm();
+    function getConfigurationForm($source=null);
 
 
     function isEnabled();
@@ -538,9 +538,8 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
 
     function setConfiguration(&$errors=array()) {
         $config = array();
-        foreach ($this->getConfigurationForm()->getFields() as $field) {
-            $val = $field->to_database($field->getClean());
-            $config[$field->get('id')] = is_array($val) ? $val[1] : $val;
+        foreach ($this->getConfigurationForm($_POST)->getFields() as $field) {
+            $config[$field->get('id')] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
         if (count($errors) === 0)
@@ -549,10 +548,20 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return count($errors) === 0;
     }
 
-    function getConfigurationForm() {
+    function getConfigurationForm($source=null) {
         if (!$this->_form) {
+            $config = $this->getConfiguration();
             $this->_form = DynamicForm::lookup(
-                array('type'=>'L'.$this->get('list_id')));
+                array('type'=>'L'.$this->get('list_id')))->getForm($source);
+            if (!$source && $config) {
+                foreach ($this->_form->getFields() as $f) {
+                    $name = $f->get('id');
+                    if (isset($config[$name]))
+                        $f->value = $f->to_php($config[$name]);
+                    else if ($f->get('default'))
+                        $f->value = $f->get('default');
+                }
+            }
         }
         return $this->_form;
     }
@@ -788,17 +797,29 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     function getForm() {
-        return $this->getConfigurationForm();
-    }
-
-    function getConfigurationForm() {
-
         if (!$this->_form && $this->_list) {
             $this->_form = DynamicForm::lookup(
-                    array('type'=>'L'.$this->_list->getId()));
+                array('type'=>'L'.$this->_list->getId()));
         }
-
         return $this->_form;
+    }
+
+    function getConfigurationForm($source=null) {
+
+        if ($form = $this->getForm()) {
+            $config = $this->getConfiguration();
+            $form = $form->getForm($source);
+            if (!$source && $config) {
+                foreach ($form->getFields() as $f) {
+                    $name = $f->get('id');
+                    if (isset($config[$name]))
+                        $f->value = $f->to_php($config[$name]);
+                    else if ($f->get('default'))
+                        $f->value = $f->get('default');
+                }
+            }
+        }
+        return $form;
     }
 
     function isEnabled() {
@@ -896,8 +917,8 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
             if (!$this->_settings)
                 $this->_settings = array();
 
-            if ($this->getConfigurationForm()) {
-                foreach ($this->getConfigurationForm()->getFields() as $f)  {
+            if ($this->getForm()) {
+                foreach ($this->getForm()->getFields() as $f)  {
                     $name = mb_strtolower($f->get('name'));
                     $id = $f->get('id');
                     switch($name) {
@@ -922,7 +943,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function setConfiguration(&$errors=array()) {
         $properties = array();
-        foreach ($this->getConfigurationForm()->getFields() as $f) {
+        foreach ($this->getConfigurationForm($_POST)->getFields() as $f) {
             if ($this->isInternal() //Item is internal.
                     && !$f->isEditable())
                 continue;
