@@ -8,13 +8,9 @@
         echo csrf_token();
         $config = $item->getConfiguration();
         $internal = $item->isInternal();
-        foreach ($item->getConfigurationForm()->getFields() as $f) {
-            $name = $f->get('id');
-            if (isset($config[$name]))
-                $f->value = $f->to_php($config[$name]);
-            else if ($f->get('default'))
-                $f->value = $f->get('default');
-            ?>
+        $form = $item->getConfigurationForm();
+        echo $form->getMedia();
+        foreach ($form->getFields() as $f) { ?>
             <div class="custom-field">
             <div class="field-label">
             <label for="<?php echo $f->getWidget()->name; ?>"
