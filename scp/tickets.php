@@ -330,7 +330,10 @@ if($_POST && !$errors):
             case 'open':
                 $ticket=null;
                 if(!$thisstaff || !$thisstaff->canCreateTickets()) {
-                     $errors['err']=__('You do not have permission to create tickets. Contact admin for such access');
+                     $errors['err'] = sprintf('%s %s',
+                             sprintf(__('You do not have permission %s.'),
+                                 __('to create tickets')),
+                             __('Contact admin for such access'));
                 } else {
                     $vars = $_POST;
                     $vars['uid'] = $user? $user->getId() : 0;
