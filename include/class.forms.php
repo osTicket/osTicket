@@ -538,6 +538,18 @@ class FormField {
         return false;
     }
 
+    /**
+     * Indicates if the field has subfields accessible via getSubFields()
+     * method. Useful for filter integration. Should connect with
+     * getFilterData()
+     */
+    function hasSubFields() {
+        return false;
+    }
+    function getSubFields() {
+        return null;
+    }
+
     function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));

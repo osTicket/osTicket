@@ -249,8 +249,8 @@ Filter::addSupportedMatches(/* @trans */ 'User Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = __('User').' / '.$f->getLabel();
-        if (($fi = $f->getImpl()) instanceof SelectionField) {
-            foreach ($fi->getList()->getForm()->getFields() as $p) {
+        if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+            foreach ($fi->getSubFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = __('User').' / '.$f->getLabel().' / '.$p->getLabel();
             }
@@ -339,8 +339,8 @@ Filter::addSupportedMatches(/* @trans */ 'Ticket Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = __('Ticket').' / '.$f->getLabel();
-        if (($fi = $f->getImpl()) instanceof SelectionField) {
-            foreach ($fi->getList()->getForm()->getFields() as $p) {
+        if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+            foreach ($fi->getSubFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = __('Ticket').' / '.$f->getLabel().' / '.$p->getLabel();
             }
@@ -381,8 +381,8 @@ Filter::addSupportedMatches(/* trans */ 'Custom Forms', function() {
             if (!$f->hasData())
                 continue;
             $matches['field.'.$f->get('id')] = $form->getTitle().' / '.$f->getLabel();
-            if (($fi = $f->getImpl()) instanceof SelectionField) {
-                foreach ($fi->getList()->getProperties() as $p) {
+            if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+                foreach ($fi->getSubFields() as $p) {
                     $matches['field.'.$f->get('id').'.'.$p->get('id')]
                         = $form->getTitle().' / '.$f->getLabel().' / '.$p->getLabel();
                 }
@@ -1028,6 +1028,13 @@ class SelectionField extends FormField {
 
     function hasIdValue() {
         return true;
+    }
+
+    function hasSubFields() {
+        return true;
+    }
+    function getSubFields() {
+        return $this->getConfigurationForm()->getFields();
     }
 
     function toString($items) {
