@@ -745,9 +745,14 @@ class TicketsAjaxAPI extends AjaxController {
         $verb = TicketStateField::getVerb($state);
 
         $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $status);
-        $info['title'] = sprintf('%s %s #%s',
-                $verb ?: $status,
-                __('Ticket'), $ticket->getNumber());
+
+        $info['title'] = sprintf(__(
+                    /* 1$ will be a verb, like 'open', 2$ will be the ticket number */
+                    '%1$s Ticket #%2$s'),
+                $verb ?: $state,
+                $ticket->getNumber()
+                );
+
         $info['status_id'] = $_REQUEST['status_id'] ?: $id ?: $ticket->getStatusId();
 
         return self::_setStatus($state, $info);
@@ -768,30 +773,27 @@ class TicketsAjaxAPI extends AjaxController {
             $errors['status_id'] = sprintf('%s %s',
                     __('Unknown or invalid'), __('status'));
         elseif ($status->getId() == $ticket->getStatusId())
-            $errors['err'] = sprintf(__('Ticket already set to  %s
-                        status'), __($status->getName()));
+            $errors['err'] = sprintf(__('Ticket already set to %s status'),
+                    __($status->getName()));
         else {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
                     if (!$thisstaff->canCloseTickets()
                             && !$thisstaff->canCreateTickets())
-                        $errors['err'] = sprintf(__('You do not have
-                                    permission to %s.'),
-                                __('reopen tickets'));
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to reopen tickets'));
                     break;
                 case 'resolved':
                 case 'closed':
                     if (!$thisstaff->canCloseTickets())
-                        $errors['err'] = sprintf(__('You do not have
-                                    permission to %s.'),
-                                __('resolve/close tickets'));
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to resolve/close tickets'));
                     break;
                 case 'deleted':
                     if (!$thisstaff->canDeleteTickets())
-                        $errors['err'] = sprintf(__('You do not have
-                                    permission to %s.'),
-                                __('archive/delete tickets'));
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to archive/delete tickets'));
                     break;
                 default:
                     $errors['err'] = sprintf('%s %s',
@@ -813,9 +815,12 @@ class TicketsAjaxAPI extends AjaxController {
         $verb = TicketStateField::getVerb($state);
 
         $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $state);
-        $info['title'] = sprintf('%s %s #%s',
+        $info['title'] = sprintf(__(
+                    /* 1$ will be a verb, like 'open', 2$ will be the ticket number */
+                    '%1$s Ticket #%2$s'),
                 $verb ?: $state,
-                __('Ticket'), $ticket->getNumber());
+                $ticket->getNumber()
+                );
         $info['status_id'] = $_REQUEST['status_id'] ?: 0;
         $info['comments'] = Format::htmlchars($_REQUEST['comments']);
         $info['errors'] = $errors;
@@ -879,7 +884,10 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = $info = array();
         if (!$thisstaff || !$thisstaff->canManageTickets())
-            $errors['err']=__('You do not have permission to mass manage tickets. Contact admin for such access');
+            $errors['err'] = sprintf('%s %s',
+                    sprintf(__('You do not have permission %s.'),
+                        __('to mass manage tickets')),
+                    __('Contact admin for such access'));
         elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
             $errors['err']=sprintf(__('You must select at least %s.'),
                     __('one ticket'));
@@ -892,21 +900,18 @@ class TicketsAjaxAPI extends AjaxController {
                 case 'open':
                     if (!$thisstaff->canCloseTickets()
                             && !$thisstaff->canCreateTickets())
-                        $errors['err'] = sprintf(__('You do not have
-                                    permission to %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission to %s.'),
                                 __('reopen tickets'));
                     break;
                 case 'resolved':
                 case 'closed':
                     if (!$thisstaff->canCloseTickets())
-                        $errors['err'] = sprintf(__('You do not have
-                                    permission to %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission to %s.'),
                                 __('resolve/close tickets'));
                     break;
                 case 'deleted':
                     if (!$thisstaff->canDeleteTickets())
-                        $errors['err'] = sprintf(__('You do not have
-                                    permission to %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission to %s.'),
                                 __('archive/delete tickets'));
                     break;
                 default:
