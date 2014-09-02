@@ -648,9 +648,9 @@ if ($results) {
         $tform = TicketForm::objects()->one();
         echo $tform->getForm()->getMedia();
         foreach ($tform->getInstance()->getFields() as $f) {
-            if (in_array($f->get('type'), array('text', 'memo', 'phone', 'thread')))
+            if (!$f->hasData())
                 continue;
-            elseif (!$f->hasData())
+            elseif (!$f->getImpl()->hasSpecialSearch())
                 continue;
             ?><fieldset class="span6">
             <label><?php echo $f->getLabel(); ?>:</label><div><?php
