@@ -767,7 +767,10 @@ class TicketsAjaxAPI extends AjaxController {
         if (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
             $errors['status_id'] = sprintf('%s %s',
                     __('Unknown or invalid'), __('status'));
-        elseif (!$errors) {
+        elseif ($status->getId() == $ticket->getStatusId())
+            $errors['err'] = sprintf(__('Ticket already set to  %s
+                        status'), __($status->getName()));
+        else {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
@@ -796,14 +799,25 @@ class TicketsAjaxAPI extends AjaxController {
             }
         }
 
-        if ($ticket->setStatus($status, $_REQUEST['comments'])) {
+        if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'])) {
             $_SESSION['::sysmsgs']['msg'] = sprintf(
                     __('Successfully updated status to %s'),
                     $status->getName());
             Http::response(201, 'Successfully processed');
+        } elseif (!$errors['err']) {
+            $errors['err'] =  __('Error updating ticket status');
         }
 
-        $errors['err'] = __('Error updating ticket status');
+
+        $state = $status ? $status->getState() : $state;
+        $verb = TicketStateField::getVerb($state);
+
+        $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $state);
+        $info['title'] = sprintf('%s %s #%s',
+                $verb ?: $state,
+                __('Ticket'), $ticket->getNumber());
+        $info['status_id'] = $_REQUEST['status_id'] ?: 0;
+        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
         $info['errors'] = $errors;
         return self::_setStatus($state, $info);
     }
