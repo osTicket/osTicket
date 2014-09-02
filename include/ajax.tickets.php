@@ -167,78 +167,81 @@ class TicketsAjaxAPI extends AjaxController {
         //dates
         $startTime  =($req['startDate'] && (strlen($req['startDate'])>=8))?strtotime($req['startDate']):0;
         $endTime    =($req['endDate'] && (strlen($req['endDate'])>=8))?strtotime($req['endDate']):0;
-        if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0))
-            $startTime=$endTime=0;
+        if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0)) {
+            # force ticket search to return null
+            # because it's impossible to search ticket from the future
+            $tickets = null;
+        } else {
+            if($startTime)
+                $where.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
 
-        if($startTime)
-            $where.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
+            if($endTime)
+                $where.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
 
-        if($endTime)
-            $where.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
+            //Query
+            $joins = array();
+            if($req['query']) {
+                $queryterm=db_real_escape($req['query'], false);
 
-        //Query
-        $joins = array();
-        if($req['query']) {
-            $queryterm=db_real_escape($req['query'], false);
-
-            // Setup sets of joins and queries
-            $joins[] = array(
-                'from' =>
-                    'LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )',
-                'where' => "thread.title LIKE '%$queryterm%' OR thread.body LIKE '%$queryterm%'"
-            );
-            $joins[] = array(
-                'from' =>
-                    'LEFT JOIN '.FORM_ENTRY_TABLE.' tentry ON (tentry.object_id = ticket.ticket_id AND tentry.object_type="T")
-                    LEFT JOIN '.FORM_ANSWER_TABLE.' tans ON (tans.entry_id = tentry.id AND tans.value_id IS NULL)',
-                'where' => "tans.value LIKE '%$queryterm%'"
-            );
-            $joins[] = array(
-                'from' =>
-                   'LEFT JOIN '.FORM_ENTRY_TABLE.' uentry ON (uentry.object_id = ticket.user_id
-                   AND uentry.object_type="U")
-                   LEFT JOIN '.FORM_ANSWER_TABLE.' uans ON (uans.entry_id = uentry.id
-                   AND uans.value_id IS NULL)
-                   LEFT JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id)
-                   LEFT JOIN '.USER_EMAIL_TABLE.' uemail ON (user.id = uemail.user_id)',
-                'where' =>
-                    "uemail.address LIKE '%$queryterm%' OR user.name LIKE '%$queryterm%' OR uans.value LIKE '%$queryterm%'",
-            );
-        }
-
-        // Dynamic fields
-        $cdata_search = false;
-        foreach (TicketForm::getInstance()->getFields() as $f) {
-            if (isset($req[$f->getFormName()])
-                    && ($val = $req[$f->getFormName()])) {
-                $name = $f->get('name') ? $f->get('name')
-                    : 'field_'.$f->get('id');
-                if ($f->getImpl()->hasIdValue() && is_numeric($val))
-                    $cwhere = "cdata.`{$name}_id` = ".db_input($val);
-                else
-                    $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
-                $where .= ' AND ('.$cwhere.')';
-                $cdata_search = true;
+                // Setup sets of joins and queries
+                $joins[] = array(
+                    'from' =>
+                        'LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )',
+                    'where' => "thread.title LIKE '%$queryterm%' OR thread.body LIKE '%$queryterm%'"
+                );
+                $joins[] = array(
+                    'from' =>
+                        'LEFT JOIN '.FORM_ENTRY_TABLE.' tentry ON (tentry.object_id = ticket.ticket_id AND tentry.object_type="T")
+                        LEFT JOIN '.FORM_ANSWER_TABLE.' tans ON (tans.entry_id = tentry.id AND tans.value_id IS NULL)',
+                    'where' => "tans.value LIKE '%$queryterm%'"
+                );
+                $joins[] = array(
+                    'from' =>
+                       'LEFT JOIN '.FORM_ENTRY_TABLE.' uentry ON (uentry.object_id = ticket.user_id
+                       AND uentry.object_type="U")
+                       LEFT JOIN '.FORM_ANSWER_TABLE.' uans ON (uans.entry_id = uentry.id
+                       AND uans.value_id IS NULL)
+                       LEFT JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id)
+                       LEFT JOIN '.USER_EMAIL_TABLE.' uemail ON (user.id = uemail.user_id)',
+                    'where' =>
+                        "uemail.address LIKE '%$queryterm%' OR user.name LIKE '%$queryterm%' OR uans.value LIKE '%$queryterm%'",
+                );
             }
+
+            // Dynamic fields
+            $cdata_search = false;
+            foreach (TicketForm::getInstance()->getFields() as $f) {
+                if (isset($req[$f->getFormName()])
+                        && ($val = $req[$f->getFormName()])) {
+                    $name = $f->get('name') ? $f->get('name')
+                        : 'field_'.$f->get('id');
+                    if ($f->getImpl()->hasIdValue() && is_numeric($val))
+                        $cwhere = "cdata.`{$name}_id` = ".db_input($val);
+                    else
+                        $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
+                    $where .= ' AND ('.$cwhere.')';
+                    $cdata_search = true;
+                }
+            }
+            if ($cdata_search)
+                $from .= 'LEFT JOIN '.TABLE_PREFIX.'ticket__cdata '
+                        ." cdata ON (cdata.ticket_id = ticket.ticket_id)";
+
+            $sections = array();
+            foreach ($joins as $j) {
+                $sections[] = "$select $from {$j['from']} $where AND ({$j['where']})";
+            }
+            if (!$joins)
+                $sections[] = "$select $from $where";
+
+            $sql=implode(' union ', $sections);
+            if (!($res = db_query($sql)))
+                return TicketForm::dropDynamicDataView();
+
+            $tickets = array();
+            while ($row = db_fetch_row($res))
+                $tickets[] = $row[0];
         }
-        if ($cdata_search)
-            $from .= 'LEFT JOIN '.TABLE_PREFIX.'ticket__cdata '
-                    ." cdata ON (cdata.ticket_id = ticket.ticket_id)";
-
-        $sections = array();
-        foreach ($joins as $j) {
-            $sections[] = "$select $from {$j['from']} $where AND ({$j['where']})";
-        }
-        if (!$joins)
-            $sections[] = "$select $from $where";
-
-        $sql=implode(' union ', $sections);
-        if (!($res = db_query($sql)))
-            return TicketForm::dropDynamicDataView();
-
-        $tickets = array();
-        while ($row = db_fetch_row($res))
-            $tickets[] = $row[0];
 
         return $tickets;
     }
