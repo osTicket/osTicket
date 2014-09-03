@@ -18,30 +18,30 @@ include_once(INCLUDE_DIR.'class.api.php');
 
 $api=null;
 if($_REQUEST['id'] && !($api=API::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid API key ID.';
+    $errors['err']='ID de clé d\'API inconnue ou invalide.';
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$api){
-                $errors['err']='Unknown or invalid API key.';
+                $errors['err']='Clé d\'API inconnue ou invalide.';
             }elseif($api->update($_POST,$errors)){
-                $msg='API key updated successfully';
+                $msg='Clé d\'API mise à jour avec succès';
             }elseif(!$errors['err']){
-                $errors['err']='Error updating API key. Try again!';
+                $errors['err']='Erreur lors de la mise à jour de la clé d\'API. Essayez encore !';
             }
             break;
         case 'add':
             if(($id=API::add($_POST,$errors))){
-                $msg='API key added successfully';
+                $msg='Clé d\'API ajoutée avec succès';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add an API key. Correct error(s) below and try again.';
+                $errors['err']='Impossible d\'ajouter une clé d\'API. Corrigez les erreurs ci-dessous et essayez encore.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one API key';
+                $errors['err'] = 'Vous devez sélectionner au moins une clé d\'API';
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -50,11 +50,11 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected API keys enabled';
+                                $msg = 'Clés d\'API sélectionnées activées';
                             else
-                                $warn = "$num of $count selected API keys enabled";
+                                $warn = "$num clés d\'API sur $count sélectionnées activées";
                         } else {
-                            $errors['err'] = 'Unable to enable selected API keys.';
+                            $errors['err'] = 'Impossible d\'activer les clés d\'API sélectionnées.';
                         }
                         break;
                     case 'disable':
@@ -62,11 +62,11 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected API keys disabled';
+                                $msg = 'Clés d\'API sélectionnées désactivées';
                             else
-                                $warn = "$num of $count selected API keys disabled";
+                                $warn = "$num clés d\'API sur $count sélectionnées désactivées";
                         } else {
-                            $errors['err']='Unable to disable selected API keys';
+                            $errors['err'] = 'Impossible de désactiver les clés d\'API sélectionnées.';
                         }
                         break;
                     case 'delete':
@@ -76,19 +76,19 @@ if($_POST){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = 'Selected API keys deleted successfully';
+                            $msg = 'Clés d\'API sélectionnées supprimées';
                         elseif($i>0)
-                            $warn = "$i of $count selected API keys deleted";
+                            $warn = "$i clés d\'API sur $count sélectionnées supprimées";
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected API keys';
+                            $errors['err'] = 'Impossible de supprimer les clés d\'API sélectionnées.';
                         break;
                     default:
-                        $errors['err']='Unknown action - get technical help';
+                        $errors['err']='Action inconnue - demandez de l\'aide technique';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action/command';
+            $errors['err']='Action/commande inconnue';
             break;
     }
 }
