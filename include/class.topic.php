@@ -442,7 +442,7 @@ class Topic {
         if (!($names = static::getHelpTopics(false, true, false)))
             return;
 
-        if (function_exists('collator_create')) {
+        if ($cfg && function_exists('collator_create')) {
             $coll = Collator::create($cfg->getPrimaryLanguage());
             // UASORT is necessary to preserve the keys
             uasort($names, function($a, $b) use ($coll) {
