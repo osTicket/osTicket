@@ -1,0 +1,108 @@
+
+div.add-translation {
+  margin-top: 5px;
+  padding: 5px;
+  border-top: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+div.translations {
+  min-height: 20px;
+}
+div.translations .close {
+  position:absolute;
+  right:3px;
+  top:3px;
+}
+ul.translations {
+  padding-left: 0;
+  min-width: 300px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+ul.translations li {
+  list-style: none;
+  padding: 0 10px;
+  box-sizing: border-box;
+  display: block;
+}
+ul.translations li + li {
+  margin-top: 10px;
+}
+ul.translations li label.language {
+  color: #888;
+}
+ul.translations li input {
+  width: 100%;
+  box-sizing: border-box;
+}
+.language-commit {
+  text-align: right;
+  padding: 5px 10px;
+  background-color: cyan;
+}
+
+
+div.translatable {
+  -webkit-appearance: textfield;
+  display: inline-block;
+  white-space: nowrap;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  border-right: none;
+  padding: 3px 5px;
+  margin-left: 2px;
+  width: inherit;
+  background-color: white;
+}
+div.translatable.textarea {
+  -webkit-appearance: textarea;
+}
+div.translatable.focus {
+  outline-offset: -2px;
+  outline-style: auto;
+  outline-width: 5px;
+  outline-color: -webkit-focus-ring-color;
+}
+div.translatable .flag {
+  position: relative;
+  top: 1px;
+  margin-left: 2px;
+}
+div.translatable.textarea .flag {
+  vertical-align: top;
+}
+
+textarea.translatable,
+input.translatable {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none;
+}
+textarea.translatable,
+input.translatable:focus {
+  outline-style: none;
+}
+
+button.translatable {
+  margin: 0;
+  padding: 3px 4px;
+  border: 1px outset #999;
+  background-color: #ccc;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+div.translatable.textarea + button.translatable {
+  position: absolute;
+  top: 18px;
+  right: 4px;
+  border: none;
+  background-color: transparent;
+  color: #aaa;
+  color: rgba(0, 0, 0, 0.5);
+  padding-top: 0;
+}
+div.translatable.textarea + button.translatable:hover {
+  color: black;
+}
