@@ -243,6 +243,9 @@ class Internationalization {
     static function getConfiguredSystemLanguages() {
         global $cfg;
 
+        if (!$cfg)
+            return self::availableLanguages();
+
         $langs = array();
         // Honor sorting preference of ::availableLanguages()
         foreach (self::availableLanguages() as $k=>$l) {
@@ -262,7 +265,7 @@ class Internationalization {
         global $cfg;
 
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
-            return $cfg->getPrimaryLanguage();
+            return $cfg ? $cfg->getPrimaryLanguage() : 'en_US';
 
         $languages = self::getConfiguredSystemLanguages();
 
