@@ -25,15 +25,15 @@ if(!$thisstaff || !$thisstaff->canManageCannedResponses()) {
 
 $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid canned response ID.';
+    $errors['err']='Identifiant de réponse pré-remplie inconnu ou invalide.';
 
 if($_POST && $thisstaff->canManageCannedResponses()) {
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$canned) {
-                $errors['err']='Unknown or invalid canned response.';
+                $errors['err']='Réponse pré-remplie inconnue ou invalide.';
             } elseif($canned->update($_POST, $errors)) {
-                $msg='Canned response updated successfully';
+                $msg='Réponse pré-remplie mise à jour avec succès';
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
                 $keepers = $_POST['files']?$_POST['files']:array();
@@ -67,12 +67,12 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 // Delete drafts for all users for this canned response
                 Draft::deleteForNamespace('canned.'.$canned->getId());
             } elseif(!$errors['err']) {
-                $errors['err']='Error updating canned response. Try again!';
+                $errors['err']='Erreur lors de la mise à jour de la éponse pré-remplie. Essayez encore !';
             }
             break;
         case 'create':
             if(($id=Canned::create($_POST, $errors))) {
-                $msg='Canned response added successfully';
+                $msg='Réponse pré-remplie ajoutée avec succès';
                 $_REQUEST['a']=null;
                 //Upload attachments
                 if($_FILES['attachments'] && ($c=Canned::lookup($id)) && ($files=AttachmentFile::format($_FILES['attachments'])))
@@ -87,12 +87,12 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 // Delete this user's drafts for new canned-responses
                 Draft::deleteForNamespace('canned', $thisstaff->getId());
             } elseif(!$errors['err']) {
-                $errors['err']='Unable to add canned response. Correct error(s) below and try again.';
+                $errors['err']='Impossible d\'ajouter une réponse pré-remplie. Corrigez les erreurs ci-dessous et essayez encore.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']='You must select at least one canned response';
+                $errors['err']='Vous devez sélectionner au moins une réponse pré-remplie';
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -101,11 +101,11 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                             .' WHERE canned_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected canned responses enabled';
+                                $msg = 'Réponses pré-remplies sélectionnées activées';
                             else
-                                $warn = "$num of $count selected canned responses enabled";
+                                $warn = "$num réponses pré-remplies sur $count sélectionnées activées";
                         } else {
-                            $errors['err'] = 'Unable to enable selected canned responses.';
+                            $errors['err'] = 'Impossible d\'activer les réponses pré-remplies sélectionnées.';
                         }
                         break;
                     case 'disable':
@@ -113,11 +113,11 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                             .' WHERE canned_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected canned responses disabled';
+                                $msg = 'Réponses pré-remplies sélectionnées désactivées';
                             else
-                                $warn = "$num of $count selected canned responses disabled";
+                                $warn = "$num réponses pré-remplies sur $count sélectionnées désactivées";
                         } else {
-                            $errors['err'] = 'Unable to disable selected canned responses';
+                            $errors['err'] = 'Impossible de désactiver les réponses pré-remplies sélectionnées.';
                         }
                         break;
                     case 'delete':
@@ -129,19 +129,19 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                         }
 
                         if($i==$count)
-                            $msg = 'Selected canned responses deleted successfully';
+                            $msg = 'Réponses pré-remplies sélectionnées supprimées';
                         elseif($i>0)
-                            $warn="$i of $count selected canned responses deleted";
+                            $warn = "$i réponses pré-remplies sur $count sélectionnées supprimées";
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected canned responses';
+                            $errors['err'] = 'Impossible de supprimer les réponses pré-remplies sélectionnées.';
                         break;
                     default:
-                        $errors['err']='Unknown command';
+                        $errors['err']='Commande inconnue';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']='Action inconnue';
             break;
     }
 }
