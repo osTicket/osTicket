@@ -903,19 +903,19 @@ class TicketsAjaxAPI extends AjaxController {
                 case 'open':
                     if (!$thisstaff->canCloseTickets()
                             && !$thisstaff->canCreateTickets())
-                        $errors['err'] = sprintf(__('You do not have permission to %s.'),
-                                __('reopen tickets'));
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to reopen tickets'));
                     break;
                 case 'resolved':
                 case 'closed':
                     if (!$thisstaff->canCloseTickets())
-                        $errors['err'] = sprintf(__('You do not have permission to %s.'),
-                                __('resolve/close tickets'));
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to resolve/close tickets'));
                     break;
                 case 'deleted':
                     if (!$thisstaff->canDeleteTickets())
-                        $errors['err'] = sprintf(__('You do not have permission to %s.'),
-                                __('archive/delete tickets'));
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to archive/delete tickets'));
                     break;
                 default:
                     $errors['err'] = sprintf('%s %s',
@@ -942,7 +942,9 @@ class TicketsAjaxAPI extends AjaxController {
                 // Assume success
                 if ($i==$count) {
                     $_SESSION['::sysmsgs']['msg'] = sprintf(
-                            __('Successfully updated %s status to %s'),
+                            __(
+                                /* 1$ will be 'selected ticket(s)', 2$ is the new status */
+                                'Successfully updated status of %1$s to %2$s'),
                             _N('selected ticket', 'selected tickets',
                                 $count),
                             $status->getName());
