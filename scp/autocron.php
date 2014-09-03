@@ -46,7 +46,7 @@ $thisstaff = null; //Clear staff obj to avoid false credit internal notes & auto
 Cron::TicketMonitor(); //Age tickets: We're going to age tickets regardless of cron settings.
 if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enabled!
     Cron::MailFetcher();  //Fetch mail.
-    $ost->logDebug('Auto Cron', 'Mail fetcher cron call ['.$caller.']');
+    $ost->logDebug('Auto Cron', 'Appel du récupérateur de mail par cron ['.$caller.']');
 }
 
 $_SESSION['lastcroncall']=time();
