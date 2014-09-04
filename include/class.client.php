@@ -137,8 +137,7 @@ abstract class TicketUser {
     }
 
     function isOwner() {
-        return  ($this->user
-                    && $this->user->getId() == $this->getTicket()->getOwnerId());
+        return $this instanceof TicketOwner;
     }
 
     function flagGuest() {
