@@ -953,7 +953,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         elseif (is_object($val) && method_exists($val, 'getId'))
             return array($val->getId());
 
-        return($val);
+        return array($val);
     }
 
     function asVar() {
