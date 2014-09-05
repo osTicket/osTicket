@@ -82,21 +82,20 @@ class Page {
 
     function _fetchTranslation($lang=false) {
         if (!isset($this->_local) || $lang) {
-            $tags = array(
-                $this->getTranslateTag('body'),
-                $this->getTranslateTag('article'),
-            );
-            if (!$lang)
-                $lang = Internationalization::getCurrentLanguage();
-            $this->_local = CustomDataTranslation::allTranslations($tags, 'article', $lang);
+            $tag = $this->getTranslateTag('title:body');
+            $this->_local = CustomDataTranslation::allTranslations($tag, 'article', $lang);
         }
         return $this->_local;
     }
     function _getLocal($what, $lang=false) {
-        $tag = $this->getTranslateTag($what);
-        foreach ($this->_fetchTranslation($lang) as $t)
-            if ($tag == $t->object_hash)
-                return $t->text;
+        if (!$lang)
+            $lang = Internationalization::getCurrentLanguage();
+        foreach ($this->_fetchTranslation($lang) as $t) {
+            if ($lang == $t->lang) {
+                list($title, $body) = explode("\x04", $t->text, 2);
+                return $what == 'body' ? $body : $title;
+            }
+        }
 
         return $this->ht[$what];
     }
@@ -324,45 +323,44 @@ class Page {
     function saveTranslations($vars, &$errors) {
         global $thisstaff;
 
-        $tags = array(
-            'body' => $this->getTranslateTag('body'),
-            'title' => $this->getTranslateTag('title'),
-            $this->getTranslateTag('body') => 'body',
-            $this->getTranslateTag('title') => 'title',
-        );
-        $translations = CustomDataTranslation::allTranslations(array_values($tags), 'article');
+        $tag = $this->getTranslateTag('title:body');
+        $translations = CustomDataTranslation::allTranslations($tag, 'article');
         foreach ($translations as $t) {
-            $content = @$vars['trans'][$t->lang][$tags[$t->object_hash]];
-            if (!$content)
+            $title = @$vars['trans'][$t->lang]['title'];
+            $body = @$vars['trans'][$t->lang]['body'];
+            if (!$title && !$body)
                 continue;
-            $content = Format::sanitize($content);
             // Content is not new and shouldn't be added below
-            unset($vars['trans'][$t->lang][$tags[$t->object_hash]]);
+            unset($vars['trans'][$t->lang]['title']);
+            unset($vars['trans'][$t->lang]['body']);
+            $content = $title . "\x04" . Format::sanitize($body);
             if ($content == $t->text)
                 continue;
+
             $t->text = $content;
             $t->agent_id = $thisstaff->getId();
+            $t->updated = SqlFunction::NOW();
             if (!$t->save())
                 return false;
         }
         // New translations (?)
         foreach ($vars['trans'] as $lang=>$parts) {
-            foreach ($parts as $tag=>$content) {
-                $content = Format::sanitize($content);
-                if (!$content || !isset($tags[$tag]))
-                    continue;
-                $t = CustomDataTranslation::create(array(
-                    'type'      => 'article',
-                    'object_hash' => $tags[$tag],
-                    'lang'      => $lang,
-                    'text'      => $content,
-                    'revision'  => 1,
-                    'agent_id'  => $thisstaff->getId(),
-                    'updated'   => SqlFunction::NOW(),
-                ));
-                if (!$t->save())
-                    return false;
-            }
+            $title = @$parts['title'];
+            $body = @$parts['body'];
+            $content = $title . "\x04" . Format::sanitize($body);
+            if ($content == "\x04")
+                continue;
+            $t = CustomDataTranslation::create(array(
+                'type'      => 'article',
+                'object_hash' => $tag,
+                'lang'      => $lang,
+                'text'      => $content,
+                'revision'  => 1,
+                'agent_id'  => $thisstaff->getId(),
+                'updated'   => SqlFunction::NOW(),
+            ));
+            if (!$t->save())
+                return false;
         }
         return true;
     }
