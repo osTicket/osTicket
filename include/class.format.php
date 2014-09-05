@@ -575,7 +575,9 @@ class Format {
 
     // Performs Unicode normalization (where possible) and splits words at
     // difficult word boundaries (for far eastern languages)
-    function searchable($text) {
+    function searchable($text, $lang=false) {
+        global $cfg;
+
         if (function_exists('normalizer_normalize')) {
             // Normalize text input :: remove diacritics and such
             $text = normalizer_normalize($text, Normalizer::FORM_C);
@@ -613,7 +615,9 @@ class Format {
 
         if (class_exists('IntlBreakIterator')) {
             // Split by word boundaries
-            if ($tokenizer = IntlBreakIterator::createWordInstance()) {
+            if ($tokenizer = IntlBreakIterator::createWordInstance(
+                    $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
+            ) {
                 $tokenizer->setText($text);
                 $text = implode(' ', $tokenizer);
             }
