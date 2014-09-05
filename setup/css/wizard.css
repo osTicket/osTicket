@@ -16,7 +16,7 @@ a { color: #2a67ac; }
 #header .info { font-size: 11pt; font-weight: bold; border-bottom: 1px solid #2a67ac; color: #444; text-align: right; float: right; }
 #header ul { margin: 0; padding: 0; text-align: right; }
 #header ul li { list-style: none; margin: 5px 0 0 0; padding: 0; }
-#header ul li a { color: #F3811C; text-decoration: none; }
+#header ul li a { color: #F3811C; text-decoration: none; white-space: nowrap; }
 #header ul li a:hover { color: #2a67ac; }
 
 #sidebar { width: 180px; padding: 10px; border: 1px solid #C8DDFA; float: right; background: #F7FBFE; }

@@ -68,12 +68,14 @@ class Internationalization {
             'sequence.yaml' =>      'Sequence::__create',
         );
 
-        $errors = array();
         foreach ($models as $yaml=>$m) {
             if ($objects = $this->getTemplate($yaml)->getData()) {
                 foreach ($objects as $o) {
                     if ($m && is_callable($m))
                         @call_user_func_array($m, array($o, &$errors));
+                    // TODO: Add a warning to the success page for errors
+                    //       found here
+                    $errors = array();
                 }
             }
         }
