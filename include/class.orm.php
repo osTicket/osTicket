@@ -177,52 +177,40 @@ class VerySimpleModel {
     }
 
     function delete($pk=false) {
-        $table = static::$meta['table'];
-        $sql = 'DELETE FROM '.$table;
-        $filter = array();
+        $ex = DbEngine::delete($this);
+        try {
+            $ex->execute();
+            if ($ex->affected_rows() != 1)
+                return false;
 
-        if (!$pk) $pk = static::$meta['pk'];
-        if (!is_array($pk)) $pk=array($pk);
-
-        foreach ($pk as $p)
-            $filter[] = $p.' = '.db_input($this->get($p));
-        $sql .= ' WHERE '.implode(' AND ', $filter).' LIMIT 1';
-        if (!db_query($sql) || db_affected_rows() != 1)
-            throw new Exception(db_error());
-        Signal::send('model.deleted', $this);
+            Signal::send('model.deleted', $this);
+        }
+        catch (OrmException $e) {
+            return false;
+        }
         return true;
     }
 
     function save($refetch=false) {
-        $pk = static::$meta['pk'];
-        if (!is_array($pk)) $pk=array($pk);
-        if ($this->__new__)
-            $sql = 'INSERT INTO '.static::$meta['table'];
-        else
-            $sql = 'UPDATE '.static::$meta['table'];
-        $filter = $fields = array();
         if (count($this->dirty) === 0)
             return true;
-        foreach ($this->dirty as $field=>$old) {
-            if ($this->__new__ or !in_array($field, $pk)) {
-                if (@get_class($this->get($field)) == 'SqlFunction')
-                    $fields[] = $field.' = '.$this->get($field)->toSql();
-                else
-                    $fields[] = $field.' = '.db_input($this->get($field));
-            }
+
+        $ex = DbEngine::save($this);
+        try {
+            $ex->execute();
+            if ($ex->affected_rows() != 1)
+                return false;
         }
-        $sql .= ' SET '.implode(', ', $fields);
-        if (!$this->__new__) {
-            foreach ($pk as $p)
-                $filter[] = $p.' = '.db_input($this->get($p));
-            $sql .= ' WHERE '.implode(' AND ', $filter);
-            $sql .= ' LIMIT 1';
+        catch (OrmException $e) {
+            return false;
         }
-        if (!db_query($sql) || db_affected_rows() != 1)
-            throw new Exception(db_error());
+
+        $pk = static::$meta['pk'];
+        if (!is_array($pk)) $pk=array($pk);
+
         if ($this->__new__) {
             if (count($pk) == 1)
-                $this->ht[$pk[0]] = db_insert_id();
+                $this->ht[$pk[0]] = $ex->insert_id();
             $this->__new__ = false;
             // Setup lists again
             $this->__setupForeignLists();
@@ -787,6 +775,8 @@ class SqlCompiler {
 
 class DbEngine {
 
+    static $compiler = 'MySqlCompiler';
+
     function __construct($info) {
     }
 
@@ -796,6 +786,21 @@ class DbEngine {
     // Gets a compiler compatible with this database engine that can compile
     // and execute a queryset or DML request.
     function getCompiler() {
+    }
+
+    static function delete(VerySimpleModel $model) {
+        $class = static::$compiler;
+        $compiler = new $class();
+        return $compiler->compileDelete($model);
+    }
+
+    static function save(VerySimpleModel $model) {
+        $class = static::$compiler;
+        $compiler = new $class();
+        if ($model->__new__)
+            return $compiler->compileInsert($model);
+        else
+            return $compiler->compileUpdate($model);
     }
 }
 
@@ -971,10 +976,53 @@ class MySqlCompiler extends SqlCompiler {
         return new MysqlExecutor($sql, $this->params);
     }
 
-    function compileUpdate() {
+    function __compileUpdateSet($model, array $pk) {
+        $fields = array();
+        foreach ($model->dirty as $field=>$old) {
+            if ($model->__new__ or !in_array($field, $pk)) {
+                $fields[] = sprintf('%s = %s', $this->quote($field),
+                    $this->input($model->get($field)));
+            }
+        }
+        return ' SET '.implode(', ', $fields);
     }
 
-    function compileInsert() {
+    function compileUpdate(VerySimpleModel $model) {
+        $pk = $model::$meta['pk'];
+        if (!is_array($pk)) $pk=array($pk);
+        $sql = 'UPDATE '.$model::$meta['table'];
+        $sql .= $this->__compileUpdateSet($model, $pk);
+        $filter = array();
+        foreach ($pk as $p)
+            $filter[$p] = $model->get($p);
+        $sql .= ' WHERE '.$this->compileConstraints(array($filter), $model);
+        $sql .= ' LIMIT 1';
+
+        return new MySqlExecutor($sql, $this->params);
+    }
+
+    function compileInsert(VerySimpleModel $model) {
+        $pk = $model::$meta['pk'];
+        if (!is_array($pk)) $pk=array($pk);
+        $sql = 'INSERT INTO '.$model::$meta['table'];
+        $sql .= $this->__compileUpdateSet($model, $pk);
+
+        return new MySqlExecutor($sql, $this->params);
+    }
+
+    function compileDelete($model) {
+        $table = $model::$meta['table'];
+
+        $filter = array();
+        $pk = $model::$meta['pk'];
+        if (!is_array($pk)) $pk=array($pk);
+
+        foreach ($pk as $p)
+            $filter[$p] = $model->get($p);
+
+        $where = ' WHERE '.implode(' AND ', $this->compileConstraints($filter));
+        $sql = 'DELETE FROM '.$this->quote($table).$where.' LIMIT 1';
+        return new MySqlExecutor($sql, $this->params);
     }
 
     function compileBulkDelete($queryset) {
