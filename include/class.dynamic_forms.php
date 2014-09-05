@@ -913,7 +913,11 @@ class SelectionField extends FormField {
     }
 
     function to_php($value, $id=false) {
-        if ($id && is_int($id))
+        if ($value === null && $id === null)
+            return null;
+        if ($value instanceof DynamicListItem)
+            $item = $value;
+        elseif ($id && is_int($id))
             $item = DynamicListItem::lookup($id);
         # Attempt item lookup by name too
         if (!$item || ($value !== null && $value != $item->get('value'))) {
