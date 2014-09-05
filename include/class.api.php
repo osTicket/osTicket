@@ -245,7 +245,7 @@ class ApiController {
         global $ost;
 
         foreach ($data as $key=>$info) {
-            if (is_array($structure) and is_array($info)) {
+            if (is_array($structure) && (is_array($info) || $info instanceof ArrayAccess)) {
                 $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*";
                 if (isset($structure[$search])) {
                     $this->validateRequestStructure($info, $structure[$search], "$prefix$key/", $strict);
