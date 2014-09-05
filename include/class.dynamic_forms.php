@@ -1187,11 +1187,12 @@ class SelectionField extends FormField {
     function parse($value) {
         $config = $this->getConfiguration();
         if (is_int($value))
-            return $this->to_php($this->getWidget()->getEnteredValue(), (int) $value);
+            $val = $this->to_php($this->getWidget()->getEnteredValue(), (int) $value);
         elseif (!$config['typeahead'])
-            return $this->to_php(null, (int) $value);
-        else
-            return $this->to_php($value);
+            $val = $this->to_php(null, (int) $value);
+        if (!$val)
+            $val = $this->to_php($value);
+        return $val;
     }
 
     function to_php($value, $id=false) {
