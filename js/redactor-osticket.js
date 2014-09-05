@@ -95,20 +95,10 @@ RedactorPlugins.draft = {
         $('input[name=draft_id]', this.$box.closest('form'))
             .val(data.draft_id);
         this.draft_id = data.draft_id;
-
-        var self = this;
-        getConfig().then(function(c) {
-            if (c.allow_attachments) {
-                self.opts.clipboardUploadUrl =
-                self.opts.imageUpload =
-                    'ajax.php/draft/'+data.draft_id+'/attach';
-                self.opts.imageUploadErrorCallback = self.displayError;
-                // XXX: This happens in ::buildBindKeyboard() from
-                // ::buildAfter(). However, the imageUpload option is not
-                // known when the Redactor is init()'d
-                self.$editor.on('drop.redactor', $.proxy(self.buildEventDrop, self));
-            }
-        });
+        this.opts.clipboardUploadUrl =
+        this.opts.imageUpload =
+            'ajax.php/draft/'+data.draft_id+'/attach';
+        this.opts.imageUploadErrorCallback = this.displayError;
         this.opts.original_autosave = this.opts.autosave;
         this.opts.autosave = 'ajax.php/draft/'+data.draft_id;
     },
