@@ -428,11 +428,11 @@ Class ThreadEntry {
             if (!($ticket = $this->getTicket()))
                 return null;
 
-            if ($ticket->getOwnerId() == $ticket->getUserId())
+            if ($ticket->getOwnerId() == $this->getUserId())
                 $this->user = new TicketOwner(
                     User::lookup($this->getUserId()), $ticket);
             else
-                $this->user = Collborator::lookup(array(
+                $this->user = Collaborator::lookup(array(
                     'userId'=>$this->getUserId(), 'ticketId'=>$this->getTicketId()));
         }
 

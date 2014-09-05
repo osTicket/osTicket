@@ -1121,7 +1121,7 @@ class Ticket {
         $options = array('inreplyto' => $entry->getEmailMessageId(),
                          'thread' => $entry);
         foreach ($recipients as $recipient) {
-            if ($uid == $recipient->getId()) continue;
+            if ($uid == $recipient->getUserId()) continue;
             $options['references'] =  $entry->getEmailReferencesForUser($recipient);
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient->getEmail(), $notice['subj'], $notice['body'], $attachments,

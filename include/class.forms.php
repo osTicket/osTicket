@@ -722,6 +722,14 @@ class TextareaField extends FormField {
         return (!$value) ? $value : Format::html2text($value);
     }
 
+    function parse($value) {
+        $config = $this->getConfiguration();
+        if ($config['html'])
+            return Format::sanitize($value);
+        else
+            return $value;
+    }
+
 }
 
 class PhoneField extends FormField {
@@ -1641,8 +1649,10 @@ class TextareaWidget extends Widget {
             $cols = "cols=\"{$config['cols']}\"";
         if (isset($config['length']) && $config['length'])
             $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['html']) && $config['html'])
+        if (isset($config['html']) && $config['html']) {
             $class = 'class="richtext no-bar small"';
+            $this->value = Format::viewableImages($this->value);
+        }
         ?>
         <span style="display:inline-block;width:100%">
         <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
@@ -1790,13 +1800,13 @@ class CheckboxWidget extends Widget {
         if (!isset($this->value))
             $this->value = $this->field->get('default');
         ?>
-        <input type="checkbox" name="<?php echo $this->name; ?>[]" <?php
+        <input style="vertical-align:top;" type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
             echo $this->field->get('id'); ?>"/>
         <?php
         if ($config['desc']) { ?>
             <em style="display:inline-block"><?php
-                echo Format::htmlchars($config['desc']); ?></em>
+            echo Format::viewableImages($config['desc']); ?></em>
         <?php }
     }
 
