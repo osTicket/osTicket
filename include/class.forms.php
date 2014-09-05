@@ -1132,7 +1132,7 @@ class CheckboxWidget extends Widget {
         <?php
         if ($config['desc']) { ?>
             <em style="display:inline-block"><?php
-                echo Format::htmlchars($config['desc']); ?></em>
+                echo $config['desc']; ?></em>
         <?php }
     }
 
