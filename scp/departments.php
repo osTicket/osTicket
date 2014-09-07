@@ -16,32 +16,32 @@
 require('admin.inc.php');
 $dept=null;
 if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid department ID.';
+    $errors['err']='Identificant de département inconnu ou invalide.';
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$dept){
-                $errors['err']='Unknown or invalid department.';
+                $errors['err']='Département inconnu ou invalide.';
             }elseif($dept->update($_POST,$errors)){
-                $msg='Department updated successfully';
+                $msg='Département mis à jour avec succès';
             }elseif(!$errors['err']){
-                $errors['err']='Error updating department. Try again!';
+                $errors['err']='Erreur lors de la mise à jour du département. Essayez encore !';
             }
             break;
         case 'create':
             if(($id=Dept::create($_POST,$errors))){
-                $msg=Format::htmlchars($_POST['name']).' added successfully';
+                $msg=Format::htmlchars($_POST['name']).' ajouté avec succès';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add department. Correct error(s) below and try again.';
+                $errors['err']='Impossible d\'ajouter un département. Corrigez les erreurs ci-dessous et réessayez.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one department';
+                $errors['err'] = 'Vous devez sélectionner au moins un département';
             }elseif(in_array($cfg->getDefaultDeptId(),$_POST['ids'])) {
-                $errors['err'] = 'You can not disable/delete a default department. Remove default Dept. and try again.';
+                $errors['err'] = 'Vous ne pouvez pas désactiver ou supprimer un département qui est défini par défaut. Supprimez la définition par défaut et réessayez.';
             }else{
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -50,11 +50,11 @@ if($_POST){
                             .' WHERE dept_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
                             if($num==$count)
-                                $msg='Selected departments made public';
+                                $msg='Les départements sélectionnés ont été rendus publics';
                             else
-                                $warn="$num of $count selected departments made public";
+                                $warn="$num départements sur $count sélectionnés ont été rendus publics";
                         } else {
-                            $errors['err']='Unable to make selected department public.';
+                            $errors['err']='Impossible de rendre public(s) le(s) département(s) sélectionné(s).';
                         }
                         break;
                     case 'make_private':
@@ -63,11 +63,11 @@ if($_POST){
                             .' AND dept_id!='.db_input($cfg->getDefaultDeptId());
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected departments made private';
+                                $msg='Les départements sélectionnés ont été rendus privés';
                             else
-                                $warn = "$num of $count selected departments made private";
+                                $warn="$num départements sur $count sélectionnés ont été rendus privés";
                         } else {
-                            $errors['err'] = 'Unable to make selected department(s) private. Possibly already private!';
+                            $errors['err']='Impossible de rendre privé(s) le(s) département(s) sélectionné(s) (peut-être est-il déjà privé ?).';
                         }
                         break;
                     case 'delete':
@@ -76,7 +76,7 @@ if($_POST){
                             .' WHERE dept_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         list($members)=db_fetch_row(db_query($sql));
                         if($members)
-                            $errors['err']='Departments with staff can not be deleted. Move staff first.';
+                            $errors['err']='Les départements avec du personnel ne peuvent être supprimés. Déplacez le personnel d\'abord.';
                         else {
                             $i=0;
                             foreach($_POST['ids'] as $k=>$v) {
@@ -84,20 +84,20 @@ if($_POST){
                                     $i++;
                             }
                             if($i && $i==$count)
-                                $msg = 'Selected departments deleted successfully';
+                                $msg = 'Les départements sélectionnés ont été supprimés avec succès';
                             elseif($i>0)
-                                $warn = "$i of $count selected departments deleted";
+                                $warn = "$i départements sur $count sélectionnés ont été supprimés";
                             elseif(!$errors['err'])
-                                $errors['err'] = 'Unable to delete selected departments.';
+                                $errors['err'] = 'Impossible de supprimer le(s) département(s) sélectionné(s).';
                         }
                         break;
                     default:
-                        $errors['err']='Unknown action - get technical help';
+                        $errors['err']='Action inconnue — demandez de l\'aide technique';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action/command';
+            $errors['err']='Action/Commande inconnue';
             break;
     }
 }
