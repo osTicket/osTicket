@@ -591,7 +591,7 @@ if ($results) {
             <select id="assignee" name="assignee">
                 <option value="">&mdash; <?php echo __('Anyone');?> &mdash;</option>
                 <option value="0">&mdash; <?php echo __('Unassigned');?> &mdash;</option>
-                <option value="<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
+                <option value="s<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
                     echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'),count($users)).'">';
