@@ -167,12 +167,10 @@ class TicketsAjaxAPI extends AjaxController {
                 $where.=' AND ticket.team_id='.db_input($id);
                 $criteria['team_id'] = $id;
             }
-            elseif($assignee[0]=='s') {
+            elseif($assignee[0]=='s' || is_numeric($id)) {
                 $where.=' AND ticket.staff_id='.db_input($id);
                 $criteria['staff_id'] = $id;
             }
-            elseif(is_numeric($id))
-                $where.=' AND ticket.staff_id='.db_input($id);
 
             $where.=')';
 
@@ -186,6 +184,8 @@ class TicketsAjaxAPI extends AjaxController {
         } elseif($req['staffId']) { # closed-by
             $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND
                 status.state IN("resolved", "closed")) ';
+            $criteria['state__in'] = array('resolved','closed');
+            $criteria['staff_id'] = $req['staffId'];
         }
 
         //dates
