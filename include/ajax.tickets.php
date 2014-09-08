@@ -715,6 +715,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown ticket #');
 
         $info = array();
+        $state = null;
         switch($status) {
             case 'open':
             case 'reopen':
@@ -732,36 +733,19 @@ class TicketsAjaxAPI extends AjaxController {
                 if (!$thisstaff->canDeleteTickets())
                     Http::response(403, 'Access denied');
                 $state = 'deleted';
-                $info = array(
-                        'warn'  => sprintf(__('Are you sure you want to DELETE %s?'),
-                            __('this ticket')),
-                        //TODO: remove message below once we ship data retention plug
-                        'extra' => sprintf('<strong>%s</strong>',
-                            __('Deleted tickets CANNOT be recovered,
-                                including any associated attachments.')));
                 break;
             default:
+                $state = $ticket->getStatus()->getState();
                 $info['warn'] = sprintf('%s %s',
                         __('Unknown or invalid'), __('status'));
         }
 
-        $verb = TicketStateField::getVerb($state);
+        $info['status_id'] = $id ?: $ticket->getStatusId();
 
-        $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $status);
-
-        $info['title'] = sprintf(__(
-                    /* 1$ will be a verb, like 'open', 2$ will be the ticket number */
-                    '%1$s Ticket #%2$s'),
-                $verb ?: $state,
-                $ticket->getNumber()
-                );
-
-        $info['status_id'] = $_REQUEST['status_id'] ?: $id ?: $ticket->getStatusId();
-
-        return self::_setStatus($state, $info);
+        return self::_changeTicketStatus($ticket, $state, $info);
     }
 
-    function setTicketStatus($tid, $state) {
+    function setTicketStatus($tid) {
         global $thisstaff, $ost;
 
         if (!$thisstaff)
@@ -772,7 +756,8 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown ticket #');
 
         $errors = $info = array();
-        if (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
+        if (!$_POST['status_id']
+                || !($status= TicketStatus::lookup($_POST['status_id'])))
             $errors['status_id'] = sprintf('%s %s',
                     __('Unknown or invalid'), __('status'));
         elseif ($status->getId() == $ticket->getStatusId())
@@ -805,32 +790,34 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'])) {
-            $_SESSION['::sysmsgs']['msg'] = sprintf(
-                    __('Successfully updated status to %s'),
-                    $status->getName());
+
+            if (!strcasecmp($status->getState(), 'deleted')) {
+                $msg = sprintf('%s %s',
+                        sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                        __('deleted sucessfully')
+                        );
+            } else {
+                $msg = sprintf(
+                        __('Successfully changed ticket status to %s'),
+                        $status->getName());
+            }
+
+            $_SESSION['::sysmsgs']['msg'] = $msg;
+
             Http::response(201, 'Successfully processed');
         } elseif (!$errors['err']) {
             $errors['err'] =  __('Error updating ticket status');
         }
 
+        $state = $status
+            ? $status->getState() : $ticket->getStatus()->getState();
+        $info['status_id'] = $status
+            ? $status->getId() : $ticket->getStatusId();
 
-        $state = $status ? $status->getState() : $state;
-        $verb = TicketStateField::getVerb($state);
-
-        $info['action'] = sprintf('#tickets/%d/status/%s', $ticket->getId(), $state);
-        $info['title'] = sprintf(__(
-                    /* 1$ will be a verb, like 'open', 2$ will be the ticket number */
-                    '%1$s Ticket #%2$s'),
-                $verb ?: $state,
-                $ticket->getNumber()
-                );
-        $info['status_id'] = $_REQUEST['status_id'] ?: 0;
-        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
-        $info['errors'] = $errors;
-        return self::_setStatus($state, $info);
+        return self::_changeTicketStatus($ticket, $state, $info, $errors);
     }
 
-    function changeTicketsStatus($status, $id=0) {
+    function changeSelectedTicketsStatus($status, $id=0) {
         global $thisstaff, $cfg;
 
         if (!$thisstaff)
@@ -856,33 +843,18 @@ class TicketsAjaxAPI extends AjaxController {
                     Http::response(403, 'Access denied');
 
                 $state = 'deleted';
-                $info = array(
-                        'warn'  => sprintf(__('Are you sure you want to DELETE %s?'),
-                            _N('selected ticket', 'selected tickets', $_REQUEST['count'])),
-                        //TODO: remove message below once we ship data retention plug
-                        'extra' => sprintf('<strong>%s</strong>',
-                            __('Deleted tickets CANNOT be recovered,
-                                including any associated attachments.')));
                 break;
             default:
                 $info['warn'] = sprintf('%s %s',
                         __('Unknown or invalid'), __('status'));
         }
 
-        $info['title'] = sprintf('%s %s',
-                TicketStateField::getVerb($state),
-                 __('Tickets'));
-
-        if ($_REQUEST['count'])
-            $info['title'] .= sprintf(' &mdash; %d %s',
-                    $_REQUEST['count'], __('selected'));
-
         $info['status_id'] = $id;
 
-        return self::_setStatus($state, $info);
+        return self::_changeSelectedTicketsStatus($state, $info);
     }
 
-    function setTicketsStatus($state) {
+    function setSelectedTicketsStatus($state) {
         global $thisstaff, $ost;
 
         $errors = $info = array();
@@ -941,45 +913,116 @@ class TicketsAjaxAPI extends AjaxController {
             else {
                 // Assume success
                 if ($i==$count) {
-                    $_SESSION['::sysmsgs']['msg'] = sprintf(
+
+                    if (!strcasecmp($status->getState(), 'deleted')) {
+                        $msg = sprintf(__( 'Successfully deleted %s.'),
+                                _N('selected ticket', 'selected tickets',
+                                    $count));
+                    } else {
+                       $msg = sprintf(
                             __(
                                 /* 1$ will be 'selected ticket(s)', 2$ is the new status */
-                                'Successfully updated status of %1$s to %2$s'),
+                                'Successfully changed status of %1$s to %2$s'),
                             _N('selected ticket', 'selected tickets',
                                 $count),
                             $status->getName());
+                    }
+
+                    $_SESSION['::sysmsgs']['msg'] = $msg;
                 } else {
-                    $_SESSION['::sysmsgs']['warn'] = sprintf(
-                            __('%1$d of %2$d %3$s status updated to %4$s'),$i, $count,
-                            _N('selected ticket', 'selected tickets',
-                                $count),
-                            $status->getName());
+
+                    if (!strcasecmp($status->getState(), 'deleted')) {
+                        $warn = sprintf(__('Successfully deleted %s.'),
+                                sprintf(__('%1$d of %2$d selected tickets'),
+                                    $i, $count)
+                                );
+                    } else {
+
+                        $warn = sprintf(
+                                __('%1$d of %2$d %3$s status changed to %4$s'),$i, $count,
+                                _N('selected ticket', 'selected tickets',
+                                    $count),
+                                $status->getName());
+                    }
+
+                    $_SESSION['::sysmsgs']['warn'] = $warn;
                 }
 
                 Http::response(201, 'Successfully processed');
             }
         }
 
-        $info['title'] = sprintf('%s %s',
-                TicketStateField::getVerb($state),
-                 __('Tickets'));
-
-        if ($count)
-            $info['title'] .= sprintf(' &mdash; %d %s',
-                    $count, __('selected'));
-
-
-        $info['status_id'] = $_REQUEST['status_id'];
-        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
-        $info['errors'] = $errors;
-        return self::_setStatus($state, $info);
+        return self::_changeSelectedTicketsStatus($state, $info, $errors);
     }
 
-    function _setStatus($state, $info=array()) {
+    private function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
 
-        $errors = array();
+        $count = $_REQUEST['count'] ?:
+            ($_REQUEST['tids'] ?  count($_REQUEST['tids']) : 0);
+
+        $info['title'] = sprintf(__('%1$s Tickets &mdash; %2$d selected'),
+                TicketStateField::getVerb($state),
+                 $count);
+
+        if (!strcasecmp($state, 'deleted')) {
+
+            $info['warn'] = sprintf(__(
+                        'Are you sure you want to DELETE %s?'),
+                    _N('selected ticket', 'selected tickets', $count)
+                    );
+
+            $info['extra'] = sprintf('<strong>%s</strong>', __(
+                        'Deleted tickets CANNOT be recovered, including any associated attachments.')
+                    );
+
+            $info['placeholder'] = sprintf(__(
+                        'Optional reason for deleting %s'),
+                    _N('selected ticket', 'selected tickets', $count));
+        }
+
+        $info['status_id'] = $info['status_id'] ?: $_REQUEST['status_id'];
+        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
+
+        return self::_changeStatus($state, $info, $errors);
+    }
+
+    private function _changeTicketStatus($ticket, $state, $info=array(), $errors=array()) {
+
+        $verb = TicketStateField::getVerb($state);
+
+        $info['action'] = sprintf('#tickets/%d/status', $ticket->getId());
+        $info['title'] = sprintf(__(
+                    /* 1$ will be a verb, like 'open', 2$ will be the ticket number */
+                    '%1$s Ticket #%2$s'),
+                $verb ?: $state,
+                $ticket->getNumber()
+                );
+
+        // Deleting?
+        if (!strcasecmp($state, 'deleted')) {
+
+            $info['placeholder'] = sprintf(__(
+                        'Optional reason for deleting %s'),
+                    __('this ticket'));
+            $info[ 'warn'] = sprintf(__(
+                        'Are you sure you want to DELETE %s?'),
+                        __('this ticket'));
+            //TODO: remove message below once we ship data retention plug
+            $info[ 'extra'] = sprintf('<strong>%s</strong>',
+                        __('Deleted tickets CANNOT be recovered, including any associated attachments.')
+                        );
+        }
+
+        $info['status_id'] = $info['status_id'] ?: $ticket->getStatusId();
+        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
+
+        return self::_changeStatus($state, $info, $errors);
+    }
+
+    private function _changeStatus($state, $info=array(), $errors=array()) {
+
         if ($info && isset($info['errors']))
-            $errors = $info['errors'];
+            $errors = array_merge($errors, $info['errors']);
 
         if (!$info['error'] && isset($errors['err']))
             $info['error'] = $errors['err'];
