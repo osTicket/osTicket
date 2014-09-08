@@ -619,7 +619,10 @@ class Format {
                     $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
             ) {
                 $tokenizer->setText($text);
-                $text = implode(' ', $tokenizer);
+                $tokens = array();
+                foreach ($tokenizer as $token)
+                    $tokens[] = $token;
+                $text = implode(' ', $tokens);
             }
         }
         else {
