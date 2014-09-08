@@ -140,6 +140,44 @@ class FAQ {
         return $this->update($this->ht, $errors);
     }
 
+    // Internationalization of the knowledge base
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('faq.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    function getAllTranslations() {
+        if (!isset($this->_local)) {
+            $tag = $this->getTranslateTag('q:a');
+            $this->_local = CustomDataTranslation::allTranslations($tag, 'article');
+        }
+        return $this->_local;
+    }
+    function getLocalQuestion($lang=false) {
+        return $this->_getLocal('q', $lang);
+    }
+    function getLocalBodyWithImages($lang=false) {
+        return $this->_getLocal('a', $lang);
+    }
+    function _getLocal($what, $lang=false) {
+        if (!$lang) {
+            $lang = Internationalization::getCurrentLanguage();
+        }
+        $translations = $this->getAllTranslations();
+        foreach ($translations as $t) {
+            if ($lang == $t->lang) {
+                $data = $t->getComplex();
+                if (isset($data[$what]))
+                    return $data[$what];
+            }
+        }
+        return $this->ht[$what];
+    }
+
     function updateTopics($ids){
 
         if($ids) {
@@ -164,31 +202,101 @@ class FAQ {
     }
 
     function update($vars, &$errors) {
+        global $cfg;
 
-        if(!$this->save($this->getId(), $vars, $errors))
+        if (!$this->save($this->getId(), $vars, $errors))
             return false;
 
         $this->updateTopics($vars['topics']);
 
-        //Delete removed attachments.
+        // General attachments (for all languages)
+        // ---------------------
+        // Delete removed attachments.
         $keepers = $vars['files'];
-        if(($attachments = $this->attachments->getSeparates())) {
+        if (($attachments = $this->attachments->getSeparates())) {
             foreach($attachments as $file) {
                 if($file['id'] && !in_array($file['id'], $keepers))
                     $this->attachments->delete($file['id']);
             }
         }
-
         // Upload new attachments IF any.
         $this->attachments->upload($keepers);
+
+        // Handle language-specific attachments
+        // ----------------------
+        $langs = $cfg ? $cfg->getSecondaryLanguages() : false;
+        if ($langs) {
+            $langs[] = $cfg->getPrimaryLanguage();
+            foreach ($langs as $lang) {
+                $keepers = $vars['files_'.$lang];
+
+                // Delete removed attachments.
+                if (($attachments = $this->attachments->getSeparates($lang))) {
+                    foreach ($attachments as $file) {
+                        if ($file['id'] && !in_array($file['id'], $keepers))
+                            $this->attachments->delete($file['id']);
+                    }
+                }
+                // Upload new attachments IF any.
+                $this->attachments->upload($keepers, false, $lang);
+            }
+        }
 
         // Inline images (attached to the draft)
         $this->attachments->deleteInlines();
         $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
 
+        if (!$this->saveTranslations($vars))
+            return false;
+
         $this->reload();
 
         Signal::send('model.updated', $this);
+        return true;
+    }
+
+    function saveTranslations($vars) {
+        global $thisstaff;
+
+        foreach ($this->getAllTranslations() as $t) {
+            $trans = @$vars['trans'][$t->lang];
+            if (!array_filter($trans));
+                continue;
+
+            // Content is not new and shouldn't be added below
+            unset($vars['trans'][$t->lang]);
+            $content = array('q' => $trans['question'],
+                'a' => Format::sanitize($trans['answer']));
+
+            // Don't update content which wasn't updated
+            if ($content == $t->getComplex())
+                continue;
+
+            $t->text = $content;
+            $t->agent_id = $thisstaff->getId();
+            $t->updated = SqlFunction::NOW();
+            if (!$t->save())
+                return false;
+        }
+        // New translations (?)
+        $tag = $this->getTranslateTag('q:a');
+        foreach ($vars['trans'] as $lang=>$parts) {
+            $content = array('q' => @$parts['question'],
+                'a' => Format::sanitize(@$parts['answer']));
+            if (!array_filter($content))
+                continue;
+            $t = CustomDataTranslation::create(array(
+                'type'      => 'article',
+                'object_hash' => $tag,
+                'lang'      => $lang,
+                'text'      => $content,
+                'revision'  => 1,
+                'agent_id'  => $thisstaff->getId(),
+                'updated'   => SqlFunction::NOW(),
+            ));
+            if (!$t->save())
+                return false;
+        }
         return true;
     }
 
