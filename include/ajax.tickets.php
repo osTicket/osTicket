@@ -789,16 +789,23 @@ class TicketsAjaxAPI extends AjaxController {
             }
         }
 
+        $state = strtolower($status->getState());
+
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'])) {
 
-            if (!strcasecmp($status->getState(), 'deleted')) {
+            if ($state == 'deleted') {
                 $msg = sprintf('%s %s',
                         sprintf(__('Ticket #%s'), $ticket->getNumber()),
                         __('deleted sucessfully')
                         );
+            } elseif ($state != 'open') {
+                 $msg = sprintf(__('%s status changed to %s'),
+                         sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                         $status->getName());
             } else {
                 $msg = sprintf(
-                        __('Successfully changed ticket status to %s'),
+                        __('%s status changed to %s'),
+                        __('Ticket'),
                         $status->getName());
             }
 
@@ -809,8 +816,7 @@ class TicketsAjaxAPI extends AjaxController {
             $errors['err'] =  __('Error updating ticket status');
         }
 
-        $state = $status
-            ? $status->getState() : $ticket->getStatus()->getState();
+        $state = $state ?: $ticket->getStatus()->getState();
         $info['status_id'] = $status
             ? $status->getId() : $ticket->getStatusId();
 

@@ -4,11 +4,13 @@ global $thisstaff, $ticket;
 $actions= array(
         'closed' => array(
             'icon'  => 'icon-repeat',
-            'action' => 'close'
+            'action' => 'close',
+            'href' => 'tickets.php'
             ),
         'resolved' => array(
             'icon'  => 'icon-ok-circle',
-            'action' => 'resolve'
+            'action' => 'resolve',
+            'href' => 'tickets.php'
             ),
         'open' => array(
             'icon'  => 'icon-undo',
@@ -49,7 +51,14 @@ $actions= array(
                     echo sprintf('#%s/status/%s/%d',
                             $ticket ? ('tickets/'.$ticket->getId()) : 'tickets',
                             $actions[$status->getState()]['action'],
-                            $status->getId()); ?>"><i class=" aaa <?php
+                            $status->getId()); ?>"
+                <?php
+                if (isset($actions[$status->getState()]['href']))
+                    echo sprintf('data-href="%s"',
+                            $actions[$status->getState()]['href']);
+
+                ?>
+                ><i class="<?php
                         echo $actions[$status->getState()]['icon'] ?: 'icon-tag';
                     ?>"></i> <?php
                         echo __($status->getName()); ?></a>
