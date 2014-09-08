@@ -138,12 +138,12 @@ class ContentAjaxAPI extends AjaxController {
         $content = Page::lookup($id, $lang);
 
         $langs = $cfg->getSecondaryLanguages();
-        $tag = $content->getTranslateTag('title:body');
-        $translations = CustomDataTranslation::allTranslations($tag, 'article');
+        $translations = $content->getAllTranslations();
         foreach ($translations as $t) {
-            list($title, $body) = explode("\x04", $t->text);
-            $info['title'][$t->lang] = $title;
-            $info['body'][$t->lang] = $body;
+            if (!($data = $t->getComplex()))
+                continue;
+            $info['title'][$t->lang] = $data['name'];
+            $info['body'][$t->lang] = $data['body'];
         }
 
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
