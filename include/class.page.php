@@ -80,24 +80,27 @@ class Page {
         return Format::viewableImages($this->getLocalBody(), ROOT_PATH.'image.php');
     }
 
-    function _fetchTranslation($lang=false) {
-        if (!isset($this->_local) || $lang) {
-            $tag = $this->getTranslateTag('title:body');
-            $this->_local = CustomDataTranslation::allTranslations($tag, 'article', $lang);
-        }
-        return $this->_local;
-    }
     function _getLocal($what, $lang=false) {
-        if (!$lang)
+        if (!$lang) {
             $lang = Internationalization::getCurrentLanguage();
-        foreach ($this->_fetchTranslation($lang) as $t) {
+        }
+        $translations = $this->getAllTranslations();
+        foreach ($translations as $t) {
             if ($lang == $t->lang) {
-                list($title, $body) = explode("\x04", $t->text, 2);
-                return $what == 'body' ? $body : $title;
+                $data = $t->getComplex();
+                if (isset($data[$what]))
+                    return $data[$what];
             }
         }
-
         return $this->ht[$what];
+    }
+
+    function getAllTranslations() {
+        if (!isset($this->_local)) {
+            $tag = $this->getTranslateTag('name:body');
+            $this->_local = CustomDataTranslation::allTranslations($tag, 'article');
+        }
+        return $this->_local;
     }
 
     function getNotes() {
@@ -323,18 +326,21 @@ class Page {
     function saveTranslations($vars, &$errors) {
         global $thisstaff;
 
-        $tag = $this->getTranslateTag('title:body');
+        $tag = $this->getTranslateTag('name:body');
         $translations = CustomDataTranslation::allTranslations($tag, 'article');
         foreach ($translations as $t) {
             $title = @$vars['trans'][$t->lang]['title'];
             $body = @$vars['trans'][$t->lang]['body'];
             if (!$title && !$body)
                 continue;
+
             // Content is not new and shouldn't be added below
             unset($vars['trans'][$t->lang]['title']);
             unset($vars['trans'][$t->lang]['body']);
-            $content = $title . "\x04" . Format::sanitize($body);
-            if ($content == $t->text)
+            $content = array('name' => $title, 'body' => Format::sanitize($body));
+
+            // Don't update content which wasn't updated
+            if ($content == $t->getComplex())
                 continue;
 
             $t->text = $content;
@@ -345,10 +351,8 @@ class Page {
         }
         // New translations (?)
         foreach ($vars['trans'] as $lang=>$parts) {
-            $title = @$parts['title'];
-            $body = @$parts['body'];
-            $content = $title . "\x04" . Format::sanitize($body);
-            if ($content == "\x04")
+            $content = array('name' => @$parts['title'], 'body' => Format::sanitize(@$parts['body']));
+            if (!array_filter($content))
                 continue;
             $t = CustomDataTranslation::create(array(
                 'type'      => 'article',

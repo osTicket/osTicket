@@ -866,6 +866,9 @@ class CustomDataTranslation extends VerySimpleModel {
     const FLAG_FUZZY        = 0x01;     // Source string has been changed
     const FLAG_UNAPPROVED   = 0x02;     // String has been reviewed by an authority
     const FLAG_CURRENT      = 0x04;     // If more than one version exist, this is current
+    const FLAG_COMPLEX      = 0x08;     // Multiple strings in one translation. For instance article title and body
+
+    var $_complex;
 
     static function lookup($msgid, $flags=0) {
         if (!is_string($msgid))
@@ -930,8 +933,90 @@ class CustomDataTranslation extends VerySimpleModel {
         return $msgid;
     }
 
+    /**
+     * Decode complex translation message. Format is given in the $text
+     * parameter description. Complex data should be stored with the
+     * FLAG_COMPLEX flag set, and allows for complex key:value paired data
+     * to be translated. This is useful for strings which are translated
+     * together, such as the title and the body of an article. Storing the
+     * data in a single, complex record allows for a single database query
+     * to fetch or update all data for a particular object, such as a
+     * knowledgebase article. It also simplifies search indexing as only one
+     * translation record could be added for all the translatable elements
+     * for a single translatable object.
+     *
+     * Caveats:
+     * ::$text will return the stored, complex text. Use ::getComplex() to
+     * decode the complex storage format and retrieve the array.
+     *
+     * Parameters:
+     * $text - (string) - encoded text with the following format
+     *      version \x03 key \x03 item1 \x03 key \x03 item2 ...
+     *
+     * Returns:
+     * (array) key:value pairs of translated content
+     */
+    function decodeComplex($text) {
+        $blocks = explode("\x03", $text);
+        $version = array_shift($blocks);
+
+        $data = array();
+        switch ($version) {
+        case 'A':
+            while (count($blocks) > 1) {
+                $key = array_shift($blocks);
+                $data[$key] = array_shift($blocks);
+            }
+            break;
+        default:
+            throw new Exception($version . ': Unknown complex format');
+        }
+
+        return $data;
+    }
+
+    /**
+     * Encode complex content using the format outlined in ::decodeComplex.
+     *
+     * Caveats:
+     * This method does not set the FLAG_COMPLEX flag for this record, which
+     * should be set when storing complex data.
+     */
+    static function encodeComplex(array $data) {
+        $encoded = 'A';
+        foreach ($data as $key=>$text) {
+            $encoded .= "\x03{$key}\x03{$text}";
+        }
+        return $encoded;
+    }
+
+    function getComplex() {
+        if (!$this->flags && self::FLAG_COMPLEX)
+            throw new Exception('Data consistency error. Translation is not complex');
+        if (!isset($this->_complex))
+            $this->_complex = $this->decodeComplex($this->text);
+        return $this->_complex;
+    }
+
     static function translateArticle($msgid, $locale=false) {
         return static::translate($msgid, $locale, false, 'article');
+    }
+
+    function save($refetch=false) {
+        if (isset($this->text) && is_array($this->text)) {
+            $this->text = static::encodeComplex($this->text);
+            $this->flags |= self::FLAG_COMPLEX;
+        }
+        return parent::save($refetch);
+    }
+
+    static function create(array $ht=array()) {
+        if (is_array($ht['text'])) {
+            // The parent constructor does not honor arrays
+            $ht['text'] = static::encodeComplex($ht['text']);
+            $ht['flags'] = ($ht['flags'] ?: 0) | self::FLAG_COMPLEX;
+        }
+        return parent::create($ht);
     }
 
     static function allTranslations($msgid, $type='phrase', $lang=false) {
