@@ -116,7 +116,7 @@ class GenericAttachments {
     function getId() { return $this->id; }
     function getType() { return $this->type; }
 
-    function upload($files, $inline=false) {
+    function upload($files, $inline=false, $lang=false) {
         $i=array();
         if (!is_array($files)) $files=array($files);
         foreach ($files as $file) {
@@ -134,6 +134,9 @@ class GenericAttachments {
                 .',object_id='.db_input($this->getId())
                 .',file_id='.db_input($fileId)
                 .',inline='.db_input($_inline ? 1 : 0);
+            if ($lang)
+                $sql .= ',lang='.db_input($lang);
+
             // File may already be associated with the draft (in the
             // event it was deleted and re-added)
             if (db_query($sql, function($errno) { return $errno != 1062; })
@@ -164,14 +167,14 @@ class GenericAttachments {
         return $fileId;
     }
 
-    function getInlines() { return $this->_getList(false, true); }
-    function getSeparates() { return $this->_getList(true, false); }
-    function getAll() { return $this->_getList(true, true); }
+    function getInlines($lang=false) { return $this->_getList(false, true, $lang); }
+    function getSeparates($lang=false) { return $this->_getList(true, false, $lang); }
+    function getAll($lang=false) { return $this->_getList(true, true, $lang); }
 
-    function _getList($separate=false, $inlines=false) {
+    function _getList($separate=false, $inlines=false, $lang=false) {
         if(!isset($this->attachments)) {
             $this->attachments = array();
-            $sql='SELECT f.id, f.size, f.`key`, f.name, a.inline '
+            $sql='SELECT f.id, f.size, f.`key`, f.name, a.inline, a.lang '
                 .' FROM '.FILE_TABLE.' f '
                 .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
                 .' WHERE a.`type`='.db_input($this->getType())
@@ -186,7 +189,8 @@ class GenericAttachments {
         }
         $attachments = array();
         foreach ($this->attachments as $a) {
-            if ($a['inline'] != $separate || $a['inline'] == $inlines) {
+            if (($a['inline'] != $separate || $a['inline'] == $inlines)
+                    && $lang == $a['lang']) {
                 $a['file_id'] = $a['id'];
                 $a['hash'] = md5($a['file_id'].session_id().strtolower($a['key']));
                 $attachments[] = $a;

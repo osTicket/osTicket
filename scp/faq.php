@@ -23,16 +23,42 @@ if($_REQUEST['id'] && !($faq=FAQ::lookup($_REQUEST['id'])))
 if($_REQUEST['cid'] && !$faq && !($category=Category::lookup($_REQUEST['cid'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid'), __('FAQ category'));
 
-$faq_form = new Form(array(
+$form_fields = array(
+    // Attachments for all languages — that is, attachments not specific to
+    // a particular language
     'attachments' => new FileUploadField(array('id'=>'attach',
         'configuration'=>array('extensions'=>false,
             'size'=>$cfg->getMaxFileSize())
-   )),
-));
+    )),
+);
 
-if($_POST):
+// Build attachment lists for language-specific attachment fields
+if ($langs = $cfg->getSecondaryLanguages()) {
+    // Primary-language specific files
+    $langs[] = $cfg->getPrimaryLanguage();
+    // Secondary-language specific files
+    foreach ($langs as $l) {
+        $form_fields['attachments.'.$l] = new FileUploadField(array(
+            'id'=>'attach','name'=>'attach:'.$l,
+            'configuration'=>array('extensions'=>false,
+                'size'=>$cfg->getMaxFileSize())
+        ));
+    }
+}
+
+$faq_form = new Form($form_fields, $_POST);
+
+if ($_POST) {
     $errors=array();
+    // General attachments
     $_POST['files'] = $faq_form->getField('attachments')->getClean();
+    // Language-specific attachments
+    if ($langs) {
+        $langs[] = $cfg->getPrimaryLanguage();
+        foreach ($langs as $lang) {
+            $_POST['files_'.$lang] = $faq_form->getField('attachments.'.$lang)->getClean();
+        }
+    }
     switch(strtolower($_POST['do'])) {
         case 'create':
         case 'add':
@@ -97,8 +123,32 @@ if($_POST):
             $errors['err']=__('Unknown action');
 
     }
-endif;
-
+}
+else {
+    // Not a POST — load database-backed attachments to attachment fields
+    if ($langs && $faq) {
+        // Multi-lingual system
+        foreach ($langs as $lang) {
+            $attachments = $faq_form->getField('attachments.'.$lang);
+            if ($files = $faq->attachments->getSeparates($lang)) {
+                $ids = array();
+                foreach ($files as $f)
+                    $ids[] = $f['id'];
+                $attachments->value = $ids;
+            }
+        }
+    }
+    if ($faq) {
+        // Common attachments
+        $attachments = $faq_form->getField('attachments');
+        if ($files = $faq->attachments->getSeparates()) {
+            $ids = array();
+            foreach ($files as $f)
+                $ids[] = $f['id'];
+            $attachments->value = $ids;
+        }
+    }
+}
 
 $inc='faq-categories.inc.php'; //FAQs landing page.
 if($faq) {
