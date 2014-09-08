@@ -12,6 +12,20 @@ if($faq){
     $info['answer']=Format::viewableImages($faq->getAnswer());
     $info['notes']=Format::viewableImages($faq->getNotes());
     $qstr='id='.$faq->getId();
+    $langs = $cfg->getSecondaryLanguages();
+    $translations = $faq->getAllTranslations();
+    foreach ($cfg->getSecondaryLanguages() as $tag) {
+        foreach ($translations as $t) {
+            if (strcasecmp($t->lang, $tag) === 0) {
+                $trans = $t->getComplex();
+                $info['trans'][$tag] = array(
+                    'question' => $trans['q'],
+                    'answer' => Format::viewableImages($trans['a']),
+                );
+                break;
+            }
+        }
+    }
 }else {
     $title=__('Add New FAQ');
     $action='create';
@@ -30,122 +44,194 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo __('FAQ');?></h2>
- <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr><td></td><td></td></tr> <!-- For fixed table layout -->
-        <tr>
-            <th colspan="2">
-                <h4><?php echo $title; ?></h4>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <th colspan="2">
-                <em><?php echo __('FAQ Information');?></em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <div style="padding-top:3px;"><b><?php echo __('Question');?></b>&nbsp;<span class="error">*&nbsp;<?php echo $errors['question']; ?></span></div>
-                    <input type="text" size="70" name="question" value="<?php echo $info['question']; ?>">
-            </td>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <div><b><?php echo __('Category Listing');?></b>:&nbsp;<span class="faded"><?php echo __('FAQ category the question belongs to.');?></span></div>
-                <select name="category_id" style="width:350px;">
-                    <option value="0"><?php echo __('Select FAQ Category');?> </option>
-                    <?php
-                    $sql='SELECT category_id, name, ispublic FROM '.FAQ_CATEGORY_TABLE;
-                    if(($res=db_query($sql)) && db_num_rows($res)) {
-                        while($row=db_fetch_array($res)) {
-                            echo sprintf('<option value="%d" %s>%s (%s)</option>',
-                                    $row['category_id'],
-                                    (($info['category_id']==$row['category_id'])?'selected="selected"':''),
-                                    $row['name'],
-                                    ($info['ispublic']?__('Public'):__('Internal')));
-                        }
-                    }
-                   ?>
-                </select>
-                <span class="error">*&nbsp;<?php echo $errors['category_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <div><b><?php echo __('Listing Type');?></b>:
-                &nbsp;<i class="help-tip icon-question-sign" href="#listing_type"></i></div>
-                <input type="radio" name="ispublished" value="1" <?php echo $info['ispublished']?'checked="checked"':''; ?>><?php echo __('Public (publish)');?>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" name="ispublished" value="0" <?php echo !$info['ispublished']?'checked="checked"':''; ?>><?php echo __('Internal (private)');?>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['ispublished']; ?></span>
-            </td>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <div style="margin-bottom:0.5em;margin-top:0.5em">
-                    <b><?php echo __('Answer');?></b>&nbsp;<font class="error">*&nbsp;<?php echo $errors['answer']; ?></font></div>
-                </div>
-                <textarea name="answer" cols="21" rows="12"
-                    style="width:98%;" class="richtext draft" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq',
-        is_object($faq) ? $faq->getId() : false, $info['answer']);
-    echo $attrs; ?>><?php echo $draft ?: $info['answer'];
-                ?></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <div><h3><?php echo __('Attachments');?>
-                    <span class="faded">(<?php echo __('optional');?>)</span></h3>
-                    <div class="error"><?php echo $errors['files']; ?></div>
-                </div>
-                <?php
-                $attachments = $faq_form->getField('attachments');
-                if ($faq && ($files=$faq->attachments->getSeparates())) {
-                    $ids = array();
-                    foreach ($files as $f)
-                        $ids[] = $f['id'];
-                    $attachments->value = $ids;
-                }
-                print $attachments->render(); ?>
-                <br/>
-            </td>
-        </tr>
+<?php if ($info['question']) { ?>
+     <h4><?php echo $info['question']; ?></h4>
+<?php } ?>
+ <div>
+    <div>
+        <b><?php echo __('Category Listing');?></b>:
+        <span class="error">*</span>
+        <span class="faded"><?php echo __('FAQ category the question belongs to.');?></span>
+    </div>
+    <select name="category_id" style="width:350px;">
+        <option value="0"><?php echo __('Select FAQ Category');?> </option>
         <?php
-        if ($topics = Topic::getAllHelpTopics()) { ?>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Help Topics');?></strong>: <?php echo __('Check all help topics related to this FAQ.');?></em>
-            </th>
-        </tr>
-        <tr><td colspan="2">
-            <?php
-            while (list($topicId,$topic) = each($topics)) {
-                echo sprintf('<input type="checkbox" name="topics[]" value="%d" %s>%s<br>',
-                        $topicId,
-                        (($info['topics'] && in_array($topicId,$info['topics']))?'checked="checked"':''),
-                        $topic);
+        $sql='SELECT category_id, name, ispublic FROM '.FAQ_CATEGORY_TABLE;
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while($row=db_fetch_array($res)) {
+                echo sprintf('<option value="%d" %s>%s (%s)</option>',
+                        $row['category_id'],
+                        (($info['category_id']==$row['category_id'])?'selected="selected"':''),
+                        $row['name'],
+                        ($info['ispublic']?__('Public'):__('Internal')));
             }
-             ?>
-            </td>
-        </tr>
-        <?php
-        } ?>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Internal Notes');?></strong>: &nbsp;</em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <textarea class="richtext no-bar" name="notes" cols="21"
-                    rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
-            </td>
-        </tr>
-    </tbody>
-</table>
+        }
+       ?>
+    </select>
+    <div class="error"><?php echo $errors['category_id']; ?></div>
+
+<?php
+if ($topics = Topic::getAllHelpTopics()) { ?>
+    <div style="padding-top:9px">
+        <strong><?php echo __('Help Topics');?></strong>:
+        <?php echo __('Check all help topics related to this FAQ.');?>
+    </div>
+    <select multiple="multiple" name="topics[]" class="multiselect"
+        id="help-topic-selection" style="width:350px;">
+    <?php while (list($topicId,$topic) = each($topics)) { ?>
+        <option value="<?php echo $topicId; ?>" <?php
+            if (in_array($topicID, $info['topics'])) echo 'selected="selected"';
+        ?>><?php echo $topic; ?></option>
+    <?php } ?>
+    </select>
+    <script type="text/javascript">
+        $(function() { $("#help-topic-selection").multiselect({
+            noneSelectedText: '<?php echo __('Help Topics'); ?>'});
+         });
+    </script>
+<?php } ?>
+
+    <div style="padding-top:9px;">
+        <b><?php echo __('Listing Type');?></b>:
+        <span class="error">*</span>
+        <i class="help-tip icon-question-sign" href="#listing_type"></i>
+    </div>
+    <select name="ispublished">
+        <option value="1" <?php echo $info['ispublished'] ? 'selected="selected"' : ''; ?>>
+            <?php echo __('Public (publish)'); ?>
+        </option>
+        <option value="0" <?php echo !$info['ispublished'] ? 'selected="selected"' : ''; ?>>
+            <?php echo __('Internal (private)'); ?>
+        </option>
+    </select>
+    <div class="error"><?php echo $errors['ispublished']; ?></div>
+</div>
+
+<ul class="tabs" style="margin-top:9px;">
+    <li class="active"><a class="active" href="#article"><?php echo __('Article Content'); ?></a></li>
+    <li><a href="#attachments"><?php echo __('Attachments') . sprintf(' (%d)',
+        count($faq->attachments->getSeparates(''))); ?></a></li>
+    <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
+</ul>
+
+<div class="tab_content" id="article">
+<?php if ($faq && ($langs = $cfg->getSecondaryLanguages())) { ?>
+    <div class="banner" style="margin-top:12px;">&nbsp;
+        <span class="pull-left" style="padding-top:2px">
+            <i class="icon-globe icon-large"></i>
+            <?php echo __('This content is translatable'); ?>
+        </span>
+        <span class="pull-right">
+        <?php echo __('View'); ?>:
+        <select onchange="javascript:
+$('option', this).each(function(){$($(this).val()).hide()});
+$($('option:selected', this).val()).show(); ">
+            <option value="#reference-text"><?php echo
+            Internationalization::getLanguageDescription($cfg->getPrimaryLanguage());
+            ?> — <?php echo __('Primary'); ?></option>
+<?php   foreach ($langs as $tag) { ?>
+            <option value="#translation-<?php echo $tag; ?>"><?php echo
+            Internationalization::getLanguageDescription($tag);
+            ?></option>
+<?php   } ?>
+        </select>
+        </span>
+    </div>
+<?php } ?>
+
+    <div id="reference-text">
+    <div style="padding-top:9px;">
+        <b><?php echo __('Question');?>
+            <span class="error">*</span>
+        </b>
+        <div class="error"><?php echo $errors['question']; ?></div>
+    </div>
+    <input type="text" size="70" name="question"
+        style="font-size:105%;display:block;width:98%"
+        value="<?php echo $info['question']; ?>">
+    <div style="margin-bottom:0.5em;margin-top:9px">
+        <b><?php echo __('Answer');?></b>
+        <span class="error">*</span>
+        <div class="error"><?php echo $errors['answer']; ?></div>
+    </div>
+    <textarea name="answer" cols="21" rows="12"
+        style="width:98%;" class="richtext draft" <?php
+list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq',
+is_object($faq) ? $faq->getId() : false, $info['answer']);
+echo $attrs; ?>><?php echo $draft ?: $info['answer'];
+        ?></textarea>
+
+<?php if (count($langs)) {
+    $lang = $cfg->getPrimaryLanguage(); ?>
+    <div style="padding-top:9px">
+        <strong><?php echo sprintf(__(
+            /* %s is the name of a language */ 'Attachments for %s'),
+            Internationalization::getLanguageDescription($lang));
+        ?></strong>
+    <div style="margin:0 0 3px"><em class="faded"><?php echo __(
+        'These attachments are only available when article is rendered in this language.'
+    ); ?></em></div>
+    </div>
+    <?php
+    print $faq_form->getField('attachments.'.$lang)->render(); ?>
+<?php } ?>
+    </div> <!-- end of reference-text -->
+
+<?php if ($langs && $faq) {
+    foreach ($langs as $tag) { ?>
+    <div id="translation-<?php echo $tag; ?>" style="display:none" lang="<?php echo $tag; ?>">
+    <div style="padding-top:9px;">
+        <b><?php echo __('Question');?>
+            <span class="error">*</span>
+        </b>
+        <div class="error"><?php echo $errors['question']; ?></div>
+    </div>
+    <input type="text" size="70" name="trans[<?php echo $tag; ?>][question]"
+        style="font-size:105%;display:block;width:98%"
+        value="<?php echo $info['trans'][$tag]['question']; ?>">
+    <div style="margin-bottom:0.5em;margin-top:9px">
+        <b><?php echo __('Answer');?></b>
+        <span class="error">*</span>
+        <div class="error"><?php echo $errors['answer']; ?></div>
+    </div>
+    <textarea name="trans[<?php echo $tag; ?>][answer]" cols="21" rows="12"
+        style="width:98%;" class="richtext draft" <?php
+list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq', $faq->getId().'.'.$tag,
+    $info['trans'][$tag]['answer']);
+echo $attrs; ?>><?php echo $draft ?: $info['trans'][$tag]['answer'];
+        ?></textarea>
+
+    <div style="padding-top:9px">
+    <strong><?php echo sprintf(__('Attachments for %s'),
+        Internationalization::getLanguageDescription($tag));
+    ?></strong>
+    <div style="margin:0 0 3px"><em class="faded"><?php echo __(
+        'These attachments are only available when article is rendered in this language.'
+    ); ?></em></div>
+    </div>
+    <?php
+    print $faq_form->getField('attachments.'.$tag)->render(); ?>
+    </div> <!-- End of this language -->
+<?php } ?>
+<?php } ?>
+</div>
+
+<div class="tab_content" id="attachments" style="display:none">
+    <div>
+        <p><em><?php echo __(
+            'These attachments are always available, regardless of the language in which the article is rendered'
+        ); ?></em></p>
+        <div class="error"><?php echo $errors['files']; ?></div>
+    </div>
+    <?php
+    print $faq_form->getField('attachments')->render(); ?>
+</div>
+
+<div class="tab_content" style="display:none;" id="notes">
+    <textarea class="richtext no-bar" name="notes" cols="21"
+        rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+</div>
+
 <p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>" onclick="javascript:
@@ -155,3 +241,5 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick='window.location.href="faq.php?<?php echo $qstr; ?>"'>
 </p>
 </form>
+
+<link rel="stylesheet" type="text/css" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css" />
