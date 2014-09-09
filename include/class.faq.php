@@ -199,7 +199,7 @@ class FAQ {
             if($attachment['size'])
                 $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
 
-            $str.=sprintf('<a class="Icon file" href="file.php?h=%s" target="%s">%s</a>%s&nbsp;%s',
+            $str.=sprintf('<a class="Icon file no-pjax" href="file.php?h=%s" target="%s">%s</a>%s&nbsp;%s',
                     $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
 
             }
