@@ -6,7 +6,7 @@ $select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id
         .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
         .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
         .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic '
-        .' ,cdata.priority_id, cdata.subject, user.name, email.address as email';
+        .' ,cdata.priority as priority_id, cdata.subject, user.name, email.address as email';
 
 $from =' FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
@@ -20,7 +20,7 @@ $from =' FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
       .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) '
       .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id) '
-      .' LEFT JOIN '.PRIORITY_TABLE.' pri ON (pri.priority_id = cdata.priority_id)';
+      .' LEFT JOIN '.PRIORITY_TABLE.' pri ON (pri.priority_id = cdata.priority)';
 
 if ($user)
     $where = 'WHERE ticket.user_id = '.db_input($user->getId());
