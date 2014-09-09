@@ -85,11 +85,11 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                 $_REQUEST['a']=null;
                 //Upload attachments
                 $keepers = $canned_form->getField('attachments')->getClean();
-                if ($keepers && ($c=Canned::lookup($id)))
+                if (($c=Canned::lookup($id)) && $keepers)
                     $c->attachments->upload($keepers);
 
                 // Attach inline attachments from the editor
-                if (isset($_POST['draft_id'])
+                if ($c && isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id'])))
                     $c->attachments->upload(
                         $draft->getAttachmentIds($_POST['response']), true);
