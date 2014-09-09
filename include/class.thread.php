@@ -1411,9 +1411,9 @@ class TextThreadBody extends ThreadBody {
 }
 class HtmlThreadBody extends ThreadBody {
     function __construct($body, $options=array()) {
+        if ($options['strip-embedded'])
+            $body = $this->extractEmbeddedHtmlImages($body);
         parent::__construct($body, 'html', $options);
-        if ($this->options['strip-embedded'])
-            $this->body = $this->extractEmbeddedHtmlImages($this->body);
     }
 
     function extractEmbeddedHtmlImages($body) {
