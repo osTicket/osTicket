@@ -308,8 +308,12 @@ class MysqlSearchBackend extends SearchBackend {
                     case 'state':
                         $where[] = 'A2.state = '.db_input($value);
                         break;
+                    case 'state__in':
+                        $where[] = 'A2.state IN ('.implode(',',db_input($value)).')';
+                        break;
                     case 'topic_id':
                     case 'staff_id':
+                    case 'team_id':
                     case 'dept_id':
                     case 'user_id':
                     case 'isanswered':
