@@ -80,7 +80,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                 <tr>
                     <td colspan="2">
                         <?php
-                        $placeholder = __('Optional reason for status change (internal note)');
+                        $placeholder = $info['placeholder'] ?: __('Optional reason for status change (internal note)');
                         ?>
                         <textarea name="comments" id="comments"
                             cols="50" rows="3" wrap="soft" style="width:100%"
