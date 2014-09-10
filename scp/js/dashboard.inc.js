@@ -250,6 +250,7 @@
                 // ------------------------> Export <-----------------------
                 $('<a>').attr({'href':'ajax.php/report/overview/table/export?group='
                         +group+'&start='+start+'&stop='+stop}).append('Export')
+                    .addClass('no-pjax')
                     .appendTo($('<li>')
                     .appendTo(p));
 

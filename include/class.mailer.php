@@ -155,6 +155,13 @@ class Mailer {
             }
         }
 
+        // Use Mail_mime default initially
+        $eol = null;
+
+        // MAIL_EOL setting can be defined in `ost-config.php`
+        if (defined('MAIL_EOL') && is_string(MAIL_EOL)) {
+            $eol = MAIL_EOL;
+        }
         // The Suhosin patch will muck up the line endings in some
         // cases
         //
@@ -162,12 +169,12 @@ class Mailer {
         // https://github.com/osTicket/osTicket-1.8/issues/202
         // http://pear.php.net/bugs/bug.php?id=12032
         // http://us2.php.net/manual/en/function.mail.php#97680
-        if ((extension_loaded('suhosin') || defined("SUHOSIN_PATCH"))
-                && !$this->getSMTPInfo())
-            $mime = new Mail_mime("\n");
-        else
-            // Use defaults
-            $mime = new Mail_mime();
+        elseif ((extension_loaded('suhosin') || defined("SUHOSIN_PATCH"))
+            && !$this->getSMTPInfo()
+        ) {
+            $eol = "\n";
+        }
+        $mime = new Mail_mime($eol);
 
         // If the message is not explicitly declared to be a text message,
         // then assume that it needs html processing to create a valid text
