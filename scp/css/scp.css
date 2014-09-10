@@ -955,6 +955,11 @@ ul.tabs li.active a {
     font-weight: bold;
 }
 
+ul.tabs li.empty {
+    padding: 5px;
+    border: none !important;
+}
+
 ul.tabs.vertical {
     display: inline-block;
     height: auto;
