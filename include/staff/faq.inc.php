@@ -113,7 +113,7 @@ if ($topics = Topic::getAllHelpTopics()) {
 <ul class="tabs" style="margin-top:9px;">
     <li class="active"><a href="#article"><?php echo __('Article Content'); ?></a></li>
     <li><a href="#attachments"><?php echo __('Attachments') . sprintf(' (%d)',
-        count($faq->attachments->getSeparates(''))); ?></a></li>
+        $faq ? count($faq->attachments->getSeparates('')) : 0); ?></a></li>
     <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
 </ul>
 
@@ -150,7 +150,7 @@ if ($faq) { ?>
         $aname = 'answer';
     }
     else {
-        $namespace = $faq->getId() . $code;
+        $namespace = $faq ? $faq->getId() . $code : $code;
         $answer = $info['trans'][$code]['answer'];
         $question = $info['trans'][$code]['question'];
         $qname = 'trans['.$code.'][question]';

@@ -13,156 +13,114 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Category {
-    var $id;
-    var $ht;
+class Category extends VerySimpleModel {
 
-    function Category($id) {
-        $this->id=0;
-        $this->load($id);
-    }
-
-    function load($id) {
-
-        $sql=' SELECT cat.*,count(faq.faq_id) as faqs '
-            .' FROM '.FAQ_CATEGORY_TABLE.' cat '
-            .' LEFT JOIN '.FAQ_TABLE.' faq ON(faq.category_id=cat.category_id) '
-            .' WHERE cat.category_id='.db_input($id)
-            .' GROUP BY cat.category_id';
-
-        if (!($res=db_query($sql)) || !db_num_rows($res)) 
-            return false;
-
-        $this->ht = db_fetch_array($res);
-        $this->id = $this->ht['category_id'];
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load($this->getId());
-    }
+    static $meta = array(
+        'table' => FAQ_CATEGORY_TABLE,
+        'pk' => array('category_id'),
+        'ordering' => array('name'),
+        'joins' => array(
+            'faqs' => array(
+                'reverse' => 'FAQ.category_id'
+            ),
+        ),
+    );
 
     /* ------------------> Getter methods <--------------------- */
-    function getId() { return $this->id; }
-    function getName() { return $this->ht['name']; }
-    function getNumFAQs() { return  $this->ht['faqs']; }
-    function getDescription() { return $this->ht['description']; }
-    function getNotes() { return $this->ht['notes']; }
-    function getCreateDate() { return $this->ht['created']; }
-    function getUpdateDate() { return $this->ht['updated']; }
+    function getId() { return $this->category_id; }
+    function getName() { return $this->name; }
+    function getNumFAQs() { return  $this->faqs->count(); }
+    function getDescription() { return $this->description; }
+    function getNotes() { return $this->notes; }
+    function getCreateDate() { return $this->created; }
+    function getUpdateDate() { return $this->updated; }
 
-    function isPublic() { return ($this->ht['ispublic']); }
+    function isPublic() { return $this->ispublic; }
     function getHashtable() { return $this->ht; }
-    
+
     /* ------------------> Setter methods <--------------------- */
-    function setName($name) { $this->ht['name']=$name; }
-    function setNotes($notes) { $this->ht['notes']=$notes; }
-    function setDescription($desc) { $this->ht['description']=$desc; }
+    function setName($name) { $this->name=$name; }
+    function setNotes($notes) { $this->notes=$notes; }
+    function setDescription($desc) { $this->description=$desc; }
 
     /* --------------> Database access methods <---------------- */
-    function update($vars, &$errors) { 
+    function update($vars, &$errors, $validation=false) {
 
-        if(!$this->save($this->getId(), $vars, $errors))
+        // Cleanup.
+        $vars['name'] = Format::striptags(trim($vars['name']));
+
+        // Validate
+        if ($vars['id'] && $this->getId() != $vars['id'])
+            $errors['err'] = __('Internal error occurred');
+
+        if (!$vars['name'])
+            $errors['name'] = __('Category name is required');
+        elseif (strlen($vars['name']) < 3)
+            $errors['name'] = __('Name is too short. 3 chars minimum');
+        elseif (($cid=self::findIdByName($vars['name'])) && $cid != $vars['id'])
+            $errors['name'] = __('Category already exists');
+
+        if (!$vars['description'])
+            $errors['description'] = __('Category description is required');
+
+        if ($errors)
             return false;
 
-        //TODO: move FAQs if requested.
+        /* validation only */
+        if ($validation)
+            return true;
 
-        $this->reload();
+        $this->ispublic = !!$vars['public'];
+        $this->name = $vars['name'];
+        $this->description = Format::sanitize($vars['description']);
+        $this->notes = Format::sanitize($vars['notes']);
+
+        if (!$this->save())
+            return false;
+
+        // TODO: Move FAQs if requested.
 
         return true;
     }
 
     function delete() {
-
-        $sql='DELETE FROM '.FAQ_CATEGORY_TABLE
-            .' WHERE category_id='.db_input($this->getId())
-            .' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())) {
-            db_query('DELETE FROM '.FAQ_TABLE
-                    .' WHERE category_id='.db_input($this->getId()));
-    
+        try {
+            parent::delete();
+            $this->faqs->expunge();
         }
+        catch (OrmException $e) {
+            return false;
+        }
+        return true;
+    }
 
-        return $num;
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch);
     }
 
     /* ------------------> Static methods <--------------------- */
 
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($c = new Category($id)))?$c:null;
+    static function findIdByName($name) {
+        $object = self::objects()->filter(array(
+            'name'=>$name
+        ))->values_flat('category_id')->one();
+
+        if ($object)
+            return $object[0];
     }
 
-    function findIdByName($name) {
-        $sql='SELECT category_id FROM '.FAQ_CATEGORY_TABLE.' WHERE name='.db_input($name);
-        list($id) = db_fetch_row(db_query($sql));
-
-        return $id;
+    static function findByName($name) {
+        return self::objects()->filter(array(
+            'name'=>$name
+        ))->one();
     }
 
-    function findByName($name) {
-        if(($id=self::findIdByName($name)))
-            return new Category($id);
-
-        return false;
-    }
-
-    function validate($vars, &$errors) {
-         return self::save(0, $vars, $errors,true);
-    }
-
-    function create($vars, &$errors) {
-        return self::save(0, $vars, $errors);
-    }
-
-    function save($id, $vars, &$errors, $validation=false) {
-
-        //Cleanup.
-        $vars['name']=Format::striptags(trim($vars['name']));
-
-        //validate
-        if($id && $id!=$vars['id'])
-            $errors['err']=__('Internal error occurred');
-
-        if(!$vars['name'])
-            $errors['name']=__('Category name is required');
-        elseif(strlen($vars['name'])<3)
-            $errors['name']=__('Name is too short. 3 chars minimum');
-        elseif(($cid=self::findIdByName($vars['name'])) && $cid!=$id)
-            $errors['name']=__('Category already exists');
-
-        if(!$vars['description'])
-            $errors['description']=__('Category description is required');
-
-        if($errors) return false;
-
-        /* validation only */
-        if($validation) return true;
-
-        //save
-        $sql=' updated=NOW() '.
-             ',ispublic='.db_input(isset($vars['ispublic'])?$vars['ispublic']:0).
-             ',name='.db_input($vars['name']).
-             ',description='.db_input(Format::sanitize($vars['description'])).
-             ',notes='.db_input(Format::sanitize($vars['notes']));
-
-        if($id) {
-            $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET '.$sql.' WHERE category_id='.db_input($id);
-            if(db_query($sql))
-                return true;
-
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this FAQ category'));
-
-        } else {
-            $sql='INSERT INTO '.FAQ_CATEGORY_TABLE.' SET '.$sql.',created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
-
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ category'))
-               .' '.__('Internal error occurred');
-        }
-
-        return false;
+    static function create($vars) {
+        $category = parent::create($vars);
+        $category->created = SqlFunction::NOW();
+        return $category;
     }
 }
 ?>

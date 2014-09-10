@@ -15,81 +15,58 @@
 require_once('class.file.php');
 require_once('class.category.php');
 
-class FAQ {
+class FAQ extends VerySimpleModel {
 
-    var $id;
-    var $ht;
+    static $meta = array(
+        'table' => FAQ_TABLE,
+        'pk' => array('faq_id'),
+        'ordering' => array('question'),
+        'joins' => array(
+            'category' => array(
+                'constraint' => array(
+                    'category_id' => 'Category.category_id'
+                ),
+            ),
+        ),
+    );
 
-    var $category;
     var $attachments;
+    var $topics;
 
-    function FAQ($id) {
-        $this->id=0;
-        $this->ht = array();
-        $this->load($id);
-    }
-
-    function load($id) {
-
-        $sql='SELECT faq.*,cat.ispublic, count(attach.file_id) as attachments '
-            .' FROM '.FAQ_TABLE.' faq '
-            .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-                 ON(attach.object_id=faq.faq_id AND attach.`type`=\'F\' AND attach.inline=0) '
-            .' WHERE faq.faq_id='.db_input($id)
-            .' GROUP BY faq.faq_id';
-
-        if (!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht = db_fetch_array($res);
-        $this->ht['id'] = $this->id = $this->ht['faq_id'];
-        $this->category = null;
-        $this->attachments = new GenericAttachments($this->id, 'F');
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load($this->getId());
+    function __construct() {
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+        $this->attachments = new GenericAttachments($this->getId(), 'F');
     }
 
     /* ------------------> Getter methods <--------------------- */
-    function getId() { return $this->id; }
+    function getId() { return $this->faq_id; }
     function getHashtable() { return $this->ht; }
-    function getKeywords() { return $this->ht['keywords']; }
-    function getQuestion() { return $this->ht['question']; }
-    function getAnswer() { return $this->ht['answer']; }
+    function getKeywords() { return $this->keywords; }
+    function getQuestion() { return $this->question; }
+    function getAnswer() { return $this->answer; }
     function getAnswerWithImages() {
-        return Format::viewableImages($this->ht['answer'], ROOT_PATH.'image.php');
+        return Format::viewableImages($this->answer, ROOT_PATH.'image.php');
     }
     function getSearchableAnswer() {
-        return ThreadBody::fromFormattedText($this->ht['answer'], 'html')
+        return ThreadBody::fromFormattedText($this->answer, 'html')
             ->getSearchable();
     }
-    function getNotes() { return $this->ht['notes']; }
-    function getNumAttachments() { return $this->ht['attachments']; }
+    function getNotes() { return $this->notes; }
+    function getNumAttachments() { return $this->attachments->count(); }
 
-    function isPublished() { return (!!$this->ht['ispublished'] && !!$this->ht['ispublic']); }
+    function isPublished() { return (!!$this->ispublished && !!$this->category->ispublic); }
 
-    function getCreateDate() { return $this->ht['created']; }
-    function getUpdateDate() { return $this->ht['updated']; }
+    function getCreateDate() { return $this->created; }
+    function getUpdateDate() { return $this->updated; }
 
-    function getCategoryId() { return $this->ht['category_id']; }
-    function getCategory() {
-        if(!$this->category && $this->getCategoryId())
-            $this->category = Category::lookup($this->getCategoryId());
-
-        return $this->category;
-    }
+    function getCategoryId() { return $this->category_id; }
+    function getCategory() { return $this->category; }
 
     function getHelpTopicsIds() {
-
-        if (!isset($this->ht['topics']) && ($topics=$this->getHelpTopics())) {
-            $this->ht['topics'] = array_keys($topics);
+        if ($topics=$this->getHelpTopics()) {
+            return array_keys($topics);
         }
-
-        return $this->ht['topics'];
+        return array();
     }
 
     function getHelpTopics() {
@@ -98,7 +75,7 @@ class FAQ {
         if (!isset($this->topics)) {
             $this->topics = array();
             $sql='SELECT t.topic_id, CONCAT_WS(" / ", pt.topic, t.topic) as name  FROM '.TOPIC_TABLE.' t '
-                .' INNER JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.topic_id=t.topic_id AND ft.faq_id='.db_input($this->id).') '
+                .' INNER JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.topic_id=t.topic_id AND ft.faq_id='.db_input($this->getId()).') '
                 .' LEFT JOIN '.TOPIC_TABLE.' pt ON(pt.topic_id=t.topic_pid) '
                 .' ORDER BY t.topic';
             if (($res=db_query($sql)) && db_num_rows($res)) {
@@ -111,11 +88,11 @@ class FAQ {
     }
 
     /* ------------------> Setter methods <--------------------- */
-    function setPublished($val) { $this->ht['ispublished'] = !!$val; }
-    function setQuestion($question) { $this->ht['question'] = Format::striptags(trim($question)); }
-    function setAnswer($text) { $this->ht['answer'] = $text; }
-    function setKeywords($words) { $this->ht['keywords'] = $words; }
-    function setNotes($text) { $this->ht['notes'] = $text; }
+    function setPublished($val) { $this->ispublished = !!$val; }
+    function setQuestion($question) { $this->question = Format::striptags(trim($question)); }
+    function setAnswer($text) { $this->answer = $text; }
+    function setKeywords($words) { $this->keywords = $words; }
+    function setNotes($text) { $this->notes = $text; }
 
     /* For ->attach() and ->detach(), use $this->attachments() (nolint) */
     function attach($file) { return $this->_attachments->add($file); }
@@ -123,27 +100,18 @@ class FAQ {
 
     function publish() {
         $this->setPublished(1);
-
-        return $this->apply();
+        return $this->save();
     }
 
     function unpublish() {
         $this->setPublished(0);
-
-        return $this->apply();
-    }
-
-    /* Same as update - but mainly called after one or more setters are changed. */
-    function apply() {
-        $errors = array();
-        //XXX: set errors and add ->getErrors() & ->getError()
-        return $this->update($this->ht, $errors);
+        return $this->save();
     }
 
     // Internationalization of the knowledge base
 
     function getTranslateTag($subtag) {
-        return _H(sprintf('faq.%s.%s', $subtag, $this->id));
+        return _H(sprintf('faq.%s.%s', $subtag, $this->getId()));
     }
     function getLocal($subtag) {
         $tag = $this->getTranslateTag($subtag);
@@ -177,6 +145,7 @@ class FAQ {
         }
         return $this->ht[$what];
     }
+
     function getLocalAttachments($lang=false) {
         if (!$lang) {
             $lang = Internationalization::getCurrentLanguage();
@@ -205,66 +174,6 @@ class FAQ {
             return false;
 
         Signal::send('model.updated', $this);
-    }
-
-    function update($vars, &$errors) {
-        global $cfg;
-
-        if (!$this->save($this->getId(), $vars, $errors))
-            return false;
-
-        $this->updateTopics($vars['topics']);
-
-        // General attachments (for all languages)
-        // ---------------------
-        // Delete removed attachments.
-        if (isset($vars['files'])) {
-            $keepers = $vars['files'];
-            if (($attachments = $this->attachments->getSeparates())) {
-                foreach($attachments as $file) {
-                    if($file['id'] && !in_array($file['id'], $keepers))
-                        $this->attachments->delete($file['id']);
-                }
-            }
-        }
-        // Upload new attachments IF any.
-        $this->attachments->upload($keepers);
-
-        // Handle language-specific attachments
-        // ----------------------
-        $langs = $cfg ? $cfg->getSecondaryLanguages() : false;
-        if ($langs) {
-            $langs[] = $cfg->getPrimaryLanguage();
-            foreach ($langs as $lang) {
-                if (!isset($vars['files_'.$lang]))
-                    // Not updating the FAQ
-                    continue;
-
-                $keepers = $vars['files_'.$lang];
-
-                // Delete removed attachments.
-                if (($attachments = $this->attachments->getSeparates($lang))) {
-                    foreach ($attachments as $file) {
-                        if ($file['id'] && !in_array($file['id'], $keepers))
-                            $this->attachments->delete($file['id']);
-                    }
-                }
-                // Upload new attachments IF any.
-                $this->attachments->upload($keepers, false, $lang);
-            }
-        }
-
-        // Inline images (attached to the draft)
-        $this->attachments->deleteInlines();
-        $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
-
-        if (isset($vars['trans']) && !$this->saveTranslations($vars))
-            return false;
-
-        $this->reload();
-
-        Signal::send('model.updated', $this);
-        return true;
     }
 
     function saveTranslations($vars) {
@@ -335,127 +244,144 @@ class FAQ {
     }
 
     function delete() {
-
-        $sql='DELETE FROM '.FAQ_TABLE
-            .' WHERE faq_id='.db_input($this->getId())
-            .' LIMIT 1';
-        if(!db_query($sql) || !db_affected_rows())
+        try {
+            parent::delete();
+            // Cleanup help topics.
+            db_query('DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE faq_id='.db_input($this->getId()));
+            // Cleanup attachments.
+            $this->attachments->deleteAll();
+        }
+        catch (OrmException $ex) {
             return false;
-
-        //Cleanup help topics.
-        db_query('DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE faq_id='.db_input($this->id));
-        //Cleanup attachments.
-        $this->attachments->deleteAll();
-
+        }
         return true;
     }
 
     /* ------------------> Static methods <--------------------- */
 
-    function add($vars, &$errors) {
-        if(!($id=self::create($vars, $errors)))
+    static function add($vars, &$errors) {
+        if(!($faq = self::create($vars)))
             return false;
-
-        if(($faq=self::lookup($id))) {
-            $faq->updateTopics($vars['topics']);
-
-            if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-                $faq->attachments->upload($files);
-
-            // Inline images (attached to the draft)
-            if (isset($vars['draft_id']) && $vars['draft_id'])
-                if ($draft = Draft::lookup($vars['draft_id']))
-                    $faq->attachments->upload($draft->getAttachmentIds(), true);
-
-            $faq->reload();
-        }
 
         return $faq;
     }
 
-    function create($vars, &$errors) {
-        return self::save(0, $vars, $errors);
+    static function create($vars) {
+        $faq = parent::create($vars);
+        $faq->created = SqlFunction::NOW();
+        return $faq;
     }
 
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($obj= new FAQ($id)) && $obj->getId()==$id)? $obj : null;
+    static function countPublishedFAQs() {
+        return self::objects()->filter(array(
+            'category__ispublic' => true,
+            'ispublished'=> true
+        ))->count();
     }
 
-    function countPublishedFAQs() {
-        $sql='SELECT count(faq.faq_id) '
-            .' FROM '.FAQ_TABLE.' faq '
-            .' INNER JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id AND cat.ispublic=1) '
-            .' WHERE faq.ispublished=1';
+    static function findIdByQuestion($question) {
+        $object = self::objects()->filter(array(
+            'question'=>$question
+        ))->values_flat('faq_id')->one();
 
-        return db_result(db_query($sql));
+        if ($object)
+            return $object[0];
     }
 
-    function findIdByQuestion($question) {
-        $sql='SELECT faq_id FROM '.FAQ_TABLE
-            .' WHERE question='.db_input($question);
-
-        list($id) =db_fetch_row(db_query($sql));
-
-        return $id;
+    static function findByQuestion($question) {
+        return self::objects()->filter(array(
+            'question'=>$question
+        ))->one();
     }
 
-    function findByQuestion($question) {
+    function update($vars, &$errors) {
+        global $cfg;
 
-        if(($id=self::findIdByQuestion($question)))
-            return self::lookup($id);
+        // Cleanup.
+        $vars['question'] = Format::striptags(trim($vars['question']));
 
-        return false;
-    }
-
-    function save($id, $vars, &$errors, $validation=false) {
-
-        //Cleanup.
-        $vars['question']=Format::striptags(trim($vars['question']));
-
-        //validate
-        if($id && $id!=$vars['id'])
-            $errors['err'] = __('Internal error. Try again');
-
-        if(!$vars['question'])
+        // Validate
+        if ($vars['id'] && $this->getId() != $vars['id'])
+            $errors['err'] = __('Internal error occurred');
+        elseif (!$vars['question'])
             $errors['question'] = __('Question required');
-        elseif(($qid=self::findIdByQuestion($vars['question'])) && $qid!=$id)
+        elseif (($qid=self::findIdByQuestion($vars['question'])) && $qid != $vars['id'])
             $errors['question'] = __('Question already exists');
 
-        if(!$vars['category_id'] || !($category=Category::lookup($vars['category_id'])))
+        if (!$vars['category_id'] || !($category=Category::lookup($vars['category_id'])))
             $errors['category_id'] = __('Category is required');
 
-        if(!$vars['answer'])
+        if (!$vars['answer'])
             $errors['answer'] = __('FAQ answer is required');
 
-        if($errors || $validation) return (!$errors);
+        if ($errors)
+            return false;
 
-        //save
-        $sql=' updated=NOW() '
-            .', question='.db_input($vars['question'])
-            .', answer='.db_input(Format::sanitize($vars['answer'], false))
-            .', category_id='.db_input($vars['category_id'])
-            .', ispublished='.db_input(isset($vars['ispublished'])?$vars['ispublished']:0)
-            .', notes='.db_input(Format::sanitize($vars['notes']));
+        $this->question = $vars['question'];
+        $this->answer = Format::sanitize($vars['answer']);
+        $this->category = $category;
+        $this->ispublished = !!$vars['ispublished'];
+        $this->notes = Format::sanitize($vars['notes']);
 
-        if($id) {
-            $sql='UPDATE '.FAQ_TABLE.' SET '.$sql.' WHERE faq_id='.db_input($id);
-            if(db_query($sql))
-                return true;
+        if (!$this->save())
+            return false;
 
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this FAQ article'));
+        $this->updateTopics($vars['topics']);
 
-        } else {
-            $sql='INSERT INTO '.FAQ_TABLE.' SET '.$sql.',created=NOW()';
-            if (db_query($sql) && ($id=db_insert_id())) {
-                Signal::send('model.created', FAQ::lookup($id));
-                return $id;
+        // General attachments (for all languages)
+        // ---------------------
+        // Delete removed attachments.
+        if (isset($vars['files'])) {
+            $keepers = $vars['files'];
+            if (($attachments = $this->attachments->getSeparates())) {
+                foreach($attachments as $file) {
+                    if($file['id'] && !in_array($file['id'], $keepers))
+                        $this->attachments->delete($file['id']);
+                }
             }
+        }
+        // Upload new attachments IF any.
+        $this->attachments->upload($keepers);
 
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ article'))
-               .' '.__('Internal error occurred');
+        // Handle language-specific attachments
+        // ----------------------
+        $langs = $cfg ? $cfg->getSecondaryLanguages() : false;
+        if ($langs) {
+            $langs[] = $cfg->getPrimaryLanguage();
+            foreach ($langs as $lang) {
+                if (!isset($vars['files_'.$lang]))
+                    // Not updating the FAQ
+                    continue;
+
+                $keepers = $vars['files_'.$lang];
+
+                // Delete removed attachments.
+                if (($attachments = $this->attachments->getSeparates($lang))) {
+                    foreach ($attachments as $file) {
+                        if ($file['id'] && !in_array($file['id'], $keepers))
+                            $this->attachments->delete($file['id']);
+                    }
+                }
+                // Upload new attachments IF any.
+                $this->attachments->upload($keepers, false, $lang);
+            }
         }
 
-        return false;
+        // Inline images (attached to the draft)
+        $this->attachments->deleteInlines();
+        $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
+
+        if (isset($vars['trans']) && !$this->saveTranslations($vars))
+            return false;
+
+        return true;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
     }
 }
+FAQ::_inspect();
 ?>
