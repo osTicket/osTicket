@@ -28,7 +28,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <?php echo $list ? $list->getName() : 'Add new list'; ?></h2>
 
 <ul class="tabs">
-    <li><a href="#definition" class="active">
+    <li class="active"><a href="#definition">
         <i class="icon-plus"></i> <?php echo __('Definition'); ?></a></li>
     <li><a href="#items">
         <i class="icon-list"></i> <?php echo __('Items'); ?></a></li>

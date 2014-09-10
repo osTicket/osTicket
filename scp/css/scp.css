@@ -894,30 +894,26 @@ h2 .reload {
 ul.tabs {
     padding:4px 0 0 20px;
     margin:0;
-    margin-bottom: 5px;
     text-align:left;
     height:29px;
     border-bottom:1px solid #aaa;
     background:#eef3f8;
+    position: relative;
 }
 
 #response_options ul.tabs {
     padding-left:190px;
 }
 
-
 ul.tabs li {
     margin:0;
     padding:0;
-    display:inline;
+    display:inline-block;
     list-style:none;
-}
-
-ul.tabs li a {
+    text-align:center;
     min-width:130px;
     font-weight:bold;
-    padding:5px;
-    height:18px;
+    height:28px;
     line-height:20px;
     color:#444;
     display:inline-block;
@@ -925,9 +921,85 @@ ul.tabs li a {
     position:relative;
     bottom:1px;
     background:#fbfbfb;
-    border:1px solid #eee;
+    background-color: rgba(251, 251, 251, 0.5);
+    border:1px solid #ccc;
+    border:1px solid rgba(204, 204, 204, 0.5);
+    border-bottom:none;
+    position: relative;
+    bottom: 1px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-size: 95%;
+}
+ul.tabs li.active {
+    color:#184E81;
+    background-color:#f9f9f9;
+    border:1px solid #aaa;
     border-bottom:none;
     text-align: center;
+    border-top:2px solid #81a9d7;
+    bottom: 0;
+    box-shadow: 4px -1px 6px -3px rgba(0,0,0,0.3);
+}
+
+ul.tabs li a {
+    font-weight: normal;
+    line-height: 20px;
+    color: #444;
+    display: block;
+    outline: none;
+    padding: 5px 10px;
+}
+
+ul.tabs li.active a {
+    font-weight: bold;
+}
+
+ul.tabs.vertical {
+    display: inline-block;
+    height: auto;
+    border-bottom: initial;
+    border-right: 1px solid #aaa;
+    padding-left: 0;
+    padding-bottom: 40px;
+    padding-top: 10px;
+    background: transparent;
+}
+ul.tabs.vertical.left {
+    float: left;
+    margin-right: 19px;
+}
+
+ul.tabs.vertical li {
+    border:1px solid #ccc;
+    border:1px solid rgba(204, 204, 204, 0.5);
+    border-right: none;
+    min-width: 0;
+    display: block;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 5px;
+    right: 0;
+    height: auto;
+}
+
+ul.tabs.vertical li + li {
+    margin-top: 5px;
+}
+
+ul.tabs.vertical li.active {
+    border: 1px solid #aaa;
+    border-left: 2px solid #81a9d7;
+    border-right: none;
+    right: -1px;
+    box-shadow: -1px 4px 6px -3px rgba(0,0,0,0.3);
+}
+
+ul.tabs.vertical.left li {
+    text-align: right;
+}
+
+ul.tabs.vertical li a {
+    padding: 5px;
 }
 
 #response_options .reply_tab.tell {
@@ -1871,6 +1943,7 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
+    padding: 10px;
 }
 .floating-options {
     display: inline-block;
