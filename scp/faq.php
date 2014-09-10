@@ -62,7 +62,8 @@ if ($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'create':
         case 'add':
-            if(($faq=FAQ::add($_POST,$errors))) {
+            $faq = FAQ::create();
+            if($faq->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($faq->getQuestion()));
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
@@ -77,7 +78,6 @@ if ($_POST) {
             elseif($faq->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully updated %s'), __('this FAQ article'));
                 $_REQUEST['a']=null; //Go back to view
-                $faq->reload();
                 // Delete pending draft updates for this faq (for ALL users)
                 Draft::deleteForNamespace('faq.'.$faq->getId());
             } elseif(!$errors['err'])
