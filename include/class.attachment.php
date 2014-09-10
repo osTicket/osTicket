@@ -170,6 +170,7 @@ class GenericAttachments {
     function getInlines($lang=false) { return $this->_getList(false, true, $lang); }
     function getSeparates($lang=false) { return $this->_getList(true, false, $lang); }
     function getAll($lang=false) { return $this->_getList(true, true, $lang); }
+    function count($lang=false) { return count($this->getSeparates($lang)); }
 
     function _getList($separate=false, $inlines=false, $lang=false) {
         if(!isset($this->attachments)) {
