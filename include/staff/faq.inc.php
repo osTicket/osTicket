@@ -19,8 +19,8 @@ if($faq){
             if (strcasecmp($t->lang, $tag) === 0) {
                 $trans = $t->getComplex();
                 $info['trans'][$tag] = array(
-                    'question' => $trans['q'],
-                    'answer' => Format::viewableImages($trans['a']),
+                    'question' => $trans['question'],
+                    'answer' => Format::viewableImages($trans['answer']),
                 );
                 break;
             }
@@ -51,7 +51,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <div>
         <b><?php echo __('Category Listing');?></b>:
         <span class="error">*</span>
-        <span class="faded"><?php echo __('FAQ category the question belongs to.');?></span>
+        <div class="faded"><?php echo __('FAQ category the question belongs to.');?></div>
     </div>
     <select name="category_id" style="width:350px;">
         <option value="0"><?php echo __('Select FAQ Category');?> </option>
@@ -71,16 +71,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <div class="error"><?php echo $errors['category_id']; ?></div>
 
 <?php
-if ($topics = Topic::getAllHelpTopics()) { ?>
+if ($topics = Topic::getAllHelpTopics()) {
+    if (!is_array(@$info['topics']))
+        $info['topics'] = array();
+?>
     <div style="padding-top:9px">
         <strong><?php echo __('Help Topics');?></strong>:
-        <?php echo __('Check all help topics related to this FAQ.');?>
+        <div class="faded"><?php echo __('Check all help topics related to this FAQ.');?></div>
     </div>
     <select multiple="multiple" name="topics[]" class="multiselect"
         id="help-topic-selection" style="width:350px;">
     <?php while (list($topicId,$topic) = each($topics)) { ?>
         <option value="<?php echo $topicId; ?>" <?php
-            if (in_array($topicID, $info['topics'])) echo 'selected="selected"';
+            if (in_array($topicId, $info['topics'])) echo 'selected="selected"';
         ?>><?php echo $topic; ?></option>
     <?php } ?>
     </select>
@@ -108,111 +111,78 @@ if ($topics = Topic::getAllHelpTopics()) { ?>
 </div>
 
 <ul class="tabs" style="margin-top:9px;">
-    <li class="active"><a class="active" href="#article"><?php echo __('Article Content'); ?></a></li>
+    <li class="active"><a href="#article"><?php echo __('Article Content'); ?></a></li>
     <li><a href="#attachments"><?php echo __('Attachments') . sprintf(' (%d)',
         count($faq->attachments->getSeparates(''))); ?></a></li>
     <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
 </ul>
 
 <div class="tab_content" id="article">
-<?php if ($faq && ($langs = $cfg->getSecondaryLanguages())) { ?>
-    <div class="banner" style="margin-top:12px;">&nbsp;
-        <span class="pull-left" style="padding-top:2px">
-            <i class="icon-globe icon-large"></i>
-            <?php echo __('This content is translatable'); ?>
-        </span>
-        <span class="pull-right">
-        <?php echo __('View'); ?>:
-        <select onchange="javascript:
-$('option', this).each(function(){$($(this).val()).hide()});
-$($('option:selected', this).val()).show(); ">
-            <option value="#reference-text"><?php echo
-            Internationalization::getLanguageDescription($cfg->getPrimaryLanguage());
-            ?> — <?php echo __('Primary'); ?></option>
-<?php   foreach ($langs as $tag) { ?>
-            <option value="#translation-<?php echo $tag; ?>"><?php echo
-            Internationalization::getLanguageDescription($tag);
-            ?></option>
-<?php   } ?>
-        </select>
-        </span>
-    </div>
+<strong>Knowledgebase Article Content</strong><br/>
+Here you can manage the question and answer for the article. Multiple
+languages are available if enabled in the admin panel.
+<div class="clear"></div>
+<?php
+$langs = Internationalization::getConfiguredSystemLanguages();
+if ($faq) { ?>
+    <ul class="vertical tabs left" style="margin-top:10px;">
+        <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
+<?php foreach ($langs as $tag=>$i) {
+    list($lang, $locale) = explode('_', $tag);
+ ?>
+    <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
+        ?>"><a href="#lang-<?php echo $tag; ?>" title="<?php
+        echo Internationalization::getLanguageDescription($tag);
+    ?>"><span class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"></span>
+    </a></li>
 <?php } ?>
+    </ul>
+<?php
+} ?>
 
-    <div id="reference-text">
+<?php foreach ($langs as $tag=>$i) {
+    $code = $i['code'];
+    if ($tag == $cfg->getPrimaryLanguage()) {
+        $namespace = $faq ? $faq->getId() : false;
+        $answer = $info['answer'];
+        $question = $info['question'];
+        $qname = 'question';
+        $aname = 'answer';
+    }
+    else {
+        $namespace = $faq->getId() . $code;
+        $answer = $info['trans'][$code]['answer'];
+        $question = $info['trans'][$code]['question'];
+        $qname = 'trans['.$code.'][question]';
+        $aname = 'trans['.$code.'][answer]';
+    }
+?>
+    <div class="tab_content" style="margin-left:45px;<?php
+        if ($code != $cfg->getPrimaryLanguage()) echo "display:none;";
+     ?>" id="lang-<?php echo $tag; ?>">
     <div style="padding-top:9px;">
         <b><?php echo __('Question');?>
             <span class="error">*</span>
         </b>
         <div class="error"><?php echo $errors['question']; ?></div>
     </div>
-    <input type="text" size="70" name="question"
+    <input type="text" size="70" name="<?php echo $qname; ?>"
         style="font-size:105%;display:block;width:98%"
-        value="<?php echo $info['question']; ?>">
+        value="<?php echo $question; ?>">
     <div style="margin-bottom:0.5em;margin-top:9px">
         <b><?php echo __('Answer');?></b>
         <span class="error">*</span>
         <div class="error"><?php echo $errors['answer']; ?></div>
     </div>
-    <textarea name="answer" cols="21" rows="12"
-        style="width:98%;" class="richtext draft" <?php
-list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq',
-is_object($faq) ? $faq->getId() : false, $info['answer']);
-echo $attrs; ?>><?php echo $draft ?: $info['answer'];
+    <div>
+    <textarea name="<?php echo $aname; ?>" cols="21" rows="12"
+        class="richtext draft" <?php
+list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq', $namespace, $answer);
+echo $attrs; ?>><?php echo $draft ?: $answer;
         ?></textarea>
 
-<?php if (count($langs)) {
-    $lang = $cfg->getPrimaryLanguage(); ?>
-    <div style="padding-top:9px">
-        <strong><?php echo sprintf(__(
-            /* %s is the name of a language */ 'Attachments for %s'),
-            Internationalization::getLanguageDescription($lang));
-        ?></strong>
-    <div style="margin:0 0 3px"><em class="faded"><?php echo __(
-        'These attachments are only available when article is rendered in this language.'
-    ); ?></em></div>
     </div>
-    <?php
-    print $faq_form->getField('attachments.'.$lang)->render(); ?>
-<?php } ?>
-    </div> <!-- end of reference-text -->
-
-<?php if ($langs && $faq) {
-    foreach ($langs as $tag) { ?>
-    <div id="translation-<?php echo $tag; ?>" style="display:none" lang="<?php echo $tag; ?>">
-    <div style="padding-top:9px;">
-        <b><?php echo __('Question');?>
-            <span class="error">*</span>
-        </b>
-        <div class="error"><?php echo $errors['question']; ?></div>
     </div>
-    <input type="text" size="70" name="trans[<?php echo $tag; ?>][question]"
-        style="font-size:105%;display:block;width:98%"
-        value="<?php echo $info['trans'][$tag]['question']; ?>">
-    <div style="margin-bottom:0.5em;margin-top:9px">
-        <b><?php echo __('Answer');?></b>
-        <span class="error">*</span>
-        <div class="error"><?php echo $errors['answer']; ?></div>
-    </div>
-    <textarea name="trans[<?php echo $tag; ?>][answer]" cols="21" rows="12"
-        style="width:98%;" class="richtext draft" <?php
-list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq', $faq->getId().'.'.$tag,
-    $info['trans'][$tag]['answer']);
-echo $attrs; ?>><?php echo $draft ?: $info['trans'][$tag]['answer'];
-        ?></textarea>
-
-    <div style="padding-top:9px">
-    <strong><?php echo sprintf(__('Attachments for %s'),
-        Internationalization::getLanguageDescription($tag));
-    ?></strong>
-    <div style="margin:0 0 3px"><em class="faded"><?php echo __(
-        'These attachments are only available when article is rendered in this language.'
-    ); ?></em></div>
-    </div>
-    <?php
-    print $faq_form->getField('attachments.'.$tag)->render(); ?>
-    </div> <!-- End of this language -->
-<?php } ?>
 <?php } ?>
 </div>
 
@@ -225,9 +195,31 @@ echo $attrs; ?>><?php echo $draft ?: $info['trans'][$tag]['answer'];
     </div>
     <?php
     print $faq_form->getField('attachments')->render(); ?>
+
+<?php if (count($langs) > 1) {
+    foreach ($langs as $lang=>$i) {
+    $code = $i['code']; ?>
+    <div style="padding-top:9px">
+        <strong><?php echo sprintf(__(
+            /* %s is the name of a language */ 'Attachments for %s'),
+            Internationalization::getLanguageDescription($lang));
+        ?></strong>
+    <div style="margin:0 0 3px"><em class="faded"><?php echo __(
+        'These attachments are only available when article is rendered in this language.'
+    ); ?></em></div>
+    </div>
+    <?php
+    print $faq_form->getField('attachments.'.$code)->render();
+    }
+} ?>
 </div>
 
 <div class="tab_content" style="display:none;" id="notes">
+    <div>
+        <b><?php echo __('Internal Notes');?></b>:
+        <div class="faded"><?php echo __("Be liberal, they're internal");?></div>
+    </div>
+    <div style="margin-top:10px"></div>
     <textarea class="richtext no-bar" name="notes" cols="21"
         rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
 </div>

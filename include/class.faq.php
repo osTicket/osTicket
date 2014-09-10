@@ -158,10 +158,10 @@ class FAQ {
         return $this->_local;
     }
     function getLocalQuestion($lang=false) {
-        return $this->_getLocal('q', $lang);
+        return $this->_getLocal('question', $lang);
     }
-    function getLocalBodyWithImages($lang=false) {
-        return $this->_getLocal('a', $lang);
+    function getLocalAnswerWithImages($lang=false) {
+        return $this->_getLocal('answer', $lang);
     }
     function _getLocal($what, $lang=false) {
         if (!$lang) {
@@ -169,13 +169,19 @@ class FAQ {
         }
         $translations = $this->getAllTranslations();
         foreach ($translations as $t) {
-            if ($lang == $t->lang) {
+            if (0 === strcasecmp($lang, $t->lang)) {
                 $data = $t->getComplex();
                 if (isset($data[$what]))
                     return $data[$what];
             }
         }
         return $this->ht[$what];
+    }
+    function getLocalAttachments($lang=false) {
+        if (!$lang) {
+            $lang = Internationalization::getCurrentLanguage();
+        }
+        return $this->attachments->getSeparates($lang);
     }
 
     function updateTopics($ids){
@@ -212,11 +218,13 @@ class FAQ {
         // General attachments (for all languages)
         // ---------------------
         // Delete removed attachments.
-        $keepers = $vars['files'];
-        if (($attachments = $this->attachments->getSeparates())) {
-            foreach($attachments as $file) {
-                if($file['id'] && !in_array($file['id'], $keepers))
-                    $this->attachments->delete($file['id']);
+        if (isset($vars['files'])) {
+            $keepers = $vars['files'];
+            if (($attachments = $this->attachments->getSeparates())) {
+                foreach($attachments as $file) {
+                    if($file['id'] && !in_array($file['id'], $keepers))
+                        $this->attachments->delete($file['id']);
+                }
             }
         }
         // Upload new attachments IF any.
@@ -228,6 +236,10 @@ class FAQ {
         if ($langs) {
             $langs[] = $cfg->getPrimaryLanguage();
             foreach ($langs as $lang) {
+                if (!isset($vars['files_'.$lang]))
+                    // Not updating the FAQ
+                    continue;
+
                 $keepers = $vars['files_'.$lang];
 
                 // Delete removed attachments.
@@ -246,7 +258,7 @@ class FAQ {
         $this->attachments->deleteInlines();
         $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
 
-        if (!$this->saveTranslations($vars))
+        if (isset($vars['trans']) && !$this->saveTranslations($vars))
             return false;
 
         $this->reload();
@@ -260,13 +272,14 @@ class FAQ {
 
         foreach ($this->getAllTranslations() as $t) {
             $trans = @$vars['trans'][$t->lang];
-            if (!array_filter($trans));
+            if (!$trans || !array_filter($trans));
+                // Not updating translations
                 continue;
 
             // Content is not new and shouldn't be added below
             unset($vars['trans'][$t->lang]);
-            $content = array('q' => $trans['question'],
-                'a' => Format::sanitize($trans['answer']));
+            $content = array('question' => $trans['question'],
+                'answer' => Format::sanitize($trans['answer']));
 
             // Don't update content which wasn't updated
             if ($content == $t->getComplex())
@@ -281,8 +294,8 @@ class FAQ {
         // New translations (?)
         $tag = $this->getTranslateTag('q:a');
         foreach ($vars['trans'] as $lang=>$parts) {
-            $content = array('q' => @$parts['question'],
-                'a' => Format::sanitize(@$parts['answer']));
+            $content = array('question' => @$parts['question'],
+                'answer' => Format::sanitize(@$parts['answer']));
             if (!array_filter($content))
                 continue;
             $t = CustomDataTranslation::create(array(
@@ -303,7 +316,10 @@ class FAQ {
     function getAttachmentsLinks($separator=' ',$target='') {
 
         $str='';
-        if(($attachments=$this->attachments->getSeparates())) {
+        $attachments = array_merge(
+            $this->attachments->getSeparates() ?: array(),
+            $this->getLocalAttachments());
+        if ($attachments) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
             $hash=$attachment['key'].md5($attachment['id'].session_id().strtolower($attachment['key']));
