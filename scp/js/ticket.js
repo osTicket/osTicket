@@ -319,22 +319,9 @@ $.refreshTicketView = function() {
 }
 
 var ticket_onload = function($) {
-    $('#response_options form').hide();
-    $('#ticket_notes').hide();
-    if(location.hash != "" && $('#response_options '+location.hash).length) {
-        $('#response_options '+location.hash+'_tab').addClass('active');
-        $('#response_options '+location.hash).show();
-    } else if(location.hash == "#notes" && $('#ticket_notes').length) {
-        $('#response_options #note_tab').addClass('active');
-        $('#response_options form').hide();
-        $('#response_options #note').show();
-        $('#ticket_thread').hide();
-        $('#ticket_notes').show();
-        $('#toggle_ticket_thread').removeClass('active');
-        $('#toggle_notes').addClass('active');
-    } else {
-        $('#response_options ul.tabs li:first a').addClass('active');
-        $('#response_options '+$('#response_options ul.tabs li:first a').attr('href')).show();
+    if (!location.hash || !$('#response_options .tab_content' + location.hash).length) {
+        console.log('ajshdasdhfasd');
+        $('#response_options ul.tabs li:first a').trigger('click');
     }
 
     $('#reply_tab').click(function() {
@@ -348,12 +335,6 @@ var ticket_onload = function($) {
      });
 
     $('#response_options ul.tabs li a').click(function(e) {
-        e.preventDefault();
-        $('#response_options ul.tabs li a').removeClass('active');
-        $(this).addClass('active');
-        $('#response_options form').hide();
-        //window.location.hash = this.hash;
-        $('#response_options '+$(this).attr('href')).show();
         $("#msg_error, #msg_notice, #msg_warning").fadeOut();
      });
 

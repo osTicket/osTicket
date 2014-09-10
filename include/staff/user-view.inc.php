@@ -125,7 +125,7 @@ $org = $user->getOrganization();
 <br>
 <div class="clear"></div>
 <ul class="tabs">
-    <li><a class="active" id="tickets_tab" href="#tickets"><i
+    <li class="active"><a id="tickets_tab" href="#tickets"><i
     class="icon-list-alt"></i>&nbsp;<?php echo __('User Tickets'); ?></a></li>
     <li><a id="notes_tab" href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>

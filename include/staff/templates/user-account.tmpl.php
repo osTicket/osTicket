@@ -15,15 +15,15 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
+<form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
 <ul class="tabs">
-    <li><a href="#user-account" <?php echo !$access? 'class="active"' : ''; ?>
+    <li <?php echo !$access? 'class="active"' : ''; ?>><a href="#user-account"
         ><i class="icon-user"></i>&nbsp;<?php echo __('User Information'); ?></a></li>
-    <li><a href="#user-access" <?php echo $access? 'class="active"' : ''; ?>
+    <li <?php echo $access? 'class="active"' : ''; ?>><a href="#user-access"
         ><i class="icon-fixed-width icon-lock faded"></i>&nbsp;<?php echo __('Manage Access'); ?></a></li>
 </ul>
 
 
-<form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
  <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
  <div class="tab_content"  id="user-account" style="display:<?php echo $access? 'none' : 'block'; ?>; margin:5px;">
     <form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
