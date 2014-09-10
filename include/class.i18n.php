@@ -68,6 +68,7 @@ class Internationalization {
             'sequence.yaml' =>      'Sequence::__create',
         );
 
+        $errors = array();
         foreach ($models as $yaml=>$m) {
             if ($objects = $this->getTemplate($yaml)->getData()) {
                 foreach ($objects as $o) {

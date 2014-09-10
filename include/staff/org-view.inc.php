@@ -23,7 +23,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                     $.dialog($(this).attr('href').substr(1), 201);
                     return false"
                     ><i class="icon-paste"></i>
-                    <?php echo __('Manage >Forms'); ?></a></li>
+                    <?php echo __('Manage Forms'); ?></a></li>
               </ul>
             </div>
         </td>
