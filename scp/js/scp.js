@@ -446,6 +446,10 @@ var scp_prep = function() {
 
    // Make translatable fields translatable
    $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
+
+   if (window.location.hash) {
+     $('ul.tabs li a[href="' + window.location.hash + '"]').trigger('click');
+   }
 };
 
 $(document).ready(scp_prep);
@@ -626,15 +630,42 @@ $.uid = 1;
 
 //Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
-    e.preventDefault();
-    if ($('.tab_content'+$(this).attr('href')).length) {
+    var target = $('.tab_content'+$(this).attr('href'));
+    if (target.length) {
         var ul = $(this).closest('ul');
-        $('ul.tabs li a', ul.parent()).removeClass('active');
-        $(this).addClass('active');
-        $('.tab_content', ul.parent()).hide();
-        $('.tab_content'+$(this).attr('href')).show();
+        ul.children('li.active').removeClass('active');
+        $(this).closest('li').addClass('active');
+        ul.parent().children('.tab_content').hide();
+        target.fadeIn('fast');
+        $.changeHash($(this).attr('href'), true);
+        return false;
     }
 });
+$.changeHash = function(hash, quiet) {
+  if (quiet) {
+    hash = hash.replace( /^#/, '' );
+    var fx, node = $( '#' + hash );
+    if ( node.length ) {
+      node.attr( 'id', '' );
+      fx = $( '<div></div>' )
+              .css({
+                  position:'absolute',
+                  visibility:'hidden',
+                  top: $(document).scrollTop() + 'px'
+              })
+              .attr( 'id', hash )
+              .appendTo( document.body );
+    }
+    document.location.hash = hash;
+    if ( node.length ) {
+      fx.remove();
+      node.attr( 'id', hash );
+    }
+  }
+  else {
+    document.location.hash = hash;
+  }
+};
 
 //Collaborators
 $(document).on('click', 'a.collaborator, a.collaborators', function(e) {

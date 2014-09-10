@@ -31,7 +31,7 @@ elseif($warn)
 echo '<ul class="tabs">';
 
 echo '
-        <li><a id="preview_tab" href="#preview" class="active"
+        <li class="active"><a id="preview_tab" href="#preview"
             ><i class="icon-list-alt"></i>&nbsp;'.__('Ticket Summary').'</a></li>';
 if ($ticket->getNumCollaborators()) {
 echo sprintf('
