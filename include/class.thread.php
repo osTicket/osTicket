@@ -357,14 +357,14 @@ Class ThreadEntry {
         return $this->ht['@headers'];
     }
 
-    function getEmailReferences() {
-        if (!isset($this->_references)) {
-            $headers = self::getEmailHeaderArray();
-            if (isset($headers['References']) && $headers['References'])
-                $this->_references = $headers['References']." ";
-            $this->_references .= $this->getEmailMessageId();
-        }
-        return $this->_references;
+    function getEmailReferences($include_mid=true) {
+        $references = '';
+        $headers = self::getEmailHeaderArray();
+        if (isset($headers['References']) && $headers['References'])
+            $references = $headers['References']." ";
+        if ($include_mid)
+            $references .= $this->getEmailMessageId();
+        return $references;
     }
 
     function getTaggedEmailReferences($prefix, $refId) {
@@ -374,7 +374,7 @@ Class ThreadEntry {
         $mid = substr_replace($this->getEmailMessageId(),
                 $ref, strpos($this->getEmailMessageId(), '@'), 0);
 
-        return sprintf('%s %s', $this->getEmailReferences(), $mid);
+        return sprintf('%s %s', $this->getEmailReferences(false), $mid);
     }
 
     function getEmailReferencesForUser($user) {
@@ -849,7 +849,7 @@ Class ThreadEntry {
             return ThreadEntry::lookup($id);
         }
 
-        foreach (array('mid', 'in-reply-to', 'references') as $header) {
+        foreach (array('in-reply-to', 'references') as $header) {
             $matches = array();
             if (!isset($mailinfo[$header]) || !$mailinfo[$header])
                 continue;
@@ -863,6 +863,7 @@ Class ThreadEntry {
             // (parent) on the far right.
             // @see rfc 1036, section 2.2.5
             // @see http://www.jwz.org/doc/threading.html
+            $thread = null;
             foreach (array_reverse($matches[0]) as $mid) {
                 //Try to determine if it's a reply to a tagged email.
                 $ref = null;
@@ -873,20 +874,29 @@ Class ThreadEntry {
                 }
                 $res = db_query(sprintf($search, db_input($mid)));
                 while (list($id) = db_fetch_row($res)) {
-                    if (!($t = ThreadEntry::lookup($id))) continue;
-
-                    //We found a match  - see if we can ID the user.
+                    if (!($t = ThreadEntry::lookup($id)))
+                        continue;
+                    // Capture the first match thread item
+                    if (!$thread)
+                        $thread = $t;
+                    // We found a match  - see if we can ID the user.
                     // XXX: Check access of ref is enough?
                     if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
                         if ($ref[0] =='s') //staff
                             $mailinfo['staffId'] = $uid;
-                        else //user or collaborator.
+                        else // user or collaborator.
                             $mailinfo['userId'] = $uid;
-                    }
 
-                    return $t;
+                        // Best possible case — found the thread and the
+                        // user
+                        return $t;
+                    }
                 }
             }
+            // Second best case — found a thread but couldn't identify the
+            // user from the header. Return the first thread entry matched
+            if ($thread)
+                return $thread;
         }
 
         // Search for ticket by the [#123456] in the subject line
