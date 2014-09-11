@@ -30,25 +30,25 @@ require(STAFFINC_DIR.'header.inc.php');
 <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 <link rel="stylesheet" type="text/css" href="css/dashboard.css"/>
 
-<h2>Ticket Activity&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
-<p>Select the starting time and period for the system activity graph</p>
+<h2>Activité du ticket&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
+<p>Sélectionnez l'heure de début et la période pour le graphe d'activité</p>
 <form class="well form-inline" id="timeframe-form">
     <label>
-        <i class="help-tip icon-question-sign" href="#report_timeframe"></i>&nbsp;&nbsp;Report timeframe:
+        <i class="help-tip icon-question-sign" href="#report_timeframe"></i>&nbsp;&nbsp;Calendrier du rapport :
         <input type="text" class="dp input-medium search-query"
             name="start" placeholder="Last month"/>
     </label>
     <label>
-        period:
+        période&nbsp;:
         <select name="period">
-            <option value="now" selected="selected">Up to today</option>
-            <option value="+7 days">One Week</option>
-            <option value="+14 days">Two Weeks</option>
-            <option value="+1 month">One Month</option>
-            <option value="+3 months">One Quarter</option>
+            <option value="now" selected="selected">Jusqu'à aujourd'hui</option>
+            <option value="+7 days">Une semaine</option>
+            <option value="+14 days">Deux semaines</option>
+            <option value="+1 month">Un mois</option>
+            <option value="+3 months">Un trimestre</option>
         </select>
     </label>
-    <button class="btn" type="submit">Refresh</button>
+    <button class="btn" type="submit">Rafraîchir</button>
 </form>
 
 <!-- Create a graph and fetch some data to create pretty dashboard -->
@@ -58,8 +58,8 @@ require(STAFFINC_DIR.'header.inc.php');
 </div>
 
 <hr/>
-<h2>Statistics&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
-<p>Statistics of tickets organized by department, help topic, and staff.</p>
+<h2>Statistiquess&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
+<p>Statistiques des tickets, organisées par département, sujet d'aide et personnel.</p>
 <ul class="nav nav-tabs" id="tabular-navigation"></ul>
 
 <div id="table-here"></div>
