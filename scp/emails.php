@@ -18,30 +18,30 @@ include_once(INCLUDE_DIR.'class.email.php');
 
 $email=null;
 if($_REQUEST['id'] && !($email=Email::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid email ID.';
+    $errors['err']='Identifiant d\'adresse de courriel inconnu ou invalide.';
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$email){
-                $errors['err']='Unknown or invalid email.';
+                $errors['err']='Adresse de courriel inconnue ou invalide.';
             }elseif($email->update($_POST,$errors)){
-                $msg='Email updated successfully';
+                $msg='Adresse de courriel mise à jour avec succès';
             }elseif(!$errors['err']){
-                $errors['err']='Error updating email. Try again!';
+                $errors['err']='Erreur lors de la mise à jour de l\'adresse de courriel. Essayez encore !';
             }
             break;
         case 'create':
             if(($id=Email::create($_POST,$errors))){
-                $msg='Email address added successfully';
+                $msg='Adresse de courriel ajoutée avec succès';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add email. Correct error(s) below and try again.';
+                $errors['err']='Impossible d\'ajouter une adresse de courriel. Corrigez les erreurs ci-dessous et réessayez.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one email address';
+                $errors['err'] = 'Vous devez sélectionner au moins une adresse de courriel';
             } else {
                 $count=count($_POST['ids']);
 
@@ -51,7 +51,7 @@ if($_POST){
 
                 list($depts)=db_fetch_row(db_query($sql));
                 if($depts>0) {
-                    $errors['err'] = 'One or more of the selected emails is being used by a department. Remove association first!';
+                    $errors['err'] = 'Une ou plusieurs adresses de courriel sélectionnées est utilisée par un département. Supprimez cette association d\'abord !';
                 } elseif(!strcasecmp($_POST['a'], 'delete')) {
                     $i=0;
                     foreach($_POST['ids'] as $k=>$v) {
@@ -60,19 +60,19 @@ if($_POST){
                     }
 
                     if($i && $i==$count)
-                        $msg = 'Selected emails deleted successfully';
+                        $msg = 'Les adresses de courriel sélectionnées ont été supprimées avec succès';
                     elseif($i>0)
-                        $warn = "$i of $count selected emails deleted";
+                        $warn = "$i adresses de courriel sur $count sélectionnées ont été supprimées";
                     elseif(!$errors['err'])
-                        $errors['err'] = 'Unable to delete selected emails';
+                        $errors['err'] = 'Impossible de supprimer les adresses de courriel sélectionnées';
 
                 } else {
-                    $errors['err'] = 'Unknown action - get technical help';
+                    $errors['err'] = 'Action inconnue — demandez de l\'aide technique';
                 }
             }
             break;
         default:
-            $errors['err'] = 'Unknown action/command';
+            $errors['err'] = 'Action/Commande inconnue';
             break;
     }
 }
