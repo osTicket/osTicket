@@ -289,12 +289,20 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
     function filter() {
         // Multiple arrays passes means OR
-        $this->constraints[] = func_get_args();
+        $filter = array();
+        foreach (func_get_args() as $Q) {
+            $filter[] = $Q instanceof Q ? $Q : new Q($Q);
+        }
+        $this->constraints[] = new Q($filter, Q::ANY);
         return $this;
     }
 
     function exclude() {
-        $this->exclusions[] = func_get_args();
+        $filter = array();
+        foreach (func_get_args() as $Q) {
+            $filter[] = $Q instanceof Q ? $Q->negate() : Q::not($Q);
+        }
+        $this->constraints[] = new Q($filter, Q::ANY);
         return $this;
     }
 
@@ -729,29 +737,39 @@ class SqlCompiler {
         return $alias;
     }
 
-    function compileConstraints($where, $model) {
-        $constraints = array();
-        foreach ($where as $constraint) {
-            $filter = array();
-            foreach ($constraint as $field=>$value) {
+    function compileQ(Q $Q, $model) {
+        $filter = array();
+        foreach ($Q->constraints as $field=>$value) {
+            if ($value instanceof Q) {
+                $filter[] = $this->compileQ($value, $model);
+            }
+            else {
                 list($field, $op) = $this->getField($field, $model);
-                // Allow operators to be callable rather than sprintf
-                // strings
                 if ($value === null)
                     $filter[] = sprintf('%s IS NULL', $field);
+                // Allow operators to be callable rather than sprintf
+                // strings
                 elseif (is_callable($op))
                     $filter[] = call_user_func($op, $field, $value);
                 else
                     $filter[] = sprintf($op, $field, $this->input($value));
             }
-            // Multiple constraints here are ANDed together
-            $constraints[] = implode(' AND ', $filter);
         }
-        // Multiple constrains here are ORed together
-        $filter = implode(' OR ', $constraints);
-        if (count($constraints) > 1)
-            $filter = '(' . $filter . ')';
-        return $filter;
+        $glue = $Q->isOred() ? ' OR ' : ' AND ';
+        $clause = implode($glue, $filter);
+        if (count($filter) > 1)
+            $clause = '(' . $clause . ')';
+        if ($Q->isNegated())
+            $clause = ' NOT '.$clause;
+        return $clause;
+    }
+
+    function compileConstraints($where, $model) {
+        $constraints = array();
+        foreach ($where as $Q) {
+            $constraints[] = $this->compileQ($Q, $model);
+        }
+        return implode(' AND ', $constraints);
     }
 
     function getParams() {
@@ -890,21 +908,10 @@ class MySqlCompiler extends SqlCompiler {
      */
     protected function getWhereClause($queryset) {
         $model = $queryset->model;
-        $where_pos = array();
-        $where_neg = array();
-        foreach ($queryset->constraints as $where) {
-            $where_pos[] = $this->compileConstraints($where, $model);
-        }
-        foreach ($queryset->exclusions as $where) {
-            $where_neg[] = $this->compileConstraints($where, $model);
-        }
-
-        $where = '';
-        if ($where_pos || $where_neg) {
-            $where = ' WHERE '.implode(' AND ', $where_pos)
-                .implode(' AND NOT ', $where_neg);
-        }
-        return $where;
+        $where = $this->compileConstraints($queryset->constraints, $model);
+        if ($where)
+            $where = ' WHERE '.$where;
+        return $where ?: '';
     }
 
     function compileCount($queryset) {
@@ -995,7 +1002,7 @@ class MySqlCompiler extends SqlCompiler {
         $filter = array();
         foreach ($pk as $p)
             $filter[$p] = $model->get($p);
-        $sql .= ' WHERE '.$this->compileConstraints(array($filter), $model);
+        $sql .= ' WHERE '.$this->compileQ(new Q($filter), $model);
         $sql .= ' LIMIT 1';
 
         return new MySqlExecutor($sql, $this->params);
@@ -1201,6 +1208,43 @@ class MysqlExecutor {
 
     function __toString() {
         return $this->sql;
+    }
+}
+
+class Q {
+    const NEGATED = 0x0001;
+    const ANY =     0x0002;
+
+    var $constraints;
+    var $flags;
+    var $negated = false;
+    var $ored = false;
+
+    function __construct($filter, $flags=0) {
+        $this->constraints = $filter;
+        $this->negated = $flags & self::NEGATED;
+        $this->ored = $flags & self::ANY;
+    }
+
+    function isNegated() {
+        return $this->negated;
+    }
+
+    function isOred() {
+        return $this->ored;
+    }
+
+    function negate() {
+        $this->negated = !$this->negated;
+        return $this;
+    }
+
+    static function not(array $constraints) {
+        return new static($constraints, self::NEGATED);
+    }
+
+    static function any(array $constraints) {
+        return new static($constraints, self::ORED);
     }
 }
 ?>
