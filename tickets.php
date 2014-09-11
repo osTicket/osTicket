@@ -79,7 +79,7 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                     'userId' => $thisclient->getId(),
                     'poster' => (string) $thisclient->getName(),
                     'message' => $_POST['message']);
-            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+            $vars['cannedattachments'] = $attachments->getClean();
             if (isset($_POST['draft_id']))
                 $vars['draft_id'] = $_POST['draft_id'];
 
@@ -89,8 +89,8 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                 // for this staff. Else clean all drafts for the ticket.
                 Draft::deleteForNamespace('ticket.client.' . $ticket->getId());
                 // Drop attachments
-                $response_form->getField('attachments')->reset();
-                $response_form->setSource(array());
+                $attachments->reset();
+                $tform->setSource(array());
             } else {
                 $errors['err']=__('Unable to post the message. Try again');
             }
