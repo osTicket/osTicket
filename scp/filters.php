@@ -18,7 +18,7 @@ include_once(INCLUDE_DIR.'class.filter.php');
 require_once(INCLUDE_DIR.'class.canned.php');
 $filter=null;
 if($_REQUEST['id'] && !($filter=Filter::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid filter.';
+    $errors['err']='Filtre inconnu ou invalide.';
 
 /* NOTE: Banlist has its own interface*/
 if($filter && $filter->isSystemBanlist())
@@ -28,24 +28,24 @@ if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$filter){
-                $errors['err']='Unknown or invalid filter.';
+                $errors['err']='Filtre inconnu ou invalide.';
             }elseif($filter->update($_POST,$errors)){
-                $msg='Filter updated successfully';
+                $msg='Filtre mis à jour avec succès';
             }elseif(!$errors['err']){
-                $errors['err']='Error updating filter. Try again!';
+                $errors['err']='Erreur lors de la mise à jour du filtre. Essayez encore !';
             }
             break;
         case 'add':
             if((Filter::create($_POST,$errors))){
-                $msg='Filter added successfully';
+                $msg='Filtre ajouté avec succès';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add filter. Correct error(s) below and try again.';
+                $errors['err']='Impossible d\'ajouter le filtre. Corrigez les erreurs ci-dessous et essayez encore.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one filter to process.';
+                $errors['err'] = 'Vous devez sélectionner au moins un filtre.';
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -54,11 +54,11 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected filters enabled';
+                                $msg = 'Filtres sélectionnés activés';
                             else
-                                $warn = "$num of $count selected filters enabled";
+                                $warn = "$num filtres activés sur $count sélectionnés";
                         } else {
-                            $errors['err'] = 'Unable to enable selected filters';
+                            $errors['err'] = 'Impossible d\'activer les filtres sélectionnés';
                         }
                         break;
                     case 'disable':
@@ -66,11 +66,11 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected filters disabled';
+                                $msg = 'Filtres sélectionnés désactivés';
                             else
-                                $warn = "$num of $count selected filters disabled";
+                                $warn = "$num filtres désactivés sur $count sélectionnés";
                         } else {
-                            $errors['err'] = 'Unable to disable selected filters';
+                            $errors['err'] = 'Impossible de désactiver les filtres sélectionnés';
                         }
                         break;
                     case 'delete':
@@ -81,19 +81,19 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = 'Selected filters deleted successfully';
+                            $msg = 'Filtres sélectionnés supprimés avec succès';
                         elseif($i>0)
-                            $warn = "$i of $count selected filters deleted";
+                            $warn = "$i filtres supprimés sur $count sélectionnés";
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected filters';
+                            $errors['err'] = 'Impossible de supprimer les filtres sélectionnés';
                         break;
                     default:
-                        $errors['err']='Unknown action - get technical help';
+                        $errors['err']='Action inconnue - Demandez de l\'aide au support technique';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown commande/action';
+            $errors['err']='Commande/action inconnue';
             break;
     }
 }
