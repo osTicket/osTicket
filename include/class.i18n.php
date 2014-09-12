@@ -55,7 +55,7 @@ class Internationalization {
             'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
             // help_topic
-            'help_topic.yaml' =>    'Topic::create',
+            'help_topic.yaml' =>    'Topic::__create',
             'filter.yaml' =>        'Filter::create',
             'team.yaml' =>          'Team::create',
             // Organization

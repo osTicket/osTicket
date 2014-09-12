@@ -63,27 +63,22 @@ class FAQ extends VerySimpleModel {
     function getCategory() { return $this->category; }
 
     function getHelpTopicsIds() {
-        if ($topics=$this->getHelpTopics()) {
-            return array_keys($topics);
-        }
-        return array();
+        $ids = array();
+        foreach ($this->getHelpTopics() as $topic)
+            $ids[] = $topic->getId();
+        return $ids;
     }
 
     function getHelpTopics() {
         //XXX: change it to obj (when needed)!
 
         if (!isset($this->topics)) {
-            $this->topics = array();
-            $sql='SELECT t.topic_id, CONCAT_WS(" / ", pt.topic, t.topic) as name  FROM '.TOPIC_TABLE.' t '
-                .' INNER JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.topic_id=t.topic_id AND ft.faq_id='.db_input($this->getId()).') '
-                .' LEFT JOIN '.TOPIC_TABLE.' pt ON(pt.topic_id=t.topic_pid) '
-                .' ORDER BY t.topic';
-            if (($res=db_query($sql)) && db_num_rows($res)) {
-                while(list($id,$name) = db_fetch_row($res))
-                    $this->topics[$id]=$name;
-            }
+            $this->topics = Topic::objects()->filter(array(
+                'topic_id__in' => FaqTopic::objects()->filter(array(
+                        'faq_id' => $this->getId(),
+                    ))->values('topic_id'),
+            ));
         }
-
         return $this->topics;
     }
 
@@ -384,4 +379,24 @@ class FAQ extends VerySimpleModel {
     }
 }
 FAQ::_inspect();
+
+class FaqTopic extends VerySimpleModel {
+
+    static $meta = array(
+        'table' => FAQ_TOPIC_TABLE,
+        'pk' => array('faq_id', 'topic_id'),
+        'joins' => array(
+            'faq' => array(
+                'constraint' => array(
+                    'faq_id' => 'FAQ.faq_id',
+                ),
+            ),
+            'topic' => array(
+                'constraint' => array(
+                    'topic_id' => 'Topic.topic_id',
+                ),
+            ),
+        ),
+    );
+}
 ?>
