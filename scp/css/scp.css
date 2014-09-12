@@ -1978,6 +1978,38 @@ table.custom-info td {
     border-bottom: 1px dotted rgba(0,0,0,0.3);
 }
 
+.faq-title {
+    font-size: 170%;
+    font-weight: 400;
+    padding-right: 200px;
+}
+.faq-content {
+    width: 670px;
+    margin: 0 15px;
+}
+.faq-meta {
+    border: 1px solid #888;
+    padding: 10px;
+    width: 200px;
+    background-color: #ddd;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.faq-meta section + section {
+    margin-top: 15px;
+}
+
+button a {
+    color: ButtonText !important;
+    text-decoration: none;
+}
+button a:hover {
+    text-decoration: none;
+}
+
+.bleed {
+    padding: 0;
+    margin: 0;
+}
 .doc-desc-title {
     font-weight: bold;
     text-transform: capitalize;

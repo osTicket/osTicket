@@ -133,7 +133,7 @@ if ($faq) { ?>
     <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
         ?>"><a href="#lang-<?php echo $tag; ?>" title="<?php
         echo Internationalization::getLanguageDescription($tag);
-    ?>"><span class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"></span>
+    ?>"><span class="flag flag-<?php echo strtolower($i['flag'] ?: $locale ?: $lang); ?>"></span>
     </a></li>
 <?php } ?>
     </ul>
