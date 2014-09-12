@@ -32,10 +32,12 @@ class FAQ extends VerySimpleModel {
 
     var $attachments;
     var $topics;
+    var $_local;
 
     function __construct() {
         call_user_func_array(array('parent', '__construct'), func_get_args());
-        $this->attachments = new GenericAttachments($this->getId(), 'F');
+        if (isset($this->faq_id))
+            $this->attachments = new GenericAttachments($this->getId(), 'F');
     }
 
     /* ------------------> Getter methods <--------------------- */
@@ -103,6 +105,34 @@ class FAQ extends VerySimpleModel {
         return $this->save();
     }
 
+    function printPdf() {
+        global $thisstaff;
+        require_once(INCLUDE_DIR.'mpdf/mpdf.php');
+
+        $paper = 'Letter';
+        if ($thisstaff)
+            $paper = $thisstaff->getDefaultPaperSize();
+
+        ob_start();
+        $faq = $this;
+        include STAFFINC_DIR . 'templates/faq-print.tmpl.php';
+        $html = ob_get_clean();
+
+        $pdf = new mPDF('', $paper);
+        // Setup HTML writing and load default thread stylesheet
+        $pdf->WriteHtml(
+            '<style>
+            .bleed { margin: 0; padding: 0; }
+            .faded { color: #666; }
+            .faq-title { font-size: 170%; font-weight: bold; }
+            .thread-body { font-family: serif; }'
+            .file_get_contents(ROOT_DIR.'css/thread.css')
+            .'</style>'
+            .'<div>'.$html.'</div>');
+
+        $pdf->Output(Format::slugify($faq->getQuestion()) . '.pdf', 'I');
+    }
+
     // Internationalization of the knowledge base
 
     function getTranslateTag($subtag) {
@@ -128,7 +158,7 @@ class FAQ extends VerySimpleModel {
     }
     function _getLocal($what, $lang=false) {
         if (!$lang) {
-            $lang = Internationalization::getCurrentLanguage();
+            $lang = $this->getDisplayLang();
         }
         $translations = $this->getAllTranslations();
         foreach ($translations as $t) {
@@ -140,12 +170,17 @@ class FAQ extends VerySimpleModel {
         }
         return $this->ht[$what];
     }
+    function getDisplayLang() {
+        if (isset($_REQUEST['kblang']))
+            $lang = $_REQUEST['kblang'];
+        else
+            $lang = Internationalization::getCurrentLanguage();
+        return $lang;
+    }
 
     function getLocalAttachments($lang=false) {
-        if (!$lang) {
-            $lang = Internationalization::getCurrentLanguage();
-        }
-        return $this->attachments->getSeparates($lang);
+        return $this->attachments->getSeparates(
+            $lang ?: $this->getDisplayLang());
     }
 
     function updateTopics($ids){
@@ -176,7 +211,7 @@ class FAQ extends VerySimpleModel {
 
         foreach ($this->getAllTranslations() as $t) {
             $trans = @$vars['trans'][$t->lang];
-            if (!$trans || !array_filter($trans));
+            if (!$trans || !array_filter($trans))
                 // Not updating translations
                 continue;
 
@@ -217,13 +252,16 @@ class FAQ extends VerySimpleModel {
         return true;
     }
 
+    function getVisibleAttachments() {
+        return array_merge(
+            $this->attachments->getSeparates() ?: array(),
+            $this->getLocalAttachments());
+    }
+
     function getAttachmentsLinks($separator=' ',$target='') {
 
         $str='';
-        $attachments = array_merge(
-            $this->attachments->getSeparates() ?: array(),
-            $this->getLocalAttachments());
-        if ($attachments) {
+        if ($attachments = $this->getVisibleAttachments()) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
             $hash=$attachment['key'].md5($attachment['id'].session_id().strtolower($attachment['key']));
@@ -261,7 +299,7 @@ class FAQ extends VerySimpleModel {
         return $faq;
     }
 
-    static function create($vars) {
+    static function create($vars=false) {
         $faq = parent::create($vars);
         $faq->created = SqlFunction::NOW();
         return $faq;
@@ -317,6 +355,7 @@ class FAQ extends VerySimpleModel {
         $this->category = $category;
         $this->ispublished = !!$vars['ispublished'];
         $this->notes = Format::sanitize($vars['notes']);
+        $this->keywords = '';
 
         if (!$this->save())
             return false;

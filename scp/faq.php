@@ -72,7 +72,7 @@ if ($_POST) {
                      __('this FAQ article'));
         break;
         case 'update':
-        case 'edit';
+        case 'edit':
             if(!$faq)
                 $errors['err'] = sprintf(__('%s: Invalid or unknown'), __('FAQ article'));
             elseif($faq->update($_POST,$errors)) {
@@ -155,6 +155,8 @@ if($faq) {
     $inc='faq-view.inc.php';
     if($_REQUEST['a']=='edit' && $thisstaff->canManageFAQ())
         $inc='faq.inc.php';
+    elseif ($_REQUEST['a'] == 'print')
+        return $faq->printPdf();
 }elseif($_REQUEST['a']=='add' && $thisstaff->canManageFAQ()) {
     $inc='faq.inc.php';
 } elseif($category && $_REQUEST['a']!='search') {
