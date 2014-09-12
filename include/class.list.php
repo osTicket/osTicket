@@ -1014,12 +1014,8 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return parent::delete();
     }
 
-    function toString() {
-        return $this->getValue();
-    }
-
     function __toString() {
-        return $this->toString();
+        return $this->getName();
     }
 
     static function create($ht) {

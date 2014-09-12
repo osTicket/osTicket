@@ -1154,8 +1154,8 @@ class Ticket {
             }
         }
 
-        // Reopen  if closed.
-        if($this->isClosed()) $this->reopen();
+        // Reopen if NOT open
+        if(!$this->isOpen()) $this->reopen();
 
        /**********   double check auto-response  ************/
         if (!($user = $message->getUser()))
