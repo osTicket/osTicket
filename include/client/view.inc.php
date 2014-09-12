@@ -43,21 +43,7 @@ if ($thisclient && $thisclient->isGuest()
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                 <tr>
                     <th width="100"><?php echo __('Ticket Status');?>:</th>
-					<?php
-
-						$ticketstatus='';
-						switch($ticket->getStatus()) {
-							case 'open':
-								$ticketstatus=__('open');
-								break;
-							case 'closed':
-								$ticketstatus=__('closed');
-								break;
-							default:
-								$ticketstatus=__('open');
-						}
-					?>
-                    <td><?php echo ucfirst($ticketstatus); ?></td>
+                    <td><?php echo $ticket->getStatus(); ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Department');?>:</th>

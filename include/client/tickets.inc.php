@@ -6,12 +6,15 @@ $status=null;
 if(isset($_REQUEST['status'])) { //Query string status has nothing to do with the real status used below.
     $qstr.='status='.urlencode($_REQUEST['status']);
     //Status we are actually going to use on the query...making sure it is clean!
+    $status=strtolower($_REQUEST['status']);
     switch(strtolower($_REQUEST['status'])) {
      case 'open':
 		$results_type=__('Open Tickets');
      case 'closed':
-        $status=strtolower($_REQUEST['status']);
 		$results_type=__('Closed Tickets');
+        break;
+     case 'resolved':
+        $results_type=__('Resolved Tickets');
         break;
      default:
         $status=''; //ignore
@@ -43,7 +46,7 @@ $$x=' class="'.strtolower($order).'" ';
 
 $qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
     .'dept.ispublic, subject.value as subject,'
-    .'dept_name,status.name as status, ticket.source, ticket.created ';
+    .'dept_name, status.name as status, status.state, ticket.source, ticket.created ';
 
 $dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
          'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
@@ -127,7 +130,8 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
         if($thisclient->getNumResolvedTickets()) {
             ?>
         <option value="resolved"
-            <?php echo ($status=='resolved')?'selected="selected"':'';?>> Resolved (<?php echo $thisclient->getNumResolvedTickets(); ?>)</option>
+            <?php echo ($status=='resolved')?'selected="selected"':'';?>><?php
+            echo __('Resolved'); ?> (<?php echo $thisclient->getNumResolvedTickets(); ?>)</option>
         <?php
         } ?>
 
@@ -168,24 +172,13 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
      if($res && ($num=db_num_rows($res))) {
         $defaultDept=Dept::getDefaultDeptName(); //Default public dept.
         while ($row = db_fetch_array($res)) {
-			$ticketstatus='';
-			switch($row['status']) {
-				case 'open':
-					$ticketstatus=__('open');
-					break;
-				case 'closed':
-					$ticketstatus=__('closed');
-					break;
-				default:
-					$ticketstatus=__('open');
-			}
-            $dept=$row['ispublic']?$row['dept_name']:$defaultDept;
+            $dept= $row['ispublic']? $row['dept_name'] : $defaultDept;
             $subject=Format::htmlchars(Format::truncate($row['subject'],40));
             if($row['attachments'])
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
 
             $ticketNumber=$row['number'];
-            if($row['isanswered'] && !strcasecmp($row['status'],'open')) {
+            if($row['isanswered'] && !strcasecmp($row['state'], 'open')) {
                 $subject="<b>$subject</b>";
                 $ticketNumber="<b>$ticketNumber</b>";
             }
@@ -196,7 +189,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
-                <td>&nbsp;<?php echo ucfirst($ticketstatus); ?></td>
+                <td>&nbsp;<?php echo $row['status']; ?></td>
                 <td>
                     <a href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
