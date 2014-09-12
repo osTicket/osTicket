@@ -132,6 +132,7 @@ class VerySimpleModel {
     }
 
     function __onload() {}
+    static function __oninspect() {}
 
     static function _inspect() {
         if (!static::$meta['table'])
@@ -163,6 +164,9 @@ class VerySimpleModel {
             $j['fkey'] = explode('.', $foreign);
             $j['local'] = $keys[0];
         }
+
+        // Let the model participate
+        static::__oninspect();
     }
 
     static function objects() {
