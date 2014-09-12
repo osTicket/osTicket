@@ -1933,11 +1933,13 @@ class ThreadEntryWidget extends Widget {
         if (!$config)
             $config = $this->field->getConfiguration();
 
-        return new FileUploadField(array(
+        $field = new FileUploadField(array(
             'id'=>'attach',
             'name'=>'attach:' . $this->field->get('id'),
             'configuration'=>$config)
         );
+        $field->setForm($this->field->getForm());
+        return $field;
     }
 }
 
