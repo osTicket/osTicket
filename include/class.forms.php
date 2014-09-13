@@ -236,7 +236,9 @@ class FormField {
         if (!isset($this->_clean)) {
             $this->_clean = (isset($this->value))
                 ? $this->value : $this->parse($this->getWidget()->value);
-            $this->validateEntry($this->_clean);
+
+            if ($this->isVisible())
+                $this->validateEntry($this->_clean);
         }
         return $this->_clean;
     }
@@ -289,6 +291,21 @@ class FormField {
             elseif (is_callable($vs))
                 $vs($this, $value);
         }
+    }
+
+    /**
+     * isVisible
+     *
+     * If this field has visibility configuration, then it will parse the
+     * constraints with the visibility configuration to determine if the
+     * field is visible and should be considered for validation
+     */
+    function isVisible() {
+        $config = $this->getConfiguration();
+        if ($this->get('visibility') instanceof VisibilityConstraint) {
+            return $this->get('visibility')->isVisible($this);
+        }
+        return true;
     }
 
     /**
@@ -452,7 +469,11 @@ class FormField {
     }
 
     function render($mode=null) {
-        return $this->getWidget()->render($mode);
+        $rv = $this->getWidget()->render($mode);
+        if ($v = $this->get('visibility')) {
+            $v->emitJavascript($this);
+        }
+        return $rv;
     }
 
     function renderExtras($mode=null) {
@@ -1663,6 +1684,7 @@ class TextareaWidget extends Widget {
         <span style="display:inline-block;width:100%">
         <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
                 .' placeholder="'.$config['placeholder'].'"'; ?>
+            id="<?php echo $this->name; ?>"
             name="<?php echo $this->name; ?>"><?php
                 echo Format::htmlchars($this->value);
             ?></textarea>
@@ -1676,7 +1698,7 @@ class PhoneNumberWidget extends Widget {
         $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
-        <input type="text" name="<?php echo $this->name; ?>" value="<?php
+        <input id="<?php echo $this->name; ?>" type="text" name="<?php echo $this->name; ?>" value="<?php
         echo Format::htmlchars($phone); ?>"/><?php
         // Allow display of extension field even if disabled if the phone
         // number being edited has an extension
@@ -1806,7 +1828,8 @@ class CheckboxWidget extends Widget {
         if (!isset($this->value))
             $this->value = $this->field->get('default');
         ?>
-        <input style="vertical-align:top;" type="checkbox" name="<?php echo $this->name; ?>[]" <?php
+        <input id="<?php echo $this->name; ?>" style="vertical-align:top;"
+            type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
             echo $this->field->get('id'); ?>"/>
         <?php
@@ -1841,6 +1864,7 @@ class DatetimePickerWidget extends Widget {
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
+            id="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>" size="12"
             autocomplete="off" class="dp" />
         <script type="text/javascript">
@@ -2034,5 +2058,158 @@ class FileUploadWidget extends Widget {
 }
 
 class FileUploadError extends Exception {}
+
+class VisibilityConstraint {
+
+    const HIDDEN =      0x0001;
+    const VISIBLE =     0x0002;
+
+    var $initial;
+    var $constraint;
+
+    function __construct($constraint, $initial=self::VISIBLE) {
+        $this->constraint = $constraint;
+        $this->initial = $initial;
+    }
+
+    function emitJavascript($field) {
+        $func = 'recheck';
+        $form = $field->getForm();
+?>
+    <script type="text/javascript">
+      !(function() {
+        var <?php echo $func; ?> = function() {
+          var target = $('#field-<?php echo $field->getWidget()->name; ?>');
+
+<?php   $fields = $this->getAllFields($this->constraint);
+        foreach ($fields as $f) {
+            $field = $form->getField($f);
+            echo sprintf('var %1$s = $("#%1$s");',
+                $field->getWidget()->name);
+        }
+        $expression = $this->compileQ($this->constraint, $form);
+?>
+          target.slideToggle(<?php echo $expression; ?>);
+        };
+
+<?php   foreach ($fields as $f) {
+            $w = $form->getField($f)->getWidget();
+?>
+        $('#<?php echo $w->name; ?>').on('change', <?php echo $func; ?>);
+<?php   } ?>
+      })();
+    </script><?php
+    }
+
+    /**
+     * Determines if the field was visible when the form was submitted
+     */
+    function isVisible($field) {
+        return $this->compileQPhp($this->constraint, $field);
+    }
+
+    function compileQPhp(Q $Q, $field) {
+        $form = $field->getForm();
+        $expr = array();
+        foreach ($Q->constraints as $c=>$value) {
+            if ($value instanceof Q) {
+                $expr[] = $this->compileQPhp($value, $field);
+            }
+            else {
+                @list($f, $op) = explode('__', $c, 2);
+                $field = $form->getField($f);
+                $wval = $field->getClean();
+                switch ($op) {
+                case 'eq':
+                case null:
+                    $expr[] = $wval == $value;
+                }
+            }
+        }
+        $glue = $Q->isOred()
+            ? function($a, $b) { return $a || $b; }
+            : function($a, $b) { return $a && $b; };
+        $initial = !$Q->isOred();
+        $expression = array_reduce($expr, $glue, $initial);
+        if ($Q->isNegated)
+            $expression = !$expression;
+        return $expression;
+    }
+
+    function getAllFields(Q $Q, &$fields=array()) {
+        foreach ($Q->constraints as $c=>$value) {
+            if ($c instanceof Q) {
+                $this->getAllFields($c, $fields);
+            }
+            else {
+                list($f, $op) = explode('__', $c, 2);
+                $fields[$f] = true;
+            }
+        }
+        return array_keys($fields);
+    }
+
+    function compileQ($Q, $form) {
+        $expr = array();
+        foreach ($Q->constraints as $c=>$value) {
+            if ($value instanceof Q) {
+                $expr[] = $this->compileQ($value, $form);
+            }
+            else {
+                list($f, $op) = explode('__', $c, 2);
+                $name = $form->getField($f)->getWidget()->name;
+                switch ($op) {
+                case 'eq':
+                default:
+                    $expr[] = sprintf('%s.val() == %s', $name, JsonDataEncoder::encode($value));
+                }
+            }
+        }
+        $glue = $Q->isOred() ? ' || ' : ' && ';
+        $expression = implode($glue, $expr);
+        if (count($expr) > 1)
+            $expression = '('.$expression.')';
+        if ($Q->isNegated)
+            $expression = '!'.$expression;
+        return $expression;
+    }
+}
+
+class Q {
+    const NEGATED = 0x0001;
+    const ANY =     0x0002;
+
+    var $constraints;
+    var $flags;
+    var $negated = false;
+    var $ored = false;
+
+    function __construct($filter, $flags=0) {
+        $this->constraints = $filter;
+        $this->negated = $flags & self::NEGATED;
+        $this->ored = $flags & self::ANY;
+    }
+
+    function isNegated() {
+        return $this->negated;
+    }
+
+    function isOred() {
+        return $this->ored;
+    }
+
+    function negate() {
+        $this->negated = !$this->negated;
+        return $this;
+    }
+
+    static function not(array $constraints) {
+        return new static($constraints, self::NEGATED);
+    }
+
+    static function any(array $constraints) {
+        return new static($constraints, self::ORED);
+    }
+}
 
 ?>
