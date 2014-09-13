@@ -237,6 +237,16 @@ class FormField {
             $this->_clean = (isset($this->value))
                 ? $this->value : $this->parse($this->getWidget()->value);
 
+            if ($vs = $this->get('cleaners')) {
+                if (is_array($vs)) {
+                    foreach ($vs as $cleaner)
+                        if (is_callable($clenaer))
+                            $this->_clean = $cleaner($this, $this->_clean);
+                }
+                elseif (is_callable($vs))
+                    $this->_clean = $vs($this, $this->_clean);
+            }
+
             if ($this->isVisible())
                 $this->validateEntry($this->_clean);
         }
@@ -640,7 +650,27 @@ class TextboxField extends FormField {
             'validator' => new ChoiceField(array(
                 'id'=>3, 'label'=>__('Validator'), 'required'=>false, 'default'=>'',
                 'choices' => array('phone'=>__('Phone Number'),'email'=>__('Email Address'),
-                    'ip'=>__('IP Address'), 'number'=>__('Number'), ''=>__('None')))),
+                    'ip'=>__('IP Address'), 'number'=>__('Number'),
+                    'regex'=>__('Custom (Regular Expression)'), ''=>__('None')))),
+            'regex' => new TextboxField(array(
+                'id'=>6, 'label'=>__('Regular Expression'), 'required'=>true,
+                'configuration'=>array('size'=>40, 'length'=>100),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('validator__eq'=>'regex')),
+                    VisibilityConstraint::HIDDEN
+                ),
+                'cleaners' => function ($self, $value) {
+                    $wrapped = "/".$value."/iu";
+                    if (false === @preg_match($value, ' ')
+                            && false !== @preg_match($wrapped, ' ')) {
+                        return $wrapped;
+                    }
+                    return $value;
+                },
+                'validators' => function($self, $v) {
+                    if (false === @preg_match($v, ' '))
+                        $self->addError(__('Cannot compile this regular expression'));
+                })),
             'validator-error' => new TextboxField(array(
                 'id'=>4, 'label'=>__('Validation Error'), 'default'=>'',
                 'configuration'=>array('size'=>40, 'length'=>60),
@@ -668,7 +698,13 @@ class TextboxField extends FormField {
                 __('Enter a valid phone number')),
             'ip' =>     array(array('Validator', 'is_ip'),
                 __('Enter a valid IP address')),
-            'number' => array('is_numeric', __('Enter a number'))
+            'number' => array('is_numeric', __('Enter a number')),
+            'regex' => array(
+                function($v) use ($config) {
+                    $regex = $config['regex'];
+                    return @preg_match($regex, $v);
+                }, __('Value does not match required pattern')
+            ),
         );
         // Support configuration forms, as well as GUI-based form fields
         $valid = $this->get('validator');
