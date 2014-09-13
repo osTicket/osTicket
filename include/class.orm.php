@@ -799,7 +799,11 @@ class SqlCompiler {
             foreach ($parts as $p) {
                 $path[] = $p;
                 $tip = implode('__', $path);
-                $info = $model::$meta['joins'][$p];
+                if (!($info = $model::$meta['joins'][$p])) {
+                    throw new OrmException(sprintf(
+                       'Model `%s` does not have a relation called `%s`',
+                        $model, $p));
+                }
                 $alias = $this->pushJoin($crumb, $tip, $model, $info);
                 // Roll to foreign model
                 foreach ($info['constraint'] as $local => $foreign) {
@@ -993,11 +997,20 @@ class MySqlCompiler extends SqlCompiler {
             $table = $this->quote($model::$meta['table']);
         foreach ($info['constraint'] as $local => $foreign) {
             list($rmodel, $right) = explode('.', $foreign);
-            // TODO: Support a constant constraint
-            $constraints[] = sprintf("%s.%s = %s.%s",
-                $table, $this->quote($local), $alias,
-                $this->quote($right)
-            );
+            // Support a constant constraint with
+            // "'constant'" => "Model.field_name"
+            if ($local[0] == "'") {
+                $constraints[] = sprintf("%s.%s = %s",
+                    $alias, $this->quote($right),
+                    $this->input(trim($local, '\'"'))
+                );
+            }
+            else {
+                $constraints[] = sprintf("%s.%s = %s.%s",
+                    $table, $this->quote($local), $alias,
+                    $this->quote($right)
+                );
+            }
         }
         return $join.$this->quote($rmodel::$meta['table'])
             .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
