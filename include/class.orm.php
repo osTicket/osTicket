@@ -49,6 +49,8 @@ class ModelMeta implements ArrayAccess {
         }
 
         // Break down foreign-key metadata
+        if (!isset($meta['joins']))
+            $meta['joins'] = array();
         foreach ($meta['joins'] as $field => &$j) {
             if (isset($j['reverse'])) {
                 list($model, $key) = explode('.', $j['reverse']);
@@ -517,20 +519,53 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     var $cache = array();
     var $position = 0;
     var $queryset;
+    var $map;
 
     function __construct($queryset=false) {
         $this->queryset = $queryset;
         if ($queryset) {
             $this->model = $queryset->model;
             $this->resource = $queryset->getQuery();
+            $this->map = $this->resource->getMap();
         }
     }
 
     function buildModel($row) {
         // TODO: Traverse to foreign keys
-        $model = new $this->model($row); # nolint
-        $model->__deferred__ = $this->queryset->defer;
-        $model->__onload();
+        if ($this->map) {
+            if ($this->model != $this->map[0][1])
+                throw new OrmException('Internal select_related error');
+
+            $offset = 0;
+            foreach ($this->map as $info) {
+                @list($count, $model_class, $path, $alias) = $info;
+                $fields = array_slice($row, $offset, $count);
+                if (!$path) {
+                    // Build the root model
+                    $model = new $this->model($fields); # nolint
+                    $model->__onload();
+                }
+                else {
+                    foreach ($fields as $name=>$val) {
+                        $fields[substr($name, strlen($alias)+1)] = $val;
+                        unset($fields[$name]);
+                    }
+                    // Link the related model
+                    $tail = array_pop($path);
+                    $m = $model;
+                    foreach ($path as $field) {
+                        $m = $m->get($field);
+                    }
+                    $m->set($tail, new $model_class($fields));
+                }
+                $offset += $count;
+            }
+        }
+        else {
+            $model = new $this->model($row); # nolint
+            $model->__deferred__ = $this->queryset->defer;
+            $model->__onload();
+        }
         return $model;
     }
 
@@ -752,7 +787,9 @@ class SqlCompiler {
 
         $path = array();
         $crumb = '';
-        $alias = $this->quote($model::$meta['table']);
+        $alias = (isset($this->joins['']))
+            ? $this->joins['']['alias']
+            : $this->quote($model::$meta['table']);
 
         // Traverse through the parts and establish joins between the tables
         // if the field is joined to a foreign model
@@ -779,6 +816,8 @@ class SqlCompiler {
             $field = $alias.'.'.$this->quote($field);
         else
             $field = $this->quote($field);
+        if (isset($options['model']) && $options['model'])
+            $operator = $model;
         return array($field, $operator);
     }
 
@@ -1011,6 +1050,10 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileSelect($queryset) {
         $model = $queryset->model;
+        // Use an alias for the root model table
+        $table = $model::$meta['table'];
+        $this->joins[''] = array('alias' => ($rootAlias = $this->nextAlias()));
+        // Compile the WHERE clause
         $where = $this->getWhereClause($queryset);
 
         $sort = '';
@@ -1028,23 +1071,56 @@ class MySqlCompiler extends SqlCompiler {
             $sort = ' ORDER BY '.implode(', ', $orders);
         }
 
-        // Include related tables
+        // Compile the field listing
         $fields = array();
-        $table = $model::$meta['table'];
+        $table = $this->quote($table).' '.$rootAlias;
+        // Handle related tables
         if ($queryset->related) {
-            $fields = array($this->quote($table).'.*');
-            foreach ($queryset->related as $rel) {
-                // XXX: This is ugly
-                list($t) = $this->getField($rel, $model,
-                    array('table'=>true));
-                $fields[] = $t.'.*';
+            $count = 0;
+            $fieldMap = array();
+            $defer = $queryset->defer ?: array();
+            // Add local fields first
+            $model::_inspect();
+            foreach ($model::$meta['fields'] as $f) {
+                // Handle deferreds
+                if (isset($defer[$f]))
+                    continue;
+                $fields[] = $rootAlias . '.' . $this->quote($f);
             }
-        // Support only retrieving a list of values rather than a model
-        } elseif ($queryset->values) {
+            $count = count($fields);
+            $fieldMap[] = array($count, $model);
+            // Add the JOINs to this query
+            foreach ($queryset->related as $sr) {
+                $full_path = '';
+                $parts = array();
+                // Track each model traversal and fetch data for each of the
+                // models in the path of the related table
+                foreach (explode('__', $sr) as $field) {
+                    $full_path .= $field;
+                    $parts[] = $field;
+                    list($alias, $fmodel) = $this->getField($full_path, $model,
+                        array('table'=>true, 'model'=>true));
+                    $fmodel::_inspect();
+                    foreach ($fmodel::$meta['fields'] as $f) {
+                        // Handle deferreds
+                        if (isset($defer[$sr . '__' . $f]))
+                            continue;
+                        $fields[] = $alias . '.' . $this->quote($f) . " AS {$alias}_$f";
+                    }
+                    $fieldMap[] = array(count($fields) - $count, $fmodel, $parts, $alias);
+                    $full_path .= '__';
+                    $count = count($fields);
+                }
+            }
+        }
+        // Support retrieving only a list of values rather than a model
+        elseif ($queryset->values) {
             foreach ($queryset->values as $v) {
                 list($fields[]) = $this->getField($v, $model);
             }
-        } else {
+        }
+        // Simple selection from one table
+        else {
             if ($queryset->defer) {
                 foreach ($model::$meta['fields'] as $f) {
                     if (isset($queryset->defer[$f]))
@@ -1053,13 +1129,13 @@ class MySqlCompiler extends SqlCompiler {
                 }
             }
             else {
-                $fields[] = $this->quote($table).'.*';
+                $fields[] = $rootAlias.'.*';
             }
         }
 
         $joins = $this->getJoins();
         $sql = 'SELECT '.implode(', ', $fields).' FROM '
-            .$this->quote($table).$joins.$where.$sort;
+            .$table.$joins.$where.$sort;
         if ($queryset->limit)
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)
@@ -1073,7 +1149,7 @@ class MySqlCompiler extends SqlCompiler {
             break;
         }
 
-        return new MysqlExecutor($sql, $this->params);
+        return new MysqlExecutor($sql, $this->params, $fieldMap);
     }
 
     function __compileUpdateSet($model, array $pk) {
@@ -1146,9 +1222,9 @@ class MySqlCompiler extends SqlCompiler {
             return $cache[$table];
 
         $sql = 'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS '
-            .'WHERE TABLE_NAME = ? AND TABLE_SCHEMA = DATABASE() '
+            .'WHERE TABLE_NAME = '.db_input($table).' AND TABLE_SCHEMA = DATABASE() '
             .'ORDER BY ORDINAL_POSITION';
-        $ex = new MysqlExecutor($sql, array($table));
+        $ex = new MysqlExecutor($sql, array());
         $columns = array();
         while (list($column) = $ex->getRow()) {
             $columns[] = $column;
@@ -1161,13 +1237,21 @@ class MysqlExecutor {
 
     var $stmt;
     var $fields = array();
-
     var $sql;
     var $params;
+    // Array of [count, model] values representing which fields in the
+    // result set go with witch model.  Useful for handling select_related
+    // queries
+    var $map;
 
-    function __construct($sql, $params) {
+    function __construct($sql, $params, $map=null) {
         $this->sql = $sql;
         $this->params = $params;
+        $this->map = $map;
+    }
+
+    function getMap() {
+        return $this->map;
     }
 
     function _prepare() {
@@ -1211,8 +1295,7 @@ class MysqlExecutor {
     function _setup_output() {
         if (!($meta = $this->stmt->result_metadata()))
             throw new OrmException('Unable to fetch statment metadata: ', $this->stmt->error);
-        while ($f = $meta->fetch_field())
-            $this->fields[] = $f;
+        $this->fields = $meta->fetch_fields();
         $meta->free_result();
     }
 
@@ -1265,23 +1348,6 @@ class MysqlExecutor {
         if (!call_user_func_array(array($this->stmt, 'bind_result'), $variables))
             throw new OrmException('Unable to bind result: ' . $this->stmt->error);
 
-        if (!$this->next())
-            return false;
-        return $output;
-    }
-
-    function getStruct() {
-        $output = array();
-        $variables = array();
-
-        if (!isset($this->stmt))
-            $this->_prepare();
-
-        foreach ($this->fields as $f)
-            $variables[] = &$output[$f->table][$f->name]; // pass by reference
-
-        // TODO: Figure out what the table alias for the root model will be
-        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
         if (!$this->next())
             return false;
         return $output;
