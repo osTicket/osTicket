@@ -1948,3 +1948,6 @@ table.custom-info td {
     direction: ltr;
     unicode-bidi: embed;
 }
+.required {
+    font-weight: bold;
+}
