@@ -29,9 +29,13 @@ class OrmConfigurationException extends Exception {}
 class ModelMeta implements ArrayAccess {
 
     var $base = array();
+    var $model;
 
     function __construct($model) {
+        $this->model = $model;
         $meta = $model::$meta;
+
+        // TODO: Merge ModelMeta from parent model (if inherited)
 
         if (!$meta['table'])
             throw new OrmConfigurationException(
@@ -98,6 +102,15 @@ class ModelMeta implements ArrayAccess {
         case 'fields':
             $this->base['fields'] = self::inspectFields();
             break;
+        case 'newInstance':
+            $class_repr = sprintf(
+                'O:%d:"%s":0:{}',
+                strlen($this->model), $this->model
+            );
+            $this->base['newInstance'] = function() use ($class_repr) {
+                return unserialize($class_repr);
+            };
+            break;
         default:
             throw new Exception($what . ': No such meta-data');
         }
@@ -118,6 +131,7 @@ class VerySimpleModel {
     var $ht;
     var $dirty = array();
     var $__new__ = false;
+    var $__deleted__ = false;
     var $__deferred__ = array();
 
     function __construct($row) {
@@ -240,14 +254,50 @@ class VerySimpleModel {
         }
     }
 
+    /**
+     * objects
+     *
+     * Retrieve a QuerySet for this model class which can be used to fetch
+     * models from the connected database. Subclasses can override this
+     * method to apply forced constraints on the QuerySet.
+     */
     static function objects() {
         return new QuerySet(get_called_class());
     }
 
+    /**
+     * lookup
+     *
+     * Retrieve a record by its primary key. This method may be short
+     * circuited by model caching if the record has already been loaded by
+     * the database. In such a case, the database will not be consulted for
+     * the model's data.
+     *
+     * This method can be called with an array of keyword arguments matching
+     * the PK of the object or the values of the primary key. Both of these
+     * usages are correct:
+     *
+     * >>> User::lookup(1)
+     * >>> User::lookup(array('id'=>1))
+     *
+     * For composite primary keys and the first usage, pass the values in
+     * the order they are given in the Model's 'pk' declaration in its meta
+     * data.
+     *
+     * Parameters:
+     * $criteria - (mixed) primary key for the sought model either as
+     *      arguments or key/value array as the function's first argument
+     */
     static function lookup($criteria) {
-        if (!is_array($criteria))
-            // Model::lookup(1), where >1< is the pk value
-            $criteria = array(static::$meta['pk'][0] => $criteria);
+        // Model::lookup(1), where >1< is the pk value
+        if (!is_array($criteria)) {
+            $criteria = array();
+            foreach (func_get_args() as $i=>$f)
+                $criteria[static::$meta['pk'][$i]] = $f;
+        }
+        if ($cached = ModelInstanceManager::checkCache(get_called_class(),
+                $criteria))
+            return $cached;
         return static::objects()->filter($criteria)->one();
     }
 
@@ -258,6 +308,7 @@ class VerySimpleModel {
             if ($ex->affected_rows() != 1)
                 return false;
 
+            $this->__deleted__ = true;
             Signal::send('model.deleted', $this);
         }
         catch (OrmException $e) {
@@ -296,9 +347,10 @@ class VerySimpleModel {
         # Refetch row from database
         # XXX: Too much voodoo
         if ($refetch) {
-            # XXX: Support composite PK
-            $criteria = array($pk[0] => $this->get($pk[0]));
-            $self = static::lookup($criteria);
+            // Uncache so that the lookup will not be short-cirtuited to
+            // return this object
+            ModelInstanceManager::uncache($this);
+            $self = static::lookup($this->get('pk'));
             $this->ht = $self->ht;
         }
         $this->dirty = array();
@@ -358,7 +410,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     const LOCK_SHARED = 2;
 
     var $compiler = 'MySqlCompiler';
-    var $iterator = 'ModelInstanceIterator';
+    var $iterator = 'ModelInstanceManager';
 
     var $params;
     var $query;
@@ -435,6 +487,13 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
     function one() {
         $list = $this->limit(1)->all();
+        if (count($list) == 0)
+            throw new DoesNotExist();
+        elseif (count($list) > 1)
+            throw new ObjectNotUnique('One object was expected; however '
+                .'multiple objects in the database matched the query. '
+                .sprintf('In fact, there are %d matching objects.', count($list))
+            );
         // TODO: Throw error if more than one result from database
         return $this[0];
     }
@@ -513,73 +572,24 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     }
 }
 
-class ModelInstanceIterator implements Iterator, ArrayAccess {
-    var $model;
+class DoesNotExist extends Exception {}
+class ObjectNotUnique extends Exception {}
+
+abstract class ResultSet implements Iterator, ArrayAccess {
     var $resource;
-    var $cache = array();
     var $position = 0;
     var $queryset;
-    var $map;
+    var $cache;
 
     function __construct($queryset=false) {
         $this->queryset = $queryset;
         if ($queryset) {
             $this->model = $queryset->model;
             $this->resource = $queryset->getQuery();
-            $this->map = $this->resource->getMap();
         }
     }
 
-    function buildModel($row) {
-        // TODO: Traverse to foreign keys
-        if ($this->map) {
-            if ($this->model != $this->map[0][1])
-                throw new OrmException('Internal select_related error');
-
-            $offset = 0;
-            foreach ($this->map as $info) {
-                @list($count, $model_class, $path, $alias) = $info;
-                $fields = array_slice($row, $offset, $count);
-                if (!$path) {
-                    // Build the root model
-                    $model = new $this->model($fields); # nolint
-                    $model->__onload();
-                }
-                else {
-                    foreach ($fields as $name=>$val) {
-                        $fields[substr($name, strlen($alias)+1)] = $val;
-                        unset($fields[$name]);
-                    }
-                    // Link the related model
-                    $tail = array_pop($path);
-                    $m = $model;
-                    foreach ($path as $field) {
-                        $m = $m->get($field);
-                    }
-                    $m->set($tail, new $model_class($fields));
-                }
-                $offset += $count;
-            }
-        }
-        else {
-            $model = new $this->model($row); # nolint
-            $model->__deferred__ = $this->queryset->defer;
-            $model->__onload();
-        }
-        return $model;
-    }
-
-    function fillTo($index) {
-        while ($this->resource && $index >= count($this->cache)) {
-            if ($row = $this->resource->getArray()) {
-                $this->cache[] = $this->buildModel($row);
-            } else {
-                $this->resource->close();
-                $this->resource = null;
-                break;
-            }
-        }
-    }
+    abstract function fillTo($index);
 
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
@@ -622,7 +632,128 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     }
 }
 
-class FlatArrayIterator extends ModelInstanceIterator {
+class ModelInstanceManager extends ResultSet {
+    var $model;
+    var $map;
+
+    static $objectCache = array();
+
+    function __construct($queryset=false) {
+        parent::__construct($queryset);
+        if ($queryset) {
+            $this->map = $this->resource->getMap();
+        }
+    }
+
+    function cache($model) {
+        $model::_inspect();
+        $key = sprintf('%s.%s',
+            $model::$meta->model, implode('.', $model->pk));
+        self::$objectCache[$key] = $model;
+    }
+
+    /**
+     * uncache
+     *
+     * Drop the cached reference to the model. If the model is deleted
+     * database-side. Lookups for the same model should not be short
+     * circuited to retrieve the cached reference.
+     */
+    static function uncache($model) {
+        $key = sprintf('%s.%s',
+            $model::$meta->model, implode('.', $model->pk));
+        unset(self::$objectCache[$key]);
+    }
+
+    static function checkCache($modelClass, $fields) {
+        $key = $modelClass::$meta->model;
+        foreach ($modelClass::$meta['pk'] as $f)
+            $key .= '.'.$fields[$f];
+        return @self::$objectCache[$key];
+    }
+
+    function getOrBuild($modelClass, $fields) {
+        // Check the cache for the model instance first
+        if ($m = self::checkCache($modelClass, $fields)) {
+            // TODO: If the model has deferred fields which are in $fields,
+            // those can be resolved here
+            return $m;
+        }
+        // Construct and cache the object
+        $this->cache($m = new $modelClass($fields));
+        $m->__deferred__ = $this->queryset->defer;
+        $m->__onload();
+        return $m;
+    }
+
+    /**
+     * buildModel
+     *
+     * This method builds the model including related models from the record
+     * received. For related recordsets, a $map should be setup inside this
+     * object prior to using this method. The $map is assumed to have this
+     * configuration:
+     *
+     * array(array(<modelClass>, <fieldCount>, <relativePath>, <alias>))
+     *
+     * Where $modelClass is the name of the foreign (with respect to the
+     * root model ($this->model), $fieldCount is the number of fields in the
+     * row for this model, $relativePath is the path that describes the
+     * relationship between the root model and this model, 'user__account'
+     * for instance, and <alias> is the alias for the model in the databse
+     * query — the field names should all start with <alias>_
+     */
+    function buildModel($row) {
+        // TODO: Traverse to foreign keys
+        if ($this->map) {
+            if ($this->model != $this->map[0][1])
+                throw new OrmException('Internal select_related error');
+
+            $offset = 0;
+            foreach ($this->map as $info) {
+                @list($count, $model_class, $path, $alias) = $info;
+                $fields = array_slice($row, $offset, $count);
+                if (!$path) {
+                    // Build the root model
+                    $model = $this->getOrBuild($this->model, $fields);
+                    $model->__onload();
+                }
+                else {
+                    foreach ($fields as $name=>$val) {
+                        $fields[substr($name, strlen($alias)+1)] = $val;
+                        unset($fields[$name]);
+                    }
+                    // Link the related model
+                    $tail = array_pop($path);
+                    $m = $model;
+                    foreach ($path as $field) {
+                        $m = $m->get($field);
+                    }
+                    $m->set($tail, $this->getOrBuild($model_class, $fields));
+                }
+                $offset += $count;
+            }
+        }
+        else {
+            $model = $this->getOrBuild($this->model, $row);
+        }
+        return $model;
+    }
+
+    function fillTo($index) {
+        while ($this->resource && $index >= count($this->cache)) {
+            if ($row = $this->resource->getArray()) {
+                $this->cache[] = $this->buildModel($row);
+            } else {
+                $this->resource->close();
+                $this->resource = null;
+                break;
+            }
+        }
+    }
+}
+
+class FlatArrayIterator extends ResultSet {
     function __construct($queryset) {
         $this->resource = $queryset->getQuery();
     }
@@ -639,7 +770,7 @@ class FlatArrayIterator extends ModelInstanceIterator {
     }
 }
 
-class InstrumentedList extends ModelInstanceIterator {
+class InstrumentedList extends ModelInstanceManager {
     var $key;
     var $id;
     var $model;
@@ -937,6 +1068,7 @@ class DbEngine {
     }
 
     static function delete(VerySimpleModel $model) {
+        ModelInstanceManager::uncache($model);
         return static::getCompiler()->compileDelete($model);
     }
 
@@ -966,6 +1098,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function __contains($a, $b) {
         # {%a} like %{$b}%
+        # XXX: Escape $b
         return sprintf('%s LIKE %s', $a, $this->input($b = "%$b%"));
     }
 
