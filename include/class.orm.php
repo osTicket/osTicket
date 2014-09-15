@@ -160,8 +160,13 @@ class VerySimpleModel {
             elseif (isset($j['fkey'])
                     && ($class = $j['fkey'][0])
                     && class_exists($class)) {
-                $v = $this->ht[$field] = $class::lookup(
-                    array($j['fkey'][1] => $this->ht[$j['local']]));
+                try {
+                    $v = $this->ht[$field] = $class::lookup(
+                        array($j['fkey'][1] => $this->ht[$j['local']]));
+                }
+                catch (DoesNotExist $e) {
+                    $v = null;
+                }
                 return $v;
             }
         }
@@ -222,14 +227,12 @@ class VerySimpleModel {
             // Capture the foreign key id value
             $field = $j['local'];
         }
-        // XXX: Fully support or die if updating pk
-        // XXX: The contents of $this->dirty should be the value after the
-        // previous fetch or save. For instance, if the value is changed more
-        // than once, the original value should be preserved in the dirty list
-        // on the second edit.
         $old = isset($this->ht[$field]) ? $this->ht[$field] : null;
         if ($old != $value) {
-            $this->dirty[$field] = $old;
+            // isset should not be used here, because `null` should not be
+            // replaced in the dirty array
+            if (!array_key_exists($field, $this->dirty))
+                $this->dirty[$field] = $old;
             $this->ht[$field] = $value;
         }
     }
@@ -485,8 +488,13 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this->getIterator()->asArray();
     }
 
-    function one() {
+    function first() {
         $list = $this->limit(1)->all();
+        return $list[0];
+    }
+
+    function one() {
+        $list = $this->all();
         if (count($list) == 0)
             throw new DoesNotExist();
         elseif (count($list) > 1)
@@ -1313,7 +1321,12 @@ class MySqlCompiler extends SqlCompiler {
         $pk = $model::$meta['pk'];
         $sql = 'UPDATE '.$this->quote($model::$meta['table']);
         $sql .= $this->__compileUpdateSet($model, $pk);
-        $sql .= ' WHERE '.$this->compileQ(new Q($model->pk), $model);
+        // Support PK updates
+        $criteria = array();
+        foreach ($pk as $f) {
+            $criteria[$f] = @$model->dirty[$f] ?: $model->get($f);
+        }
+        $sql .= ' WHERE '.$this->compileQ(new Q($criteria), $model);
         $sql .= ' LIMIT 1';
 
         return new MySqlExecutor($sql, $this->params);
