@@ -1305,6 +1305,14 @@ class FileUploadField extends FormField {
 
     protected $attachments;
 
+    static function getFileTypes() {
+        static $filetypes;
+
+        if (!isset($filetypes))
+            $filetypes = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        return $filetypes;
+    }
+
     function getConfigurationOptions() {
         // Compute size selections
         $sizes = array('262144' => '— '.__('Small').' —');
@@ -1326,10 +1334,8 @@ class FileUploadField extends FormField {
         if ($next < $limit * 2)
             $sizes[$limit] = Format::file_size($limit);
 
-        // Load file types
-        $_types = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
         $types = array();
-        foreach ($_types as $type=>$info) {
+        foreach (self::getFileTypes() as $type=>$info) {
             $types[$type] = $info['description'];
         }
 
@@ -1470,7 +1476,7 @@ class FileUploadField extends FormField {
 
     function getConfiguration() {
         $config = parent::getConfiguration();
-        $_types = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        $_types = self::getFileTypes();
         $mimetypes = array();
         $extensions = array();
         if (isset($config['mimetypes']) && is_array($config['mimetypes'])) {
