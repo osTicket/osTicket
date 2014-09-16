@@ -1,47 +1,35 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
+$pages = Page::objects()
+    ->filter(array('type__in'=>array('other','landing','thank-you','offline')))
+    ->annotate(array('topics'=>Aggregate::count('topics')));
 $qstr='';
-$sql='SELECT page.id, page.isactive, page.name, page.created, page.updated, '
-     .'page.type, count(topic.topic_id) as topics '
-     .' FROM '.PAGE_TABLE.' page '
-     .' LEFT JOIN '.TOPIC_TABLE.' topic ON(topic.page_id=page.id) ';
-$where = ' WHERE type in ("other","landing","thank-you","offline") ';
 $sortOptions=array(
-        'name'=>'page.name', 'status'=>'page.isactive',
-        'created'=>'page.created', 'updated'=>'page.updated',
-        'type'=>'page.type');
+        'name'=>'name', 'status'=>'isactive',
+        'created'=>'created', 'updated'=>'updated',
+        'type'=>'type');
 
-$orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
+$orderWays=array('DESC'=>'-','ASC'=>'');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
 if($sort && $sortOptions[$sort]) {
-    $order_column =$sortOptions[$sort];
+    $pages = $pages->order_by(
+        $orderWays[strtoupper($_REQUEST['order'])] ?: ''
+        . $sortOptions[$sort]);
 }
 
-$order_column=$order_column?$order_column:'page.name';
-
-if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) {
-    $order=$orderWays[strtoupper($_REQUEST['order'])];
-}
-$order=$order?$order:'ASC';
-
-if($order_column && strpos($order_column,',')){
-    $order_column=str_replace(','," $order,",$order_column);
-}
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
-$order_by="$order_column $order ";
 
-$total=db_count('SELECT count(*) FROM '.PAGE_TABLE.' page '.$where);
+$total = $pages->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('pages.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 //Ok..lets roll...create the actual query
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
-$query="$sql $where GROUP BY page.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
+$pages = $pages->limit($pageNav->getLimit())->offset($pageNav->getStart());
+if ($total)
     $showing=$pageNav->showing()._N('site page','site pages', $num);
 else
     $showing=__('No pages found!');
@@ -75,32 +63,32 @@ else
     <tbody>
     <?php
         $total=0;
+print $pages->getQuery();
+print $pages->count();
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if($res && db_num_rows($res)):
-            $defaultPages=$cfg->getDefaultPages();
-            while ($row = db_fetch_array($res)) {
+        $defaultPages=$cfg->getDefaultPages();
+        foreach ($pages as $page) {
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
                     $sel=true;
-                $inuse = ($row['topics'] || in_array($row['id'], $defaultPages));
+                $inuse = ($page->topics || in_array($page->id, $defaultPages));
                 ?>
-            <tr id="<?php echo $row['id']; ?>">
+            <tr id="<?php echo $page->id; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $page->id; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td>&nbsp;<a href="pages.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
+                <td>&nbsp;<a href="pages.php?id=<?php echo $page->id; ?>"><?php echo Format::htmlchars($page->getLocalName()); ?></a></td>
                 <td class="faded"><?php echo $row['type']; ?></td>
                 <td>
-                    &nbsp;<?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?>
+                    &nbsp;<?php echo $page->isActive()?__('Active'):'<b>'.__('Disabled').'</b>'; ?>
                     &nbsp;&nbsp;<?php echo $inuse?'<em>'.__('(in-use)').'</em>':''; ?>
                 </td>
-                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td>&nbsp;<?php echo Format::db_date($page->created); ?></td>
+                <td>&nbsp;<?php echo Format::db_datetime($page->updated); ?></td>
             </tr>
             <?php
-            } //end of while.
-        endif; ?>
+        } //end of foreach. ?>
     <tfoot>
      <tr>
         <td colspan="6">
