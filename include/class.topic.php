@@ -29,6 +29,16 @@ class Topic extends VerySimpleModel {
                     'topic_pid' => 'Topic.topic_id',
                 ),
             ),
+            'faqs' => array(
+                'list' => true,
+                'reverse' => 'FaqTopic.topic'
+            ),
+            'page' => array(
+                'null' => true,
+                'constraint' => array(
+                    'page_id' => 'Page.id',
+                ),
+            ),
         ),
     );
 
@@ -41,7 +51,7 @@ class Topic extends VerySimpleModel {
 
     const FLAG_CUSTOM_NUMBERS = 0x0001;
 
-    static function __oninspect() {
+    function __onload() {
         global $cfg;
 
         // Handle upgrade case where sort has not yet been defined
