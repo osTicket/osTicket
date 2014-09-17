@@ -3,13 +3,8 @@ global $thisstaff, $ticket;
 // Map states to actions
 $actions= array(
         'closed' => array(
-            'icon'  => 'icon-repeat',
-            'action' => 'close',
-            'href' => 'tickets.php'
-            ),
-        'resolved' => array(
             'icon'  => 'icon-ok-circle',
-            'action' => 'resolve',
+            'action' => 'close',
             'href' => 'tickets.php'
             ),
         'open' => array(
@@ -34,8 +29,7 @@ $actions= array(
     <?php
     $states = array('open');
     if ($thisstaff->canCloseTickets())
-        $states = array_merge($states,
-                array('resolved', 'closed'));
+        $states = array_merge($states, array('closed'));
 
     $statusId = $ticket ? $ticket->getStatusId() : 0;
     foreach (TicketStatusList::getStatuses(

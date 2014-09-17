@@ -317,7 +317,7 @@ print $response_form->getField('attachments')->render();
                     $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
                     $states = array('open');
                     if ($thisstaff->canCloseTickets())
-                        $states = array_merge($states, array('resolved', 'closed'));
+                        $states = array_merge($states, array('closed'));
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
                         if (!$s->isEnabled()) continue;

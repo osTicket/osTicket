@@ -142,10 +142,6 @@ class Ticket {
         return ($this->getReopenDate());
     }
 
-    function isResolved() {
-        return $this->hasState('resolved');
-    }
-
     function isClosed() {
          return $this->hasState('closed');
     }
@@ -849,7 +845,6 @@ class Ticket {
 
         $ecb = null;
         switch($status->getState()) {
-            case 'resolved':
             case 'closed':
                 $sql.=', closed=NOW(), duedate=NULL ';
                 if ($thisstaff)
@@ -2279,14 +2274,6 @@ class Ticket {
                     ON (ticket.status_id=status.id
                             AND status.state=\'open\') '
                 .'WHERE ticket.staff_id = ' . db_input($staff->getId()) . ' '
-                . $where
-
-                .'UNION SELECT \'resolved\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'resolved\') '
-                .'WHERE 1 '
                 . $where
 
                 .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '

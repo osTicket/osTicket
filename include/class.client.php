@@ -250,15 +250,11 @@ class  EndUser extends AuthenticatedUser {
         if (!($stats=$this->getTicketStats()))
             return 0;
 
-        return $stats['open']+$stats['resolved']+ $stats['closed'];
+        return $stats['open']+$stats['closed'];
     }
 
     function getNumOpenTickets() {
         return ($stats=$this->getTicketStats())?$stats['open']:0;
-    }
-
-    function getNumResolvedTickets() {
-        return ($stats=$this->getTicketStats())?$stats['resolved']:0;
     }
 
     function getNumClosedTickets() {
@@ -300,14 +296,6 @@ class  EndUser extends AuthenticatedUser {
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
                     ON (ticket.status_id=status.id
                             AND status.state=\'open\') '
-                . $join
-                . $where
-
-                .'UNION SELECT \'resolved\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'resolved\') '
                 . $join
                 . $where
 

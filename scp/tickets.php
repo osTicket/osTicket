@@ -426,13 +426,6 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
                         ($_REQUEST['status']=='closed'));
 } else {
 
-    if ($stats['resolved'])
-        $nav->addSubMenu(array('desc' => __('Resolved').' ('.number_format($stats['resolved']).')',
-                               'title'=>__('Resolved Tickets'),
-                               'href'=>'tickets.php?status=resolved',
-                               'iconclass'=>'closedTickets'),
-                            ($_REQUEST['status']=='resolved'));
-
     $nav->addSubMenu(array('desc' => __('Closed').' ('.number_format($stats['closed']).')',
                            'title'=>__('Closed Tickets'),
                            'href'=>'tickets.php?status=closed',

@@ -5,7 +5,7 @@
 #  id - (int:optional) id number in the database
 #  name - (string) descriptive name of the status
 #  state - (string) Main status of a ticket
-#  (open, resolved, closed, archived, deleted)
+#  (open, closed, archived, deleted)
 #  mode - (bit) access mask (1 - enabled, 2 - internal)
 #  flags - (bit) flags that can be set on a ticket
 #  properties:
@@ -23,42 +23,31 @@
         Open tickets.
 
 - id: 2
-  name: Resolved
-  state: resolved
+  name: Closed
+  state: closed
   mode: 3
   sort: 2
   flags: 0
   properties:
     description: >
-        Resolved tickets are closed tickets that can be reopened by the end user. This might be useful
-        when a trigger is used to close resolved tickets with notice sent to end user.
+        Closed tickets. Tickets will still be accessible on client and staff panels.
 
 - id: 3
-  name: Closed
-  state: closed
+  name: Archived
+  state:  archived
   mode: 3
   sort: 3
   flags: 0
   properties:
     description: >
-        Tickets marked as closed cannot be reopened by the end user. Tickets will still be accessible on client and staff panels.
+        Tickets only adminstratively available but no longer accessible on
+        ticket queues and client panel.
 
 - id: 4
-  name: Archived
-  state:  archived
-  mode: 3
-  sort: 4
-  flags: 0
-  properties:
-    description: >
-        Tickets only adminstratively available but no longer accessible on
-        ticket queues.
-
-- id: 5
   name: Deleted
   state: deleted
   mode: 3
-  sort: 5
+  sort: 4
   flags: 0
   properties:
     description: >

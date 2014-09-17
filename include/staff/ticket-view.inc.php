@@ -201,13 +201,6 @@ if($ticket->isOverdue())
                                         echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt icon-fixed-width"></i> %s</a></li>',
                                                 $user->getId(), sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open));
 
-                                    if(($resolved=$user->getNumResolvedTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=resolved&uid=%d"><i
-                                                class="icon-folder-close-alt icon-fixed-width"></i> %s</a></li>',
-                                                $user->getId(), sprintf(_N('%d Resolved Ticket', '%d Resolved Tickets', $resolved), $resolved));
-
-
-
                                     if(($closed=$user->getNumClosedTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i
                                                 class="icon-folder-close-alt icon-fixed-width"></i> %s</a></li>',
@@ -606,7 +599,7 @@ print $response_form->getField('attachments')->render();
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
                     if ($thisstaff->canCloseTickets())
-                        $states = array_merge($states, array('resolved', 'closed'));
+                        $states = array_merge($states, array('closed'));
 
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
@@ -687,7 +680,7 @@ print $note_form->getField('attachments')->render();
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
                         $states = array('open');
                         if ($thisstaff->canCloseTickets())
-                            $states = array_merge($states, array('resolved', 'closed'));
+                            $states = array_merge($states, array('closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {
                             if (!$s->isEnabled()) continue;

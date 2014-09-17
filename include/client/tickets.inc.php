@@ -68,7 +68,6 @@ $qwhere = sprintf(' WHERE ( ticket.user_id=%d OR collab.user_id=%d )',
 
 $states = array(
         'open' => 'open',
-        'resolved' => 'resolved',
         'closed' => 'closed');
 if($status && isset($states[$status])){
     $qwhere.=' AND status.state='.db_input($states[$status]);
@@ -125,21 +124,14 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     <select name="status">
         <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
         <option value="open"
-            <?php echo ($status=='open')?'selected="selected"':'';?>><?php echo _P('ticket-status', 'Open');?> (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
-        <?php
-        if($thisclient->getNumResolvedTickets()) {
-            ?>
-        <option value="resolved"
-            <?php echo ($status=='resolved')?'selected="selected"':'';?>><?php
-            echo __('Resolved'); ?> (<?php echo $thisclient->getNumResolvedTickets(); ?>)</option>
-        <?php
-        } ?>
-
+            <?php echo ($status=='open') ? 'selected="selected"' : '';?>>
+            <?php echo _P('ticket-status', 'Open');?> (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
         <?php
         if($thisclient->getNumClosedTickets()) {
             ?>
         <option value="closed"
-            <?php echo ($status=='closed')?'selected="selected"':'';?>><?php echo __('Closed');?> (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
+            <?php echo ($status=='closed') ? 'selected="selected"' : '';?>>
+            <?php echo __('Closed');?> (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
         <?php
         } ?>
     </select>

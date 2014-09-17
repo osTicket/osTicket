@@ -7,6 +7,16 @@
  *
  */
 
+-- Move tickets in resolved state to the default closed status
+SET @statusId = (
+        SELECT id FROM  `%TABLE_PREFIX%ticket_status`
+        WHERE  `state` =  'closed' ORDER BY id ASC LIMIT 1);
+
+UPDATE  `%TABLE_PREFIX%ticket` t1
+    LEFT JOIN  `%TABLE_PREFIX%ticket_status` t2
+        ON ( t2.id = t1.status_id AND t2.state="resolved")
+    SET t1.status_id = @statusId;
+
 -- add properties field
 ALTER TABLE  `%TABLE_PREFIX%ticket_status`
     ADD  `properties` TEXT NOT NULL AFTER  `sort`,

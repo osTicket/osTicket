@@ -372,7 +372,6 @@ var scp_prep = function() {
                 $('select#staffId').removeAttr('disabled');
                 break;
             case 'open':
-            case 'resolved':
                 $('select#staffId')
                 .attr('disabled','disabled')
                 .find('option:first')
