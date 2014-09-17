@@ -240,11 +240,13 @@ class FormField {
             if ($vs = $this->get('cleaners')) {
                 if (is_array($vs)) {
                     foreach ($vs as $cleaner)
-                        if (is_callable($clenaer))
-                            $this->_clean = $cleaner($this, $this->_clean);
+                        if (is_callable($cleaner))
+                            $this->_clean = call_user_func_array(
+                                    $cleaner, array($this, $this->_clean));
                 }
                 elseif (is_callable($vs))
-                    $this->_clean = $vs($this, $this->_clean);
+                    $this->_clean = call_user_func_array(
+                            $vs, array($this, $this->_clean));
             }
 
             if ($this->isVisible())
