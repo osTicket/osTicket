@@ -8,7 +8,7 @@
         $form = $field->getConfigurationForm();
         echo $form->getMedia();
         foreach ($form->getFields() as $name=>$f) { ?>
-            <div class="flush-left custom-field" id="field-<?php echo $f->getWidget()->name;
+            <div class="flush-left custom-field" id="field<?php echo $f->getWidget()->id;
                 ?>" <?php if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
             <div class="field-label <?php if ($f->get('required')) echo 'required'; ?>">
             <label for="<?php echo $f->getWidget()->name; ?>">
