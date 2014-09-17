@@ -681,7 +681,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
   `mode` int(11) unsigned NOT NULL DEFAULT '0',
   `flags` int(11) unsigned NOT NULL DEFAULT '0',
   `sort` int(11) unsigned NOT NULL DEFAULT '0',
-  `notes` text NOT NULL,
+  `properties` text NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),

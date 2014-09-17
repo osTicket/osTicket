@@ -766,7 +766,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     var $_list;
     var $_form;
-    var $_config;
     var $_settings;
     var $_properties;
 
@@ -777,7 +776,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function __construct() {
         call_user_func_array(array('parent', '__construct'), func_get_args());
-        $this->_config = new Config('TS.'.$this->getId());
     }
 
     protected function hasFlag($field, $flag) {
@@ -793,7 +791,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     protected function hasProperties() {
-        return ($this->_config->get('properties'));
+        return ($this->get('properties'));
     }
 
     function getForm() {
@@ -900,7 +898,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     private function getProperties() {
 
         if (!isset($this->_properties)) {
-            $this->_properties = $this->_config->get('properties');
+            $this->_properties = $this->get('properties');
             if (is_string($this->_properties))
                 $this->_properties = JsonDataParser::parse($this->_properties);
             elseif (!$this->_properties)
@@ -980,18 +978,14 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         }
 
         if (count($errors) === 0) {
+            if ($properties && is_array($properties))
+                $properties = JsonDataEncoder::encode($properties);
+
+            $this->set('properties', $properties);
             $this->save(true);
-            $this->setProperties($properties);
         }
 
         return count($errors) === 0;
-    }
-
-    function setProperties($properties) {
-        if ($properties && is_array($properties))
-            $properties = JsonDataEncoder::encode($properties);
-
-        $this->_config->set('properties', $properties);
     }
 
     function update($vars, &$errors) {
@@ -1042,13 +1036,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     static function __create($ht, &$error=false) {
         global $ost;
 
-        $properties = JsonDataEncoder::encode($ht['properties']);
-        unset($ht['properties']);
-        if ($status = TicketStatus::create($ht)) {
+        $ht['properties'] = JsonDataEncoder::encode($ht['properties']);
+        if (($status = TicketStatus::create($ht)))
             $status->save(true);
-            $status->_config = new Config('TS.'.$status->getId());
-            $status->_config->set('properties', $properties);
-        }
 
         return $status;
     }
