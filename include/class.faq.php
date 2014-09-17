@@ -180,9 +180,7 @@ class FAQ {
 
         // Inline images (attached to the draft)
         $this->attachments->deleteInlines();
-        if (isset($vars['draft_id']) && $vars['draft_id'])
-            if ($draft = Draft::lookup($vars['draft_id']))
-                $this->attachments->upload($draft->getAttachmentIds(), true);
+        $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
 
         $this->reload();
 
