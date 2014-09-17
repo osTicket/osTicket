@@ -48,13 +48,17 @@
       node.find('.trash').hide();
     },
     beforeSend: function (file, i, reader) {
+      var URL = window.webkitURL || window.URL;
       this.uploads.some(function(e) {
         if (e.data('file') == file) {
           if (file.type.indexOf('image/') === 0 && file.size < 1e6) {
-            e.find('.preview').attr('src', 'data:' + file.type + ';base64,' +
-              btoa(reader.result)).tooltip({items:'img',
+            var img = e.find('.preview')
+              .tooltip({items:'img',
                 tooltipClass: 'tooltip-preview',
-                content:function(){ return $(this).clone().wrap('<div>'); }});
+                content:function(){ return $(this).clone().wrap('<div>'); }}
+              )
+              .get()[0];
+              img.src = URL.createObjectURL(file);
           }
           return true;
         }
@@ -198,6 +202,8 @@
     cancelUpload: function(node) {
       if (node.data('xhr')) {
         node.data('xhr').abort();
+        var img = node.find('.preview').get()[0];
+        if (img) (window.webkitURL || window.URL).revokeObjectURL(img.src);
       }
       return this.deleteNode(node, false);
     },
@@ -205,7 +211,7 @@
       var message = $.fn.filedropbox.messages[err],
           filenode = this.findNode(file);
       if (file instanceof File) {
-        message = '<b>' + file.name + '</b><br/>' + message;
+        message = '<b>' + file.name + '</b><br/>' + message + '<br/>' + status;
       }
       $.sysAlert(__('File Upload Error'), message);
       if (filenode) this.cancelUpload(filenode);
@@ -372,8 +378,9 @@
     function getBuilder(filename, filedata, mime, boundary) {
       var dashdash = '--',
           crlf = '\r\n',
-          builder = '',
-          paramname = opts.paramname;
+          builder = [],
+          paramname = opts.paramname,
+          Blob = window.WebKitBlob || window.Blob;
 
       if (opts.data) {
         var params = $.param(opts.data).replace(/\+/g, '%20').split(/&/);
@@ -387,14 +394,14 @@
               return;
           }
 
-          builder += dashdash;
-          builder += boundary;
-          builder += crlf;
-          builder += 'Content-Disposition: form-data; name="' + name + '"';
-          builder += crlf;
-          builder += crlf;
-          builder += val;
-          builder += crlf;
+          builder.push(dashdash
+              + boundary
+              + crlf
+              + 'Content-Disposition: form-data; name="' + name + '"'
+              + crlf
+              + crlf
+              + val
+              + crlf);
         });
       }
 
@@ -402,25 +409,24 @@
         paramname = paramname(filename);
       }
 
-      builder += dashdash;
-      builder += boundary;
-      builder += crlf;
-      builder += 'Content-Disposition: form-data; name="' + (paramname||"") + '"';
-      builder += '; filename="' + encodeURIComponent(filename) + '"';
-      builder += crlf;
+      builder.push(dashdash
+          + boundary
+          + crlf
+          + 'Content-Disposition: form-data; name="' + (paramname||"") + '"'
+          + '; filename="' + encodeURIComponent(filename) + '"'
+          + crlf
 
-      builder += 'Content-Type: ' + mime;
-      builder += crlf;
-      builder += crlf;
+          + 'Content-Type: ' + mime
+          + crlf
+          + crlf);
 
-      builder += filedata;
-      builder += crlf;
-
-      builder += dashdash;
-      builder += boundary;
-      builder += dashdash;
-      builder += crlf;
-      return builder;
+      builder.push(filedata);
+      builder.push(crlf
+          + dashdash
+          + boundary
+          + dashdash
+          + crlf);
+      return new Blob(builder);
     }
 
     function progress(e) {
@@ -587,7 +593,7 @@
                 return send(e);
             };
 
-            reader.readAsBinaryString(files[fileIndex]);
+            reader.readAsArrayBuffer(files[fileIndex]);
 
           } else {
             filesRejected++;
@@ -665,14 +671,14 @@
           xhr.setRequestHeader(k, v);
         });
 
-        xhr.sendAsBinary(builder);
+        xhr.send(builder);
 
         global_progress[global_progress_index] = 0;
         globalProgress();
 
         opts.uploadStarted(index, file, files_count, xhr);
 
-        var afterComplete = function() {
+        var afterComplete = function(result) {
           filesDone++;
 
           // Remove from processing queue
@@ -714,7 +720,7 @@
                 timeDiff = now - start_time,
                 result = opts.uploadFinished(index, file, serverResponse, timeDiff, xhr);
 
-            afterComplete();
+            afterComplete(result);
 
           // Pass any errors to the error option
           if (xhr.status < 200 || xhr.status > 299) {
