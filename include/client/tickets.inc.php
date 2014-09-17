@@ -45,23 +45,17 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
 $qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
-    .'dept.ispublic, subject.value as subject,'
+    .'dept.ispublic, cdata.subject,'
     .'dept_name, status.name as status, status.state, ticket.source, ticket.created ';
-
-$dynfields='(SELECT entry.object_id, value FROM '.FORM_ANSWER_TABLE.' ans '.
-         'LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON entry.id=ans.entry_id '.
-         'LEFT JOIN '.FORM_FIELD_TABLE.' field ON field.id=ans.field_id '.
-         'WHERE field.name = "%1$s" AND entry.object_type="T")';
-$subject_sql = sprintf($dynfields, 'subject');
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
             ON (status.id = ticket.status_id) '
+      .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id)'
       .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
       .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
         ON (collab.ticket_id = ticket.ticket_id
-                AND collab.user_id ='.$thisclient->getId().' )'
-      .' LEFT JOIN '.$subject_sql.' subject ON ticket.ticket_id = subject.object_id ';
+                AND collab.user_id ='.$thisclient->getId().' )';
 
 $qwhere = sprintf(' WHERE ( ticket.user_id=%d OR collab.user_id=%d )',
             $thisclient->getId(), $thisclient->getId());
@@ -91,6 +85,8 @@ if($search) {
                .'ticket.ticket_id=thread.ticket_id AND thread.thread_type IN ("M","R"))';
     }
 }
+
+TicketForm::ensureDynamicDataView();
 
 $total=db_count('SELECT count(DISTINCT ticket.ticket_id) '.$qfrom.' '.$qwhere);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
