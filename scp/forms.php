@@ -4,7 +4,7 @@ require_once(INCLUDE_DIR."/class.dynamic_forms.php");
 
 $form=null;
 if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid dynamic form ID.';
+    $errors['err']='Identifiant de formulaire dynamique inconnu ou invalide.';
 
 if($_POST) {
     $fields = array('title', 'notes', 'instructions');
@@ -15,7 +15,7 @@ if($_POST) {
         case 'update':
             foreach ($fields as $f)
                 if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
+                    $errors[$f] = sprintf('%s est requis',
                         mb_convert_case($f, MB_CASE_TITLE));
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
@@ -48,14 +48,14 @@ if($_POST) {
                     }
                 }
                 if (in_array($field->get('name'), $names))
-                    $field->addError('Field variable name is not unique', 'name');
+                    $field->addError('La variable name du champ n\'est pas unique', 'name');
                 if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
-                    $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
+                    $field->addError('Caractère invalide dans la variable name. Veuillez utiliser uniquement des lettres et des chiffres.', 'name');
                 // Subject (Issue Summary) must always have data
                 if ($form->get('type') == 'T' && $field->get('name') == 'subject') {
                     if (($f = $field->getField(false)->getImpl()) && !$f->hasData())
-                        $field->addError('The issue summary must be a field '
-                            .'that supports user input, such as short answer',
+                        $field->addError('Le résumé du problème doit être un champ '
+                            .'qui supporte l\'édition par l\'utilisateur, comme une courte réponse',
                             'type');
                 }
                 if ($field->get('name'))
@@ -64,7 +64,7 @@ if($_POST) {
                     $form_fields[] = $field;
                 else
                     # notrans (not shown)
-                    $errors["field-$id"] = 'Field has validation errors';
+                    $errors["field-$id"] = 'Le champ a des erreurs de validation';
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
@@ -73,7 +73,7 @@ if($_POST) {
             $form = DynamicForm::create();
             foreach ($fields as $f) {
                 if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
+                    $errors[$f] = sprintf('%s est requis',
                         mb_convert_case($f, MB_CASE_TITLE));
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
@@ -82,7 +82,7 @@ if($_POST) {
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one API key';
+                $errors['err'] = 'Vous devez sélectionner au moins une clé d\'API';
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -93,11 +93,11 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = 'Selected custom forms deleted successfully';
+                            $msg = 'Formulaires personnalisés sélectionnés supprimés avec succès';
                         elseif ($i > 0)
-                            $warn = "$i of $count selected forms deleted";
+                            $warn = "$i formulaires personnalisés supprimés sur $count sélectionnés";
                         elseif (!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected custom forms';
+                            $errors['err'] = 'Impossible de supprimer les formulaires personnalisés sélectionnés';
                         break;
                 }
             }
@@ -135,9 +135,9 @@ if($_POST) {
         }
     }
     if ($errors)
-        $errors['err'] = 'Unable to commit form. Check validation errors';
+        $errors['err'] = 'Impossible d\'envoyer le formulaire. Vérifiez les erreurs de validation';
     else
-        $msg = 'Custom form successfully updated';
+        $msg = 'Formulaire personnalisé mis à jour avec succès';
 }
 
 $page='dynamic-forms.inc.php';
