@@ -365,13 +365,13 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     } ?>
 </table>
 <div class="clear"></div>
-<h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
 <?php
 $tcount = $ticket->getThreadCount();
 $tcount+= $ticket->getNumNotes();
 ?>
 <ul id="threads">
     <li><a class="active" id="toggle_ticket_thread" href="#"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+    <h2 style="padding:8px 0 5px 0; font-size:12pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
 </ul>
 <div id="ticket_thread">
     <?php
