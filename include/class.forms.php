@@ -1863,6 +1863,10 @@ class ChoicesWidget extends Widget {
         }
         return $values;
     }
+
+    function getJsValueGetter() {
+        return '%s.find(":selected").val()';
+    }
 }
 
 class CheckboxWidget extends Widget {
@@ -1895,7 +1899,7 @@ class CheckboxWidget extends Widget {
     }
 
     function getJsValueGetter() {
-        return '(%s.val() == "on")';
+        return '%s.is(":checked")';
     }
 }
 
@@ -2141,13 +2145,22 @@ class VisibilityConstraint {
         }
         $expression = $this->compileQ($this->constraint, $form);
 ?>
-          target.slideToggle(<?php echo $expression; ?>);
+          if (<?php echo $expression; ?>)
+            target.slideDown('slow', function (){
+                $(this).trigger('show');
+                });
+          else
+            target.slideUp('fast', function (){
+                $(this).trigger('hide');
+                });
         };
 
 <?php   foreach ($fields as $f) {
             $w = $form->getField($f)->getWidget();
 ?>
         $('#<?php echo $w->id; ?>').on('change', <?php echo $func; ?>);
+        $('#field<?php echo $w->id; ?>').on('show hide', <?php
+                echo $func; ?>);
 <?php   } ?>
       })();
     </script><?php
@@ -2174,7 +2187,7 @@ class VisibilityConstraint {
                 switch ($op) {
                 case 'eq':
                 case null:
-                    $expr[] = $wval == $value;
+                    $expr[] = ($wval == $value && $field->isVisible());
                 }
             }
         }
@@ -2214,9 +2227,12 @@ class VisibilityConstraint {
                 switch ($op) {
                 case 'eq':
                 case null:
-                    $expr[] = sprintf('%s == %s',
-                        sprintf($widget->getJsValueGetter(), $id),
-                        JsonDataEncoder::encode($value));
+                    $expr[] = sprintf('(%s.is(":visible") && %s)',
+                            $id,
+                            sprintf('%s == %s',
+                                sprintf($widget->getJsValueGetter(), $id),
+                                JsonDataEncoder::encode($value))
+                            );
                 }
             }
         }
