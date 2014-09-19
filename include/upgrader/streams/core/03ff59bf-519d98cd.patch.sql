@@ -27,6 +27,10 @@ UPDATE `%TABLE_PREFIX%ticket_status` s
         ON(c.namespace = CONCAT('TS.', s.id) AND c.key='properties')
     SET s.properties = c.value;
 
+--  add default reopen settings to existing closed state statuses
+UPDATE `%TABLE_PREFIX%ticket_status`
+    SET `properties`= INSERT(`properties`, 2, 0, '"allowreopen":true,"reopenstatus":0,')
+    WHERE `state` = 'closed';
 
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`

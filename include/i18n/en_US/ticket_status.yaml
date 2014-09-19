@@ -29,6 +29,8 @@
   sort: 2
   flags: 0
   properties:
+    allowreopen: true
+    reopenstatus: 0
     description: >
         Closed tickets. Tickets will still be accessible on client and staff panels.
 

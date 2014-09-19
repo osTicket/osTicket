@@ -554,7 +554,8 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
             $this->_form = DynamicForm::lookup(
                 array('type'=>'L'.$this->get('list_id')))->getForm($source);
             if (!$source && $config) {
-                foreach ($this->_form->getFields() as $f) {
+                $fields = $this->_form->getFields();
+                foreach ($fields as $f) {
                     $name = $f->get('id');
                     if (isset($config[$name]))
                         $f->value = $f->to_php($config[$name]);
@@ -563,6 +564,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
                 }
             }
         }
+
         return $this->_form;
     }
 
@@ -802,26 +804,114 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->_form;
     }
 
+    function getExtraConfigOptions($source=null) {
+
+
+        $status_choices = array( 0 => __('System Default'));
+        if (($statuses=TicketStatusList::getStatuses(
+                        array( 'enabled' => true, 'states' =>
+                            array('open')))))
+            foreach ($statuses as $s)
+                $status_choices[$s->getId()] = $s->getName();
+
+
+        return array(
+            'allowreopen' => new BooleanField(array(
+                'label' =>__('Allow Reopen'),
+                'default' => isset($source['allowreopen'])
+                    ?  $source['allowreopen']: true,
+                'id' => 'allowreopen',
+                'name' => 'allowreopen',
+                'configuration' => array(
+                    'desc'=>__('Allow tickets on this status to be reopened by end users'),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('state__eq'=>'closed')),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'reopenstatus' => new ChoiceField(array(
+                'label' => __('Reopen Status'),
+                'required' => false,
+                'default' => isset($source['reopenstatus'])
+                    ? $source['reopenstatus'] : 0,
+                'id' => 'reopenstatus',
+                'name' => 'reopenstatus',
+                'choices' => $status_choices,
+                'configuration' => array(
+                    'widget' => 'dropdown',
+                    'multiselect' =>false
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('allowreopen__eq'=> true)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            ))
+        );
+    }
+
     function getConfigurationForm($source=null) {
 
-        if ($form = $this->getForm()) {
-            $config = $this->getConfiguration();
-            $form = $form->getForm($source);
-            if (!$source && $config) {
-                foreach ($form->getFields() as $f) {
-                    $name = $f->get('id');
-                    if (isset($config[$name]))
-                        $f->value = $f->to_php($config[$name]);
-                    else if ($f->get('default'))
-                        $f->value = $f->get('default');
+        if (!($form = $this->getForm()))
+            return null;
+
+        $config = $this->getConfiguration();
+        $form = $form->getForm($source);
+        $fields = $form->getFields();
+        foreach ($fields as $k => $f) {
+            if ($f->get('name') == 'state' //TODO: check if editable.
+                    && ($extras=$this->getExtraConfigOptions($source))) {
+                foreach ($extras as $extra) {
+                    $extra->setForm($form);
+                    $fields->insert(++$k, $extra);
                 }
+                break;
             }
         }
+
+        if (!$source && $config) {
+            foreach ($fields as $f) {
+                $name = $f->get('id');
+                if (isset($config[$name]))
+                    $f->value = $f->to_php($config[$name]);
+                else if ($f->get('default'))
+                    $f->value = $f->get('default');
+            }
+        }
+
         return $form;
     }
 
     function isEnabled() {
         return $this->hasFlag('mode', self::ENABLED);
+    }
+
+    function isReopenable() {
+
+        if (strcasecmp($this->get('state'), 'closed'))
+            return true;
+
+        if (($c=$this->getConfiguration())
+                && $c['allowreopen']
+                && isset($c['reopenstatus']))
+            return true;
+
+        return false;
+    }
+
+    function getReopenStatus() {
+        global $cfg;
+
+        $status = null;
+        if ($this->isReopenable()
+                && ($c = $this->getConfiguration())
+                && isset($c['reopenstatus']))
+            $status = TicketStatus::lookup(
+                    $c['reopenstatus'] ?: $cfg->getDefaultTicketStatusId());
+
+        return ($status
+                && !strcasecmp($status->getState(), 'open'))
+            ?  $status : null;
     }
 
     function enable() {

@@ -321,6 +321,16 @@ class FormField {
     }
 
     /**
+     * FIXME: Temp
+     *
+     */
+
+    function isEditable() {
+        return (($this->get('edit_mask') & 32) == 0);
+    }
+
+
+    /**
      * parse
      *
      * Used to transform user-submitted data to a PHP value. This value is
