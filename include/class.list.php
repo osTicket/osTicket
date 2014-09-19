@@ -1015,7 +1015,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     function __toString() {
-        return $this->getName();
+        return __($this->getName());
     }
 
     static function create($ht) {
