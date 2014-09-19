@@ -14,7 +14,7 @@ $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
           </tr>
           <tr class="subheader">
             <td colspan=2">
-                Avant d’autoriser les fichiers joints, assurez-vous de bien comprendre les paramètres de sécurité et autres questions relatives au chargement  de fichiers.</td>
+                Avant d’autoriser les fichiers joints, assurez-vous de bien comprendre les paramètres de sécurité et autres questions relatives au chargement de fichiers.</td>
           </tr>
           <tr>
             <th width="165">Autoriser les fichiers joints</th>
