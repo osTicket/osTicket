@@ -16,32 +16,32 @@
 require('admin.inc.php');
 $group=null;
 if($_REQUEST['id'] && !($group=Group::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid group ID.';
+    $errors['err']='Identifiant de groupe inconnu ou invalide.';
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$group){
-                $errors['err']='Unknown or invalid group.';
+                $errors['err']='Groupe inconnu ou invalide.';
             }elseif($group->update($_POST,$errors)){
-                $msg='Group updated successfully';
+                $msg='Groupe mise à jour avec succès';
             }elseif(!$errors['err']){
-                $errors['err']='Unable to update group. Correct any error(s) below and try again!';
+                $errors['err']='Impossible de mettre à jour le group. Corrigez les erreurs ci-dessous et réessayez !';
             }
             break;
         case 'create':
             if(($id=Group::create($_POST,$errors))){
-                $msg=Format::htmlchars($_POST['name']).' added successfully';
+                $msg=Format::htmlchars($_POST['name']).' ajouté avec succès';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add group. Correct error(s) below and try again.';
+                $errors['err']='Impossible d\'ajouter un groupe. Corrigez les erreurs ci-dessous et réessayez.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one group.';
+                $errors['err'] = 'Vous devez sélectionner au moins un groupe.';
             } elseif(in_array($thisstaff->getGroupId(), $_POST['ids'])) {
-                $errors['err'] = "As an admin, you can't disable/delete a group you belong to - you might lockout all admins!";
+                $errors['err'] = "En tant qu'administrateur, vous ne pouvez pas désactiver ou supprimer un groupe auquel vous appartenez — vous pourriez bloquer tous les accès admins !";
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -51,11 +51,11 @@ if($_POST){
 
                         if(db_query($sql) && ($num=db_affected_rows())){
                             if($num==$count)
-                                $msg = 'Selected groups activated';
+                                $msg = 'Groupes sélectionnés activés';
                             else
-                                $warn = "$num of $count selected groups activated";
+                                $warn = "$num groupes activés sur $count sélectionnés";
                         } else {
-                            $errors['err'] = 'Unable to activate selected groups';
+                            $errors['err'] = 'Impossible d\'activer les groupes sélectionnés';
                         }
                         break;
                     case 'disable':
@@ -63,11 +63,11 @@ if($_POST){
                             .' WHERE group_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected groups disabled';
+                                $msg = 'Groupes sélectionnés désactivés';
                             else
-                                $warn = "$num of $count selected groups disabled";
+                                $warn = "$num groupes désactivés sur $count sélectionnés";
                         } else {
-                            $errors['err'] = 'Unable to disable selected groups';
+                            $errors['err'] = 'Impossible de désactiver les groupes sélectionnés';
                         }
                         break;
                     case 'delete':
@@ -77,19 +77,19 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = 'Selected groups deleted successfully';
+                            $msg = 'Groupes sélectionnés supprimés avec succès';
                         elseif($i>0)
-                            $warn = "$i of $count selected groups deleted";
+                            $warn = "$i groupes supprimés sur $count sélectionnés";
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected groups';
+                            $errors['err'] = 'Impossible de supprimer les groupes sélectionnés';
                         break;
                     default:
-                        $errors['err']  = 'Unknown action. Get technical help!';
+                        $errors['err']  = 'Action inconnue. Contactez le support technique !';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']='Action inconnue';
             break;
     }
 }
