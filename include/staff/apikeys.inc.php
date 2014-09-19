@@ -77,7 +77,7 @@ else
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td>&nbsp;<a href="apikeys.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['apikey']); ?></a></td>
                 <td><?php echo $row['ipaddr']; ?></td>
-                <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
+                <td><?php echo $row['isactive']?'Active':'<b>Désactivée</b>'; ?></td>
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>
