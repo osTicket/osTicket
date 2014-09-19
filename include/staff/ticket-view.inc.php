@@ -22,15 +22,27 @@ $lock  = $ticket->getLock();  //Ticket lock obj
 $id    = $ticket->getId();    //Ticket ID.
 
 //Useful warnings and errors the user might want to know!
-if($ticket->isAssigned() && (
-            ($staff && $staff->getId()!=$thisstaff->getId())
-         || ($team && !$team->hasMember($thisstaff))
+if ($ticket->isClosed() && !$ticket->isReopenable())
+    $warn = sprintf(
+            __('Current ticket status (%s) does not allow the end user to reply.'),
+            $ticket->getStatus());
+elseif ($ticket->isAssigned()
+        && (($staff && $staff->getId()!=$thisstaff->getId())
+            || ($team && !$team->hasMember($thisstaff))
         ))
-    $warn.='&nbsp;&nbsp;<span class="Icon assignedTicket">'.sprintf(__('Ticket is assigned to %s'),implode('/', $ticket->getAssignees())).'</span>';
-if(!$errors['err'] && ($lock && $lock->getStaffId()!=$thisstaff->getId()))
-    $errors['err']=sprintf(__('This ticket is currently locked by %s'),$lock->getStaffName());
-if(!$errors['err'] && ($emailBanned=TicketFilter::isBanned($ticket->getEmail())))
-    $errors['err']=__('Email is in banlist! Must be removed before any reply/response');
+    $warn.= sprintf('&nbsp;&nbsp;<span class="Icon assignedTicket">%</span>',
+            sprintf(__('Ticket is assigned to %s'),
+                implode('/', $ticket->getAssignees())
+                ));
+
+if (!$errors['err']) {
+
+    if ($lock && $lock->getStaffId()!=$thisstaff->getId())
+        $errors['err'] = sprintf(__('This ticket is currently locked by %s'),
+                $lock->getStaffName());
+    elseif (($emailBanned=TicketFilter::isBanned($ticket->getEmail())))
+        $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
+}
 
 $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
 

@@ -4,6 +4,10 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 
 $dept = $ticket->getDept();
+
+if ($ticket->isClosed() && !$ticket->isReopenable())
+    $warn = __('This ticket is marked as closed and cannot be reopened.');
+
 //Making sure we don't leak out internal dept names
 if(!$dept || !$dept->isPublic())
     $dept = $cfg->getDefaultDept();
@@ -146,6 +150,10 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
 <?php }elseif($warn) { ?>
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php } ?>
+
+<?php
+
+if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
 <form id="reply" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>
     <h2><?php echo __('Post a Reply');?></h2>
@@ -183,3 +191,5 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         <input type="button" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
     </p>
 </form>
+<?php
+} ?>

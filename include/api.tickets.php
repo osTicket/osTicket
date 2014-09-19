@@ -149,6 +149,10 @@ class TicketApiController extends ApiController {
             $data = $this->getEmailRequest();
 
         if (($thread = ThreadEntry::lookupByEmailHeaders($data))
+                && ($t=$thread->getTicket())
+                && ($data['staffId']
+                    || !$t->isClosed()
+                    || $t->isReopenable())
                 && $thread->postEmail($data)) {
             return $thread->getTicket();
         }

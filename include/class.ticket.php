@@ -142,6 +142,10 @@ class Ticket {
         return ($this->getReopenDate());
     }
 
+    function isReopenable() {
+        return $this->getStatus()->isReopenable();
+    }
+
     function isClosed() {
          return $this->hasState('closed');
     }
@@ -939,11 +943,19 @@ class Ticket {
         return (db_query($sql) && db_affected_rows());
     }
 
-    //set status to open on a closed ticket.
-    function reopen($isanswered=0) {
+    function reopen() {
         global $cfg;
 
-        return $this->setStatus($cfg->getDefaultTicketStatusId());
+        if (!$this->isClosed())
+            return false;
+
+        // Set status to open based on current closed status settings
+        // If the closed status doesn't have configured "reopen" status then use the
+        // the default ticket status.
+        if (!($status=$this->getStatus()->getReopenStatus()))
+            $status = $cfg->getDefaultTicketStatusId();
+
+        return $status ? $this->setStatus($status, 'Reopened') : false;
     }
 
     function onNewTicket($message, $autorespond=true, $alertstaff=true) {
@@ -1149,8 +1161,9 @@ class Ticket {
             }
         }
 
-        // Reopen if NOT open
-        if(!$this->isOpen()) $this->reopen();
+        // Reopen if closed AND reopenable
+        if ($this->isClosed() && $this->isReopenable())
+            $this->reopen();
 
        /**********   double check auto-response  ************/
         if (!($user = $message->getUser()))
