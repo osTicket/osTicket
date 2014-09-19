@@ -100,7 +100,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Remarques de l’admin&nbsp;/strong>: notes internes.&nbsp;</em>
+                <em><strong>Remarques admin&nbsp;/strong>: notes internes.&nbsp;</em> <!-- dans d’autres fichiers, on aura l’inverse => Notes internes : remarques admin -->
             </th>
         </tr>
         <tr>
@@ -113,7 +113,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="apikeys.php"'>
+    <input type="reset"  name="reset"  value="Réinitialiser">
+    <input type="button" name="cancel" value="Annuler" onclick='window.location.href="apikeys.php"'>
 </p>
 </form>
