@@ -6,18 +6,21 @@ class Deployment extends Unpacker {
     var $prologue = "Déploie osTicket dans le chemin d'installation cible";
 
     var $epilog =
-        "Le déploiement est utilisé depuis le modèle de développement continu. Si vous suivez le dépot git en amont, vous pouvez utiliser le script de déploiement pour déployer vos changements ou ceux réalisés par le développement en amont de votre cible d'installation.";
+        "Le déploiement est utilisé depuis le modèle de développement continu.
+        Si vous suivez le dépot git amont, vous pouvez utiliser le script de
+        déploiement pour déployer vos changements ou ceux réalisés par le
+        développement en amont vers votre cible d'installation.";
 
     function __construct() {
         $this->options['dry-run'] = array('-t','--dry-run',
             'action'=>'store_true',
-            'help'=>'Il n\'y aura pas de déploiement de nouveau code. Les fichiers qui seront copiés vont simplement être spécifiés');
+            'help'=>'Il n\'y aura pas de déploiement de nouveau code. Les fichiers qui seront copiés vont simplement être affichés');
         $this->options['setup'] = array('-s','--setup',
             'action'=>'store_true',
-            'help'=>'Déploie le dossier d\installation. Utile pour lancer une nouvelle installation.');
+            'help'=>'Déploie le dossier de configuration. Utile pour le déploiement sur de nouvelles installations.');
         $this->options['clean'] = array('-C','--clean',
             'action'=>'store_true',
-            'help'=>'Supprime les fichiers du répertoire qui ne sont plus inclus dans le dépôt');
+            'help'=>'Supprime les fichiers du répertoire de destination qui ne sont plus inclus dans ce dépôt');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -75,7 +78,7 @@ class Deployment extends Unpacker {
         }
         if (!$contents || !glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT)) {
             if ($verbose)
-                $this->stdout->write("(Supression dossier): $destination\n");
+                $this->stdout->write("(Suppression dossier): $destination\n");
             if (!$dryrun)
                 rmdir($destination);
         }
@@ -108,15 +111,15 @@ class Deployment extends Unpacker {
             $source);
         // Set THIS_VERSION
         $source = preg_replace("/^(\s*)define\s*\(\s*'THIS_VERSION'.*$/m",
-            "$1define('THIS_VERSION', '".$version."'); // Fait par l\'installer",
+            "$1define('THIS_VERSION', '".$version."'); // Set by installer",
             $source);
         // Set GIT_VERSION
         $source = preg_replace("/^(\s*)define\s*\(\s*'GIT_VERSION'.*$/m",
-            "$1define('GIT_VERSION', '".$short."'); //Fait par l\'installer",
+            "$1define('GIT_VERSION', '".$short."'); // Set by installer",
             $source);
         // Disable error display
         $source = preg_replace("/^(\s*)ini_set\s*\(\s*'(display_errors|display_startup_errors)'.*$/m",
-            "$1ini_set('$2', '0'); // Fait par l\'installer",
+            "$1ini_set('$2', '0'); // Set by installer",
             $source);
 
         if (!file_put_contents($dest, $source))
@@ -129,7 +132,7 @@ class Deployment extends Unpacker {
         $this->destination = $args['install-path'];
         if (!is_dir($this->destination))
             if (!@mkdir($this->destination, 0751, true))
-                die("Le répertoire cible n\'existe pas et n'a pas pu être créé");
+                die("Le répertoire cible n'existe pas et ne peut être créé");
         $this->destination = self::realpath($this->destination).'/';
 
         # Determine if this is an upgrade, and if so, where the include/
