@@ -18,11 +18,11 @@ require_once 'staff.inc.php';
 
 # PHP < 5.4.7 will not handle a URL like //host.tld/path correctly
 if (!($url=trim($_GET['url'])))
-    Http::response(422, 'Invalid URL');
+    Http::response(422, 'URL invalide');
 
 $check = (strpos($url, '//') === 0) ? 'http:' . $url : $url;
 if (!Validator::is_url($check) || !$ost->validateLinkToken($_GET['auth']))
-    Http::response(403, 'URL link not authorized');
+    Http::response(403, 'Lien URL non autorisé');
 elseif (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false)
     Http::redirect($url);
 ?>
