@@ -50,14 +50,14 @@ class Manager extends Module {
             if (($module = Module::getInstance($action)))
                 return $module->_run($args['action']);
 
-            $this->stderr->write("Commande donné inconnue\n");
+            $this->stderr->write("Action donnée inconnue\n");
             $this->showHelp();
         }
     }
 }
 
 if (php_sapi_name() != "cli")
-    die("Gestion prise en charge uniquement en ligne de commande\n");
+    die("La gestion n'est prise en charge que depuis la ligne de commande\n");
 
 $manager = new Manager();
 $manager->parseOptions();
