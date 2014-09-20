@@ -2,7 +2,7 @@
 
 $info=array();
 if($form && $_REQUEST['a']!='add') {
-    $title = 'Mettre à jour la rubrique de forumaire personnalisé';
+    $title = 'Mettre à jour la rubrique de formulaire personnalisé';
     $action = 'Mettre à jour';
     $url = "?id=".urlencode($_REQUEST['id']);
     $submit_text='Sauvegarder les modifications';
