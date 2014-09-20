@@ -4,7 +4,7 @@ $info=array();
 $qstr='';
 if($category && $_REQUEST['a']!='add'){
     $title='Mettre à jour la catégorie&nbps;: '.$category->getName();
-    $action='Mettre à jour';
+    $action='update';
     $submit_text='Sauvegarder les modifications';
     $info=$category->getHashtable();
     $info['id']=$category->getId();
@@ -12,7 +12,7 @@ if($category && $_REQUEST['a']!='add'){
     $qstr.='&id='.$category->getId();
 }else {
     $title='Ajouter une catégorie';
-    $action='Créer';
+    $action='create';
     $submit_text='Ajouter';
     $qstr.='&a='.$_REQUEST['a'];
 }
@@ -50,12 +50,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div style="padding-top:3px;"><b>Category Name</b>:&nbsp;<span class="faded">Nom descriptif court.</span></div>
+                <div style="padding-top:3px;"><b>Nom de la catégorie</b>:&nbsp;<span class="faded">Nom descriptif court.</span></div>
                     <input type="text" size="70" name="name" value="<?php echo $info['name']; ?>">
                     &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
                 <br>
                 <div style="padding-top:5px;">
-                    <b>Category Description</b>:&nbsp;<span class="faded">Résumé de la catégorie</span>
+                    <b>Description de la catégorie</b>:&nbsp;<span class="faded">Résumé de la catégorie</span>
                     &nbsp;
                     <font class="error">*&nbsp;<?php echo $errors['description']; ?></font></div>
                     <textarea class="richtext" name="description" cols="21" rows="12" style="width:98%;"><?php echo $info['description']; ?></textarea>
