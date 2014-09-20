@@ -2,7 +2,7 @@
 require_once "class.test.php";
 
 class JsSyntaxTest extends Test {
-    var $name = "JavaScript Syntax Checks";
+    var $name = "Contrôle des erreurs de syntaxe JavaScript";
 
     function testLintErrors() {
         $exit = 0;
