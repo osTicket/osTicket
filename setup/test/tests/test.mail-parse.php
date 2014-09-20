@@ -10,7 +10,7 @@ require_once INCLUDE_DIR.'class.thread.php';
 require_once 'mockdb.php';
 
 class TestMailParsing extends Test {
-    var $name = "Mail parsing library tests";
+    var $name = "Test de la bibliothèque d\'analyse des mails";
 
     function testRecipients() {
         db_connect(new MockDbSource());
