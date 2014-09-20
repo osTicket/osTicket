@@ -1,17 +1,17 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Accès refusé');
 $info=array();
 $qstr='';
 if($api && $_REQUEST['a']!='add'){
-    $title='Update API Key';
-    $action='update';
-    $submit_text='Save Changes';
+    $title='Mettre à jour la clé API';
+    $action='Mettre à jour';
+    $submit_text='Sauvegarder les modifications';
     $info=$api->getHashtable();
     $qstr.='&id='.$api->getId();
 }else {
-    $title='Add New API Key';
-    $action='add';
-    $submit_text='Add Key';
+    $title='Ajouter une nouvelle clé API';
+    $action='Ajouter';
+    $submit_text='Ajouter une clé';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $qstr.='&a='.urlencode($_REQUEST['a']);
 }
@@ -30,14 +30,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>API Key is auto-generated. Delete and re-add to change the key.</em>
+                <em>La clé API est générée automatiquement. Effacer et ajouter à nouveau pour changer la clé.</em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td width="150" class="required">
-                Status:
+                Statut
             </td>
             <td>
                 <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Active</strong>
@@ -48,7 +48,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php if($api){ ?>
         <tr>
             <td width="150">
-                IP Address:
+                Adresse&nbsp;IP
             </td>
             <td>
                 <span>
@@ -59,14 +59,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="150">
-                API Key:
+                Clé API
             </td>
             <td><?php echo $api->getKey(); ?> &nbsp;</td>
         </tr>
         <?php }else{ ?>
         <tr>
             <td width="150" class="required">
-               IP Address:
+               Adresse&nbsp;IP
             </td>
             <td>
                 <span>
@@ -79,14 +79,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Services:</strong>: Check applicable API services enabled for the key.</em>
+                <em><strong>Services&nbsp;:</strong>: vérifier quels services API sont autorisés pour la clé.</em>
             </th>
         </tr>
         <tr>
             <td colspan=2 style="padding-left:5px">
                 <label>
                     <input type="checkbox" name="can_create_tickets" value="1" <?php echo $info['can_create_tickets']?'checked="checked"':''; ?> >
-                    Can Create Tickets <em>(XML/JSON/EMAIL)</em>
+                    Création de tickets <em>(XML/JSON/EMAIL)</em>
                 </label>
             </td>
         </tr>
@@ -94,13 +94,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td colspan=2 style="padding-left:5px">
                 <label>
                     <input type="checkbox" name="can_exec_cron" value="1" <?php echo $info['can_exec_cron']?'checked="checked"':''; ?> >
-                    Can Execute Cron
+                    Exécuter avec cron
                 </label>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes.&nbsp;</em>
+                <em><strong>Remarques admin&nbsp;/strong>: notes internes.&nbsp;</em> <!-- dans d’autres fichiers, on aura l’inverse => Notes internes : remarques admin -->
             </th>
         </tr>
         <tr>
@@ -113,7 +113,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="apikeys.php"'>
+    <input type="reset"  name="reset"  value="Réinitialiser">
+    <input type="button" name="cancel" value="Annuler" onclick='window.location.href="apikeys.php"'>
 </p>
 </form>
