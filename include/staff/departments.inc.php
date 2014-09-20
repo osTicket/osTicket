@@ -37,14 +37,14 @@ $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing="Showing 1-$num of $num departments";
 else
-    $showing='Aucune section n’a été trouvée&nbsp;!';
+    $showing='Aucun département n’a été trouvé&nbsp;!';
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Sections</h2>
+ <h2>Départements</h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="departments.php?a=add" class="Icon newDepartment">Ajouter une section</a></b></div>
+    <b><a href="departments.php?a=add" class="Icon newDepartment">Ajouter un département</a></b></div>
 <div class="clear"></div>
 <form action="departments.php" method="POST" name="depts">
  <?php csrf_token(); ?>
@@ -58,8 +58,8 @@ else
             <th width="180"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name">Nom</a></th>
             <th width="80"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type">Type</a></th>
             <th width="70"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users">Utilisateurs</a></th>
-            <th width="300"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email">Adresse courriel</a></th>
-            <th width="200"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager">Responsable de la section/a></th>
+            <th width="300"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email">Adresse de courriel</a></th>
+            <th width="200"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager">Responsable du département</a></th>
         </tr>
     </thead>
     <tbody>
@@ -82,7 +82,7 @@ else
                     $row['email'] = $defaultEmailAddress;
                 }
 
-                $default=($defaultId==$row['dept_id'])?' <small>(Default)</small>':'';
+                $default=($defaultId==$row['dept_id'])?' <small>(Défaut)</small>':'';
                 ?>
             <tr id="<?php echo $row['dept_id']; ?>">
                 <td width=7px>
@@ -127,7 +127,7 @@ if($res && $num): //Show options..
 <p class="centered" id="actions">
     <input class="button" type="submit" name="make_public" value="Passer en statut public" >
     <input class="button" type="submit" name="make_private" value="Passer en statut privé" >
-    <input class="button" type="submit" name="delete" value="Supprimer la(les) section(s)" >
+    <input class="button" type="submit" name="delete" value="Supprimer le(s) département(s)" >
 </p>
 <?php
 endif;
@@ -145,7 +145,7 @@ endif;
         Êtes-vous sûr.e de vouloir passer les sections sélectionnées en statut <b>privé</b>&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPRRIMER les sections sélectionnées&nbsp;?</strong></font>
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les sections sélectionnées&nbsp;?</strong></font>
         <br><br>Les sections supprimées ne POURRONT PAS être récupérées.
     </p>
     <div>Veuillez confirmer pour continuer</div>
