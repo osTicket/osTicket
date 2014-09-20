@@ -10,7 +10,7 @@ require_once INCLUDE_DIR.'class.thread.php';
 require_once 'mockdb.php';
 
 class TestMailParsing extends Test {
-    var $name = "Test de la bibliothèque d\'analyse des mails";
+    var $name = "Test de la bibliothèque d'analyse (parsing) des mails";
 
     function testRecipients() {
         db_connect(new MockDbSource());
@@ -44,9 +44,9 @@ Q2hlZXJzISE=
 EOF;
 
         $result = EmailDataParser::parse($email);
-        $this->assert(count($result['recipients']) == 1, 'Expected 1 recipient');
+        $this->assert(count($result['recipients']) == 1, 'Un destinataire attendu');
         $this->assert($result['recipients'][0]['source'] == 'delivered-to',
-            'Delivered-To header used as a collaborator');
+            'En-tête Delivered-To utilisé comme collaborateur');
     }
 }
 return 'TestMailParsing';
