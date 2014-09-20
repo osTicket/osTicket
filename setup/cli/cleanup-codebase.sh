@@ -17,14 +17,14 @@ find_root() {
 
 root="$(find_root)"
 if [[ ! -f "$root/main.inc.php" ]]; then
-    echo "!!! Unable to determing codebase root."
-    echo "!!! Try running this inside the codebase path."
+    echo "!!! Impossible de déterminer la racine du code source."
+    echo "!!! Essayez de le lancer à partir du répertoire du code source."
     exit 1;
 fi
 
 while read file; do
     if [[ -n "$file" && "${file[0]}" != "\x23" && -f "$root/$file" ]]; then
-        echo "Cleaning $file";
+        echo "Nettoyage de $file";
         rm "$root/$file";
     fi
 done <<< "

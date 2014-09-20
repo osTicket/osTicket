@@ -2,7 +2,7 @@
 require_once "class.test.php";
 
 class ExtraWhitespace extends Test {
-    var $name = "PHP Leading and Trailing Whitespace";
+    var $name = "PHP Espaces avant et après";
     
     function testFindWhitespace() {
         foreach ($this->getAllScripts() as $s) {
@@ -14,13 +14,13 @@ class ExtraWhitespace extends Test {
                     $this->fail(
                         $s, $this->line_number_for_offset($s, $match[1]),
                         (strpos('?>', $match[0]) !== false)
-                            ? 'Leading whitespace'
-                            : 'Trailing whitespace');
+                            ? 'Espace au début'
+                            : 'Espace à la fin');
             }
             else $this->pass();
         }
     }
 }
-return 'ExtraWhitespace';
+return 'Excès d\'espace';
 
 ?>

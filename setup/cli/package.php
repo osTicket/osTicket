@@ -2,7 +2,7 @@
 <?php
 
 if (php_sapi_name() != 'cli')
-    die("Only command-line packaging is supported");
+    die("Seul la compilation en ligne de commande est prise en charge");
 
 $stage_folder = "stage";
 $stage_path = dirname(__file__) . '/' . $stage_folder;
@@ -47,7 +47,7 @@ function exclude($pattern, $match) {
 function package($pattern, $destination, $recurse=false, $exclude=false) {
     global $root, $stage_path;
     $search = $root . '/' . $pattern;
-    echo "Packaging " . $search . "\n";
+    echo "Compilation " . $search . "\n";
     foreach (glob($search, GLOB_BRACE|GLOB_NOSORT) as $file) {
         if (is_file($file)) {
             if ($exclude && exclude($exclude, $file))
@@ -70,7 +70,7 @@ function package($pattern, $destination, $recurse=false, $exclude=false) {
 
 # Run tests before continuing
 if (run_tests($root) > 0)
-    die("Regression tests failed. Cowardly refusing to package\n");
+    die("Les tests de regression ont échoués. Lâche refus de compiler\n");
 
 # Create the stage folder for the install files
 if (!is_dir($stage_path))

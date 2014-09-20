@@ -2,7 +2,7 @@
 require_once "class.test.php";
 
 class SyntaxTest extends Test {
-    var $name = "PHP Syntax Checks";
+    var $name = "Contrôle de synaxe PHP";
 
     function testCompileErrors() {
         $exit = 0;
