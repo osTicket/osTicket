@@ -21,6 +21,6 @@ class ExtraWhitespace extends Test {
         }
     }
 }
-return 'Excès d\'espace';
+return 'ExtraWhitespace';
 
 ?>
