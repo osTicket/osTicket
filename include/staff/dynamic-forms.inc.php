@@ -1,8 +1,8 @@
 <div style="width:700;padding-top:5px; float:left;">
- <h2>Custom Forms</h2>
+ <h2>Formulaires personnalisés</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="forms.php?a=add" class="Icon form-add">Add New Custom Form</a></b></div>
+ <b><a href="forms.php?a=add" class="Icon form-add">Ajouter un formulaire personnalisé/a></b></div>
 <div class="clear"></div>
 
 <?php
@@ -21,8 +21,8 @@ $showing=$pageNav->showing().' forms';
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>Built-in Forms</th>
-            <th>Last Updated</th>
+            <th>Formulaires intégrés</th>
+            <th>Dernière mise à jour</th>
         </tr>
     </thead>
     <tbody>
@@ -49,8 +49,8 @@ $showing=$pageNav->showing().' forms';
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>Custom Forms</th>
-            <th>Last Updated</th>
+            <th>Formulaires personnalisés</th>
+            <th>Dernière mise à jour</th>
         </tr>
     </thead>
     <tbody>
@@ -76,12 +76,12 @@ $showing=$pageNav->showing().' forms';
      <tr>
         <td colspan="3">
             <?php if($count){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            Sélectionner&nbsp;:&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No extra forms defined yet &mdash; <a href="forms.php?a=add">add one!</a>';
+                echo 'Aucun formulaire supplémentaire n’a été défini pour l’instant &mdash; <a href="forms.php?a=add">ajoutez-en un&nbsp;!</a>';
             } ?>
         </td>
      </tr>
@@ -92,26 +92,26 @@ if ($count) //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="delete" value="Supprimer">
 </p>
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected forms?</strong></font>
-        <br><br>Deleted forms CANNOT be recovered.
+        <font color="red"><strongÊtes-vous sûr.e de vouloir SUPPRIMER les formulaires sélectionnés&nbsp;?</strong></font>
+        <br><br>Les formulaires supprimés ne POURRONT PAS être récupérés.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer.</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
