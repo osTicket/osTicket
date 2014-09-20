@@ -3,14 +3,14 @@ require_once "class.test.php";
 require_once INCLUDE_DIR."class.crypto.php";
 
 class TestCrypto extends Test {
-    var $name = "Crypto library tests";
+    var $name = "Tests des librairies crypto";
 
     var $test_data = 'supercalifragilisticexpialidocious'; # notrans
     var $master = 'master'; # notrans
 
     var $passwords = array(
-        'english-password',
-        'CaseSensitive Password',
+        'mot-de-passe-français',
+        'mot-de-passe sensible à la casse',
         '«ταБЬℓσ»',
         '٩(-̮̮̃-̃)۶ ٩(●̮̮̃•̃)۶ ٩(͡๏̯͡๏)۶ ٩(-̮̮̃•̃).',
         '发同讲说宅电的手机告的世全所回广讲说跟',
@@ -22,14 +22,14 @@ class TestCrypto extends Test {
             $enc = Crypto::encrypt($subject, $this->master, 'simple');
             $dec = Crypto::decrypt($enc, $this->master, 'simple');
             $this->assertEqual($dec, $subject,
-                "{$subject}: Encryption failed closed loop");
+                "{$subject}: Echec du chiffrage de la boucle");
             $this->assertNotEqual($enc, $subject,
-                'Data was not encrypted');
-            $this->assertNotEqual($enc, false, 'Encryption failed');
-            $this->assertNotEqual($dec, false, 'Decryption failed');
+                'Les données n\'étaient pas chiffrées');
+            $this->assertNotEqual($enc, false, 'Échec du chiffrage');
+            $this->assertNotEqual($dec, false, 'Échec du déchiffrage');
 
-            $dec = Crypto::decrypt($enc, $this->master, 'wrong');
-            $this->assertNotEqual($dec, $this->test_data, 'Subkeys are broken');
+            $dec = Crypto::decrypt($enc, $this->master, 'faux');
+            $this->assertNotEqual($dec, $this->test_data, 'Les clés secondaires sont cassées');
         }
     }
 
@@ -37,17 +37,17 @@ class TestCrypto extends Test {
         $name = get_class($c);
         foreach ($tests as $id => $subject) {
             $dec = $c->decrypt(base64_decode($subject));
-            $this->assertEqual($dec, $this->test_data, "$name: decryption incorrect");
-            $this->assertNotEqual($dec, false, "$name: decryption FAILED");
+            $this->assertEqual($dec, $this->test_data, "$name: erreur de déchiffrement");
+            $this->assertNotEqual($dec, false, "$name: Échec du déchiffrement");
         }
         $enc = $c->encrypt($this->test_data);
         $this->assertNotEqual($enc, $this->test_data,
-            "$name: encryption cheaped out");
-        $this->assertNotEqual($enc, false, "$name: encryption failed");
+            "$name: Chiffrement non réalisé");
+        $this->assertNotEqual($enc, false, "$name: Échec du chiffrement");
 
-        $c->setKeys($this->master, 'wrong');
+        $c->setKeys($this->master, 'Faux');
         $dec = $c->decrypt(base64_decode($subject));
-        $this->assertEqual($dec, false, "$name: Subkeys are broken");
+        $this->assertEqual($dec, false, "$name: Les clés secondaires sont cassées");
 
     }
 
@@ -56,7 +56,7 @@ class TestCrypto extends Test {
             1 => 'JDEkIEDoeaSiOUEGE5KQ3UmJpQ5+pUaX91HyLMG58GmNU9pZXAdiXXJsfl+7TSDlLczGD98UCD6tLuDIwI9XJLEwew==',
         );
         if (!CryptoMcrypt::exists())
-            return $this->warn('Not testing mcrypt encryption');
+            return $this->warn('Pas de test du chiffrement mcrypt');
 
         $c = new CryptoMcrypt(0);
         $c->setKeys($this->master, 'simple');
@@ -68,7 +68,7 @@ class TestCrypto extends Test {
             1 => 'JDEkRiLtWBgRN68kJjp4jsM6xKJY+XFYwMeaQIHJXKW8v3fEZzs3gCq3hKevgvAjvdgwx5ZUYLFPsFehLtkzAw8IlQ==',
         );
         if (!CryptoOpenSSL::exists())
-            return $this->warn('Not testing openssl encryption');
+            return $this->warn('Pas de test du chiffrement openssl');
 
         $c = new CryptoOpenSSL(0);
         $c->setKeys($this->master, 'simple');
@@ -80,7 +80,7 @@ class TestCrypto extends Test {
             1 => 'JDEkvH/es2Drdsmc8pU2UBnBxhiPavtvst2Sl9jOYVXTRjHsgPmv8+8mIgwnA1nQ6EI2AoTq2gMZtoBoqK3Mzpw8IQ==',
         );
         if (!CryptoPHPSecLib::exists())
-            return $this->warn('Not testing PHPSecLib encryption');
+            return $this->warn('Pas de test du chiffrement PHPSecLib');
 
         $c = new CryptoPHPSecLib(0);
         $c->setKeys($this->master, 'simple');
@@ -90,9 +90,9 @@ class TestCrypto extends Test {
     function testRandom() {
         for ($i=1; $i<128; $i+=4) {
             $data = Crypto::random($i);
-            $this->assertNotEqual($data, '', 'Empty random data generated');
+            $this->assertNotEqual($data, '', 'Les données aléatoires générées sont vides');
             $this->assert(strlen($data) == $i,
-                'Random data received was not the length requested');
+                'Les données aléatoires reçues ne font pas la longueur nécessaire');
         }
     }
 }
