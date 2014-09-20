@@ -18,7 +18,7 @@ class UnitializedVars extends Test {
                 }
                 elseif ($bug['type'] == 'MAYBE_UNDEF_ACCESS') {
                     list($line, $file) = $bug['line'];
-                    $this->warn("Accès potentil à un objet NULL @ $file : $line");
+                    $this->warn("Accès potentiel à un objet NULL @ $file : $line");
                 }
             }
             if (!$a->bugs)
