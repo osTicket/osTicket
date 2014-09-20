@@ -19,7 +19,7 @@ if($_POST){
     switch(strtolower($_POST['do'])){
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one log to delete';
+                $errors['err'] = 'Vous devez sélectionner au moins un journal à supprimer';
             } else {
                 $count=count($_POST['ids']);
                 if($_POST['a'] && !strcasecmp($_POST['a'], 'delete')) {
@@ -28,18 +28,18 @@ if($_POST){
                         .' WHERE log_id IN ('.implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
-                            $msg='Selected logs deleted successfully';
+                            $msg='Journaux sélectionnés supprimés avec succès';
                         else
-                            $warn="$num of $count selected logs deleted";
+                            $warn="Suppression de $num journaux sélectionnés sur $count";
                     } elseif(!$errors['err'])
-                        $errors['err']='Unable to delete selected logs';
+                        $errors['err']='Impossible de supprimer les journaux sélectionnés';
                 } else {
-                    $errors['err']='Unknown action - get technical help';
+                    $errors['err']='Action inconnue - Demandez de l\'aide au support technique';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown command/action';
+            $errors['err']='Commande/action inconnue';
             break;
     }
 }
