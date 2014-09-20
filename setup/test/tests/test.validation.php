@@ -3,7 +3,7 @@
 require_once INCLUDE_DIR.'class.validator.php';
 
 class TestValidation extends Test {
-    var $name = "Validation checks";
+    var $name = "Contrôles de validation";
 
     function testValidUsernames() {
         // Ascii
