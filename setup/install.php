@@ -61,10 +61,10 @@ if($_POST && $_POST['s']) {
             break;
         case 'subscribe':
             if(!trim($_POST['name']))
-                $errors['name'] = 'Obligatoire';
+                $errors['name'] = 'Requis';
 
             if(!$_POST['email'])
-                $errors['email'] = 'Obligatoire';
+                $errors['email'] = 'Requis';
             elseif(!Validator::is_email($_POST['email']))
                 $errors['email'] = 'Invalide';
 
