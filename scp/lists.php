@@ -4,7 +4,7 @@ require_once(INCLUDE_DIR."/class.dynamic_forms.php");
 
 $list=null;
 if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid dynamic list ID.';
+    $errors['err']='Identifiant de liste inconnu ou invalide.';
 
 if ($list)
     $form = $list->getForm();
@@ -16,16 +16,16 @@ if($_POST) {
         case 'update':
             foreach ($fields as $f)
                 if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
+                    $errors[$f] = sprintf('%s requis',
                         mb_convert_case($f, MB_CASE_TITLE));
                 elseif (isset($_POST[$f]))
                     $list->set($f, $_POST[$f]);
             if ($errors)
-                $errors['err'] = 'Unable to update custom list. Correct any error(s) below and try again.';
+                $errors['err'] = 'Impossible de mettre à jour la liste personnalisée. Corrigez les erreurs ci-dessous et réessayez.';
             elseif ($list->save(true))
-                $msg = 'Custom list updated successfully';
+                $msg = 'Liste personnalisée mise à jour avec succès';
             else
-                $errors['err'] = 'Unable to update custom list. Unknown internal error';
+                $errors['err'] = 'Impossible de mettre à jour la liste personnalisée. Erreur interne inconnue';
 
             foreach ($list->getAllItems() as $item) {
                 $id = $item->get('id');
@@ -49,7 +49,7 @@ if($_POST) {
             if (!$form) {
                 $form = DynamicForm::create(array(
                     'type'=>'L'.$_REQUEST['id'],
-                    'title'=>$_POST['name'] . ' Properties'
+                    'title'=>$_POST['name'] . ' Propriétés'
                 ));
                 $form->save(true);
             }
@@ -71,16 +71,16 @@ if($_POST) {
                     }
                 }
                 if (in_array($field->get('name'), $names))
-                    $field->addError('Field variable name is not unique', 'name');
+                    $field->addError('La variable name du champ n\'est pas unique', 'name');
                 if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
-                    $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
+                    $field->addError('Caractère invalide dans la variable name. Veuillez n\'utiliser que des lettres et des nombres.', 'name');
                 if ($field->get('name'))
                     $names[] = $field->get('name');
                 if ($field->isValid())
                     $field->save();
                 else
                     # notrans (not shown)
-                    $errors["field-$id"] = 'Field has validation errors';
+                    $errors["field-$id"] = 'Le champ contient des erreurs de validation';
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
@@ -88,7 +88,7 @@ if($_POST) {
         case 'add':
             foreach ($fields as $f)
                 if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
+                    $errors[$f] = sprintf('%s requis',
                         mb_convert_case($f, MB_CASE_TITLE));
             $list = DynamicList::create(array(
                 'name'=>$_POST['name'],
@@ -97,24 +97,24 @@ if($_POST) {
                 'notes'=>$_POST['notes']));
 
             $form = DynamicForm::create(array(
-                'title'=>$_POST['name'] . ' Properties'
+                'title'=>$_POST['name'] . ' Propriétés'
             ));
 
             if ($errors)
-                $errors['err'] = 'Unable to create custom list. Correct any error(s) below and try again.';
+                $errors['err'] = 'Impossible de créer la liste personnalisée. Corrigez les erreurs ci-dessous et réessayez.';
             elseif (!$list->save(true))
-                $errors['err'] = 'Unable to create custom list: Unknown internal error';
+                $errors['err'] = 'Impossible de créer la liste personnalisée. Erreur interne inconnue';
 
             $form->set('type', 'L'.$list->get('id'));
             if (!$errors && !$form->save(true))
-                $errors['err'] = 'Unable to create properties for custom list: Unknown internal error';
+                $errors['err'] = 'Impossible de créer les propriétés de la liste personnalisée. Erreur interne inconnue';
             else
                 $msg = 'Custom list added successfully';
             break;
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one API key';
+                $errors['err'] = 'Vous devez sélectionner au moins une clé d\'API';
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -125,12 +125,12 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = 'Selected custom lists deleted successfully';
+                            $msg = 'Listes personnalisées sélectionnées supprimées avec succès';
                         elseif ($i > 0)
-                            $warn = "$i of $count selected lists deleted";
+                            $warn = "$i listes personnalisées supprimée sur $count sélectionnées";
                         elseif (!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected custom lists'
-                                .' &mdash; they may be in use on a custom form';
+                            $errors['err'] = 'Impossible de supprimer les listes personnalisées sélectionnées'
+                                .' &mdash; il est possible qu\'elles soient utilises dans un formulaire personnalisé';
                         break;
                 }
             }
