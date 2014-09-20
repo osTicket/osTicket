@@ -2,7 +2,7 @@
 require_once "class.test.php";
 
 class SignalsTest extends Test {
-    var $name = "Signals checks";
+    var $name = "Contrôle des signaux";
 
     /**
      * Ensures that each signal subscribed to has a sender somewhere else
