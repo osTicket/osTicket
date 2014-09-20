@@ -3,7 +3,7 @@ require_once "class.test.php";
 require_once "class.php_analyze.php";
 
 class UnitializedVars extends Test {
-    var $name = "Access to unitialized variables";
+    var $name = "Accès aux variables non initialisées";
 
     function testUnitializedUsage() {
         $scripts = $this->getAllScripts();
@@ -18,7 +18,7 @@ class UnitializedVars extends Test {
                 }
                 elseif ($bug['type'] == 'MAYBE_UNDEF_ACCESS') {
                     list($line, $file) = $bug['line'];
-                    $this->warn("Possible access to NULL object @ $file : $line");
+                    $this->warn("Accès potentil à un objet NULL @ $file : $line");
                 }
             }
             if (!$a->bugs)
