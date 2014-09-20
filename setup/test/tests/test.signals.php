@@ -24,7 +24,7 @@ class SignalsTest extends Test {
                     if (!in_array($match[0], $published_signals))
                         $this->fail(
                             $s, self::line_number_for_offset($s, $match[1]),
-                            "Signal '{$match[0]}' is never sent");
+                            "Le signal '{$match[0]}' n'est jamais envoyé");
                     else
                         $this->pass();
                 }
