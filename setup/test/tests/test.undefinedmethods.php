@@ -2,7 +2,7 @@
 require_once "class.test.php";
 
 class UndefinedMethods extends Test {
-    var $name = "Méthode d'accès aux objets indéfinis";
+    var $name = "Accès aux méthodes indéfinies d'objets";
 
     function testFindShortOpen() {
         $scripts = $this->getAllScripts(false);
@@ -20,7 +20,7 @@ class UndefinedMethods extends Test {
             if (!in_array($func, $function_defs)) {
                 // We don't ship all of mdpf, so a bit of it looks undefined
                 if (strpos($file, '/mpdf/') === false)
-                    $this->fail($file, $no, "$func: Définitivement indéfini");
+                    $this->fail($file, $no, "$func : Définitivement indéfinie");
             }
             else {
                 $this->pass();
