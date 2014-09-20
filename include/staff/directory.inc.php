@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access Denied');
+if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Accès refusé');
 $qstr='';
 $select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.dept_name as dept ';
 $from='FROM '.STAFF_TABLE.' staff '.
@@ -60,12 +60,12 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2>Staff Members&nbsp;<i class="help-tip icon-question-sign" href="#staff_members"></i></h2>
+<h2>Membres de l’équipe&nbsp;<i class="help-tip icon-question-sign" href="#staff_members"></i></h2>
 <div style="width:700px; float:left;">
     <form action="directory.php" method="GET" name="filter">
        <input type="text" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>" >
         <select name="did" id="did">
-             <option value="0">&mdash; All Departments &mdash;</option>
+             <option value="0">&mdash; Tous les départements &mdash;</option> <!-- 'Département', ça fait vraiment corporate et big firma... Je pense qu’équipe serait mieux... -->
              <?php
              $sql='SELECT dept.dept_id, dept.dept_name,count(staff.staff_id) as users  '.
                   'FROM '.DEPT_TABLE.' dept '.
@@ -80,7 +80,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
              ?>
         </select>
         &nbsp;&nbsp;
-        <input type="submit" name="submit" value="Filter"/>&nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#apply_filtering_criteria"></i>
+        <input type="submit" name="submit" value="Filtre"/>&nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#apply_filtering_criteria"></i>
     </form>
  </div>
 <div class="clear"></div>
@@ -89,18 +89,18 @@ $res=db_query($query);
 if($res && ($num=db_num_rows($res)))        
     $showing=$pageNav->showing();
 else
-    $showing='No staff members found!';
+    $showing='Aucun membre de l’équipe n’a été trouvé&nbsp;!';
 ?>
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="160"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="150"><a  <?php echo $dept_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=dept">Department</a></th>
-            <th width="180"><a  <?php echo $email_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=email">Email Address</a></th>
-            <th width="120"><a <?php echo $phone_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=phone">Phone Number</a></th>
-            <th width="80"><a <?php echo $ext_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=ext">Phone Ext</a></th>
-            <th width="120"><a <?php echo $mobile_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=mobile">Mobile Number</a></th>
+            <th width="160"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name">Nom</a></th>
+            <th width="150"><a  <?php echo $dept_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=dept">D&partment</a></th>
+            <th width="180"><a  <?php echo $email_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=email">Adresse courriel</a></th>
+            <th width="120"><a <?php echo $phone_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=phone">Numéro de téléphone</a></th>
+            <th width="80"><a <?php echo $ext_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=ext">Téléphone ext.</a></th>
+            <th width="120"><a <?php echo $mobile_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=mobile">Numéro de mobile</a></th>
         </tr>
     </thead>
     <tbody>
@@ -126,7 +126,7 @@ else
                 echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
                 ?>
             <?php } else {
-                echo 'No staff members found!';
+                echo 'Aucun membre de l’équipe n’a été trouvé&nbsp;!';
             } ?>
         </td>
      </tr>
