@@ -2,17 +2,17 @@
 
 $info=array();
 if($form && $_REQUEST['a']!='add') {
-    $title = 'Update custom form section';
-    $action = 'update';
+    $title = 'Mettre à jour la rubrique de forumaire personnalisé';
+    $action = 'Mettre à jour';
     $url = "?id=".urlencode($_REQUEST['id']);
-    $submit_text='Save Changes';
+    $submit_text='Sauvegarder les modifications';
     $info = $form->ht;
     $newcount=2;
 } else {
-    $title = 'Add new custom form section';
-    $action = 'add';
+    $title = 'Ajouter une rubrique de formulaire personnalisé';
+    $action = 'Ajouter';
     $url = '?a=add';
-    $submit_text='Add Form';
+    $submit_text='Ajouter un formulaire';
     $newcount=4;
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -23,20 +23,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2>Custom Form</h2>
+    <h2>Formulaire personnalisé</h2>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Custom forms are used to allow custom data to be
-                associated with tickets</em>
+                <em>Les formulaires personnalisés sont utilisés pour permettre d’associer des données personnalisées aux tickets.</em>
             </th>
         </tr>
     </thead>
     <tbody style="vertical-align:top">
         <tr>
-            <td width="180" class="required">Title:</td>
+            <td width="180" class="required">Titre</td>
             <td><input type="text" name="title" size="40" value="<?php
                 echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
@@ -45,7 +44,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180">Instructions:</td>
+            <td width="180">Instructions</td>
             <td><textarea name="instructions" rows="3" cols="40"><?php
                 echo $info['instructions']; ?></textarea>
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
@@ -58,17 +57,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>User Information Fields</strong> more information here</em>
+                <em><strong>Champs relatifs aux informations de l’utilisateur</strong>&nbsp;: plus d’informations ici</em>
             </th>
         </tr>
         <tr>
             <th></th>
-            <th>Label</th>
+            <th>Étiquette</th> <!-- J’hésite à traduire 'Label' -->
             <th>Type</th>
-            <th>Internal</th>
-            <th>Required</th>
+            <th>Interne</th>
+            <th>Requis</th>
             <th>Variable</th>
-            <th>Delete</th>
+            <th>Supprimer</th>
         </tr>
     </thead>
     <tbody>
@@ -94,23 +93,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>Form Fields</strong> fields available for ticket information</em>
+                <em><strong>Champs du formulaire</strong>&nbsp;: champs disponibles pour les informations sur les tickets</em>
             </th>
         </tr>
         <tr>
-            <th nowrap>Sort
+            <th nowrap>Tri
                 <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
-            <th nowrap>Label
+            <th nowrap>Étiquette
                 <i class="help-tip icon-question-sign" href="#field_label"></i></th>
             <th nowrap>Type
                 <i class="help-tip icon-question-sign" href="#field_type"></i></th>
-            <th nowrap>Internal
+            <th nowrap>Interne
                 <i class="help-tip icon-question-sign" href="#field_internal"></i></th>
-            <th nowrap>Required
+            <th nowrap>Requis
                 <i class="help-tip icon-question-sign" href="#field_required"></i></th>
             <th nowrap>Variable
                 <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
-            <th nowrap>Delete
+            <th nowrap>Supprimer
                 <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
         </tr>
     </thead>
@@ -221,7 +220,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="7">
-                <em><strong>Internal Notes:</strong> be liberal, they're internal</em>
+                <em><strong>Notes internes</strong>&nbsp;: soyez prolixes, elles sont internes</em>
             </th>
         </tr>
         <tr>
@@ -234,31 +233,31 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </table>
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
+    <input type="reset"  name="reset"  value="Réinitialiser">
+    <input type="button" name="cancel" value="Annuler" onclick='window.location.href="?"'>
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
-    <h3><i class="icon-trash"></i> Remove Existing Data?</h3>
+    <h3><i class="icon-trash"></i> Supprimer les données existantes&nbsp;?</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p>
-        <strong>You are about to delete <span id="deleted-count"></span> fields.</strong>
-        Would you also like to remove data currently entered for this field?
-        <em>If you opt not to remove the data now, you will have the option
-        to delete the the data when editing it</em>
+        <strong>Vous êtes sur le point de supprimer <span id="deleted-count"></span> champs.</strong>
+        Souhaitez-vous également supprimer les données actuellement entrées dans ce(s) champs&nbsp;?
+        <em>Si vous choisissez de ne pas supprimer ces données maintenant, vous aurez la possibilité
+        de supprimer ces données en les éditant.</em>
     </p><p style="color:red">
-        Deleted data CANNOT be recovered.
+        Les données supprimées ne POURRONT PAS être récupérées.
     </p>
     <hr>
     <div id="deleted-fields"></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="submit" value="Continue" class="confirm">
+            <input type="submit" value="Continuer" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
