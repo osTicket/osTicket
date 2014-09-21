@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Accès refusé');
 
 $qstr='';
 
@@ -34,18 +34,18 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY grp.group_id ORDER BY $order_by";
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing="Showing 1-$num of $num groups";
+    $showing="Affichage des groupes 1 à $num sur $num groupes";
 else
-    $showing='No groups found!';
+    $showing='Aucun groupe n’a été trouvé&nbsp;!';
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>User Groups
+ <h2>Groupes d’utilisateurs
     <i class="help-tip icon-question-sign" href="#groups"></i>
     </h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="groups.php?a=add" class="Icon newgroup">Add New Group</a></b></div>
+    <b><a href="groups.php?a=add" class="Icon newgroup">Ajouter un groupe/a></b></div>
 <div class="clear"></div>
 <form action="groups.php" method="POST" name="groups">
  <?php csrf_token(); ?>
@@ -56,12 +56,12 @@ else
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>        
-            <th width="200"><a <?php echo $name_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=name">Group Name</a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="80" style="text-align:center;"><a  <?php echo $users_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=users">Members</a></th>
-            <th width="80" style="text-align:center;"><a  <?php echo $depts_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=depts">Departments</a></th>
-            <th width="100"><a  <?php echo $created_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=created">Created On</a></th>
-            <th width="120"><a  <?php echo $updated_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="200"><a <?php echo $name_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=name">Nom du groupe</a></th>
+            <th width="80"><a  <?php echo $status_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=status">Statut</a></th>
+            <th width="80" style="text-align:center;"><a  <?php echo $users_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=users">Membres</a></th>
+            <th width="80" style="text-align:center;"><a  <?php echo $depts_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=depts">Départements</a></th>
+            <th width="100"><a  <?php echo $created_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=created">Date de création</a></th>
+            <th width="120"><a  <?php echo $updated_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
     <tbody>
@@ -79,7 +79,7 @@ else
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['group_id']; ?>" 
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td><a href="groups.php?id=<?php echo $row['group_id']; ?>"><?php echo $row['group_name']; ?></a> &nbsp;</td>
-                <td>&nbsp;<?php echo $row['group_enabled']?'Active':'<b>Disabled</b>'; ?></td>
+                <td>&nbsp;<?php echo $row['group_enabled']?'Activé':'<b>Désactivé</b>'; ?></td>
                 <td style="text-align:right;padding-right:30px">&nbsp;&nbsp;
                     <?php if($row['users']>0) { ?>
                         <a href="staff.php?gid=<?php echo $row['group_id']; ?>"><?php echo $row['users']; ?></a>
@@ -100,12 +100,12 @@ else
      <tr>
         <td colspan="7">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            Sélectionner
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No groups found!';
+                echo 'Aucun groupe n’a été trouvé&nbsp;!';
             } ?>
         </td>
      </tr>
@@ -115,9 +115,9 @@ else
 if($res && $num): //Show options..
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="Enable" >
-    <input class="button" type="submit" name="disable" value="Disable" >
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="enable" value="Activer" >
+    <input class="button" type="submit" name="disable" value="Désactiver" >
+    <input class="button" type="submit" name="delete" value="Supprimer">
 </p>
 <?php
 endif;
@@ -125,27 +125,27 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        Are you sure want to <b>enable</b> selected groups?
+        Êtes-vous sûr.e de vouloir <b>activer</b> les groupes sélectionnés&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        Are you sure want to <b>disable</b> selected groups?
+        Êtes-vous sûr.e de vouloir <b>désactiver</b> les groupes sélectionnés&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected groups?</strong></font>
-        <br><br>Deleted groups CANNOT be recovered and might affect staff's access.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les groupes sélectionnés&nbsp;?</strong></font>
+        <br><br>Les groupes supprimés ne POURRONT PAS être récupérés et cela pourrait avoir des conséquences sur les accès de l’équipe.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
