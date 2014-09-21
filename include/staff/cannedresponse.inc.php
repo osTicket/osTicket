@@ -4,7 +4,7 @@ $info=array();
 $qstr='';
 if($canned && $_REQUEST['a']!='add'){
     $title='Mettre à jour les réponses prédéfinies';
-    $action='Mettre à jour';
+    $action='update';
     $submit_text='Sauvegarder les modifications';
     $info=$canned->getInfo();
     $info['id']=$canned->getId();
@@ -14,7 +14,7 @@ if($canned && $_REQUEST['a']!='add'){
     $info['notes'] = Format::viewableImages($info['notes']);
 }else {
     $title='Ajouter une réponse prédéfinie';
-    $action='Créer';
+    $action='create';
     $submit_text='Ajouter une réponse';
     $info['isenabled']=isset($info['isenabled'])?$info['isenabled']:1;
     $qstr.='&a='.$_REQUEST['a'];
@@ -27,7 +27,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Canned Response&nbsp;<i class="help-tip icon-question-sign" href="#canned_response"></i></h2>
+ <h2>Réponse prédéfinie&nbsp;<i class="help-tip icon-question-sign" href="#canned_response"></i></h2>
  <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr><td></td><td></td></tr> <!-- For fixed table layout -->
@@ -42,17 +42,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td width="180" class="required">Statut</td>
             <td>
-                <label><input type="radio" name="isenabled" value="1" <?php echo $info['isenabled']?'checked="checked"':''; ?>>&nbsp;Activé&nbsp;</label>
-                <label><input type="radio" name="isenabled" value="0" <?php echo !$info['isenabled']?'checked="checked"':''; ?>>&nbsp;Désactivé&nbsp;</label>
+                <label><input type="radio" name="isenabled" value="1" <?php echo $info['isenabled']?'checked="checked"':''; ?>>&nbsp;Activée&nbsp;</label>
+                <label><input type="radio" name="isenabled" value="0" <?php echo !$info['isenabled']?'checked="checked"':''; ?>>&nbsp;Désactivée&nbsp;</label>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isenabled']; ?></span>
                 &nbsp;<i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">Section</td> <!-- Department => trad: section, un peu au blair, manque du contexte là, je ne sais pas à quoi ça correspond dans la DB -->
+            <td width="180" class="required">Département</td>
             <td>
                 <select name="dept_id">
-                    <option value="0">&mdash; Toutes les sections &mdash;</option>
+                    <option value="0">&mdash; Tous les départements &mdash;</option>
                     <?php
                     $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
                     if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -109,7 +109,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Notes internes</strong>: remarques sur les réponses prédéfinies.&nbsp;</em>
+                <em><strong>Notes internes</strong>&nbsp;: remarques sur les réponses prédéfinies.&nbsp;</em>
             </th>
         </tr>
         <tr>
