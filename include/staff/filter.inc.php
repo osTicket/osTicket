@@ -8,14 +8,14 @@ $info=array();
 $qstr='';
 if($filter && $_REQUEST['a']!='add'){
     $title='Mettre à jour le filtre';
-    $action='update'; /*toujours la même question*/
+    $action='update';
     $submit_text='Sauvegarder les modifications';
     $info=array_merge($filter->getInfo(),$filter->getFlatRules());
     $info['id']=$filter->getId();
     $qstr.='&id='.$filter->getId();
 }else {
     $title='Ajouter un filtre';
-    $action='ajouter'; /* ici aussi ?*/
+    $action='add';
     $submit_text='Ajouter un filtre';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
     $qstr.='&a='.urlencode($_REQUEST['a']);
@@ -53,7 +53,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="6" name="execorder" value="<?php echo $info['execorder']; ?>">
-                <em>(1...99 )</em>
+                <em>(1...99)</em>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['execorder']; ?></span>
                 &nbsp;&nbsp;&nbsp;
                 <input type="checkbox" name="stop_onmatch" value="1" <?php echo $info['stop_onmatch']?'checked="checked"':''; ?> >
@@ -73,7 +73,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                Canal de la cible <!-- 'Target Channel' ? je ne sais pas à quoi ça correspond, donc pas sûre -->
+                Canal de la cible
             </td>
             <td>
                 <select name="target">
@@ -162,7 +162,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Actions des filtres/strong>&nbsp;: peuvent être remplacées par d’autres filtres en fonction de l’ordre de traitement.&nbsp;</em>
+                <em><strong>Actions des filtres</strong>&nbsp;: peuvent être surchargées par d’autres filtres en fonction de l’ordre de traitement.&nbsp;</em>
             </th>
         </tr>
         <tr>
@@ -289,7 +289,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <option value="0">&mdash; Non attribué &mdash;</option>
                     <?php
                     if (($users=Staff::getStaffMembers())) {
-                        echo '<OPTGROUP label="Staff Members">';
+                        echo '<OPTGROUP label="Membres du personnel">';
                         foreach($users as $id => $name) {
                             $name = new PersonsName($name);
                             $k="s$id";
