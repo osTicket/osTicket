@@ -33,9 +33,9 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' Clés API';
+    $showing=$pageNav->showing().' Clés d\'API';
 else
-    $showing='Aucune clé API trouvée&nbsp;!';
+    $showing='Aucune clé d\'API trouvée&nbsp;!';
 
 ?>
 
@@ -43,7 +43,7 @@ else
  <h2>Clés API</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="apikeys.php?a=add" class="Icon newapi">Ajouter une clé API</a></b></div>
+ <b><a href="apikeys.php?a=add" class="Icon newapi">Ajouter une clé d'API</a></b></div>
 <div class="clear"></div>
 <form action="apikeys.php" method="POST" name="keys">
  <?php csrf_token(); ?>
@@ -54,10 +54,10 @@ else
     <thead>
         <tr>
             <th width="7">&nbsp;</th>        
-            <th width="320"><a <?php echo $key_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=key">Clé API</a></th>
+            <th width="320"><a <?php echo $key_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=key">Clé d'API</a></th>
             <th width="120"><a  <?php echo $ip_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=ip">Adresse&nbsp;IP</a></th>
             <th width="100"><a  <?php echo $status_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=status">Statut</a></th>
-            <th width="150" nowrap><a  <?php echo $date_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=date">Date de création/a></th>
+            <th width="150" nowrap><a  <?php echo $date_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=date">Date de création</a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
@@ -88,7 +88,7 @@ else
      <tr>
         <td colspan="7">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
+            Sélectionner&nbsp;:&nbsp;
             <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
@@ -104,7 +104,7 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="Activer >
+    <input class="button" type="submit" name="enable" value="Activer">
     <input class="button" type="submit" name="disable" value="Désactiver">
     <input class="button" type="submit" name="delete" value="Supprimer">
 </p>
@@ -124,7 +124,7 @@ endif;
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les clés API sélectionnées&nbsp;?</strong></font>
-        <br><br>Les clés supprimées ne POURRON PAS être récupérées.
+        <br><br>Les clés supprimées ne POURRONT PAS être récupérées.
     </p>
     <div>Veuillez confirmer pour continuer.</div>
     <hr style="margin-top:1em"/>
