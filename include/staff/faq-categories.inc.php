@@ -4,7 +4,7 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Accès refusé');
 ?>
 <h2>Frequently Asked Questions&nbsp;<i class="help-tip icon-question-sign" href="#page_header"></i></h2>
 <form id="kbSearch" action="kb.php" method="get">
-    <input type="hidden" name="a" value="rechercher">
+    <input type="hidden" name="a" value="search">
     <div>
         <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         <select name="cid" id="cid">
@@ -26,7 +26,7 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Accès refusé');
             }
             ?>
         </select>
-        <input id="searchSubmit" type="submit" value="rechercher">
+        <input id="searchSubmit" type="submit" value="Rechercher">
     </div>
     <div>
         <select name="topicId" style="width:350px;" id="topic-id">
@@ -79,14 +79,14 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
 
     $sql.=' GROUP BY faq.faq_id ORDER BY question';
 
-    echo "<div><strong>Search Results</strong></div><div class='clear'></div>";
+    echo "<div><strong>Résultats de la recherche</strong></div><div class='clear'></div>";
     if(($res=db_query($sql)) && db_num_rows($res)) {
         echo '<div id="faq">
                 <ol>';
         while($row=db_fetch_array($res)) {
             echo sprintf('
                 <li><a href="faq.php?id=%d" class="previewfaq">%s</a> - <span>%s</span></li>',
-                $row['faq_id'],$row['question'],$row['ispublished']?'Published':'Internal');
+                $row['faq_id'],$row['question'],$row['ispublished']?'Publié':'Interne');
         }
         echo '  </ol>
              </div>';

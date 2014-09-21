@@ -3,8 +3,8 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canManageFAQ()) die('Acc
 $info=array();
 $qstr='';
 if($faq){
-    $title='Mettre à jour la FAQ: '.$faq->getQuestion();
-    $action='Mettre à jour';
+    $title='Mettre à jour la FAQ&nbsp;: '.$faq->getQuestion();
+    $action='update';
     $submit_text='Sauvegarder les modifications';
     $info=$faq->getHashtable();
     $info['id']=$faq->getId();
@@ -14,7 +14,7 @@ if($faq){
     $qstr='id='.$faq->getId();
 }else {
     $title='Ajouter une FAQ';
-    $action='créer';
+    $action='create';
     $submit_text='Ajouter une FAQ';
     if($category) {
         $qstr='cid='.$category->getId();
@@ -108,7 +108,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     echo '</div><br>';
                 }
                 ?>
-                <div class="faded">sélectionner les fichiers à charger.</div>
+                <div class="faded">Sélectionner les fichiers à charger.</div>
                 <div class="uploads"></div>
                 <div class="file_input">
                     <input type="file" class="multifile" name="attachments[]" size="30" value="" />

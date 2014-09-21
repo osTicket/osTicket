@@ -3,13 +3,13 @@
 $info=array();
 if($list && !$errors) {
     $title = 'Mettre à jour les listes personnalisées';
-    $action = 'Mettre à jour';
+    $action = 'update';
     $submit_text='Sauvegarder les modifications';
     $info = $list->ht;
     $newcount=2;
 } else {
     $title = 'Ajouter une liste personnalisée';
-    $action = 'Ajouter';
+    $action = 'add';
     $submit_text='Ajouter une liste';
     $newcount=4;
 }
@@ -49,7 +49,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <span class="error">*<br/><?php echo $errors['name']; ?></td>
         </tr>
         <tr>
-            <td width="180">Nom au plurial</td>
+            <td width="180">Nom au pluriel</td>
             <td><input size="50" type="text" name="name_plural" value="<?php echo $info['name_plural']; ?>"/></td>
         </tr>
         <tr>
@@ -131,7 +131,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#field-config .body').load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Config</a>
+                    "><i class="icon-edit"></i> Configurer</a>
             <?php } ?></td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
@@ -187,7 +187,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $count = $list->getItemCount();
         $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
         $pageNav->setURL('dynamic-list.php', 'id='.urlencode($_REQUEST['id']));
-        $showing=$pageNav->showing().' list items';
+        $showing=$pageNav->showing().' éléments de la liste';
         ?>
     <?php }
         else $showing = 'Ajouter quelques éléments initiaux à la liste';
@@ -199,8 +199,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th></th>
-            <th>Valeur/th>
-            <th>Additionnels <em style="display:inline">&mdash; abréviations et autres</em></th>
+            <th>Valeur</th>
+            <th>Additionnel <em style="display:inline">&mdash; abréviations et autres</em></th>
             <th>Activé</th>
             <th>Supprimer</th>
         </tr>

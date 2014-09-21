@@ -41,7 +41,7 @@ if(($res=db_query($sql)) && db_num_rows($res)) {
     while($row=db_fetch_array($res)) {
         echo sprintf('
             <li><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a></li>',
-            $row['faq_id'],$row['question'],$row['ispublished']?'Published':'Internal');
+            $row['faq_id'],$row['question'],$row['ispublished']?'Publié':'Interne');
     }
     echo '  </ol>
          </div>';

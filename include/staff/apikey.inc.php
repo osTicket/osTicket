@@ -10,7 +10,7 @@ if($api && $_REQUEST['a']!='add'){
     $qstr.='&id='.$api->getId();
 }else {
     $title='Ajouter une nouvelle clé API';
-    $action='create';
+    $action='add';
     $submit_text='Ajouter une clé';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $qstr.='&a='.urlencode($_REQUEST['a']);
