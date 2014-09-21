@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Accès refusé');
 //Get the config info.
 $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
 ?>
@@ -10,54 +10,54 @@ $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
       <td>
         <table width="100%" border="0" cellspacing=0 cellpadding=2 class="tform">
           <tr class="header">
-            <td colspan=2>&nbsp;Attachments Settings</td>
+            <td colspan=2>&nbsp;Paramètres pour les fichiers attachés</td>
           </tr>
           <tr class="subheader">
             <td colspan=2">
-                Before enabling attachments make sure you understand the security settings and issues related to file uploads.</td>
+                Avant d’autoriser les fichiers joints, assurez-vous de bien comprendre les paramètres de sécurité et autres questions relatives au chargement de fichiers.</td>
           </tr>
           <tr>
-            <th width="165">Allow Attachments:</th>
+            <th width="165">Autoriser les fichiers joints</th>
             <td>
-              <input type="checkbox" name="allow_attachments" <?php echo $config['allow_attachments'] ?'checked':''; ?>><b>Allow Attachments</b>
-                &nbsp; (<i>Global Setting</i>)
+              <input type="checkbox" name="allow_attachments" <?php echo $config['allow_attachments'] ?'checked':''; ?>><b>Autoriser les fichiers joints</b>
+                &nbsp; (<i>Paramètre général</i>)
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_attachments']; ?></font>
             </td>
           </tr>
           <tr>
-            <th>Emailed Attachments:</th>
+            <th>Fichiers joints par courriel</th>
             <td>
-                <input type="checkbox" name="allow_email_attachments" <?php echo $config['allow_email_attachments'] ? 'checked':''; ?> > Accept emailed files
+                <input type="checkbox" name="allow_email_attachments" <?php echo $config['allow_email_attachments'] ? 'checked':''; ?> > Accepter les fichiers joints par courriel
                     &nbsp;<font class="warn">&nbsp;<?php echo $warn['allow_email_attachments']; ?></font>
             </td>
           </tr>
          <tr>
-            <th>Online Attachments:</th>
+            <th>Fichiers joints en ligne</th>
             <td>
                 <input type="checkbox" name="allow_online_attachments" <?php echo $config['allow_online_attachments'] ?'checked':''; ?> >
-                    Allow online attachments upload<br/>&nbsp;&nbsp;&nbsp;&nbsp;
+                    Autoriser le chargement de fichiers en ligne<br/>&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="checkbox" name="allow_online_attachments_onlogin" <?php echo $config['allow_online_attachments_onlogin'] ?'checked':''; ?> >
-                    Authenticated users Only. (<i>User must be logged in to upload files </i>)
+                    Utilisateurs authentifés seulement (<i>L’utilisateur doit être connecté pour pouvoir charger des fichiers.</i>)
                     <font class="warn">&nbsp;<?php echo $warn['allow_online_attachments']; ?></font>
             </td>
           </tr>
           <tr>
-            <th>Staff Response Files:</th>
+            <th>Fichiers de réponse de l’équipe</th>
             <td>
-                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked':''; ?> >Email attachments to the user
+                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked':''; ?> >Fichiers joints par courriel à l’utilisateur
             </td>
           </tr>
           <tr>
-            <th nowrap>Maximum File Size:</th>
+            <th nowrap>Taille maximale du fichier</th>
             <td>
-              <input type="text" name="max_file_size" value="<?php echo $config['max_file_size']; ?>"> <i>bytes</i>
+              <input type="text" name="max_file_size" value="<?php echo $config['max_file_size']; ?>"> <i>octets</i>
                 <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
             </td>
           </tr>
           <tr>
-            <th>Attachment Folder:</th>
+            <th>Dossier des fichiers joints</th>
             <td>
-                Web user (e.g apache) must have write access to the folder. &nbsp;<font class="error">&nbsp;<?php echo $errors['upload_dir']; ?></font><br>
+                L’utilisateur web (par exemple, apache) doit avoir un accès en écriture au dossier. &nbsp;<font class="error">&nbsp;<?php echo $errors['upload_dir']; ?></font><br>
               <input type="text" size=60 name="upload_dir" value="<?php echo $config['upload_dir']; ?>"> 
               <font color=red>
               <?php echo $attwarn; ?>
@@ -65,18 +65,18 @@ $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
             </td>
           </tr>
           <tr>
-            <th valign="top"><br/>Accepted File Types:</th>
+            <th valign="top"><br/>Types de fichiers acceptés</th>
             <td>
-                Enter file extensions allowed separated by a comma. e.g <i>.doc, .pdf, </i> <br>
-                To accept all files enter wildcard <b><i>.*</i></b>&nbsp;&nbsp;i.e dotStar (NOT recommended).
+                Entrer les extensions de fichiers autorisées en les séparant par une virgule, par exemple <i>.doc, .pdf, </i> <br>
+                Pour accepter tous les types de fichiers, entrer le métacaractère <b><i>.*</i></b>&nbsp;&nbsp;c.-à-d. le caractère ‘étoile’ (NON recommandé).
                 <textarea name="allowed_filetypes" cols="21" rows="4" style="width: 65%;" wrap=HARD ><?php echo $config['allowed_filetypes']; ?></textarea>
             </td>
           </tr>
         </table>
     </td></tr>
     <tr><td style="padding:10px 0 10px 200px">
-        <input class="button" type="submit" name="submit" value="Save Changes">
-        <input class="button" type="reset" name="reset" value="Reset Changes">
+        <input class="button" type="submit" name="submit" value="Sauvegarder les modifications">
+        <input class="button" type="reset" name="reset" value="Réinitialiser les modifications">
     </td></tr>
   </form>
 </table>

@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$filter) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$filter) die('Accès refusé');
 
 $qstr='';
 $select='SELECT rule.* ';
@@ -14,7 +14,7 @@ if($_REQUEST['q'] && strlen($_REQUEST['q'])>3) {
         $where.=' AND rule.val LIKE "%'.db_input($_REQUEST['q'],false).'%"';
 
 }elseif($_REQUEST['q']) {
-    $errors['q']='Term too short!';
+    $errors['q']='Terme trop court !';
 }
 
 $sortOptions=array('email'=>'rule.val','status'=>'isactive','created'=>'rule.created','created'=>'rule.updated');
@@ -46,29 +46,29 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2>Banned Email Addresses
+<h2>Adresses de courriel interdites
     <i class="help-tip icon-question-sign" href="#ban_list"></i>
     </h2>
 <div style="width:600; float:left;padding-top:5px;">
     <form action="banlist.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
      <div>
-       Query: <input name="q" type="text" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+       Requête&nbsp;: <input name="q" type="text" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         &nbsp;&nbsp;
-        <input type="submit" name="submit" value="Search"/>
+        <input type="submit" name="submit" value="Rechercher"/>
      </div>
     </form>
  </div>
-<div style="float:right;text-align:right;padding-right:5px;"><b><a href="banlist.php?a=add" class="Icon newstaff">Ban New Email</a></b></div>
+<div style="float:right;text-align:right;padding-right:5px;"><b><a href="banlist.php?a=add" class="Icon newstaff">Interdire une adresse de courriel</a></b></div>
 <div class="clear"></div>
 <?php
 if(($res=db_query($query)) && ($num=db_num_rows($res)))
     $showing=$pageNav->showing();
 else
-    $showing='No banned emails matching the query found!';
+    $showing='Aucune adresse de courriel correspondant à la requête n’a été trouvée&nbsp;!';
 
 if($search)
-    $showing='Search Results: '.$showing;
+    $showing='Résultats de recherche&nbsp;: '.$showing;
     
 ?>
 <form action="banlist.php" method="POST" name="banlist">
@@ -80,10 +80,10 @@ if($search)
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>        
-            <th width="350"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email">Email Address</a></th>
-            <th width="200"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status">Ban Status</a></th>
-            <th width="120"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created">Date Added</a></th>
-            <th width="120"><a <?php echo $updated_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="350"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email">Adresses de courriel</a></th>
+            <th width="200"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status">Statut</a></th>
+            <th width="120"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created">Date de création</a></th>
+            <th width="120"><a <?php echo $updated_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
     <tbody>
@@ -100,7 +100,7 @@ if($search)
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <td>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
-                <td>&nbsp;&nbsp;<?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
+                <td>&nbsp;&nbsp;<?php echo $row['isactive']?'Active':'<b>Désactivée</b>'; ?></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
                 <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
                </tr>
@@ -111,12 +111,12 @@ if($search)
      <tr>
         <td colspan="5">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            Sélectionner&nbsp;:&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No banned emails found!';
+                echo 'Aucune adresse de courriel interdite n’a été trouvée!';
             } ?>
         </td>
      </tr>
@@ -127,11 +127,11 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="Enable" >
+    <input class="button" type="submit" name="enable" value="Activer" >
     &nbsp;&nbsp;
-    <input class="button" type="submit" name="disable" value="Disable" >
+    <input class="button" type="submit" name="disable" value="Désactiver" >
     &nbsp;&nbsp;
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="delete" value="Supprimer">
 </p>
 <?php
 endif;
@@ -139,26 +139,26 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        Are you sure want to <b>enable</b> selected ban rules?
+        Êtes-vous sûr.e de vouloir <b>activer</b> les règles d’interdiction sélectionnées&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        Are you sure want to <b>disable</b>  selected ban rules?
+        Êtes-vous sûr.e de vouloir <b>désactiver</b> les règles d’interdiction sélectionnées&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected ban rules?</strong></font>
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les règles d’interdiction sélectionnées&nbsp;?</strong></font>
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

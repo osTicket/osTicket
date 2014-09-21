@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
+if(!defined('OSTSCPINC') || !$thisstaff) die('Accès refusé');
 
 $qstr='';
 $sql='SELECT canned.*, count(attach.file_id) as files, dept.dept_name as department '.
@@ -42,16 +42,16 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY canned.canned_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' premade responses';
+    $showing=$pageNav->showing().' réponses prédéfinies';
 else
-    $showing='No premade responses found!';
+    $showing='Aucune réponse prédéfinie trouvée&nbsp;!';
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Canned Responses&nbsp;<i class="help-tip icon-question-sign" href="#canned_responses"></i></h2>
+ <h2>Réponses prédéfinies&nbsp;<i class="help-tip icon-question-sign" href="#canned_responses"></i></h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="canned.php?a=add" class="Icon newReply">Add New Response</a></b></div>
+    <b><a href="canned.php?a=add" class="Icon newReply">Ajouter une nouvelle réponse</a></b></div>
 <div class="clear"></div>
 <form action="canned.php" method="POST" name="canned">
  <?php csrf_token(); ?>
@@ -62,10 +62,10 @@ else
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th width="500"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title">Title</a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="200"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept">Department</a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="500"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title">Titre</a></th>
+            <th width="80"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status">Statut</a></th>
+            <th width="200"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept">Département</a></th>
+            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
     <tbody>
@@ -87,8 +87,8 @@ else
                 <td>
                     <a href="canned.php?id=<?php echo $row['canned_id']; ?>"><?php echo Format::truncate($row['title'],200); echo "&nbsp;$files"; ?></a>&nbsp;
                 </td>
-                <td><?php echo $row['isenabled']?'Active':'<b>Disabled</b>'; ?></td>
-                <td><?php echo $row['department']?$row['department']:'&mdash; All Departments &mdash;'; ?></td>
+                <td><?php echo $row['isenabled']?'Active':'<b>Désactivée</b>'; ?></td>
+                <td><?php echo $row['department']?$row['department']:'&mdash; Tous les départements &mdash;'; ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>
             <?php
@@ -98,12 +98,12 @@ else
      <tr>
         <td colspan="5">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            Sélectionner&nbsp;:&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No canned responses';
+                echo 'Aucune réponse prédéfinie';
             } ?>
         </td>
      </tr>
@@ -114,39 +114,39 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="Enable" >
-    <input class="button" type="submit" name="disable" value="Disable" >
-    <input class="button" type="submit" name="delete" value="Delete" >
+    <input class="button" type="submit" name="enable" value="Activer" >
+    <input class="button" type="submit" name="disable" value="Désactiver" >
+    <input class="button" type="submit" name="delete" value="Supprimer" >
 </p>
 <?php
 endif;
 ?>
 </form>
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        Are you sure want to <b>enable</b> selected canned responses?
+        Êtes-vous sûr.e de vouloir <b>activer</b> les réponses prédéfinies sélectionnées&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        Are you sure want to <b>disable</b> selected canned responses?
+        Êtes-vous sûr.e de vouloir <b>désactiver</b> les réponses prédéfinies sélectionnées&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="mark_overdue-confirm">
-        Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?
+        Êtes-vous sûr.e de vouloir signaler les tickets sélectionnées comme étant <b>en retard</b>&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected canned responses?</strong></font>
-        <br><br>Deleted items CANNOT be recovered, including any associated attachments.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les réponses prédéfinies sélectionnées&nbsp;?</strong></font>
+        <br><br>Les éléments supprimés ne POURRONT PAS être récupérés, y compris les éventuels fichiers joins associés.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer.</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

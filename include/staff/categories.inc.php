@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
+if(!defined('OSTSCPINC') || !$thisstaff) die('Accès refusé');
 
 $qstr='';
 $sql='SELECT cat.category_id, cat.name, cat.ispublic, cat.updated, count(faq.faq_id) as faqs '.
@@ -35,16 +35,16 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY cat.category_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' categories';
+    $showing=$pageNav->showing().' catégories';
 else
-    $showing='No FAQ categories found!';
+    $showing='Aucune catégorie de la FAQ n’a été trouvée&nbsp;!';
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>FAQ Categories&nbsp;<i class="help-tip icon-question-sign" href="#faq_categories"></i></h2>
+ <h2>Catégories de la FAQ&nbsp;<i class="help-tip icon-question-sign" href="#faq_categories"></i></h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="categories.php?a=add" class="Icon newCategory">Add New Category</a></b></div>
+    <b><a href="categories.php?a=add" class="Icon newCategory">Ajouter une catégorie</a></b></div>
 <div class="clear"></div>
 <form action="categories.php" method="POST" name="cat">
  <?php csrf_token(); ?>
@@ -55,10 +55,10 @@ else
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th width="500"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
+            <th width="500"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name">Nom</a></th>
             <th width="150"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type">Type</a></th>
             <th width="80"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs">FAQs</a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
     <tbody>
@@ -93,11 +93,11 @@ else
         <td colspan="5">
             <?php if($res && $num){ ?>
             Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No FAQ categories found.';
+                echo 'Aucune catégorie de la FAQ n’a été trouvée.';
             } ?>
         </td>
      </tr>
@@ -108,36 +108,36 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="make_public" value="Make Public">
-    <input class="button" type="submit" name="make_private" value="Make Internal">
-    <input class="button" type="submit" name="delete" value="Delete" >
+    <input class="button" type="submit" name="make_public" value="Passer en statut public">
+    <input class="button" type="submit" name="make_private" value="Passer en statut interne">
+    <input class="button" type="submit" name="delete" value="Supprimer" >
 </p>
 <?php
 endif;
 ?>
 </form>
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="make_public-confirm">
-        Are you sure want to make selected categories <b>public</b>?
+        Êtes-vous sûr.e de vouloir passer les catégories sélectionnées en statut <b>public</b>&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="make_private-confirm">
-        Are you sure want to make selected categories <b>private</b> (internal)?
+        Êtes-vous sûr.e de vouloir passer les catégories sélectionnées en statut <b>privé</b> (interne)&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected categories?</strong></font>
-        <br><br>Deleted entries CANNOT be recovered, including any associated FAQs.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les catégories sélectionnées&nbsp;?</strong></font>
+        <br><br>Les entrées supprimées ne POURRONT PAS être récupérées, y compris les éventuelles FAQ associées.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer.</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
