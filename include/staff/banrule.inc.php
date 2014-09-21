@@ -5,14 +5,14 @@ $info=array();
 $qstr='';
 if($rule && $_REQUEST['a']!='add'){
     $title='Mettre à jour les règles d’interdiction';
-    $action='Mettre à jour';
+    $action='update';
     $submit_text='Mettre à jour';
     $info=$rule->getInfo();
     $info['id']=$rule->getId();
     $qstr.='&id='.$rule->getId();
 }else {
-    $title='Ajouter une adresse courriel à la liste des interdictions';
-    $action='Ajouter';
+    $title='Ajouter une adresse de courriel à la liste des interdictions';
+    $action='create';
     $submit_text='Ajouter';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $qstr.='&a='.urlencode($_REQUEST['a']);
@@ -24,7 +24,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Gérer les règles d’interdiction des adresses courriel
+ <h2>Gérer les règles d’interdiction des adresses de courriel
     <i class="help-tip icon-question-sign" href="#ban_list"></i>
     </h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -42,8 +42,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Statut
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Activé</strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Désactivé
+                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong>Activée</strong>
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Désactivée
                 &nbsp;<span class="error">*&nbsp;</span>
             </td>
         </tr>
