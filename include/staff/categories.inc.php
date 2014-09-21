@@ -37,7 +37,7 @@ $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing().' catégories';
 else
-    $showing='Aucune catégorie de la FAQ n’a été trouvée&nbsp;!'; <!-- pas terrible, mais encore une fois, il me manque du contexte -->
+    $showing='Aucune catégorie de la FAQ n’a été trouvée&nbsp;!';
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
