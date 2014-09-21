@@ -1,7 +1,7 @@
 <?php if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
     </div>
     <div id="footer">
-        Copyright &copy; 2006-<?php echo date('Y'); ?>&nbsp;<?php echo (string) $ost->company ?: 'osTicket.com'; ?>&nbsp;All Rights Reserved. <!-- euh, WTF... ici, on fait quoi ? On met la CC-By-Sa ? sur un 'All Rights Reserved' ?-->
+        Copyright &copy; 2006-<?php echo date('Y'); ?>&nbsp;<?php echo (string) $ost->company ?: 'osTicket.com'; ?>&nbsp;All Rights Reserved.
     </div>
 <?php
 if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
