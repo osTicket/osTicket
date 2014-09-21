@@ -35,14 +35,14 @@ $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
             <th>Fichiers joints en ligne</th>
             <td>
                 <input type="checkbox" name="allow_online_attachments" <?php echo $config['allow_online_attachments'] ?'checked':''; ?> >
-                    Autoriser le chargement de fichiers en ligne<br/>&nbsp;&nbsp;&nbsp;&nbsp; <!-- je suppose qu’il s’agit de joindre une URL/URI ?-->
+                    Autoriser le chargement de fichiers en ligne<br/>&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="checkbox" name="allow_online_attachments_onlogin" <?php echo $config['allow_online_attachments_onlogin'] ?'checked':''; ?> >
                     Utilisateurs authentifés seulement (<i>L’utilisateur doit être connecté pour pouvoir charger des fichiers.</i>)
                     <font class="warn">&nbsp;<?php echo $warn['allow_online_attachments']; ?></font>
             </td>
           </tr>
           <tr>
-            <th>Fichiers de réponse de l’équipe</th> <!-- je traduis staff=> équipe, dans le contexte, ça me semble plus juste ^^-->
+            <th>Fichiers de réponse de l’équipe</th>
             <td>
                 <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked':''; ?> >Fichiers joints par courriel à l’utilisateur
             </td>
@@ -50,7 +50,7 @@ $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
           <tr>
             <th nowrap>Taille maximale du fichier</th>
             <td>
-              <input type="text" name="max_file_size" value="<?php echo $config['max_file_size']; ?>"> <i>bytes</i>
+              <input type="text" name="max_file_size" value="<?php echo $config['max_file_size']; ?>"> <i>octets</i>
                 <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
             </td>
           </tr>
@@ -68,7 +68,7 @@ $config=($errors && $_POST)?Format::input($_POST):$cfg->getConfigInfo();
             <th valign="top"><br/>Types de fichiers acceptés</th>
             <td>
                 Entrer les extensions de fichiers autorisées en les séparant par une virgule, par exemple <i>.doc, .pdf, </i> <br>
-                Pour accepter tous les types de fichiers, entrer le métacaractère <b><i>.*</i></b>&nbsp;&nbsp;c.-à-d. le caraactère ‘étoile’ (NON recommandé).
+                Pour accepter tous les types de fichiers, entrer le métacaractère <b><i>.*</i></b>&nbsp;&nbsp;c.-à-d. le caractère ‘étoile’ (NON recommandé).
                 <textarea name="allowed_filetypes" cols="21" rows="4" style="width: 65%;" wrap=HARD ><?php echo $config['allowed_filetypes']; ?></textarea>
             </td>
           </tr>
