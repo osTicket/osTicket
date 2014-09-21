@@ -10,7 +10,7 @@ $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = DynamicForm::objects()->filter(array('type__in'=>array('G')))->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('forms.php');
-$showing=$pageNav->showing().' forms';
+$showing=$pageNav->showing().' formulaires';
 ?>
 
 <form action="forms.php" method="POST" name="forms">
@@ -101,7 +101,7 @@ if ($count) //Show options..
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strongÊtes-vous sûr.e de vouloir SUPPRIMER les formulaires sélectionnés&nbsp;?</strong></font>
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les formulaires sélectionnés&nbsp;?</strong></font>
         <br><br>Les formulaires supprimés ne POURRONT PAS être récupérés.
     </p>
     <div>Veuillez confirmer pour continuer.</div>
