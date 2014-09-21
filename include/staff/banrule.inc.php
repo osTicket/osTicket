@@ -12,7 +12,7 @@ if($rule && $_REQUEST['a']!='add'){
     $qstr.='&id='.$rule->getId();
 }else {
     $title='Ajouter une adresse de courriel à la liste des interdictions';
-    $action='create';
+    $action='add';
     $submit_text='Ajouter';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $qstr.='&a='.urlencode($_REQUEST['a']);
