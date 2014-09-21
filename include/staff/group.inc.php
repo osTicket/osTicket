@@ -4,7 +4,7 @@ $info=array();
 $qstr='';
 if($group && $_REQUEST['a']!='add'){
     $title='Mettre à jour le groupe';
-    $action='update'; /*toujours la même question ici*/
+    $action='update';
     $submit_text='Sauvegarder les modifications';
     $info=$group->getInfo();
     $info['id']=$group->getId();
@@ -12,7 +12,7 @@ if($group && $_REQUEST['a']!='add'){
     $qstr.='&id='.$group->getId();
 }else {
     $title='Ajouter un groupe';
-    $action='create'; /* et donc ici aussi ?*/
+    $action='create';
     $submit_text='Créer un groupe';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['can_create_tickets']=isset($info['can_create_tickets'])?$info['can_create_tickets']:1;
@@ -25,7 +25,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>User Group</h2>
+ <h2>Groupe d'utilisateurs</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -115,18 +115,18 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="radio" name="can_delete_tickets"  value="1"   <?php echo $info['can_delete_tickets']?'checked="checked"':''; ?> />Oui
                 &nbsp;&nbsp;
                 <input type="radio" name="can_delete_tickets"  value="0"   <?php echo !$info['can_delete_tickets']?'checked="checked"':''; ?> />Non
-                &nbsp;&nbsp;<i>Possibilité de supprimer des tickets(les ticets supprimés ne pourront pas être récupérés&nbsp;!)</i>
+                &nbsp;&nbsp;<i>Possibilité de supprimer des tickets (les tickets supprimés ne pourront pas être récupérés&nbsp;!)</i>
             </td>
         </tr>
-        <tr><td>Peut interdire des adresses courriel</td>
+        <tr><td>Peut interdire des adresses de courriel</td>
             <td>
                 <input type="radio" name="can_ban_emails"  value="1" <?php echo $info['can_ban_emails']?'checked="checked"':''; ?> />Oui
                 &nbsp;&nbsp;
                 <input type="radio" name="can_ban_emails"  value="0" <?php echo !$info['can_ban_emails']?'checked="checked"':''; ?> />Non
-                &nbsp;&nbsp;<i>Possibilité d’ajouter/de retirer des adresses courriels de la liste des interdictions via l’interface des tickets.</i>
+                &nbsp;&nbsp;<i>Possibilité d’ajouter/de retirer des adresses de courriels de la liste des interdictions via l’interface des tickets.</i>
             </td>
         </tr>
-        <tr><td>Peut gérer les modèles</td> <!-- 'Premade' ? C’est tout les trucs prédéfinis, non ? Du coup, ici, 'modèle' ça irait, je pense ? -->
+        <tr><td>Peut gérer les modèles</td>
             <td>
                 <input type="radio" name="can_manage_premade"  value="1" <?php echo $info['can_manage_premade']?'checked="checked"':''; ?> />Oui
                 &nbsp;&nbsp;
@@ -139,7 +139,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="radio" name="can_manage_faq"  value="1" <?php echo $info['can_manage_faq']?'checked="checked"':''; ?> />Oui
                 &nbsp;&nbsp;
                 <input type="radio" name="can_manage_faq"  value="0" <?php echo !$info['can_manage_faq']?'checked="checked"':''; ?> />Non
-                &nbsp;&nbsp;<i>Possibilité d’ajouter/mettre à jour/désactiver/effacer Ability to add/update/disable/delete les catégories de la base de connaissance et les FAQ.</i>
+                &nbsp;&nbsp;<i>Possibilité d’ajouter/mettre à jour/désactiver/effacer les catégories de la base de connaissance et les FAQ.</i>
             </td>
         </tr>
         <tr><td>Peut visualiser les statistiques de l’équipe</td>
@@ -156,7 +156,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <i class="help-tip icon-question-sign" href="#department_access"></i>
                 &nbsp;<a id="selectAll" href="#deptckb">Sélectionner tout</a>
                 &nbsp;&nbsp;
-                <a id="selectNone" href="#deptckb">Ne sélectionner aucun</a></em>
+                <a id="selectNone" href="#deptckb">N'en sélectionner aucun</a></em>
             </th>
         </tr>
         <?php
