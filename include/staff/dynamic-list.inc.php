@@ -2,15 +2,15 @@
 
 $info=array();
 if($list && !$errors) {
-    $title = 'Update custom list';
-    $action = 'update';
-    $submit_text='Save Changes';
+    $title = 'Mettre à jour les listes personnalisées';
+    $action = 'Mettre à jour';
+    $submit_text='Sauvegarder les modifications';
     $info = $list->ht;
     $newcount=2;
 } else {
-    $title = 'Add new custom list';
-    $action = 'add';
-    $submit_text='Add List';
+    $title = 'Ajouter une liste personnalisée';
+    $action = 'Ajouter';
+    $submit_text='Ajouter une liste';
     $newcount=4;
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -21,15 +21,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2>Custom List</h2>
+    <h2>Liste personnalisée</h2>
 
 <ul class="tabs">
     <li><a href="#definition" class="active">
-        <i class="icon-plus"></i> Definition</a></li>
+        <i class="icon-plus"></i> Définition</a></li>
     <li><a href="#items">
-        <i class="icon-list"></i> Items</a></li>
+        <i class="icon-list"></i> Éléments</a></li>
     <li><a href="#properties">
-        <i class="icon-asterisk"></i> Properties</a></li>
+        <i class="icon-asterisk"></i> Propriétés</a></li>
 </ul>
 
 <div id="definition" class="tab_content">
@@ -38,22 +38,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Custom lists are used to provide drop-down lists for custom forms. &nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
+                <em>Les listes personnalisées sont utilisées pour fournir des listes déroulantes pour les formulaires personnalisés. &nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td width="180" class="required">Name:</td>
+            <td width="180" class="required">Nom</td>
             <td><input size="50" type="text" name="name" value="<?php echo $info['name']; ?>"/>
             <span class="error">*<br/><?php echo $errors['name']; ?></td>
         </tr>
         <tr>
-            <td width="180">Plural Name:</td>
+            <td width="180">Nom au plurial</td>
             <td><input size="50" type="text" name="name_plural" value="<?php echo $info['name_plural']; ?>"/></td>
         </tr>
         <tr>
-            <td width="180">Sort Order:</td>
+            <td width="180">Tri par</td>
             <td><select name="sort_mode">
                 <?php foreach (DynamicList::getSortModes() as $key=>$desc) { ?>
                 <option value="<?php echo $key; ?>" <?php
@@ -66,7 +66,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="7">
-                <em><strong>Internal Notes:</strong> be liberal, they're internal</em>
+                <em><strong>Notes internes</strong>&nbsp;: soyez prolixes, elles sont internes</em>
             </th>
         </tr>
         <tr>
@@ -83,15 +83,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>Item Properties</strong> properties definable for each item</em>
+                <em><strong>Propriétés des éléments</strong>&nbsp;: propriétés que l’on peut définir pour chaque élément</em>
             </th>
         </tr>
         <tr>
-            <th nowrap>Sort</th>
-            <th nowrap>Label</th>
+            <th nowrap>Tri</th>
+            <th nowrap>Étiquette</th>
             <th nowrap>Type</th>
             <th nowrap>Variable</th>
-            <th nowrap>Delete</th>
+            <th nowrap>Supprimer</th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="prop-sort-">
@@ -190,7 +190,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $showing=$pageNav->showing().' list items';
         ?>
     <?php }
-        else $showing = 'Add a few initial items to the list';
+        else $showing = 'Ajouter quelques éléments initiaux à la liste';
     ?>
         <tr>
             <th colspan="5">
@@ -199,10 +199,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th></th>
-            <th>Value</th>
-            <th>Extra <em style="display:inline">&mdash; abbreviations and such</em></th>
-            <th>Disabled</th>
-            <th>Delete</th>
+            <th>Valeur/th>
+            <th>Additionnels <em style="display:inline">&mdash; abréviations et autres</em></th>
+            <th>Activé</th>
+            <th>Supprimer</th>
         </tr>
     </thead>
 
@@ -214,7 +214,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         if ($list) {
         foreach ($list->getAllItems() as $i) {
             $id = $i->get('id'); ?>
-        <tr class="<?php if (!$i->isEnabled()) echo 'disabled'; ?>">
+        <tr class="<?php if (!$i->isEnabled()) echo 'désactivé'; ?>">
             <td><?php echo $icon; ?>
                 <input type="hidden" name="sort-<?php echo $id; ?>"
                 value="<?php echo $i->get('sort'); ?>"/></td>
@@ -229,7 +229,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $('#field-config .body').load($(this).attr('href').substr(1));
                         $('#field-config').show();
                         return false;
-                    "><i class="icon-edit"></i> Properties</a>
+                    "><i class="icon-edit"></i> Propriétés</a>
                 <?php } ?></td>
             <td><input type="text" size="30" name="extra-<?php echo $id; ?>"
                 value="<?php echo $i->get('extra'); ?>"/></td>
@@ -256,8 +256,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </div>
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
+    <input type="reset"  name="reset"  value="Réinitialiser">
+    <input type="button" name="cancel" value="Annuler" onclick='window.location.href="?"'>
 </p>
 </form>
 
