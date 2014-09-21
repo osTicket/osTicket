@@ -10,7 +10,7 @@ $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = DynamicList::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('lists.php');
-$showing=$pageNav->showing().' custom lists';
+$showing=$pageNav->showing().' listes personnalisées';
 ?>
 
 <form action="lists.php" method="POST" name="lists">
@@ -49,12 +49,12 @@ $showing=$pageNav->showing().' custom lists';
      <tr>
         <td colspan="4">
             <?php if($count){ ?>
-            Select:&nbsp;
+            Sélectionner&nbsp;:&nbsp;
             <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php } else {
-                echo 'Aucune liste personnalisée n’a été définie pour l’instant &mdash; ajoutez-en une&nbsp;!';
+                echo 'Aucune liste personnalisée n\'a été définie pour l\'instant &mdash; ajoutez-en une&nbsp;!';
             } ?>
         </td>
      </tr>
@@ -71,7 +71,7 @@ if ($count) //Show options..
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
