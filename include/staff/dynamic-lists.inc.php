@@ -1,8 +1,8 @@
 <div style="width:700;padding-top:5px; float:left;">
- <h2>Custom Lists</h2>
+ <h2>Listes personnalisées</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="lists.php?a=add" class="Icon list-add">Add New Custom List</a></b></div>
+ <b><a href="lists.php?a=add" class="Icon list-add">Ajouter une liste personnalisée</a></b></div>
 <div class="clear"></div>
 
 <?php
@@ -22,9 +22,9 @@ $showing=$pageNav->showing().' custom lists';
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th>List Name</th>
-            <th>Created</th>
-            <th>Last Updated</th>
+            <th>Nom de la liste</th>
+            <th>Date de création</th>
+            <th>Dernière mise à jour</th>
         </tr>
     </thead>
     <tbody>
@@ -50,11 +50,11 @@ $showing=$pageNav->showing().' custom lists';
         <td colspan="4">
             <?php if($count){ ?>
             Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php } else {
-                echo 'No custom lists defined yet &mdash; add one!';
+                echo 'Aucune liste personnalisée n’a été définie pour l’instant &mdash; ajoutez-en une&nbsp;!';
             } ?>
         </td>
      </tr>
@@ -66,7 +66,7 @@ if ($count) //Show options..
 ?>
 
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="delete" value="Supprimer">
 </p>
 </form>
 
@@ -75,17 +75,17 @@ if ($count) //Show options..
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected lists?</strong></font>
-        <br><br>Deleted forms CANNOT be recovered.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les listes sélectionnéese&nbsp;?</strong></font>
+        <br><br>Les formulaires supprimés ne POURRONT PAS être récupérés.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer.</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
     </p>
     <div class="clear"></div>

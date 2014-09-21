@@ -1,9 +1,9 @@
 <?php
-if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
+if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Accès refusé');
 
 ?>
 <div style="width:700px;padding-top:10px; float:left;">
-  <h2>Frequently Asked Questions</h2>
+  <h2>Questions fréquemment posées</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">&nbsp;</div>
 <div class="clear"></div>
@@ -18,9 +18,9 @@ if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 </div>
 <?php
 if($thisstaff->canManageFAQ()) {
-    echo sprintf('<div class="cat-manage-bar"><a href="categories.php?id=%d" class="Icon editCategory">Edit Category</a>
-             <a href="categories.php" class="Icon deleteCategory">Delete Category</a>
-             <a href="faq.php?cid=%d&a=add" class="Icon newFAQ">Add New FAQ</a></div>',
+    echo sprintf('<div class="cat-manage-bar"><a href="categories.php?id=%d" class="Icon editCategory">Éditer la catégorie</a>
+             <a href="categories.php" class="Icon deleteCategory">Supprimer la catégorie</a>
+             <a href="faq.php?cid=%d&a=add" class="Icon newFAQ">Ajouter une FAQ</a></div>',
             $category->getId(),
             $category->getId());
 } else {
@@ -46,6 +46,6 @@ if(($res=db_query($sql)) && db_num_rows($res)) {
     echo '  </ol>
          </div>';
 }else {
-    echo '<strong>Category does not have FAQs</strong>';
+    echo '<strong>Il n’y a pas de FAQ dans cette catégorie</strong>';
 }
 ?>
