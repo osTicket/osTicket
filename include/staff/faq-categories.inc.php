@@ -1,14 +1,14 @@
 <?php
-if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
+if(!defined('OSTSTAFFINC') || !$thisstaff) die('Accès refusé');
 
 ?>
 <h2>Frequently Asked Questions&nbsp;<i class="help-tip icon-question-sign" href="#page_header"></i></h2>
 <form id="kbSearch" action="kb.php" method="get">
-    <input type="hidden" name="a" value="search">
+    <input type="hidden" name="a" value="rechercher">
     <div>
         <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         <select name="cid" id="cid">
-            <option value="">&mdash; All Categories &mdash;</option>
+            <option value="">&mdash; Toutes les catégories &mdash;</option>
             <?php
             $sql='SELECT category_id, name, count(faq.category_id) as faqs '
                 .' FROM '.FAQ_CATEGORY_TABLE.' cat '
@@ -26,11 +26,11 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
             }
             ?>
         </select>
-        <input id="searchSubmit" type="submit" value="Search">
+        <input id="searchSubmit" type="submit" value="rechercher">
     </div>
     <div>
         <select name="topicId" style="width:350px;" id="topic-id">
-            <option value="">&mdash; All Help Topics &mdash;</option>
+            <option value="">&mdash; Toutes les rubriques d’aide &mdash;</option>
             <?php
             $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as helptopic, count(faq.topic_id) as faqs '
                 .' FROM '.TOPIC_TABLE.' ht '
@@ -91,7 +91,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         echo '  </ol>
              </div>';
     } else {
-        echo '<strong class="faded">The search did not match any FAQs.</strong>';
+        echo '<strong class="faded">La recherche ne correspond à aucun élément de la FAQ.</strong>';
     }
 } else { //Category Listing.
     $sql='SELECT cat.category_id, cat.name, cat.description, cat.ispublic, count(faq.faq_id) as faqs '
@@ -100,7 +100,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         .' GROUP BY cat.category_id '
         .' ORDER BY cat.name';
     if(($res=db_query($sql)) && db_num_rows($res)) {
-        echo '<div>Click on a category to add new FAQs or manage its existing FAQs.&nbsp;</div>
+        echo '<div>Cliquer sur une catégorie pour ajouter une nouvelle FAQ ou gérer une des FAQ qu’elle contient.&nbsp;</div>
                 <ul id="kb">';
         while($row=db_fetch_array($res)) {
 
@@ -114,7 +114,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         }
         echo '</ul>';
     } else {
-        echo 'NO FAQs found';
+        echo 'Aucune FAQ n’a été trouvée';
     }
 }
 ?>
