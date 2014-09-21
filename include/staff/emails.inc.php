@@ -47,10 +47,10 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Email Addresses</h2>
+ <h2>Adresses de courriel</h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="emails.php?a=add" class="Icon newEmail">Ajouter une adresse courriel</a></b></div>
+    <b><a href="emails.php?a=add" class="Icon newEmail">Ajouter une adresse de courriel</a></b></div>
 <div class="clear"></div>
 <form action="emails.php" method="POST" name="emails">
  <?php csrf_token(); ?>
@@ -61,7 +61,7 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
     <thead>
         <tr>
             <th width="7">&nbsp;</th>        
-            <th width="400"><a <?php echo $email_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=email">Adresse courriel</a></th>
+            <th width="400"><a <?php echo $email_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=email">Adresse de courriel</a></th>
             <th width="120"><a  <?php echo $priority_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=priority">Priorité</a></th>
             <th width="250"><a  <?php echo $dept_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=dept">Département</a></th>
             <th width="110" nowrap><a  <?php echo $created_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=created">Date de création</a></th>
@@ -118,7 +118,7 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Supprimer le(s) courriel(s)" >
+    <input class="button" type="submit" name="delete" value="Supprimer les adresses de courriel" >
 </p>
 <?php
 endif;
@@ -130,8 +130,8 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les courriels sélectionnés&nbsp;?</strong></font>
-        <br><br>Les courriels supprimés ne POURRONT PAS être récupérés.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les adresses de courriel sélectionnées&nbsp;?</strong></font>
+        <br><br>Les adresses de courriel supprimées ne POURRONT PAS être récupérées.
     </p>
     <div>Veuillez confirmer pour continuer</div>
     <hr style="margin-top:1em"/>
