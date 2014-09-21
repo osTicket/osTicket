@@ -6,12 +6,12 @@ $category=$faq->getCategory();
 ?>
 <h2>Questions fréquemment posées</h2>
 <div id="breadcrumbs">
-    <a href="kb.php">All Categories</a>
+    <a href="kb.php">Toutes les catégories</a>
     &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
-    <span class="faded">(<?php echo $category->isPublic()?'Public':'Internal'; ?>)</span>
+    <span class="faded">(<?php echo $category->isPublic()?'Public':'Interne'; ?>)</span>
 </div>
 <div style="width:700px;padding-top:2px; float:left;">
-<strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo $faq->isPublished()?'(Published)':''; ?></span>
+<strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo $faq->isPublished()?'(Publié)':''; ?></span>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
 <?php
@@ -33,7 +33,7 @@ if($thisstaff->canManageFAQ()) {
     <?php echo ($topics=$faq->getHelpTopics())?implode(', ',$topics):' '; ?>
     </div>
 </p>
-<div class="faded">&nbsp;Last updated <?php echo Format::db_daydatetime($faq->getUpdateDate()); ?></div>
+<div class="faded">&nbsp;Dernière mise à jour <?php echo Format::db_daydatetime($faq->getUpdateDate()); ?></div>
 <hr>
 <?php
 if($thisstaff->canManageFAQ()) {
@@ -41,7 +41,7 @@ if($thisstaff->canManageFAQ()) {
     ?>
    <div>
     <form action="faq.php?id=<?php echo  $faq->getId(); ?>" method="post">
-	 <?php csrf_token(); ?>
+        <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo  $faq->getId(); ?>">
         <input type="hidden" name="do" value="manage-faq">
         <div>
