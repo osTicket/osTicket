@@ -42,16 +42,16 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY canned.canned_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' premade responses';
+    $showing=$pageNav->showing().' réponses prédéfinies';
 else
-    $showing='No premade responses found!';
+    $showing='Aucune réponse prédéfinie trouvée&nbsp;!';
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Canned Responses&nbsp;<i class="help-tip icon-question-sign" href="#canned_responses"></i></h2>
+ <h2>Réponses prédéfinies&nbsp;<i class="help-tip icon-question-sign" href="#canned_responses"></i></h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="canned.php?a=add" class="Icon newReply">Add New Response</a></b></div>
+    <b><a href="canned.php?a=add" class="Icon newReply">Ajouter une nouvelle réponse</a></b></div>
 <div class="clear"></div>
 <form action="canned.php" method="POST" name="canned">
  <?php csrf_token(); ?>
@@ -64,7 +64,7 @@ else
             <th width="7">&nbsp;</th>
             <th width="500"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title">Titre</a></th>
             <th width="80"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status">Statut</a></th>
-            <th width="200"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept">Section</a></th>
+            <th width="200"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept">Département</a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
@@ -87,8 +87,8 @@ else
                 <td>
                     <a href="canned.php?id=<?php echo $row['canned_id']; ?>"><?php echo Format::truncate($row['title'],200); echo "&nbsp;$files"; ?></a>&nbsp;
                 </td>
-                <td><?php echo $row['isenabled']?'Active':'<b>Désactivé</b>'; ?></td>
-                <td><?php echo $row['department']?$row['department']:'&mdash; Toutes les sections &mdash;'; ?></td>
+                <td><?php echo $row['isenabled']?'Active':'<b>Désactivée</b>'; ?></td>
+                <td><?php echo $row['department']?$row['department']:'&mdash; Tous les départements &mdash;'; ?></td>
                 <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>
             <?php
@@ -98,7 +98,7 @@ else
      <tr>
         <td colspan="5">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
+            Sélectionner&nbsp;:&nbsp;
             <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
