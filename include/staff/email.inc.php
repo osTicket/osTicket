@@ -3,8 +3,8 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Accès
 $info=array();
 $qstr='';
 if($email && $_REQUEST['a']!='add'){
-    $title='Mettre à jour les adresses courriel';
-    $action='update'; /*=> donc ici on ne traduit pas, si je comprends bien ?*/
+    $title='Mettre à jour les adresses de courriel';
+    $action='update';
     $submit_text='Sauvegarder les modifications';
     $info=$email->getInfo();
     $info['id']=$email->getId();
@@ -19,7 +19,7 @@ if($email && $_REQUEST['a']!='add'){
 
     $qstr.='&id='.$email->getId();
 }else {
-    $title='Add New Email';
+    $title='Ajouter une nouvelle adresse de courriel';
     $action='create';
     $submit_text='Submit';
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
@@ -35,7 +35,7 @@ if($email && $_REQUEST['a']!='add'){
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<h2>Email Address</h2>
+<h2>Adresse de courriel</h2>
 <form action="emails.php?<?php echo $qstr; ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
@@ -53,7 +53,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <td width="180" class="required">
-                Adresse courriel
+                Adresse de courriel
             </td>
             <td>
                 <input type="text" size="35" name="email" value="<?php echo $info['email']; ?>">
@@ -79,22 +79,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Département
             </td>
             <td>
-        <span>
-			<select name="dept_id">
-			    <option value="0" selected="selected">&mdash; Valeurs par défaut du système &mdash;</option>
-			    <?php
-			    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-			    if(($res=db_query($sql)) && db_num_rows($res)){
-				while(list($id,$name)=db_fetch_row($res)){
-				    $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-				}
-			    }
-			    ?>
-			</select>
-			<i class="help-tip icon-question-sign" href="#new_ticket_department"></i>
-        </span>
-			&nbsp;<span class="error"><?php echo $errors['dept_id']; ?></span>
+                <span>
+                    <select name="dept_id">
+                        <option value="0" selected="selected">&mdash; Valeurs par défaut du système &mdash;</option>
+                        <?php
+                        $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
+                        if(($res=db_query($sql)) && db_num_rows($res)){
+                            while(list($id,$name)=db_fetch_row($res)){
+                                $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+                                echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                            }
+                        }
+                        ?>
+                    </select>
+                    <i class="help-tip icon-question-sign" href="#new_ticket_department"></i>
+                </span>
+                &nbsp;<span class="error"><?php echo $errors['dept_id']; ?></span>
             </td>
         </tr>
         <tr>
@@ -102,22 +102,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Priorité
             </td>
             <td>
-		<span>
-			<select name="priority_id">
-			    <option value="0" selected="selected">&mdash; Valeurs par défaut du système &mdash;</option>
-			    <?php
-			    $sql='SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
-			    if(($res=db_query($sql)) && db_num_rows($res)){
-				while(list($id,$name)=db_fetch_row($res)){
-				    $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
-				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-				}
-			    }
-			    ?>
-			</select>
-			<i class="help-tip icon-question-sign" href="#new_ticket_priority"></i>
-		</span>
-		&nbsp;<span class="error"><?php echo $errors['priority_id']; ?></span>
+                <span>
+                    <select name="priority_id">
+                        <option value="0" selected="selected">&mdash; Valeurs par défaut du système &mdash;</option>
+                        <?php
+                        $sql='SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
+                        if(($res=db_query($sql)) && db_num_rows($res)){
+                            while(list($id,$name)=db_fetch_row($res)){
+                                $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
+                                echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                            }
+                        }
+                        ?>
+                    </select>
+                    <i class="help-tip icon-question-sign" href="#new_ticket_priority"></i>
+                </span>
+                &nbsp;<span class="error"><?php echo $errors['priority_id']; ?></span>
             </td>
         </tr>
         <tr>
@@ -125,21 +125,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 Rubrique d’aide
             </td>
             <td>
-		<span>
-			<select name="topic_id">
-			    <option value="0" selected="selected">&mdash; Valeurs par défaut du système &mdash;</option>
-			    <?php
-                    $topics = Topic::getHelpTopics();
-                    while (list($id,$topic) = each($topics)) { ?>
-                        <option value="<?php echo $id; ?>"<?php echo ($info['topic_id']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
-                    <?php
-                    } ?>
-			</select>
-			<i class="help-tip icon-question-sign" href="#new_ticket_help_topic"></i>
-		</span>
+                <span>
+                    <select name="topic_id">
+                        <option value="0" selected="selected">&mdash; Valeurs par défaut du système &mdash;</option>
+                        <?php
+                            $topics = Topic::getHelpTopics();
+                            while (list($id,$topic) = each($topics)) { ?>
+                                <option value="<?php echo $id; ?>"<?php echo ($info['topic_id']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
+                            <?php
+                            } ?>
+                    </select>
+                    <i class="help-tip icon-question-sign" href="#new_ticket_help_topic"></i>
+                </span>
                 <span class="error">
-			<?php echo $errors['topic_id']; ?>
-		</span>
+                    <?php echo $errors['topic_id']; ?>
+                </span>
             </td>
         </tr>
         <tr>
@@ -148,7 +148,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <label><input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                <strong>Désactivée</strong> pour cette adresse courriel
+                <strong>Désactiver</strong> pour cette adresse courriel
                 </label>
                 <i class="help-tip icon-question-sign" href="#auto_response"></i>
             </td>
@@ -187,69 +187,69 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td>Statut</td>
             <td>
-                <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> />&nbsp;Activé</label>
+                <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> />&nbsp;Activer</label>
                 &nbsp;&nbsp;
-                <label><input type="radio" name="mail_active"  value="0"   <?php echo !$info['mail_active']?'checked="checked"':''; ?> />&nbsp;Désactivé</label>
+                <label><input type="radio" name="mail_active"  value="0"   <?php echo !$info['mail_active']?'checked="checked"':''; ?> />&nbsp;Désactiver</label>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_active']; ?></font>
             </td>
         </tr>
         <tr><td>Nom d’hôte</td>
             <td>
-		<span>
-			<input type="text" name="mail_host" size=35 value="<?php echo $info['mail_host']; ?>">
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_host']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
-		</span>
+                <span>
+                    <input type="text" name="mail_host" size=35 value="<?php echo $info['mail_host']; ?>">
+                    &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_host']; ?></font>
+                    <i class="help-tip icon-question-sign" href="#host_and_port"></i>
+                </span>
             </td>
         </tr>
         <tr><td>Numéro de port</td>
             <td><input type="text" name="mail_port" size=6 value="<?php echo $info['mail_port']?$info['mail_port']:''; ?>">
-		<span>
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_port']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
-		</span>
+                <span>
+                    &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_port']; ?></font>
+                    <i class="help-tip icon-question-sign" href="#host_and_port"></i>
+                </span>
             </td>
         </tr>
         <tr><td>Protocole de messagerie</td>
             <td>
-		<span>
-			<select name="mail_proto">
-			    <option value=''>&mdash; Sélectionner un protocole &mdash;</option>
-<?php
-    foreach (MailFetcher::getSupportedProtos() as $proto=>$desc) { ?>
-                <option value="<?php echo $proto; ?>" <?php
-                    if ($info['mail_proto'] == $proto) echo 'selected="selected"';
-                    ?>><?php echo $desc; ?></option>
-<?php } ?>
-			</select>
-			<font class="error">&nbsp;<?php echo $errors['mail_protocol']; ?></font>
-			<i class="help-tip icon-question-sign" href="#protocol"></i>
-		</span>
+                <span>
+                    <select name="mail_proto">
+                        <option value=''>&mdash; Sélectionner un protocole &mdash;</option>
+        <?php
+            foreach (MailFetcher::getSupportedProtos() as $proto=>$desc) { ?>
+                        <option value="<?php echo $proto; ?>" <?php
+                            if ($info['mail_proto'] == $proto) echo 'selected="selected"';
+                            ?>><?php echo $desc; ?></option>
+        <?php } ?>
+                    </select>
+                    <font class="error">&nbsp;<?php echo $errors['mail_protocol']; ?></font>
+                    <i class="help-tip icon-question-sign" href="#protocol"></i>
+                </span>
             </td>
         </tr>
 
         <tr><td>Fréquence de récupération</td>
             <td>
-		<span>
-			<input type="text" name="mail_fetchfreq" size=4 value="<?php echo $info['mail_fetchfreq']?$info['mail_fetchfreq']:''; ?>"> minutes
-			<i class="help-tip icon-question-sign" href="#fetch_frequency"></i>
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchfreq']; ?></font>
-		</span>
+                <span>
+                    <input type="text" name="mail_fetchfreq" size=4 value="<?php echo $info['mail_fetchfreq']?$info['mail_fetchfreq']:''; ?>"> minutes
+                    <i class="help-tip icon-question-sign" href="#fetch_frequency"></i>
+                    &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchfreq']; ?></font>
+                </span>
             </td>
         </tr>
         <tr><td>Nombre de courriels par récupération</td>
             <td>
-		<span>
-			<input type="text" name="mail_fetchmax" size=4 value="<?php echo $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>"> courriels
-			<i class="help-tip icon-question-sign" href="#emails_per_fetch"></i>
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
-		</span>
+                <span>
+                    <input type="text" name="mail_fetchmax" size=4 value="<?php echo $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>"> courriels
+                    <i class="help-tip icon-question-sign" href="#emails_per_fetch"></i>
+                    &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
+                </span>
             </td>
         </tr>
         <tr><td valign="top">Courriels récupérés</td>
              <td>
                 <label><input type="radio" name="postfetch" value="archive" <?php echo ($info['postfetch']=='archive')? 'checked="checked"': ''; ?> >
-                 Move to folder: <input type="text" name="mail_archivefolder" size="20" value="<?php echo $info['mail_archivefolder']; ?>"/></label>
+                 Déplacer dans le dossier&nbsp;: <input type="text" name="mail_archivefolder" size="20" value="<?php echo $info['mail_archivefolder']; ?>"/></label>
                     &nbsp;<font class="error"><?php echo $errors['mail_folder']; ?></font>
                     <i class="help-tip icon-question-sign" href="#fetched_emails"></i>
                 <br/>
@@ -269,7 +269,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr><td>Statut</td>
             <td>
-                <label><input type="radio" name="smtp_active"  value="1"   <?php echo $info['smtp_active']?'checked':''; ?> />&nbsp;Activé</label>
+                <label><input type="radio" name="smtp_active"  value="1"   <?php echo $info['smtp_active']?'checked':''; ?> />&nbsp;Activer</label>
                 &nbsp;
                 <label><input type="radio" name="smtp_active"  value="0"   <?php echo !$info['smtp_active']?'checked':''; ?> />&nbsp;Désactivé/label>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['smtp_active']; ?></font>
@@ -278,16 +278,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr><td>Nom d’hôte</td>
             <td><input type="text" name="smtp_host" size=35 value="<?php echo $info['smtp_host']; ?>">
                 &nbsp;<font class="error"><?php echo $errors['smtp_host']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
+                <i class="help-tip icon-question-sign" href="#host_and_port"></i>
             </td>
         </tr>
         <tr><td>Numéro de port</td>
             <td><input type="text" name="smtp_port" size=6 value="<?php echo $info['smtp_port']?$info['smtp_port']:''; ?>">
                 &nbsp;<font class="error"><?php echo $errors['smtp_port']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
+                <i class="help-tip icon-question-sign" href="#host_and_port"></i>
             </td>
         </tr>
-        <tr><td>Authentication requise</td>
+        <tr><td>Authentification requise</td>
             <td>
 
                  <label><input type="radio" name="smtp_auth"  value="1"
@@ -299,10 +299,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td>Pseudo en-tête</td> <!-- pour 'Header Spoofin' ? à vrai dire, je ne sais pas ce que c’est !-->
+            <td>Modification en-tête</td>
             <td>
                 <label><input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
-                Autoriser pour cette adresse courriel</label>
+                Autoriser pour cette adresse de courriel</label>
                 <i class="help-tip icon-question-sign" href="#header_spoofing"></i>
             </td>
         </tr>
