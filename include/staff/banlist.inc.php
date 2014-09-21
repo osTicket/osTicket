@@ -14,7 +14,7 @@ if($_REQUEST['q'] && strlen($_REQUEST['q'])>3) {
         $where.=' AND rule.val LIKE "%'.db_input($_REQUEST['q'],false).'%"';
 
 }elseif($_REQUEST['q']) {
-    $errors['q']='Term too short!';
+    $errors['q']='Terme trop court !';
 }
 
 $sortOptions=array('email'=>'rule.val','status'=>'isactive','created'=>'rule.created','created'=>'rule.updated');
@@ -46,7 +46,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2>Adresses courriel interdites
+<h2>Adresses de courriel interdites
     <i class="help-tip icon-question-sign" href="#ban_list"></i>
     </h2>
 <div style="width:600; float:left;padding-top:5px;">
@@ -59,16 +59,16 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
      </div>
     </form>
  </div>
-<div style="float:right;text-align:right;padding-right:5px;"><b><a href="banlist.php?a=add" class="Icon newstaff">Interdire une adresse courriel</a></b></div>
+<div style="float:right;text-align:right;padding-right:5px;"><b><a href="banlist.php?a=add" class="Icon newstaff">Interdire une adresse de courriel</a></b></div>
 <div class="clear"></div>
 <?php
 if(($res=db_query($query)) && ($num=db_num_rows($res)))
     $showing=$pageNav->showing();
 else
-    $showing='Aucune adresse courriel correspondant à la requête n’a été trouvée!';
+    $showing='Aucune adresse de courriel correspondant à la requête n’a été trouvée&nbsp;!';
 
 if($search)
-    $showing='Search Results: '.$showing;
+    $showing='Résultats de recherche&nbsp;: '.$showing;
     
 ?>
 <form action="banlist.php" method="POST" name="banlist">
@@ -80,7 +80,7 @@ if($search)
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>        
-            <th width="350"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email">Adresses courriel</a></th>
+            <th width="350"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email">Adresses de courriel</a></th>
             <th width="200"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status">Statut</a></th>
             <th width="120"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created">Date de création</a></th>
             <th width="120"><a <?php echo $updated_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
@@ -100,7 +100,7 @@ if($search)
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <td>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
-                <td>&nbsp;&nbsp;<?php echo $row['isactive']?'Active':'<b>Autorisé</b>'; ?></td>
+                <td>&nbsp;&nbsp;<?php echo $row['isactive']?'Active':'<b>Désactivée</b>'; ?></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
                 <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
                </tr>
@@ -111,12 +111,12 @@ if($search)
      <tr>
         <td colspan="5">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
+            Sélectionner&nbsp;:&nbsp;
             <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'Aucune adresse courriel interdite n’a été trouvée!';
+                echo 'Aucune adresse de courriel interdite n’a été trouvée!';
             } ?>
         </td>
      </tr>
