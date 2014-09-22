@@ -580,7 +580,7 @@ class Staff extends AuthenticatedUser {
             db_query('UPDATE '.TICKET_TABLE.' SET staff_id=0 WHERE staff_id='.db_input($this->getId()));
 
             //Update the poster and clear staff_id on ticket thread table.
-            db_query('UPDATE '.TICKET_THREAD_TABLE
+            db_query('UPDATE '.THREAD_ENTRY_TABLE
                     .' SET staff_id=0, poster= '.db_input($this->getName()->getOriginal())
                     .' WHERE staff_id='.db_input($this->getId()));
 

@@ -64,7 +64,7 @@ class FAQ {
         return Format::viewableImages($this->ht['answer'], ROOT_PATH.'image.php');
     }
     function getSearchableAnswer() {
-        return ThreadBody::fromFormattedText($this->ht['answer'], 'html')
+        return ThreadEntryBody::fromFormattedText($this->ht['answer'], 'html')
             ->getSearchable();
     }
     function getNotes() { return $this->ht['notes']; }

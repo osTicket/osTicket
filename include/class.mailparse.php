@@ -304,19 +304,19 @@ class Mail_Parse {
 
         if ($cfg && $cfg->isHtmlThreadEnabled()) {
             if ($html=$this->getPart($this->struct,'text/html'))
-                $body = new HtmlThreadBody($html);
+                $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($this->struct,'text/plain'))
-                $body = new TextThreadBody($text);
+                $body = new TextThreadEntryBody($text);
         }
         elseif ($text=$this->getPart($this->struct,'text/plain'))
-            $body = new TextThreadBody($text);
+            $body = new TextThreadEntryBody($text);
         elseif ($html=$this->getPart($this->struct,'text/html'))
-            $body = new TextThreadBody(
+            $body = new TextThreadEntryBody(
                     Format::html2text(Format::safe_html($html),
                         100, false));
 
         if (!isset($body))
-            $body = new TextThreadBody('');
+            $body = new TextThreadEntryBody('');
 
         if ($cfg && $cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());
