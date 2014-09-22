@@ -32,13 +32,13 @@ class Thread {
             return null;
 
         $sql='SELECT thread.* '
-            .' ,count(DISTINCT a.id) as attachments '
+            .' ,count(DISTINCT attach.id) as attachments '
             .' ,count(DISTINCT entry.id) as entries '
             .' FROM '.THREAD_TABLE.' thread '
             .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
                 ON (entry.thread_id = thread.id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' a
-                ON (a.object_id=entry.id AND a.`type` = "H") '
+            .' LEFT JOIN '.THREAD_ENTRY_ATTACHMENT_TABLE.' attach
+                ON (attach.thread_entry_id=entry.id) '
             .' WHERE thread.id='.db_input($id)
             .' GROUP BY thread.id';
 
@@ -65,17 +65,8 @@ class Thread {
         return $this->ht['object_type'];
     }
 
-    function getObject() {
-
-        if (!$this->_object)
-            $this->_object = ObjectModel::lookup(
-                    $this->getObjectId(), $this->getObjectType());
-
-        return $this->_object;
-    }
-
-    function getNumAttachments() {
-        return $this->ht['attachments'];
+    function getObjectId() {
+        return $this->ht['object_id'];
     }
 
     function getNumEntries() {
@@ -84,8 +75,8 @@ class Thread {
 
     function getEntries($criteria) {
 
-        if (!$criteria['order'] || !in_array($criteria['order'], array('DESC','ASC')))
-            $criteria['order'] = 'ASC';
+        if (!$order || !in_array($order, array('DESC','ASC')))
+            $order='ASC';
 
         $sql='SELECT entry.*
                , COALESCE(user.name,
@@ -98,21 +89,17 @@ class Thread {
                 ON (entry.user_id=user.id) '
             .' LEFT JOIN '.STAFF_TABLE.' staff
                 ON (entry.staff_id=staff.staff_id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-                ON (attach.object_id = entry.id AND attach.`type`="H") '
+            .' LEFT JOIN '.THREAD_ENTRY_ATTACHMENT_TABLE.' attach
+                ON (attach.thread_entry_id = entry.id) '
             .' WHERE  entry.thread_id='.db_input($this->getId());
 
-        if ($criteria['type'] && is_array($criteria['type']))
-            $sql.=' AND entry.`type` IN ('
-                    .implode(',', db_input($criteria['type'])).')';
-        elseif ($criteria['type'])
-            $sql.=' AND entry.`type` = '.db_input($criteria['type']);
+        if($type && is_array($type))
+            $sql.=' AND entry.`type` IN ('.implode(',', db_input($type)).')';
+        elseif($type)
+            $sql.=' AND entry.`type` = '.db_input($type);
 
         $sql.=' GROUP BY entry.id '
-             .' ORDER BY entry.created '.$criteria['order'];
-
-        if ($criteria['limit'])
-            $sql.=' LIMIT '.$criteria['limit'];
+             .' ORDER BY entry.created '.$order;
 
         $entries = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -133,9 +120,9 @@ class Thread {
     function deleteAttachments() {
 
         // Clear reference table
-        $sql = 'DELETE FROM '.ATTACHMENT_TABLE. ' a '
+        $sql = 'DELETE FROM '.THREAD_ENTRY_ATTACHMENT_TABLE. ' a '
              . 'INNER JOIN '.THREAD_ENTRY_TABLE.' e
-                    ON(e.id = a.object_id AND a.`type`= "H") '
+                    ON(e.id = a.thread_entry_id) '
              . ' WHERE e.thread_id='.db_input($this->getId());
 
         $deleted=0;
@@ -169,6 +156,19 @@ class Thread {
         db_query($sql);
 
         return true;
+    }
+
+    function getVar($name) {
+        switch ($name) {
+        case 'original':
+            return Message::firstByTicketId($this->ticket->getId())
+                ->getBody();
+            break;
+        case 'last_message':
+        case 'lastmessage':
+            return $this->ticket->getLastMessage()->getBody();
+            break;
+        }
     }
 
     static function create($vars) {
@@ -216,8 +216,8 @@ Class ThreadEntry {
             .' FROM '.THREAD_ENTRY_TABLE.' entry '
             .' LEFT JOIN '.THREAD_ENTRY_EMAIL_TABLE.' email
                 ON (email.thread_entry_id=entry.id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-                ON (attach.object_id=entry.id AND attach.`type` = "H") '
+            .' LEFT JOIN '.THREAD_ENTRY_ATTACHMENT_TABLE.' attach
+                ON (attach.thread_entry_id=entry.id) '
             .' WHERE  entry.id='.db_input($id);
 
         if ($type)
@@ -233,7 +233,8 @@ Class ThreadEntry {
 
         $this->ht = db_fetch_array($res);
         $this->id = $this->ht['id'];
-        $this->attachments = new GenericAttachments($this->id, 'H');
+
+        $this->attachments = array();
 
         return true;
     }
@@ -491,7 +492,20 @@ Class ThreadEntry {
 
         $inline = is_array($file) && @$file['inline'];
 
-        return $this->attachments->save($file, $inline);
+        // TODO: Add a unique index to THREAD_ENTRY_ATTACHMENT_TABLE (file_id,
+        // thread_entry_id), and remove this block
+        if ($id = db_result(db_query('SELECT id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE
+                .' WHERE file_id='.db_input($fileId)
+                .' AND thread_entry_id=' .db_input($this->getId()))))
+
+            return $id;
+
+        $sql ='INSERT IGNORE INTO '.THREAD_ENTRY_ATTACHMENT_TABLE.' SET created=NOW() '
+             .' ,file_id='.db_input($fileId)
+             .' ,thread_entry_id='.db_input($this->getId())
+             .' ,inline='.db_input($inline ? 1 : 0);
+
+        return (db_query($sql) && ($id=db_insert_id()))?$id:0;
     }
 
     function saveAttachments($files) {
@@ -504,15 +518,32 @@ Class ThreadEntry {
     }
 
     function getAttachments() {
-        return $this->attachments->getAll(true, false);
+
+        if ($this->attachments)
+            return $this->attachments;
+
+        //XXX: inner join the file table instead?
+        $sql='SELECT a.id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.name, a.inline '
+            .' FROM '.FILE_TABLE.' f '
+            .' INNER JOIN '.THREAD_ENTRY_ATTACHMENT_TABLE.' a
+                ON(a.file_id=f.id) '
+            .' WHERE a.thread_entry_id='.db_input($this->getId());
+
+        $this->attachments = array();
+        if (($res=db_query($sql)) && db_num_rows($res)) {
+            while ($rec=db_fetch_array($res))
+                $this->attachments[] = $rec;
+        }
+
+        return $this->attachments;
     }
 
     function getAttachmentUrls($script='image.php') {
         $json = array();
         foreach ($this->getAttachments() as $att) {
-            $json[$att['key']] = array(
-                'download_url' => sprintf('attachment.php?id=%d&h=%s',
-                    $att['attach_id'], $att['download']),
+            $json[$att['file_hash']] = array(
+                'download_url' => sprintf('attachment.php?id=%d&h=%s', $att['id'],
+                    strtolower(md5($att['file_id'].session_id().$att['file_hash']))),
                 'filename' => $att['name'],
             );
         }
@@ -530,13 +561,7 @@ Class ThreadEntry {
                 $size=sprintf('<em>(%s)</em>', Format::file_size($att['size']));
 
             $str.=sprintf('<a class="Icon file no-pjax" href="%s?id=%d&h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $file,
-                    $att['attach_id'],
-                    $att['download'],
-                    $target,
-                    Format::htmlchars($att['name']),
-                    $size,
-                    $separator);
+                    $file, $attachment['id'], $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
         }
 
         return $str;
@@ -1276,7 +1301,29 @@ class MessageThreadEntry extends ThreadEntry {
                 )?$m:null;
     }
 
+    //TODO: redo shit below.
+
+    function lastByTicketId($ticketId) {
+        return self::byTicketId($ticketId);
+    }
+
+    function firstByTicketId($ticketId) {
+        return self::byTicketId($ticketId, false);
+    }
+
+    function byTicketId($ticketId, $last=true) {
+
+        $sql=' SELECT thread.id FROM '.TICKET_THREAD_TABLE.' thread '
+            .' WHERE thread_type=\'M\' AND thread.ticket_id = '.db_input($ticketId)
+            .sprintf(' ORDER BY thread.id %s LIMIT 1', $last ? 'DESC' : 'ASC');
+
+        if (($res = db_query($sql)) && ($id = db_result($res)))
+            return Message::lookup($id);
+
+        return null;
+    }
 }
+
 
 /* thread entry of type response */
 class ResponseThreadEntry extends ThreadEntry {
@@ -1409,42 +1456,15 @@ class TicketThread extends Thread {
     }
 
     function getMessages() {
-        return $this->getEntries(array(
-                    'type' => MessageThreadEntry::ENTRY_TYPE));
-    }
-
-    function getLastMessage() {
-
-        $criteria = array(
-                'type'  => MessageThreadEntry::ENTRY_TYPE,
-                'order' => 'DESC',
-                'limit' => 1);
-
-        return $this->getEntry($criteria);
-    }
-
-    function getEntry($var) {
-
-        if (is_numeric($var))
-            $id = $var;
-        else {
-            $criteria = array_merge($var, array('limit' => 1));
-            $entries = $this->getEntries($criteria);
-            if ($entries && $entries[0])
-                $id = $entries[0]['id'];
-        }
-
-        return $id ? parent::getEntry($id) : null;
+        return $this->getEntries(MessageThreadEntry::ENTRY_TYPE);
     }
 
     function getResponses() {
-        return $this->getEntries(array(
-                    'type' => ResponseThreadEntry::ENTRY_TYPE));
+        return $this->getEntries(ResponseThreadEntry::ENTRY_TYPE);
     }
 
     function getNotes() {
-        return $this->getEntries(array(
-                    'type' => NoteThreadEntry::ENTRY_TYPE));
+        return $this->getEntries(NoteThreadEntry::ENTRY_TYPE);
     }
 
     function addNote($vars, &$errors) {
@@ -1470,26 +1490,15 @@ class TicketThread extends Thread {
         return ResponseThreadEntry::create($vars, $errors);
     }
 
+    //TODO: revisit
     function getVar($name) {
         switch ($name) {
-        case 'original':
-            $entries = $this->getEntries(array(
-                        'type'  => MessageThreadEntry::ENTRY_TYPE,
-                        'order' => 'ASC',
-                        'limit' => 1));
-            if ($entries && $entries[0])
-                return (string) $entries[0]['body'];
-
+            case 'original':
+                return MessageThreadEntry::first($this->getId())->getBody();
             break;
         case 'last_message':
         case 'lastmessage':
-            $entries = $this->getEntries(array(
-                        'type'  => MessageThreadEntry::ENTRY_TYPE,
-                        'order' => 'DESC',
-                        'limit' => 1));
-            if ($entries && $entries[0])
-                return (string) $entries[0]['body'];
-
+            return $this->ticket->getLastMessage()->getBody();
             break;
         }
     }

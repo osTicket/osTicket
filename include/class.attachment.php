@@ -23,19 +23,27 @@ class Attachment {
     var $ht;
     var $object;
 
-    function Attachment($id) {
+    function Attachment($id, $tid=0) {
 
-        $sql = 'SELECT a.* FROM '.ATTACHMENT_TABLE.' a '
-             . 'WHERE a.id='.db_input($id);
-        if (!($res=db_query($sql)) || !db_num_rows($res))
-            return;
+        $sql = ' SELECT * FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' WHERE id='.db_input($id);
+        if($tid)
+            $sql.=' AND thread_entry_id='.db_input($tid);
 
-        $this->ht = db_fetch_array($res);
-        $this->file = $this->object = null;
+        if(!($res=db_query($sql)) || !db_num_rows($res))
+            return false;
+
+        $this->ht=db_fetch_array($res);
+
+        $this->id=$this->ht['id'];
+        $this->file_id=$this->ht['file_id'];
+
+        $this->file=null;
+
+        return true;
     }
 
     function getId() {
-        return $this->ht['id'];
+        return $this->id;
     }
 
     function getFileId() {
@@ -57,32 +65,24 @@ class Attachment {
         return $this->getHashtable();
     }
 
-    function getObject() {
-
-        if (!isset($this->object))
-            $this->object = ObjectModel::lookup(
-                    $this->ht['object_id'], $this->ht['type']);
-
-        return $this->object;
-    }
-
-    static function getIdByFileHash($hash, $objectId=0) {
-        $sql='SELECT a.id FROM '.ATTACHMENT_TABLE.' a '
+    /* Static functions */
+    function getIdByFileHash($hash, $tid=0) {
+        $sql='SELECT a.id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' a '
             .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
             .' WHERE f.`key`='.db_input($hash);
-        if ($objectId)
-            $sql.=' AND a.object_id='.db_input($objectId);
+        if($tid)
+            $sql.=' AND a.thread_entry_id='.db_input($tid);
 
         return db_result(db_query($sql));
     }
 
-    static function lookup($var, $objectId=0) {
+    function lookup($var, $tid=0) {
 
-        $id = is_numeric($var) ? $var : self::getIdByFileHash($var, $oid);
+        $id = is_numeric($var) ? $var : self::getIdByFileHash($var, $tid);
 
         return ($id
                 && is_numeric($id)
-                && ($attach = new Attachment($id, $oid))
+                && ($attach = new Attachment($id, $tid))
                 && $attach->getId()==$id
             ) ? $attach : null;
     }
