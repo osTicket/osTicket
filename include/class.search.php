@@ -374,8 +374,7 @@ class MysqlSearchBackend extends SearchBackend {
         };
 
         // THREADS ----------------------------------
-
-        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".TICKET_THREAD_TABLE."` A1
+        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".THREAD_ENTRY_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='H')
             WHERE A2.`object_id` IS NULL AND (A1.poster <> 'SYSTEM')
             AND (LENGTH(A1.`title`) + LENGTH(A1.`body`) > 0)
@@ -384,7 +383,7 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $body = ThreadBody::fromFormattedText($row[2], $row[3]);
+            $body = ThreadEntryBody::fromFormattedText($row[2], $row[3]);
             $body = $body->getSearchable();
             $title = Format::searchable($row[1]);
             if (!$body && !$title)

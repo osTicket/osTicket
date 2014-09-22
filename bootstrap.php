@@ -89,12 +89,15 @@ class Bootstrap {
         define('FAQ_CATEGORY_TABLE',$prefix.'faq_category');
 
         define('DRAFT_TABLE',$prefix.'draft');
+
+        define('THREAD_TABLE', $prefix.'thread');
+        define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
+        define('THREAD_ENTRY_ATTACHMENT_TABLE', $prefix.'thread_entry_attachment');
+        define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
+
         define('TICKET_TABLE',$prefix.'ticket');
-        define('TICKET_THREAD_TABLE',$prefix.'ticket_thread');
-        define('TICKET_ATTACHMENT_TABLE',$prefix.'ticket_attachment');
         define('TICKET_LOCK_TABLE',$prefix.'ticket_lock');
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
-        define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
         define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');

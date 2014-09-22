@@ -19,44 +19,30 @@ require_once(INCLUDE_DIR.'class.file.php');
 class Attachment {
     var $id;
     var $file_id;
-    var $ticket_id;
 
     var $info;
 
-    function Attachment($id,$tid=0) {
+    function Attachment($id, $tid=0) {
 
-        $sql='SELECT * FROM '.TICKET_ATTACHMENT_TABLE.' WHERE attach_id='.db_input($id);
+        $sql = ' SELECT * FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' WHERE id='.db_input($id);
         if($tid)
-            $sql.=' AND ticket_id='.db_input($tid);
+            $sql.=' AND thread_entry_id='.db_input($tid);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
         $this->ht=db_fetch_array($res);
 
-        $this->id=$this->ht['attach_id'];
+        $this->id=$this->ht['id'];
         $this->file_id=$this->ht['file_id'];
-        $this->ticket_id=$this->ht['ticket_id'];
 
         $this->file=null;
-        $this->ticket=null;
 
         return true;
     }
 
     function getId() {
         return $this->id;
-    }
-
-    function getTicketId() {
-        return $this->ticket_id;
-    }
-
-    function getTicket() {
-        if(!$this->ticket && $this->getTicketId())
-            $this->ticket = Ticket::lookup($this->getTicketId());
-
-        return $this->ticket;
     }
 
     function getFileId() {
@@ -84,23 +70,25 @@ class Attachment {
 
     /* Static functions */
     function getIdByFileHash($hash, $tid=0) {
-        $sql='SELECT attach_id FROM '.TICKET_ATTACHMENT_TABLE.' a '
+        $sql='SELECT a.id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' a '
             .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
             .' WHERE f.`key`='.db_input($hash);
         if($tid)
-            $sql.=' AND a.ticket_id='.db_input($tid);
+            $sql.=' AND a.thread_entry_id='.db_input($tid);
 
         return db_result(db_query($sql));
     }
 
-    function lookup($var,$tid=0) {
-        $id=is_numeric($var)?$var:self::getIdByFileHash($var,$tid);
+    function lookup($var, $tid=0) {
 
-        return ($id && is_numeric($id)
-            && ($attach = new Attachment($id,$tid))
-            && $attach->getId()==$id)?$attach:null;
+        $id = is_numeric($var) ? $var : self::getIdByFileHash($var, $tid);
+
+        return ($id
+                && is_numeric($id)
+                && ($attach = new Attachment($id, $tid))
+                && $attach->getId()==$id
+            ) ? $attach : null;
     }
-
 }
 
 class GenericAttachments {
