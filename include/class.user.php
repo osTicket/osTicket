@@ -14,7 +14,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR . 'class.orm.php');
+require_once INCLUDE_DIR . 'class.orm.php';
+require_once INCLUDE_DIR . 'class.util.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
