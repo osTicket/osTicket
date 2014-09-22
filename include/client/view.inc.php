@@ -114,12 +114,12 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     foreach($thread as $entry) {
 
         //Making sure internal notes are not displayed due to backend MISTAKES!
-        if(!$threadType[$entry['thread_type']]) continue;
+        if(!$threadType[$entry['type']]) continue;
         $poster = $entry['poster'];
-        if($entry['thread_type']=='R' && ($cfg->hideStaffName() || !$entry['staff_id']))
+        if($entry['type']=='R' && ($cfg->hideStaffName() || !$entry['staff_id']))
             $poster = ' ';
         ?>
-        <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
+        <table class="thread-entry <?php echo $threadType[$entry['type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><div>
 <?php echo Format::datetime($entry['created']); ?>
                 &nbsp;&nbsp;<span class="textra"></span>

@@ -564,6 +564,11 @@ implements AuthenticatedUser {
         if (!parent::delete())
             return false;
 
+        //Update the poster and clear staff_id on ticket thread table.
+        db_query('UPDATE '.THREAD_ENTRY_TABLE
+                .' SET staff_id=0, poster= '.db_input($this->getName()->getOriginal())
+                .' WHERE staff_id='.db_input($this->getId()));
+
         // DO SOME HOUSE CLEANING
         //Move remove any ticket assignments...TODO: send alert to Dept. manager?
         db_query('UPDATE '.TICKET_TABLE.' SET staff_id=0 WHERE staff_id='.db_input($this->getId()));

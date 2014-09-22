@@ -387,7 +387,7 @@ $tcount+= $ticket->getNumNotes();
     $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
        foreach($thread as $entry) { ?>
-        <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
+        <table class="thread-entry <?php echo $threadTypes[$entry['type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
                 <th colspan="4" width="100%">
                 <div>
@@ -429,8 +429,8 @@ $tcount+= $ticket->getNumNotes();
             } ?>
         </table>
         <?php
-        if($entry['thread_type']=='M')
-            $msgId=$entry['id'];
+        if ($entry['type'] == 'M')
+            $msgId = $entry['id'];
        }
     } else {
         echo '<p>'.__('Error fetching ticket thread - get technical help.').'</p>';
