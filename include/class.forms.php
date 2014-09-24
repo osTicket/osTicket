@@ -2156,7 +2156,7 @@ class VisibilityConstraint {
         $expression = $this->compileQ($this->constraint, $form);
 ?>
           if (<?php echo $expression; ?>)
-            target.slideDown('slow', function (){
+            target.slideDown('fast', function (){
                 $(this).trigger('show');
                 });
           else
