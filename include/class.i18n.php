@@ -240,7 +240,7 @@ class Internationalization {
                 );
             }
         }
-        uasort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
+        ksort($installed);
 
         return $cache = $installed;
     }
