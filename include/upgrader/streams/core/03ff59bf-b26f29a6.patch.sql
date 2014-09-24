@@ -32,6 +32,14 @@ UPDATE `%TABLE_PREFIX%ticket_status`
     SET `properties`= INSERT(`properties`, 2, 0, '"allowreopen":true,"reopenstatus":0,')
     WHERE `state` = 'closed';
 
+-- change thread body text to 16Mb.
+ALTER TABLE  `%TABLE_PREFIX%ticket_thread`
+    CHANGE  `body`  `body` mediumtext NOT NULL;
+
+-- index ext id
+ALTER TABLE  `%TABLE_PREFIX%note`
+    ADD INDEX (`ext_id`);
+
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '519d98cd885f060e220da7b30a6f78ae'
