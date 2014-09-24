@@ -6,47 +6,21 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 <form action="index.php" method="get" id="kb-search">
     <input type="hidden" name="a" value="search">
     <div>
-        <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
-        <select name="cid" id="cid">
-            <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
-            <?php
-            $sql='SELECT category_id, name, count(faq.category_id) as faqs '
-                .' FROM '.FAQ_CATEGORY_TABLE.' cat '
-                .' LEFT JOIN '.FAQ_TABLE.' faq USING(category_id) '
-                .' WHERE cat.ispublic=1 AND faq.ispublished=1 '
-                .' GROUP BY cat.category_id '
-                .' HAVING faqs>0 '
-                .' ORDER BY cat.name DESC ';
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($row=db_fetch_array($res))
-                    echo sprintf('<option value="%d" %s>%s (%d)</option>',
-                            $row['category_id'],
-                            ($_REQUEST['cid'] && $row['category_id']==$_REQUEST['cid']?'selected="selected"':''),
-                            $row['name'],
-                            $row['faqs']);
-            }
-            ?>
-        </select>
+    <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         <input id="searchSubmit" type="submit" value="<?php echo __('Search');?>">
     </div>
-    <div>
+    <div class="sidebar">
         <select name="topicId" id="topic-id">
             <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
             <?php
-            $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as helptopic, count(faq.topic_id) as faqs '
-                .' FROM '.TOPIC_TABLE.' ht '
-                .' LEFT JOIN '.TOPIC_TABLE.' pht ON (pht.topic_id=ht.topic_pid) '
-                .' LEFT JOIN '.FAQ_TOPIC_TABLE.' faq ON(faq.topic_id=ht.topic_id) '
-                .' WHERE ht.ispublic=1 '
-                .' GROUP BY ht.topic_id '
-                .' HAVING faqs>0 '
-                .' ORDER BY helptopic ';
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($row=db_fetch_array($res))
-                    echo sprintf('<option value="%d" %s>%s (%d)</option>',
-                            $row['topic_id'],
-                            ($_REQUEST['topicId'] && $row['topic_id']==$_REQUEST['topicId']?'selected="selected"':''),
-                            $row['helptopic'], $row['faqs']);
+foreach (Topic::objects()
+        ->annotate(array('faqs_count'=>Aggregate::count('faqs')))
+        ->filter(array('faqs_count__gt'=>0))
+    as $t) {
+                echo sprintf('<option value="%d" %s>%s</option>',
+                    $t->getId(),
+                    ($_REQUEST['topicId'] && $t->getId() == $_REQUEST['topicId']?'selected="selected"':''),
+                    $t->getFullName());
             }
             ?>
         </select>
@@ -94,28 +68,26 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         echo '<strong class="faded">'.__('The search did not match any FAQs.').'</strong>';
     }
 } else { //Category Listing.
-    $sql='SELECT cat.category_id, cat.name, cat.description, cat.ispublic, count(faq.faq_id) as faqs '
-        .' FROM '.FAQ_CATEGORY_TABLE.' cat '
-        .' LEFT JOIN '.FAQ_TABLE.' faq ON(faq.category_id=cat.category_id AND faq.ispublished=1) '
-        .' WHERE cat.ispublic=1 '
-        .' GROUP BY cat.category_id '
-        .' HAVING faqs>0 '
-        .' ORDER BY cat.name';
-    if(($res=db_query($sql)) && db_num_rows($res)) {
+    $categories = Category::objects()
+        ->filter(array('ispublic'=>true, 'faqs__ispublished'=>true))
+        ->annotate(array('faq_count'=>Aggregate::count('faqs')))
+        ->filter(array('faq_count__gt'=>0));
+    if ($categories->all()) {
         echo '<div>'.__('Click on the category to browse FAQs.').'</div>
                 <ul id="kb">';
-        while($row=db_fetch_array($res)) {
 
-            echo sprintf('
-                <li>
-                    <i></i>
-                    <h4><a href="faq.php?cid=%d">%s (%d)</a></h4>
-                    %s
-                </li>',$row['category_id'],
-                Format::htmlchars($row['name']),$row['faqs'],
-                Format::safe_html($row['description']));
-        }
-        echo '</ul>';
+        foreach ($categories as $C) { ?>
+            <li><i></i>
+            <h4><?php echo sprintf('<a href="faq.php?cid=%d">%s (%d)</a>',
+                $C->getId(), Format::htmlchars($C->name), $C->faq_count); ?></h4>
+                <?php echo Format::safe_html($C->description); ?>
+<?php       foreach ($C->faqs->order_by('-view')->limit(5) as $F) { ?>
+                <div class="popular-faq"><?php echo $F->question; ?></div>
+<?php       } ?>
+            </li>
+<?php   } ?>
+       </ul>
+<?php
     } else {
         echo __('NO FAQs found');
     }

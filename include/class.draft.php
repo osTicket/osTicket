@@ -44,7 +44,7 @@ class Draft extends VerySimpleModel {
             $attrs[] = sprintf('data-draft-object-id="%s"', Format::htmlchars($id));
             $criteria['namespace'] .= '.' . $id;
         }
-        if ($draft = static::lookup($criteria)) {
+        if ($draft = static::objects()->filter($criteria)->first()) {
             $attrs[] = sprintf('data-draft-id="%s"', $draft->getId());
             $draft_body = $draft->getBody();
         }
