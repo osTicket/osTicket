@@ -23,10 +23,22 @@
         Open tickets.
 
 - id: 2
+  name: Resolved
+  state: closed
+  mode: 1
+  sort: 2
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+        Resolved tickets
+
+- id: 3
   name: Closed
   state: closed
   mode: 3
-  sort: 2
+  sort: 3
   flags: 0
   properties:
     allowreopen: true
@@ -34,22 +46,22 @@
     description: >
         Closed tickets. Tickets will still be accessible on client and staff panels.
 
-- id: 3
+- id: 4
   name: Archived
   state:  archived
   mode: 3
-  sort: 3
+  sort: 4
   flags: 0
   properties:
     description: >
         Tickets only adminstratively available but no longer accessible on
         ticket queues and client panel.
 
-- id: 4
+- id: 5
   name: Deleted
   state: deleted
   mode: 3
-  sort: 4
+  sort: 5
   flags: 0
   properties:
     description: >
