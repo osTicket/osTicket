@@ -21,6 +21,7 @@ class FAQ extends VerySimpleModel {
         'table' => FAQ_TABLE,
         'pk' => array('faq_id'),
         'ordering' => array('question'),
+        'defer' => array('answer'),
         'joins' => array(
             'category' => array(
                 'constraint' => array(
@@ -49,6 +50,9 @@ class FAQ extends VerySimpleModel {
     function getAnswerWithImages() {
         return Format::viewableImages($this->answer, ROOT_PATH.'image.php');
     }
+    function getTeaser() {
+        return Format::truncate(Format::striptags($this->answer), 150);
+    }
     function getSearchableAnswer() {
         return ThreadBody::fromFormattedText($this->answer, 'html')
             ->getSearchable();
@@ -69,6 +73,13 @@ class FAQ extends VerySimpleModel {
         foreach ($this->getHelpTopics() as $topic)
             $ids[] = $topic->getId();
         return $ids;
+    }
+
+    function getHelpTopicNames() {
+        $names = array();
+        foreach ($this->getHelpTopics() as $topic)
+            $names[] = $topic->getFullName();
+        return $names;
     }
 
     function getHelpTopics() {
@@ -103,6 +114,11 @@ class FAQ extends VerySimpleModel {
     function unpublish() {
         $this->setPublished(0);
         return $this->save();
+    }
+
+    function logView() {
+        $this->views++;
+        $this->save();
     }
 
     function printPdf() {
@@ -306,10 +322,20 @@ class FAQ extends VerySimpleModel {
     }
 
     static function countPublishedFAQs() {
-        return self::objects()->filter(array(
-            'category__ispublic' => true,
-            'ispublished'=> true
-        ))->count();
+        static $count;
+        if (!isset($count)) {
+            $count = self::objects()->filter(array(
+                'category__ispublic__gt' => 0,
+                'ispublished__gt'=> 0
+            ))->count();
+        }
+        return $count;
+    }
+
+    static function getFeatured() {
+        return self::objects()
+            ->filter(array('ispublished__in'=>array(1,2), 'category__ispublic'=>1))
+            ->order_by('-ispublished','-views');
     }
 
     static function findIdByQuestion($question) {
@@ -355,7 +381,7 @@ class FAQ extends VerySimpleModel {
         $this->category = $category;
         $this->ispublished = !!$vars['ispublished'];
         $this->notes = Format::sanitize($vars['notes']);
-        $this->keywords = '';
+        $this->keywords = ' ';
 
         if (!$this->save())
             return false;

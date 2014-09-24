@@ -11,7 +11,7 @@ $category=$faq->getCategory();
     <span class="faded">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</span>
 </div>
 
-<div class="pull-right faq-meta">
+<div class="pull-right sidebar faq-meta">
 <?php if ($attachments = $faq->getVisibleAttachments()) { ?>
 <section>
     <strong><?php echo __('Attachments');?>:</strong>

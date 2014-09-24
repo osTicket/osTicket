@@ -38,6 +38,13 @@ class Category extends VerySimpleModel {
     function isPublic() { return $this->ispublic; }
     function getHashtable() { return $this->ht; }
 
+    function getTopArticles() {
+        return $this->faqs
+            ->filter(Q::not(array('ispublished'=>0)))
+            ->order_by('-ispublished', '-views')
+            ->limit(5);
+    }
+
     /* ------------------> Setter methods <--------------------- */
     function setName($name) { $this->name=$name; }
     function setNotes($notes) { $this->notes=$notes; }
@@ -97,7 +104,7 @@ class Category extends VerySimpleModel {
     function save($refetch=false) {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
-        return parent::save($refetch);
+        return parent::save($refetch || $this->dirty);
     }
 
     /* ------------------> Static methods <--------------------- */
@@ -117,7 +124,13 @@ class Category extends VerySimpleModel {
         ))->one();
     }
 
-    static function create($vars) {
+    static function getFeatured() {
+        return self::objects()->filter(array(
+            'ispublic'=>2
+        ));
+    }
+
+    static function create($vars=false) {
         $category = parent::create($vars);
         $category->created = SqlFunction::NOW();
         return $category;
