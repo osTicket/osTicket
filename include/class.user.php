@@ -76,6 +76,7 @@ class UserModel extends VerySimpleModel {
                 'reverse' => 'UserAccount.user',
             ),
             'org' => array(
+                'null' => true,
                 'constraint' => array('org_id' => 'Organization.id')
             ),
             'default_email' => array(
