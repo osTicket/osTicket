@@ -21,7 +21,7 @@ class Category extends VerySimpleModel {
         'ordering' => array('name'),
         'joins' => array(
             'faqs' => array(
-                'reverse' => 'FAQ.category_id'
+                'reverse' => 'FAQ.category'
             ),
         ),
     );
