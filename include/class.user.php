@@ -697,6 +697,13 @@ class PersonsName {
 
         $r = explode(' ', $name);
         $size = count($r);
+        
+        //check if name is bad format (ex: J.Everybody), and fix them
+        if($size==1 && mb_strpos($r[0], '.') !== false) 
+        {
+            $r = explode('.', $name);
+            $size = count($r);
+        }
 
         //check first for period, assume salutation if so
         if (mb_strpos($r[0], '.') === false)
