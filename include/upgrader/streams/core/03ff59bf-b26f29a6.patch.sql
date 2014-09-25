@@ -18,10 +18,19 @@ UPDATE  `%TABLE_PREFIX%ticket` t1
     SET t1.status_id = @statusId
     WHERE t2.state='resolved';
 
--- add properties field
-ALTER TABLE  `%TABLE_PREFIX%ticket_status`
-    ADD  `properties` TEXT NOT NULL AFTER  `sort`,
-    DROP  `notes`;
+-- add properties field IF it doesn't exist
+SET @s = (SELECT IF(
+    (SELECT COUNT(*)
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_name = '%TABLE_PREFIX%ticket_status'
+        AND table_schema = DATABASE()
+        AND column_name = 'properties'
+    ) > 0,
+    "SELECT 1",
+    "ALTER TABLE `%TABLE_PREFIX%ticket_status` ADD `properties` text NOT NULL AFTER `sort`"
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
 
 UPDATE `%TABLE_PREFIX%ticket_status` s
     INNER JOIN `ost_config` c
