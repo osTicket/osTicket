@@ -23,7 +23,7 @@ TextDomain::configureForUser();
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
-$content = Page::lookup(Page::getIdByType('banner-staff'));
+$content = Page::lookupByType('banner-staff');
 
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];

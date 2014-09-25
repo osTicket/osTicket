@@ -196,6 +196,18 @@ class Page extends VerySimpleModel {
         return self::getActivePages(array('type' => 'thank-you'));
     }
 
+    static function lookup($id, $lang=false) {
+        try {
+            $qs = self::objects()->filter(array('id'=>$id));
+            if ($lang)
+                $qs = $qs->filter(array('lang'=>$lang));
+            return $qs->one();
+        }
+        catch (DoesNotExist $ex) {
+            return null;
+        }
+    }
+
     static function getIdByName($name, $lang=false) {
         try {
             $qs = self::objects()->filter(array('name'=>$name))
@@ -210,14 +222,12 @@ class Page extends VerySimpleModel {
         }
     }
 
-    static function getIdByType($type, $lang=false) {
+    static function lookupByType($type, $lang=false) {
         try {
-            $qs = self::objects()->filter(array('type'=>$type))
-                ->values_flat('id');
+            $qs = self::objects()->filter(array('type'=>$type));
             if ($lang)
                 $qs = $qs->filter(array('lang'=>$lang));
-            list($id) = $qs->one();
-            return $id;
+            return $qs->one();
         }
         catch (DoesNotExist $ex) {
             return null;
