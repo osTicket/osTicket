@@ -1,6 +1,6 @@
 /**
  * @version v1.9.4
- * @signature 519d98cd885f060e220da7b30a6f78ae
+ * @signature b26f29a6bb5dbb3510b057632182d138
  * @title Add properties filed and drop 'resolved' state
  *
  * This patch drops resolved state and any associated statuses
@@ -13,9 +13,10 @@ SET @statusId = (
         WHERE  `state` =  'closed' ORDER BY id ASC LIMIT 1);
 
 UPDATE  `%TABLE_PREFIX%ticket` t1
-    LEFT JOIN  `%TABLE_PREFIX%ticket_status` t2
-        ON ( t2.id = t1.status_id AND t2.state="resolved")
-    SET t1.status_id = @statusId;
+    JOIN `%TABLE_PREFIX%ticket_status` t2
+        ON (t2.id = t1.status_id)
+    SET t1.status_id = @statusId
+    WHERE t2.state='resolved';
 
 -- add properties field
 ALTER TABLE  `%TABLE_PREFIX%ticket_status`
@@ -42,5 +43,5 @@ ALTER TABLE  `%TABLE_PREFIX%note`
 
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '519d98cd885f060e220da7b30a6f78ae'
+    SET `value` = 'b26f29a6bb5dbb3510b057632182d138'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
