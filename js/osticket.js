@@ -214,3 +214,16 @@ showImagesInline = function(urls, thread_id) {
         }
     });
 }
+
+$(document).on('submit', 'form', function() {
+    // Reformat dates
+    $('.dp', $(this)).each(function(i, e) {
+        var $e = $(e),
+            d = $e.datepicker('getDate');
+        if (!d) return;
+        var day = ('0'+d.getDate()).substr(-2),
+            month = ('0'+(d.getMonth()+1)).substr(-2),
+            year = d.getFullYear();
+        $e.val(year+'-'+month+'-'+day);
+    });
+});
