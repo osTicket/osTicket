@@ -21,15 +21,15 @@ class DraftAjaxAPI extends AjaxController {
         ));
     }
 
-    function _getDraft($id) {
-        if (!($draft = Draft::lookup($id)))
+    function _getDraft($draft) {
+        if (!$draft || !$draft instanceof Draft)
             Http::response(205, "Draft not found. Create one first");
 
         $body = Format::viewableImages($draft->getBody());
 
         echo JsonDataEncoder::encode(array(
             'body' => $body,
-            'draft_id' => (int)$id,
+            'draft_id' => $draft->getId(),
         ));
     }
 
@@ -134,18 +134,25 @@ class DraftAjaxAPI extends AjaxController {
         global $thisclient;
 
         if ($thisclient) {
-            if (!($id = Draft::findByNamespaceAndStaff($namespace,
-                    $thisclient->getId())))
+            try {
+                $draft = Draft::lookupByNamespaceAndStaff($namespace,
+                    $thisclient->getId());
+            }
+            catch (DoesNotExist $e) {
                 Http::response(205, "Draft not found. Create one first");
+            }
         }
         else {
             if (substr($namespace, -12) != substr(session_id(), -12))
                 Http::response(404, "Draft not found");
-            elseif (!($id = Draft::findByNamespaceAndStaff($namespace, 0)))
+            try {
+                $draft = Draft::lookupByNamespaceAndStaff($namespace, 0);
+            }
+            catch (DoesNotExist $e) {
                 Http::response(205, "Draft not found. Create one first");
+            }
         }
-
-        return self::_getDraft($id);
+        return self::_getDraft($draft);
     }
 
     function updateDraftClient($id) {
@@ -221,11 +228,15 @@ class DraftAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required for draft creation");
-        elseif (!($id = Draft::findByNamespaceAndStaff($namespace,
-                $thisstaff->getId())))
+        try {
+            $draft = Draft::lookupByNamespaceAndStaff($namespace,
+                $thisstaff->getId());
+        }
+        catch (DoesNotExist $e) {
             Http::response(205, "Draft not found. Create one first");
+        }
 
-        return self::_getDraft($id);
+        return self::_getDraft($draft);
     }
 
     function updateDraft($id) {
