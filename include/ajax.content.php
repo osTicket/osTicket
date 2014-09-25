@@ -157,7 +157,7 @@ class ContentAjaxAPI extends AjaxController {
 
         $langs = $cfg->getSecondaryLanguages();
 
-        $content = Page::lookup(Page::getIdByType($type, $lang));
+        $content = Page::lookupByType($type, $lang);
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 

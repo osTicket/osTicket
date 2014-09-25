@@ -687,7 +687,7 @@ class Staff extends AuthenticatedUser {
     function sendResetEmail($template='pwreset-staff') {
         global $ost, $cfg;
 
-        $content = Page::lookup(Page::getIdByType($template));
+        $content = Page::lookupByType($template);
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)

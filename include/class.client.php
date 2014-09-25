@@ -55,7 +55,7 @@ abstract class TicketUser {
 
         if (!($ticket = $this->getTicket())
                 || !($email = $ost->getConfig()->getDefaultEmail())
-                || !($content = Page::lookup(Page::getIdByType('access-link'))))
+                || !($content = Page::lookupByType('access-link')))
             return;
 
         $vars = array(
