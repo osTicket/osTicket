@@ -95,7 +95,7 @@ class Draft extends VerySimpleModel {
         // Change image.php urls back to content-id's
         $body = Format::sanitize($body, false);
 
-        $this->body = $body;
+        $this->body = $body ?: ' ';
         $this->updated = SqlFunction::NOW();
         return $this->save();
     }
