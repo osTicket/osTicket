@@ -941,7 +941,7 @@ class UserAccount extends UserAccountModel {
         $token = Misc::randCode(48); // 290-bits
 
         $email = $cfg->getDefaultEmail();
-        $content = Page::lookup(Page::getIdByType($template));
+        $content = Page::lookupByType($template);
 
         if (!$email ||  !$content)
             return new Error(sprintf(_S('%s: Unable to retrieve template'),
