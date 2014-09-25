@@ -1064,8 +1064,9 @@ class SelectionField extends FormField {
     function getConfigurationOptions() {
         return array(
             'widget' => new ChoiceField(array(
-                'id'=>1, 'label'=>__('Widget'), 'required'=>false,
-                'default' => 'dropdown',
+                'id'=>1,
+                'label'=>__('Widget'),
+                'required'=>false, 'default' => 'dropdown',
                 'choices'=>array(
                     'dropdown' => __('Drop Down'),
                     'typeahead' =>__('Typeahead'),
@@ -1076,14 +1077,19 @@ class SelectionField extends FormField {
                 'hint'=>__('Typeahead will work better for large lists')
             )),
             'multiselect' => new BooleanField(array(
-                'id'=>1, 'label'=>__(/* Type of widget allowing multiple selections */ 'Multiselect'),
+                'id'=>2,
+                'label'=>__(/* Type of widget allowing multiple selections */ 'Multiselect'),
                 'required'=>false, 'default'=>false,
                 'configuration'=>array(
                     'desc'=>__('Allow multiple selections')),
-                'hint' => __('Dropdown only'),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('widget__eq'=>'dropdown')),
+                    VisibilityConstraint::HIDDEN
+                ),
             )),
             'prompt' => new TextboxField(array(
-                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'id'=>3,
+                'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
