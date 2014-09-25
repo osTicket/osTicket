@@ -12,25 +12,27 @@ if (typeof RedactorPlugins === 'undefined') var RedactorPlugins = {};
  * uploads. Furthermore, the id of the staff is considered for the drafts,
  * so one user will not retrieve drafts for another user.
  */
-RedactorPlugins.draft = {
+RedactorPlugins.draft = function() {
+  return {
     init: function() {
         if (!this.opts.draftNamespace)
             return;
 
-        this.opts.changeCallback = this.hideDraftSaved;
+        this.opts.changeCallback = this.draft.hideDraftSaved;
         var autosave_url = 'ajax.php/draft/' + this.opts.draftNamespace;
         if (this.opts.draftObjectId)
             autosave_url += '.' + this.opts.draftObjectId;
         this.opts.autosave = this.opts.autoCreateUrl = autosave_url;
         this.opts.autosaveInterval = 30;
-        this.opts.autosaveCallback = this.afterUpdateDraft;
-        this.opts.autosaveErrorCallback = this.autosaveFailed;
-        this.opts.imageUploadErrorCallback = this.displayError;
+        this.opts.autosaveCallback = this.draft.afterUpdateDraft;
+        this.opts.autosaveErrorCallback = this.draft.autosaveFailed;
+        this.opts.imageUploadErrorCallback = this.draft.displayError;
         if (this.opts.draftId) {
             this.opts.autosave = 'ajax.php/draft/'+this.opts.draftId;
             this.opts.clipboardUploadUrl =
             this.opts.imageUpload =
                 'ajax.php/draft/'+this.opts.draftId+'/attach';
+            this.autosave.enable();
         }
         else {
             // Just upload the file. A draft will be created automatically
@@ -49,21 +51,21 @@ RedactorPlugins.draft = {
         this.$toolbar.append(this.$draft_saved);
         // Add [Delete Draft] button to the toolbar
         if (this.opts.draftDelete) {
-            var trash = this.draftDeleteButton =
-                this.buttonAdd('deleteDraft', __('Delete Draft'),
-                    this.deleteDraft);
-            this.buttonAwesome('deleteDraft', 'icon-trash');
+            var trash = this.draft.deleteButton =
+                this.button.add('deleteDraft', __('Delete Draft'),
+                    this.draft.deleteDraft);
+            this.button.setAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
             if (!this.opts.draftId)
                 trash.hide();
         }
     },
-    afterUpdateDraft: function(data) {
+    afterUpdateDraft: function(name, data) {
         // Slight workaround. Signal the 'keyup' event normally signaled
         // from typing in the <textarea>
         if ($.autoLock && this.opts.draftNamespace == 'ticket.response') {
-            if (this.get())
+            if (this.code.get())
                 $.autoLock.handleEvent();
         }
 
@@ -80,17 +82,17 @@ RedactorPlugins.draft = {
         }
         // Only show the [Draft Saved] notice if there is content in the
         // field that has been touched
-        if (!this.firstSave) {
-            this.firstSave = true;
+        if (!this.draft.firstSave) {
+            this.draft.firstSave = true;
             // No change yet — dont't show the button
             return;
         }
-        if (data && this.get()) {
+        if (data && this.code.get()) {
             this.$draft_saved.show().delay(5000).fadeOut();
         }
         // Show the button if there is a draft to delete
         if (this.opts.draftId && this.opts.draftDelete)
-            this.draftDeleteButton.show();
+            this.draft.deleteButton.show();
     },
     autosaveFailed: function(error) {
         if (error.code == 422)
@@ -121,17 +123,19 @@ RedactorPlugins.draft = {
             async: false,
             success: function() {
                 self.draft_id = self.opts.draftId = undefined;
-                self.hideDraftSaved();
-                self.set(self.opts.draftOriginal || '', false, false);
+                self.draft.hideDraftSaved();
+                self.code.set(self.opts.draftOriginal || '', false, false);
                 self.opts.autosave = self.opts.autoCreateUrl;
-                self.draftDeleteButton.hide();
-                self.firstSave = false;
+                self.draft.deleteButton.hide();
+                self.draft.firstSave = false;
             }
         });
     }
+  };
 };
 
-RedactorPlugins.signature = {
+RedactorPlugins.signature = function() {
+  return {
     init: function() {
         var $el = $(this.$element.get(0)),
             inner = $('<div class="inner"></div>');
@@ -195,6 +199,7 @@ RedactorPlugins.signature = {
 
         inner.load(url).parent().show();
     }
+  }
 };
 
 /* Redactor richtext init */
@@ -220,24 +225,29 @@ $(function() {
         });
         var options = $.extend({
                 'air': el.hasClass('no-bar'),
-                'airButtons': ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
-                'buttons': ['html', '|', 'formatting', '|', 'bold',
+                'buttons': el.hasClass('no-bar')
+                  ? ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image']
+                  : ['html', '|', 'formatting', '|', 'bold',
                     'italic', 'underline', 'deleted', '|', 'unorderedlist',
                     'orderedlist', 'outdent', 'indent', '|', 'image', 'video',
                     'file', 'table', 'link', '|', 'alignment', '|',
                     'horizontalrule'],
+                'buttonSource': !el.hasClass('no-bar'),
                 'autoresize': !el.hasClass('no-bar'),
                 'minHeight': selectedSize,
                 'focus': false,
-                'plugins': [],
-                'imageGetJson': 'ajax.php/draft/images/browse',
+                'plugins': el.hasClass('no-bar')
+                  ? ['imagemanager','definedlinks']
+                  : ['signature','imagemanager','table','video','definedlinks'],
+                'imageUpload': 'tbd',
+                'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
                 'tabFocus': false,
                 'toolbarFixedBox': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
                 'linkSize': 100000,
-                'predefinedLinks': 'ajax.php/config/links'
+                'definedLinks': 'ajax.php/config/links'
             }, options||{});
         if (el.data('redactor')) return;
         var reset = $('input[type=reset]', el.closest('form'));
@@ -254,7 +264,7 @@ $(function() {
             // where Redactor does not sync properly after adding an image.
             // Therefore, the ::get() call will not include text added after
             // the image was inserted.
-            el.redactor('sync');
+            el.redactor('code.sync');
         });
         if (!$.clientPortal) {
             options['plugins'] = options['plugins'].concat(
@@ -265,6 +275,8 @@ $(function() {
             options['plugins'].push('draft');
             options.draftDelete = el.hasClass('draft-delete');
         }
+        if (el.hasClass('fullscreen'))
+            options['plugins'].push('fullscreen');
         getConfig().then(function(c) {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     $.Redactor.opts.langs[c.short_lang])
@@ -301,6 +313,18 @@ $(function() {
     $(document).ajaxStop(findRichtextBoxes);
     $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
+
+    // Monkey patch paste to show the loading bar
+    var oldImagePaste = $.Redactor.fn.paste.insertFromClipboard,
+        oldImageInsert = $.Redactor.fn.image.insert;
+    $.Redactor.fn.paste.insertFromClipboard = function() {
+        this.progress.show();
+        return oldImagePaste.apply(this, arguments);
+    };
+    $.Redactor.fn.image.insert = function() {
+        this.progress.hide();
+        return oldImageInsert.apply(this, arguments);
+    };
 });
 
 $(document).ajaxError(function(event, request, settings) {
