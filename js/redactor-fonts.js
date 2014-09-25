@@ -120,7 +120,7 @@ RedactorPlugins.fontsize = {
                 callback: function() { that.setFontsize(s); } };
 		});
 
-		dropdown['remove'] = { title: 'Remove font size', callback: function() { that.resetFontsize(); } };
+		dropdown['remove'] = { title: __('Remove font size'), callback: function() { that.resetFontsize(); } };
 
 		this.buttonAddAfter('formatting', 'fontsize', __('Change font size'), false, dropdown);
 	},
@@ -132,4 +132,41 @@ RedactorPlugins.fontsize = {
 	{
 		this.inlineRemoveStyle('font-size');
 	}
+};
+
+RedactorPlugins.textdirection = {
+    init: function()
+    {
+        var that = this;
+        var dropdown = {};
+
+        dropdown.ltr = { title: __('Left to Right'), callback: this.setLtr };
+        dropdown.rtl = { title: __('Right to Left'), callback: this.setRtl };
+
+        var button = this.buttonAdd('textdirection', __('Change Text Direction'),
+            false, dropdown);
+    },
+    setRtl: function()
+    {
+        if (!this.opts.linebreaks) {
+            this.bufferSet();
+            this.blockSetAttr('dir', 'rtl');
+        }
+        else {
+            this.$editor.attr('dir', 'rtl');
+        }
+        this.$box.removeClass('ltr').addClass('rtl');
+
+    },
+    setLtr: function()
+    {
+        if (!this.opts.linebreaks) {
+            this.bufferSet();
+            this.blockSetAttr('dir', 'ltr');
+        }
+        else {
+            this.$editor.attr('dir', 'ltr');
+        }
+        this.$box.removeClass('rtl').addClass('ltr');
+    }
 };

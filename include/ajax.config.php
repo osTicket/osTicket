@@ -25,12 +25,19 @@ class ConfigAjaxAPI extends AjaxController {
         $lang = Internationalization::getCurrentLanguage();
         list($sl, $locale) = explode('_', $lang);
 
+        $rtl = false;
+        foreach (Internationalization::availableLanguages() as $info) {
+            if (isset($info['direction']))
+                $rtl = true;
+        }
+
         $config=array(
               'lock_time'       => ($cfg->getLockTime()*3600),
               'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
               'date_format'     => ($cfg->getDateFormat()),
               'lang'            => $lang,
               'short_lang'      => $sl,
+              'has_rtl'         => $rtl,
         );
         return $this->json_encode($config);
     }
@@ -41,10 +48,17 @@ class ConfigAjaxAPI extends AjaxController {
         $lang = Internationalization::getCurrentLanguage();
         list($sl, $locale) = explode('_', $lang);
 
+        $rtl = false;
+        foreach (Internationalization::availableLanguages() as $info) {
+            if (isset($info['direction']))
+                $rtl = true;
+        }
+
         $config=array(
             'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
             'lang'            => $lang,
             'short_lang'      => $sl,
+            'has_rtl'         => $rtl,
         );
 
         $config = $this->json_encode($config);

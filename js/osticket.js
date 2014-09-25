@@ -218,3 +218,5 @@ function __(s) {
     return $.oststrings[s];
   return s;
 }
+
+$.clientPortal = true;

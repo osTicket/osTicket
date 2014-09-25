@@ -65,3 +65,7 @@
 .rtl .flush-left {
     text-align: right;
 }
+.rtl .draft-saved {
+    right: initial;
+    left: 0.5em;
+}
