@@ -179,6 +179,7 @@ class Bootstrap {
 
     function loadCode() {
         #include required files
+        require_once INCLUDE_DIR.'class.util.php';
         require(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');

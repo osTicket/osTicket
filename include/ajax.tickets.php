@@ -176,15 +176,15 @@ class TicketsAjaxAPI extends AjaxController {
 
             if($req['staffId'] && !$req['status']) //Assigned TO + Closed By
                 $where.= ' OR (ticket.staff_id='.db_input($req['staffId']).
-                    ' AND status.state IN("resolved", "closed")) ';
+                    ' AND status.state IN("closed")) ';
             elseif($req['staffId']) // closed by any
-                $where.= ' OR status.state IN("resolved", "closed") ';
+                $where.= ' OR status.state IN("closed") ';
 
             $where.= ' ) ';
         } elseif($req['staffId']) { # closed-by
             $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND
-                status.state IN("resolved", "closed")) ';
-            $criteria['state__in'] = array('resolved','closed');
+                status.state IN("closed")) ';
+            $criteria['state__in'] = array('closed');
             $criteria['staff_id'] = $req['staffId'];
         }
 
@@ -721,9 +721,6 @@ class TicketsAjaxAPI extends AjaxController {
             case 'reopen':
                 $state = 'open';
                 break;
-            case 'resolve':
-                $state = 'resolved';
-                break;
             case 'close':
                 if (!$thisstaff->canCloseTickets())
                     Http::response(403, 'Access denied');
@@ -772,7 +769,6 @@ class TicketsAjaxAPI extends AjaxController {
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to reopen tickets'));
                     break;
-                case 'resolved':
                 case 'closed':
                     if (!$thisstaff->canCloseTickets())
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
@@ -836,9 +832,6 @@ class TicketsAjaxAPI extends AjaxController {
             case 'reopen':
                 $state = 'open';
                 break;
-            case 'resolve':
-                $state = 'resolved';
-                break;
             case 'close':
                 if (!$thisstaff->canCloseTickets())
                     Http::response(403, 'Access denied');
@@ -884,7 +877,6 @@ class TicketsAjaxAPI extends AjaxController {
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to reopen tickets'));
                     break;
-                case 'resolved':
                 case 'closed':
                     if (!$thisstaff->canCloseTickets())
                         $errors['err'] = sprintf(__('You do not have permission %s.'),

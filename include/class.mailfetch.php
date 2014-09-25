@@ -721,6 +721,10 @@ class MailFetcher {
 
         $seen = false;
         if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
+                && ($t=$thread->getTicket())
+                && ($vars['staffId']
+                    || !$t->isClosed()
+                    || $t->isReopenable())
                 && ($message = $thread->postEmail($vars))) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously

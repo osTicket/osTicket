@@ -489,7 +489,8 @@ CREATE TABLE `%TABLE_PREFIX%note` (
   `sort` int(11) unsigned NOT NULL DEFAULT 0,
   `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `ext_id` (`ext_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
@@ -681,7 +682,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
   `mode` int(11) unsigned NOT NULL DEFAULT '0',
   `flags` int(11) unsigned NOT NULL DEFAULT '0',
   `sort` int(11) unsigned NOT NULL DEFAULT '0',
-  `notes` text NOT NULL,
+  `properties` text NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -715,7 +716,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   `poster` varchar(128) NOT NULL default '',
   `source` varchar(32) NOT NULL default '',
   `title` varchar(255),
-  `body` text NOT NULL,
+  `body` mediumtext NOT NULL,
   `format` varchar(16) NOT NULL default 'html',
   `ip_address` varchar(64) NOT NULL default '',
   `created` datetime NOT NULL,

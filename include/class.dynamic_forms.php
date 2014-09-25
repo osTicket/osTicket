@@ -53,11 +53,11 @@ class DynamicForm extends VerySimpleModel {
             $fields = &$this->_fields;
 
         if (!$fields) {
-            $fields = new ArrayObject();
+            $fields = new ListObject();
             foreach ($this->getDynamicFields() as $f)
-                // TODO: Index by field name or id
-                $fields[$f->get('id')] = $f->getImpl($f);
+                $fields->append($f->getImpl($f));
         }
+
         return $fields;
     }
 

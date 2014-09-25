@@ -22,15 +22,27 @@ $lock  = $ticket->getLock();  //Ticket lock obj
 $id    = $ticket->getId();    //Ticket ID.
 
 //Useful warnings and errors the user might want to know!
-if($ticket->isAssigned() && (
-            ($staff && $staff->getId()!=$thisstaff->getId())
-         || ($team && !$team->hasMember($thisstaff))
+if ($ticket->isClosed() && !$ticket->isReopenable())
+    $warn = sprintf(
+            __('Current ticket status (%s) does not allow the end user to reply.'),
+            $ticket->getStatus());
+elseif ($ticket->isAssigned()
+        && (($staff && $staff->getId()!=$thisstaff->getId())
+            || ($team && !$team->hasMember($thisstaff))
         ))
-    $warn.='&nbsp;&nbsp;<span class="Icon assignedTicket">'.sprintf(__('Ticket is assigned to %s'),implode('/', $ticket->getAssignees())).'</span>';
-if(!$errors['err'] && ($lock && $lock->getStaffId()!=$thisstaff->getId()))
-    $errors['err']=sprintf(__('This ticket is currently locked by %s'),$lock->getStaffName());
-if(!$errors['err'] && ($emailBanned=TicketFilter::isBanned($ticket->getEmail())))
-    $errors['err']=__('Email is in banlist! Must be removed before any reply/response');
+    $warn.= sprintf('&nbsp;&nbsp;<span class="Icon assignedTicket">%</span>',
+            sprintf(__('Ticket is assigned to %s'),
+                implode('/', $ticket->getAssignees())
+                ));
+
+if (!$errors['err']) {
+
+    if ($lock && $lock->getStaffId()!=$thisstaff->getId())
+        $errors['err'] = sprintf(__('This ticket is currently locked by %s'),
+                $lock->getStaffName());
+    elseif (($emailBanned=TicketFilter::isBanned($ticket->getEmail())))
+        $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
+}
 
 $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
 
@@ -200,13 +212,6 @@ if($ticket->isOverdue())
                                     if(($open=$user->getNumOpenTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt icon-fixed-width"></i> %s</a></li>',
                                                 $user->getId(), sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open));
-
-                                    if(($resolved=$user->getNumResolvedTickets()))
-                                        echo sprintf('<li><a href="tickets.php?a=search&status=resolved&uid=%d"><i
-                                                class="icon-folder-close-alt icon-fixed-width"></i> %s</a></li>',
-                                                $user->getId(), sprintf(_N('%d Resolved Ticket', '%d Resolved Tickets', $resolved), $resolved));
-
-
 
                                     if(($closed=$user->getNumClosedTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i
@@ -606,7 +611,7 @@ print $response_form->getField('attachments')->render();
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
                     if ($thisstaff->canCloseTickets())
-                        $states = array_merge($states, array('resolved', 'closed'));
+                        $states = array_merge($states, array('closed'));
 
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
@@ -687,7 +692,7 @@ print $note_form->getField('attachments')->render();
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
                         $states = array('open');
                         if ($thisstaff->canCloseTickets())
-                            $states = array_merge($states, array('resolved', 'closed'));
+                            $states = array_merge($states, array('closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {
                             if (!$s->isEnabled()) continue;

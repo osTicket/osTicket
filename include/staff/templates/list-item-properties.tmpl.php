@@ -10,8 +10,12 @@
         $internal = $item->isInternal();
         $form = $item->getConfigurationForm();
         echo $form->getMedia();
-        foreach ($form->getFields() as $f) { ?>
-            <div class="custom-field">
+        foreach ($form->getFields() as $f) {
+            ?>
+            <div class="custom-field" id="field<?php
+                echo $f->getWidget()->id; ?>"
+                <?php
+                if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
             <div class="field-label">
             <label for="<?php echo $f->getWidget()->name; ?>"
                 style="vertical-align:top;padding-top:0.2em">

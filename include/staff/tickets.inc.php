@@ -35,10 +35,6 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
 		$results_type=__('Closed Tickets');
         $showassigned=true; //closed by.
         break;
-    case 'resolved':
-        $status='resolved';
-        $showassigned=true;
-        break;
     case 'overdue':
         $status='open';
         $showoverdue=true;
@@ -84,7 +80,6 @@ $qwhere .= ' )';
 //STATUS to states
 $states = array(
     'open' => array('open'),
-    'resolved' => array('resolved'),
     'closed' => array('closed'));
 
 if($status && isset($states[$status])) {
@@ -552,8 +547,7 @@ if ($results) {
                  <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
                 <?php
                 foreach (TicketStatusList::getStatuses(
-                            array('states' =>
-                                array('open', 'resolved', 'closed'))) as $s) {
+                            array('states' => array('open', 'closed'))) as $s) {
                     echo sprintf('<option data-state="%s" value="%d">%s</option>',
                             $s->getState(), $s->getId(), __($s->getName()));
                 }

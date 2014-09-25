@@ -554,7 +554,8 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
             $this->_form = DynamicForm::lookup(
                 array('type'=>'L'.$this->get('list_id')))->getForm($source);
             if (!$source && $config) {
-                foreach ($this->_form->getFields() as $f) {
+                $fields = $this->_form->getFields();
+                foreach ($fields as $f) {
                     $name = $f->get('id');
                     if (isset($config[$name]))
                         $f->value = $f->to_php($config[$name]);
@@ -563,6 +564,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
                 }
             }
         }
+
         return $this->_form;
     }
 
@@ -766,7 +768,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     var $_list;
     var $_form;
-    var $_config;
     var $_settings;
     var $_properties;
 
@@ -777,7 +778,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     function __construct() {
         call_user_func_array(array('parent', '__construct'), func_get_args());
-        $this->_config = new Config('TS.'.$this->getId());
     }
 
     protected function hasFlag($field, $flag) {
@@ -793,7 +793,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     protected function hasProperties() {
-        return ($this->_config->get('properties'));
+        return ($this->get('properties'));
     }
 
     function getForm() {
@@ -804,26 +804,114 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->_form;
     }
 
+    function getExtraConfigOptions($source=null) {
+
+
+        $status_choices = array( 0 => __('System Default'));
+        if (($statuses=TicketStatusList::getStatuses(
+                        array( 'enabled' => true, 'states' =>
+                            array('open')))))
+            foreach ($statuses as $s)
+                $status_choices[$s->getId()] = $s->getName();
+
+
+        return array(
+            'allowreopen' => new BooleanField(array(
+                'label' =>__('Allow Reopen'),
+                'default' => isset($source['allowreopen'])
+                    ?  $source['allowreopen']: true,
+                'id' => 'allowreopen',
+                'name' => 'allowreopen',
+                'configuration' => array(
+                    'desc'=>__('Allow tickets on this status to be reopened by end users'),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('state__eq'=>'closed')),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'reopenstatus' => new ChoiceField(array(
+                'label' => __('Reopen Status'),
+                'required' => false,
+                'default' => isset($source['reopenstatus'])
+                    ? $source['reopenstatus'] : 0,
+                'id' => 'reopenstatus',
+                'name' => 'reopenstatus',
+                'choices' => $status_choices,
+                'configuration' => array(
+                    'widget' => 'dropdown',
+                    'multiselect' =>false
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('allowreopen__eq'=> true)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            ))
+        );
+    }
+
     function getConfigurationForm($source=null) {
 
-        if ($form = $this->getForm()) {
-            $config = $this->getConfiguration();
-            $form = $form->getForm($source);
-            if (!$source && $config) {
-                foreach ($form->getFields() as $f) {
-                    $name = $f->get('id');
-                    if (isset($config[$name]))
-                        $f->value = $f->to_php($config[$name]);
-                    else if ($f->get('default'))
-                        $f->value = $f->get('default');
+        if (!($form = $this->getForm()))
+            return null;
+
+        $config = $this->getConfiguration();
+        $form = $form->getForm($source);
+        $fields = $form->getFields();
+        foreach ($fields as $k => $f) {
+            if ($f->get('name') == 'state' //TODO: check if editable.
+                    && ($extras=$this->getExtraConfigOptions($source))) {
+                foreach ($extras as $extra) {
+                    $extra->setForm($form);
+                    $fields->insert(++$k, $extra);
                 }
+                break;
             }
         }
+
+        if (!$source && $config) {
+            foreach ($fields as $f) {
+                $name = $f->get('id');
+                if (isset($config[$name]))
+                    $f->value = $f->to_php($config[$name]);
+                else if ($f->get('default'))
+                    $f->value = $f->get('default');
+            }
+        }
+
         return $form;
     }
 
     function isEnabled() {
         return $this->hasFlag('mode', self::ENABLED);
+    }
+
+    function isReopenable() {
+
+        if (strcasecmp($this->get('state'), 'closed'))
+            return true;
+
+        if (($c=$this->getConfiguration())
+                && $c['allowreopen']
+                && isset($c['reopenstatus']))
+            return true;
+
+        return false;
+    }
+
+    function getReopenStatus() {
+        global $cfg;
+
+        $status = null;
+        if ($this->isReopenable()
+                && ($c = $this->getConfiguration())
+                && isset($c['reopenstatus']))
+            $status = TicketStatus::lookup(
+                    $c['reopenstatus'] ?: $cfg->getDefaultTicketStatusId());
+
+        return ($status
+                && !strcasecmp($status->getState(), 'open'))
+            ?  $status : null;
     }
 
     function enable() {
@@ -900,7 +988,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     private function getProperties() {
 
         if (!isset($this->_properties)) {
-            $this->_properties = $this->_config->get('properties');
+            $this->_properties = $this->get('properties');
             if (is_string($this->_properties))
                 $this->_properties = JsonDataParser::parse($this->_properties);
             elseif (!$this->_properties)
@@ -980,18 +1068,14 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         }
 
         if (count($errors) === 0) {
+            if ($properties && is_array($properties))
+                $properties = JsonDataEncoder::encode($properties);
+
+            $this->set('properties', $properties);
             $this->save(true);
-            $this->setProperties($properties);
         }
 
         return count($errors) === 0;
-    }
-
-    function setProperties($properties) {
-        if ($properties && is_array($properties))
-            $properties = JsonDataEncoder::encode($properties);
-
-        $this->_config->set('properties', $properties);
     }
 
     function update($vars, &$errors) {
@@ -1042,13 +1126,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     static function __create($ht, &$error=false) {
         global $ost;
 
-        $properties = JsonDataEncoder::encode($ht['properties']);
-        unset($ht['properties']);
-        if ($status = TicketStatus::create($ht)) {
+        $ht['properties'] = JsonDataEncoder::encode($ht['properties']);
+        if (($status = TicketStatus::create($ht)))
             $status->save(true);
-            $status->_config = new Config('TS.'.$status->getId());
-            $status->_config->set('properties', $properties);
-        }
 
         return $status;
     }
