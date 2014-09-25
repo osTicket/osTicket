@@ -611,9 +611,9 @@ class FormField {
             $T = new $clazz();
             $config = $this->getConfiguration();
             $this->_cform = new Form($T->getConfigurationOptions(), $source);
-            if (!$source && $config) {
+            if (!$source) {
                 foreach ($this->_cform->getFields() as $name=>$f) {
-                    if (isset($config[$name]))
+                    if ($config && isset($config[$name]))
                         $f->value = $config[$name];
                     elseif ($f->get('default'))
                         $f->value = $f->get('default');
