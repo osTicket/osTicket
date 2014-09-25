@@ -77,6 +77,9 @@ input.dp {
     border-radius: 3px;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
     line-height: 14px;
+    position: absolute;
+    top: 3em;
+    right: 0.5em;
 }
 
 .delete-draft:hover {

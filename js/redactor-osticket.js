@@ -28,7 +28,6 @@ RedactorPlugins.draft = {
 
         this.$draft_saved = $('<span>')
             .addClass("pull-right draft-saved")
-            .css({'position':'absolute','top':'3em','right':'0.5em'})
             .hide()
             .append($('<span>')
                 .text(__('Draft Saved')));
@@ -226,7 +225,7 @@ $(function() {
                 'autoresize': !el.hasClass('no-bar'),
                 'minHeight': el.hasClass('small') ? 75 : 150,
                 'focus': false,
-                'plugins': ['fontcolor','fontfamily', 'signature'],
+                'plugins': [],
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
@@ -253,6 +252,10 @@ $(function() {
             // the image was inserted.
             el.redactor('sync');
         });
+        if (!$.clientPortal) {
+            options['plugins'] = options['plugins'].concat(
+                    'fontcolor', 'fontfamily', 'signature');
+        }
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
             options['plugins'].push('draft');
@@ -262,6 +265,10 @@ $(function() {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     $.Redactor.opts.langs[c.short_lang])
                 options['lang'] = c.short_lang;
+            if (c.has_rtl)
+                options['plugins'].push('textdirection');
+            if ($('html.rtl').length)
+                options['direction'] = 'rtl';
             el.redactor(options);
         });
     },
