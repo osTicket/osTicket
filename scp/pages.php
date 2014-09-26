@@ -27,11 +27,9 @@ if($_POST) {
                 $_REQUEST['a'] = null;
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
                 // Attach inline attachments from the editor
-                if (isset($_POST['draft_id'])
-                        && ($draft = Draft::lookup($_POST['draft_id']))
-                        && ($page = Page::lookup($pageId)))
+                if ($page = Page::lookup($pageId))
                     $page->attachments->upload(
-                        $draft->getAttachmentIds($_POST['response']), true);
+                        Draft::getAttachmentIds($_POST['body']), true);
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
                 $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
@@ -46,12 +44,10 @@ if($_POST) {
                     __('this site page'));
                 $_REQUEST['a']=null; //Go back to view
                 // Attach inline attachments from the editor
-                if (isset($_POST['draft_id'])
-                        && ($draft = Draft::lookup($_POST['draft_id']))) {
-                    $page->attachments->deleteInlines();
-                    $page->attachments->upload(
-                        $draft->getAttachmentIds($_POST['response']),
-                        true);
+                $page->attachments->deleteInlines();
+                $page->attachments->upload(
+                    Draft::getAttachmentIds($_POST['body']),
+                    true);
                 }
                 Draft::deleteForNamespace('page.'.$page->getId());
             } elseif(!$errors['err'])
