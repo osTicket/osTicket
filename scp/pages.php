@@ -48,7 +48,6 @@ if($_POST) {
                 $page->attachments->upload(
                     Draft::getAttachmentIds($_POST['body']),
                     true);
-                }
                 Draft::deleteForNamespace('page.'.$page->getId());
             } elseif(!$errors['err'])
                 $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
