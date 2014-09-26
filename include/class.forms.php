@@ -179,6 +179,7 @@ class FormField {
             'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
             'files' => array(   /* @trans */ 'File Upload', 'FileUploadField'),
             'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
+            'free' => array(    /* @trans */ 'Free Text', 'FreeTextField'),
         ),
     );
     static $more_types = array();
@@ -2124,6 +2125,42 @@ class FileUploadWidget extends Widget {
 }
 
 class FileUploadError extends Exception {}
+
+class FreeTextField extends FormField {
+    static $widget = 'FreeTextWidget';
+
+    function getConfigurationOptions() {
+        return array(
+            'content' => new TextareaField(array(
+                'configuration' => array('html' => true),
+                'label'=>__('Content'), 'required'=>true, 'default'=>'',
+                'hint'=>__('Free text shown in the form, such as a disclaimer'),
+            )),
+        );
+    }
+
+    function hasData() {
+        return false;
+    }
+
+    function isBlockLevel() {
+        return true;
+    }
+}
+
+class FreeTextWidget extends Widget {
+    function render($mode=false) {
+        $config = $this->field->getConfiguration();
+        ?><div class=""><h3><?php
+            echo Format::htmlchars($this->field->get('label'));
+        ?></h3><em><?php
+            echo Format::htmlchars($this->field->get('hint'));
+        ?></em><div><?php
+            echo Format::viewableImages($config['content']); ?></div>
+        </div>
+        <?php
+    }
+}
 
 class VisibilityConstraint {
 
