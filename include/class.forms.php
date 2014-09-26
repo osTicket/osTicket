@@ -1849,7 +1849,7 @@ class ChoicesWidget extends Widget {
          ?>
         <script type="text/javascript">
         $(function() {
-            $("#<?php echo $this->name; ?>")
+            $("#<?php echo $this->id; ?>")
             .multiselect({'noneSelectedText':'<?php echo $prompt; ?>'});
         });
         </script>
