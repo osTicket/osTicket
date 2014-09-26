@@ -581,10 +581,11 @@ class i18n_Compiler extends Module {
             $s = str_replace($root, '', $s);
             $this->stderr->write($s."\n");
             $calls = array();
-            preg_match_all('/__\(\s*[^\'"]*(([\'"])(?:(?<!\\\\)\2|.)+\2)\s*[^)]*\)/',
+            preg_match_all('/(?:function\s+)?__\(\s*[^\'"]*(([\'"])(?:(?<!\\\\)\2|.)+\2)\s*[^)]*\)/',
                 $script, $calls, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
             foreach ($calls as $c) {
-                $call = $this->__find_strings(token_get_all('<?php '.$c[0][0]), $funcs, 0);
+                if (!($call = $this->__find_strings(token_get_all('<?php '.$c[0][0]), $funcs, 0)))
+                    continue;
                 $call = $call[0];
 
                 list($lhs) = str_split($script, $c[1][1]);
