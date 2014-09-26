@@ -30,7 +30,7 @@ elseif ($ticket->isAssigned()
         && (($staff && $staff->getId()!=$thisstaff->getId())
             || ($team && !$team->hasMember($thisstaff))
         ))
-    $warn.= sprintf('&nbsp;&nbsp;<span class="Icon assignedTicket">%</span>',
+    $warn.= sprintf('&nbsp;&nbsp;<span class="Icon assignedTicket">%s</span>',
             sprintf(__('Ticket is assigned to %s'),
                 implode('/', $ticket->getAssignees())
                 ));
