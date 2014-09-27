@@ -885,14 +885,20 @@ class MysqlExecutor {
     }
 
     function _prepare() {
+        $this->execute();
+        $this->_setup_output();
+    }
+
+    function execute() {
         if (!($this->stmt = db_prepare($this->sql)))
             throw new Exception('Unable to prepare query: '.db_error()
                 .' '.$this->sql);
         if (count($this->params))
             $this->_bind($this->params);
-        $this->stmt->execute();
-        $this->_setup_output();
-        $this->stmt->store_result();
+        if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
+            throw new Exception('Unable to execute query: ' . $this->stmt->error);
+        }
+        return true;
     }
 
     function _bind($params) {
