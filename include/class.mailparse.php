@@ -513,12 +513,18 @@ class Mail_Parse {
 
         $parsed = Mail_RFC822::parseAddressList($address, null, null,false);
 
-        if(PEAR::isError($parsed))
+        if (PEAR::isError($parsed))
             return array();
 
+        // Decode name and mailbox
         foreach ($parsed as $p) {
             $p->personal = Format::mimedecode($p->personal, $this->charset);
+            // Some mail clients may send ISO-8859-1 strings without proper encoding.
+            // Also, handle the more sane case where the mailbox is properly encoded
+            // against RFC2047
+            $p->mailbox = Format::mimedecode($p->mailbox, $this->charset);
         }
+
         return $parsed;
     }
 
