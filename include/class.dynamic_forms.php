@@ -1070,7 +1070,7 @@ class SelectionField extends FormField {
 
     function getListId() {
         list(,$list_id) = explode('-', $this->get('type'));
-        return $list_id;
+        return $list_id ?: $this->get('list_id');
     }
 
     function getList() {
@@ -1186,6 +1186,11 @@ class SelectionField extends FormField {
                 'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
+            'default' => new SelectionField(array(
+                'id'=>4, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
+                'list_id'=>$this->getListId(),
+                'configuration' => array('prompt'=>__('Select a Default')),
+            )),
         );
     }
 
@@ -1256,12 +1261,20 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
             return parent::render($how);
 
         $name = $this->getEnteredValue();
+        $config = $this->field->getConfiguration();
         if (is_array($this->value)) {
             $name = $name ?: current($this->value);
             $value = key($this->value);
         }
+        else {
+            // Pull configured default (if configured)
+            $def_key = $this->field->get('default');
+            if (!$def_key && $config['default'])
+                $def_key = $config['default'];
+            if (is_array($def_key))
+                $name = current($def_key);
+        }
 
-        $config = $this->field->getConfiguration();
         $source = array();
         foreach ($this->field->getList()->getItems() as $i)
             $source[] = array(
