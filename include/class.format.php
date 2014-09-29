@@ -73,9 +73,10 @@ class Format {
                 $str.= Format::encode($part->text, $part->charset, $encoding);
 
             $text = $str;
-        } elseif(function_exists('iconv_mime_decode')) {
+        } elseif($text[0] == '=' && function_exists('iconv_mime_decode')) {
             $text = iconv_mime_decode($text, 0, $encoding);
-        } elseif(!strcasecmp($encoding, 'utf-8') && function_exists('imap_utf8')) {
+        } elseif(!strcasecmp($encoding, 'utf-8')
+                && function_exists('imap_utf8')) {
             $text = imap_utf8($text);
         }
 
