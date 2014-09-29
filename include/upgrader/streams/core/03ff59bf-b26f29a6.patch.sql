@@ -33,7 +33,7 @@ PREPARE stmt FROM @s;
 EXECUTE stmt;
 
 UPDATE `%TABLE_PREFIX%ticket_status` s
-    INNER JOIN `ost_config` c
+    INNER JOIN `%TABLE_PREFIX%config` c
         ON(c.namespace = CONCAT('TS.', s.id) AND c.key='properties')
     SET s.properties = c.value;
 
