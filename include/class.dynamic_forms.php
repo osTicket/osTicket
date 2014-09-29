@@ -411,6 +411,15 @@ class DynamicFormField extends VerySimpleModel {
 
     var $_field;
 
+    const REQUIRE_NOBODY = 0;
+    const REQUIRE_EVERYONE = 1;
+    const REQUIRE_ENDUSER = 2;
+    const REQUIRE_AGENT = 3;
+
+    const VISIBLE_EVERYONE = 0;
+    const VISIBLE_AGENTONLY = 1;
+    const VISIBLE_ENDUSERONLY = 2;
+
     // Multiple inheritance -- delegate to FormField
     function __call($what, $args) {
         return call_user_func_array(
@@ -480,6 +489,81 @@ class DynamicFormField extends VerySimpleModel {
         return (($this->get('edit_mask') & 32) == 0);
     }
 
+    function allRequirementModes() {
+        return array(
+            'a' => array('desc' => __('Optional'),
+                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_NOBODY),
+            'b' => array('desc' => __('Required'),
+                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_EVERYONE),
+            'c' => array('desc' => __('Required for EndUsers'),
+                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_ENDUSER),
+            'd' => array('desc' => __('Required for Agents'),
+                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_AGENT),
+            'e' => array('desc' => __('Internal, Optional'),
+                'private' => self::VISIBLE_AGENTONLY, 'required' => self::REQUIRE_NOBODY),
+            'f' => array('desc' => __('Internal, Required'),
+                'private' => self::VISIBLE_AGENTONLY, 'required' => self::REQUIRE_EVERYONE),
+            'g' => array('desc' => __('For EndUsers Only'),
+                'private' => self::VISIBLE_ENDUSERONLY, 'required' => self::REQUIRE_ENDUSER),
+        );
+    }
+
+    function getAllRequirementModes() {
+        $modes = static::allRequirementModes();
+        if ($this->isPrivacyForced()) {
+            // Required to be internal
+            foreach ($modes as $m=>$info) {
+                if ($info['private'] != $this->get('private'))
+                    unset($modes[$m]);
+            }
+        }
+
+        if ($this->isRequirementForced()) {
+            // Required to be required
+            foreach ($modes as $m=>$info) {
+                if ($info['required'] != $this->get('required'))
+                    unset($modes[$m]);
+            }
+        }
+        return $modes;
+    }
+
+    function getRequirementMode() {
+        foreach ($this->getAllRequirementModes() as $m=>$info) {
+            if ($this->get('private') == $info['private']
+                    && $this->get('required') == $info['required'])
+                return $m;
+        }
+        return false;
+    }
+
+    function setRequirementMode($mode) {
+        $modes = $this->getAllRequirementModes();
+        if (!isset($modes[$mode]))
+            return false;
+
+        $info = $modes[$mode];
+        $this->set('required', $info['required']);
+        $this->set('private', $info['private']);
+    }
+
+    function isRequiredForStaff() {
+        return in_array($this->get('required'),
+            array(self::REQUIRE_EVERYONE, self::REQUIRE_AGENT));
+    }
+    function isRequiredForUsers() {
+        return in_array($this->get('required'),
+            array(self::REQUIRE_EVERYONE, self::REQUIRE_ENDUSER));
+    }
+    function isVisibleToStaff() {
+        return in_array($this->get('private'),
+            array(self::VISIBLE_EVERYONE, self::VISIBLE_AGENTONLY));
+    }
+    function isVisibleToUsers() {
+        return in_array($this->get('private'),
+            array(self::VISIBLE_EVERYONE, self::VISIBLE_ENDUSERONLY));
+    }
+
     /**
      * Used when updating the form via the admin panel. This represents
      * validation on the form field template, not data entered into a form
@@ -494,9 +578,13 @@ class DynamicFormField extends VerySimpleModel {
         if ($this->get('required') && !$this->get('name'))
             $this->addError(
                 __("Variable name is required for required fields"
-                /* `required` is a flag on fields */
+                /* `required` is a visibility setting fields */
                 /* `variable` is used for automation. Internally it's called `name` */
                 ), "name");
+        if (preg_match('/[.{}\'"`; ]/u', $this->get('name')))
+            $this->addError(__(
+                'Invalid character in variable name. Please use letters and numbers only.'
+            ), 'name');
         return count($this->errors()) == 0;
     }
 
@@ -652,11 +740,16 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     function isValidForClient() {
-
         $filter = function($f) {
-            return !$f->get('private');
+            return !$f->isRequiredForUsers();
         };
+        return $this->isValid($filter);
+    }
 
+    function isValidForStaff() {
+        $filter = function($f) {
+            return !$f->isRequiredForStaff();
+        };
         return $this->isValid($filter);
     }
 

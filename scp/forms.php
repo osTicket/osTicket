@@ -38,10 +38,8 @@ if($_POST) {
                 if (isset($_POST["name-$id"]) && !$field->isNameForced())
                     $field->set('name', $_POST["name-$id"]);
                 # TODO: make sure all help topics still have all required fields
-                if (!$field->isRequirementForced())
-                    $field->set('required', $_POST["required-$id"] == 'on' ?  1 : 0);
-                if (!$field->isPrivacyForced())
-                    $field->set('private', $_POST["private-$id"] == 'on' ?  1 : 0);
+                $field->setRequirementMode($_POST["visibility-$id"]);
+
                 foreach (array('sort','label') as $f) {
                     if (isset($_POST["$f-$id"])) {
                         $field->set($f, $_POST["$f-$id"]);
@@ -49,8 +47,6 @@ if($_POST) {
                 }
                 if (in_array($field->get('name'), $names))
                     $field->addError(__('Field variable name is not unique'), 'name');
-                if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
-                    $field->addError(__('Invalid character in variable name. Please use letters and numbers only.'), 'name');
                 // Subject (Issue Summary) must always have data
                 if ($form->get('type') == 'T' && $field->get('name') == 'subject') {
                     if (($f = $field->getField(false)->getImpl()) && !$f->hasData())
@@ -115,12 +111,15 @@ if($_POST) {
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
                 'name'=>$_POST["name-new-$i"],
-                'private'=>$_POST["private-new-$i"] == 'on' ? 1 : 0,
-                'required'=>$_POST["required-new-$i"] == 'on' ? 1 : 0
             ));
+            $field->setRequirementMode($_POST["visibility-new-$i"]);
             $field->setForm($form);
-            if ($field->isValid())
+            if (in_array($field->get('name'), $names))
+                $field->addError(__('Field variable name is not unique'), 'name');
+            if ($field->isValid()) {
                 $form_fields[] = $field;
+                $names[] = $field->get('name');
+            }
             else
                 $errors["new-$i"] = $field->errors();
         }

@@ -86,7 +86,7 @@ class Form {
         if (!$this->_clean) {
             $this->_clean = array();
             foreach ($this->getFields() as $key=>$field) {
-                if (!$field->hasData())
+                if ($field->isPresentationOnly())
                     continue;
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
                     = $field->getClean();
@@ -179,6 +179,7 @@ class FormField {
             'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
             'files' => array(   /* @trans */ 'File Upload', 'FileUploadField'),
             'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
+            'info' => array(    /* @trans */ 'Information', 'FreeTextField'),
         ),
     );
     static $more_types = array();
@@ -1735,7 +1736,9 @@ class TextareaWidget extends Widget {
         if (isset($config['length']) && $config['length'])
             $maxlength = "maxlength=\"{$config['length']}\"";
         if (isset($config['html']) && $config['html']) {
-            $class = 'class="richtext no-bar small"';
+            $class = array('richtext', 'no-bar');
+            $class[] = @$config['size'] ?: 'small';
+            $class = sprintf('class="%s"', implode(' ', $class));
             $this->value = Format::viewableImages($this->value);
         }
         ?>
@@ -2124,6 +2127,42 @@ class FileUploadWidget extends Widget {
 }
 
 class FileUploadError extends Exception {}
+
+class FreeTextField extends FormField {
+    static $widget = 'FreeTextWidget';
+
+    function getConfigurationOptions() {
+        return array(
+            'content' => new TextareaField(array(
+                'configuration' => array('html' => true, 'size'=>'large'),
+                'label'=>__('Content'), 'required'=>true, 'default'=>'',
+                'hint'=>__('Free text shown in the form, such as a disclaimer'),
+            )),
+        );
+    }
+
+    function hasData() {
+        return false;
+    }
+
+    function isBlockLevel() {
+        return true;
+    }
+}
+
+class FreeTextWidget extends Widget {
+    function render($mode=false) {
+        $config = $this->field->getConfiguration();
+        ?><div class=""><h3><?php
+            echo Format::htmlchars($this->field->get('label'));
+        ?></h3><em><?php
+            echo Format::htmlchars($this->field->get('hint'));
+        ?></em><div><?php
+            echo Format::viewableImages($config['content']); ?></div>
+        </div>
+        <?php
+    }
+}
 
 class VisibilityConstraint {
 

@@ -39,6 +39,13 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     <?php
     }
     foreach ($form->getFields() as $field) {
+        try {
+            if (!$field->isVisibleToStaff())
+                continue;
+        }
+        catch (Exception $e) {
+            // Not connected to a DynamicFormField
+        }
         ?>
         <tr><?php if ($field->isBlockLevel()) { ?>
                 <td colspan="2">

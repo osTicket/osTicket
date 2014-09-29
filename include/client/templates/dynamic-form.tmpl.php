@@ -16,7 +16,7 @@
     // 'private' are not included in the output for clients
     global $thisclient;
     foreach ($form->getFields() as $field) {
-        if ($field->get('private'))
+        if (!$field->isVisibleToUsers())
             continue;
         ?>
         <tr>

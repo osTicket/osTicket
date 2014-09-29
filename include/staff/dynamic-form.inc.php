@@ -69,8 +69,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th></th>
             <th><?php echo __('Label'); ?></th>
             <th><?php echo __('Type'); ?></th>
-            <th><?php echo __('Internal'); ?></th>
-            <th><?php echo __('Required'); ?></th>
+            <th><?php echo __('Visibility'); ?></th>
             <th><?php echo __('Variable'); ?></th>
             <th><?php echo __('Delete'); ?></th>
         </tr>
@@ -86,9 +85,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td></td>
             <td><?php echo $f->get('label'); ?></td>
             <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
-            <td><input type="checkbox" disabled="disabled"/></td>
-            <td><input type="checkbox" disabled="disabled"
-                <?php echo $f->get('required') ? 'checked="checked"' : ''; ?>/></td>
+            <td><?php
+                $rmode = $f->getRequirementMode();
+                $modes = $f->getAllRequirementModes();
+                echo $modes[$rmode]['desc'];
+            ?></td>
             <td><?php echo $f->get('name'); ?></td>
             <td><input type="checkbox" disabled="disabled"/></td></tr>
 
@@ -109,10 +110,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <i class="help-tip icon-question-sign" href="#field_label"></i></th>
             <th nowrap><?php echo __('Type'); ?>
                 <i class="help-tip icon-question-sign" href="#field_type"></i></th>
-            <th nowrap><?php echo __('Internal'); ?>
-                <i class="help-tip icon-question-sign" href="#field_internal"></i></th>
-            <th nowrap><?php echo __('Required'); ?>
-                <i class="help-tip icon-question-sign" href="#field_required"></i></th>
+            <th nowrap><?php echo __('Visibility'); ?>
+                <i class="help-tip icon-question-sign" href="#field_visibility"></i></th>
             <th nowrap><?php echo __('Variable'); ?>
                 <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
             <th nowrap><?php echo __('Delete'); ?>
@@ -124,8 +123,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
-        $force_privacy = $f->isPrivacyForced() ? 'disabled="disabled"' : '';
-        $force_required = $f->isRequirementForced() ? 'disabled="disabled"' : '';
+        $rmode = $f->getRequirementMode();
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
@@ -157,17 +155,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         $.dialog($(this).attr('href').substr(1), [201]);
                         return false;
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
-            <?php } ?>
-            <div class="error" style="white-space:normal"><?php
-                if ($ferrors['type']) echo $ferrors['type'];
-            ?></div>
-            </td>
-            <td><input type="checkbox" name="private-<?php echo $id; ?>"
-                <?php if ($f->get('private')) echo 'checked="checked"'; ?>
-                <?php echo $force_privacy ?>/></td>
-            <td><input type="checkbox" name="required-<?php echo $id; ?>"
-                <?php if ($f->get('required')) echo 'checked="checked"'; ?>
-                <?php echo $force_required ?>/>
+            <?php } ?></td>
+            <td>
+                <select name="visibility-<?php echo $id; ?>">
+<?php foreach ($f->getAllRequirementModes() as $m=>$I) { ?>
+    <option value="<?php echo $m; ?>" <?php if ($rmode == $m)
+         echo 'selected="selected"'; ?>><?php echo $I['desc']; ?></option>
+<?php } ?>
+                <select>
             </td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
@@ -206,12 +201,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 </optgroup>
                 <?php } ?>
             </select></td>
-            <td><input type="checkbox" name="private-new-<?php echo $i; ?>"
-            <?php if ($info["private-new-$i"]
-                || (!$_POST && $form && $form->get('type') == 'U'))
-                    echo 'checked="checked"'; ?>/></td>
-            <td><input type="checkbox" name="required-new-<?php echo $i; ?>"
-                <?php if ($info["required-new-$i"]) echo 'checked="checked"'; ?>/></td>
+            <td>
+                <select name="visibility-new-<?php echo $i; ?>">
+<?php
+    $rmode = $info['visibility-new-'.$i];
+    foreach (DynamicFormField::allRequirementModes() as $m=>$I) { ?>
+    <option value="<?php echo $m; ?>" <?php if ($rmode == $m)
+         echo 'selected="selected"'; ?>><?php echo $I['desc']; ?></option>
+<?php } ?>
+                <select>
             <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"
                 value="<?php echo $info["name-new-$i"]; ?>"/>
                 <font class="error"><?php
