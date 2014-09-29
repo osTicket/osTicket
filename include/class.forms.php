@@ -608,7 +608,7 @@ class FormField {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
             $clazz = $type[1];
-            $T = new $clazz();
+            $T = new $clazz(array('type'=>$this->get('type')));
             $config = $this->getConfiguration();
             $this->_cform = new Form($T->getConfigurationOptions(), $source);
             if (!$source) {
@@ -1814,12 +1814,14 @@ class ChoicesWidget extends Widget {
             $def_key = $this->field->get('default');
             if (!$def_key && $config['default'])
                 $def_key = $config['default'];
+            if (is_array($def_key))
+                $def_key = key($def_key);
             $have_def = isset($choices[$def_key]);
             $def_val = $have_def ? $choices[$def_key] : $prompt;
         }
 
         $values = $this->value;
-        if (!is_array($values)) {
+        if (!is_array($values) && $values) {
             $values = array($values => $this->field->getChoice($values));
         }
 
