@@ -215,7 +215,12 @@ $(function() {
     },
     redact = $.redact = function(el, options) {
         var el = $(el),
-            options = $.extend({
+            sizes = {'small': 75, 'medium': 150, 'large': 225},
+            selectedSize = sizes['medium'];
+        $.each(sizes, function(k, v) {
+            if (el.hasClass(k)) selectedSize = v;
+        });
+        var options = $.extend({
                 'air': el.hasClass('no-bar'),
                 'airButtons': ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
                 'buttons': ['html', '|', 'formatting', '|', 'bold',
@@ -224,7 +229,7 @@ $(function() {
                     'file', 'table', 'link', '|', 'alignment', '|',
                     'horizontalrule'],
                 'autoresize': !el.hasClass('no-bar'),
-                'minHeight': el.hasClass('small') ? 75 : 150,
+                'minHeight': selectedSize,
                 'focus': false,
                 'plugins': ['fontcolor','fontfamily', 'signature'],
                 'imageGetJson': 'ajax.php/draft/images/browse',

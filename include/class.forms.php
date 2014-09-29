@@ -179,7 +179,7 @@ class FormField {
             'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
             'files' => array(   /* @trans */ 'File Upload', 'FileUploadField'),
             'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
-            'free' => array(    /* @trans */ 'Free Text', 'FreeTextField'),
+            'info' => array(    /* @trans */ 'Information', 'FreeTextField'),
         ),
     );
     static $more_types = array();
@@ -1736,7 +1736,9 @@ class TextareaWidget extends Widget {
         if (isset($config['length']) && $config['length'])
             $maxlength = "maxlength=\"{$config['length']}\"";
         if (isset($config['html']) && $config['html']) {
-            $class = 'class="richtext no-bar small"';
+            $class = array('richtext', 'no-bar');
+            $class[] = @$config['size'] ?: 'small';
+            $class = sprintf('class="%s"', implode(' ', $class));
             $this->value = Format::viewableImages($this->value);
         }
         ?>
@@ -2132,7 +2134,7 @@ class FreeTextField extends FormField {
     function getConfigurationOptions() {
         return array(
             'content' => new TextareaField(array(
-                'configuration' => array('html' => true),
+                'configuration' => array('html' => true, 'size'=>'large'),
                 'label'=>__('Content'), 'required'=>true, 'default'=>'',
                 'hint'=>__('Free text shown in the form, such as a disclaimer'),
             )),
