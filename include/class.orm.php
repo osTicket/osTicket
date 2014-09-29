@@ -1021,8 +1021,6 @@ class MysqlExecutor {
     function _prepare() {
         $this->execute();
         $this->_setup_output();
-        if (!$this->stmt->store_result())
-            throw new OrmException('Unable to process query: '.$this->stmt->error);
     }
 
     function execute() {
@@ -1031,7 +1029,7 @@ class MysqlExecutor {
                 .' '.$this->sql);
         if (count($this->params))
             $this->_bind($this->params);
-        if (!$this->stmt->execute()) {
+        if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
             throw new OrmException('Unable to execute query: ' . $this->stmt->error);
         }
         return true;
