@@ -22,6 +22,7 @@ osTicket v1.8.6
   * Fix corruption of email mailbox if improperly encoded as ISO-8859-1
     without RFC 2047 charset hint (#1332)
   * Fix occasional MySQL Commands OOS error from ORM (#1334)
+  * Dashboard statistics should use 'period' as the date limiter (#1345)
 
 ### Performance and Security
   * Fix XSS vulnerability in email template management (#1162, #1163)
