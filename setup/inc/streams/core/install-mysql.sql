@@ -326,6 +326,18 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   KEY `email_id` (`email_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%filter_action`;
+CREATE TABLE `%TABLE_PREFIX%filter_action` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `filter_id` int(10) unsigned NOT NULL,
+  `sort` int(10) unsigned NOT NULL default 0,
+  `type` varchar(24) NOT NULL,
+  `configuration` text,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `filter_id` (`filter_id`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%filter_rule`;
 CREATE TABLE `%TABLE_PREFIX%filter_rule` (
   `id` int(11) unsigned NOT NULL auto_increment,

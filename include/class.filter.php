@@ -14,6 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+require_once INCLUDE_DIR . 'class.filter_action.php';
+
 class Filter {
 
     var $id;
@@ -293,47 +295,23 @@ class Filter {
 
         return $match;
     }
+
+    function getActions() {
+        return FilterAction::objects()->filter(array(
+            'filter_id'=>$this->getId()
+        ));
+    }
     /**
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
     function apply(&$ticket, $info=null) {
-        # TODO: Disable alerting
-        # XXX: Does this imply turning it on as well? (via ->sendAlerts())
-        if ($this->disableAlerts()) $ticket['autorespond']=false;
-        #       Set owning department (?)
-        if ($this->getDeptId())     $ticket['deptId']=$this->getDeptId();
-        #       Set ticket priority (?)
-        if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
-        #       Set SLA plan (?)
-        if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
-        #       Set status
-        if ($this->getStatusId())   $ticket['statusId']=$this->getStatusId();
-        #       Auto-assign to (?)
-        #       XXX: Unset the other (of staffId or teamId) (?)
-        if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
-        elseif ($this->getTeamId()) $ticket['teamId']=$this->getTeamId();
-        #       Override name with reply-to information from the TicketFilter
-        #       match
-        if ($this->useReplyToEmail() && $info['reply-to']) {
-            $changed = $info['reply-to'] != $ticket['email']
-                || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
-            $ticket['email'] = $info['reply-to'];
-            if ($info['reply-to-name'])
-                $ticket['name'] = $info['reply-to-name'];
-            if ($changed)
-                throw new FilterDataChanged();
+        foreach ($this->getActions() as $a) {
+            $a->apply($ticket, $info);
         }
-
-        # Use canned response.
-        if ($this->getCannedResponse())
-            $ticket['cannedResponseId'] = $this->getCannedResponse();
-
-        # Apply help topic
-        if ($this->getHelpTopic())
-            $ticket['topicId'] = $this->getHelpTopic();
     }
-     static function getSupportedMatches() {
+
+    static function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
             if (is_callable($v[0]))
                 $v[0] = $v[0]();
@@ -518,17 +496,9 @@ class Filter {
             .',name='.db_input($vars['name'])
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
-            .',dept_id='.db_input($vars['dept_id'])
-            .',status_id='.db_input($vars['status_id'])
-            .',priority_id='.db_input($vars['priority_id'])
-            .',sla_id='.db_input($vars['sla_id'])
-            .',topic_id='.db_input($vars['topic_id'])
             .',match_all_rules='.db_input($vars['match_all_rules'])
             .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
             .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)
-            .',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0)
-            .',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0)
-            .',canned_response_id='.db_input($vars['canned_response_id'])
             .',notes='.db_input(Format::sanitize($vars['notes']));
 
 
@@ -558,8 +528,36 @@ class Filter {
         # Don't care about errors stashed in $xerrors
         $xerrors = array();
         self::save_rules($id,$vars,$xerrors);
+        self::save_actions($id, $vars, $errors);
 
         return true;
+    }
+
+    function save_actions($id, $vars, &$errors) {
+        if (!is_array(@$vars['actions']))
+            return;
+
+        foreach ($vars['actions'] as $v) {
+            $info = substr($v, 1);
+            switch ($v[0]) {
+            case 'N': # new filter action
+                $I = FilterAction::create(array(
+                    'type'=>$info,
+                    'filter_id'=>$id,
+                ));
+                $I->setConfiguration($errors);
+                $I->save();
+                break;
+            case 'I': # exiting filter action
+                if ($I = FilterAction::lookup($info))
+                    $I->setConfiguration() && $I->save();
+                break;
+            case 'D': # deleted filter action
+                if ($I = FilterAction::lookup($info))
+                    $I->delete();
+                break;
+            }
+        }
     }
 }
 

@@ -60,6 +60,9 @@ $dispatcher = patterns('',
         url_post('^upload/(\w+)?$', 'attach'),
         url_get('^(?P<id>\d+)/fields/view$', 'getAllFields')
     )),
+    url('^/filter/', patterns('ajax.filter.php:FilterAjaxAPI',
+        url_get('^action/(?P<type>\w+)/config$', 'getFilterActionForm')
+    )),
     url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'getListItemProperties'),
         url_post('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'saveListItemProperties')
