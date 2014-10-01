@@ -530,7 +530,7 @@ class Filter {
         self::save_rules($id,$vars,$xerrors);
         self::save_actions($id, $vars, $errors);
 
-        return true;
+        return count($errors) == 0;
     }
 
     function save_actions($id, $vars, &$errors) {
@@ -545,12 +545,14 @@ class Filter {
                     'type'=>$info,
                     'filter_id'=>$id,
                 ));
-                $I->setConfiguration($errors);
+                $I->setConfiguration($errors, $vars);
                 $I->save();
                 break;
             case 'I': # exiting filter action
-                if ($I = FilterAction::lookup($info))
-                    $I->setConfiguration() && $I->save();
+                if ($I = FilterAction::lookup($info)) {
+                    $I->setConfiguration($errors, $vars);
+                    $I->save();
+                }
                 break;
             case 'D': # deleted filter action
                 if ($I = FilterAction::lookup($info))

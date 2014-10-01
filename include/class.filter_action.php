@@ -32,7 +32,7 @@ class FilterAction extends VerySimpleModel {
         return $this->_config;
     }
 
-    function setConfiguration($source=false, &$errors=array()) {
+    function setConfiguration(&$errors=array(), $source=false) {
         $config = array();
         foreach ($this->getImpl()->getConfigurationForm($source ?: $_POST)
                 ->getFields() as $name=>$field) {
@@ -393,3 +393,50 @@ class FA_SetStatus extends TriggerAction {
     }
 }
 FilterAction::register('FA_SetStatus');
+
+class FA_SendEmail extends TriggerAction {
+    static $type = 'email';
+    static $name = /* trans */ 'Send an Email';
+
+    function apply(&$ticket, array $info) {
+        global $ost;
+
+        $config = $this->getConfiguration();
+        $info = array('subject' => $config['subject'],
+            'message' => $config['message']);
+        $info = $ost->replaceTemplateVariables(
+            $info, array('ticket' => $ticket)
+        );
+        $mailer = new Mailer();
+        $mailer->send($config['recipients'], $info['subject'], $info['message']);
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'recipients' => new TextboxField(array(
+                'label' => __('Recipients'), 'required' => true,
+                'configuration' => array(
+                    'size' => 80
+                ),
+                'validators' => function($self, $value) {
+                    if (!($q=Validator::is_email($value, true)))
+                        $self->addError('Unable to parse address list. '
+                            .'Use commas to separate addresses.');
+                }
+            )),
+            'subject' => new TextboxField(array(
+                'configuration' => array(
+                    'size' => 80,
+                    'placeholder' => __('Subject')
+                ),
+            )),
+            'message' => new TextareaField(array(
+                'configuration' => array(
+                    'placeholder' => __('Message'),
+                    'html' => true,
+                ),
+            )),
+        );
+    }
+}
+FilterAction::register('FA_SendEmail');

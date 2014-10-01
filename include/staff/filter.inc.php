@@ -190,7 +190,9 @@ if ($filter) { foreach ($filter->getActions() as $A) {
 ?>
         <tr><td><?php echo $A->getImpl()->getName(); ?>:</td>
             <td><div style="position:relative"><?php
-                $form = $A->getImpl()->getConfigurationForm();
+                $form = $A->getImpl()->getConfigurationForm($_POST ?: false);
+                // XXX: Drop this when the ORM supports proper caching
+                $form->isValid();
                 include STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
 ?>
                 <input type="hidden" name="actions[]" value="I<?php echo $A->getId(); ?>"/>
@@ -230,7 +232,7 @@ if ($filter) { foreach ($filter->getActions() as $A) {
         $('#dynamic-actions')
           .append($('<tr></tr>')
             .append($('<td></td>')
-              .text(selected.data('title'))
+              .text(selected.data('title') + ':')
             ).append($('<td></td>')
               .append($('<em></em>').text(__('Loading ...')))
               .load('ajax.php/filter/action/' + selected.val() + '/config', function() {

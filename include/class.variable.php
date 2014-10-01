@@ -79,6 +79,9 @@ class VariableReplacer {
             return $this->getVar($rv, $part);
         }
 
+        if (is_array($obj) && isset($obj[$v]))
+            return $obj[$v];
+
         if (!$var || !method_exists($obj, 'getVar'))
             return "";
 
@@ -112,8 +115,13 @@ class VariableReplacer {
         $parts = explode('.', $var, 2);
         if($parts && ($obj=$this->getObj($parts[0])))
             return $this->getVar($obj, $parts[1]);
-        elseif($parts[0] && @isset($this->variables[$parts[0]])) //root override
+        elseif($parts[0] && @isset($this->variables[$parts[0]])) { //root override
+            if (is_array($this->variables[$parts[0]])
+                    && isset($this->variables[$parts[0]][$parts[1]]))
+                return $this->variables[$parts[0]][$parts[1]];
+
             return $this->variables[$parts[0]];
+        }
 
         //Unknown object or variable - leavig it alone.
         $this->setError(sprintf(__('Unknown object for "%s" tag'), $var));
