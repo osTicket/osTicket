@@ -36,7 +36,7 @@ if($_POST) {
                 if (isset($_POST["type-$id"]) && $field->isChangeable())
                     $field->set('type', $_POST["type-$id"]);
                 if (isset($_POST["name-$id"]) && !$field->isNameForced())
-                    $field->set('name', $_POST["name-$id"]);
+                    $field->set('name', trim($_POST["name-$id"]));
                 # TODO: make sure all help topics still have all required fields
                 $field->setRequirementMode($_POST["visibility-$id"]);
 
@@ -110,7 +110,7 @@ if($_POST) {
                 'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : ++$max_sort,
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
-                'name'=>$_POST["name-new-$i"],
+                'name'=>trim($_POST["name-new-$i"]),
             ));
             $field->setRequirementMode($_POST["visibility-new-$i"]);
             $field->setForm($form);
@@ -118,7 +118,8 @@ if($_POST) {
                 $field->addError(__('Field variable name is not unique'), 'name');
             if ($field->isValid()) {
                 $form_fields[] = $field;
-                $names[] = $field->get('name');
+                if ($N = $field->get('name'))
+                    $names[] = $N;
             }
             else
                 $errors["new-$i"] = $field->errors();
