@@ -1,21 +1,21 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Accès refusé');
 $info=array();
 $qstr='';
 if($dept && $_REQUEST['a']!='add') {
     //Editing Department.
-    $title='Update Department';
+    $title='Mettre à jour le département';
     $action='update';
-    $submit_text='Save Changes';
+    $submit_text='Sauvegarder les modifications';
     $info=$dept->getInfo();
     $info['id']=$dept->getId();
     $info['groups'] = $dept->getAllowedGroups();
 
     $qstr.='&id='.$dept->getId();
 } else {
-    $title='Add New Department';
+    $title='Ajouter un département';
     $action='create';
-    $submit_text='Create Dept';
+    $submit_text='Créer un département';
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $info['ticket_auto_response']=isset($info['ticket_auto_response'])?$info['ticket_auto_response']:1;
     $info['message_auto_response']=isset($info['message_auto_response'])?$info['message_auto_response']:1;
@@ -31,20 +31,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Department</h2>
+ <h2>Département</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Department Information</em>
+                <em>Informations sur le département</em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td width="180" class="required">
-                Name:
+                Nom
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
@@ -53,22 +53,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                Type:
+                Type
             </td>
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><strong>Public</strong>
                 &nbsp;
-                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong>Private</strong> (Internal)
+                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong>Privé</strong> (Interne)
                 &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
         <tr>
             <td width="180">
-                SLA:
+                Accords de niveaux de service (SLA)
             </td>
             <td>
                 <select name="sla_id">
-                    <option value="0">&mdash; System Default &mdash;</option>
+                    <option value="0">&mdash; Valeurs par défaut du système &mdash;</option>
                     <?php
                     if($slas=SLA::getSLAs()) {
                         foreach($slas as $id =>$name) {
@@ -83,12 +83,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Manager:
+                Responsable
             </td>
             <td>
                 <span>
                 <select name="manager_id">
-                    <option value="0">&mdash; None &mdash;</option>
+                    <option value="0">&mdash; Aucun &mdash;</option>
                     <?php
                     $sql='SELECT staff_id,CONCAT_WS(", ",lastname, firstname) as name '
                         .' FROM '.STAFF_TABLE.' staff '
@@ -107,28 +107,28 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td>Ticket Assignment:</td>
+            <td>Attribution du ticket</td>
             <td>
                 <span>
                 <input type="checkbox" name="assign_members_only" <?php echo
                 $info['assign_members_only']?'checked="checked"':''; ?>>
-                Restrict ticket assignment to department members
+                Restreindre l’attribution du ticket aux membres du département
                 <i class="help-tip icon-question-sign" href="#sandboxing"></i>
                 </span>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Outgoing Email Settings</strong>:</em>
+                <em><strong>Paramètres de messagerie sortante (SMTP)</strong>&nbsp;:</em>
             </th>
         </tr>
         <tr>
             <td width="180">
-                Outgoing Email:
+                Courriel sortant
             </td>
             <td>
                 <select name="email_id">
-                    <option value="0">&mdash; System Default &mdash;</option>
+                    <option value="0">&mdash; Valeurs par défaut du système &mdash;</option>
                     <?php
                     $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -146,11 +146,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                Template Set:
+                Série de modèles
             </td>
             <td>
                 <select name="tpl_id">
-                    <option value="0">&mdash; System Default &mdash;</option>
+                    <option value="0">&mdash; Valeurs par défaut du système &mdash;</option>
                     <?php
                     $sql='SELECT tpl_id,name FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl WHERE isactive=1 ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -166,41 +166,41 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Autoresponder Settings</strong>:
+                <em><strong>Paramètres de réponse automatique</strong>&nbsp;:
                 <i class="help-tip icon-question-sign" href="#auto_response_settings"></i></em>
             </th>
         </tr>
         <tr>
             <td width="180">
-                New Ticket:
+                Nouveau ticket
             </td>
             <td>
                 <span>
                 <input type="checkbox" name="ticket_auto_response" value="0" <?php echo !$info['ticket_auto_response']?'checked="checked"':''; ?> >
 
-                <strong>Disable</strong> for this Department&nbsp;<i class="help-tip icon-question-sign" href="#new_ticket"></i>
+                <strong>Désactiver</strong> pour ce département&nbsp;<i class="help-tip icon-question-sign" href="#new_ticket"></i>
                 </span>
             </td>
         </tr>
         <tr>
             <td width="180">
-                New Message:
+                Nouveau message
             </td>
             <td>
                 <span>
                 <input type="checkbox" name="message_auto_response" value="0" <?php echo !$info['message_auto_response']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> for this Department&nbsp;<i class="help-tip icon-question-sign" href="#new_message"></i>
+                    <strong>Désactiver</strong> pour ce département&nbsp;<i class="help-tip icon-question-sign" href="#new_message"></i>
                 </span>
             </td>
         </tr>
         <tr>
             <td width="180">
-                Auto-Response Email:
+                Courriel de réponse automatique
             </td>
             <td>
                 <span>
                 <select name="autoresp_email_id">
-                    <option value="0" selected="selected">&mdash; Department Email &mdash;</option>
+                    <option value="0" selected="selected">&mdash; Courriel du département &mdash;</option>
                     <?php
                     $sql='SELECT email_id,email,name FROM '.EMAIL_TABLE.' email ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -222,20 +222,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Alerts &amp; Notices:</strong>&nbsp;<i class="help-tip icon-question-sign" href="#group_membership"></i></em>
+                <em><strong>Alertes &amp; notifications:</strong>&nbsp;<i class="help-tip icon-question-sign" href="#group_membership"></i></em>
             </th>
         </tr>
         <tr>
             <td width="180">
-                Recipients:
+                Destinataires
             </td>
             <td>
                 <span>
                 <select name="group_membership">
 <?php foreach (array(
-    Dept::ALERTS_DISABLED =>        "No one (disable Alerts &amp; Notices)",
-    Dept::ALERTS_DEPT_ONLY =>       "Department members only",
-    Dept::ALERTS_DEPT_AND_GROUPS => "Department and Group members",
+    Dept::ALERTS_DISABLED =>        "Personne (désactiver les alertes &amp; notifications)",
+    Dept::ALERTS_DEPT_ONLY =>       "Membres du département seulement",
+    Dept::ALERTS_DEPT_AND_GROUPS => "Membres du département et du groupe",
 ) as $mode=>$desc) { ?>
     <option value="<?php echo $mode; ?>" <?php
         if ($info['group_membership'] == $mode) echo 'selected="selected"';
@@ -248,7 +248,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong>Group Access</strong>: Check all groups allowed to access this department.&nbsp;<i class="help-tip icon-question-sign" href="#department_access"></i></em>
+                <em><strong>Accès du groupe</strong>&nbsp;: vérifier tous les groupes autorisés à accéder à ce département.&nbsp;<i class="help-tip icon-question-sign" href="#department_access"></i></em>
             </th>
         </tr>
         <?php
@@ -270,7 +270,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         ?>
         <tr>
             <th colspan="2">
-                <em><strong>Department Signature</strong>:&nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#department_signature"></i></em>
+                <em><strong>Signature du département</strong>:&nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#department_signature"></i></em>
             </th>
         </tr>
         <tr>
@@ -283,7 +283,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
 <p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="departments.php"'>
+    <input type="reset"  name="reset"  value="Réinitialiser">
+    <input type="button" name="cancel" value="Annuler" onclick='window.location.href="departments.php"'>
 </p>
 </form>

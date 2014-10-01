@@ -1,11 +1,11 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canManageFAQ()) die('Access Denied');
+if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canManageFAQ()) die('Accès refusé');
 $info=array();
 $qstr='';
 if($faq){
-    $title='Update FAQ: '.$faq->getQuestion();
+    $title='Mettre à jour la FAQ&nbsp;: '.$faq->getQuestion();
     $action='update';
-    $submit_text='Save Changes';
+    $submit_text='Sauvegarder les modifications';
     $info=$faq->getHashtable();
     $info['id']=$faq->getId();
     $info['topics']=$faq->getHelpTopicsIds();
@@ -13,9 +13,9 @@ if($faq){
     $info['notes']=Format::viewableImages($faq->getNotes());
     $qstr='id='.$faq->getId();
 }else {
-    $title='Add New FAQ';
+    $title='Ajouter une FAQ';
     $action='create';
-    $submit_text='Add FAQ';
+    $submit_text='Ajouter une FAQ';
     if($category) {
         $qstr='cid='.$category->getId();
         $info['category_id']=$category->getId();
@@ -42,7 +42,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="2">
-                <em>FAQ Information</em>
+                <em>Informations sur la FAQ</em>
             </th>
         </tr>
         <tr>
@@ -53,9 +53,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div><b>Category Listing</b>:&nbsp;<span class="faded">FAQ category the question belongs to.</span></div>
+                <div><b>Liste des catégories</b>:&nbsp;<span class="faded">&nbsp;: catégorie de la FAQ dont relève la question.</span></div>
                 <select name="category_id" style="width:350px;">
-                    <option value="0">Select FAQ Category </option>
+                    <option value="0">Sélectionner une catégorie de FAQ</option>
                     <?php
                     $sql='SELECT category_id, name, ispublic FROM '.FAQ_CATEGORY_TABLE;
                     if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -74,17 +74,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div><b>Listing Type</b>: &nbsp;<i class="help-tip icon-question-sign" href="#listing_type"></i></div>
-                <input type="radio" name="ispublished" value="1" <?php echo $info['ispublished']?'checked="checked"':''; ?>>Public (publish)
+                <div><b>Type de liste</b>&nbsp;: &nbsp;<i class="help-tip icon-question-sign" href="#listing_type"></i></div>
+                <input type="radio" name="ispublished" value="1" <?php echo $info['ispublished']?'checked="checked"':''; ?>>Publique (publiée)
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" name="ispublished" value="0" <?php echo !$info['ispublished']?'checked="checked"':''; ?>>Internal (private)
+                <input type="radio" name="ispublished" value="0" <?php echo !$info['ispublished']?'checked="checked"':''; ?>>Interne (privée)
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['ispublished']; ?></span>
             </td>
         </tr>
         <tr>
             <td colspan=2>
                 <div style="margin-bottom:0.5em;margin-top:0.5em">
-                    <b>Answer</b>&nbsp;<font class="error">*&nbsp;<?php echo $errors['answer']; ?></font>
+                    <b>Réponse</b>&nbsp;<font class="error">*&nbsp;<?php echo $errors['answer']; ?></font>
                 </div>
                 <textarea name="answer" cols="21" rows="12"
                     style="width:98%;" class="richtext draft"
@@ -95,10 +95,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <div><b>Attachments</b> (optional) <font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
+                <div><b>Fichiers attachés</b> (optional) <font class="error">&nbsp;<?php echo $errors['files']; ?></font></div>
                 <?php
                 if($faq && ($files=$faq->attachments->getSeparates())) {
-                    echo '<div class="faq_attachments"><span class="faded">Uncheck to delete the attachment on submit</span><br>';
+                    echo '<div class="faq_attachments"><span class="faded">Décocher pour supprimer les fichiers attachés lors de la soumission</span><br>';
                     foreach($files as $file) {
                         $hash=$file['key'].md5($file['id'].session_id().strtolower($file['key']));
                         echo sprintf('<label><input type="checkbox" name="files[]" id="f%d" value="%d" checked="checked">
@@ -108,7 +108,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     echo '</div><br>';
                 }
                 ?>
-                <div class="faded">Select files to upload.</div>
+                <div class="faded">Sélectionner les fichiers à charger.</div>
                 <div class="uploads"></div>
                 <div class="file_input">
                     <input type="file" class="multifile" name="attachments[]" size="30" value="" />
@@ -119,7 +119,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         if ($topics = Topic::getAllHelpTopics()) { ?>
         <tr>
             <th colspan="2">
-                <em><strong>Help Topics</strong>: Check all help topics related to this FAQ.</em>
+                <em><strong>Rubriques d’aide</strong>&nbsp;: vérifier toutes les rubriques d’aide liées à cette FAQ.</em>
             </th>
         </tr>
         <tr><td colspan="2">
@@ -137,7 +137,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong>Internal Notes</strong>: &nbsp;</em>
+                <em><strong>Notes internes</strong>&nbsp;: &nbsp;</em>
             </th>
         </tr>
         <tr>
@@ -150,10 +150,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
 <p style="padding-left:225px;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset" onclick="javascript:
+    <input type="reset"  name="reset"  value="Réinitialiser" onclick="javascript:
         $(this.form).find('textarea.richtext')
             .redactor('deleteDraft');
         location.reload();" />
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="faq.php?<?php echo $qstr; ?>"'>
+    <input type="button" name="cancel" value="Annuler" onclick='window.location.href="faq.php?<?php echo $qstr; ?>"'>
 </p>
 </form>

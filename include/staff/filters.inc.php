@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Accès refusé');
 $targets = Filter::getTargets();
 $qstr='';
 $sql='SELECT filter.*,count(rule.id) as rules '.
@@ -38,17 +38,17 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' filters';
+    $showing=$pageNav->showing().' filtres';
 else
-    $showing='No filters found!';
+    $showing='Aucun filtre n’a été trouvé&nbsp;!';
 
 ?>
 
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Ticket Filters</h2>
+ <h2>Filtres des tickets</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="filters.php?a=add" class="Icon newEmailFilter">Add New Filter</a></b></div>
+ <b><a href="filters.php?a=add" class="Icon newEmailFilter">Ajouter un filtre</a></b></div>
 <div class="clear"></div>
 <form action="filters.php" method="POST" name="filters">
  <?php csrf_token(); ?>
@@ -58,14 +58,14 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
-            <th width="320"><a <?php echo $name_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="80" style="text-align:center;"><a  <?php echo $order_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=order">Order</a></th>
-            <th width="80" style="text-align:center;"><a  <?php echo $rules_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=rules">Rules</a></th>
-            <th width="100"><a  <?php echo $target_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=target">Target</a></th>
-            <th width="120" nowrap><a  <?php echo $created_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=created">Date Added</a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="7">&nbsp;</th>
+            <th width="320"><a <?php echo $name_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=name">Nom</a></th>
+            <th width="80"><a  <?php echo $status_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=status">Statut</a></th>
+            <th width="80" style="text-align:center;"><a  <?php echo $order_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=order">Ordre</a></th>
+            <th width="80" style="text-align:center;"><a  <?php echo $rules_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=rules">Règles</a></th>
+            <th width="100"><a  <?php echo $target_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=target">Cible</a></th>
+            <th width="120" nowrap><a  <?php echo $created_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=created">Date de création</a></th>
+            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
     <tbody>
@@ -84,7 +84,7 @@ else
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <td>&nbsp;<a href="filters.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
-                <td><?php echo $row['isactive']?'Active':'<b>Disabled</b>'; ?></td>
+                <td><?php echo $row['isactive']?'Activé':'<b>Désactivé</b>'; ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['execorder']; ?>&nbsp;</td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['rules']; ?>&nbsp;</td>
                 <td>&nbsp;<?php echo Format::htmlchars($targets[$row['target']]); ?></td>
@@ -98,12 +98,12 @@ else
      <tr>
         <td colspan="8">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            Sélectionner&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No filters found';
+                echo 'Aucun filtre n’a été trouvé';
             } ?>
         </td>
      </tr>
@@ -114,9 +114,9 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="Enable">
-    <input class="button" type="submit" name="disable" value="Disable">
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="enable" value="Activer">
+    <input class="button" type="submit" name="disable" value="Désactiver">
+    <input class="button" type="submit" name="delete" value="Supprimer">
 </p>
 <?php
 endif;
@@ -124,27 +124,27 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        Are you sure want to <b>enable</b> selected filters?
+        Êtes-vous sûr.e de vouloir <b>activer</b> les filtres sélectionnés&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        Are you sure want to <b>disable</b>  selected filters?
+        Êtes-vous sûr.e de vouloir <b>désactiver</b> les filtres sélectionnés&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected filters?</strong></font>
-        <br><br>Deleted filters CANNOT be recovered, including any associated rules.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les filtres sélectionnés&nbsp;?</strong></font>
+        <br><br>Les filtres supprimés ne POURRONT PAS être récupérés, y compris toutes les règles associées.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

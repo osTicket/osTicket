@@ -1,22 +1,22 @@
 <?php
-if(!defined('OSTSTAFFINC') || !$faq || !$thisstaff) die('Access Denied');
+if(!defined('OSTSTAFFINC') || !$faq || !$thisstaff) die('Accès refusé');
 
 $category=$faq->getCategory();
 
 ?>
-<h2>Frequently Asked Questions</h2>
+<h2>Questions fréquemment posées</h2>
 <div id="breadcrumbs">
-    <a href="kb.php">All Categories</a>
+    <a href="kb.php">Toutes les catégories</a>
     &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
-    <span class="faded">(<?php echo $category->isPublic()?'Public':'Internal'; ?>)</span>
+    <span class="faded">(<?php echo $category->isPublic()?'Public':'Interne'; ?>)</span>
 </div>
 <div style="width:700px;padding-top:2px; float:left;">
-<strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo $faq->isPublished()?'(Published)':''; ?></span>
+<strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo $faq->isPublished()?'(Publié)':''; ?></span>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
 <?php
 if($thisstaff->canManageFAQ()) {
-    echo sprintf('<a href="faq.php?id=%d&a=edit" class="Icon newHelpTopic">Edit FAQ</a>',
+    echo sprintf('<a href="faq.php?id=%d&a=edit" class="Icon newHelpTopic">Éditer la FAQ</a>',
             $faq->getId());
 }
 ?>
@@ -28,12 +28,12 @@ if($thisstaff->canManageFAQ()) {
 </div>
 <div class="clear"></div>
 <p>
- <div><span class="faded"><b>Attachments:</b></span> <?php echo $faq->getAttachmentsLinks(); ?></div>
- <div><span class="faded"><b>Help Topics:</b></span>
+ <div><span class="faded"><b>Fichiers attachés</b></span> <?php echo $faq->getAttachmentsLinks(); ?></div>
+ <div><span class="faded"><b>Rubriques d’aide</b></span>
     <?php echo ($topics=$faq->getHelpTopics())?implode(', ',$topics):' '; ?>
     </div>
 </p>
-<div class="faded">&nbsp;Last updated <?php echo Format::db_daydatetime($faq->getUpdateDate()); ?></div>
+<div class="faded">&nbsp;Dernière mise à jour <?php echo Format::db_daydatetime($faq->getUpdateDate()); ?></div>
 <hr>
 <?php
 if($thisstaff->canManageFAQ()) {
@@ -41,25 +41,25 @@ if($thisstaff->canManageFAQ()) {
     ?>
    <div>
     <form action="faq.php?id=<?php echo  $faq->getId(); ?>" method="post">
-	 <?php csrf_token(); ?>
+        <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo  $faq->getId(); ?>">
         <input type="hidden" name="do" value="manage-faq">
         <div>
-            <strong>Options: </strong>
+            <strong>Options </strong>
             <select name="a" style="width:200px;">
-                <option value="">Select Action</option>
+                <option value="">Sélectionner une action</option>
                 <?php
                 if($faq->isPublished()) { ?>
-                <option value="unpublish">Unpublish FAQ</option>
+                <option value="unpublish">Dépublier la FAQ</option>
                 <?php
                 }else{ ?>
-                <option value="publish">Publish FAQ</option>
+                <option value="publish">Publier la FAQ</option>
                 <?php
                 } ?>
-                <option value="edit">Edit FAQ</option>
-                <option value="delete">Delete FAQ</option>
+                <option value="edit">Éditer la FAQ</option>
+                <option value="delete">Supprimer la FAQ</option>
             </select>
-            &nbsp;&nbsp;<input type="submit" name="submit" value="Go">
+            &nbsp;&nbsp;<input type="submit" name="submit" value="OK">
         </div>
     </form>
    </div>

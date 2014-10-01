@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Accès refusé');
 
 $qstr='';
 $sql='SELECT email.*,dept.dept_name as department,priority_desc as priority '.
@@ -37,9 +37,9 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY email.email_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' emails';
+    $showing=$pageNav->showing().' courriels';
 else
-    $showing='No emails found!';
+    $showing='Aucun courriel n’a été trouvé!';
 
 $def_dept_id = $cfg->getDefaultDeptId();
 $def_dept_name = $cfg->getDefaultDept()->getName();
@@ -47,10 +47,10 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Email Addresses</h2>
+ <h2>Adresses de courriel</h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="emails.php?a=add" class="Icon newEmail">Add New Email</a></b></div>
+    <b><a href="emails.php?a=add" class="Icon newEmail">Ajouter une adresse de courriel</a></b></div>
 <div class="clear"></div>
 <form action="emails.php" method="POST" name="emails">
  <?php csrf_token(); ?>
@@ -61,11 +61,11 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
     <thead>
         <tr>
             <th width="7">&nbsp;</th>        
-            <th width="400"><a <?php echo $email_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=email">Email</a></th>
-            <th width="120"><a  <?php echo $priority_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=priority">Priority</a></th>
-            <th width="250"><a  <?php echo $dept_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=dept">Department</a></th>
-            <th width="110" nowrap><a  <?php echo $created_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=created">Created</a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="400"><a <?php echo $email_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=email">Adresse de courriel</a></th>
+            <th width="120"><a  <?php echo $priority_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=priority">Priorité</a></th>
+            <th width="250"><a  <?php echo $dept_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=dept">Département</a></th>
+            <th width="110" nowrap><a  <?php echo $created_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=created">Date de création</a></th>
+            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=updated">Dernière mise à jour</a></th>
         </tr>
     </thead>
     <tbody>
@@ -102,12 +102,12 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
      <tr>
         <td colspan="6">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            Sélectionner&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No help emails found';
+                echo 'Aucun courriel d’aide n’a été trouvé'; /*'help email'? késaco?*/
             } ?>
         </td>
      </tr>
@@ -118,7 +118,7 @@ if($res && $num): //Show options..
     echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Delete Email(s)" >
+    <input class="button" type="submit" name="delete" value="Supprimer les adresses de courriel" >
 </p>
 <?php
 endif;
@@ -126,21 +126,21 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected emails?</strong></font>
-        <br><br>Deleted emails CANNOT be recovered.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les adresses de courriel sélectionnées&nbsp;?</strong></font>
+        <br><br>Les adresses de courriel supprimées ne POURRONT PAS être récupérées.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

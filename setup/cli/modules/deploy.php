@@ -3,27 +3,24 @@ require_once dirname(__file__) . "/class.module.php";
 require_once dirname(__file__) . "/unpack.php";
 
 class Deployment extends Unpacker {
-    var $prologue = "Deploys osTicket into target install path";
+    var $prologue = "Déploie osTicket dans le chemin d'installation cible";
 
     var $epilog =
-        "Deployment is used from the continuous development model. If you
-        are following the upstream git repo, then you can use the deploy
-        script to deploy changes made by you or upstream development to your
-        installation target";
+        "Le déploiement est utilisé depuis le modèle de développement continu.
+        Si vous suivez le dépot git amont, vous pouvez utiliser le script de
+        déploiement pour déployer vos changements ou ceux réalisés par le
+        développement en amont vers votre cible d'installation.";
 
     function __construct() {
         $this->options['dry-run'] = array('-t','--dry-run',
             'action'=>'store_true',
-            'help'=>'Don\'t actually deploy new code. Just show the files
-                that would be copied');
+            'help'=>'Il n\'y aura pas de déploiement de nouveau code. Les fichiers qui seront copiés vont simplement être affichés');
         $this->options['setup'] = array('-s','--setup',
             'action'=>'store_true',
-            'help'=>'Deploy the setup folder. Useful for deploying for new
-                installations.');
+            'help'=>'Déploie le dossier de configuration. Utile pour le déploiement sur de nouvelles installations.');
         $this->options['clean'] = array('-C','--clean',
             'action'=>'store_true',
-            'help'=>'Remove files from the destination that are no longer
-                included in this repository');
+            'help'=>'Supprime les fichiers du répertoire de destination qui ne sont plus inclus dans ce dépôt');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -55,7 +52,7 @@ class Deployment extends Unpacker {
                 if (is_file($ltarget))
                     continue;
                 if ($verbose)
-                    $this->stdout->write("(delete): $file\n");
+                    $this->stdout->write("(Suppression): $file\n");
                 if (!$dryrun)
                     unlink($file);
                 unset($contents[$i]);
@@ -81,7 +78,7 @@ class Deployment extends Unpacker {
         }
         if (!$contents || !glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT)) {
             if ($verbose)
-                $this->stdout->write("(delete-folder): $destination\n");
+                $this->stdout->write("(Suppression dossier): $destination\n");
             if (!$dryrun)
                 rmdir($destination);
         }
@@ -126,7 +123,7 @@ class Deployment extends Unpacker {
             $source);
 
         if (!file_put_contents($dest, $source))
-            die("Unable to apply rewrite rules to ".$dest);
+            die("Impossible d'appliquer les règles de réécriture à ".$dest);
 
         return true;
     }
@@ -135,7 +132,7 @@ class Deployment extends Unpacker {
         $this->destination = $args['install-path'];
         if (!is_dir($this->destination))
             if (!@mkdir($this->destination, 0751, true))
-                die("Destination path does not exist and cannot be created");
+                die("Le répertoire cible n'existe pas et ne peut être créé");
         $this->destination = self::realpath($this->destination).'/';
 
         # Determine if this is an upgrade, and if so, where the include/

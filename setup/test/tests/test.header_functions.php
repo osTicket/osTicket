@@ -39,16 +39,16 @@ class TestHeaderFunctions extends Test {
     			'X-Importance: 5' => Priorities::HIGH_PRIORITY,
     			'' => Priorities::NO_PRIORITY
     	) as $priority => $response ) {
-    		$this->assert(is_int($response), "Setup fail, function should only return Integer values");
+    		$this->assert(is_int($response), "Erreur de la configuration. La fonction ne doit retourner que des valeurs entières");
     		//get header
     		$header = $this->h($priority);
     		
     		if(strlen($priority)){
-    			$this->assert((strlen($header) > $strlen_base), "Setup fail, function h not returning correct string length");
+    			$this->assert((strlen($header) > $strlen_base), "Échec de la configuration. La fonction h ne renvoie pas une chaine de la bonne longueur");
     		}
     		if (! (call_user_func_array ($func_class_method , array($header) ) == $response)){
     			//TODO: make line number dynamic
-    			$this->fail ( "class.mailparse.php", 351, "Algorithm mistake: $priority should return $response!" );
+    			$this->fail ( "class.mailparse.php", 351, "Erreur de l'algorithme : $priority devrait renvoyer $response!" );
     		}else{
     			$this->pass();
     		}

@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
+if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Accès refusé');
 
 $qstr='';
 $sql='SELECT dept.dept_id,dept_name,email.email_id,email.email,email.name as email_name,ispublic,count(staff.staff_id) as users '.
@@ -37,14 +37,14 @@ $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing="Showing 1-$num of $num departments";
 else
-    $showing='No departments found!';
+    $showing='Aucun département n’a été trouvé&nbsp;!';
 
 ?>
 <div style="width:700px;padding-top:5px; float:left;">
- <h2>Departments</h2>
+ <h2>Départements</h2>
  </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="departments.php?a=add" class="Icon newDepartment">Add New Department</a></b></div>
+    <b><a href="departments.php?a=add" class="Icon newDepartment">Ajouter un département</a></b></div>
 <div class="clear"></div>
 <form action="departments.php" method="POST" name="depts">
  <?php csrf_token(); ?>
@@ -55,11 +55,11 @@ else
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>
-            <th width="180"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
+            <th width="180"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name">Nom</a></th>
             <th width="80"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type">Type</a></th>
-            <th width="70"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users">Users</a></th>
-            <th width="300"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email">Email Address</a></th>
-            <th width="200"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager">Dept. Manager</a></th>
+            <th width="70"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users">Utilisateurs</a></th>
+            <th width="300"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email">Adresse de courriel</a></th>
+            <th width="200"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager">Responsable du département</a></th>
         </tr>
     </thead>
     <tbody>
@@ -82,7 +82,7 @@ else
                     $row['email'] = $defaultEmailAddress;
                 }
 
-                $default=($defaultId==$row['dept_id'])?' <small>(Default)</small>':'';
+                $default=($defaultId==$row['dept_id'])?' <small>(Défaut)</small>':'';
                 ?>
             <tr id="<?php echo $row['dept_id']; ?>">
                 <td width=7px>
@@ -90,7 +90,7 @@ else
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?> >
                 </td>
                 <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['dept_name']; ?></a>&nbsp;<?php echo $default; ?></td>
-                <td><?php echo $row['ispublic']?'Public':'<b>Private</b>'; ?></td>
+                <td><?php echo $row['ispublic']?'Public':'<b>Privé</b>'; ?></td>
                 <td>&nbsp;&nbsp;
                     <b>
                     <?php if($row['users']>0) { ?>
@@ -111,11 +111,11 @@ else
         <td colspan="6">
             <?php if($res && $num){ ?>
             Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <a id="selectAll" href="#ckb">Tout</a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb">Aucun</a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb">Basculer</a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No department found';
+                echo 'Aucune section n’a été trouvée';
             } ?>
         </td>
      </tr>
@@ -125,9 +125,9 @@ else
 if($res && $num): //Show options..
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="make_public" value="Make Public" >
-    <input class="button" type="submit" name="make_private" value="Make Private" >
-    <input class="button" type="submit" name="delete" value="Delete Dept(s)" >
+    <input class="button" type="submit" name="make_public" value="Passer en statut public" >
+    <input class="button" type="submit" name="make_private" value="Passer en statut privé" >
+    <input class="button" type="submit" name="delete" value="Supprimer le(s) département(s)" >
 </p>
 <?php
 endif;
@@ -135,27 +135,27 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3>Veuillez confirmer</h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="make_public-confirm">
-        Are you sure want to make selected departments <b>public</b>?
+        Êtes-vous sûr.e de vouloir passer les sections sélectionnées en statut <b>public</b>&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="make_private-confirm">
-        Are you sure want to make selected departments <b>private</b>?
+        Êtes-vous sûr.e de vouloir passer les sections sélectionnées en statut <b>privé</b>&nbsp;?
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected departments?</strong></font>
-        <br><br>Deleted departments CANNOT be recovered.
+        <font color="red"><strong>Êtes-vous sûr.e de vouloir SUPPRIMER les sections sélectionnées&nbsp;?</strong></font>
+        <br><br>Les sections supprimées ne POURRONT PAS être récupérées.
     </p>
-    <div>Please confirm to continue.</div>
+    <div>Veuillez confirmer pour continuer</div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+            <input type="button" value="Non, annuler" class="close">
         </span>
         <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input type="button" value="Oui, je confirme&nbsp;!" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

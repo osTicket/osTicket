@@ -8,10 +8,10 @@ session_set_save_handler('noop','noop','noop','noop','noop','noop');
 
 class Manager extends Module {
     var $prologue =
-        "Manage one or more osTicket installations";
+        "Gérer une installation ou plus d\'osTicket";
 
     var $arguments = array(
-        'action' => "Action to be managed"
+        'action' => "Action à gérer"
     );
 
     var $usage = '$script action [options] [arguments]';
@@ -24,8 +24,8 @@ class Manager extends Module {
 
         global $registered_modules;
         $this->epilog =
-            "Currently available modules follow. Use 'manage.php <module>
-            --help' for usage regarding each respective module:";
+            "Les modules suivants sont actuellement disponibles. Utilisez 'manage.php <module>
+            --help' pour plus d'informations sur l'usage respectif des modules :";
 
         parent::showHelp();
 
@@ -50,14 +50,14 @@ class Manager extends Module {
             if (($module = Module::getInstance($action)))
                 return $module->_run($args['action']);
 
-            $this->stderr->write("Unknown action given\n");
+            $this->stderr->write("Action donnée inconnue\n");
             $this->showHelp();
         }
     }
 }
 
 if (php_sapi_name() != "cli")
-    die("Management only supported from command-line\n");
+    die("La gestion n'est prise en charge que depuis la ligne de commande\n");
 
 $manager = new Manager();
 $manager->parseOptions();
