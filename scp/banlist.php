@@ -18,21 +18,21 @@ include_once(INCLUDE_DIR.'class.banlist.php');
 
 /* Get the system ban list filter */
 if(!($filter=Banlist::getFilter()))
-    $warn = 'System ban list is empty.';
+    $warn = 'Liste de bannissement système vide.';
 elseif(!$filter->isActive())
-    $warn = 'SYSTEM BAN LIST filter is <b>DISABLED</b> - <a href="filters.php">enable here</a>.';
+    $warn = 'Le filtre de LISTE DE BANNISSEMENT SYSTÈME est <b>DÉSACTIVÉ</b> - <a href="filters.php">l\'activer ici</a>.';
 
 $rule=null; //ban rule obj.
 if($filter && $_REQUEST['id'] && !($rule=$filter->getRule($_REQUEST['id'])))
-    $errors['err'] = 'Unknown or invalid ban list ID #';
+    $errors['err'] = 'Identifiant de liste de bannissement inconnu ou invalide';
 
 if($_POST && !$errors && $filter){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$rule){
-                $errors['err']='Unknown or invalid ban rule.';
+                $errors['err']='Règle de bannissement inconnue ou invalide.';
             }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])){
-                $errors['err']=$errors['val']='Valid email address required';
+                $errors['err']=$errors['val']='Une adresse de courriel valide est requise';
             }elseif(!$errors){
                 $vars=array('w'=>'email',
                             'h'=>'equal',
@@ -41,30 +41,30 @@ if($_POST && !$errors && $filter){
                             'isactive'=>$_POST['isactive'],
                             'notes'=>$_POST['notes']);
                 if($rule->update($vars,$errors)){
-                    $msg='Email updated successfully';
+                    $msg='Adresse de courriel mise à jour avec succès';
                 }elseif(!$errors['err']){
-                    $errors['err']='Error updating ban rule. Try again!';
+                    $errors['err']='Erreur lors de la mise à jour de la règle de bannissement. Essayez encore !';
                 }
             }
             break;
         case 'add':
             if(!$filter) {
-                $errors['err']='Unknown or invalid ban list';
+                $errors['err']='Liste de bannissement inconnue ou invalide';
             }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])) {
-                $errors['err']=$errors['val']='Valid email address required';
+                $errors['err']=$errors['val']='Une adresse de courriel valide est requise';
             }elseif(BanList::includes(trim($_POST['val']))) {
-                $errors['err']=$errors['val']='Email already in the ban list';
+                $errors['err']=$errors['val']='L\'adresse de courriel est déjà dans la liste de bannissement';
             }elseif($filter->addRule('email','equal',trim($_POST['val']),array('isactive'=>$_POST['isactive'],'notes'=>$_POST['notes']))) {
-                $msg='Email address added to ban list successfully';
+                $msg='L\'adresse de courriel a été ajoutée à la liste de bannissement avec succès';
                 $_REQUEST['a']=null;
                 //Add filter rule here.
             }elseif(!$errors['err']){
-                $errors['err']='Error creating ban rule. Try again!';
+                $errors['err']='Erreur lors de la création de la liste de bannissement. Essayez encore !';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one email to process.';
+                $errors['err'] = 'Vous devez sélectionner au moins une adresse de courriel à utiliser.';
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -74,11 +74,11 @@ if($_POST && !$errors && $filter){
                             .' AND id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
                             if($num==$count)
-                                $msg = 'Selected emails ban status set to enabled';
+                                $msg = 'Bannissement activé sur les adresses de courriel sélectionnées';
                             else
-                                $warn = "$num of $count selected emails ban status enabled";
+                                $warn = "Bannissement activé sur $num adresses de courriel sur $count sélectionnées";
                         } else  {
-                            $errors['err'] = 'Unable to enable selected emails';
+                            $errors['err'] = 'Impossible d\'activer le bannissement des adresses de courriel sélectionnées';
                         }
                         break;
                     case 'disable':
@@ -87,11 +87,11 @@ if($_POST && !$errors && $filter){
                             .' AND id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected emails ban status set to disabled';
+                                $msg = 'Bannissement désactivé sur les adresses de courriel sélectionnées';
                             else
-                                $warn = "$num of $count selected emails ban status set to disabled";
+                                $warn = "Bannissement désactivé sur $num adresses de courriel sur $count sélectionnées";
                         } else {
-                            $errors['err'] = 'Unable to disable selected emails';
+                            $errors['err'] = 'Impossible de désactiver le bannissement des adresses de courriel sélectionnées';
                         }
                         break;
                     case 'delete':
@@ -101,20 +101,20 @@ if($_POST && !$errors && $filter){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = 'Selected emails deleted from banlist successfully';
+                            $msg = 'Les adresses de courriel sélectionnées ont été supprimées de la liste de bannissement avec succès';
                         elseif($i>0)
-                            $warn = "$i of $count selected emails deleted from banlist";
+                            $warn = "$i adresses de courriel sur $count sélectionnées ont été supprimées de la liste de bannissement avec succès";
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected emails';
+                            $errors['err'] = 'Impossible de supprimer les adresses de courriel sélectionnées';
 
                         break;
                     default:
-                        $errors['err'] = 'Unknown action - get technical help';
+                        $errors['err'] = 'Action inconnue — demandez de l\'aide technique';
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']='Action inconnue';
             break;
     }
 }
