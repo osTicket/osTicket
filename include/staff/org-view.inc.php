@@ -9,11 +9,11 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
              title="Reload"><i class="icon-refresh"></i> <?php echo $org->getName(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
-            <span class="action-button" data-dropdown="#action-dropdown-more">
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
                 <span ><i class="icon-cog"></i> <?php echo __('More'); ?></span>
                 <i class="icon-caret-down"></i>
             </span>
-            <a id="org-delete" class="action-button org-action"
+            <a id="org-delete" class="action-button pull-right org-action"
             href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="icon-trash"></i>
             <?php echo __('Delete Organization'); ?></a>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">

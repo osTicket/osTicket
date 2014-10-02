@@ -64,12 +64,12 @@ if ($info['error']) {
     }
     ?>
         <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="reset" value="<?php echo __('Reset'); ?>">
             <input type="button" name="cancel" class="close"
                 value="<?php echo __('No, Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="submit" value="<?php echo __('Yes, Delete User'); ?>">
         </span>
         </p>

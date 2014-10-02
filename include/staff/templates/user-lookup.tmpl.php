@@ -54,11 +54,11 @@ if ($info['error']) {
     <div class="clear"></div>
     <hr>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" name="cancel" class="close"  value="<?php
             echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="submit" value="<?php echo __('Continue'); ?>">
         </span>
      </p>
@@ -73,11 +73,11 @@ if ($info['error']) {
     </table>
     <hr>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="reset" value="<?php echo __('Reset'); ?>">
             <input type="button" name="cancel" class="<?php echo $user ?  'cancel' : 'close' ?>"  value="<?php echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="submit" value="<?php echo __('Add User'); ?>">
         </span>
      </p>

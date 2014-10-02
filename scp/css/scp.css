@@ -1761,6 +1761,10 @@ div.selected-signature .inner {
     background: #fc9f41; /* Old browsers */
     color: rgba(255,255,255,0.8) !important;
 }
+#sequences .manage-buttons {
+    display: inline-block;
+    margin-right: 60px;
+}
 
 tr.disabled td,
 tr.disabled th {

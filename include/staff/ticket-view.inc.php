@@ -57,12 +57,12 @@ if($ticket->isOverdue())
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
              <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a></h2>
         </td>
-        <td width="auto" class="right_align has_bottom_border">
+        <td width="auto" class="flush-right has_bottom_border">
             <?php
             if ($thisstaff->canBanEmails()
                     || $thisstaff->canEditTickets()
                     || ($dept && $dept->isManager($thisstaff))) { ?>
-            <span class="action-button" data-dropdown="#action-dropdown-more">
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
                 <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
                 <i class="icon-caret-down"></i>
             </span>
@@ -72,17 +72,17 @@ if($ticket->isOverdue())
             echo TicketStatus::status_options();
 
             if ($thisstaff->canEditTickets()) { ?>
-                <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
+                <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
                     echo __('Edit'); ?></a>
             <?php
             }
             if ($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
-                <a id="ticket-claim" class="action-button confirm-action" href="#claim"><i class="icon-user"></i> <?php
+                <a id="ticket-claim" class="action-button pull-right confirm-action" href="#claim"><i class="icon-user"></i> <?php
                     echo __('Claim'); ?></a>
 
             <?php
             }?>
-            <span class="action-button" data-dropdown="#action-dropdown-print">
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-print">
                 <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> <?php
                     echo __('Print'); ?></a>
                 <i class="icon-caret-down"></i>

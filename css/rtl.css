@@ -49,6 +49,7 @@
 }
 .rtl #msg_notice,
 .rtl #warning_bar,
+.rtl #msg_warning,
 .rtl #msg_error,
 .rtl .error-banner {
     background-position: 99% 50%;
@@ -68,4 +69,24 @@
 .rtl .draft-saved {
     right: initial;
     left: 0.5em;
+}
+.rtl #sequences .manage-buttons {
+    margin-right: initial;
+    margin-left: 60px;
+}
+.rtl .row-item .button-group {
+    right: initial;
+    left: 0;
+}
+.rtl .row-item .button-group div {
+    padding-left: 9px;
+    padding-right: 12px;
+}
+.rtl .row-item .delete {
+    border-left: none;
+    border-right: 1px solid rgba(0,0,0,0.7);
+}
+.rtl [class^="icon-"].pull-left, [class*=" icon-"].pull-left {
+    margin-right: 0;
+    margin-left: 0.3em;
 }

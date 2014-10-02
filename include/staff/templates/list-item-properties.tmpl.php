@@ -50,11 +50,11 @@
         </table>
         <hr>
         <p class="full-width">
-            <span class="buttons" style="float:left">
+            <span class="buttons pull-left">
                 <input type="reset" value="<?php echo __('Reset'); ?>">
                 <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
             </span>
-            <span class="buttons" style="float:right">
+            <span class="buttons pull-right">
                 <input type="submit" value="<?php echo __('Save'); ?>">
             </span>
          </p>

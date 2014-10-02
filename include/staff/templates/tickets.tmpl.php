@@ -56,7 +56,7 @@ if ($results) {
     }
 }
 ?>
-<div style="width:700px; float:left;">
+<div style="width:700px;" class="pull-left">
    <?php
     if ($results) {
         echo '<strong>'.sprintf(_N('Showing %d ticket', 'Showing %d tickets',
@@ -66,7 +66,7 @@ if ($results) {
     }
    ?>
 </div>
-<div style="float:right;text-align:right;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-right:5px;">
     <?php
     if ($user) { ?>
     <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
