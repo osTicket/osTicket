@@ -41,6 +41,7 @@ class i18n_Compiler extends Module {
     static $crowdin_api_url = 'http://i18n.osticket.com/api/project/{project}/{command}';
 
     function _http_get($url) {
+        $this->stdout->write(">>> Downloading $url\n");
         #curl post
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -197,6 +198,25 @@ class i18n_Compiler extends Module {
         else
             $this->stderr->write(str_replace('_','-',$lang)
                 .": Unable to fetch jQuery UI Datepicker locale file\n");
+
+        // True type fonts for PDF printing
+        $langs = (include I18N_DIR . 'langs.php');
+        $info = $langs[$lang];
+        if (isset($info['fonts'])) {
+            foreach ($info['fonts'] as $name => $types) {
+                foreach ($types as $code => $fullname) {
+                    list($ttf, $url) = $fullname;
+                    if (!$url)
+                        continue;
+                    list($code, $file) = $this->_http_get($url);
+                    if ($code == 200)
+                        $phar->addFromString('fonts/'.$ttf, $file);
+                    else
+                        $this->stderr->write(
+                            "*** Unable to fetch $url\n");
+                }
+            }
+        }
 
         // Add in the messages.mo.php file
         if ($po_file) {

@@ -77,7 +77,7 @@ $this->biDirectional=false;			// automatically determine BIDI text in LTR page
 $this->autoFontGroupSize = 2;			// 1: individual words are spanned; 2: words+; 3: as big chunks as possible.
 $this->useLang = true;				// Default changed in mPDF 4.0
 
-$this->useSubstitutions = false;		// Substitute missing characters in UTF-8(multibyte) documents - from other fonts
+$this->useSubstitutions = true;		// Substitute missing characters in UTF-8(multibyte) documents - from other fonts
 $this->falseBoldWeight = 5;			// Weight for bold text when using an artificial (outline) bold; value 0 (off) - 10 (rec. max)
 
 // CONFIGURATION

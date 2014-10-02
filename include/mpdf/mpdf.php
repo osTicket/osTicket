@@ -1220,7 +1220,9 @@ function mPDF($mode='',$format='A4',$default_font_size=0,$default_font='',$mgl=1
 		$this->useSubstitutions = true;
 		$this->SetSubstitutions();
 	}
-	else { $this->useSubstitutions = false; }
+    // osTicket custom — seems that substitions are necessary for eastern
+    // languages to work with packaged fonts
+	//else { $this->useSubstitutions = false; }
 
 /*-- HTML-CSS --*/
 
@@ -3148,7 +3150,10 @@ function AddFont($family,$style='') {
 		if (!file_exists($ttffile)) { $ttffile = ''; }
 	}
 	if (!$ttffile) {
-		$ttffile = _MPDF_TTFONTPATH.$this->fontdata[$family][$stylekey];
+		$ttffile = $this->fontdata[$family][$stylekey];
+        if ($ttffile[0] != '/' && $ttffile[1] != ':' && strpos($ttffile, 'phar://') !== 0)
+            // Not an absolute path
+            $ttffile = _MPDF_TTFONTPATH.$ttffile;
 		if (!file_exists($ttffile)) { die("mPDF Error - cannot find TTF TrueType font file - ".$ttffile); }
 	}
 	$ttfstat = stat($ttffile);
