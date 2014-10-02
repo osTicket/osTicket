@@ -389,11 +389,13 @@ $tcount+= $ticket->getNumNotes();
             <tr>
                 <th colspan="4" width="100%">
                 <div>
+                    <span class="pull-left">
                     <span style="display:inline-block"><?php
                         echo Format::db_datetime($entry['created']);?></span>
-                    <span style="display:inline-block;padding-left:1em" class="faded title"><?php
+                    <span style="display:inline-block;padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
-                    <span style="float:right;white-space:no-wrap;display:inline-block">
+                    </span>
+                    <span class="pull-right" style="white-space:no-wrap;display:inline-block">
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
