@@ -919,14 +919,14 @@ ul.tabs li a {
     height:18px;
     line-height:20px;
     color:#444;
-    display:block;
-    float:left;
+    display:inline-block;
     outline:none;
     position:relative;
-    top:0;
+    bottom:1px;
     background:#fbfbfb;
     border:1px solid #eee;
     border-bottom:none;
+    text-align: center;
 }
 
 #response_options .reply_tab.tell {
@@ -943,6 +943,7 @@ ul.tabs li a.active {
     border:1px solid #aaa;
     border-top:2px solid #81a9d7;
     border-bottom:none;
+    bottom: 0;
 }
 
 #response_options > form {

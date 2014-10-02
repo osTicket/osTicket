@@ -632,7 +632,7 @@ print $response_form->getField('attachments')->render();
             </tr>
          </tbody>
         </table>
-        <p  style="padding-left:165px;">
+        <p  style="padding:0 165px;">
             <input class="btn_sm" type="submit" value="<?php echo __('Post Reply');?>">
             <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
         </p>

@@ -90,3 +90,12 @@
     margin-right: 0;
     margin-left: 0.3em;
 }
+.rtl ul.tabs {
+    padding-left: 4px;
+    padding-right: 20px;
+    text-align:right;
+}
+.rtl #response_options ul.tabs {
+    padding-right:190px;
+    padding-left: 4px;
+}

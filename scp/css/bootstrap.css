@@ -1268,7 +1268,7 @@ legend + .control-group {
 }
 .nav-tabs > li,
 .nav-pills > li {
-  float: left;
+  display: inline-block;
 }
 .nav-tabs > li > a,
 .nav-pills > li > a {
