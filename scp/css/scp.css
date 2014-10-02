@@ -782,9 +782,8 @@ h2 .reload {
 }
 
 #threads li a {
-    display:block;
+    display:inline-block;
     width:auto;
-    float:left;
     height:30px;
     line-height:30px;
     border-top:1px solid #F4FAFF;

@@ -145,28 +145,19 @@ RedactorPlugins.textdirection = {
 
         var button = this.buttonAdd('textdirection', __('Change Text Direction'),
             false, dropdown);
+
+        if (this.opts.direction)
+            this.setRtl();
     },
     setRtl: function()
     {
-        if (!this.opts.linebreaks) {
-            this.bufferSet();
-            this.blockSetAttr('dir', 'rtl');
-        }
-        else {
-            this.$editor.attr('dir', 'rtl');
-        }
-        this.$box.removeClass('ltr').addClass('rtl');
+        this.bufferSet();
+        this.blockSetAttr('dir', 'rtl');
 
     },
     setLtr: function()
     {
-        if (!this.opts.linebreaks) {
-            this.bufferSet();
-            this.blockSetAttr('dir', 'ltr');
-        }
-        else {
-            this.$editor.attr('dir', 'ltr');
-        }
-        this.$box.removeClass('rtl').addClass('ltr');
+        this.bufferSet();
+        this.blockSetAttr('dir', 'ltr');
     }
 };
