@@ -110,4 +110,10 @@
 .rtl .action-dropdown ul {
     text-align: right;
 }
-  text-align: left;
+.rtl .file {
+    padding-left: initial;
+    padding-right: 20px;
+    margin-right: initial;
+    margin-left: 20px;
+    background: url(../scp/images/icons/file.gif) 100% 50% no-repeat;
+}

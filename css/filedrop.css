@@ -26,15 +26,19 @@
     margin: 0;
     border-radius: 5px;
 }
+.rtl .filedrop .files .file {
+    padding-left: 10px;
+    padding-right: 20px;
+}
 .filedrop .files .file:hover {
    background-color: rgba(0, 0, 0, 0.05);
 }
 .filedrop .files .file .filesize {
-  margin-left: 1em;
+  margin: 0 1em;
   color: #999;
 }
 .filedrop .files .file .upload-rate {
-  margin-right: 10px;
+  margin: 0 10px;
   color: #aaa;
 }
 .filedrop .files .file .trash {
@@ -54,6 +58,11 @@
   display: inline-block;
   float: left;
   padding-right: 10px;
+}
+.rtl .filedrop .preview {
+  padding-right: initial;
+  padding-left: 10px;
+  float: right;
 }
 .redactor_box + .filedrop .dropzone,
 .redactor_box + div > .filedrop .dropzone,
@@ -112,6 +121,9 @@
   background-color: #428bca;
   -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
           box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+}
+.rtl .progress-bar {
+  float: right;
 }
 .progress-bar:not(.active) {
   -webkit-transition: width .6s ease;
