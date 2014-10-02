@@ -16,7 +16,7 @@
 require('staff.inc.php');
 require_once(INCLUDE_DIR.'class.attachment.php');
 
-// Basic checks
+//Basic checks
 if (!$thisstaff
         || !$_GET['id']
         || !$_GET['h']
@@ -30,7 +30,13 @@ if (!$thisstaff
         )
     Http::response(404, __('Unknown or invalid file'));
 
-if (!$ticket->checkStaffAccess($thisstaff))
+//Validate session access hash - we want to make sure the link is FRESH! and the user has access to the parent ticket!!
+$vhash=md5($attachment->getFileId().session_id().strtolower($file->getKey()));
+if (strcasecmp(trim($_GET['h']), $vhash)
+        || !($thread=$attachment->getThread())
+        || !($object=$thread->getObject())
+        || !$object instanceof Ticket
+        || !$object->checkStaffAccess($thisstaff))
     die(__('Access Denied'));
 
 //Download the file..
