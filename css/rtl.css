@@ -99,3 +99,15 @@
     padding-right:190px;
     padding-left: 4px;
 }
+.rtl .action-button i.icon-caret-down {
+    border-left: none;
+    border-right: 1px solid #aaa;
+    margin-left: 0;
+    margin-right: 5px;
+    padding-left: 0;
+    padding-right: 5px;
+}
+.rtl .action-dropdown ul {
+    text-align: right;
+}
+  text-align: left;

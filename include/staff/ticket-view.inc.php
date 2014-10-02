@@ -63,8 +63,8 @@ if($ticket->isOverdue())
                     || $thisstaff->canEditTickets()
                     || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
+                <i class="icon-caret-down pull-right"></i>
                 <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-                <i class="icon-caret-down"></i>
             </span>
             <?php
             }
@@ -83,9 +83,9 @@ if($ticket->isOverdue())
             <?php
             }?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-print">
+                <i class="icon-caret-down pull-right"></i>
                 <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> <?php
                     echo __('Print'); ?></a>
-                <i class="icon-caret-down"></i>
             </span>
             <div id="action-dropdown-print" class="action-dropdown anchor-right">
               <ul>
