@@ -92,7 +92,8 @@ class SearchInterface {
                 $model->getBody()->getSearchable(), $new,
                 array(
                     'title' =>      $model->getTitle(),
-                    'ticket_id' =>  $model->getTicketId(),
+                    //TODO: send attribute of object_id
+                    'ticket_id' =>  $model->getThread()->getObjectId(),
                     'created' =>    $model->getCreateDate(),
                 )
             );
@@ -218,31 +219,15 @@ class MysqlSearchBackend extends SearchBackend {
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
-        switch (true) {
-        case $model instanceof ThreadEntry:
-            $type = 'H';
-            break;
-        case $model instanceof Ticket:
-            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
-            $type = 'T';
-            break;
-        case $model instanceof User:
-            $content .= implode("\n", $attrs['emails']);
-            $type = 'U';
-            break;
-        case $model instanceof Organization:
-            $type = 'O';
-            break;
-        case $model instanceof FAQ:
-            $type = 'K';
-            break;
-        case $model instanceof AttachmentFile:
-            $type = 'F';
-            break;
-        default:
-            // Not indexed
+
+
+        if (!($type=ObjectModel::getType($model)))
             return;
-        }
+
+        if ($model instanceof Ticket)
+            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
+        elseif ($model instanceof User)
+            $content .= implode("\n", $attrs['emails']);
 
         $title = $attrs['title'] ?: '';
 
