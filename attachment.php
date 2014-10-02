@@ -17,7 +17,7 @@
 require('secure.inc.php');
 require_once(INCLUDE_DIR.'class.attachment.php');
 //Basic checks
-if(!$thisclient
+if (!$thisclient
         || !$_GET['id']
         || !$_GET['h']
         || !($attachment=Attachment::lookup($_GET['id']))
@@ -26,9 +26,11 @@ if(!$thisclient
 
 //Validate session access hash - we want to make sure the link is FRESH! and the user has access to the parent ticket!!
 $vhash=md5($attachment->getFileId().session_id().strtolower($file->getKey()));
-if(strcasecmp(trim($_GET['h']),$vhash)
-        || !($ticket=$attachment->getTicket())
-        || !$ticket->checkUserAccess($thisclient))
+if (strcasecmp(trim($_GET['h']), $vhash)
+        || !($thread=$attachment->getThread())
+        || !($object=$thread->getObject())
+        || !$object instanceof Ticket
+        || !$object->checkUserAccess($thisclient))
     Http::response(404, __('Unknown or invalid file'));
 //Download the file..
 $file->download();

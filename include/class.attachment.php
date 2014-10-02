@@ -20,13 +20,16 @@ class Attachment {
     var $id;
     var $file_id;
 
-    var $info;
+    var $ht;
+    var $thread;
 
     function Attachment($id, $tid=0) {
 
-        $sql = ' SELECT * FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' WHERE id='.db_input($id);
+        $sql = 'SELECT a.*, e.thread_id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' a '
+             . 'LEFT JOIN '.THREAD_ENTRY_TABLE.' e ON (e.id = a.thread_entry_id) '
+             . 'WHERE a.id='.db_input($id);
         if($tid)
-            $sql.=' AND thread_entry_id='.db_input($tid);
+            $sql.=' AND a.thread_entry_id='.db_input($tid);
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
@@ -36,7 +39,7 @@ class Attachment {
         $this->id=$this->ht['id'];
         $this->file_id=$this->ht['file_id'];
 
-        $this->file=null;
+        $this->file = $this->thread = null;
 
         return true;
     }
@@ -68,8 +71,16 @@ class Attachment {
         return $this->getHashtable();
     }
 
+    function getThread() {
+
+        if (!isset($this->thread))
+            $this->thread = Thread::lookup($this->ht['thread_id']);
+
+        return $this->thread;
+    }
+
     /* Static functions */
-    function getIdByFileHash($hash, $tid=0) {
+    static function getIdByFileHash($hash, $tid=0) {
         $sql='SELECT a.id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' a '
             .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
             .' WHERE f.`key`='.db_input($hash);
@@ -79,7 +90,7 @@ class Attachment {
         return db_result(db_query($sql));
     }
 
-    function lookup($var, $tid=0) {
+    static function lookup($var, $tid=0) {
 
         $id = is_numeric($var) ? $var : self::getIdByFileHash($var, $tid);
 
