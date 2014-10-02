@@ -117,3 +117,27 @@
     margin-left: 20px;
     background: url(../scp/images/icons/file.gif) 100% 50% no-repeat;
 }
+.rtl .floating-options {
+    right: auto;
+    left: 0;
+    padding-right: initial;
+    padding-left: 5px;
+}
+.rtl .quicknote .header .header-right {
+    right: auto;
+    left: 1em;
+}
+.rtl .quicknote .header .options {
+    border-right: 1px solid rgba(0,0,0,0.2);
+    border-left: none;
+    padding-right: 10px;
+    padding-left: initial;
+    margin-right: 5px;
+    margin-left: initial;
+}
+.rtl i.note-type {
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    border-right: none;
+    padding-left: 8px;
+    padding-right: initial;
+}
