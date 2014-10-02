@@ -65,8 +65,17 @@ class Thread {
         return $this->ht['object_type'];
     }
 
-    function getObjectId() {
-        return $this->ht['object_id'];
+    function getObject() {
+
+        if (!$this->_object)
+            $this->_object = ObjectModel::lookup(
+                    $this->getObjectId(), $this->getObjectType());
+
+        return $this->_object;
+    }
+
+    function getNumAttachments() {
+        return $this->ht['attachments'];
     }
 
     function getNumEntries() {
