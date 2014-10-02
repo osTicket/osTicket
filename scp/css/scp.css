@@ -144,8 +144,7 @@ div#header a {
 }
 
 #nav .active, #nav .inactive {
-    display:block;
-    float:left;
+    display:inline-block;
     min-width:95px;
     width: auto;
     padding-left: 10px;
@@ -254,8 +253,7 @@ div#header a {
 }
 
 #sub_nav a {
-    display:block;
-    float:left;
+    display:inline-block;
     padding:0 10px 0 21px;
     background-position:0 50%;
     background-repeat:no-repeat;
