@@ -306,6 +306,14 @@ Class ThreadEntry {
     function getTitle() {
         return $this->ht['title'];
     }
+	 
+	function getTimeSpent() {
+        return $this->ht['time_spent'];
+    }
+
+    function getTimeType() {
+        return $this->ht['time_type'];
+    }
 
     function getBody() {
         return ThreadBody::fromFormattedText($this->ht['body'], $this->ht['format']);
@@ -1033,7 +1041,17 @@ Class ThreadEntry {
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
+			
+		//20140708: ASIJB: Duplicating poster logic, looks like it verifies variable.
+        $time_spent = $vars['time_spent'];
+        if ($time_spent && is_object($time_spent))
+            $time_spent = (string) $time_spent;
+        $time_type = $vars['time_type'];
+        if ($time_type && is_object($time_type))
+            $time_type = (string) $time_type;
+        //20140708: ASIJB: END Duplicating poster logic, looks like it verifies variable.<<<
 
+		
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
             .' ,ticket_id='.db_input($vars['ticketId'])

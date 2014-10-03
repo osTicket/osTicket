@@ -647,8 +647,24 @@ print $response_form->getField('attachments')->render();
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (0.75 = 45 minutes)
-                    <br />
                 </td>
+            </tr>
+            <tr>
+                <!--20140708: ASIJB: Time Type Mod-->
+                <td>
+                    <label for="time_type"><b>Time Type:</b></label>
+                </td>
+                <td>
+                    <select id="time_type" name="time_type">
+                      <option value="P">Programming</option>
+                      <option value="N">No charge</option>
+                      <option value="H">Help</option>
+                      <option value="B">Hardware</option>
+                      <option value="S">Site</option>
+                      <option value="T">Travel</option>
+                    </select>
+                </td>
+                <!--20140708: ASIJB: END Time Type Mod-->
             </tr>
             <?php } ?>
          </tbody>
@@ -743,8 +759,24 @@ print $note_form->getField('attachments')->render();
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (0.75 = 45 minutes)
-                    <br />
                 </td>
+            </tr>
+            <tr>
+                <!--20140708: ASIJB: Time Type Mod-->
+                <td>
+                    <label for="time_type"><b>Time Type:</b></label>
+                </td>
+                <td>
+                    <select id="time_type" name="time_type">
+                      <option value="P">Programming</option>
+                      <option value="N">No charge</option>
+                      <option value="H">Help</option>
+                      <option value="B">Hardware</option>
+                      <option value="S">Site</option>
+                      <option value="T">Travel</option>
+                    </select>
+                </td>
+                <!--20140708: ASIJB: END Time Type Mod-->
             </tr>
             <?php } ?>
         </table>
