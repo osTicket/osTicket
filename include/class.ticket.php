@@ -59,6 +59,43 @@ class Ticket {
         /* @trans */ 'open',
         /* @trans */ 'closed',
     );
+	// Edge: Time Spent Mod.>>>>				http://osticket.com/forum/discussion/78064/time-spent-manual-mod
+	var $timeSpent; //Time Spent on job
+	
+	function getTimeSpent(){
+        return $this->formatTime($this->timeSpent);
+    }
+	
+    function getRealTimeSpent() {
+        return $this->timeSpent;
+    }
+	
+    function formatTime($time){
+        if($time < 1){
+            $formatted = $time*60;
+            $formatted .= ' Minutes';
+        }else if ($time == 1){
+            $formatted = $time.' Hour';
+        }else{
+            $formatted = $time.' Hours';
+        }
+        return $formatted;
+    }
+	
+    function timeSpent($time){
+        if(empty($time)){
+            $time = 0.00;
+        }else{
+            if(!is_numeric($time)){
+                $time = 0.25;
+            }else{
+                $time = round($time,2);
+            }
+        }
+        $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent=time_spent+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
+        return (db_query($sql) && db_affected_rows())?true:false;
+    } 
+	// Edge: END Time Spent Mod. <<<<
 
     function Ticket($id) {
         $this->id = 0;
@@ -70,10 +107,12 @@ class Ticket {
         if(!$id && !($id=$this->getId()))
             return false;
 
+			// Edge: END Time Spent Mod. select added to SQL
         $sql='SELECT  ticket.*, lock_id, dept_name '
             .' ,IF(sla.id IS NULL, NULL, '
                 .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(distinct attach.attach_id) as attachments'
+			.' ,time_spent'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
@@ -93,6 +132,7 @@ class Ticket {
 
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['number'];
+		$this->timeSpent = $this->ht['time_spent'];		// Edge: Set time spent.
         $this->_answers = array();
 
         $this->loadDynamicData();

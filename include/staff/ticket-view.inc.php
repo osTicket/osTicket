@@ -328,6 +328,10 @@ if($ticket->isOverdue())
                     <th nowrap><?php echo __('Last Response');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
+				<tr>
+                    <th nowrap>Time Spent:</th>
+                    <td><?php echo $ticket->getTimeSpent(); // Edge: Show Time Spent. ?></td>
+                </tr>
             </table>
         </td>
     </tr>
@@ -630,6 +634,23 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
+			<?php if($ticket->isOpen()) { ?>
+            <tr>
+                <td width="120">
+                    <label><strong>Time Spent:</strong></label>
+                </td>
+                <td>
+                    <label for="current_time_spent"><b>Current Time Spent:</b></label>
+                    <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
+                    // show the current time spent (if any) ?>
+                    <label for="time_spent"><b>Time Spent:</b></label>
+                    <input type="text" name="time_spent" size="5"
+                    value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                    (0.75 = 45 minutes)
+                    <br />
+                </td>
+            </tr>
+            <?php } ?>
          </tbody>
         </table>
         <p  style="padding-left:165px;">
@@ -709,6 +730,23 @@ print $note_form->getField('attachments')->render();
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
                 </td>
             </tr>
+			<?php if($ticket->isOpen()) { ?>
+            <tr>
+                <td width="120">
+                    <label><strong>Time Spent:</strong></label>
+                </td>
+                <td>
+                    <label for="current_time_spent"><b>Current Time Spent:</b></label>
+                    <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
+                    // show the current time spent (if any) ?>
+                    <label for="time_spent"><b>Time Spent:</b></label>
+                    <input type="text" name="time_spent" size="5"
+                    value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                    (0.75 = 45 minutes)
+                    <br />
+                </td>
+            </tr>
+            <?php } ?>
         </table>
 
        <p  style="padding-left:165px;">
