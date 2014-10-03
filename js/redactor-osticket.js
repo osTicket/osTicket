@@ -233,7 +233,7 @@ $(function() {
                 'plugins': [],
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
-                'linebreaks': !$('html').hasClass('rtl'),
+                'linebreaks': true,
                 'tabFocus': false,
                 'toolbarFixedBox': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },

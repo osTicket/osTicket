@@ -146,18 +146,42 @@ RedactorPlugins.textdirection = {
         var button = this.buttonAdd('textdirection', __('Change Text Direction'),
             false, dropdown);
 
-        if (this.opts.direction)
+        if (this.opts.direction == 'rtl')
             this.setRtl();
     },
     setRtl: function()
     {
+        var c = this.getCurrent(), s = this.getSelection();
         this.bufferSet();
-        this.blockSetAttr('dir', 'rtl');
-
+        if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
+            this.linebreakHack(s);
+        }
+        else if (!c) {
+            var repl = '<div dir="rtl">' + this.get() + '</div>';
+            this.set(repl, false);
+        }
+        $(this.getCurrent()).attr('dir', 'rtl');
+        this.sync();
     },
     setLtr: function()
     {
+        var c = this.getCurrent(), s = this.getSelection();
         this.bufferSet();
-        this.blockSetAttr('dir', 'ltr');
+        if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
+            this.linebreakHack(s);
+        }
+        else if (!c) {
+            var repl = '<div dir="ltr">' + this.get() + '</div>';
+            this.set(repl, false);
+        }
+        $(this.getCurrent()).attr('dir', 'ltr');
+        this.sync();
+    },
+    linebreakHack: function(sel) {
+        var range = sel.getRangeAt(0);
+        var wrapper = document.createElement('div');
+        wrapper.appendChild(range.extractContents());
+        range.insertNode(wrapper);
+        this.selectionElement(wrapper);
     }
 };
