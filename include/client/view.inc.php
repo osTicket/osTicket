@@ -57,6 +57,10 @@ if ($thisclient && $thisclient->isGuest()
                     <th><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
                 </tr>
+				<tr>
+					<th>&nbsp;</th>
+					<td>&nbsp;</td>
+				</tr>
            </table>
        </td>
        <td width="50%">
@@ -73,6 +77,10 @@ if ($thisclient && $thisclient->isGuest()
                    <th><?php echo __('Phone');?>:</th>
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
+				<tr>
+					<th>Time Spent:</th>
+					<td><?php echo $ticket->getTimeSpent(); ?></td>
+				</tr>
             </table>
        </td>
     </tr>
