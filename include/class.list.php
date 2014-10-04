@@ -149,6 +149,16 @@ class DynamicList extends VerySimpleModel implements CustomList {
         call_user_func_array(array('parent', '__construct'), func_get_args());
         $this->_config = new Config('list.'.$this->getId());
     }
+	
+	static function getTypes($criteria) {
+
+        $types = array();
+        if (($list = DynamicList::lookup(
+                        array('type' => $criteria))))
+            $types = $list->getId();
+
+        return $types;
+    }
 
     function getId() {
         return $this->get('id');
@@ -1139,4 +1149,5 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 }
 
 TicketStatus::_inspect();
+
 ?>
