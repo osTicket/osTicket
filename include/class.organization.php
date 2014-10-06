@@ -439,8 +439,8 @@ Filter::addSupportedMatches(/*@trans*/ 'Organization Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = __('Organization').' / '.$f->getLabel();
-        if (($fi = $f->getImpl()) instanceof SelectionField) {
-            foreach ($fi->getList()->getProperties() as $p) {
+        if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+            foreach ($fi->getSubFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = __('Organization').' / '.$f->getLabel().' / '.$p->getLabel();
             }
