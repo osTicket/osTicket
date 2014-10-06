@@ -4,6 +4,8 @@ ALTER TABLE `%TABLE_PREFIX%thread`
 ALTER TABLE `%TABLE_PREFIX%thread_entry`
     DROP COLUMN `ticket_id`;
 
+DROP TABLE `%TABLE_PREFIX%ticket_attachment`;
+
 OPTIMIZE TABLE `%TABLE_PREFIX%ticket`;
 OPTIMIZE TABLE `%TABLE_PREFIX%thread`;
 OPTIMIZE TABLE `%TABLE_PREFIX%thread_entry`;

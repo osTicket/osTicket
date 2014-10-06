@@ -96,8 +96,8 @@ $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&ord
 $qselect.=' ,count(DISTINCT attach.id) as attachments ';
 $qfrom.=' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
             ON (entry.thread_id=thread.id AND entry.`type` IN ("M", "R")) ';
-$qfrom.=' LEFT JOIN '.THREAD_ENTRY_ATTACHMENT_TABLE.' attach
-            ON (attach.thread_entry_id=entry.id) ';
+$qfrom.=' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+            ON (attach.object_id=entry.id AND attach.`type` = "H") ';
 $qgroup=' GROUP BY ticket.ticket_id';
 
 $query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
