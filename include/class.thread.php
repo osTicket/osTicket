@@ -1060,6 +1060,8 @@ Class ThreadEntry {
             .' ,staff_id='.db_input($vars['staffId'])
             .' ,user_id='.db_input($vars['userId'])
             .' ,poster='.db_input($poster)
+			.' ,time_spent='.db_input($time_spent)
+            .' ,time_type='.db_input($time_type)
             .' ,source='.db_input($vars['source']);
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
