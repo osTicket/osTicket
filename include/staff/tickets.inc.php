@@ -150,6 +150,7 @@ TicketForm::ensureDynamicDataView();
 
 // Save the query to the session for exporting
 $_SESSION[':Q:tickets'] = $tickets;
+
 ?>
 
 <!-- SEARCH FORM START -->

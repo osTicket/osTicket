@@ -92,7 +92,6 @@ class Bootstrap {
 
         define('THREAD_TABLE', $prefix.'thread');
         define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
-        define('THREAD_ENTRY_ATTACHMENT_TABLE', $prefix.'thread_entry_attachment');
         define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
 
         define('TICKET_TABLE',$prefix.'ticket');

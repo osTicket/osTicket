@@ -646,18 +646,6 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry` (
   KEY `type` (`type`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_entry_attachment`;
-CREATE TABLE `%TABLE_PREFIX%thread_entry_attachment` (
-  `id` int(11) unsigned NOT NULL auto_increment,
-  `file_id` int(10) unsigned NOT NULL default '0',
-  `thread_entry_id` int(11) unsigned NOT NULL default '0',
-  `inline` tinyint(1) NOT NULL default  '0',
-  `created` datetime NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `file_id` (`file_id`),
-  KEY `ref_id` (`thread_entry_id`)
-) DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_entry_email`;
 CREATE TABLE `%TABLE_PREFIX%thread_entry_email` (
   `id` int(11) unsigned NOT NULL auto_increment,

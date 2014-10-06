@@ -1,9 +1,0 @@
-ALTER TABLE `%TABLE_PREFIX%thread`
-    DROP COLUMN `tid`;
-
-ALTER TABLE `%TABLE_PREFIX%thread_entry`
-    DROP COLUMN `ticket_id`;
-
-OPTIMIZE TABLE `%TABLE_PREFIX%ticket`;
-OPTIMIZE TABLE `%TABLE_PREFIX%thread`;
-OPTIMIZE TABLE `%TABLE_PREFIX%thread_entry`;

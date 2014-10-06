@@ -21,31 +21,21 @@ class Attachment {
     var $file_id;
 
     var $ht;
-    var $thread;
+    var $object;
 
-    function Attachment($id, $tid=0) {
+    function Attachment($id) {
 
-        $sql = 'SELECT a.*, e.thread_id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' a '
-             . 'LEFT JOIN '.THREAD_ENTRY_TABLE.' e ON (e.id = a.thread_entry_id) '
+        $sql = 'SELECT a.* FROM '.ATTACHMENT_TABLE.' a '
              . 'WHERE a.id='.db_input($id);
-        if($tid)
-            $sql.=' AND a.thread_entry_id='.db_input($tid);
+        if (!($res=db_query($sql)) || !db_num_rows($res))
+            return;
 
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht=db_fetch_array($res);
-
-        $this->id=$this->ht['id'];
-        $this->file_id=$this->ht['file_id'];
-
-        $this->file = $this->thread = null;
-
-        return true;
+        $this->ht = db_fetch_array($res);
+        $this->file = $this->object = null;
     }
 
     function getId() {
-        return $this->id;
+        return $this->ht['id'];
     }
 
     function getFileId() {
@@ -67,32 +57,32 @@ class Attachment {
         return $this->getHashtable();
     }
 
-    function getThread() {
+    function getObject() {
 
-        if (!isset($this->thread))
-            $this->thread = Thread::lookup($this->ht['thread_id']);
+        if (!isset($this->object))
+            $this->object = ObjectModel::lookup(
+                    $this->ht['object_id'], $this->ht['type']);
 
-        return $this->thread;
+        return $this->object;
     }
 
-    /* Static functions */
-    static function getIdByFileHash($hash, $tid=0) {
-        $sql='SELECT a.id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE.' a '
+    static function getIdByFileHash($hash, $objectId=0) {
+        $sql='SELECT a.id FROM '.ATTACHMENT_TABLE.' a '
             .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
             .' WHERE f.`key`='.db_input($hash);
-        if($tid)
-            $sql.=' AND a.thread_entry_id='.db_input($tid);
+        if ($objectId)
+            $sql.=' AND a.object_id='.db_input($objectId);
 
         return db_result(db_query($sql));
     }
 
-    static function lookup($var, $tid=0) {
+    static function lookup($var, $objectId=0) {
 
-        $id = is_numeric($var) ? $var : self::getIdByFileHash($var, $tid);
+        $id = is_numeric($var) ? $var : self::getIdByFileHash($var, $oid);
 
         return ($id
                 && is_numeric($id)
-                && ($attach = new Attachment($id, $tid))
+                && ($attach = new Attachment($id, $oid))
                 && $attach->getId()==$id
             ) ? $attach : null;
     }
