@@ -35,7 +35,7 @@ class AttachmentFile {
             .' FROM '.FILE_TABLE.' f '
             .' LEFT JOIN '.ATTACHMENT_TABLE.' a
                 ON(a.file_id=f.id) '
-            .' LEFT JOIN '.THREAD_ENTRY_ATTACHMENT_TABLE.' t
+            .' LEFT JOIN '.ATTACHMENT_TABLE.' t
                 ON(t.file_id = f.id) '
             .' WHERE f.id='.db_input($id)
             .' GROUP BY f.id';
@@ -579,9 +579,8 @@ class AttachmentFile {
         // XXX: Allow plugins to define filetypes which do not represent
         //      files attached to tickets or other things in the attachment
         //      table and are not logos
+        //FIXME: Just user straight up left join
         $sql = 'SELECT id FROM '.FILE_TABLE.' WHERE id NOT IN ('
-                .'SELECT file_id FROM '.THREAD_ENTRY_ATTACHMENT_TABLE
-                .' UNION '
                 .'SELECT file_id FROM '.ATTACHMENT_TABLE
             .") AND `ft` = 'T' AND TIMESTAMPDIFF(DAY, `created`, CURRENT_TIMESTAMP) > 1";
 

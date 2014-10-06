@@ -410,12 +410,13 @@ $tcount+= $ticket->getNumNotes();
                 echo $entry['id']; ?>"><div><?php
                 echo $entry['body']->toHtml(); ?></div></td></tr>
             <?php
+            $urls = null;
             if($entry['attachments']
                     && ($tentry = $ticket->getThreadEntry($entry['id']))
                     && ($urls = $tentry->getAttachmentUrls())
                     && ($links = $tentry->getAttachmentsLinks())) {?>
             <tr>
-                <td class="info" colspan="4"><?php echo $tentry->getAttachmentsLinks(); ?></td>
+                <td class="info" colspan="4"><?php echo $links; ?></td>
             </tr> <?php
             }
             if ($urls) { ?>

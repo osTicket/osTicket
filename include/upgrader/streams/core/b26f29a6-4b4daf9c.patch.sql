@@ -58,21 +58,26 @@ UPDATE  `%TABLE_PREFIX%ticket` t1
     LEFT JOIN  `%TABLE_PREFIX%thread` t2 ON ( t2.object_id = t1.ticket_id )
     SET t1.thread_id = t2.id;
 
--- convert ticket_attachment to thread_entry_attachment
-ALTER TABLE  `%TABLE_PREFIX%ticket_attachment`
-    CHANGE  `attach_id`  `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT,
-    CHANGE  `ref_id`  `thread_entry_id` INT( 11 ) UNSIGNED NOT NULL DEFAULT  '0';
-    DROP  `ticket_id`;
+-- move records in ticket_attachment to generic attachment table
+ALTER TABLE  `%TABLE_PREFIX%attachment`
+    DROP PRIMARY KEY,
+    ADD  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST,
+    ADD UNIQUE  `file-type` (`object_id`, `file_id`, `type`);
 
-RENAME TABLE `%TABLE_PREFIX%ticket_attachment` TO  `%TABLE_PREFIX%thread_entry_attachment`;
+INSERT INTO `%TABLE_PREFIX%attachment`
+    (`object_id`, `type`, `file_id`, `inline`)
+    SELECT `ref_id`, 'H', `file_id`, `inline`
+    FROM `%TABLE_PREFIX%ticket_attachment`;
 
--- convert ticket_email_info to thread_entry_mid
+-- convert ticket_email_info to thread_entry_email
 ALTER TABLE  `%TABLE_PREFIX%ticket_email_info`
     CHANGE  `thread_id`  `thread_entry_id` INT( 11 ) UNSIGNED NOT NULL,
     CHANGE  `email_mid`  `mid` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
     ADD INDEX (  `thread_entry_id` );
 
 RENAME TABLE `%TABLE_PREFIX%ticket_email_info` TO  `%TABLE_PREFIX%thread_entry_email`;
+
+
 
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`
