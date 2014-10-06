@@ -406,7 +406,7 @@ $tcount+= $ticket->getNumNotes();
                 </div>
 				<?php if ($entry['time_spent'] !== '0.00') { ?>
 					<div>
-						<?php echo Format::htmlchars($entry['time_spent'] .' '. $entry['time_type']); ?> <!-- Translate time_type to English -->
+						<?php echo $ticket->convTimeSpent($entry['time_spent']) .' - '. $ticket->convTimeType($entry['time_type']); ?>
 					</div>
 				<?php } ?>
                 </th>
