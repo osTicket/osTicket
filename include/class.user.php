@@ -493,13 +493,15 @@ class User extends UserModel {
         return User::importCsv($stream, $extra);
     }
 
-    function updateInfo($vars, &$errors) {
+    function updateInfo($vars, &$errors, $staff=false) {
 
         $valid = true;
         $forms = $this->getDynamicData();
         foreach ($forms as $cd) {
             $cd->setSource($vars);
-            if (!$cd->isValidForClient())
+            if ($staff && !$cd->isValidForStaff())
+                $valid = false;
+            elseif (!$cd->isValidForClient())
                 $valid = false;
             elseif ($cd->get('type') == 'U'
                         && ($form= $cd->getForm())
