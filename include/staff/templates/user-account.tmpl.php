@@ -104,8 +104,13 @@ if ($info['error']) {
                     <?php echo __('Username'); ?>:
                 </td>
                 <td>
-                    <input type="text" size="35" name="username" value="<?php echo $info['username'] ?: $user->getEmail(); ?>">
-                    &nbsp;<span class="error">&nbsp;<?php echo $errors['username']; ?></span>
+                    <input type="text" size="35" name="username" value="<?php echo $info['username']; ?>">
+                    <i class="help-tip icon-question-sign" data-title="<?php
+                        echo __("Login via email"); ?>"
+                    data-content="<?php echo sprintf('%s: %s',
+                        __('Users can always sign in with their email address'),
+                        $user->getEmail()); ?>"></i>
+                    <div class="error">&nbsp;<?php echo $errors['username']; ?></div>
                 </td>
             </tr>
             <tr>

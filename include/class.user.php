@@ -957,15 +957,15 @@ class UserAccount extends UserAccountModel {
                 $errors['passwd2'] = __('Passwords do not match');
         }
 
+        // Make sure the username is not an email.
+        if ($vars['username'] && Validator::is_email($vars['username']))
+            $errors['username'] =
+                __('Users can always sign in with their email address');
+
         if ($errors) return false;
 
         $this->set('timezone_id', $vars['timezone_id']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
-
-        // Make sure the username is not an email.
-        if ($vars['username'] && Validator::is_email($vars['username']))
-             $vars['username'] = '';
-
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
