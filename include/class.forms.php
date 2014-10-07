@@ -1281,6 +1281,10 @@ class TextboxField extends FormField {
                     'translatable'=>$this->getTranslateTag('validator-error')
                 ),
                 'hint'=>__('Message shown to user if the input does not match the validator'))),
+            'unique' => new BooleanField(array(
+                'id'=>7, 'label'=>__('Unique Values'), 'default'=>false,
+                'configuration'=>array('desc'=>'Require unique values for this field'),
+                )),
             'placeholder' => new TextboxField(array(
                 'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Text shown in before any input from the user'),
@@ -1314,6 +1318,22 @@ class TextboxField extends FormField {
                 }, __('Value does not match required pattern')
             ),
         );
+
+        // Enforce unique values if configured
+        if ($config['unique']) {
+            $obj = DynamicFormEntryAnswer::objects()->filter(array(
+                'field_id'=>$this->get('id'),
+                'value'=>$value
+            ));
+            if ($a = $this->getAnswer()) {
+                $obj->filter(Q::not(array('entry_id'=>$a->entry_id)));
+            }
+            $obj = $obj->first();
+            if ($obj) {
+                $this->_errors[] = 'This value is already in use';
+            }
+        }
+
         // Support configuration forms, as well as GUI-based form fields
         $valid = $this->get('validator');
         if (!$valid) {
