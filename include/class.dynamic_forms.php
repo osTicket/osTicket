@@ -1008,10 +1008,12 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getValue() {
-        if (!$this->_value && isset($this->value))
-            $this->_value = $this->getField()->to_php(
-                $this->get('value'), $this->get('value_id'));
-        return $this->_value;
+        $value = $this->getField()->to_php(
+            $this->get('value'), $this->get('value_id'));
+        if (!$value && $this->getEntry()->getSource()) {
+            return $this->getEntry()->getField(
+                $this->getField()->get('name'))->getClean();
+        }
     }
 
     function getIdValue() {
