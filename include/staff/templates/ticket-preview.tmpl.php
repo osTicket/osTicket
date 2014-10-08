@@ -28,7 +28,7 @@ elseif($msg)
 elseif($warn)
     echo sprintf('<div id="msg_warning">%s</div>',$warn);
 
-echo '<ul class="tabs">';
+echo '<ul class="tabs" id="ticket-preview">';
 
 echo '
         <li class="active"><a id="preview_tab" href="#preview"
@@ -41,7 +41,7 @@ echo sprintf('
             $ticket->getNumCollaborators());
 }
 echo '</ul>';
-
+echo '<div id="ticket-preview_container">';
 echo '<div class="tab_content" id="preview">';
 echo '<table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
 
@@ -116,7 +116,7 @@ echo '
     </table>';
 echo '</div>'; // ticket preview content.
 ?>
-<div class="tab_content" id="collab" style="display:none;">
+<div class="hidden tab_content" id="collab">
     <table border="0" cellspacing="" cellpadding="1">
         <colgroup><col style="min-width: 250px;"></col></colgroup>
         <?php
@@ -144,6 +144,7 @@ echo '</div>'; // ticket preview content.
                                 ? __('Manage Collaborators') : __('Add Collaborator')
                                 );
     ?>
+</div>
 </div>
 <?php
 $options = array();

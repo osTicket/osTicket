@@ -34,11 +34,11 @@ if ($info['error']) {
     } ?>
 
 <div class="clear"></div>
-<ul class="tabs" style="margin-top:5px">
+<ul class="tabs" id="user_tabs" style="margin-top:5px">
     <li class="active"><a href="#info-tab"
         ><i class="icon-info-sign"></i>&nbsp;<?php echo __('User'); ?></a></li>
 <?php if ($org) { ?>
-    <li><a href="#organization-tab"
+    <li><a href="#org-tab"
         ><i class="icon-fixed-width icon-building"></i>&nbsp;<?php echo __('Organization'); ?></a></li>
 <?php }
     $ext_id = "U".$user->getId();
@@ -47,6 +47,7 @@ if ($info['error']) {
         ><i class="icon-fixed-width icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>
 
+<div id="user_tabs_container">
 <div class="tab_content" id="info-tab">
 <div class="floating-options">
     <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="<?php echo __('Edit'); ?>"><i class="icon-edit"></i></a>
@@ -70,7 +71,7 @@ if ($info['error']) {
 </div>
 
 <?php if ($org) { ?>
-<div class="tab_content" id="organization-tab" style="display:none">
+<div class="hidden tab_content" id="org-tab">
 <div class="floating-options">
     <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="<?php
     echo __('Manage Organization'); ?>" class="action"><i class="icon-share"></i></a>
@@ -92,7 +93,7 @@ if ($info['error']) {
 </div>
 <?php } # endif ($org) ?>
 
-<div class="tab_content" id="notes-tab" style="display:none">
+<div class="hidden tab_content" id="notes-tab">
 <?php $show_options = true;
 foreach ($notes as $note)
     include STAFFINC_DIR . 'templates/note.tmpl.php';
@@ -103,6 +104,7 @@ foreach ($notes as $note)
 <div class="body">
     <a href="#"><i class="icon-plus icon-large"></i> &nbsp;
     <?php echo __('Click to create a new note'); ?></a>
+</div>
 </div>
 </div>
 </div>

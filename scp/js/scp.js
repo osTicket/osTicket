@@ -626,18 +626,37 @@ $.orgLookup = function (url, cb) {
 
 $.uid = 1;
 
-//Tabs
+// Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
-    var target = $('.tab_content'+$(this).attr('href'));
-    if (target.length) {
-        var ul = $(this).closest('ul');
-        ul.children('li.active').removeClass('active');
-        $(this).closest('li').addClass('active');
-        ul.parent().children('.tab_content').hide();
-        target.fadeIn('fast');
+    e.preventDefault();
+    var $this = $(this),
+        $ul = $(this).closest('ul'),
+        $container = $('#'+$ul.attr('id')+'_container');
+    if (!$container.length)
+        $container = $ul.parent();
+
+    var $tab = $($this.attr('href'), $container);
+    if (!$tab.length && $(this).data('url').length > 1) {
+        var url = 'ajax.php/' + $this.data('url');
+        $tab = $('<div>').attr('id', $this.attr('href').substr(1)).hide();
+        $container.append(
+            $tab.load(url, function () {
+                // TODO: Add / hide loading spinner
+            })
+         );
+    }
+    else {
         $.changeHash($(this).attr('href'), true);
+    }
+
+    if ($tab.length) {
+        $ul.children('li.active').removeClass('active');
+        $(this).closest('li').addClass('active');
+        $container.children(':not(ul.tabs)').hide();
+        $tab.fadeIn('fast');
         return false;
     }
+
 });
 $.changeHash = function(hash, quiet) {
   if (quiet) {
