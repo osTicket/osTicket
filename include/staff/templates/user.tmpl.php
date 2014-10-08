@@ -34,20 +34,21 @@ if ($info['error']) {
     } ?>
 
 <div class="clear"></div>
-<ul class="tabs" style="margin-top:5px">
-    <li><a href="#info-tab" class="active"
+<ul class="tabs" id="user_tabs" style="margin-top:5px">
+    <li><a id="info-tab" href="#" class="active"
         ><i class="icon-info-sign"></i>&nbsp;<?php echo __('User'); ?></a></li>
 <?php if ($org) { ?>
-    <li><a href="#organization-tab"
+    <li><a id="org-tab" href="#"
         ><i class="icon-fixed-width icon-building"></i>&nbsp;<?php echo __('Organization'); ?></a></li>
 <?php }
     $ext_id = "U".$user->getId();
     $notes = QuickNote::forUser($user, $org)->all(); ?>
-    <li><a href="#notes-tab"
+    <li><a id="notes-tab" href="#"
         ><i class="icon-fixed-width icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>
 
-<div class="tab_content" id="info-tab">
+<div id="user_tabs_container">
+<div class="tab_content" id="info-tab_content">
 <div class="floating-options">
     <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="<?php echo __('Edit'); ?>"><i class="icon-edit"></i></a>
     <a href="users.php?id=<?php echo $user->getId(); ?>" title="<?php
@@ -70,7 +71,7 @@ if ($info['error']) {
 </div>
 
 <?php if ($org) { ?>
-<div class="tab_content" id="organization-tab" style="display:none">
+<div class="tab_content" id="org-tab_content" style="display:none">
 <div class="floating-options">
     <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="<?php
     echo __('Manage Organization'); ?>" class="action"><i class="icon-share"></i></a>
@@ -92,7 +93,7 @@ if ($info['error']) {
 </div>
 <?php } # endif ($org) ?>
 
-<div class="tab_content" id="notes-tab" style="display:none">
+<div class="tab_content" id="notes-tab_content" style="display:none">
 <?php $show_options = true;
 foreach ($notes as $note)
     include STAFFINC_DIR . 'templates/note.tmpl.php';
@@ -103,6 +104,7 @@ foreach ($notes as $note)
 <div class="body">
     <a href="#"><i class="icon-plus icon-large"></i> &nbsp;
     <?php echo __('Click to create a new note'); ?></a>
+</div>
 </div>
 </div>
 </div>

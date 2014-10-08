@@ -124,26 +124,27 @@ $org = $user->getOrganization();
 </table>
 <br>
 <div class="clear"></div>
-<ul class="tabs">
+<ul class="tabs" id="user-view-tabs">
     <li><a class="active" id="tickets_tab" href="#tickets"><i
     class="icon-list-alt"></i>&nbsp;<?php echo __('User Tickets'); ?></a></li>
     <li><a id="notes_tab" href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>
-<div id="tickets" class="tab_content">
-<?php
-include STAFFINC_DIR . 'templates/tickets.tmpl.php';
-?>
-</div>
+<div id="user-view-tabs_container">
+    <div id="tickets_tab_content" class="tab_content">
+    <?php
+    include STAFFINC_DIR . 'templates/tickets.tmpl.php';
+    ?>
+    </div>
 
-<div class="tab_content" id="notes" style="display:none">
-<?php
-$notes = QuickNote::forUser($user);
-$create_note_url = 'users/'.$user->getId().'/note';
-include STAFFINC_DIR . 'templates/notes.tmpl.php';
-?>
+    <div class="tab_content" id="notes_tab_content" style="display:none">
+    <?php
+    $notes = QuickNote::forUser($user);
+    $create_note_url = 'users/'.$user->getId().'/note';
+    include STAFFINC_DIR . 'templates/notes.tmpl.php';
+    ?>
+    </div>
 </div>
-
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>

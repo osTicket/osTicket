@@ -10,10 +10,10 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<ul class="tabs">
-    <li><a href="#copy-paste" class="active"
+<ul class="tabs" id="user-import-tabs">
+    <li><a id="copy-paste_tab" href="#copy-paste" class="active"
         ><i class="icon-edit"></i>&nbsp;<?php echo __('Copy Paste'); ?></a></li>
-    <li><a href="#upload"
+    <li><a id="upload_tab" href="#upload"
         ><i class="icon-fixed-width icon-cloud-upload"></i>&nbsp;<?php echo __('Upload'); ?></a></li>
 </ul>
 <form action="<?php echo $info['action']; ?>" method="post" enctype="multipart/form-data"
@@ -26,8 +26,8 @@ if ($info['error']) {
 if ($org_id) { ?>
     <input type="hidden" name="id" value="<?php echo $org_id; ?>"/>
 <?php } ?>
-
-<div class="tab_content" id="copy-paste" style="margin:5px;">
+<div id="user-import-tabs_container">
+<div class="tab_content" id="copy-paste_tab_content" style="margin:5px;">
 <h2 style="margin-bottom:10px"><?php echo __('Name and Email'); ?></h2>
 <p><?php echo __(
 'Enter one name and email address per line.'); ?><br/><em><?php echo __(
@@ -39,7 +39,7 @@ if ($org_id) { ?>
 </textarea>
 </div>
 
-<div class="tab_content" id="upload" style="display:none;margin:5px;">
+<div class="tab_content" id="upload_tab_content" style="display:none;margin:5px;">
 <h2 style="margin-bottom:10px"><?php echo __('Import a CSV File'); ?></h2>
 <p>
 <em><?php echo sprintf(__(
@@ -71,6 +71,7 @@ if ($org_id) { ?>
 </tr></table>
 <br/>
 <input type="file" name="import"/>
+</div>
 </div>
     <hr>
     <p class="full-width">
