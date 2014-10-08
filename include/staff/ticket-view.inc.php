@@ -376,8 +376,8 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 $tcount = $ticket->getThreadCount();
 $tcount+= $ticket->getNumNotes();
 ?>
-<ul id="threads">
-    <li><a class="active" id="toggle_ticket_thread" href="#"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+<ul  class="tabs threads" id="ticket_tabs" >
+    <li><a class="active" href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
 </ul>
 <div id="ticket_tabs_container">
     <div id="ticket_thread" class="tab_content">
@@ -436,7 +436,6 @@ $tcount+= $ticket->getNumNotes();
     } else {
         echo '<p>'.__('Error fetching ticket thread - get technical help.').'</p>';
     }?>
-</div>
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>
     <div id="msg_error"><?php echo $errors['err']; ?></div>
@@ -453,7 +452,7 @@ $tcount+= $ticket->getNumNotes();
         <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
-        <li><a id="note_tab" href="#note"><?php echo __('Post Internal Note');?></a></li>
+        <li><a href="#note"><?php echo __('Post Internal Note');?></a></li>
         <?php
         if ($role->canTransferTickets()) { ?>
         <li><a href="#transfer"><?php echo __('Department Transfer');?></a></li>
@@ -579,9 +578,9 @@ $tcount+= $ticket->getNumNotes();
     echo $attrs; ?>><?php echo $draft ?: $info['response'];
                     ?></textarea>
                 <div id="reply_form_attachments" class="attachments">
-<?php
-print $response_form->getField('attachments')->render();
-?>
+                <?php
+                    print $response_form->getField('attachments')->render();
+                ?>
                 </div>
                 </td>
             </tr>
@@ -655,7 +654,8 @@ print $response_form->getField('attachments')->render();
     </form>
     <?php
     } ?>
-    <form id="note" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
+    <form id="note" class="hidden tab_content" action="tickets.php?id=<?php
+        echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
@@ -692,9 +692,9 @@ print $response_form->getField('attachments')->render();
     echo $attrs; ?>><?php echo $draft ?: $info['note'];
                         ?></textarea>
                 <div class="attachments">
-<?php
-print $note_form->getField('attachments')->render();
-?>
+                <?php
+                    print $note_form->getField('attachments')->render();
+                ?>
                 </div>
                 </td>
             </tr>
@@ -893,6 +893,8 @@ print $note_form->getField('attachments')->render();
     </form>
     <?php
     } ?>
+ </div>
+ </div>
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>

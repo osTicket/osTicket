@@ -626,7 +626,7 @@ $.orgLookup = function (url, cb) {
 
 $.uid = 1;
 
-//Tabs
+// Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
     e.preventDefault();
     var $this = $(this),
@@ -661,6 +661,7 @@ $(document).on('click.tab', 'ul.tabs li a', function(e) {
         $tab.fadeIn('fast');
         return false;
     }
+
 });
 $.changeHash = function(hash, quiet) {
   if (quiet) {
