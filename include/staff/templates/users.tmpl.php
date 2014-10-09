@@ -53,8 +53,8 @@ else
     $showing .= __("This organization doesn't have any users yet");
 
 ?>
-<div style="width:700px; float:left;"><b><?php echo $showing; ?></b></div>
-<div style="float:right;text-align:right;padding-right:5px;">
+<div style="width:700px;" class="pull-left"><b><?php echo $showing; ?></b></div>
+<div class="pull-right flush-right" style="padding-right:5px;">
     <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user"
         ><?php echo __('Add User'); ?></a></b>
     |
@@ -164,10 +164,10 @@ if ($res && $num) { //Show options..
     <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="button" value="<?php echo __('Yes, Do it!'); ?>" class="confirm">
         </span>
      </p>

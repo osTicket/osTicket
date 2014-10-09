@@ -153,7 +153,7 @@
       filenode
           .append($('<div class="filetype"></div>').addClass())
           .append($('<img class="preview" />'))
-          .append($('<div class="filename"></div>')
+          .append($('<span class="filename ltr"></div>')
             .append($('<span class="filesize"></span>').text(
               this.fileSize(parseInt(file.size))
             ))
@@ -186,7 +186,7 @@
             .attr('href', 'file.php?h='+escape(file.download))
         );
       else
-        filenode.find('.filename').prepend(document.createTextNode(file.name));
+        filenode.find('.filename').prepend($('<span>').text(file.name));
       this.$element.parent().find('.files').append(filenode);
       this.uploads.push(filenode);
       return filenode;

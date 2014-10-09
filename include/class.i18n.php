@@ -332,6 +332,29 @@ class Internationalization {
         return self::getDefaultLanguage();
     }
 
+    static function getTtfFonts() {
+        if (!class_exists('Phar'))
+            return;
+        $fonts = $subs = array();
+        foreach (self::availableLanguages() as $code=>$info) {
+            if (!$info['phar'] || !isset($info['fonts']))
+                continue;
+            foreach ($info['fonts'] as $simple => $collection) {
+                foreach ($collection as $type => $name) {
+                    list($name, $url) = $name;
+                    $ttffile = 'phar://' . $info['path'] . '/fonts/' . $name;
+                    if (file_exists($ttffile))
+                        $fonts[$simple][$type] = $ttffile;
+                }
+                if (@$collection[':sub'])
+                    $subs[] = $simple;
+            }
+        }
+        $rv = array($fonts, $subs);
+        Signal::send('config.ttfonts', null, $rv);
+        return $rv;
+    }
+
     static function bootstrap() {
 
         require_once INCLUDE_DIR . 'class.translation.php';

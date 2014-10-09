@@ -46,7 +46,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     ?>><?php echo $s->name; ?></option>
 <?php } ?>
                 </select>
-                <button class="action-button" onclick="javascript:
+                <button class="action-button pull-right" onclick="javascript:
                 $.dialog('ajax.php/sequence/manage', 205);
                 return false;
                 "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
@@ -220,7 +220,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 $tform = TicketForm::objects()->one()->getForm();
                 $f = $tform->getField('message');
 ?>
-                <a class="action-button field-config" style="float:none;overflow:inherit"
+                <a class="action-button field-config" style="overflow:inherit"
                     href="#ajax.php/form/field-config/<?php
                         echo $f->get('id'); ?>"
                     onclick="javascript:

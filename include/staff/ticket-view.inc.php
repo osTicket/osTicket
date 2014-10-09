@@ -57,14 +57,14 @@ if($ticket->isOverdue())
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
              <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a></h2>
         </td>
-        <td width="auto" class="right_align has_bottom_border">
+        <td width="auto" class="flush-right has_bottom_border">
             <?php
             if ($thisstaff->canBanEmails()
                     || $thisstaff->canEditTickets()
                     || ($dept && $dept->isManager($thisstaff))) { ?>
-            <span class="action-button" data-dropdown="#action-dropdown-more">
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
+                <i class="icon-caret-down pull-right"></i>
                 <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-                <i class="icon-caret-down"></i>
             </span>
             <?php
             }
@@ -72,20 +72,20 @@ if($ticket->isOverdue())
             echo TicketStatus::status_options();
 
             if ($thisstaff->canEditTickets()) { ?>
-                <a class="action-button" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
+                <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
                     echo __('Edit'); ?></a>
             <?php
             }
             if ($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
-                <a id="ticket-claim" class="action-button confirm-action" href="#claim"><i class="icon-user"></i> <?php
+                <a id="ticket-claim" class="action-button pull-right confirm-action" href="#claim"><i class="icon-user"></i> <?php
                     echo __('Claim'); ?></a>
 
             <?php
             }?>
-            <span class="action-button" data-dropdown="#action-dropdown-print">
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-print">
+                <i class="icon-caret-down pull-right"></i>
                 <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> <?php
                     echo __('Print'); ?></a>
-                <i class="icon-caret-down"></i>
             </span>
             <div id="action-dropdown-print" class="action-dropdown anchor-right">
               <ul>
@@ -389,11 +389,13 @@ $tcount+= $ticket->getNumNotes();
             <tr>
                 <th colspan="4" width="100%">
                 <div>
+                    <span class="pull-left">
                     <span style="display:inline-block"><?php
                         echo Format::db_datetime($entry['created']);?></span>
-                    <span style="display:inline-block;padding-left:1em" class="faded title"><?php
+                    <span style="display:inline-block;padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
-                    <span style="float:right;white-space:no-wrap;display:inline-block">
+                    </span>
+                    <span class="pull-right" style="white-space:no-wrap;display:inline-block">
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
@@ -632,7 +634,7 @@ print $response_form->getField('attachments')->render();
             </tr>
          </tbody>
         </table>
-        <p  style="padding-left:165px;">
+        <p  style="padding:0 165px;">
             <input class="btn_sm" type="submit" value="<?php echo __('Post Reply');?>">
             <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
         </p>

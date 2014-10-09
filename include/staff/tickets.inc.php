@@ -334,7 +334,7 @@ if ($results) {
 
             <?php
             if ($thisstaff->canDeleteTickets()) { ?>
-            <a id="tickets-delete" class="action-button tickets-action"
+            <a id="tickets-delete" class="action-button pull-right tickets-action"
                 href="#tickets/status/delete"><i
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
             <?php

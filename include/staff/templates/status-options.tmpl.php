@@ -15,13 +15,13 @@ $actions= array(
 ?>
 
 <span
-    class="action-button"
+    class="action-button pull-right"
     data-dropdown="#action-dropdown-statuses">
+    <i class="icon-caret-down pull-right"></i>
     <a class="tickets-action"
         href="#statuses"><i
         class="icon-flag"></i> <?php
         echo __('Change Status'); ?></a>
-    <i class="icon-caret-down"></i>
 </span>
 <div id="action-dropdown-statuses"
     class="action-dropdown anchor-right">

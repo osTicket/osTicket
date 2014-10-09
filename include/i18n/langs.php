@@ -641,7 +641,22 @@ return array(
     ),
     "th" => array(
         "name" => "Thai",
-        "nativeName" => "ไทย"
+        "nativeName" => "ไทย",
+        "fonts" => array(
+            "garuda" => array(
+                'R' => array("Garuda.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda.ttf"),
+                'B' => array("Garuda-Bold.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda-Bold.ttf"),
+                'I' => array("Garuda-Oblique.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda-Oblique.ttf"),
+                'BI' => array("Garuda-BoldOblique.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda-BoldOblique.ttf"),
+                ':sub' => true,
+            ),
+            "norasi" => array(
+                'R' => array("Norasi.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi.ttf"),
+                'B' => array("Norasi-Bold.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi-Bold.ttf"),
+                'I' => array("Norasi-Oblique.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi-Oblique.ttf"),
+                'BI' => array("Norasi-BoldOblique.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi-BoldOblique.ttf"),
+            ),
+		),
     ),
     "ti" => array(
         "name" => "Tigrinya",
