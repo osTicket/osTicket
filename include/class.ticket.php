@@ -2367,6 +2367,7 @@ class Ticket {
 
         // Create and verify the dynamic form entry for the new ticket
         $form = TicketForm::getNewInstance();
+        $form->setSource($vars);
         // If submitting via email, ensure we have a subject and such
         foreach ($form->getFields() as $field) {
             $fname = $field->get('name');
