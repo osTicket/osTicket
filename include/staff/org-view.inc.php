@@ -63,7 +63,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 </table>
 <br>
 <div class="clear"></div>
-<ul class="tabs">
+<ul class="tabs" id="orgtabs">
     <li><a class="active" id="users_tab" href="#users"><i
     class="icon-user"></i>&nbsp;<?php echo __('Users'); ?></a></li>
     <li><a id="tickets_tab" href="#tickets"><i
@@ -71,23 +71,25 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
     <li><a id="notes_tab" href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>
-<div class="tab_content" id="users">
+<div id="orgtabs_container">
+<div class="tab_content" id="users_tab_content">
 <?php
 include STAFFINC_DIR . 'templates/users.tmpl.php';
 ?>
 </div>
-<div class="tab_content" id="tickets"  style="display:none;">
+<div class="tab_content" id="tickets_tab_content"  style="display:none;">
 <?php
 include STAFFINC_DIR . 'templates/tickets.tmpl.php';
 ?>
 </div>
 
-<div class="tab_content" id="notes" style="display:none">
+<div class="tab_content" id="notes_tab_content" style="display:none">
 <?php
 $notes = QuickNote::forOrganization($org);
 $create_note_url = 'orgs/'.$org->getId().'/note';
 include STAFFINC_DIR . 'templates/notes.tmpl.php';
 ?>
+</div>
 </div>
 
 <script type="text/javascript">

@@ -320,62 +320,14 @@ $.refreshTicketView = function() {
 
 var ticket_onload = function($) {
     $('#response_options form').hide();
-    $('#ticket_notes').hide();
-    if(location.hash != "" && $('#response_options '+location.hash).length) {
+    if(location.hash != ""
+            && $('#response_options '+location.hash+'_tab_content').length) {
         $('#response_options '+location.hash+'_tab').addClass('active');
-        $('#response_options '+location.hash).show();
-    } else if(location.hash == "#notes" && $('#ticket_notes').length) {
-        $('#response_options #note_tab').addClass('active');
-        $('#response_options form').hide();
-        $('#response_options #note').show();
-        $('#ticket_thread').hide();
-        $('#ticket_notes').show();
-        $('#toggle_ticket_thread').removeClass('active');
-        $('#toggle_notes').addClass('active');
+        $('#response_options '+location.hash+'_tab_content').show();
     } else {
         $('#response_options ul.tabs li:first a').addClass('active');
-        $('#response_options '+$('#response_options ul.tabs li:first a').attr('href')).show();
+        $('#response_options '+$('#response_options ul.tabs li:first a').attr('href')+'_tab_content').show();
     }
-
-    $('#reply_tab').click(function() {
-       $(this).removeClass('tell');
-     });
-
-    $('#note_tab').click(function() {
-        if($('#response').val() != '') {
-            $('#reply_tab').addClass('tell');
-        }
-     });
-
-    $('#response_options ul.tabs li a').click(function(e) {
-        e.preventDefault();
-        $('#response_options ul.tabs li a').removeClass('active');
-        $(this).addClass('active');
-        $('#response_options form').hide();
-        //window.location.hash = this.hash;
-        $('#response_options '+$(this).attr('href')).show();
-        $("#msg_error, #msg_notice, #msg_warning").fadeOut();
-     });
-
-    $('#toggle_ticket_thread, #toggle_notes, .show_notes').click(function(e) {
-        e.preventDefault();
-        $('#threads a').removeClass('active');
-
-        if($(this).attr('id') == 'toggle_ticket_thread') {
-            $('#ticket_notes').hide();
-            $('#ticket_thread').show();
-            $('#toggle_ticket_thread').addClass('active');
-            $('#reply_tab').removeClass('tell').click();
-        } else {
-            $('#ticket_thread').hide();
-            $('#ticket_notes').show();
-            $('#toggle_notes').addClass('active');
-            $('#note_tab').click();
-            if($('#response').val() != '') {
-                $('#reply_tab').addClass('tell');
-            }
-        }
-     });
 
     //Start watching the form for activity.
     autoLock.Init();
@@ -404,8 +356,8 @@ var ticket_onload = function($) {
         return false;
     });
 
-    $(document).on('change', 'form#reply select#emailreply', function(e) {
-         var $cc = $('form#reply tbody#cc_sec');
+    $(document).on('change', 'form[name=reply] select#emailreply', function(e) {
+         var $cc = $('form[name=reply] tbody#cc_sec');
         if($(this).val() == 0)
             $cc.hide();
         else

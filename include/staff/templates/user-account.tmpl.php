@@ -15,17 +15,17 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<ul class="tabs">
-    <li><a href="#user-account" <?php echo !$access? 'class="active"' : ''; ?>
+<ul class="tabs" id="user-account-tabs">
+    <li><a id="user-account" href="#user-account" <?php echo !$access? 'class="active"' : ''; ?>
         ><i class="icon-user"></i>&nbsp;<?php echo __('User Information'); ?></a></li>
-    <li><a href="#user-access" <?php echo $access? 'class="active"' : ''; ?>
+    <li><a id="user-access" href="#user-access" <?php echo $access? 'class="active"' : ''; ?>
         ><i class="icon-fixed-width icon-lock faded"></i>&nbsp;<?php echo __('Manage Access'); ?></a></li>
 </ul>
 
-
 <form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
  <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
- <div class="tab_content"  id="user-account" style="display:<?php echo $access? 'none' : 'block'; ?>; margin:5px;">
+<div id="user-account-tabs_container">
+ <div class="tab_content"  id="user-account_content" style="display:<?php echo $access? 'none' : 'block'; ?>; margin:5px;">
     <form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
         <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
         <table width="100%">
@@ -89,7 +89,7 @@ if ($info['error']) {
         </tbody>
         </table>
  </div>
- <div class="tab_content"  id="user-access" style="display:<?php echo $access? 'block' : 'none'; ?>; margin:5px;">
+ <div class="tab_content"  id="user-access_content" style="display:<?php echo $access? 'block' : 'none'; ?>; margin:5px;">
         <table width="100%">
         <tbody>
             <tr>
@@ -151,6 +151,7 @@ if ($info['error']) {
             </tr>
         </tbody>
         </table>
+   </div>
    </div>
    <hr>
    <p class="full-width">

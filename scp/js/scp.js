@@ -621,16 +621,31 @@ $.orgLookup = function (url, cb) {
 
 $.uid = 1;
 
-//Tabs
+// Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
     e.preventDefault();
-    if ($('.tab_content'+$(this).attr('href')).length) {
-        var ul = $(this).closest('ul');
-        $('ul.tabs li a', ul.parent()).removeClass('active');
-        $(this).addClass('active');
-        $('.tab_content', ul.parent()).hide();
-        $('.tab_content'+$(this).attr('href')).show();
+    var $ul = $(this).closest('ul');
+    var $container = $('#'+$ul.attr('id')+'_container');
+    if (!$container.length)
+        $container = $ul.parent();
+
+    var $tab = $('#'+$(this).attr('id')+'_content', $container);
+    if (!$tab.length && $(this).attr('href').length > 1) {
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $tab = $('<div id="'+$(this).attr('id')+'_content">').hide();
+        $container.append(
+            $tab.load(url, function () {
+                })
+             );
     }
+
+    if ($tab.length) {
+        $('li a', $ul).removeClass('active');
+        $(this).addClass('active');
+        $container.children(':not(ul.tabs)').hide();
+        $tab.show();
+    }
+
 });
 
 //Collaborators
