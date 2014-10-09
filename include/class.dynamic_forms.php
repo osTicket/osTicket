@@ -62,7 +62,9 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function getDynamicFields() {
-        if (!$this->_dfields && isset($this->id)) {
+        if (!isset($this->id))
+            return array();
+        elseif (!$this->_dfields) {
             $this->_dfields = DynamicFormField::objects()
                 ->filter(array('form_id'=>$this->id))
                 ->all();
