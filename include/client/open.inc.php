@@ -34,9 +34,16 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         <td>
             <select id="topicId" name="topicId" onchange="javascript:
                     var data = $(':input[name]', '#dynamic-form').serialize();
-                    $('#dynamic-form').load(
-                        'ajax.php/form/help-topic/' + this.value, data);
-                    ">
+                    $.ajax(
+                      'ajax.php/form/help-topic/' + this.value,
+                      {
+                        data: data,
+                        dataType: 'json',
+                        success: function(json) {
+                          $('#dynamic-form').empty().append(json.html);
+                          $(document.head).append(json.media);
+                        }
+                      });">
                 <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
                 <?php
                 if($topics=Topic::getPublicHelpTopics()) {
