@@ -515,7 +515,7 @@ class MailFetcher {
             foreach ($struct->parameters as $p) {
                 if (strtolower($p->attribute) == 'report-type'
                         && $p->value == 'delivery-status') {
-                    return new TextThreadBody( $this->getPart(
+                    return new TextThreadEntryBody( $this->getPart(
                                 $mid, 'text/plain', $this->charset, $struct, false, 1));
                 }
             }
@@ -555,19 +555,19 @@ class MailFetcher {
 
         if ($cfg->isHtmlThreadEnabled()) {
             if ($html=$this->getPart($mid, 'text/html', $this->charset))
-                $body = new HtmlThreadBody($html);
+                $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
-                $body = new TextThreadBody($text);
+                $body = new TextThreadEntryBody($text);
         }
         elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
-            $body = new TextThreadBody($text);
+            $body = new TextThreadEntryBody($text);
         elseif ($html=$this->getPart($mid, 'text/html', $this->charset))
-            $body = new TextThreadBody(
+            $body = new TextThreadEntryBody(
                     Format::html2text(Format::safe_html($html),
                         100, false));
 
         if (!isset($body))
-            $body = new TextThreadBody('');
+            $body = new TextThreadEntryBody('');
 
         if ($cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());

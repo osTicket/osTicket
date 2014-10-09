@@ -49,6 +49,9 @@ $qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
     .'dept_name, status.name as status, status.state, ticket.source, ticket.created ';
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
+      .' LEFT JOIN '.THREAD_TABLE.' thread
+            ON (thread.object_id = ticket.ticket_id
+                    AND thread.object_type = "T") '
       .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
             ON (status.id = ticket.status_id) '
       .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id)'
@@ -76,12 +79,9 @@ if($search) {
         $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
                 ." subject.value LIKE '%$queryterm%'"
-                ." OR thread.body LIKE '%$queryterm%'"
+                ." OR entry.body LIKE '%$queryterm%'"
                 .' ) ';
         $deep_search=true;
-        //Joins needed for search
-        $qfrom.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ('
-               .'ticket.ticket_id=thread.ticket_id AND thread.thread_type IN ("M","R"))';
     }
 }
 
@@ -93,8 +93,11 @@ $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 
 //more stuff...
-$qselect.=' ,count(attach_id) as attachments ';
-$qfrom.=' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON  ticket.ticket_id=attach.ticket_id ';
+$qselect.=' ,count(DISTINCT attach.id) as attachments ';
+$qfrom.=' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
+            ON (entry.thread_id=thread.id AND entry.`type` IN ("M", "R")) ';
+$qfrom.=' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+            ON (attach.object_id=entry.id AND attach.`type` = "H") ';
 $qgroup=' GROUP BY ticket.ticket_id';
 
 $query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();

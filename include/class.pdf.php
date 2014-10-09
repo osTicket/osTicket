@@ -285,7 +285,7 @@ class Ticket2PDF extends mPDF
         if(($entries = $ticket->getThreadEntries($types))) {
             foreach($entries as $entry) {
 
-                $color = $colors[$entry['thread_type']];
+                $color = $colors[$entry['type']];
 
                 $this->SetFillColor($color[0], $color[1], $color[2]);
                 $this->SetFont('Arial', 'B', 11);
