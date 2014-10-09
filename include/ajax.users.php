@@ -129,7 +129,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $errors = array();
-        if($user->updateInfo($_POST, $errors))
+        if ($user->updateInfo($_POST, $errors, true) && !$errors)
              Http::response(201, $user->to_json());
 
         $forms = $user->getForms();

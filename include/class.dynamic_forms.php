@@ -732,23 +732,24 @@ class DynamicFormEntry extends VerySimpleModel {
         if (!is_array($this->_errors)) {
             $this->_errors = array();
             $this->getClean();
-            foreach ($this->getFields() as $field)
+            foreach ($this->getFields() as $field) {
                 if ($field->errors() && (!$filter || $filter($field)))
                     $this->_errors[$field->get('id')] = $field->errors();
+            }
         }
         return !$this->_errors;
     }
 
     function isValidForClient() {
         $filter = function($f) {
-            return !$f->isRequiredForUsers();
+            return $f->isVisibleToUsers();
         };
         return $this->isValid($filter);
     }
 
     function isValidForStaff() {
         $filter = function($f) {
-            return !$f->isRequiredForStaff();
+            return $f->isVisibleToStaff();
         };
         return $this->isValid($filter);
     }
