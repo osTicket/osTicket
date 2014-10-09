@@ -24,7 +24,7 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
 	$results_type=__('Open Tickets');
 }
 
-$sortOptions=array('id'=>'`number`', 'subject'=>'subject.value',
+$sortOptions=array('id'=>'`number`', 'subject'=>'cdata.subject',
                     'status'=>'status.name', 'dept'=>'dept_name','date'=>'ticket.created');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 //Sorting options...
@@ -75,7 +75,7 @@ if($search) {
     } else {//Deep search!
         $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
-                ." subject.value LIKE '%$queryterm%'"
+                ." cdata.subject LIKE '%$queryterm%'"
                 ." OR thread.body LIKE '%$queryterm%'"
                 .' ) ';
         $deep_search=true;
