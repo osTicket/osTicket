@@ -467,9 +467,6 @@ table.thread-entry {
 table.thread-entry th div span {
     vertical-align: middle;
 }
-table.thread-entry th div :not(.title) {
-    font-weight: 600;
-}
 table.thread-entry th div .title {
     font-weight: 400;
 }

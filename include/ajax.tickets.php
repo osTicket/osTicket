@@ -780,6 +780,25 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_changeSelectedTicketsStatus($state, $info, $errors);
     }
 
+    function triggerThreadAction($ticket_id, $thread_id, $action) {
+        $thread = ThreadEntry::lookup($thread_id, $ticket_id);
+        if (!$thread)
+            Http::response(404, 'No such ticket thread entry');
+
+        $valid = false;
+        foreach ($thread->getActions() as $group=>$list) {
+            foreach ($list as $name=>$A) {
+                if ($A->getId() == $action) {
+                    $valid = true; break;
+                }
+            }
+        }
+        if (!$valid)
+            Http::response(400, 'Not a valid action for this thread');
+
+        $thread->triggerAction($action);
+    }
+
     private function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
 
         $count = $_REQUEST['count'] ?:
