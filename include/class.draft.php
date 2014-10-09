@@ -33,7 +33,9 @@ class Draft {
         if (preg_match_all('/"cid:([\\w.-]{32})"/', $body, $matches)) {
             foreach ($matches[1] as $hash) {
                 if ($file_id = AttachmentFile::getIdByHash($hash))
-                    $attachments[] = $file_id;
+                    $attachments[] = array(
+                            'id' => $file_id,
+                            'inline' => true);
             }
         }
         return $attachments;
