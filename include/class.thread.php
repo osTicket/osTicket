@@ -1410,7 +1410,7 @@ class TextThreadBody extends ThreadBody {
         switch ($output) {
         case 'html':
             return '<div style="white-space:pre-wrap">'
-                .Format::clickableurls($this->body).'</div>';
+                .Format::clickableurls(Format::htmlchars($this->body)).'</div>';
         case 'email':
             return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
         case 'pdf':
