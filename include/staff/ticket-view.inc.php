@@ -1,4 +1,6 @@
 <?php
+include_once INCLUDE_DIR . 'class.thread_actions.php';
+
 //Note that ticket obj is initiated in tickets.php.
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
 
@@ -408,7 +410,7 @@ $tcount+= $ticket->getNumNotes();
 <?php           if ($tentry->hasActions()) {
                     $actions = $tentry->getActions(); ?>
                     <div class="pull-right">
-                    <span class="action-button" data-dropdown="#entry-action-more-<?php echo $entry['id']; ?>">
+                    <span class="action-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry['id']; ?>">
                         <i class="icon-caret-down"></i>
                         <span ><i class="icon-cog"></i></span>
                     </span>
@@ -427,7 +429,7 @@ $tcount+= $ticket->getNumNotes();
                 </ul>
                     </div>
 <?php           } ?>
-                    <span class="pull-right" style="white-space:no-wrap;display:inline-block">
+                    <span style="vertical-align:middle">
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php

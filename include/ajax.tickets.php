@@ -19,6 +19,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
 require_once(INCLUDE_DIR.'class.note.php');
+include_once INCLUDE_DIR . 'class.thread_actions.php';
 
 class TicketsAjaxAPI extends AjaxController {
 

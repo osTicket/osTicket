@@ -245,6 +245,7 @@ class ThreadEntry {
 
     var $thread;
     var $attachments;
+    var $_actions;
 
     function ThreadEntry($id, $threadId=0, $type='') {
         $this->load($id, $threadId, $type);
@@ -799,7 +800,7 @@ class ThreadEntry {
     function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        $search = 'SELECT thread_entery_id, mid FROM '.THREAD_ENTRY_EMAIL_TABLE
+        $search = 'SELECT thread_entry_id, mid FROM '.THREAD_ENTRY_EMAIL_TABLE
                . ' WHERE mid=%s '
                . ' ORDER BY thread_entry_id DESC';
 
@@ -1673,10 +1674,21 @@ abstract class ThreadEntryAction {
      */
     abstract function getJsStub();
 
+    /**
+     * getAjaxUrl
+     *
+     * Generate a URL to be used as an AJAX callback. The URL can be used to
+     * trigger this thread entry action via the callback.
+     *
+     * Parameters:
+     * $dialog - (bool) used in conjunction with `$.dialog()` javascript
+     *      function which assumes the `ajax.php/` should be replace a leading
+     *      `#` in the url
+     */
     function getAjaxUrl($dialog=false) {
         return sprintf('%stickets/%d/thread/%d/%s',
             $dialog ? '#' : 'ajax.php/',
-            $this->thread->getTicketId(),
+            $this->thread->getThread()->getObjectId(),
             $this->thread->getId(),
             static::getId()
         );
