@@ -82,10 +82,10 @@ class Thread {
         return $this->ht['entries'];
     }
 
-    function getEntries($type, $order='ASC') {
+    function getEntries($criteria) {
 
-        if (!$order || !in_array($order, array('DESC','ASC')))
-            $order='ASC';
+        if (!$criteria['order'] || !in_array($criteria['order'], array('DESC','ASC')))
+            $criteria['order'] = 'ASC';
 
         $sql='SELECT entry.*
                , COALESCE(user.name,
@@ -102,13 +102,17 @@ class Thread {
                 ON (attach.object_id = entry.id AND attach.`type`="H") '
             .' WHERE  entry.thread_id='.db_input($this->getId());
 
-        if($type && is_array($type))
-            $sql.=' AND entry.`type` IN ('.implode(',', db_input($type)).')';
-        elseif($type)
-            $sql.=' AND entry.`type` = '.db_input($type);
+        if ($criteria['type'] && is_array($criteria['type']))
+            $sql.=' AND entry.`type` IN ('
+                    .implode(',', db_input($criteria['type'])).')';
+        elseif ($criteria['type'])
+            $sql.=' AND entry.`type` = '.db_input($criteria['type']);
 
         $sql.=' GROUP BY entry.id '
-             .' ORDER BY entry.created '.$order;
+             .' ORDER BY entry.created '.$criteria['order'];
+
+        if ($criteria['limit'])
+            $sql.=' LIMIT '.$criteria['limit'];
 
         $entries = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
@@ -165,19 +169,6 @@ class Thread {
         db_query($sql);
 
         return true;
-    }
-
-    function getVar($name) {
-        switch ($name) {
-        case 'original':
-            return Message::firstByTicketId($this->ticket->getId())
-                ->getBody();
-            break;
-        case 'last_message':
-        case 'lastmessage':
-            return $this->ticket->getLastMessage()->getBody();
-            break;
-        }
     }
 
     static function create($vars) {
@@ -392,17 +383,8 @@ Class ThreadEntry {
 
     function getUser() {
 
-        if (!isset($this->user)) {
-            if (!($ticket = $this->getTicket()))
-                return null;
-
-            if ($ticket->getOwnerId() == $this->getUserId())
-                $this->user = new TicketOwner(
-                    User::lookup($this->getUserId()), $ticket);
-            else
-                $this->user = Collaborator::lookup(array(
-                    'userId'=>$this->getUserId(), 'ticketId'=>$this->getTicketId()));
-        }
+        if (!isset($this->user))
+            $this->user = User::lookup($this->getUserId());
 
         return $this->user;
     }
@@ -1294,29 +1276,7 @@ class MessageThreadEntry extends ThreadEntry {
                 )?$m:null;
     }
 
-    //TODO: redo shit below.
-
-    function lastByTicketId($ticketId) {
-        return self::byTicketId($ticketId);
-    }
-
-    function firstByTicketId($ticketId) {
-        return self::byTicketId($ticketId, false);
-    }
-
-    function byTicketId($ticketId, $last=true) {
-
-        $sql=' SELECT thread.id FROM '.TICKET_THREAD_TABLE.' thread '
-            .' WHERE thread_type=\'M\' AND thread.ticket_id = '.db_input($ticketId)
-            .sprintf(' ORDER BY thread.id %s LIMIT 1', $last ? 'DESC' : 'ASC');
-
-        if (($res = db_query($sql)) && ($id = db_result($res)))
-            return Message::lookup($id);
-
-        return null;
-    }
 }
-
 
 /* thread entry of type response */
 class ResponseThreadEntry extends ThreadEntry {
@@ -1449,15 +1409,42 @@ class TicketThread extends Thread {
     }
 
     function getMessages() {
-        return $this->getEntries(MessageThreadEntry::ENTRY_TYPE);
+        return $this->getEntries(array(
+                    'type' => MessageThreadEntry::ENTRY_TYPE));
+    }
+
+    function getLastMessage() {
+
+        $criteria = array(
+                'type'  => MessageThreadEntry::ENTRY_TYPE,
+                'order' => 'DESC',
+                'limit' => 1);
+
+        return $this->getEntry($criteria);
+    }
+
+    function getEntry($var) {
+
+        if (is_numeric($var))
+            $id = $var;
+        else {
+            $criteria = array_merge($var, array('limit' => 1));
+            $entries = $this->getEntries($criteria);
+            if ($entries && $entries[0])
+                $id = $entries[0]['id'];
+        }
+
+        return $id ? parent::getEntry($id) : null;
     }
 
     function getResponses() {
-        return $this->getEntries(ResponseThreadEntry::ENTRY_TYPE);
+        return $this->getEntries(array(
+                    'type' => ResponseThreadEntry::ENTRY_TYPE));
     }
 
     function getNotes() {
-        return $this->getEntries(NoteThreadEntry::ENTRY_TYPE);
+        return $this->getEntries(array(
+                    'type' => NoteThreadEntry::ENTRY_TYPE));
     }
 
     function addNote($vars, &$errors) {
@@ -1483,15 +1470,26 @@ class TicketThread extends Thread {
         return ResponseThreadEntry::create($vars, $errors);
     }
 
-    //TODO: revisit
     function getVar($name) {
         switch ($name) {
-            case 'original':
-                return MessageThreadEntry::first($this->getId())->getBody();
+        case 'original':
+            $entries = $this->getEntries(array(
+                        'type'  => MessageThreadEntry::ENTRY_TYPE,
+                        'order' => 'ASC',
+                        'limit' => 1));
+            if ($entries && $entries[0])
+                return (string) $entries[0]['body'];
+
             break;
         case 'last_message':
         case 'lastmessage':
-            return $this->ticket->getLastMessage()->getBody();
+            $entries = $this->getEntries(array(
+                        'type'  => MessageThreadEntry::ENTRY_TYPE,
+                        'order' => 'DESC',
+                        'limit' => 1));
+            if ($entries && $entries[0])
+                return (string) $entries[0]['body'];
+
             break;
         }
     }

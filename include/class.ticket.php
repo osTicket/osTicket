@@ -705,14 +705,16 @@ class Ticket {
     }
 
     function getLastMessage() {
+
         if (!isset($this->last_message)) {
-            if($this->getLastMsgId())
-                $this->last_message =  Message::lookup(
-                    $this->getLastMsgId(), $this->getId());
+            if ($this->getLastMsgId())
+                $this->last_message = MessageThreadEntry::lookup(
+                    $this->getLastMsgId(), $this->getThreadId());
 
             if (!$this->last_message)
-                $this->last_message = Message::lastByTicketId($this->getId());
+                $this->last_message = $this->getThread()->getLastMessage();
         }
+
         return $this->last_message;
     }
 
@@ -765,7 +767,8 @@ class Ticket {
     }
 
     function getThreadEntries($type, $order='') {
-        return $this->getThread()->getEntries($type, $order);
+        return $this->getThread()->getEntries(
+                array( 'type' => $type, 'order' => $order));
     }
 
     //Collaborators
@@ -1357,8 +1360,16 @@ class Ticket {
         if ($this->isClosed() && $this->isReopenable())
             $this->reopen();
 
-       /**********   double check auto-response  ************/
-        if (!($user = $message->getUser()))
+        // Figure out the user
+        if ($this->getOwnerId() == $message->getUserId())
+            $user = new TicketOwner(
+                    User::lookup($message->getUserId()), $this);
+        else
+            $user = Collaborator::lookup(array(
+                    'userId'=>$message->getUserId(), 'ticketId'=>$this->getId()));
+
+        /**********   double check auto-response  ************/
+        if (!$user)
             $autorespond=false;
         elseif ($autorespond && (Email::getIdByEmail($user->getEmail())))
             $autorespond=false;
