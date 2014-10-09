@@ -34,6 +34,7 @@ if ($_REQUEST['query']) {
 
 $sortOptions = array('name' => 'user.name',
                      'email' => 'email.address',
+                     'status' => 'account_status',
                      'create' => 'user.created',
                      'update' => 'user.updated');
 $orderWays = array('DESC'=>'DESC','ASC'=>'ASC');
