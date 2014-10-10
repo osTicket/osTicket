@@ -151,7 +151,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             </select>
             <?php if ($f->isConfigurable()) { ?>
                 <a class="action-button field-config"
-                    style="float:none;overflow:inherit"
+                    style="overflow:inherit"
                     href="#form/field-config/<?php
                         echo $f->get('id'); ?>"><i
                         class="icon-cog"></i> <?php echo __('Config'); ?></a> <?php } ?></td>
@@ -254,7 +254,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 value="<?php echo $i->getValue(); ?>"/>
                 <?php if ($list->hasProperties()) { ?>
                    <a class="action-button field-config"
-                       style="float:none;overflow:inherit"
+                       style="overflow:inherit"
                        href="#list/<?php
                         echo $list->getId(); ?>/item/<?php
                         echo $id ?>/properties"

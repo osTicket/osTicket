@@ -144,8 +144,7 @@ div#header a {
 }
 
 #nav .active, #nav .inactive {
-    display:block;
-    float:left;
+    display:inline-block;
     min-width:95px;
     width: auto;
     padding-left: 10px;
@@ -254,8 +253,7 @@ div#header a {
 }
 
 #sub_nav a {
-    display:block;
-    float:left;
+    display:inline-block;
     padding:0 10px 0 21px;
     background-position:0 50%;
     background-repeat:no-repeat;
@@ -784,9 +782,8 @@ h2 .reload {
 }
 
 #threads li a {
-    display:block;
+    display:inline-block;
     width:auto;
-    float:left;
     height:30px;
     line-height:30px;
     border-top:1px solid #F4FAFF;
@@ -896,7 +893,7 @@ ul.tabs {
     padding:4px 0 0 20px;
     margin:0;
     margin-bottom: 5px;
-    text-align:center;
+    text-align:left;
     height:29px;
     border-bottom:1px solid #aaa;
     background:#eef3f8;
@@ -921,14 +918,14 @@ ul.tabs li a {
     height:18px;
     line-height:20px;
     color:#444;
-    display:block;
-    float:left;
+    display:inline-block;
     outline:none;
     position:relative;
-    top:0;
+    bottom:1px;
     background:#fbfbfb;
     border:1px solid #eee;
     border-bottom:none;
+    text-align: center;
 }
 
 #response_options .reply_tab.tell {
@@ -945,6 +942,7 @@ ul.tabs li a.active {
     border:1px solid #aaa;
     border-top:2px solid #81a9d7;
     border-bottom:none;
+    bottom: 0;
 }
 
 #response_options > form {
@@ -1762,6 +1760,10 @@ div.selected-signature .inner {
 .row-item .delete:hover {
     background: #fc9f41; /* Old browsers */
     color: rgba(255,255,255,0.8) !important;
+}
+#sequences .manage-buttons {
+    display: inline-block;
+    margin-right: 60px;
 }
 
 tr.disabled td,

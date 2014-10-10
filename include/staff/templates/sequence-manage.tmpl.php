@@ -19,7 +19,7 @@ foreach ($sequences as $e) {
         <input type="hidden" class="fdeleted" name="seq[<?php echo $e->get('id'); ?>][deleted]" value="0"/>
         <i class="icon-sort-by-order"></i>
         <div style="display:inline-block" class="name"> <?php echo $e->getName(); ?> </div>
-        <div style="display:inline-block;margin-right:60px" class="pull-right">
+        <div class="manage-buttons pull-right">
             <span class="faded">next</span>
             <span class="current"><?php echo $e->current(); ?></span>
         </div>
@@ -45,7 +45,7 @@ foreach ($sequences as $e) {
 <div class="row-item hidden" id="template">
     <i class="icon-sort-by-order"></i>
     <div style="display:inline-block" class="name"> <?php echo __('New Sequence'); ?> </div>
-    <div style="display:inline-block;margin-right:60px" class="pull-right">
+    <div class="manage-buttons pull-right">
         <span class="faded">next</span>
         <span class="next">1</span>
     </div>

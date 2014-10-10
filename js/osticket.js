@@ -132,7 +132,7 @@ $(document).ready(function(){
         if (!extra) return;
         if (!imgs.length) return;
         extra.append($('<a>')
-          .addClass("action-button show-images")
+          .addClass("action-button show-images pull-right")
           .css({'font-weight':'normal'})
           .text(' ' + __('Show Images'))
           .click(function(ev) {
@@ -194,7 +194,7 @@ showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> ' + __('Download') + '</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button pull-right"><i class="icon-download-alt"></i> ' + __('Download') + '</a>')
                 );
             e.data('wrapped', true);
         }

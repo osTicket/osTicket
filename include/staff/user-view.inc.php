@@ -13,21 +13,21 @@ $org = $user->getOrganization();
              title="Reload"><i class="icon-refresh"></i> <?php echo Format::htmlchars($user->getName()); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
-            <span class="action-button" data-dropdown="#action-dropdown-more">
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
+                <i class="icon-caret-down pull-right"></i>
                 <span ><i class="icon-cog"></i> <?php echo __('More'); ?></span>
-                <i class="icon-caret-down"></i>
             </span>
-            <a id="user-delete" class="action-button user-action"
+            <a id="user-delete" class="action-button pull-right user-action"
             href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i>
             <?php echo __('Delete User'); ?></a>
             <?php
             if ($account) { ?>
-            <a id="user-manage" class="action-button user-action"
+            <a id="user-manage" class="action-button pull-right user-action"
             href="#users/<?php echo $user->getId(); ?>/manage"><i class="icon-edit"></i>
             <?php echo __('Manage Account'); ?></a>
             <?php
             } else { ?>
-            <a id="user-register" class="action-button user-action"
+            <a id="user-register" class="action-button pull-right user-action"
             href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-edit"></i>
             <?php echo __('Register'); ?></a>
             <?php

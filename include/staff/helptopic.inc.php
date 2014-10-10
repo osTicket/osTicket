@@ -320,7 +320,7 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                     ?>><?php echo $s->name; ?></option>
 <?php } ?>
                 </select>
-                <button class="action-button" onclick="javascript:
+                <button class="action-button pull-right" onclick="javascript:
                 $.dialog('ajax.php/sequence/manage', 205);
                 return false;
                 "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>

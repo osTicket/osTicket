@@ -678,6 +678,9 @@ class TextboxField extends FormField {
                             && false !== @preg_match($wrapped, ' ')) {
                         return $wrapped;
                     }
+                    if ($value == '//iu')
+                        return '';
+
                     return $value;
                 },
                 'validators' => function($self, $v) {

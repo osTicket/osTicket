@@ -493,13 +493,15 @@ class User extends UserModel {
         return User::importCsv($stream, $extra);
     }
 
-    function updateInfo($vars, &$errors) {
+    function updateInfo($vars, &$errors, $staff=false) {
 
         $valid = true;
         $forms = $this->getDynamicData();
         foreach ($forms as $cd) {
             $cd->setSource($vars);
-            if (!$cd->isValidForClient())
+            if ($staff && !$cd->isValidForStaff())
+                $valid = false;
+            elseif (!$cd->isValidForClient())
                 $valid = false;
             elseif ($cd->get('type') == 'U'
                         && ($form= $cd->getForm())
@@ -957,15 +959,15 @@ class UserAccount extends UserAccountModel {
                 $errors['passwd2'] = __('Passwords do not match');
         }
 
+        // Make sure the username is not an email.
+        if ($vars['username'] && Validator::is_email($vars['username']))
+            $errors['username'] =
+                __('Users can always sign in with their email address');
+
         if ($errors) return false;
 
         $this->set('timezone_id', $vars['timezone_id']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
-
-        // Make sure the username is not an email.
-        if ($vars['username'] && Validator::is_email($vars['username']))
-             $vars['username'] = '';
-
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {

@@ -104,8 +104,13 @@ if ($info['error']) {
                     <?php echo __('Username'); ?>:
                 </td>
                 <td>
-                    <input type="text" size="35" name="username" value="<?php echo $info['username'] ?: $user->getEmail(); ?>">
-                    &nbsp;<span class="error">&nbsp;<?php echo $errors['username']; ?></span>
+                    <input type="text" size="35" name="username" value="<?php echo $info['username']; ?>">
+                    <i class="help-tip icon-question-sign" data-title="<?php
+                        echo __("Login via email"); ?>"
+                    data-content="<?php echo sprintf('%s: %s',
+                        __('Users can always sign in with their email address'),
+                        $user->getEmail()); ?>"></i>
+                    <div class="error">&nbsp;<?php echo $errors['username']; ?></div>
                 </td>
             </tr>
             <tr>
@@ -154,11 +159,11 @@ if ($info['error']) {
    </div>
    <hr>
    <p class="full-width">
-        <span class="buttons" style="float:left">
+        <span class="buttons pull-left">
             <input type="reset" value="<?php echo __('Reset'); ?>">
             <input type="button" name="cancel" class="close" value="<?php echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
+        <span class="buttons pull-right">
             <input type="submit"
                 value="<?php echo __('Save Changes'); ?>">
         </span>

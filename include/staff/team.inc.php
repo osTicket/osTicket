@@ -105,7 +105,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <?php
             foreach($members as $k=>$staff){
-                echo sprintf('<tr><td colspan=2><span style="width:350px;padding-left:5px; display:block; float:left;">
+                echo sprintf('<tr><td colspan=2><span style="width:350px;padding-left:5px; display:block;" class="pull-left">
                             <b><a href="staff.php?id=%d">%s</a></span></b>
                             &nbsp;<input type="checkbox" name="remove[]" value="%d"><i>'.__('Remove').'</i></td></tr>',
                           $staff->getId(),$staff->getName(),$staff->getId());

@@ -59,7 +59,7 @@ if ($_POST)
                 <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
                 &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                 </a>
-                <a class="action-button" style="float:none;overflow:inherit" href="#"
+                <a class="action-button" style="overflow:inherit" href="#"
                     onclick="javascript:
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
                             function(user) {

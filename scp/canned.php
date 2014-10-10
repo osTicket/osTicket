@@ -52,9 +52,10 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
                         $canned->attachments->delete($file['id']);
                     }
                 }
+
                 //Upload NEW attachments IF ANY - TODO: validate attachment types??
                 if ($keepers)
-                    $canned->attachments->upload($attachments);
+                    $canned->attachments->upload($keepers);
 
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])

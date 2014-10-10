@@ -732,23 +732,24 @@ class DynamicFormEntry extends VerySimpleModel {
         if (!is_array($this->_errors)) {
             $this->_errors = array();
             $this->getClean();
-            foreach ($this->getFields() as $field)
+            foreach ($this->getFields() as $field) {
                 if ($field->errors() && (!$filter || $filter($field)))
                     $this->_errors[$field->get('id')] = $field->errors();
+            }
         }
         return !$this->_errors;
     }
 
     function isValidForClient() {
         $filter = function($f) {
-            return !$f->isRequiredForUsers();
+            return $f->isVisibleToUsers();
         };
         return $this->isValid($filter);
     }
 
     function isValidForStaff() {
         $filter = function($f) {
-            return !$f->isRequiredForStaff();
+            return $f->isVisibleToStaff();
         };
         return $this->isValid($filter);
     }
@@ -1008,10 +1009,12 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getValue() {
-        if (!$this->_value && isset($this->value))
-            $this->_value = $this->getField()->to_php(
-                $this->get('value'), $this->get('value_id'));
-        return $this->_value;
+        $value = $this->getField()->to_php(
+            $this->get('value'), $this->get('value_id'));
+        if (!$value && $this->getEntry()->getSource()) {
+            return $this->getEntry()->getField(
+                $this->getField()->get('name'))->getClean();
+        }
     }
 
     function getIdValue() {
@@ -1132,10 +1135,13 @@ class SelectionField extends FormField {
     }
 
     function hasSubFields() {
-        return true;
+        return $this->getList()->getForm();
     }
     function getSubFields() {
-        return $this->getConfigurationForm()->getFields();
+        $form = $this->getList()->getForm();
+        if ($form)
+            return $form->getFields();
+        return array();
     }
 
     function toString($items) {

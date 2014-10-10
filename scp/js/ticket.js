@@ -306,7 +306,7 @@ $.showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
                 );
             e.data('wrapped', true);
         }
@@ -419,7 +419,7 @@ var ticket_onload = function($) {
         if (!extra) return;
         if (!imgs.length) return;
         extra.append($('<a>')
-          .addClass("action-button show-images")
+          .addClass("action-button pull-right show-images")
           .css({'font-weight':'normal'})
           .text(' ' + __('Show Images'))
           .click(function(ev) {

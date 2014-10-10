@@ -9,10 +9,10 @@ $category=$faq->getCategory();
     <a href="index.php"><?php echo __('All Categories');?></a>
     &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
 </div>
-<div style="width:700px;padding-top:2px; float:left;">
+<div style="width:700px;padding-top:2px;" class="pull-left">
 <strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>
 </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;"></div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;"></div>
 <div class="clear"></div>
 <p>
 <?php echo Format::safe_html($faq->getAnswerWithImages()); ?>
