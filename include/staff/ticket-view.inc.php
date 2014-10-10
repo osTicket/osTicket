@@ -404,9 +404,6 @@ $tcount+= $ticket->getNumNotes();
                             echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
                     </span>
                 </div>
-				<div>
-					<?php echo Format::htmlchars($entry['time_spent'] ?: $entry['time_type']); ?> <!-- ADD MORE HERE -->
-				</div>
                 </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
