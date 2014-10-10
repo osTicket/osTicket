@@ -1132,13 +1132,10 @@ class SelectionField extends FormField {
     }
 
     function hasSubFields() {
-        return $this->getList()->getForm();
+        return true;
     }
     function getSubFields() {
-        $form = $this->getList()->getForm();
-		if ($form)
-			return $form->getFields();
-		return array();
+        return $this->getConfigurationForm()->getFields();
     }
 
     function toString($items) {
