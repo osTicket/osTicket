@@ -1045,10 +1045,10 @@ Class ThreadEntry {
 		//20140708: ASIJB: Duplicating poster logic, looks like it verifies variable.
         $time_spent = $vars['time_spent'];
         if ($time_spent && is_object($time_spent))
-            $time_spent = (float) $time_spent;
+            $time_spent = (string) $time_spent;
         $time_type = $vars['time_type'];
         if ($time_type && is_object($time_type))
-            $time_type = (int) $time_type;
+            $time_type = (string) $time_type;
         //20140708: ASIJB: END Duplicating poster logic, looks like it verifies variable.<<<
 
 		
