@@ -309,13 +309,14 @@ if($_POST && !$errors):
                     break;
                 case 'changeuser':
                     if (!$thisstaff->canEditTickets()) {
-                        $errors['err'] = 'Permission Denied. You are not allowed to EDIT tickets!!';
+                        $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
-                        $errors['err'] = 'Unknown user selected!';
+                        $errors['err'] = __('Unknown user selected');
                     } elseif ($ticket->changeOwner($user)) {
-                        $msg = 'Ticket ownership changed to ' . Format::htmlchars($user->getName());
+                        $msg = sprintf(__('Ticket ownership changed to %s'),
+                            Format::htmlchars($user->getName()));
                     } else {
-                        $errors['err'] = 'Unable to change tiket ownership. Try again';
+                        $errors['err'] = __('Unable to change ticket ownership. Try again');
                     }
                     break;
                 default:
