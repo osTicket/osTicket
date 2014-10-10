@@ -51,7 +51,7 @@ header("Content-Type: text/html; charset=UTF-8\r\n");
                     && !$thisclient->isGuest()) {
                  echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
                  ?>
-                <a href="<?php echo ROOT_PATH; ?>account.php">Profile</a> |
+                <a href="<?php echo ROOT_PATH; ?>profile.php">Profile</a> |
                 <a href="<?php echo ROOT_PATH; ?>tickets.php">Tickets <b>(<?php echo $thisclient->getNumTickets(); ?>)</b></a> -
                 <a href="<?php echo $signout_url; ?>">Sign Out</a>
             <?php
