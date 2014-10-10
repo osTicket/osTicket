@@ -58,13 +58,6 @@ if($_POST && !$errors):
         //More coffee please.
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
-		
-		// Edge: Time Spent MOD.>>>				http://osticket.com/forum/discussion/78064/time-spent-manual-mod
-		if($_POST['time_spent']) {
-			$ticket->timeSpent($_POST['time_spent']);
-		}
-		// Edge: END Time Spent MOD.<<<
-			
         switch(strtolower($_POST['a'])):
         case 'reply':
             if(!$thisstaff->canPostReply())
