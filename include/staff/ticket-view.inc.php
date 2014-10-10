@@ -404,11 +404,9 @@ $tcount+= $ticket->getNumNotes();
                             echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
                     </span>
                 </div>
-				<?php if ($entry['time_spent'] !== '0.00') { ?>
-					<div>
-						<?php echo Format::htmlchars($entry['time_spent'] .' '. $entry['time_type']); ?> <!-- Translate time_type to English -->
-					</div>
-				<?php } ?>
+				<div>
+					<?php echo Format::htmlchars($entry['time_spent'] ?: $entry['time_type']); ?> <!-- ADD MORE HERE -->
+				</div>
                 </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
