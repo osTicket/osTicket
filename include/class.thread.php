@@ -236,8 +236,6 @@ Class ThreadEntry {
 
     var $staff;
     var $ticket;
-	
-	var $threadtime;
 
     var $attachments;
 
@@ -307,6 +305,14 @@ Class ThreadEntry {
 
     function getTitle() {
         return $this->ht['title'];
+    }
+	 
+	function getTimeSpent() {
+        return $this->ht['time_spent'];
+    }
+
+    function getTimeType() {
+        return $this->ht['time_type'];
     }
 
     function getBody() {

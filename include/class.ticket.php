@@ -70,20 +70,6 @@ class Ticket {
         return $this->timeSpent;
     }
 	
-	function convTimeSpent($time) {
-		return $this->formatTime($time);
-	}
-	
-	function convTimeType($type) {
-		$sql = 'SELECT `value` FROM `ost_list_items` WHERE `id` = '. $type;
-		$res = db_query($sql);
-		
-		$typearray = db_fetch_array($res);
-
-        $typetext = $typearray['value'];
-		return $typetext;
-	}
-	
     function formatTime($time){
         if($time < 1){
             $formatted = $time*60;
