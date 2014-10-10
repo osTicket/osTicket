@@ -315,7 +315,7 @@ if($_POST && !$errors):
                     } elseif ($ticket->changeOwner($user)) {
                         $msg = 'Ticket ownership changed to ' . Format::htmlchars($user->getName());
                     } else {
-                        $errors['err'] = 'Unable to change tiket ownership. Try again';
+                        $errors['err'] = 'Unable to change ticket ownership. Try again';
                     }
                     break;
                 default:
