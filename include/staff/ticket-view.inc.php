@@ -640,34 +640,31 @@ print $response_form->getField('attachments')->render();
                     <label><strong>Time Spent:</strong></label>
                 </td>
                 <td>
-                    <label for="current_time_spent"><strong>Current Time Spent:</strong></label>
+                    <label for="current_time_spent"><b>Current Time Spent:</b></label>
                     <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
                     // show the current time spent (if any) ?>
-                    <label for="time_spent"><strong>Time Spent:</strong></label>
+                    <label for="time_spent"><b>Time Spent:</b></label>
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (0.75 = 45 minutes)
                 </td>
             </tr>
             <tr>
-				<td>
-                    <label for="time_type"><strong>Time Type:</strong></label>
+                <!--20140708: ASIJB: Time Type Mod-->
+                <td>
+                    <label for="time_type"><b>Time Type:</b></label>
                 </td>
                 <td>
                     <select id="time_type" name="time_type">
-                    <?php
-					$criteria = "time-type";
-					$ttype_id = DynamicList::getTypes($criteria);
-					
-					$list = DynamicListItem::objects();
-					foreach ($list as $item) {
-						if($item->getListId() == $ttype_id) {?>
-							<option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
-						<?php }
-					}
-                    ?>
+                      <option value="P">Programming</option>
+                      <option value="N">No charge</option>
+                      <option value="H">Help</option>
+                      <option value="B">Hardware</option>
+                      <option value="S">Site</option>
+                      <option value="T">Travel</option>
                     </select>
                 </td>
+                <!--20140708: ASIJB: END Time Type Mod-->
             </tr>
             <?php } ?>
          </tbody>
@@ -765,24 +762,21 @@ print $note_form->getField('attachments')->render();
                 </td>
             </tr>
             <tr>
+                <!--20140708: ASIJB: Time Type Mod-->
                 <td>
                     <label for="time_type"><b>Time Type:</b></label>
                 </td>
                 <td>
                     <select id="time_type" name="time_type">
-                    <?php
-					$criteria = "time-type";
-					$ttype_id = DynamicList::getTypes($criteria);
-					
-					$list = DynamicListItem::objects();
-					foreach ($list as $item) {
-						if($item->getListId() == $ttype_id) {?>
-							<option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
-						<?php }
-					}
-                    ?>
+                      <option value="P">Programming</option>
+                      <option value="N">No charge</option>
+                      <option value="H">Help</option>
+                      <option value="B">Hardware</option>
+                      <option value="S">Site</option>
+                      <option value="T">Travel</option>
                     </select>
                 </td>
+                <!--20140708: ASIJB: END Time Type Mod-->
             </tr>
             <?php } ?>
         </table>
