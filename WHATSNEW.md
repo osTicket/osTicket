@@ -1,3 +1,31 @@
+osTicket v1.8.6
+===============
+### Enhancements
+  * Add new ost-config.php setting, `MAIL_EOL` which permanently defeats the
+    newline corruption on outgoing email via the PHP `mail()` function
+    (#1248)
+
+### Improvements
+  * Fix sorting by ticket number if using sequential numbers
+  * Fix threading if HTML is enabled and QR is disabled (#1197)
+  * Export ticket `created` date (#1201)
+  * Fix duplicate email where a collaborator would receive a confirmation
+    for his own message (#1235)
+  * Fix multi-line display of checkbox descriptions (#1160)
+  * Fix API validation failure for custom list selections (#1238)
+  * Fix crash adding a new user with a selection field custom data
+  * Fix failed user identification from email headers if `References` header
+    is sorted differently be mail client (#1263)
+  * Fix deletion of inline images on pages if draft was not saved (#1288)
+  * Fix corruption of custom date time fields on client portal if using non
+    US date format (#1320)
+  * Fix corruption of email mailbox if improperly encoded as ISO-8859-1
+    without RFC 2047 charset hint (#1332)
+  * Fix occasional MySQL Commands OOS error from ORM (#1334)
+
+### Performance and Security
+  * Fix XSS vulnerability in email template management (#1162, #1163)
+
 osTicket v1.8.5
 ===============
 ### Improvements
