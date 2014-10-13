@@ -215,7 +215,7 @@ if($_GET['limit'])
 
 $qselect ='SELECT ticket.ticket_id,tlock.lock_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,user.name'
-    .' ,email.address as email, dept.dept_name '
+    .' ,email.address as email, dept.dept_name, status.state '
          .' ,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created ';
 
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
@@ -432,7 +432,7 @@ if ($results) {
                 $tid=$row['number'];
                 $subject = Format::htmlchars(Format::truncate($row['subject'],40));
                 $threadcount=$row['thread_count'];
-                if(!strcasecmp($row['status'],'open') && !$row['isanswered'] && !$row['lock_id']) {
+                if(!strcasecmp($row['state'],'open') && !$row['isanswered'] && !$row['lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
                 }
                 ?>
@@ -469,7 +469,7 @@ if ($results) {
                 <?php
                 if($search && !$status){
                     $displaystatus=ucfirst($row['status']);
-                    if(!strcasecmp($row['status'],'open'))
+                    if(!strcasecmp($row['state'],'open'))
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
                 } else { ?>
