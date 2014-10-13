@@ -18,39 +18,49 @@ require_once(INCLUDE_DIR.'class.faq.php');
 
 $faq=$category=null;
 if($_REQUEST['id'] && !($faq=FAQ::lookup($_REQUEST['id'])))
-   $errors['err']='Unknown or invalid FAQ';
+    $errors['err']=sprintf(__('%s: Unknown or invalid'), __('FAQ article'));
 
 if($_REQUEST['cid'] && !$faq && !($category=Category::lookup($_REQUEST['cid'])))
-    $errors['err']='Unknown or invalid FAQ category';
+    $errors['err']=sprintf(__('%s: Unknown or invalid'), __('FAQ category'));
+
+$faq_form = new Form(array(
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'configuration'=>array('extensions'=>false,
+            'size'=>$cfg->getMaxFileSize())
+   )),
+));
 
 if($_POST):
     $errors=array();
+    $_POST['files'] = $faq_form->getField('attachments')->getClean();
     switch(strtolower($_POST['do'])) {
         case 'create':
         case 'add':
             if(($faq=FAQ::add($_POST,$errors))) {
-                $msg='FAQ added successfully';
+                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($faq->getQuestion()));
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = 'Unable to add FAQ. Try again!';
+                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                     __('this FAQ article'));
         break;
         case 'update':
         case 'edit';
             if(!$faq)
-                $errors['err'] = 'Invalid or unknown FAQ';
+                $errors['err'] = sprintf(__('%s: Invalid or unknown'), __('FAQ article'));
             elseif($faq->update($_POST,$errors)) {
-                $msg='FAQ updated successfully';
+                $msg=sprintf(__('Successfully updated %s'), __('this FAQ article'));
                 $_REQUEST['a']=null; //Go back to view
                 $faq->reload();
                 // Delete pending draft updates for this faq (for ALL users)
                 Draft::deleteForNamespace('faq.'.$faq->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = 'Unable to update FAQ. Try again!';
+                $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
+                    __('this FAQ article'));
             break;
         case 'manage-faq':
             if(!$faq) {
-                $errors['err']='Unknown or invalid FAQ';
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('FAQ article'));
             } else {
                 switch(strtolower($_POST['a'])) {
                     case 'edit':
@@ -58,32 +68,33 @@ if($_POST):
                         break;
                     case 'publish';
                         if($faq->publish())
-                            $msg='FAQ published successfully';
+                            $msg=sprintf(__('Successfully published %s'), __('this FAQ article'));
                         else
-                            $errors['err']='Unable to publish the FAQ. Try editing it.';
+                            $errors['err']=sprintf(__('Unable to publish %s. Try editing it.'),
+                                __('this FAQ article'));
                         break;
                     case 'unpublish';
                         if($faq->unpublish())
-                            $msg='FAQ unpublished successfully';
+                            $msg=sprintf(__('Successfully unpublished %s'), __('this FAQ article'));
                         else
-                            $errors['err']='Unable to unpublish the FAQ. Try editing it.';
+                            $errors['err']=sprintf(__('Unable to unpublish %s. Try editing it.'), __('this FAQ article'));
                         break;
                     case 'delete':
                         $category = $faq->getCategory();
                         if($faq->delete()) {
-                            $msg='FAQ deleted successfully';
+                            $msg=sprintf(__('Successfully deleted %s'), Format::htmlchars($faq->getQuestion()));
                             $faq=null;
                         } else {
-                            $errors['err']='Unable to delete FAQ. Try again';
+                            $errors['err']=sprintf(__('Unable to delete %s.'), __('this FAQ article'));
                         }
                         break;
                     default:
-                        $errors['err']='Invalid action';
+                        $errors['err']=__('Invalid action');
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']=__('Unknown action');
 
     }
 endif;
@@ -105,5 +116,6 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require_once(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.$inc);
+print $faq_form->getMedia();
 require_once(STAFFINC_DIR.'footer.inc.php');
 ?>

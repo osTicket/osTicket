@@ -18,30 +18,37 @@ include_once(INCLUDE_DIR.'class.sla.php');
 
 $sla=null;
 if($_REQUEST['id'] && !($sla=SLA::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid API key ID.';
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+        __('SLA plan'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$sla){
-                $errors['err']='Unknown or invalid SLA plan.';
+                $errors['err']=sprintf(__('%s: Unknown or invalid'),
+                    __('SLA plan'));
             }elseif($sla->update($_POST,$errors)){
-                $msg='SLA plan updated successfully';
+                $msg=sprintf(__('Successfully updated %s'),
+                    __('this SLA plan'));
             }elseif(!$errors['err']){
-                $errors['err']='Error updating SLA plan. Try again!';
+                $errors['err']=sprintf(__('Error updating %s. Try again!'),
+                    __('this SLA plan'));
             }
             break;
         case 'add':
             if(($id=SLA::create($_POST,$errors))){
-                $msg='SLA plan added successfully';
+                $msg=sprintf(__('Successfully added %s'),
+                    __('a SLA plan'));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add SLA plan. Correct error(s) below and try again.';
+                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this SLA plan'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one plan.';
+                $errors['err'] = sprintf(__('You must select at least %s.'),
+                    __('one SLA plan'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -51,11 +58,14 @@ if($_POST){
 
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected SLA plans enabled';
+                                $msg = sprintf(__('Successfully enabled %s'),
+                                    _N('selected SLA plan', 'selected SLA plans', $count));
                             else
-                                $warn = "$num of $count selected SLA plans enabled";
+                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
+                                    _N('selected SLA plan', 'selected SLA plans', $count));
                         } else {
-                            $errors['err'] = 'Unable to enable selected SLA plans.';
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
+                                _N('selected SLA plan', 'selected SLA plans', $count));
                         }
                         break;
                     case 'disable':
@@ -63,11 +73,14 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected SLA plans disabled';
+                                $msg = sprintf(__('Successfully disabled %s'),
+                                    _N('selected SLA plan', 'selected SLA plans', $count));
                             else
-                                $warn = "$num of $count selected SLA plans disabled";
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
+                                    _N('selected SLA plan', 'selected SLA plans', $count));
                         } else {
-                            $errors['err'] = 'Unable to disable selected SLA plans';
+                            $errors['err'] = sprintf(__('Unable to disable %s'),
+                                _N('selected SLA plan', 'selected SLA plans', $count));
                         }
                         break;
                     case 'delete':
@@ -80,19 +93,22 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = 'Selected SLA plans deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected SLA plan', 'selected SLA plans', $count));
                         elseif($i>0)
-                            $warn = "$i of $count selected SLA plans deleted";
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected SLA plan', 'selected SLA plans', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected SLA plans';
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                _N('selected SLA plan', 'selected SLA plans', $count));
                         break;
                     default:
-                        $errors['err']='Unknown action - get technical help.';
+                        $errors['err']=__('Unknown action - get technical help.');
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action/command';
+            $errors['err']=__('Unknown action');
             break;
     }
 }

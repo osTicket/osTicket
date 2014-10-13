@@ -90,31 +90,3 @@ response_time:
         response. This measurement of time is not exclusive to a Client’s
         correspondence of the initial Ticket opening. This refers to every act of
         discourse originating with a Client.
-
-export:
-    title: Export
-    content: >
-        You may export the data currently in view. Therefore,  the data that is
-        exported will be a direct reflection of whatever date span and specific
-        tabbed subject is currently specified when an <span
-        class="doc-desc-title">Export</span> is requested. The file format is <span
-        class="doc-desc-title">.csv</span>, which is compatible to any spreadsheet
-        application.
-
-department:
-    title: Department
-    content: >
-        Choose this tab if you would like to see the Data of each column that is
-        specific to your Departments.
-
-topics:
-    title: Topics
-    content: >
-        Choose this tab if you would like to see the Data of each column that is
-        specific to your Topics.
-
-agents_staff:
-    title: Agents (Staff)
-    content: >
-        Choose this tab if you would like to see the Data of each column that is
-        specific to your individual Agents.

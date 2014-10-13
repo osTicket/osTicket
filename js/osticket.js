@@ -27,7 +27,7 @@ $(document).ready(function(){
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
-                return "Are you sure you want to leave? Any changes or info you've entered will be discarded!";
+                return __("Are you sure you want to leave? Any changes or info you've entered will be discarded!");
              });
         }
        });
@@ -94,20 +94,6 @@ $(document).ready(function(){
         }
     })();
 
-    /* Multifile uploads */
-    var elems = $('.multifile');
-    if (elems.exists()) {
-        /* Get config settings from the backend */
-        getConfig().then(function(c) {
-            elems.multifile({
-                container:   '.uploads',
-                max_uploads: c.max_file_uploads || 1,
-                file_types:  c.file_types || ".*",
-                max_file_size: c.max_file_size || 0
-            });
-        });
-    }
-
     $.translate_format = function(str) {
         var translation = {
             'd':'dd',
@@ -146,9 +132,9 @@ $(document).ready(function(){
         if (!extra) return;
         if (!imgs.length) return;
         extra.append($('<a>')
-          .addClass("action-button show-images")
+          .addClass("action-button show-images pull-right")
           .css({'font-weight':'normal'})
-          .text(' Show Images')
+          .text(' ' + __('Show Images'))
           .click(function(ev) {
             imgs.each(function(i, img) {
               showNonLocalImage(img);
@@ -208,12 +194,32 @@ showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button"><i class="icon-download-alt"></i> Download</a>')
+                    .append('<a href="'+info.download_url+'" class="action-button pull-right"><i class="icon-download-alt"></i> ' + __('Download') + '</a>')
                 );
             e.data('wrapped', true);
         }
     });
 }
+
+$.sysAlert = function (title, msg, cb) {
+    var $dialog =  $('.dialog#alert');
+    if ($dialog.length) {
+        $('#title', $dialog).html(title);
+        $('#body', $dialog).html(msg);
+        $dialog.show();
+    } else {
+        msg = msg.replace(/<br\s*\/?>/, "\n").replace(/<\/?\w+[^>]*>/g, '');
+        alert(title+':\n'+msg);
+    }
+};
+
+function __(s) {
+  if ($.oststrings && $.oststrings[s])
+    return $.oststrings[s];
+  return s;
+}
+
+$.clientPortal = true;
 
 $(document).on('submit', 'form', function() {
     // Reformat dates

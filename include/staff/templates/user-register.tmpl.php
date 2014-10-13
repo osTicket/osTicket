@@ -2,7 +2,7 @@
 global $cfg;
 
 if (!$info['title'])
-    $info['title'] = 'Register: '.Format::htmlchars($user->getName());
+    $info['title'] = sprintf(__('Register: %s'), Format::htmlchars($user->getName()));
 
 if (!$_POST) {
 
@@ -26,9 +26,12 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp;Complete the form
-below to create a user account for <b><?php echo
-Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
+<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp;<?php
+echo sprintf(__(
+'Complete the form below to create a user account for <b>%s</b>.'
+), Format::htmlchars($user->getName()->getOriginal())
+); ?>
+</p></div>
 <div id="user-registration" style="display:block; margin:5px;">
     <form method="post" class="user"
         action="#users/<?php echo $user->getId(); ?>/register">
@@ -37,11 +40,11 @@ Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
         <tbody>
             <tr>
                 <th colspan="2">
-                    <em><strong>User Account Login</strong></em>
+                    <em><strong><?php echo __('User Account Login'); ?></strong></em>
                 </th>
             </tr>
             <tr>
-                <td>Authentication Sources:</td>
+                <td><?php echo __('Authentication Sources'); ?>:</td>
                 <td>
             <select name="backend" id="backend-selection" onchange="javascript:
                 if (this.value != '' && this.value != 'client') {
@@ -56,20 +59,20 @@ Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
                         $('#password').show();
                 }
                 ">
-                <option value="">&mdash; Use any available backend &mdash;</option>
+                <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
             <?php foreach (UserAuthenticationBackend::allRegistered() as $ab) {
                 if (!$ab->supportsInteractiveAuthentication()) continue; ?>
                 <option value="<?php echo $ab::$id; ?>" <?php
                     if ($info['backend'] == $ab::$id)
                         echo 'selected="selected"'; ?>><?php
-                    echo $ab::$name; ?></option>
+                    echo $ab->getName(); ?></option>
             <?php } ?>
             </select>
                 </td>
             </tr>
             <tr>
                 <td width="180">
-                    Username:
+                    <?php echo __('Username'); ?>:
                 </td>
                 <td>
                     <input type="text" size="35" name="username" value="<?php echo $info['username'] ?: $user->getEmail(); ?>">
@@ -80,12 +83,13 @@ Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
         <tbody id="activation">
             <tr>
                 <td width="180">
-                    Status:
+                    <?php echo __('Status'); ?>:
                 </td>
                 <td>
                   <input type="checkbox" id="sendemail" name="sendemail" value="1"
-                    <?php echo $info['sendemail'] ? 'checked="checked"' : ''; ?> >
-                    Send account activation email to <?php echo $user->getEmail(); ?>.
+                    <?php echo $info['sendemail'] ? 'checked="checked"' :
+                    ''; ?> ><?php echo sprintf(__(
+                    'Send account activation email to %s.'), $user->getEmail()); ?>
                 </td>
             </tr>
         </tbody>
@@ -94,7 +98,7 @@ Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
             >
             <tr>
                 <td width="180">
-                    Temp. Password:
+                    <?php echo __('Temporary Password'); ?>:
                 </td>
                 <td>
                     <input type="password" size="35" name="passwd1" value="<?php echo $info['passwd1']; ?>">
@@ -104,7 +108,7 @@ Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
             </tr>
             <tr>
                 <td width="180">
-                   Confirm Password:
+                   <?php echo __('Confirm Password'); ?>:
                 </td>
                 <td>
                     <input type="password" size="35" name="passwd2" value="<?php echo $info['passwd2']; ?>">
@@ -113,22 +117,25 @@ Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
             </tr>
             <tr>
                 <td>
-                    Password Change:
+                    <?php echo __('Password Change'); ?>:
                 </td>
                 <td colspan=2>
                     <input type="checkbox" name="pwreset-flag" value="1" <?php
-                        echo $info['pwreset-flag'] ?  'checked="checked"' : ''; ?>> Require password change on login
+                        echo $info['pwreset-flag'] ?  'checked="checked"' : ''; ?>>
+                        <?php echo __('Require password change on login'); ?>
                     <br/>
                     <input type="checkbox" name="forbid-pwreset-flag" value="1" <?php
-                        echo $info['forbid-pwreset-flag'] ?  'checked="checked"' : ''; ?>> User cannot change password
+                        echo $info['forbid-pwreset-flag'] ?  'checked="checked"' : ''; ?>>
+                        <?php echo __('User cannot change password'); ?>
                 </td>
             </tr>
         </tbody>
         <tbody>
             <tr>
-                <th colspan="2"><em><strong>User Preferences</strong></em></th>
+                <th colspan="2"><em><strong><?php echo
+                    __('User Preferences'); ?></strong></em></th>
             </tr>
-                <td>Time Zone:</td>
+                <td><?php echo __('Time Zone'); ?>:</td>
                 <td>
                     <select name="timezone_id" id="timezone_id">
                         <?php
@@ -147,23 +154,23 @@ Format::htmlchars($user->getName()->getOriginal()); ?></b>.</p></div>
             </tr>
             <tr>
                 <td width="180">
-                   Daylight Saving:
+                   <?php echo __('Daylight Saving'); ?>:
                 </td>
                 <td>
                     <input type="checkbox" name="dst" value="1" <?php echo $info['dst'] ? 'checked="checked"' : ''; ?>>
-                    Observe daylight saving
+                    <?php echo __('Observe daylight saving'); ?>
                 </td>
             </tr>
         </tbody>
         </table>
         <hr>
         <p class="full-width">
-            <span class="buttons" style="float:left">
-                <input type="reset" value="Reset">
-                <input type="button" name="cancel" class="close" value="Cancel">
+            <span class="buttons pull-left">
+                <input type="reset" value="<?php echo __('Reset'); ?>">
+                <input type="button" name="cancel" class="close" value="<?php echo __('Cancel'); ?>">
             </span>
-            <span class="buttons" style="float:right">
-                <input type="submit" value="Create Account">
+            <span class="buttons pull-right">
+                <input type="submit" value="<?php echo __('Create Account'); ?>">
             </span>
          </p>
     </form>

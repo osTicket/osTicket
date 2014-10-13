@@ -60,7 +60,7 @@ $this->maxTTFFilesize = 2000;
 // and/or Can set at runtime
 $this->percentSubset = 30;
 
-$this->useAdobeCJK = false;		// Uses Adobe CJK fonts for CJK languages
+$this->useAdobeCJK = true;		// Uses Adobe CJK fonts for CJK languages
 			// default TRUE; only set false if you have defined some available fonts that support CJK
 			// If true this will not stop use of other CJK fonts if specified by font-family:
 			// and vice versa i.e. only dictates behaviour when specified by lang="" incl. AutoFont()
@@ -77,7 +77,7 @@ $this->biDirectional=false;			// automatically determine BIDI text in LTR page
 $this->autoFontGroupSize = 2;			// 1: individual words are spanned; 2: words+; 3: as big chunks as possible.
 $this->useLang = true;				// Default changed in mPDF 4.0
 
-$this->useSubstitutions = false;		// Substitute missing characters in UTF-8(multibyte) documents - from other fonts
+$this->useSubstitutions = true;		// Substitute missing characters in UTF-8(multibyte) documents - from other fonts
 $this->falseBoldWeight = 5;			// Weight for bold text when using an artificial (outline) bold; value 0 (off) - 10 (rec. max)
 
 // CONFIGURATION
@@ -561,10 +561,10 @@ $this->fontsizes = array('XX-SMALL'=>0.7, 'X-SMALL'=>0.77, 'SMALL'=>0.86, 'MEDIU
 $this->allowedCSStags = 'DIV|P|H1|H2|H3|H4|H5|H6|FORM|IMG|A|BODY|TABLE|HR|THEAD|TFOOT|TBODY|TH|TR|TD|UL|OL|LI|PRE|BLOCKQUOTE|ADDRESS|DL|DT|DD';
 $this->allowedCSStags .= '|ARTICLE|ASIDE|FIGURE|FIGCAPTION|FOOTER|HEADER|HGROUP|NAV|SECTION|MARK|DETAILS|SUMMARY|METER|PROGRESS|TIME'; // mPDF 5.5.09
 $this->allowedCSStags .= '|SPAN|TT|I|B|BIG|SMALL|EM|STRONG|DFN|CODE|SAMP|KBD|VAR|CITE|ABBR|ACRONYM|STRIKE|S|U|DEL|INS|Q|FONT';
-$this->allowedCSStags .= '|SELECT|INPUT|TEXTAREA|CAPTION|FIELDSET|LEGEND';	// mPDF 5.4.18
-$this->allowedCSStags .= '|TEXTCIRCLE|DOTTAB';	// mPDF 5.5.23	// mPDF 5.6.33
+$this->allowedCSStags .= '|SELECT|INPUT|TEXTAREA|CAPTION|FIELDSET|LEGEND';
+$this->allowedCSStags .= '|TEXTCIRCLE|DOTTAB|MAIN';	// mPDF 5.7.3
 
-$this->outerblocktags = array('DIV','FORM','CENTER','DL','FIELDSET','ARTICLE','ASIDE','FIGURE','FIGCAPTION', 'FOOTER','HEADER','HGROUP','NAV','SECTION','DETAILS','SUMMARY');	// mPDF 5.5.09 // mPDF 5.5.22
+$this->outerblocktags = array('DIV','FORM','CENTER','DL','FIELDSET','ARTICLE','ASIDE','FIGURE','FIGCAPTION', 'FOOTER','HEADER','HGROUP','MAIN','NAV','SECTION','DETAILS','SUMMARY');	// mPDF 5.7.3
 $this->innerblocktags = array('P','BLOCKQUOTE','ADDRESS','PRE','H1','H2','H3','H4','H5','H6','DT','DD','CAPTION');
 
 

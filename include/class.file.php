@@ -107,13 +107,17 @@ class AttachmentFile {
         return $this->ht['created'];
     }
 
+    static function getDownloadForIdAndKey($id, $key) {
+        return strtolower($key . md5($id.session_id().strtolower($key)));
+    }
+
+
     /**
      * Retrieve a signature that can be sent to scp/file.php?h= in order to
      * download this file
      */
     function getDownloadHash() {
-        return strtolower($this->getKey()
-            . md5($this->getId().session_id().strtolower($this->getKey())));
+        return self::getDownloadForIdAndKey($this->getId(), $this->getKey());
     }
 
     function open() {
@@ -282,7 +286,7 @@ class AttachmentFile {
                 break;
             default:
                 // TODO: Return an error
-                $error = 'Invalid image file type';
+                $error = __('Invalid image file type');
                 return false;
         }
 
@@ -291,7 +295,7 @@ class AttachmentFile {
         if ($source_aspect_ratio >= $aspect_ratio)
             return self::upload($file, 'L');
 
-        $error = 'Image is too square. Upload a wider image';
+        $error = __('Image is too square. Upload a wider image');
         return false;
     }
 
@@ -530,9 +534,8 @@ class AttachmentFile {
 
     /*
       Method formats http based $_FILE uploads - plus basic validation.
-      @restrict - make sure file type & size are allowed.
      */
-    function format($files, $restrict=false) {
+    function format($files) {
         global $ost;
 
         if(!$files || !is_array($files))
@@ -558,16 +561,6 @@ class AttachmentFile {
                 $file['error'] = 'File upload error #'.$file['error'];
             elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
                 $file['error'] = 'Invalid or bad upload POST';
-            elseif($restrict) { // make sure file type & size are allowed.
-                if(!$ost->isFileTypeAllowed($file))
-                    $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
-                elseif($ost->getConfig()->getMaxFileSize()
-                        && $file['size']>$ost->getConfig()->getMaxFileSize())
-                    $file['error'] = sprintf('File %s (%s) is too big. Maximum of %s allowed',
-                            Format::htmlchars($file['name']),
-                            Format::file_size($file['size']),
-                            Format::file_size($ost->getConfig()->getMaxFileSize()));
-            }
         }
         unset($file);
 
@@ -587,7 +580,7 @@ class AttachmentFile {
                 .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
                 .' UNION '
                 .'SELECT file_id FROM '.ATTACHMENT_TABLE
-            .") AND `ft` = 'T'";
+            .") AND `ft` = 'T' AND TIMESTAMPDIFF(DAY, `created`, CURRENT_TIMESTAMP) > 1";
 
         if (!($res = db_query($sql)))
             return false;

@@ -16,8 +16,10 @@ if ($info['error']) {
     <?php
     if ($user) { ?>
     <a class="action-button pull-right user-action" style="overflow:inherit"
-        href="#users/<?php echo $user->getId(); ?>/org/<?php echo $org->getId(); ?>" ><i class="icon-user"></i> Change</a>
-    <a class="action-button pull-right" href="orgs.php?id=<?php echo $org->getId(); ?>"><i class="icon-share"></i> Manage</a>
+        href="#users/<?php echo $user->getId(); ?>/org/<?php echo $org->getId(); ?>" ><i class="icon-user"></i>
+        <?php echo __('Change'); ?></a>
+    <a class="action-button pull-right" href="orgs.php?id=<?php echo $org->getId(); ?>"><i class="icon-share"></i>
+        <?php echo __('Manage'); ?></a>
     <?php
     } ?>
     <div><b><a href="#" id="editorg"><i class="icon-edit"></i>&nbsp;<?php
@@ -41,7 +43,8 @@ if ($info['error']) {
     <div class="faded">Last updated <b><?php echo Format::db_datetime($org->getUpdateDate()); ?> </b></div>
 </div>
 <div id="org-form" style="display:<?php echo $forms ? 'block' : 'none'; ?>;">
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Please note that updates will be reflected system-wide.</p></div>
+<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo __(
+'Please note that updates will be reflected system-wide.'); ?></p></div>
 <?php
 $action = $info['action'] ? $info['action'] : ('#orgs/'.$org->getId());
 if ($ticket && $ticket->getOwnerId() == $user->getId())
@@ -58,13 +61,13 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
     </table>
     <hr>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
+        <span class="buttons pull-left">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
             <input type="button" name="cancel" class="<?php
-    echo $account ? 'cancel' : 'close'; ?>"  value="Cancel">
+            echo $account ? 'cancel' : 'close'; ?>"  value="<?php echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Update Organization">
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Update Organization'); ?>">
         </span>
      </p>
 </form>

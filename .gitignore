@@ -13,3 +13,7 @@ stage
 
 # Ignore packaged plugins and language packs
 *.phar
+
+# Ignore mPDF temp files
+include/mpdf/ttfontdata
+include/mpdf/tmp

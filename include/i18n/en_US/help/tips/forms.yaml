@@ -48,21 +48,29 @@ field_type:
       - title: Custom Lists
         href: /scp/lists.php
 
-field_internal:
+field_visibility:
     title: Field Visibility
     content: >
-        Fields marked internal are hidden from your clients. Use internal
-        fields to track things which only your staff need to access.
-
-field_required:
-    title: Data Requirement
-    content: >
-        Forms that have required fields must have valid data before the form
-        can be saved. If checked, forms cannot be submitted or saved until all
-        required fields are satisfied.<br>
-        <br>
-        Internal fields can only be required of staff members, since they
-        are hidden from clients.
+        Choose a visibility and requirement option for this field.
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+            ><tbody style="vertical-align:top;">
+            <tr><th>Setting</th>
+                <th>Result</th></tr>
+            <tr><td>Optional</td>
+                <td>Agents and EndUsers can see the field, but neither is required to answer.</td></tr>
+            <tr><td>Required</td>
+                <td>Agents and EndUsers can see the field, and both are required to answer</td></tr>
+            <tr><td>Required for EndUsers</td>
+                <td>Agents and EndUsers can see the field, only EndUsers are required to answer</td></tr>
+            <tr><td>Required for Agents</td>
+                <td>Agents and EndUsers can see the field, only Agents are required to answer</td></tr>
+            <tr><td>Internal, Optional</td>
+                <td>Only Agents can see the field, but no answer is required.</td></tr>
+            <tr><td>Internal, Required</td>
+                <td>Only Agents can see the field, and an answer is required.</td></tr>
+            <tr><td>For EndUsers Only</td>
+                <td>Only EndUsers can see the field, and an answer is required.</td></tr>
+        </tbody></table>
 
 field_variable:
     title: Field Automation

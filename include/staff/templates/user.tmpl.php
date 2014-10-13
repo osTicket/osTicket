@@ -20,7 +20,8 @@ if ($info['error']) {
     <?php
     if ($ticket) { ?>
     <a class="action-button pull-right change-user" style="overflow:inherit"
-        href="#tickets/<?php echo $ticket->getId(); ?>/change-user" ><i class="icon-user"></i> Change User</a>
+        href="#tickets/<?php echo $ticket->getId(); ?>/change-user" ><i class="icon-user"></i>
+        <?php echo __('Change User'); ?></a>
     <?php
     } ?>
     <div><b><?php
@@ -35,22 +36,22 @@ if ($info['error']) {
 <div class="clear"></div>
 <ul class="tabs" style="margin-top:5px">
     <li><a href="#info-tab" class="active"
-        ><i class="icon-info-sign"></i>&nbsp;User</a></li>
+        ><i class="icon-info-sign"></i>&nbsp;<?php echo __('User'); ?></a></li>
 <?php if ($org) { ?>
     <li><a href="#organization-tab"
-        ><i class="icon-fixed-width icon-building"></i>&nbsp;Organization</a></li>
+        ><i class="icon-fixed-width icon-building"></i>&nbsp;<?php echo __('Organization'); ?></a></li>
 <?php }
     $ext_id = "U".$user->getId();
     $notes = QuickNote::forUser($user, $org)->all(); ?>
     <li><a href="#notes-tab"
-        ><i class="icon-fixed-width icon-pushpin"></i>&nbsp;Notes</a></li>
+        ><i class="icon-fixed-width icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>
 
 <div class="tab_content" id="info-tab">
 <div class="floating-options">
-    <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="Edit"><i class="icon-edit"></i></a>
-    <a href="users.php?id=<?php echo $user->getId(); ?>" title="Manage User"
-        class="action"><i class="icon-share"></i></a>
+    <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="<?php echo __('Edit'); ?>"><i class="icon-edit"></i></a>
+    <a href="users.php?id=<?php echo $user->getId(); ?>" title="<?php
+        echo __('Manage User'); ?>" class="action"><i class="icon-share"></i></a>
 </div>
     <table class="custom-info" width="100%">
 <?php foreach ($user->getDynamicData() as $entry) {
@@ -71,8 +72,8 @@ if ($info['error']) {
 <?php if ($org) { ?>
 <div class="tab_content" id="organization-tab" style="display:none">
 <div class="floating-options">
-    <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="Manage Organization"
-        class="action"><i class="icon-share"></i></a>
+    <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="<?php
+    echo __('Manage Organization'); ?>" class="action"><i class="icon-share"></i></a>
 </div>
     <table class="custom-info" width="100%">
 <?php foreach ($org->getDynamicData() as $entry) {
@@ -100,7 +101,8 @@ foreach ($notes as $note)
 <div class="quicknote no-options" id="new-note"
     data-url="users/<?php echo $user->getId(); ?>/note">
 <div class="body">
-    <a href="#"><i class="icon-plus icon-large"></i> &nbsp; Click to create a new note</a>
+    <a href="#"><i class="icon-plus icon-large"></i> &nbsp;
+    <?php echo __('Click to create a new note'); ?></a>
 </div>
 </div>
 </div>
@@ -108,7 +110,9 @@ foreach ($notes as $note)
 
 </div>
 <div id="user-form" style="display:<?php echo $forms ? 'block' : 'none'; ?>;">
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Please note that updates will be reflected system-wide.</p></div>
+<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo __(
+'Please note that updates will be reflected system-wide.'
+); ?></p></div>
 <?php
 $action = $info['action'] ? $info['action'] : ('#users/'.$user->getId());
 if ($ticket && $ticket->getOwnerId() == $user->getId())
@@ -125,13 +129,13 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
     </table>
     <hr>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
+        <span class="buttons pull-left">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
             <input type="button" name="cancel" class="<?php
-    echo ($ticket && $user) ? 'cancel' : 'close' ?>"  value="Cancel">
+    echo ($ticket && $user) ? 'cancel' : 'close' ?>"  value="<?php echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Update User">
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Update User'); ?>">
         </span>
      </p>
 </form>

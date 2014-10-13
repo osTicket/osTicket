@@ -1,9 +1,9 @@
 <?php
 
 if (!$info['title'])
-    $info['title'] = 'Delete User: '.Format::htmlchars($user->getName());
+    $info['title'] = sprintf(__('Delete User: %s'), Format::htmlchars($user->getName()));
 
-$info['warn'] = 'Deleted users and tickets CANNOT be recovered';
+$info['warn'] = __('Deleted users and tickets CANNOT be recovered');
 
 ?>
 <h3><?php echo $info['title']; ?></h3>
@@ -26,7 +26,7 @@ if ($info['error']) {
     if (0 && $user->getNumTickets()) { ?>
     <a class="action-button pull-right change-user" style="overflow:inherit"
         href="#users/<?php echo $user->getId(); ?>/replace" ><i
-        class="icon-user"></i> Change Tickets Ownership</a>
+        class="icon-user"></i> <?php echo __('Change Tickets Ownership'); ?></a>
     <?php
     } ?>
     <div><b> <?php echo Format::htmlchars($user->getName()->getOriginal()); ?></b></div>
@@ -53,23 +53,24 @@ if ($info['error']) {
 
     <?php
     if (($num=$user->tickets->count())) {
-        echo sprintf('<div><input type="checkbox" name="deletetickets" value="1" >
-            <strong>Delete <a href="tickets.php?a=search&uid=%d" target="_blank">%d
-            %s</a> and any associated attachments and data.</strong></div><hr>',
-            $user->getId(),
-            $num,
-            ($num >1) ? 'tickets' : 'ticket'
-            );
+        echo '<div><input type="checkbox" name="deletetickets" value="1" > <strong>'
+            .sprintf(__('Delete %1$s %2$s %3$s and any associated attachments and data.'),
+                sprintf('<a href="tickets.php?a=search&uid=%d" target="_blank">',
+                    $user->getId()),
+                sprintf(_N('one ticket', '%d tickets', $num), $num),
+                '</a>'
+            )
+            .'</strong></div><hr>';
     }
     ?>
         <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
+        <span class="buttons pull-left">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
             <input type="button" name="cancel" class="close"
-                value="No, Cancel">
+                value="<?php echo __('No, Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Yes, Delete User">
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Yes, Delete User'); ?>">
         </span>
         </p>
     </form>

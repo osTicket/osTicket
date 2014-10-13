@@ -29,6 +29,7 @@ return array(
         "nativeName" => "አማርኛ"
     ),
     "ar" => array(
+        "direction" => "rtl",
         "name" => "Arabic",
         "nativeName" => "العربية"
     ),
@@ -106,6 +107,7 @@ return array(
     ),
     "ca" => array(
         "name" => "Catalan; Valencian",
+        "flag" => "catalonia",
         "nativeName" => "Català"
     ),
     "ch" => array(
@@ -146,10 +148,12 @@ return array(
     ),
     "cs" => array(
         "name" => "Czech",
+        "flag" => "CZ",
         "nativeName" => "česky, čeština"
     ),
     "da" => array(
         "name" => "Danish",
+        "flag" => "DK",
         "nativeName" => "dansk"
     ),
     "dv" => array(
@@ -202,6 +206,7 @@ return array(
     ),
     "ka" => array(
         "name" => "Georgian",
+        "flag" => "GE",
         "nativeName" => "ქართული"
     ),
     "de" => array(
@@ -210,6 +215,7 @@ return array(
     ),
     "el" => array(
         "name" => "Greek, Modern",
+        "flag" => "GR",
         "nativeName" => "Ελληνικά"
     ),
     "gn" => array(
@@ -229,7 +235,9 @@ return array(
         "nativeName" => "Hausa, هَوُسَ"
     ),
     "he" => array(
+        "direction" => "rtl",
         "name" => "Hebrew (modern)",
+        "flag" => "IL",
         "nativeName" => "עברית"
     ),
     "hz" => array(
@@ -238,6 +246,7 @@ return array(
     ),
     "hi" => array(
         "name" => "Hindi",
+        "flag" => "IN",
         "nativeName" => "हिन्दी, हिंदी"
     ),
     "ho" => array(
@@ -290,6 +299,7 @@ return array(
     ),
     "ja" => array(
         "name" => "Japanese",
+        "flag" => "JP",
         "nativeName" => "日本語 (にほんご／にっぽんご)"
     ),
     "jv" => array(
@@ -501,6 +511,8 @@ return array(
         "nativeName" => "पाऴि"
     ),
     "fa" => array(
+        "direction" => "rtl",
+        "flag" => "IR",
         "name" => "Persian",
         "nativeName" => "فارسی"
     ),
@@ -562,6 +574,7 @@ return array(
     ),
     "sr" => array(
         "name" => "Serbian",
+        "flag" => "RS",
         "nativeName" => "српски језик"
     ),
     "gd" => array(
@@ -582,6 +595,7 @@ return array(
     ),
     "sl" => array(
         "name" => "Slovene",
+        "flag" => "SI",
         "nativeName" => "slovenščina"
     ),
     "so" => array(
@@ -602,6 +616,7 @@ return array(
     ),
     "sw" => array(
         "name" => "Swahili",
+        "flag" => "KE",
         "nativeName" => "Kiswahili"
     ),
     "ss" => array(
@@ -626,7 +641,22 @@ return array(
     ),
     "th" => array(
         "name" => "Thai",
-        "nativeName" => "ไทย"
+        "nativeName" => "ไทย",
+        "fonts" => array(
+            "garuda" => array(
+                'R' => array("Garuda.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda.ttf"),
+                'B' => array("Garuda-Bold.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda-Bold.ttf"),
+                'I' => array("Garuda-Oblique.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda-Oblique.ttf"),
+                'BI' => array("Garuda-BoldOblique.ttf","http://www.osticket.com/sites/default/files/fonts/Garuda-BoldOblique.ttf"),
+                ':sub' => true,
+            ),
+            "norasi" => array(
+                'R' => array("Norasi.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi.ttf"),
+                'B' => array("Norasi-Bold.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi-Bold.ttf"),
+                'I' => array("Norasi-Oblique.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi-Oblique.ttf"),
+                'BI' => array("Norasi-BoldOblique.ttf","http://www.osticket.com/sites/default/files/fonts/Norasi-BoldOblique.ttf"),
+            ),
+		),
     ),
     "ti" => array(
         "name" => "Tigrinya",
@@ -678,6 +708,7 @@ return array(
     ),
     "uk" => array(
         "name" => "Ukrainian",
+        "flag" => "UA",
         "nativeName" => "українська"
     ),
     "ur" => array(

@@ -1,79 +1,62 @@
-    <h3>Field Configuration &mdash; <?php echo $field->get('label') ?></h3>
+    <h3><?php echo __('Field Configuration'); ?> &mdash; <?php echo $field->get('label') ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <form method="post" action="ajax.php/form/field-config/<?php
-            echo $field->get('id'); ?>" onsubmit="javascript:
-            var form = $(this);
-            $.post(this.action, form.serialize(), function(data, status, xhr) {
-                    if (!data.length) {
-                        form.closest('.dialog').hide();
-                        $('#overlay').hide();
-                    } else {
-                        form.closest('.dialog').empty().append(data);
-                    }
-            });
-            return false;
-            ">
-        <table width="100%">
+    <form method="post" action="#form/field-config/<?php
+            echo $field->get('id'); ?>">
         <?php
         echo csrf_token();
-        $config = $field->getConfiguration();
-        foreach ($field->getConfigurationForm() as $name=>$f) {
-            if (isset($config[$name]))
-                $f->value = $config[$name];
-            else if ($f->get('default'))
-                $f->value = $f->get('default');
-            ?>
-            <tr><td class="multi-line">
-            <label for="<?php echo $f->getWidget()->name; ?>"
-                style="vertical-align:top;padding-top:0.2em">
-                <?php echo Format::htmlchars($f->get('label')); ?>:</label>
-            </td><td>
-            <span style="display:inline-block">
+        $form = $field->getConfigurationForm();
+        echo $form->getMedia();
+        foreach ($form->getFields() as $name=>$f) { ?>
+            <div class="flush-left custom-field" id="field<?php echo $f->getWidget()->id;
+                ?>" <?php if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
+            <div class="field-label <?php if ($f->get('required')) echo 'required'; ?>">
+            <label for="<?php echo $f->getWidget()->name; ?>">
+                <?php echo Format::htmlchars($f->get('label')); ?>:
+      <?php if ($f->get('required')) { ?>
+                <span class="error">*</span>
+      <?php } ?>
+            </label>
             <?php
-            $f->render();
-            if ($f->get('required')) { ?>
-                <font class="error">*</font>
-            <?php
-            }
             if ($f->get('hint')) { ?>
-                <br /><em style="color:gray;display:inline-block"><?php
+                <br/><em style="color:gray;display:inline-block"><?php
                     echo Format::htmlchars($f->get('hint')); ?></em>
             <?php
-            }
+            } ?>
+            </div><div>
+            <?php
+            $f->render();
             ?>
-            </span>
+            </div>
             <?php
             foreach ($f->errors() as $e) { ?>
-                <br />
-                <font class="error"><?php echo $e; ?></font>
+                <div class="error"><?php echo $e; ?></div>
             <?php } ?>
-            </td></tr>
-            <?php
-        }
+            </div>
+        <?php }
         ?>
-        <tr><td colspan="2"><hr/></td></tr>
-        <tr><td class="multi-line">
+        <hr/>
+        <div class="flush-left custom-field">
+        <div class="field-label">
         <label for="hint"
-            style="vertical-align:top;padding-top:0.2em">Help Text:</label>
-        </td><td>
-        <span style="display:inline-block">
-        <textarea name="hint" rows="2" cols="40"><?php
-            echo Format::htmlchars($field->get('hint')); ?></textarea>
+            style="vertical-align:top;padding-top:0.2em"><?php echo __('Help Text') ?>:</label>
             <br />
             <em style="color:gray;display:inline-block">
-                Help text shown with the field</em>
-        </span>
-        </td></tr>
-        </table>
+                <?php echo __('Help text shown with the field'); ?></em>
+        </div>
+        <div>
+        <textarea style="width:100%" name="hint" rows="2" cols="40"><?php
+            echo Format::htmlchars($field->get('hint')); ?></textarea>
+        </div>
+        </div>
         <hr>
         <p class="full-width">
-            <span class="buttons" style="float:left">
-                <input type="reset" value="Reset">
-                <input type="button" value="Cancel" class="close">
+            <span class="buttons pull-left">
+                <input type="reset" value="<?php echo __('Reset'); ?>">
+                <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
             </span>
-            <span class="buttons" style="float:right">
-                <input type="submit" value="Save">
+            <span class="buttons pull-right">
+                <input type="submit" value="<?php echo __('Save'); ?>">
             </span>
          </p>
     </form>

@@ -4,10 +4,12 @@
 <hr/>
 <?php
 if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; Search existing users or add a new user.</p></div>
+<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo __(
+'Search existing users or add a new user.'
+); ?></p></div>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
-    placeholder="Search by email, phone or name" id="user-search"
+    placeholder="<?php echo __('Search by email, phone or name'); ?>" id="user-search"
     autocorrect="off" autocomplete="off"/>
 </div>
 <?php
@@ -25,7 +27,8 @@ if ($info['error']) {
     <input type="hidden" id="user-id" name="id" value="<?php echo $user ? $user->getId() : 0; ?>"/>
     <i class="icon-user icon-4x pull-left icon-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
-        id="unselect-user"  href="#"><i class="icon-remove"></i> Add New User</a>
+        id="unselect-user"  href="#"><i class="icon-remove"></i>
+        <?php echo __('Add New User'); ?></a>
 <?php if ($user) { ?>
     <div><strong id="user-name"><?php echo Format::htmlchars($user->getName()->getOriginal()); ?></strong></div>
     <div>&lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;</div>
@@ -51,11 +54,12 @@ if ($info['error']) {
     <div class="clear"></div>
     <hr>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" name="cancel" class="close"  value="Cancel">
+        <span class="buttons pull-left">
+            <input type="button" name="cancel" class="close"  value="<?php
+            echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Continue">
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Continue'); ?>">
         </span>
      </p>
 </form>
@@ -65,16 +69,16 @@ if ($info['error']) {
     <table width="100%" class="fixed">
     <?php
         if(!$form) $form = UserForm::getInstance();
-        $form->render(true, 'Create New User'); ?>
+        $form->render(true, __('Create New User')); ?>
     </table>
     <hr>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
-            <input type="button" name="cancel" class="<?php echo $user ? 'cancel' : 'close' ?>"  value="Cancel">
+        <span class="buttons pull-left">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" name="cancel" class="<?php echo $user ?  'cancel' : 'close' ?>"  value="<?php echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Add User">
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Add User'); ?>">
         </span>
      </p>
 </form>

@@ -70,8 +70,8 @@ $query="$select $from $where GROUP BY org.id ORDER BY $order_by LIMIT ".$pageNav
 $qhash = md5($query);
 $_SESSION['orgs_qs_'.$qhash] = $query;
 ?>
-<h2>Organizations</h2>
-<div style="width:700px; float:left;">
+<h2><?php echo __('Organizations'); ?></h2>
+<div class="pull-left" style="width:700px;">
     <form action="orgs.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -79,22 +79,23 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
             <tr>
                 <td><input type="text" id="basic-org-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-                <td><input type="submit" name="basic_search" class="button" value="Search"></td>
+                <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
                 <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
             </tr>
         </table>
     </form>
  </div>
- <div style="float:right;text-align:right;padding-right:5px;">
-    <b><a href="#orgs/add" class="Icon newDepartment add-org">Add New Organization</a></b></div>
+ <div class="pull-right flush-right">
+    <b><a href="#orgs/add" class="Icon newDepartment add-org"><?php
+    echo __('Add New Organization'); ?></a></b></div>
 <div class="clear"></div>
 <?php
-$showing = $search ? 'Search Results: ' : '';
+$showing = $search ? __('Search Results').': ' : '';
 $res = db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing .= $pageNav->showing();
 else
-    $showing .= 'No organizations found!';
+    $showing .= __('No organizations found!');
 ?>
 <form action="orgs.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
@@ -104,10 +105,10 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="400"><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="100"><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users">Users</a></th>
-            <th width="150"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create">Created</a></th>
-            <th width="145"><a <?php echo $update_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=update">Updated</a></th>
+            <th width="400"><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
+            <th width="100"><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users'); ?></a></th>
+            <th width="150"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
+            <th width="145"><a <?php echo $update_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=update"><?php echo __('Last Updated'); ?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -133,10 +134,12 @@ else
 </table>
 <?php
 if($res && $num): //Show options..
-    echo sprintf('<div>&nbsp;Page: %s &nbsp; <a class="no-pjax"
-            href="orgs.php?a=export&qh=%s">Export</a></div>',
+    echo sprintf('<div>&nbsp;%s: %s &nbsp; <a class="no-pjax"
+            href="orgs.php?a=export&qh=%s">%s</a></div>',
+            __('Page'),
             $pageNav->getPageLinks(),
-            $qhash);
+            $qhash,
+            __('Export'));
 endif;
 ?>
 </form>

@@ -2,17 +2,17 @@
 
 $info=array();
 if($form && $_REQUEST['a']!='add') {
-    $title = 'Update custom form section';
+    $title = __('Update custom form section');
     $action = 'update';
     $url = "?id=".urlencode($_REQUEST['id']);
-    $submit_text='Save Changes';
+    $submit_text=__('Save Changes');
     $info = $form->ht;
     $newcount=2;
 } else {
-    $title = 'Add new custom form section';
+    $title = __('Add new custom form section');
     $action = 'add';
     $url = '?a=add';
-    $submit_text='Add Form';
+    $submit_text=__('Add Form');
     $newcount=4;
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -23,20 +23,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2>Custom Form</h2>
+    <h2><?php echo __('Custom Form'); ?></h2>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Custom forms are used to allow custom data to be
-                associated with tickets</em>
+                <em><?php echo __(
+                'Custom forms are used to allow custom data to be associated with tickets'
+                ); ?></em>
             </th>
         </tr>
     </thead>
     <tbody style="vertical-align:top">
         <tr>
-            <td width="180" class="required">Title:</td>
+            <td width="180" class="required"><?php echo __('Title'); ?>:</td>
             <td><input type="text" name="title" size="40" value="<?php
                 echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
@@ -45,7 +46,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180">Instructions:</td>
+            <td width="180"><?php echo __('Instructions'); ?>:</td>
             <td><textarea name="instructions" rows="3" cols="40"><?php
                 echo $info['instructions']; ?></textarea>
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
@@ -58,17 +59,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>User Information Fields</strong> more information here</em>
+                <em><strong><?php echo __('User Information Fields'); ?></strong>
+                <?php echo sprintf(__('(These fields are requested for new tickets
+                via the %s form)'),
+                UserForm::objects()->one()->get('title')); ?></em>
             </th>
         </tr>
         <tr>
             <th></th>
-            <th>Label</th>
-            <th>Type</th>
-            <th>Internal</th>
-            <th>Required</th>
-            <th>Variable</th>
-            <th>Delete</th>
+            <th><?php echo __('Label'); ?></th>
+            <th><?php echo __('Type'); ?></th>
+            <th><?php echo __('Visibility'); ?></th>
+            <th><?php echo __('Variable'); ?></th>
+            <th><?php echo __('Delete'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -81,10 +84,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td></td>
             <td><?php echo $f->get('label'); ?></td>
-            <td><?php $t=FormField::getFieldType($f->get('type')); echo $t[0]; ?></td>
-            <td><input type="checkbox" disabled="disabled"/></td>
-            <td><input type="checkbox" disabled="disabled"
-                <?php echo $f->get('required') ? 'checked="checked"' : ''; ?>/></td>
+            <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
+            <td><?php
+                $rmode = $f->getRequirementMode();
+                $modes = $f->getAllRequirementModes();
+                echo $modes[$rmode]['desc'];
+            ?></td>
             <td><?php echo $f->get('name'); ?></td>
             <td><input type="checkbox" disabled="disabled"/></td></tr>
 
@@ -94,23 +99,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong>Form Fields</strong> fields available for ticket information</em>
+                <em><strong><?php echo __('Form Fields'); ?></strong>
+                <?php echo __('fields available where this form is used'); ?></em>
             </th>
         </tr>
         <tr>
-            <th nowrap>Sort
-                <i class="help-tip icon-question-sign" href="#field_sort"></i></th>
-            <th nowrap>Label
+            <th nowrap
+                ><i class="help-tip icon-question-sign" href="#field_sort"></i></th>
+            <th nowrap><?php echo __('Label'); ?>
                 <i class="help-tip icon-question-sign" href="#field_label"></i></th>
-            <th nowrap>Type
+            <th nowrap><?php echo __('Type'); ?>
                 <i class="help-tip icon-question-sign" href="#field_type"></i></th>
-            <th nowrap>Internal
-                <i class="help-tip icon-question-sign" href="#field_internal"></i></th>
-            <th nowrap>Required
-                <i class="help-tip icon-question-sign" href="#field_required"></i></th>
-            <th nowrap>Variable
+            <th nowrap><?php echo __('Visibility'); ?>
+                <i class="help-tip icon-question-sign" href="#field_visibility"></i></th>
+            <th nowrap><?php echo __('Variable'); ?>
                 <i class="help-tip icon-question-sign" href="#field_variable"></i></th>
-            <th nowrap>Delete
+            <th nowrap><?php echo __('Delete'); ?>
                 <i class="help-tip icon-question-sign" href="#field_delete"></i></th>
         </tr>
     </thead>
@@ -119,8 +123,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
-        $force_privacy = $f->isPrivacyForced() ? 'disabled="disabled"' : '';
-        $force_required = $f->isRequirementForced() ? 'disabled="disabled"' : '';
+        $rmode = $f->getRequirementMode();
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
@@ -130,41 +133,36 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
-            <td nowrap><select name="type-<?php echo $id; ?>" <?php
+            <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
                 if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                        ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                        ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {
                             if ($f->get('type') != $type
                                     && isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>" <?php
                     if ($f->get('type') == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?></option>
+                    <?php echo __($nfo[0]); ?></option>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
             </select>
             <?php if ($f->isConfigurable()) { ?>
-                <a class="action-button" style="float:none;overflow:inherit"
+                <a class="action-button field-config" style="overflow:inherit"
                     href="#ajax.php/form/field-config/<?php
                         echo $f->get('id'); ?>"
                     onclick="javascript:
-                        $('#overlay').show();
-                        $('#field-config .body').load($(this).attr('href').substr(1));
-                        $('#field-config').show();
+                        $.dialog($(this).attr('href').substr(1), [201]);
                         return false;
-                    "><i class="icon-edit"></i> Config</a>
-            <?php } ?>
-            <div class="error" style="white-space:normal"><?php
-                if ($ferrors['type']) echo $ferrors['type'];
-            ?></div>
-            </td>
-            <td><input type="checkbox" name="private-<?php echo $id; ?>"
-                <?php if ($f->get('private')) echo 'checked="checked"'; ?>
-                <?php echo $force_privacy ?>/></td>
-            <td><input type="checkbox" name="required-<?php echo $id; ?>"
-                <?php if ($f->get('required')) echo 'checked="checked"'; ?>
-                <?php echo $force_required ?>/>
+                    "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
+            <?php } ?></td>
+            <td>
+                <select name="visibility-<?php echo $id; ?>">
+<?php foreach ($f->getAllRequirementModes() as $m=>$I) { ?>
+    <option value="<?php echo $m; ?>" <?php if ($rmode == $m)
+         echo 'selected="selected"'; ?>><?php echo $I['desc']; ?></option>
+<?php } ?>
+                <select>
             </td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
@@ -190,25 +188,28 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     value="<?php echo $info["sort-new-$i"]; ?>"/></td>
             <td><input type="text" size="32" name="label-new-<?php echo $i; ?>"
                 value="<?php echo $info["label-new-$i"]; ?>"/></td>
-            <td><select name="type-new-<?php echo $i; ?>">
+            <td><select style="max-width:150px" name="type-new-<?php echo $i; ?>">
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                    ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                    ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                     foreach ($types as $type=>$nfo) {
                         if (isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>"
                     <?php if ($info["type-new-$i"] == $type) echo 'selected="selected"'; ?>>
-                    <?php echo $nfo[0]; ?>
+                    <?php echo __($nfo[0]); ?>
                 </option>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
             </select></td>
-            <td><input type="checkbox" name="private-new-<?php echo $i; ?>"
-            <?php if ($info["private-new-$i"]
-                || (!$_POST && $form && $form->get('type') == 'U'))
-                    echo 'checked="checked"'; ?>/></td>
-            <td><input type="checkbox" name="required-new-<?php echo $i; ?>"
-                <?php if ($info["required-new-$i"]) echo 'checked="checked"'; ?>/></td>
+            <td>
+                <select name="visibility-new-<?php echo $i; ?>">
+<?php
+    $rmode = $info['visibility-new-'.$i];
+    foreach (DynamicFormField::allRequirementModes() as $m=>$I) { ?>
+    <option value="<?php echo $m; ?>" <?php if ($rmode == $m)
+         echo 'selected="selected"'; ?>><?php echo $I['desc']; ?></option>
+<?php } ?>
+                <select>
             <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"
                 value="<?php echo $info["name-new-$i"]; ?>"/>
                 <font class="error"><?php
@@ -221,7 +222,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <tbody>
         <tr>
             <th colspan="7">
-                <em><strong>Internal Notes:</strong> be liberal, they're internal</em>
+                <em><strong><?php echo __('Internal Notes'); ?>:</strong>
+                <?php echo __("be liberal, they're internal"); ?></em>
             </th>
         </tr>
         <tr>
@@ -234,31 +236,30 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </table>
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
+    <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick='window.location.href="?"'>
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
-    <h3><i class="icon-trash"></i> Remove Existing Data?</h3>
+    <h3><i class="icon-trash"></i> <?php echo __('Remove Existing Data?'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p>
-        <strong>You are about to delete <span id="deleted-count"></span> fields.</strong>
-        Would you also like to remove data currently entered for this field?
-        <em>If you opt not to remove the data now, you will have the option
-        to delete the the data when editing it</em>
+    <strong><?php echo sprintf(__('You are about to delete %s fields.'),
+        '<span id="deleted-count"></span>'); ?></strong>
+        <?php echo __('Would you also like to remove data currently entered for this field? <em> If you opt not to remove the data now, you will have the option to delete the the data when editing it.</em>'); ?>
     </p><p style="color:red">
-        Deleted data CANNOT be recovered.
+        <?php echo __('Deleted data CANNOT be recovered.'); ?>
     </p>
     <hr>
     <div id="deleted-fields"></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Continue" class="confirm">
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Continue'); ?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>
@@ -266,6 +267,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </form>
 
 <div style="display:none;" class="dialog draggable" id="field-config">
+    <div id="popup-loading">
+        <h1><i class="icon-spinner icon-spin icon-large"></i>
+        <?php echo __('Loading ...');?></h1>
+    </div>
     <div class="body"></div>
 </div>
 
@@ -281,7 +286,8 @@ $('form.manage-form').on('submit.inline', function(e) {
                 .append($('<input/>').attr({type:'checkbox',name:'delete-data-'
                     + $(e).data('fieldId')})
                 ).append($('<strong>').html(
-                    'Remove all data entered for <u>' + $(e).data('fieldLabel') + '</u>'
+                    ' <?php echo __('Remove all data entered for <u> %s </u>?');
+                        ?>'.replace('%s', $(e).data('fieldLabel'))
                 ))
             );
         });

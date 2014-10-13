@@ -9,19 +9,21 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
              title="Reload"><i class="icon-refresh"></i> <?php echo $org->getName(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
-            <span class="action-button" data-dropdown="#action-dropdown-more">
-                <span ><i class="icon-cog"></i> More</span>
-                <i class="icon-caret-down"></i>
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
+                <i class="icon-caret-down pull-right"></i>
+                <span ><i class="icon-cog"></i> <?php echo __('More'); ?></span>
             </span>
-            <a id="org-delete" class="action-button org-action"
-            href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="icon-trash"></i> Delete Organization</a>
+            <a id="org-delete" class="action-button pull-right org-action"
+            href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="icon-trash"></i>
+            <?php echo __('Delete Organization'); ?></a>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <li><a href="#ajax.php/orgs/<?php echo $org->getId();
                     ?>/forms/manage" onclick="javascript:
                     $.dialog($(this).attr('href').substr(1), 201);
                     return false"
-                    ><i class="icon-paste"></i> Manage Forms</a></li>
+                    ><i class="icon-paste"></i>
+                    <?php echo __('Manage Forms'); ?></a></li>
               </ul>
             </div>
         </td>
@@ -32,7 +34,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="150">Name:</th>
+                    <th width="150"><?php echo __('Name'); ?>:</th>
                     <td><b><a href="#orgs/<?php echo $org->getId();
                     ?>/edit" class="org-action"><i
                     class="icon-edit"></i>&nbsp;<?php echo
@@ -40,7 +42,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                     ?></a></td>
                 </tr>
                 <tr>
-                    <th>Account Manager:</th>
+                    <th><?php echo __('Account Manager'); ?>:</th>
                     <td><?php echo $org->getAccountManager(); ?>&nbsp;</td>
                 </tr>
             </table>
@@ -48,11 +50,11 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
         <td width="50%" style="vertical-align:top">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="150">Created:</th>
+                    <th width="150"><?php echo __('Created'); ?>:</th>
                     <td><?php echo Format::db_datetime($org->getCreateDate()); ?></td>
                 </tr>
                 <tr>
-                    <th>Updated:</th>
+                    <th><?php echo __('Last Updated'); ?>:</th>
                     <td><?php echo Format::db_datetime($org->getUpdateDate()); ?></td>
                 </tr>
             </table>
@@ -63,11 +65,11 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 <div class="clear"></div>
 <ul class="tabs">
     <li><a class="active" id="users_tab" href="#users"><i
-    class="icon-user"></i>&nbsp;Users</a></li>
+    class="icon-user"></i>&nbsp;<?php echo __('Users'); ?></a></li>
     <li><a id="tickets_tab" href="#tickets"><i
-    class="icon-list-alt"></i>&nbsp;Tickets</a></li>
+    class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
     <li><a id="notes_tab" href="#notes"><i
-    class="icon-pushpin"></i>&nbsp;Notes</a></li>
+    class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>
 <div class="tab_content" id="users">
 <?php

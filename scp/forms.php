@@ -4,23 +4,23 @@ require_once(INCLUDE_DIR."/class.dynamic_forms.php");
 
 $form=null;
 if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid dynamic form ID.';
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('custom form'));
 
 if($_POST) {
     $fields = array('title', 'notes', 'instructions');
     $required = array('title');
     $max_sort = 0;
     $form_fields = array();
+    $names = array();
     switch(strtolower($_POST['do'])) {
         case 'update':
             foreach ($fields as $f)
                 if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
+                    $errors[$f] = sprintf(__('%s is required'),
                         mb_convert_case($f, MB_CASE_TITLE));
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
             $form->save(true);
-            $names = array();
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
                 if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
@@ -36,26 +36,21 @@ if($_POST) {
                 if (isset($_POST["type-$id"]) && $field->isChangeable())
                     $field->set('type', $_POST["type-$id"]);
                 if (isset($_POST["name-$id"]) && !$field->isNameForced())
-                    $field->set('name', $_POST["name-$id"]);
+                    $field->set('name', trim($_POST["name-$id"]));
                 # TODO: make sure all help topics still have all required fields
-                if (!$field->isRequirementForced())
-                    $field->set('required', $_POST["required-$id"] == 'on' ?  1 : 0);
-                if (!$field->isPrivacyForced())
-                    $field->set('private', $_POST["private-$id"] == 'on' ?  1 : 0);
+                $field->setRequirementMode($_POST["visibility-$id"]);
+
                 foreach (array('sort','label') as $f) {
                     if (isset($_POST["$f-$id"])) {
                         $field->set($f, $_POST["$f-$id"]);
                     }
                 }
                 if (in_array($field->get('name'), $names))
-                    $field->addError('Field variable name is not unique', 'name');
-                if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
-                    $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
+                    $field->addError(__('Field variable name is not unique'), 'name');
                 // Subject (Issue Summary) must always have data
                 if ($form->get('type') == 'T' && $field->get('name') == 'subject') {
                     if (($f = $field->getField(false)->getImpl()) && !$f->hasData())
-                        $field->addError('The issue summary must be a field '
-                            .'that supports user input, such as short answer',
+                        $field->addError(__('The issue summary must be a field that supports user input, such as short answer'),
                             'type');
                 }
                 if ($field->get('name'))
@@ -64,7 +59,7 @@ if($_POST) {
                     $form_fields[] = $field;
                 else
                     # notrans (not shown)
-                    $errors["field-$id"] = 'Field has validation errors';
+                    $errors["field-$id"] = __('Field has validation errors');
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
@@ -82,7 +77,7 @@ if($_POST) {
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one API key';
+                $errors['err'] = sprintf(__('You must select at least %s'), __('one custom form'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -93,11 +88,14 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = 'Selected custom forms deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected custom form', 'selected custom forms', $count));
                         elseif ($i > 0)
-                            $warn = "$i of $count selected forms deleted";
+                            $warn = sprintf(__('%1$d of %1$d %3$s deleted'), $i, $count,
+                                _N('selected custom form', 'selected custom forms', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected custom forms';
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                _N('selected custom form', 'selected custom forms', $count));
                         break;
                 }
             }
@@ -112,13 +110,17 @@ if($_POST) {
                 'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : ++$max_sort,
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
-                'name'=>$_POST["name-new-$i"],
-                'private'=>$_POST["private-new-$i"] == 'on' ? 1 : 0,
-                'required'=>$_POST["required-new-$i"] == 'on' ? 1 : 0
+                'name'=>trim($_POST["name-new-$i"]),
             ));
+            $field->setRequirementMode($_POST["visibility-new-$i"]);
             $field->setForm($form);
-            if ($field->isValid())
+            if (in_array($field->get('name'), $names))
+                $field->addError(__('Field variable name is not unique'), 'name');
+            if ($field->isValid()) {
                 $form_fields[] = $field;
+                if ($N = $field->get('name'))
+                    $names[] = $N;
+            }
             else
                 $errors["new-$i"] = $field->errors();
         }
@@ -135,9 +137,10 @@ if($_POST) {
         }
     }
     if ($errors)
-        $errors['err'] = 'Unable to commit form. Check validation errors';
+        $errors['err'] = sprintf(__('Unable to commit %s. Check validation errors'), __('this custom form'));
     else
-        $msg = 'Custom form successfully updated';
+        $msg = sprintf(__('Successfully updated %s'),
+            __('this custom form'));
 }
 
 $page='dynamic-forms.inc.php';

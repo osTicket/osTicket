@@ -98,18 +98,22 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function _search($req) {
-        global $thisstaff, $cfg;
+        global $thisstaff, $cfg, $ost;
 
         $result=array();
+        $criteria = array();
+
         $select = 'SELECT ticket.ticket_id';
-        $from = ' FROM '.TICKET_TABLE.' ticket ';
+        $from = ' FROM '.TICKET_TABLE.' ticket
+                  LEFT JOIN '.TICKET_STATUS_TABLE.' status
+                    ON (status.id = ticket.status_id) ';
         //Access control.
         $where = ' WHERE ( (ticket.staff_id='.db_input($thisstaff->getId())
-                    .' AND ticket.status="open" )';
+                    .' AND status.state="open" )';
 
         if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
             $where.=' OR (ticket.team_id IN ('.implode(',', db_input(array_filter($teams)))
-                   .' ) AND ticket.status="open")';
+                   .' ) AND status.state="open" )';
 
         if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
             $where.=' OR ticket.dept_id IN ('.implode(',', db_input($depts)).')';
@@ -117,51 +121,71 @@ class TicketsAjaxAPI extends AjaxController {
         $where.=' ) ';
 
         //Department
-        if($req['deptId'])
+        if ($req['deptId']) {
             $where.=' AND ticket.dept_id='.db_input($req['deptId']);
+            $criteria['dept_id'] = $req['deptId'];
+        }
 
         //Help topic
-        if($req['topicId'])
+        if($req['topicId']) {
             $where.=' AND ticket.topic_id='.db_input($req['topicId']);
+            $criteria['topic_id'] = $req['topicId'];
+        }
 
-        //Status
-        switch(strtolower($req['status'])) {
-            case 'open':
-                $where.=' AND ticket.status="open" ';
-                break;
-            case 'answered':
-                $where.=' AND ticket.status="open" AND ticket.isanswered=1 ';
-                break;
-            case 'overdue':
-                $where.=' AND ticket.status="open" AND ticket.isoverdue=1 ';
-                break;
-            case 'closed':
-                $where.=' AND ticket.status="closed" ';
-                break;
+        // Status
+        if ($req['statusId']
+                && ($status=TicketStatus::lookup($req['statusId']))) {
+            $where .= sprintf(' AND status.id="%d" ',
+                    $status->getId());
+            $criteria['status_id'] = $status->getId();
+        }
+
+        // Flags
+        if ($req['flag']) {
+            switch (strtolower($req['flag'])) {
+                case 'answered':
+                    $where .= ' AND ticket.isanswered =1 ';
+                    $criteria['isanswered'] = 1;
+                    $criteria['state'] = 'open';
+                    $where .= ' AND status.state="open" ';
+                    break;
+                case 'overdue':
+                    $where .= ' AND ticket.isoverdue =1 ';
+                    $criteria['isoverdue'] = 1;
+                    $criteria['state'] = 'open';
+                    $where .= ' AND status.state="open" ';
+                    break;
+            }
         }
 
         //Assignee
-        if(isset($req['assignee']) && strcasecmp($req['status'], 'closed'))  {
+        if($req['assignee'] && strcasecmp($req['status'], 'closed'))  { # assigned-to
             $id=preg_replace("/[^0-9]/", "", $req['assignee']);
             $assignee = $req['assignee'];
-            $where.= ' AND ( ( ticket.status="open" ';
-            if($assignee[0]=='t')
+            $where.= ' AND ( ( status.state="open" ';
+            if($assignee[0]=='t') {
                 $where.=' AND ticket.team_id='.db_input($id);
-            elseif($assignee[0]=='s')
+                $criteria['team_id'] = $id;
+            }
+            elseif($assignee[0]=='s' || is_numeric($id)) {
                 $where.=' AND ticket.staff_id='.db_input($id);
-            elseif(is_numeric($id))
-                $where.=' AND ticket.staff_id='.db_input($id);
+                $criteria['staff_id'] = $id;
+            }
 
             $where.=')';
 
             if($req['staffId'] && !$req['status']) //Assigned TO + Closed By
-                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']). ' AND ticket.status="closed") ';
-            elseif(isset($req['staffId'])) // closed by any
-                $where.= ' OR ticket.status="closed" ';
+                $where.= ' OR (ticket.staff_id='.db_input($req['staffId']).
+                    ' AND status.state IN("closed")) ';
+            elseif($req['staffId']) // closed by any
+                $where.= ' OR status.state IN("closed") ';
 
             $where.= ' ) ';
-        } elseif($req['staffId']) {
-            $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND ticket.status="closed") ';
+        } elseif($req['staffId']) { # closed-by
+            $where.=' AND (ticket.staff_id='.db_input($req['staffId']).' AND
+                status.state IN("closed")) ';
+            $criteria['state__in'] = array('closed');
+            $criteria['staff_id'] = $req['staffId'];
         }
 
         //dates
@@ -170,40 +194,14 @@ class TicketsAjaxAPI extends AjaxController {
         if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0))
             $startTime=$endTime=0;
 
-        if($startTime)
+        if($startTime) {
             $where.=' AND ticket.created>=FROM_UNIXTIME('.$startTime.')';
+            $criteria['created__gte'] = $startTime;
+        }
 
-        if($endTime)
+        if($endTime) {
             $where.=' AND ticket.created<=FROM_UNIXTIME('.$endTime.')';
-
-        //Query
-        $joins = array();
-        if($req['query']) {
-            $queryterm=db_real_escape($req['query'], false);
-
-            // Setup sets of joins and queries
-            $joins[] = array(
-                'from' =>
-                    'LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON (ticket.ticket_id=thread.ticket_id )',
-                'where' => "thread.title LIKE '%$queryterm%' OR thread.body LIKE '%$queryterm%'"
-            );
-            $joins[] = array(
-                'from' =>
-                    'LEFT JOIN '.FORM_ENTRY_TABLE.' tentry ON (tentry.object_id = ticket.ticket_id AND tentry.object_type="T")
-                    LEFT JOIN '.FORM_ANSWER_TABLE.' tans ON (tans.entry_id = tentry.id AND tans.value_id IS NULL)',
-                'where' => "tans.value LIKE '%$queryterm%'"
-            );
-            $joins[] = array(
-                'from' =>
-                   'LEFT JOIN '.FORM_ENTRY_TABLE.' uentry ON (uentry.object_id = ticket.user_id
-                   AND uentry.object_type="U")
-                   LEFT JOIN '.FORM_ANSWER_TABLE.' uans ON (uans.entry_id = uentry.id
-                   AND uans.value_id IS NULL)
-                   LEFT JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id)
-                   LEFT JOIN '.USER_EMAIL_TABLE.' uemail ON (user.id = uemail.user_id)',
-                'where' =>
-                    "uemail.address LIKE '%$queryterm%' OR user.name LIKE '%$queryterm%' OR uans.value LIKE '%$queryterm%'",
-            );
+            $criteria['created__lte'] = $startTime;
         }
 
         // Dynamic fields
@@ -213,10 +211,18 @@ class TicketsAjaxAPI extends AjaxController {
                     && ($val = $req[$f->getFormName()])) {
                 $name = $f->get('name') ? $f->get('name')
                     : 'field_'.$f->get('id');
-                if ($f->getImpl()->hasIdValue() && is_numeric($val))
-                    $cwhere = "cdata.`{$name}_id` = ".db_input($val);
-                else
+                if (is_array($val)) {
+                    $cwhere = '(' . implode(' OR ', array_map(
+                        function($k) use ($name) {
+                            return sprintf('FIND_IN_SET(%s, `%s`)', db_input($k), $name);
+                        }, $val)
+                    ) . ')';
+                    $criteria["cdata.{$name}"] = $val;
+                }
+                else {
                     $cwhere = "cdata.`$name` LIKE '%".db_real_escape($val)."%'";
+                    $criteria["cdata.{$name}"] = $val;
+                }
                 $where .= ' AND ('.$cwhere.')';
                 $cdata_search = true;
             }
@@ -224,6 +230,14 @@ class TicketsAjaxAPI extends AjaxController {
         if ($cdata_search)
             $from .= 'LEFT JOIN '.TABLE_PREFIX.'ticket__cdata '
                     ." cdata ON (cdata.ticket_id = ticket.ticket_id)";
+
+        //Query
+        $joins = array();
+        if($req['query']) {
+            // Setup sets of joins and queries
+            if ($s = $ost->searcher)
+               return $s->find($req['query'], $criteria, 'Ticket');
+        }
 
         $sections = array();
         foreach ($joins as $j) {
@@ -250,13 +264,12 @@ class TicketsAjaxAPI extends AjaxController {
         if (count($tickets)) {
             $uid = md5($_SERVER['QUERY_STRING']);
             $_SESSION["adv_$uid"] = $tickets;
-            $result['success'] =sprintf(
-                "Search criteria matched %d %s - <a href='tickets.php?%s'>view</a>",
-                count($tickets), (count($tickets)>1?"tickets":"ticket"),
-                'advsid='.$uid
-            );
+            $result['success'] = sprintf(__("Search criteria matched %s"),
+                    sprintf(_N('%d ticket', '%d tickets', count($tickets)), count($tickets)
+                ))
+                . " - <a href='tickets.php?advsid=$uid'>".__('view')."</a>";
         } else {
-            $result['fail']='No tickets found matching your search criteria.';
+            $result['fail']=__('No tickets found matching your search criteria.');
         }
 
         return $this->json_encode($result);
@@ -269,14 +282,14 @@ class TicketsAjaxAPI extends AjaxController {
             return 0;
 
         if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
-            return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>'Lock denied!'));
+            return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Lock denied!')));
 
         //is the ticket already locked?
         if($ticket->isLocked() && ($lock=$ticket->getLock()) && !$lock->isExpired()) {
             /*Note: Ticket->acquireLock does the same logic...but we need it here since we need to know who owns the lock up front*/
             //Ticket is locked by someone else.??
             if($lock->getStaffId()!=$thisstaff->getId())
-                return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>'Unable to acquire lock.'));
+                return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Unable to acquire lock.')));
 
             //Ticket already locked by staff...try renewing it.
             $lock->renew(); //New clock baby!
@@ -333,14 +346,9 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if(!$thisstaff || !($ticket=Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
-            Http::response(404, 'No such ticket');
+            Http::response(404, __('No such ticket'));
 
-        ob_start();
         include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
-        $resp = ob_get_contents();
-        ob_end_clean();
-
-        return $resp;
     }
 
     function addRemoteCollaborator($tid, $bk, $id) {
@@ -358,7 +366,7 @@ class TicketsAjaxAPI extends AjaxController {
         $form = UserForm::getUserForm()->getForm($user_info);
         $info = array();
         if (!$user_info)
-            $info['error'] = 'Unable to find user in directory';
+            $info['error'] = __('Unable to find user in directory');
 
         return self::_addcollaborator($ticket, null, $form, $info);
     }
@@ -369,7 +377,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffAccess($thisstaff))
-            Http::response(404, 'No such ticket');
+            Http::response(404, __('No such ticket'));
 
 
         $user = $uid? User::lookup($uid) : null;
@@ -389,15 +397,15 @@ class TicketsAjaxAPI extends AjaxController {
         $errors = $info = array();
         if ($user) {
             if ($user->getId() == $ticket->getOwnerId())
-                $errors['err'] = sprintf('Ticket owner, %s, is a collaborator by default!',
+                $errors['err'] = sprintf(__('Ticket owner, %s, is a collaborator by default!'),
                         Format::htmlchars($user->getName()));
             elseif (($c=$ticket->addCollaborator($user,
                             array('isactive'=>1), $errors))) {
-                $note = Format::htmlchars(sprintf('%s <%s> added as a collaborator',
+                $note = Format::htmlchars(sprintf(__('%s <%s> added as a collaborator'),
                             Format::htmlchars($c->getName()), $c->getEmail()));
-                $ticket->logNote('New Collaborator Added', $note,
+                $ticket->logNote(__('New Collaborator Added'), $note,
                     $thisstaff, false);
-                $info = array('msg' => sprintf('%s added as a collaborator',
+                $info = array('msg' => sprintf(__('%s added as a collaborator'),
                             Format::htmlchars($c->getName())));
                 return self::_collaborators($ticket, $info);
             }
@@ -406,7 +414,7 @@ class TicketsAjaxAPI extends AjaxController {
         if($errors && $errors['err']) {
             $info +=array('error' => $errors['err']);
         } else {
-            $info +=array('error' =>'Unable to add collaborator - try again');
+            $info +=array('error' =>__('Unable to add collaborator. Internal error'));
         }
 
         return self::_addcollaborator($ticket, $user, $form, $info);
@@ -474,7 +482,7 @@ class TicketsAjaxAPI extends AjaxController {
     function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
 
         $info += array(
-                    'title' => sprintf('Ticket #%s: Add a collaborator', $ticket->getNumber()),
+                    'title' => sprintf(__('Ticket #%s: Add a collaborator'), $ticket->getNumber()),
                     'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId()),
                     'onselect' => sprintf('ajax.php/tickets/%d/add-collaborator/', $ticket->getId()),
                     );
@@ -541,7 +549,7 @@ class TicketsAjaxAPI extends AjaxController {
 
 
         $info = array(
-            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -570,7 +578,7 @@ class TicketsAjaxAPI extends AjaxController {
         $forms = $user->getForms();
 
         $info = array(
-            'title' => sprintf('Ticket #%s: %s', $ticket->getNumber(),
+            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -593,7 +601,7 @@ class TicketsAjaxAPI extends AjaxController {
         $user = User::lookup($ticket->getOwnerId());
 
         $info = array(
-                'title' => sprintf('Change user for ticket #%s', $ticket->getNumber())
+                'title' => sprintf(__('Change user for ticket #%s'), $ticket->getNumber())
                 );
 
         return self::_userlookup($user, null, $info);
@@ -694,6 +702,330 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such premade reply');
 
         return $canned->getFormattedResponse($format, $varReplacer);
+    }
+
+    function changeTicketStatus($tid, $status, $id=0) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+        elseif (!$tid
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket #');
+
+        $info = array();
+        $state = null;
+        switch($status) {
+            case 'open':
+            case 'reopen':
+                $state = 'open';
+                break;
+            case 'close':
+                if (!$thisstaff->canCloseTickets())
+                    Http::response(403, 'Access denied');
+                $state = 'closed';
+                break;
+            case 'delete':
+                if (!$thisstaff->canDeleteTickets())
+                    Http::response(403, 'Access denied');
+                $state = 'deleted';
+                break;
+            default:
+                $state = $ticket->getStatus()->getState();
+                $info['warn'] = sprintf('%s %s',
+                        __('Unknown or invalid'), __('status'));
+        }
+
+        $info['status_id'] = $id ?: $ticket->getStatusId();
+
+        return self::_changeTicketStatus($ticket, $state, $info);
+    }
+
+    function setTicketStatus($tid) {
+        global $thisstaff, $ost;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+        elseif (!$tid
+                || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket #');
+
+        $errors = $info = array();
+        if (!$_POST['status_id']
+                || !($status= TicketStatus::lookup($_POST['status_id'])))
+            $errors['status_id'] = sprintf('%s %s',
+                    __('Unknown or invalid'), __('status'));
+        elseif ($status->getId() == $ticket->getStatusId())
+            $errors['err'] = sprintf(__('Ticket already set to %s status'),
+                    __($status->getName()));
+        else {
+            // Make sure the agent has permission to set the status
+            switch(mb_strtolower($status->getState())) {
+                case 'open':
+                    if (!$thisstaff->canCloseTickets()
+                            && !$thisstaff->canCreateTickets())
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to reopen tickets'));
+                    break;
+                case 'closed':
+                    if (!$thisstaff->canCloseTickets())
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to resolve/close tickets'));
+                    break;
+                case 'deleted':
+                    if (!$thisstaff->canDeleteTickets())
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to archive/delete tickets'));
+                    break;
+                default:
+                    $errors['err'] = sprintf('%s %s',
+                            __('Unknown or invalid'), __('status'));
+            }
+        }
+
+        $state = strtolower($status->getState());
+
+        if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'])) {
+
+            if ($state == 'deleted') {
+                $msg = sprintf('%s %s',
+                        sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                        __('deleted sucessfully')
+                        );
+            } elseif ($state != 'open') {
+                 $msg = sprintf(__('%s status changed to %s'),
+                         sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                         $status->getName());
+            } else {
+                $msg = sprintf(
+                        __('%s status changed to %s'),
+                        __('Ticket'),
+                        $status->getName());
+            }
+
+            $_SESSION['::sysmsgs']['msg'] = $msg;
+
+            Http::response(201, 'Successfully processed');
+        } elseif (!$errors['err']) {
+            $errors['err'] =  __('Error updating ticket status');
+        }
+
+        $state = $state ?: $ticket->getStatus()->getState();
+        $info['status_id'] = $status
+            ? $status->getId() : $ticket->getStatusId();
+
+        return self::_changeTicketStatus($ticket, $state, $info, $errors);
+    }
+
+    function changeSelectedTicketsStatus($status, $id=0) {
+        global $thisstaff, $cfg;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+
+        $state = null;
+        $info = array();
+        switch($status) {
+            case 'open':
+            case 'reopen':
+                $state = 'open';
+                break;
+            case 'close':
+                if (!$thisstaff->canCloseTickets())
+                    Http::response(403, 'Access denied');
+                $state = 'closed';
+                break;
+            case 'delete':
+                if (!$thisstaff->canDeleteTickets())
+                    Http::response(403, 'Access denied');
+
+                $state = 'deleted';
+                break;
+            default:
+                $info['warn'] = sprintf('%s %s',
+                        __('Unknown or invalid'), __('status'));
+        }
+
+        $info['status_id'] = $id;
+
+        return self::_changeSelectedTicketsStatus($state, $info);
+    }
+
+    function setSelectedTicketsStatus($state) {
+        global $thisstaff, $ost;
+
+        $errors = $info = array();
+        if (!$thisstaff || !$thisstaff->canManageTickets())
+            $errors['err'] = sprintf('%s %s',
+                    sprintf(__('You do not have permission %s.'),
+                        __('to mass manage tickets')),
+                    __('Contact admin for such access'));
+        elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
+            $errors['err']=sprintf(__('You must select at least %s.'),
+                    __('one ticket'));
+        elseif (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
+            $errors['status_id'] = sprintf('%s %s',
+                    __('Unknown or invalid'), __('status'));
+        elseif (!$errors) {
+            // Make sure the agent has permission to set the status
+            switch(mb_strtolower($status->getState())) {
+                case 'open':
+                    if (!$thisstaff->canCloseTickets()
+                            && !$thisstaff->canCreateTickets())
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to reopen tickets'));
+                    break;
+                case 'closed':
+                    if (!$thisstaff->canCloseTickets())
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to resolve/close tickets'));
+                    break;
+                case 'deleted':
+                    if (!$thisstaff->canDeleteTickets())
+                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                                __('to archive/delete tickets'));
+                    break;
+                default:
+                    $errors['err'] = sprintf('%s %s',
+                            __('Unknown or invalid'), __('status'));
+            }
+        }
+
+        $count = count($_REQUEST['tids']);
+        if (!$errors) {
+            $i = 0;
+            $comments = $_REQUEST['comments'];
+            foreach ($_REQUEST['tids'] as $tid) {
+                if (($ticket=Ticket::lookup($tid))
+                        && $ticket->getStatusId() != $status->getId()
+                        && $ticket->checkStaffAccess($thisstaff)
+                        && $ticket->setStatus($status, $comments))
+                    $i++;
+            }
+
+            if (!$i)
+                $errors['err'] = sprintf(__('Unable to change status for %s'),
+                        _N('the selected ticket', 'any of the selected tickets', $count));
+            else {
+                // Assume success
+                if ($i==$count) {
+
+                    if (!strcasecmp($status->getState(), 'deleted')) {
+                        $msg = sprintf(__( 'Successfully deleted %s.'),
+                                _N('selected ticket', 'selected tickets',
+                                    $count));
+                    } else {
+                       $msg = sprintf(
+                            __(
+                                /* 1$ will be 'selected ticket(s)', 2$ is the new status */
+                                'Successfully changed status of %1$s to %2$s'),
+                            _N('selected ticket', 'selected tickets',
+                                $count),
+                            $status->getName());
+                    }
+
+                    $_SESSION['::sysmsgs']['msg'] = $msg;
+                } else {
+
+                    if (!strcasecmp($status->getState(), 'deleted')) {
+                        $warn = sprintf(__('Successfully deleted %s.'),
+                                sprintf(__('%1$d of %2$d selected tickets'),
+                                    $i, $count)
+                                );
+                    } else {
+
+                        $warn = sprintf(
+                                __('%1$d of %2$d %3$s status changed to %4$s'),$i, $count,
+                                _N('selected ticket', 'selected tickets',
+                                    $count),
+                                $status->getName());
+                    }
+
+                    $_SESSION['::sysmsgs']['warn'] = $warn;
+                }
+
+                Http::response(201, 'Successfully processed');
+            }
+        }
+
+        return self::_changeSelectedTicketsStatus($state, $info, $errors);
+    }
+
+    private function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
+
+        $count = $_REQUEST['count'] ?:
+            ($_REQUEST['tids'] ?  count($_REQUEST['tids']) : 0);
+
+        $info['title'] = sprintf(__('%1$s Tickets &mdash; %2$d selected'),
+                TicketStateField::getVerb($state),
+                 $count);
+
+        if (!strcasecmp($state, 'deleted')) {
+
+            $info['warn'] = sprintf(__(
+                        'Are you sure you want to DELETE %s?'),
+                    _N('selected ticket', 'selected tickets', $count)
+                    );
+
+            $info['extra'] = sprintf('<strong>%s</strong>', __(
+                        'Deleted tickets CANNOT be recovered, including any associated attachments.')
+                    );
+
+            $info['placeholder'] = sprintf(__(
+                        'Optional reason for deleting %s'),
+                    _N('selected ticket', 'selected tickets', $count));
+        }
+
+        $info['status_id'] = $info['status_id'] ?: $_REQUEST['status_id'];
+        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
+
+        return self::_changeStatus($state, $info, $errors);
+    }
+
+    private function _changeTicketStatus($ticket, $state, $info=array(), $errors=array()) {
+
+        $verb = TicketStateField::getVerb($state);
+
+        $info['action'] = sprintf('#tickets/%d/status', $ticket->getId());
+        $info['title'] = sprintf(__(
+                    /* 1$ will be a verb, like 'open', 2$ will be the ticket number */
+                    '%1$s Ticket #%2$s'),
+                $verb ?: $state,
+                $ticket->getNumber()
+                );
+
+        // Deleting?
+        if (!strcasecmp($state, 'deleted')) {
+
+            $info['placeholder'] = sprintf(__(
+                        'Optional reason for deleting %s'),
+                    __('this ticket'));
+            $info[ 'warn'] = sprintf(__(
+                        'Are you sure you want to DELETE %s?'),
+                        __('this ticket'));
+            //TODO: remove message below once we ship data retention plug
+            $info[ 'extra'] = sprintf('<strong>%s</strong>',
+                        __('Deleted tickets CANNOT be recovered, including any associated attachments.')
+                        );
+        }
+
+        $info['status_id'] = $info['status_id'] ?: $ticket->getStatusId();
+        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
+
+        return self::_changeStatus($state, $info, $errors);
+    }
+
+    private function _changeStatus($state, $info=array(), $errors=array()) {
+
+        if ($info && isset($info['errors']))
+            $errors = array_merge($errors, $info['errors']);
+
+        if (!$info['error'] && isset($errors['err']))
+            $info['error'] = $errors['err'];
+
+        include(STAFFINC_DIR . 'templates/ticket-status.tmpl.php');
     }
 }
 ?>

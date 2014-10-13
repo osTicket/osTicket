@@ -22,22 +22,29 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 }
 
 ?>
-<h1>Open a New Ticket</h1>
-<p>Please fill in the form below to open a new ticket.</p>
+<h1><?php echo __('Open a New Ticket');?></h1>
+<p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
   <input type="hidden" name="a" value="open">
   <table width="800" cellpadding="1" cellspacing="0" border="0">
     <tbody>
     <tr>
-        <td class="required">Help Topic:</td>
+        <td class="required"><?php echo __('Help Topic');?>:</td>
         <td>
             <select id="topicId" name="topicId" onchange="javascript:
                     var data = $(':input[name]', '#dynamic-form').serialize();
-                    $('#dynamic-form').load(
-                        'ajax.php/form/help-topic/' + this.value, data);
-                    ">
-                <option value="" selected="selected">&mdash; Select a Help Topic &mdash;</option>
+                    $.ajax(
+                      'ajax.php/form/help-topic/' + this.value,
+                      {
+                        data: data,
+                        dataType: 'json',
+                        success: function(json) {
+                          $('#dynamic-form').empty().append(json.html);
+                          $(document.head).append(json.media);
+                        }
+                      });">
+                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
                 <?php
                 if($topics=Topic::getPublicHelpTopics()) {
                     foreach($topics as $id =>$name) {
@@ -45,7 +52,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                                 $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
                     }
                 } else { ?>
-                    <option value="0" >General Inquiry</option>
+                    <option value="0" ><?php echo __('General Inquiry');?></option>
                 <?php
                 } ?>
             </select>
@@ -60,8 +67,8 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
-        <tr><td>Email:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td>Client:</td><td><?php echo $thisclient->getName(); ?></td></tr>
+        <tr><td><?php echo __('Email'); ?>:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
+        <tr><td><?php echo __('Client'); ?>:</td><td><?php echo $thisclient->getName(); ?></td></tr>
         <?php } ?>
     </tbody>
     <tbody id="dynamic-form">
@@ -78,15 +85,15 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     <?php
     if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
         if($_POST && $errors && !$errors['captcha'])
-            $errors['captcha']='Please re-enter the text again';
+            $errors['captcha']=__('Please re-enter the text again');
         ?>
     <tr class="captchaRow">
-        <td class="required">CAPTCHA Text:</td>
+        <td class="required"><?php echo __('CAPTCHA Text');?>:</td>
         <td>
             <span class="captcha"><img src="captcha.php" border="0" align="left"></span>
             &nbsp;&nbsp;
             <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
-            <em>Enter the text shown on the image.</em>
+            <em><?php echo __('Enter the text shown on the image.');?></em>
             <font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font>
         </td>
     </tr>
@@ -97,9 +104,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
   </table>
 <hr/>
   <p style="text-align:center;">
-        <input type="submit" value="Create Ticket">
-        <input type="reset" name="reset" value="Reset">
-        <input type="button" name="cancel" value="Cancel" onclick="javascript:
+        <input type="submit" value="<?php echo __('Create Ticket');?>">
+        <input type="reset" name="reset" value="<?php echo __('Reset');?>">
+        <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
             $('.richtext').each(function() {
                 var redactor = $(this).data('redactor');
                 if (redactor && redactor.opts.draftDelete)

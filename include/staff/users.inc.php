@@ -34,6 +34,7 @@ if ($_REQUEST['query']) {
 
 $sortOptions = array('name' => 'user.name',
                      'email' => 'email.address',
+                     'status' => 'account_status',
                      'create' => 'user.created',
                      'update' => 'user.updated');
 $orderWays = array('DESC'=>'DESC','ASC'=>'ASC');
@@ -73,8 +74,8 @@ $qhash = md5($query);
 $_SESSION['users_qs_'.$qhash] = $query;
 
 ?>
-<h2>User Directory</h2>
-<div style="width:700px; float:left;">
+<h2><?php echo __('User Directory'); ?></h2>
+<div class="pull-left" style="width:700px;">
     <form action="users.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -82,25 +83,26 @@ $_SESSION['users_qs_'.$qhash] = $query;
             <tr>
                 <td><input type="text" id="basic-user-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-                <td><input type="submit" name="basic_search" class="button" value="Search"></td>
+                <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
                 <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
             </tr>
         </table>
     </form>
  </div>
- <div style="float:right;text-align:right;padding-right:5px;">
-    <b><a href="#users/add" class="Icon newstaff popup-dialog">Add User</a></b>
+ <div class="pull-right flush-right" style="padding-right:5px;">
+    <b><a href="#users/add" class="Icon newstaff popup-dialog"><?php echo __('Add User'); ?></a></b>
     |
-    <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i> Import</a></b>
+    <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i>
+    <?php echo __('Import'); ?></a></b>
 </div>
 <div class="clear"></div>
 <?php
-$showing = $search ? 'Search Results: ' : '';
+$showing = $search ? __('Search Results').': ' : '';
 $res = db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing .= $pageNav->showing();
 else
-    $showing .= 'No users found!';
+    $showing .= __('No users found!');
 ?>
 <form action="users.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
@@ -110,10 +112,14 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="100"><a <?php echo $create_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=create">Created</a></th>
-            <th width="145"><a <?php echo $update_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=update">Updated</a></th>
+            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php
+                echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
+            <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php
+                echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
+            <th width="100"><a <?php echo $create_sort; ?> href="users.php?<?php
+                echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
+            <th width="145"><a <?php echo $update_sort; ?> href="users.php?<?php
+                echo $qstr; ?>&sort=update"><?php echo __('Updated'); ?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -131,7 +137,7 @@ else
                 if ($row['account_id'])
                     $status = new UserAccountStatus($row['account_status']);
                 else
-                    $status = 'Guest';
+                    $status = __('Guest');
 
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
@@ -159,8 +165,8 @@ else
 </table>
 <?php
 if($res && $num): //Show options..
-    echo sprintf('<div>&nbsp;Page: %s &nbsp; <a class="no-pjax"
-            href="users.php?a=export&qh=%s">Export</a></div>',
+    echo sprintf('<div>&nbsp;'.__('Page').': %s &nbsp; <a class="no-pjax"
+            href="users.php?a=export&qh=%s">'.__('Export').'</a></div>',
             $pageNav->getPageLinks(),
             $qhash);
 endif;

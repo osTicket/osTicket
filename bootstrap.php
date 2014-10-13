@@ -94,8 +94,11 @@ class Bootstrap {
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
         define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
         define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
+        define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
+
 
         define('FORM_SEC_TABLE',$prefix.'form');
         define('FORM_FIELD_TABLE',$prefix.'form_field');
@@ -117,6 +120,7 @@ class Bootstrap {
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
 
         define('PLUGIN_TABLE', $prefix.'plugin');
+        define('SEQUENCE_TABLE', $prefix.'sequence');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
@@ -134,8 +138,7 @@ class Bootstrap {
             //Die gracefully on upgraded v1.6 RC5 installation - otherwise script dies with confusing message.
             if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
                 Http::response(500,
-                    'Please rename config file include/settings.php to '
-                   .'include/ost-config.php to continue!');
+                    'Please rename config file include/settings.php to include/ost-config.php to continue!');
         } elseif(file_exists(ROOT_DIR.'setup/'))
             Http::redirect(ROOT_PATH.'setup/');
 
@@ -165,9 +168,9 @@ class Bootstrap {
             );
 
         if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
-            $ferror='Unable to connect to the database -'.db_connect_error();
+            $ferror=sprintf('Unable to connect to the database — %s',db_connect_error());
         }elseif(!db_select_database(DBNAME)) {
-            $ferror='Unknown or invalid database '.DBNAME;
+            $ferror=sprintf('Unknown or invalid database: %s',DBNAME);
         }
 
         if($ferror) //Fatal error
@@ -176,6 +179,7 @@ class Bootstrap {
 
     function loadCode() {
         #include required files
+        require_once INCLUDE_DIR.'class.util.php';
         require(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
@@ -190,6 +194,8 @@ class Bootstrap {
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
+        require_once INCLUDE_DIR.'class.i18n.php';
+        require_once INCLUDE_DIR.'class.search.php';
     }
 
     function i18n_prep() {
@@ -322,8 +328,6 @@ define('THISPAGE', Misc::currentURL());
 
 define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
 define('DEFAULT_PRIORITY_ID',1);
-
-define('EXT_TICKET_ID_LEN',6); //Ticket create. when you start getting collisions. Applies only on random ticket ids.
 
 #Global override
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))

@@ -45,20 +45,22 @@ $from .= ' LEFT JOIN '.TICKET_TABLE.' ticket ON (ticket.user_id = user.id) ';
 $query="$select $from $where GROUP BY user.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 
-$showing = $search ? 'Search Results: ' : '';
+$showing = $search ? __('Search Results').': ' : '';
 $res = db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing .= $pageNav->showing();
 else
-    $showing .= "This organization doesn't have any users yet";
+    $showing .= __("This organization doesn't have any users yet");
 
 ?>
-<div style="width:700px; float:left;"><b><?php echo $showing; ?></b></div>
-<div style="float:right;text-align:right;padding-right:5px;">
-    <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user">Add User</a></b>
+<div style="width:700px;" class="pull-left"><b><?php echo $showing; ?></b></div>
+<div class="pull-right flush-right" style="padding-right:5px;">
+    <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user"
+        ><?php echo __('Add User'); ?></a></b>
     |
     <b><a href="#orgs/<?php echo $org->getId(); ?>/import-users" class="add-user">
-    <i class="icon-cloud-upload icon-large"></i> Import</a></b>
+    <i class="icon-cloud-upload icon-large"></i>
+    <?php echo __('Import'); ?></a></b>
 </div>
 <div class="clear"></div>
 <br/>
@@ -73,10 +75,10 @@ if ($num) { ?>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>
-            <th width="350"> Name</th>
-            <th width="300"> Email</th>
-            <th width="100"> Status</th>
-            <th width="100"> Created</th>
+            <th width="350"><?php echo __('Name'); ?></th>
+            <th width="300"><?php echo __('Email'); ?></th>
+            <th width="100"><?php echo __('Status'); ?></th>
+            <th width="100"><?php echo __('Created'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -121,13 +123,13 @@ if ($num) { ?>
             <?php
             if ($res && $num) {
                 ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select'); ?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All'); ?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None'); ?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle'); ?></a>&nbsp;&nbsp;
             <?php
             } else {
-                echo 'No users found';
+                echo __('No users found!');
             }
             ?>
         </td>
@@ -136,11 +138,11 @@ if ($num) { ?>
 </table>
 <?php
 if ($res && $num) { //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 
     ?>
     <p class="centered" id="actions">
-        <input class="button" type="submit" name="remove-users" value="Remove" >
+        <input class="button" type="submit" name="remove-users" value="<?php echo __('Remove'); ?>" >
     </p>
 <?php
 }
@@ -150,21 +152,23 @@ if ($res && $num) { //Show options..
 } ?>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="remove-users-confirm">
-        Are you sure want to <b>REMOVE</b> selected user from <strong><?php
-        echo $org->getName(); ?></strong> organization?
+        <?php echo sprintf(__(
+        'Are you sure you want to <b>REMOVE</b> %1$s from <strong>%2$s</strong>?'),
+        _N('selected user', 'selected users', 2),
+        $org->getName()); ?>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.'); ?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!'); ?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

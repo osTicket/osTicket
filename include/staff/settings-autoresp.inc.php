@@ -1,4 +1,4 @@
-<h2>Autoresponder Settings</h2>
+<h2><?php echo __('Autoresponder Settings'); ?></h2>
 <form action="settings.php?t=autoresp" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="autoresp" >
@@ -6,37 +6,37 @@
     <thead>
         <tr>
             <th colspan="2">
-                <h4>Autoresponder Setting</h4>
-                <em>Global setting - can be disabled at department or email level.</em>
+                <h4><?php echo __('Autoresponder Setting'); ?></h4>
+                <em><?php echo __('Global setting - can be disabled at department or email level.'); ?></em>
             </th>
         </tr>
     </thead>
     <tbody>
 
         <tr>
-            <td width="160">New Ticket:</td>
+            <td width="160"><?php echo __('New Ticket'); ?>:</td>
             <td>
                 <input type="checkbox" name="ticket_autoresponder" <?php
 echo $config['ticket_autoresponder'] ? 'checked="checked"' : ''; ?>/>
-                Ticket Owner&nbsp;
+                <?php echo __('Ticket Owner'); ?>&nbsp;
                 <i class="help-tip icon-question-sign" href="#new_ticket"></i>
             </td>
         </tr>
         <tr>
-            <td width="160">New Ticket by Staff:</td>
+            <td width="160"><?php echo __('New Ticket by Agent'); ?>:</td>
             <td>
                 <input type="checkbox" name="ticket_notice_active" <?php
 echo $config['ticket_notice_active'] ? 'checked="checked"' : ''; ?>/>
-                Ticket Owner&nbsp;
+                <?php echo __('Ticket Owner'); ?>&nbsp;
                 <i class="help-tip icon-question-sign" href="#new_ticket_by_staff"></i>
             </td>
         </tr>
         <tr>
-            <td width="160" rowspan="2">New Message:</td>
+            <td width="160" rowspan="2"><?php echo __('New Message'); ?>:</td>
             <td>
                 <input type="checkbox" name="message_autoresponder" <?php
 echo $config['message_autoresponder'] ? 'checked="checked"' : ''; ?>/>
-                Submitter: Send receipt confirmation&nbsp;
+                <?php echo __('Submitter: Send receipt confirmation'); ?>&nbsp;
                 <i class="help-tip icon-question-sign" href="#new_message_for_submitter"></i>
             </td>
         </tr>
@@ -44,24 +44,24 @@ echo $config['message_autoresponder'] ? 'checked="checked"' : ''; ?>/>
             <td>
                 <input type="checkbox" name="message_autoresponder_collabs" <?php
 echo $config['message_autoresponder_collabs'] ? 'checked="checked"' : ''; ?>/>
-                Participants: Send new activity notice&nbsp;
+                <?php echo __('Participants: Send new activity notice'); ?>&nbsp;
                 <i class="help-tip icon-question-sign" href="#new_message_for_participants"></i>
                 </div>
             </td>
         </tr>
         <tr>
-            <td width="160">Overlimit Notice:</td>
+            <td width="160"><?php echo __('Overlimit Notice'); ?>:</td>
             <td>
                 <input type="checkbox" name="overlimit_notice_active" <?php
 echo $config['overlimit_notice_active'] ? 'checked="checked"' : ''; ?>/>
-                Ticket Submitter&nbsp;
+                <?php echo __('Ticket Submitter'); ?>&nbsp;
                 <i class="help-tip icon-question-sign" href="#overlimit_notice"></i>
             </td>
         </tr>
     </tbody>
 </table>
 <p style="padding-left:200px;">
-    <input class="button" type="submit" name="submit" value="Save Changes">
-    <input class="button" type="reset" name="reset" value="Reset Changes">
+    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
+    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>">
 </p>
 </form>

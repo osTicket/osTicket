@@ -3,17 +3,17 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info=array();
 $qstr='';
 if($topic && $_REQUEST['a']!='add') {
-    $title='Update Help Topic';
+    $title=__('Update Help Topic');
     $action='update';
-    $submit_text='Save Changes';
+    $submit_text=__('Save Changes');
     $info=$topic->getInfo();
     $info['id']=$topic->getId();
     $info['pid']=$topic->getPid();
     $qstr.='&id='.$topic->getId();
 } else {
-    $title='Add New Help Topic';
+    $title=__('Add New Help Topic');
     $action='create';
-    $submit_text='Add Topic';
+    $submit_text=__('Add Topic');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $info['form_id'] = Topic::FORM_USE_PARENT;
@@ -26,20 +26,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2>Help Topic</h2>
+ <h2><?php echo __('Help Topic');?></h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em>Help Topic Information&nbsp;<i class="help-tip icon-question-sign" href="#help_topic_information"></i></em>
+                <em><?php echo __('Help Topic Information');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#help_topic_information"></i></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td width="180" class="required">
-               Topic:
+               <?php echo __('Topic');?>:
             </td>
             <td>
                 <input type="text" size="30" name="topic" value="<?php echo $info['topic']; ?>">
@@ -48,31 +49,31 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
-                Status:
+                <?php echo __('Status');?>:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>>Active
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>Disabled
+                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><?php echo __('Active'); ?>
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><?php echo __('Disabled'); ?>
                 &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
         <tr>
             <td width="180" class="required">
-                Type:
+                <?php echo __('Type');?>:
             </td>
             <td>
-                <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>>Public
-                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>>Private/Internal
+                <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><?php echo __('Public'); ?>
+                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><?php echo __('Private/Internal'); ?>
                 &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
         <tr>
             <td width="180">
-                Parent Topic:
+                <?php echo __('Parent Topic');?>:
             </td>
             <td>
                 <select name="topic_pid">
-                    <option value="">&mdash; Top-Level Topic &mdash;</option><?php
+                    <option value="">&mdash; <?php echo __('Top-Level Topic'); ?> &mdash;</option><?php
                     $topics = Topic::getAllHelpTopics();
                     while (list($id,$topic) = each($topics)) {
                         if ($id == $info['topic_id'])
@@ -85,16 +86,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
 
-        <tr><th colspan="2"><em>New ticket options</em></th></tr>
+        <tr><th colspan="2"><em><?php echo __('New ticket options');?></em></th></tr>
         <tr>
-           <td><strong>Custom Form</strong>:</td>
+            <td><strong><?php echo __('Custom Form'); ?></strong>:</td>
            <td><select name="form_id">
                 <option value="0" <?php
 if ($info['form_id'] == '0') echo 'selected="selected"';
-                    ?>>&mdash; None &mdash;</option>
+                    ?>>&mdash; <?php echo __('None'); ?> &mdash;</option>
                 <option value="<?php echo Topic::FORM_USE_PARENT; ?>"  <?php
 if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
-                    ?>>&mdash; Use Parent Form &mdash;</option>
+                    ?>>&mdash; <?php echo __('Use Parent Form'); ?> &mdash;</option>
                <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>
                 <option value="<?php echo $group->get('id'); ?>"
                        <?php if ($group->get('id') == $info['form_id'])
@@ -109,11 +110,11 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <td width="180" class="required">
-                Department:
+                <?php echo __('Department'); ?>:
             </td>
             <td>
                 <select name="dept_id">
-                    <option value="0">&mdash; System Default &mdash;</option>
+                    <option value="0">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
                     $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -130,11 +131,41 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <td width="180">
-                Priority:
+                <?php echo __('Status'); ?>:
+            </td>
+            <td>
+                <span>
+                <select name="status_id">
+                    <option value="">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
+                    <?php
+                    foreach (TicketStatusList::getStatuses(array('states'=>array('open'))) as $status) {
+                        $name = $status->getName();
+                        if (!($isenabled = $status->isEnabled()))
+                            $name.=' '.__('(disabled)');
+
+                        echo sprintf('<option value="%d" %s %s>%s</option>',
+                                $status->getId(),
+                                ($info['status_id'] == $status->getId())
+                                 ? 'selected="selected"' : '',
+                                 $isenabled ? '' : 'disabled="disabled"',
+                                 $name
+                                );
+                    }
+                    ?>
+                </select>
+                &nbsp;
+                <span class="error"><?php echo $errors['status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#status"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                <?php echo __('Priority'); ?>:
             </td>
             <td>
                 <select name="priority_id">
-                    <option value="">&mdash; System Default &mdash;</option>
+                    <option value="">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
                     $sql='SELECT priority_id,priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -151,11 +182,11 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <td width="180">
-                SLA Plan:
+                <?php echo __('SLA Plan');?>:
             </td>
             <td>
                 <select name="sla_id">
-                    <option value="0">&mdash; Department's Default &mdash;</option>
+                    <option value="0">&mdash; <?php echo __("Department's Default");?> &mdash;</option>
                     <?php
                     if($slas=SLA::getSLAs()) {
                         foreach($slas as $id =>$name) {
@@ -170,10 +201,10 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
             </td>
         </tr>
         <tr>
-            <td width="180">Thank-you Page:</td>
+            <td width="180"><?php echo __('Thank-you Page'); ?>:</td>
             <td>
                 <select name="page_id">
-                    <option value="">&mdash; System Default &mdash;</option>
+                    <option value="">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
                     if(($pages = Page::getActiveThankYouPages())) {
                         foreach($pages as $page) {
@@ -191,14 +222,14 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <td width="180">
-                Auto-assign To:
+                <?php echo __('Auto-assign To');?>:
             </td>
             <td>
                 <select name="assign">
-                    <option value="0">&mdash; Unassigned &mdash;</option>
+                    <option value="0">&mdash; <?php echo __('Unassigned'); ?> &mdash;</option>
                     <?php
                     if (($users=Staff::getStaffMembers())) {
-                        echo '<OPTGROUP label="Staff Members">';
+                        echo sprintf('<OPTGROUP label="%s">', sprintf(__('Agents (%d)'), count($user)));
                         foreach ($users as $id => $name) {
                             $name = new PersonsName($name);
                             $k="s$id";
@@ -211,14 +242,14 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                         echo '</OPTGROUP>';
                     }
                     $sql='SELECT team_id, name, isenabled FROM '.TEAM_TABLE.' ORDER BY name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        echo '<OPTGROUP label="Teams">';
+                    if(($res=db_query($sql)) && ($cteams = db_num_rows($res))) {
+                        echo sprintf('<OPTGROUP label="%s">', sprintf(__('Teams (%d)'), $cteams));
                         while (list($id, $name, $isenabled) = db_fetch_row($res)){
                             $k="t$id";
                             $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
 
                             if (!$isenabled)
-                                $name .= ' (disabled)';
+                                $name .= ' '.__('(disabled)');
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
@@ -233,17 +264,73 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
         <tr>
             <td width="180">
-                Auto-response:
+                <?php echo __('Auto-response'); ?>:
             </td>
             <td>
                 <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                    <strong>Disable</strong> new ticket auto-response
+                    <?php echo __('<strong>Disable</strong> new ticket auto-response'); ?>
                     <i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
             </td>
         </tr>
         <tr>
+            <td>
+                <?php echo __('Ticket Number Format'); ?>:
+            </td>
+            <td>
+                <label>
+                <input type="radio" name="custom-numbers" value="0" <?php echo !$info['custom-numbers']?'checked="checked"':''; ?>
+                    onchange="javascript:$('#custom-numbers').hide();"> <?php echo __('System Default'); ?>
+                </label>&nbsp;<label>
+                <input type="radio" name="custom-numbers" value="1" <?php echo $info['custom-numbers']?'checked="checked"':''; ?>
+                    onchange="javascript:$('#custom-numbers').show(200);"> <?php echo __('Custom'); ?>
+                </label>&nbsp; <i class="help-tip icon-question-sign" href="#custom_numbers"></i>
+            </td>
+        </tr>
+    </tbody>
+    <tbody id="custom-numbers" style="<?php if (!$info['custom-numbers']) echo 'display:none'; ?>">
+        <tr>
+            <td style="padding-left:20px">
+                <?php echo __('Format'); ?>:
+            </td>
+            <td>
+                <input type="text" name="number_format" value="<?php echo $info['number_format']; ?>"/>
+                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example"><?php
+                    if ($info['custom-numbers']) {
+                        if ($info['sequence_id'])
+                            $seq = Sequence::lookup($info['sequence_id']);
+                        if (!isset($seq))
+                            $seq = new RandomSequence();
+                        echo $seq->current($info['number_format']);
+                    } ?></span></span>
+                <div class="error"><?php echo $errors['number_format']; ?></div>
+            </td>
+        </tr>
+        <tr>
+<?php $selected = 'selected="selected"'; ?>
+            <td style="padding-left:20px">
+                <?php echo __('Sequence'); ?>:
+            </td>
+            <td>
+                <select name="sequence_id">
+                <option value="0" <?php if ($info['sequence_id'] == 0) echo $selected;
+                    ?>>&mdash; <?php echo __('Random'); ?> &mdash;</option>
+<?php foreach (Sequence::objects() as $s) { ?>
+                <option value="<?php echo $s->id; ?>" <?php
+                    if ($info['sequence_id'] == $s->id) echo $selected;
+                    ?>><?php echo $s->name; ?></option>
+<?php } ?>
+                </select>
+                <button class="action-button pull-right" onclick="javascript:
+                $.dialog('ajax.php/sequence/manage', 205);
+                return false;
+                "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
+            </td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
             <th colspan="2">
-                <em><strong>Admin Notes</strong>: Internal notes about the help topic.</em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("be liberal, they're internal.");?></em>
             </th>
         </tr>
         <tr>
@@ -254,9 +341,24 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="helptopics.php"'>
+    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="helptopics.php"'>
 </p>
 </form>
+<script type="text/javascript">
+$(function() {
+    var request = null,
+      update_example = function() {
+      request && request.abort();
+      request = $.get('ajax.php/sequence/'
+        + $('[name=sequence_id] :selected').val(),
+        {'format': $('[name=number_format]').val()},
+        function(data) { $('#format-example').text(data); }
+      );
+    };
+    $('[name=sequence_id]').on('change', update_example);
+    $('[name=number_format]').on('keyup', update_example);
+});
+</script>

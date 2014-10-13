@@ -26,7 +26,7 @@ class UsersAjaxAPI extends AjaxController {
     function search($type = null) {
 
         if(!isset($_REQUEST['q'])) {
-            Http::response(400, 'Query argument is required');
+            Http::response(400, __('Query argument is required'));
         }
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
@@ -113,7 +113,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $info = array(
-            'title' => sprintf('Update %s', Format::htmlchars($user->getName()))
+            'title' => sprintf(__('Update %s'), Format::htmlchars($user->getName()))
         );
         $forms = $user->getForms();
 
@@ -129,7 +129,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $errors = array();
-        if($user->updateInfo($_POST, $errors))
+        if ($user->updateInfo($_POST, $errors, true) && !$errors)
              Http::response(201, $user->to_json());
 
         $forms = $user->getForms();
@@ -148,7 +148,7 @@ class UsersAjaxAPI extends AjaxController {
         if ($_POST) {
             // Register user on post
             if ($user->getAccount())
-                $info['error'] = 'User already registered';
+                $info['error'] = __('User already registered');
             elseif ($user->register($_POST, $errors))
                 Http::response(201, 'Account created successfully');
 
@@ -157,7 +157,7 @@ class UsersAjaxAPI extends AjaxController {
             if ($errors['err'])
                 $info['error'] = $errors['err'];
             else
-                $info['error'] = 'Unable to register user - try again!';
+                $info['error'] = __('Unable to register user - try again!');
         }
 
         include(STAFFINC_DIR . 'templates/user-register.tmpl.php');
@@ -187,7 +187,7 @@ class UsersAjaxAPI extends AjaxController {
             if ($errors['err'])
                 $info['error'] = $errors['err'];
             else
-                $info['error'] = 'Unable to update account - try again!';
+                $info['error'] = __('Unable to update account - try again!');
         }
 
         $info['_target'] = $target;
@@ -207,19 +207,19 @@ class UsersAjaxAPI extends AjaxController {
         if ($_POST) {
             if ($user->tickets->count()) {
                 if (!$thisstaff->canDeleteTickets()) {
-                    $info['error'] = 'You do not have permission to delete a user with tickets!';
+                    $info['error'] = __('You do not have permission to delete a user with tickets!');
                 } elseif ($_POST['deletetickets']) {
                     foreach($user->tickets as $ticket)
                         $ticket->delete();
                 } else {
-                    $info['error'] = 'You cannot delete a user with tickets!';
+                    $info['error'] = __('You cannot delete a user with tickets!');
                 }
             }
 
             if (!$info['error'] && $user->delete())
                  Http::response(204, 'User deleted successfully');
             elseif (!$info['error'])
-                $info['error'] = 'Unable to delete user - try again!';
+                $info['error'] = __('Unable to delete user - try again!');
         }
 
         include(STAFFINC_DIR . 'templates/user-delete.tmpl.php');
@@ -230,7 +230,7 @@ class UsersAjaxAPI extends AjaxController {
         if(($user=User::lookup(($id) ? $id : $_REQUEST['id'])))
            Http::response(201, $user->to_json());
 
-        $info = array('error' =>'Unknown or invalid user');
+        $info = array('error' => sprintf(__('%s: Unknown or invalid ID.'), _N('end user', 'end users', 1)));
 
         return self::_lookupform(null, $info);
     }
@@ -247,12 +247,12 @@ class UsersAjaxAPI extends AjaxController {
             $info['lookup'] = 'local';
 
         if ($_POST) {
-            $info['title'] = 'Add New User';
+            $info['title'] = __('Add New User');
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form)))
                 Http::response(201, $user->to_json());
 
-            $info['error'] = 'Error adding user - try again!';
+            $info['error'] = __('Error adding user - try again!');
         }
 
         return self::_lookupform($form, $info);
@@ -270,9 +270,11 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'User not found');
 
         $form = UserForm::getUserForm()->getForm($user_info);
-        $info = array('title' => 'Import Remote User');
+        $info = array('title' => __(
+            /* `remote` users are those in a remore directory such as LDAP */
+            'Import Remote User'));
         if (!$user_info)
-            $info['error'] = 'Unable to find user in directory';
+            $info['error'] = __('Unable to find user in directory');
 
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
     }
@@ -284,7 +286,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(403, 'Login Required');
 
         $info = array(
-            'title' => 'Import Users',
+            'title' => __('Import Users'),
             'action' => '#users/import',
             'upload_url' => "users.php?do=import-users",
         );
@@ -306,7 +308,7 @@ class UsersAjaxAPI extends AjaxController {
         if ($id)
             $user = User::lookup($id);
 
-        $info = array('title' => 'Select User');
+        $info = array('title' => __('Select User'));
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
@@ -319,7 +321,7 @@ class UsersAjaxAPI extends AjaxController {
     static function _lookupform($form=null, $info=array()) {
 
         if (!$info or !$info['title'])
-            $info += array('title' => 'Lookup or create a user');
+            $info += array('title' => __('Lookup or create a user'));
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
@@ -357,35 +359,38 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $info = array();
-        $info['title'] = 'Organization for '.Format::htmlchars($user->getName());
+        $info['title'] = sprintf(__('Organization for %s'),
+            Format::htmlchars($user->getName()));
         $info['action'] = '#users/'.$user->getId().'/org';
         $info['onselect'] = 'ajax.php/users/'.$user->getId().'/org';
 
         if ($_POST) {
             if ($_POST['orgid']) { //Existing org.
                 if (!($org = Organization::lookup($_POST['orgid'])))
-                    $info['error'] = 'Unknown organization selected';
+                    $info['error'] = __('Unknown organization selected');
             } else { //Creating new org.
                 $form = OrganizationForm::getDefaultForm()->getForm($_POST);
                 if (!($org = Organization::fromForm($form)))
-                    $info['error'] = 'Unable to create organization - try again!';
+                    $info['error'] = __('Unable to create organization.')
+                        .' '.__('Correct error(s) below and try again.');
             }
 
             if ($org && $user->setOrganization($org))
                 Http::response(201, $org->to_json());
             elseif (! $info['error'])
-                $info['error'] = 'Unable to add organization - try again!';
+                $info['error'] = __('Unable to add user to organization.')
+                    .' '.__('Correct error(s) below and try again.');
 
         } elseif ($orgId)
             $org = Organization::lookup($orgId);
         elseif ($org = $user->getOrganization()) {
-            $info['title'] = sprintf('%s &mdash; %s', Format::htmlchars($user->getName()), 'Organization');
+            $info['title'] = sprintf(__('%s &mdash; Organization'), Format::htmlchars($user->getName()));
             $info['action'] = $info['onselect'] = '';
             $tmpl = 'org.tmpl.php';
         }
 
         if ($org && $user->getOrgId() && $org->getId() != $user->getOrgId())
-            $info['warning'] = 'Are you sure you want to change user\'s organization?';
+            $info['warning'] = __("Are you sure you want to change user's organization?");
 
         $tmpl = $tmpl ?: 'org-lookup.tmpl.php';
 

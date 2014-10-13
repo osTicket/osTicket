@@ -61,6 +61,20 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_topic` (
   PRIMARY KEY  (`faq_id`,`topic_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%sequence`;
+CREATE TABLE `%TABLE_PREFIX%sequence` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) DEFAULT NULL,
+  `flags` int(10) unsigned DEFAULT NULL,
+  `next` bigint(20) unsigned NOT NULL DEFAULT '1',
+  `increment` int(11) DEFAULT '1',
+  `padding` char(1) DEFAULT '0',
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+-- InnoDB is intended here because transaction support is required for row
+-- locking
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
 CREATE TABLE `%TABLE_PREFIX%sla` (
   `id` int(11) unsigned NOT NULL auto_increment,
@@ -153,10 +167,13 @@ CREATE TABLE `%TABLE_PREFIX%list` (
     `name` varchar(255) NOT NULL,
     `name_plural` varchar(255),
     `sort_mode` enum('Alpha', '-Alpha', 'SortCol') NOT NULL DEFAULT 'Alpha',
+    `masks` int(11) unsigned NOT NULL DEFAULT 0,
+    `type` VARCHAR( 16 ) NULL DEFAULT NULL,
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `type` (`type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%list_items`;
@@ -279,6 +296,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `disable_autoresponder` tinyint(1) unsigned NOT NULL default '0',
   `canned_response_id` int(11) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
+  `status_id` int(10) unsigned NOT NULL default '0',
   `priority_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
@@ -404,15 +422,19 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `isactive` tinyint(1) unsigned NOT NULL default '1',
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `noautoresp` tinyint(3) unsigned NOT NULL default '0',
-  `priority_id` tinyint(3) unsigned NOT NULL default '0',
-  `dept_id` tinyint(3) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned DEFAULT '0',
+  `status_id` int(10) unsigned NOT NULL default '0',
+  `priority_id` int(10) unsigned NOT NULL default '0',
+  `dept_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `page_id` int(10) unsigned NOT NULL default '0',
   `form_id` int(10) unsigned NOT NULL default '0',
+  `sequence_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sort` int(10) unsigned NOT NULL default '0',
   `topic` varchar(32) NOT NULL default '',
+  `number_format` varchar(32) DEFAULT NULL,
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
@@ -467,7 +489,8 @@ CREATE TABLE `%TABLE_PREFIX%note` (
   `sort` int(11) unsigned NOT NULL DEFAULT 0,
   `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `ext_id` (`ext_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%session`;
@@ -568,14 +591,15 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `number` varchar(20),
   `user_id` int(11) unsigned NOT NULL default '0',
   `user_email_id` int(11) unsigned NOT NULL default '0',
+  `status_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `topic_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(11) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
-  `status` enum('open','closed') NOT NULL default 'open',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
   `isoverdue` tinyint(1) unsigned NOT NULL default '0',
   `isanswered` tinyint(1) unsigned NOT NULL default '0',
@@ -590,8 +614,8 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `user_id` (`user_id`),
   KEY `dept_id` (`dept_id`),
   KEY `staff_id` (`staff_id`),
-  KEY `team_id` (`staff_id`),
-  KEY `status` (`status`),
+  KEY `team_id` (`team_id`),
+  KEY `status_id` (`status_id`),
   KEY `created` (`created`),
   KEY `closed` (`closed`),
   KEY `duedate` (`duedate`),
@@ -650,6 +674,23 @@ CREATE TABLE `%TABLE_PREFIX%ticket_event` (
   KEY `ticket_stats` (`timestamp`, `state`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_status`;
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL DEFAULT '',
+  `state` varchar(16) DEFAULT NULL,
+  `mode` int(11) unsigned NOT NULL DEFAULT '0',
+  `flags` int(11) unsigned NOT NULL DEFAULT '0',
+  `sort` int(11) unsigned NOT NULL DEFAULT '0',
+  `properties` text NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `state` (`state`)
+) DEFAULT CHARSET=utf8;
+
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_priority`;
 CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
   `priority_id` tinyint(4) NOT NULL auto_increment,
@@ -675,7 +716,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
   `poster` varchar(128) NOT NULL default '',
   `source` varchar(32) NOT NULL default '',
   `title` varchar(255),
-  `body` text NOT NULL,
+  `body` mediumtext NOT NULL,
   `format` varchar(16) NOT NULL default 'html',
   `ip_address` varchar(64) NOT NULL default '',
   `created` datetime NOT NULL,

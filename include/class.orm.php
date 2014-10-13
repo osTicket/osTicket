@@ -42,14 +42,18 @@ class VerySimpleModel {
         elseif (isset(static::$meta['joins'][$field])) {
             // TODO: Support instrumented lists and such
             $j = static::$meta['joins'][$field];
-            $class = $j['fkey'][0];
-            $v = $this->ht[$field] = $class::lookup(
-                array($j['fkey'][1] => $this->ht[$j['local']]));
-            return $v;
+            // Make sure joins were inspected
+            if (isset($j['fkey'])
+                    && ($class = $j['fkey'][0])
+                    && class_exists($class)) {
+                $v = $this->ht[$field] = $class::lookup(
+                    array($j['fkey'][1] => $this->ht[$j['local']]));
+                return $v;
+            }
         }
         if (isset($default))
             return $default;
-        throw new OrmException(sprintf('%s: %s: Field not defined',
+        throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));
     }
     function __get($field) {
@@ -86,7 +90,7 @@ class VerySimpleModel {
             }
             else
                 throw new InvalidArgumentException(
-                    'Expecting NULL or instance of ' . $j['fkey'][0]);
+                    sprintf(__('Expecting NULL or instance of %s'), $j['fkey'][0]));
 
             // Capture the foreign key id value
             $field = $j['local'];
@@ -132,7 +136,7 @@ class VerySimpleModel {
     static function _inspect() {
         if (!static::$meta['table'])
             throw new OrmConfigurationException(
-                'Model does not define meta.table', get_called_class());
+                __('Model does not define meta.table'), get_called_class());
 
         // Break down foreign-key metadata
         foreach (static::$meta['joins'] as $field => &$j) {
@@ -141,8 +145,10 @@ class VerySimpleModel {
                 $info = $model::$meta['joins'][$key];
                 $constraint = array();
                 if (!is_array($info['constraint']))
-                    throw new OrmConfigurationException(
-                        $j['reverse'].': Reverse does not specify any constraints');
+                    throw new OrmConfigurationException(sprintf(__(
+                        // `reverse` here is the reverse of an ORM relationship
+                        '%s: Reverse does not specify any constraints'),
+                        $j['reverse']));
                 foreach ($info['constraint'] as $foreign => $local) {
                     list(,$field) = explode('.', $local);
                     $constraint[$field] = "$model.$foreign";
@@ -260,6 +266,12 @@ class SqlFunction {
         $args = (count($this->args)) ? implode(',', db_input($this->args)) : "";
         return sprintf('%s(%s)', $this->func, $args);
     }
+
+    static function __callStatic($func, $args) {
+        $I = new static($func);
+        $I->args = $args;
+        return $I;
+    }
 }
 
 class QuerySet implements IteratorAggregate, ArrayAccess {
@@ -272,6 +284,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
     var $offset = 0;
     var $related = array();
     var $values = array();
+    var $lock = false;
+
+    const LOCK_EXCLUSIVE = 1;
+    const LOCK_SHARED = 2;
 
     var $compiler = 'MySqlCompiler';
     var $iterator = 'ModelInstanceIterator';
@@ -296,6 +312,11 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
     function order_by() {
         $this->ordering = array_merge($this->ordering, func_get_args());
+        return $this;
+    }
+
+    function lock($how=false) {
+        $this->lock = $how ?: self::LOCK_EXCLUSIVE;
         return $this;
     }
 
@@ -383,10 +404,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this->getIterator()->offsetGet($offset);
     }
     function offsetUnset($a) {
-        throw new Exception('QuerySet is read-only');
+        throw new Exception(__('QuerySet is read-only'));
     }
     function offsetSet($a, $b) {
-        throw new Exception('QuerySet is read-only');
+        throw new Exception(__('QuerySet is read-only'));
     }
 
     function __toString() {
@@ -478,10 +499,10 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
         return $this->cache[$offset];
     }
     function offsetUnset($a) {
-        throw new Exception(sprintf('%s is read-only', get_class($this)));
+        throw new Exception(sprintf(__('%s is read-only'), get_class($this)));
     }
     function offsetSet($a, $b) {
-        throw new Exception(sprintf('%s is read-only', get_class($this)));
+        throw new Exception(sprintf(__('%s is read-only'), get_class($this)));
     }
 }
 
@@ -519,7 +540,7 @@ class InstrumentedList extends ModelInstanceIterator {
 
     function add($object, $at=false) {
         if (!$object || !$object instanceof $this->model)
-            throw new Exception('Attempting to add invalid object to list');
+            throw new Exception(__('Attempting to add invalid object to list'));
 
         $object->set($this->key, $this->id);
         $object->save();
@@ -787,7 +808,7 @@ class MySqlCompiler extends SqlCompiler {
         'lt' => '%1$s < %2$s',
         'gte' => '%1$s >= %2$s',
         'lte' => '%1$s <= %2$s',
-        'isnull' => '%1$s IS NULL',
+        'isnull' => array('self', '__isnull'),
         'like' => '%1$s LIKE %2$s',
         'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
@@ -807,6 +828,12 @@ class MySqlCompiler extends SqlCompiler {
             $b = $this->input($b);
         }
         return sprintf('%s IN (%s)', $a, $b);
+    }
+
+    function __isnull($a, $b) {
+        return $b
+            ? sprintf('%s IS NULL', $a)
+            : sprintf('%s IS NOT NULL', $a);
     }
 
     function compileJoin($tip, $model, $alias, $info) {
@@ -932,6 +959,14 @@ class MySqlCompiler extends SqlCompiler {
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)
             $sql .= ' OFFSET '.$queryset->offset;
+        switch ($queryset->lock) {
+        case QuerySet::LOCK_EXCLUSIVE:
+            $sql .= ' FOR UPDATE';
+            break;
+        case QuerySet::LOCK_SHARED:
+            $sql .= ' LOCK IN SHARE MODE';
+            break;
+        }
 
         return new MysqlExecutor($sql, $this->params);
     }
@@ -1002,7 +1037,7 @@ class MysqlExecutor {
 
     function _bind($params) {
         if (count($params) != $this->stmt->param_count)
-            throw new Exception('Parameter count does not match query');
+            throw new Exception(__('Parameter count does not match query'));
 
         $types = '';
         $ps = array();

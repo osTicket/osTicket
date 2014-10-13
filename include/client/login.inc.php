@@ -10,9 +10,8 @@ if ($content) {
     list($title, $body) = $ost->replaceTemplateVariables(
         array($content->getName(), $content->getBody()));
 } else {
-    $title = 'Sign In';
-    $body = 'To better serve you, we encourage our clients to register for
-        an account and verify the email address we have on record.';
+    $title = __('Sign In');
+    $body = __('To better serve you, we encourage our clients to register for an account and verify the email address we have on record.');
 }
 
 ?>
@@ -21,18 +20,18 @@ if ($content) {
 <form action="login.php" method="post" id="clientLogin">
     <?php csrf_token(); ?>
 <div style="display:table-row">
-    <div style="width:40%;display:table-cell;box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);padding:15px;">
+    <div class="login-box">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <div>
-        <input id="username" placeholder="Email or Username" type="text" name="luser" size="30" value="<?php echo $email; ?>">
+        <input id="username" placeholder="<?php echo __('Email or Username'); ?>" type="text" name="luser" size="30" value="<?php echo $email; ?>">
     </div>
     <div>
-        <input id="passwd" placeholder="Password" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
+        <input id="passwd" placeholder="<?php echo __('Password'); ?>" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
     </div>
     <p>
-        <input class="btn" type="submit" value="Sign In">
+        <input class="btn" type="submit" value="<?php echo __('Sign In'); ?>">
 <?php if ($suggest_pwreset) { ?>
-        <a style="padding-top:4px;display:inline-block;" href="pwreset.php">Forgot My Password</a>
+        <a style="padding-top:4px;display:inline-block;" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a>
 <?php } ?>
     </p>
     </div>
@@ -52,19 +51,20 @@ if (count($ext_bks)) {
 if ($cfg && $cfg->isClientRegistrationEnabled()) {
     if (count($ext_bks)) echo '<hr style="width:70%"/>'; ?>
     <div style="margin-bottom: 5px">
-    Not yet registered? <a href="account.php?do=create">Create an account</a>
+    <?php echo __('Not yet registered?'); ?> <a href="account.php?do=create"><?php echo __('Create an account'); ?></a>
     </div>
 <?php } ?>
     <div>
-    <b>I'm an agent</b> —
-    <a href="<?php echo ROOT_PATH; ?>scp">sign in here</a>
+    <b><?php echo __("I'm an agent"); ?></b> —
+    <a href="<?php echo ROOT_PATH; ?>scp"><?php echo __('sign in here'); ?></a>
     </div>
     </div>
 </div>
 </form>
 <br>
 <p>
-<?php if ($cfg && !$cfg->isClientLoginRequired()) { ?>
-If this is your first time contacting us or you've lost the ticket number, please <a href="open.php">open a new ticket</a>.
-<?php } ?>
+<?php if ($cfg && !$cfg->isClientLoginRequired()) {
+    echo sprintf(__('If this is your first time contacting us or you\'ve lost the ticket number, please %s open a new ticket %s'),
+        '<a href="open.php">', '</a>');
+} ?>
 </p>

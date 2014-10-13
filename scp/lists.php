@@ -1,120 +1,137 @@
 <?php
 require('admin.inc.php');
-require_once(INCLUDE_DIR."/class.dynamic_forms.php");
+require_once(INCLUDE_DIR.'class.list.php');
+
 
 $list=null;
-if($_REQUEST['id'] && !($list=DynamicList::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid dynamic list ID.';
+$criteria=array();
+if ($_REQUEST['id'])
+    $criteria['id'] = $_REQUEST['id'];
+elseif ($_REQUEST['type'])
+    $criteria['type'] = $_REQUEST['type'];
 
-if ($list)
-    $form = $list->getForm();
+if ($criteria) {
+    $list = DynamicList::lookup($criteria);
+
+    if ($list)
+         $form = $list->getForm();
+    else
+        $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+            __('custom list'));
+}
+
+$errors = array();
+$max_isort = 0;
 
 if($_POST) {
-    $fields = array('name', 'name_plural', 'sort_mode', 'notes');
-    $required = array('name');
     switch(strtolower($_POST['do'])) {
         case 'update':
-            foreach ($fields as $f)
-                if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
-                        mb_convert_case($f, MB_CASE_TITLE));
-                elseif (isset($_POST[$f]))
-                    $list->set($f, $_POST[$f]);
-            if ($errors)
-                $errors['err'] = 'Unable to update custom list. Correct any error(s) below and try again.';
-            elseif ($list->save(true))
-                $msg = 'Custom list updated successfully';
-            else
-                $errors['err'] = 'Unable to update custom list. Unknown internal error';
+            if (!$list)
+                $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+                    __('custom list'));
+            elseif ($list->update($_POST, $errors)) {
+                // Update items
+                $items = array();
+                foreach ($list->getAllItems() as $item) {
+                    $id = $item->getId();
+                    if ($_POST["delete-item-$id"] == 'on' && $item->isDeletable()) {
+                        $item->delete();
+                        continue;
+                    }
 
-            foreach ($list->getAllItems() as $item) {
-                $id = $item->get('id');
-                if ($_POST["delete-$id"] == 'on') {
-                    $item->delete();
-                    continue;
+                    $ht = array(
+                            'value' => $_POST["value-$id"],
+                            'abbrev' => $_POST["abbrev-$id"],
+                            'sort' => $_POST["sort-$id"],
+                            );
+                    $value = mb_strtolower($ht['value']);
+                    if (!$value)
+                        $errors["value-$id"] = __('Value required');
+                    elseif (in_array($value, $items))
+                        $errors["value-$id"] = __('Value already in-use');
+                    elseif ($item->update($ht, $errors)) {
+                        if ($_POST["disable-$id"] == 'on')
+                            $item->disable();
+                        elseif(!$item->isEnabled() && $item->isEnableable())
+                            $item->enable();
+
+                        $item->save();
+                        $items[] = $value;
+                    }
+
+                    $max_isort = max($max_isort, $_POST["sort-$id"]);
                 }
-                foreach (array('sort','value','extra') as $i)
-                    if (isset($_POST["$i-$id"]))
-                        $item->set($i, $_POST["$i-$id"]);
 
-                if ($_POST["disable-$id"] == 'on')
-                    $item->disable();
-                else
-                    $item->enable();
+                // Update properties
+                if (!$errors && ($form = $list->getForm())) {
+                    $names = array();
+                    foreach ($form->getDynamicFields() as $field) {
+                        $id = $field->get('id');
+                        if ($_POST["delete-prop-$id"] == 'on' && $field->isDeletable()) {
+                            $field->delete();
+                            // Don't bother updating the field
+                            continue;
+                        }
+                        if (isset($_POST["type-$id"]) && $field->isChangeable())
+                            $field->set('type', $_POST["type-$id"]);
+                        if (isset($_POST["name-$id"]) && !$field->isNameForced())
+                            $field->set('name', $_POST["name-$id"]);
 
-                $item->save();
-            }
-
-            $names = array();
-            if (!$form) {
-                $form = DynamicForm::create(array(
-                    'type'=>'L'.$_REQUEST['id'],
-                    'title'=>$_POST['name'] . ' Properties'
-                ));
-                $form->save(true);
-            }
-            foreach ($form->getDynamicFields() as $field) {
-                $id = $field->get('id');
-                if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {
-                    $field->delete();
-                    // Don't bother updating the field
-                    continue;
-                }
-                if (isset($_POST["type-$id"]) && $field->isChangeable())
-                    $field->set('type', $_POST["type-$id"]);
-                if (isset($_POST["name-$id"]) && !$field->isNameForced())
-                    $field->set('name', $_POST["name-$id"]);
-                # TODO: make sure all help topics still have all required fields
-                foreach (array('sort','label') as $f) {
-                    if (isset($_POST["prop-$f-$id"])) {
-                        $field->set($f, $_POST["prop-$f-$id"]);
+                        foreach (array('sort','label') as $f) {
+                            if (isset($_POST["prop-$f-$id"])) {
+                                $field->set($f, $_POST["prop-$f-$id"]);
+                            }
+                        }
+                        if (in_array($field->get('name'), $names))
+                            $field->addError(__('Field variable name is not unique'), 'name');
+                        if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
+                            $field->addError(__('Invalid character in variable name. Please use letters and numbers only.'), 'name');
+                        if ($field->get('name'))
+                            $names[] = $field->get('name');
+                        if ($field->isValid())
+                            $field->save();
+                        else
+                            # notrans (not shown)
+                            $errors["field-$id"] = 'Field has validation errors';
+                        // Keep track of the last sort number
+                        $max_sort = max($max_sort, $field->get('sort'));
                     }
                 }
-                if (in_array($field->get('name'), $names))
-                    $field->addError('Field variable name is not unique', 'name');
-                if (preg_match('/[.{}\'"`; ]/u', $field->get('name')))
-                    $field->addError('Invalid character in variable name. Please use letters and numbers only.', 'name');
-                if ($field->get('name'))
-                    $names[] = $field->get('name');
-                if ($field->isValid())
-                    $field->save();
-                else
-                    # notrans (not shown)
-                    $errors["field-$id"] = 'Field has validation errors';
-                // Keep track of the last sort number
-                $max_sort = max($max_sort, $field->get('sort'));
-            }
+
+                if ($errors)
+                     $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                        __('custom list items'));
+                else {
+                    $list->_items = null;
+                    $msg = sprintf(__('Successfully updated %s'),
+                        __('this custom list'));
+                }
+
+            } elseif ($errors)
+                $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                    __('this custom list'));
+            else
+                $errors['err']=sprintf(__('Unable to update %s.'), __('this custom list'))
+                    .' '.__('Internal error occurred');
+
             break;
         case 'add':
-            foreach ($fields as $f)
-                if (in_array($f, $required) && !$_POST[$f])
-                    $errors[$f] = sprintf('%s is required',
-                        mb_convert_case($f, MB_CASE_TITLE));
-            $list = DynamicList::create(array(
-                'name'=>$_POST['name'],
-                'name_plural'=>$_POST['name_plural'],
-                'sort_mode'=>$_POST['sort_mode'],
-                'notes'=>$_POST['notes']));
-
-            $form = DynamicForm::create(array(
-                'title'=>$_POST['name'] . ' Properties'
-            ));
-
-            if ($errors)
-                $errors['err'] = 'Unable to create custom list. Correct any error(s) below and try again.';
-            elseif (!$list->save(true))
-                $errors['err'] = 'Unable to create custom list: Unknown internal error';
-
-            $form->set('type', 'L'.$list->get('id'));
-            if (!$errors && !$form->save(true))
-                $errors['err'] = 'Unable to create properties for custom list: Unknown internal error';
-            else
-                $msg = 'Custom list added successfully';
+            if ($list=DynamicList::add($_POST, $errors)) {
+                 $msg = sprintf(__('Successfully added %s'),
+                    __('this custom list'));
+            } elseif ($errors) {
+                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this custom list'));
+            } else {
+                $errors['err']=sprintf(__('Unable to add %s.'), __('this custom list'))
+                    .' '.__('Internal error occurred');
+            }
             break;
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one API key';
+                $errors['err'] = sprintf(__('You must select at least %s'),
+                    __('one custom list'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -125,32 +142,31 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = 'Selected custom lists deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected custom list', 'selected custom lists', $count));
                         elseif ($i > 0)
-                            $warn = "$i of $count selected lists deleted";
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected custom list', 'selected custom lists', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected custom lists'
-                                .' &mdash; they may be in use on a custom form';
+                            $errors['err'] = sprintf(__('Unable to delete %s — they may be in use on a custom form'),
+                                _N('selected custom list', 'selected custom lists', $count));
                         break;
                 }
             }
             break;
     }
 
-    if ($list) {
-        for ($i=0; isset($_POST["prop-sort-new-$i"]); $i++) {
+    if ($list && $list->allowAdd()) {
+        for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
             if (!$_POST["value-new-$i"])
                 continue;
-            $item = DynamicListItem::create(array(
-                'list_id'=>$list->get('id'),
-                'sort'=>$_POST["sort-new-$i"],
-                'value'=>$_POST["value-new-$i"],
-                'extra'=>$_POST["extra-new-$i"]
-            ));
-            $item->save();
+
+            $list->addItem(array(
+                        'value' => $_POST["value-new-$i"],
+                        'abbrev' =>$_POST["abbrev-new-$i"],
+                        'sort' => $_POST["sort-new-$i"] ?: ++$max_isort,
+                        ), $errors);
         }
-        # Invalidate items cache
-        $list->_items = false;
     }
 
     if ($form) {
@@ -158,12 +174,11 @@ if($_POST) {
             if (!$_POST["prop-label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
-                'form_id'=>$form->get('id'),
-                'sort'=>$_POST["prop-sort-new-$i"]
-                    ? $_POST["prop-sort-new-$i"] : ++$max_sort,
-                'label'=>$_POST["prop-label-new-$i"],
-                'type'=>$_POST["type-new-$i"],
-                'name'=>$_POST["name-new-$i"],
+                'form_id' => $form->get('id'),
+                'sort' => $_POST["prop-sort-new-$i"] ?: ++$max_sort,
+                'label' => $_POST["prop-label-new-$i"],
+                'type' => $_POST["type-new-$i"],
+                'name' => $_POST["name-new-$i"],
             ));
             $field->setForm($form);
             if ($field->isValid())

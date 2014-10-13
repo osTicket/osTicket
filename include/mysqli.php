@@ -76,6 +76,19 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     @db_set_variable('sql_mode', '');
 
+    // Start a new transaction -- for performance. Transactions are always
+    // committed at shutdown (below)
+    $__db->autocommit(false);
+
+    // Auto commit the transaction at shutdown and re-enable statement-level
+    // autocommit
+    register_shutdown_function(function() {
+        global $__db, $err;
+        if (!$__db->commit())
+            $err = 'Unable to save changes to database';
+        $__db->autocommit(true);
+    });
+
     // Use connection timing to seed the random number generator
     Misc::__rand_seed((microtime(true) - $start) * 1000000);
 
@@ -176,6 +189,10 @@ function db_query($query, $logError=true, $buffered=true) {
     return $res;
 }
 
+function db_query_unbuffered($sql, $logError=false) {
+    return db_query($sql, $logError, true);
+}
+
 function db_squery($query) { //smart db query...utilizing args and sprintf
 
     $args  = func_get_args();
@@ -250,8 +267,12 @@ function db_free_result($res) {
 }
 
 function db_output($var) {
+    static $no_magic_quotes = null;
 
-    if(!function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime()) //Sucker is NOT on - thanks.
+    if (!isset($no_magic_quotes))
+        $no_magic_quotes = !function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime();
+
+    if ($no_magic_quotes) //Sucker is NOT on - thanks.
         return $var;
 
     if (is_array($var))

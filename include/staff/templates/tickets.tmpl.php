@@ -1,14 +1,16 @@
 <?php
 
 $select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id, ticket.user_id '
-        .' ,dept.dept_name,ticket.status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
+        .' ,dept.dept_name,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
         .' ,CAST(GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.reopened, 0), ticket.created) as datetime) as effective_date '
         .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
         .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
         .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic '
-        .' ,cdata.priority_id, cdata.subject, user.name, email.address as email';
+        .' ,cdata.priority as priority_id, cdata.subject, user.name, email.address as email';
 
 $from =' FROM '.TICKET_TABLE.' ticket '
+      .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
+        ON status.id = ticket.status_id '
       .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id '
       .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
       .' LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (ticket.user_id=account.user_id) '
@@ -18,7 +20,7 @@ $from =' FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
       .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) '
       .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id) '
-      .' LEFT JOIN '.PRIORITY_TABLE.' pri ON (pri.priority_id = cdata.priority_id)';
+      .' LEFT JOIN '.PRIORITY_TABLE.' pri ON (pri.priority_id = cdata.priority)';
 
 if ($user)
     $where = 'WHERE ticket.user_id = '.db_input($user->getId());
@@ -54,19 +56,21 @@ if ($results) {
     }
 }
 ?>
-<div style="width:700px; float:left;">
+<div style="width:700px;" class="pull-left">
    <?php
     if ($results) {
-        echo  sprintf('<strong>Showing 1 - %d of %s</strong>', count($results), count($results));
+        echo '<strong>'.sprintf(_N('Showing %d ticket', 'Showing %d tickets',
+            count($results)), count($results)).'</strong>';
     } else {
-        echo sprintf('%s does not have any tickets', $user? 'User' : 'Organization');
+        echo sprintf(__('%s does not have any tickets'), $user? 'User' : 'Organization');
     }
    ?>
 </div>
-<div style="float:right;text-align:right;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-right:5px;">
     <?php
     if ($user) { ?>
-    <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>"> Create New Ticket</a></b>
+    <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
+    <?php print __('Create New Ticket'); ?></a></b>
     <?php
     } ?>
 </div>
@@ -86,17 +90,17 @@ if ($results) { ?>
             <th width="8px">&nbsp;</th>
             <?php
             } ?>
-            <th width="70">Ticket</th>
-            <th width="100">Date</th>
-            <th width="100">Status</th>
-            <th width="300">Subject</th>
+            <th width="70"><?php echo __('Ticket'); ?></th>
+            <th width="100"><?php echo __('Date'); ?></th>
+            <th width="100"><?php echo __('Status'); ?></th>
+            <th width="300"><?php echo __('Subject'); ?></th>
             <?php
             if ($user) { ?>
-            <th width="200">Department</th>
-            <th width="200">Assignee</th>
+            <th width="200"><?php echo __('Department'); ?></th>
+            <th width="200"><?php echo __('Assignee'); ?></th>
             <?php
             } else { ?>
-            <th width="400">User</th>
+            <th width="400"><?php echo __('User'); ?></th>
             <?php
             } ?>
         </tr>
@@ -119,9 +123,6 @@ if ($results) { ?>
             $assigned=' ';
 
         $status = ucfirst($row['status']);
-        if(!strcasecmp($row['status'], 'open'))
-            $status = "<b>$status</b>";
-
         $tid=$row['number'];
         $subject = Format::htmlchars(Format::truncate($row['subject'],40));
         $threadcount=$row['thread_count'];
@@ -136,7 +137,8 @@ if ($results) { ?>
             <?php
             } ?>
             <td align="center" nowrap>
-              <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview" title="Preview Ticket"
+              <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview"
+                title="<?php echo __('Preview Ticket'); ?>"
                 href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
             <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
             <td><?php echo $status; ?></td>

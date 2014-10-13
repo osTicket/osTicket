@@ -22,6 +22,10 @@ class PluginConfig extends Config {
         return array();
     }
 
+    function hasCustomConfig() {
+        return $this instanceof PluginCustomConfig;
+    }
+
     /**
      * Retreive a Form instance for the configurable options offered in
      * ::getOptions
@@ -55,6 +59,17 @@ class PluginConfig extends Config {
      * array.
      */
     function commit(&$errors=array()) {
+        global $msg;
+
+        if ($this->hasCustomConfig())
+            return $this->saveCustomConfig($errors);
+
+        return $this->commitForm($errors);
+    }
+
+    function commitForm(&$errors=array()) {
+        global $msg;
+
         $f = $this->getForm();
         $commit = false;
         if ($f->isValid()) {
@@ -68,7 +83,11 @@ class PluginConfig extends Config {
                 $field = $f->getField($name);
                 $dbready[$name] = $field->to_database($val);
             }
-            return $this->updateAll($dbready);
+            if ($this->updateAll($dbready)) {
+                if (!$msg)
+                    $msg = 'Successfully updated configuration';
+                return true;
+            }
         }
         return false;
     }
@@ -91,6 +110,20 @@ class PluginConfig extends Config {
             .' WHERE `namespace`='.db_input($this->getNamespace());
         return (db_query($sql) && db_affected_rows());
     }
+}
+
+/**
+ * Interface: PluginCustomConfig
+ *
+ * Allows a plugin to specify custom configuration pages. If the
+ * configuration cannot be suited by a single page, single form, then
+ * the plugin can use the ::renderCustomConfig() method to trigger
+ * rendering the page, and use ::saveCustomConfig() to trigger
+ * validating and saving the custom configuration.
+ */
+interface PluginCustomConfig {
+    function renderCustomConfig();
+    function saveCustomConfig();
 }
 
 class PluginManager {
@@ -309,6 +342,15 @@ abstract class Plugin {
     var $id;
     var $info;
 
+    const VERIFIED = 1;             // Thumbs up
+    const VERIFY_EXT_MISSING = 2;   // PHP extension missing
+    const VERIFY_FAILED = 3;        // Bad signature data
+    const VERIFY_ERROR = 4;         // Unable to verify (unexpected error)
+    const VERIFY_NO_KEY = 5;        // Public key missing
+    const VERIFY_DNS_PASS = 6;      // DNS check passes, cannot verify sig
+
+    static $verify_domain = 'updates.osticket.com';
+
     function Plugin($id) {
         $this->id = $id;
         $this->load();
@@ -324,10 +366,11 @@ abstract class Plugin {
     }
 
     function getId() { return $this->id; }
-    function getName() { return $this->info['name']; }
+    function getName() { return $this->__($this->info['name']); }
     function isActive() { return $this->ht['isactive']; }
     function isPhar() { return $this->ht['isphar']; }
     function getInstallDate() { return $this->ht['installed']; }
+    function getInstallPath() { return $this->ht['install_path']; }
 
     function getIncludePath() {
         return realpath(INCLUDE_DIR . $this->info['install_path'] . '/'
@@ -421,6 +464,222 @@ abstract class Plugin {
         }
         if ($path)
            return PluginManager::getInstance($path);
+    }
+
+    /**
+     * Function: isVerified
+     *
+     * This will help verify the content, integrity, oversight, and origin
+     * of plugins, language packs and other modules distributed for
+     * osTicket.
+     *
+     * This idea is that the signature of the PHAR file will be registered
+     * in DNS, for instance,
+     * `7afc8bf80b0555bed88823306744258d6030f0d9.updates.osticket.com`, for
+     * a PHAR file with a SHA1 signature of
+     * `7afc8bf80b0555bed88823306744258d6030f0d9 `, which will resolve to a
+     * string like the following:
+     * ```
+     * "v=1; i=storage:s3; s=MEUCIFw6A489eX4Oq17BflxCZ8+MH6miNjtcpScUoKDjmb
+     * lsAiEAjiBo9FzYtV3WQtW6sbhPlJXcoPpDfYyQB+BFVBMps4c=; V=0.1;"
+     * ```
+     * Which is a simple semicolon separated key-value pair string with the
+     * following keys
+     *
+     *   Key | Description
+     *  :----|:---------------------------------------------------
+     *   v   | Algorithm version
+     *   i   | Plugin 'id' registered in plugin.php['id']
+     *   V   | Plugin 'version' registered in plugin.php['version']
+     *   s   | OpenSSL signature of the PHAR SHA1 signature using a
+     *       | private key (specified on the command line)
+     *
+     * The public key, which will be distributed with osTicket, can be used
+     * to verify the signature of the PHAR file from the data received from
+     * DNS.
+     *
+     * Parameters:
+     * $phar - (string) filename of phar file to verify
+     *
+     * Returns:
+     * (int) -
+     *      Plugin::VERIFIED upon success
+     *      Plugin::VERIFY_DNS_PASS if found in DNS but cannot verify sig
+     *      Plugin::VERIFY_NO_KEY if public key not found in include/plugins
+     *      Plugin::VERIFY_FAILED if the plugin fails validation
+     *      Plugin::VERIFY_EXT_MISSING if a PHP extension is required
+     *      Plugin::VERIFY_ERROR if an unexpected error occurred
+     */
+    static function isVerified($phar) {
+        static $pubkey = null;
+
+        if (!class_exists('Phar'))
+            return self::VERIFY_EXT_MISSING;
+        elseif (!file_exists(INCLUDE_DIR . '/plugins/updates.pem'))
+            return self::VERIFY_NO_KEY;
+
+        if (!isset($pubkey)) {
+            $pubkey = openssl_pkey_get_public(
+                    file_get_contents(INCLUDE_DIR . 'plugins/updates.pem'));
+        }
+        if (!$pubkey) {
+            return self::VERIFY_ERROR;
+        }
+
+        require_once(PEAR_DIR.'Net/DNS2.php');
+        $P = new Phar($phar);
+        $sig = $P->getSignature();
+        $info = array();
+        try {
+            $q = new Net_DNS2_Resolver();
+            $r = $q->query(strtolower($sig['hash']) . '.' . self::$verify_domain, 'TXT');
+            foreach ($r->answer as $rec) {
+                foreach ($rec->text as $txt) {
+                    foreach (explode(';', $txt) as $kv) {
+                        list($k, $v) = explode('=', trim($kv));
+                        $info[$k] = trim($v);
+                    }
+                    if ($info['v'] && $info['s'])
+                        break;
+                }
+            }
+        }
+        catch (Net_DNS2_Exception $e) {
+            // TODO: Differenciate NXDOMAIN and DNS failure
+        }
+
+        if (is_array($info) && isset($info['v'])) {
+            switch ($info['v']) {
+            case '1':
+                if (!($signature = base64_decode($info['s'])))
+                    return self::VERIFY_FAILED;
+                elseif (!function_exists('openssl_verify'))
+                    return self::VERIFY_DNS_PASS;
+
+                $codes = array(
+                    -1 => self::VERIFY_ERROR,
+                    0 => self::VERIFY_FAILED,
+                    1 => self::VERIFIED,
+                );
+                $result = openssl_verify($sig['hash'], $signature, $pubkey,
+                    OPENSSL_ALGO_SHA1);
+                return $codes[$result];
+            }
+        }
+        return self::VERIFY_FAILED;
+    }
+
+    static function showVerificationBadge($phar) {
+        switch (self::isVerified($phar)) {
+        case self::VERIFIED:
+            $show_lock = true;
+        case self::VERIFY_DNS_PASS: ?>
+        &nbsp;
+        <span class="label label-verified" title="<?php
+            if ($show_lock) echo sprintf(__('Verified by %s'), self::$verify_domain);
+            ?>"> <?php
+            if ($show_lock) echo '<i class="icon icon-lock"></i>'; ?>
+            <?php echo $show_lock ? __('Verified') : __('Registered'); ?></span>
+<?php       break;
+        case self::VERIFY_FAILED: ?>
+        &nbsp;
+        <span class="label label-danger" title="<?php
+            echo __('The originator of this extension cannot be verified');
+            ?>"><i class="icon icon-warning-sign"></i></span>
+<?php       break;
+        }
+    }
+
+    /**
+     * Function: __
+     *
+     * Translate a single string (without plural alternatives) from the
+     * langauge pack installed in this plugin. The domain is auto-configured
+     * and detected from the plugin install path.
+     */
+    function __($msgid) {
+        if (!isset($this->translation)) {
+            // Detect the domain from the plugin install-path
+            $groups = array();
+            preg_match('`plugins/(\w+)(?:.phar)?`', $this->getInstallPath(), $groups);
+
+            $domain = $groups[1];
+            if (!$domain)
+                return $msgid;
+
+            $this->translation = self::translate($domain);
+        }
+        list($__, $_N) = $this->translation;
+        return $__($msgid);
+    }
+
+    // Domain-specific translations (plugins)
+    /**
+     * Function: translate
+     *
+     * Convenience function to setup translation functions for other
+     * domains. This is of greatest benefit for plugins. This will return
+     * two functions to perform the translations. The first will translate a
+     * single string, the second will translate a plural string.
+     *
+     * Parameters:
+     * $domain - (string) text domain. The location of the MO.php file
+     *      will be (path)/LC_MESSAGES/(locale)/(domain).mo.php. The (path)
+     *      can be set via the $options parameter
+     * $options - (array<string:mixed>) Extra options for the setup
+     *      "path" - (string) path to the folder containing the LC_MESSAGES
+     *          folder. The (locale) setting is set externally respective to
+     *          the user. If this is not set, the directory of the caller is
+     *          assumed, plus '/i18n'.  This is geared for plugins to be
+     *          built with i18n content inside the '/i18n/' folder.
+     *
+     * Returns:
+     * Translation utility functions which mimic the __() and _N()
+     * functions. Note that two functions are returned. Capture them with a
+     * PHP list() construct.
+     *
+     * Caveats:
+     * When desiging plugins which might be installed in versions of
+     * osTicket which don't provide this function, use this compatibility
+     * interface:
+     *
+     * // Provide compatibility function for versions of osTicket prior to
+     * // translation support (v1.9.4)
+     * function translate($domain) {
+     *     if (!method_exists('Plugin', 'translate')) {
+     *         return array(
+     *             function($x) { return $x; },
+     *             function($x, $y, $n) { return $n != 1 ? $y : $x; },
+     *         );
+     *     }
+     *     return Plugin::translate($domain);
+     * }
+     */
+    static function translate($domain, $options=array()) {
+
+        // Configure the path for the domain. If no
+        $path = @$options['path'];
+        if (!$path) {
+            # Fetch the working path of the caller
+            $bt = debug_backtrace(false);
+            $path = dirname($bt[0]["file"]) . '/i18n';
+        }
+        $path = rtrim($path, '/') . '/';
+
+        $D = TextDomain::lookup($domain);
+        $D->setPath($path);
+        $trans = $D->getTranslation();
+
+        return array(
+            // __()
+            function($msgid) use ($trans) {
+                return $trans->translate($msgid);
+            },
+            // _N()
+            function($singular, $plural, $n) use ($trans) {
+                return $trans->ngettext($singular, $plural, $n);
+            },
+        );
     }
 }
 

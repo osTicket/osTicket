@@ -37,20 +37,20 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY email.email_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' emails';
+    $showing=$pageNav->showing().' '.__('emails');
 else
-    $showing='No emails found!';
+    $showing=__('No emails found!');
 
 $def_dept_id = $cfg->getDefaultDeptId();
 $def_dept_name = $cfg->getDefaultDept()->getName();
 $def_priority = $cfg->getDefaultPriority()->getDesc();
 
 ?>
-<div style="width:700px;padding-top:5px; float:left;">
- <h2>Email Addresses</h2>
+<div class="pull-left" style="width:700px;padding-top:5px;">
+ <h2><?php echo __('Email Addresses');?></h2>
  </div>
-<div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
-    <b><a href="emails.php?a=add" class="Icon newEmail">Add New Email</a></b></div>
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
+    <b><a href="emails.php?a=add" class="Icon newEmail"><?php echo __('Add New Email');?></a></b></div>
 <div class="clear"></div>
 <form action="emails.php" method="POST" name="emails">
  <?php csrf_token(); ?>
@@ -60,12 +60,12 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
-            <th width="400"><a <?php echo $email_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=email">Email</a></th>
-            <th width="120"><a  <?php echo $priority_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=priority">Priority</a></th>
-            <th width="250"><a  <?php echo $dept_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=dept">Department</a></th>
-            <th width="110" nowrap><a  <?php echo $created_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=created">Created</a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=updated">Last Updated</a></th>
+            <th width="7">&nbsp;</th>
+            <th width="400"><a <?php echo $email_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email');?></a></th>
+            <th width="120"><a  <?php echo $priority_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=priority"><?php echo __('Priority');?></a></th>
+            <th width="250"><a  <?php echo $dept_sort; ?> href="emails.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th width="110" nowrap><a  <?php echo $created_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Created');?></a></th>
+            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="emails.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -88,7 +88,7 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['email_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>>
                 </td>
-                <td><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo Format::htmlchars($email); ?></a>&nbsp;</td>
+                <td><span class="ltr"><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo Format::htmlchars($email); ?></a></span></td>
                 <td><?php echo $row['priority'] ?: $def_priority; ?></td>
                 <td><a href="departments.php?id=<?php $row['dept_id'] ?: $def_dept_id; ?>"><?php
                     echo $row['department'] ?: $def_dept_name; ?></a></td>
@@ -102,12 +102,12 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
      <tr>
         <td colspan="6">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No help emails found';
+                echo __('No help emails found');
             } ?>
         </td>
      </tr>
@@ -115,10 +115,10 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
 </table>
 <?php
 if($res && $num): //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="Delete Email(s)" >
+    <input class="button" type="submit" name="delete" value="<?php echo __('Delete Email(s)');?>" >
 </p>
 <?php
 endif;
@@ -126,21 +126,22 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected emails?</strong></font>
-        <br><br>Deleted emails CANNOT be recovered.
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected email', 'selected emails', 2)) ;?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.');?>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

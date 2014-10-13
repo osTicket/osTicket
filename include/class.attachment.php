@@ -120,26 +120,37 @@ class GenericAttachments {
         $i=array();
         if (!is_array($files)) $files=array($files);
         foreach ($files as $file) {
-            if (($fileId = is_numeric($file)
-                    ? $file : AttachmentFile::upload($file))
-                    && is_numeric($fileId)) {
-                $sql ='INSERT INTO '.ATTACHMENT_TABLE
-                    .' SET `type`='.db_input($this->getType())
-                    .',object_id='.db_input($this->getId())
-                    .',file_id='.db_input($fileId)
-                    .',inline='.db_input($inline ? 1 : 0);
-                // File may already be associated with the draft (in the
-                // event it was deleted and re-added)
-                if (db_query($sql, function($errno) { return $errno != 1062; })
-                        || db_errno() == 1062)
-                    $i[] = $fileId;
-            }
+            if (is_numeric($file))
+                $fileId = $file;
+            elseif (is_array($file) && isset($file['id']))
+                $fileId = $file['id'];
+            elseif (!($fileId = AttachmentFile::upload($file)))
+                continue;
+
+            $_inline = isset($file['inline']) ? $file['inline'] : $inline;
+
+            $sql ='INSERT INTO '.ATTACHMENT_TABLE
+                .' SET `type`='.db_input($this->getType())
+                .',object_id='.db_input($this->getId())
+                .',file_id='.db_input($fileId)
+                .',inline='.db_input($_inline ? 1 : 0);
+            // File may already be associated with the draft (in the
+            // event it was deleted and re-added)
+            if (db_query($sql, function($errno) { return $errno != 1062; })
+                    || db_errno() == 1062)
+                $i[] = $fileId;
         }
+
         return $i;
     }
 
-    function save($info, $inline=true) {
-        if (!($fileId = AttachmentFile::save($info)))
+    function save($file, $inline=true) {
+
+        if (is_numeric($file))
+            $fileId = $file;
+        elseif (is_array($file) && isset($file['id']))
+            $fileId = $file['id'];
+        elseif (!($fileId = AttachmentFile::save($file)))
             return false;
 
         $sql ='INSERT INTO '.ATTACHMENT_TABLE
@@ -167,6 +178,8 @@ class GenericAttachments {
                 .' AND a.object_id='.db_input($this->getId());
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while($rec=db_fetch_array($res)) {
+                    $rec['download'] = AttachmentFile::getDownloadForIdAndKey(
+                        $rec['id'], $rec['key']);
                     $this->attachments[] = $rec;
                 }
             }

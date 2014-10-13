@@ -30,25 +30,27 @@ require(STAFFINC_DIR.'header.inc.php');
 <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
 <link rel="stylesheet" type="text/css" href="css/dashboard.css"/>
 
-<h2>Ticket Activity&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
-<p>Select the starting time and period for the system activity graph</p>
+<h2><?php echo __('Ticket Activity');
+?>&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
+<p><?php echo __('Select the starting time and period for the system activity graph');?></p>
 <form class="well form-inline" id="timeframe-form">
     <label>
-        <i class="help-tip icon-question-sign" href="#report_timeframe"></i>&nbsp;&nbsp;Report timeframe:
+        <i class="help-tip icon-question-sign" href="#report_timeframe"></i>&nbsp;&nbsp;<?php
+            echo __('Report timeframe'); ?>:
         <input type="text" class="dp input-medium search-query"
-            name="start" placeholder="Last month"/>
+            name="start" placeholder="<?php echo __('Last month');?>"/>
     </label>
     <label>
-        period:
+        <?php echo __('period');?>:
         <select name="period">
-            <option value="now" selected="selected">Up to today</option>
-            <option value="+7 days">One Week</option>
-            <option value="+14 days">Two Weeks</option>
-            <option value="+1 month">One Month</option>
-            <option value="+3 months">One Quarter</option>
+            <option value="now" selected="selected"><?php echo __('Up to today');?></option>
+            <option value="+7 days"><?php echo __('One Week');?></option>
+            <option value="+14 days"><?php echo __('Two Weeks');?></option>
+            <option value="+1 month"><?php echo __('One Month');?></option>
+            <option value="+3 months"><?php echo __('One Quarter');?></option>
         </select>
     </label>
-    <button class="btn" type="submit">Refresh</button>
+    <button class="btn" type="submit"><?php echo __('Refresh');?></button>
 </form>
 
 <!-- Create a graph and fetch some data to create pretty dashboard -->
@@ -58,8 +60,8 @@ require(STAFFINC_DIR.'header.inc.php');
 </div>
 
 <hr/>
-<h2>Statistics&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
-<p>Statistics of tickets organized by department, help topic, and staff.</p>
+<h2><?php echo __('Statistics'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
+<p><?php echo __('Statistics of tickets organized by department, help topic, and agent.');?></p>
 <ul class="nav nav-tabs" id="tabular-navigation"></ul>
 
 <div id="table-here"></div>

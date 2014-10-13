@@ -93,6 +93,18 @@ Create your own fork of the project and use
 the feature is published in your fork, send a pull request to begin the
 conversation of integrating your new feature into osTicket.
 
+### Localization
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/osticket-official/localized.png)](http://i18n.osticket.com/project/osticket-official)
+
+The interface for osTicket is now completely translatable. Language packs
+are available on the [download page](http://osticket.com/download). If you
+do not see your language there, join the [Crowdin](http://i18n.osticket.com)
+project and request to have your language added. Languages which reach 100%
+translated are are significantly reviewed will be made available on the
+osTicket download page.
+
+Localizing strings in new code requires usage of a [few rules](setup/doc/i18n.md).
+
 License
 -------
 osTicket is released under the GPL2 license. See the included LICENSE.txt
@@ -111,5 +123,6 @@ osTicket is supported by several magical open source projects including:
   * [PEAR/Net_SMTP](http://pear.php.net/package/Net_SMTP)
   * [PEAR/Net_Socket](http://pear.php.net/package/Net_Socket)
   * [PEAR/Serivces_JSON](http://pear.php.net/package/Services_JSON)
+  * [php-gettext](https://launchpad.net/php-gettext/)
   * [phpseclib](http://phpseclib.sourceforge.net/)
   * [Spyc](http://github.com/mustangostang/spyc)

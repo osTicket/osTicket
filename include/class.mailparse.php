@@ -472,7 +472,7 @@ class Mail_Parse {
     }
 
     static function parsePriority($header=null){
-    	
+
     	if (! $header)
     		return 0;
     	// Test for normal "X-Priority: INT" style header & stringy version.
@@ -614,7 +614,7 @@ class EmailDataParser {
                     if ($source == 'delivered-to') continue;
 
                     $data['recipients'][] = array(
-                        'source' => "Email ($source)",
+                        'source' => sprintf(_S("Email (%s)"), $source),
                         'name' => trim(@$addr->personal, '"'),
                         'email' => strtolower($addr->mailbox).'@'.$addr->host);
                 } elseif(!$data['emailId']) {
@@ -678,8 +678,7 @@ class EmailDataParser {
                 $data['reply-to-name'] = trim($replyto->personal, " \t\n\r\0\x0B\x22");
         }
 
-        if($cfg && $cfg->allowEmailAttachments())
-            $data['attachments'] = $parser->getAttachments();
+        $data['attachments'] = $parser->getAttachments();
 
         return $data;
     }

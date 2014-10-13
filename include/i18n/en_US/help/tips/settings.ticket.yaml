@@ -13,6 +13,35 @@
 # must match the HTML #ids put into the page template.
 #
 ---
+number_format:
+    title: Ticket Number Format
+    content: >
+        This setting is used to generate ticket numbers. Use hash signs
+        (`#`) where digits are to be placed. Any other text in the number
+        format will be preserved. <span class="doc-desc-title">Help
+        Topics</span> can define custom number formats.
+        <br/><br/>
+        For example, for six-digit numbers, use <code>######</code>.
+
+sequence_id:
+    title: Ticket Number Sequence
+    content: >
+        Choose a sequence from which to derive new ticket numbers. The
+        system has a incrementing sequence and a random sequence by default.
+        You may create as many sequences as you wish. Use various sequences
+        in the <span class="doc-desc-title">Ticket Number
+        Format</span> configuration for help topics.
+
+default_ticket_status:
+    title: Default Status for new Tickets
+    content: >
+        Choose a status as the default for new tickets. This can be defined
+        for each help topic, if desired. It can also be overridden by a
+        ticket filter.
+    links:
+      - title: Manage Ticket Statuses
+        href: /scp/lists.php?type=ticket-status
+
 default_sla:
     title: Default SLA
     content: >
@@ -28,7 +57,7 @@ default_priority:
         Choose a default <span class="doc-desc-title">priority</span> for
         tickets not assigned a priority automatically.
         <br/><br/>
-        Prioriy can be assigned via the help topic, routed department, or
+        Priority can be assigned via the help topic, routed department, or
         ticket filter settings.
 
 maximum_open_tickets:
@@ -99,40 +128,23 @@ enable_html_ticket_thread:
         If enabled, this will permit the use of rich text formatting between
         Clients and Agents.
 
-attachments:
-    title: Attachments
+ticket_attachment_settings:
+    title: Ticket Thread Attachments
     content: >
+        Configure settings for files attached to the <span
+        class="doc-desc-title">issue details</span> field. These settings
+        are used for all new tickets and new messages regardless of the
+        source channel (web portal, email, api, etc.).
 
-allow_attachments:
-    title: Allow Attachments
-    content: >
-
-emailed_api_attachments:
-    title: Emailed/API Attachments
-    content: >
-
-online_web_attachments:
-    title: Online/Web Attachments
-    content: >
-
-max_user_file_uploads:
-    title: Max. User File Uploads
-    content: >
-
-max_staff_file_uploads:
-    title: Max. Staff File Uploads
-    content: >
-
-maximum_file_size:
+max_file_size:
     title: Maximum File Size
     content: >
+        Choose a maximum file size for attachments uploaded by agents. This
+        includes canned attachments, knowledge base articles, and
+        attachments to ticket replies.
 
 ticket_response_files:
     title: Ticket Response Files
     content: >
         If enabled, any attachments an Agent may attach to a ticket response will
         be also included in the email to the User.
-
-accepted_file_types:
-    title: Accepted File Types
-    content: >

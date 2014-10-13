@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+
 class Misc {
 
 	function randCode($count=8, $chars=false) {
@@ -125,13 +126,14 @@ class Misc {
 
         ob_start();
         echo sprintf('<select name="%s" id="%s">',$name,$name);
-        echo '<option value="" selected>Time</option>';
+        echo '<option value="" selected>'.__('Time').'</option>';
+        $format = $cfg->getTimeFormat();
         for($i=23; $i>=0; $i--) {
             for($minute=45; $minute>=0; $minute-=15) {
                 $sel=($hr==$i && $min==$minute)?'selected="selected"':'';
                 $_minute=str_pad($minute, 2, '0',STR_PAD_LEFT);
                 $_hour=str_pad($i, 2, '0',STR_PAD_LEFT);
-                $disp = gmdate($cfg->getTimeFormat(), $i*3600 + $minute*60);
+                $disp = gmdate($format, $i*3600 + $minute*60);
                 echo sprintf('<option value="%s:%s" %s>%s</option>',$_hour,$_minute,$sel,$disp);
             }
         }

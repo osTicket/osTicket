@@ -482,7 +482,7 @@ Class ThreadEntry {
                 $uploaded[]=$id;
             else {
                 if(!$file['error'])
-                    $error = 'Unable to upload file - '.$file['name'];
+                    $error = sprintf(__('Unable to upload file - %s'),$file['name']);
                 elseif(is_numeric($file['error']))
                     $error ='Error #'.$file['error']; //TODO: Transplate to string.
                 else
@@ -492,7 +492,7 @@ Class ThreadEntry {
                  XXX: We're doing it here because it will eventually become a thread post comment (hint: comments coming!)
                  XXX: logNote must watch for possible loops
                */
-                $this->getTicket()->logNote('File Upload Error', $error, 'SYSTEM', false);
+                $this->getTicket()->logNote(__('File Upload Error'), $error, 'SYSTEM', false);
             }
 
         }
@@ -524,9 +524,10 @@ Class ThreadEntry {
             $error = $attachment['error'];
 
             if(!$error)
-                $error = 'Unable to import attachment - '.$attachment['name'];
+                $error = sprintf(_S('Unable to import attachment - %s'),$attachment['name']);
 
-            $this->getTicket()->logNote('File Import Error', $error, 'SYSTEM', false);
+            $this->getTicket()->logNote(_S('File Import Error'), $error,
+                _S('SYSTEM'), false);
         }
 
         return $id;
@@ -538,7 +539,11 @@ Class ThreadEntry {
     */
     function saveAttachment(&$file) {
 
-        if(!($fileId=is_numeric($file)?$file:AttachmentFile::save($file)))
+        if (is_numeric($file))
+            $fileId = $file;
+        elseif (is_array($file) && isset($file['id']))
+            $fileId = $file['id'];
+        elseif (!($fileId = AttachmentFile::save($file)))
             return 0;
 
         $inline = is_array($file) && @$file['inline'];
@@ -665,11 +670,10 @@ Class ThreadEntry {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
-            if ($ost) $ost->log(LOG_ERR, 'Email loop detected', sprintf(
-               'It appears as though &lt;%s&gt; is being used as a forwarded or
-                fetched email account and is also being used as a user /
-                system account. Please correct the loop or seek technical
-                assistance.', $mailinfo['email']),
+            if ($ost) $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
+                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
+                $mailinfo['email']),
+
                 // This is quite intentional -- don't continue the loop
                 false,
                 // Force the message, even if logging is disabled
@@ -906,9 +910,9 @@ Class ThreadEntry {
         $match = array();
         if ($subject
                 && $mailinfo['email']
-                && preg_match("/#(?:[\p{L}-]+)?([0-9]{1,10})/u", $subject, $match)
+                && preg_match("/\b#(\S+)/u", $subject, $match)
                 //Lookup by ticket number
-                && ($ticket = Ticket::lookupByNumber((int)$match[1]))
+                && ($ticket = Ticket::lookupByNumber($match[1]))
                 //Lookup the user using the email address
                 && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
             //We have a valid ticket and user
@@ -1106,6 +1110,8 @@ Class ThreadEntry {
         // Inline images (attached to the draft)
         $entry->saveAttachments(Draft::getAttachmentIds($body));
 
+        Signal::send('model.created', $entry);
+
         return $entry;
     }
 
@@ -1132,9 +1138,9 @@ class Message extends ThreadEntry {
     function add($vars, &$errors) {
 
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['message'])
-            $errors['message'] = 'Message required';
+            $errors['message'] = __('Message content is required');
 
         if($errors) return false;
 
@@ -1201,9 +1207,9 @@ class Response extends ThreadEntry {
     function add($vars, &$errors) {
 
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['response'])
-            $errors['response'] = 'Response required';
+            $errors['response'] = __('Response content is required');
 
         if($errors) return false;
 
@@ -1251,9 +1257,9 @@ class Note extends ThreadEntry {
 
         //Check required params.
         if(!$vars || !is_array($vars) || !$vars['ticketId'])
-            $errors['err'] = 'Missing or invalid data';
+            $errors['err'] = __('Missing or invalid data');
         elseif(!$vars['note'])
-            $errors['note'] = 'Note required';
+            $errors['note'] = __('Note content is required');
 
         if($errors) return false;
 
@@ -1289,12 +1295,13 @@ class ThreadBody /* extends SplString */ {
     function __construct($body, $type='text', $options=array()) {
         $type = strtolower($type);
         if (!in_array($type, static::$types))
-            throw new Exception($type.': Unsupported ThreadBody type');
+            throw new Exception("$type: Unsupported ThreadBody type");
         $this->body = (string) $body;
         if (strlen($this->body) > 250000) {
             $max_packet = db_get_variable('max_allowed_packet', 'global');
             // Truncate just short of the max_allowed_packet
-            $this->body = substr($this->body, 0, $max_packet - 2048) . ' ... (truncated)';
+            $this->body = substr($this->body, 0, $max_packet - 2048) . ' ... '
+               . _S('(truncated)');
         }
         $this->type = $type;
         $this->options = array_merge($this->options, $options);
@@ -1368,12 +1375,11 @@ class ThreadBody /* extends SplString */ {
     }
 
     function display($format=false) {
-        throw new Exception('display: Abstract dispplay() method not implemented');
+        throw new Exception('display: Abstract display() method not implemented');
     }
 
     function getSearchable() {
-        return $this->body;
-        // TODO: Normalize Unicode string
+        return Format::searchable($this->body);
     }
 
     static function fromFormattedText($text, $format=false) {
@@ -1445,9 +1451,9 @@ class HtmlThreadBody extends ThreadBody {
 
     function getSearchable() {
         // <br> -> \n
-        $body = preg_replace('/\<br(\s*)?\/?\>/i', "\n", $this->body);
-        return Format::striptags($body);
-        // TODO: Normalize Unicode string
+        $body = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $this->body);
+        $body = Format::htmldecode(Format::striptags($body));
+        return Format::searchable($body);
     }
 
     function display($output=false) {

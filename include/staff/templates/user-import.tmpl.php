@@ -12,9 +12,9 @@ if ($info['error']) {
 } ?>
 <ul class="tabs">
     <li><a href="#copy-paste" class="active"
-        ><i class="icon-edit"></i>&nbsp;Copy Paste</a></li>
+        ><i class="icon-edit"></i>&nbsp;<?php echo __('Copy Paste'); ?></a></li>
     <li><a href="#upload"
-        ><i class="icon-fixed-width icon-cloud-upload"></i>&nbsp;Upload</a></li>
+        ><i class="icon-fixed-width icon-cloud-upload"></i>&nbsp;<?php echo __('Upload'); ?></a></li>
 </ul>
 <form action="<?php echo $info['action']; ?>" method="post" enctype="multipart/form-data"
     onsubmit="javascript:
@@ -28,30 +28,30 @@ if ($org_id) { ?>
 <?php } ?>
 
 <div class="tab_content" id="copy-paste" style="margin:5px;">
-<h2 style="margin-bottom:10px">Name and Email</h2>
-<p>
-Enter one name and email address per line.<br/>
-<em>To import more other fields, use the Upload tab.</em>
+<h2 style="margin-bottom:10px"><?php echo __('Name and Email'); ?></h2>
+<p><?php echo __(
+'Enter one name and email address per line.'); ?><br/><em><?php echo __(
+'To import more other fields, use the Upload tab.'); ?></em>
 </p>
 <textarea name="pasted" style="display:block;width:100%;height:8em"
-    placeholder="e.g. John Doe, john.doe@osticket.com">
+    placeholder="<?php echo __('e.g. John Doe, john.doe@osticket.com'); ?>">
 <?php echo $info['pasted']; ?>
 </textarea>
 </div>
 
 <div class="tab_content" id="upload" style="display:none;margin:5px;">
-<h2 style="margin-bottom:10px">Import a CSV File</h2>
+<h2 style="margin-bottom:10px"><?php echo __('Import a CSV File'); ?></h2>
 <p>
-<em>Use the columns shown in the table below. To add more fields, visit the
-Admin Panel -&gt; Manage -&gt; Forms -&gt; <?php echo
-UserForm::getUserForm()->get('title'); ?> page to edit the available fields.
-Only fields with `variable` defined can be imported.</em>
+<em><?php echo sprintf(__(
+'Use the columns shown in the table below. To add more fields, visit the Admin Panel -&gt; Manage -&gt; Forms -&gt; %s page to edit the available fields.  Only fields with `variable` defined can be imported.'),
+    UserForm::getUserForm()->get('title')
+); ?>
 </p>
 <table class="list"><tr>
 <?php
     $fields = array();
     $data = array(
-        array('name' => 'John Doe', 'email' => 'john.doe@osticket.com')
+        array('name' => __('John Doe'), 'email' => __('john.doe@osticket.com'))
     );
     foreach (UserForm::getUserForm()->getFields() as $f)
         if ($f->get('name'))
@@ -74,12 +74,13 @@ Only fields with `variable` defined can be imported.</em>
 </div>
     <hr>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="reset" value="Reset">
-            <input type="button" name="cancel" class="close"  value="Cancel">
+        <span class="buttons pull-left">
+            <input type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" name="cancel" class="close"  value="<?php
+            echo __('Cancel'); ?>">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="submit" value="Import Users">
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Import Users'); ?>">
         </span>
      </p>
 </form>

@@ -3,7 +3,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
 RedactorPlugins.fontfamily = {
     init: function ()
     {
-        var fonts = [ 'Arial', 'Helvetica', 'Georgia', 'Times New Roman', 'Monospace' ];
+        var fonts = [ 'Arial', 'Helvetica', 'Georgia', 'Times New Roman', __('Monospace') ];
         var that = this;
         var dropdown = {};
 
@@ -14,7 +14,7 @@ RedactorPlugins.fontfamily = {
 
         dropdown['remove'] = { title: 'Remove font', callback: function() { that.resetFontfamily(); }};
 
-        this.buttonAddBefore('bold', 'fontfamily', 'Change font family', false, dropdown);
+        this.buttonAddBefore('bold', 'fontfamily', __('Change font family'), false, dropdown);
     },
     setFontfamily: function (value)
     {
@@ -120,9 +120,9 @@ RedactorPlugins.fontsize = {
                 callback: function() { that.setFontsize(s); } };
 		});
 
-		dropdown['remove'] = { title: 'Remove font size', callback: function() { that.resetFontsize(); } };
+		dropdown['remove'] = { title: __('Remove font size'), callback: function() { that.resetFontsize(); } };
 
-		this.buttonAddAfter('formatting', 'fontsize', 'Change font size', false, dropdown);
+		this.buttonAddAfter('formatting', 'fontsize', __('Change font size'), false, dropdown);
 	},
 	setFontsize: function(size)
 	{
@@ -132,4 +132,56 @@ RedactorPlugins.fontsize = {
 	{
 		this.inlineRemoveStyle('font-size');
 	}
+};
+
+RedactorPlugins.textdirection = {
+    init: function()
+    {
+        var that = this;
+        var dropdown = {};
+
+        dropdown.ltr = { title: __('Left to Right'), callback: this.setLtr };
+        dropdown.rtl = { title: __('Right to Left'), callback: this.setRtl };
+
+        var button = this.buttonAdd('textdirection', __('Change Text Direction'),
+            false, dropdown);
+
+        if (this.opts.direction == 'rtl')
+            this.setRtl();
+    },
+    setRtl: function()
+    {
+        var c = this.getCurrent(), s = this.getSelection();
+        this.bufferSet();
+        if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
+            this.linebreakHack(s);
+        }
+        else if (!c) {
+            var repl = '<div dir="rtl">' + this.get() + '</div>';
+            this.set(repl, false);
+        }
+        $(this.getCurrent()).attr('dir', 'rtl');
+        this.sync();
+    },
+    setLtr: function()
+    {
+        var c = this.getCurrent(), s = this.getSelection();
+        this.bufferSet();
+        if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
+            this.linebreakHack(s);
+        }
+        else if (!c) {
+            var repl = '<div dir="ltr">' + this.get() + '</div>';
+            this.set(repl, false);
+        }
+        $(this.getCurrent()).attr('dir', 'ltr');
+        this.sync();
+    },
+    linebreakHack: function(sel) {
+        var range = sel.getRangeAt(0);
+        var wrapper = document.createElement('div');
+        wrapper.appendChild(range.extractContents());
+        range.insertNode(wrapper);
+        this.selectionElement(wrapper);
+    }
 };

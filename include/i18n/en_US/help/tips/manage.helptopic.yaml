@@ -112,3 +112,10 @@ ticket_auto_response:
     links:
       - title: Autoresponder Settings
         href: /scp/settings.php?t=autoresp
+
+custom_numbers:
+    title: Custom Ticket Numbers
+    content: >
+        Choose "Custom" here to override the system default ticket numbering
+        format for tickets created in this help topic.  See the help tips on
+        the Settings / Tickets page for more details on the settings.

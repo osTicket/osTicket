@@ -1,5 +1,5 @@
 @import url("../../css/font-awesome.min.css");
-body { background: url('../images/background.jpg?1312906017') top left repeat-x white; font-family: arial, helvetica, sans-serif; font-size: 10pt; color: #000; margin: 0; padding: 0; }
+body { background: url('../images/background.jpg?1312906017') top left repeat-x white; font-family: arial, helvetica, sans-serif; font-size: 10pt; color: #000; margin: 0; padding: 0; line-height: 1.3em; }
 
 #wizard { background: #fff; width: 800px; margin: 30px auto; padding: 10px; border: 1px solid #2a67ac; border-right: 2px solid #2a67ac; border-bottom: 3px solid #2a67ac; overflow: hidden; margin-bottom:5px;}
 
@@ -11,16 +11,16 @@ a { color: #2a67ac; }
 .hidden { display: none;}
 .error { color:#f00;}
 
-#header { height: 72px; margin-bottom: 20px; }
+#header { height: 72px; margin-bottom: 20px; width: 100%; }
 #header #logo { width: 280px; height: 72px; display: block; float: left; }
-#header ul { margin: 0; padding: 0; width: 400px; float: right; text-align: right; }
-#header ul .info { font-size: 11pt; font-weight: bold; border-bottom: 1px solid #2a67ac; color: #444; }
+#header .info { font-size: 11pt; font-weight: bold; border-bottom: 1px solid #2a67ac; color: #444; text-align: right; float: right; }
+#header ul { margin: 0; padding: 0; text-align: right; }
 #header ul li { list-style: none; margin: 5px 0 0 0; padding: 0; }
-#header ul li a { color: #F3811C; text-decoration: none; }
+#header ul li a { color: #F3811C; text-decoration: none; white-space: nowrap; }
 #header ul li a:hover { color: #2a67ac; }
 
 #sidebar { width: 180px; padding: 10px; border: 1px solid #C8DDFA; float: right; background: #F7FBFE; }
-#sidebar h3 { font-size: 10pt; margin: 0 0 5px 0; padding: 0; text-indent: 32px; background: url('../images/cog.png?1312913866') top left no-repeat; line-height: 24px; color: #2a67ac; }
+#sidebar h3 { font-size: 10pt; margin: 0 0 5px 0; padding: 0; padding-left: 32px; background: url('../images/cog.png?1312913866') top left no-repeat; line-height: 1.2em; color: #2a67ac; min-height: 24px; }
 
 #footer { color:#ccc; }
 #footer a, #footer a:hover { text-decoration:none; color:#ccc; }
@@ -42,6 +42,10 @@ ul.progress li.no { background-image: url('../images/no.png?1312906277'); }
 ul.progress li.yes small {color:green; }
 ul.progress li.no small {color:red;}
 
+#intro ul li + li {
+    margin-top: 8px;
+}
+
 #bar { clear: both; padding-top: 10px; height: 24px; line-height: 24px; text-align: center; border-top: 1px solid #aaaaaa; }
 #bar a, #bar .btn { display: inline-block; margin: 0; height: 24px; line-height: 24px; font-weight: bold; border: 1px solid #666666; text-decoration: none; padding: 0 10px; background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x; color: #333; }
 #bar a:hover, #bar .btn:hover, #bar .btnover { background-position: bottom left; }
@@ -56,9 +60,9 @@ form h4.system { background-image: url('../images/system.png?1262713696'); }
 form h4.admin { background-image: url('../images/user.png?1262713720'); }
 form h4.database { background-image: url('../images/database.png?1262713698'); }
 form h4.email { background-image: url('../images/email.png?1142218352'); }
-form .row { clear: both; padding: 2px 0 0 24px; background: #F7FBFE; height: 24px; }
-form .row input { background: #fff; height: 22px; padding: 0; line-height: 22px; border: 1px solid #cccccc; }
-form .row label, form .row span { display: block; float: left; width: 150px; line-height: 24px; }
+form .row { clear: both; padding: 2px 0 0 24px; background: #F7FBFE; }
+form .row input { background: #fff; height: 22px; padding: 0 5px; line-height: 22px; border: 1px solid #cccccc; }
+form .row label, form .row span { display: block; line-height: 24px; padding: 0 5px; }
 form .row span { width: 600px; color: #666666; }
 
 .tip_box {
@@ -109,7 +113,7 @@ form .row span { width: 600px; color: #666666; }
     position:absolute;
     top:0;
     left:-1px;
-    min-width:300px;
+    min-width:400px;
     line-height: 1.15rem;
 }
 
@@ -178,6 +182,23 @@ i.help-tip:hover {
 #loading { padding: 10px 10px 10px 60px; width: 400px; height: 150px; background: url('../images/ajax-loader.gif?1312925608') 10px 50% no-repeat white; position: fixed; display: none; z-index: 3000; }
 #loading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
 
-.tip { display: inline-block; width: 16px; height: 16px; outline: none; text-decoration: none; color: #d80; }
+div.flags { text-align: right; margin-top: 5px; }
+a.flag { text-decoration: none; }
+
+.tip { display: inline-block; width: 16px; height: 16px; outline: none; text-decoration: none; color: #d80; margin-left: 5px; }
+.rtl .tip { margin-right: 5px;}
 
 #links { margin: 10px 0; }
+
+.rtl ul.progress li.yes, .rtl ul.progress li.no { background-position: 100%; }
+.rtl ul.progress li { padding-left: 0; padding-right: 24px; }
+.rtl form h4.head { padding-right: 24px; background-position: right center; background-position: calc(100% - 5px); }
+.rtl form .subhead { padding-right: 24px; }
+.rtl #header #logo { float: right; }
+.rtl #header .info, .rtl #header ul, .rtl div.flags { text-align:left; }
+.rtl #header .info { float: left; }
+.rtl .ltr { text-align: right; }
+.ltr {
+    direction: ltr;
+    unicode-bidi: embed;
+}

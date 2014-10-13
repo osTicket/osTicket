@@ -116,17 +116,17 @@ class Organization extends OrganizationModel {
         return $of;
     }
 
-    function getDynamicData() {
+    function getDynamicData($create=true) {
         if (!isset($this->_entries)) {
             $this->_entries = DynamicFormEntry::forOrganization($this->id)->all();
-            if (!$this->_entries) {
+            if (!$this->_entries && $create) {
                 $g = OrganizationForm::getInstance($this->id, true);
                 $g->save();
                 $this->_entries[] = $g;
             }
         }
 
-        return $this->_entries;
+        return $this->_entries ?: array();
     }
 
     function getForms($data=null) {
@@ -257,14 +257,14 @@ class Organization extends OrganizationModel {
                         && ($o=Organization::lookup(array('name'=>$f->getClean())))
                         && $o->id != $this->getId()) {
                 $valid = false;
-                $f->addError('Organization with the same name already exists');
+                $f->addError(__('Organization with the same name already exists'));
             }
         }
 
         if ($vars['domain']) {
             foreach (explode(',', $vars['domain']) as $d) {
                 if (!Validator::is_email('t@' . trim($d))) {
-                    $errors['domain'] = 'Enter a valid email domain, like domain.com';
+                    $errors['domain'] = __('Enter a valid email domain, like domain.com');
                 }
             }
         }
@@ -279,7 +279,7 @@ class Organization extends OrganizationModel {
                         && $team = Team::lookup(substr($vars['manager'], 1)))
                     break;
             default:
-                $errors['manager'] = 'Select a staff member or team from the list';
+                $errors['manager'] = __('Select an agent or team from the list');
             }
         }
 
@@ -318,6 +318,11 @@ class Organization extends OrganizationModel {
             }
         }
 
+        // Send signal for search engine updating if not modifying the
+        // fields specific to the organization
+        if (count($this->dirty) === 0)
+            Signal::send('model.updated', $this);
+
         return $this->save();
     }
 
@@ -349,7 +354,7 @@ class Organization extends OrganizationModel {
         if (($field=$form->getField('name'))
                 && $field->getClean()
                 && Organization::lookup(array('name' => $field->getClean()))) {
-            $field->addError('Organization with the same name already exists');
+            $field->addError(__('Organization with the same name already exists'));
             $valid = false;
         }
 
@@ -428,16 +433,16 @@ class OrganizationForm extends DynamicForm {
     }
 
 }
-Filter::addSupportedMatches('Organization Data', function() {
+Filter::addSupportedMatches(/*@trans*/ 'Organization Data', function() {
     $matches = array();
     foreach (OrganizationForm::getInstance()->getFields() as $f) {
         if (!$f->hasData())
             continue;
-        $matches['field.'.$f->get('id')] = 'Organization / '.$f->getLabel();
-        if (($fi = $f->getImpl()) instanceof SelectionField) {
-            foreach ($fi->getList()->getProperties() as $p) {
+        $matches['field.'.$f->get('id')] = __('Organization').' / '.$f->getLabel();
+        if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+            foreach ($fi->getSubFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
-                    = 'Organization / '.$f->getLabel().' / '.$p->getLabel();
+                    = __('Organization').' / '.$f->getLabel().' / '.$p->getLabel();
             }
         }
     }

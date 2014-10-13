@@ -13,19 +13,25 @@ function checkbox_checker(formObj, min, max) {
     var checked=$('input:checkbox:checked', formObj).length;
     var action= action?action:"process";
     if (max>0 && checked > max ){
-        msg="You're limited to only " + max + " selections.\n"
-        msg=msg + "You have made " + checked + " selections.\n"
-        msg=msg + "Please remove " + (checked-max) + " selection(s)."
-        alert(msg)
+        msg=__("You're limited to only {0} selections.\n") .replace('{0}', max);
+        msg=msg + __("You have made {0} selections.\n").replace('{0}', checked);
+        msg=msg + __("Please remove {0} selection(s).").replace('{0}', checked-max);
+        $.sysAlert(__('Alert'), msg);
+
         return (false);
     }
 
     if (checked< min ){
-        alert("Please make at least " + min + " selections. " + checked + " checked so far.")
+        $.sysAlert( __('Alert'),
+                __("Please make at least {0} selections. {1} checked so far.")
+                .replace('{0}', min)
+                .replace('{1}', checked)
+                );
+
         return (false);
     }
 
-    return (true);
+    return checked;
 }
 
 
@@ -87,12 +93,12 @@ var scp_prep = function() {
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
                 e.preventDefault();
                 $('.dialog#confirm-action').hide();
-                $('#overlay').hide();
+                $.toggleOverlay(false);
                 $('input#action', formObj).val(action);
                 formObj.submit();
                 return false;
              });
-            $('#overlay').show();
+            $.toggleOverlay(true);
             $('.dialog#confirm-action .confirm-action').hide();
             $('.dialog#confirm-action p#'+this.name+'-confirm')
             .show()
@@ -109,7 +115,7 @@ var scp_prep = function() {
             var action = $(this).attr('href').substr(1, $(this).attr('href').length);
 
             $('input#action', $dialog).val(action);
-            $('#overlay').show();
+            $.toggleOverlay(true);
             $('.confirm-action', $dialog).hide();
             $('p'+$(this).attr('href')+'-confirm', $dialog)
             .show()
@@ -138,10 +144,10 @@ var scp_prep = function() {
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
-                return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
+                return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
             });
             $(document).on('pjax:beforeSend.changed', function(e) {
-                return confirm('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
+                return confirm(__('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!'));
             });
         }
     };
@@ -185,7 +191,7 @@ var scp_prep = function() {
     //Canned attachments.
     $('.canned_attachments, .faq_attachments').delegate('input:checkbox', 'click', function(e) {
         var elem = $(this);
-        if(!$(this).is(':checked') && confirm("Are you sure you want to remove this attachment?")==true) {
+        if(!$(this).is(':checked') && confirm(__("Are you sure you want to remove this attachment?"))==true) {
             elem.parent().addClass('strike');
         } else {
             elem.attr('checked', 'checked');
@@ -223,16 +229,12 @@ var scp_prep = function() {
                             redactor.observeStart();
                     }
                     //Canned attachments.
-                    if(canned.files && $('.canned_attachments',fObj).length) {
+                    var ca = $('.attachments', fObj);
+                    if(canned.files && ca.length) {
+                        var fdb = ca.find('.dropzone').data('dropbox');
                         $.each(canned.files,function(i, j) {
-                            if(!$('.canned_attachments #f'+j.id,fObj).length) {
-                                var file='<span><label><input type="checkbox" name="cannedattachments[]" value="' + j.id+'" id="f'+j.id+'" checked="checked">';
-                                    file+= ' '+ j.name + '</label>';
-                                    file+= ' (<a target="_blank" class="no-pjax" href="file.php?h=' + j.key + j.hash + '">view</a>) </span>';
-                                $('.canned_attachments', fObj).append(file);
-                            }
-
-                         });
+                          fdb.addNode(j);
+                        });
                     }
                 }
             })
@@ -243,14 +245,6 @@ var scp_prep = function() {
 
     /* Get config settings from the backend */
     getConfig().then(function(c) {
-        // Multifile uploads
-        $('.multifile').multifile({
-            container:   '.uploads',
-            max_uploads: c.max_file_uploads || 1,
-            file_types:  c.file_types || ".*",
-            max_file_size: c.max_file_size || 0
-        });
-
         // Datepicker
         $('.dp').datepicker({
             numberOfMonths: 2,
@@ -339,7 +333,7 @@ var scp_prep = function() {
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
         e.preventDefault();
         $(this).parents('div.dialog').hide()
-        $('#overlay').hide();
+        $.toggleOverlay(false);
 
         return false;
     });
@@ -359,28 +353,36 @@ var scp_prep = function() {
     $('#go-advanced').click(function(e) {
         e.preventDefault();
         $('#result-count').html('');
-        $('#overlay').show();
+        $.toggleOverlay(true);
         $('#advanced-search').show();
     });
 
 
-    $('#advanced-search').delegate('#status', 'change', function() {
-        switch($(this).val()) {
+    $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
+        switch($(this).children('option:selected').data('state')) {
             case 'closed':
-                $('select#assignee').find('option:first').attr('selected', 'selected').parent('select');
-                $('select#assignee').attr('disabled','disabled');
+                $('select#assignee')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
+                $('select#flag')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
                 $('select#staffId').removeAttr('disabled');
                 break;
             case 'open':
-            case 'overdue':
-            case 'answered':
-                $('select#staffId').find('option:first').attr('selected', 'selected').parent('select');
-                $('select#staffId').attr('disabled','disabled');
+                $('select#staffId')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
                 $('select#assignee').removeAttr('disabled');
+                $('select#flag').removeAttr('disabled');
                 break;
             default:
                 $('select#staffId').removeAttr('disabled');
                 $('select#assignee').removeAttr('disabled');
+                $('select#flag').removeAttr('disabled');
         }
     });
 
@@ -412,7 +414,8 @@ var scp_prep = function() {
             .done( function () {
              })
             .fail( function () {
-                $('#result-count').html('<div class="fail">Advanced search failed - try again!</div>');
+                $('#result-count').html('<div class="fail">'
+                    + __('Advanced search failed - try again!') + '</div>');
             })
             .always( function () {
                 $('.spinner', elem).hide();
@@ -509,7 +512,7 @@ $(document).keydown(function(e) {
 
     if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
         $('div.dialog').hide();
-        $('#overlay').hide();
+        $.toggleOverlay(false);
 
         e.preventDefault();
         e.stopPropagation();
@@ -517,23 +520,46 @@ $(document).keydown(function(e) {
     }
 });
 
+$.toggleOverlay = function (show) {
+  if (typeof(show) === 'undefined') {
+    return $.toggleOverlay(!$('#overlay').is(':visible'));
+  }
+  if (show) {
+    $('#overlay').fadeIn();
+    $('body').css('overflow', 'hidden');
+  }
+  else {
+    $('#overlay').fadeOut();
+    $('body').css('overflow', 'auto');
+  }
+};
+
 $.dialog = function (url, codes, cb, options) {
     options = options||{};
 
     if (codes && !$.isArray(codes))
         codes = [codes];
 
-    $('.dialog#popup .body').load(url, function () {
-        $('#overlay').show();
-        $('.dialog#popup').show({
-            duration: 0,
+    var $popup = $('.dialog#popup');
+
+    $.toggleOverlay(true);
+    $('div.body', $popup).empty().hide();
+    $('div#popup-loading', $popup).show()
+        .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
+    $popup.show();
+    $('div.body', $popup).load(url, function () {
+        $('div#popup-loading', $popup).hide();
+        $('div.body', $popup).slideDown({
+            duration: 300,
+            queue: false,
             complete: function() { if (options.onshow) options.onshow(); }
         });
         $(document).off('.dialog');
         $(document).on('submit.dialog', '.dialog#popup form', function(e) {
             e.preventDefault();
             var $form = $(this);
-            var $dialog = $form.closest('.dialog');
+            $('div#popup-loading', $popup).show()
+                .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
             $.ajax({
                 type:  $form.attr('method'),
                 url: 'ajax.php/'+$form.attr('action').substr(1),
@@ -542,23 +568,38 @@ $.dialog = function (url, codes, cb, options) {
                 success: function(resp, status, xhr) {
                     if (xhr && xhr.status && codes
                         && $.inArray(xhr.status, codes) != -1) {
-                        $('div.body', $dialog).empty();
-                        $dialog.hide();
-                        $('#overlay').hide();
+                        $.toggleOverlay(false);
+                        $popup.hide();
+                        $('div.body', $popup).empty();
                         if(cb) cb(xhr);
                     } else {
-                        $('div.body', $dialog).html(resp);
-                        $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
+                        $('div.body', $popup).html(resp);
+                        $popup.effect('shake');
+                        $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
                     }
                 }
             })
-            .done(function() { })
+            .done(function() {
+                $('div#popup-loading', $popup).hide();
+            })
             .fail(function() { });
             return false;
         });
      });
     if (options.onload) { options.onload(); }
  };
+
+$.sysAlert = function (title, msg, cb) {
+    var $dialog =  $('.dialog#alert');
+    if ($dialog.length) {
+        $.toggleOverlay(true);
+        $('#title', $dialog).html(title);
+        $('#body', $dialog).html(msg);
+        $dialog.show();
+    } else {
+        alert(msg);
+    }
+};
 
 $.userLookup = function (url, cb) {
     $.dialog(url, 201, function (xhr) {
@@ -577,6 +618,8 @@ $.orgLookup = function (url, cb) {
         onshow: function() { $('#org-search').focus(); }
     });
 };
+
+$.uid = 1;
 
 //Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
@@ -644,6 +687,9 @@ $(document).on('pjax:start', function() {
     // Cancel save-changes warning banner
     $(document).unbind('pjax:beforeSend.changed');
     $(window).unbind('beforeunload');
+    // Close popups
+    $('.dialog .body').empty().parent().hide();
+    // Close tooltips
     $('.tip_box').remove();
 });
 
@@ -666,18 +712,8 @@ $(document).on('pjax:complete', function() {
     $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
         $(this).remove();
     });
-
-    $('.tip_box').remove();
-    $('.dialog .body').empty().parent().hide();
-    $('#overlay').stop(false, true).hide().removeAttr('style');
-});
-
-$(document).on('pjax:end', function() {
-    // Close popups
-    // Close tooltips
-    $('.tip_box').remove();
-    $('.dialog .body').empty().parent().hide();
-    $('#overlay').hide();
+    $.toggleOverlay(false);
+    $('#overlay').removeAttr('style');
 });
 
 // Quick note interface
@@ -745,7 +781,7 @@ $('.quicknote .delete').live('click.note', function() {
 $('#new-note').live('click', function() {
   var note = $(this).closest('.quicknote'),
     T = $('<textarea>'),
-    button = $('<input type="button">').val('Create');
+    button = $('<input type="button">').val(__('Create'));
     button.click(function() {
       $.post('ajax.php/' + note.data('url'),
         { note: T.redactor('get'), no_options: note.hasClass('no-options') },
@@ -766,3 +802,9 @@ $('#new-note').live('click', function() {
     $(T).redactor('focus');
     return false;
 });
+
+function __(s) {
+  if ($.oststrings && $.oststrings[s])
+    return $.oststrings[s];
+  return s;
+}

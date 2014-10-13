@@ -5,7 +5,7 @@ class Test {
     var $warnings = array();
     var $name = "";
 
-    var $third_party_paths = array(
+    static $third_party_paths = array(
         '/include/JSON.php',
         '/include/htmLawed.php',
         '/include/PasswordHash.php',
@@ -15,11 +15,11 @@ class Test {
         '/include/plugins/',
         '/include/h2o/',
         '/include/mpdf/',
+
+        # Includes in the core-plugins project
+        '/lib/',
     );
 
-    function Test() {
-        call_user_func_array(array($this, '__construct'), func_get_args());
-    }
     function __construct() {
         assert_options(ASSERT_CALLBACK, array($this, 'fail'));
         error_reporting(E_ALL & ~E_WARNING);
@@ -31,14 +31,13 @@ class Test {
     function teardown() {
     }
 
-    /*static*/
-    function getAllScripts($excludes=true) {
-        $root = get_osticket_root_path();
+    static function getAllScripts($excludes=true, $root=false) {
+        $root = $root ?: get_osticket_root_path();
         $scripts = array();
         foreach (glob_recursive("$root/*.php") as $s) {
             $found = false;
             if ($excludes) {
-                foreach ($this->third_party_paths as $p) {
+                foreach (self::$third_party_paths as $p) {
                     if (strpos($s, $p) !== false) {
                         $found = true;
                         break;
@@ -103,6 +102,30 @@ class Test {
             $line += 1;
         }
         return $line;
+    }
+}
+
+if (!function_exists('glob_recursive')) {
+    # Check PHP syntax across all php files
+    function glob_recursive($pattern, $flags = 0) {
+        $files = glob($pattern, $flags);
+        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+            $files = array_merge($files,
+                glob_recursive($dir.'/'.basename($pattern), $flags));
+        }
+        return $files;
+    }
+}
+
+if (!function_exists('get_osticket_root_path')) {
+    function get_osticket_root_path() {
+        # Hop up to the root folder
+        $start = dirname(__file__);
+        for (;;) {
+            if (file_exists($start . '/main.inc.php')) break;
+            $start .= '/..';
+        }
+        return realpath($start);
     }
 }
 ?>

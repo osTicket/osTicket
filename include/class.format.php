@@ -30,7 +30,7 @@ class Format {
         return round(($bytes/1048576),1).' mb';
     }
 
-    /* encode text into desired encoding - taking into accout charset when available. */
+	/* encode text into desired encoding - taking into accout charset when available. */
     function encode($text, $charset=null, $encoding='utf-8') {
 
         //Try auto-detecting charset/encoding
@@ -270,12 +270,16 @@ class Format {
     }
 
     function htmlencode($var) {
+        static $phpversion = null;
 
         if (is_array($var))
             return array_map(array('Format', 'htmlencode'), $var);
 
+        if (!isset($phpversion))
+            $phpversion = phpversion();
+
         $flags = ENT_COMPAT;
-        if (phpversion() >= '5.4.0')
+        if ($phpversion >= '5.4.0')
             $flags |= ENT_HTML401;
 
         try {
@@ -570,5 +574,65 @@ class Format {
         );
     }
 
+    // Performs Unicode normalization (where possible) and splits words at
+    // difficult word boundaries (for far eastern languages)
+    function searchable($text, $lang=false) {
+        global $cfg;
+
+        if (function_exists('normalizer_normalize')) {
+            // Normalize text input :: remove diacritics and such
+            $text = normalizer_normalize($text, Normalizer::FORM_C);
+        }
+        else {
+            // As a lightweight compatiblity, use a lightweight C
+            // normalizer with diacritic removal, thanks
+            // http://ahinea.com/en/tech/accented-translate.html
+            $tr = array(
+                "ä" => "a", "ñ" => "n", "ö" => "o", "ü" => "u", "ÿ" => "y"
+            );
+            $text = strtr($text, $tr);
+        }
+        // Decompose compatible versions of characters (ä => ae)
+        $tr = array(
+            "ß" => "ss", "Æ" => "AE", "æ" => "ae", "Ĳ" => "IJ",
+            "ĳ" => "ij", "Œ" => "OE", "œ" => "oe", "Ð" => "D",
+            "Đ" => "D", "ð" => "d", "đ" => "d", "Ħ" => "H", "ħ" => "h",
+            "ı" => "i", "ĸ" => "k", "Ŀ" => "L", "Ł" => "L", "ŀ" => "l",
+            "ł" => "l", "Ŋ" => "N", "ŉ" => "n", "ŋ" => "n", "Ø" => "O",
+            "ø" => "o", "ſ" => "s", "Þ" => "T", "Ŧ" => "T", "þ" => "t",
+            "ŧ" => "t", "ä" => "ae", "ö" => "oe", "ü" => "ue",
+            "Ä" => "AE", "Ö" => "OE", "Ü" => "UE",
+        );
+        $text = strtr($text, $tr);
+
+        // Drop separated diacritics
+        $text = preg_replace('/\p{M}/u', '', $text);
+
+        // Drop extraneous whitespace
+        $text = preg_replace('/(\s)\s+/u', '$1', $text);
+
+        // Drop leading and trailing whitespace
+        $text = trim($text);
+
+        if (class_exists('IntlBreakIterator')) {
+            // Split by word boundaries
+            if ($tokenizer = IntlBreakIterator::createWordInstance(
+                    $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
+            ) {
+                $tokenizer->setText($text);
+                $tokens = array();
+                foreach ($tokenizer as $token)
+                    $tokens[] = $token;
+                $text = implode(' ', $tokens);
+            }
+        }
+        else {
+            // Approximate word boundaries from Unicode chart at
+            // http://www.unicode.org/reports/tr29/#Word_Boundaries
+
+            // Punt for now
+        }
+        return $text;
+    }
 }
 ?>

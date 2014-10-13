@@ -24,20 +24,23 @@ if ($_POST) {
         $vars['uid']=$thisclient->getId();
     } elseif($cfg->isCaptchaEnabled()) {
         if(!$_POST['captcha'])
-            $errors['captcha']='Enter text shown on the image';
+            $errors['captcha']=__('Enter text shown on the image');
         elseif(strcmp($_SESSION['captcha'], md5(strtoupper($_POST['captcha']))))
-            $errors['captcha']='Invalid - try again!';
+            $errors['captcha']=__('Invalid - try again!');
     }
 
-    if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
-        $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
+    $tform = TicketForm::objects()->one()->getForm($vars);
+    $messageField = $tform->getField('message');
+    $attachments = $messageField->getWidget()->getAttachments();
+    if (!$errors && $messageField->isAttachmentsEnabled())
+        $vars['cannedattachments'] = $attachments->getClean();
 
     // Drop the draft.. If there are validation errors, the content
     // submitted will be displayed back to the user
     Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
-        $msg='Support ticket request created';
+        $msg=__('Support ticket request created');
         // Drop session-backed form data
         unset($_SESSION[':form-data']);
         //Logged in...simply view the newly created ticket.
@@ -47,7 +50,7 @@ if ($_POST) {
             @header('Location: tickets.php?id='.$ticket->getId());
         }
     }else{
-        $errors['err']=$errors['err']?$errors['err']:'Unable to create a ticket. Please correct errors below and try again!';
+        $errors['err']=$errors['err']?$errors['err']:__('Unable to create a ticket. Please correct errors below and try again!');
     }
 }
 
