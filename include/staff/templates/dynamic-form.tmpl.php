@@ -7,8 +7,6 @@ if (isset($options['entry']) && $options['mode'] == 'edit'
 )
     return;
 
-print $form->getMedia();
-
 if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 <tbody>
 <?php } ?>

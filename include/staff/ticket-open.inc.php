@@ -132,9 +132,16 @@ if ($_POST)
             <td>
                 <select name="topicId" onchange="javascript:
                         var data = $(':input[name]', '#dynamic-form').serialize();
-                        $('#dynamic-form').load(
-                            'ajax.php/form/help-topic/' + this.value, data);
-                        ">
+                        $.ajax(
+                          'ajax.php/form/help-topic/' + this.value,
+                          {
+                            data: data,
+                            dataType: 'json',
+                            success: function(json) {
+                              $('#dynamic-form').empty().append(json.html);
+                              $(document.head).append(json.media);
+                            }
+                          });">
                     <?php
                     if ($topics=Topic::getHelpTopics()) {
                         if (count($topics) == 1)
@@ -252,6 +259,7 @@ if ($_POST)
         <tbody id="dynamic-form">
         <?php
             if ($form) {
+                print $form->getForm()->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }
         ?>

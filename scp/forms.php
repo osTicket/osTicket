@@ -11,6 +11,7 @@ if($_POST) {
     $required = array('title');
     $max_sort = 0;
     $form_fields = array();
+    $names = array();
     switch(strtolower($_POST['do'])) {
         case 'update':
             foreach ($fields as $f)
@@ -20,7 +21,6 @@ if($_POST) {
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
             $form->save(true);
-            $names = array();
             foreach ($form->getDynamicFields() as $field) {
                 $id = $field->get('id');
                 if ($_POST["delete-$id"] == 'on' && $field->isDeletable()) {

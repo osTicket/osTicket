@@ -24,8 +24,18 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $_SESSION[':form-data'] = array_merge($_SESSION[':form-data'], $_GET);
         }
 
-        if ($form = $topic->getForm())
+        if ($form = $topic->getForm()) {
+            ob_start();
             $form->getForm($_SESSION[':form-data'])->render(!$client);
+            $html = ob_get_clean();
+            ob_start();
+            print $form->getMedia();
+            $media = ob_get_clean();
+        }
+        return $this->encode(array(
+            'media' => $media,
+            'html' => $html,
+        ));
     }
 
     function getClientFormsForHelpTopic($topic_id) {

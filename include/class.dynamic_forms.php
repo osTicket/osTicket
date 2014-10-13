@@ -62,7 +62,9 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function getDynamicFields() {
-        if (!$this->_dfields && isset($this->id)) {
+        if (!isset($this->id))
+            return array();
+        elseif (!$this->_dfields) {
             $this->_dfields = DynamicFormField::objects()
                 ->filter(array('form_id'=>$this->id))
                 ->all();
@@ -1009,12 +1011,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getValue() {
-        $value = $this->getField()->to_php(
-            $this->get('value'), $this->get('value_id'));
-        if (!$value && $this->getEntry()->getSource()) {
-            return $this->getEntry()->getField(
-                $this->getField()->get('name'))->getClean();
-        }
+        if (!$this->_value && isset($this->value))
+            $this->_value = $this->getField()->to_php(
+                $this->get('value'), $this->get('value_id'));
+        return $this->_value;
     }
 
     function getIdValue() {

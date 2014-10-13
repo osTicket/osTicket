@@ -134,6 +134,7 @@ if ($_POST)
         <?php if ($forms)
             foreach ($forms as $form) {
                 $form->render(true, false, array('mode'=>'edit','width'=>160,'entry'=>$form));
+                print $form->getForm()->getMedia();
         } ?>
 </table>
 <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
