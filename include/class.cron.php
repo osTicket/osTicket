@@ -98,7 +98,9 @@ class Cron {
         self::MailFetcher();
         self::TicketMonitor();
         self::PurgeLogs();
-        self::CleanOrphanedFiles();
+        // Run file purging about every 10 cron runs
+        if (mt_rand(1, 9) == 4)
+            self::CleanOrphanedFiles();
         self::PurgeDrafts();
         self::MaybeOptimizeTables();
 
