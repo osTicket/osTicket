@@ -2368,11 +2368,14 @@ class Ticket {
         // Create and verify the dynamic form entry for the new ticket
         $form = TicketForm::getNewInstance();
         $form->setSource($vars);
-        // If submitting via email, ensure we have a subject and such
-        foreach ($form->getFields() as $field) {
-            $fname = $field->get('name');
-            if ($fname && isset($vars[$fname]) && !$field->value)
-                $field->value = $field->parse($vars[$fname]);
+
+        // If submitting via email or api, ensure we have a subject and such
+        if (!in_array(strtolower($origin), array('web', 'staff'))) {
+            foreach ($form->getFields() as $field) {
+                $fname = $field->get('name');
+                if ($fname && isset($vars[$fname]) && !$field->value)
+                    $field->value = $field->parse($vars[$fname]);
+            }
         }
 
         if (!$form->isValid($field_filter('ticket')))
