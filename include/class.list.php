@@ -109,10 +109,15 @@ abstract class CustomListHandler {
         return $rv;
     }
 
+    function __get($field) {
+        return $this->_list->{$field};
+    }
+
     function update($vars, &$errors) {
         return $this->_list->update($vars, $errors);
     }
 
+    abstract function getListOrderBy();
     abstract function getNumItems();
     abstract function getAllItems();
     abstract function getItems($criteria);
@@ -334,6 +339,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             $this->set('updated', new SqlFunction('NOW'));
         if (isset($this->dirty['notes']))
             $this->notes = Format::sanitize($this->notes);
+
         return parent::save($refetch);
     }
 
@@ -656,6 +662,14 @@ class TicketStatusList extends CustomListHandler {
     var $_items;
     var $_form;
 
+    function getListOrderBy() {
+        switch ($this->getSortMode()) {
+            case 'Alpha':   return 'name';
+            case '-Alpha':  return '-name';
+            case 'SortCol': return 'sort';
+        }
+    }
+
     function getNumItems() {
         return TicketStatus::objects()->count();
     }
@@ -773,8 +787,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     const ENABLED   = 0x0001;
     const INTERNAL  = 0x0002; // Forbid deletion or name and status change.
-
-
 
     function __construct() {
         call_user_func_array(array('parent', '__construct'), func_get_args());
