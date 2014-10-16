@@ -43,11 +43,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('FAQ');?></h2>
+ <h2><?php echo __('Frequently Asked Questions');?></h2>
 <?php if ($info['question']) { ?>
-     <h4><?php echo $info['question']; ?></h4>
+     <div class="faq-title" style="margin:5px 0 15px"><?php echo $info['question']; ?></div>
 <?php } ?>
- <div>
+<div>
+ <div style="display:inline-block;width:49%">
     <div>
         <b><?php echo __('Category Listing');?></b>:
         <span class="error">*</span>
@@ -55,18 +56,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </div>
     <select name="category_id" style="width:350px;">
         <option value="0"><?php echo __('Select FAQ Category');?> </option>
-        <?php
-        $sql='SELECT category_id, name, ispublic FROM '.FAQ_CATEGORY_TABLE;
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while($row=db_fetch_array($res)) {
-                echo sprintf('<option value="%d" %s>%s (%s)</option>',
-                        $row['category_id'],
-                        (($info['category_id']==$row['category_id'])?'selected="selected"':''),
-                        $row['name'],
-                        ($info['ispublic']?__('Public'):__('Internal')));
-            }
-        }
-       ?>
+<?php foreach (Category::objects() as $C) { ?>
+        <option value="<?php echo $C->getId(); ?>" <?php
+            if ($C->getId() == $info['category_id']) echo 'selected="selected"';
+            ?>><?php echo sprintf('%s (%s)',
+                $C->getName(),
+                $C->isPublic() ? __('Public') : __('Private')
+            ); ?></option>
+<?php } ?>
     </select>
     <div class="error"><?php echo $errors['category_id']; ?></div>
 
@@ -93,13 +90,17 @@ if ($topics = Topic::getAllHelpTopics()) {
          });
     </script>
 <?php } ?>
-
+    </div>
+ <div style="display:inline-block;width:49%;margin-left:1%;vertical-align:top">
     <div style="padding-top:9px;">
         <b><?php echo __('Listing Type');?></b>:
         <span class="error">*</span>
         <i class="help-tip icon-question-sign" href="#listing_type"></i>
     </div>
     <select name="ispublished">
+        <option value="2" <?php echo $info['ispublished'] ? 'selected="selected"' : ''; ?>>
+            <?php echo __('Featured (promote to front page)'); ?>
+        </option>
         <option value="1" <?php echo $info['ispublished'] ? 'selected="selected"' : ''; ?>>
             <?php echo __('Public (publish)'); ?>
         </option>
@@ -108,7 +109,10 @@ if ($topics = Topic::getAllHelpTopics()) {
         </option>
     </select>
     <div class="error"><?php echo $errors['ispublished']; ?></div>
+  </div>
 </div>
+
+<div style="margin-top:20px"></div>
 
 <ul class="tabs" style="margin-top:9px;">
     <li class="active"><a href="#article"><?php echo __('Article Content'); ?></a></li>
@@ -118,9 +122,8 @@ if ($topics = Topic::getAllHelpTopics()) {
 </ul>
 
 <div class="tab_content" id="article">
-<strong>Knowledgebase Article Content</strong><br/>
-Here you can manage the question and answer for the article. Multiple
-languages are available if enabled in the admin panel.
+<strong><?php echo __('Knowledgebase Article Content'); ?></strong><br/>
+<?php echo __('Here you can manage the question and answer for the article. Multiple languages are available if enabled in the admin panel.'); ?>
 <div class="clear"></div>
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
@@ -157,17 +160,19 @@ if ($faq) { ?>
         $aname = 'trans['.$code.'][answer]';
     }
 ?>
-    <div class="tab_content" style="margin-left:45px;<?php
+    <div class="tab_content" style="margin:0 45px;<?php
         if ($code != $cfg->getPrimaryLanguage()) echo "display:none;";
-     ?>" id="lang-<?php echo $tag; ?>">
-    <div style="padding-top:9px;">
+     ?>" id="lang-<?php echo $tag; ?>"
+<?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
+    >
+    <div style="margin-bottom:0.5em;margin-top:9px">
         <b><?php echo __('Question');?>
             <span class="error">*</span>
         </b>
         <div class="error"><?php echo $errors['question']; ?></div>
     </div>
     <input type="text" size="70" name="<?php echo $qname; ?>"
-        style="font-size:105%;display:block;width:98%"
+        style="font-size:110%;width:100%;box-sizing:border-box;"
         value="<?php echo $question; ?>">
     <div style="margin-bottom:0.5em;margin-top:9px">
         <b><?php echo __('Answer');?></b>
@@ -188,30 +193,49 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
 
 <div class="tab_content" id="attachments" style="display:none">
     <div>
-        <p><em><?php echo __(
+        <strong><?php echo __('Common Attachments'); ?></strong>
+        <div><?php echo __(
             'These attachments are always available, regardless of the language in which the article is rendered'
-        ); ?></em></p>
+        ); ?></div>
         <div class="error"><?php echo $errors['files']; ?></div>
+        <div style="margin-top:15px"></div>
     </div>
     <?php
     print $faq_form->getField('attachments')->render(); ?>
 
-<?php if (count($langs) > 1) {
-    foreach ($langs as $lang=>$i) {
+<?php if (count($langs) > 1) { ?>
+    <div style="margin-top:15px"></div>
+    <strong><?php echo __('Language-Specific Attachments'); ?></strong>
+    <div><?php echo __(
+        'These attachments are only available when article is rendered in one of the following languages.'
+    ); ?></div>
+    <div class="error"><?php echo $errors['files']; ?></div>
+    <div style="margin-top:15px"></div>
+
+    <ul class="vertical tabs left">
+        <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
+<?php foreach ($langs as $lang=>$i) { ?>
+        <li class="<?php if ($i['code'] == $cfg->getPrimaryLanguage()) echo 'active';
+?>"><a href="#attachments-<?php echo $i['code']; ?>">
+    <span class="flag flag-<?php echo $i['flag']; ?>"></span>
+    </a></li>
+<?php } ?>
+    </ul>
+<?php foreach ($langs as $lang=>$i) {
     $code = $i['code']; ?>
-    <div style="padding-top:9px">
+    <div class="tab_content" style="margin-left:45px" id="attachments-<?php echo $i['code']; ?>" <?php if ($i['code'] != $cfg->getPrimaryLanguage()) echo 'style="display:none;"'; ?>>
+    <div style="padding:0 0 9px">
         <strong><?php echo sprintf(__(
             /* %s is the name of a language */ 'Attachments for %s'),
             Internationalization::getLanguageDescription($lang));
         ?></strong>
-    <div style="margin:0 0 3px"><em class="faded"><?php echo __(
-        'These attachments are only available when article is rendered in this language.'
-    ); ?></em></div>
     </div>
     <?php
     print $faq_form->getField('attachments.'.$code)->render();
+    ?></div><?php
     }
 } ?>
+<div class="clear"></div>
 </div>
 
 <div class="tab_content" style="display:none;" id="notes">

@@ -238,6 +238,9 @@ class Internationalization {
                     'phar' => substr($f, -5) == '.phar',
                     'code' => $base,
                 );
+                $installed[strtolower($base)]['flag'] = strtolower(
+                    $langs[$code]['flag'] ?: $locale ?: $code
+                );
             }
         }
         ksort($installed);

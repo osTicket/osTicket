@@ -28,6 +28,14 @@ class FAQ extends VerySimpleModel {
                     'category_id' => 'Category.category_id'
                 ),
             ),
+            'attachments' => array(
+                'constraint' => array(
+                    "'F'" => 'GenericAttachment.type',
+                    'faq_id' => 'GenericAttachment.object_id',
+                ),
+                'list' => true,
+                'null' => true,
+            ),
         ),
     );
 
@@ -35,8 +43,7 @@ class FAQ extends VerySimpleModel {
     var $topics;
     var $_local;
 
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
+    function __onload() {
         if (isset($this->faq_id))
             $this->attachments = new GenericAttachments($this->getId(), 'F');
     }
@@ -379,7 +386,7 @@ class FAQ extends VerySimpleModel {
         $this->question = $vars['question'];
         $this->answer = Format::sanitize($vars['answer']);
         $this->category = $category;
-        $this->ispublished = !!$vars['ispublished'];
+        $this->ispublished = $vars['ispublished'];
         $this->notes = Format::sanitize($vars['notes']);
         $this->keywords = ' ';
 
