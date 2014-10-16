@@ -44,8 +44,8 @@ class ConfigAjaxAPI extends AjaxController {
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
-              'lang_flag'       => $info['flag'] ?: strtolower($locale) ?: $sl,
-              'primary_lang_flag' => $primary_info['flag'] ?: strtolower($primary_locale) ?: $primary_sl,
+              'lang_flag'       => strtolower($info['flag'] ?: $locale ?: $sl),
+              'primary_lang_flag' => strtolower($primary_info['flag'] ?: $primary_locale ?: $primary_sl),
               'primary_language' => $primary,
               'secondary_languages' => $cfg->getSecondaryLanguages(),
         );
