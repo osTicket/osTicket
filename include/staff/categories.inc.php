@@ -2,39 +2,35 @@
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
-$sql='SELECT cat.category_id, cat.name, cat.ispublic, cat.updated, count(faq.faq_id) as faqs '.
-     ' FROM '.FAQ_CATEGORY_TABLE.' cat '.
-     ' LEFT JOIN '.FAQ_TABLE.' faq ON (faq.category_id=cat.category_id) ';
-$sql.=' WHERE 1';
-$sortOptions=array('name'=>'cat.name','type'=>'cat.ispublic','faqs'=>'faqs','updated'=>'cat.updated');
-$orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
+$categories = Category::objects()
+    ->annotate(array('faq_count'=>Aggregate::COUNT('faqs')));
+$sortOptions=array('name'=>'name','type'=>'ispublic','faqs'=>'faq_count','updated'=>'updated');
+$orderWays=array('DESC'=>'-','ASC'=>'');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
 if($sort && $sortOptions[$sort]) {
     $order_column =$sortOptions[$sort];
 }
-$order_column=$order_column?$order_column:'cat.name';
+$order_column=$order_column ?: 'name';
 
 if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) {
     $order=$orderWays[strtoupper($_REQUEST['order'])];
 }
-$order=$order?$order:'ASC';
+$order=$order ?: '';
 
-if($order_column && strpos($order_column,',')){
-    $order_column=str_replace(','," $order,",$order_column);
-}
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$total=db_count('SELECT count(*) FROM '.FAQ_CATEGORY_TABLE.' cat ');
+$total=$categories->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('categories.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
-$query="$sql GROUP BY cat.category_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
+
+$categories = $categories->offset($pageNav->getStart())
+    ->limit($pageNav->getLimit());
+if ($total)
     $showing=$pageNav->showing().' '.__('categories');
 else
     $showing=__('No FAQ categories found!');
@@ -65,29 +61,27 @@ else
     <?php
         $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if($res && db_num_rows($res)):
-            while ($row = db_fetch_array($res)) {
-                $sel=false;
-                if($ids && in_array($row['category_id'],$ids))
-                    $sel=true;
+        foreach ($categories as $C) {
+            $sel=false;
+            if ($ids && in_array($C->getId(), $ids))
+                $sel=true;
 
-                $faqs=0;
-                if($row['faqs'])
-                    $faqs=sprintf('<a href="faq.php?cid=%d">%d</a>',$row['category_id'],$row['faqs']);
-                ?>
-            <tr id="<?php echo $row['category_id']; ?>">
+            $faqs=0;
+            if ($C->faq_count)
+                $faqs=sprintf('<a href="faq.php?cid=%d">%d</a>',$C->getId(),$C->faq_count);
+            ?>
+            <tr id="<?php echo $C->getId(); ?>">
                 <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['category_id']; ?>" class="ckb"
+                  <input type="checkbox" name="ids[]" value="<?php echo $C->getId(); ?>" class="ckb"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td><a href="categories.php?id=<?php echo $row['category_id']; ?>"><?php echo Format::truncate($row['name'],200); ?></a>&nbsp;</td>
-                <td><?php echo $row['ispublic']?'<b>'.__('Public').'</b>':__('Internal'); ?></td>
+                <td><a class="truncate" style="width:500px" href="categories.php?id=<?php echo $C->getId(); ?>"><?php
+                    echo $C->getLocalName(); ?></a></td>
+                <td><?php echo $C->getVisibilityDescription(); ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $faqs; ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
-            </tr>
-            <?php
-            } //end of while.
-        endif; ?>
+                <td>&nbsp;<?php echo Format::db_datetime($C->updated); ?></td>
+            </tr><?php
+        } // end of foreach ?>
     <tfoot>
      <tr>
         <td colspan="5">

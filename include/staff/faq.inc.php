@@ -14,7 +14,7 @@ if($faq){
     $qstr='id='.$faq->getId();
     $langs = $cfg->getSecondaryLanguages();
     $translations = $faq->getAllTranslations();
-    foreach ($cfg->getSecondaryLanguages() as $tag) {
+    foreach ($langs as $tag) {
         foreach ($translations as $t) {
             if (strcasecmp($t->lang, $tag) === 0) {
                 $trans = $t->getComplex();
@@ -102,10 +102,10 @@ if ($topics = Topic::getAllHelpTopics()) {
             <?php echo __('Featured (promote to front page)'); ?>
         </option>
         <option value="1" <?php echo $info['ispublished'] ? 'selected="selected"' : ''; ?>>
-            <?php echo __('Public (publish)'); ?>
+            <?php echo __('Public').' '.__('(publish)'); ?>
         </option>
         <option value="0" <?php echo !$info['ispublished'] ? 'selected="selected"' : ''; ?>>
-            <?php echo __('Internal (private)'); ?>
+            <?php echo __('Internal').' '.('(private)'); ?>
         </option>
     </select>
     <div class="error"><?php echo $errors['ispublished']; ?></div>
@@ -125,6 +125,7 @@ if ($topics = Topic::getAllHelpTopics()) {
 <strong><?php echo __('Knowledgebase Article Content'); ?></strong><br/>
 <?php echo __('Here you can manage the question and answer for the article. Multiple languages are available if enabled in the admin panel.'); ?>
 <div class="clear"></div>
+
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if ($faq) { ?>

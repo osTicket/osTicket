@@ -22,6 +22,7 @@ class FAQ extends VerySimpleModel {
         'pk' => array('faq_id'),
         'ordering' => array('question'),
         'defer' => array('answer'),
+        'select_related'=> array('category'),
         'joins' => array(
             'category' => array(
                 'constraint' => array(
@@ -36,12 +37,22 @@ class FAQ extends VerySimpleModel {
                 'list' => true,
                 'null' => true,
             ),
+            'topics' => array(
+                'constraint' => array(
+                    'faq_id' => 'FaqTopic.faq_id'
+                ),
+                'null' => true,
+            ),
         ),
     );
 
     var $attachments;
     var $topics;
     var $_local;
+
+    const VISIBILITY_PRIVATE = 0;
+    const VISIBILITY_PUBLIC = 1;
+    const VISIBILITY_FEATURED = 2;
 
     function __onload() {
         if (isset($this->faq_id))
@@ -50,7 +61,11 @@ class FAQ extends VerySimpleModel {
 
     /* ------------------> Getter methods <--------------------- */
     function getId() { return $this->faq_id; }
-    function getHashtable() { return $this->ht; }
+    function getHashtable() {
+        $base = $this->ht;
+        unset($base['category']);
+        return $base;
+    }
     function getKeywords() { return $this->keywords; }
     function getQuestion() { return $this->question; }
     function getAnswer() { return $this->answer; }
@@ -67,7 +82,20 @@ class FAQ extends VerySimpleModel {
     function getNotes() { return $this->notes; }
     function getNumAttachments() { return $this->attachments->count(); }
 
-    function isPublished() { return (!!$this->ispublished && !!$this->category->ispublic); }
+    function isPublished() {
+        return $this->ispublished != self::VISIBILITY_PRIVATE
+            && $this->category->isPublic();
+    }
+    function getVisibilityDescription() {
+        switch ($this->ispublished) {
+        case self::VISIBILITY_PRIVATE:
+            return __('Internal');
+        case self::VISIBILITY_PUBLIC:
+            return __('Public');
+        case self::VISIBILITY_FEATURED:
+            return __('Featured');
+        }
+    }
 
     function getCreateDate() { return $this->created; }
     function getUpdateDate() { return $this->updated; }

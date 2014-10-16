@@ -49,9 +49,9 @@ if ($otherLangs) { ?>
     <div><strong><?php echo __('Other Languages'); ?></strong></div>
 <?php
     foreach ($otherLangs as $lang) { ?>
-    <a href="faq.php?kblang=<?php echo $lang; ?>&id=<?php echo $faq->getId(); ?>">
+    <div><a href="faq.php?kblang=<?php echo $lang; ?>&id=<?php echo $faq->getId(); ?>">
         <?php echo Internationalization::getLanguageDescription($lang); ?>
-    </a>
+    </a></div>
     <?php } ?>
 </section>
 <?php } ?>
