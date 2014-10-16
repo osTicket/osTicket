@@ -15,6 +15,7 @@
 **********************************************************************/
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.topic.php');
+include_once(INCLUDE_DIR.'class.faq.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 $topic=null;

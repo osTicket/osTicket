@@ -489,6 +489,7 @@ body {
     width: 49.7%;
     display: inline-block;
     box-sizing: border-box;
+    vertical-align: top;
 }
 .category-name {
     display: inline-block;
@@ -1014,11 +1015,13 @@ img.sign-in-image {
 }
 .span4 {
     display: inline-block;
-    width: 31%;
+    width: 30.5%;
     margin: 0 1%;
+    vertical-align: top;
 }
 .span8 {
     display: inline-block;
-    width: 65%;
+    width: 64.5%;
     margin: 0 1%;
+    vertical-align: top;
 }
