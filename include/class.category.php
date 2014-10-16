@@ -12,6 +12,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.faq.php';
 
 class Category extends VerySimpleModel {
 
@@ -26,6 +27,8 @@ class Category extends VerySimpleModel {
         ),
     );
 
+    var $_local;
+
     /* ------------------> Getter methods <--------------------- */
     function getId() { return $this->category_id; }
     function getName() { return $this->name; }
@@ -37,6 +40,50 @@ class Category extends VerySimpleModel {
 
     function isPublic() { return $this->ispublic; }
     function getHashtable() { return $this->ht; }
+
+    // Translation interface ----------------------------------
+    function getTranslateTag($subtag) {
+        return _H(sprintf('category.%s.%s', $subtag, $this->getId()));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    function getLocalDescription($lang=false) {
+        return $this->_getLocal('description', $lang);
+    }
+    function getLocalName($lang=false) {
+        return $this->_getLocal('name', $lang);
+    }
+    function _getLocal($what, $lang=false) {
+        if (!$lang) {
+            $lang = $this->getDisplayLang();
+        }
+        $translations = $this->getAllTranslations();
+        foreach ($translations as $t) {
+            if (0 === strcasecmp($lang, $t->lang)) {
+                $data = $t->getComplex();
+                if (isset($data[$what]))
+                    return $data[$what];
+            }
+        }
+        return $this->ht[$what];
+    }
+    function getAllTranslations() {
+        if (!isset($this->_local)) {
+            $tag = $this->getTranslateTag('c:d');
+            $this->_local = CustomDataTranslation::allTranslations($tag, 'article');
+        }
+        return $this->_local;
+    }
+    function getDisplayLang() {
+        if (isset($_REQUEST['kblang']))
+            $lang = $_REQUEST['kblang'];
+        else
+            $lang = Internationalization::getCurrentLanguage();
+        return $lang;
+    }
 
     function getTopArticles() {
         return $this->faqs
@@ -77,12 +124,15 @@ class Category extends VerySimpleModel {
         if ($validation)
             return true;
 
-        $this->ispublic = !!$vars['public'];
+        $this->ispublic = $vars['ispublic'];
         $this->name = $vars['name'];
         $this->description = Format::sanitize($vars['description']);
         $this->notes = Format::sanitize($vars['notes']);
 
         if (!$this->save())
+            return false;
+
+        if (isset($vars['trans']) && !$this->saveTranslations($vars))
             return false;
 
         // TODO: Move FAQs if requested.
@@ -106,6 +156,53 @@ class Category extends VerySimpleModel {
             $this->updated = SqlFunction::NOW();
         return parent::save($refetch || $this->dirty);
     }
+
+    function saveTranslations($vars) {
+        global $thisstaff;
+
+        foreach ($this->getAllTranslations() as $t) {
+            $trans = @$vars['trans'][$t->lang];
+            if (!$trans || !array_filter($trans))
+                // Not updating translations
+                continue;
+
+            // Content is not new and shouldn't be added below
+            unset($vars['trans'][$t->lang]);
+            $content = array('name' => $trans['name'],
+                'description' => Format::sanitize($trans['description']));
+
+            // Don't update content which wasn't updated
+            if ($content == $t->getComplex())
+                continue;
+
+            $t->text = $content;
+            $t->agent_id = $thisstaff->getId();
+            $t->updated = SqlFunction::NOW();
+            if (!$t->save())
+                return false;
+        }
+        // New translations (?)
+        $tag = $this->getTranslateTag('c:d');
+        foreach ($vars['trans'] as $lang=>$parts) {
+            $content = array('name' => @$parts['name'],
+                'description' => Format::sanitize(@$parts['description']));
+            if (!array_filter($content))
+                continue;
+            $t = CustomDataTranslation::create(array(
+                'type'      => 'article',
+                'object_hash' => $tag,
+                'lang'      => $lang,
+                'text'      => $content,
+                'revision'  => 1,
+                'agent_id'  => $thisstaff->getId(),
+                'updated'   => SqlFunction::NOW(),
+            ));
+            if (!$t->save())
+                return false;
+        }
+        return true;
+    }
+
 
     /* ------------------> Static methods <--------------------- */
 
