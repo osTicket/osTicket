@@ -27,6 +27,10 @@ class Category extends VerySimpleModel {
         ),
     );
 
+    const VISIBILITY_FEATURED = 2;
+    const VISIBILITY_PUBLIC = 1;
+    const VISIBILITY_PRIVATE = 0;
+
     var $_local;
 
     /* ------------------> Getter methods <--------------------- */
@@ -34,11 +38,24 @@ class Category extends VerySimpleModel {
     function getName() { return $this->name; }
     function getNumFAQs() { return  $this->faqs->count(); }
     function getDescription() { return $this->description; }
+    function getDescriptionWithImages() { return Format::viewableImages($this->description); }
     function getNotes() { return $this->notes; }
     function getCreateDate() { return $this->created; }
     function getUpdateDate() { return $this->updated; }
 
-    function isPublic() { return $this->ispublic; }
+    function isPublic() {
+        return $this->ispublic != self::VISIBILITY_PRIVATE;
+    }
+    function getVisibilityDescription() {
+        switch ($this->ispublic) {
+        case self::VISIBILITY_PRIVATE:
+            return __('Private');
+        case self::VISIBILITY_PUBLIC:
+            return __('Public');
+        case self::VISIBILITY_FEATURED:
+            return __('Featured');
+        }
+    }
     function getHashtable() { return $this->ht; }
 
     // Translation interface ----------------------------------
@@ -50,8 +67,8 @@ class Category extends VerySimpleModel {
         $T = CustomDataTranslation::translate($tag);
         return $T != $tag ? $T : $this->ht[$subtag];
     }
-    function getLocalDescription($lang=false) {
-        return $this->_getLocal('description', $lang);
+    function getLocalDescriptionWithImages($lang=false) {
+        return Format::viewableImages($this->_getLocal('description', $lang));
     }
     function getLocalName($lang=false) {
         return $this->_getLocal('name', $lang);
@@ -223,7 +240,7 @@ class Category extends VerySimpleModel {
 
     static function getFeatured() {
         return self::objects()->filter(array(
-            'ispublic'=>2
+            'ispublic'=>self::VISIBILITY_FEATURED
         ));
     }
 
