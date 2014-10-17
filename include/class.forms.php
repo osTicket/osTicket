@@ -1128,7 +1128,9 @@ class ThreadEntryField extends FormField {
 
         $attachments = new FileUploadField();
         $fileupload_config = $attachments->getConfigurationOptions();
-        $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
+        if ($cfg->getAllowedFileTypes())
+            $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
+
         return array(
             'attachments' => new BooleanField(array(
                 'label'=>__('Enable Attachments'),

@@ -523,15 +523,6 @@ class OsticketConfig extends Config {
         return $this->get('max_file_size');
     }
 
-    function getStaffMaxFileUploads() {
-        return $this->get('max_staff_file_uploads');
-    }
-
-    function getClientMaxFileUploads() {
-        //TODO: change max_user_file_uploads to max_client_file_uploads
-        return $this->get('max_user_file_uploads');
-    }
-
     function getLogLevel() {
         return $this->get('log_level');
     }
