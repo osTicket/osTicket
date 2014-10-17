@@ -33,7 +33,7 @@ class TicketLock {
             $id=$this->ht['id'];
 
         $sql='SELECT l.*, TIME_TO_SEC(TIMEDIFF(expire,NOW())) as timeleft '
-            .' ,IF(s.staff_id IS NULL,"staff",CONCAT_WS(" ", s.lastname, s.firstname)) as staff '
+            .' ,IF(s.staff_id IS NULL,"staff",CONCAT_WS(" ", s.firstname, s.lastname)) as staff '
             .' FROM '.TICKET_LOCK_TABLE. ' l '
             .' LEFT JOIN '.STAFF_TABLE.' s ON(s.staff_id=l.staff_id) '
             .' WHERE lock_id='.db_input($id);
