@@ -87,8 +87,8 @@ else
                     &nbsp;
                 </td>
                 <td><a href="staff.php?id=<?php echo $row['lead_id']; ?>"><?php echo $row['team_lead']; ?>&nbsp;</a></td>
-                <td><?php echo Format::db_date($row['created']); ?>&nbsp;</td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($row['created']); ?>&nbsp;</td>
+                <td><?php echo Format::datetime($row['updated']); ?>&nbsp;</td>
             </tr>
             <?php
             } //end of while.

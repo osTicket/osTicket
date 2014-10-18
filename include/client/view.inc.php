@@ -55,7 +55,7 @@ if ($thisclient && $thisclient->isGuest()
                 </tr>
                 <tr>
                     <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
            </table>
        </td>
@@ -117,7 +117,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         ?>
         <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><div>
-<?php echo Format::db_datetime($entry['created']); ?>
+<?php echo Format::datetime($entry['created']); ?>
                 &nbsp;&nbsp;<span class="textra"></span>
                 <span><?php echo $poster; ?></span>
             </div>

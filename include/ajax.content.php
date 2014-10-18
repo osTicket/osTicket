@@ -28,7 +28,7 @@ class ContentAjaxAPI extends AjaxController {
                     $log->getTitle(),
                     Format::display(str_replace(',',', ',$log->getText())),
                     __('Log Date'),
-                    Format::db_daydatetime($log->getCreateDate()),
+                    Format::daydatetime($log->getCreateDate()),
                     __('IP Address'),
                     $log->getIP());
         }else {

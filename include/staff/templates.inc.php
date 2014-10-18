@@ -87,8 +87,8 @@ else
                 &nbsp;<?php echo $default; ?></td>
                 <td>&nbsp;<?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
                 <td>&nbsp;&nbsp;<?php echo ($inuse)?'<b>'.__('Yes').'</b>':__('No'); ?></td>
-                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td>&nbsp;<?php echo Format::date($row['created']); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

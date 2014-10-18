@@ -92,7 +92,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             if (isset($impl[$cn])) {
                 echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">%s</span><br/>&nbsp;%s</td></tr>',
                 $impl[$cn]->getId(), Format::htmlchars(__($info['name'])),
-                sprintf(__('Updated %s'), Format::db_datetime($impl[$cn]->getLastUpdated())),
+                sprintf(__('Updated %s'), Format::datetime($impl[$cn]->getLastUpdated())),
                 Format::htmlchars(__($info['desc'])));
             } else {
                 echo sprintf('<tr><td colspan=2>&nbsp;<strong><a

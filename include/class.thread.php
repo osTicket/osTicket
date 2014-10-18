@@ -800,19 +800,10 @@ Class ThreadEntry {
 
         switch(strtolower($tag)) {
             case 'create_date':
-                return Format::date(
-                        $cfg->getDateTimeFormat(),
-                        Misc::db2gmtime($this->getCreateDate()),
-                        $cfg->getTZOffset(),
-                        $cfg->observeDaylightSaving());
-                break;
+                // XXX: Consider preferences of receiving user
+                return Format::datetime($this->getCreateDate(), true, 'UTC');
             case 'update_date':
-                return Format::date(
-                        $cfg->getDateTimeFormat(),
-                        Misc::db2gmtime($this->getUpdateDate()),
-                        $cfg->getTZOffset(),
-                        $cfg->observeDaylightSaving());
-                break;
+                return Format::datetime($this->getUpdateDate(), true, 'UTC');
         }
 
         return false;

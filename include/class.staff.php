@@ -72,11 +72,6 @@ class Staff extends AuthenticatedUser {
         if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
             $this->ht['passwd_change'] = time()-$time; //XXX: check timezone issues.
 
-        if($this->ht['timezone_id'])
-            $this->ht['tz_offset'] = Timezone::getOffsetById($this->ht['timezone_id']);
-        elseif($this->ht['timezone_offset'])
-            $this->ht['tz_offset'] = $this->ht['timezone_offset'];
-
         return ($this->id);
     }
 
@@ -153,10 +148,6 @@ class Staff extends AuthenticatedUser {
 
     function isPasswdChangeDue() {
         return $this->isPasswdResetDue();
-    }
-
-    function getTZoffset() {
-        return $this->ht['tz_offset'];
     }
 
     function observeDaylight() {
@@ -278,6 +269,14 @@ class Staff extends AuthenticatedUser {
 
     function getLanguage() {
         return $this->ht['lang'];
+    }
+
+    function getTimezone() {
+        return $this->ht['timezone'];
+    }
+
+    function getLocale() {
+        return $this->ht['locale'];
     }
 
     function isManager() {
@@ -514,9 +513,6 @@ class Staff extends AuthenticatedUser {
                 $errors['passwd1']=__('New password MUST be different from the current password!');
         }
 
-        if(!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone selection is required');
-
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
             $errors['default_signature_type'] = __("You don't have a signature");
 
@@ -533,8 +529,8 @@ class Staff extends AuthenticatedUser {
             .' ,phone_ext='.db_input($vars['phone_ext'])
             .' ,mobile="'.db_input(Format::phone($vars['mobile']),false).'"'
             .' ,signature='.db_input(Format::sanitize($vars['signature']))
-            .' ,timezone_id='.db_input($vars['timezone_id'])
-            .' ,daylight_saving='.db_input(isset($vars['daylight_saving'])?1:0)
+            .' ,timezone='.db_input($vars['timezone'])
+            .' ,locale='.db_input($vars['locale'])
             .' ,show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0)
             .' ,max_page_size='.db_input($vars['max_page_size'])
             .' ,auto_refresh_rate='.db_input($vars['auto_refresh_rate'])
@@ -792,9 +788,6 @@ class Staff extends AuthenticatedUser {
         if(!$vars['group_id'])
             $errors['group_id']=__('Group is required');
 
-        if(!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone selection is required');
-
         if($errors) return false;
 
 
@@ -806,8 +799,7 @@ class Staff extends AuthenticatedUser {
             .' ,assigned_only='.db_input(isset($vars['assigned_only'])?1:0)
             .' ,dept_id='.db_input($vars['dept_id'])
             .' ,group_id='.db_input($vars['group_id'])
-            .' ,timezone_id='.db_input($vars['timezone_id'])
-            .' ,daylight_saving='.db_input(isset($vars['daylight_saving'])?1:0)
+            .' ,timezone='.db_input($vars['timezone'])
             .' ,username='.db_input($vars['username'])
             .' ,firstname='.db_input($vars['firstname'])
             .' ,lastname='.db_input($vars['lastname'])

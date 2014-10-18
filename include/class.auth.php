@@ -444,9 +444,6 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $staff->setAuthKey($authkey);
         $staff->refreshSession(true); //set the hash.
 
-        $_SESSION['TZ_OFFSET'] = $staff->getTZoffset();
-        $_SESSION['TZ_DST'] = $staff->observeDaylight();
-
         Signal::send('auth.login.succeeded', $staff);
 
         if ($bk->supportsInteractiveAuthentication())
@@ -616,11 +613,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $user->setAuthKey($authkey);
 
         $user->refreshSession(true); //set the hash.
-
-        if (($acct = $user->getAccount()) && ($tid = $acct->get('timezone_id'))) {
-            $_SESSION['TZ_OFFSET'] = Timezone::getOffsetById($tid);
-            $_SESSION['TZ_DST'] = $acct->get('dst');
-        }
 
         //Log login info...
         $msg=sprintf(_S('%1$s (%2$s) logged in [%3$s]'

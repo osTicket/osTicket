@@ -1047,32 +1047,23 @@ class DatetimeField extends FormField {
             return (int) $value;
     }
 
-    function parse($value) {
-        if (!$value) return null;
-        $config = $this->getConfiguration();
-        return ($config['gmt']) ? Misc::db2gmtime($value) : $value;
-    }
-
     function toString($value) {
         global $cfg;
         $config = $this->getConfiguration();
-        $format = ($config['time'])
-            ? $cfg->getDateTimeFormat() : $cfg->getDateFormat();
-        if ($config['gmt'])
-            // Return time local to user's timezone
-            return Format::userdate($format, $value);
+        // If GMT is set, convert to local time zone. Otherwise, leave
+        // unchanged (default TZ is UTC)
+        if ($config['time'])
+            return Format::datetime($value, false, !$config['gmt'] ? 'UTC' : false);
         else
-            return Format::date($format, $value);
+            return Format::date($value, false, false, !$config['gmt'] ? 'UTC' : false);
     }
 
     function export($value) {
         $config = $this->getConfiguration();
         if (!$value)
             return '';
-        elseif ($config['gmt'])
-            return Format::userdate('Y-m-d H:i:s', $value);
         else
-            return Format::date('Y-m-d H:i:s', $value);
+            return Format::date($value, false, 'y-MM-dd HH:mm:ss', !$config['gmt'] ? 'UTC' : false);
     }
 
     function getConfigurationOptions() {
@@ -1960,12 +1951,15 @@ class DatetimePickerWidget extends Widget {
         if ($this->value) {
             $this->value = is_int($this->value) ? $this->value :
                 strtotime($this->value);
-            if ($config['gmt'])
-                $this->value += 3600 *
-                    $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
 
+            if ($config['gmt']) {
+                // Convert to GMT time
+                $tz = new DateTimeZone($cfg->getTimezone());
+                $D = DateTime::createFromFormat('U', $this->value);
+                $this->value += $tz->getOffset($D);
+            }
             list($hr, $min) = explode(':', date('H:i', $this->value));
-            $this->value = Format::date($cfg->getDateFormat(), $this->value);
+            $this->value = Format::date($this->value, false, false, 'UTC');
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
@@ -1987,7 +1981,7 @@ class DatetimePickerWidget extends Widget {
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>')
+                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(true); ?>')
                 });
             });
         </script>
@@ -2015,9 +2009,12 @@ class DatetimePickerWidget extends Widget {
                 list($hr, $min) = explode(':', $data[$this->name . ':time']);
                 $datetime += $hr * 3600 + $min * 60;
             }
-            if ($datetime && $config['gmt'])
-                $datetime -= (int) (3600 * $_SESSION['TZ_OFFSET'] +
-                    ($_SESSION['TZ_DST'] ? date('I',$datetime) : 0));
+            if ($datetime && $config['gmt']) {
+                // Convert to GMT time
+                $tz = new DateTimeZone($cfg->getTimezone());
+                $D = DateTime::createFromFormat('U', $datetime);
+                $datetime -= $tz->getOffset($D);
+            }
         }
         return $datetime;
     }

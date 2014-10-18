@@ -379,6 +379,23 @@ class Internationalization {
         return self::getDefaultLanguage();
     }
 
+    static function getCurrentLocale() {
+        global $thisstaff, $cfg;
+
+        if ($thisstaff) {
+            return $thisstaff->getLocale()
+                ?: self::getCurrentLanguage();
+        }
+        if (!$locale)
+            $locale = $cfg->getDefaultLocale();
+
+        if (!$locale)
+            $locale = self::getCurrentLanguage();
+
+        return $locale;
+    }
+
+
     static function getTtfFonts() {
         if (!class_exists('Phar'))
             return;
@@ -408,6 +425,25 @@ class Internationalization {
 
         $_SESSION['::lang'] = $lang ?: null;
         return true;
+    }
+
+    static function allLocales() {
+        $locales = array();
+        if (class_exists('ResourceBundle')) {
+            $current_lang = self::getCurrentLanguage();
+            $langs = array();
+            foreach (self::getConfiguredSystemLanguages() as $code=>$info) {
+                list($lang,) = explode('_', $code, 2);
+                $langs[$lang] = true;
+            }
+            foreach (ResourceBundle::getLocales('') as $code) {
+                list($lang,) = explode('_', $code, 2);
+                if (isset($langs[$lang])) {
+                    $locales[$code] = Locale::getDisplayName($code, $current_lang);
+                }
+            }
+        }
+        return $locales;
     }
 
     static function bootstrap() {

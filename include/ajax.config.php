@@ -40,7 +40,7 @@ class ConfigAjaxAPI extends AjaxController {
         $config=array(
               'lock_time'       => ($cfg->getLockTime()*3600),
               'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
-              'date_format'     => ($cfg->getDateFormat()),
+              'date_format'     => $cfg->getDateFormat(true),
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
