@@ -78,39 +78,6 @@ $(document).ready(function(){
 
     });
 
-    getConfig = (function() {
-        var dfd = $.Deferred(),
-            requested = false;
-        return function() {
-            if (dfd.state() != 'resolved' && !requested)
-                requested = $.ajax({
-                    url: "ajax.php/config/client",
-                    dataType: 'json',
-                    success: function (json_config) {
-                        dfd.resolve(json_config);
-                    }
-                });
-            return dfd;
-        }
-    })();
-
-    $.translate_format = function(str) {
-        var translation = {
-            'd':'dd',
-            'j':'d',
-            'z':'o',
-            'm':'mm',
-            'F':'MM',
-            'n':'m',
-            'Y':'yy'
-        };
-        // Change PHP formats to datepicker ones
-        $.each(translation, function(php, jqdp) {
-            str = str.replace(php, jqdp);
-        });
-        return str;
-    };
-
     var showNonLocalImage = function(div) {
         var $div = $(div),
             $img = $div.append($('<img>')
@@ -199,7 +166,32 @@ showImagesInline = function(urls, thread_id) {
             e.data('wrapped', true);
         }
     });
-}
+};
+
+getConfig = (function() {
+    var dfd = $.Deferred(),
+        requested = false;
+    return function() {
+        return dfd;
+    };
+})();
+
+$.translate_format = function(str) {
+    var translation = {
+        'd':'dd',
+        'j':'d',
+        'z':'o',
+        'm':'mm',
+        'F':'MM',
+        'n':'m',
+        'Y':'yy'
+    };
+    // Change PHP formats to datepicker ones
+    $.each(translation, function(php, jqdp) {
+        str = str.replace(php, jqdp);
+    });
+    return str;
+};
 
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
