@@ -818,7 +818,7 @@ CREATE TABLE `%TABLE_PREFIX%user_account` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `status` int(11) unsigned NOT NULL DEFAULT '0',
-  `timezone` varchar(24) DEFAULT NULL,
+  `timezone` varchar(64) DEFAULT NULL,
   `lang` varchar(16) DEFAULT NULL,
   `username` varchar(64) DEFAULT NULL,
   `passwd` varchar(128) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,
