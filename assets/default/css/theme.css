@@ -476,7 +476,7 @@ body {
 #kb > li h4 a {
   font-size: 14px;
 }
-#kb li i {
+#kb > li > i {
   display: block;
   width: 32px;
   height: 32px;

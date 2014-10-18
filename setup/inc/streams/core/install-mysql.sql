@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   `answer` text NOT NULL,
   `keywords` tinytext,
   `notes` text,
+  `views` int(10) unsigned NOT NULL default '0',
+  `score` int(10) NOT NULL default '0',
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`faq_id`),
