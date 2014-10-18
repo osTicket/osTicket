@@ -1682,7 +1682,8 @@ class MySqlCompiler extends SqlCompiler {
     function compileDelete($model) {
         $table = $model::$meta['table'];
 
-        $where = ' WHERE '.implode(' AND ', $this->compileConstraints($model->pk));
+        $where = ' WHERE '.implode(' AND ',
+            $this->compileConstraints(array(new Q($model->pk)), $model));
         $sql = 'DELETE FROM '.$this->quote($table).$where.' LIMIT 1';
         return new MySqlExecutor($sql, $this->params);
     }
