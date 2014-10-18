@@ -109,8 +109,8 @@
   box-sizing: border-box;
 }
 .thread-body a {
-  color: #428bca;
-  text-decoration: none;
+  color: #428bca !important;
+  text-decoration: underline;
 }
 .thread-body a:hover,
 .thread-body a:focus {
