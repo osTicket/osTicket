@@ -105,7 +105,12 @@ class i18nAjaxAPI extends AjaxController {
 
         $langs = array();
         foreach ($cfg->getSecondaryLanguages() as $l) {
-            $langs[$l] = Internationalization::getLanguageDescription($l);
+            $info = Internationalization::getLanguageInfo($l);
+            $langs[$l] = array(
+                'name' => Internationalization::getLanguageDescription($l),
+                'flag' => strtolower($info['flag']),
+                'direction' => $info['direction'] ?: 'ltr',
+            );
         }
         $json = JsonDataEncoder::encode($langs);
         Http::cacheable(md5($json), $cfg->lastModified());
