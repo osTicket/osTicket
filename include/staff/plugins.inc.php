@@ -38,7 +38,7 @@ foreach ($ost->plugins->allInstalled() as $p) {
             ><?php echo $p->getName(); ?></a></td>
         <td><?php echo ($p->isActive())
             ? 'Enabled' : '<strong>Disabled</strong>'; ?></td>
-        <td><?php echo Format::db_datetime($p->getInstallDate()); ?></td>
+        <td><?php echo Format::datetime($p->getInstallDate()); ?></td>
     </tr>
     <?php } else {} ?>
 <?php } ?>

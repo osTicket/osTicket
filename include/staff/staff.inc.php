@@ -25,8 +25,6 @@ if($staff && $_REQUEST['a']!='add'){
     $info['isactive']=1;
     $info['isvisible']=1;
     $info['isadmin']=0;
-    $info['timezone_id'] = $cfg->getDefaultTimezoneId();
-    $info['daylight_saving'] = $cfg->observeDaylightSaving();
     $qstr.='&a=add';
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -264,37 +262,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">
-                <?php echo __("Agent's Time Zone");?>:
-            </td>
-            <td>
-                <select name="timezone_id" id="timezone_id">
-                    <option value="0">&mdash; <?php echo __('Select Time Zone');?> &mdash;</option>
-                    <?php
-                    $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$offset, $tz)=db_fetch_row($res)){
-                            $sel=($info['timezone_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
             <td width="180">
-               <?php echo __('Daylight Saving');?>:
+                <?php echo __('Time Zone');?>:
             </td>
             <td>
-                <input type="checkbox" name="daylight_saving" value="1" <?php echo $info['daylight_saving']?'checked="checked"':''; ?>>
-                <?php echo __('Observe daylight saving');?>
-                <em>(<?php echo __('Current Time');?>: <strong><?php
-                    echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['daylight_saving']);
-                ?></strong>)
-                &nbsp;<i class="help-tip icon-question-sign" href="#daylight_saving"></i>
-                </em>
+                <select name="timezone" multiple="multiple" id="timezone-dropdown">
+                    <option value=""><?php echo __('System Default'); ?></option>
+<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
+                    <option value="<?php echo $zone; ?>" <?php
+                    if ($info['timezone'] == $zone)
+                        echo 'selected="selected"';
+                    ?>><?php echo $zone; ?></option>
+<?php } ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone']; ?></span>
             </td>
         </tr>
         <tr>
@@ -362,3 +343,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="staff.php"'>
 </p>
 </form>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.css"/>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
+<script type="text/javascript">
+$('#timezone-dropdown').multiselect({
+    multiple: false,
+    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
+    noneSelectedText: <?php echo JsonDataEncoder::encode(__('System Default')); ?>,
+    selectedList: 1,
+    minWidth: 400
+}).multiselectfilter({
+    placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
+});
+</script>

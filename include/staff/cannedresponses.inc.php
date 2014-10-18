@@ -90,7 +90,7 @@ else
                 </td>
                 <td><?php echo $row['isenabled']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
                 <td><?php echo $row['department']?$row['department']:'&mdash; '.__('All Departments').' &mdash;'; ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

@@ -84,8 +84,8 @@ print $pages->count();
                     &nbsp;<?php echo $page->isActive()?__('Active'):'<b>'.__('Disabled').'</b>'; ?>
                     &nbsp;&nbsp;<?php echo $inuse?'<em>'.__('(in-use)').'</em>':''; ?>
                 </td>
-                <td>&nbsp;<?php echo Format::db_date($page->created); ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($page->updated); ?></td>
+                <td>&nbsp;<?php echo Format::date($page->created); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($page->updated); ?></td>
             </tr>
             <?php
         } //end of foreach. ?>
