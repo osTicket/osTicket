@@ -154,7 +154,6 @@ div#header a {
     height:26px;
     color:#555;
     text-align:center;
-    font-weight:bold;
     position:relative;
 
     border-radius:5px 5px 0 0;
@@ -170,6 +169,7 @@ div#header a {
 
 #nav .active a {
     color:#004a80;
+    font-weight:bold;
 }
 
 #nav > li + li {
@@ -242,7 +242,6 @@ div#header a {
     padding-left:24px;
     background-position:0 50%;
     background-repeat:no-repeat;
-    font-weight:normal;
 }
 
 #nav .inactive li a:hover {
@@ -2060,4 +2059,13 @@ button a:hover {
 }
 .required {
     font-weight: bold;
+}
+.truncate {
+    width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+td.indented {
+    padding-left: 20px;
 }
