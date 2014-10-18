@@ -22,7 +22,7 @@ RedactorPlugins.draft = {
         if (this.opts.draftObjectId)
             autosave_url += '.' + this.opts.draftObjectId;
         this.opts.autosave = this.opts.autoCreateUrl = autosave_url;
-        this.opts.autosaveInterval = 10;
+        this.opts.autosaveInterval = 30;
         this.opts.autosaveCallback = this.afterUpdateDraft;
         this.opts.autosaveErrorCallback = this.autosaveFailed;
         this.opts.imageUploadErrorCallback = this.displayError;
@@ -33,9 +33,11 @@ RedactorPlugins.draft = {
                 'ajax.php/draft/'+this.opts.draftId+'/attach';
         }
         else {
-            // Autosave quickly to and setup image upload in the
-            // afterUpdateDraft callback
-            this.opts.autosaveInterval = 1;
+            // Just upload the file. A draft will be created automatically
+            // and will be configured locally in the afterUpateDraft()
+            this.opts.clipboardUploadUrl =
+            this.opts.imageUpload = this.opts.autoCreateUrl + '/attach';
+            this.opts.imageUploadCallback = this.afterUpdateDraft;
         }
 
         this.$draft_saved = $('<span>')
@@ -67,17 +69,14 @@ RedactorPlugins.draft = {
 
         // If the draft was created, a draft_id will be sent back — update
         // the URL to send updates in the future
-        if (data.draft_id) {
+        if (!this.opts.draftId && data.draft_id) {
             this.opts.draftId = data.draft_id;
             this.opts.autosave = 'ajax.php/draft/' + data.draft_id;
             this.opts.clipboardUploadUrl =
             this.opts.imageUpload =
                 'ajax.php/draft/'+this.opts.draftId+'/attach';
-            if (this.opts.autosaveInterval < 10) {
-                clearInterval(this.autosaveInterval);
-                this.opts.autosaveInterval = 10;
-                this.autosave();
-            }
+            if (!this.get())
+                this.set(' ', false);
         }
         // Only show the [Draft Saved] notice if there is content in the
         // field that has been touched
