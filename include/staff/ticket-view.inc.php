@@ -180,7 +180,7 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
             </table>
         </td>
@@ -301,13 +301,13 @@ if($ticket->isOverdue())
                 if($ticket->isOpen()){ ?>
                 <tr>
                     <th><?php echo __('Due Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getEstDueDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getEstDueDate()); ?></td>
                 </tr>
                 <?php
                 }else { ?>
                 <tr>
                     <th><?php echo __('Close Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getCloseDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getCloseDate()); ?></td>
                 </tr>
                 <?php
                 }
@@ -322,11 +322,11 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th nowrap><?php echo __('Last Message');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getLastMsgDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getLastMsgDate()); ?></td>
                 </tr>
                 <tr>
                     <th nowrap><?php echo __('Last Response');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
             </table>
         </td>
@@ -391,7 +391,7 @@ $tcount+= $ticket->getNumNotes();
                 <div>
                     <span class="pull-left">
                     <span style="display:inline-block"><?php
-                        echo Format::db_datetime($entry['created']);?></span>
+                        echo Format::datetime($entry['created']);?></span>
                     <span style="display:inline-block;padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
                     </span>

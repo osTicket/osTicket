@@ -17,7 +17,7 @@ $category=$faq->getCategory();
 <div class="article-title flush-left">
 <?php echo $faq->getLocalQuestion() ?>
 </div>
-<div class="faded"><?php echo __('Last updated').' '.Format::db_daydatetime($category->getUpdateDate()); ?></div>
+<div class="faded"><?php echo __('Last updated').' '.Format::daydatetime($category->getUpdateDate()); ?></div>
 <br/>
 <div class="thread-body bleed">
 <?php echo Format::safe_html($faq->getLocalAnswerWithImages()); ?>

@@ -78,8 +78,8 @@ else
                 <td>&nbsp;<a href="apikeys.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['apikey']); ?></a></td>
                 <td><?php echo $row['ipaddr']; ?></td>
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
-                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td>&nbsp;<?php echo Format::date($row['created']); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

@@ -512,7 +512,6 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `staff_id` int(11) unsigned NOT NULL auto_increment,
   `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
-  `timezone_id` int(10) unsigned NOT NULL default '0',
   `username` varchar(32) NOT NULL default '',
   `firstname` varchar(32) default NULL,
   `lastname` varchar(32) default NULL,
@@ -524,6 +523,8 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `mobile` varchar(24) NOT NULL default '',
   `signature` text NOT NULL,
   `lang` varchar(16) DEFAULT NULL,
+  `timezone` varchar(64) default NULL,
+  `locale` varchar(16) DEFAULT NULL,
   `notes` text,
   `isactive` tinyint(1) NOT NULL default '1',
   `isadmin` tinyint(1) NOT NULL default '0',
@@ -531,7 +532,6 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `onvacation` tinyint(1) unsigned NOT NULL default '0',
   `assigned_only` tinyint(1) unsigned NOT NULL default '0',
   `show_assigned_tickets` tinyint(1) unsigned NOT NULL default '0',
-  `daylight_saving` tinyint(1) unsigned NOT NULL default '0',
   `change_passwd` tinyint(1) unsigned NOT NULL default '0',
   `max_page_size` int(11) unsigned NOT NULL default '0',
   `auto_refresh_rate` int(10) unsigned NOT NULL default '0',
@@ -742,48 +742,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
   UNIQUE KEY `collab` (`ticket_id`,`user_id`)
 ) DEFAULT CHARSET=utf8;
 
-
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%timezone`;
-CREATE TABLE `%TABLE_PREFIX%timezone` (
-  `id` int(11) unsigned NOT NULL auto_increment,
-  `offset` float(3,1) NOT NULL default '0.0',
-  `timezone` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`)
-) DEFAULT CHARSET=utf8;
-
-INSERT INTO `%TABLE_PREFIX%timezone` (`id`, `offset`, `timezone`) VALUES
-  (1, -12.0, 'Eniwetok, Kwajalein'),
-  (2, -11.0, 'Midway Island, Samoa'),
-  (3, -10.0, 'Hawaii'),
-  (4, -9.0, 'Alaska'),
-  (5, -8.0, 'Pacific Time (US & Canada)'),
-  (6, -7.0, 'Mountain Time (US & Canada)'),
-  (7, -6.0, 'Central Time (US & Canada), Mexico City'),
-  (8, -5.0, 'Eastern Time (US & Canada), Bogota, Lima'),
-  (9, -4.0, 'Atlantic Time (Canada), Caracas, La Paz'),
-  (10, -3.5, 'Newfoundland'),
-  (11, -3.0, 'Brazil, Buenos Aires, Georgetown'),
-  (12, -2.0, 'Mid-Atlantic'),
-  (13, -1.0, 'Azores, Cape Verde Islands'),
-  (14, 0.0, 'Western Europe Time, London, Lisbon, Casablanca'),
-  (15, 1.0, 'Brussels, Copenhagen, Madrid, Paris'),
-  (16, 2.0, 'Kaliningrad, South Africa'),
-  (17, 3.0, 'Baghdad, Riyadh, Moscow, St. Petersburg'),
-  (18, 3.5, 'Tehran'),
-  (19, 4.0, 'Abu Dhabi, Muscat, Baku, Tbilisi'),
-  (20, 4.5, 'Kabul'),
-  (21, 5.0, 'Ekaterinburg, Islamabad, Karachi, Tashkent'),
-  (22, 5.5, 'Bombay, Calcutta, Madras, New Delhi'),
-  (23, 6.0, 'Almaty, Dhaka, Colombo'),
-  (24, 7.0, 'Bangkok, Hanoi, Jakarta'),
-  (25, 8.0, 'Beijing, Perth, Singapore, Hong Kong'),
-  (26, 9.0, 'Tokyo, Seoul, Osaka, Sapporo, Yakutsk'),
-  (27, 9.5, 'Adelaide, Darwin'),
-  (28, 10.0, 'Eastern Australia, Guam, Vladivostok'),
-  (29, 11.0, 'Magadan, Solomon Islands, New Caledonia'),
-  (30, 12.0, 'Auckland, Wellington, Fiji, Kamchatka');
-
 -- pages
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%content` (
   `id` int(10) unsigned NOT NULL auto_increment,
@@ -858,8 +816,7 @@ CREATE TABLE `%TABLE_PREFIX%user_account` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `status` int(11) unsigned NOT NULL DEFAULT '0',
-  `timezone_id` int(11) NOT NULL DEFAULT '0',
-  `dst` tinyint(1) NOT NULL DEFAULT '1',
+  `timezone` varchar(24) DEFAULT NULL,
   `lang` varchar(16) DEFAULT NULL,
   `username` varchar(64) DEFAULT NULL,
   `passwd` varchar(128) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,

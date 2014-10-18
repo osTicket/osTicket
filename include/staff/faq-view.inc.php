@@ -92,7 +92,7 @@ if ($thisstaff->canManageFAQ()) { ?>
 </div>
 
 <div class="faded"><?php echo __('Last updated');?>
-    <?php echo Format::db_daydatetime($category->getUpdateDate()); ?>
+    <?php echo Format::daydatetime($category->getUpdateDate()); ?>
 </div>
 <br/>
 <div class="thread-body bleed">

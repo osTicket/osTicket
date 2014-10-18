@@ -176,7 +176,7 @@ $manage_content = function($title, $content) use ($contents) {
     echo Format::htmlchars($title); ?></a><br/>
         <span class="faded" style="display:inline-block;width:90%"><?php
         echo Format::display($notes); ?>
-    <em>(<?php echo sprintf(__('Last Updated %s'), Format::db_datetime($upd));
+    <em>(<?php echo sprintf(__('Last Updated %s'), Format::datetime($upd));
         ?>)</em></span></td></tr><?php
 }; ?>
         <tr>

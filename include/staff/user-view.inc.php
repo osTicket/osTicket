@@ -112,11 +112,11 @@ $org = $user->getOrganization();
                 </tr>
                 <tr>
                     <th><?php echo __('Created'); ?>:</th>
-                    <td><?php echo Format::db_datetime($user->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($user->getCreateDate()); ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Updated'); ?>:</th>
-                    <td><?php echo Format::db_datetime($user->getUpdateDate()); ?></td>
+                    <td><?php echo Format::datetime($user->getUpdateDate()); ?></td>
                 </tr>
             </table>
         </td>

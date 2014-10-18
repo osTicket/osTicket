@@ -79,7 +79,7 @@ else
                     echo $C->getLocalName(); ?></a></td>
                 <td><?php echo $C->getVisibilityDescription(); ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $faqs; ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($C->updated); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($C->updated); ?></td>
             </tr><?php
         } // end of foreach ?>
     <tfoot>

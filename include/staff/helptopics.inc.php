@@ -104,7 +104,7 @@ foreach ($topics as &$t)
                 <td><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
                 <td><?php echo $row['priority']; ?></td>
                 <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

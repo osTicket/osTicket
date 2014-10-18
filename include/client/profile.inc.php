@@ -37,17 +37,6 @@ if ($acct = $thisclient->getAccount()) {
         &nbsp;<span class="error"><?php echo $errors['timezone_id']; ?></span>
     </td>
 </tr>
-<tr>
-    <td width="180">
-        <?php echo __('Daylight Saving') ?>:
-    </td>
-    <td>
-        <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-        <?php echo __('Observe daylight saving'); ?>
-        <em>(<?php __('Current Time'); ?>:
-            <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
-    </td>
-</tr>
     <tr>
         <td width="180">
             <?php echo __('Preferred Language'); ?>:

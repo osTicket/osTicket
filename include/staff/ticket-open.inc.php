@@ -16,8 +16,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 }
 
 if ($_POST)
-    $info['duedate'] = Format::date($cfg->getDateFormat(),
-       strtotime($info['duedate']));
+    $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
@@ -219,7 +218,7 @@ if ($_POST)
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
+                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
             </td>
         </tr>
 

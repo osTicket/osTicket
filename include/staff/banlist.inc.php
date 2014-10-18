@@ -101,8 +101,8 @@ if($search)
                 </td>
                 <td>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
                 <td>&nbsp;&nbsp;<?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($row['created']); ?></td>
+                <td><?php echo Format::datetime($row['updated']); ?>&nbsp;</td>
                </tr>
             <?php
             } //end of while.

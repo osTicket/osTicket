@@ -62,14 +62,14 @@ echo sprintf('
             <th>'.__('Created').':</th>
             <td>%s</td>
         </tr>',$ticket_state,
-        Format::db_datetime($ticket->getCreateDate()));
+        Format::datetime($ticket->getCreateDate()));
 if($ticket->isClosed()) {
     echo sprintf('
             <tr>
                 <th>'.__('Closed').':</th>
                 <td>%s   <span class="faded">by %s</span></td>
             </tr>',
-            Format::db_datetime($ticket->getCloseDate()),
+            Format::datetime($ticket->getCloseDate()),
             ($staff?$staff->getName():'staff')
             );
 } elseif($ticket->getEstDueDate()) {
@@ -78,7 +78,7 @@ if($ticket->isClosed()) {
                 <th>'.__('Due Date').':</th>
                 <td>%s</td>
             </tr>',
-            Format::db_datetime($ticket->getEstDueDate()));
+            Format::datetime($ticket->getEstDueDate()));
 }
 echo '</table>';
 

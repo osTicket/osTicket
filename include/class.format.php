@@ -482,34 +482,149 @@ class Format {
         return $tstring;
     }
 
-    /* Dates helpers...most of this crap will change once we move to PHP 5*/
-    function db_date($time) {
+    function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
+            $strftimeFallback, $timezone) {
         global $cfg;
-        return Format::userdate($cfg->getDateFormat(), Misc::db2gmtime($time));
+
+        if ($timestamp && $fromDb) {
+            $timestamp = Misc::db2gmtime($timestamp);
+        }
+        elseif (!$timestamp) {
+            $D = new DateTime();
+            $timestamp = $D->getTimestamp();
+        }
+        if (class_exists('IntlDateFormatter')) {
+            $formatter = new IntlDateFormatter(
+                Internationalization::getCurrentLocale(),
+                $dayType,
+                $timeType,
+                $timezone,
+                IntlDateFormatter::GREGORIAN,
+                $format ?: null
+            );
+            if ($cfg->isForce24HourTime()) {
+                $format = str_replace(array('a', 'h'), array('', 'H'),
+                    $formatter->getPattern());
+                $formatter->setPattern($format);
+            }
+            return $formatter->format($timestamp);
+        }
+        // Fallback using strftime
+        $format = self::getStrftimeFormat($format);
+        // TODO: Properly convert to local time
+        $time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'));
+        $time->setTimeZone(new DateTimeZone($cfg->getTimeZone()));
+        $timestamp = $time->getTimestamp();
+        return strftime($format ?: $strftimeFallback, $timestamp);
     }
 
-    function db_datetime($time) {
+    function parseDate($date, $format=false) {
         global $cfg;
-        return Format::userdate($cfg->getDateTimeFormat(), Misc::db2gmtime($time));
+
+        if (class_exists('IntlDateFormatter')) {
+            $formatter = new IntlDateFormatter(
+                Internationalization::getCurrentLocale(),
+                null,
+                null,
+                null,
+                IntlDateFormatter::GREGORIAN,
+                $format ?: null
+            );
+            if ($cfg->isForce24HourTime()) {
+                $format = str_replace(array('a', 'h'), array('', 'H'),
+                    $formatter->getPattern());
+                $formatter->setPattern($format);
+            }
+            return $formatter->parse($date);
+        }
+        // Fallback using strtotime
+        return strtotime($date);
     }
 
-    function db_daydatetime($time) {
+    function time($timestamp, $fromDb=true, $format=false, $timezone=false) {
         global $cfg;
-        return Format::userdate($cfg->getDayDateTimeFormat(), Misc::db2gmtime($time));
+
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getTimeFormat(), $fromDb,
+            IntlDateFormatter::NONE, IntlDateFormatter::SHORT,
+            '%x', $timezone ?: $cfg->getTimeZone());
     }
 
-    function userdate($format, $gmtime) {
-        return Format::date($format, $gmtime, $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST']);
+    function date($timestamp, $fromDb=true, $format=false, $timezone=false) {
+        global $cfg;
+
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getDateFormat(), $fromDb,
+            IntlDateFormatter::SHORT, IntlDateFormatter::NONE,
+            '%X', $timezone ?: $cfg->getTimeZone());
     }
 
-    function date($format, $gmtimestamp, $offset=0, $daylight=false){
+    function datetime($timestamp, $fromDb=true, $timezone=false) {
+        global $cfg;
 
-        if(!$gmtimestamp || !is_numeric($gmtimestamp))
-            return "";
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getDateTimeFormat(), $fromDb,
+            IntlDateFormatter::SHORT, IntlDateFormatter::SHORT,
+            '%X %x', $timezone ?: $cfg->getTimeZone());
+    }
 
-        $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
+    function daydatetime($timestamp, $fromDb=true, $timezone=false) {
+        global $cfg;
 
-        return date($format, ($gmtimestamp+ ($offset*3600)));
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getDayDateTimeFormat(), $fromDb,
+            IntlDateFormatter::FULL, IntlDateFormatter::SHORT,
+            '%X %x', $timezone ?: $cfg->getTimeZone());
+    }
+
+    function getStrftimeFormat($format) {
+        static $dateToStrftime = array(
+            '%d' => 'dd',
+            '%a' => 'EEE',
+            '%e' => 'd',
+            '%A' => 'EEEE',
+            '%w' => 'e',
+            '%w' => 'c',
+            '%z' => 'D',
+
+            '%V' => 'w',
+
+            '%B' => 'MMMM',
+            '%m' => 'MM',
+            '%b' => 'MMM',
+
+            '%g' => 'Y',
+            '%G' => 'Y',
+            '%Y' => 'y',
+            '%y' => 'yy',
+
+            '%P' => 'a',
+            '%l' => 'h',
+            '%k' => 'H',
+            '%I' => 'hh',
+            '%H' => 'HH',
+            '%M' => 'mm',
+            '%S' => 'ss',
+
+            '%z' => 'ZZZ',
+            '%Z' => 'z',
+        );
+
+        $flipped = array_flip($dateToStrftime);
+        krsort($flipped);
+        // Also establish a list of ids, so we can do a creative replacement
+        // without clobbering the common letters in the formats
+        $ids = array_keys($flipped);
+        $ids = array_flip($ids);
+        foreach ($flipped as $icu=>$date) {
+            $format = str_replace($date, chr($ids[$icu]), $format);
+        }
+        return preg_replace_callback('`[\x00-\x1f]`',
+            function($m) use ($ids) {
+                return $ids[ord($m[0])];
+            },
+            $format
+        );
     }
 
     // Thanks, http://stackoverflow.com/a/2955878/1025836

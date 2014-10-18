@@ -43,6 +43,7 @@ class Bootstrap {
                 ini_set('date.timezone', 'America/New_York');
             }
         }
+        date_default_timezone_set('UTC');
 
         if (!isset($_SERVER['REMOTE_ADDR']))
             $_SERVER['REMOTE_ADDR'] = '';

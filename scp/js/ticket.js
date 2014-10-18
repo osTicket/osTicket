@@ -320,7 +320,6 @@ $.refreshTicketView = function() {
 
 var ticket_onload = function($) {
     if (!location.hash || !$('#response_options .tab_content' + location.hash).length) {
-        console.log('ajshdasdhfasd');
         $('#response_options ul.tabs li:first a').trigger('click');
     }
 
