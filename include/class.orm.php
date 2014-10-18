@@ -391,6 +391,49 @@ class VerySimpleModel {
     }
 }
 
+/**
+ * AnnotatedModel
+ *
+ * Simple wrapper class which allows wrapping and write-protecting of
+ * annotated fields retrieved from the database. Instances of this class
+ * will delegate most all of the heavy lifting to the wrapped Model instance.
+ */
+class AnnotatedModel {
+
+    var $model;
+    var $annotations;
+
+    function __construct($model, $annotations) {
+        $this->model = $model;
+        $this->annotations = $annotations;
+    }
+
+    function __get($what) {
+        return $this->get($what);
+    }
+    function get($what) {
+        if (isset($this->annotations[$what]))
+            return $this->annotations[$what];
+        return $this->model->get($what, null);
+    }
+    function __set($what, $to) {
+        return $this->set($what, $to);
+    }
+    function set($what, $to) {
+        if (isset($this->annotations[$what]))
+            throw new OrmException('Annotated fields are read-only');
+        return $this->model->set($what, $to);
+    }
+
+    // Delegate everything else to the model
+    function __call($what, $how) {
+        return call_user_func_array(array($this->model, $what), $how);
+    }
+    static function __callStatic($what, $how) {
+        return call_user_func_array(array($this->model, $what), $how);
+    }
+}
+
 class SqlFunction {
     var $alias;
 
@@ -404,6 +447,9 @@ class SqlFunction {
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 
+    function getAlias() {
+        return $this->alias;
+    }
     function setAlias($alias) {
         $this->alias = $alias;
     }
@@ -416,8 +462,31 @@ class SqlFunction {
 }
 
 class Aggregate extends SqlFunction {
+
+    var $func;
+    var $expr;
+    var $distinct=false;
+    var $constraint=false;
+
+    function __construct($func, $expr, $distinct=false, $constraint=false) {
+        $this->func = $func;
+        $this->expr = $expr;
+        $this->distinct = $distinct;
+        if ($constraint instanceof Q)
+            $this->constraint = $constraint;
+        elseif ($constraint)
+            $this->constraint = new Q($constraint);
+    }
+
+    static function __callStatic($func, $args) {
+        $distinct = @$args[1] ?: false;
+        $constraint = @$args[2] ?: false;
+        return new static($func, $args[0], $distinct, $constraint);
+    }
+
     function toSql($compiler, $model=false, $alias=false) {
-        list($field) = $compiler->getField($this->args[0], $model);
+        $options = array('constraint'=>$this->constraint);
+        list($field) = $compiler->getField($this->expr, $model, $options);
         return sprintf('%s(%s)%s', $this->func, $field,
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
@@ -543,6 +612,30 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $compiler->compileCount($this);
     }
 
+    /**
+     * exists
+     *
+     * Determines if there are any rows in this QuerySet. This can be
+     * achieved either by evaluating a SELECT COUNT(*) query or by
+     * attempting to fetch the first row from the recordset and return
+     * boolean success.
+     *
+     * Parameters:
+     * $fetch - (bool) TRUE if a compile and fetch should be attempted
+     *      instead of a SELECT COUNT(*). This would be recommended if an
+     *      accurate count is not required and the records would be fetched
+     *      if this method returns TRUE.
+     *
+     * Returns:
+     * (bool) TRUE if there would be at least one record in this QuerySet
+     */
+    function exists($fetch=false) {
+        if ($fetch) {
+            return (bool) $this[0];
+        }
+        return $this->count() > 0;
+    }
+
     function annotate($annotations) {
         if (!is_array($annotations))
             $annotations = func_get_args();
@@ -557,13 +650,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this;
     }
 
-    function exists() {
-        return $this->count() > 0;
-    }
-
     function delete() {
         $class = $this->compiler;
         $compiler = new $class();
+        // XXX: Mark all in-memory cached objects as deleted
         $ex = $compiler->compileBulkDelete($this);
         $ex->execute();
         return $ex->affected_rows();
@@ -729,17 +819,52 @@ class ModelInstanceManager extends ResultSet {
         return @self::$objectCache[$key];
     }
 
+    /**
+     * getOrBuild
+     *
+     * Builds a new model from the received fields or returns the model
+     * already stashed in the model cache. Caching helps to ensure that
+     * multiple lookups for the same model identified by primary key will
+     * fetch the exact same model. Therefore, changes made to the model
+     * anywhere in the project will be reflected everywhere.
+     *
+     * For annotated models (models build from querysets with annotations),
+     * the built or cached model is wrapped in an AnnotatedModel instance.
+     * The annotated fields are in the AnnotatedModel instance and the
+     * database-backed fields are managed by the Model instance.
+     */
     function getOrBuild($modelClass, $fields) {
-        // Check the cache for the model instance first
-        if ($m = self::checkCache($modelClass, $fields)) {
-            // TODO: If the model has deferred fields which are in $fields,
-            // those can be resolved here
-            return $m;
+        $annotations = $this->queryset->annotations;
+        $extras = array();
+        // For annotations, drop them from the $fields list and add them to
+        // an $extras list. The fields passed to the root model should only
+        // be the root model's fields. The annotated fields will be wrapped
+        // using an AnnotatedModel instance.
+        if ($annotations && $modelClass == $this->model) {
+            foreach ($annotations as $A) {
+                $name = $A->getAlias();
+                if (isset($fields[$name])) {
+                    $extras[$name] = $fields[$name];
+                    unset($fields[$name]);
+                }
+            }
         }
-        // Construct and cache the object
-        $this->cache($m = new $modelClass($fields));
-        $m->__deferred__ = $this->queryset->defer;
-        $m->__onload();
+        // Check the cache for the model instance first
+        if (!($m = self::checkCache($modelClass, $fields))) {
+            // Construct and cache the object
+            $m = new $modelClass($fields);
+            // XXX: defer may refer to fields not in this model
+            $m->__deferred__ = $this->queryset->defer;
+            $m->__onload();
+            if ($cache)
+                $this->cache($m);
+        }
+        // Wrap annotations in an AnnotatedModel
+        if ($extras) {
+            $m = new AnnotatedModel($m, $extras);
+        }
+        // TODO: If the model has deferred fields which are in $fields,
+        // those can be resolved here
         return $m;
     }
 
@@ -893,6 +1018,9 @@ class InstrumentedList extends ModelInstanceManager {
     function filter() {
         return call_user_func_array(array($this->objects(), 'filter'), func_get_args());
     }
+    function exclude() {
+        return call_user_func_array(array($this->objects(), 'exclude'), func_get_args());
+    }
     function order_by() {
         return call_user_func_array(array($this->objects(), 'order_by'), func_get_args());
     }
@@ -962,10 +1090,22 @@ class SqlCompiler {
      *
      * If no comparison function is declared in the field descriptor,
      * 'exact' is assumed.
+     *
+     * Parameters:
+     * $field - (string) name of the field to join
+     * $model - (VerySimpleModel) root model for references in the $field
+     *      parameter
+     * $options - (array) extra options for the compiler
+     *      'table' => return the table alias rather than the field-name
+     *      'model' => return the target model class rather than the operator
+     *      'constraint' => extra constraint for join clause
+     *
+     * Returns:
+     * (mixed) Usually array<field-name, operator> where field-name is the
+     * name of the field in the destination model, and operator is the
+     * requestion comparison method.
      */
     function getField($field, $model, $options=array()) {
-        $joins = array();
-
         // Break apart the field descriptor by __ (double-underbars). The
         // first part is assumed to be the root field in the given model.
         // The parts after each of the __ pieces are links to other tables.
@@ -982,35 +1122,45 @@ class SqlCompiler {
         }
 
         $path = array();
-        $crumb = '';
+
+        // Determine the alias for the root model table
         $alias = (isset($this->joins['']))
             ? $this->joins['']['alias']
             : $this->quote($model::$meta['table']);
 
-        // Traverse through the parts and establish joins between the tables
-        // if the field is joined to a foreign model
-        if (count($parts) && isset($model::$meta['joins'][$parts[0]])) {
-            // Call pushJoin for each segment in the join path. A new
-            // JOIN fragment will need to be emitted and/or cached
-            foreach ($parts as $p) {
-                $model::_inspect();
-                if (!($info = $model::$meta['joins'][$p])) {
-                    throw new OrmException(sprintf(
-                       'Model `%s` does not have a relation called `%s`',
-                        $model, $p));
-                }
-                $path[] = $p;
-                $tip = implode('__', $path);
-                $alias = $this->pushJoin($crumb, $tip, $model, $info);
-                // Roll to foreign model
-                foreach ($info['constraint'] as $local => $foreign) {
-                    list($model, $f) = explode('.', $foreign);
-                    if (class_exists($model))
-                        break;
-                }
-                $crumb = $tip;
+        // Call pushJoin for each segment in the join path. A new JOIN
+        // fragment will need to be emitted and/or cached
+        $push = function($p, $path, $extra=false) use (&$model) {
+            $model::_inspect();
+            if (!($info = $model::$meta['joins'][$p])) {
+                throw new OrmException(sprintf(
+                   'Model `%s` does not have a relation called `%s`',
+                    $model, $p));
             }
+            $crumb = implode('__', $path);
+            $path[] = $p;
+            $tip = implode('__', $path);
+            $alias = $this->pushJoin($crumb, $tip, $model, $info, $extra);
+            // Roll to foreign model
+            foreach ($info['constraint'] as $local => $foreign) {
+                list($model, $f) = explode('.', $foreign);
+                if (class_exists($model))
+                    break;
+            }
+            return array($alias, $f);
+        };
+
+        foreach ($parts as $i=>$p) {
+            list($alias) = $push($p, $path, @$options['constraint']);
+            $path[] = $p;
         }
+
+        // If comparing a relationship, join the foreign table
+        // This is a comparison with a relationship — use the foreign key
+        if (isset($model::$meta['joins'][$field])) {
+            list($alias, $field) = $push($field, $path, @$options['constraint']);
+        }
+
         if (isset($options['table']) && $options['table'])
             $field = $alias;
         elseif (isset($this->annotations[$field]))
@@ -1032,14 +1182,14 @@ class SqlCompiler {
      * algorithm is short-circuited and the originally-assigned table alias
      * is returned immediately.
      */
-    function pushJoin($tip, $path, $model, $info) {
+    function pushJoin($tip, $path, $model, $info, $constraint=false) {
         // TODO: Build the join statement fragment and return the table
         // alias. The table alias will be useful where the join is used in
         // the WHERE and ORDER BY clauses
 
         // If the join already exists for the statement-being-compiled, just
         // return the alias being used.
-        if (isset($this->joins[$path]))
+        if (!$constraint && isset($this->joins[$path]))
             return $this->joins[$path]['alias'];
 
         // TODO: Support only using aliases if necessary. Use actual table
@@ -1057,29 +1207,60 @@ class SqlCompiler {
         // TODO: Always use a table alias. This will further help with
         // coordination between the data returned from the database (where
         // table alias is available) and the corresponding data.
-        $this->joins[$path] = array(
-            'alias' => $alias,
-            'sql'=> $this->compileJoin($tip, $model, $alias, $info),
-        );
+        $T = array('alias' => $alias);
+        $this->joins[$path] = &$T;
+        $T['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
         return $alias;
     }
 
-    function compileQ(Q $Q, $model) {
+    /**
+     * compileQ
+     *
+     * Build a constraint represented in an arbitrarily nested Q instance.
+     * The placement of the compiled constraint is also considered and
+     * represented in the resulting CompiledExpression instance.
+     *
+     * Parameters:
+     * $Q - (Q) constraint represented in a Q instance
+     * $model - (VerySimpleModel) root model for all the field references in
+     *      the Q instance
+     * $slot - (int) slot for inputs to be placed. Useful to differenciate
+     *      inputs placed in the joins and where clauses for SQL engines
+     *      which do not support named parameters.
+     *
+     * Returns:
+     * (CompiledExpression) object containing the compiled expression (with
+     * AND, OR, and NOT operators added). Furthermore, the $type attribute
+     * of the CompiledExpression will allow the compiler to place the
+     * constraint properly in the WHERE or HAVING clause appropriately.
+     */
+    function compileQ(Q $Q, $model, $slot=false) {
         $filter = array();
         $type = CompiledExpression::TYPE_WHERE;
         foreach ($Q->constraints as $field=>$value) {
+            // Handle nested constraints
             if ($value instanceof Q) {
-                $filter[] = $T = $this->compileQ($value, $model);
+                $filter[] = $T = $this->compileQ($value, $model, $slot);
                 // Bubble up HAVING constraints
                 if ($T instanceof CompiledExpression
                         && $T->type == CompiledExpression::TYPE_HAVING)
                     $type = $T->type;
             }
+            // Handle relationship comparisons with model objects
+            elseif ($value instanceof VerySimpleModel) {
+                $criteria = array();
+                foreach ($value->pk as $f=>$v) {
+                    $f = $field . '__' . $f;
+                    $criteria[$f] = $v;
+                }
+                $filter[] = $this->compileQ(new Q($criteria), $model, $slot);
+            }
+            // Handle simple field = <value> constraints
             else {
                 list($field, $op) = $this->getField($field, $model);
                 if ($field instanceof Aggregate) {
+                    // This constraint has to go in the HAVING clause
                     $field = $field->toSql($this, $model);
-                    // This clause has to go in the HAVING clause
                     $type = CompiledExpression::TYPE_HAVING;
                 }
                 if ($value === null)
@@ -1089,7 +1270,7 @@ class SqlCompiler {
                 elseif (is_callable($op))
                     $filter[] = call_user_func($op, $field, $value, $model);
                 else
-                    $filter[] = sprintf($op, $field, $this->input($value));
+                    $filter[] = sprintf($op, $field, $this->input($value, $slot));
             }
         }
         $glue = $Q->isOred() ? ' OR ' : ' AND ';
@@ -1097,7 +1278,7 @@ class SqlCompiler {
         if (count($filter) > 1)
             $clause = '(' . $clause . ')';
         if ($Q->isNegated())
-            $clause = ' NOT '.$clause;
+            $clause = 'NOT '.$clause;
         return new CompiledExpression($clause, $type);
     }
 
@@ -1177,6 +1358,12 @@ class DbEngine {
 
 class MySqlCompiler extends SqlCompiler {
 
+    // Consts for ::input()
+    const SLOT_JOINS = 1;
+    const SLOT_WHERE = 2;
+
+    protected $input_join_count = 0;
+
     static $operators = array(
         'exact' => '%1$s = %2$s',
         'contains' => array('self', '__contains'),
@@ -1213,7 +1400,7 @@ class MySqlCompiler extends SqlCompiler {
             : sprintf('%s IS NOT NULL', $a);
     }
 
-    function compileJoin($tip, $model, $alias, $info) {
+    function compileJoin($tip, $model, $alias, $info, $extra=false) {
         $constraints = array();
         $join = ' JOIN ';
         if (isset($info['null']) && $info['null'])
@@ -1229,7 +1416,7 @@ class MySqlCompiler extends SqlCompiler {
             if ($local[0] == "'") {
                 $constraints[] = sprintf("%s.%s = %s",
                     $alias, $this->quote($right),
-                    $this->input(trim($local, '\'"'))
+                    $this->input(trim($local, '\'"'), self::SLOT_JOINS)
                 );
             }
             else {
@@ -1239,11 +1426,34 @@ class MySqlCompiler extends SqlCompiler {
                 );
             }
         }
+        // Support extra join constraints
+        if ($extra instanceof Q) {
+            $constraints[] = $this->compileQ($extra, $model, self::SLOT_JOINS);
+        }
         return $join.$this->quote($rmodel::$meta['table'])
             .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
     }
 
-    function input(&$what) {
+    /**
+     * input
+     *
+     * Generate a parameterized input for a database query. Input value is
+     * received by reference to avoid copying.
+     *
+     * Parameters:
+     * $what - (mixed) value to be sent to the database. No escaping is
+     *      necessary. Pass a raw value here.
+     * $slot - (int) clause location of the input in compiled SQL statement.
+     *      Currently, SLOT_JOINS and SLOT_WHERE is supported. SLOT_JOINS
+     *      inputs are inserted ahead of the SLOT_WHERE inputs as the joins
+     *      come logically before the where claused in the finalized
+     *      statement.
+     *
+     * Returns:
+     * (string) token to be placed into the compiled SQL statement. For
+     * MySQL, this is always the string '?'.
+     */
+    function input(&$what, $slot=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params = array_merge($q->params);
@@ -1253,7 +1463,15 @@ class MySqlCompiler extends SqlCompiler {
             return $what->toSql($this);
         }
         else {
-            $this->params[] = $what;
+            switch ($slot) {
+            case self::SLOT_JOINS:
+                // This should be inserted before the WHERE inputs
+                array_splice($this->params, $this->input_join_count++, 0,
+                    array($what));
+                break;
+            default:
+                $this->params[] = $what;
+            }
             return '?';
         }
     }
@@ -1300,23 +1518,25 @@ class MySqlCompiler extends SqlCompiler {
     function compileSelect($queryset) {
         $model = $queryset->model;
         // Use an alias for the root model table
-        $table = $model::$meta['table'];
         $this->joins[''] = array('alias' => ($rootAlias = $this->nextAlias()));
 
         // Compile the WHERE clause
         $this->annotations = $queryset->annotations ?: array();
         list($where, $having) = $this->getWhereHavingClause($queryset);
 
+        // Compile the ORDER BY clause
         $sort = '';
         if ($queryset->ordering && !isset($this->options['nosort'])) {
             $orders = array();
             foreach ($queryset->ordering as $sort) {
                 $dir = 'ASC';
-                if (substr($sort, 0, 1) == '-') {
+                if ($sort[0] == '-') {
                     $dir = 'DESC';
                     $sort = substr($sort, 1);
                 }
                 list($field) = $this->getField($sort, $model);
+                // TODO: Throw exception if $field can be indentified as
+                //       invalid
                 $orders[] = $field.' '.$dir;
             }
             $sort = ' ORDER BY '.implode(', ', $orders);
@@ -1324,7 +1544,7 @@ class MySqlCompiler extends SqlCompiler {
 
         // Compile the field listing
         $fields = array();
-        $table = $this->quote($table).' '.$rootAlias;
+        $table = $this->quote($model::$meta['table']).' '.$rootAlias;
         // Handle related tables
         if ($queryset->related) {
             $count = 0;
@@ -1394,8 +1614,10 @@ class MySqlCompiler extends SqlCompiler {
         // Add in annotations
         if ($queryset->annotations) {
             foreach ($queryset->annotations as $A) {
-                $fields[] = $A->toSql($this, $model, true);
+                $fields[] = $T = $A->toSql($this, $model, true);
                 // TODO: Add to last fieldset in fieldMap
+                if ($fieldMap)
+                    $fieldMap[0][0][] = $A->getAlias();
             }
             $group_by = array();
             foreach ($model::$meta['pk'] as $pk)
@@ -1660,6 +1882,8 @@ class Q {
     var $ored = false;
 
     function __construct($filter, $flags=0) {
+        if (!is_array($filter))
+            $filter = array($filter);
         $this->constraints = $filter;
         $this->negated = $flags & self::NEGATED;
         $this->ored = $flags & self::ANY;
