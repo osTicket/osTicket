@@ -111,6 +111,8 @@ class DraftAjaxAPI extends AjaxController {
 
         echo JsonDataEncoder::encode(array(
             'content_id' => 'cid:'.$f->getKey(),
+            // Return draft_id to connect the auto draft creation
+            'draft_id' => $draft->getId(),
             'filelink' => sprintf('image.php?h=%s', $f->getDownloadHash())
         ));
     }
@@ -123,7 +125,7 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Valid session required");
 
         $vars = array(
-            'staff_id' => ($thisclient) ? $thisclient->getId() : 0,
+            'staff_id' => ($thisclient) ? $thisclient->getId() : 1<<31,
             'namespace' => $namespace,
         );
 
@@ -208,6 +210,22 @@ class DraftAjaxAPI extends AjaxController {
         return self::_uploadInlineImage($draft);
     }
 
+    function uploadInlineImageEarlyClient($namespace) {
+        global $thisclient;
+
+        if (!$thisclient && substr($namespace, -12) != substr(session_id(), -12))
+            Http::response(403, "Valid session required");
+
+        $draft = Draft::create(array(
+            'staff_id' => ($thisclient) ? $thisclient->getId() : 1<<31,
+            'namespace' => $namespace,
+        ));
+        if (!$draft->save())
+            Http::response(500, 'Unable to create draft');
+
+        return $this->uploadInlineImageClient($draft->getId());
+    }
+
     // Staff interface for drafts ========================================
     function createDraft($namespace) {
         global $thisstaff;
@@ -263,6 +281,22 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(404, "Draft not found");
 
         return self::_uploadInlineImage($draft);
+    }
+
+    function uploadInlineImageEarly($namespace) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required for image upload");
+
+        $draft = Draft::create(array(
+            'staff_id' => $thisstaff->getId(),
+            'namespace' => $namepace
+        ));
+        if (!$draft->save())
+            Http::response(500, 'Unable to create draft');
+
+        return $this->uploadInlineImage($draft->getId());
     }
 
     function deleteDraft($id) {
