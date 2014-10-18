@@ -33,6 +33,7 @@ $dispatcher = patterns('',
         url_post('^(?P<id>\d+)$', 'updateDraftClient'),
         url_delete('^(?P<id>\d+)$', 'deleteDraftClient'),
         url_post('^(?P<id>\d+)/attach$', 'uploadInlineImageClient'),
+        url_post('^(?P<namespace>[\w.]+)/attach$', 'uploadInlineImageEarlyClient'),
         url_get('^(?P<namespace>[\w.]+)$', 'getDraftClient'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraftClient')
     )),
