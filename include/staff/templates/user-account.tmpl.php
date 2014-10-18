@@ -61,29 +61,21 @@ if ($info['error']) {
             <tr>
                 <th colspan="2"><em><strong><?php echo __('User Preferences'); ?></strong></em></th>
             </tr>
-                <td><?php echo __('Time Zone'); ?>:</td>
-                <td>
-                    <select name="timezone_id" id="timezone_id">
-                        <?php
-                        $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-                        if(($res=db_query($sql)) && db_num_rows($res)){
-                            while(list($id,$offset, $tz)=db_fetch_row($res)){
-                                $sel=($info['timezone_id']==$id)?'selected="selected"':'';
-                                echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
-                            }
-                        }
-                        ?>
-                    </select>
-                    &nbsp;<span class="error"><?php echo $errors['timezone_id']; ?></span>
-                </td>
-            </tr>
             <tr>
                 <td width="180">
-                   <?php echo __('Daylight Saving'); ?>:
+                    <?php echo __('Time Zone');?>:
                 </td>
                 <td>
-                    <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-                    <?php echo __('Observe daylight saving'); ?>
+                    <select name="timezone" multiple="multiple" id="timezone-dropdown">
+                        <option value=""><?php echo __('System Default'); ?></option>
+    <?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
+                        <option value="<?php echo $zone; ?>" <?php
+                        if ($info['timezone'] == $zone)
+                            echo 'selected="selected"';
+                        ?>><?php echo $zone; ?></option>
+    <?php } ?>
+                    </select>
+                    <div class="error"><?php echo $errors['timezone']; ?></div>
                 </td>
             </tr>
         </tbody>
@@ -110,7 +102,7 @@ if ($info['error']) {
                     data-content="<?php echo sprintf('%s: %s',
                         __('Users can always sign in with their email address'),
                         $user->getEmail()); ?>"></i>
-                    <div class="error">&nbsp;<?php echo $errors['username']; ?></div>
+                    <div class="error"><?php echo $errors['username']; ?></div>
                 </td>
             </tr>
             <tr>
@@ -170,6 +162,9 @@ if ($info['error']) {
     </p>
 </form>
 <div class="clear"></div>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.css"/>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
 <script type="text/javascript">
 $(function() {
     $(document).on('click', 'input#sendemail', function(e) {
@@ -178,5 +173,14 @@ $(function() {
         else
             $('tbody#password').show();
     });
+});
+$('#timezone-dropdown').multiselect({
+    multiple: false,
+    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
+    noneSelectedText: <?php echo JsonDataEncoder::encode(__('System Default')); ?>,
+    selectedList: 1,
+    minWidth: 400
+}).multiselectfilter({
+    placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
 });
 </script>
