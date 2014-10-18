@@ -1,23 +1,57 @@
 
 div.add-translation {
-  margin-top: 5px;
   padding: 5px;
   border-top: 1px solid rgba(0, 0, 0, 0.3);
+  background-color:#eee;
+  border-radius:0 0 5px 5px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.08);
+}
+div.add-translation button {
+  margin-left: 5px;
 }
 
 div.translations {
   min-height: 20px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  float: left;
+  display: none;
+  min-width: 160px;
+  padding: 4px 0 0;
+  margin: 0;
+  list-style: none;
+  background-color: #ffffff;
+  border-color: #ccc;
+  border-color: rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  -webkit-border-radius: 0 0 5px 5px;
+  -moz-border-radius: 0 0 5px 5px;
+  border-radius: 0 0 5px 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
 }
 div.translations .close {
   position:absolute;
   right:3px;
   top:3px;
+  cursor: pointer;
 }
 ul.translations {
   padding-left: 0;
   min-width: 300px;
   max-height: 150px;
   overflow-y: auto;
+  padding: 5px 8px 8px;
+  margin: 0;
 }
 ul.translations li {
   list-style: none;
@@ -29,33 +63,55 @@ ul.translations li + li {
   margin-top: 10px;
 }
 ul.translations li label.language {
-  color: #888;
+  color: black;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+ul.translations li label.language .flag {
+  margin-right: 6px;
 }
 ul.translations li input {
   width: 100%;
   box-sizing: border-box;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.08);
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #bbb;
+  font-size: 12px;
+  font-weight: 300;
+  margin-top: 4px;
 }
 .language-commit {
   text-align: right;
   padding: 5px 10px;
   background-color: cyan;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.05) 10px,
+    rgba(255, 255, 255, 0.3) 10px,
+    rgba(255, 255, 255, 0.3) 20px
+  ), #E65524;
 }
 
 
 div.translatable {
-  -webkit-appearance: textfield;
+  border: 1px solid #bbb;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
   display: inline-block;
   white-space: nowrap;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
   border-right: none;
-  padding: 3px 5px;
+  padding: 0 5px 2px;
   margin-left: 2px;
   width: inherit;
   background-color: white;
 }
 div.translatable.textarea {
-  -webkit-appearance: textarea;
+  border: 1px solid #bbb;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+  border-radius: 4px;
 }
 div.translatable.focus {
   outline-offset: -2px;
@@ -86,10 +142,12 @@ input.translatable:focus {
 
 button.translatable {
   margin: 0;
-  padding: 3px 4px;
-  border: 1px outset #999;
-  background-color: #ccc;
-  border-radius: 0 4px 4px 0;
+  padding: 4px 5px;
+  background-color: #444;
+  background:linear-gradient(0deg, #444 0, #888 100%);
+  color: white;
+  border: none;
+  border-radius: 0 2px 2px 0;
   cursor: pointer;
 }
 
@@ -99,6 +157,7 @@ div.translatable.textarea + button.translatable {
   right: 4px;
   border: none;
   background-color: transparent;
+  background: transparent;
   color: #aaa;
   color: rgba(0, 0, 0, 0.5);
   padding-top: 0;

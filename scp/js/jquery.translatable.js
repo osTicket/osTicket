@@ -77,7 +77,7 @@
         );
       this.fetch('ajax.php/i18n/langs').then(function(langs) {
         $.each(langs, function(k, v) {
-          self.$select.append($('<option>').val(k).text(v));
+          self.$select.append($('<option>').val(k).text(v.name));
         });
       });
     },
@@ -106,14 +106,19 @@
     },
 
     add: function(lang, text) {
+      var info = this.langs[lang];
       this.$translations.append(
         $('<li>')
-        .append($('<label class="language">').text(this.langs[lang])
+        .append($('<label class="language">')
+          .text(info.name)
+          .prepend($('<span>').addClass('flag flag-'+info.flag))
           .append($('<input type="text" data-lang="'+lang+'">')
-            .on('change', $.proxy(this.showCommit, this))
+            .attr('dir', info.direction || 'ltr')
+            .on('change blur keydown', $.proxy(this.showCommit, this))
             .val(text)
           )
         )
+        .effect('highlight')
       );
       $('option[value='+lang+']', this.$select).remove();
       if (!$('option', this.$select).length)
@@ -122,14 +127,19 @@
     },
 
     showCommit: function(e) {
-      if (this.$commit)
-          return this.$commit.show();
-
+      if (this.$commit) {
+          this.$commit.find('button').empty().text(' Save')
+              .prepend($('<i>').addClass('fa icon-save'));
+          return !this.$commit.is(':visible')
+              ? this.$commit.slideDown() : true;
+      }
       return this.$commit = $('<div class="language-commit"></div>')
+        .hide()
         .insertAfter(this.$translations)
         .append($('<button type="button" class="commit"><i class="fa fa-save icon-save"></i> Save</button>')
           .on('click', $.proxy(this.commit, this))
-        );
+        )
+        .slideDown();
     },
 
     commit: function(e) {
@@ -137,11 +147,14 @@
       $('input[type=text]', this.$translations).each(function() {
         changes[$(this).data('lang')] = $(this).val();
       });
+      this.$commit.prop('disabled', true);
+      this.$commit.find('button').empty().text(' Saving')
+          .prepend($('<i>').addClass('fa icon-spin icon-spinner'));
       $.ajax('ajax.php/i18n/translate/' + this.$element.data('translateTag'), {
         type: 'post',
         data: changes,
         success: function() {
-          self.$commit.hide();
+          self.$commit.slideUp();
         }
       });
     },
@@ -201,7 +214,7 @@
   };
 
   $.fn.translatable.defaults = {
-    menu: '<div class="translations dropdown-menu"></div>',
+    menu: '<div class="translations"></div>',
     button: '<button class="translatable"><i class="fa fa-globe icon-globe"></i></button>'
   };
 
