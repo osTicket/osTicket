@@ -137,8 +137,9 @@ class ContentAjaxAPI extends AjaxController {
 
         $content = Page::lookup($id, $lang);
 
-        $langs = $cfg->getSecondaryLanguages();
+        $langs = Internationalization::getConfiguredSystemLanguages();
         $translations = $content->getAllTranslations();
+        $info = array();
         foreach ($translations as $t) {
             if (!($data = $t->getComplex()))
                 continue;

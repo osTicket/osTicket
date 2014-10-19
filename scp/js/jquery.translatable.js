@@ -114,7 +114,7 @@
           .prepend($('<span>').addClass('flag flag-'+info.flag))
           .append($('<input type="text" data-lang="'+lang+'">')
             .attr('dir', info.direction || 'ltr')
-            .on('change blur keydown', $.proxy(this.showCommit, this))
+            .on('change keydown', $.proxy(this.showCommit, this))
             .val(text)
           )
         )
@@ -145,7 +145,10 @@
     commit: function(e) {
       var changes = {}, self = this;
       $('input[type=text]', this.$translations).each(function() {
-        changes[$(this).data('lang')] = $(this).val();
+        var trans = $(this).val();
+        if (!trans)
+            $(this).closest('li').slideUp();
+        changes[$(this).data('lang')] = trans;
       });
       this.$commit.prop('disabled', true);
       this.$commit.find('button').empty().text(' Saving')
