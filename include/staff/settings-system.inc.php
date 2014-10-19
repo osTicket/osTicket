@@ -226,29 +226,27 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr>
             <td style="vertical-align:top;padding-top:4px;"><?php echo __('Secondary Languages'); ?>:</td>
-            <td><table><?php
+            <td><div id="secondary_langs" style="width: 300px"><?php
         foreach ($cfg->getSecondaryLanguages() as $lang) { ?>
-            <tr><td style="border:none;">
+            <div class="secondary_lang" style="cursor:move">
+            <i class="icon-sort"></i>
             <?php echo Internationalization::getLanguageDescription($lang); ?>
             <input type="hidden" name="secondary_langs[]" value="<?php echo $lang; ?>"/>
-            </td><td style="border:none;">
-            &nbsp;
+            <div class="pull-right">
             <a href="#<?php echo $lang; ?>" onclick="javascript:
-                if (confirm('<?php echo __('You sure?'); ?>'))) {
-                    $(this).closest('form').find('input[name=\'secondary_langs[]\'][value='
-                        + $(this).attr('href').substr(1) + ']').val('');
-                    $(this).closest('tr').remove();
+                if (confirm('<?php echo __('You sure?'); ?>')) {
+                    $(this).closest('.secondary_lang')
+                        .find('input').remove();
+                    $(this).closest('.secondary_lang').slideUp();
                 }
                 return false;
                 "><i class="icon-trash"></i></a>
-            &nbsp;
-            &nbsp;
-            <a href="#" onclick="javascript:
-                return false;
-                "><?php echo __('manage all phrases'); ?></a>
-            </td></tr>
+            </div>
+            </div>
 <?php   } ?>
-            </table>
+            <script type="text/javascript">
+            </script>
+            </div>
             <i class="icon-plus-sign"></i>&nbsp;
             <select name="add_secondary_language">
                 <option value="">&mdash; <?php echo __('Add a Language'); ?> &mdash;</option>
@@ -262,7 +260,7 @@ $gmtime = Misc::gmtime();
                     ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
 <?php } ?>
             </select>
-            <span class="error">&nbsp;<?php echo $errors['add_secondary_langyage']; ?></span>
+            <span class="error">&nbsp;<?php echo $errors['add_secondary_language']; ?></span>
             <i class="help-tip icon-question-sign" href="#secondary_language"></i>
         </td></tr>
     </tbody>
@@ -276,6 +274,9 @@ $gmtime = Misc::gmtime();
 <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
 <script type="text/javascript">
+$('#secondary_langs').sortable({
+    cursor: 'move'
+});
 $('#timezone-dropdown').multiselect({
     multiple: false,
     header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
