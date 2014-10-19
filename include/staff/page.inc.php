@@ -102,8 +102,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Status'); ?>:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active'); ?></strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><?php echo __('Disabled'); ?>
+                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>>
+                <strong><?php echo __('Active'); ?></strong>
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>>
+                <?php echo __('Disabled'); ?>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
             </td>
         </tr>
@@ -114,31 +116,28 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
                 </ul>
     <div class="tab_content active" id="content">
-<?php if ($page && ($langs = $cfg->getSecondaryLanguages())) { ?>
-        <div class="banner">&nbsp;
-        <span class="pull-left">
-            <i class="icon-globe icon-large"></i>
-            <?php echo __('This content is translatable'); ?>
-        </span>
-        <span class="pull-right">
-        <?php echo __('View'); ?>:
-        <select onchange="javascript:
-$('option', this).each(function(){$($(this).val()).hide()});
-$($('option:selected', this).val()).show(); ">
-            <option value="#reference-text"><?php echo
-            Internationalization::getLanguageDescription($cfg->getPrimaryLanguage());
-            ?> — <?php echo __('Primary'); ?></option>
-<?php   foreach ($langs as $tag) { ?>
-            <option value="#translation-<?php echo $tag; ?>"><?php echo
-            Internationalization::getLanguageDescription($tag);
-            ?></option>
-<?php   } ?>
-        </select>
-        </span>
-        </div>
-        <div class="clear"></div>
+<?php
+$langs = Internationalization::getConfiguredSystemLanguages();
+if ($page && count($langs) > 1) { ?>
+    <ul class="vertical left tabs">
+        <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
+<?php foreach ($langs as $tag=>$nfo) { ?>
+    <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
+        ?>"><a href="#translation-<?php echo $tag; ?>" title="<?php
+        echo Internationalization::getLanguageDescription($tag);
+    ?>"><span class="flag flag-<?php echo strtolower($nfo['flag']); ?>"></span>
+    </a></li>
 <?php } ?>
-        <div id="reference-text"
+    </ul>
+<?php
+} ?>
+    <div id="msg_info" style="margin:0 55px">
+    <em><i class="icon-info-sign"></i> <?php
+        echo __(
+            'Ticket variables are only supported in thank-you pages.'
+    ); ?></em></div>
+
+        <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>" class="tab_content" style="margin:0 45px"
             lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
         <textarea name="body" cols="21" rows="12" style="width:98%;" class="richtext draft"
 <?php
@@ -147,8 +146,11 @@ $($('option:selected', this).val()).show(); ">
         </div>
 
 <?php if ($langs && $page) {
-    foreach ($langs as $tag) { ?>
-        <div id="translation-<?php echo $tag; ?>" style="display:none" lang="<?php echo $tag; ?>">
+    foreach ($langs as $tag=>$nfo) {
+        if ($tag == $cfg->getPrimaryLanguage())
+            continue; ?>
+        <div id="translation-<?php echo $tag; ?>" class="tab_content"
+            style="display:none;margin:0 45px" lang="<?php echo $tag; ?>">
         <textarea name="trans[<?php echo $tag; ?>][body]" cols="21" rows="12"
             style="width:98%;" class="richtext draft"
 <?php
@@ -158,11 +160,8 @@ $($('option:selected', this).val()).show(); ">
 <?php }
 } ?>
 
-        <div class="error" style="margin: 5px 0"><?php echo $errors['body']; ?></div>
-        <div id="msg_info"><em><i class="icon-info-sign"></i> <?php
-            echo __(
-                'Ticket variables are only supported in thank-you pages.'
-        ); ?></em></div>
+        <div class="error" style="margin: 5px 55px"><?php echo $errors['body']; ?></div>
+        <div class="clear"></div>
     </div>
     <div class="tab_content" style="display:none" id="notes">
         <em><strong><?php echo __('Internal Notes'); ?></strong>:

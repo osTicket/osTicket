@@ -259,14 +259,12 @@ class Internationalization {
         if (!$cfg)
             return self::availableLanguages();
 
-        $langs = array();
+        $pri = $cfg->getPrimaryLanguage();
+        $langs = array($pri => self::getLanguageInfo($pri));
+
         // Honor sorting preference of ::availableLanguages()
-        foreach (self::availableLanguages() as $k=>$l) {
-            if ($cfg->getPrimaryLanguage() == $l['code']
-                || in_array($l['code'], $cfg->getSecondaryLanguages())
-            ) {
-                $langs[$k] = $l;
-            }
+        foreach ($cfg->getSecondaryLanguages() as $l) {
+            $langs[$l] = self::getLanguageInfo($l);
         }
         return $langs;
     }
