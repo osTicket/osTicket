@@ -52,7 +52,7 @@ class Page extends VerySimpleModel {
         return $this->name;
     }
     function getLocalName($lang=false) {
-        return $this->_getLocal('name', $lang);
+        return $this->getLocal('name', $lang);
     }
     function getNameAsSlug() {
         return urlencode(Format::slugify($this->name));
@@ -198,7 +198,7 @@ class Page extends VerySimpleModel {
 
     static function lookup($id, $lang=false) {
         try {
-            $qs = self::objects()->filter(array('id'=>$id));
+            $qs = self::objects()->filter(is_array($id) ? $id : array('id'=>$id));
             if ($lang)
                 $qs = $qs->filter(array('lang'=>$lang));
             return $qs->one();
@@ -277,7 +277,7 @@ class Page extends VerySimpleModel {
             $rv = $this->saveTranslations($vars, $errors);
 
         // Attach inline attachments from the editor
-        $page->attachments->deleteInlines();
+        $this->attachments->deleteInlines();
         $this->attachments->upload(
             Draft::getAttachmentIds($vars['body']), true);
 
