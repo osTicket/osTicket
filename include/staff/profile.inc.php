@@ -94,7 +94,20 @@ $info['id']=$staff->getId();
                     ?>><?php echo $zone; ?></option>
 <?php } ?>
                 </select>
-                &nbsp;<span class="error"><?php echo $errors['timezone']; ?></span>
+                <button class="action-button" onclick="javascript:
+    $('head').append($('<script>').attr('src', '<?php
+        echo ROOT_PATH; ?>/js/jstz.min.js'));
+    var recheck = setInterval(function() {
+        if (window.jstz !== undefined) {
+            clearInterval(recheck);
+            var zone = jstz.determine();
+            $('#timezone-dropdown').multiselect('widget')
+                .find('[value=\'' + zone.name() + '\']')
+                .trigger('click');
+        }
+    }, 200);
+    return false;"><i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?></button>
+                <div class="error"><?php echo $errors['timezone']; ?></div>
             </td>
         </tr>
         <tr>
