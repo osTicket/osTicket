@@ -63,8 +63,6 @@ else
     <tbody>
     <?php
         $total=0;
-print $pages->getQuery();
-print $pages->count();
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         $defaultPages=$cfg->getDefaultPages();
         foreach ($pages as $page) {
@@ -78,8 +76,8 @@ print $pages->count();
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $page->id; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td>&nbsp;<a href="pages.php?id=<?php echo $page->id; ?>"><?php echo Format::htmlchars($page->getLocalName()); ?></a></td>
-                <td class="faded"><?php echo $row['type']; ?></td>
+                <td>&nbsp;<a href="pages.php?id=<?php echo $page->id; ?>"><?php echo Format::htmlchars($page->getLocalName() ?: $page->getName()); ?></a></td>
+                <td class="faded"><?php echo $page->type; ?></td>
                 <td>
                     &nbsp;<?php echo $page->isActive()?__('Active'):'<b>'.__('Disabled').'</b>'; ?>
                     &nbsp;&nbsp;<?php echo $inuse?'<em>'.__('(in-use)').'</em>':''; ?>
