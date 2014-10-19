@@ -848,11 +848,8 @@ class OsticketConfig extends Config {
     }
 
     function getSecondaryLanguages() {
-        static $langs = null;
-        if (!isset($langs)) {
-            $langs = $this->get('secondary_langs');
-            $langs = (is_string($langs)) ? explode(',', $langs) : array();
-        }
+        $langs = $this->get('secondary_langs');
+        $langs = (is_string($langs)) ? explode(',', $langs) : array();
         return array_filter($langs);
     }
 
