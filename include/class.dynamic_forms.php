@@ -649,6 +649,9 @@ class DynamicFormEntry extends VerySimpleModel {
         'table' => FORM_ENTRY_TABLE,
         'ordering' => array('sort'),
         'pk' => array('id'),
+        'select_related' => array('form'),
+        'fields' => array('id', 'form_id', 'object_type', 'object_id',
+            'sort', 'updated', 'created'),
         'joins' => array(
             'form' => array(
                 'null' => true,
@@ -891,8 +894,8 @@ class DynamicFormEntry extends VerySimpleModel {
                     $answer->deleted = false; $found = true; break;
                 }
             }
-            if (!$found && ($field = $field->getImpl($field))
-                    && !$field->isPresentationOnly()) {
+            if (!$found && ($fImpl = $field->getImpl($field))
+                    && !$fImpl->isPresentationOnly()) {
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
                 $a->field = $field;
@@ -900,7 +903,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 $a->deleted = false;
                 // Add to list of answers
                 $this->_values[] = $a;
-                $this->_fields[] = $field;
+                $this->_fields[] = $fImpl;
                 $this->_form = null;
 
                 // Omit fields without data
@@ -968,7 +971,7 @@ class DynamicFormEntry extends VerySimpleModel {
     static function create($ht=false) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
-        foreach ($inst->getForm()->getFields() as $f) {
+        foreach ($inst->getForm()->getDynamicFields() as $f) {
             if (!$f->hasData()) continue;
             $a = DynamicFormEntryAnswer::create(
                 array('field_id'=>$f->get('id')));
@@ -992,6 +995,8 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         'table' => FORM_ANSWER_TABLE,
         'ordering' => array('field__sort'),
         'pk' => array('entry_id', 'field_id'),
+        'select_related' => array('field'),
+        'fields' => array('entry_id', 'field_id', 'value', 'value_id'),
         'joins' => array(
             'field' => array(
                 'constraint' => array('field_id' => 'DynamicFormField.id'),
@@ -1002,7 +1007,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         ),
     );
 
-    var $field;
+    var $_field;
     var $form;
     var $entry;
     var $deleted = false;
@@ -1019,12 +1024,11 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getField() {
-        if (!isset($this->field)) {
-            $f = DynamicFormField::lookup($this->get('field_id'));
-            $this->field = $f->getImpl($f);
-            $this->field->setAnswer($this);
+        if (!isset($this->_field)) {
+            $this->_field = $this->field->getImpl($this->field);
+            $this->_field->setAnswer($this);
         }
-        return $this->field;
+        return $this->_field;
     }
 
     function getValue() {
