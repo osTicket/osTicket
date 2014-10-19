@@ -1949,6 +1949,9 @@ tr.disabled th {
     position: relative;
     padding: 10px;
 }
+.left-tabs {
+    margin-left: 48px;
+}
 .floating-options {
     display: inline-block;
     position: absolute;
