@@ -85,11 +85,14 @@ if (($lang = Internationalization::getCurrentLanguage())
 if (($all_langs = Internationalization::getConfiguredSystemLanguages())
     && (count($all_langs) > 1)
 ) {
+    $qs = array();
+    parse_str($_SERVER['QUERY_STRING'], $qs);
     foreach ($all_langs as $code=>$info) {
         list($lang, $locale) = explode('_', $code);
+        $qs['lang'] = $code;
 ?>
         <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
-            href="?<?php echo urlencode($_GET['QUERY_STRING']); ?>&amp;lang=<?php echo $code;
+            href="?<?php echo http_build_query($qs);
             ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a>
 <?php }
 } ?>
