@@ -150,6 +150,19 @@ $gmtime = Misc::gmtime();
                     ?>><?php echo $zone; ?></option>
 <?php } ?>
                 </select>
+                <button class="action-button" onclick="javascript:
+    $('head').append($('<script>').attr('src', '<?php
+        echo ROOT_PATH; ?>/js/jstz.min.js'));
+    var recheck = setInterval(function() {
+        if (window.jstz !== undefined) {
+            clearInterval(recheck);
+            var zone = jstz.determine();
+            $('#timezone-dropdown').multiselect('widget')
+                .find('[value=\'' + zone.name() + '\']')
+                .trigger('click');
+        }
+    }, 200);
+    return false;"><i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?></button>
             </td>
         </tr>
         <tr><td width="220" class="required"><?php echo __('Date and Time Format');?>:</td>
