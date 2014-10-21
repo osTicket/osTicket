@@ -14,7 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Dept {
+class Dept implements Translatable {
+
     var $id;
 
     var $email;
@@ -77,6 +78,12 @@ class Dept {
         return $this->ht['name'];
     }
 
+    function getLocalName($locale=false) {
+        return CustomDataTranslation::translate($this->getTranslationTag(), $locale);
+    }
+    function getTranslationTag() {
+        return _H('dept.name.' . $this->getId());
+    }
 
     function getEmailId() {
         return $this->ht['email_id'];
@@ -389,6 +396,12 @@ class Dept {
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id, $name)=db_fetch_row($res))
                 $depts[$id] = $name;
+        }
+
+        // Fetch local names
+        foreach (CustomDataTranslation::getDepartmentNames(array_keys($depts)) as $id=>$name) {
+            // Translate the department
+            $depts[$id] = $name;
         }
 
         return $depts;

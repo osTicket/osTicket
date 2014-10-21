@@ -84,9 +84,7 @@ class Ticket2PDF extends mPDF
         $this->SetFont('Arial', 'B',10);
         $this->WriteCell(0, 5, $cfg->getTitle(), 0, 0, 'L');
         $this->SetFont('Arial', 'I',10);
-        $this->WriteCell(0, 5, Format::date($cfg->getDateTimeFormat(), Misc::gmtime(),
-            $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST'])
-            .' GMT '.$_SESSION['TZ_OFFSET'], 0, 1, 'R');
+        $this->WriteCell(0, 5, Format::daydatetime(null, false), 0, 1, 'R');
 		$this->Ln(5);
 	}
 
@@ -184,7 +182,7 @@ class Ticket2PDF extends mPDF
         $this->SetFont('Arial', 'B', 11);
         $this->WriteCell($l, 7, __('Create Date'), 1, 0, 'L', true);
         $this->SetFont('');
-        $this->WriteCell($c, 7, Format::db_datetime($ticket->getCreateDate()), 1, 0, 'L', true);
+        $this->WriteCell($c, 7, Format::datetime($ticket->getCreateDate()), 1, 0, 'L', true);
         $this->SetFont('Arial', 'B', 11);
         $this->WriteCell($l, 7, __('Source'), 1, 0, 'L', true);
         $this->SetFont('');
@@ -222,22 +220,22 @@ class Ticket2PDF extends mPDF
         $this->SetFont('Arial', 'B', 11);
         $this->WriteCell($l, 7, __('Last Response'), 1, 0, 'L', true);
         $this->SetFont('');
-        $this->WriteCell($c, 7, Format::db_datetime($ticket->getLastRespDate()), 1, 1, 'L', true);
+        $this->WriteCell($c, 7, Format::datetime($ticket->getLastRespDate()), 1, 1, 'L', true);
         $this->SetFont('Arial', 'B', 11);
         if($ticket->isOpen()) {
             $this->WriteCell($l, 7, __('Due Date'), 1, 0, 'L', true);
             $this->SetFont('');
-            $this->WriteCell($c, 7, Format::db_datetime($ticket->getEstDueDate()), 1, 0, 'L', true);
+            $this->WriteCell($c, 7, Format::datetime($ticket->getEstDueDate()), 1, 0, 'L', true);
         } else {
             $this->WriteCell($l, 7, __('Close Date'), 1, 0, 'L', true);
             $this->SetFont('');
-            $this->WriteCell($c, 7, Format::db_datetime($ticket->getCloseDate()), 1, 0, 'L', true);
+            $this->WriteCell($c, 7, Format::datetime($ticket->getCloseDate()), 1, 0, 'L', true);
         }
 
         $this->SetFont('Arial', 'B', 11);
         $this->WriteCell($l, 7, __('Last Message'), 1, 0, 'L', true);
         $this->SetFont('');
-        $this->WriteCell($c, 7, Format::db_datetime($ticket->getLastMsgDate()), 1, 1, 'L', true);
+        $this->WriteCell($c, 7, Format::datetime($ticket->getLastMsgDate()), 1, 1, 'L', true);
 
         $this->SetFillColor(255, 255, 255);
         foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
@@ -289,7 +287,7 @@ class Ticket2PDF extends mPDF
 
                 $this->SetFillColor($color[0], $color[1], $color[2]);
                 $this->SetFont('Arial', 'B', 11);
-                $this->WriteCell($w/2, 7, Format::db_datetime($entry['created']), 'LTB', 0, 'L', true);
+                $this->WriteCell($w/2, 7, Format::datetime($entry['created']), 'LTB', 0, 'L', true);
                 $this->SetFont('Arial', '', 10);
                 $this->WriteCell($w, 7, Format::truncate($entry['title'], 50), 'TB', 0, 'L', true);
                 $this->WriteCell($w/2, 7, $entry['name'] ?: $entry['poster'], 'TBR', 1, 'L', true);

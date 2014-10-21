@@ -180,7 +180,7 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
             </table>
         </td>
@@ -301,13 +301,13 @@ if($ticket->isOverdue())
                 if($ticket->isOpen()){ ?>
                 <tr>
                     <th><?php echo __('Due Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getEstDueDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getEstDueDate()); ?></td>
                 </tr>
                 <?php
                 }else { ?>
                 <tr>
                     <th><?php echo __('Close Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getCloseDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getCloseDate()); ?></td>
                 </tr>
                 <?php
                 }
@@ -322,11 +322,11 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th nowrap><?php echo __('Last Message');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getLastMsgDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getLastMsgDate()); ?></td>
                 </tr>
                 <tr>
                     <th nowrap><?php echo __('Last Response');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
             </table>
         </td>
@@ -391,7 +391,7 @@ $tcount+= $ticket->getNumNotes();
                 <div>
                     <span class="pull-left">
                     <span style="display:inline-block"><?php
-                        echo Format::db_datetime($entry['created']);?></span>
+                        echo Format::datetime($entry['created']);?></span>
                     <span style="display:inline-block;padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
                     </span>
@@ -464,7 +464,7 @@ $tcount+= $ticket->getNumNotes();
     </ul>
     <?php
     if($thisstaff->canPostReply()) { ?>
-    <form id="reply" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
+    <form id="reply" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
@@ -561,17 +561,18 @@ $tcount+= $ticket->getNumNotes();
                     } ?>
                     <input type="hidden" name="draft_id" value=""/>
                     <textarea name="response" id="response" cols="50"
-                        data-draft-namespace="ticket.response"
                         data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
                         data-signature="<?php
                             echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                         placeholder="<?php echo __(
                         'Start writing your response here. Use canned responses from the drop-down above'
                         ); ?>"
-                        data-draft-object-id="<?php echo $ticket->getId(); ?>"
                         rows="9" wrap="soft"
-                        class="richtext ifhtml draft draft-delete"><?php
-                        echo $info['response']; ?></textarea>
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> draft draft-delete" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
+    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+                    ?></textarea>
                 <div id="reply_form_attachments" class="attachments">
 <?php
 print $response_form->getField('attachments')->render();
@@ -641,7 +642,7 @@ print $response_form->getField('attachments')->render();
     </form>
     <?php
     } ?>
-    <form id="note" action="tickets.php?id=<?php echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
+    <form id="note" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
@@ -671,9 +672,11 @@ print $response_form->getField('attachments')->render();
                     <div class="error"><?php echo $errors['note']; ?></div>
                     <textarea name="note" id="internal_note" cols="80"
                         placeholder="<?php echo __('Note details'); ?>"
-                        rows="9" wrap="soft" data-draft-namespace="ticket.note"
-                        data-draft-object-id="<?php echo $ticket->getId(); ?>"
-                        class="richtext ifhtml draft draft-delete"><?php echo $info['note'];
+                        rows="9" wrap="soft"
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> draft draft-delete" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.note', $ticket->getId(), $info['note']);
+    echo $attrs; ?>><?php echo $draft ?: $info['note'];
                         ?></textarea>
                 <div class="attachments">
 <?php
@@ -720,7 +723,7 @@ print $note_form->getField('attachments')->render();
    </form>
     <?php
     if($thisstaff->canTransferTickets()) { ?>
-    <form id="transfer" action="tickets.php?id=<?php echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
+    <form id="transfer" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="transfer">
@@ -764,7 +767,8 @@ print $note_form->getField('attachments')->render();
                 <td>
                     <textarea name="transfer_comments" id="transfer_comments"
                         placeholder="<?php echo __('Enter reasons for the transfer'); ?>"
-                        class="richtext ifhtml no-bar" cols="80" rows="7" wrap="soft"><?php
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> no-bar" cols="80" rows="7" wrap="soft"><?php
                         echo $info['transfer_comments']; ?></textarea>
                     <span class="error"><?php echo $errors['transfer_comments']; ?></span>
                 </td>
@@ -779,7 +783,7 @@ print $note_form->getField('attachments')->render();
     } ?>
     <?php
     if($thisstaff->canAssignTickets()) { ?>
-    <form id="assign" action="tickets.php?id=<?php echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
+    <form id="assign" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="assign">
@@ -861,7 +865,8 @@ print $note_form->getField('attachments')->render();
                     <textarea name="assign_comments" id="assign_comments"
                         cols="80" rows="7" wrap="soft"
                         placeholder="<?php echo __('Enter reasons for the assignment or instructions for assignee'); ?>"
-                        class="richtext ifhtml no-bar"><?php echo $info['assign_comments']; ?></textarea>
+                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> no-bar"><?php echo $info['assign_comments']; ?></textarea>
                     <span class="error"><?php echo $errors['assign_comments']; ?></span><br>
                 </td>
             </tr>

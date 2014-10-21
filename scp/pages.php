@@ -23,13 +23,11 @@ if($_REQUEST['id'] && !($page=Page::lookup($_REQUEST['id'])))
 if($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'add':
-            if(($pageId=Page::create($_POST, $errors))) {
+            $page = Page::create();
+            if($page->update($_POST, $errors)) {
+                $pageId = $page->getId();
                 $_REQUEST['a'] = null;
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
-                // Attach inline attachments from the editor
-                if ($page = Page::lookup($pageId))
-                    $page->attachments->upload(
-                        Draft::getAttachmentIds($_POST['body']), true);
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
                 $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
@@ -43,12 +41,7 @@ if($_POST) {
                 $msg=sprintf(__('Successfully updated %s'),
                     __('this site page'));
                 $_REQUEST['a']=null; //Go back to view
-                // Attach inline attachments from the editor
-                $page->attachments->deleteInlines();
-                $page->attachments->upload(
-                    Draft::getAttachmentIds($_POST['body']),
-                    true);
-                Draft::deleteForNamespace('page.'.$page->getId());
+                Draft::deleteForNamespace('page.'.$page->getId().'%');
             } elseif(!$errors['err'])
                 $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
                     __('this site page'));
@@ -64,9 +57,10 @@ if($_POST) {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.PAGE_TABLE.' SET isactive=1 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = Page::objects()
+                            ->filter(array('id__in'=>$_POST['ids']))
+                            ->update(array('isactive'=>1));
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected site page', 'selected site pages', $count));
@@ -80,8 +74,8 @@ if($_POST) {
                         break;
                     case 'disable':
                         $i = 0;
-                        foreach($_POST['ids'] as $k=>$v) {
-                            if(($p=Page::lookup($v)) && $p->disable())
+                        foreach (Page::objects()->filter(array('id__in'=>$_POST['ids'])) as $p) {
+                            if ($p->disable())
                                 $i++;
                         }
 
@@ -96,11 +90,9 @@ if($_POST) {
                                 _N('selected site page', 'selected site pages', $count));
                         break;
                     case 'delete':
-                        $i=0;
-                        foreach($_POST['ids'] as $k=>$v) {
-                            if(($p=Page::lookup($v)) && $p->delete())
-                                $i++;
-                        }
+                        $i = Page::objects()
+                            ->filter(array('id__in'=>$_POST['ids']))
+                            ->delete();
 
                         if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s'),
