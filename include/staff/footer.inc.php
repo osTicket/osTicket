@@ -51,9 +51,7 @@ if ($.support.pjax) {
 }
 </script>
 <?php
-if ($thisstaff
-        && ($lang = $thisstaff->getLanguage())
-        && 0 !== strcasecmp($lang, 'en_US')) { ?>
+if ($thisstaff && $thisstaff->getLanguage() != 'en_US') { ?>
     <script type="text/javascript" src="ajax.php/i18n/<?php
         echo $thisstaff->getLanguage(); ?>/js"></script>
 <?php } ?>

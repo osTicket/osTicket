@@ -32,7 +32,6 @@ include_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
-require_once(INCLUDE_DIR.'class.faq.php');
 
 
 class Ticket {
@@ -391,9 +390,10 @@ class Ticket {
                     'slaId' =>  $this->getSLAId(),
                     'user_id' => $this->getOwnerId(),
                     'duedate'   =>  $this->getDueDate()
-                        ? Format::date($this->getDueDate())
+                        ? Format::userdate($cfg->getDateFormat(),
+                            Misc::db2gmtime($this->getDueDate()))
                         :'',
-                    'time'  =>  $this->getDueDate()?(Format::date($this->getDueDate(), true, 'HH:mm')):'',
+                    'time'  =>  $this->getDueDate()?(Format::userdate('G:i', Misc::db2gmtime($this->getDueDate()))):'',
                     );
 
         return $info;
@@ -1345,19 +1345,31 @@ class Ticket {
                 return sprintf('%s/scp/tickets.php?id=%d', $cfg->getBaseUrl(), $this->getId());
                 break;
             case 'create_date':
-                return Format::datetime($this->getCreateDate(), true, 'UTC');
+                return Format::date(
+                        $cfg->getDateTimeFormat(),
+                        Misc::db2gmtime($this->getCreateDate()),
+                        $cfg->getTZOffset(),
+                        $cfg->observeDaylightSaving());
                 break;
              case 'due_date':
                 $duedate ='';
                 if($this->getEstDueDate())
-                    $duedate = Format::datetime($this->getEstDueDate(), true, 'UTC');
+                    $duedate = Format::date(
+                            $cfg->getDateTimeFormat(),
+                            Misc::db2gmtime($this->getEstDueDate()),
+                            $cfg->getTZOffset(),
+                            $cfg->observeDaylightSaving());
 
                 return $duedate;
                 break;
             case 'close_date':
                 $closedate ='';
                 if($this->isClosed())
-                    $closedate = Format::datetime($this->getCloseDate(), true, 'UTC');
+                    $closedate = Format::date(
+                            $cfg->getDateTimeFormat(),
+                            Misc::db2gmtime($this->getCloseDate()),
+                            $cfg->getTZOffset(),
+                            $cfg->observeDaylightSaving());
 
                 return $closedate;
                 break;

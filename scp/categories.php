@@ -40,8 +40,7 @@ if($_POST){
             }
             break;
         case 'create':
-            $category = Category::create();
-            if ($category->update($_POST, $errors)) {
+            if(($id=Category::create($_POST,$errors))) {
                 $msg=sprintf(__('Successfull added %s'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
             } elseif(!$errors['err']) {
@@ -56,13 +55,11 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'make_public':
-                        $num = Category::objects()->filter(array(
-                            'category_id__in'=>$_POST['ids']
-                        ))->update(array(
-                            'ispublic'=>true
-                        ));
-                        if ($num > 0) {
-                            if ($num==$count)
+                        $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=1 '
+                            .' WHERE category_id IN ('.implode(',', db_input($_POST['ids'])).')';
+
+                        if(db_query($sql) && ($num=db_affected_rows())) {
+                            if($num==$count)
                                 $msg = sprintf(__('Successfully made %s PUBLIC'),
                                     _N('selected category', 'selected categories', $count));
                             else
@@ -74,12 +71,10 @@ if($_POST){
                         }
                         break;
                     case 'make_private':
-                        $num = Category::objects()->filter(array(
-                            'category_id__in'=>$_POST['ids']
-                        ))->update(array(
-                            'ispublic'=>false
-                        ));
-                        if ($num > 0) {
+                        $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=0 '
+                            .' WHERE category_id IN ('.implode(',', db_input($_POST['ids'])).')';
+
+                        if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully made %s PRIVATE'),
                                     _N('selected category', 'selected categories', $count));
@@ -92,17 +87,19 @@ if($_POST){
                         }
                         break;
                     case 'delete':
-                        $i = Category::objects()->filter(array(
-                            'category_id__in'=>$_POST['ids']
-                        ))->delete();
+                        $i=0;
+                        foreach($_POST['ids'] as $k=>$v) {
+                            if(($c=Category::lookup($v)) && $c->delete())
+                                $i++;
+                        }
 
-                        if ($i==$count)
+                        if($i==$count)
                             $msg = sprintf(__('Successfully deleted %s'),
                                 _N('selected category', 'selected categories', $count));
-                        elseif ($i > 0)
+                        elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected category', 'selected categories', $count));
-                        elseif (!$errors['err'])
+                        elseif(!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s'),
                                 _N('selected category', 'selected categories', $count));
                         break;

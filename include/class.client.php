@@ -55,7 +55,7 @@ abstract class TicketUser {
 
         if (!($ticket = $this->getTicket())
                 || !($email = $ost->getConfig()->getDefaultEmail())
-                || !($content = Page::lookupByType('access-link')))
+                || !($content = Page::lookup(Page::getIdByType('access-link'))))
             return;
 
         $vars = array(
@@ -64,12 +64,9 @@ abstract class TicketUser {
             'user' => $this,
             'recipient' => $this);
 
-        $lang = false;
-        if (is_callable(array($this, 'getLanguage')))
-            $lang = $this->getLanguage(UserAccount::LANG_MAILOUTS);
         $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getLocalName($lang),
-            'body' => $content->getLocalBody($lang),
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
         ), $vars);
 
         $email->send($this->getEmail(), Format::striptags($msg['subj']),
@@ -272,9 +269,17 @@ class  EndUser extends AuthenticatedUser {
         return $this->_account;
     }
 
-    function getLanguage($flags=false) {
-        if ($acct = $this->getAccount())
-            return $acct->getLanguage($flags);
+    function getLanguage() {
+        static $cached = false;
+        if (!$cached) $cached = &$_SESSION['client:lang'];
+
+        if (!$cached) {
+            if ($acct = $this->getAccount())
+                $cached = $acct->getLanguage();
+            if (!$cached)
+                $cached = Internationalization::getDefaultLanguage();
+        }
+        return $cached;
     }
 
     private function getStats() {
@@ -310,16 +315,9 @@ class  EndUser extends AuthenticatedUser {
 
         return $stats;
     }
-
-    function onLogin($bk) {
-        if ($account = $this->getAccount())
-            $account->onLogin($bk);
-    }
 }
 
 class ClientAccount extends UserAccount {
-
-    var $_extra;
 
     function checkPassword($password, $autoupdate=true) {
 
@@ -354,12 +352,6 @@ class ClientAccount extends UserAccount {
             return false;
 
         unset($_SESSION['_client']['reset-token']);
-    }
-
-    function onLogin($bk) {
-        $this->setExtraAttr('browser_lang',
-            Internationalization::getCurrentLanguage());
-        $this->save();
     }
 
     function update($vars, &$errors) {
@@ -404,7 +396,7 @@ class ClientAccount extends UserAccount {
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
         // Change language
         $this->set('lang', $vars['lang'] ?: null);
-        Internationalization::setCurrentLanguage(null);
+        $_SESSION['client:lang'] = null;
         TextDomain::configureForUser($this);
 
         if ($vars['backend']) {

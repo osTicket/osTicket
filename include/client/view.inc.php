@@ -55,7 +55,7 @@ if ($thisclient && $thisclient->isGuest()
                 </tr>
                 <tr>
                     <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
+                    <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
                 </tr>
            </table>
        </td>
@@ -117,7 +117,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         ?>
         <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><div>
-<?php echo Format::datetime($entry['created']); ?>
+<?php echo Format::db_datetime($entry['created']); ?>
                 &nbsp;&nbsp;<span class="textra"></span>
                 <span><?php echo $poster; ?></span>
             </div>
@@ -172,13 +172,9 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
                 <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
                 <br/>
                 <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
-                        ?> draft" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);
-    echo $attrs; ?>><?php echo $draft ?: $info['message'];
-                ?></textarea>
-            </td>
-        </tr>
+                    data-draft-namespace="ticket.client"
+                    data-draft-object-id="<?php echo $ticket->getId(); ?>"
+                    class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
         <?php
         if ($messageField->isAttachmentsEnabled()) { ?>
 <?php

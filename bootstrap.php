@@ -43,7 +43,6 @@ class Bootstrap {
                 ini_set('date.timezone', 'America/New_York');
             }
         }
-        date_default_timezone_set('UTC');
 
         if (!isset($_SERVER['REMOTE_ADDR']))
             $_SERVER['REMOTE_ADDR'] = '';
@@ -181,7 +180,6 @@ class Bootstrap {
     function loadCode() {
         #include required files
         require_once INCLUDE_DIR.'class.util.php';
-        require_once INCLUDE_DIR.'class.translation.php';
         require(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
