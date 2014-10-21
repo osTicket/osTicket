@@ -104,8 +104,18 @@ class Internationalization {
             }
         }
 
-        // Pages and content
+        // Load core config
         $_config = new OsticketConfig();
+
+        // Determine reasonable default max_file_size
+        $max_size = Format::filesize2bytes(strtoupper(ini_get('upload_max_filesize')));
+        $val = ((int) $max_size/2);
+        $po2 = 1;
+        while( $po2 < $val ) $po2 <<= 1;
+
+        $_config->set('max_file_size', $po2);
+
+        // Pages and content
         foreach (array('landing','thank-you','offline',
                 'registration-staff', 'pwreset-staff', 'banner-staff',
                 'registration-client', 'pwreset-client', 'banner-client',
