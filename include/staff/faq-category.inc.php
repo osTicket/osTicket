@@ -11,7 +11,7 @@ if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 <div>
     <strong><?php echo $category->getName() ?></strong>
     <span>(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</span>
-    <time> <?php echo __('Last updated').' '. Format::db_daydatetime($category->getUpdateDate()); ?></time>
+    <time> <?php echo __('Last updated').' '. Format::daydatetime($category->getUpdateDate()); ?></time>
 </div>
 <div class="cat-desc">
 <?php echo Format::display($category->getDescription()); ?>

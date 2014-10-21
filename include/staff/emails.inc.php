@@ -92,8 +92,8 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
                 <td><?php echo $row['priority'] ?: $def_priority; ?></td>
                 <td><a href="departments.php?id=<?php $row['dept_id'] ?: $def_dept_id; ?>"><?php
                     echo $row['department'] ?: $def_dept_name; ?></a></td>
-                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td>&nbsp;<?php echo Format::date($row['created']); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

@@ -237,12 +237,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="dept_id">
                     <option value="">&mdash; <?php echo __('Default');?> &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
+                    foreach (Dept::getDepartments() as $id=>$name) {
+                        $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
                     }
                     ?>
                 </select>
@@ -341,13 +338,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         echo '</OPTGROUP>';
                     }
                     $sql='SELECT team_id, isenabled, name FROM '.TEAM_TABLE .' ORDER BY name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
+                    if ($teams = Team::getTeams()) {
                         echo '<OPTGROUP label="'.__('Teams').'">';
-                        while (list($id, $isenabled, $name) = db_fetch_row($res)){
+                        foreach ($teams as $id=>$name) {
                             $k="t$id";
                             $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
-                            if (!$isenabled)
-                                $name .= ' (disabled)';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
@@ -369,12 +364,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <option value="0" selected="selected">&mdash; <?php
                         echo __('Unchanged'); ?> &mdash;</option>
                     <?php
-                    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE.' T ORDER by topic';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
+                    foreach (Topic::getAllHelpTopics(true) as $id=>$name) {
+                        $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
                     }
                     ?>
                 </select>
