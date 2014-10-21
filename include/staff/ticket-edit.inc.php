@@ -3,8 +3,9 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canEditTickets() || !$ti
 
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
 if ($_POST)
-    $info['duedate'] = Format::date($cfg->getDateFormat(),
-       strtotime($info['duedate']));
+    // Reformat duedate to the display standard (but don't convert to local
+    // timezone)
+    $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
 <form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
@@ -125,7 +126,7 @@ if ($_POST)
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?>&nbsp;<?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
+                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
             </td>
         </tr>
     </tbody>

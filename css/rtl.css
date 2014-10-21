@@ -141,3 +141,7 @@
     padding-left: 8px;
     padding-right: initial;
 }
+.rtl .left-tabs {
+    margin-left: auto;
+    margin-right: 45px;
+}

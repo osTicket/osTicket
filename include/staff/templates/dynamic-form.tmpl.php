@@ -47,13 +47,16 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
         ?>
         <tr><?php if ($field->isBlockLevel()) { ?>
                 <td colspan="2">
+                <div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
+                echo Format::htmlchars($field->getLocal('label'));
+                ?></strong>:</div>
                 <?php
             }
             else { ?>
                 <td class="multi-line <?php if ($field->get('required')) echo 'required';
                 ?>" style="min-width:120px;" <?php if ($options['width'])
                     echo "width=\"{$options['width']}\""; ?>>
-                <?php echo Format::htmlchars($field->get('label')); ?>:</td>
+                <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
                 <td><div style="position:relative"><?php
             }
             $field->render(); ?>
@@ -79,7 +82,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
             }
             if ($field->get('hint') && !$field->isBlockLevel()) { ?>
                 <br /><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($field->get('hint')); ?></em>
+                    echo Format::htmlchars($field->getLocal('hint')); ?></em>
             <?php
             }
             foreach ($field->errors() as $e) { ?>

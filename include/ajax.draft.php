@@ -7,58 +7,40 @@ require_once(INCLUDE_DIR.'class.draft.php');
 class DraftAjaxAPI extends AjaxController {
 
     function _createDraft($vars) {
-        $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue');
-        foreach ($field_list as $field) {
-            if (isset($_POST[$field])) {
-                $vars['body'] = urldecode($_POST[$field]);
-                break;
-            }
-        }
-        if (!isset($vars['body']))
-            return Http::response(422, "Draft body not found in request");
+        if (false === ($vars['body'] = self::_findDraftBody($_POST)))
+            return JsonDataEncoder::encode(array(
+                'error' => __("Draft body not found in request"),
+                'code' => 422,
+                ));
 
-        $errors = array();
-        if (!($draft = Draft::create($vars, $errors)))
-            Http::response(500, print_r($errors, true));
-
-        // If the draft is created from an existing document, ensure inline
-        // attachments from the cloned document are attachned to the draft
-        // XXX: Actually, I think this is just wasting time, because the
-        //     other object already has the items attached, so the database
-        //     won't clean up the files. They don't have to be attached to
-        //     the draft for Draft::getAttachmentIds to return the id of the
-        //     attached file
-        //$draft->syncExistingAttachments();
+        if (!($draft = Draft::create($vars)) || !$draft->save())
+            Http::response(500, 'Unable to create draft');
 
         echo JsonDataEncoder::encode(array(
             'draft_id' => $draft->getId(),
         ));
     }
 
-    function _getDraft($id) {
-        if (!($draft = Draft::lookup($id)))
+    function _getDraft($draft) {
+        if (!$draft || !$draft instanceof Draft)
             Http::response(205, "Draft not found. Create one first");
 
         $body = Format::viewableImages($draft->getBody());
 
         echo JsonDataEncoder::encode(array(
             'body' => $body,
-            'draft_id' => (int)$id,
+            'draft_id' => $draft->getId(),
         ));
     }
 
     function _updateDraft($draft) {
-        $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue');
-        foreach ($field_list as $field) {
-            if (isset($_POST[$field])) {
-                $body = urldecode($_POST[$field]);
-                break;
-            }
-        }
-        if (!isset($body))
-            return Http::response(422, "Draft body not found in request");
+        if (false === ($body = self::_findDraftBody($_POST)))
+            return JsonDataEncoder::encode(array(
+                'error' => array(
+                    'message' => "Draft body not found in request",
+                    'code' => 422,
+                )
+            ));
 
         if (!$draft->setBody($body))
             return Http::response(500, "Unable to update draft body");
@@ -129,6 +111,8 @@ class DraftAjaxAPI extends AjaxController {
 
         echo JsonDataEncoder::encode(array(
             'content_id' => 'cid:'.$f->getKey(),
+            // Return draft_id to connect the auto draft creation
+            'draft_id' => $draft->getId(),
             'filelink' => sprintf('image.php?h=%s', $f->getDownloadHash())
         ));
     }
@@ -141,30 +125,36 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Valid session required");
 
         $vars = array(
-            'staff_id' => ($thisclient) ? $thisclient->getId() : 0,
+            'staff_id' => ($thisclient) ? $thisclient->getId() : 1<<31,
             'namespace' => $namespace,
         );
 
-        $info = self::_createDraft($vars);
-        $info['draft_id'] = $namespace;
+        return self::_createDraft($vars);
     }
 
     function getDraftClient($namespace) {
         global $thisclient;
 
         if ($thisclient) {
-            if (!($id = Draft::findByNamespaceAndStaff($namespace,
-                    $thisclient->getId())))
+            try {
+                $draft = Draft::lookupByNamespaceAndStaff($namespace,
+                    $thisclient->getId());
+            }
+            catch (DoesNotExist $e) {
                 Http::response(205, "Draft not found. Create one first");
+            }
         }
         else {
             if (substr($namespace, -12) != substr(session_id(), -12))
                 Http::response(404, "Draft not found");
-            elseif (!($id = Draft::findByNamespaceAndStaff($namespace, 0)))
+            try {
+                $draft = Draft::lookupByNamespaceAndStaff($namespace, 0);
+            }
+            catch (DoesNotExist $e) {
                 Http::response(205, "Draft not found. Create one first");
+            }
         }
-
-        return self::_getDraft($id);
+        return self::_getDraft($draft);
     }
 
     function updateDraftClient($id) {
@@ -220,6 +210,22 @@ class DraftAjaxAPI extends AjaxController {
         return self::_uploadInlineImage($draft);
     }
 
+    function uploadInlineImageEarlyClient($namespace) {
+        global $thisclient;
+
+        if (!$thisclient && substr($namespace, -12) != substr(session_id(), -12))
+            Http::response(403, "Valid session required");
+
+        $draft = Draft::create(array(
+            'staff_id' => ($thisclient) ? $thisclient->getId() : 1<<31,
+            'namespace' => $namespace,
+        ));
+        if (!$draft->save())
+            Http::response(500, 'Unable to create draft');
+
+        return $this->uploadInlineImageClient($draft->getId());
+    }
+
     // Staff interface for drafts ========================================
     function createDraft($namespace) {
         global $thisstaff;
@@ -240,11 +246,15 @@ class DraftAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required for draft creation");
-        elseif (!($id = Draft::findByNamespaceAndStaff($namespace,
-                $thisstaff->getId())))
+        try {
+            $draft = Draft::lookupByNamespaceAndStaff($namespace,
+                $thisstaff->getId());
+        }
+        catch (DoesNotExist $e) {
             Http::response(205, "Draft not found. Create one first");
+        }
 
-        return self::_getDraft($id);
+        return self::_getDraft($draft);
     }
 
     function updateDraft($id) {
@@ -271,6 +281,22 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(404, "Draft not found");
 
         return self::_uploadInlineImage($draft);
+    }
+
+    function uploadInlineImageEarly($namespace) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required for image upload");
+
+        $draft = Draft::create(array(
+            'staff_id' => $thisstaff->getId(),
+            'namespace' => $namepace
+        ));
+        if (!$draft->save())
+            Http::response(500, 'Unable to create draft');
+
+        return $this->uploadInlineImage($draft->getId());
     }
 
     function deleteDraft($id) {
@@ -318,6 +344,28 @@ class DraftAjaxAPI extends AjaxController {
             );
         }
         echo JsonDataEncoder::encode($files);
+    }
+
+    function _findDraftBody($vars) {
+        if (isset($vars['name'])) {
+            $parts = array();
+            if (preg_match('`(\w+)(?:\[(\w+)\])?(?:\[(\w+)\])?`', $_POST['name'], $parts)) {
+                array_shift($parts);
+                $focus = $vars;
+                foreach ($parts as $p)
+                    $focus = $focus[$p];
+                return urldecode($focus);
+            }
+        }
+        $field_list = array('response', 'note', 'answer', 'body',
+             'message', 'issue');
+        foreach ($field_list as $field) {
+            if (isset($vars[$field])) {
+                return urldecode($vars[$field]);
+            }
+        }
+
+        return false;
     }
 
 }

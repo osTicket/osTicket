@@ -37,11 +37,13 @@ $action=$upgrader->getNextAction();
                 </form>
             </div>
     </div>
-    <div id="sidebar">
+    <div class="sidebar">
+        <div class="content">
             <h3><?php echo __('Upgrade Tips');?></h3>
             <p>1. <?php echo __('Be patient the process will take a couple of minutes.');?></p>
             <p>2. <?php echo __('If you experience any problems, you can always restore your files/database backup.');?></p>
             <p>3. <?php echo sprintf(__('We can help. Feel free to %1$s contact us %2$s for professional help.'), '<a href="http://osticket.com/support" target="_blank">', '</a>');?></p>
+        </div>
     </div>
     <div class="clear"></div>
     <div id="upgrading">
