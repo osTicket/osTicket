@@ -130,6 +130,20 @@ class Team {
         return !$this->ht['noalerts'];
     }
 
+    function getTranslateTag($subtag) {
+        return _H(sprintf('team.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('team.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+
     function update($vars, &$errors) {
 
         //reset team lead if they're being deleted
@@ -199,7 +213,7 @@ class Team {
     function getTeams( $availableOnly=false ) {
 
         $teams=array();
-        $sql='SELECT team_id, name FROM '.TEAM_TABLE;
+        $sql='SELECT team_id, name, isenabled FROM '.TEAM_TABLE;
         if($availableOnly) {
             //Make sure the members are active...TODO: include group check!!
             $sql='SELECT t.team_id, t.name, count(m.staff_id) as members '
@@ -212,9 +226,12 @@ class Team {
                 .' HAVING members>0'
                 .' ORDER by t.name ';
         }
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name)=db_fetch_row($res))
-                $teams[$id] = $name;
+        if(($res = db_query($sql)) && db_num_rows($res)) {
+            while(list($id, $name, $isenabled) = db_fetch_row($res)) {
+                $teams[$id] = self::getLocalById($id, 'name', $name);
+                if (!$isenabled)
+                    $teams[$id] .= ' ' . __('(disabled)');
+            }
         }
 
         return $teams;

@@ -124,8 +124,8 @@ else
                <tr id="<?php echo $row['id']; ?>">
                 <td>&nbsp; <a href="orgs.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a> </td>
                 <td>&nbsp;<?php echo $row['users']; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($row['created']); ?></td>
+                <td><?php echo Format::datetime($row['updated']); ?>&nbsp;</td>
                </tr>
             <?php
             } //end of while.

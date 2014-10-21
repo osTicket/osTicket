@@ -21,10 +21,24 @@ RedactorPlugins.draft = {
         var autosave_url = 'ajax.php/draft/' + this.opts.draftNamespace;
         if (this.opts.draftObjectId)
             autosave_url += '.' + this.opts.draftObjectId;
-        this.opts.autosave = autosave_url;
-        this.opts.autosaveInterval = 10;
-        this.opts.autosaveCallback = this.setupDraftUpdate;
-        this.opts.initCallback = this.recoverDraft;
+        this.opts.autosave = this.opts.autoCreateUrl = autosave_url;
+        this.opts.autosaveInterval = 30;
+        this.opts.autosaveCallback = this.afterUpdateDraft;
+        this.opts.autosaveErrorCallback = this.autosaveFailed;
+        this.opts.imageUploadErrorCallback = this.displayError;
+        if (this.opts.draftId) {
+            this.opts.autosave = 'ajax.php/draft/'+this.opts.draftId;
+            this.opts.clipboardUploadUrl =
+            this.opts.imageUpload =
+                'ajax.php/draft/'+this.opts.draftId+'/attach';
+        }
+        else {
+            // Just upload the file. A draft will be created automatically
+            // and will be configured locally in the afterUpateDraft()
+            this.opts.clipboardUploadUrl =
+            this.opts.imageUpload = this.opts.autoCreateUrl + '/attach';
+            this.opts.imageUploadCallback = this.afterUpdateDraft;
+        }
 
         this.$draft_saved = $('<span>')
             .addClass("pull-right draft-saved")
@@ -33,73 +47,60 @@ RedactorPlugins.draft = {
                 .text(__('Draft Saved')));
         // Float the [Draft Saved] box with the toolbar
         this.$toolbar.append(this.$draft_saved);
+        // Add [Delete Draft] button to the toolbar
         if (this.opts.draftDelete) {
-            var trash = this.buttonAdd('deleteDraft', __('Delete Draft'), this.deleteDraft);
+            var trash = this.draftDeleteButton =
+                this.buttonAdd('deleteDraft', __('Delete Draft'),
+                    this.deleteDraft);
             this.buttonAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
+            if (!this.opts.draftId)
+                trash.hide();
         }
     },
-    recoverDraft: function() {
-        var self = this;
-        $.ajax(this.opts.autosave, {
-            dataType: 'json',
-            statusCode: {
-                200: function(json) {
-                    self.draft_id = json.draft_id;
-                    // Replace the current content with the draft, sync, and make
-                    // images editable
-                    self.setupDraftUpdate(json);
-                    if (!json.body) return;
-                    self.set(json.body, false);
-                    self.observeStart();
-                },
-                205: function() {
-                    // Save empty draft immediately;
-                    var ai = self.opts.autosaveInterval;
-
-                    // Save immediately -- capture the created autosave
-                    // interval and clear it as soon as possible. Note that
-                    // autosave()ing doesn't happen immediately. It happens
-                    // async after the autosaveInterval expires.
-                    self.opts.autosaveInterval = 0;
-                    self.autosave();
-                    var interval = self.autosaveInterval;
-                    setTimeout(function() {
-                        clearInterval(interval);
-                    }, 1);
-
-                    // Reinstate previous autosave interval timing
-                    self.opts.autosaveInterval = ai;
-                }
-            }
-        });
-    },
-    setupDraftUpdate: function(data) {
-        if (this.get())
-            this.$draft_saved.show().delay(5000).fadeOut();
-
+    afterUpdateDraft: function(data) {
         // Slight workaround. Signal the 'keyup' event normally signaled
         // from typing in the <textarea>
-        if ($.autoLock && this.opts.draftNamespace == 'ticket.response')
+        if ($.autoLock && this.opts.draftNamespace == 'ticket.response') {
             if (this.get())
                 $.autoLock.handleEvent();
+        }
 
-        if (typeof data != 'object')
-            data = $.parseJSON(data);
-
-        if (!data || !data.draft_id)
+        // If the draft was created, a draft_id will be sent back — update
+        // the URL to send updates in the future
+        if (!this.opts.draftId && data.draft_id) {
+            this.opts.draftId = data.draft_id;
+            this.opts.autosave = 'ajax.php/draft/' + data.draft_id;
+            this.opts.clipboardUploadUrl =
+            this.opts.imageUpload =
+                'ajax.php/draft/'+this.opts.draftId+'/attach';
+            if (!this.get())
+                this.set(' ', false);
+        }
+        // Only show the [Draft Saved] notice if there is content in the
+        // field that has been touched
+        if (!this.firstSave) {
+            this.firstSave = true;
+            // No change yet — dont't show the button
+            return;
+        }
+        if (data && this.get()) {
+            this.$draft_saved.show().delay(5000).fadeOut();
+        }
+        // Show the button if there is a draft to delete
+        if (this.opts.draftId && this.opts.draftDelete)
+            this.draftDeleteButton.show();
+    },
+    autosaveFailed: function(error) {
+        if (error.code == 422)
+            // Unprocessable request (Empty message)
             return;
 
-        $('input[name=draft_id]', this.$box.closest('form'))
-            .val(data.draft_id);
-        this.draft_id = data.draft_id;
-        this.opts.clipboardUploadUrl =
-        this.opts.imageUpload =
-            'ajax.php/draft/'+data.draft_id+'/attach';
-        this.opts.imageUploadErrorCallback = this.displayError;
-        this.opts.original_autosave = this.opts.autosave;
-        this.opts.autosave = 'ajax.php/draft/'+data.draft_id;
+        this.displayError(error);
+        // Cancel autosave
+        clearInterval(this.autosaveInterval);
+        this.hideDraftSaved();
     },
 
     displayError: function(json) {
@@ -111,18 +112,20 @@ RedactorPlugins.draft = {
     },
 
     deleteDraft: function() {
-        if (!this.draft_id)
+        if (!this.opts.draftId)
             // Nothing to delete
             return;
         var self = this;
-        $.ajax('ajax.php/draft/'+this.draft_id, {
+        $.ajax('ajax.php/draft/'+this.opts.draftId, {
             type: 'delete',
             async: false,
             success: function() {
-                self.draft_id = undefined;
+                self.draft_id = self.opts.draftId = undefined;
                 self.hideDraftSaved();
-                self.set('', false, false);
-                self.opts.autosave = self.opts.original_autosave;
+                self.set(self.opts.draftOriginal || '', false, false);
+                self.opts.autosave = self.opts.autoCreateUrl;
+                self.draftDeleteButton.hide();
+                self.firstSave = false;
             }
         });
     }
@@ -141,10 +144,10 @@ RedactorPlugins.signature = {
             else
                 this.$signatureBox.hide();
             $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
-                .on('change', false, false, $.proxy(this.updateSignature, this))
+                .on('change', false, false, $.proxy(this.updateSignature, this));
             if ($el.data('deptField'))
                 $(':input[name='+$el.data('deptField')+']', $el.closest('form'))
-                    .on('change', false, false, $.proxy(this.updateSignature, this))
+                    .on('change', false, false, $.proxy(this.updateSignature, this));
             // Expand on hover
             var outer = this.$signatureBox,
                 inner = $('.inner', this.$signatureBox).get(0),
@@ -181,14 +184,14 @@ RedactorPlugins.signature = {
             url += 'dept/' + $el.data('deptId');
         else if (selected == 'dept' && $el.data('deptField')) {
             if (dept)
-                url += 'dept/' + dept
+                url += 'dept/' + dept;
             else
                 return inner.empty().parent().hide();
         }
         else if (type == 'none')
            return inner.empty().parent().hide();
         else
-            url += selected
+            url += selected;
 
         inner.load(url).parent().show();
     }
@@ -206,10 +209,6 @@ $(function() {
                       .attr('height',img.clientHeight);
             html = html.replace(before, img.outerHTML);
         });
-        // Drop <inline> elements if found in the text (shady mojo happening
-        // inside the Redactor editor)
-        // DELME: When this is fixed upstream in Redactor
-        html = html.replace(/<inline /, '<span ').replace(/<\/inline>/, '</span>');
         return html;
     },
     redact = $.redact = function(el, options) {

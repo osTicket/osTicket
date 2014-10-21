@@ -37,7 +37,7 @@ elseif ($thisclient) {
     // Existing client (with an account) updating profile
     else {
         $user = User::lookup($thisclient->getId());
-        $content = Page::lookup(Page::getIdByType('registration-thanks'));
+        $content = Page::lookupByType('registration-thanks');
         $inc = isset($_GET['confirmed'])
             ? 'register.confirmed.inc.php' : 'profile.inc.php';
     }
@@ -94,7 +94,7 @@ elseif ($_POST) {
     if (!$errors) {
         switch ($_POST['do']) {
         case 'create':
-            $content = Page::lookup(Page::getIdByType('registration-confirm'));
+            $content = Page::lookupByType('registration-confirm');
             $inc = 'register.confirm.inc.php';
             $acct->sendConfirmEmail();
             break;

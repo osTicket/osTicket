@@ -90,8 +90,8 @@ else
                 <td style="text-align:right;padding-right:30px">&nbsp;&nbsp;
                     <?php echo $row['depts']; ?>
                 </td>
-                <td><?php echo Format::db_date($row['created']); ?>&nbsp;</td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($row['created']); ?>&nbsp;</td>
+                <td><?php echo Format::datetime($row['updated']); ?>&nbsp;</td>
             </tr>
             <?php
             } //end of while.

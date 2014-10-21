@@ -16,7 +16,7 @@ if ($info['error']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
 <ul class="tabs">
-    <li><a href="#tab-profile" class="active"
+    <li class="active"><a href="#tab-profile"
         ><i class="icon-edit"></i>&nbsp;<?php echo __('Fields'); ?></a></li>
     <li><a href="#contact-settings"
         ><i class="icon-fixed-width icon-cogs faded"></i>&nbsp;<?php

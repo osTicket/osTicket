@@ -10,18 +10,18 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<ul class="tabs">
-    <li><a href="#copy-paste" class="active"
-        ><i class="icon-edit"></i>&nbsp;<?php echo __('Copy Paste'); ?></a></li>
-    <li><a href="#upload"
-        ><i class="icon-fixed-width icon-cloud-upload"></i>&nbsp;<?php echo __('Upload'); ?></a></li>
-</ul>
 <form action="<?php echo $info['action']; ?>" method="post" enctype="multipart/form-data"
     onsubmit="javascript:
     if ($(this).find('[name=import]').val()) {
         $(this).attr('action', '<?php echo $info['upload_url']; ?>');
         $(document).unbind('submit.dialog');
     }">
+<ul class="tabs">
+    <li class="active"><a href="#copy-paste"
+        ><i class="icon-edit"></i>&nbsp;<?php echo __('Copy Paste'); ?></a></li>
+    <li><a href="#upload"
+        ><i class="icon-fixed-width icon-cloud-upload"></i>&nbsp;<?php echo __('Upload'); ?></a></li>
+</ul>
 <?php echo csrf_token();
 if ($org_id) { ?>
     <input type="hidden" name="id" value="<?php echo $org_id; ?>"/>
