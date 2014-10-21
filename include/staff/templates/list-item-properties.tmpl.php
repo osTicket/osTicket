@@ -19,7 +19,7 @@
             <div class="field-label">
             <label for="<?php echo $f->getWidget()->name; ?>"
                 style="vertical-align:top;padding-top:0.2em">
-                <?php echo Format::htmlchars($f->get('label')); ?>:</label>
+                <?php echo Format::htmlchars($f->getLocal('label')); ?>:</label>
                 <?php
                 if (!$internal && $f->isEditable() && $f->get('hint')) { ?>
                     <br /><em style="color:gray;display:inline-block"><?php

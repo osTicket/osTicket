@@ -332,7 +332,7 @@ body .redactor_box_fullscreen {
 .redactor_toolbar:after {
   content: "";
   display: table;
-  clear: both;
+  /* clear: both; */
 }
 .redactor_toolbar.redactor-toolbar-overflow {
   overflow-y: auto;

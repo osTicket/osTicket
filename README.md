@@ -115,6 +115,7 @@ osTicket is supported by several magical open source projects including:
   * [Font-Awesome](http://fortawesome.github.com/Font-Awesome/)
   * [HTMLawed](http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
   * [jQuery dropdown](http://labs.abeautifulsite.net/jquery-dropdown/)
+  * [jsTimezoneDetect](http://pellepim.bitbucket.org/jstz/)
   * [mPDF](http://www.mpdf1.com/)
   * [PasswordHash](http://www.openwall.com/phpass/)
   * [PEAR](http://pear.php.net/package/PEAR)

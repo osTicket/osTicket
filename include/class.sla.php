@@ -94,6 +94,20 @@ class SLA {
         return ($this->ht['enable_priority_escalation']);
     }
 
+    function getTranslateTag($subtag) {
+        return _H(sprintf('sla.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('sla.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+
     function update($vars,&$errors) {
 
         if(!SLA::save($this->getId(),$vars,$errors))
@@ -139,7 +153,7 @@ class SLA {
             while($row=db_fetch_array($res))
                 $slas[$row['id']] = sprintf(__('%s (%d hours - %s)'
                         /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
-                        $row['name'],
+                        self::getLocalById($row['id'], 'name', $row['name']),
                         $row['grace_period'],
                         $row['isactive']?__('Active'):__('Disabled'));
         }

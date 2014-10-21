@@ -88,3 +88,28 @@ date_time_options:
     links:
       - title: See the PHP Date Formatting Table
         href: http://www.php.net/manual/en/function.date.php
+
+languages:
+    title: System Languages
+    content: >
+        Choose a system primary language and optionally secondary languages
+        to make your interface feel localized for your agents and end-users.
+
+primary_language:
+    title: System Primary Language
+    content: >
+        Content of this language is displayed to agents and end-users if
+        their respective language preference is not currently available.
+        This includes the content of the interface, as well as, custom
+        content such as thank-you pages and email messages.
+        <br/><br/>
+        This is the language in which the untranslated versions of your
+        content should be written.
+
+secondary_language:
+    title: Secondary Languages
+    content: >
+        Select language preference options for your agents and end-users.
+        The interface will be available in these languages, and custom
+        content, such as thank-you pages and help topic names, will be
+        translatable to these languages.

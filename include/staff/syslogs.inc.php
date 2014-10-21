@@ -137,7 +137,7 @@ else
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
                 <td><?php echo $row['log_type']; ?></td>
-                <td>&nbsp;<?php echo Format::db_daydatetime($row['created']); ?></td>
+                <td>&nbsp;<?php echo Format::daydatetime($row['created']); ?></td>
                 <td><?php echo $row['ip_address']; ?></td>
             </tr>
             <?php

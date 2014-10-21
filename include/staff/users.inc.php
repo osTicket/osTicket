@@ -155,8 +155,8 @@ else
                     ?>
                 </td>
                 <td><?php echo $status; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($row['created']); ?></td>
+                <td><?php echo Format::datetime($row['updated']); ?>&nbsp;</td>
                </tr>
             <?php
             } //end of while.

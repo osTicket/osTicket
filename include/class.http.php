@@ -70,7 +70,7 @@ class Http {
         header('Expires: ' . gmdate(DATE_RFC822, time() + $ttl)." GMT");
         header('Pragma: private');
         if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified ||
-            @trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
+            @trim($_SERVER['HTTP_IF_NONE_MATCH'], '" ') == $etag) {
                 header("HTTP/1.1 304 Not Modified");
                 exit();
         }

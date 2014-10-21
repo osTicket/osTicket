@@ -51,11 +51,11 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="150"><?php echo __('Created'); ?>:</th>
-                    <td><?php echo Format::db_datetime($org->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($org->getCreateDate()); ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Last Updated'); ?>:</th>
-                    <td><?php echo Format::db_datetime($org->getUpdateDate()); ?></td>
+                    <td><?php echo Format::datetime($org->getUpdateDate()); ?></td>
                 </tr>
             </table>
         </td>
@@ -64,7 +64,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 <br>
 <div class="clear"></div>
 <ul class="tabs">
-    <li><a class="active" id="users_tab" href="#users"><i
+    <li class="active"><a id="users_tab" href="#users"><i
     class="icon-user"></i>&nbsp;<?php echo __('Users'); ?></a></li>
     <li><a id="tickets_tab" href="#tickets"><i
     class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
