@@ -67,8 +67,6 @@ div#header a {
     color: #555;
 }
 
-.banner { margin: 0; padding: 5px 5px 11px; margin-bottom: 10px; color: #444; border: 1px solid #444;  background-color: #ddd; border-radius: 4px; }
-
 #msg_info,
 .info-banner { margin: 0; padding: 5px; margin-bottom: 10px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
 
@@ -154,6 +152,7 @@ div#header a {
     height:26px;
     color:#555;
     text-align:center;
+    font-weight:bold;
     position:relative;
 
     border-radius:5px 5px 0 0;
@@ -169,7 +168,6 @@ div#header a {
 
 #nav .active a {
     color:#004a80;
-    font-weight:bold;
 }
 
 #nav > li + li {
@@ -242,6 +240,7 @@ div#header a {
     padding-left:24px;
     background-position:0 50%;
     background-repeat:no-repeat;
+    font-weight:normal;
 }
 
 #nav .inactive li a:hover {
@@ -893,26 +892,30 @@ h2 .reload {
 ul.tabs {
     padding:4px 0 0 20px;
     margin:0;
+    margin-bottom: 5px;
     text-align:left;
     height:29px;
     border-bottom:1px solid #aaa;
     background:#eef3f8;
-    position: relative;
 }
 
 #response_options ul.tabs {
     padding-left:190px;
 }
 
+
 ul.tabs li {
     margin:0;
     padding:0;
-    display:inline-block;
+    display:inline;
     list-style:none;
-    text-align:center;
+}
+
+ul.tabs li a {
     min-width:130px;
     font-weight:bold;
-    height:28px;
+    padding:5px;
+    height:18px;
     line-height:20px;
     color:#444;
     display:inline-block;
@@ -920,90 +923,9 @@ ul.tabs li {
     position:relative;
     bottom:1px;
     background:#fbfbfb;
-    background-color: rgba(251, 251, 251, 0.5);
-    border:1px solid #ccc;
-    border:1px solid rgba(204, 204, 204, 0.5);
-    border-bottom:none;
-    position: relative;
-    bottom: 1px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    font-size: 95%;
-}
-ul.tabs li.active {
-    color:#184E81;
-    background-color:#f9f9f9;
-    border:1px solid #aaa;
+    border:1px solid #eee;
     border-bottom:none;
     text-align: center;
-    border-top:2px solid #81a9d7;
-    bottom: 0;
-    box-shadow: 4px -1px 6px -3px rgba(0,0,0,0.3);
-}
-
-ul.tabs li a {
-    font-weight: normal;
-    line-height: 20px;
-    color: #444;
-    display: block;
-    outline: none;
-    padding: 5px 10px;
-}
-
-ul.tabs li.active a {
-    font-weight: bold;
-}
-
-ul.tabs li.empty {
-    padding: 5px;
-    border: none !important;
-}
-
-ul.tabs.vertical {
-    display: inline-block;
-    height: auto;
-    border-bottom: initial;
-    border-right: 1px solid #aaa;
-    padding-left: 0;
-    padding-bottom: 40px;
-    padding-top: 10px;
-    background: transparent;
-}
-ul.tabs.vertical.left {
-    float: left;
-    margin-right: 19px;
-}
-
-ul.tabs.vertical li {
-    border:1px solid #ccc;
-    border:1px solid rgba(204, 204, 204, 0.5);
-    border-right: none;
-    min-width: 0;
-    display: block;
-    border-top-right-radius: 0;
-    border-bottom-left-radius: 5px;
-    right: 0;
-    height: auto;
-}
-
-ul.tabs.vertical li + li {
-    margin-top: 5px;
-}
-
-ul.tabs.vertical li.active {
-    border: 1px solid #aaa;
-    border-left: 2px solid #81a9d7;
-    border-right: none;
-    right: -1px;
-    box-shadow: -1px 4px 6px -3px rgba(0,0,0,0.3);
-}
-
-ul.tabs.vertical.left li {
-    text-align: right;
-}
-
-ul.tabs.vertical li a {
-    padding: 5px;
 }
 
 #response_options .reply_tab.tell {
@@ -1640,8 +1562,8 @@ time {
 
 /* Upgrader */
 #upgrader { width: 100%; height: auto; clear: both;}
-.sidebar { width: 220px; padding: 10px; border: 1px solid #C8DDFA; float: right; background: #F7FBFE; }
-.sidebar h3 { font-size: 10pt; margin: 0 0 5px 0; padding: 0; text-indent: 32px; background: url('../images/cog.png?1312913866') top left no-repeat; line-height: 24px; color: #2a67ac; }
+#upgrader #sidebar { width: 220px; padding: 10px; border: 1px solid #C8DDFA; float: right; background: #F7FBFE; }
+#upgrader #sidebar h3 { font-size: 10pt; margin: 0 0 5px 0; padding: 0; text-indent: 32px; background: url('../images/cog.png?1312913866') top left no-repeat; line-height: 24px; color: #2a67ac; }
 
 #upgrader #main { width: 680px; float: left;}
 #upgrader #main h1 { margin: 0; padding: 0; font-size: 21pt; font-weight: normal; }
@@ -1947,10 +1869,6 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
-    padding: 10px;
-}
-.left-tabs {
-    margin-left: 48px;
 }
 .floating-options {
     display: inline-block;
@@ -1980,31 +1898,6 @@ table.custom-info td {
     border-bottom: 1px dotted rgba(0,0,0,0.3);
 }
 
-.faq-title {
-    font-size: 170%;
-    font-weight: 400;
-    padding-right: 200px;
-}
-.faq-content {
-    width: 670px;
-    margin: 0 15px;
-}
-.faq-meta section + section {
-    margin-top: 15px;
-}
-
-button a {
-    color: ButtonText !important;
-    text-decoration: none;
-}
-button a:hover {
-    text-decoration: none;
-}
-
-.bleed {
-    padding: 0;
-    margin: 0;
-}
 .doc-desc-title {
     font-weight: bold;
     text-transform: capitalize;
@@ -2062,13 +1955,4 @@ button a:hover {
 }
 .required {
     font-weight: bold;
-}
-.truncate {
-    width: auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-td.indented {
-    padding-left: 20px;
 }

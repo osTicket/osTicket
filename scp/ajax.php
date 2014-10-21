@@ -155,7 +155,6 @@ $dispatcher = patterns('',
         url_post('^(?P<id>\d+)$', 'updateDraft'),
         url_delete('^(?P<id>\d+)$', 'deleteDraft'),
         url_post('^(?P<id>\d+)/attach$', 'uploadInlineImage'),
-        url_post('^(?P<namespace>[\w.]+)/attach$', 'uploadInlineImageEarly'),
         url_get('^(?P<namespace>[\w.]+)$', 'getDraft'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
@@ -176,11 +175,8 @@ $dispatcher = patterns('',
         url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     )),
-    url('^/i18n/', patterns('ajax.i18n.php:i18nAjaxAPI',
-        url_get('^langs$', 'getSecondaryLanguages'),
-        url_get('^translate/(?P<tag>\w+)$', 'getTranslations'),
-        url_post('^translate/(?P<tag>\w+)$', 'updateTranslations'),
-        url_get('^(?P<lang>[\w_]+)/(?P<tag>\w+)$', 'getLanguageFile')
+    url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('(?P<tag>\w+)$', 'getLanguageFile')
     ))
 );
 

@@ -81,33 +81,23 @@ $info['id']=$staff->getId();
             </th>
         </tr>
         <tr>
-            <td width="180">
+            <td width="180" class="required">
                 <?php echo __('Time Zone');?>:
             </td>
             <td>
-                <select name="timezone" multiple="multiple" id="timezone-dropdown">
-                    <option value=""><?php echo __('System Default'); ?></option>
-<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                    <option value="<?php echo $zone; ?>" <?php
-                    if ($info['timezone'] == $zone)
-                        echo 'selected="selected"';
-                    ?>><?php echo $zone; ?></option>
-<?php } ?>
+                <select name="timezone_id" id="timezone_id">
+                    <option value="0">&mdash; <?php echo __('Select Time Zone');?> &mdash;</option>
+                    <?php
+                    $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
+                    if(($res=db_query($sql)) && db_num_rows($res)){
+                        while(list($id,$offset, $tz)=db_fetch_row($res)){
+                            $sel=($info['timezone_id']==$id)?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
+                        }
+                    }
+                    ?>
                 </select>
-                <button class="action-button" onclick="javascript:
-    $('head').append($('<script>').attr('src', '<?php
-        echo ROOT_PATH; ?>/js/jstz.min.js'));
-    var recheck = setInterval(function() {
-        if (window.jstz !== undefined) {
-            clearInterval(recheck);
-            var zone = jstz.determine();
-            $('#timezone-dropdown').multiselect('widget')
-                .find('[value=\'' + zone.name() + '\']')
-                .trigger('click');
-        }
-    }, 200);
-    return false;"><i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?></button>
-                <div class="error"><?php echo $errors['timezone']; ?></div>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone_id']; ?></span>
             </td>
         </tr>
         <tr>
@@ -116,7 +106,7 @@ $info['id']=$staff->getId();
             </td>
             <td>
         <?php
-        $langs = Internationalization::getConfiguredSystemLanguages(); ?>
+        $langs = Internationalization::availableLanguages(); ?>
                 <select name="lang">
                     <option value="">&mdash; <?php echo __('Use Browser Preference'); ?> &mdash;</option>
 <?php foreach($langs as $l) {
@@ -128,17 +118,14 @@ $info['id']=$staff->getId();
                 <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
             </td>
         </tr>
-        <tr><td width="220"><?php echo __('Preferred Locale');?>:</td>
+        <tr>
+            <td width="180">
+               <?php echo __('Daylight Saving');?>:
+            </td>
             <td>
-                <select name="locale">
-                    <option value=""><?php echo __('Use Language Preference'); ?></option>
-<?php foreach (Internationalization::allLocales() as $code=>$name) { ?>
-                    <option value="<?php echo $code; ?>" <?php
-                        if ($code == $info['locale'])
-                            echo 'selected="selected"';
-                    ?>><?php echo $name; ?></option>
-<?php } ?>
-                </select>
+                <input type="checkbox" name="daylight_saving" value="1" <?php echo $info['daylight_saving']?'checked="checked"':''; ?>>
+                <?php echo __('Observe daylight saving');?>
+                <em>(<?php echo __('Current Time');?>: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['daylight_saving']); ?></strong>)</em>
             </td>
         </tr>
         <tr>
@@ -273,17 +260,3 @@ $info['id']=$staff->getId();
     <input type="button" name="cancel" value="<?php echo __('Cancel Changes');?>" onclick='window.location.href="index.php"'>
 </p>
 </form>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.css"/>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
-<script type="text/javascript">
-$('#timezone-dropdown').multiselect({
-    multiple: false,
-    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-    noneSelectedText: <?php echo JsonDataEncoder::encode(__('System Default')); ?>,
-    selectedList: 1,
-    minWidth: 400
-}).multiselectfilter({
-    placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
-});
-</script>

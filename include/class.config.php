@@ -251,27 +251,8 @@ class OsticketConfig extends Config {
         return $this->get('db_tz_offset');
     }
 
-    function getDefaultTimezone() {
-        return $this->get('default_timezone');
-    }
-
-    function getTimezone() {
-        global $thisstaff, $thisclient;
-
-        if ($thisstaff)
-            $zone = $thisstaff->getTimezone();
-        #elseif ($thisclient)
-        #    $zone = $thisclient->getTimezone();
-        else
-            $zone = $this->get('default_timezone');
-
-        if (!$zone)
-            $zone = ini_get('date.timezone');
-        return $zone;
-    }
-
-    function getDefaultLocale() {
-        return $this->get('default_locale');
+    function getDefaultTimezoneId() {
+        return $this->get('default_timezone_id');
     }
 
     /* Date & Time Formats */
@@ -279,45 +260,18 @@ class OsticketConfig extends Config {
         return ($this->get('enable_daylight_saving'));
     }
     function getTimeFormat() {
-        if ($this->get('date_formats') == 'custom')
-            return $this->get('time_format');
-        return '';
+        return $this->get('time_format');
     }
-    function isForce24HourTime() {
-        return $this->get('date_formats') == '24';
-    }
-    function getDateFormat($propogate=false) {
-        if ($this->get('date_formats') == 'custom')
-            return $this->get('date_format');
-        if ($propogate) {
-            if (class_exists('IntlDateFormatter')) {
-                $formatter = new IntlDateFormatter(
-                    Internationalization::getCurrentLocale(),
-                    IntlDateFormatter::SHORT,
-                    IntlDateFormatter::NONE,
-                    $this->getTimezone(),
-                    IntlDateFormatter::GREGORIAN
-                );
-                return $formatter->getPattern();
-            }
-            else {
-                // Use a standard
-                return 'y-M-d';
-            }
-        }
-        return '';
+    function getDateFormat() {
+        return $this->get('date_format');
     }
 
     function getDateTimeFormat() {
-        if ($this->get('date_formats') == 'custom')
-            return $this->get('datetime_format');
-        return '';
+        return $this->get('datetime_format');
     }
 
     function getDayDateTimeFormat() {
-        if ($this->get('date_formats') == 'custom')
-            return $this->get('daydatetime_format');
-        return '';
+        return $this->get('daydatetime_format');
     }
 
     function getConfigInfo() {
@@ -852,14 +806,8 @@ class OsticketConfig extends Config {
         return ($this->get('allow_attachments'));
     }
 
-    function getPrimaryLanguage() {
+    function getSystemLanguage() {
         return $this->get('system_language');
-    }
-
-    function getSecondaryLanguages() {
-        $langs = $this->get('secondary_langs');
-        $langs = (is_string($langs)) ? explode(',', $langs) : array();
-        return array_filter($langs);
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
@@ -923,19 +871,10 @@ class OsticketConfig extends Config {
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Date format is required'));
         $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Datetime format is required'));
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Day, Datetime format is required'));
-        $f['default_timezone']=array('type'=>'string',   'required'=>1, 'error'=>__('Default Timezone is required'));
-        $f['system_language']=array('type'=>'string',   'required'=>1, 'error'=>__('A primary system language is required'));
+        $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Timezone is required'));
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
-
-        // Manage secondard languages
-        $vars['secondary_langs'][] = $vars['add_secondary_language'];
-        foreach ($vars['secondary_langs'] as $i=>$lang) {
-            if (!$lang || !Internationalization::isLanguageInstalled($lang))
-                unset($vars['secondary_langs'][$i]);
-        }
-        $secondary_langs = implode(',', $vars['secondary_langs']);
 
         return $this->updateAll(array(
             'isonline'=>$vars['isonline'],
@@ -950,11 +889,8 @@ class OsticketConfig extends Config {
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],
             'daydatetime_format'=>$vars['daydatetime_format'],
-            'date_formats'=>$vars['date_formats'],
-            'default_timezone'=>$vars['default_timezone'],
-            'default_locale'=>$vars['default_locale'],
-            'system_language'=>$vars['system_language'],
-            'secondary_langs'=>$secondary_langs,
+            'default_timezone_id'=>$vars['default_timezone_id'],
+            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
         ));
     }
 

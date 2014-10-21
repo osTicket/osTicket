@@ -33,10 +33,6 @@ $extensions = array(
             'name' => 'phar',
             'desc' => __('Highly recommended for plugins and language packs')
             ),
-        'intl' => array(
-            'name' => 'intl',
-            'desc' => __('Highly recommended for non western european language content')
-            ),
         );
 
 ?>

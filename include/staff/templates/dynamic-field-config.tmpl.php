@@ -12,7 +12,7 @@
                 ?>" <?php if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
             <div class="field-label <?php if ($f->get('required')) echo 'required'; ?>">
             <label for="<?php echo $f->getWidget()->name; ?>">
-                <?php echo Format::htmlchars($f->getLocal('label')); ?>:
+                <?php echo Format::htmlchars($f->get('label')); ?>:
       <?php if ($f->get('required')) { ?>
                 <span class="error">*</span>
       <?php } ?>
@@ -44,9 +44,8 @@
             <em style="color:gray;display:inline-block">
                 <?php echo __('Help text shown with the field'); ?></em>
         </div>
-        <div style="width:100%">
-        <textarea style="width:90%; width:calc(100% - 20px)" name="hint" rows="2" cols="40"
-            data-translate-tag="<?php echo $field->getTranslateTag('hint'); ?>"><?php
+        <div>
+        <textarea style="width:100%" name="hint" rows="2" cols="40"><?php
             echo Format::htmlchars($field->get('hint')); ?></textarea>
         </div>
         </div>
@@ -62,7 +61,3 @@
          </p>
     </form>
     <div class="clear"></div>
-<script type="text/javascript">
-   // Make translatable fields translatable
-   $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
-</script>

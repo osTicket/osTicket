@@ -443,13 +443,6 @@ var scp_prep = function() {
            });
        }
    });
-
-   // Make translatable fields translatable
-   $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
-
-   if (window.location.hash) {
-     $('ul.tabs li a[href="' + window.location.hash + '"]').trigger('click');
-   }
 };
 
 $(document).ready(scp_prep);
@@ -501,20 +494,13 @@ jQuery.fn.exists = function() { return this.length>0; };
 
 $.translate_format = function(str) {
     var translation = {
-        'DD':   'oo',
-        'D':    'o',
-        'EEEE': 'DD',
-        'EEE':  'D',
-        'MMMM': '||',   // Double replace necessary
-        'MMM':  '|',
-        'MM':   'mm',
-        'M':    'm',
-        '||':   'MM',
-        '|':    'M',
-        'yyyy': '`',
-        'yyy':  '`',
-        'yy':   'y',
-        '`':    'yy'
+        'd':'dd',
+        'j':'d',
+        'z':'o',
+        'm':'mm',
+        'F':'MM',
+        'n':'m',
+        'Y':'yy'
     };
     // Change PHP formats to datepicker ones
     $.each(translation, function(php, jqdp) {
@@ -637,42 +623,15 @@ $.uid = 1;
 
 //Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
-    var target = $('.tab_content'+$(this).attr('href'));
-    if (target.length) {
+    e.preventDefault();
+    if ($('.tab_content'+$(this).attr('href')).length) {
         var ul = $(this).closest('ul');
-        ul.children('li.active').removeClass('active');
-        $(this).closest('li').addClass('active');
-        ul.parent().children('.tab_content').hide();
-        target.fadeIn('fast');
-        $.changeHash($(this).attr('href'), true);
-        return false;
+        $('ul.tabs li a', ul.parent()).removeClass('active');
+        $(this).addClass('active');
+        $('.tab_content', ul.parent()).hide();
+        $('.tab_content'+$(this).attr('href')).show();
     }
 });
-$.changeHash = function(hash, quiet) {
-  if (quiet) {
-    hash = hash.replace( /^#/, '' );
-    var fx, node = $( '#' + hash );
-    if ( node.length ) {
-      node.attr( 'id', '' );
-      fx = $( '<div></div>' )
-              .css({
-                  position:'absolute',
-                  visibility:'hidden',
-                  top: $(document).scrollTop() + 'px'
-              })
-              .attr( 'id', hash )
-              .appendTo( document.body );
-    }
-    document.location.hash = hash;
-    if ( node.length ) {
-      fx.remove();
-      node.attr( 'id', hash );
-    }
-  }
-  else {
-    document.location.hash = hash;
-  }
-};
 
 //Collaborators
 $(document).on('click', 'a.collaborator, a.collaborators', function(e) {

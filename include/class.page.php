@@ -13,25 +13,42 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Page extends VerySimpleModel {
+class Page {
 
-    static $meta = array(
-        'table' => PAGE_TABLE,
-        'pk' => array('id'),
-        'ordering' => array('name'),
-        'defer' => array('body'),
-        'joins' => array(
-            'topics' => array(
-                'reverse' => 'Topic.page',
-            ),
-        ),
-    );
-
+    var $id;
+    var $ht;
     var $attachments;
-    var $_local;
 
-    function __onload() {
+    function Page($id, $lang=false) {
+        $this->id=0;
+        $this->ht = array();
+        $this->load($id, $lang);
+    }
+
+    function load($id=0, $lang=false) {
+
+        if(!$id && !($id=$this->getId()))
+            return false;
+
+        $sql='SELECT page.*, count(topic.page_id) as topics '
+            .' FROM '.PAGE_TABLE.' page '
+            .' LEFT JOIN '.TOPIC_TABLE. ' topic ON(topic.page_id=page.id) '
+            . ' WHERE page.content_id='.db_input($id)
+            . ($lang ? ' AND lang='.db_input($lang) : '')
+            .' GROUP By page.id';
+
+        if (!($res=db_query($sql)) || !db_num_rows($res))
+            return false;
+
+        $this->ht = db_fetch_array($res);
+        $this->id = $this->ht['id'];
         $this->attachments = new GenericAttachments($this->id, 'P');
+
+        return true;
+    }
+
+    function reload() {
+        return $this->load();
     }
 
     function getId() {
@@ -39,64 +56,30 @@ class Page extends VerySimpleModel {
     }
 
     function getHashtable() {
-        $base = $this->ht;
-        unset($base['topics']);
-        return $base;
+        return $this->ht;
     }
 
     function getType() {
-        return $this->type;
+        return $this->ht['type'];
     }
 
     function getName() {
-        return $this->name;
-    }
-    function getLocalName($lang=false) {
-        return $this->getLocal('name', $lang);
-    }
-    function getNameAsSlug() {
-        return urlencode(Format::slugify($this->name));
+        return $this->ht['name'];
     }
 
     function getBody() {
-        return $this->body;
-    }
-    function getLocalBody($lang=false) {
-        return $this->_getLocal('body', $lang);
+        return $this->ht['body'];
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getLocalBody(), ROOT_PATH.'image.php');
-    }
-
-    function _getLocal($what, $lang=false) {
-        if (!$lang) {
-            $lang = Internationalization::getCurrentLanguage();
-        }
-        $translations = $this->getAllTranslations();
-        foreach ($translations as $t) {
-            if ($lang == $t->lang) {
-                $data = $t->getComplex();
-                if (isset($data[$what]))
-                    return $data[$what];
-            }
-        }
-        return $this->ht[$what];
-    }
-
-    function getAllTranslations() {
-        if (!isset($this->_local)) {
-            $tag = $this->getTranslateTag('name:body');
-            $this->_local = CustomDataTranslation::allTranslations($tag, 'article');
-        }
-        return $this->_local;
+        return Format::viewableImages($this->getBody(), ROOT_PATH.'image.php');
     }
 
     function getNotes() {
-        return $this->notes;
+        return $this->ht['notes'];
     }
 
     function isActive() {
-        return ($this->isactive);
+        return ($this->ht['isactive']);
     }
 
     function isInUse() {
@@ -108,24 +91,30 @@ class Page extends VerySimpleModel {
 
 
     function getCreateDate() {
-        return $this->created;
+        return $this->ht['created'];
     }
 
     function getUpdateDate() {
-        return $this->updated;
+        return $this->ht['updated'];
     }
 
     function getNumTopics() {
-        return $this->topics->count();
+        return $this->ht['topics'];
     }
 
-    function getTranslateTag($subtag) {
-        return _H(sprintf('page.%s.%s', $subtag, $this->getId()));
-    }
-    function getLocal($subtag) {
-        $tag = $this->getTranslateTag($subtag);
-        $T = CustomDataTranslation::translate($tag);
-        return $T != $tag ? $T : $this->ht[$subtag];
+    function update($vars, &$errors) {
+
+        if(!$vars['isactive'] && $this->isInUse()) {
+            $errors['err'] = __('A page currently in-use CANNOT be disabled!');
+            $errors['isactive'] = __('Page is in-use!');
+        }
+
+        if($errors || !$this->save($this->getId(), $vars, $errors))
+            return false;
+
+        $this->reload();
+
+        return true;
     }
 
     function disable() {
@@ -137,36 +126,35 @@ class Page extends VerySimpleModel {
             return false;
 
 
-        $this->isactive = 0;
-        return $this->save();
+        $sql=' UPDATE '.PAGE_TABLE.' SET isactive=0 '
+            .' WHERE id='.db_input($this->getId());
+
+        if(!db_query($sql) || !db_affected_rows())
+            return false;
+
+        $this->reload();
+
+        return true;
     }
 
     function delete() {
 
-        if ($this->isInUse())
+        if($this->isInUse())
             return false;
 
-        if (!parent::delete())
+        $sql='DELETE FROM '.PAGE_TABLE
+            .' WHERE id='.db_input($this->getId())
+            .' LIMIT 1';
+
+        if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        return Topic::objects()
-            ->filter(array('page_id'=>$this->getId()))
-            ->update(array('page_id'=>0));
-    }
+        db_query('UPDATE '.TOPIC_TABLE.' SET page_id=0 WHERE page_id='.db_input($this->getId()));
 
-    function save($refetch=false) {
-        if ($this->dirty)
-            $this->updated = SqlFunction::NOW();
-        return parent::save($refetch || $this->dirty);
+        return true;
     }
 
     /* ------------------> Static methods <--------------------- */
-
-    static function create($vars=false) {
-        $page = parent::create($vars);
-        $page->created = SqlFunction::NOW();
-        return $page;
-    }
 
     function add($vars, &$errors) {
         if(!($id=self::create($vars, $errors)))
@@ -175,77 +163,79 @@ class Page extends VerySimpleModel {
         return self::lookup($id);
     }
 
-    static function getPages($criteria=array()) {
-        $pages = self::objects();
-        if(isset($criteria['active']))
-            $pages = $pages->filter(array('isactive'=>$criteria['active']));
-        if(isset($criteria['type']))
-            $pages = $pages->filter(array('type'=>$criteria['type']));
-
-        return $pages;
+    function create($vars, &$errors) {
+        return self::save(0, $vars, $errors);
     }
 
-    static function getActivePages($criteria=array()) {
+    function getPages($criteria=array()) {
+
+        $sql = ' SELECT id FROM '.PAGE_TABLE.' WHERE 1';
+        if(isset($criteria['active']))
+            $sql.=' AND  isactive='.db_input($criteria['active']?1:0);
+        if(isset($criteria['type']))
+            $sql.=' AND `type`='.db_input($criteria['type']);
+
+        $sql.=' ORDER BY name';
+
+        $pages = array();
+        if(($res=db_query($sql)) && db_num_rows($res))
+            while(list($id) = db_fetch_row($res))
+                $pages[] = Page::lookup($id);
+
+        return array_filter($pages);
+    }
+
+    function getActivePages($criteria=array()) {
 
         $criteria = array_merge($criteria, array('active'=>true));
 
         return self::getPages($criteria);
     }
 
-    static function getActiveThankYouPages() {
+    function getActiveThankYouPages() {
         return self::getActivePages(array('type' => 'thank-you'));
     }
 
-    static function lookup($id, $lang=false) {
-        try {
-            $qs = self::objects()->filter(is_array($id) ? $id : array('id'=>$id));
-            if ($lang)
-                $qs = $qs->filter(array('lang'=>$lang));
-            return $qs->one();
-        }
-        catch (DoesNotExist $ex) {
-            return null;
-        }
+    function getIdByName($name, $lang=false) {
+
+        $id = 0;
+        $sql = ' SELECT id FROM '.PAGE_TABLE.' WHERE name='.db_input($name);
+        if ($lang)
+            $sql .= ' AND lang='.db_input($lang);
+
+        if(($res=db_query($sql)) && db_num_rows($res))
+            list($id) = db_fetch_row($res);
+
+        return $id;
     }
 
-    static function getIdByName($name, $lang=false) {
-        try {
-            $qs = self::objects()->filter(array('name'=>$name))
-                ->values_flat('id');
-            if ($lang)
-                $qs = $qs->filter(array('lang'=>$lang));
-            list($id) = $qs->one();
-            return $id;
-        }
-        catch (DoesNotExist $ex) {
-            return null;
-        }
+    function getIdByType($type, $lang=false) {
+        $id = 0;
+        $sql = ' SELECT id FROM '.PAGE_TABLE.' WHERE `type`='.db_input($type);
+        if ($lang)
+            $sql .= ' AND lang='.db_input($lang);
+
+        if(($res=db_query($sql)) && db_num_rows($res))
+            list($id) = db_fetch_row($res);
+
+        return $id;
     }
 
-    static function lookupByType($type, $lang=false) {
-        try {
-            $qs = self::objects()->filter(array('type'=>$type));
-            if ($lang)
-                $qs = $qs->filter(array('lang'=>$lang));
-            return $qs->one();
-        }
-        catch (DoesNotExist $ex) {
-            return null;
-        }
+    function lookup($id) {
+        return ($id
+                && is_numeric($id)
+                && ($p= new Page($id))
+                && $p->getId()==$id)
+            ? $p : null;
     }
 
-    function update($vars, &$errors) {
+    function save($id, $vars, &$errors) {
 
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
 
         //validate
-        if (isset($this->id) && !$vars['isactive'] && $this->isInUse()) {
-            $errors['err'] = __('A page currently in-use CANNOT be disabled!');
-            $errors['isactive'] = __('Page is in-use!');
-        }
-
-        if (isset($this->id) && $this->getId() != $vars['id'])
+        if($id && $id!=$vars['id'])
             $errors['err'] = __('Internal error. Try again');
 
         if(!$vars['type'])
@@ -253,7 +243,7 @@ class Page extends VerySimpleModel {
 
         if(!$vars['name'])
             $errors['name'] = __('Name is required');
-        elseif(($pid=self::getIdByName($vars['name'])) && $pid!=$this->getId())
+        elseif(($pid=self::getIdByName($vars['name'])) && $pid!=$id)
             $errors['name'] = __('Name already exists');
 
         if(!$vars['body'])
@@ -261,77 +251,38 @@ class Page extends VerySimpleModel {
 
         if($errors) return false;
 
-        $this->type = $vars['type'];
-        $this->name = $vars['name'];
-        $this->body = Format::sanitize($vars['body']);
-        $this->isactive = (bool) $vars['isactive'];
-        $this->notes = Format::sanitize($vars['notes']);
+        //save
+        $sql=' updated=NOW() '
+            .', `type`='.db_input($vars['type'])
+            .', name='.db_input($vars['name'])
+            .', body='.db_input(Format::sanitize($vars['body']))
+            .', isactive='.db_input($vars['isactive'] ? 1 : 0)
+            .', notes='.db_input(Format::sanitize($vars['notes']));
 
-        if (!isset($this->id)) {
-            if ($this->save()) {
-                $this->content_id = $this->id;
-                $rv = $this->save();
+        if($id) {
+            $sql='UPDATE '.PAGE_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
+            if(db_query($sql))
+                return true;
+
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this site page'));
+
+        } else {
+            $sql='INSERT INTO '.PAGE_TABLE.' SET '.$sql.', created=NOW()';
+            if (!db_query($sql) || !($id=db_insert_id())) {
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this site page'))
+                   .' '.__('Internal error occurred');
+                return false;
             }
+
+            $sql = 'UPDATE '.PAGE_TABLE.' SET `content_id`=`id`'
+                .' WHERE id='.db_input($id);
+            if (!db_query($sql))
+                return false;
+
+            return $id;
         }
-        elseif ($this->save())
-            $rv = $this->saveTranslations($vars, $errors);
 
-        // Attach inline attachments from the editor
-        $this->attachments->deleteInlines();
-        $this->attachments->upload(
-            Draft::getAttachmentIds($vars['body']), true);
-
-        if ($rv)
-            return $rv;
-
-        $errors['err']=sprintf(__('Unable to update %s.'), __('this site page'));
         return false;
-    }
-
-    function saveTranslations($vars, &$errors) {
-        global $thisstaff;
-
-        $tag = $this->getTranslateTag('name:body');
-        $translations = CustomDataTranslation::allTranslations($tag, 'article');
-        foreach ($translations as $t) {
-            $title = @$vars['trans'][$t->lang]['title'];
-            $body = @$vars['trans'][$t->lang]['body'];
-            if (!$title && !$body)
-                continue;
-
-            // Content is not new and shouldn't be added below
-            unset($vars['trans'][$t->lang]['title']);
-            unset($vars['trans'][$t->lang]['body']);
-            $content = array('name' => $title, 'body' => Format::sanitize($body));
-
-            // Don't update content which wasn't updated
-            if ($content == $t->getComplex())
-                continue;
-
-            $t->text = $content;
-            $t->agent_id = $thisstaff->getId();
-            $t->updated = SqlFunction::NOW();
-            if (!$t->save())
-                return false;
-        }
-        // New translations (?)
-        foreach ($vars['trans'] as $lang=>$parts) {
-            $content = array('name' => @$parts['title'], 'body' => Format::sanitize(@$parts['body']));
-            if (!array_filter($content))
-                continue;
-            $t = CustomDataTranslation::create(array(
-                'type'      => 'article',
-                'object_hash' => $tag,
-                'lang'      => $lang,
-                'text'      => $content,
-                'revision'  => 1,
-                'agent_id'  => $thisstaff->getId(),
-                'updated'   => SqlFunction::NOW(),
-            ));
-            if (!$t->save())
-                return false;
-        }
-        return true;
     }
 }
 ?>

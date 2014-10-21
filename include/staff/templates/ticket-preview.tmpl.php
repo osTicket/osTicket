@@ -31,7 +31,7 @@ elseif($warn)
 echo '<ul class="tabs">';
 
 echo '
-        <li class="active"><a id="preview_tab" href="#preview"
+        <li><a id="preview_tab" href="#preview" class="active"
             ><i class="icon-list-alt"></i>&nbsp;'.__('Ticket Summary').'</a></li>';
 if ($ticket->getNumCollaborators()) {
 echo sprintf('
@@ -62,14 +62,14 @@ echo sprintf('
             <th>'.__('Created').':</th>
             <td>%s</td>
         </tr>',$ticket_state,
-        Format::datetime($ticket->getCreateDate()));
+        Format::db_datetime($ticket->getCreateDate()));
 if($ticket->isClosed()) {
     echo sprintf('
             <tr>
                 <th>'.__('Closed').':</th>
                 <td>%s   <span class="faded">by %s</span></td>
             </tr>',
-            Format::datetime($ticket->getCloseDate()),
+            Format::db_datetime($ticket->getCloseDate()),
             ($staff?$staff->getName():'staff')
             );
 } elseif($ticket->getEstDueDate()) {
@@ -78,7 +78,7 @@ if($ticket->isClosed()) {
                 <th>'.__('Due Date').':</th>
                 <td>%s</td>
             </tr>',
-            Format::datetime($ticket->getEstDueDate()));
+            Format::db_datetime($ticket->getEstDueDate()));
 }
 echo '</table>';
 

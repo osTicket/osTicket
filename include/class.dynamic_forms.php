@@ -103,7 +103,7 @@ class DynamicForm extends VerySimpleModel {
         if (!$this->_form || $source) {
             $fields = $this->getFields($this->_has_data);
             $this->_form = new Form($fields, $source, array(
-                'title'=>$this->getLocal('title'), 'instructions'=>$this->getLocal('instructions')));
+                'title'=>$this->title, 'instructions'=>$this->instructions));
         }
         return $this->_form;
     }
@@ -122,15 +122,6 @@ class DynamicForm extends VerySimpleModel {
             $this->_fields = $data->getFields();
             $this->_has_data = true;
         }
-    }
-
-    function getTranslateTag($subtag) {
-        return _H(sprintf('form.%s.%s', $subtag, $this->id));
-    }
-    function getLocal($subtag) {
-        $tag = $this->getTranslateTag($subtag);
-        $T = CustomDataTranslation::translate($tag);
-        return $T != $tag ? $T : $this->get($subtag);
     }
 
     function save($refetch=false) {
@@ -499,14 +490,6 @@ class DynamicFormField extends VerySimpleModel {
     function  isEditable() {
         return (($this->get('edit_mask') & 32) == 0);
     }
-    function getTranslateTag($subtag) {
-        return _H(sprintf('field.%s.%s', $subtag, $this->id));
-    }
-    function getLocal($subtag, $default=false) {
-        $tag = $this->getTranslateTag($subtag);
-        $T = CustomDataTranslation::translate($tag);
-        return $T != $tag ? $T : ($default ?: $this->get($subtag));
-    }
 
     function allRequirementModes() {
         return array(
@@ -649,9 +632,6 @@ class DynamicFormEntry extends VerySimpleModel {
         'table' => FORM_ENTRY_TABLE,
         'ordering' => array('sort'),
         'pk' => array('id'),
-        'select_related' => array('form'),
-        'fields' => array('id', 'form_id', 'object_type', 'object_id',
-            'sort', 'updated', 'created'),
         'joins' => array(
             'form' => array(
                 'null' => true,
@@ -894,8 +874,8 @@ class DynamicFormEntry extends VerySimpleModel {
                     $answer->deleted = false; $found = true; break;
                 }
             }
-            if (!$found && ($fImpl = $field->getImpl($field))
-                    && !$fImpl->isPresentationOnly()) {
+            if (!$found && ($field = $field->getImpl($field))
+                    && !$field->isPresentationOnly()) {
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
                 $a->field = $field;
@@ -903,7 +883,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 $a->deleted = false;
                 // Add to list of answers
                 $this->_values[] = $a;
-                $this->_fields[] = $fImpl;
+                $this->_fields[] = $field;
                 $this->_form = null;
 
                 // Omit fields without data
@@ -971,7 +951,7 @@ class DynamicFormEntry extends VerySimpleModel {
     static function create($ht=false) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
-        foreach ($inst->getForm()->getDynamicFields() as $f) {
+        foreach ($inst->getForm()->getFields() as $f) {
             if (!$f->hasData()) continue;
             $a = DynamicFormEntryAnswer::create(
                 array('field_id'=>$f->get('id')));
@@ -995,8 +975,6 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         'table' => FORM_ANSWER_TABLE,
         'ordering' => array('field__sort'),
         'pk' => array('entry_id', 'field_id'),
-        'select_related' => array('field'),
-        'fields' => array('entry_id', 'field_id', 'value', 'value_id'),
         'joins' => array(
             'field' => array(
                 'constraint' => array('field_id' => 'DynamicFormField.id'),
@@ -1007,7 +985,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         ),
     );
 
-    var $_field;
+    var $field;
     var $form;
     var $entry;
     var $deleted = false;
@@ -1024,11 +1002,12 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getField() {
-        if (!isset($this->_field)) {
-            $this->_field = $this->field->getImpl($this->field);
-            $this->_field->setAnswer($this);
+        if (!isset($this->field)) {
+            $f = DynamicFormField::lookup($this->get('field_id'));
+            $this->field = $f->getImpl($f);
+            $this->field->setAnswer($this);
         }
-        return $this->_field;
+        return $this->field;
     }
 
     function getValue() {
@@ -1211,9 +1190,7 @@ class SelectionField extends FormField {
                 'id'=>3,
                 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Leading text shown before a value is selected'),
-                'configuration'=>array('size'=>40, 'length'=>40,
-                    'translatable'=>$this->getTranslateTag('prompt'),
-                ),
+                'configuration'=>array('size'=>40, 'length'=>40),
             )),
             'default' => new SelectionField(array(
                 'id'=>4, 'label'=>__('Default'), 'required'=>false, 'default'=>'',

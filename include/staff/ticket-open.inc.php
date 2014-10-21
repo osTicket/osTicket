@@ -16,7 +16,8 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 }
 
 if ($_POST)
-    $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
+    $info['duedate'] = Format::date($cfg->getDateFormat(),
+       strtotime($info['duedate']));
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
@@ -142,7 +143,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=Topic::getHelpTopics(false, false, true)) {
+                    if ($topics=Topic::getHelpTopics()) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>
@@ -218,7 +219,7 @@ if ($_POST)
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
+                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
             </td>
         </tr>
 
@@ -301,17 +302,13 @@ if ($_POST)
                 $signature = '';
                 if ($thisstaff->getDefaultSignatureType() == 'mine')
                     $signature = $thisstaff->getSignature(); ?>
-                <textarea
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
-                        ?> draft draft-delete" data-signature="<?php
+                <textarea class="richtext ifhtml draft draft-delete"
+                    data-draft-namespace="ticket.staff.response"
+                    data-signature="<?php
                         echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                     data-signature-field="signature" data-dept-field="deptId"
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
-                    style="width:80%;" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
-    echo $attrs; ?>><?php echo $draft ?: $info['response'];
-                ?></textarea>
                     style="width:80%;"><?php echo $info['response']; ?></textarea>
                     <div class="attachments">
 <?php
@@ -374,14 +371,11 @@ print $response_form->getField('attachments')->render();
         </tr>
         <tr>
             <td colspan=2>
-                <textarea
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
-                        ?> draft draft-delete"
+                <textarea class="richtext ifhtml draft draft-delete"
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
-                    name="note" cols="21" rows="6" style="width:80%;" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
-    echo $attrs; ?>><?php echo $draft ?: $info['note'];
-                ?></textarea>
+                    data-draft-namespace="ticket.staff.note" name="note"
+                    cols="21" rows="6" style="width:80%;"
+                    ><?php echo $info['note']; ?></textarea>
             </td>
         </tr>
     </tbody>

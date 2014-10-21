@@ -112,11 +112,11 @@ $org = $user->getOrganization();
                 </tr>
                 <tr>
                     <th><?php echo __('Created'); ?>:</th>
-                    <td><?php echo Format::datetime($user->getCreateDate()); ?></td>
+                    <td><?php echo Format::db_datetime($user->getCreateDate()); ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Updated'); ?>:</th>
-                    <td><?php echo Format::datetime($user->getUpdateDate()); ?></td>
+                    <td><?php echo Format::db_datetime($user->getUpdateDate()); ?></td>
                 </tr>
             </table>
         </td>
@@ -125,7 +125,7 @@ $org = $user->getOrganization();
 <br>
 <div class="clear"></div>
 <ul class="tabs">
-    <li class="active"><a id="tickets_tab" href="#tickets"><i
+    <li><a class="active" id="tickets_tab" href="#tickets"><i
     class="icon-list-alt"></i>&nbsp;<?php echo __('User Tickets'); ?></a></li>
     <li><a id="notes_tab" href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>

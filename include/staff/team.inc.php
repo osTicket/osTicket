@@ -9,7 +9,6 @@ if($team && $_REQUEST['a']!='add'){
     $submit_text=__('Save Changes');
     $info=$team->getInfo();
     $info['id']=$team->getId();
-    $trans['name'] = $team->getTranslateTag('name');
     $qstr.='&id='.$team->getId();
 }else {
     $title=__('Add New Team');
@@ -44,8 +43,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Name');?>:
             </td>
             <td>
-                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
-                data-translate-tag="<?php echo $trans['name']; ?>"/>
+                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>
