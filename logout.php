@@ -16,10 +16,9 @@
 
 require('client.inc.php');
 //Check token: Make sure the user actually clicked on the link to logout.
-if(!$thisclient || !$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
-   @header('Location: index.php');
+if ($thisclient && $_GET['auth'] && $ost->validateLinkToken($_GET['auth']))
+   $thisclient->logOut();
 
-$thisclient->logOut();
-header('Location: index.php');
-require('index.php');
+
+Http::redirect('index.php');
 ?>
