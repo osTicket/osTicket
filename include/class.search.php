@@ -257,12 +257,34 @@ class MysqlSearchBackend extends SearchBackend {
         return db_query($sql);
     }
 
+    // Quote things like email addresses
+    function quote($query) {
+        $parts = array();
+        if (!preg_match_all('`([^\s"\']+)|"[^"]*"|\'[^\']*\'`', $query, $parts,
+                PREG_SET_ORDER))
+            return $query;
+
+        $results = array();
+        foreach ($parts as $m) {
+            // Check for quoting
+            if ($m[1] // Already quoted?
+                && preg_match('`@`u', $m[0])
+            ) {
+                $char = strpos($m[1], '"') ? "'" : '"';
+                $m[0] = $char . $m[0] . $char;
+            }
+            $results[] = $m[0];
+        }
+        return implode(' ', $results);
+    }
+
     function find($query, $criteria=array(), $model=false, $sort=array()) {
         global $thisstaff;
 
         $mode = ' IN BOOLEAN MODE';
         #if (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
+        $query = $this->quote($query);
         $search = 'MATCH (search.title, search.content) AGAINST ('
             .db_input($query)
             .$mode.')';
