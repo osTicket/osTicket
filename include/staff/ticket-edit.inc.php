@@ -146,11 +146,7 @@ if ($_POST)
         <tr>
             <td colspan="2">
                 <textarea class="richtext no-bar" name="note" cols="21"
-                    rows="6" style="width:80%;"><?php
-                    if (!$info['note'])
-                        if ($ticket->getMissingRequiredFields())
-                            $info['note'] = 'Entered value for "'.$ticket->getMissingRequiredField().'" field.';
-                    echo $info['note'];
+                    rows="6" style="width:80%;"><?php echo $info['note'];
                     ?></textarea>
             </td>
         </tr>
