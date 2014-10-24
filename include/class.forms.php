@@ -676,7 +676,7 @@ class TextboxField extends FormField {
                     $wrapped = "/".$value."/iu";
                     if (false === @preg_match($value, ' ')
                             && false !== @preg_match($wrapped, ' ')) {
-                        return $wrapped;
+                        $value = $wrapped;
                     }
                     if ($value == '//iu')
                         return '';
