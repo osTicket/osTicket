@@ -637,7 +637,7 @@ class Ticket {
         $forms=DynamicFormEntry::forTicket($this->getId());
         foreach ($forms as $form) {
             foreach ($form->getFields() as $field) {
-                if ($field->get('required')) {
+                if ($field->get('close_required')) {
                     if (!($field->answer->get('value'))) {
                         array_push($returnArray, $field->get('label'));
                     }
