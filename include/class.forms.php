@@ -1833,7 +1833,7 @@ class ChoicesWidget extends Widget {
             $values = array($values => $this->field->getChoice($values));
         }
 
-        if ($values === null)
+        if (!is_array($values))
             $values = $have_def ? array($def_key => $choices[$def_key]) : array();
 
         ?>
