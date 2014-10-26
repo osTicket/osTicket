@@ -47,9 +47,6 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
         ?>
         <tr><?php if ($field->isBlockLevel()) { ?>
                 <td colspan="2">
-                <div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
-                echo Format::htmlchars($field->getLocal('label'));
-                ?></strong>:</div>
                 <?php
             }
             else { ?>
@@ -60,8 +57,8 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <td><div style="position:relative"><?php
             }
             $field->render(); ?>
-            <?php if ($field->get('required')) { ?>
-                <font class="error">*</font>
+            <?php if (!$field->isBlockLevel() && $field->get('required')) { ?>
+                <span class="error">*</span>
             <?php
             }
             if (($a = $field->getAnswer()) && $a->isDeleted()) {
