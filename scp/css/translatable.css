@@ -105,7 +105,7 @@ div.translatable {
   border-right: none;
   padding: 0 5px 2px;
   margin-left: 2px;
-  width: inherit;
+  width: auto;
   background-color: white;
 }
 div.translatable.textarea {
