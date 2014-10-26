@@ -277,13 +277,20 @@ $info['id']=$staff->getId();
 <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
 <script type="text/javascript">
-$('#timezone-dropdown').multiselect({
-    multiple: false,
-    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-    noneSelectedText: <?php echo JsonDataEncoder::encode(__('System Default')); ?>,
-    selectedList: 1,
-    minWidth: 400
-}).multiselectfilter({
-    placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
-});
+(function() {
+var I = setInterval(function() {
+    if (!$.fn.multiselect)
+        return;
+    clearInterval(I);
+    $('#timezone-dropdown').multiselect({
+        multiple: false,
+        header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
+        noneSelectedText: <?php echo JsonDataEncoder::encode(__('System Default')); ?>,
+        selectedList: 1,
+        minWidth: 400
+    }).multiselectfilter({
+        placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
+    });
+}, 25);
+})();
 </script>
