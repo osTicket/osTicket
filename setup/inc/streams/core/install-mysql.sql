@@ -21,6 +21,7 @@ CREATE TABLE `%TABLE_PREFIX%attachment` (
   `type` char(1) NOT NULL,
   `file_id` int(11) unsigned NOT NULL,
   `inline` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `lang` varchar(16),
   PRIMARY KEY (`object_id`,`file_id`,`type`)
 ) DEFAULT CHARSET=utf8;
 
