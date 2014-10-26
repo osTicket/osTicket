@@ -21,21 +21,23 @@
         ?>
         <tr>
             <td colspan="2" style="padding-top:8px;">
+            <?php if (!$field->isBlockLevel()) { ?>
                 <label for="<?php echo $field->getFormName(); ?>"><span class="<?php
                     if ($field->get('required')) echo 'required'; ?>">
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>
             <?php if ($field->get('required')) { ?>
                 <span class="error">*</span>
             <?php
-            }
+                }
             ?></span><?php
-            if ($field->get('hint') && !$field->isBlockLevel()) { ?>
-                <br /><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($field->getLocal('hint')); ?></em>
-            <?php
-            } ?>
+                if ($field->get('hint')) { ?>
+                    <br /><em style="color:gray;display:inline-block"><?php
+                        echo Format::htmlchars($field->getLocal('hint')); ?></em>
+                <?php
+                } ?>
             <br/>
             <?php
+            }
             $field->render('client');
             ?></label><?php
             foreach ($field->errors() as $e) { ?>

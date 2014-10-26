@@ -2023,8 +2023,8 @@ class DatetimePickerWidget extends Widget {
 class SectionBreakWidget extends Widget {
     function render($mode=false) {
         ?><div class="form-header section-break"><h3><?php
-        echo Format::htmlchars($this->field->get('label'));
-        ?></h3><em><?php echo Format::htmlchars($this->field->get('hint'));
+        echo Format::htmlchars($this->field->getLocal('label'));
+        ?></h3><em><?php echo Format::htmlchars($this->field->getLocal('hint'));
         ?></em></div>
         <?php
     }
@@ -2044,6 +2044,9 @@ class ThreadEntryWidget extends Widget {
         }
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
+        <span class="required"><?php
+            echo Format::htmlchars($this->field->getLocal('label'));
+        ?>: <span class="error">*</span></span><br/>
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
             class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
@@ -2189,9 +2192,9 @@ class FreeTextWidget extends Widget {
     function render($mode=false) {
         $config = $this->field->getConfiguration();
         ?><div class=""><h3><?php
-            echo Format::htmlchars($this->field->get('label'));
+            echo Format::htmlchars($this->field->getLocal('label'));
         ?></h3><em><?php
-            echo Format::htmlchars($this->field->get('hint'));
+            echo Format::htmlchars($this->field->getLocal('hint'));
         ?></em><div><?php
             echo Format::viewableImages($config['content']); ?></div>
         </div>
