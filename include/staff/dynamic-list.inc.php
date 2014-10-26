@@ -8,7 +8,7 @@ if ($list) {
     $info = $list->getInfo();
     $newcount=2;
 } else {
-    $title = __('Add new custom list');
+    $title = __('Add New Custom List');
     $action = 'add';
     $submit_text = __('Add List');
     $newcount=4;

@@ -253,8 +253,6 @@ class i18n_Compiler extends Module {
             );
         }
 
-        list($code, $zip) = $this->_request("download/$lang.zip");
-
         // Include a manifest
         include_once INCLUDE_DIR . 'class.mailfetch.php';
 
