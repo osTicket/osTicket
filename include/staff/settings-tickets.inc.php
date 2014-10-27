@@ -268,14 +268,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <div class="error"><?php echo $errors['max_file_size']; ?></div>
             </td>
         </tr>
-        <tr>
-            <td width="180"><?php echo __('Ticket Response Files');?>:</td>
-            <td>
-                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?>>
-                <?php echo __('Email attachments to the user'); ?>
-                <i class="help-tip icon-question-sign" href="#ticket_response_files"></i>
-            </td>
-        </tr>
         <?php if (($bks = FileStorageBackend::allRegistered())
                 && count($bks) > 1) { ?>
         <tr>

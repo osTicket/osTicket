@@ -962,7 +962,6 @@ class OsticketConfig extends Config {
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'max_file_size'=>$vars['max_file_size'],
-            'email_attachments'=>isset($vars['email_attachments'])?1:0,
         ));
     }
 
@@ -996,6 +995,7 @@ class OsticketConfig extends Config {
             'accept_unregistered_email'=>isset($vars['accept_unregistered_email'])?1:0,
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
+            'email_attachments'=>isset($vars['email_attachments'])?1:0,
          ));
     }
 
