@@ -950,16 +950,22 @@ class ChoiceField extends FormField {
         else
             $array = $value;
         $config = $this->getConfiguration();
-        if (is_array($array) && !$config['multiselect'] && count($array) < 2) {
-            reset($array);
-            return key($array);
+        if (!$config['multiselect']) {
+            if (is_array($array) && count($array) < 2) {
+                reset($array);
+                return key($array);
+            }
+            if (is_string($array) && strpos($array, ',') !== false) {
+                list($array,) = explode(',', $array, 2);
+            }
         }
         return $array;
     }
 
     function toString($value) {
         $selection = $this->getChoice($value);
-        return is_array($selection) ? implode(', ', array_filter($selection))
+        return is_array($selection)
+            ? (implode(', ', array_filter($selection)) ?: $value)
             : (string) $selection;
     }
 
