@@ -1122,9 +1122,15 @@ class SelectionField extends FormField {
     }
 
     function to_php($value, $id=false) {
-        $value = ($value && !is_array($value))
-            ? JsonDataParser::parse($value) : $value;
+        if (is_string($value))
+            $value = JsonDataParser::parse($value) ?: $value;
+
         if (!is_array($value)) {
+            $config = $this->getConfiguration();
+            if (!$config['multiselect']) {
+                // CDATA may be built with comma-list
+                list($value,) = explode(',', $value, 2);
+            }
             $choices = $this->getChoices();
             if (isset($choices[$value]))
                 $value = array($value => $choices[$value]);
