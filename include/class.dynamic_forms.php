@@ -1127,7 +1127,9 @@ class SelectionField extends FormField {
         if (!is_array($value)) {
             $choices = $this->getChoices();
             if (isset($choices[$value]))
-                $value = $choices[$value];
+                $value = array($value => $choices[$value]);
+            elseif ($id && isset($choices[$id]))
+                $value = array($id => $choices[$id]);
         }
         // Don't set the ID here as multiselect prevents using exactly one
         // ID value. Instead, stick with the JSON value only.
