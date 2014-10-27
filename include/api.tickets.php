@@ -118,9 +118,9 @@ class TicketApiController extends ApiController {
     function createTicket($data) {
 
         # Pull off some meta-data
-        $alert = $data['alert'] ? $data['alert'] : true;
-        $autorespond = $data['autorespond'] ? $data['autorespond'] : true;
-        $data['source'] = $data['source'] ? $data['source'] : 'API';
+        $alert          = array_key_exists('alert',       $data) ? $data['alert']       : true;
+        $autorespond    = array_key_exists('autorespond', $data) ? $data['autorespond'] : true;
+        $data['source'] = array_key_exists('source',      $data) ? $data['source']      : 'API';
 
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
