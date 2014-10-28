@@ -33,6 +33,10 @@ $extensions = array(
             'name' => 'phar',
             'desc' => __('Highly recommended for plugins and language packs')
             ),
+        'fileinfo' => array(
+            'name' => 'fileinfo',
+            'desc' => __('Used to detect file types for uploads')
+            ),
         );
 
 ?>
