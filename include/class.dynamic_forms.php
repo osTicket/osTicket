@@ -1126,16 +1126,18 @@ class SelectionField extends FormField {
             $value = JsonDataParser::parse($value) ?: $value;
 
         if (!is_array($value)) {
-            $config = $this->getConfiguration();
-            if (!$config['multiselect']) {
-                // CDATA may be built with comma-list
-                list($value,) = explode(',', $value, 2);
-            }
+            $values = array();
             $choices = $this->getChoices();
-            if (isset($choices[$value]))
-                $value = array($value => $choices[$value]);
-            elseif ($id && isset($choices[$id]))
-                $value = array($id => $choices[$id]);
+            foreach (explode(',', $value) as $V) {
+                if (isset($choices[$V]))
+                    $values[$V] = $choices[$V];
+            }
+            if ($id && isset($choices[$id]))
+                $values[$id] = $choices[$id];
+
+            if ($values)
+                return $values;
+            // else return $value unchanged
         }
         // Don't set the ID here as multiselect prevents using exactly one
         // ID value. Instead, stick with the JSON value only.
@@ -1251,13 +1253,6 @@ class SelectionField extends FormField {
             $selection[] = $choices[$this->get('default')];
 
         return $selection;
-    }
-
-    function export($value) {
-        if ($value && is_numeric($value)
-                && ($item = DynamicListItem::lookup($value)))
-            return $item->toString();
-        return $value;
     }
 
     function getFilterData() {

@@ -946,27 +946,33 @@ class ChoiceField extends FormField {
 
     function to_php($value) {
         if (is_string($value))
-            $array = JsonDataParser::parse($value) ?: $value;
-        else
-            $array = $value;
-        $config = $this->getConfiguration();
-        if (!$config['multiselect']) {
-            if (is_array($array) && count($array) < 2) {
-                reset($array);
-                return key($array);
+            $value = JsonDataParser::parse($value) ?: $value;
+
+        // CDATA table may be built with comma-separated key,value,key,value
+        if (is_string($value)) {
+            $values = array();
+            $choices = $this->getChoices();
+            foreach (explode(',', $value) as $V) {
+                if (isset($choices[$V]))
+                    $values[$V] = $choices[$V];
             }
-            if (is_string($array) && strpos($array, ',') !== false) {
-                list($array,) = explode(',', $array, 2);
-            }
+            if (array_filter($values))
+                $value = $values;
         }
-        return $array;
+        $config = $this->getConfiguration();
+        if (!$config['multiselect'] && is_array($value) && count($value) < 2) {
+            reset($value);
+            return key($value);
+        }
+        return $value;
     }
 
     function toString($value) {
-        $selection = $this->getChoice($value);
-        return is_array($selection)
-            ? (implode(', ', array_filter($selection)) ?: $value)
-            : (string) $selection;
+        if (!is_array($value))
+            $value = $this->getChoice($value);
+        if (is_array($value))
+            return implode(', ', $value);
+        return (string) $value;
     }
 
     function getChoice($value) {
