@@ -40,7 +40,8 @@ class Thread {
         $sql = 'SELECT ticket.ticket_id as id '
             .' ,(SELECT COUNT(DISTINCT attach.attach_id) '
                 .' FROM '.TICKET_ATTACHMENT_TABLE.' attach '
-                .' WHERE ticket.ticket_id=attach.ticket_id) AS attachments '
+                .' WHERE ticket.ticket_id=attach.ticket_id '
+                .') AS attachments '
             .' ,(SELECT COUNT(DISTINCT message.id) '
                 .' FROM '.TICKET_THREAD_TABLE.' message '
                 .' WHERE ticket.ticket_id=message.ticket_id AND message.thread_type = "M" '
@@ -52,7 +53,7 @@ class Thread {
             .' ,(SELECT COUNT(DISTINCT note.id) '
                 .' FROM '.TICKET_THREAD_TABLE.' note '
                 .' WHERE ticket.ticket_id=note.ticket_id AND note.thread_type = "N" '
-                .' ) AS note '
+                .' ) AS notes '
             .' FROM '.TICKET_TABLE.' ticket '
             .' WHERE ticket.ticket_id='.db_input($this->getTicketId());
 
