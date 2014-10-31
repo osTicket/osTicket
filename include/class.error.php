@@ -27,7 +27,7 @@ class Error extends Exception {
         parent::__construct(__($message));
         $message = str_replace(ROOT_DIR, '(root)/', _S($message));
 
-        if ($ost->getConfig()->getLogLevel() == 3)
+        if ($ost && $ost->getConfig()->getLogLevel() == 3)
             $message .= "\n\n" . $this->getBacktrace();
 
         $ost->logError($this->getTitle(), $message, static::$sendAlert);
