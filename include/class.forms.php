@@ -1835,7 +1835,7 @@ class ChoicesWidget extends Widget {
         }
 
         $values = $this->value;
-        if (!is_array($values) && $values) {
+        if (!is_array($values) && isset($values)) {
             $values = array($values => $this->field->getChoice($values));
         }
 
