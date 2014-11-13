@@ -20,6 +20,10 @@ class Dept extends VerySimpleModel {
         'table' => DEPT_TABLE,
         'pk' => array('id'),
         'joins' => array(
+            'parent' => array(
+                'constraint' => array('dept_pid' => 'Dept.id'),
+                'null' => true,
+            ),
             'email' => array(
                 'constraint' => array('email_id' => 'EmailModel.email_id'),
                 'null' => true,
@@ -88,6 +92,10 @@ class Dept extends VerySimpleModel {
 
     function getTranslateTag($subtag='name') {
         return _H(sprintf('dept.%s.%s', $subtag, $this->getId()));
+    }
+
+    function getFullName() {
+        return self::getNameById($this->getId());
     }
 
     function getEmailId() {
@@ -344,6 +352,34 @@ class Dept extends VerySimpleModel {
         return $this->getName();
     }
 
+    function getParent() {
+        return static::lookup($this->ht['dept_pid']);
+    }
+
+    /**
+     * getFullPath
+     *
+     * Utility function to retrieve a '/' separated list of department IDs
+     * in the ancestry of this department. This is used to populate the
+     * `path` field in the database and is used for access control rather
+     * than the ID field since nesting of departments is necessary and
+     * department access can be cascaded.
+     *
+     * Returns:
+     * Slash-separated string of ID ancestry of this department. The string
+     * always starts and ends with a slash, and will always contain the ID
+     * of this department last.
+     */
+    function getFullPath() {
+        $path = '';
+        if ($p = $this->getParent())
+            $path .= $p->getFullPath();
+        else
+            $path .= '/';
+        $path .= $this->getId() . '/';
+        return $path;
+    }
+
     /*----Static functions-------*/
 	static function getIdByName($name) {
         $row = static::objects()
@@ -355,11 +391,8 @@ class Dept extends VerySimpleModel {
     }
 
     function getNameById($id) {
-
-        if($id && ($dept=static::lookup($id)))
-            $name= $dept->getName();
-
-        return $name;
+        $names = static::getDepartments();
+        return $names[$id];
     }
 
     function getDefaultDeptName() {
@@ -367,10 +400,11 @@ class Dept extends VerySimpleModel {
         return ($cfg && $cfg->getDefaultDeptId() && ($name=Dept::getNameById($cfg->getDefaultDeptId())))?$name:null;
     }
 
-    static function getDepartments( $criteria=null) {
+    static function getDepartments( $criteria=null, $localize=true) {
         static $depts = null;
 
         if (!isset($depts) || $criteria) {
+            // XXX: This will upset the static $depts array
             $depts = array();
             $query = self::objects();
             if (isset($criteria['publiconly']))
@@ -382,17 +416,39 @@ class Dept extends VerySimpleModel {
                             'manager_id' => is_object($manager)?$manager->getId():$manager));
 
             $query->order_by('name')
-                ->values_flat('id', 'name');
+                ->values('id', 'dept_pid', 'name', 'parent');
 
-            $names = array();
             foreach ($query as $row)
-                $names[$row[0]] = $row[1];
+                $depts[$row['id']] = $row;
 
-            // Fetch local names
-            foreach (CustomDataTranslation::getDepartmentNames(array_keys($names)) as $id=>$name) {
-                // Translate the department
-                $names[$id] = $name;
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("dept.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
+
+            // Resolve parent names
+            $names = array();
+            foreach ($depts as $id=>$info) {
+                $name = $info['name'];
+                $loop = array($id=>true);
+                $parent = false;
+                while ($info['dept_pid'] && ($info = $depts[$info['dept_pid']])) {
+                    $name = sprintf('%s / %s', $info['name'], $name);
+                    if (isset($loop[$info['dept_pid']]))
+                        break;
+                    $loop[$info['dept_pid']] = true;
+                    $parent = $info;
+                }
+                // Fetch local names
+                $names[$id] = $localize_this($id, $name);
             }
+            asort($names);
+
+            // TODO: Use locale-aware sorting mechanism
 
             if ($criteria)
                 return $names;
@@ -448,9 +504,13 @@ class Dept extends VerySimpleModel {
         if (!$vars['ispublic'] && $cfg && ($vars['id']==$cfg->getDefaultDeptId()))
             $errors['ispublic']=__('System default department cannot be private');
 
+        if ($vars['dept_pid'] && !($p = static::lookup($vars['dept_pid'])))
+            $errors['dept_pid'] = __('Department selection is required');
+
         if ($errors)
             return false;
 
+        $this->dept_pid = $vars['dept_pid'];
         $this->updated = SqlFunction::NOW();
         $this->ispublic = isset($vars['ispublic'])?$vars['ispublic']:0;
         $this->email_id = isset($vars['email_id'])?$vars['email_id']:0;

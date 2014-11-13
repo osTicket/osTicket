@@ -52,6 +52,23 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     </thead>
     <tbody>
         <tr>
+            <td width="180">
+                <?php echo __('Parent');?>:
+            </td>
+            <td>
+                <select name="dept_pid">
+                    <option value="">&mdash; <?php echo __('Top-Level Deptartment'); ?> &mdash;</option>
+<?php foreach (Dept::getDepartments() as $id=>$name) {
+    if ($info['dept_id'] && $id == $info['dept_id'])
+        continue; ?>
+                    <option value="<?php echo $id; ?>" <?php
+                    if ($info['dept_pid'] == $id) echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+<?php } ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
             <td width="180" class="required">
                 <?php echo __('Name');?>:
             </td>
