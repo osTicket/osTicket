@@ -100,7 +100,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
                   <?php echo $default? 'disabled="disabled"' : ''; ?> >
                 </td>
                 <td><a href="departments.php?id=<?php echo $id; ?>"><?php
-                echo $dept->getName(); ?></a>&nbsp;<?php echo $default; ?></td>
+                echo Dept::getNameById($id); ?></a>&nbsp;<?php echo $default; ?></td>
                 <td><?php echo $dept->isPublic() ? __('Public') :'<b>'.__('Private').'</b>'; ?></td>
                 <td>&nbsp;&nbsp;
                     <b>

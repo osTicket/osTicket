@@ -1,6 +1,6 @@
 /**
  * @version v1.9.6
- * @signature e675900fdac39ec981a8d65fc82907b7
+ * @signature e7a338f95ed622678123386a8a59dfc0
  * @title Add support for ticket tasks
  *
  * This patch adds ability to thread anything and introduces tasks
@@ -110,7 +110,14 @@ UPDATE `%TABLE_PREFIX%config`
     SET `key` = 'ticket_sequence_id'
     WHERE `key` = 'sequence_id'  AND `namespace` = 'core';
 
+ALTER TABLE `%TABLE_PREFIX%department`
+  ADD `pid` int(11) unsigned default NULL AFTER `id`,
+  ADD `path` varchar(128) NOT NULL default '/' AFTER `message_auto_response`;
+
+UPDATE `%TABLE_PREFIX%department`
+  SET `path` = CONCAT('/', id, '/');
+
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = 'e675900fdac39ec981a8d65fc82907b7'
+    SET `value` = 'e7a338f95ed622678123386a8a59dfc0'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

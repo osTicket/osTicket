@@ -1032,29 +1032,6 @@ class CustomDataTranslation extends VerySimpleModel {
 
         return static::objects()->filter($criteria)->all();
     }
-
-    static function getDepartmentNames($ids) {
-        global $cfg;
-
-        $tags = array();
-        $names = array();
-        foreach ($ids as $i)
-            $tags[_H('dept.name.'.$i)] = $i;
-
-        if (($lang = Internationalization::getCurrentLanguage())
-            && $lang != $cfg->getPrimaryLanguage()
-        ) {
-            foreach (CustomDataTranslation::objects()->filter(array(
-                'object_hash__in'=>array_keys($tags),
-                'lang'=>$lang
-                )) as $translation
-            ) {
-                $names[$tags[$translation->object_hash]] = $translation->text;
-            }
-        }
-        return $names;
-    }
-
 }
 
 class CustomTextDomain {

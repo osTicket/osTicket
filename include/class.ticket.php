@@ -487,7 +487,7 @@ class Ticket {
     function getDeptName() {
 
         if(!$this->ht['dept_name'] && ($dept = $this->getDept()))
-            $this->ht['dept_name'] = $dept->getName();
+            $this->ht['dept_name'] = $dept->getFullName();
 
        return $this->ht['dept_name'];
     }

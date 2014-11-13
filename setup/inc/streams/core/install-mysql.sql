@@ -200,6 +200,7 @@ CREATE TABLE `%TABLE_PREFIX%list_items` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%department`;
 CREATE TABLE `%TABLE_PREFIX%department` (
   `id` int(11) unsigned NOT NULL auto_increment,
+  `pid` int(11) unsigned default NULL,
   `tpl_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
@@ -211,6 +212,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   `group_membership` tinyint(1) NOT NULL default '0',
   `ticket_auto_response` tinyint(1) NOT NULL default '1',
   `message_auto_response` tinyint(1) NOT NULL default '0',
+  `path` varchar(128) NOT NULL default '/',
   `updated` datetime NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
