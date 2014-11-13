@@ -64,7 +64,7 @@ class Ticket {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT  ticket.*, lock_id, dept_name '
+        $sql='SELECT  ticket.*, lock_id '
             .' ,IF(sla.id IS NULL, NULL, '
                 .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(distinct attach.attach_id) as attachments'
@@ -340,7 +340,7 @@ class Ticket {
     function getDeptName() {
 
         if(!$this->ht['dept_name'] && ($dept = $this->getDept()))
-            $this->ht['dept_name'] = $dept->getName();
+            $this->ht['dept_name'] = $dept->getFullName();
 
        return $this->ht['dept_name'];
     }

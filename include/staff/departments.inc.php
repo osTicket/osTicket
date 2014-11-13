@@ -90,7 +90,7 @@ else
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['dept_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?> >
                 </td>
-                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['dept_name']; ?></a>&nbsp;<?php echo $default; ?></td>
+                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo Dept::getNameById($row['dept_id']); ?></a>&nbsp;<?php echo $default; ?></td>
                 <td><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
                 <td>&nbsp;&nbsp;
                     <b>
