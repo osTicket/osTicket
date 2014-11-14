@@ -629,3 +629,113 @@ Signal::connect('system.install',
         array('MysqlSearchBackend', '__init'));
 
 MysqlSearchBackend::register();
+
+// Advanced search special fields
+
+class HelpTopicChoiceField extends ChoiceField {
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices() {
+        return Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+    }
+}
+
+require_once INCLUDE_DIR . 'class.dept.php';
+class DepartmentChoiceField extends ChoiceField {
+    function getChoices() {
+        return Dept::getDepartments();
+    }
+
+    function getSearchMethods() {
+        return array(
+            'is' =>   __('is'),
+            'isnot' =>   __('is not'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'is' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+            'isnot' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
+}
+
+class AssigneeChoiceField extends ChoiceField {
+    function getChoices() {
+        $items = array(
+            'me' => __('Me'),
+            'myteam' => __('One of my teams'),
+        );
+        foreach (Staff::getStaffMembers() as $id=>$name) {
+            $items['s' . $id] = $name;
+        }
+        foreach (Team::getTeams() as $id=>$name) {
+            $items['t' . $id] = $name;
+        }
+        return $items;
+    }
+
+    function getSearchMethods() {
+        return array(
+            'assigned' => __('assigned'),
+            'assigned.not' => __('unassigned'),
+            'is' =>     __('is'),
+            'isnot' => __('is not'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'assigned' => null,
+            'assigned.not' => null,
+            'is' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+            'isnot' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
+}
+
+class TicketStatusChoiceField extends SelectionField {
+    static $widget = 'ChoicesWidget';
+
+    function getList() {
+        return new TicketStatusList(
+            DynamicList::lookup(
+                array('type' => 'ticket-status'))
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'is' =>     __('is'),
+            'isnot' => __('is not'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'is' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+            'isnot' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
+}

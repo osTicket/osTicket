@@ -275,6 +275,20 @@ class TicketsAjaxAPI extends AjaxController {
         return $this->json_encode($result);
     }
 
+    function getAdvancedSearchDialog() {
+        global $cfg, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+
+        include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+    }
+
+    function doSearch() {
+        $tickets = self::_search($_POST);
+        $result = array();
+    }
+
     function acquireLock($tid) {
         global $cfg,$thisstaff;
 

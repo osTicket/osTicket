@@ -316,7 +316,9 @@ if ($results) {
             <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
-            <td>&nbsp;&nbsp;<a href="#" id="go-advanced">[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
+            <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
+                $.dialog('ajax.php/tickets/advanced-search', 201);"
+                >[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
         </tr>
     </table>
     </form>
@@ -535,142 +537,6 @@ if ($results) {
         </span>
      </p>
     <div class="clear"></div>
-</div>
-
-<div class="dialog" style="display:none;" id="advanced-search">
-    <h3><?php echo __('Advanced Ticket Search');?></h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
-    <hr/>
-    <form action="tickets.php" method="post" id="search" name="search">
-        <input type="hidden" name="a" value="search">
-        <fieldset class="query">
-            <input type="input" id="query" name="query" size="20" placeholder="<?php echo __('Keywords') . ' &mdash; ' . __('Optional'); ?>">
-        </fieldset>
-        <fieldset class="span6">
-            <label for="statusId"><?php echo __('Statuses');?>:</label>
-            <select id="statusId" name="statusId">
-                 <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
-                <?php
-                foreach (TicketStatusList::getStatuses(
-                            array('states' => array('open', 'closed'))) as $s) {
-                    echo sprintf('<option data-state="%s" value="%d">%s</option>',
-                            $s->getState(), $s->getId(), __($s->getName()));
-                }
-                ?>
-            </select>
-        </fieldset>
-        <fieldset class="span6">
-            <label for="deptId"><?php echo __('Departments');?>:</label>
-            <select id="deptId" name="deptId">
-                <option value="">&mdash; <?php echo __('All Departments');?> &mdash;</option>
-                <?php
-                if(($mydepts = $thisstaff->getDepts()) && ($depts=Dept::getDepartments())) {
-                    foreach($depts as $id =>$name) {
-                        if(!in_array($id, $mydepts)) continue;
-                        echo sprintf('<option value="%d">%s</option>', $id, $name);
-                    }
-                }
-                ?>
-            </select>
-        </fieldset>
-        <fieldset class="span6">
-            <label for="flag"><?php echo __('Flags');?>:</label>
-            <select id="flag" name="flag">
-                 <option value="">&mdash; <?php echo __('Any Flags');?> &mdash;</option>
-                 <?php
-                 if (!$cfg->showAnsweredTickets()) { ?>
-                 <option data-state="open" value="answered"><?php echo __('Answered');?></option>
-                 <?php
-                 } ?>
-                 <option data-state="open" value="overdue"><?php echo __('Overdue');?></option>
-            </select>
-        </fieldset>
-        <fieldset class="owner span6">
-            <label for="assignee"><?php echo __('Assigned To');?>:</label>
-            <select id="assignee" name="assignee">
-                <option value="">&mdash; <?php echo __('Anyone');?> &mdash;</option>
-                <option value="0">&mdash; <?php echo __('Unassigned');?> &mdash;</option>
-                <option value="s<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
-                <?php
-                if(($users=Staff::getStaffMembers())) {
-                    echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'),count($users)).'">';
-                    foreach($users as $id => $name) {
-                        $k="s$id";
-                        echo sprintf('<option value="%s">%s</option>', $k, $name);
-                    }
-                    echo '</OPTGROUP>';
-                }
-
-                if(($teams=Team::getTeams())) {
-                    echo '<OPTGROUP label="'.__('Teams').' ('.count($teams).')">';
-                    foreach($teams as $id => $name) {
-                        $k="t$id";
-                        echo sprintf('<option value="%s">%s</option>', $k, $name);
-                    }
-                    echo '</OPTGROUP>';
-                }
-                ?>
-            </select>
-        </fieldset>
-        <fieldset class="span6">
-            <label for="topicId"><?php echo __('Help Topics');?>:</label>
-            <select id="topicId" name="topicId">
-                <option value="" selected >&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
-                <?php
-                if($topics=Topic::getHelpTopics()) {
-                    foreach($topics as $id =>$name)
-                        echo sprintf('<option value="%d" >%s</option>', $id, $name);
-                }
-                ?>
-            </select>
-        </fieldset>
-        <fieldset class="owner span6">
-            <label for="staffId"><?php echo __('Closed By');?>:</label>
-            <select id="staffId" name="staffId">
-                <option value="0">&mdash; <?php echo __('Anyone');?> &mdash;</option>
-                <option value="<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
-                <?php
-                if(($users=Staff::getStaffMembers())) {
-                    foreach($users as $id => $name)
-                        echo sprintf('<option value="%d">%s</option>', $id, $name);
-                }
-                ?>
-            </select>
-        </fieldset>
-        <fieldset class="date_range">
-            <label><?php echo __('Date Range').' &mdash; '.__('Create Date');?>:</label>
-            <input class="dp" type="input" size="20" name="startDate">
-            <span class="between"><?php echo __('TO');?></span>
-            <input class="dp" type="input" size="20" name="endDate">
-        </fieldset>
-        <?php
-        $tform = TicketForm::objects()->one();
-        echo $tform->getForm()->getMedia();
-        foreach ($tform->getInstance()->getFields() as $f) {
-            if (!$f->hasData())
-                continue;
-            elseif (!$f->getImpl()->hasSpecialSearch())
-                continue;
-            ?><fieldset class="span6">
-            <label><?php echo $f->getLabel(); ?>:</label><div><?php
-                     $f->render('search'); ?></div>
-            </fieldset>
-        <?php } ?>
-        <hr/>
-        <div id="result-count" class="clear"></div>
-        <p>
-            <span class="buttons pull-right">
-                <input type="submit" value="<?php echo __('Search');?>">
-            </span>
-            <span class="buttons pull-left">
-                <input type="reset" value="<?php echo __('Reset');?>">
-                <input type="button" value="<?php echo __('Cancel');?>" class="close">
-            </span>
-            <span class="spinner">
-                <img src="./images/ajax-loader.gif" width="16" height="16">
-            </span>
-        </p>
-    </form>
 </div>
 <script type="text/javascript">
 $(function() {

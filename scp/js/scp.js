@@ -338,25 +338,11 @@ var scp_prep = function() {
         return false;
     });
 
-    /* advanced search */
-    $('.dialog#advanced-search').css({
-        top  : ($(window).height() / 6),
-        left : ($(window).width() / 2 - 300)
-    });
-
     /* loading ... */
     $("#loading").css({
         top  : ($(window).height() / 3),
         left : ($(window).width() - $("#loading").outerWidth()) / 2
     });
-
-    $('#go-advanced').click(function(e) {
-        e.preventDefault();
-        $('#result-count').html('');
-        $.toggleOverlay(true);
-        $('#advanced-search').show();
-    });
-
 
     $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
         switch($(this).children('option:selected').data('state')) {

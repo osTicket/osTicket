@@ -420,8 +420,74 @@ class FormField {
         return $this->toString($this->getClean());
     }
 
+    /**
+     * Fetches a value that represents this content in a consistent,
+     * searchable format. This is used by the search engine system and
+     * backend.
+     */
     function searchable($value) {
         return Format::searchable($this->toString($value));
+    }
+
+    /**
+     * Fetches a list of options for searching. The values returned from
+     * this method are passed to the widget's `::render()` method so that
+     * the widget can be affected by this setting. For instance, date fields
+     * might have a 'between' search option which should trigger rendering
+     * of two date widgets for search results.
+     */
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('has a value'),
+            'set.not' =>    __('does not have a value'),
+            'equal' =>      __('is'),
+            'equal.not' =>  __('is not'),
+            'contains' =>   __('contains'),
+            'match' =>      __('matches'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'set' => null,
+            'set.not' => null,
+            'equal' => array('TextboxField', array()),
+            'equal.not' => array('TextboxField', array()),
+            'contains' => array('TextboxField', array()),
+            'match' => array('TextboxField', array(
+                'validators' => function($self, $v) {
+                    if (false === @preg_match($v, ' '))
+                        $self->addError(__('Cannot compile this regular expression'));
+                })),
+        );
+    }
+
+    function getSearchWidget($method) {
+        $methods = $this->getSearchMethodWidgets();
+        $info = $methods[$method];
+        if (is_array($info)) {
+            $class = $info[0];
+            return new $class($info[1]);
+        }
+        return $info;
+    }
+
+    /**
+     * This is used by the searching system to build a query for the search
+     * engine. The function should return a criteria listing to match
+     * content saved by the field by the `::to_database()` function.
+     */
+    function getSearchCriteria($method, $name, $value) {
+        switch ($method) {
+        case 'search':
+            return array($name => $value);
+        case 'search.set':
+            return array("{$name}__isnull" => false);
+        case 'search.notset':
+            return array("{$name}__isnull" => true);
+        default:
+            throw new Exception('Search method not supported by this field');
+        }
     }
 
     function getLabel() { return $this->get('label'); }
@@ -912,6 +978,20 @@ class BooleanField extends FormField {
     function toString($value) {
         return ($value) ? __('Yes') : __('No');
     }
+
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('checked'),
+            'set.not' =>    __('unchecked'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'set' => null,
+            'set.not' => null,
+        );
+    }
 }
 
 class ChoiceField extends FormField {
@@ -1029,7 +1109,26 @@ class ChoiceField extends FormField {
             }
         }
         return $this->_choices;
-     }
+    }
+
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('has a value'),
+            'set.not' =>    __('does not have a value'),
+            'includes' =>   __('includes'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'set' => null,
+            'set.not' => null,
+            'includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
 }
 
 class DatetimeField extends FormField {
