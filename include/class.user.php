@@ -578,6 +578,11 @@ class User extends UserModel {
         // Delete emails.
         $this->emails->expunge();
 
+        // Drop dynamic data
+        foreach ($this->getDynamicData() as $cd) {
+            $cd->delete();
+        }
+
         // Delete user
         return parent::delete();
     }
