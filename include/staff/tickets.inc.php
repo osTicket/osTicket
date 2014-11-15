@@ -352,11 +352,11 @@ if ($results) {
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
- <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+ <table class="list fixed" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
             <?php if($thisstaff->canManageTickets()) { ?>
-	        <th width="8px">&nbsp;</th>
+	        <th width="12">&nbsp;</th>
             <?php } ?>
 	        <th width="70">
                 <a <?php echo $id_sort; ?> href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
@@ -423,19 +423,19 @@ if ($results) {
                 $lc='';
                 if($showassigned) {
                     if($row['staff_id'])
-                        $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
+                        $lc=sprintf('<span class="truncate Icon staffAssigned">%s</span>',$row['staff'],40);
                     elseif($row['team_id'])
-                        $lc=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
+                        $lc=sprintf('<span class="truncate Icon teamAssigned">%s</span>',$row['team'],40);
                     else
                         $lc=' ';
                 }else{
-                    $lc=Format::truncate($row['dept_name'],40);
+                    $lc=$row['dept_name'];
                 }
                 $tid=$row['number'];
 
-                $subject = Format::truncate($subject_field->display(
+                $subject = $subject_field->display(
                     $subject_field->to_php($row['subject']) ?: $row['subject']
-                ), 40);
+                );
                 $threadcount=$row['thread_count'];
                 if(!strcasecmp($row['state'],'open') && !$row['isanswered'] && !$row['lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
@@ -458,7 +458,9 @@ if ($results) {
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                    href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
+                    style="max-width: 80%; max-width: calc(100% - 86px);"
+                    href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><span class="truncate"
+                    ><?php echo $subject; ?></span></a>
                      <?php
                         if ($threadcount>1)
                             echo "<small>($threadcount)</small>&nbsp;".'<i
@@ -469,8 +471,7 @@ if ($results) {
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <td nowrap>&nbsp;<?php echo Format::htmlchars(
-                        Format::truncate($row['name'], 22, strpos($row['name'], '@'))); ?>&nbsp;</td>
+                <td nowrap><span class="truncate"><?php echo Format::htmlchars($row['name']); ?></span></td>
                 <?php
                 if($search && !$status){
                     $displaystatus=ucfirst($row['status']);

@@ -1956,3 +1956,11 @@ table.custom-info td {
 .required {
     font-weight: bold;
 }
+.truncate {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

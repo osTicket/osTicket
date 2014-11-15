@@ -162,9 +162,9 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
         $defaultDept=Dept::getDefaultDeptName(); //Default public dept.
         while ($row = db_fetch_array($res)) {
             $dept= $row['ispublic']? $row['dept_name'] : $defaultDept;
-            $subject = Format::truncate($subject_field->display(
+            $subject = $subject_field->display(
                 $subject_field->to_php($row['subject']) ?: $row['subject']
-            ), 40);
+            );
             if($row['attachments'])
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
 
@@ -182,9 +182,9 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
                 <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
                 <td>&nbsp;<?php echo $row['status']; ?></td>
                 <td>
-                    <a href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
+                    <a class="truncate" href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
+                <td>&nbsp;<span class="truncate"><?php echo $dept; ?></span></td>
             </tr>
         <?php
         }

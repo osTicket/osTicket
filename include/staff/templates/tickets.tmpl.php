@@ -116,15 +116,15 @@ if ($results) { ?>
 
         $assigned='';
         if ($row['staff_id'])
-            $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
+            $assigned=sprintf('<span class="truncate Icon staffAssigned">%s</span>',$row['staff']);
         elseif ($row['team_id'])
-            $assigned=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
+            $assigned=sprintf('<span class="truncate Icon teamAssigned">%s</span>',$row['team']);
         else
             $assigned=' ';
 
         $status = ucfirst($row['status']);
         $tid=$row['number'];
-        $subject = Format::htmlchars(Format::truncate($row['subject'],40));
+        $subject = Format::htmlchars($row['subject']);
         $threadcount=$row['thread_count'];
         ?>
         <tr id="<?php echo $row['ticket_id']; ?>">
@@ -142,7 +142,8 @@ if ($results) { ?>
                 href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
             <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
             <td><?php echo $status; ?></td>
-            <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+            <td><a class="truncate <?php if ($flag) { ?> Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket<?php } ?>"
+                style="max-width: 80%; max-width: calc(100% - 86px);"
                 href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                  <?php
                     if ($threadcount>1)
@@ -156,7 +157,7 @@ if ($results) { ?>
             </td>
             <?php
             if ($user) { ?>
-            <td><?php echo Format::truncate($row['dept_name'], 40); ?></td>
+            <td><span class="truncate"><?php echo $row['dept_name']; ?></span></td>
             <td>&nbsp;<?php echo $assigned; ?></td>
             <?php
             } else { ?>
