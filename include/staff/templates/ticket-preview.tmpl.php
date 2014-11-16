@@ -158,12 +158,12 @@ if($thisstaff->canAssignTickets())
     $options[]=array('action'=>($ticket->isAssigned()?__('Reassign'):__('Assign')),'url'=>"tickets.php?id=$tid#assign");
 
 if($thisstaff->canTransferTickets())
-    $options[]=array('action'=>'Transfer','url'=>"tickets.php?id=$tid#transfer");
+    $options[]=array('action'=>__('Transfer'),'url'=>"tickets.php?id=$tid#transfer");
 
-$options[]=array('action'=>'Post Note','url'=>"tickets.php?id=$tid#note");
+$options[]=array('action'=>__('Post Note'),'url'=>"tickets.php?id=$tid#note");
 
 if($thisstaff->canEditTickets())
-    $options[]=array('action'=>'Edit Ticket','url'=>"tickets.php?id=$tid&a=edit");
+    $options[]=array('action'=>__('Edit Ticket'),'url'=>"tickets.php?id=$tid&a=edit");
 
 if($options) {
     echo '<ul class="tip_menu">';
