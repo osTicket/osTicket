@@ -910,7 +910,10 @@ Class ThreadEntry {
         $match = array();
         if ($subject
                 && $mailinfo['email']
-                && preg_match("/\b#(\S+)/u", $subject, $match)
+                // Required `#` followed by one or more of
+                //      punctuation (-) then letters, numbers, and symbols
+                // (Try not to match closing punctuation (`]`) in [#12345])
+                && preg_match("/#((\p{P}*[^\p{C}\p{Z}\p{P}]+)+)/u", $subject, $match)
                 //Lookup by ticket number
                 && ($ticket = Ticket::lookupByNumber($match[1]))
                 //Lookup the user using the email address
